@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">অ্যান্ডবাইবেল WebView2 চালু করতে পারেনি, যা বাইবেলের পাঠ প্রদর্শনের জন্য প্রয়োজন। এখান থেকে Microsoft Edge WebView2 Evergreen Runtime ইনস্টল বা মেরামত করুন:\n%1$s\n\nবিস্তারিত লগ ফাইলে আছে:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">WebView2 দিয়ে বাইবেলের পাঠ প্রদর্শনের জন্য অ্যান্ডবাইবেলের Direct3D গ্রাফিক্স প্রয়োজন। বর্তমান গ্রাফিক্স রেন্ডারার হলো %1$s। আপনার গ্রাফিক্স ড্রাইভার ও Direct3D সমর্থন পরীক্ষা করুন।\n\nবিস্তারিত লগ ফাইলে আছে:\n%2$s</string>
+  <string name="desktop_update_setting_title">আপডেট পরীক্ষা করুন</string>
+  <string name="desktop_update_setting_summary">দিনে একবার, github.com থেকে</string>
+  <string name="desktop_update_consent_title">আপডেট পরীক্ষা করবেন?</string>
+  <string name="desktop_update_consent_message">অ্যান্ডবাইবেল দিনে একবার github.com-এ নতুন সংস্করণ আছে কি না দেখতে পারে। GitHub আপনার IP ঠিকানা দেখতে পায়; আর কিছু পাঠানো হয় না। আপনি পরে সেটিংসে এটি পরিবর্তন করতে পারবেন।</string>
+  <string name="desktop_update_consent_yes">আপডেট পরীক্ষা করুন</string>
+  <string name="desktop_update_consent_no">পরীক্ষা করবেন না</string>
+  <string name="desktop_update_available_title">নতুন সংস্করণ পাওয়া যাচ্ছে</string>
+  <string name="desktop_update_available_message">অ্যান্ডবাইবেল %1$s পাওয়া যাচ্ছে। আপনার কাছে %2$s আছে।</string>
+  <string name="desktop_update_download">ডাউনলোড</string>
+  <string name="desktop_update_later">পরে</string>
   <string name="app_name_andbible">এ্যন্ড বাইবেল</string>
   <string name="app_name_short">বাইবেল অধ্যায়ণ</string>
   <string name="app_name_medium">বাইবেল অধ্যায়ণ ( এ্যন্ড বাইবেল) </string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d সমকক্ষ পাওয়া গিয়েছে </string>
   <string name="search_showing_first">অনেক সমক্কষ। প্রথম প্রদর্শণ %d </string>
   <string name="search_bible_section_group_prompt">কোথায় অনুসন্ধান করুন</string>
+  <string name="search_type_prompt">অনুসন্ধানের ধরন</string>
+  <string name="search_show_results">অনুসন্ধানের ফলাফল দেখান</string>
   <string name="search_all_bible">সম্পূর্ণ বাইবেল</string>
   <string name="search_new_testament">নতুন নিয়ম </string>
   <string name="search_old_testament">পুরাতন নিয়ম </string>
@@ -80,6 +94,28 @@
   <string name="search_what">খুঁজুন%s</string>
   <!--Multi-translation search-->
   <string name="search_translations">অনুবাদ</string>
+  <string name="recent_searches">সাম্প্রতিক অনুসন্ধান</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">অনুসন্ধান বন্ধ করুন</string>
+  <string name="search_options">অনুসন্ধান সেটিংস</string>
+  <string name="search_submit">অনুসন্ধান করুন</string>
+  <string name="search_clear">অনুসন্ধানের লেখা মুছুন</string>
+  <string name="search_engine_changed_reindex">অনুসন্ধান ইঞ্জিন আপডেট করা হয়েছে। অনুসন্ধান সূচি আবার তৈরি করতে হবে; এতে কিছুটা সময় লাগতে পারে।</string>
+  <string name="search_unsupported_syntax">এই অনুসন্ধানে এমন সিনট্যাক্স আছে যা সমর্থিত নয়: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">সূচি তৈরি শেষ হলে অনুসন্ধান স্বয়ংক্রিয়ভাবে চলবে।</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s-এ অনুসন্ধান করা যায় না</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">এই নথিতে অনুসন্ধান করা যায় না</string>
+  <string name="search_indexing_notification_title">অনুসন্ধান সূচি তৈরি হচ্ছে</string>
   <string name="choose_translations">অনুবাদ চয়ন করুন…</string>
   <string name="multi_search_results">%2$d অনুবাদে %1$d পদ</string>
   <string name="search_index_not_created">কোনো সূচক নেই</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">রঙ কীভাবে প্রদর্শিত হবে তা নির্বাচন করুন। কালার ই-ইঙ্ক একটি সাদা-কালো ভিত্তি বজায় রাখে কিন্তু বুকমার্কের রঙ, সক্রিয়-উইন্ডো নির্দেশক এবং সহায়ক রেখা রঙে দেখায় — কালার ই-ইঙ্ক স্ক্রিনের জন্য।</string>
   <string name="prefs_display_color_mode_normal">স্বাভাবিক</string>
   <string name="prefs_display_color_mode_bw">সাদা-কালো</string>
+  <string name="prefs_display_color_mode_monochrome">একরঙা</string>
   <string name="prefs_display_color_mode_color_eink">কালার ই-ইঙ্ক</string>
+  <string name="prefs_theme_palette_style_title">থিমের ধরন</string>
+  <string name="prefs_theme_palette_style_summary">ওয়ার্কস্পেসের রঙ থেকে অ্যাপের রঙগুলো কীভাবে তৈরি হবে। শুধু রঙের মোড স্বাভাবিক হলে প্রযোজ্য।</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">টোনাল স্পট (নরম, ধূসর রাখে)</string>
+  <string name="prefs_theme_palette_style_fidelity">ফিডেলিটি (হুবহু রঙ)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">টোনাল স্পট (মূল)</string>
+  <string name="prefs_theme_palette_style_content">কনটেন্ট (রঙের কাছাকাছি)</string>
+  <string name="prefs_theme_palette_style_neutral">নিরপেক্ষ (ম্লান)</string>
+  <string name="prefs_theme_palette_style_monochrome">একরঙা (ধূসর)</string>
+  <string name="prefs_theme_palette_style_vibrant">উজ্জ্বল</string>
+  <string name="prefs_theme_palette_style_expressive">অভিব্যক্তিপূর্ণ</string>
+  <string name="prefs_theme_palette_style_rainbow">রংধনু</string>
+  <string name="prefs_theme_palette_style_fruit_salad">ফ্রুট স্যালাড</string>
   <string name="prefs_eink_settings_cat">ই-ইঙ্ক সেটিংস</string>
   <string name="prefs_eink_display_title">ই-ইঙ্ক বৈশিষ্ট্য</string>
   <string name="prefs_eink_display_summary">ই-ইঙ্ক নির্দিষ্ট বৈশিষ্ট্য সক্ষম করুন (পৃষ্ঠা স্ক্রোল বোতাম, স্ক্রোল সহায়ক রেখা)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">স্ক্রোল করার সময় স্বয়ংক্রিয়ভাবে অধ্যায়গুলিকে পঠিত হিসেবে চিহ্নিত করুন</string>
   <string name="reading_progress_read_count_scale">পঠিত\nসংখ্যা</string>
   <string name="reading_progress_percent_read_scale">পঠিত\nশতাংশ</string>
+  <string name="monochrome_activity_count">কার্যকলাপের সংখ্যা: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">সংখ্যা: %d</string>
+  <string name="monochrome_level">স্তর: %d/4</string>
+  <string name="monochrome_buckets">ধূসর: কিছু নেই; রেখাযুক্ত: আংশিক; ভরাট: পূর্ণ বা সর্বোচ্চ স্তর। সঠিক মানের জন্য একটি আইটেম বেছে নিন।</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">পঠন ইতিহাস</string>
   <string name="reading_progress_history_for">%1$s-এর পঠন অগ্রগতি</string>
@@ -197,6 +253,8 @@
   <string name="workspace_text_options_link_summary">এই ওয়ার্কস্পেসের টেক্সট প্রদর্শন সেটিংস সম্পাদনা করুন</string>
   <string name="global_text_options_link">বৈশ্বিক টেক্সট বিকল্প</string>
   <string name="global_text_options_link_summary">সমস্ত ওয়ার্কস্পেসের জন্য ডিফল্ট টেক্সট প্রদর্শন সেটিংস সম্পাদনা করুন</string>
+  <string name="text_options_inherited_workspace">ওয়ার্কস্পেস</string>
+  <string name="text_options_inherited_global">গ্লোবাল</string>
   <string name="prefs_font_and_colors_title">হরফ ও রং</string>
   <string name="prefs_text_layout_title">টেক্সট লেআউট</string>
   <string name="prefs_strongs_and_morphology_title">স্ট্রং\'স ও রূপবিদ্যা</string>
@@ -276,6 +334,9 @@
   <string name="copy_settings_to_workspace">কর্মস্থান</string>
   <string name="copy_settings_to_window">উইন্ডো %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">বৈশ্বিক ডিফল্ট</string>
+  <string name="copy_settings_to_workspaces">অন্য ওয়ার্কস্পেসে…</string>
+  <string name="copy_settings_to_global_defaults">গ্লোবাল ডিফল্টে…</string>
+  <string name="menu_back">পিছনে</string>
   <string name="change_to_normal">সাধারণ উইন্ডোতে পরিবর্তন করুন</string>
   <string name="window_pin_mode">পিন</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">নিম্নলিখিত ডকুমেন্ট সংগ্রহস্থলের সাথে সংযোগ করতে পারেনি: \n\n %s \n\n </string>
   <string name="failed_downloads_message">নিম্নলিখিত ফাইলগুলি ডাউনলোড করা যায়নি:\n\n %s \n\n</string>
   <string name="cant_delete_document">এই নথি মুছে ফেলা যাবে না.</string>
+  <string name="bad_document_warning">এই নথিতে জানা সমস্যা আছে।</string>
   <!--Install zip file-->
   <string name="install_zip">ফাইল থেকে নথি লোড করুন</string>
   <string name="install_zip_module">বাইবেল মডিউল ইনস্টল করুন</string>
@@ -372,6 +434,11 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="delete_index">অনুসন্ধান সূচক মুছুন</string>
   <string name="about">সম্বন্ধে </string>
   <string name="delete_doc">মুছে ফেলুন %s ?</string>
+  <string name="interrupted_downloads_title">ডাউনলোড বাধাপ্রাপ্ত হয়েছে</string>
+  <string name="interrupted_downloads_message">ডাউনলোড বাধাপ্রাপ্ত হওয়ায় এই নথিগুলো ইনস্টল করা হয়নি:</string>
+  <string name="interrupted_downloads_question">আবার ডাউনলোড করবেন?</string>
+  <string name="download_again">আবার ডাউনলোড করুন</string>
+  <string name="delete_docs_confirm">এই নথিগুলো মুছে ফেলবেন?</string>
   <string name="delete_search_index_doc">%s  এর সূচক মুছুন?</string>
   <!--Verse context menu-->
   <string name="notes">পাদটীকা এবং রেফারেন্স</string>
@@ -392,6 +459,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="assign_labels">লেবেল নিযুক্ত করুন </string>
   <string name="new_item">নতুন </string>
   <string name="label_name_prompt">নাম </string>
+  <string name="new_label_default_name">লেবেল %d</string>
   <string name="label_unlabelled">লেবেল বিহীন</string>
   <string name="add_bookmark1">বুকমার্ক</string>
   <string name="add_bookmark3">নির্বাচন</string>
@@ -444,6 +512,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 ফিরে দেখা</string>
   <string name="forward">অগ্রবর্তী</string>
   <string name="tts_lang_not_available">ভাষা উপলভ্য নয়।</string>
+  <string name="tts_engine_not_available">এই ডিভাইসে টেক্সট-টু-স্পিচ কাজ করছে না। সিস্টেমের টেক্সট-টু-স্পিচ সেটিংসে একটি স্পিচ ইঞ্জিন ইনস্টল ও চালু আছে কি না পরীক্ষা করুন।</string>
+  <string name="tts_audio_focus_denied">অন্য একটি অ্যাপ অডিও ব্যবহার করছে বলে পাঠ শুরু করা যায়নি।</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">কথা বলার গতি </string>
   <string name="speak_and_play_earcons_title">এর জন্য ইয়ারকন শব্দগুলি বলুন এবং খেলুন</string>
@@ -454,6 +524,10 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="speak_bookmarks_menu_title">বুকমার্ক থেকে কথা বলুন</string>
   <string name="speak_advanced_settings">এ্যাডভান্স সেটিংস</string>
   <string name="speak_sleep_timer_title">স্লিপ টাইমার </string>
+  <string name="speak_sleep_timer_minutes">%d মিনিট</string>
+  <string name="speak_sleep_timer_custom">নিজস্ব…</string>
+  <string name="speak_sleep_timer_off">বন্ধ</string>
+  <string name="speak_other_settings">অন্যান্য</string>
   <string name="speak_no_books_available">কথা বলার জন্য কোনও বই নেই</string>
   <string name="speak_general_error">এই বইটির জন্য কথা বলা শুরু করা যায়নি</string>
   <string name="repeat_passage">পুনরাবৃত্তি উত্তরণ</string>
@@ -482,6 +556,11 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="speak_autobookmarking_disabled">অটোবুকমার্কিং অক্ষম!</string>
   <string name="system_speak_settings">সিস্টেম টিটিএস সেটিংস খুলুন</string>
   <string name="auto_assing_labels_help1">এখানে আপনি আপনার তৈরি করা বুকমার্কগুলিতে কোন লেবেলগুলি স্বয়ংক্রিয়ভাবে বরাদ্দ করা হবে তা সামঞ্জস্য করতে পারেন৷</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">এখানে আপনি লেবেল যোগ, সম্পাদনা ও সরাতে পারেন এবং আপনার তৈরি বুকমার্কে কোন লেবেলগুলো স্বয়ংক্রিয়ভাবে যুক্ত হবে তা ঠিক করতে পারেন।\n\nসাম্প্রতিক লেবেল: সম্প্রতি ব্যবহৃত লেবেল।\nঅন্যান্য লেবেল: বাকি সব লেবেল।\n\nশুধু স্বয়ংক্রিয়ভাবে যুক্ত বা প্রিয় লেবেল দেখতে অনুসন্ধান বারের ফিল্টার বিকল্প ব্যবহার করুন।</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">এই সেটিং প্রযোজ্য%s</string>
   <string name="setting_scope_window">এই উইন্ডো</string>
@@ -583,6 +662,9 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="loading_backup">ব্যাকআপ থেকে ডেটাবেস লোড হচ্ছে…</string>
   <string name="backup_success2">আমার নোট, বুকমার্ক, স্টাডি প্যাড, রিডিং প্ল্যান এবং ওয়ার্কস্পেস সফলভাবে ব্যাক আপ করা হয়েছে।</string>
   <string name="backup_modules_success">নির্বাচিত মডিউল সফলভাবে ব্যাক আপ করা হয়েছে৷</string>
+  <string name="backup_modules_conflict">ব্যাকআপ তৈরি হয়নি: %1$s ও %2$s উভয়েই %3$s ফাইলটি আছে, কিন্তু বিষয়বস্তু আলাদা। শুধু একটি বেছে নিয়ে আবার চেষ্টা করুন।</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (সংস্করণ %2$s, ফোল্ডার %3$s)</string>
   <string name="backup_modules_email_subject_2">%s মডিউল ব্যাকআপ</string>
   <string name="backup_modules_email_message_2">আপনার মডিউল ব্যাকআপ সংযুক্ত করা হয়েছে %1$s, যাতে নিম্নলিখিত মডিউলগুলি রয়েছে: %2$s</string>
   <string name="backup_email_subject_2">%s ডাটাবেস ব্যাকআপ</string>
@@ -591,6 +673,9 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="exported_studypads_message">নির্বাচিত স্টাডিপ্যাড সম্পর্কিত বুকমার্ক এবং নোট ধারণকারী আপনার %sডাটাবেস সংযুক্ত করা হয়েছে</string>
   <string name="restore_unsuccessfull">ডাটাবেস পুনরুদ্ধার করা ব্যর্থ হয়েছিল। সম্ভবত আপনি অবৈধ ডাটাবেস ফাইল দিয়েছেন।</string>
   <string name="send_backup_file">একটি ব্যাকআপ ফাইল প্রেরণ করুন</string>
+  <string name="export_destination_title">কোথায় রপ্তানি করবেন?</string>
+  <string name="export_destination_message">রপ্তানি এই ফোনে সংরক্ষণ করুন, অথবা সেয়ার দিয়ে অন্য কোথাও পাঠান।</string>
+  <string name="send_export_file">রপ্তানি ফাইল পাঠান</string>
   <string name="backup_modules_title">ব্যাকআপ নেওয়ার জন্য কোন মডিউলগুলি নির্বাচন করুন</string>
   <string name="install_zip_canceled">মডিউল ইনস্টল বাতিল হয়েছে</string>
   <string name="ask_restore_or_import">এর জন্য ডাটাবেস%s হয় পুনরুদ্ধার করা যেতে পারে (অর্থাৎ বিদ্যমান ডাটাবেস সরানো হয় এবং নির্বাচিত ডাটাবেস লোড করা হয়) অথবা আমদানি করা হয় (নির্বাচিত ডাটাবেস বিদ্যমান ডাটাবেসে আমদানি করা হয়)। আপনি কি করতে চান?</string>
@@ -631,12 +716,25 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="doc_type_book">বই </string>
   <string name="doc_type_map">মানচিত্র</string>
   <string name="doc_type_addons">অ্যাড-অন</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">অন্যান্য</string>
+  <string name="document_type_label">নথির ধরন</string>
   <!--Languages-->
   <string name="lang_default">ডিফল্ট/ ত্রুটি</string>
   <!--General-->
   <string name="okay">ঠিক আছে </string>
   <string name="cancel">বাতিল </string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">পিছনে</string>
+  <string name="settings_editor_close">বন্ধ করুন</string>
+  <string name="settings_editor_apply">প্রয়োগ করুন</string>
   <string name="discard_changes_confirmation">সংরক্ষণ না করা পরিবর্তন বাতিল করবেন?</string>
+  <string name="discard">বাতিল করুন</string>
+  <string name="remove">সরান</string>
+  <string name="overwrite">ওভাররাইট করুন</string>
+  <string name="set_current_day_action">দিন নির্ধারণ করুন</string>
   <string name="yes">হ্যাঁ </string>
   <string name="no">না </string>
   <string name="error">ভুল </string>
@@ -646,6 +744,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="watch_tutorial_video">টিউটোরিয়াল ভিডিও দেখুন (ইংরেজি)</string>
   <string name="verse_not_found">পদ পাওয়া যায়নি </string>
   <!--Errors-->
+  <string name="crash_recovery_continue">চালিয়ে যান</string>
   <string name="report_error">প্রতিবেদন পাঠান </string>
   <string name="error_occurred">একটি ত্রুটি ঘটেছে </string>
   <string name="error_occurred_crash_last_time">শেষবার যখন আপনি অ্যাপ্লিকেশনটি ব্যবহার করেছিলেন, এটি ক্র্যাশ হয়েছিল। বাগ ঠিক করতে আমাদের সাহায্য করার জন্য, আপনি যদি আমাদের একটি বাগ রিপোর্ট পাঠান তাহলে আমরা কৃতজ্ঞ হব।</string>
@@ -656,8 +755,14 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="error_key_not_in_document2">%1$s নথিতে পাওয়া যায়নি %2$s</string>
   <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
   <string name="error_skip">এড়িয়ে যান</string>
+  <string name="debug_test_error">পরীক্ষামূলক ত্রুটি (ডিবাগ বিল্ড)</string>
+  <string name="bug_report_prepare_failed">রিপোর্ট তৈরি বা শেয়ার করা যায়নি। আপনি আবার চেষ্টা করতে পারেন, অথবা আপনার তথ্য সংরক্ষণ করতে ব্যাকআপ ও পুনরুদ্ধার ব্যবহার করুন।</string>
   <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
   <string name="bug_report_email_text">এরপর, ডেভেলপার দলের কাছে রিপোর্ট পাঠাতে অনুগ্রহ করে আপনার পছন্দের ইমেল অ্যাপ্লিকেশন (উদাহরণস্বরূপ Gmail) নির্বাচন করুন।</string>
+  <string name="bug_report_manual_title">রিপোর্ট ইমেইলে পাঠান</string>
+  <string name="bug_report_manual_text_saved">রিপোর্টটি সংরক্ষণ করা হয়েছে:</string>
+  <string name="bug_report_manual_text_unsaved">এই ডিভাইসে কোনো ইমেইল প্রোগ্রাম খোলা যায়নি।\n\nঅনুগ্রহ করে রিপোর্টটি ইমেইলে এই ঠিকানায় পাঠান:</string>
+  <string name="bug_report_copy_address">ঠিকানা কপি করুন</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">পাঠ্যাংশ থেকে বাক্য</string>
   <string name="notification_channel_progress_status">ডকুমেন্টস ডাউনলোড ইত্যাদির জন্য অগ্রগতির স্থিতি বিজ্ঞপ্তি</string>
@@ -681,6 +786,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="search_settings">অনুসন্ধান সেটিংস</string>
   <string name="dismiss">খারিজ করুন </string>
   <string name="workspace_listing_with_current">%s (বর্তমান) </string>
+  <string name="workspace_manage_workspaces">ওয়ার্কস্পেস পরিচালনা করুন…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">এটি বিটা সংস্করণ!</string>
   <string name="beta_notice_content_1">
@@ -728,7 +834,10 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="help_search_title">অনুসন্ধান করুন</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">সার্চ টেক্সটে বিশেষ অক্ষর যেমন *, AND, OR, NOT অন্তর্ভুক্ত থাকতে পারে</string>
+  <string name="help_search_bible">শব্দগুলো কীভাবে মেলানো হবে তা বেছে নিন: সব শব্দ মানে প্রতিটি শব্দ আছে এমন পদ খোঁজে, যেকোনো শব্দ মানে অন্তত একটি শব্দ আছে এমন পদ খোঁজে, আর বাক্যাংশ মানে শব্দগুলো ঐ ক্রমে পাশাপাশি আছে এমন পদ খোঁজে।\n\nঅনুসন্ধানের ভেতরে আপনি ওয়াইল্ডকার্ড হিসেবে * ও ? ব্যবহার করতে পারেন (যেমন bless* মিলবে blessed ও blessing-এর সাথে), AND, OR ও NOT দিয়ে শব্দ যুক্ত করতে পারেন, এবং সরাসরি Strong\'s নম্বর খুঁজতে পারেন (যেমন strong:h0430)।</string>
+  <string name="help_search_epub">শব্দগুলো কীভাবে মেলানো হবে তা বেছে নিন: সব শব্দ মানে প্রতিটি শব্দ আছে এমন অনুচ্ছেদ খোঁজে, যেকোনো শব্দ মানে অন্তত একটি শব্দ আছে এমন অনুচ্ছেদ খোঁজে, আর বাক্যাংশ মানে শব্দগুলো ঐ ক্রমে পাশাপাশি আছে এমন অনুচ্ছেদ খোঁজে।\n\nকাঁচা কোয়েরি সিনট্যাক্স আপনার লেখা অপরিবর্তিত অবস্থায় অনুসন্ধান ইঞ্জিনে পাঠায়, তাই আপনি নিজের কোয়েরি লিখতে পারেন: grace AND faith, grace OR faith, grace NOT faith, হুবহু বাক্যাংশের জন্য \"hope of glory\", bless দিয়ে শুরু হওয়া যেকোনো শব্দ মেলাতে bless*, এবং কাছাকাছি খুঁজতে grace NEAR faith।</string>
   <string name="help_search_details">আরো বিস্তারিত জানার জন্য দেখুন%s.</string>
+  <string name="help_search_syntax">অনুসন্ধানের সিনট্যাক্স</string>
   <string name="help_fts5">FTS5 ফুল-টেক্সট কোয়েরি সিনট্যাক্স</string>
   <string name="help_workspaces_title">কর্মক্ষেত্রগুলি </string>
   <string name="help_workspaces_text">
@@ -749,6 +858,12 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 বাইবেলের নথিগুলি সর্বদা খোলা রাখুন এবং ভাষ্যগুলির মধ্যে দ্রুত স্যুইচ করুন
 আপনি বাইবেল অধ্যয়ন যখন অন্যান্য অতিরিক্ত উপাদান.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">আপনার লাইব্রেরিতে এখনো কোনো নথি নেই। শুরু করতে কিছু যোগ করুন।</string>
+  <string name="welcome_redownload_row_hint">আগে ইনস্টল করা নথি থেকে বেছে নিন</string>
+  <string name="welcome_download_row_hint">অনলাইন ক্যাটালগ দেখুন</string>
+  <string name="welcome_restore_row_hint">বুকমার্ক ও নোটসহ ডাটাবেস ফাইল</string>
+  <string name="welcome_link_website">ওয়েবসাইট</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">আপনি যে ফাইলটি লোড করতে চান সেটি নির্বাচন করতে হবে%s</string>
@@ -764,9 +879,8 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="format_studypads">AndBible ডাটাবেস থেকে স্টাডিপ্যাড (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">বন্ধ করুন </string>
+  <string name="reading_toolbar_options">আরও বিকল্প</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">আমি বুঝেছি</string>
-  <string name="first_time_help_show_next_time">পরের বার আবার প্রদর্শন করুন</string>
   <string name="strongs_mode_title">শক্তিশালী মোড নির্বাচন করুন</string>
   <string name="download_dialog_message">নিম্নলিখিত বইগুলি ডাউনলোড করা যায়নি:</string>
   <string name="journal_description">কাস্টম পাঠ্য এবং বুকমার্ক সহ ব্যবহারকারী-সম্পাদনাযোগ্য স্টাডি প্যাড</string>
@@ -791,6 +905,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="prefs_experimental_features_summary">কোন পরীক্ষামূলক বৈশিষ্ট্যগুলি সক্ষম করতে হবে তা নির্বাচন করুন। এই বৈশিষ্ট্যগুলি এখনও উন্নয়নাধীন এবং পরিবর্তন বা সরিয়ে দেওয়া হতে পারে</string>
   <string name="experimental_feature_bookmark_edit_actions">বুকমার্ক এডিট অ্যাকশন</string>
   <string name="experimental_feature_add_paragraph_break">অনুচ্ছেদ বিরতি বুকমার্ক যোগ করুন</string>
+  <string name="experimental_feature_toolbar_literal_color">পঠন টুলবারের জন্য (থিমের রঙের বদলে) ওয়ার্কস্পেসের হুবহু রঙ ব্যবহার করুন</string>
   <string name="raw_llm_log_title">অপরিশোধিত LLM লগ</string>
   <string name="raw_llm_log_empty">কোনো অপরিশোধিত লগ ডেটা পাওয়া যায়নি</string>
   <string name="raw_llm_log_copied">লগ ক্লিপবোর্ডে কপি হয়েছে</string>
@@ -888,6 +1003,7 @@ Google Play এ এগিয়ে যান</string>
   <string name="display_mode_underline">আন্ডারলাইন</string>
   <string name="display_mode_marker">শুধু মার্কার</string>
   <string name="display_mode_hidden">লুকানো</string>
+  <string name="display_mode_inherit">নির্বাচনের মতোই</string>
   <string name="workspace_override_indicator">এই লেবেলে ওয়ার্কস্পেস-নির্দিষ্ট প্রদর্শন মোড আছে</string>
   <string name="primary_label">প্রাথমিক লেবেল</string>
   <string name="favourite_label">প্রিয় লেবেল</string>
@@ -901,6 +1017,8 @@ Google Play এ এগিয়ে যান</string>
   <string name="book_menu_show_long_book_name">দীর্ঘ বইয়ের নাম দেখান</string>
   <string name="book_menu_show_progress_bars">অগ্রগতি বার দেখান</string>
   <string name="reset_workspace_labels">আপনি কি এই ওয়ার্কস্পেসের জন্য অটো-অ্যাসাইন এবং প্রিয় সেটিংস রিসেট করতে চান?</string>
+  <string name="clear_auto_assign_labels">স্বয়ংক্রিয় লেবেল মুছুন</string>
+  <string name="reset_workspace_auto_assign_labels">আপনি কি এই ওয়ার্কস্পেস থেকে সব স্বয়ংক্রিয় লেবেল সরাতে চান?</string>
   <string name="reset_hide_labels">আপনি কি নির্দিষ্ট লেবেল সেটিংস লুকানোর জন্য সেটিংস রিসেট করতে চান?</string>
   <string name="reorder">পুনরায় অর্ডার করুন</string>
   <string name="system_items">সিস্টেম ক্রিয়াকলাপ</string>
@@ -972,6 +1090,27 @@ Google Play এ এগিয়ে যান</string>
   <string name="instructions_for_translators">অনুবাদকদের জন্য নির্দেশাবলী</string>
   <string name="questions_title">প্রশ্নাবলী?</string>
   <string name="bookmark_style">বুকমার্ক শৈলী</string>
+  <string name="bookmark_style_preview_sample">কারণ ঈশ্বর জগৎকে এমন প্রেম করিলেন</string>
+  <string name="bookmark_style_selection">লেখা নির্বাচনের বুকমার্ক</string>
+  <string name="bookmark_style_whole_verse">সম্পূর্ণ পদের বুকমার্ক</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">সম্পূর্ণ পদের বুকমার্কের জন্য আলাদা স্টাইল ব্যবহার করুন</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">নির্বাচন</string>
+  <string name="bookmark_style_tag_whole_verse">সম্পূর্ণ পদ</string>
+  <string name="bookmark_style_tag_workspace">ওয়ার্কস্পেস</string>
+  <string name="show_style_examples">স্টাইলের উদাহরণ দেখান</string>
+  <string name="labels_search_section">অনুসন্ধান</string>
+  <string name="labels_filter_section">দেখান</string>
+  <string name="labels_filter_auto_assign">শুধু স্বয়ংক্রিয় লেবেল</string>
+  <string name="labels_filter_favourite">শুধু প্রিয় লেবেল</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">এই বুকমার্কে যুক্ত করতে একটি লেবেলে টিক দিন।</string>
+  <string name="manage_labels_help_primary">প্রধান লেবেল। বুকমার্কে এর রঙ ও স্টাইলই দেখানো হয়।</string>
+  <string name="manage_labels_help_autoassign">প্রতিটি নতুন বুকমার্কে এই লেবেল স্বয়ংক্রিয়ভাবে যুক্ত করুন। ফাঁপা বোল্ট মানে বন্ধ।</string>
+  <string name="manage_labels_help_favourite">দ্রুত পেতে লেবেলটি আপনার প্রিয়তে রাখুন।</string>
+  <string name="manage_labels_help_styles">নামের নিচে একটি ছোট উদাহরণ লেবেলের চেহারা দেখায়: লেখা-নির্বাচনের বুকমার্কের জন্য নির্বাচন, সম্পূর্ণ পদের বুকমার্কের জন্য সম্পূর্ণ পদ, আর এই ওয়ার্কস্পেস যে স্টাইল বদলেছে তার জন্য ওয়ার্কস্পেস ট্যাগ। কোনো সাজসজ্জা ছাড়া ধূসর উদাহরণ মানে লেবেলের বুকমার্কগুলো আঁকা হয় না। ⋮ মেনু থেকে উদাহরণগুলো লুকান।</string>
+  <string name="manage_labels_help_reorder">⋮ মেনু থেকে তালিকার ক্রম বদলান।</string>
   <string name="added_to_bookmark">এই বুকমার্কে বরাদ্দ করা হয়েছে৷</string>
   <string name="strongs_links">লিঙ্ক</string>
   <string name="strongs_text_and_links">টেক্সট এবং লিঙ্ক</string>
@@ -1018,6 +1157,7 @@ Google Play এ এগিয়ে যান</string>
   <string name="sync_group_n">গ্রুপ%d</string>
   <string name="disable_sync">সিঙ্ক্রোনাইজ অক্ষম করুন</string>
   <string name="open_in_window">একটি উইন্ডোতে ফলাফল খুলুন</string>
+  <string name="open_result_in_links_window">ফলাফল লিংক উইন্ডোতে খুলুন</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">কাস্টম সংগ্রহস্থল</string>
@@ -1028,7 +1168,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="delete_custom_repository">আপনি কাস্টম সংগ্রহস্থল সরাতে চান%s?</string>
   <string name="custom_repositories_help1">একটি নতুন কাস্টম সংগ্রহস্থল যোগ করতে, টাইপ করুন বা অনুলিপি করুন &amp; এখানে কাস্টম সংগ্রহস্থলের URL পেস্ট করুন।</string>
   <string name="custom_repositories_help2">আপনি কাস্টম সংগ্রহস্থল সম্পর্কে আরও তথ্য পড়তে পারেন%s।</string>
-  <string name="wiki_page">WIKI পাতা</string>
   <string name="custom_repositories_help0">আপনি কাস্টম সংগ্রহস্থল ইনস্টল করে বহিরাগত কাস্টম সংগ্রহস্থল থেকে নথি ইনস্টল করতে পারেন।</string>
   <string name="duplicate_custom_repository">নাম সহ %sসংগ্রহস্থল ইতিমধ্যে বিদ্যমান, অন্য যোগ করতে পারবেন না.</string>
   <string name="packages_dir">প্যাকেজ ডিরেক্টরি (জিপ ফাইল)</string>
@@ -1072,6 +1211,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="reading_progress_new_cycle_confirm">একটি নতুন পঠন চক্র শুরু করবেন? এটি আপনার পূর্ববর্তী চক্রের ডেটা সংরক্ষণ করে নতুন করে অগ্রগতি ট্র্যাক করা শুরু করবে।</string>
   <string name="reading_progress_previous_cycle">পূর্ববর্তী চক্র</string>
   <string name="reading_progress_next_cycle">পরবর্তী চক্র</string>
+  <string name="cloud_merge_data">তথ্য একত্র করুন</string>
   <string name="cloud_fetch_and_restore_initial">ক্লাউড থেকে এই ডিভাইসে কপি করুন</string>
   <string name="cloud_create_new">এই ডিভাইস থেকে ক্লাউডে কপি করুন</string>
   <string name="cloud_disable_sync">বাতিল করুন &amp; সিঙ্ক্রোনাইজেশন অক্ষম করুন</string>
@@ -1085,6 +1225,19 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="sync_adapter_summary">বর্তমান:%s</string>
   <string name="adapters_google_drive">গুগল ড্রাইভ</string>
   <string name="adapters_next_cloud">পরবর্তী ক্লাউড</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV ফোল্ডারের ঠিকানা, যেমন https://nas.local/dav/ বা https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">সিঙ্কের জন্য নিরাপদ https:// ঠিকানা প্রয়োজন।</string>
+  <string name="webdav_certificate_title">সার্ভারের সার্টিফিকেট</string>
+  <string name="webdav_forget_certificate_message">বিশ্বস্ত সার্ভার সার্টিফিকেট ভুলে যাবেন? পরবর্তী সংযোগে আপনাকে আবার সার্টিফিকেট নিশ্চিত করতে বলা হবে।</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">অবিশ্বস্ত সার্ভার সার্টিফিকেট</string>
+  <string name="webdav_untrusted_certificate_message">%1$s-এর সার্টিফিকেট Android বিশ্বাস করে না। এটি চিনলে তবেই বিশ্বাস করুন, যেমন যদি আপনি নিজেই এই সার্ভার সেট আপ করে থাকেন।\n\nবিষয়: %2$s\nপ্রদানকারী: %3$s\nমেয়াদ: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">এই সার্টিফিকেট বিশ্বাস করুন</string>
+  <string name="webdav_wrong_credentials">ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল।</string>
+  <string name="webdav_not_a_folder">ঠিকানাটি কোনো WebDAV ফোল্ডার নয়।</string>
+  <string name="webdav_certificate_changed">সার্ভারের সার্টিফিকেট বদলে গেছে। আপনি নতুন সার্টিফিকেট নিশ্চিত না করা পর্যন্ত সিঙ্ক্রোনাইজেশন বন্ধ থাকবে; অ্যান্ডবাইবেল পরের বার খোলা হলে বা ফোরগ্রাউন্ডে সিঙ্ক করলে সে বিষয়ে জিজ্ঞাসা করবে।</string>
+  <string name="webdav_storage_full">সার্ভারের স্টোরেজ পূর্ণ।</string>
   <string name="auth_server_uri">সার্ভার URL</string>
   <string name="auth_username">ব্যবহারকারীর নাম</string>
   <string name="auth_password">পাসওয়ার্ড</string>
@@ -1094,6 +1247,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="sync_general_settings">তথ্য &amp; সাধারণ সেটিংস</string>
   <string name="sync_introduction">ভূমিকা</string>
   <string name="are_you_sure">আপনি কি নিশ্চিত?</string>
+  <string name="are_you_sure_merge">এই ডিভাইসের তথ্য এবং ক্লাউডের %s উভয়ই রাখা হবে। একই আইটেম দুই জায়গায় বদলানো হলে নতুন পরিবর্তনটি রাখা হবে। এই ডিভাইসের তথ্য আপনার অন্য ডিভাইসগুলোতে পাঠানো হবে।</string>
   <string name="are_you_sure_reset_local">এটি বর্তমানে ক্লাউড পরিষেবাতে সংরক্ষিত সামগ্রীর জন্য %sআপনার স্থানীয় ডাটাবেস রিসেট করবে৷</string>
   <string name="are_you_sure_reset_cloud">এটি আপনার এই ডিভাইসে থাকা সামগ্রীর জন্য%s আপনার ক্লাউড ডেটাবেস রিসেট করবে৷</string>
   <string name="sync_cant_fetch">ক্লাউডে সংরক্ষিত ডাটাবেস বা প্যাচ ফাইলের সংস্করণ এই অ্যাপ দ্বারা সমর্থিত সংস্করণের চেয়ে বেশি।</string>
@@ -1129,6 +1283,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="pref_font_size_multiplier_title">হরফ আকার গুণক</string>
   <string name="pref_font_size_multiplier_summary_1">এই সংখ্যা দিয়ে টেক্সটের হরফ আকার গুণ করুন।</string>
   <string name="pref_font_size_multiplier_summary_2">বড় হরফসহ সিঙ্ক্রোনাইজড ডিভাইস ব্যবহারের জন্য উপযোগী।</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">বর্তমান মান: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">বাম / ডান সোয়াইপ জেসচারের অ্যাকশন</string>
   <string name="prefs_bible_view_swipe_mode_summary">পরবর্তী পৃষ্ঠা / অধ্যায়ে যেতে বাম / ডান সোয়াইপ জেসচার ব্যবহার করা যায়।</string>
@@ -1249,6 +1404,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="prompt_max_iterations_unlimited">সীমাহীন</string>
   <string name="prompt_max_iterations_global_default">বৈশ্বিক ডিফল্ট (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">এই প্রম্পটের জন্য বৈশ্বিক সর্বোচ্চ পুনরাবৃত্তি ওভাররাইড করুন। ০ = সীমাহীন।\nবর্তমান: %s</string>
+  <string name="prompt_max_iterations_use_global">গ্লোবাল সেটিং ব্যবহার করুন (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AI প্রম্পট পরিচালনা করুন</string>
   <string name="manage_prompts_summary">AI প্রম্পট তৈরি ও সম্পাদনা করুন</string>
@@ -1382,6 +1538,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="built_in_prompt_notice">এটি একটি বিল্ট-ইন প্রম্পট এবং সম্পাদনা করা যাবে না। সম্পাদনযোগ্য কপি তৈরি করতে \"কাস্টমাইজ করতে কপি করুন\" ব্যবহার করুন।</string>
   <string name="copy_to_customize">কাস্টমাইজ করতে কপি করুন</string>
   <string name="prompt_copied">প্রম্পট কপি হয়েছে</string>
+  <string name="prompt_copy_failed">প্রম্পট কপি করা যায়নি। এটি মুছে ফেলা হয়ে থাকতে পারে।</string>
   <string name="delete_prompt_confirmation">প্রম্পট \"%s\" মুছবেন?</string>
   <string name="prompt_name_required">প্রম্পটের নাম প্রয়োজন</string>
   <string name="prompt_template_required">প্রম্পট টেমপ্লেট প্রয়োজন</string>
@@ -1589,6 +1746,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="tool_option_default_disabled">ডিফল্ট (অক্ষম)</string>
   <string name="tool_option_default_allowed">ডিফল্ট (অনুমতি আছে)</string>
   <string name="tool_option_default_denied">ডিফল্ট (অস্বীকৃত)</string>
+  <string name="tool_description_info">টুলের বিবরণ দেখান</string>
+  <string name="tool_permission_mixed">মিশ্র</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">মডেল</string>
   <string name="prompt_model_default">ডিফল্ট</string>
@@ -1634,6 +1793,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="my_document_pages_empty">এই নথিতে কোনো পৃষ্ঠা নেই।</string>
   <string name="my_document_page_rename_title">পৃষ্ঠা পুনরায় নামকরণ করুন</string>
   <string name="my_document_page_delete_confirmation">পৃষ্ঠা \"%s\" মুছবেন?</string>
+  <string name="my_document_pages_delete_confirmation">এই পৃষ্ঠাগুলো মুছে ফেলবেন?</string>
+  <string name="my_documents_switch_document">নথি বদলান</string>
   <string name="my_document_new_page_name">পৃষ্ঠা %1$d</string>
   <string name="my_document_create_page_title">নতুন পৃষ্ঠা</string>
   <string name="my_document_content_type_label">বিষয়বস্তুর ধরন</string>
@@ -1730,4 +1891,91 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="document_sync_started">নথিপত্র সিঙ্ক শুরু হয়েছে</string>
   <string name="document_sync_enable_dialog_title">নথিপত্র সিঙ্ক করা শুরু করবেন?</string>
   <string name="document_sync_enable_dialog_nothing">স্থানান্তর করার জন্য এখনও কোনো নথিপত্র নেই। নতুন ইনস্টল করা নথিপত্র স্বয়ংক্রিয়ভাবে সিঙ্ক হবে।</string>
+  <string name="help_document_sync_text">নথি সিঙ্ক আপনার ইনস্টল করা বাইবেল, ব্যাখ্যাগ্রন্থ ও অন্যান্য নথি ক্লাউডে কপি করে এবং আপনার সব ডিভাইসে সেগুলো সিঙ্কে রাখে। ক্লাউডে কী সংরক্ষিত আছে তা দেখতে, আলাদা আলাদা নথি ডাউনলোড বা আপলোড করতে, নথি সরাতে এবং এই ডিভাইসে কী সিঙ্ক হবে তা নিয়ন্ত্রণ করতে এই ভিউ ব্যবহার করুন।</string>
+  <string name="background_image_title">পটভূমির ছবি</string>
+  <string name="background_image_none">কোনো পটভূমি নেই</string>
+  <string name="background_image_import">গ্যালারি থেকে আমদানি করুন…</string>
+  <string name="background_image_empty">এখনো কোনো ছবি আমদানি করা হয়নি। যোগ করতে \"গ্যালারি থেকে আমদানি করুন…\"-এ ট্যাপ করুন।</string>
+  <string name="background_image_importing">আমদানি হচ্ছে…</string>
+  <string name="background_image_delete_title">ছবি মুছবেন?</string>
+  <string name="background_image_delete_confirm">এই পটভূমির ছবিটি মুছবেন? যেসব ওয়ার্কস্পেস এখনো এটি ব্যবহার করছে সেগুলোতে কোনো ছবি থাকবে না।</string>
+  <string name="background_image_day">পটভূমির ছবি (দিন)</string>
+  <string name="background_image_night">পটভূমির ছবি (রাত)</string>
+  <string name="background_image_opacity_day">পটভূমির ছবির অস্বচ্ছতা (দিন)</string>
+  <string name="background_image_opacity_night">পটভূমির ছবির অস্বচ্ছতা (রাত)</string>
+  <string name="background_image_change">বদলান</string>
+  <string name="color_picker_title">একটি রঙ নির্বাচন করুন</string>
+  <string name="color_picker_presets">প্রিসেট</string>
+  <string name="color_picker_custom">নিজস্ব</string>
+  <string name="bookmark_expand_row">সম্পূর্ণ লেখা দেখান</string>
+  <string name="bookmark_collapse_row">কম দেখান</string>
+  <string name="bookmark_label_filter">লেবেল অনুযায়ী ফিল্টার করুন</string>
+  <string name="document_quick_all_documents">সব নথি…</string>
+  <string name="document_quick_tab_recent">সাম্প্রতিক</string>
+  <string name="document_quick_tab_for_verse">এই পদ</string>
+  <string name="document_quick_tab_last_filter">সর্বশেষ ফিল্টার</string>
+  <string name="document_quick_tab_all">সব</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">ফিল্টার ও সাজান</string>
+  <string name="doc_arrange_repository">রিপোজিটরি</string>
+  <string name="doc_arrange_all_repositories">সব রিপোজিটরি</string>
+  <string name="doc_arrange_sort">সাজানোর ক্রম</string>
+  <string name="doc_arrange_group_by">গ্রুপ করুন</string>
+  <string name="doc_arrange_remember">এই সেটিংস মনে রাখুন</string>
+  <string name="doc_arrange_reset">ডিফল্টে ফিরুন</string>
+  <string name="doc_arrange_more_filters">আরও ফিল্টার</string>
+  <string name="doc_arrange_reorder">ক্রম বদলান</string>
+  <string name="doc_sort_ascending">ঊর্ধ্বক্রম</string>
+  <string name="doc_sort_descending">নিম্নক্রম</string>
+  <string name="doc_sort_status">অবস্থা</string>
+  <string name="doc_sort_recommended">প্রস্তাবিত আগে</string>
+  <string name="doc_sort_name">নাম</string>
+  <string name="doc_sort_size">আকার</string>
+  <string name="doc_group_none">গ্রুপ ছাড়া</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">ডাউনলোড হচ্ছে</string>
+  <string name="doc_group_status_update_available">আপডেট পাওয়া যাচ্ছে</string>
+  <string name="doc_group_status_installed">ইনস্টল করা</string>
+  <string name="doc_group_status_not_installed">ইনস্টল করা নেই</string>
+  <string name="prompt_filter_title">প্রম্পট ফিল্টার করুন</string>
+  <string name="prompt_filter_type">ধরন</string>
+  <string name="prompt_type_addon">অ্যাড-অন</string>
+  <string name="prompt_type_user">নিজস্ব</string>
+  <string name="prompt_filter_clear">ফিল্টার মুছুন</string>
+  <string name="prompt_favorite_add">প্রিয়তে যোগ করুন</string>
+  <string name="prompt_favorite_remove">প্রিয় থেকে সরান</string>
+  <string name="window_unmaximise">সব উইন্ডো পুনরুদ্ধার করুন</string>
+  <string name="window_menu_button">উইন্ডো মেনু</string>
+  <string name="paste_from_clipboard">পেস্ট করুন</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">টানার হ্যান্ডেল</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">আপনার তথ্য আপডেট হচ্ছে…</string>
+  <string name="legacy_migration_progress_neutral">আপডেট হচ্ছে…</string>
+  <string name="legacy_migration_failed_title">আপনার তথ্য আপডেট করা যায়নি</string>
+  <string name="legacy_migration_failed_message">অ্যাপের আগের সংস্করণের আপনার তথ্য এই ডিভাইসে নিরাপদ ও অপরিবর্তিত আছে। এরপর কী করবেন তা বেছে নিন।</string>
+  <string name="legacy_migration_failed_keychain">আগের সংস্করণের সংরক্ষিত পাসওয়ার্ড পড়া যায়নি। আপনার ডিভাইস আনলক করুন, তারপর অ্যাপ বন্ধ করে আবার খুলুন।</string>
+  <string name="legacy_migration_rollback_pending">আপডেট বাধাপ্রাপ্ত হয়েছে এবং এখনো পুরোপুরি ফেরানো হয়নি। ফেরানো শেষ করতে অ্যাপ বন্ধ করে আবার খুলুন।</string>
+  <string name="legacy_migration_save_old_data">পুরোনো তথ্য সংরক্ষণ করুন</string>
+  <string name="legacy_migration_send_report">ত্রুটির রিপোর্ট পাঠান</string>
+  <string name="legacy_migration_try_again">আবার চেষ্টা করুন</string>
+  <string name="legacy_migration_try_again_hint">আবার চেষ্টা করতে অ্যাপ বন্ধ করে আবার খুলুন।</string>
+  <string name="legacy_migration_restore_backup">ব্যাকআপ পুনরুদ্ধার করুন</string>
+  <string name="legacy_migration_start_fresh">পুরোনো তথ্য ছাড়া শুরু করুন</string>
+  <string name="legacy_migration_start_fresh_confirm">আপনার পুরোনো তথ্য এই ডিভাইসেই থাকবে। আপনি পরে সেটিংসে এটি আমদানি করতে পারবেন।</string>
+  <string name="legacy_import_title">অ্যাপের আগের সংস্করণ থেকে তথ্য আমদানি করুন</string>
+  <string name="legacy_import_summary">বর্তমান তথ্য অ্যাপের আগের সংস্করণের তথ্য দিয়ে বদলে দিন</string>
+  <string name="legacy_import_confirm">এটি আপনার বর্তমান ওয়ার্কস্পেস, বুকমার্ক ও অন্যান্য তথ্য অ্যাপের আগের সংস্করণের তথ্য দিয়ে বদলে দেবে। আপনার বর্তমান তথ্যের একটি কপি এই ডিভাইসে রাখা হবে।</string>
+  <string name="legacy_import_reopen">আপনার তথ্য আমদানি করতে অ্যাপ বন্ধ করে আবার খুলুন।</string>
+  <string name="legacy_notice_icloud">সিঙ্ক এখন iCloud Drive ব্যবহার করে। সেটিংস → সিঙ্কে গিয়ে এটি আবার চালু করুন। এই ডিভাইসে যা ছিল তা থাকবে; সিঙ্ক আবার সেট আপ হলে আপনার অন্য ডিভাইসের পরিবর্তনগুলো আসবে। পুরোনো iCloud তথ্য মুছে জায়গা খালি করতে: সেটিংস → আপনার নাম → iCloud → স্টোরেজ পরিচালনা → AndBible।</string>
+  <string name="legacy_notice_nextcloud">আপনার Nextcloud সংযোগ রয়ে গেছে, কিন্তু সিঙ্ক বন্ধ আছে। সেটিংস → সিঙ্কে এটি চালু করুন এবং ক্লাউড থেকে আনা বা নতুন তৈরি করা বেছে নিন।</string>
+  <string name="legacy_notice_nextcloud_unsent">এই ডিভাইসের কিছু পরিবর্তন এখনো Nextcloud-এ পাঠানো হয়নি। সেগুলো পাঠানো হয়নি এবং শুধু এই ডিভাইসেই থাকবে।</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">এটি একটি শক্তিশালী অথচ সহজে ব্যবহারযোগ্য অফলাইন বাইবেল অধ্যয়ন অ্যাপ্লিকেশন।</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s-এর সার্টিফিকেট এই ডিভাইস বিশ্বাস করে না। এটি চিনলে তবেই বিশ্বাস করুন, যেমন যদি আপনি নিজেই এই সার্ভার সেট আপ করে থাকেন।\n\nবিষয়: %2$s\nপ্রদানকারী: %3$s\nমেয়াদ: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">কাস্টম রিপোজিটরির জন্য নিরাপদ https:// ঠিকানা ব্যবহার করতে হবে।</string>
+  <string name="custom_repository_https_required_refresh">%1$s একটি http:// ঠিকানা ব্যবহার করে। শুধু https:// রিপোজিটরি ব্যবহার করা যায়।</string>
 </resources>

@@ -156,7 +156,9 @@ experience.
 On iOS, the system Text Size setting scales the app interface independently of
 the document text. To change Bible text size, use the text display settings or
 the **Font size multiplier** below; increasing the system text size does not
-replace those controls.
+replace those controls. At large accessibility text sizes, long dialog titles
+and messages can be scrolled separately so the choices and confirmation buttons
+remain reachable on a phone.
 
 - **Font size multiplier:** A global scaling factor (10%–500%) applied to all
     document text. Useful when you synchronize workspaces across devices with
@@ -269,6 +271,9 @@ including after restoring a database backup.
 - **Colors:** Adjust text color, background color, and background noise
     (a subtle texture overlay on the background). The texture also extends behind
     the window buttons bar, using the same day or night noise setting as the reading area.
+    You can also import a background image and select it separately for day and night
+    mode. Imported images remain available after restarting the app; you do not need
+    to import them again.
 - **Font size:** Set the base text size in points.
 - **Font family:** Change the typeface. Additional fonts can be installed via
     font add-on modules. With the default `sans-serif` setting, a font add-on

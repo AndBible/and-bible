@@ -128,6 +128,8 @@ class ReadingHostCompositionTest {
         controller: ReadingViewController,
         drawerMenu: DrawerMenuState = DrawerMenuState.EMPTY,
         quickSheetContent: @Composable (net.bible.sharedcore.reading.ReadingQuickSheet) -> Unit = {},
+        fullScreen: androidx.compose.runtime.State<Boolean> = mutableStateOf(false),
+        onRailLayoutChanged: (Set<String>, Set<String>?) -> Unit = { _, _ -> },
     ): ReadingHostDeps {
         val icon = ColorPainter(Color.Gray)
         return ReadingHostDeps(
@@ -144,6 +146,8 @@ class ReadingHostCompositionTest {
             },
             drawerMenu = mutableStateOf(drawerMenu),
             quickSheetContent = quickSheetContent,
+            fullScreen = fullScreen,
+            onRailLayoutChanged = onRailLayoutChanged,
         )
     }
 
@@ -152,6 +156,32 @@ class ReadingHostCompositionTest {
         CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
             AbTheme(darkTheme = false) { content() }
         }
+    }
+
+    @Test
+    fun fullscreenRailRemovalNotifiesDocumentHostsAndReleasesTheStrip() = runComposeUiTest {
+        val state = newState()
+        val fullScreen = mutableStateOf(false)
+        val coverage = mutableListOf<Set<String>>()
+        val deps = deps(state, controller("w1", "w2"),
+            fullScreen = fullScreen,
+            onRailLayoutChanged = { covered, _ -> coverage += covered },
+        )
+        setContent {
+            Themed {
+                CompositionLocalProvider(LocalReadingPane provides { _, modifier -> Box(modifier) }) {
+                    ReadingHost(deps)
+                }
+            }
+        }
+        waitForIdle()
+        kotlin.test.assertTrue(coverage.last().isNotEmpty())
+        runOnIdle { fullScreen.value = true }
+        waitForIdle()
+        assertEquals(emptySet(), coverage.last(), "fullscreen hides the rail while restoreButtonsVisible stays true")
+        runOnIdle { fullScreen.value = false }
+        waitForIdle()
+        kotlin.test.assertTrue(coverage.last().isNotEmpty(), "leaving fullscreen restores the strip")
     }
 
     @Test

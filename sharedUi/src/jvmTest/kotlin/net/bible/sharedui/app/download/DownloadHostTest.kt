@@ -8,6 +8,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.sharedui.download.nav.downloadNavGraph
@@ -128,18 +132,33 @@ class DownloadHostTest {
     /** Replaces only network/lifecycle ports; the Welcome and Download navigation and consent policy are production. */
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
     @Test
-    fun advancedWelcomeReachesProductionDownloadConsentBeforeCatalogueWork() {
+    fun advancedWelcomeReachesProductionDownloadConsentBeforeCatalogueWork() = welcomeDownloadJourney(1f)
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+    @Test
+    fun downloadConsentAndCatalogueRemainReachableAtAx5WithoutFinnishLeftovers() = welcomeDownloadJourney(53f / 17f)
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+    private fun welcomeDownloadJourney(fontScale: Float) {
         // The Compose test body (composition, NavHost, lifecycle) runs on the test thread, and androidx.lifecycle's
         // main-thread check asks Dispatchers.Main.immediate whether a dispatch is needed. A separate Main thread
         // therefore always fails that check; an unconfined Main treats the calling (test) thread as main.
         Dispatchers.setMain(UnconfinedTestDispatcher())
         try {
             for (language in listOf("en", "fi")) {
-                runComposeUiTest {
+                androidx.compose.ui.test.v2.runSkikoComposeUiTest(size = androidx.compose.ui.geometry.Size(390f, 844f)) {
                     val settings = IntSettings()
                     val strings = iosStrings(language)
                     val calls = java.util.concurrent.CopyOnWriteArrayList<String>()
                     lateinit var nav: androidx.navigation.NavHostController
+                    lateinit var activeDownload: DownloadHost
+                    fun assertInside(label: String) {
+                        val node = onNodeWithText(label)
+                        node.assertIsDisplayed()
+                        val bounds = node.fetchSemanticsNode().boundsInRoot
+                        kotlin.test.assertTrue(bounds.left >= 0f && bounds.right <= 390f && bounds.top >= 0f && bounds.bottom <= 844f,
+                            "$label must fit in the phone viewport: $bounds")
+                    }
                     setContent {
                         val scope = androidx.compose.runtime.rememberCoroutineScope()
                         nav = androidx.navigation.compose.rememberNavController()
@@ -174,7 +193,8 @@ class DownloadHostTest {
                             }
                         }
                         val download = androidx.compose.runtime.remember {
-                            host(settings, hostShell = shell, uiLanguage = language).navDeps(
+                            activeDownload = host(settings, hostShell = shell, uiLanguage = language)
+                            activeDownload.navDeps(
                                 nav, net.bible.sharedui.nav.NavResultChannel { error("no repository result") },
                                 net.bible.sharedui.download.nav.CloudDocumentsDeps(
                                     controllerFor = { error("cloud route not entered") }, title = "Cloud",
@@ -204,30 +224,40 @@ class DownloadHostTest {
                                 ),
                             )
                         }
-                        androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides strings) {
+                        androidx.compose.runtime.CompositionLocalProvider(
+                            net.bible.sharedui.strings.LocalStrings provides strings,
+                            androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(1f, fontScale),
+                            net.bible.sharedui.components.LocalBarFontScaleCap provides 1.35f,
+                            *net.bible.sharedui.host.app.hostIconLocals(),
+                        ) {
                             net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                                androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.size(390.dp, 844.dp)) {
                                 net.bible.sharedui.components.AbNavHost(nav, startDestination = net.bible.sharedcore.nav.NavRoutes.WELCOME) {
                                     welcomeNavGraph(
                                         net.bible.sharedui.app.welcome.WelcomeHost(shell, platform).navDeps(nav),
                                     )
                                     downloadNavGraph(nav, isolatedDownload)
                                 }
+                                }
                             }
                         }
                     }
                     onNodeWithTag("welcome-easy-start").assertExists()
-                    onNodeWithText(strings.welcomeTabAdvanced).performClick()
+                    onNodeWithText(strings.welcomeTabAdvanced).performScrollTo().performClick()
                     onNodeWithTag("welcome-easy-start").assertDoesNotExist()
                     onNodeWithText(strings.welcomeImportButton).assertExists()
                     onNodeWithText(strings.welcomeRestoreButton).assertExists()
                     onNodeWithText(strings.welcomeHomepageLabel).assertExists()
                     onNodeWithText(strings.welcomeGithubLabel).assertExists()
-                    onNodeWithText(strings.welcomeDownloadButton).performClick()
+                    onNodeWithText(strings.welcomeDownloadButton).performScrollTo().performClick()
                     waitUntil(timeoutMillis = 10_000) {
                         onAllNodesWithText(strings.downloadQuestionTitle).fetchSemanticsNodes().isNotEmpty()
                     }
                     onNodeWithText(strings.downloadQuestionTitle).assertExists()
                     assertEquals(listOf("initialize", "sync"), calls, "network and permissions wait for consent")
+                    assertInside(strings.cancel)
+                    onNodeWithText(strings.yes).performScrollTo()
+                    assertInside(strings.yes)
                     onNodeWithText(strings.yes).performClick()
                     waitUntil(timeoutMillis = 10_000) { "catalogue" in calls }
                     waitForIdle()
@@ -235,7 +265,16 @@ class DownloadHostTest {
                     onNodeWithTag("welcome-screen").assertDoesNotExist()
                     onNodeWithContentDescription(strings.languageLabel).assertExists()
                     onNodeWithText(strings.downloadTitle).assertExists()
+                    runOnIdle {
+                        activeDownload.setDownloadDocuments(listOf(row("Fixture", english)))
+                        activeDownload.downloadControllerFor(DocTypeFilter.ALL).setLanguage(null)
+                    }
+                    onNodeWithContentDescription(strings.languageLabel).assertIsDisplayed()
+                    assertInside("Fixture Fixture")
                     if (language == "fi") {
+                        with(net.bible.sharedui.strings.FinnishChromeAssertions) {
+                            assertNoTranslatedEnglish("download catalogue")
+                        }
                         onAllNodesWithText("Download Documents").fetchSemanticsNodes().let { assertEquals(0, it.size) }
                         onNodeWithContentDescription("Language").assertDoesNotExist()
                     }

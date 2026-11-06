@@ -31,16 +31,15 @@ If you use one of these and something looks wrong, please [report it](#reporting
 - Desktop notifications.
 - Google Drive sync. Use Nextcloud (WebDAV) for synchronising on desktop.
 - Speak (text to speech).
-- Images and styles of EPUB books are not shown.
 - Fonts that come with some modules are not used.
 - The app does not follow the dark mode of your operating system. Choose *Manual* in
   *Application preferences* under *Night mode switching*, and use the *Night mode* menu item to switch.
 
 ## Things to be aware of
 
-- **Close the window normally.** The app saves your reading position when you close it. If the app is
-  killed (for example with the task manager or a power cut), the reading position since the previous save
-  can be lost.
+- **Your reading position is saved on exit.** This includes closing the window and a normal process
+  termination (such as SIGTERM when logging out or shutting down). A forced kill (SIGKILL or *End process*)
+  or a power cut can still lose changes since the previous save.
 - **Phone wording.** Some screens still use words from the phone app. For example *Phone storage* and
   *Application (.APK)* in *Backup & Restore*, and *Keep screen on* and *Volume buttons scroll* in the
   preferences. These options do nothing on desktop.

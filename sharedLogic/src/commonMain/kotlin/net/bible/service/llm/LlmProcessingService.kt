@@ -36,6 +36,7 @@ import kotlin.coroutines.coroutineContext
 
 import net.bible.sharedcore.llm.http.LlmHttpTransport
 import net.bible.sharedcore.llm.http.LlmTimeouts
+import org.crosswire.common.util.KUri
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -128,15 +129,33 @@ object LlmProcessingService : KoinComponent {
 
     /**
      * Build provider-specific extra HTTP headers (beyond auth/content-type).
-     * UUID is generated once per call — callers in loops should call this once
-     * before the loop and reuse the result across iterations.
+     *
+     * Two conversation-session headers are supported:
+     * - xAI: `x-grok-conv-id`
+     * - OpenCode (host `opencode.ai` or any subdomain of it): `x-opencode-session`
+     *
+     * Each header carries one fresh UUID per call. The agent loop calls this once per run
+     * and reuses the result for every iteration, so all requests of a run share one session ID.
      */
     internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig): Map<String, String> {
         val provider = providerConfig.resolveProvider()
-        return when (provider) {
-            LlmProvider.XAI -> mapOf("x-grok-conv-id" to kotlin.uuid.Uuid.random().toString())
+        val host = try {
+            KUri(providerConfig.resolveEndpoint()).getHost()
+        } catch (_: Exception) {
+            null
+        }
+        return when {
+            provider == LlmProvider.XAI -> mapOf("x-grok-conv-id" to kotlin.uuid.Uuid.random().toString())
+            host != null && isOpenCodeHost(host) ->
+                mapOf("x-opencode-session" to kotlin.uuid.Uuid.random().toString())
             else -> emptyMap()
         }
+    }
+
+    /** True for `opencode.ai` and its subdomains; look-alikes such as `evilopencode.ai` do not match. */
+    private fun isOpenCodeHost(host: String): Boolean {
+        val normalized = host.lowercase()
+        return normalized == "opencode.ai" || normalized.endsWith(".opencode.ai")
     }
 
     /** Result of a single HTTP call to the LLM API. */

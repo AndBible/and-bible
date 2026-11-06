@@ -244,6 +244,8 @@ class HostReadingHost(
             shell = shell,
             hostState = hostState,
             links = koin.get<ExternalLinks>(),
+            dialogs = koin.get(),
+            strings = strings,
             labelResults = labelResults,
             downloadControl = { koin.get<DownloadControl>() },
             fakeBooks = { koin.get<FakeBookFactory>() },
@@ -704,7 +706,7 @@ class HostReadingHost(
 
     private fun buildDeps(icons: ReadingToolbarIcons, paneIcons: HostPaneIcons?): ReadingHostDeps = ReadingHostDeps(
         state = hostState,
-        onRailCoveredWindowsChanged = offsets::setRailCoveredWindows,
+        onRailLayoutChanged = offsets::setRailLayout,
         controller = readingViewController,
         toolbar = koin.get<ToolbarStateService>().toolbar,
         fullScreen = fullScreen.state,

@@ -232,7 +232,7 @@ class BookInstallWatcher(
     /**
      * pre-initialise mappings to prevent pauses during interaction
      */
-    private fun initialiseRequiredMapping(book: Book) = withMonitor(this) {
+    private fun initialiseRequiredMapping(book: Book) {
         if (book is SwordBook) {
             val versification = book.versification
             // initialise in the background to allow normal startup to continue

@@ -2,12 +2,13 @@
 bookmarks: Alamisho
 bookmarksAndNotes: Alamisho na Maelezo Yangu
 openMyNotes: Fungua katika Maelezo Yangu
-openStudyPad: Fungua katika Daftari la Masomo (%s)
-noteText: Maelezo ya chini (%s)
+openStudyPad: "Fungua katika Daftari la Masomo (%s)"
+noteText: "Maelezo ya chini (%s)"
 noteTextWithoutType: Maelezo ya chini
 crossReferenceText: Marejeleo ya msalaba
 findAllOccurrences: Pata matukio yote
 reportError: Ripoti hitilafu
+retryLoad: Jaribu tena
 errorTitle: Hitilafu imetokea
 warningTitle: Onyo
 normalTitle: Tafadhali kumbuka
@@ -23,28 +24,27 @@ myDocumentEmptyPlaceholder: Gonga kuanza kuhariri ukurasa huu
 inputPlaceholder: Andika hapa
 inputReference: Ingiza rejeleo la Biblia
 invalidReference: Mstari haukupatikana
-bookmarkAccurate: Alamisho iliundwa katika %s
+bookmarkAccurate: "Alamisho iliundwa katika %s"
 bookmarkInaccurate: "Taarifa ya kitabu cha alamisho hazikuhifadhiwa, maudhui yanaonyeshwa katika %s."
 defaultBook: hati ya Biblia ya chaguo-msingi
 ok: Sawa
 yes: "Ndiyo"
-ambiguousSelection: "Unataka kuchukua kitendo gani?"
+ambiguousSelection: Unataka kuchukua kitendo gani?
 cancel: Ghairi
-removeBookmarkConfirmationTitle: "Ondoa alamisho?"
-removeBookmarkConfirmation: "Je, una uhakika unataka kuondoa alamisho hii?"
+removeBookmarkConfirmationTitle: Ondoa alamisho?
+removeBookmarkConfirmation: Je, una uhakika unataka kuondoa alamisho hii?
 createdAt: "Iliundwa: %s"
 lastUpdatedOn: "Ilisasishwa mara ya mwisho: %s"
 strongsAndMorph: Ufafanuzi na Mofolojia
 externalLink: Fungua kiungo cha nje
+internalLink: Fungua kiungo cha ndani
 referenceLink: Fungua kiungo cha rejeleo
 openFootnote: Fungua maelezo ya chini
 noMyNotesTitle: Hakuna Maelezo Yangu kwa sura hii.
-noMyNotesDescription: >-
-  Anza kwa kuunda alamisho katika hati ya Biblia. Alamisho zitaonekana hapa na unaweza kuongeza maelezo yako ya kibinafsi kwake.
-emptyStudyPad: >-
-  Daftari la masomo tupu. Anza kuongeza kwenye daftari hili la masomo kwa kuunda maingizo ya maandishi hapa au kwa kuunda alamisho zenye lebo ya alamisho inayolingana na daftari hili la masomo.
-doYouWantToDeleteEntry: "Futa maingizo haya ya daftari la masomo?"
-removeStudyPadConfirmationTitle: "Ondoa maingizo ya daftari la masomo?"
+noMyNotesDescription: Anza kwa kuunda alamisho katika hati ya Biblia. Alamisho zitaonekana hapa na unaweza kuongeza maelezo yako ya kibinafsi kwake.
+emptyStudyPad: Daftari la masomo tupu. Anza kuongeza kwenye daftari hili la masomo kwa kuunda maingizo ya maandishi hapa au kwa kuunda alamisho zenye lebo ya alamisho inayolingana na daftari hili la masomo.
+doYouWantToDeleteEntry: Futa maingizo haya ya daftari la masomo?
+removeStudyPadConfirmationTitle: Ondoa maingizo ya daftari la masomo?
 dragHelp: Buruta kupanga upya
 openAll: Fungua marejeleo yote
 editBookmarkPlaceholder: Gonga kuhariri Maelezo Yangu kwa alamisho hii
@@ -54,7 +54,7 @@ assignLabelsMenuEntry1: Chagua au hariri lebo…
 favouriteLabels: Lebo za Kipendwa
 recentLabels: Lebo za Hivi Karibuni
 bookmarkLabels: Lebo za alamisho
-refParserHelp: Tafadhali sanikisha moduli ya %s kutumia marejeleo katika lugha nyingine badala ya Kiingereza.
+refParserHelp: "Tafadhali sanikisha moduli ya %s kutumia marejeleo katika lugha nyingine badala ya Kiingereza."
 openDownloads: Nenda kwa upakuaji wa Viongezi
 verseShare: Shiriki
 verseSpeak: Soma kwa sauti
@@ -94,6 +94,7 @@ editActionModeAppend: Ongeza maandishi
 editActionModePrepend: Weka maandishi mbele
 editActionContentLabel: Maudhui
 editActionContentPlaceholder: Ingiza maandishi ya kuongezwa kwa hati...
+editActionContentRequired: Weka maudhui au chagua Hakuna.
 experimentalFeatureTitle: Majaribio
 experimentalFeatureHelpTitle: Kuhusu Vipengele vya Majaribio
 experimentalFeatureHelpContent: Vipengele vya majaribio ni uwezo mpya ambao bado unakuzwa na kupimwa. Huenda visifanye kazi vizuri na vinaweza kubadilika sana au kuondolewa katika matoleo ya baadaye ya programu.

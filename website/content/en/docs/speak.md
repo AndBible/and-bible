@@ -32,6 +32,13 @@ message instead of silently skipping the failed part. Press Play to try again fr
 interrupted verse or passage. If the error keeps returning, check the engine and voice data
 using the steps above, or try another speech engine.
 
+## Deleting a document during speech
+
+Deleting the document being read aloud stops speech and clears any paused playback
+of that document. This also applies while the speech engine is starting. AndBible
+does not automatically switch to another document; choose an installed document
+to start speaking again. Deleting a different document does not interrupt speech.
+
 ## Speaking commentaries
 
 When a commentary has no entry for a verse, speech skips that verse and continues

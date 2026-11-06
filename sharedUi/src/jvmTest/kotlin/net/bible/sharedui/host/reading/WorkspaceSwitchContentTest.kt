@@ -8,6 +8,8 @@ package net.bible.sharedui.host.reading
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
@@ -604,7 +606,13 @@ class WorkspaceSwitchContentTest {
     }
 
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
-    @Test fun hostDrawerRowsRemainReachableAtAx5() {
+    @Test fun hostDrawerRowsRemainReachableAtAx5() = drawerChromeJourney("en")
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun finnishHostDrawerAndOverflowExposeNoTranslatedEnglish() = drawerChromeJourney("fi")
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    private fun drawerChromeJourney(language: String) {
         val paths = DesktopPaths(
             { name -> when (name) {
                 "XDG_DATA_HOME" -> root.resolve("data").toString()
@@ -623,27 +631,36 @@ class WorkspaceSwitchContentTest {
             HostReadingReady.ensure(HostStartup.stringTable)
         }
         val koin = KoinPlatform.getKoin()
+        koin.get<net.bible.sharedui.assembly.HostStringTableHolder>().switchTo(language)
+        var drawer by androidx.compose.runtime.mutableStateOf(true)
         val host = runBlocking { withContext(Dispatchers.Main) {
             HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
         } }
+        val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Gray)
+        val deps = runBlocking { withContext(Dispatchers.Main) {
+            host.deps(net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter))
+        } }
         try {
-            runComposeUiTest {
+            androidx.compose.ui.test.v2.runSkikoComposeUiTest(size = androidx.compose.ui.geometry.Size(390f, 844f)) {
                 setContent {
                     androidx.compose.runtime.CompositionLocalProvider(
-                        net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en"),
+                        net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings(language),
                         androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(1f, 53f / 17f),
                         net.bible.sharedui.components.LocalBarFontScaleCap provides 1.35f,
                         net.bible.sharedui.reading.LocalDrawerRowsGrowWithText provides true,
                     ) {
                         net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
                             androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.size(androidx.compose.ui.unit.Dp(390f), androidx.compose.ui.unit.Dp(844f))) {
-                                net.bible.sharedui.reading.ReadingDrawerContent(host.drawerMenuState.value, { null }, {})
+                                if (drawer) net.bible.sharedui.reading.ReadingDrawerContent(host.drawerMenuState.value, { null }, {})
+                                else net.bible.sharedui.reading.ReadingOverflowMenuRows(deps.overflowItems.value, {}, { null })
                             }
                         }
                     }
                 }
                 waitUntil(timeoutMillis = 5000) { host.drawerMenuState.value.groups.isNotEmpty() }
-                for (label in listOf("Choose Document", "Study Pads", "History", "Backup & Restore", "Device synchronization")) {
+                val labels = if (language == "fi") listOf("Valitse teos", "Opintoalustat", "Historia", "Varmuuskopioi & palauta", "Laitteiden synkronointi")
+                    else listOf("Choose Document", "Study Pads", "History", "Backup & Restore", "Device synchronization")
+                for (label in labels) {
                     onNode(hasScrollAction()).performScrollToNode(hasText(label))
                     val row = onNode(hasText(label))
                     row.assertIsDisplayed()
@@ -654,6 +671,14 @@ class WorkspaceSwitchContentTest {
                     val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
                     text.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
                     assertFalse(layouts.single().didOverflowHeight, "$label must not be vertically clipped at AX5")
+                    if (language == "fi") with(net.bible.sharedui.strings.FinnishChromeAssertions) {
+                        assertNoTranslatedEnglish("reading drawer at $label")
+                    }
+                }
+                if (language == "fi") {
+                    runOnIdle { host.callbacks().onOverflow(); drawer = false }
+                    onNode(hasText("Yötila")).assertIsDisplayed()
+                    with(net.bible.sharedui.strings.FinnishChromeAssertions) { assertNoTranslatedEnglish("reading overflow") }
                 }
             }
         } finally {

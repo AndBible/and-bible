@@ -35,10 +35,25 @@ import kotlinx.coroutines.test.setMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.GlobalTextDisplaySettingsDao
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.sword.ContentSource
+import net.bible.service.sword.backgroundimage.BackgroundImageImporter
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
+import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.persistCipherKey
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedlogic.addons.SharedAddonCatalog
+import net.bible.sharedlogic.addons.SharedAddonScanner
+import net.bible.sharedlogic.addons.SharedPromptPackSource
+import okio.Buffer
+import okio.Path.Companion.toPath
+import org.crosswire.jsword.book.Books
+import java.nio.file.Files
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedlogic.platform.AddonCatalog
 import org.crosswire.jsword.book.sword.NullBackend
@@ -69,6 +84,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -210,6 +227,70 @@ class ReadingAppInitTest {
         assertEquals(1, installs[0], "book installers ran once")
         assertEquals(1, platform.starts, "platform start ran once")
         assertEquals(1, platform.sweeps, "index sweep ran once")
+    }
+
+    @Test
+    fun startupRegistersAnImportedBackgroundForTheSavedSelection() = runTest(timeout = 10.minutes) {
+        val root = Files.createTempDirectory("startup-background").toFile()
+        val dirs = object : AppDirectories {
+            override val internalFilesDir = root.resolve("internal").path.toPath()
+            override val modulesDir = root.resolve("modules").path.toPath()
+            override val manualInstallDir = root.resolve("manual").path.toPath()
+            override val manualInstallDir2 = root.resolve("manual2").path.toPath()
+            override val manualReadingPlanDir = root.resolve("plans").path.toPath()
+        }
+        val scanner = SharedAddonScanner({ Books.installed().getBooks() })
+        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner))
+        KoinPlatform.getKoin().loadModules(listOf(module {
+            single<AppDirectories> { dirs }
+            single<CoreStrings> { unused() }
+            single<AppEnvironment> { unused() }
+            single<AddonCatalog> { catalog }
+        }))
+        ReadingAppInit.loadStores = { }
+        ReadingAppInit.loadDocumentSyncSettings = { }
+        ReadingAppInit.hasInstalledBible = { false }
+        val source = object : ContentSource {
+            override fun openSource(uri: String) = Buffer().write(byteArrayOf(0x89.toByte(), 0x50, 0x4e, 0x47))
+            override fun displayName(uri: String) = "startup landscape.png"
+            override fun mimeType(uri: String) = "image/png"
+        }
+        val booksBefore = Books.installed().getBooks().toSet()
+        try {
+            val image = assertNotNull(BackgroundImageImporter.copyAndRegister(source, "test://background"))
+            val imported = assertNotNull(Books.installed().getBook("BGIMG_startup_landscape"))
+            assertEquals(image, catalog.backgroundImages[imported.initials]?.path)
+            val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+            val workspace = WorkspaceEntities.Workspace(name = "Imported background").apply {
+                textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default.copy(
+                    colors = WorkspaceEntities.TextDisplaySettings.default.colors!!.copy(
+                        dayBackgroundImage = imported.initials,
+                        nightBackgroundImage = imported.initials,
+                    ),
+                )
+            }
+            dao.insertWorkspace(workspace)
+
+            // Process restart loses synthetic books and catalog caches, but keeps files and saved selections.
+            Books.installed().removeBook(imported)
+            catalog.clearCaches()
+            assertNull(Books.installed().getBook(imported.initials))
+            ReadingAppInit.initialise(platform)
+
+            val restored = dao.allWorkspaces().single().textDisplaySettings!!.colors!!
+            for (selected in listOf(restored.dayBackgroundImage, restored.nightBackgroundImage)) {
+                assertEquals("BGIMG_startup_landscape", selected)
+                val registered = assertNotNull(Books.installed().getBook(selected), "startup must register the saved background")
+                assertEquals(image, registered.backgroundImageFile)
+                assertEquals(image, assertNotNull(catalog.backgroundImages[selected]).path)
+            }
+            // initialise() is a no-op once initialized is set, so repeat only the scan it would have done.
+            addManuallyInstalledBackgroundImageBooks()
+            assertEquals(1, Books.installed().getBooks().count { it.initials == imported.initials })
+        } finally {
+            Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
+            root.deleteRecursively()
+        }
     }
 
     @Test

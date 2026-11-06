@@ -48,11 +48,13 @@ class IosSearchIndexingRunner(
         var ended = false
         var cancelled = false
 
-        fun endOnce() = lock.withLock {
-            val id = identifier ?: return@withLock
-            if (ended) return@withLock
-            ended = true
-            if (id != UIBackgroundTaskInvalid) end(id)
+        fun endOnce() {
+            // Claim the end under the lock, but call into UIKit outside it.
+            val toEnd = lock.withLock {
+                val id = identifier
+                if (id == null || ended) null else id.also { ended = true }
+            }
+            if (toEnd != null && toEnd != UIBackgroundTaskInvalid) end(toEnd)
         }
 
         fun cancelOnce() {

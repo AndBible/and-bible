@@ -1,5 +1,10 @@
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +35,19 @@ fun AbAlertDialog(
         modifier = modifier.monoBorder(AlertDialogDefaults.shape),
         dismissButton = dismissButton,
         icon = icon,
-        title = title,
+        title = title?.let { content ->
+            {
+                // M3 measures the title before its weighted text slot. At AX5 a long title can
+                // otherwise consume the whole dialog and reduce a scrollable body to zero height.
+                // The bound must be an ancestor of verticalScroll, not its scrollable child.
+                BoxWithConstraints {
+                    val titleHeight = if (maxHeight.value.isFinite()) maxHeight * 0.4f else 200.dp
+                    Box(Modifier.heightIn(max = titleHeight)) {
+                        Box(Modifier.verticalScroll(rememberScrollState())) { content() }
+                    }
+                }
+            }
+        },
         // Keep a missing text slot missing outside mono: M3 uses slot presence for spacing.
         text = if (mono) {
             {

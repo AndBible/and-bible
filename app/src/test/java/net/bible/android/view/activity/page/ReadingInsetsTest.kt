@@ -26,22 +26,41 @@ class ReadingInsetsTest {
     @Test fun withTheSpeakBarUpTheWebViewNeedsNoBottomOffset() { transport = true; assertEquals(0, insets().bottomOffsetForWebView) }
     @Test fun withTheBarHiddenTheNavBarIsTheOffset() { assertEquals(39, insets().bottomOffsetForWebView) }
     @Test fun withTheBarAndTheRailOnlyTheRailCounts() { transport = true; rail = true; assertEquals(53, insets().bottomOffsetForWebView) }
-    @Test fun railCoverageIsPerWindowWhileTheNavBarIsShared() {
+    @Test fun fullWidthRailReservesEveryBottomWindowAndHidingPreservesSystemInsets() {
         rail = true
         val i = insets()
-        i.setRailCoveredWindows(setOf("right"))
-        assertEquals(39, i.bottomOffsetForWindow("left", true))
-        assertEquals(92, i.bottomOffsetForWindow("right", true))
-        assertEquals(0, i.bottomOffsetForWindow("right", false))
-        i.setRailCoveredWindows(setOf("left", "right"))
-        assertEquals(92, i.bottomOffsetForWindow("left", true))
+        i.setRailCoveredWindows(setOf("left", "middle", "right"))
+        for (id in listOf("left", "middle", "right")) {
+            assertEquals(92, i.bottomOffsetForWindow(id, true))
+            assertEquals(0, i.bottomOffsetForWindow(id, false))
+        }
+        // Fullscreen, maximised or single-window: the setting may stay on, but the rail is not drawn.
+        i.setRailCoveredWindows(emptySet())
+        for (id in listOf("left", "middle", "right")) {
+            assertEquals(39, i.bottomOffsetForWindow(id, true))
+        }
         rail = false
-        assertEquals(39, i.bottomOffsetForWindow("right", true))
         transport = true
         assertEquals(0, i.bottomOffsetForWindow("left", true))
     }
 
-    @Test fun newRailMeasurementsPushOffsetsOnlyWhenCoverageChanges() {
+    @Test fun reportedBottomWindowsReplaceTheHostPortraitRule() {
+        rail = true
+        val i = insets()
+        i.setRailCoveredWindows(setOf("left", "right"))
+        // Before a layout report the host's rule decides.
+        assertEquals(0, i.bottomOffsetForWindow("left", false))
+        i.setRailLayout(setOf("left", "right"), setOf("left", "right"))
+        assertEquals(92, i.bottomOffsetForWindow("left", false))
+        assertEquals(92, i.bottomOffsetForWindow("right", false))
+        i.setRailLayout(setOf("left", "right"), setOf("right"))
+        assertEquals(0, i.bottomOffsetForWindow("left", true))
+        assertEquals(92, i.bottomOffsetForWindow("right", false))
+        i.setRailLayout(setOf("left", "right"), null)
+        assertEquals(92, i.bottomOffsetForWindow("left", true))
+    }
+
+    @Test fun railLayoutPushesOffsetsOnlyWhenReservedWindowsChange() {
         val i = insets()
         val seen = mutableListOf<OffsetsChange>()
         val sub = i.offsetsChanged.subscribe { seen += it }

@@ -32,6 +32,9 @@ interface DesktopWebEngine {
      * (see [androidBridgeShim]), so a per-load refresh needs no engine call. Engines that do not support it ignore it.
      */
     fun setActiveLanguages(source: () -> String) {}
+
+    /** The current owner of a transport pane, including panes adopted by a different workspace window. */
+    fun setPaneWindowIdSource(source: (paneId: String) -> (() -> String?)) {}
 }
 
 /** One engine web view. Also the [JsHost] of its window's JS channel. */

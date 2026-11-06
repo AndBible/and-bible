@@ -412,7 +412,7 @@ class SwordContentFacade(
         }
 
 
-        private fun cachedText(book: Book, key: Key, strings: CoreStrings, forSpeech: Boolean = false): Map<Int, String> = withMonitor(this) {
+        private fun cachedText(book: Book, key: Key, strings: CoreStrings, forSpeech: Boolean = false): Map<Int, String> = withMonitor(book) {
             val cacheKey = renderCacheKey(book, key) + if (forSpeech) "-speech" else ""
             plainTextCache.get(cacheKey) ?: run {
                 val frag = try {

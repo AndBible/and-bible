@@ -58,7 +58,7 @@ class ReadingOffsets(
     /** The top safe-area inset in dp, to be reported only while nothing else pads it (full screen); 0 otherwise. */
     fun setSystemTopInset(dp: Float) = change { if (systemTopInset != dp) { systemTopInset = dp; true } else false }
 
-    /** Aggregate ledger value; document hosts must use [bottomForWindow] to apply measured rail coverage. */
+    /** Aggregate ledger value; document hosts use [bottomForWindow] for the expanded rail's bottom panes. */
     val bottom: Float get() = systemBottom + railHeight
 
     private val systemBottom: Float get() = if (speakBarVisible || agentLogVisible) 0f else systemBottomInset
@@ -66,6 +66,9 @@ class ReadingOffsets(
     private val railCoverage = net.bible.sharedui.reading.ReadingRailCoverage(onChanged)
 
     fun setRailCoveredWindows(windowIds: Set<String>) = railCoverage.update(windowIds)
+
+    /** One layout pass: the rail-covered windows and the bottom-row windows (null = unknown, the host's rule applies). */
+    fun setRailLayout(covered: Set<String>, bottom: Set<String>?) = railCoverage.update(covered, bottom)
 
     fun bottomForWindow(windowId: String, isBottomWindow: Boolean): Float =
         railCoverage.bottomOffset(windowId, isBottomWindow, systemBottom, railHeight)

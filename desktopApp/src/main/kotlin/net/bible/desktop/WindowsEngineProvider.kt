@@ -38,6 +38,7 @@ internal class DeferredWindowsEngine(
     private var started = false
     private var delegate: DesktopWebEngine? = null
     private var languages: (() -> String)? = null
+    private var paneWindowIdSource: ((String) -> (() -> String?))? = null
     private var waiter: CancellableContinuation<Unit>? = null
 
     val isClosed: Boolean get() = synchronized(lock) { closed }
@@ -72,6 +73,7 @@ internal class DeferredWindowsEngine(
             val publish = synchronized(lock) {
                 if (closed || abandoned) false else {
                     languages?.let(created::setActiveLanguages)
+                    paneWindowIdSource?.let(created::setPaneWindowIdSource)
                     delegate = created
                     waiting = waiter.also { waiter = null }
                     true
@@ -91,6 +93,11 @@ internal class DeferredWindowsEngine(
     override fun setActiveLanguages(source: () -> String) = synchronized(lock) {
         languages = source
         delegate?.setActiveLanguages(source)
+        Unit
+    }
+    override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) = synchronized(lock) {
+        paneWindowIdSource = source
+        delegate?.setPaneWindowIdSource(source)
         Unit
     }
     private fun ready(): DesktopWebEngine = synchronized(lock) { checkNotNull(delegate) { "Windows engine not ready" } }

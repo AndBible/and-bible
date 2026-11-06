@@ -10,6 +10,7 @@ import okio.use
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -55,7 +56,7 @@ class PageAssetRoutesTest {
     }
 
     private fun routes(
-        verify: ((Path, Path) -> Boolean)? = { f, s -> f.name == "feat.js" && fs.exists(s) },
+        verify: ((ByteArray, Path) -> Boolean)? = { _, s -> s.name == "feat.js.sign" && fs.exists(s) },
         epub: PageAssetEpubSource? = null,
         fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
     ) = PageAssetRoutes(
@@ -133,11 +134,42 @@ AndBibleProvidesFont=Outside;../../secret.txt
     }
 
     @Test fun onlySignedFeaturesServed() {
-        assertEquals(book / "feat.js", routes().resolve("/features/KJV/feat.js").file())
+        assertEquals("f", (routes().resolve("/features/KJV/feat.js") as PageAsset.Bytes).bytes.decodeToString())
         assertNull(routes().resolve("/features/KJV/unsigned.js"))
         assertNull(routes(verify = { _, _ -> false }).resolve("/features/KJV/feat.js"))
         // A platform without a signature verifier serves no feature file at all.
         assertNull(routes(verify = null).resolve("/features/KJV/feat.js"))
+    }
+
+    @Test fun bundledVerifierServesOriginalRefParserButRefusesTamperingAndMissingSignature() {
+        val parser = book / "fi_bcv_parser.js"
+        val signature = book / "fi_bcv_parser.js.sign"
+        fs.write(parser) { write(SignedFeatureFixture.content) }
+        fs.write(signature) { write(SignedFeatureFixture.signature) }
+        val verifier = net.bible.sharedlogic.security.FeatureSignatureVerifier()
+        val r = routes(verify = verifier::verifyBytes)
+        assertContentEquals(SignedFeatureFixture.content, (r.resolve("/features/KJV/fi_bcv_parser.js") as PageAsset.Bytes).bytes)
+        fs.write(parser) { writeUtf8("tampered") }
+        assertNull(r.resolve("/features/KJV/fi_bcv_parser.js"))
+        fs.write(parser) { write(SignedFeatureFixture.content) }
+        fs.delete(signature)
+        assertNull(r.resolve("/features/KJV/fi_bcv_parser.js"))
+    }
+
+    @Test fun servesTheVerifiedBytesEvenIfTheFileChangesAfterVerification() {
+        val feat = book / "feat.js"
+        fs.write(feat) { writeUtf8("verified") }
+        // Swap the file right after the verifier ran: a second read of the path would now see "evil".
+        val r = routes(verify = { _, s -> (s.name == "feat.js.sign" && fs.exists(s)).also { fs.write(feat) { writeUtf8("evil") } } })
+        val asset = r.resolve("/features/KJV/feat.js")
+        assertEquals("verified", (asset as PageAsset.Bytes).bytes.decodeToString())
+        assertEquals("text/javascript", asset.mimeType)
+    }
+
+    @Test fun signedFixtureIsTheDocumentedRefParserBuild() {
+        // The KDoc of SignedFeatureFixture names this digest; a re-encoded fixture must update both.
+        assertEquals("c51274c47f971b7a4109e50ad04e79ec87c7800709e5b67edd6cd55c41da9176",
+            okio.ByteString.of(*SignedFeatureFixture.content).sha256().hex())
     }
 
     @Test fun moduleStyleServed() {

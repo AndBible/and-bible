@@ -23,9 +23,10 @@ data class PendingRepoInstall(val repository: String, val initials: String)
  */
 class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
     /**
-     * This store's own lock, never `withMonitor`: on Kotlin/Native that is ONE process-wide mutex, and the prefs write
-     * below runs foreign code (NSUserDefaults posts its change notification synchronously). Holding the shared
-     * monitor there deadlocked the main thread waiting in `DownloadQueue.isInQueue` (#3973, iOS simulator).
+     * This store owns its lock. The former Native `withMonitor` used one process-wide mutex; holding it across
+     * the prefs write (NSUserDefaults posts synchronous change notifications) deadlocked Main waiting in
+     * `DownloadQueue.isInQueue` (#3973). Native monitors now respect target identity (#3978); do not reintroduce
+     * shared queue/render locks here.
      */
     private val lock = reentrantLock()
 

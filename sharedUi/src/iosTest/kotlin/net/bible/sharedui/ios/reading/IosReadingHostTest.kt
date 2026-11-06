@@ -159,7 +159,7 @@ class IosReadingHostTest {
             "onDrawerItemClick" to (deps.onDrawerItemClick !== d1.onDrawerItemClick),
             "onDrawerClosed" to (deps.onDrawerClosed !== d1.onDrawerClosed),
             "paneBackground" to (deps.paneBackground !== d1.paneBackground),
-            "onRailCoveredWindowsChanged" to (deps.onRailCoveredWindowsChanged !== d1.onRailCoveredWindowsChanged),
+            "onRailLayoutChanged" to (deps.onRailLayoutChanged !== d1.onRailLayoutChanged),
             "windowLabel" to (deps.windowLabel !== d1.windowLabel),
             "windowIcon" to (deps.windowIcon !== d1.windowIcon),
             "windowTopLabel" to (deps.windowTopLabel !== d1.windowTopLabel),

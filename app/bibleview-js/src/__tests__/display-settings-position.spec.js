@@ -7,7 +7,7 @@ import {emit} from "@/eventbus";
 // Keep the config, scroll and verse-notifier production path; replace native services only.
 vi.mock("@/composables/addon-fonts", () => ({useAddonFonts: () => {}}));
 vi.mock("@/composables/fontawesome", () => ({useFontAwesome: () => {}}));
-vi.mock("@/composables/android", () => ({useAndroid: () => ({scrolledToOrdinal: () => {}}), clearLog: () => {}}));
+vi.mock("@/composables/android", () => ({useAndroid: () => ({scrolledToOrdinal: () => {}, documentShown: () => {}}), clearLog: () => {}}));
 vi.mock("@/composables/keyboard", () => ({useKeyboard: () => ({})}));
 vi.mock("@/composables/use-reading-progress", () => ({useReadingProgress: () => ({progressText: ref("")})}));
 vi.mock("@/composables/infinite-scroll", () => ({useInfiniteScroll: () => ({documentSupportsChapterNavigation: ref(false), infiniteScrollIsEnabled: ref(false), documentsCleared: () => {}})}));

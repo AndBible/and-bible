@@ -82,5 +82,38 @@ class H2FixtureTest(unittest.TestCase):
                                  hashlib.sha256((pathlib.Path(other) / name).read_bytes()).digest())
 
 
+class KjvFixtureTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = pathlib.Path(self.tmp.name)
+        self.out = self.dir / "out"
+        self.out.mkdir()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def kjv_zip(self, entries):
+        path = self.dir / "src-kjv.zip"
+        with zipfile.ZipFile(path, "w") as z:
+            for name in entries:
+                z.writestr(name, b"x")
+        return path
+
+    def test_bundles_a_kjv_archive_byte_identical(self):
+        source = self.kjv_zip(["mods.d/kjv.conf", "modules/texts/ztext/kjv/nt.bzz"])
+        self.assertTrue(gen.kjv_fixture(self.out, source))
+        self.assertEqual((self.out / "h2-kjv.zip").read_bytes(), source.read_bytes())
+
+    def test_missing_source_bundles_nothing_and_removes_a_stale_copy(self):
+        (self.out / "h2-kjv.zip").write_bytes(b"stale")
+        self.assertFalse(gen.kjv_fixture(self.out, self.dir / "absent.zip"))
+        self.assertFalse((self.out / "h2-kjv.zip").exists())
+
+    def test_rejects_an_archive_without_the_kjv_conf(self):
+        with self.assertRaises(SystemExit):
+            gen.kjv_fixture(self.out, self.kjv_zip(["mods.d/other.conf"]))
+        self.assertFalse((self.out / "h2-kjv.zip").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

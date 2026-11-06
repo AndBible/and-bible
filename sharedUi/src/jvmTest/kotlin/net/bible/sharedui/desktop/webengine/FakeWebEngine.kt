@@ -24,6 +24,10 @@ class FakeWebEngine : DesktopWebEngine {
     /** The newest pane of [id] that is not disposed (a crashed pane is replaced, not reused). */
     fun live(id: String) = panes.last { it.id == id && !it.disposed }
 
+    var windowOwnerSource: (String) -> (() -> String?) = { id -> { id } }
+
+    override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) { windowOwnerSource = source }
+
     var languagesSource: (() -> String)? = null
 
     override fun setActiveLanguages(source: () -> String) {

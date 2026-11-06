@@ -352,6 +352,10 @@ class TextToSpeechServiceManager constructor(
     val currentlyPlayingKey: Key?
         get() = mSpeakTextProvider.getCurrentlyPlayingKey()
 
+    /** True while speaking, paused, or while an engine start is pending (engine created, init callback not yet received). */
+    val hasActiveSession: Boolean
+        get() = isSpeaking || isPaused || (mTts != null && !engineReady)
+
     val currentlyPlayingBook: Book?
         get() = mSpeakTextProvider.getCurrentlyPlayingBook()
 

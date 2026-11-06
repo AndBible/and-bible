@@ -941,6 +941,9 @@ class BibleView(
     }
 
     fun doDestroy() {
+        // Android requires a WebView to leave the hierarchy before native destruction. Activity
+        // teardown can run while its Compose AndroidView holder still owns this view.
+        (parent as? ViewGroup)?.removeView(this)
         if(!toBeDestroyed) {
             destroy()
         }
@@ -1077,14 +1080,12 @@ class BibleView(
             val book = Books.installed().getBook(moduleName) ?: return notFound
             val location = File(book.bookMetaData.location)
             val f = File(location, resourcePath)
-            return if (f.isFile && f.exists() && checkSignature(f)) {
-                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+            if (!f.isFile) return notFound
+            // Read once, verify those bytes, serve those bytes: the file may change after verification.
+            val content = try { f.readBytes() } catch (_: IOException) { return notFound }
+            return if (CommonUtils.verifyFeatureBytes(content, File(f.path + ".sign"))) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, content.inputStream())
             } else notFound
-        }
-
-        private fun checkSignature(file: File): Boolean {
-            val signatureFile = File(file.path + ".sign")
-            return CommonUtils.verifySignature(file, signatureFile)
         }
     }
     inner class MyAssetsPathHandler: PathHandler {

@@ -141,6 +141,8 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         return TextCommand(text, TextCommand.TextType.NORMAL)
     }
 
+    override fun getCurrentlyPlayingBook(): Book? = book
+
     override fun getText(utteranceId: String): String {
         return currentText
     }

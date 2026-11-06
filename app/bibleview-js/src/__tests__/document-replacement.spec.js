@@ -6,7 +6,12 @@ import {emit} from "@/eventbus";
 
 vi.mock("@/composables/addon-fonts", () => ({useAddonFonts: () => {}}));
 vi.mock("@/composables/fontawesome", () => ({useFontAwesome: () => {}}));
-vi.mock("@/composables/android", () => ({useAndroid: () => ({}), clearLog: () => {}}));
+// clear_document reports documentShown once the old content has left the DOM (#3975); record those reports.
+const {shownGenerations} = vi.hoisted(() => ({shownGenerations: []}));
+vi.mock("@/composables/android", () => ({
+    useAndroid: () => ({documentShown: generation => shownGenerations.push(generation)}),
+    clearLog: () => {},
+}));
 vi.mock("@/composables/scroll", () => ({useScroll: () => ({scrollY: ref(0), scrollToId: () => {}})}));
 vi.mock("@/composables/keyboard", () => ({useKeyboard: () => ({})}));
 vi.mock("@/composables/verse-notifier", () => ({useVerseNotifier: () => ({currentVerse: ref(null), currentKey: ref(null)})}));
@@ -24,6 +29,7 @@ let frames;
 beforeEach(() => {
     window.bibleViewDebug = {};
     frames = [];
+    shownGenerations.length = 0;
     vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
     vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => {
         frames.push(callback);
@@ -133,5 +139,7 @@ describe("document replacement during scroll synchronization", () => {
         await finishLoading();
 
         expect(window.bibleViewDebug.documents).toEqual([missingCommentary(44)]);
+        // Each clear_document reports that the page now shows its replacement.
+        expect(shownGenerations).toHaveLength(2);
     });
 });

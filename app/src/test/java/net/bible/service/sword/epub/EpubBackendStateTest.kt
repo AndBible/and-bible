@@ -38,6 +38,7 @@ import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -64,6 +65,7 @@ class EpubBackendStateTest {
     private lateinit var epubRoot: File
     private lateinit var originalDownloadDir: File
     private val createdDbFilenames = mutableListOf<String>()
+    private val ownership = EpubFixtureOwnership()
 
     @Before
     fun setUp() {
@@ -75,8 +77,7 @@ class EpubBackendStateTest {
     @After
     fun tearDown() {
         try {
-            epubRoot.deleteRecursively()
-            createdDbFilenames.forEach { application.deleteDatabase(it) }
+            ownership.cleanUp(epubRoot, createdDbFilenames)
         } finally {
             SwordBookPathJvm.setDownloadDir(originalDownloadDir)
         }
@@ -140,7 +141,14 @@ class EpubBackendStateTest {
         return epubDir
     }
 
-    private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+    private fun newState(dir: File) = openState(dir)
+
+    /** Opens a state on a fixture-built EPUB directory; [tearDown] retires it before deleting its files. */
+    internal fun openState(
+        dir: File,
+        strings: net.bible.sharedcore.platform.CoreStrings = testCoreStrings(),
+        env: net.bible.sharedcore.platform.AppEnvironment = AndroidAppEnvironment(application),
+    ): EpubBackendState = ownership.track(EpubBackendState(dir.toOkioPath(), strings, env))
 
     /** #3568: exercise the real installer optimizer with many files and references, without a private attachment. */
     @Test
@@ -230,6 +238,30 @@ class EpubBackendStateTest {
     }
 
     /** Issue #3591 (original trace): a stylesheet linked by a chapter but missing on disk must be skipped. */
+    /** M2 (#3998): the boundary is the whole EPUB directory, not the OPF folder; M1: openResource shares it. */
+    @Test
+    fun resourcesOutsideTheOpfFolderButInsideTheEpubAreServedAndSymlinksOutOfItAreRefused() = runTest {
+        val dir = buildEpub("opf-subfolder-boundary")
+        File(dir, "css").mkdirs()
+        File(dir, "css/x.css").writeText("p { margin: 2px; }")
+        File(dir, "img").mkdirs()
+        File(dir, "img/pic.png").writeText("png")
+        File(dir, "OEBPS/ch1.xhtml").writeText(
+            chapterXhtml("Chapter One", "Styled.").replace("</head>",
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"../css/x.css\"/>" +
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"leak.css\"/></head>"))
+        val outside = File(epubRoot, "outside-secret.css").apply { writeText("p { color: secret; }") }
+        java.nio.file.Files.createSymbolicLink(File(dir, "OEBPS/leak.css").toPath(), outside.toPath())
+        java.nio.file.Files.createSymbolicLink(File(dir, "OEBPS/leak.png").toPath(), outside.toPath())
+        val state = newState(dir)
+        val css = state.styleSheetContent(state.keys.first())
+        assertTrue(css, css.contains("margin: 2px"))
+        assertFalse(css, css.contains("secret"))
+        assertEquals("png", state.openResource("../img/pic.png")!!.buffer().use { it.readUtf8() })
+        assertNull("a symlink leaving the EPUB is refused", state.openResource("leak.png"))
+        assertNull(state.openResource("missing.png"))
+    }
+
     @Test
     fun missingStyleSheetIsSkippedWhenReadingStyles() = runTest {
         val dir = buildEpub("issue-3591-missing-css")
@@ -371,7 +403,7 @@ class EpubBackendStateTest {
                 return name
             }
         }
-        val state = EpubBackendState(dir.toOkioPath(), strings, AndroidAppEnvironment(application))
+        val state = openState(dir, strings)
         buildJob = launch(start = kotlinx.coroutines.CoroutineStart.LAZY) { state.buildSearchIndex() }
         try {
             buildJob.start()

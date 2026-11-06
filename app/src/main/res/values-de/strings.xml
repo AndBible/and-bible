@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible konnte WebView2 nicht starten, das zur Anzeige des Bibeltexts erforderlich ist. Installieren oder reparieren Sie die Microsoft Edge WebView2 Evergreen Runtime von:\n%1$s\n\nEinzelheiten stehen in der Protokolldatei:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible benötigt Direct3D-Grafik, um den Bibeltext mit WebView2 anzuzeigen. Der aktuelle Grafikrenderer ist %1$s. Prüfen Sie Ihren Grafiktreiber und die Direct3D-Unterstützung.\n\nEinzelheiten stehen in der Protokolldatei:\n%2$s</string>
+  <string name="desktop_update_setting_title">Nach Updates suchen</string>
+  <string name="desktop_update_setting_summary">Einmal täglich, von github.com</string>
+  <string name="desktop_update_consent_title">Nach Updates suchen?</string>
+  <string name="desktop_update_consent_message">AndBible kann einmal täglich auf github.com nach einer neueren Version suchen. GitHub sieht Ihre IP-Adresse; es wird nichts anderes gesendet. Sie können dies später in den Einstellungen ändern.</string>
+  <string name="desktop_update_consent_yes">Nach Updates suchen</string>
+  <string name="desktop_update_consent_no">Nicht suchen</string>
+  <string name="desktop_update_available_title">Neue Version verfügbar</string>
+  <string name="desktop_update_available_message">AndBible %1$s ist verfügbar. Sie haben %2$s.</string>
+  <string name="desktop_update_download">Download</string>
+  <string name="desktop_update_later">Später</string>
   <string name="app_name_andbible">AndBible: Bibel+</string>
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d Treffer gefunden</string>
   <string name="search_showing_first">Zu viele Treffer. Nur die ersten %d werden angezeigt</string>
   <string name="search_bible_section_group_prompt">Suchbereich</string>
+  <string name="search_type_prompt">Suchtyp</string>
+  <string name="search_show_results">Suchergebnisse anzeigen</string>
   <string name="search_all_bible">Ganze Bibel</string>
   <string name="search_new_testament">NT</string>
   <string name="search_old_testament">AT</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Finde \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Übersetzungen</string>
+  <string name="recent_searches">Letzte Suchen</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Suche schließen</string>
+  <string name="search_options">Sucheinstellungen</string>
+  <string name="search_submit">Suchen</string>
+  <string name="search_clear">Suchtext löschen</string>
+  <string name="search_engine_changed_reindex">Die Suchmaschine wurde aktualisiert. Der Suchindex muss neu erstellt werden; das kann eine Weile dauern.</string>
+  <string name="search_unsupported_syntax">Diese Suche verwendet eine nicht unterstützte Syntax: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Wenn die Indizierung abgeschlossen ist, wird die Suche automatisch ausgeführt.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s kann nicht durchsucht werden</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Dieses Dokument kann nicht durchsucht werden</string>
+  <string name="search_indexing_notification_title">Suchindex wird erstellt</string>
   <string name="choose_translations">Übersetzungen auswählen…</string>
   <string name="multi_search_results">%1$d Verse in %2$d Übersetzungen</string>
   <string name="search_index_not_created">kein Index</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Wählen Sie, wie Farben angezeigt werden. Farb-E-Ink behält eine Schwarz-Weiß-Basis bei, zeigt aber Lesezeichenfarben, die Anzeige des aktiven Fensters und Hilfslinien in Farbe an — für Farb-E-Ink-Bildschirme.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Schwarz &amp; Weiß</string>
+  <string name="prefs_display_color_mode_monochrome">Monochrom</string>
   <string name="prefs_display_color_mode_color_eink">Farb-E-Ink</string>
+  <string name="prefs_theme_palette_style_title">Designstil</string>
+  <string name="prefs_theme_palette_style_summary">Wie die Farben der App aus der Farbe des Arbeitsbereichs abgeleitet werden. Gilt nur, wenn der Farbmodus „Normal“ ist.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal spot (sanft, behält Grau)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelity (exakte Farbe)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal spot (Original)</string>
+  <string name="prefs_theme_palette_style_content">Content (nah an der Farbe)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutral (gedämpft)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monochrom (grau)</string>
+  <string name="prefs_theme_palette_style_vibrant">Lebendig</string>
+  <string name="prefs_theme_palette_style_expressive">Ausdrucksstark</string>
+  <string name="prefs_theme_palette_style_rainbow">Regenbogen</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Obstsalat</string>
   <string name="prefs_eink_settings_cat">E-Ink-Einstellungen</string>
   <string name="prefs_eink_display_title">E-Ink-Funktionen</string>
   <string name="prefs_eink_display_summary">E-Ink-spezifische Funktionen aktivieren (Seitenscrolling-Schaltflächen, Scroll-Hilfslinien)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Kapitel automatisch als gelesen markieren, wenn Sie hindurchscrollen</string>
   <string name="reading_progress_read_count_scale">Gelesen\nAnzahl</string>
   <string name="reading_progress_percent_read_scale">Prozent\nGelesen</string>
+  <string name="monochrome_activity_count">Aktivitäten: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s %%</string>
+  <string name="monochrome_count">Anzahl: %d</string>
+  <string name="monochrome_level">Stufe: %d/4</string>
+  <string name="monochrome_buckets">Grau: keine; umrandet: teilweise; gefüllt: voll oder höchste Stufe. Wählen Sie einen Eintrag für die genauen Werte.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Leseverlauf</string>
   <string name="reading_progress_history_for">Lesefortschritt für %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Textanzeigeeinstellungen für diesen Arbeitsbereich bearbeiten</string>
   <string name="global_text_options_link">Globale Textoptionen</string>
   <string name="global_text_options_link_summary">Standard-Textanzeigeeinstellungen für alle Arbeitsbereiche bearbeiten</string>
+  <string name="text_options_inherited_workspace">Arbeitsbereich</string>
+  <string name="text_options_inherited_global">Global</string>
   <string name="prefs_font_and_colors_title">Schrift &amp; Farben</string>
   <string name="prefs_text_layout_title">Textlayout</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morphologie</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Arbeitsbereich</string>
   <string name="copy_settings_to_window">Fenster %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Globale Standardwerte</string>
+  <string name="copy_settings_to_workspaces">In andere Arbeitsbereiche…</string>
+  <string name="copy_settings_to_global_defaults">In die globalen Standardwerte…</string>
+  <string name="menu_back">Zurück</string>
   <string name="change_to_normal">Zu normalem Fenster wechseln</string>
   <string name="window_pin_mode">Fixieren</string>
   <!--Notes screen-->
@@ -308,6 +369,7 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="failed_repositories_message">Konnte nicht mit dem folgenden Dokumentserver verbinden: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die folgenden Dateien konnten nicht heruntergeladen werden:\n\n%s\n\n</string>
   <string name="cant_delete_document">Dieses Dokument kann nicht gelöscht werden</string>
+  <string name="bad_document_warning">Dieses Dokument hat bekannte Probleme.</string>
   <!--Install zip file-->
   <string name="install_zip">Lade Dokumente aus Dateien</string>
   <string name="install_zip_module">Bibelmodul installieren</string>
@@ -361,6 +423,11 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="delete_index">Suchindex löschen</string>
   <string name="about">Info</string>
   <string name="delete_doc">%s löschen?</string>
+  <string name="interrupted_downloads_title">Download unterbrochen</string>
+  <string name="interrupted_downloads_message">Diese Dokumente wurden nicht installiert, weil ihr Download unterbrochen wurde:</string>
+  <string name="interrupted_downloads_question">Erneut herunterladen?</string>
+  <string name="download_again">Erneut herunterladen</string>
+  <string name="delete_docs_confirm">Diese Dokumente löschen?</string>
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
@@ -381,6 +448,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="assign_labels">Kategorie auswählen</string>
   <string name="new_item">Neu</string>
   <string name="label_name_prompt">Name</string>
+  <string name="new_label_default_name">Kategorie %d</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
   <string name="add_bookmark1">Lesezeichen</string>
   <string name="add_bookmark3">Auswahl</string>
@@ -431,6 +499,8 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="rewind">Zurück</string>
   <string name="forward">Vorwärts</string>
   <string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
+  <string name="tts_engine_not_available">Die Sprachausgabe funktioniert auf diesem Gerät nicht. Prüfen Sie, ob in den Text-to-Speech-Einstellungen des Systems eine Sprach-Engine installiert und aktiviert ist.</string>
+  <string name="tts_audio_focus_denied">Die Sprachausgabe konnte nicht starten, weil eine andere App die Audiowiedergabe verwendet.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Sprachgeschwindigkeit</string>
   <string name="speak_and_play_earcons_title">Text und Audiobenachrichtigungen abspielen für</string>
@@ -440,6 +510,10 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_bookmarks_menu_title">Aus den Lesezeichen vorlesen</string>
   <string name="speak_advanced_settings">Erweitert</string>
   <string name="speak_sleep_timer_title">Zeitgeber</string>
+  <string name="speak_sleep_timer_minutes">%d Min.</string>
+  <string name="speak_sleep_timer_custom">Benutzerdefiniert…</string>
+  <string name="speak_sleep_timer_off">Aus</string>
+  <string name="speak_other_settings">Sonstiges</string>
   <string name="speak_no_books_available">Keine Bücher zum Vorlesen verfügbar</string>
   <string name="speak_general_error">Sprachwiedergabe konnte für dieses Buch nicht gestartet werden</string>
   <string name="repeat_passage">Abschnitt wiederholen</string>
@@ -468,6 +542,11 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
   <string name="auto_assing_labels_help1">Hier kannst du einstellen, welche Kategorien den Lesezeichen, die du erstellst, automatisch zugewiesen werden.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Hier können Sie Kategorien hinzufügen, bearbeiten und entfernen und festlegen, welche automatisch den von Ihnen erstellten Lesezeichen zugewiesen werden.\n\nLetzte Kategorien: kürzlich verwendete Kategorien.\nWeitere Kategorien: alle anderen Kategorien.\n\nMit den Filteroptionen der Suchleiste sehen Sie nur automatisch zugewiesene oder favorisierte Kategorien.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Diese Einstellung betrifft %s.</string>
   <string name="setting_scope_window">dieses Fenster</string>
@@ -563,6 +642,9 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
   <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich gesichert</string>
   <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
+  <string name="backup_modules_conflict">Die Sicherung wurde nicht erstellt: %1$s und %2$s enthalten beide die Datei %3$s mit unterschiedlichem Inhalt. Wählen Sie nur eines davon aus und versuchen Sie es erneut.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (Version %2$s, Ordner %3$s)</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
   <string name="backup_modules_email_message_2">Angehängt findest du dein %1$s Modulbackup, welches folgende Module enthält: %2$s</string>
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
@@ -571,6 +653,9 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="exported_studypads_message">Ihre %s-Datenbank mit Lesezeichen und Notizen zu den ausgewählten StudyPads ist angehängt</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
   <string name="send_backup_file">Sende Backup</string>
+  <string name="export_destination_title">Wohin exportieren?</string>
+  <string name="export_destination_message">Speichern Sie den Export auf diesem Telefon oder senden Sie ihn mit „Teilen“ woandershin.</string>
+  <string name="send_export_file">Exportdatei senden</string>
   <string name="backup_modules_title">Zu sichernde Module auswählen</string>
   <string name="install_zip_canceled">Modulinstallation abgebrochen</string>
   <string name="ask_restore_or_import">Die Datenbank für %s kann entweder wiederhergestellt (d. h. die vorhandene Datenbank wird entfernt und die ausgewählte Datenbank wird geladen) oder importiert (die ausgewählte Datenbank wird in die vorhandene Datenbank importiert) werden. Was möchten Sie tun?</string>
@@ -611,12 +696,25 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="doc_type_book">Buch</string>
   <string name="doc_type_map">Karte</string>
   <string name="doc_type_addons">Add-ons</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Sonstige</string>
+  <string name="document_type_label">Dokumenttyp</string>
   <!--Languages-->
   <string name="lang_default">Vorgabe</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Abbruch</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Zurück</string>
+  <string name="settings_editor_close">Schließen</string>
+  <string name="settings_editor_apply">Anwenden</string>
   <string name="discard_changes_confirmation">Nicht gespeicherte Änderungen verwerfen?</string>
+  <string name="discard">Verwerfen</string>
+  <string name="remove">Entfernen</string>
+  <string name="overwrite">Überschreiben</string>
+  <string name="set_current_day_action">Tag festlegen</string>
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
@@ -626,6 +724,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Weiter</string>
   <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
   <string name="error_occurred_crash_last_time">Das letzte Mal, als du diese App verwendet hast, ist sie abgestürzt. Um uns beim Beheben dieses Fehlers zu helfen, würde es uns freuen, wenn du uns eine Fehlermeldung schicken würdest.</string>
@@ -636,8 +735,14 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_key_not_in_document2">%1$s wurde nicht in Dokument %2$s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
+  <string name="debug_test_error">Testfehler (Debug-Build)</string>
+  <string name="bug_report_prepare_failed">Der Bericht konnte nicht vorbereitet oder geteilt werden. Sie können es erneut versuchen oder Ihre Daten mit „Sicherung &amp; Wiederherstellung“ sichern.</string>
   <string name="bug_report_email_title">Fehlerbericht via E-Mail senden</string>
   <string name="bug_report_email_text">Als nächstes wähle bitte deine bevorzugte E-Mail Anwendung (z.B. Gmail) aus, um den Fehlerbericht an das Entwicklerteam zu senden.</string>
+  <string name="bug_report_manual_title">Bericht per E-Mail senden</string>
+  <string name="bug_report_manual_text_saved">Der Bericht wurde gespeichert unter</string>
+  <string name="bug_report_manual_text_unsaved">Auf diesem Gerät konnte kein E-Mail-Programm geöffnet werden.\n\nBitte senden Sie den Bericht per E-Mail an</string>
+  <string name="bug_report_copy_address">Adresse kopieren</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
@@ -661,6 +766,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="search_settings">Sucheinstellungen</string>
   <string name="dismiss">Verwerfen</string>
   <string name="workspace_listing_with_current">%s (aktuell)</string>
+  <string name="workspace_manage_workspaces">Arbeitsbereiche verwalten…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Das ist eine Beta-Version!</string>
   <string name="beta_notice_content_1">
@@ -704,7 +810,10 @@ Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</
   <string name="help_search_title">Suche</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Der Suchtext kann Sonderzeichen wie *, AND, OR, NOT enthalten</string>
+  <string name="help_search_bible">Wählen Sie, wie die Wörter abgeglichen werden: „Alle Wörter“ findet Verse, die jedes Wort enthalten, „Beliebiges Wort“ findet Verse, die mindestens eines enthalten, und „Phrase“ findet die Wörter direkt nebeneinander in dieser Reihenfolge.\n\nInnerhalb einer Suche können Sie auch * und ? als Platzhalter verwenden (zum Beispiel findet segn* die Wörter segnete und Segnung), Begriffe mit AND, OR und NOT verknüpfen und direkt nach Strong-Nummern suchen (zum Beispiel strong:h0430).</string>
+  <string name="help_search_epub">Wählen Sie, wie die Wörter abgeglichen werden: „Alle Wörter“ findet Abschnitte, die jedes Wort enthalten, „Beliebiges Wort“ findet Abschnitte, die mindestens eines enthalten, und „Phrase“ findet die Wörter direkt nebeneinander in dieser Reihenfolge.\n\nDie Rohabfrage-Syntax gibt Ihren Text unverändert an die Suchmaschine weiter, sodass Sie eine eigene Abfrage schreiben können: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" für eine exakte Phrase, bless* für jedes Wort, das mit bless beginnt, und grace NEAR faith, um sie nahe beieinander zu finden.</string>
   <string name="help_search_details">Siehe %s für mehr Details.</string>
+  <string name="help_search_syntax">Suchsyntax</string>
   <string name="help_fts5">FTS5 Volltextabfragesyntax</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
   <string name="help_workspaces_text">
@@ -721,6 +830,12 @@ Langes Drücken der Versauswahl führt zur Dokumentauswahl.</string>
 Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
 Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">In Ihrer Bibliothek sind noch keine Dokumente. Fügen Sie welche hinzu, um loszulegen.</string>
+  <string name="welcome_redownload_row_hint">Aus zuvor installierten Dokumenten auswählen</string>
+  <string name="welcome_download_row_hint">Den Online-Katalog durchsuchen</string>
+  <string name="welcome_restore_row_hint">Datenbankdatei mit Lesezeichen und Notizen</string>
+  <string name="welcome_link_website">Website</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>
@@ -736,9 +851,8 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="format_studypads">Studienmappen aus Bibel+ Datenbanken (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Schließen</string>
+  <string name="reading_toolbar_options">Weitere Optionen</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Verstanden</string>
-  <string name="first_time_help_show_next_time">Das nächste Mal erneut anzeigen</string>
   <string name="strongs_mode_title">Strong-Modus auswählen</string>
   <string name="download_dialog_message">Die folgenden Bücher konnten nicht heruntergeladen werden:</string>
   <string name="journal_description">Bearbeitbare Studienmappen mit benutzerdefiniertem Text und Lesezeichen</string>
@@ -763,6 +877,7 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="prefs_experimental_features_summary">Wählen Sie aus, welche experimentellen Funktionen aktiviert werden sollen. Diese Funktionen befinden sich noch in der Entwicklung und können sich ändern oder entfernt werden.</string>
   <string name="experimental_feature_bookmark_edit_actions">Aktionen zum Editieren von Lesezeichen</string>
   <string name="experimental_feature_add_paragraph_break">Absatzumbruch-Lesezeichen hinzufügen</string>
+  <string name="experimental_feature_toolbar_literal_color">Die tatsächliche Farbe des Arbeitsbereichs für die Lese-Symbolleiste verwenden (statt der Designfarbe)</string>
   <string name="raw_llm_log_title">KI-Rohprotokoll</string>
   <string name="raw_llm_log_empty">Keine Protokolldaten verfügbar</string>
   <string name="raw_llm_log_copied">Protokoll in die Zwischenablage kopiert</string>
@@ -861,6 +976,7 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="display_mode_underline">Unterstreichung</string>
   <string name="display_mode_marker">Nur Markierung</string>
   <string name="display_mode_hidden">Ausgeblendet</string>
+  <string name="display_mode_inherit">Wie Auswahl</string>
   <string name="workspace_override_indicator">Diese Kategorie hat einen arbeitsbereichsspezifischen Anzeigemodus</string>
   <string name="primary_label">Primärkategorie</string>
   <string name="favourite_label">Lieblingskategorie</string>
@@ -874,6 +990,8 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="book_menu_show_long_book_name">Zeige langen Buchnamen</string>
   <string name="book_menu_show_progress_bars">Fortschrittsbalken anzeigen</string>
   <string name="reset_workspace_labels">Möchtest du die automatische Zuweisung und Favoriteneinstellung für diesen Arbeitsbereich auf Standardwerte zurücksetzen?</string>
+  <string name="clear_auto_assign_labels">Automatisch zugewiesene Kategorien löschen</string>
+  <string name="reset_workspace_auto_assign_labels">Möchten Sie alle automatisch zugewiesenen Kategorien aus diesem Arbeitsbereich entfernen?</string>
   <string name="reset_hide_labels">Möchtest du die Einstellung zum Verstecken bestimmter Kategorien zurücksetzen?</string>
   <string name="reorder">Neu sortieren</string>
   <string name="system_items">Systemaktionen</string>
@@ -945,6 +1063,27 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="instructions_for_translators">Anweisungen für Übersetzer</string>
   <string name="questions_title">Fragen?</string>
   <string name="bookmark_style">Lesezeichenstil</string>
+  <string name="bookmark_style_preview_sample">Denn also hat Gott die Welt geliebt</string>
+  <string name="bookmark_style_selection">Lesezeichen für Textauswahl</string>
+  <string name="bookmark_style_whole_verse">Lesezeichen für ganze Verse</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Für Lesezeichen ganzer Verse einen anderen Stil verwenden</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Auswahl</string>
+  <string name="bookmark_style_tag_whole_verse">Ganzer Vers</string>
+  <string name="bookmark_style_tag_workspace">Arbeitsbereich</string>
+  <string name="show_style_examples">Stilbeispiele anzeigen</string>
+  <string name="labels_search_section">Suche</string>
+  <string name="labels_filter_section">Anzeigen</string>
+  <string name="labels_filter_auto_assign">Nur automatisch zugewiesene Kategorien</string>
+  <string name="labels_filter_favourite">Nur favorisierte Kategorien</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Haken Sie eine Kategorie an, um sie diesem Lesezeichen zuzuweisen.</string>
+  <string name="manage_labels_help_primary">Die primäre Kategorie. Ihre Farbe und ihr Stil bestimmen, wie das Lesezeichen angezeigt wird.</string>
+  <string name="manage_labels_help_autoassign">Diese Kategorie automatisch jedem neuen Lesezeichen zuweisen. Ein hohler Blitz bedeutet aus.</string>
+  <string name="manage_labels_help_favourite">Die Kategorie für schnellen Zugriff in Ihren Favoriten behalten.</string>
+  <string name="manage_labels_help_styles">Unter dem Namen zeigt ein kleines Beispiel das Aussehen der Kategorie: „Auswahl“ für ein Lesezeichen auf einer Textauswahl, „Ganzer Vers“ für ein Lesezeichen auf einem ganzen Vers und ein Tag „Arbeitsbereich“ für einen Stil, den dieser Arbeitsbereich überschreibt. Ein ausgegrautes Beispiel ohne Dekoration bedeutet, dass die Lesezeichen der Kategorie nicht gezeichnet werden. Blenden Sie die Beispiele über das ⋮-Menü aus.</string>
+  <string name="manage_labels_help_reorder">Ändern Sie die Reihenfolge der Liste über das ⋮-Menü.</string>
   <string name="added_to_bookmark">Diesem Lesezeichen zugewiesen</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
@@ -992,6 +1131,7 @@ den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
   <string name="sync_group_n">Gruppe %d</string>
   <string name="disable_sync">Synchronisation abschalten</string>
   <string name="open_in_window">Ergebnisse in einem Fenster öffnen</string>
+  <string name="open_result_in_links_window">Ergebnis im Link-Fenster öffnen</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Benutzerdefinierte Quellen</string>
@@ -1002,7 +1142,6 @@ den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
   <string name="delete_custom_repository">Möchtest du die benutzerdefinierte Quelle %s entfernen?</string>
   <string name="custom_repositories_help1">Um eine neue benutzerdefinierte Quelle anzulegen, gib die URL der Quelle hier ein.</string>
   <string name="custom_repositories_help2">Du kannst in %s mehr über benutzerdefinierte Quellen nachlesen.</string>
-  <string name="wiki_page">WIKI Seite</string>
   <string name="custom_repositories_help0">Du kannst Dokumente von externen benutzerdefinierten Quellen installieren, indem du sie hier anlegst.</string>
   <string name="duplicate_custom_repository">Quellverzeichnis mit Namen %s existiert bereits, es kann kein anderes angelegt werden.</string>
   <string name="packages_dir">Paketverzeichnis (ZIP-Dateien)</string>
@@ -1046,6 +1185,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="reading_progress_new_cycle_confirm">Einen neuen Lesezyklus starten? Dies beginnt die Fortschrittsverfolgung von vorne, während die Daten des vorherigen Zyklus erhalten bleiben.</string>
   <string name="reading_progress_previous_cycle">Vorheriger Zyklus</string>
   <string name="reading_progress_next_cycle">Nächster Zyklus</string>
+  <string name="cloud_merge_data">Daten zusammenführen</string>
   <string name="cloud_fetch_and_restore_initial">Kopiere von der Cloud auf dieses Gerät</string>
   <string name="cloud_create_new">Kopiere von diesem Gerät in die Cloud</string>
   <string name="cloud_disable_sync">Abbrechen &amp; Synchronisation ausschalten</string>
@@ -1059,6 +1199,19 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="sync_adapter_summary">Zur Zeit: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adresse des WebDAV-Ordners, z. B. https://nas.local/dav/ oder https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Die Synchronisierung erfordert eine sichere https://-Adresse.</string>
+  <string name="webdav_certificate_title">Serverzertifikat</string>
+  <string name="webdav_forget_certificate_message">Das vertrauenswürdige Serverzertifikat vergessen? Sie werden bei der nächsten Verbindung erneut gebeten, das Zertifikat zu bestätigen.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Nicht vertrauenswürdiges Serverzertifikat</string>
+  <string name="webdav_untrusted_certificate_message">Dem Zertifikat von %1$s wird von Android nicht vertraut. Vertrauen Sie ihm nur, wenn Sie es erkennen, zum Beispiel weil Sie diesen Server selbst eingerichtet haben.\n\nSubjekt: %2$s\nAussteller: %3$s\nGültig: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Diesem Zertifikat vertrauen</string>
+  <string name="webdav_wrong_credentials">Falscher Benutzername oder falsches Passwort.</string>
+  <string name="webdav_not_a_folder">Die Adresse ist kein WebDAV-Ordner.</string>
+  <string name="webdav_certificate_changed">Das Serverzertifikat hat sich geändert. Die Synchronisierung ist angehalten, bis Sie das neue Zertifikat bestätigen. AndBible fragt beim nächsten Öffnen oder bei der nächsten Synchronisierung im Vordergrund danach.</string>
+  <string name="webdav_storage_full">Der Speicher des Servers ist voll.</string>
   <string name="auth_server_uri">Serveradresse</string>
   <string name="auth_username">Benutzer</string>
   <string name="auth_password">Passwort</string>
@@ -1068,6 +1221,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="sync_general_settings">Info &amp; allgemeine Einstellungen</string>
   <string name="sync_introduction">Einführung</string>
   <string name="are_you_sure">Bist du sicher?</string>
+  <string name="are_you_sure_merge">Sowohl die Daten auf diesem Gerät als auch die %s in der Cloud bleiben erhalten. Wurde derselbe Eintrag auf beiden geändert, bleibt die neuere Änderung erhalten. Die Daten dieses Geräts werden an Ihre anderen Geräte gesendet.</string>
   <string name="are_you_sure_reset_local">Das wird deine lokale Datenbank für %s mit den Inhalten ersetzen, die zur Zeit in der Cloud gespeichert sind.</string>
   <string name="are_you_sure_reset_cloud">Das wird deine Datenbank in der Cloud für %s mit den Inhalten ersetzen, die auf deinem lokalen Gerät gespeichert sind.</string>
   <string name="sync_cant_fetch">Die in der Cloud gespeicherte Datenbankversion ist höher, als die Anwendung auf dem lokalen Gerät unterstützt.</string>
@@ -1103,6 +1257,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="pref_font_size_multiplier_title">Schriftgrößenvervielfachung</string>
   <string name="pref_font_size_multiplier_summary_1">Vergrößere Schriftgrößen um diesen Faktor.</string>
   <string name="pref_font_size_multiplier_summary_2">Hilfreich, wenn du ein anderes, synchronisiertes Gerät besitzt, das eine größere Schriftgröße benutzt.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Derzeitiger Wert: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Aktion beim Wischen nach rechts</string>
   <string name="prefs_bible_view_swipe_mode_summary">Das Wischen nach rechts kann verwendet werden, um zur nächsten Seite oder Kapitel zu gelangen.</string>
@@ -1223,6 +1378,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="prompt_max_iterations_unlimited">Unbegrenzt</string>
   <string name="prompt_max_iterations_global_default">Globaler Standard (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Globale maximale Iterationen für diesen Prompt überschreiben. 0 = unbegrenzt.\nAktuell: %s</string>
+  <string name="prompt_max_iterations_use_global">Globale Einstellung verwenden (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">KI-Prompts verwalten</string>
   <string name="manage_prompts_summary">KI-Prompts erstellen und bearbeiten</string>
@@ -1356,6 +1512,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="built_in_prompt_notice">Dies ist ein integrierter Prompt und kann nicht bearbeitet werden. Verwenden Sie „Zum Anpassen kopieren\", um eine bearbeitbare Kopie zu erstellen.</string>
   <string name="copy_to_customize">Zum Anpassen kopieren</string>
   <string name="prompt_copied">Prompt kopiert</string>
+  <string name="prompt_copy_failed">Der Prompt konnte nicht kopiert werden. Möglicherweise wurde er gelöscht.</string>
   <string name="delete_prompt_confirmation">Prompt „%s\" löschen?</string>
   <string name="prompt_name_required">Prompt-Name ist erforderlich</string>
   <string name="prompt_template_required">Prompt-Vorlage ist erforderlich</string>
@@ -1563,6 +1720,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="tool_option_default_disabled">Standard (deaktiviert)</string>
   <string name="tool_option_default_allowed">Standard (erlaubt)</string>
   <string name="tool_option_default_denied">Standard (verweigert)</string>
+  <string name="tool_description_info">Werkzeugbeschreibung anzeigen</string>
+  <string name="tool_permission_mixed">Gemischt</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
@@ -1608,6 +1767,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="my_document_pages_empty">Keine Seiten in diesem Dokument.</string>
   <string name="my_document_page_rename_title">Seite umbenennen</string>
   <string name="my_document_page_delete_confirmation">Seite \"%s\" löschen?</string>
+  <string name="my_document_pages_delete_confirmation">Diese Seiten löschen?</string>
+  <string name="my_documents_switch_document">Dokument wechseln</string>
   <string name="my_document_new_page_name">Seite %1$d</string>
   <string name="my_document_create_page_title">Neue Seite</string>
   <string name="my_document_content_type_label">Inhaltstyp</string>
@@ -1704,4 +1865,91 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="document_sync_started">Dokumentsynchronisierung gestartet</string>
   <string name="document_sync_enable_dialog_title">Dokumentsynchronisierung starten?</string>
   <string name="document_sync_enable_dialog_nothing">Noch keine Dokumente zu übertragen. Neu installierte Dokumente werden automatisch synchronisiert.</string>
+  <string name="help_document_sync_text">Die Dokumentsynchronisierung kopiert Ihre installierten Bibeln, Kommentare und anderen Dokumente in die Cloud und hält sie auf Ihren Geräten synchron. In dieser Ansicht sehen Sie, was in der Cloud gespeichert ist, können einzelne Dokumente herunter- oder hochladen, Dokumente entfernen und steuern, was auf dieses Gerät synchronisiert wird.</string>
+  <string name="background_image_title">Hintergrundbild</string>
+  <string name="background_image_none">Kein Hintergrund</string>
+  <string name="background_image_import">Aus Galerie importieren…</string>
+  <string name="background_image_empty">Noch keine Bilder importiert. Tippen Sie auf „Aus Galerie importieren…“, um eines hinzuzufügen.</string>
+  <string name="background_image_importing">Wird importiert…</string>
+  <string name="background_image_delete_title">Bild löschen?</string>
+  <string name="background_image_delete_confirm">Dieses Hintergrundbild löschen? Arbeitsbereiche, die es noch verwenden, fallen auf „kein Bild“ zurück.</string>
+  <string name="background_image_day">Hintergrundbild (Tag)</string>
+  <string name="background_image_night">Hintergrundbild (Nacht)</string>
+  <string name="background_image_opacity_day">Deckkraft des Hintergrundbilds (Tag)</string>
+  <string name="background_image_opacity_night">Deckkraft des Hintergrundbilds (Nacht)</string>
+  <string name="background_image_change">Ändern</string>
+  <string name="color_picker_title">Farbe auswählen</string>
+  <string name="color_picker_presets">Voreinstellungen</string>
+  <string name="color_picker_custom">Benutzerdefiniert</string>
+  <string name="bookmark_expand_row">Ganzen Text anzeigen</string>
+  <string name="bookmark_collapse_row">Weniger anzeigen</string>
+  <string name="bookmark_label_filter">Nach Kategorie filtern</string>
+  <string name="document_quick_all_documents">Alle Dokumente…</string>
+  <string name="document_quick_tab_recent">Zuletzt</string>
+  <string name="document_quick_tab_for_verse">Dieser Vers</string>
+  <string name="document_quick_tab_last_filter">Letzter Filter</string>
+  <string name="document_quick_tab_all">Alle</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtern und sortieren</string>
+  <string name="doc_arrange_repository">Quelle</string>
+  <string name="doc_arrange_all_repositories">Alle Quellen</string>
+  <string name="doc_arrange_sort">Sortierung</string>
+  <string name="doc_arrange_group_by">Gruppieren nach</string>
+  <string name="doc_arrange_remember">Diese Einstellungen merken</string>
+  <string name="doc_arrange_reset">Auf Standard zurücksetzen</string>
+  <string name="doc_arrange_more_filters">Weitere Filter</string>
+  <string name="doc_arrange_reorder">Neu anordnen</string>
+  <string name="doc_sort_ascending">Aufsteigend</string>
+  <string name="doc_sort_descending">Absteigend</string>
+  <string name="doc_sort_status">Status</string>
+  <string name="doc_sort_recommended">Empfohlene zuerst</string>
+  <string name="doc_sort_name">Name</string>
+  <string name="doc_sort_size">Größe</string>
+  <string name="doc_group_none">Keine Gruppierung</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Wird heruntergeladen</string>
+  <string name="doc_group_status_update_available">Update verfügbar</string>
+  <string name="doc_group_status_installed">Installiert</string>
+  <string name="doc_group_status_not_installed">Nicht installiert</string>
+  <string name="prompt_filter_title">Prompts filtern</string>
+  <string name="prompt_filter_type">Typ</string>
+  <string name="prompt_type_addon">Add-on</string>
+  <string name="prompt_type_user">Benutzerdefiniert</string>
+  <string name="prompt_filter_clear">Filter löschen</string>
+  <string name="prompt_favorite_add">Zu Favoriten hinzufügen</string>
+  <string name="prompt_favorite_remove">Aus Favoriten entfernen</string>
+  <string name="window_unmaximise">Alle Fenster wiederherstellen</string>
+  <string name="window_menu_button">Fenstermenü</string>
+  <string name="paste_from_clipboard">Einfügen</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Ziehgriff</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Ihre Daten werden aktualisiert…</string>
+  <string name="legacy_migration_progress_neutral">Wird aktualisiert…</string>
+  <string name="legacy_migration_failed_title">Ihre Daten konnten nicht aktualisiert werden</string>
+  <string name="legacy_migration_failed_message">Ihre Daten aus der vorherigen Version der App sind sicher und unverändert auf diesem Gerät. Wählen Sie, wie es weitergeht.</string>
+  <string name="legacy_migration_failed_keychain">Gespeicherte Passwörter aus der vorherigen Version konnten nicht gelesen werden. Entsperren Sie Ihr Gerät und schließen Sie die App, dann öffnen Sie sie erneut.</string>
+  <string name="legacy_migration_rollback_pending">Das Update wurde unterbrochen und ist noch nicht vollständig rückgängig gemacht. Schließen Sie die App und öffnen Sie sie erneut, um das Rückgängigmachen abzuschließen.</string>
+  <string name="legacy_migration_save_old_data">Alte Daten sichern</string>
+  <string name="legacy_migration_send_report">Fehlerbericht senden</string>
+  <string name="legacy_migration_try_again">Erneut versuchen</string>
+  <string name="legacy_migration_try_again_hint">Schließen Sie die App und öffnen Sie sie erneut, um es noch einmal zu versuchen.</string>
+  <string name="legacy_migration_restore_backup">Sicherung wiederherstellen</string>
+  <string name="legacy_migration_start_fresh">Ohne alte Daten starten</string>
+  <string name="legacy_migration_start_fresh_confirm">Ihre alten Daten bleiben auf diesem Gerät. Sie können sie später in den Einstellungen importieren.</string>
+  <string name="legacy_import_title">Daten aus der vorherigen App-Version importieren</string>
+  <string name="legacy_import_summary">Die aktuellen Daten durch die Daten der vorherigen App-Version ersetzen</string>
+  <string name="legacy_import_confirm">Dadurch werden Ihre aktuellen Arbeitsbereiche, Lesezeichen und anderen Daten durch die Daten der vorherigen App-Version ersetzt. Eine Kopie Ihrer aktuellen Daten bleibt auf diesem Gerät erhalten.</string>
+  <string name="legacy_import_reopen">Schließen Sie die App und öffnen Sie sie erneut, um Ihre Daten zu importieren.</string>
+  <string name="legacy_notice_icloud">Die Synchronisierung verwendet jetzt iCloud Drive. Schalten Sie sie unter Einstellungen → Synchronisierung wieder ein. Dieses Gerät behält seinen Stand; Änderungen Ihrer anderen Geräte kommen an, sobald die Synchronisierung wieder eingerichtet ist. Um die alten iCloud-Daten freizugeben: Einstellungen → Ihr Name → iCloud → Speicher verwalten → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Ihre Nextcloud-Verbindung wurde übernommen, aber die Synchronisierung ist aus. Schalten Sie sie unter Einstellungen → Synchronisierung ein und wählen Sie, ob aus der Cloud abgerufen oder neu erstellt werden soll.</string>
+  <string name="legacy_notice_nextcloud_unsent">Einige Änderungen auf diesem Gerät waren noch nicht an Nextcloud gesendet worden. Sie wurden nicht gesendet und bleiben nur auf diesem Gerät.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Es ist eine leistungsstarke und dennoch einfach zu bedienende Offline-Bibelstudienanwendung.</string>
+  <string name="webdav_untrusted_certificate_message_device">Dem Zertifikat von %1$s wird von diesem Gerät nicht vertraut. Vertrauen Sie ihm nur, wenn Sie es erkennen, zum Beispiel weil Sie diesen Server selbst eingerichtet haben.\n\nSubjekt: %2$s\nAussteller: %3$s\nGültig: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Benutzerdefinierte Quellen müssen eine sichere https://-Adresse verwenden.</string>
+  <string name="custom_repository_https_required_refresh">%1$s verwendet eine http://-Adresse. Es können nur https://-Quellen verwendet werden.</string>
 </resources>

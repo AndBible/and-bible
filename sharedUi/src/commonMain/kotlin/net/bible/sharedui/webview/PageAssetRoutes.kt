@@ -28,6 +28,15 @@ interface PageAssetEpubSource {
     /** `/module-style/epub/<initials>/<path>`: a resource of the installed EPUB [initials]. */
     fun openBookResource(initials: String, relativePath: String): Source?
 
+    /**
+     * The verified file behind `/epub/<path>` when the platform can serve it straight from disk (no copy, no lease),
+     * else null and [openResource] is used. The path is already inside the book's directory.
+     */
+    fun resourceFile(relativePath: String): Path? = null
+
+    /** The verified file behind `/module-style/epub/<initials>/<path>`, or null (see [resourceFile]). */
+    fun bookResourceFile(initials: String, relativePath: String): Path? = null
+
     /** `/module-style/epub/<initials>/<key>/style.css`: the stylesheets of that EPUB page joined, or null. Called off the main thread. */
     fun styleSheet(initials: String, key: String): String?
 }
@@ -58,7 +67,7 @@ private val epubLineHeightRe = Regex("""\bline-height:[^;]*;""")
  * - `/module/<initials>/<path>`: a file under the installed book's location ([bookLocation]).
  * - `/fonts/<initials>/<path>`: a file under the book's location. `fonts.css` declares readable add-on fonts
  *   from [fonts], with relative URLs resolved through this same traversal-safe route.
- * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]); without a verifier
+ * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]), served as the verified bytes; without a verifier
  *   nothing is served.
  * - `/module-style/<initials>/<path>`: the book's `AndBibleCSS` stylesheet (`style.css`) or a file beside it.
  * - `/module-style/epub/<initials>/<key>/style.css` and `/module-style/epub/<initials>/<path>`, `/epub/<path>`: EPUB
@@ -72,7 +81,8 @@ class PageAssetRoutes(
     private val backgrounds: () -> Map<String, Path>,
     private val bookLocation: (String) -> Path?,
     private val bookStyleFile: (String) -> String?,
-    private val verify: ((file: Path, signature: Path) -> Boolean)?,
+    /** Checks the already-read feature [content] against its `.sign` file; the same bytes are then served (no TOCTOU re-read). */
+    private val verify: ((content: ByteArray, signature: Path) -> Boolean)?,
     private val epub: PageAssetEpubSource? = null,
     private val log: (String) -> Unit = {},
     private val mimeType: (String) -> String = ::pageAssetMimeType,
@@ -135,7 +145,10 @@ class PageAssetRoutes(
         val file = within(base, relative) ?: return null
         if (signed) {
             val check = verify ?: return null
-            if (!check(file, file.parent!! / (file.name + ".sign"))) return null
+            // Read once, verify those bytes, serve those bytes: the file may change on disk after this point.
+            val content = try { fs.read(file) { readByteArray() } } catch (_: Exception) { return null }
+            if (!check(content, file.parent!! / (file.name + ".sign"))) return null
+            return PageAsset.Bytes(content, mimeType(relative))
         }
         return PageAsset.File(file, mimeType(relative))
     }
@@ -156,6 +169,7 @@ class PageAssetRoutes(
     private fun epubResource(relative: String): PageAsset? {
         val source = epub ?: return unsupported("epub")
         if (!isSafeRelative(relative)) return null
+        source.resourceFile(relative)?.let { return PageAsset.File(it, mimeType(relative)) }
         return source.openResource(relative)?.let { PageAsset.Stream(it, mimeType(relative)) }
     }
 
@@ -172,6 +186,7 @@ class PageAssetRoutes(
             val cleaned = css.replace(epubColorRe, "").replace(epubBodyRe, "").replace(epubLineHeightRe, "")
             return PageAsset.Bytes(cleaned.encodeToByteArray(), "text/css")
         }
+        source.bookResourceFile(initials, relative)?.let { return PageAsset.File(it, mimeType(relative)) }
         return source.openBookResource(initials, relative)?.let { PageAsset.Stream(it, mimeType(relative)) }
     }
 

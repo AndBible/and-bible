@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible이 성경 본문을 표시하는 데 필요한 WebView2를 시작하지 못했습니다. 다음 위치에서 Microsoft Edge WebView2 Evergreen Runtime을 설치하거나 복구하세요:\n%1$s\n\n자세한 내용은 로그 파일에 있습니다:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible은 WebView2로 성경 본문을 표시하기 위해 Direct3D 그래픽이 필요합니다. 현재 그래픽 렌더러는 %1$s입니다. 그래픽 드라이버와 Direct3D 지원을 확인하세요.\n\n자세한 내용은 로그 파일에 있습니다:\n%2$s</string>
+  <string name="desktop_update_setting_title">업데이트 확인</string>
+  <string name="desktop_update_setting_summary">하루에 한 번, github.com에서 확인</string>
+  <string name="desktop_update_consent_title">업데이트를 확인하시겠습니까?</string>
+  <string name="desktop_update_consent_message">AndBible은 하루에 한 번 github.com에서 새 버전이 있는지 확인할 수 있습니다. GitHub에는 사용자의 IP 주소만 보이며, 그 밖의 정보는 전송되지 않습니다. 나중에 설정에서 변경할 수 있습니다.</string>
+  <string name="desktop_update_consent_yes">업데이트 확인</string>
+  <string name="desktop_update_consent_no">확인 안 함</string>
+  <string name="desktop_update_available_title">새 버전이 있습니다</string>
+  <string name="desktop_update_available_message">AndBible %1$s을(를) 사용할 수 있습니다. 현재 버전은 %2$s입니다.</string>
+  <string name="desktop_update_download">다운로드</string>
+  <string name="desktop_update_later">나중에</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">성경 공부</string>
   <string name="app_name_medium">성경 연구 (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">검색 결과 %d건</string>
   <string name="search_showing_first">검색 결과가 너무 많습니다. 상위 %d건을 보여드립니다.</string>
   <string name="search_bible_section_group_prompt">검색 위치</string>
+  <string name="search_type_prompt">검색 유형</string>
+  <string name="search_show_results">검색 결과 표시</string>
   <string name="search_all_bible">성경 전체</string>
   <string name="search_new_testament">신약 성경</string>
   <string name="search_old_testament">구약 성경</string>
@@ -80,6 +94,28 @@
   <string name="search_what">\"%s\" 찾기</string>
   <!--Multi-translation search-->
   <string name="search_translations">번역본</string>
+  <string name="recent_searches">최근 검색</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">검색 닫기</string>
+  <string name="search_options">검색 설정</string>
+  <string name="search_submit">검색</string>
+  <string name="search_clear">검색어 지우기</string>
+  <string name="search_engine_changed_reindex">검색 엔진이 업데이트되었습니다. 검색 색인을 다시 만들어야 하며, 시간이 걸릴 수 있습니다.</string>
+  <string name="search_unsupported_syntax">지원되지 않는 구문을 사용한 검색입니다: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">색인 작업이 끝나면 검색이 자동으로 실행됩니다.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s에서는 검색할 수 없습니다</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">이 문서에서는 검색할 수 없습니다</string>
+  <string name="search_indexing_notification_title">검색 색인 만드는 중</string>
   <string name="choose_translations">번역본 선택…</string>
   <string name="multi_search_results">%2$d개의 번역본에서 %1$d개의 구절</string>
   <string name="search_index_not_created">색인 없음</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">색상이 표시되는 방식을 선택하세요. 컬러 잉크(e-ink) 모드는 흑백 바탕을 유지하면서 북마크 색상, 활성 창 표시기, 도우미 선을 컬러로 표시합니다 — 컬러 전자책 화면용입니다.</string>
   <string name="prefs_display_color_mode_normal">일반</string>
   <string name="prefs_display_color_mode_bw">흑백</string>
+  <string name="prefs_display_color_mode_monochrome">흑백</string>
   <string name="prefs_display_color_mode_color_eink">컬러 전자책(e-ink)</string>
+  <string name="prefs_theme_palette_style_title">테마 스타일</string>
+  <string name="prefs_theme_palette_style_summary">워크스페이스 색상에서 앱 색상을 만드는 방식입니다. 색상 모드가 일반일 때만 적용됩니다.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">토널 스폿 (부드럽게, 회색 유지)</string>
+  <string name="prefs_theme_palette_style_fidelity">충실 (정확한 색상)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">토널 스폿 (기본)</string>
+  <string name="prefs_theme_palette_style_content">콘텐츠 (색상에 가깝게)</string>
+  <string name="prefs_theme_palette_style_neutral">중립 (차분하게)</string>
+  <string name="prefs_theme_palette_style_monochrome">흑백 (회색)</string>
+  <string name="prefs_theme_palette_style_vibrant">선명하게</string>
+  <string name="prefs_theme_palette_style_expressive">표현적</string>
+  <string name="prefs_theme_palette_style_rainbow">무지개</string>
+  <string name="prefs_theme_palette_style_fruit_salad">과일 샐러드</string>
   <string name="prefs_eink_settings_cat">E-ink 설정</string>
   <string name="prefs_eink_display_title">E-ink 기능</string>
   <string name="prefs_eink_display_summary">E-ink 전용 기능 활성화 (페이지 스크롤 버튼, 스크롤 보조선)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">스크롤 시 자동으로 장을 읽음으로 표시</string>
   <string name="reading_progress_read_count_scale">읽은 횟수</string>
   <string name="reading_progress_percent_read_scale">읽은 비율</string>
+  <string name="monochrome_activity_count">활동 횟수: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">횟수: %d</string>
+  <string name="monochrome_level">단계: %d/4</string>
+  <string name="monochrome_buckets">회색: 없음, 윤곽선: 일부, 채움: 전체 또는 최고 단계. 항목을 선택하면 정확한 값을 볼 수 있습니다.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">읽기 기록</string>
   <string name="reading_progress_history_for">%1$s의 읽기 진행 현황</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">이 워크스페이스의 텍스트 표시 설정 편집</string>
   <string name="global_text_options_link">전체 텍스트 옵션</string>
   <string name="global_text_options_link_summary">모든 워크스페이스의 기본 텍스트 표시 설정 편집</string>
+  <string name="text_options_inherited_workspace">워크스페이스</string>
+  <string name="text_options_inherited_global">전체</string>
   <string name="prefs_font_and_colors_title">글꼴 &amp; 색상</string>
   <string name="prefs_text_layout_title">텍스트 레이아웃</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; 형태론</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">워크스페이스</string>
   <string name="copy_settings_to_window">창 %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">전체 기본값</string>
+  <string name="copy_settings_to_workspaces">다른 워크스페이스로…</string>
+  <string name="copy_settings_to_global_defaults">전체 기본값으로…</string>
+  <string name="menu_back">뒤로</string>
   <string name="change_to_normal">보통 윈도우로 변경</string>
   <string name="window_pin_mode">고정하기</string>
   <!--Notes screen-->
@@ -308,6 +369,7 @@
   <string name="failed_repositories_message">다음 서버에 연결하지 못했습니다: \n\n%s\n\n</string>
   <string name="failed_downloads_message">다음 파일들을 다운로드하지 못했습니다:\n\n%s\n\n</string>
   <string name="cant_delete_document">이 문서는 삭제할 수 없습니다.</string>
+  <string name="bad_document_warning">이 문서에는 알려진 문제가 있습니다.</string>
   <!--Install zip file-->
   <string name="install_zip">파일에서 문서 불러오기</string>
   <string name="install_zip_module">성경 모듈 설치</string>
@@ -376,6 +438,11 @@
   <string name="delete_index">검색 색인을 삭제</string>
   <string name="about">소개</string>
   <string name="delete_doc">%s 을 (를) 삭제하시겠습니까?</string>
+  <string name="interrupted_downloads_title">다운로드가 중단되었습니다</string>
+  <string name="interrupted_downloads_message">다운로드가 중단되어 다음 문서가 설치되지 않았습니다:</string>
+  <string name="interrupted_downloads_question">다시 다운로드하시겠습니까?</string>
+  <string name="download_again">다시 다운로드</string>
+  <string name="delete_docs_confirm">이 문서들을 삭제하시겠습니까?</string>
   <string name="delete_search_index_doc">%s의 색인을 삭제하시겠습니까?</string>
   <!--Verse context menu-->
   <string name="notes">각주 및 참고 문헌</string>
@@ -396,6 +463,7 @@
   <string name="assign_labels">할당 레이블</string>
   <string name="new_item">새로운</string>
   <string name="label_name_prompt">이름</string>
+  <string name="new_label_default_name">레이블 %d</string>
   <string name="label_unlabelled">미분류</string>
   <string name="add_bookmark1">북마크</string>
   <string name="add_bookmark3">선택</string>
@@ -446,6 +514,8 @@
   <string name="rewind">되감기</string>
   <string name="forward">앞으로</string>
   <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
+  <string name="tts_engine_not_available">이 기기에서 음성 읽기가 작동하지 않습니다. 시스템의 음성 읽기 설정에서 음성 엔진이 설치되고 사용 설정되어 있는지 확인하세요.</string>
+  <string name="tts_audio_focus_denied">다른 앱이 오디오를 사용 중이어서 음성 읽기를 시작할 수 없습니다.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">읽기 속도</string>
   <string name="speak_and_play_earcons_title">읽기 및 이어콘 소리 재생</string>
@@ -455,6 +525,10 @@
   <string name="speak_bookmarks_menu_title">북마크에서 읽기</string>
   <string name="speak_advanced_settings">고급 설정</string>
   <string name="speak_sleep_timer_title">잠자기 타이머</string>
+  <string name="speak_sleep_timer_minutes">%d분</string>
+  <string name="speak_sleep_timer_custom">직접 설정…</string>
+  <string name="speak_sleep_timer_off">끔</string>
+  <string name="speak_other_settings">기타</string>
   <string name="speak_no_books_available">읽을 수 있는 책이 없습니다</string>
   <string name="speak_general_error">이 책은 읽을 수 없습니다</string>
   <string name="repeat_passage">단락 반복</string>
@@ -483,6 +557,11 @@
   <string name="speak_autobookmarking_disabled">자동 북마크가 비활성화됐습니다!</string>
   <string name="system_speak_settings">시스템 TTS 설정 열기</string>
   <string name="auto_assing_labels_help1">여기서 만드는 북마크에 자동으로 어떤 레이블을 지정할지 조절할 수 있습니다.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">여기에서 레이블을 추가, 편집, 삭제하고 새로 만드는 북마크에 자동으로 지정할 레이블을 조정할 수 있습니다.\n\n최근 레이블: 최근에 사용한 레이블입니다.\n기타 레이블: 나머지 모든 레이블입니다.\n\n검색 창의 필터 옵션을 사용하면 자동 지정 레이블이나 즐겨찾는 레이블만 볼 수 있습니다.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">이 설정은 %s에 적용됩니다.</string>
   <string name="setting_scope_window">이 창</string>
@@ -594,6 +673,9 @@
   <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
   <string name="backup_success2">내 노트, 북마크, 스터디 패드, 읽기 계획과 워크스페이스를 성공적으로 백업하였습니다.</string>
   <string name="backup_modules_success">선택한 모듈들을 성공적으로 백업하였습니다.</string>
+  <string name="backup_modules_conflict">백업이 만들어지지 않았습니다. %1$s와(과) %2$s 모두 %3$s 파일을 포함하고 있으며 내용이 서로 다릅니다. 둘 중 하나만 선택한 후 다시 시도하세요.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (버전 %2$s, 폴더 %3$s)</string>
   <string name="backup_modules_email_subject_2">%s 모듈 백업</string>
   <string name="backup_modules_email_message_2">첨부된 파일은 %1$s 모듈 백업이며, 다음 모듈이 포함되어 있습니다: %2$s</string>
   <string name="backup_email_subject_2">%s 데이터베이스 백업</string>
@@ -602,6 +684,9 @@
   <string name="exported_studypads_message">선택한 StudyPad와 관련된 즐겨찾기 및 노트가 포함된 %s 데이터베이스가 첨부되어 있습니다</string>
   <string name="restore_unsuccessfull">데이터 복원이 실파했습니다. 아마 잘못된 데이터베이스 파일을 선택한 것 같습니다.</string>
   <string name="send_backup_file">백업 파일 보내기</string>
+  <string name="export_destination_title">어디로 내보내시겠습니까?</string>
+  <string name="export_destination_message">내보내기 파일을 이 휴대폰에 저장하거나 공유로 다른 곳에 보낼 수 있습니다.</string>
+  <string name="send_export_file">내보내기 파일 보내기</string>
   <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
   <string name="install_zip_canceled">모듈 설치가 취소됨</string>
   <string name="ask_restore_or_import">%s의 데이터베이스를 복원(기존 데이터베이스를 제거하고 선택한 데이터베이스를 로드)하거나 가져오기(선택한 데이터베이스를 기존 데이터베이스로 가져오기)할 수 있습니다. 어떻게 하시겠습니까?</string>
@@ -643,12 +728,25 @@
   <string name="doc_type_book">책</string>
   <string name="doc_type_map">지도</string>
   <string name="doc_type_addons">애드온</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">기타</string>
+  <string name="document_type_label">문서 유형</string>
   <!--Languages-->
   <string name="lang_default">기본</string>
   <!--General-->
   <string name="okay">확인</string>
   <string name="cancel">취소</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">뒤로</string>
+  <string name="settings_editor_close">닫기</string>
+  <string name="settings_editor_apply">적용</string>
   <string name="discard_changes_confirmation">저장하지 않은 변경 사항을 취소하시겠습니까?</string>
+  <string name="discard">버리기</string>
+  <string name="remove">제거</string>
+  <string name="overwrite">덮어쓰기</string>
+  <string name="set_current_day_action">날짜 설정</string>
   <string name="yes">네</string>
   <string name="no">없음</string>
   <string name="error">오류</string>
@@ -658,6 +756,7 @@
   <string name="watch_tutorial_video">튜토리얼 비디오를 봐 주세요 (영어)</string>
   <string name="verse_not_found">절이 없음</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">계속</string>
   <string name="report_error">보고서 를 보내기</string>
   <string name="error_occurred">오류가 발생했습니다</string>
   <string name="error_occurred_crash_last_time">마지막으로 이 앱을 사용했을 때 앱이 죽었습니다. 이 버그를 고칠 수 있도록 버그 리포트를 보내주시면 감사하겠습니다.</string>
@@ -668,8 +767,14 @@
   <string name="error_key_not_in_document2">%1$s 이 항목은 %2$s 문서에서 발견되지 않습니다.</string>
   <string name="empty_list">표시할 항목이 없습니다</string>
   <string name="error_skip">건너뛰기</string>
+  <string name="debug_test_error">테스트 오류 (디버그 빌드)</string>
+  <string name="bug_report_prepare_failed">보고서를 준비하거나 공유하지 못했습니다. 다시 시도하거나 백업 및 복원으로 데이터를 저장할 수 있습니다.</string>
   <string name="bug_report_email_title">이메일로 버그 리포트 보내기</string>
   <string name="bug_report_email_text">다음으로 선호하는 이메일 애플리케이션(예: Gmail)을 선택하여 개발팀에 리포트를 보내주세요.</string>
+  <string name="bug_report_manual_title">보고서를 이메일로 보내기</string>
+  <string name="bug_report_manual_text_saved">보고서가 저장되었습니다:</string>
+  <string name="bug_report_manual_text_unsaved">이 기기에서 이메일 프로그램을 열 수 없었습니다.\n\n보고서를 다음 주소로 이메일로 보내 주세요:</string>
+  <string name="bug_report_copy_address">주소 복사</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">읽을 텍스트</string>
   <string name="notification_channel_progress_status">문서 다운로드 등의 진행 상황 알림</string>
@@ -693,6 +798,7 @@
   <string name="search_settings">검색 설정</string>
   <string name="dismiss">취소</string>
   <string name="workspace_listing_with_current">%s (현재)</string>
+  <string name="workspace_manage_workspaces">워크스페이스 관리…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">이것은 베타 버전입니다!</string>
   <string name="beta_notice_content_1">
@@ -746,7 +852,10 @@
   <string name="help_search_title">검색</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">검색 텍스트에는 *, AND, OR, NOT 같은 특수 문자를 포함할 수 있습니다</string>
+  <string name="help_search_bible">단어를 일치시키는 방식을 선택하세요. 모든 단어는 모든 단어가 들어 있는 구절을, 아무 단어는 단어가 하나 이상 들어 있는 구절을, 구문은 단어들이 그 순서대로 붙어 있는 구절을 찾습니다.\n\n검색할 때 와일드카드로 * 와 ? 도 사용할 수 있고(예: bless*는 blessed와 blessing에 일치), AND, OR, NOT으로 검색어를 조합할 수 있으며, 스트롱 번호를 직접 검색할 수도 있습니다(예: strong:h0430).</string>
+  <string name="help_search_epub">단어를 일치시키는 방식을 선택하세요. 모든 단어는 모든 단어가 들어 있는 본문을, 아무 단어는 단어가 하나 이상 들어 있는 본문을, 구문은 단어들이 그 순서대로 붙어 있는 본문을 찾습니다.\n\n원시 쿼리 구문은 입력한 텍스트를 검색 엔진에 그대로 전달하므로 직접 쿼리를 작성할 수 있습니다: grace AND faith, grace OR faith, grace NOT faith, 정확한 구문은 \"hope of glory\", bless*는 bless로 시작하는 모든 단어에 일치, grace NEAR faith는 서로 가까이 있는 경우를 찾습니다.</string>
   <string name="help_search_details">자세한 내용은 %s를 참조하세요.</string>
+  <string name="help_search_syntax">검색 구문</string>
   <string name="help_fts5">FTS5 전문 검색 쿼리 구문</string>
   <string name="help_workspaces_title">워크스페이스</string>
   <string name="help_workspaces_text">
@@ -773,6 +882,12 @@
         주석과 기타 추가 자료 사이를 빠르게 전환할 수 있습니다.
     </string>
   <!--Welcome text-->
+  <string name="welcome_intro">라이브러리에 아직 문서가 없습니다. 시작하려면 문서를 추가하세요.</string>
+  <string name="welcome_redownload_row_hint">이전에 설치했던 문서에서 선택</string>
+  <string name="welcome_download_row_hint">온라인 카탈로그 둘러보기</string>
+  <string name="welcome_restore_row_hint">북마크와 노트가 담긴 데이터베이스 파일</string>
+  <string name="welcome_link_website">웹사이트</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s에 불러올 파일을 선택해야 합니다. </string>
@@ -788,9 +903,8 @@
   <string name="format_studypads">AndBible 데이터베이스의 StudyPad(*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">닫기</string>
+  <string name="reading_toolbar_options">옵션 더보기</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">알겠습니다</string>
-  <string name="first_time_help_show_next_time">다음에 다시 보기</string>
   <string name="strongs_mode_title">스트롱 코드 모드 선택</string>
   <string name="download_dialog_message">다음 책은 다운로드할 수 없습니다:</string>
   <string name="journal_description">사용자 편집 가능한 스터디 패드(사용자 지정 텍스트 및 즐겨찾기 포함)</string>
@@ -815,6 +929,7 @@
   <string name="prefs_experimental_features_summary">활성화할 실험적 기능을 선택하세요. 이 기능들은 아직 개발 중이며 변경되거나 제거될 수 있습니다</string>
   <string name="experimental_feature_bookmark_edit_actions">북마크 편집 작업</string>
   <string name="experimental_feature_add_paragraph_break">단락 구분 북마크 추가</string>
+  <string name="experimental_feature_toolbar_literal_color">읽기 도구 모음에 (테마 색상 대신) 워크스페이스 색상을 그대로 사용</string>
   <string name="raw_llm_log_title">원시 LLM 로그</string>
   <string name="raw_llm_log_empty">사용 가능한 원시 로그 데이터가 없습니다</string>
   <string name="raw_llm_log_copied">로그가 클립보드에 복사되었습니다</string>
@@ -923,6 +1038,7 @@
   <string name="display_mode_underline">밑줄</string>
   <string name="display_mode_marker">마커만</string>
   <string name="display_mode_hidden">숨김</string>
+  <string name="display_mode_inherit">선택과 동일</string>
   <string name="workspace_override_indicator">이 레이블에는 워크스페이스별 표시 모드가 있습니다</string>
   <string name="primary_label">기본 레이블</string>
   <string name="favourite_label">즐겨찾기 레이블</string>
@@ -936,6 +1052,8 @@
   <string name="book_menu_show_long_book_name">긴 도서 이름 표시</string>
   <string name="book_menu_show_progress_bars">진행률 막대 표시</string>
   <string name="reset_workspace_labels">이 워크스페이스의 자동 할당 및 즐겨찾기 설정을 재설정하시겠습니까?</string>
+  <string name="clear_auto_assign_labels">자동 지정 레이블 지우기</string>
+  <string name="reset_workspace_auto_assign_labels">이 워크스페이스의 모든 자동 지정 레이블을 제거하시겠습니까?</string>
   <string name="reset_hide_labels">지정된 레이블 숨기기 설정을 재설정하시겠습니까?</string>
   <string name="reorder">재정렬</string>
   <string name="system_items">시스템 작업</string>
@@ -1007,6 +1125,27 @@
   <string name="instructions_for_translators">번역가를 위한 지침</string>
   <string name="questions_title">질문이 있나요?</string>
   <string name="bookmark_style">북마크 스타일</string>
+  <string name="bookmark_style_preview_sample">하나님이 세상을 이처럼 사랑하사</string>
+  <string name="bookmark_style_selection">텍스트 선택 북마크</string>
+  <string name="bookmark_style_whole_verse">구절 전체 북마크</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">구절 전체 북마크에 다른 스타일 사용</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">선택</string>
+  <string name="bookmark_style_tag_whole_verse">구절 전체</string>
+  <string name="bookmark_style_tag_workspace">워크스페이스</string>
+  <string name="show_style_examples">스타일 예시 표시</string>
+  <string name="labels_search_section">검색</string>
+  <string name="labels_filter_section">표시</string>
+  <string name="labels_filter_auto_assign">자동 지정 레이블만</string>
+  <string name="labels_filter_favourite">즐겨찾는 레이블만</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">레이블을 체크하면 이 북마크에 지정됩니다.</string>
+  <string name="manage_labels_help_primary">기본 레이블입니다. 북마크에는 이 레이블의 색상과 스타일이 표시됩니다.</string>
+  <string name="manage_labels_help_autoassign">새로 만드는 모든 북마크에 이 레이블을 자동으로 지정합니다. 속이 빈 번개 아이콘은 꺼짐을 뜻합니다.</string>
+  <string name="manage_labels_help_favourite">빠르게 접근할 수 있도록 레이블을 즐겨찾기에 보관합니다.</string>
+  <string name="manage_labels_help_styles">이름 아래의 작은 예시는 레이블의 모양을 보여줍니다. 선택은 텍스트 선택 북마크, 구절 전체는 구절 전체 북마크, 워크스페이스 태그는 이 워크스페이스가 재정의한 스타일을 뜻합니다. 장식 없이 회색으로 표시된 예시는 해당 레이블의 북마크가 표시되지 않음을 뜻합니다. 예시는 ⋮ 메뉴에서 숨길 수 있습니다.</string>
+  <string name="manage_labels_help_reorder">⋮ 메뉴에서 목록 순서를 변경할 수 있습니다.</string>
   <string name="added_to_bookmark">이 북마크에 할당됨</string>
   <string name="strongs_links">링크</string>
   <string name="strongs_text_and_links">텍스트 및 링크</string>
@@ -1060,6 +1199,7 @@
   <string name="sync_group_n">그룹 %d</string>
   <string name="disable_sync">동기화 비활성화</string>
   <string name="open_in_window">창에서 결과 열기</string>
+  <string name="open_result_in_links_window">결과를 링크 창에서 열기</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">사용자 지정 저장소</string>
@@ -1070,7 +1210,6 @@
   <string name="delete_custom_repository">사용자 지정 저장소 %s를 제거하시겠습니까?</string>
   <string name="custom_repositories_help1">새 사용자 지정 저장소를 추가하려면 사용자 지정 저장소 URL을 여기에 입력하거나 복사하여 붙여넣으세요.</string>
   <string name="custom_repositories_help2">사용자 지정 저장소에 대한 자세한 정보는 %s에서 확인할 수 있습니다.</string>
-  <string name="wiki_page">WIKI 페이지</string>
   <string name="custom_repositories_help0">사용자 지정 저장소를 설치하여 외부 사용자 지정 저장소에서 문서를 설치할 수 있습니다.</string>
   <string name="duplicate_custom_repository">%s 이름의 저장소가 이미 존재하므로 추가할 수 없습니다.</string>
   <string name="packages_dir">패키지 디렉터리 (Zip 파일)</string>
@@ -1117,6 +1256,7 @@
   <string name="reading_progress_new_cycle_confirm">새로운 읽기 사이클을 시작하시겠습니까? 이전 사이클의 데이터를 보존하면서 처음부터 진행 상황을 추적하기 시작합니다.</string>
   <string name="reading_progress_previous_cycle">이전 사이클</string>
   <string name="reading_progress_next_cycle">다음 사이클</string>
+  <string name="cloud_merge_data">데이터 병합</string>
   <string name="cloud_fetch_and_restore_initial">클라우드에서 이 기기로 복사</string>
   <string name="cloud_create_new">이 기기에서 클라우드로 복사</string>
   <string name="cloud_disable_sync">취소 및 동기화 비활성화</string>
@@ -1130,6 +1270,19 @@
   <string name="sync_adapter_summary">현재: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV 폴더의 주소(예: https://nas.local/dav/ 또는 https://cloud.example.com/remote.php/dav/files/USERNAME/)</string>
+  <string name="webdav_https_required">동기화에는 보안 https:// 주소가 필요합니다.</string>
+  <string name="webdav_certificate_title">서버 인증서</string>
+  <string name="webdav_forget_certificate_message">신뢰하는 서버 인증서를 삭제하시겠습니까? 다음에 연결할 때 인증서를 다시 확인하라는 메시지가 표시됩니다.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">신뢰할 수 없는 서버 인증서</string>
+  <string name="webdav_untrusted_certificate_message">%1$s의 인증서는 Android에서 신뢰하지 않습니다. 직접 이 서버를 설정한 경우처럼 인증서를 알고 있을 때만 신뢰하세요.\n\n주체: %2$s\n발급자: %3$s\n유효 기간: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">이 인증서 신뢰</string>
+  <string name="webdav_wrong_credentials">사용자 이름 또는 비밀번호가 올바르지 않습니다.</string>
+  <string name="webdav_not_a_folder">이 주소는 WebDAV 폴더가 아닙니다.</string>
+  <string name="webdav_certificate_changed">서버 인증서가 변경되었습니다. 새 인증서를 확인할 때까지 동기화가 일시 중지되며, AndBible은 다음에 앱을 열거나 포그라운드에서 동기화할 때 확인을 요청합니다.</string>
+  <string name="webdav_storage_full">서버 저장 공간이 가득 찼습니다.</string>
   <string name="auth_server_uri">서버 URL</string>
   <string name="auth_username">사용자 이름</string>
   <string name="auth_password">비밀번호</string>
@@ -1139,6 +1292,7 @@
   <string name="sync_general_settings">정보 및 일반 설정</string>
   <string name="sync_introduction">소개</string>
   <string name="are_you_sure">확실합니까?</string>
+  <string name="are_you_sure_merge">이 기기의 데이터와 클라우드의 %s 모두 유지됩니다. 같은 항목이 양쪽에서 변경된 경우 더 최근의 변경이 유지됩니다. 이 기기의 데이터는 다른 기기로 전송됩니다.</string>
   <string name="are_you_sure_reset_local">이 작업은 %s의 로컬 데이터베이스를 클라우드 서비스에 현재 저장된 내용으로 재설정합니다.</string>
   <string name="are_you_sure_reset_cloud">이 작업은 %s의 클라우드 데이터베이스를 이 기기에 있는 내용으로 재설정합니다.</string>
   <string name="sync_cant_fetch">클라우드에 저장된 데이터베이스 또는 패치 파일의 버전이 이 앱에서 지원하는 버전보다 높습니다. </string>
@@ -1175,6 +1329,7 @@
   <string name="pref_font_size_multiplier_title">글꼴 크기 배율</string>
   <string name="pref_font_size_multiplier_summary_1">텍스트 글꼴 크기를 이 숫자로 곱합니다.</string>
   <string name="pref_font_size_multiplier_summary_2">더 큰 글꼴로 사용하는 동기화된 기기가 있을 때 유용합니다.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">현재 값: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">좌/우 스와이프 제스처 동작</string>
   <string name="prefs_bible_view_swipe_mode_summary">좌/우 스와이프 제스처로 다음 페이지/장으로 이동할 수 있습니다.</string>
@@ -1295,6 +1450,7 @@
   <string name="prompt_max_iterations_unlimited">무제한</string>
   <string name="prompt_max_iterations_global_default">전역 기본값 (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">이 프롬프트의 전역 최대 반복 횟수를 재정의합니다. 0 = 무제한.\n현재: %s</string>
+  <string name="prompt_max_iterations_use_global">전체 설정 사용 (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AI 프롬프트 관리</string>
   <string name="manage_prompts_summary">AI 프롬프트 만들기 및 편집</string>
@@ -1428,6 +1584,7 @@
   <string name="built_in_prompt_notice">이것은 기본 제공 프롬프트로 편집할 수 없습니다. 편집 가능한 복사본을 만들려면 \"복사하여 커스터마이즈\"를 사용하십시오.</string>
   <string name="copy_to_customize">복사하여 커스터마이즈</string>
   <string name="prompt_copied">프롬프트가 복사되었습니다</string>
+  <string name="prompt_copy_failed">프롬프트를 복사하지 못했습니다. 삭제되었을 수 있습니다.</string>
   <string name="delete_prompt_confirmation">프롬프트 \"%s\"을(를) 삭제하시겠습니까?</string>
   <string name="prompt_name_required">프롬프트 이름이 필요합니다</string>
   <string name="prompt_template_required">프롬프트 템플릿이 필요합니다</string>
@@ -1635,6 +1792,8 @@
   <string name="tool_option_default_disabled">기본값 (비활성화됨)</string>
   <string name="tool_option_default_allowed">기본값 (허용됨)</string>
   <string name="tool_option_default_denied">기본값 (거부됨)</string>
+  <string name="tool_description_info">도구 설명 표시</string>
+  <string name="tool_permission_mixed">혼합</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">모델</string>
   <string name="prompt_model_default">기본값</string>
@@ -1680,6 +1839,8 @@
   <string name="my_document_pages_empty">이 문서에 페이지가 없습니다.</string>
   <string name="my_document_page_rename_title">페이지 이름 바꾸기</string>
   <string name="my_document_page_delete_confirmation">페이지 \"%s\"을(를) 삭제하시겠습니까?</string>
+  <string name="my_document_pages_delete_confirmation">이 페이지들을 삭제하시겠습니까?</string>
+  <string name="my_documents_switch_document">문서 전환</string>
   <string name="my_document_new_page_name">페이지 %1$d</string>
   <string name="my_document_create_page_title">새 페이지</string>
   <string name="my_document_content_type_label">콘텐츠 유형</string>
@@ -1776,4 +1937,91 @@
   <string name="document_sync_started">문서 동기화 시작됨</string>
   <string name="document_sync_enable_dialog_title">문서 동기화를 시작하시겠습니까?</string>
   <string name="document_sync_enable_dialog_nothing">아직 전송할 문서가 없습니다. 새로 설치된 문서는 자동으로 동기화됩니다.</string>
+  <string name="help_document_sync_text">문서 동기화는 설치된 성경, 주석 및 기타 문서를 클라우드에 복사하고 기기 간에 동기 상태를 유지합니다. 이 화면에서 클라우드에 저장된 내용을 확인하고, 개별 문서를 다운로드하거나 업로드하고, 문서를 제거하고, 이 기기로 동기화할 항목을 관리할 수 있습니다.</string>
+  <string name="background_image_title">배경 이미지</string>
+  <string name="background_image_none">배경 없음</string>
+  <string name="background_image_import">갤러리에서 가져오기…</string>
+  <string name="background_image_empty">가져온 이미지가 아직 없습니다. \"갤러리에서 가져오기…\"를 눌러 추가하세요.</string>
+  <string name="background_image_importing">가져오는 중…</string>
+  <string name="background_image_delete_title">이미지를 삭제하시겠습니까?</string>
+  <string name="background_image_delete_confirm">이 배경 이미지를 삭제하시겠습니까? 이 이미지를 사용하는 워크스페이스는 이미지 없음으로 바뀝니다.</string>
+  <string name="background_image_day">배경 이미지 (낮)</string>
+  <string name="background_image_night">배경 이미지 (밤)</string>
+  <string name="background_image_opacity_day">배경 이미지 불투명도 (낮)</string>
+  <string name="background_image_opacity_night">배경 이미지 불투명도 (밤)</string>
+  <string name="background_image_change">변경</string>
+  <string name="color_picker_title">색상 선택</string>
+  <string name="color_picker_presets">프리셋</string>
+  <string name="color_picker_custom">사용자 지정</string>
+  <string name="bookmark_expand_row">전체 텍스트 보기</string>
+  <string name="bookmark_collapse_row">간단히 보기</string>
+  <string name="bookmark_label_filter">레이블로 필터링</string>
+  <string name="document_quick_all_documents">모든 문서…</string>
+  <string name="document_quick_tab_recent">최근</string>
+  <string name="document_quick_tab_for_verse">이 구절</string>
+  <string name="document_quick_tab_last_filter">마지막 필터</string>
+  <string name="document_quick_tab_all">전체</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">필터 및 정렬</string>
+  <string name="doc_arrange_repository">저장소</string>
+  <string name="doc_arrange_all_repositories">모든 저장소</string>
+  <string name="doc_arrange_sort">정렬 순서</string>
+  <string name="doc_arrange_group_by">그룹 기준</string>
+  <string name="doc_arrange_remember">이 설정 기억하기</string>
+  <string name="doc_arrange_reset">기본값으로 재설정</string>
+  <string name="doc_arrange_more_filters">필터 더보기</string>
+  <string name="doc_arrange_reorder">순서 변경</string>
+  <string name="doc_sort_ascending">오름차순</string>
+  <string name="doc_sort_descending">내림차순</string>
+  <string name="doc_sort_status">상태</string>
+  <string name="doc_sort_recommended">추천 우선</string>
+  <string name="doc_sort_name">이름</string>
+  <string name="doc_sort_size">크기</string>
+  <string name="doc_group_none">그룹 없음</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">다운로드 중</string>
+  <string name="doc_group_status_update_available">업데이트 가능</string>
+  <string name="doc_group_status_installed">설치됨</string>
+  <string name="doc_group_status_not_installed">설치 안 됨</string>
+  <string name="prompt_filter_title">프롬프트 필터</string>
+  <string name="prompt_filter_type">유형</string>
+  <string name="prompt_type_addon">추가 기능</string>
+  <string name="prompt_type_user">사용자 지정</string>
+  <string name="prompt_filter_clear">필터 지우기</string>
+  <string name="prompt_favorite_add">즐겨찾기에 추가</string>
+  <string name="prompt_favorite_remove">즐겨찾기에서 제거</string>
+  <string name="window_unmaximise">모든 창 복원</string>
+  <string name="window_menu_button">창 메뉴</string>
+  <string name="paste_from_clipboard">붙여넣기</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">드래그 핸들</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">데이터를 업데이트하는 중…</string>
+  <string name="legacy_migration_progress_neutral">업데이트하는 중…</string>
+  <string name="legacy_migration_failed_title">데이터를 업데이트하지 못했습니다</string>
+  <string name="legacy_migration_failed_message">이전 버전 앱의 데이터는 이 기기에 안전하게 그대로 남아 있습니다. 다음에 할 작업을 선택하세요.</string>
+  <string name="legacy_migration_failed_keychain">이전 버전에 저장된 비밀번호를 읽을 수 없습니다. 기기의 잠금을 해제한 후 앱을 닫았다가 다시 여세요.</string>
+  <string name="legacy_migration_rollback_pending">업데이트가 중단되어 아직 완전히 되돌려지지 않았습니다. 되돌리기를 마치려면 앱을 닫았다가 다시 여세요.</string>
+  <string name="legacy_migration_save_old_data">이전 데이터 저장</string>
+  <string name="legacy_migration_send_report">오류 보고서 보내기</string>
+  <string name="legacy_migration_try_again">다시 시도</string>
+  <string name="legacy_migration_try_again_hint">다시 시도하려면 앱을 닫았다가 다시 여세요.</string>
+  <string name="legacy_migration_restore_backup">백업 복원</string>
+  <string name="legacy_migration_start_fresh">이전 데이터 없이 시작</string>
+  <string name="legacy_migration_start_fresh_confirm">이전 데이터는 이 기기에 남아 있습니다. 나중에 설정에서 가져올 수 있습니다.</string>
+  <string name="legacy_import_title">이전 앱 버전의 데이터 가져오기</string>
+  <string name="legacy_import_summary">현재 데이터를 이전 앱 버전의 데이터로 바꿉니다</string>
+  <string name="legacy_import_confirm">현재 워크스페이스, 북마크 및 기타 데이터가 이전 앱 버전의 데이터로 바뀝니다. 현재 데이터의 사본은 이 기기에 보관됩니다.</string>
+  <string name="legacy_import_reopen">데이터를 가져오려면 앱을 닫았다가 다시 여세요.</string>
+  <string name="legacy_notice_icloud">이제 동기화에 iCloud Drive를 사용합니다. 설정 → 동기화에서 다시 켜세요. 이 기기는 기존 데이터를 유지하며, 다른 기기의 변경 사항은 동기화를 다시 설정하면 도착합니다. 이전 iCloud 데이터를 정리하려면: 설정 → 내 이름 → iCloud → 저장 공간 관리 → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Nextcloud 연결은 그대로 이전되었지만 동기화는 꺼져 있습니다. 설정 → 동기화에서 켜고 클라우드에서 가져올지 새로 만들지 선택하세요.</string>
+  <string name="legacy_notice_nextcloud_unsent">이 기기의 일부 변경 사항이 아직 Nextcloud로 전송되지 않았습니다. 전송되지 않았으며 이 기기에만 남아 있습니다.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">강력하면서도 사용하기 쉬운 오프라인 성경 공부 애플리케이션입니다.</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s의 인증서는 이 기기에서 신뢰하지 않습니다. 직접 이 서버를 설정한 경우처럼 인증서를 알고 있을 때만 신뢰하세요.\n\n주체: %2$s\n발급자: %3$s\n유효 기간: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">사용자 지정 저장소는 보안 https:// 주소를 사용해야 합니다.</string>
+  <string name="custom_repository_https_required_refresh">%1$s은(는) http:// 주소를 사용합니다. https:// 저장소만 사용할 수 있습니다.</string>
 </resources>

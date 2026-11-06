@@ -716,6 +716,87 @@ final class ReadingUITests: RealAppUITestCase {
         }
     }
 
+    /// Establishes the landscape fixture for #3981 and records the rail in both states. The WebView frames do not
+    /// expose the page's CSS bottom offset, and the transparent rail has no accessible full-width frame.
+    func testIPadLandscapeRailWithMinimisedWindow() throws {
+        guard isPad else { throw XCTSkip("iPad landscape rail fixture") }
+        let device = XCUIDevice.shared
+        addTeardownBlock { device.orientation = .portrait }
+        device.orientation = .portrait
+        let app = try launchReading()
+        maximizePadWindow(app)
+        // Rotate the running app, not SpringBoard before launch: iPadOS can restore a narrow saved window
+        // on launch, and SpringBoard's frame is still portrait while the app uses landscape coordinates.
+        device.orientation = .landscapeLeft
+        addTeardownBlock { [self] in
+            device.orientation = .portrait
+            maximizePadWindow(XCUIApplication())
+        }
+        guard waitUntil(timeout: 15, { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height }) else {
+            attachTree(app, "rail-window-not-landscape")
+            shot(app, "rail-window-not-landscape")
+            XCTFail("iPad window did not become landscape: \(app.windows.firstMatch.frame)"); return
+        }
+        addWindow(app, from: 1)
+        addWindow(app, from: 2)
+        addWindow(app, from: 3)
+        guard let tab = windowTabs(app).last else {
+            attachTree(app, "rail-no-fourth-tab"); XCTFail("fourth window tab missing"); return
+        }
+        tab.press(forDuration: 1)
+        tapMenuItem(app, ["Minimise"], "rail minimise fourth window")
+        guard waitUntil(timeout: 15, { self.visiblePaneIds(app).count == 3 && self.windowTabs(app).count == 4 }) else {
+            attachTree(app, "rail-three-visible-setup"); XCTFail("expected three visible panes and four window tabs"); return
+        }
+        let ids = visiblePaneIds(app)
+        let panes = ids.map { app.webViews.matching(identifier: $0).firstMatch }
+        func assertPaneText(_ step: String) {
+            let rendered = waitUntil(timeout: 30) {
+                panes.allSatisfy {
+                    $0.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count == self.nicodemusPerPane
+                }
+            }
+            if !rendered { attachTree(app, "rail-\(step)-text-missing") }
+            XCTAssertTrue(rendered, "\(step): every visible pane must render KJV John 3 exactly once")
+        }
+        let frames = panes.map(\.frame).sorted { $0.minX < $1.minX }
+        for frame in frames {
+            XCTAssertGreaterThan(frame.width, 0)
+            XCTAssertGreaterThan(frame.height, 0)
+            XCTAssertEqual(frame.minY, frames[0].minY, accuracy: 2, "panes must be side by side")
+            XCTAssertEqual(frame.maxY, frames[0].maxY, accuracy: 2, "panes must share a bottom edge")
+        }
+        for (left, right) in zip(frames, frames.dropFirst()) {
+            XCTAssertLessThanOrEqual(left.maxX, right.minX + 2, "pane frames must not overlap")
+        }
+        let toggle = byLabel(app, "Expand/collapse")
+        guard toggle.waitForExistence(timeout: 10), toggle.isHittable else {
+            attachTree(app, "rail-no-collapse"); XCTFail("rail collapse control missing"); return
+        }
+        assertPaneText("expanded")
+        _ = waitUntil(timeout: 2) { false } // let the rail animation settle for the screenshot
+        let expandedShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        expandedShot.name = "rail-three-panes-expanded"
+        expandedShot.lifetime = .keepAlways
+        add(expandedShot)
+        toggle.tap()
+        guard waitUntil(timeout: 15, { self.windowTabs(app).isEmpty }) else {
+            attachTree(app, "rail-not-collapsed"); XCTFail("rail tabs did not collapse"); return
+        }
+        XCTAssertEqual(Set(visiblePaneIds(app)), Set(ids), "collapse must not hide or replace a pane")
+        assertPaneText("collapsed")
+        _ = waitUntil(timeout: 2) { false } // capture after the exit animation
+        let collapsedShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        collapsedShot.name = "rail-three-panes-collapsed"
+        collapsedShot.lifetime = .keepAlways
+        add(collapsedShot)
+        XCTAssertTrue(toggle.isHittable, "collapsed rail must retain its expand control")
+        toggle.tap()
+        XCTAssertTrue(waitUntil(timeout: 15) { self.windowTabs(app).count == 4 }, "rail tabs did not reappear")
+        XCTAssertEqual(Set(visiblePaneIds(app)), Set(ids), "re-expansion must keep all three panes")
+        assertPaneText("re-expanded")
+    }
+
     /// iPad only: rotate with a quick sheet open and back. The sheet must reflow (stay inside the window, keep its
     /// close control reachable) and must not stay stuck at a half-height or stale size: after rotating back to portrait
     /// its frame and the close button's frame equal those from before the rotation (same content, same orientation).
@@ -851,25 +932,18 @@ final class ReadingUITests: RealAppUITestCase {
         var app = try launchReading(extraArguments: sizeArguments)
         shot(app, "\(level)-reading")
 
-        // Toolbar: title, home (Menu) and overflow (More options) are reachable and do not overlap each other.
+        // Shared Ax5ReachabilityTest pins toolbar layout/non-overlap. Keep the UIKit trait ->
+        // accessibility/hit-testing boundary in the real host (including native window insets).
         let title = toolbarTitle(app)
         let menu = app.buttons["Menu"], more = byLabel(app, "More options")
-        var toolbarFrames: [(String, CGRect)] = []
         if let title = title {
-            if expectReachable(app, title, "toolbar title", level) { toolbarFrames.append(("title", title.frame)) }
+            expectReachable(app, title, "toolbar title", level)
         } else {
             attachTree(app, "\(level)-no-toolbar-title")
             XCTFail("\(level): no toolbar title found (a static text starting with 'John' in the top strip)")
         }
-        if expectReachable(app, menu, "Menu button", level) { toolbarFrames.append(("Menu", menu.frame)) }
-        if expectReachable(app, more, "More options button", level) { toolbarFrames.append(("More options", more.frame)) }
-        for (i, a) in toolbarFrames.enumerated() {
-            for b in toolbarFrames.dropFirst(i + 1) {
-                let overlap = a.1.intersection(b.1)
-                XCTAssertTrue(overlap.isNull || overlap.width < 2 || overlap.height < 2,
-                              "\(level): toolbar \(a.0) \(a.1) overlaps \(b.0) \(b.1)")
-            }
-        }
+        expectReachable(app, menu, "Menu button", level)
+        expectReachable(app, more, "More options button", level)
 
         // Drawer: the home button opens it; History, and the Task 4-6 rows (Study Pads, Backup & Restore, Device
         // synchronization), are reachable by label, scrolling the drawer if needed.
@@ -1427,8 +1501,9 @@ final class ReadingUITests: RealAppUITestCase {
         }) else {
             XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
         }
-        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
-        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
+        // Issue #3980: XCTest's Option+arrow chord intermittently loses the arrow inside UIKit/WebKit, also in a bare
+        // WKWebView without SwiftUI, Compose or app code (WebKitChordProbeUITests); strict again once that passes.
+        XCTExpectFailure("System loss of XCTest Option+arrow chords in WebKit editors (#3980)", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha Xbeta" },
                           "Option+Left should move to the previous word: \(editor.value ?? "nil")")
         }
@@ -1456,8 +1531,9 @@ final class ReadingUITests: RealAppUITestCase {
         }) else {
             XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
         }
-        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
-        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
+        // Issue #3980: XCTest's Option+arrow chord intermittently loses the arrow inside UIKit/WebKit, also in a bare
+        // WKWebView without SwiftUI, Compose or app code (WebKitChordProbeUITests); strict again once that passes.
+        XCTExpectFailure("System loss of XCTest Option+arrow chords in WebKit editors (#3980)", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alphaX beta" },
                           "Option+Right should move by a word before insertion: \(editor.value ?? "nil")")
         }

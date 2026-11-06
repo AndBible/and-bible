@@ -15,101 +15,220 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlin.experimental.ExperimentalNativeApi::class)
+
 package net.bible.sharedlogic.sync
 
-import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
-import kotlinx.cinterop.memScoped
-import platform.posix.CLOCK_REALTIME
-import platform.posix.PTHREAD_MUTEX_RECURSIVE
-import platform.posix.clock_gettime
-import platform.posix.pthread_cond_init
-import platform.posix.pthread_cond_t
-import platform.posix.pthread_cond_timedwait
-import platform.posix.pthread_cond_wait
-import platform.posix.pthread_cond_broadcast
-import platform.posix.pthread_mutex_lock
-import platform.posix.pthread_mutex_t
-import platform.posix.pthread_mutex_unlock
-import platform.posix.pthread_mutex_init
-import platform.posix.pthread_mutexattr_init
-import platform.posix.pthread_mutexattr_settype
-import platform.posix.pthread_mutexattr_t
-import platform.posix.timespec
+import kotlinx.cinterop.rawPtr
+import kotlin.native.identityHashCode
+import platform.posix.*
 
 /**
- * One process-wide recursive mutex plus one condition variable. Every monitor shares them: coarse, but correct
- * (waiters re-check their own predicate; [monitorNotifyAll] broadcasts).
+ * Only active monitor acquisitions live in this registry. A reservation includes threads waiting to enter,
+ * so an unlock/enter race cannot replace a monitor while an old waiter still uses it. Neither acquiring a
+ * target mutex, waiting on its condition nor destroying it happens while holding the registry lock.
+ * Identity hashing never calls user-defined equals/hashCode. Strong target references last only as long as
+ * acquisitions do; no weak-reference sweep, GC timing dependency or permanent native allocation is needed.
  */
-@OptIn(ExperimentalForeignApi::class)
-private object GlobalMonitor {
-    val mutex = nativeHeap.alloc<pthread_mutex_t>()
-    val cond = nativeHeap.alloc<pthread_cond_t>()
+private object MonitorRegistry {
+    private val lock = SynchronizedObject()
+    private val buckets = mutableMapOf<Int, MutableList<Entry>>()
 
-    /** Lock depth of the owning thread; only read or written while holding [mutex]. */
-    var depth = 0
+    private class Entry(val target: Any, val monitor: NativeMonitor, var users: Int = 1)
+
+    fun reserve(target: Any): NativeMonitor {
+        val hash = target.identityHashCode()
+        synchronized(lock) {
+            buckets[hash]?.firstOrNull { it.target === target }?.let {
+                it.users++
+                return it.monitor
+            }
+        }
+        // Native resource allocation is outside the registry lock too. A racing reservation may win.
+        val candidate = NativeMonitor()
+        val selected = synchronized(lock) {
+            val bucket = buckets.getOrPut(hash) { mutableListOf() }
+            val existing = bucket.firstOrNull { it.target === target }
+            if (existing != null) {
+                existing.users++
+                existing.monitor
+            } else {
+                bucket.add(Entry(target, candidate))
+                candidate
+            }
+        }
+        if (selected !== candidate) candidate.dispose()
+        return selected
+    }
+
+    fun release(target: Any, monitor: NativeMonitor) {
+        val hash = target.identityHashCode()
+        val dispose = synchronized(lock) {
+            val bucket = buckets.getValue(hash)
+            val entry = bucket.first { it.target === target }
+            check(entry.monitor === monitor)
+            if (--entry.users == 0) {
+                bucket.remove(entry)
+                if (bucket.isEmpty()) buckets.remove(hash)
+                true
+            } else false
+        }
+        if (dispose) monitor.dispose()
+    }
+
+    fun size(): Int = synchronized(lock) { buckets.values.sumOf { it.size } }
+}
+
+/** Per-target recursive mutex and condition; its last acquisition owns destruction. */
+@PublishedApi
+internal class NativeMonitor {
+    private val mutex = nativeHeap.alloc<pthread_mutex_t>()
+    private val condition = nativeHeap.alloc<pthread_cond_t>()
+    private var depth = 0
+    private var owner: pthread_t? = null
 
     init {
-        val attr = nativeHeap.alloc<pthread_mutexattr_t>()
-        pthread_mutexattr_init(attr.ptr)
-        pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE)
-        pthread_mutex_init(mutex.ptr, attr.ptr)
-        pthread_cond_init(cond.ptr, null)
+        var mutexInitialised = false
+        try {
+            memScoped {
+                val attr = alloc<pthread_mutexattr_t>()
+                check(pthread_mutexattr_init(attr.ptr) == 0)
+                try {
+                    check(pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE) == 0)
+                    check(pthread_mutex_init(mutex.ptr, attr.ptr) == 0)
+                    mutexInitialised = true
+                } finally {
+                    pthread_mutexattr_destroy(attr.ptr)
+                }
+            }
+            check(pthread_cond_init(condition.ptr, null) == 0)
+        } catch (e: Throwable) {
+            // The constructor failed, so no one can dispose this instance: free the native blocks here.
+            if (mutexInitialised) pthread_mutex_destroy(mutex.ptr)
+            nativeHeap.free(condition.rawPtr)
+            nativeHeap.free(mutex.rawPtr)
+            throw e
+        }
+    }
+
+    fun enter() {
+        check(pthread_mutex_lock(mutex.ptr) == 0)
+        owner = pthread_self()
+        depth++
+    }
+
+    private fun checkOwner() {
+        // trylock validates ownership without racing reads against a different owning thread.
+        if (pthread_mutex_trylock(mutex.ptr) != 0) {
+            throw IllegalStateException("Current thread does not own this monitor")
+        }
+        try {
+            val owningThread = owner
+            if (owningThread == null || pthread_equal(owningThread, pthread_self()) == 0 || depth == 0) {
+                throw IllegalStateException("Current thread does not own this monitor")
+            }
+        } finally {
+            pthread_mutex_unlock(mutex.ptr)
+        }
+    }
+
+    fun exit() {
+        checkOwner()
+        if (--depth == 0) owner = null
+        check(pthread_mutex_unlock(mutex.ptr) == 0)
+    }
+
+    fun await(timeoutMs: Long) {
+        require(timeoutMs >= 0) { "timeoutMs must not be negative" }
+        checkOwner()
+        val savedDepth = depth
+        // pthread_cond_wait releases only ONE recursive acquisition. Release the others explicitly,
+        // keeping the final one until cond_wait atomically registers this waiter and unlocks it.
+        repeat(savedDepth - 1) { check(pthread_mutex_unlock(mutex.ptr) == 0) }
+        depth = 0
+        owner = null
+        try {
+            if (timeoutMs == 0L) {
+                check(pthread_cond_wait(condition.ptr, mutex.ptr) == 0)
+            } else {
+                memScoped {
+                    val ts = alloc<timespec>()
+                    clock_gettime(CLOCK_REALTIME.toUInt(), ts.ptr)
+                    val totalNs = ts.tv_nsec + (timeoutMs % 1000) * 1_000_000L
+                    ts.tv_sec += timeoutMs / 1000 + totalNs / 1_000_000_000L
+                    ts.tv_nsec = totalNs % 1_000_000_000L
+                    val result = pthread_cond_timedwait(condition.ptr, mutex.ptr, ts.ptr)
+                    check(result == 0 || result == ETIMEDOUT)
+                }
+            }
+        } finally {
+            repeat(savedDepth - 1) { check(pthread_mutex_lock(mutex.ptr) == 0) }
+            owner = pthread_self()
+            depth = savedDepth
+        }
+    }
+
+    fun notifyAllWaiters() {
+        checkOwner()
+        check(pthread_cond_broadcast(condition.ptr) == 0)
+    }
+
+    fun dispose() {
+        check(pthread_cond_destroy(condition.ptr) == 0)
+        check(pthread_mutex_destroy(mutex.ptr) == 0)
+        nativeHeap.free(condition.rawPtr)
+        nativeHeap.free(mutex.rawPtr)
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
 actual inline fun <T> withMonitor(target: Any, block: () -> T): T {
-    iosMonitorEnter()
+    val monitor = iosMonitorEnter(target)
     try {
         return block()
     } finally {
-        iosMonitorExit()
+        iosMonitorExit(target, monitor)
     }
 }
 
 @PublishedApi
-@OptIn(ExperimentalForeignApi::class)
-internal fun iosMonitorEnter() {
-    pthread_mutex_lock(GlobalMonitor.mutex.ptr)
-    GlobalMonitor.depth++
-}
-
-@PublishedApi
-@OptIn(ExperimentalForeignApi::class)
-internal fun iosMonitorExit() {
-    GlobalMonitor.depth--
-    pthread_mutex_unlock(GlobalMonitor.mutex.ptr)
-}
-
-@OptIn(ExperimentalForeignApi::class)
-actual fun monitorWait(target: Any, timeoutMs: Long) {
-    check(GlobalMonitor.depth == 1) { "monitorWait requires holding the monitor at lock depth 1, was ${GlobalMonitor.depth}" }
-    GlobalMonitor.depth = 0
+internal fun iosMonitorEnter(target: Any): NativeMonitor {
+    val monitor = MonitorRegistry.reserve(target)
     try {
-        if (timeoutMs <= 0) {
-            pthread_cond_wait(GlobalMonitor.cond.ptr, GlobalMonitor.mutex.ptr)
-        } else {
-            memScoped {
-                val ts = alloc<timespec>()
-                clock_gettime(CLOCK_REALTIME.toUInt(), ts.ptr)
-                val totalNs: Long = ts.tv_nsec + (timeoutMs % 1000) * 1_000_000L
-                ts.tv_sec += timeoutMs / 1000 + totalNs / 1_000_000_000L
-                ts.tv_nsec = totalNs % 1_000_000_000L
-                pthread_cond_timedwait(GlobalMonitor.cond.ptr, GlobalMonitor.mutex.ptr, ts.ptr)
-            }
-        }
+        monitor.enter()
+    } catch (e: Throwable) {
+        // Not entered: give back the reservation so the registry does not leak.
+        MonitorRegistry.release(target, monitor)
+        throw e
+    }
+    return monitor
+}
+
+@PublishedApi
+internal fun iosMonitorExit(target: Any, monitor: NativeMonitor) {
+    try {
+        monitor.exit()
     } finally {
-        GlobalMonitor.depth = 1
+        MonitorRegistry.release(target, monitor)
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
-actual fun monitorNotifyAll(target: Any) {
-    check(GlobalMonitor.depth >= 1) { "monitorNotifyAll requires holding the monitor" }
-    pthread_cond_broadcast(GlobalMonitor.cond.ptr)
+actual fun monitorWait(target: Any, timeoutMs: Long) {
+    val monitor = MonitorRegistry.reserve(target)
+    try { monitor.await(timeoutMs) } finally { MonitorRegistry.release(target, monitor) }
 }
+
+actual fun monitorNotifyAll(target: Any) {
+    val monitor = MonitorRegistry.reserve(target)
+    try { monitor.notifyAllWaiters() } finally { MonitorRegistry.release(target, monitor) }
+}
+
+/** Visible to Native tests: idle monitor targets must not accumulate in the registry. */
+internal fun activeNativeMonitorCount(): Int = MonitorRegistry.size()
 
 actual val bookNameMonitor: Any = Any()

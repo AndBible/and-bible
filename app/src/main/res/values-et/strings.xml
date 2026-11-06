@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible ei saanud WebView2 käivitada, mida on vaja piiblitekstide kuvamiseks. Paigalda või paranda Microsoft Edge WebView2 Evergreen Runtime siit:\n%1$s\n\nÜksikasjad on logifailis:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible vajab piiblitekstide kuvamiseks WebView2-ga Direct3D graafikat. Praegune graafikarenderdaja on %1$s. Kontrolli graafikadraiverit ja Direct3D tuge.\n\nÜksikasjad on logifailis:\n%2$s</string>
+  <string name="desktop_update_setting_title">Otsi uuendusi</string>
+  <string name="desktop_update_setting_summary">Kord päevas, saidilt github.com</string>
+  <string name="desktop_update_consent_title">Kas otsida uuendusi?</string>
+  <string name="desktop_update_consent_message">AndBible saab kord päevas saidilt github.com uuemat versiooni otsida. GitHub näeb sinu IP-aadressi; midagi muud ei saadeta. Seda saad hiljem seadetes muuta.</string>
+  <string name="desktop_update_consent_yes">Otsi uuendusi</string>
+  <string name="desktop_update_consent_no">Ära otsi</string>
+  <string name="desktop_update_available_title">Saadaval on uus versioon</string>
+  <string name="desktop_update_available_message">Saadaval on AndBible %1$s. Sul on %2$s.</string>
+  <string name="desktop_update_download">Lae alla</string>
+  <string name="desktop_update_later">Hiljem</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Piibliuurimine</string>
   <string name="app_name_medium">Piibliuurimine (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">Leiti %d tulemust</string>
   <string name="search_showing_first">Liiga palju tulemusi. Näidatakse esimest %d tulemust</string>
   <string name="search_bible_section_group_prompt">Kust otsida</string>
+  <string name="search_type_prompt">Otsingu tüüp</string>
+  <string name="search_show_results">Näita otsingutulemusi</string>
   <string name="search_all_bible">Tervest Piiblist</string>
   <string name="search_new_testament">Uus Testament</string>
   <string name="search_old_testament">Vana Testament</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Otsi \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Tõlked</string>
+  <string name="recent_searches">Hiljutised otsingud</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Sulge otsing</string>
+  <string name="search_options">Otsinguseaded</string>
+  <string name="search_submit">Otsi</string>
+  <string name="search_clear">Tühjenda otsingutekst</string>
+  <string name="search_engine_changed_reindex">Otsingumootorit on uuendatud. Otsinguindeks tuleb uuesti luua; see võib võtta aega.</string>
+  <string name="search_unsupported_syntax">See otsing kasutab süntaksit, mida ei toetata: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Kui indekseerimine on lõppenud, käivitub otsing automaatselt.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">Dokumendist %1$s ei saa otsida</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Sellest dokumendist ei saa otsida</string>
+  <string name="search_indexing_notification_title">Otsinguindeksi loomine</string>
   <string name="choose_translations">Vali tõlked…</string>
   <string name="multi_search_results">%1$d salmi %2$d tõlkes</string>
   <string name="search_index_not_created">indeks puudub</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Vali, kuidas värve kuvatakse. Värviline e-tint hoiab must-valge põhja, kuid näitab järjehoidjate värve, aktiivse akna indikaatorit ja abijooni värvilisena — värvilise e-tindiga ekraanide jaoks.</string>
   <string name="prefs_display_color_mode_normal">Tavaline</string>
   <string name="prefs_display_color_mode_bw">Must-valge</string>
+  <string name="prefs_display_color_mode_monochrome">Ühevärviline</string>
   <string name="prefs_display_color_mode_color_eink">Värviline e-tint</string>
+  <string name="prefs_theme_palette_style_title">Teema stiil</string>
+  <string name="prefs_theme_palette_style_summary">Kuidas rakenduse värvid tuletatakse tööala värvist. Kehtib ainult siis, kui värvirežiim on Tavaline.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonaalne toon (pehme, säilitab halli)</string>
+  <string name="prefs_theme_palette_style_fidelity">Täpsus (täpne värv)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonaalne toon (algne)</string>
+  <string name="prefs_theme_palette_style_content">Sisu (värvile lähedane)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutraalne (summutatud)</string>
+  <string name="prefs_theme_palette_style_monochrome">Ühevärviline (hall)</string>
+  <string name="prefs_theme_palette_style_vibrant">Erksad toonid</string>
+  <string name="prefs_theme_palette_style_expressive">Väljendusrikas</string>
+  <string name="prefs_theme_palette_style_rainbow">Vikerkaar</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Puuviljasalat</string>
   <string name="prefs_eink_settings_cat">E-tindi seaded</string>
   <string name="prefs_eink_display_title">E-tindi funktsioonid</string>
   <string name="prefs_eink_display_summary">Luba e-tindile omased funktsioonid (lehekülje kerimise nupud, kerimise abijooned)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Märgi peatükid automaatselt loetuks, kui kerid nende läbi</string>
   <string name="reading_progress_read_count_scale">Loetud\nArv</string>
   <string name="reading_progress_percent_read_scale">Protsent\nLoetud</string>
+  <string name="monochrome_activity_count">Tegevuste arv: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Arv: %d</string>
+  <string name="monochrome_level">Tase: %d/4</string>
+  <string name="monochrome_buckets">Hall: puudub; piirjoonega: osaline; täidetud: täielik või kõrgeim tase. Täpsete väärtuste nägemiseks vali üksus.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Lugemise ajalugu</string>
   <string name="reading_progress_history_for">Lugemise edenemine: %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Muuda selle tööala teksti näitamise seadeid</string>
   <string name="global_text_options_link">Globaalsed teksti valikud</string>
   <string name="global_text_options_link_summary">Muuda kõikide tööalade vaikimisi teksti näitamise seadeid</string>
+  <string name="text_options_inherited_workspace">Tööala</string>
+  <string name="text_options_inherited_global">Üldine</string>
   <string name="prefs_font_and_colors_title">Font ja värvid</string>
   <string name="prefs_text_layout_title">Teksti paigutus</string>
   <string name="prefs_strongs_and_morphology_title">Strongi numbrid ja morfoloogia</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Tööala</string>
   <string name="copy_settings_to_window">Aken %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Globaalsed vaikeväärtused</string>
+  <string name="copy_settings_to_workspaces">Teistele tööaladele…</string>
+  <string name="copy_settings_to_global_defaults">Üldistesse vaikeseadetesse…</string>
+  <string name="menu_back">Tagasi</string>
   <string name="change_to_normal">Muuda  tavaaknaks</string>
   <string name="window_pin_mode">Kinnita</string>
   <!--Notes screen-->
@@ -308,6 +369,7 @@ Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
   <string name="failed_repositories_message">Järgmiste serveritega ei saanud ühendust: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Järgnevaid faile ei õnnestunud alla laadida:\n\n%s\n\n</string>
   <string name="cant_delete_document">Seda dokumenti ei saa kustutada.</string>
+  <string name="bad_document_warning">Sellel dokumendil on teadaolevaid probleeme.</string>
   <!--Install zip file-->
   <string name="install_zip">Lae dokumente failidest</string>
   <string name="install_zip_module">Paigalda Piibli moodul</string>
@@ -369,6 +431,11 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="delete_index">Kustuta otsinguindeks</string>
   <string name="about">Rakendusest</string>
   <string name="delete_doc">Kustutada %s?</string>
+  <string name="interrupted_downloads_title">Allalaadimine katkes</string>
+  <string name="interrupted_downloads_message">Neid dokumente ei paigaldatud, sest nende allalaadimine katkes:</string>
+  <string name="interrupted_downloads_question">Kas laadida need uuesti alla?</string>
+  <string name="download_again">Lae uuesti alla</string>
+  <string name="delete_docs_confirm">Kas kustutada need dokumendid?</string>
   <string name="delete_search_index_doc">Kustutada %s indeks?</string>
   <!--Verse context menu-->
   <string name="notes">Allmärkused ja viited</string>
@@ -389,6 +456,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="assign_labels">Määra sildid</string>
   <string name="new_item">Uus</string>
   <string name="label_name_prompt">Nimi</string>
+  <string name="new_label_default_name">Silt %d</string>
   <string name="label_unlabelled">Sildistamata</string>
   <string name="add_bookmark1">Järjehoidja</string>
   <string name="add_bookmark3">Valitu</string>
@@ -436,6 +504,8 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="rewind">Tagasi</string>
   <string name="forward">Edasi</string>
   <string name="tts_lang_not_available">Keel pole saadaval.</string>
+  <string name="tts_engine_not_available">Tekstilugemine ei tööta sellel seadmel. Kontrolli, et kõnemootor on paigaldatud ja süsteemi tekstilugemise seadetes lubatud.</string>
+  <string name="tts_audio_focus_denied">Lugemist ei saanud alustada, sest heli kasutab mõni muu rakendus.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Kõnelemise kiirus</string>
   <string name="speak_and_play_earcons_title">Kõnele ja teavita (nt. peatüki vahetumisest)</string>
@@ -445,6 +515,10 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="speak_bookmarks_menu_title">Kuula alates järjehoidjast</string>
   <string name="speak_advanced_settings">Lisaseaded</string>
   <string name="speak_sleep_timer_title">Unetaimer</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Kohandatud…</string>
+  <string name="speak_sleep_timer_off">Väljas</string>
+  <string name="speak_other_settings">Muu</string>
   <string name="speak_no_books_available">Pole ühtegi raamatut, millest lugeda</string>
   <string name="speak_general_error">Kõnelemist ei saanud selle raamatu jaoks käivitada</string>
   <string name="repeat_passage">Korda piiblikohta</string>
@@ -473,6 +547,11 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="speak_autobookmarking_disabled">Automaatne järjehoidjate lidamine on keelatud!</string>
   <string name="system_speak_settings">Ava süsteemi TTS seaded</string>
   <string name="auto_assing_labels_help1">Siin saad kohandada, millised sildid määratakse automaatselt loodavatele järjehoidjatele.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Siin saad lisada, muuta ja eemaldada silte ning kohandada, millised neist määratakse automaatselt sinu loodud järjehoidjatele.\n\nHiljutised sildid: hiljuti kasutatud sildid.\nMuud sildid: kõik ülejäänud sildid.\n\nVaid automaatselt määratavate või lemmiksiltide nägemiseks kasuta otsinguriba filtrisuvandeid.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">See seadistus rakendub aknale %s.</string>
   <string name="setting_scope_window">see aken</string>
@@ -584,6 +663,9 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="loading_backup">Andmebaasi laadimine varukoopiast...</string>
   <string name="backup_success2">Minu märkmed, järjehoidjad, õppetükid, lugemiskavad ja tööalad on edukalt varundatud.</string>
   <string name="backup_modules_success">Valitud moodulid on edukalt varundatud.</string>
+  <string name="backup_modules_conflict">Varukoopiat ei tehtud: %1$s ja %2$s sisaldavad mõlemad faili %3$s, kuid erineva sisuga. Vali neist ainult üks ja proovi uuesti.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (versioon %2$s, kaust %3$s)</string>
   <string name="backup_modules_email_subject_2">%s mooduli varundamine</string>
   <string name="backup_modules_email_message_2">Lisatud on sinu %1$s moodulite varukoopia, mis sisaldab järgmisi mooduleid: %2$s</string>
   <string name="backup_email_subject_2">%s andmebaasi varundamine</string>
@@ -592,6 +674,9 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="exported_studypads_message">Lisatud on sinu %s andmebaas, mis sisaldab valitud uurimismärkmikutega seotud järjehoidjaid ja märkmeid</string>
   <string name="restore_unsuccessfull">Andmebaasi taastamine ebaõnnestus. Võib-olla andsid vale andmebaasifaili.</string>
   <string name="send_backup_file">Saada varukoopia fail</string>
+  <string name="export_destination_title">Kuhu eksportida?</string>
+  <string name="export_destination_message">Salvesta eksport sellesse telefoni või saada see mujale funktsiooniga Jaga.</string>
+  <string name="send_export_file">Saada eksportfail</string>
   <string name="backup_modules_title">Vali varundatavad moodulid</string>
   <string name="install_zip_canceled">Mooduli paigaldus katkestatud</string>
   <string name="ask_restore_or_import">%s andmebaasi saab kas taastada (st olemasolev andmebaas eemaldatakse ja laetakse valitud andmebaas) või importida (valitud andmebaas imporditakse olemasolevasse andmebaasi). Mida soovid teha?</string>
@@ -632,12 +717,25 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="doc_type_book">Raamat</string>
   <string name="doc_type_map">Kaart</string>
   <string name="doc_type_addons">Lisamoodulid</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Muu</string>
+  <string name="document_type_label">Dokumendi tüüp</string>
   <!--Languages-->
   <string name="lang_default">Vaikeväärtus</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Loobu</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Tagasi</string>
+  <string name="settings_editor_close">Sulge</string>
+  <string name="settings_editor_apply">Rakenda</string>
   <string name="discard_changes_confirmation">Loobuda salvestamata muudatustest?</string>
+  <string name="discard">Loobu muudatustest</string>
+  <string name="remove">Eemalda</string>
+  <string name="overwrite">Kirjuta üle</string>
+  <string name="set_current_day_action">Määra päev</string>
   <string name="yes">Jah</string>
   <string name="no">Ei</string>
   <string name="error">Viga </string>
@@ -647,6 +745,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
   <string name="verse_not_found">Salmi ei leitud</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Jätka</string>
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>
   <string name="error_occurred_crash_last_time">See rakendus sulges eelmine kord ootamatult. Et aidata meil see viga parandada, oleksime väga tänulikud, kui sa saadaksid meile veateate.</string>
@@ -657,8 +756,14 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="error_key_not_in_document2">%1$s ei leitud dokumendist %2$s.</string>
   <string name="empty_list">Pole ühtegi kirjet, mida näidata</string>
   <string name="error_skip">Jäta vahele</string>
+  <string name="debug_test_error">Testviga (silumisversioon)</string>
+  <string name="bug_report_prepare_failed">Aruannet ei õnnestunud ette valmistada ega jagada. Võid uuesti proovida või kasutada andmete salvestamiseks varundust ja taastamist.</string>
   <string name="bug_report_email_title">Saada vearaport e-postiga</string>
   <string name="bug_report_email_text">Järgmise sammuna vali oma eelistatud emaili rakendus (näiteks Gmail), et saata arendustiimile teade.</string>
+  <string name="bug_report_manual_title">Saada aruanne e-postiga</string>
+  <string name="bug_report_manual_text_saved">Aruanne salvestati:</string>
+  <string name="bug_report_manual_text_unsaved">Sellel seadmel ei õnnestunud ühtegi e-posti rakendust avada.\n\nPalun saada aruanne e-postiga aadressile</string>
+  <string name="bug_report_copy_address">Kopeeri aadress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst kõneks</string>
   <string name="notification_channel_progress_status">Edenemise teavitus näiteks dokumentide allalaadimisel jms.</string>
@@ -682,6 +787,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="search_settings">Otsingu seaded</string>
   <string name="dismiss">Eira</string>
   <string name="workspace_listing_with_current">%s (praegune)</string>
+  <string name="workspace_manage_workspaces">Halda tööalasid…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
   <string name="beta_notice_content_1">
@@ -713,7 +819,10 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="help_search_title">Otsing</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Otsingutekstis võib olla ka erimärke nagu *, AND, OR, NOT</string>
+  <string name="help_search_bible">Vali, kuidas sõnu sobitatakse: Kõik sõnad leiab salmid, mis sisaldavad iga sõna, Mõni sõna leiab salmid, mis sisaldavad vähemalt ühte, ja Fraas leiab sõnad üksteise kõrval just selles järjekorras.\n\nOtsingus saad kasutada ka * ja ? metamärkidena (näiteks õnnis* sobib sõnadega õnnis ja õnnistatud), ühendada termineid operaatoritega AND, OR ja NOT ning otsida otse Strongi numbreid (näiteks strong:h0430).</string>
+  <string name="help_search_epub">Vali, kuidas sõnu sobitatakse: Kõik sõnad leiab lõigud, mis sisaldavad iga sõna, Mõni sõna leiab lõigud, mis sisaldavad vähemalt ühte, ja Fraas leiab sõnad üksteise kõrval just selles järjekorras.\n\nToorpäringu süntaks annab sinu teksti otsingumootorile muutmata kujul, nii et saad kirjutada oma päringu: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" täpse fraasi jaoks, bless* mis tahes sõna jaoks, mis algab sõnaga bless, ning grace NEAR faith, et leida need üksteise lähedalt.</string>
   <string name="help_search_details">Vaata lisainfoks %s.</string>
+  <string name="help_search_syntax">Otsingusüntaks</string>
   <string name="help_fts5">FTS5 täistekst päringu süntaks</string>
   <string name="help_workspaces_title">Tööalad</string>
   <string name="help_workspaces_text">Tööalad võimaldavad omada mitut kontekstist sõltuvat töökeskkonda. Tööala funktsioonidele pääseb ligi valikumenüü (üleval paremal nurgas) tööalade kaudu. Kiire viis tööaladele ligipääsemiseks on libistada alla tööriistaribalt. Samuti võid kasutada vasakule ja paremale libistamist tööriistariba kohal, et lülituda eelmisele/järgmisele tööalale.</string>
@@ -722,6 +831,12 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="help_window_pinning_title">Akna kinnitamine</string>
   <string name="help_window_pinning_text">Akna kinnitamise saad lubada valikumenüüst (kolm punkti, paremal ülanurgas). Kui akna kinnitamine on lubatud, võid piiblivaates kuvada mitu kinnitatud akent, kuid ainult ühe kinnitamata akna. Kinnitatud aknad kuvatakse esmalt ja seejärel kinnitamata aknad. Soovitav on avada piiblidokumendid kinnitatud akendena ja kommentaarid ning kaardid jne. kinnitamata akendena. Siis saad piiblidokumendid alati avatuna hoida ja kiiresti kommentaaride ja muu lisamaterjali vahel lülituda piibli uurimisel.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Sinu teegis pole veel ühtegi dokumenti. Alustamiseks lisa mõni.</string>
+  <string name="welcome_redownload_row_hint">Vali varem paigaldatud dokumentide hulgast</string>
+  <string name="welcome_download_row_hint">Sirvi veebikataloogi</string>
+  <string name="welcome_restore_row_hint">Andmebaasifail järjehoidjate ja märkmetega</string>
+  <string name="welcome_link_website">Veebisait</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Vali fail mida soovid laadida rakendusse %s. </string>
@@ -737,9 +852,8 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="format_studypads">Uurimismärkmikud AndBible andmebaasidest (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Sulge</string>
+  <string name="reading_toolbar_options">Rohkem valikuid</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Mõistan</string>
-  <string name="first_time_help_show_next_time">Näita järgmisel korral uuesti</string>
   <string name="strongs_mode_title">Vali Strongi režiim</string>
   <string name="download_dialog_message">Järgnevaid raamatuid ei õnnestunud alla laadida:</string>
   <string name="journal_description">Kasutaja muudetavad uurimismärkmikud kohandatud teksti ja järjehoidjatega</string>
@@ -764,6 +878,7 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="prefs_experimental_features_summary">Vali, milliseid eksperimentaalseid funktsioone lubada. Need funktsioonid on veel arendamisel ja võivad muutuda või eemaldatakse</string>
   <string name="experimental_feature_bookmark_edit_actions">Järjehoidja muutmise toimingud</string>
   <string name="experimental_feature_add_paragraph_break">Lisa lõigu vahe järjehoidja</string>
+  <string name="experimental_feature_toolbar_literal_color">Kasuta lugemise tööriistaribal tööala täpset värvi (teemavärvi asemel)</string>
   <string name="raw_llm_log_title">AI toorlogi</string>
   <string name="raw_llm_log_empty">Toorlogide andmed puuduvad</string>
   <string name="raw_llm_log_copied">Logi kopeeriti lõikelauale</string>
@@ -869,6 +984,7 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="display_mode_underline">Allajoonimine</string>
   <string name="display_mode_marker">Ainult marker</string>
   <string name="display_mode_hidden">Peidetud</string>
+  <string name="display_mode_inherit">Sama mis valik</string>
   <string name="workspace_override_indicator">Sellel sildil on tööala-spetsiifiline kuvamisrežiim</string>
   <string name="primary_label">Peamine silt</string>
   <string name="favourite_label">Lemmik silt</string>
@@ -882,6 +998,8 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="book_menu_show_long_book_name">Näita täisnimesid</string>
   <string name="book_menu_show_progress_bars">Näita edenemisribasid</string>
   <string name="reset_workspace_labels">Kas soovid lähtestada selle tööala automaatse määramise ja lemmik seaded?</string>
+  <string name="clear_auto_assign_labels">Tühjenda automaatselt määratavad sildid</string>
+  <string name="reset_workspace_auto_assign_labels">Kas eemaldada sellelt tööalalt kõik automaatselt määratavad sildid?</string>
   <string name="reset_hide_labels">Kas soovid lähtestada valitud siltide peitmise seaded?</string>
   <string name="reorder">Värskenda järjestust</string>
   <string name="system_items">Süsteemitoimingud</string>
@@ -953,6 +1071,27 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="instructions_for_translators">juhised tõlkijatele</string>
   <string name="questions_title">Küsimus arendajatele</string>
   <string name="bookmark_style">Järjehoidja kujundus</string>
+  <string name="bookmark_style_preview_sample">Sest nõnda on Jumal maailma armastanud</string>
+  <string name="bookmark_style_selection">Tekstivaliku järjehoidjad</string>
+  <string name="bookmark_style_whole_verse">Terve salmi järjehoidjad</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Kasuta terve salmi järjehoidjate jaoks teistsugust stiili</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Valik</string>
+  <string name="bookmark_style_tag_whole_verse">Terve salm</string>
+  <string name="bookmark_style_tag_workspace">Tööala</string>
+  <string name="show_style_examples">Näita stiilinäiteid</string>
+  <string name="labels_search_section">Otsing</string>
+  <string name="labels_filter_section">Näita</string>
+  <string name="labels_filter_auto_assign">Ainult automaatselt määratavad sildid</string>
+  <string name="labels_filter_favourite">Ainult lemmiksildid</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Märgi silt, et see sellele järjehoidjale määrata.</string>
+  <string name="manage_labels_help_primary">Peamine silt. Järjehoidja kuvab selle värvi ja stiili.</string>
+  <string name="manage_labels_help_autoassign">Määra see silt automaatselt igale uuele järjehoidjale. Õõnes välk tähendab, et see on väljas.</string>
+  <string name="manage_labels_help_favourite">Hoia silti kiireks juurdepääsuks lemmikute hulgas.</string>
+  <string name="manage_labels_help_styles">Nime all näitab väike näide sildi välimust: Valik tekstivaliku järjehoidja jaoks, Terve salm terve salmi järjehoidja jaoks ja Tööala silt stiili jaoks, mille see tööala üle kirjutab. Hallis näide ilma kaunistuseta tähendab, et sildi järjehoidjaid ei joonistata. Näited saad peita menüüst ⋮.</string>
+  <string name="manage_labels_help_reorder">Järjesta loend ümber menüüst ⋮.</string>
   <string name="added_to_bookmark">Määratud käesolevale järjehoidjale</string>
   <string name="strongs_links">Lingid</string>
   <string name="strongs_text_and_links">Tekst ja lingid</string>
@@ -992,6 +1131,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="sync_group_n">Gropp %d</string>
   <string name="disable_sync">Keela sünkroonimine</string>
   <string name="open_in_window">Ava tulemused aknas</string>
+  <string name="open_result_in_links_window">Ava tulemus linkide aknas</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Kohandatud hoidlad</string>
@@ -1002,7 +1142,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="delete_custom_repository">Kas soovid eemaldada kohandatud hoidlat %s?</string>
   <string name="custom_repositories_help1">Uue kohandatud hoidla lisamiseks sisesta või kopeeri ja kleebi siia kohandatud hoidla URL.</string>
   <string name="custom_repositories_help2">Rohkem infot kohandatud hoidla kohta %s.</string>
-  <string name="wiki_page">WIKI leht</string>
   <string name="custom_repositories_help0">Saad paigaldada dokumente välistest kohandatud hoidlatest, installides kohandatud hoidlad.</string>
   <string name="duplicate_custom_repository">Hoidla nimega %s on juba olemas.</string>
   <string name="packages_dir">Pakettide kataloog (Zip-failid)</string>
@@ -1042,6 +1181,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="reading_progress_new_cycle_confirm">Alustada uut lugemistsüklit? See alustab edenemise jälgimist otsast, säilitades eelmise tsükli andmed.</string>
   <string name="reading_progress_previous_cycle">Eelmine tsükkel</string>
   <string name="reading_progress_next_cycle">Järgmine tsükkel</string>
+  <string name="cloud_merge_data">Ühenda andmed</string>
   <string name="cloud_fetch_and_restore_initial">Kopeeri pilvest siia seadmesse</string>
   <string name="cloud_create_new">Kopeeri siit seadmest pilve</string>
   <string name="cloud_disable_sync">Tühista ja keela sünkroonimine</string>
@@ -1055,6 +1195,19 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="sync_adapter_summary">Praegune: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV-kausta aadress, nt https://nas.local/dav/ või https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Sünkroonimine nõuab turvalist https:// aadressi.</string>
+  <string name="webdav_certificate_title">Serveri sertifikaat</string>
+  <string name="webdav_forget_certificate_message">Kas unustada usaldatud serveri sertifikaat? Järgmisel ühendumisel palutakse sertifikaat uuesti kinnitada.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Mitteusaldatud serveri sertifikaat</string>
+  <string name="webdav_untrusted_certificate_message">Android ei usalda serveri %1$s sertifikaati. Usalda seda ainult siis, kui tunned selle ära, näiteks seetõttu, et seadistasid selle serveri ise.\n\nSubjekt: %2$s\nVäljaandja: %3$s\nKehtib: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Usalda seda sertifikaati</string>
+  <string name="webdav_wrong_credentials">Vale kasutajanimi või parool.</string>
+  <string name="webdav_not_a_folder">See aadress ei ole WebDAV-kaust.</string>
+  <string name="webdav_certificate_changed">Serveri sertifikaat on muutunud. Sünkroonimine on peatatud, kuni uue sertifikaadi kinnitad; AndBible küsib seda järgmisel avamisel või esiplaanil sünkroonimisel.</string>
+  <string name="webdav_storage_full">Serveri salvestusruum on täis.</string>
   <string name="auth_server_uri">Serveri URL</string>
   <string name="auth_username">Kasutajanimi</string>
   <string name="auth_password">Parool</string>
@@ -1064,6 +1217,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="sync_general_settings">Info &amp; üldised seaded</string>
   <string name="sync_introduction">Tutvustus</string>
   <string name="are_you_sure">Oled sa kindel?</string>
+  <string name="are_you_sure_merge">Säilitatakse nii selle seadme andmed kui ka pilves olev %s. Kui sama üksust on muudetud mõlemas, säilitatakse uuem muudatus. Selle seadme andmed saadetakse sinu teistele seadmetele.</string>
   <string name="are_you_sure_reset_local">See lähtestab sinu kohaliku andmebaasi %s jaoks pilveteenuses salvestatud sisuga.</string>
   <string name="are_you_sure_reset_cloud">See lähtestab sinu pilve andmebaasi %s jaoks selle seadme sisuga.</string>
   <string name="sync_cant_fetch">Pilves salvestatud andmebaasi või paigafaili versioon on kõrgem kui see rakendus toetab.</string>
@@ -1100,6 +1254,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="pref_font_size_multiplier_title">Fondi suuruse kordaja</string>
   <string name="pref_font_size_multiplier_summary_1">Korruta teksti fondi suurust selle numbriga.</string>
   <string name="pref_font_size_multiplier_summary_2">Kasulik, kui sul on sünkroonitud seade, mida kasutatakse suurema kirjasuurusega.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Praegune väärtus: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Toiming vasakule/paremale libistamise žesti jaoks</string>
   <string name="prefs_bible_view_swipe_mode_summary">Vasakule/paremale libistamise žesti saab kasutada järgmisele/eelmisele leheküljele/peatükile minemiseks.</string>
@@ -1220,6 +1375,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="prompt_max_iterations_unlimited">Piiramatu</string>
   <string name="prompt_max_iterations_global_default">Globaalne vaikeväärtus (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Alista globaalsed maksimaalsed iteratsioonid selle käsu jaoks. 0 = piiramatu.\nPraegune: %s</string>
+  <string name="prompt_max_iterations_use_global">Kasuta üldist seadet (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Halda AI käske</string>
   <string name="manage_prompts_summary">Loo ja muuda AI käske</string>
@@ -1353,6 +1509,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="built_in_prompt_notice">See on sisseehitatud käsk, mida ei saa muuta. Kasuta \"Kopeeri kohandamiseks\", et luua muudetav koopia.</string>
   <string name="copy_to_customize">Kopeeri kohandamiseks</string>
   <string name="prompt_copied">Käsk kopeeritud</string>
+  <string name="prompt_copy_failed">Käsku ei õnnestunud kopeerida. See võib olla kustutatud.</string>
   <string name="delete_prompt_confirmation">Kustutada käsk \"%s\"?</string>
   <string name="prompt_name_required">Käsu nimi on nõutav</string>
   <string name="prompt_template_required">Käsu mall on nõutav</string>
@@ -1560,6 +1717,8 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="tool_option_default_disabled">Vaikimisi (keelatud)</string>
   <string name="tool_option_default_allowed">Vaikimisi (lubatud)</string>
   <string name="tool_option_default_denied">Vaikimisi (keelatud)</string>
+  <string name="tool_description_info">Näita tööriista kirjeldust</string>
+  <string name="tool_permission_mixed">Segatud</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Mudel</string>
   <string name="prompt_model_default">Vaikimisi</string>
@@ -1605,6 +1764,8 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="my_document_pages_empty">Selles dokumendis pole lehti.</string>
   <string name="my_document_page_rename_title">Nimeta leht ümber</string>
   <string name="my_document_page_delete_confirmation">Kustutada leht \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Kas kustutada need lehed?</string>
+  <string name="my_documents_switch_document">Vaheta dokumenti</string>
   <string name="my_document_new_page_name">Leht %1$d</string>
   <string name="my_document_create_page_title">Uus leht</string>
   <string name="my_document_content_type_label">Sisu tüüp</string>
@@ -1701,4 +1862,91 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="document_sync_started">Dokumentide sünkroonimine alustatud</string>
   <string name="document_sync_enable_dialog_title">Kas alustada dokumentide sünkroonimist?</string>
   <string name="document_sync_enable_dialog_nothing">Ülekandmiseks pole veel dokumente. Äsja paigaldatud dokumendid sünkroonitakse automaatselt.</string>
+  <string name="help_document_sync_text">Dokumentide sünkroonimine kopeerib sinu paigaldatud piiblid, kommentaarid ja muud dokumendid pilve ning hoiab need sinu seadmete vahel sünkroonis. Selle vaate abil näed, mis on pilves salvestatud, saad üksikuid dokumente alla laadida või üles laadida, dokumente eemaldada ning juhtida, mis sellesse seadmesse sünkroonitakse.</string>
+  <string name="background_image_title">Taustapilt</string>
+  <string name="background_image_none">Taust puudub</string>
+  <string name="background_image_import">Impordi galeriist…</string>
+  <string name="background_image_empty">Imporditud pilte pole veel. Lisamiseks puuduta \"Impordi galeriist…\".</string>
+  <string name="background_image_importing">Importimine…</string>
+  <string name="background_image_delete_title">Kas kustutada pilt?</string>
+  <string name="background_image_delete_confirm">Kas kustutada see taustapilt? Tööalad, mis seda veel kasutavad, jäävad ilma pildita.</string>
+  <string name="background_image_day">Taustapilt (päev)</string>
+  <string name="background_image_night">Taustapilt (öö)</string>
+  <string name="background_image_opacity_day">Taustapildi läbipaistmatus (päev)</string>
+  <string name="background_image_opacity_night">Taustapildi läbipaistmatus (öö)</string>
+  <string name="background_image_change">Muuda</string>
+  <string name="color_picker_title">Vali värv</string>
+  <string name="color_picker_presets">Eelseadistused</string>
+  <string name="color_picker_custom">Kohandatud</string>
+  <string name="bookmark_expand_row">Näita kogu teksti</string>
+  <string name="bookmark_collapse_row">Näita vähem</string>
+  <string name="bookmark_label_filter">Filtreeri sildi järgi</string>
+  <string name="document_quick_all_documents">Kõik dokumendid…</string>
+  <string name="document_quick_tab_recent">Hiljutised</string>
+  <string name="document_quick_tab_for_verse">See salm</string>
+  <string name="document_quick_tab_last_filter">Viimane filter</string>
+  <string name="document_quick_tab_all">Kõik</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtreeri ja sorteeri</string>
+  <string name="doc_arrange_repository">Hoidla</string>
+  <string name="doc_arrange_all_repositories">Kõik hoidlad</string>
+  <string name="doc_arrange_sort">Sortimisjärjekord</string>
+  <string name="doc_arrange_group_by">Rühmita</string>
+  <string name="doc_arrange_remember">Jäta need seaded meelde</string>
+  <string name="doc_arrange_reset">Lähtesta vaikeseadetele</string>
+  <string name="doc_arrange_more_filters">Rohkem filtreid</string>
+  <string name="doc_arrange_reorder">Järjesta ümber</string>
+  <string name="doc_sort_ascending">Kasvav</string>
+  <string name="doc_sort_descending">Kahanev</string>
+  <string name="doc_sort_status">Olek</string>
+  <string name="doc_sort_recommended">Soovitatud esimesena</string>
+  <string name="doc_sort_name">Nimi</string>
+  <string name="doc_sort_size">Suurus</string>
+  <string name="doc_group_none">Rühmitamata</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Allalaadimisel</string>
+  <string name="doc_group_status_update_available">Uuendus saadaval</string>
+  <string name="doc_group_status_installed">Paigaldatud</string>
+  <string name="doc_group_status_not_installed">Paigaldamata</string>
+  <string name="prompt_filter_title">Filtreeri käske</string>
+  <string name="prompt_filter_type">Tüüp</string>
+  <string name="prompt_type_addon">Lisandmoodul</string>
+  <string name="prompt_type_user">Kohandatud</string>
+  <string name="prompt_filter_clear">Tühjenda filtrid</string>
+  <string name="prompt_favorite_add">Lisa lemmikutesse</string>
+  <string name="prompt_favorite_remove">Eemalda lemmikutest</string>
+  <string name="window_unmaximise">Taasta kõik aknad</string>
+  <string name="window_menu_button">Akna menüü</string>
+  <string name="paste_from_clipboard">Kleebi</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Lohistamispide</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Andmete uuendamine…</string>
+  <string name="legacy_migration_progress_neutral">Uuendamine…</string>
+  <string name="legacy_migration_failed_title">Sinu andmeid ei õnnestunud uuendada</string>
+  <string name="legacy_migration_failed_message">Sinu andmed rakenduse eelmisest versioonist on sellel seadmel turvaliselt alles ja muutmata. Vali, mida edasi teha.</string>
+  <string name="legacy_migration_failed_keychain">Eelmise versiooni salvestatud paroole ei õnnestunud lugeda. Ava seadme lukk, seejärel sulge rakendus ja ava see uuesti.</string>
+  <string name="legacy_migration_rollback_pending">Uuendamine katkes ja pole veel täielikult tagasi võetud. Tagasivõtmise lõpetamiseks sulge rakendus ja ava see uuesti.</string>
+  <string name="legacy_migration_save_old_data">Salvesta vanad andmed</string>
+  <string name="legacy_migration_send_report">Saada veateade</string>
+  <string name="legacy_migration_try_again">Proovi uuesti</string>
+  <string name="legacy_migration_try_again_hint">Uuesti proovimiseks sulge rakendus ja ava see uuesti.</string>
+  <string name="legacy_migration_restore_backup">Taasta varukoopia</string>
+  <string name="legacy_migration_start_fresh">Alusta ilma vanade andmeteta</string>
+  <string name="legacy_migration_start_fresh_confirm">Sinu vanad andmed jäävad sellesse seadmesse. Saad need hiljem seadetes importida.</string>
+  <string name="legacy_import_title">Impordi andmed rakenduse eelmisest versioonist</string>
+  <string name="legacy_import_summary">Asenda praegused andmed rakenduse eelmise versiooni andmetega</string>
+  <string name="legacy_import_confirm">See asendab sinu praegused tööalad, järjehoidjad ja muud andmed rakenduse eelmise versiooni andmetega. Praeguste andmete koopia jääb sellesse seadmesse alles.</string>
+  <string name="legacy_import_reopen">Andmete importimiseks sulge rakendus ja ava see uuesti.</string>
+  <string name="legacy_notice_icloud">Sünkroonimine kasutab nüüd iCloud Drive\'i. Lülita see uuesti sisse menüüs Seaded → Sünkroonimine. See seade säilitab, mis tal oli; muudatused sinu teistest seadmetest saabuvad, kui sünkroonimine on uuesti seadistatud. Vanade iCloudi andmete vabastamiseks: Seaded → sinu nimi → iCloud → Halda salvestusruumi → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Sinu Nextcloudi ühendus võeti üle, kuid sünkroonimine on väljas. Lülita see sisse menüüs Seaded → Sünkroonimine ning vali, kas tuua pilvest või luua uus.</string>
+  <string name="legacy_notice_nextcloud_unsent">Mõned selle seadme muudatused polnud veel Nextcloudi saadetud. Neid ei saadetud ja need jäävad ainult sellesse seadmesse.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">See on võimas, kuid lihtsasti kasutatav võrguühenduseta piibliuurimise rakendus.</string>
+  <string name="webdav_untrusted_certificate_message_device">See seade ei usalda serveri %1$s sertifikaati. Usalda seda ainult siis, kui tunned selle ära, näiteks seetõttu, et seadistasid selle serveri ise.\n\nSubjekt: %2$s\nVäljaandja: %3$s\nKehtib: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Kohandatud hoidlad peavad kasutama turvalist https:// aadressi.</string>
+  <string name="custom_repository_https_required_refresh">%1$s kasutab http:// aadressi. Kasutada saab ainult https:// hoidlaid.</string>
 </resources>

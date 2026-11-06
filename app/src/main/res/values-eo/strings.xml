@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible ne povis startigi WebView2, kiu necesas por montri la biblian tekston. Instalu aŭ riparu la Microsoft Edge WebView2 Evergreen Runtime de:\n%1$s\n\nDetaloj estas en la protokola dosiero:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible bezonas Direct3D-grafikon por montri la biblian tekston per WebView2. La nuna grafika bildigilo estas %1$s. Kontrolu vian grafikan peliston kaj subtenon de Direct3D.\n\nDetaloj estas en la protokola dosiero:\n%2$s</string>
+  <string name="desktop_update_setting_title">Kontroli ĝisdatigojn</string>
+  <string name="desktop_update_setting_summary">Unufoje tage, de github.com</string>
+  <string name="desktop_update_consent_title">Kontroli ĝisdatigojn?</string>
+  <string name="desktop_update_consent_message">AndBible povas kontroli github.com unufoje tage por pli nova versio. GitHub vidas vian IP-adreson; nenio alia estas sendata. Vi povas ŝanĝi tion poste en la Agordoj.</string>
+  <string name="desktop_update_consent_yes">Kontroli ĝisdatigojn</string>
+  <string name="desktop_update_consent_no">Ne kontroli</string>
+  <string name="desktop_update_available_title">Nova versio disponeblas</string>
+  <string name="desktop_update_available_message">AndBible %1$s disponeblas. Vi havas %2$s.</string>
+  <string name="desktop_update_download">Elŝuti</string>
+  <string name="desktop_update_later">Poste</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d rezultoj trovitaj</string>
   <string name="search_showing_first">Tro multe da rezultoj. Montrante %d komencajn</string>
   <string name="search_bible_section_group_prompt">Serĉi en:</string>
+  <string name="search_type_prompt">Serĉospeco</string>
+  <string name="search_show_results">Montri serĉrezultojn</string>
   <string name="search_all_bible">la tuta Biblio</string>
   <string name="search_new_testament">Nova Testamento</string>
   <string name="search_old_testament">Malnova Testamento</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Serĉi “%s”</string>
   <!--Multi-translation search-->
   <string name="search_translations">Tradukoj</string>
+  <string name="recent_searches">Lastaj serĉoj</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Fermi serĉon</string>
+  <string name="search_options">Serĉagordoj</string>
+  <string name="search_submit">Serĉi</string>
+  <string name="search_clear">Forigi serĉtekston</string>
+  <string name="search_engine_changed_reindex">La serĉilo estis ĝisdatigita. La serĉindekso devas esti kreita denove; tio povas daŭri iom.</string>
+  <string name="search_unsupported_syntax">Ĉi tiu serĉo uzas sintakson, kiu ne estas subtenata: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Kiam la indeksado finiĝos, la serĉo aŭtomate komenciĝos.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s ne eblas serĉi</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Ĉi tiun dokumenton ne eblas serĉi</string>
+  <string name="search_indexing_notification_title">Kreado de serĉindekso</string>
   <string name="choose_translations">Elekti tradukojn…</string>
   <string name="multi_search_results">%1$d versoj en %2$d traduko(j)</string>
   <string name="search_index_not_created">neniu indekso</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Elekti kiel koloroj estas montrataj. Kolora elektronika papero konservas blank-nigran bazon sed montras kolorojn de legosignoj, la indikilon de la aktiva fenestro kaj rulum-help-liniojn kolore – por koloraj elektronik-paperaj ekranoj.</string>
   <string name="prefs_display_color_mode_normal">Norma</string>
   <string name="prefs_display_color_mode_bw">Blank-nigra</string>
+  <string name="prefs_display_color_mode_monochrome">Unukolora</string>
   <string name="prefs_display_color_mode_color_eink">Kolora elektronika papero</string>
+  <string name="prefs_theme_palette_style_title">Etoso-stilo</string>
+  <string name="prefs_theme_palette_style_summary">Kiel la koloroj de la apo estas derivitaj el la koloro de la laborspaco. Validas nur kiam la kolora reĝimo estas Normala.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tona makulo (mola, konservas grizon)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fideleco (preciza koloro)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tona makulo (originala)</string>
+  <string name="prefs_theme_palette_style_content">Enhavo (proksima al la koloro)</string>
+  <string name="prefs_theme_palette_style_neutral">Neŭtrala (mildigita)</string>
+  <string name="prefs_theme_palette_style_monochrome">Unukolora (griza)</string>
+  <string name="prefs_theme_palette_style_vibrant">Vigla</string>
+  <string name="prefs_theme_palette_style_expressive">Esprimplena</string>
+  <string name="prefs_theme_palette_style_rainbow">Ĉielarko</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Fruktosalato</string>
   <string name="prefs_eink_settings_cat">Elektronika papero</string>
   <string name="prefs_eink_display_title">Elektronik-paperaj ebloj</string>
   <string name="prefs_eink_display_summary">Aktivigi eblojn utilajn por elektronika papero (butonoj por rulumi paĝojn, rulum-help-linioj)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Aŭtomate marki ĉapitrojn kiel legitajn dum vi rulumas tra ili</string>
   <string name="reading_progress_read_count_scale">Legitaj\nversoj</string>
   <string name="reading_progress_percent_read_scale">Legita\nelcento</string>
+  <string name="monochrome_activity_count">Nombro de agadoj: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Nombro: %d</string>
+  <string name="monochrome_level">Nivelo: %d/4</string>
+  <string name="monochrome_buckets">Griza: neniu; konturita: parta; plena: plena aŭ plej alta nivelo. Elektu eron por precizaj valoroj.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Leghistorio</string>
   <string name="reading_progress_history_for">Lega progreso por %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Redakti agordojn pri vidigi tekston por tiu ĉi laborspaco</string>
   <string name="global_text_options_link">Ĝeneralaj tekstaj agordoj</string>
   <string name="global_text_options_link_summary">Redakti implicitajn agordojn pri vidigi tekston por ĉiuj laborspacoj</string>
+  <string name="text_options_inherited_workspace">Laborspaco</string>
+  <string name="text_options_inherited_global">Ĝenerala</string>
   <string name="prefs_font_and_colors_title">Tiparo kaj koloroj</string>
   <string name="prefs_text_layout_title">Teksta aranĝo</string>
   <string name="prefs_strongs_and_morphology_title">Numerado de String kaj morfologio</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">laborspaco</string>
   <string name="copy_settings_to_window">Fenestro %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Ĝeneralaj implicitoj</string>
+  <string name="copy_settings_to_workspaces">Al aliaj laborspacoj…</string>
+  <string name="copy_settings_to_global_defaults">Al ĝeneralaj apriorajoj…</string>
+  <string name="menu_back">Reen</string>
   <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">Ne povis konekti al la jenaj deponejoj de dokumentoj:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Ne povis elŝuti la jenajn dosierojn:\n\n%s\n\n</string>
   <string name="cant_delete_document">Tiu ĉi dokumento ne povas esti forigita.</string>
+  <string name="bad_document_warning">Ĉi tiu dokumento havas konatajn problemojn.</string>
   <!--Install zip file-->
   <string name="install_zip">Enlegi dokumentojn el dosieroj</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
@@ -364,6 +426,11 @@ laŭ ilia permeso.</string>
   <string name="delete_index">Forigi serĉ-indekson</string>
   <string name="about">Pri</string>
   <string name="delete_doc">Ĉu forigi %s?</string>
+  <string name="interrupted_downloads_title">Elŝuto interrompita</string>
+  <string name="interrupted_downloads_message">Ĉi tiuj dokumentoj ne estis instalitaj, ĉar ilia elŝuto estis interrompita:</string>
+  <string name="interrupted_downloads_question">Ĉu elŝuti ilin denove?</string>
+  <string name="download_again">Elŝuti denove</string>
+  <string name="delete_docs_confirm">Ĉu forigi ĉi tiujn dokumentojn?</string>
   <string name="delete_search_index_doc">Ĉu forigi indekson de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
@@ -384,6 +451,7 @@ laŭ ilia permeso.</string>
   <string name="assign_labels">Aldoni etikedojn</string>
   <string name="new_item">Nova</string>
   <string name="label_name_prompt">Nomo</string>
+  <string name="new_label_default_name">Etikedo %d</string>
   <string name="label_unlabelled">Senetikeda</string>
   <string name="add_bookmark1">Legosigni</string>
   <string name="add_bookmark3">L. fragmenton</string>
@@ -431,6 +499,8 @@ laŭ ilia permeso.</string>
   <string name="rewind">Malantaŭen</string>
   <string name="forward">Antaŭen</string>
   <string name="tts_lang_not_available">Lingvo ne estas disponebla.</string>
+  <string name="tts_engine_not_available">Teksto-al-parolo ne funkcias en ĉi tiu aparato. Kontrolu, ke parolmotoro estas instalita kaj ŝaltita en la teksto-al-parolaj agordoj de la sistemo.</string>
+  <string name="tts_audio_focus_denied">Parolado ne povis komenciĝi, ĉar alia apo uzas la sonon.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Parol-rapido</string>
   <string name="speak_and_play_earcons_title">Paroli kaj ludi pepajn sonojn je</string>
@@ -440,6 +510,10 @@ laŭ ilia permeso.</string>
   <string name="speak_bookmarks_menu_title">Paroli ekde legosigno</string>
   <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Propra…</string>
+  <string name="speak_sleep_timer_off">Malŝaltita</string>
+  <string name="speak_other_settings">Aliaj</string>
   <string name="speak_no_books_available">Neniu disponebla libro por paroli</string>
   <string name="speak_general_error">Ne povas ekigi paroladon por tiu ĉi libro</string>
   <string name="repeat_passage">Ripeti fragmenton</string>
@@ -468,6 +542,11 @@ laŭ ilia permeso.</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
   <string name="system_speak_settings">Operaciumaj agordoj pri parolsintezo</string>
   <string name="auto_assing_labels_help1">Tie ĉi vi povas elekti etikedojn, kiuj estos aŭtomate asignitaj al kreataj legosignoj.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Ĉi tie vi povas aldoni, redakti kaj forigi etikedojn, kaj ĝustigi kiuj el ili aŭtomate asignu al legosignoj, kiujn vi kreas.\n\nLastaj etikedoj: lastatempe uzitaj etikedoj.\nAliaj etikedoj: ĉiuj aliaj etikedoj.\n\nUzu la filtrajn opciojn de la serĉostrio por vidi nur aŭtomate asignatajn aŭ ŝatatajn etikedojn.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Tiu ĉi agordo aplikiĝas al %s.</string>
   <string name="setting_scope_window">tiu ĉi fenestro</string>
@@ -563,6 +642,9 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="loading_backup">Enlegado de datumbazo el sekurkopio…</string>
   <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
   <string name="backup_modules_success">Sukcese sekurkopiis la elektitajn modulojn.</string>
+  <string name="backup_modules_conflict">La sekurkopio ne estis farita: %1$s kaj %2$s ambaŭ enhavas la dosieron %3$s, kun malsama enhavo. Elektu nur unu el ili kaj reprovu.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (versio %2$s, dosierujo %3$s)</string>
   <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
   <string name="backup_modules_email_message_2">Sekurkopio de la jenaj moduloj de aplikaĵo %1$s: %2$s troviĝas en la kunsendaĵo. </string>
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
@@ -571,6 +653,9 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="exported_studypads_message">Datumbazo de la programo %s enhavanta viajn legosignojn kaj notojn por la elektita notbloko troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
+  <string name="export_destination_title">Elporti al kie?</string>
+  <string name="export_destination_message">Konservu la elporton en ĉi tiu telefono, aŭ sendu ĝin aliloken per Kunhavigi.</string>
+  <string name="send_export_file">Sendi elportan dosieron</string>
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
   <string name="install_zip_canceled">Rezignis instali modulon</string>
   <string name="ask_restore_or_import">Datumbazo de %s povas esti restarigita (la ekzista datumbazo foriĝos kaj estos anstataŭigita per la elektata datumbazo) aŭ enportita (la elektata datumbazo estos enportita al la ekzista datumbazo). Kion vi volas fari?</string>
@@ -611,12 +696,25 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="doc_type_book">Libro</string>
   <string name="doc_type_map">Mapo</string>
   <string name="doc_type_addons">Aldonaĵo</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Alia</string>
+  <string name="document_type_label">Dokumenta speco</string>
   <!--Languages-->
   <string name="lang_default">Implicita</string>
   <!--General-->
   <string name="okay">Bone</string>
   <string name="cancel">Nuligi</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Reen</string>
+  <string name="settings_editor_close">Fermi</string>
+  <string name="settings_editor_apply">Apliki</string>
   <string name="discard_changes_confirmation">Ĉu forĵeti nekonservitajn ŝanĝojn?</string>
+  <string name="discard">Forĵeti</string>
+  <string name="remove">Forigi</string>
+  <string name="overwrite">Anstataŭigi</string>
+  <string name="set_current_day_action">Agordi tagon</string>
   <string name="yes">Jes</string>
   <string name="no">Ne</string>
   <string name="error">Eraro</string>
@@ -626,6 +724,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
   <string name="verse_not_found">Ne trovis verson</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Daŭrigi</string>
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
   <string name="error_occurred_crash_last_time">Lastfoje kiam vi uzis la aplikaĵon, ĝi paneis. Por helpi al ni ripari la eraron, ni petas vin pri sendi erar-raporton.</string>
@@ -636,8 +735,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_key_not_in_document2">Ne trovis “%1$s” en %2$s.</string>
   <string name="empty_list">Neniu elemento por montri</string>
   <string name="error_skip">Preterlasi</string>
+  <string name="debug_test_error">Provo-eraro (sencimiga versio)</string>
+  <string name="bug_report_prepare_failed">Ne eblis prepari aŭ kunhavigi la raporton. Vi povas reprovi, aŭ uzi Sekurkopio kaj restarigo por konservi viajn datumojn.</string>
   <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
   <string name="bug_report_email_text">Sekve elektu vian preferatan retpoŝtilon (ekzemple Gmail) por sendi raporton al la programistoj.</string>
+  <string name="bug_report_manual_title">Sendi la raporton retpoŝte</string>
+  <string name="bug_report_manual_text_saved">La raporto estis konservita al</string>
+  <string name="bug_report_manual_text_unsaved">Neniu retpoŝta programo povis esti malfermita en ĉi tiu aparato.\n\nBonvolu sendi la raporton retpoŝte al</string>
+  <string name="bug_report_copy_address">Kopii adreson</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
@@ -661,6 +766,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="search_settings">Serĉi en agordoj</string>
   <string name="dismiss">Rezigni</string>
   <string name="workspace_listing_with_current">%s (elektita)</string>
+  <string name="workspace_manage_workspaces">Administri laborspacojn…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
   <string name="beta_notice_content_1">
@@ -698,7 +804,10 @@ Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ p
   <string name="help_search_title">Serĉi</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">La serĉata teksto povas enhavi specialajn operatorojn kiel: *, AND, OR, NOT.</string>
+  <string name="help_search_bible">Elektu kiel la vortoj kongruas: Ĉiuj vortoj trovas versojn enhavantajn ĉiun vorton, Iu vorto trovas versojn enhavantajn almenaŭ unu, kaj Frazo trovas la vortojn unu apud la alia en tiu ordo.\n\nEn serĉo vi ankaŭ povas uzi * kaj ? kiel ĵokerojn (ekzemple bless* kongruas kun blessed kaj blessing), kombini terminojn per AND, OR kaj NOT, kaj serĉi nombrojn de Strong rekte (ekzemple strong:h0430).</string>
+  <string name="help_search_epub">Elektu kiel la vortoj kongruas: Ĉiuj vortoj trovas pasaĵojn enhavantajn ĉiun vorton, Iu vorto trovas pasaĵojn enhavantajn almenaŭ unu, kaj Frazo trovas la vortojn unu apud la alia en tiu ordo.\n\nNuda informpeta sintakso transdonas vian tekston al la serĉilo senŝanĝe, do vi povas skribi vian propran informpeton: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" por preciza frazo, bless* por kongrui kun ĉiu vorto komencanta per bless, kaj grace NEAR faith por trovi ilin proksimajn.</string>
   <string name="help_search_details">Legu la %s por pli da detaloj.</string>
+  <string name="help_search_syntax">Serĉa sintakso</string>
   <string name="help_fts5">plentekstan serĉan sintakson de FTS5</string>
   <string name="help_workspaces_title">Laborspacoj</string>
   <string name="help_workspaces_text">
@@ -713,6 +822,12 @@ Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punktoj ĉe la supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Ankoraŭ ne estas dokumentoj en via biblioteko. Aldonu kelkajn por komenci.</string>
+  <string name="welcome_redownload_row_hint">Elekti el antaŭe instalitaj dokumentoj</string>
+  <string name="welcome_download_row_hint">Foliumi la reta katalogo</string>
+  <string name="welcome_restore_row_hint">Datumbaza dosiero kun legosignoj kaj notoj</string>
+  <string name="welcome_link_website">Retejo</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Elektu dosieron por aldoni al %s.</string>
@@ -728,9 +843,8 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="format_studypads">notblokoj el AndBible-datumbazoj (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
+  <string name="reading_toolbar_options">Pliaj opcioj</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Kompreneble</string>
-  <string name="first_time_help_show_next_time">Montri denove poste</string>
   <string name="strongs_mode_title">Reĝimo de Strong-numerado</string>
   <string name="download_dialog_message">Ne povis elŝuti la jenajn librojn:</string>
   <string name="journal_description">Redakteblaj notblokoj kun propra teksto kaj legosignoj</string>
@@ -755,6 +869,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="prefs_experimental_features_summary">Elekti eksperimentajn eblojn por aktivigi. Tiuj ĉi ebloj plue estas prilaborataj kaj povas esti ŝanĝitaj aŭ forigitaj.</string>
   <string name="experimental_feature_bookmark_edit_actions">Redakti agojn de legosigno</string>
   <string name="experimental_feature_add_paragraph_break">Aldoni legosignon en la formo de nova linio</string>
+  <string name="experimental_feature_toolbar_literal_color">Uzi la laŭliteran koloron de la laborspaco por la leg-ilstrio (anstataŭ la etosan koloron)</string>
   <string name="raw_llm_log_title">Kruda protokolo de GLM</string>
   <string name="raw_llm_log_empty">Neniuj krudaj protokolaj datumoj estas disponeblaj</string>
   <string name="raw_llm_log_copied">Protokolo kopiita al tondujo</string>
@@ -852,6 +967,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="display_mode_underline">Substreki</string>
   <string name="display_mode_marker">Nur markilo</string>
   <string name="display_mode_hidden">Kaŝita</string>
+  <string name="display_mode_inherit">Sama kiel elekto</string>
   <string name="workspace_override_indicator">Tiu ĉi etikedo havas montran reĝimon specifan por laborspaco</string>
   <string name="primary_label">Ĉefa etikedo</string>
   <string name="favourite_label">Ŝatata etikedo</string>
@@ -865,6 +981,8 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="book_menu_show_long_book_name">Montri longajn nomojn</string>
   <string name="book_menu_show_progress_bars">Montri progres-striojn</string>
   <string name="reset_workspace_labels">Ĉu vi volas nuligi agordojn pri aŭtomata atribuo kaj ŝatataj etikedoj por tiu ĉi laborspaco?</string>
+  <string name="clear_auto_assign_labels">Forigi aŭtomate asignatajn etikedojn</string>
+  <string name="reset_workspace_auto_assign_labels">Ĉu vi volas forigi ĉiujn aŭtomate asignatajn etikedojn el ĉi tiu laborspaco?</string>
   <string name="reset_hide_labels">Ĉu vi volas nuligi agordojn pri kaŝi specifajn etikedojn?</string>
   <string name="reorder">Reordigi</string>
   <string name="system_items">Agoj de operaciumo</string>
@@ -936,6 +1054,27 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="instructions_for_translators">instrukcioj por tradukantoj</string>
   <string name="questions_title">Demandoj?</string>
   <string name="bookmark_style">Stilo de legosignoj</string>
+  <string name="bookmark_style_preview_sample">Ĉar Dio tiel amis la mondon</string>
+  <string name="bookmark_style_selection">Legosignoj de teksta elekto</string>
+  <string name="bookmark_style_whole_verse">Legosignoj de tuta verso</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Uzi alian stilon por legosignoj de tuta verso</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Elekto</string>
+  <string name="bookmark_style_tag_whole_verse">Tuta verso</string>
+  <string name="bookmark_style_tag_workspace">Laborspaco</string>
+  <string name="show_style_examples">Montri stilekzemplojn</string>
+  <string name="labels_search_section">Serĉi</string>
+  <string name="labels_filter_section">Montri</string>
+  <string name="labels_filter_auto_assign">Nur aŭtomate asignatajn etikedojn</string>
+  <string name="labels_filter_favourite">Nur ŝatatajn etikedojn</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Marku etikedon por asigni ĝin al ĉi tiu legosigno.</string>
+  <string name="manage_labels_help_primary">La ĉefa etikedo. Ĝia koloro kaj stilo estas tio, kion la legosigno montras.</string>
+  <string name="manage_labels_help_autoassign">Asigni ĉi tiun etikedon aŭtomate al ĉiu nova legosigno. Kava fulmo signifas malŝaltita.</string>
+  <string name="manage_labels_help_favourite">Konservi la etikedon en viaj ŝatataĵoj por rapida aliro.</string>
+  <string name="manage_labels_help_styles">Sub la nomo malgranda ekzemplo montras la aspekton de la etikedo: Elekto por legosigno de teksta elekto, Tuta verso por tiu de tuta verso, kaj Laborspaco-marko por stilo, kiun ĉi tiu laborspaco superregas. Griza ekzemplo sen ornamo signifas, ke la legosignoj de la etikedo ne estas desegnataj. Kaŝu la ekzemplojn per la menuo ⋮.</string>
+  <string name="manage_labels_help_reorder">Reordigu la liston per la menuo ⋮.</string>
   <string name="added_to_bookmark">Asignita al tiu ĉi legosigno</string>
   <string name="strongs_links">Ligiloj</string>
   <string name="strongs_text_and_links">Tekstoj kaj ligiloj</string>
@@ -980,6 +1119,7 @@ Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Malaktivigi samtempigon</string>
   <string name="open_in_window">Malfermi rezultojn en fenestro</string>
+  <string name="open_result_in_links_window">Malfermi rezulton en ligila fenestro</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Propraj deponejoj</string>
@@ -990,7 +1130,6 @@ Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <string name="delete_custom_repository">Ĉu forigi la propran deponejon %s?</string>
   <string name="custom_repositories_help1">Por aldoni novan deponejon, enigu aŭ kopiu-kaj-algluu ligilon de propra deponejo tie ĉi.</string>
   <string name="custom_repositories_help2">Pliaj informoj pri propraj deponejoj troviĝas sur la %s.</string>
-  <string name="wiki_page">viki-paĝo</string>
   <string name="custom_repositories_help0">Vi povas instali dokumentojn el eksteraj deponejoj per instali proprajn deponejojn.</string>
   <string name="duplicate_custom_repository">Deponejo kun la nomo %s jam ekzistas, ne povas aldoni kun la sama.</string>
   <string name="packages_dir">Dosierujo de pakaĵoj (zip-dosieroj)</string>
@@ -1034,6 +1173,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="reading_progress_new_cycle_confirm">Ĉu komenci novan ciklon de legado? Tio ĉi ekspuros vian progreson de la komenco, konservante la datumojn de via antaŭa ciklo.</string>
   <string name="reading_progress_previous_cycle">Antaŭa ciklo</string>
   <string name="reading_progress_next_cycle">Sekva ciklo</string>
+  <string name="cloud_merge_data">Kunfandi datumojn</string>
   <string name="cloud_fetch_and_restore_initial">Kopii el nubo al tiu ĉi aparato</string>
   <string name="cloud_create_new">Kopii el tiu ĉi aparato al nubo</string>
   <string name="cloud_disable_sync">Nuligi kaj malaktivigi samtempigon</string>
@@ -1047,6 +1187,19 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="sync_adapter_summary">Nuna: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adreso de la WebDAV-dosierujo, ekz. https://nas.local/dav/ aŭ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Sinkronigo postulas sekuran https:// adreson.</string>
+  <string name="webdav_certificate_title">Servila atestilo</string>
+  <string name="webdav_forget_certificate_message">Ĉu forgesi la fidatan servilan atestilon? Oni petos vin konfirmi la atestilon denove ĉe la sekva konekto.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Nefidata servila atestilo</string>
+  <string name="webdav_untrusted_certificate_message">La atestilo de %1$s ne estas fidata de Android. Fidu ĝin nur se vi rekonas ĝin, ekzemple ĉar vi mem starigis ĉi tiun servilon.\n\nSubjekto: %2$s\nEldonanto: %3$s\nValida: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Fidi ĉi tiun atestilon</string>
+  <string name="webdav_wrong_credentials">Malĝusta uzantnomo aŭ pasvorto.</string>
+  <string name="webdav_not_a_folder">La adreso ne estas WebDAV-dosierujo.</string>
+  <string name="webdav_certificate_changed">La servila atestilo ŝanĝiĝis. Sinkronigo estas paŭzigita ĝis vi konfirmos la novan atestilon, pri kio AndBible demandas la venontan fojon, kiam ĝi malfermiĝas aŭ sinkroniĝas en la malfono.</string>
+  <string name="webdav_storage_full">La servila stokado estas plena.</string>
   <string name="auth_server_uri">Retadreso de servilo</string>
   <string name="auth_username">Uzantnomo</string>
   <string name="auth_password">Pasvorto</string>
@@ -1056,6 +1209,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="sync_general_settings">Informoj kaj agordoj</string>
   <string name="sync_introduction">Enkonduko</string>
   <string name="are_you_sure">Ĉu vi certas?</string>
+  <string name="are_you_sure_merge">Kaj la datumoj en ĉi tiu aparato kaj la %s en la nubo estos konservitaj. Kie la sama ero ŝanĝiĝis ambaŭflanke, la pli nova ŝanĝo estas konservata. La datumoj de ĉi tiu aparato estos senditaj al viaj aliaj aparatoj.</string>
   <string name="are_you_sure_reset_local">Tio ĉi anstataŭigos vian lokan datumbazon de %s per enhavo, kiu nune troviĝas en la nuba servo.</string>
   <string name="are_you_sure_reset_cloud">Tio ĉi anstataŭigos vian nuban datumbazon de %s per enhavo, kiu nune troviĝas en tiu ĉi aparato.</string>
   <string name="sync_cant_fetch">La versio de datumbazo aŭ dosiero konservita en la nubo estas pli alta ol versio subtenata per tiu ĉi aplikaĵo.</string>
@@ -1091,6 +1245,7 @@ Ne montri tion ĉi denove</string>
   <string name="pref_font_size_multiplier_title">Pligrandigi tiparon</string>
   <string name="pref_font_size_multiplier_summary_1">Obligi grandon de tiparo je tiu ĉi nombro.</string>
   <string name="pref_font_size_multiplier_summary_2">Uzebla kiam vi havas samtempigitan aparaton kun pli granda tiparo.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Nuna valoro: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Ago por fingrumi (mal)dekstren</string>
   <string name="prefs_bible_view_swipe_mode_summary">Elekti kion fari responde al la gestoj fingrumi (mal)dekstren: ĉu ŝanĝi paĝon aŭ ĉapitron.</string>
@@ -1211,6 +1366,7 @@ Ne montri tion ĉi denove</string>
   <string name="prompt_max_iterations_unlimited">senlima</string>
   <string name="prompt_max_iterations_global_default">ĝenerala implicito (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Transpasi la ĝeneralan maksimuman ripetkvanton por tiu ĉi demando. 0 = senlima.\nNuna: %s.</string>
+  <string name="prompt_max_iterations_use_global">Uzi la ĝeneralan agordon (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Administri AI-demandojn</string>
   <string name="manage_prompts_summary">Krei kaj redakti demandojn por artefarita intelekto</string>
@@ -1344,6 +1500,7 @@ Ne montri tion ĉi denove</string>
   <string name="built_in_prompt_notice">Tio ĉi estas enkonstruita demando kaj ne povas esti redaktita. Uzu “Kopii por alĝustigi” por krei redakteblan kopion.</string>
   <string name="copy_to_customize">Kopii por alĝustigi</string>
   <string name="prompt_copied">Kopiis demandon</string>
+  <string name="prompt_copy_failed">Ne eblis kopii la demandon. Ĝi eble estis forigita.</string>
   <string name="delete_prompt_confirmation">Ĉu forigi la demandon “%s”?</string>
   <string name="prompt_name_required">Nomo de demando estas postulata</string>
   <string name="prompt_template_required">Ŝablono de demando estas postulata</string>
@@ -1551,6 +1708,8 @@ Ne montri tion ĉi denove</string>
   <string name="tool_option_default_disabled">Implicite (malpermesi)</string>
   <string name="tool_option_default_allowed">Implicite (permesi)</string>
   <string name="tool_option_default_denied">Implicite (malpermesi)</string>
+  <string name="tool_description_info">Montri priskribon de la ilo</string>
+  <string name="tool_permission_mixed">Miksita</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Implicita</string>
@@ -1596,6 +1755,8 @@ Ne montri tion ĉi denove</string>
   <string name="my_document_pages_empty">Neniu paĝo en tiu ĉi dokumento.</string>
   <string name="my_document_page_rename_title">Renomi paĝon</string>
   <string name="my_document_page_delete_confirmation">Ĉu forigi la paĝon “%s”?</string>
+  <string name="my_document_pages_delete_confirmation">Ĉu forigi ĉi tiujn paĝojn?</string>
+  <string name="my_documents_switch_document">Ŝanĝi dokumenton</string>
   <string name="my_document_new_page_name">Paĝo %1$d</string>
   <string name="my_document_create_page_title">Nova paĝo</string>
   <string name="my_document_content_type_label">Enhavtipo</string>
@@ -1682,29 +1843,9 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_summary_download">Elŝuti %1$d</string>
   <string name="cloud_doc_summary_download_size">Elŝuti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Aŭtomataj elŝutoj komenciĝos per vifio.</string>
-  <plurals name="cloud_doc_sync_now_count">
-    <item quantity="one">%1$d dokumento</item>
-    <item quantity="other">%1$d dokumentoj</item>
-  </plurals>
-  <plurals name="cloud_doc_sync_now_count_size">
-    <item quantity="one">%1$d dokumento (%2$s)</item>
-    <item quantity="other">%1$d dokumentoj (%2$s)</item>
-  </plurals>
   <string name="cloud_doc_sync_now_count_none">Nenio por transigi</string>
   <string name="cloud_doc_selected_count">%1$d elektita(j)</string>
   <string name="cloud_doc_bulk_skipped">Preterlasita(j) %1$d ne-aplikebla(j)</string>
-  <plurals name="cloud_doc_bulk_remove_all_confirm">
-    <item quantity="one">Ĉu forigi %1$d dokumenton el la nubo kaj el ĉiuj viaj aparatoj, ankoraŭ el tiu ĉi aparato?</item>
-    <item quantity="other">Ĉu forigi %1$d dokumentojn el la nubo kaj el ĉiuj viaj aparatoj, ankoraŭ el tiu ĉi aparato?</item>
-  </plurals>
-  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
-    <item quantity="one">Ĉu forigi %1$d dokumenton el la nubo? Kopio en tiu ĉi aparato estos konservita.</item>
-    <item quantity="other">Ĉu forigi %1$d dokumentojn el la nubo? Kopioj en tiu ĉi aparato estos konservitaj.</item>
-  </plurals>
-  <plurals name="cloud_doc_bulk_purge_confirm">
-    <item quantity="one">Ĉu porĉiame forigi %1$d dokumenton el la nuba historio?</item>
-    <item quantity="other">Ĉu porĉiame forigi %1$d dokumentojn el la nuba historio?</item>
-  </plurals>
   <string name="document_sync_notification_title">Samtempigado de dokumentoj</string>
   <string name="document_sync_downloading">Elŝutado de %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Alŝutado de %1$s (%2$d/%3$d)</string>
@@ -1712,4 +1853,91 @@ Ne montri tion ĉi denove</string>
   <string name="document_sync_started">Komencis samtempigi dokumentojn.</string>
   <string name="document_sync_enable_dialog_title">Ĉu komenci samtempigi dokumentojn?</string>
   <string name="document_sync_enable_dialog_nothing">Ankoraŭ neniu dokumentoj por transigi. Nove instalitaj dokumentoj samtempiĝos aŭtomate.</string>
+  <string name="help_document_sync_text">Dokumenta sinkronigo kopias viajn instalitajn Biblojn, komentarojn kaj aliajn dokumentojn al la nubo kaj tenas ilin sinkronaj tra viaj aparatoj. Uzu ĉi tiun vidon por vidi kio estas stokita en la nubo, elŝuti aŭ alŝuti apartajn dokumentojn, forigi dokumentojn, kaj regi kio sinkroniĝas al ĉi tiu aparato.</string>
+  <string name="background_image_title">Fona bildo</string>
+  <string name="background_image_none">Neniu fono</string>
+  <string name="background_image_import">Enporti el galerio…</string>
+  <string name="background_image_empty">Ankoraŭ neniuj enportitaj bildoj. Tuŝu \"Enporti el galerio…\" por aldoni unu.</string>
+  <string name="background_image_importing">Enportado…</string>
+  <string name="background_image_delete_title">Ĉu forigi bildon?</string>
+  <string name="background_image_delete_confirm">Ĉu forigi ĉi tiun fonan bildon? Laborspacoj, kiuj ankoraŭ uzas ĝin, revenos al neniu bildo.</string>
+  <string name="background_image_day">Fona bildo (tago)</string>
+  <string name="background_image_night">Fona bildo (nokto)</string>
+  <string name="background_image_opacity_day">Maldiafaneco de fona bildo (tago)</string>
+  <string name="background_image_opacity_night">Maldiafaneco de fona bildo (nokto)</string>
+  <string name="background_image_change">Ŝanĝi</string>
+  <string name="color_picker_title">Elektu koloron</string>
+  <string name="color_picker_presets">Antaŭagordoj</string>
+  <string name="color_picker_custom">Propra</string>
+  <string name="bookmark_expand_row">Montri plenan tekston</string>
+  <string name="bookmark_collapse_row">Montri malpli</string>
+  <string name="bookmark_label_filter">Filtri laŭ etikedo</string>
+  <string name="document_quick_all_documents">Ĉiuj dokumentoj…</string>
+  <string name="document_quick_tab_recent">Lastaj</string>
+  <string name="document_quick_tab_for_verse">Ĉi tiu verso</string>
+  <string name="document_quick_tab_last_filter">Lasta filtrilo</string>
+  <string name="document_quick_tab_all">Ĉiuj</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtri kaj ordigi</string>
+  <string name="doc_arrange_repository">Deponejo</string>
+  <string name="doc_arrange_all_repositories">Ĉiuj deponejoj</string>
+  <string name="doc_arrange_sort">Ordo</string>
+  <string name="doc_arrange_group_by">Grupigi laŭ</string>
+  <string name="doc_arrange_remember">Memori ĉi tiujn agordojn</string>
+  <string name="doc_arrange_reset">Reagordi al apriorajoj</string>
+  <string name="doc_arrange_more_filters">Pliaj filtriloj</string>
+  <string name="doc_arrange_reorder">Reordigi</string>
+  <string name="doc_sort_ascending">Kreskanta</string>
+  <string name="doc_sort_descending">Malkreskanta</string>
+  <string name="doc_sort_status">Stato</string>
+  <string name="doc_sort_recommended">Rekomendataj unue</string>
+  <string name="doc_sort_name">Nomo</string>
+  <string name="doc_sort_size">Grando</string>
+  <string name="doc_group_none">Sen grupigo</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Elŝutataj</string>
+  <string name="doc_group_status_update_available">Ĝisdatigo disponeblas</string>
+  <string name="doc_group_status_installed">Instalitaj</string>
+  <string name="doc_group_status_not_installed">Ne instalitaj</string>
+  <string name="prompt_filter_title">Filtri demandojn</string>
+  <string name="prompt_filter_type">Speco</string>
+  <string name="prompt_type_addon">Kromaĵo</string>
+  <string name="prompt_type_user">Propra</string>
+  <string name="prompt_filter_clear">Forigi filtrilojn</string>
+  <string name="prompt_favorite_add">Aldoni al ŝatataĵoj</string>
+  <string name="prompt_favorite_remove">Forigi el ŝatataĵoj</string>
+  <string name="window_unmaximise">Restarigi ĉiujn fenestrojn</string>
+  <string name="window_menu_button">Fenestra menuo</string>
+  <string name="paste_from_clipboard">Alglui</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Tiriga tenilo</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Ĝisdatigado de viaj datumoj…</string>
+  <string name="legacy_migration_progress_neutral">Ĝisdatigado…</string>
+  <string name="legacy_migration_failed_title">Viaj datumoj ne povis esti ĝisdatigitaj</string>
+  <string name="legacy_migration_failed_message">Viaj datumoj de la antaŭa versio de la apo estas sekuraj kaj senŝanĝaj en ĉi tiu aparato. Elektu kion fari poste.</string>
+  <string name="legacy_migration_failed_keychain">Konservitaj pasvortoj de la antaŭa versio ne povis esti legitaj. Malŝlosu vian aparaton, poste fermu kaj remalfermu la apon.</string>
+  <string name="legacy_migration_rollback_pending">La ĝisdatigo estis interrompita kaj ankoraŭ ne estas plene malfarita. Fermu kaj remalfermu la apon por fini malfari ĝin.</string>
+  <string name="legacy_migration_save_old_data">Konservi malnovajn datumojn</string>
+  <string name="legacy_migration_send_report">Sendi erarraporton</string>
+  <string name="legacy_migration_try_again">Reprovi</string>
+  <string name="legacy_migration_try_again_hint">Fermu la apon kaj malfermu ĝin denove por reprovi.</string>
+  <string name="legacy_migration_restore_backup">Restarigi sekurkopion</string>
+  <string name="legacy_migration_start_fresh">Komenci sen malnovaj datumoj</string>
+  <string name="legacy_migration_start_fresh_confirm">Viaj malnovaj datumoj restas en ĉi tiu aparato. Vi povas enporti ilin poste en la Agordoj.</string>
+  <string name="legacy_import_title">Enporti datumojn de la antaŭa apa versio</string>
+  <string name="legacy_import_summary">Anstataŭigi la nunajn datumojn per la datumoj de la antaŭa apa versio</string>
+  <string name="legacy_import_confirm">Ĉi tio anstataŭigas viajn nunajn laborspacojn, legosignojn kaj aliajn datumojn per la datumoj de la antaŭa apa versio. Kopio de viaj nunaj datumoj estas konservita en ĉi tiu aparato.</string>
+  <string name="legacy_import_reopen">Fermu la apon kaj malfermu ĝin denove por enporti viajn datumojn.</string>
+  <string name="legacy_notice_icloud">Sinkronigo nun uzas iCloud Drive. Ŝaltu ĝin denove en Agordoj → Sinkronigo. Ĉi tiu aparato konservas tion, kion ĝi havis; ŝanĝoj de viaj aliaj aparatoj alvenos kiam sinkronigo estos denove agordita. Por liberigi la malnovajn iCloud-datumojn: Agordoj → via nomo → iCloud → Administri stokadon → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Via Nextcloud-konekto estis transportita, sed sinkronigo estas malŝaltita. Ŝaltu ĝin en Agordoj → Sinkronigo kaj elektu ĉu preni el la nubo aŭ krei novan.</string>
+  <string name="legacy_notice_nextcloud_unsent">Kelkaj ŝanĝoj en ĉi tiu aparato ankoraŭ ne estis senditaj al Nextcloud. Ili ne estis senditaj kaj restas nur en ĉi tiu aparato.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Ĝi estas potenca, tamen facile uzebla, senreta Biblia studa aplikaĵo.</string>
+  <string name="webdav_untrusted_certificate_message_device">La atestilo de %1$s ne estas fidata de ĉi tiu aparato. Fidu ĝin nur se vi rekonas ĝin, ekzemple ĉar vi mem starigis ĉi tiun servilon.\n\nSubjekto: %2$s\nEldonanto: %3$s\nValida: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Propraj deponejoj devas uzi sekuran https:// adreson.</string>
+  <string name="custom_repository_https_required_refresh">%1$s uzas http:// adreson. Nur https:// deponejoj povas esti uzataj.</string>
 </resources>

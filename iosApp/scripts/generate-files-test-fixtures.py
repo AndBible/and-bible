@@ -88,6 +88,26 @@ def h2_bookmarks_csv(output):
     (output / "h2-bookmarks.csv").write_text(text, encoding="utf-8")
 
 
+def kjv_fixture(output, source=None):
+    """Optional h2-kjv.zip: the real KJV test module for the UI tests' `-incomingFixture kjv` install.
+
+    KJV is not in the repository. `scripts/mac-remote.sh` and the iOS CI job package it from the test modules into
+    tmp/h2-files/h2-kjv.zip (package-backup-test-kjv.py); a build without that file bundles no KJV (a stale copy in the
+    output directory is removed), and KjvProvisioning.swift then falls back to the Files picker install.
+    Returns True when the fixture was bundled.
+    """
+    source = source or pathlib.Path(__file__).resolve().parents[2] / "tmp/h2-files/h2-kjv.zip"
+    target = output / "h2-kjv.zip"
+    if not source.is_file():
+        target.unlink(missing_ok=True)
+        return False
+    with zipfile.ZipFile(source) as archive_file:
+        if "mods.d/kjv.conf" not in archive_file.namelist():
+            raise SystemExit(f"{source}: not a KJV module archive (no mods.d/kjv.conf)")
+    target.write_bytes(source.read_bytes())
+    return True
+
+
 def chunk(kind, data):
     return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
 
@@ -95,6 +115,7 @@ def chunk(kind, data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=pathlib.Path, required=True)
+    parser.add_argument("--kjv-zip", type=pathlib.Path, help="KJV archive to bundle (default: <repo>/tmp/h2-files/h2-kjv.zip)")
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     colors = ((255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0))
@@ -103,6 +124,7 @@ def main():
     png += chunk(b"IDAT", zlib.compress(rows, 9)) + chunk(b"IEND", b"")
     (args.output_dir / "andbible-port-quadrants.png").write_bytes(png)
     incoming_fixtures(args.output_dir)
+    kjv_fixture(args.output_dir, args.kjv_zip)
 
 
 if __name__ == "__main__":

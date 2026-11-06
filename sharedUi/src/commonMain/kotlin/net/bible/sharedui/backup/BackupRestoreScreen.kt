@@ -93,21 +93,25 @@ fun BackupRestoreScreen(
                 summary = strings.backupDatabaseInfo,
                 checked = state.toggles[ToggleKind.BackupDatabase] ?: false,
                 onCheckedChange = { onToggle(ToggleKind.BackupDatabase, it) },
+                enabled = state.loaded,
             )
             AbSwitchRow(
                 label = strings.backupDocumentsLabel,
                 summary = strings.backupDocumentsInfo,
                 checked = state.toggles[ToggleKind.BackupDocuments] ?: false,
                 onCheckedChange = { onToggle(ToggleKind.BackupDocuments, it) },
+                enabled = state.loaded,
             )
             AbSwitchRow(
                 label = strings.backupApplicationLabel,
                 summary = strings.backupApplicationInfo,
                 checked = state.toggles[ToggleKind.BackupApp] ?: false,
                 onCheckedChange = { onToggle(ToggleKind.BackupApp, it) },
+                enabled = state.loaded,
             )
             Button(
                 onClick = onBackup,
+                enabled = state.loaded,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) { Text(strings.backupToButton) }
 
@@ -117,15 +121,18 @@ fun BackupRestoreScreen(
                 summary = strings.backupDatabaseInfo,
                 checked = state.toggles[ToggleKind.RestoreDatabase] ?: false,
                 onCheckedChange = { onToggle(ToggleKind.RestoreDatabase, it) },
+                enabled = state.loaded,
             )
             AbSwitchRow(
                 label = strings.backupDocumentsLabel,
                 summary = strings.backupDocumentsInfo,
                 checked = state.toggles[ToggleKind.RestoreDocuments] ?: false,
                 onCheckedChange = { onToggle(ToggleKind.RestoreDocuments, it) },
+                enabled = state.loaded,
             )
             Button(
                 onClick = onRestore,
+                enabled = state.loaded,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) { Text(strings.restoreOrImportFromButton) }
 

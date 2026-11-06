@@ -25,6 +25,11 @@ fun interface DesktopPageAssets {
     /** The file for the origin-relative [path] (decoded, with a leading `/`, no query), or null for a 404. */
     fun resolve(path: String): BundleResource?
 
+    /** Scopes current-document resources to the requesting pane; module-only sources can share themselves. */
+    fun forPane(id: () -> String?): DesktopPageAssets = this
+
+    fun forPane(id: String): DesktopPageAssets = forPane { id }
+
     companion object {
         /** Serves nothing. */
         val None = DesktopPageAssets { null }

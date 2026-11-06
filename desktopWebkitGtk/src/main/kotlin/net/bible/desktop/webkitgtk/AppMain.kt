@@ -63,6 +63,11 @@ internal class WebKitGtkEngineProvider(
         shutDown.set(true)
     }
 
+    override fun afterJvmShutdown() {
+        // A signal starts JVM shutdown off GTK too. Persistence has finished (or timed out); keep C exit handlers on GTK.
+        engine?.exitProcess(143)
+    }
+
     override fun exitProcess(status: Int): Nothing {
         val e = engine ?: fallbackExit(status)
         e.exitProcess(status)

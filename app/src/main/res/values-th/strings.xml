@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible ไม่สามารถเริ่มต้น WebView2 ซึ่งจำเป็นสำหรับการแสดงข้อความพระคัมภีร์ได้ โปรดติดตั้งหรือซ่อมแซม Microsoft Edge WebView2 Evergreen Runtime จาก:\n%1$s\n\nรายละเอียดอยู่ในไฟล์บันทึก:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible ต้องใช้กราฟิก Direct3D เพื่อแสดงข้อความพระคัมภีร์ด้วย WebView2 ตัวเรนเดอร์กราฟิกปัจจุบันคือ %1$s โปรดตรวจสอบไดรเวอร์กราฟิกและการรองรับ Direct3D\n\nรายละเอียดอยู่ในไฟล์บันทึก:\n%2$s</string>
+  <string name="desktop_update_setting_title">ตรวจสอบการอัปเดต</string>
+  <string name="desktop_update_setting_summary">วันละครั้ง จาก github.com</string>
+  <string name="desktop_update_consent_title">ตรวจสอบการอัปเดตหรือไม่?</string>
+  <string name="desktop_update_consent_message">AndBible สามารถตรวจสอบ github.com วันละครั้งเพื่อหาเวอร์ชันใหม่ GitHub จะเห็นที่อยู่ IP ของคุณ และจะไม่มีการส่งข้อมูลอื่นใด คุณสามารถเปลี่ยนแปลงได้ภายหลังในการตั้งค่า</string>
+  <string name="desktop_update_consent_yes">ตรวจสอบการอัปเดต</string>
+  <string name="desktop_update_consent_no">ไม่ต้องตรวจสอบ</string>
+  <string name="desktop_update_available_title">มีเวอร์ชันใหม่</string>
+  <string name="desktop_update_available_message">AndBible %1$s พร้อมให้ใช้งานแล้ว คุณใช้เวอร์ชัน %2$s</string>
+  <string name="desktop_update_download">ดาวน์โหลด</string>
+  <string name="desktop_update_later">ภายหลัง</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">การศึกษาพระคัมภีร์</string>
   <string name="app_name_medium">การศึกษาพระคัมภีร์ (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">พบ %d รายการที่ตรงกัน</string>
   <string name="search_showing_first">ผลลัพธ์มากเกินไป แสดงเฉพาะ %d รายการแรก</string>
   <string name="search_bible_section_group_prompt">ค้นหาที่ไหน</string>
+  <string name="search_type_prompt">ประเภทการค้นหา</string>
+  <string name="search_show_results">แสดงผลการค้นหา</string>
   <string name="search_all_bible">พระคัมภีร์ทั้งหมด</string>
   <string name="search_new_testament">พันธสัญญาใหม่</string>
   <string name="search_old_testament">พันธสัญญาเดิม</string>
@@ -80,6 +94,28 @@
   <string name="search_what">ค้นหา \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">ฉบับแปล</string>
+  <string name="recent_searches">การค้นหาล่าสุด</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">ปิดการค้นหา</string>
+  <string name="search_options">การตั้งค่าการค้นหา</string>
+  <string name="search_submit">ค้นหา</string>
+  <string name="search_clear">ล้างข้อความค้นหา</string>
+  <string name="search_engine_changed_reindex">เครื่องมือค้นหาได้รับการอัปเดตแล้ว ต้องสร้างดัชนีการค้นหาใหม่ ซึ่งอาจใช้เวลาสักครู่</string>
+  <string name="search_unsupported_syntax">การค้นหานี้ใช้ไวยากรณ์ที่ไม่รองรับ: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">เมื่อการจัดทำดัชนีเสร็จสิ้น ระบบจะค้นหาโดยอัตโนมัติ</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">ไม่สามารถค้นหา %1$s ได้</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">ไม่สามารถค้นหาเอกสารนี้ได้</string>
+  <string name="search_indexing_notification_title">กำลังสร้างดัชนีการค้นหา</string>
   <string name="choose_translations">เลือกฉบับแปล…</string>
   <string name="multi_search_results">%1$d ข้อใน %2$d ฉบับแปล</string>
   <string name="search_index_not_created">ไม่มีดัชนี</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">เลือกวิธีการแสดงสี โหมดอีอิงค์สีจะคงพื้นฐานสีขาวดำแต่แสดงสีของที่คั่นหน้า ตัวบ่งชี้หน้าต่างที่ใช้งานอยู่ และเส้นช่วยเป็นสี — สำหรับหน้าจออีอิงค์สี</string>
   <string name="prefs_display_color_mode_normal">ปกติ</string>
   <string name="prefs_display_color_mode_bw">ขาวดำ</string>
+  <string name="prefs_display_color_mode_monochrome">โมโนโครม</string>
   <string name="prefs_display_color_mode_color_eink">อีอิงค์สี</string>
+  <string name="prefs_theme_palette_style_title">สไตล์ธีม</string>
+  <string name="prefs_theme_palette_style_summary">วิธีที่สีของแอปได้มาจากสีของพื้นที่ทำงาน ใช้ได้เฉพาะเมื่อโหมดสีเป็นปกติ</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal spot (นุ่มนวล คงความเทา)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelity (สีตรงตามต้นฉบับ)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal spot (ดั้งเดิม)</string>
+  <string name="prefs_theme_palette_style_content">Content (ใกล้เคียงกับสี)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutral (สีนุ่ม)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monochrome (เทา)</string>
+  <string name="prefs_theme_palette_style_vibrant">Vibrant (สดใส)</string>
+  <string name="prefs_theme_palette_style_expressive">Expressive (โดดเด่น)</string>
+  <string name="prefs_theme_palette_style_rainbow">Rainbow (สีรุ้ง)</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Fruit salad (ผลไม้รวม)</string>
   <string name="prefs_eink_settings_cat">การตั้งค่า E-ink</string>
   <string name="prefs_eink_display_title">คุณสมบัติ E-ink</string>
   <string name="prefs_eink_display_summary">เปิดใช้งานคุณสมบัติเฉพาะ E-ink (ปุ่มเลื่อนหน้า เส้นช่วยการเลื่อน)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">ทำเครื่องหมายบทโดยอัตโนมัติว่าอ่านแล้วเมื่อคุณเลื่อนผ่าน</string>
   <string name="reading_progress_read_count_scale">จำนวน\nที่อ่าน</string>
   <string name="reading_progress_percent_read_scale">เปอร์เซ็นต์\nที่อ่าน</string>
+  <string name="monochrome_activity_count">จำนวนกิจกรรม: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">จำนวน: %d</string>
+  <string name="monochrome_level">ระดับ: %d/4</string>
+  <string name="monochrome_buckets">สีเทา: ไม่มี; มีเส้นขอบ: บางส่วน; เติมสี: เต็มหรือระดับสูงสุด เลือกรายการเพื่อดูค่าที่แน่นอน</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">ประวัติการอ่าน</string>
   <string name="reading_progress_history_for">ความคืบหน้าการอ่านสำหรับ %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">แก้ไขการตั้งค่าการแสดงข้อความสำหรับพื้นที่ทำงานนี้</string>
   <string name="global_text_options_link">ตัวเลือกข้อความสากล</string>
   <string name="global_text_options_link_summary">แก้ไขการตั้งค่าการแสดงข้อความเริ่มต้นสำหรับทุกพื้นที่ทำงาน</string>
+  <string name="text_options_inherited_workspace">พื้นที่ทำงาน</string>
+  <string name="text_options_inherited_global">ส่วนกลาง</string>
   <string name="prefs_font_and_colors_title">แบบอักษร &amp; สี</string>
   <string name="prefs_text_layout_title">การจัดวางข้อความ</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; สัณฐานวิทยา</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">พื้นที่ทำงาน</string>
   <string name="copy_settings_to_window">หน้าต่าง %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">ค่าเริ่มต้นสากล</string>
+  <string name="copy_settings_to_workspaces">ไปยังพื้นที่ทำงานอื่น…</string>
+  <string name="copy_settings_to_global_defaults">ไปยังค่าเริ่มต้นส่วนกลาง…</string>
+  <string name="menu_back">กลับ</string>
   <string name="change_to_normal">เปลี่ยนเป็นหน้าต่างปกติ</string>
   <string name="window_pin_mode">ปักหมุด</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เอกสารต่อไปนี้: \n\n%s\n\n</string>
   <string name="failed_downloads_message">ไม่สามารถดาวน์โหลดไฟล์ต่อไปนี้:\n\n%s\n\n</string>
   <string name="cant_delete_document">ไม่สามารถลบเอกสารนี้ได้</string>
+  <string name="bad_document_warning">เอกสารนี้มีปัญหาที่ทราบอยู่แล้ว</string>
   <!--Install zip file-->
   <string name="install_zip">โหลดเอกสารจากไฟล์</string>
   <string name="install_zip_module">ติดตั้งโมดูลพระคัมภีร์</string>
@@ -348,6 +410,11 @@
   <string name="delete_index">ลบดัชนีค้นหา</string>
   <string name="about">เกี่ยวกับ</string>
   <string name="delete_doc">ลบ %s?</string>
+  <string name="interrupted_downloads_title">การดาวน์โหลดถูกขัดจังหวะ</string>
+  <string name="interrupted_downloads_message">เอกสารเหล่านี้ไม่ได้รับการติดตั้งเพราะการดาวน์โหลดถูกขัดจังหวะ:</string>
+  <string name="interrupted_downloads_question">ดาวน์โหลดอีกครั้งหรือไม่?</string>
+  <string name="download_again">ดาวน์โหลดอีกครั้ง</string>
+  <string name="delete_docs_confirm">ลบเอกสารเหล่านี้หรือไม่?</string>
   <string name="delete_search_index_doc">ลบดัชนีของ %s?</string>
   <!--Verse context menu-->
   <string name="notes">เชิงอรรถและอ้างอิง</string>
@@ -368,6 +435,7 @@
   <string name="assign_labels">กำหนดป้ายกำกับ</string>
   <string name="new_item">ใหม่</string>
   <string name="label_name_prompt">ชื่อ</string>
+  <string name="new_label_default_name">ป้ายกำกับ %d</string>
   <string name="label_unlabelled">ไม่มีป้ายกำกับ</string>
   <string name="add_bookmark1">ที่คั่นหน้า</string>
   <string name="add_bookmark3">ส่วนที่เลือก</string>
@@ -415,6 +483,8 @@
   <string name="rewind">ย้อนกลับ</string>
   <string name="forward">ไปข้างหน้า</string>
   <string name="tts_lang_not_available">ไม่รองรับภาษานี้</string>
+  <string name="tts_engine_not_available">การอ่านออกเสียงไม่ทำงานบนอุปกรณ์นี้ โปรดตรวจสอบว่าติดตั้งและเปิดใช้งานเอนจินเสียงพูดในการตั้งค่าการอ่านออกเสียงของระบบแล้ว</string>
+  <string name="tts_audio_focus_denied">ไม่สามารถเริ่มอ่านออกเสียงได้เพราะแอปอื่นกำลังใช้เสียงอยู่</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">ความเร็วในการอ่าน</string>
   <string name="speak_and_play_earcons_title">อ่านและเล่นเสียงสัญลักษณ์สำหรับ</string>
@@ -424,6 +494,10 @@
   <string name="speak_bookmarks_menu_title">อ่านจากที่คั่นหน้า</string>
   <string name="speak_advanced_settings">การตั้งค่าขั้นสูง</string>
   <string name="speak_sleep_timer_title">ตั้งเวลาหยุดอัตโนมัติ</string>
+  <string name="speak_sleep_timer_minutes">%d นาที</string>
+  <string name="speak_sleep_timer_custom">กำหนดเอง…</string>
+  <string name="speak_sleep_timer_off">ปิด</string>
+  <string name="speak_other_settings">อื่นๆ</string>
   <string name="speak_no_books_available">ไม่มีหนังสือที่สามารถอ่านได้</string>
   <string name="speak_general_error">ไม่สามารถเริ่มอ่านหนังสือเล่มนี้ได้</string>
   <string name="repeat_passage">ทำซ้ำตอน</string>
@@ -452,6 +526,11 @@
   <string name="speak_autobookmarking_disabled">ที่คั่นหน้าอัตโนมัติถูกปิดใช้งาน!</string>
   <string name="system_speak_settings">เปิดการตั้งค่า TTS ของระบบ</string>
   <string name="auto_assing_labels_help1">ที่นี่คุณสามารถปรับป้ายกำกับที่จะถูกกำหนดโดยอัตโนมัติให้กับที่คั่นหน้าที่คุณสร้าง</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">ที่นี่คุณสามารถเพิ่ม แก้ไข และลบป้ายกำกับ และปรับว่าป้ายกำกับใดจะถูกกำหนดให้กับที่คั่นหน้าที่คุณสร้างโดยอัตโนมัติ\n\nป้ายกำกับล่าสุด: ป้ายกำกับที่ใช้ล่าสุด\nป้ายกำกับอื่นๆ: ป้ายกำกับอื่นทั้งหมด\n\nใช้ตัวเลือกตัวกรองของแถบค้นหาเพื่อดูเฉพาะป้ายกำกับที่กำหนดอัตโนมัติหรือป้ายกำกับโปรด</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">การตั้งค่านี้ใช้กับ %s</string>
   <string name="setting_scope_window">หน้าต่างนี้</string>
@@ -529,6 +608,9 @@
   <string name="loading_backup">กำลังโหลดฐานข้อมูลจากข้อมูลสำรอง…</string>
   <string name="backup_success2">สำรองบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
   <string name="backup_modules_success">สำรองโมดูลที่เลือกสำเร็จ</string>
+  <string name="backup_modules_conflict">ไม่ได้สร้างข้อมูลสำรอง: %1$s และ %2$s ต่างมีไฟล์ %3$s ซึ่งมีเนื้อหาต่างกัน โปรดเลือกเพียงอย่างใดอย่างหนึ่งแล้วลองอีกครั้ง</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (เวอร์ชัน %2$s โฟลเดอร์ %3$s)</string>
   <string name="backup_modules_email_subject_2">สำรองโมดูล %s</string>
   <string name="backup_modules_email_message_2">แนบมาคือข้อมูลสำรองโมดูล %1$s ของคุณ ซึ่งประกอบด้วยโมดูลต่อไปนี้: %2$s</string>
   <string name="backup_email_subject_2">สำรองฐานข้อมูล %s</string>
@@ -537,6 +619,9 @@
   <string name="exported_studypads_message">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้าและบันทึกที่เกี่ยวข้องกับแผ่นบันทึกการศึกษาที่เลือกแนบมาด้วย</string>
   <string name="restore_unsuccessfull">การกู้คืนฐานข้อมูลล้มเหลว อาจเป็นเพราะคุณระบุไฟล์ฐานข้อมูลที่ไม่ถูกต้อง</string>
   <string name="send_backup_file">ส่งไฟล์สำรองข้อมูล</string>
+  <string name="export_destination_title">ส่งออกไปที่ไหน?</string>
+  <string name="export_destination_message">บันทึกไฟล์ส่งออกลงในโทรศัพท์เครื่องนี้ หรือส่งไปที่อื่นด้วยการแชร์</string>
+  <string name="send_export_file">ส่งไฟล์ส่งออก</string>
   <string name="backup_modules_title">เลือกโมดูลที่ต้องการสำรอง</string>
   <string name="install_zip_canceled">ยกเลิกการติดตั้งโมดูลแล้ว</string>
   <string name="ask_restore_or_import">ฐานข้อมูลสำหรับ %s สามารถกู้คืน (ลบฐานข้อมูลที่มีอยู่และโหลดฐานข้อมูลที่เลือก) หรือนำเข้า (นำเข้าฐานข้อมูลที่เลือกเข้าสู่ฐานข้อมูลที่มีอยู่) คุณต้องการทำอะไร?</string>
@@ -577,12 +662,25 @@
   <string name="doc_type_book">หนังสือ</string>
   <string name="doc_type_map">แผนที่</string>
   <string name="doc_type_addons">ส่วนเสริม</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">อื่นๆ</string>
+  <string name="document_type_label">ประเภทเอกสาร</string>
   <!--Languages-->
   <string name="lang_default">ค่าเริ่มต้น</string>
   <!--General-->
   <string name="okay">ตกลง</string>
   <string name="cancel">ยกเลิก</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">กลับ</string>
+  <string name="settings_editor_close">ปิด</string>
+  <string name="settings_editor_apply">นำไปใช้</string>
   <string name="discard_changes_confirmation">ยกเลิกการเปลี่ยนแปลงที่ยังไม่ได้บันทึก?</string>
+  <string name="discard">ละทิ้ง</string>
+  <string name="remove">นำออก</string>
+  <string name="overwrite">เขียนทับ</string>
+  <string name="set_current_day_action">ตั้งวัน</string>
   <string name="yes">ใช่</string>
   <string name="no">ไม่</string>
   <string name="error">ข้อผิดพลาด</string>
@@ -592,6 +690,7 @@
   <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
   <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">ดำเนินการต่อ</string>
   <string name="report_error">ส่งรายงาน</string>
   <string name="error_occurred">เกิดข้อผิดพลาด</string>
   <string name="error_occurred_crash_last_time">ครั้งที่แล้วที่คุณใช้แอปพลิเคชัน แอปขัดข้อง หากคุณส่งรายงานข้อผิดพลาดมาให้เรา จะช่วยให้เราแก้ไขปัญหาได้</string>
@@ -602,8 +701,14 @@
   <string name="error_key_not_in_document2">ไม่พบ %1$s ในเอกสาร %2$s</string>
   <string name="empty_list">ไม่มีรายการที่จะแสดง</string>
   <string name="error_skip">ข้าม</string>
+  <string name="debug_test_error">ข้อผิดพลาดทดสอบ (บิลด์ดีบัก)</string>
+  <string name="bug_report_prepare_failed">ไม่สามารถเตรียมหรือแชร์รายงานได้ คุณสามารถลองอีกครั้ง หรือใช้การสำรองและกู้คืนเพื่อบันทึกข้อมูลของคุณ</string>
   <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
   <string name="bug_report_email_text">ถัดไป กรุณาเลือกแอปอีเมลที่คุณต้องการ (เช่น Gmail) เพื่อส่งรายงานให้ทีมนักพัฒนา</string>
+  <string name="bug_report_manual_title">ส่งรายงานทางอีเมล</string>
+  <string name="bug_report_manual_text_saved">บันทึกรายงานไว้ที่</string>
+  <string name="bug_report_manual_text_unsaved">ไม่สามารถเปิดโปรแกรมอีเมลบนอุปกรณ์นี้ได้\n\nโปรดส่งรายงานทางอีเมลไปที่</string>
+  <string name="bug_report_copy_address">คัดลอกที่อยู่</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">การอ่านข้อความเป็นเสียง</string>
   <string name="notification_channel_progress_status">การแจ้งเตือนความคืบหน้าสำหรับการดาวน์โหลดเอกสาร ฯลฯ</string>
@@ -627,6 +732,7 @@
   <string name="search_settings">ค้นหาการตั้งค่า</string>
   <string name="dismiss">ปิด</string>
   <string name="workspace_listing_with_current">%s (ปัจจุบัน)</string>
+  <string name="workspace_manage_workspaces">จัดการพื้นที่ทำงาน…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
   <string name="beta_notice_content_1">ในเวอร์ชันทดสอบ มีฟีเจอร์ใหม่ที่ยังไม่ได้ทดสอบอย่างครบถ้วน การใช้เวอร์ชันทดสอบอาจทำให้เกิดพฤติกรรมที่ไม่คาดคิด เช่น ข้อผิดพลาด แนะนำให้ผู้อ่านพระคัมภีร์ทั่วไปใช้เวอร์ชันเสถียรแทน</string>
@@ -654,7 +760,10 @@
   <string name="help_search_title">ค้นหา</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, AND, OR, NOT</string>
+  <string name="help_search_bible">เลือกวิธีจับคู่คำ: คำทั้งหมด จะค้นหาข้อที่มีทุกคำ คำใดคำหนึ่ง จะค้นหาข้อที่มีอย่างน้อยหนึ่งคำ และ วลี จะค้นหาคำที่อยู่ติดกันตามลำดับนั้น\n\nในการค้นหา คุณยังใช้ * และ ? เป็นอักขระตัวแทนได้ (เช่น bless* ตรงกับ blessed และ blessing) รวมคำด้วย AND, OR และ NOT และค้นหาหมายเลขสตรองโดยตรงได้ (เช่น strong:h0430)</string>
+  <string name="help_search_epub">เลือกวิธีจับคู่คำ: คำทั้งหมด จะค้นหาตอนที่มีทุกคำ คำใดคำหนึ่ง จะค้นหาตอนที่มีอย่างน้อยหนึ่งคำ และ วลี จะค้นหาคำที่อยู่ติดกันตามลำดับนั้น\n\nไวยากรณ์คิวรีดิบ จะส่งข้อความของคุณไปยังเครื่องมือค้นหาโดยไม่เปลี่ยนแปลง คุณจึงเขียนคิวรีเองได้: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" สำหรับวลีที่ตรงทุกคำ, bless* เพื่อจับคู่คำที่ขึ้นต้นด้วย bless และ grace NEAR faith เพื่อค้นหาคำที่อยู่ใกล้กัน</string>
   <string name="help_search_details">กรุณาดู %s สำหรับรายละเอียดเพิ่มเติม</string>
+  <string name="help_search_syntax">ไวยากรณ์การค้นหา</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">พื้นที่ทำงาน</string>
   <string name="help_workspaces_text">พื้นที่ทำงานช่วยให้มีสภาพแวดล้อมการทำงานหลายอย่างที่ขึ้นอยู่กับบริบท ฟังก์ชันพื้นที่ทำงาน สามารถเข้าถึงได้ผ่านรายการพื้นที่ทำงานในเมนูตัวเลือก (มุมขวาบน) วิธีลัดในการเข้าถึงพื้นที่ทำงานคือ การปัดลงจากแถบเครื่องมือ คุณยังสามารถใช้การปัดซ้ายและปัดขวาบนแถบเครื่องมือเพื่อ สลับไปยังพื้นที่ทำงานก่อนหน้า / ถัดไป</string>
@@ -663,6 +772,12 @@
   <string name="help_window_pinning_title">การตรึงหน้าต่าง</string>
   <string name="help_window_pinning_text">คุณสามารถเปิดใช้การตรึงหน้าต่างจากเมนูตัวเลือก (สามจุด มุมขวาบน) หากเปิดใช้การตรึงหน้าต่าง คุณสามารถแสดงหน้าต่างที่ตรึงหลายหน้าต่างในมุมมองพระคัมภีร์ได้ แต่มีเพียงหน้าต่างที่ไม่ตรึงเพียงหน้าต่างเดียว หน้าต่างที่ตรึงจะแสดงก่อน จากนั้น หน้าต่างที่ไม่ตรึง คุณอาจต้องการเปิดเอกสารพระคัมภีร์เป็นหน้าต่างที่ตรึง และ คำอธิบายและแผนที่ ฯลฯ เป็นหน้าต่างที่ไม่ตรึง จากนั้นคุณสามารถ เปิดเอกสารพระคัมภีร์ไว้เสมอ และสลับระหว่างคำอธิบายและ เนื้อหาเสริมอื่นๆ ได้อย่างรวดเร็วเมื่อศึกษาพระคัมภีร์</string>
   <!--Welcome text-->
+  <string name="welcome_intro">ยังไม่มีเอกสารในคลังของคุณ เพิ่มเอกสารเพื่อเริ่มต้นใช้งาน</string>
+  <string name="welcome_redownload_row_hint">เลือกจากเอกสารที่เคยติดตั้งไว้</string>
+  <string name="welcome_download_row_hint">เรียกดูแคตตาล็อกออนไลน์</string>
+  <string name="welcome_restore_row_hint">ไฟล์ฐานข้อมูลที่มีที่คั่นหน้าและบันทึก</string>
+  <string name="welcome_link_website">เว็บไซต์</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">คุณต้องเลือกไฟล์ที่ต้องการโหลดไปยัง %s</string>
@@ -678,9 +793,8 @@
   <string name="format_studypads">แผ่นบันทึกการศึกษาจากฐานข้อมูล AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">ปิด</string>
+  <string name="reading_toolbar_options">ตัวเลือกเพิ่มเติม</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">เข้าใจแล้ว</string>
-  <string name="first_time_help_show_next_time">แสดงอีกครั้งในครั้งถัดไป</string>
   <string name="strongs_mode_title">เลือกโหมด Strong\'s</string>
   <string name="download_dialog_message">ไม่สามารถดาวน์โหลดหนังสือต่อไปนี้:</string>
   <string name="journal_description">แผ่นบันทึกการศึกษาที่ผู้ใช้แก้ไขได้ พร้อมข้อความและที่คั่นหน้าแบบกำหนดเอง</string>
@@ -705,6 +819,7 @@
   <string name="prefs_experimental_features_summary">เลือกคุณสมบัติทดลองที่ต้องการเปิดใช้งาน คุณสมบัติเหล่านี้ยังอยู่ในระหว่างพัฒนาและอาจมีการเปลี่ยนแปลงหรือถูกลบออก</string>
   <string name="experimental_feature_bookmark_edit_actions">การแก้ไขที่คั่นหน้า</string>
   <string name="experimental_feature_add_paragraph_break">เพิ่มที่คั่นหน้าแบบขึ้นย่อหน้า</string>
+  <string name="experimental_feature_toolbar_literal_color">ใช้สีพื้นที่ทำงานตามจริงสำหรับแถบเครื่องมืออ่าน (แทนสีของธีม)</string>
   <string name="raw_llm_log_title">บันทึก LLM ดิบ</string>
   <string name="raw_llm_log_empty">ไม่มีข้อมูลบันทึกดิบ</string>
   <string name="raw_llm_log_copied">คัดลอกบันทึกไปยังคลิปบอร์ดแล้ว</string>
@@ -791,6 +906,7 @@
   <string name="display_mode_underline">ขีดเส้นใต้</string>
   <string name="display_mode_marker">เฉพาะเครื่องหมาย</string>
   <string name="display_mode_hidden">ซ่อน</string>
+  <string name="display_mode_inherit">เหมือนกับที่เลือก</string>
   <string name="workspace_override_indicator">ป้ายกำกับนี้มีโหมดการแสดงผลเฉพาะพื้นที่ทำงาน</string>
   <string name="primary_label">ป้ายกำกับหลัก</string>
   <string name="favourite_label">ป้ายกำกับโปรด</string>
@@ -804,6 +920,8 @@
   <string name="book_menu_show_long_book_name">แสดงชื่อหนังสือแบบเต็ม</string>
   <string name="book_menu_show_progress_bars">แสดงแถบความคืบหน้า</string>
   <string name="reset_workspace_labels">ต้องการรีเซ็ตการตั้งค่ากำหนดอัตโนมัติและรายการโปรดสำหรับพื้นที่ทำงานนี้หรือไม่?</string>
+  <string name="clear_auto_assign_labels">ล้างป้ายกำกับที่กำหนดอัตโนมัติ</string>
+  <string name="reset_workspace_auto_assign_labels">คุณต้องการนำป้ายกำกับที่กำหนดอัตโนมัติทั้งหมดออกจากพื้นที่ทำงานนี้หรือไม่?</string>
   <string name="reset_hide_labels">ต้องการรีเซ็ตการตั้งค่าการซ่อนป้ายกำกับที่ระบุหรือไม่?</string>
   <string name="reorder">จัดเรียงใหม่</string>
   <string name="system_items">การดำเนินการระบบ</string>
@@ -875,6 +993,27 @@
   <string name="instructions_for_translators">คำแนะนำสำหรับผู้แปล</string>
   <string name="questions_title">มีคำถามหรือไม่?</string>
   <string name="bookmark_style">รูปแบบที่คั่นหน้า</string>
+  <string name="bookmark_style_preview_sample">เพราะว่าพระเจ้าทรงรักโลก</string>
+  <string name="bookmark_style_selection">ที่คั่นหน้าแบบเลือกข้อความ</string>
+  <string name="bookmark_style_whole_verse">ที่คั่นหน้าทั้งข้อ</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">ใช้สไตล์ต่างหากสำหรับที่คั่นหน้าทั้งข้อ</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">ส่วนที่เลือก</string>
+  <string name="bookmark_style_tag_whole_verse">ทั้งข้อ</string>
+  <string name="bookmark_style_tag_workspace">พื้นที่ทำงาน</string>
+  <string name="show_style_examples">แสดงตัวอย่างสไตล์</string>
+  <string name="labels_search_section">ค้นหา</string>
+  <string name="labels_filter_section">แสดง</string>
+  <string name="labels_filter_auto_assign">เฉพาะป้ายกำกับที่กำหนดอัตโนมัติ</string>
+  <string name="labels_filter_favourite">เฉพาะป้ายกำกับโปรด</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">ติ๊กป้ายกำกับเพื่อกำหนดให้กับที่คั่นหน้านี้</string>
+  <string name="manage_labels_help_primary">ป้ายกำกับหลัก สีและสไตล์ของป้ายกำกับนี้คือสิ่งที่ที่คั่นหน้าแสดง</string>
+  <string name="manage_labels_help_autoassign">กำหนดป้ายกำกับนี้ให้กับที่คั่นหน้าใหม่ทุกอันโดยอัตโนมัติ สายฟ้าแบบกลวงหมายถึงปิด</string>
+  <string name="manage_labels_help_favourite">เก็บป้ายกำกับไว้ในรายการโปรดเพื่อเข้าถึงได้อย่างรวดเร็ว</string>
+  <string name="manage_labels_help_styles">ใต้ชื่อมีตัวอย่างเล็กๆ แสดงลักษณะของป้ายกำกับ: ส่วนที่เลือก สำหรับที่คั่นหน้าแบบเลือกข้อความ ทั้งข้อ สำหรับที่คั่นหน้าทั้งข้อ และแท็ก พื้นที่ทำงาน สำหรับสไตล์ที่พื้นที่ทำงานนี้เขียนทับ ตัวอย่างสีเทาที่ไม่มีการตกแต่งหมายความว่าจะไม่วาดที่คั่นหน้าของป้ายกำกับนั้น ซ่อนตัวอย่างได้จากเมนู ⋮</string>
+  <string name="manage_labels_help_reorder">จัดเรียงรายการใหม่ได้จากเมนู ⋮</string>
   <string name="added_to_bookmark">กำหนดให้ที่คั่นหน้านี้แล้ว</string>
   <string name="strongs_links">ลิงก์</string>
   <string name="strongs_text_and_links">ข้อความและลิงก์</string>
@@ -913,6 +1052,7 @@
   <string name="sync_group_n">กลุ่ม %d</string>
   <string name="disable_sync">ปิดการซิงโครไนซ์</string>
   <string name="open_in_window">เปิดผลลัพธ์ในหน้าต่าง</string>
+  <string name="open_result_in_links_window">เปิดผลลัพธ์ในหน้าต่างลิงก์</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">ที่เก็บข้อมูลกำหนดเอง</string>
@@ -923,7 +1063,6 @@
   <string name="delete_custom_repository">คุณต้องการลบที่เก็บข้อมูลกำหนดเอง %s หรือไม่?</string>
   <string name="custom_repositories_help1">หากต้องการเพิ่มที่เก็บข้อมูลกำหนดเองใหม่ พิมพ์หรือคัดลอก &amp; วาง URL ของที่เก็บข้อมูลกำหนดเองที่นี่</string>
   <string name="custom_repositories_help2">คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับที่เก็บข้อมูลกำหนดเองได้ใน %s</string>
-  <string name="wiki_page">หน้า WIKI</string>
   <string name="custom_repositories_help0">คุณสามารถติดตั้งเอกสารจากที่เก็บข้อมูลกำหนดเองภายนอกโดยการติดตั้งที่เก็บข้อมูลกำหนดเอง</string>
   <string name="duplicate_custom_repository">ที่เก็บข้อมูลชื่อ %s มีอยู่แล้ว ไม่สามารถเพิ่มอีกรายการได้</string>
   <string name="packages_dir">ไดเรกทอรีแพ็กเกจ (ไฟล์ Zip)</string>
@@ -963,6 +1102,7 @@
   <string name="reading_progress_new_cycle_confirm">เริ่มรอบการอ่านใหม่? ระบบจะเริ่มติดตามความก้าวหน้าจากต้นใหม่ โดยยังคงข้อมูลรอบก่อนหน้าไว้</string>
   <string name="reading_progress_previous_cycle">รอบก่อนหน้า</string>
   <string name="reading_progress_next_cycle">รอบถัดไป</string>
+  <string name="cloud_merge_data">รวมข้อมูล</string>
   <string name="cloud_fetch_and_restore_initial">คัดลอกจากคลาวด์มายังอุปกรณ์นี้</string>
   <string name="cloud_create_new">คัดลอกจากอุปกรณ์นี้ไปยังคลาวด์</string>
   <string name="cloud_disable_sync">ยกเลิกและปิดใช้งานการซิงโครไนซ์</string>
@@ -976,6 +1116,19 @@
   <string name="sync_adapter_summary">ปัจจุบัน: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">ที่อยู่ของโฟลเดอร์ WebDAV เช่น https://nas.local/dav/ หรือ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">การซิงค์ต้องใช้ที่อยู่ https:// ที่ปลอดภัย</string>
+  <string name="webdav_certificate_title">ใบรับรองของเซิร์ฟเวอร์</string>
+  <string name="webdav_forget_certificate_message">ลืมใบรับรองเซิร์ฟเวอร์ที่เชื่อถือหรือไม่ ระบบจะขอให้คุณยืนยันใบรับรองอีกครั้งในการเชื่อมต่อครั้งถัดไป</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">ใบรับรองเซิร์ฟเวอร์ที่ไม่น่าเชื่อถือ</string>
+  <string name="webdav_untrusted_certificate_message">Android ไม่เชื่อถือใบรับรองของ %1$s เชื่อถือเฉพาะเมื่อคุณรู้จักใบรับรองนั้น เช่น เพราะคุณตั้งค่าเซิร์ฟเวอร์นี้เอง\n\nหัวเรื่อง: %2$s\nผู้ออก: %3$s\nมีผล: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">เชื่อถือใบรับรองนี้</string>
+  <string name="webdav_wrong_credentials">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</string>
+  <string name="webdav_not_a_folder">ที่อยู่นี้ไม่ใช่โฟลเดอร์ WebDAV</string>
+  <string name="webdav_certificate_changed">ใบรับรองของเซิร์ฟเวอร์มีการเปลี่ยนแปลง การซิงค์หยุดชั่วคราวจนกว่าคุณจะยืนยันใบรับรองใหม่ ซึ่ง AndBible จะถามเมื่อเปิดแอปหรือซิงค์เบื้องหน้าในครั้งถัดไป</string>
+  <string name="webdav_storage_full">พื้นที่จัดเก็บของเซิร์ฟเวอร์เต็ม</string>
   <string name="auth_server_uri">URL เซิร์ฟเวอร์</string>
   <string name="auth_username">ชื่อผู้ใช้</string>
   <string name="auth_password">รหัสผ่าน</string>
@@ -985,6 +1138,7 @@
   <string name="sync_general_settings">ข้อมูลและการตั้งค่าทั่วไป</string>
   <string name="sync_introduction">บทนำ</string>
   <string name="are_you_sure">คุณแน่ใจหรือไม่?</string>
+  <string name="are_you_sure_merge">ทั้งข้อมูลบนอุปกรณ์นี้และ %s บนคลาวด์จะถูกเก็บไว้ หากรายการเดียวกันถูกเปลี่ยนแปลงทั้งสองฝั่ง จะเก็บการเปลี่ยนแปลงที่ใหม่กว่า ข้อมูลของอุปกรณ์นี้จะถูกส่งไปยังอุปกรณ์อื่นของคุณ</string>
   <string name="are_you_sure_reset_local">การดำเนินการนี้จะรีเซ็ตฐานข้อมูลในเครื่องสำหรับ %s ด้วยเนื้อหาที่จัดเก็บอยู่ในบริการคลาวด์ปัจจุบัน</string>
   <string name="are_you_sure_reset_cloud">การดำเนินการนี้จะรีเซ็ตฐานข้อมูลคลาวด์สำหรับ %s ด้วยเนื้อหาที่มีในอุปกรณ์นี้</string>
   <string name="sync_cant_fetch">เวอร์ชันของฐานข้อมูลหรือไฟล์แพตช์ที่จัดเก็บในคลาวด์สูงกว่าที่แอปนี้รองรับ</string>
@@ -1019,6 +1173,7 @@
   <string name="pref_font_size_multiplier_title">ตัวคูณขนาดแบบอักษร</string>
   <string name="pref_font_size_multiplier_summary_1">คูณขนาดแบบอักษรของข้อความด้วยตัวเลขนี้</string>
   <string name="pref_font_size_multiplier_summary_2">มีประโยชน์หากคุณมีอุปกรณ์ที่ซิงโครไนซ์ซึ่งใช้แบบอักษรขนาดใหญ่กว่า</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">ค่าปัจจุบัน: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">การกระทำสำหรับท่าทางปัดซ้าย/ขวา</string>
   <string name="prefs_bible_view_swipe_mode_summary">ท่าทางปัดซ้าย/ขวาสามารถใช้ไปยังหน้าถัดไป/บทถัดไป</string>
@@ -1139,6 +1294,7 @@
   <string name="prompt_max_iterations_unlimited">ไม่จำกัด</string>
   <string name="prompt_max_iterations_global_default">ค่าเริ่มต้นส่วนกลาง (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">แทนที่จำนวนการทำซ้ำสูงสุดส่วนกลางสำหรับพรอมต์นี้ 0 = ไม่จำกัด\nปัจจุบัน: %s</string>
+  <string name="prompt_max_iterations_use_global">ใช้การตั้งค่าส่วนกลาง (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">จัดการพรอมต์ AI</string>
   <string name="manage_prompts_summary">สร้างและแก้ไขพรอมต์ AI</string>
@@ -1272,6 +1428,7 @@
   <string name="built_in_prompt_notice">นี่คือพรอมต์ในตัวและไม่สามารถแก้ไขได้ ใช้ \"คัดลอกเพื่อปรับแต่ง\" เพื่อสร้างสำเนาที่แก้ไขได้</string>
   <string name="copy_to_customize">คัดลอกเพื่อปรับแต่ง</string>
   <string name="prompt_copied">คัดลอกพรอมต์แล้ว</string>
+  <string name="prompt_copy_failed">ไม่สามารถคัดลอกพรอมต์ได้ อาจถูกลบไปแล้ว</string>
   <string name="delete_prompt_confirmation">ลบพรอมต์ \"%s\"?</string>
   <string name="prompt_name_required">จำเป็นต้องมีชื่อพรอมต์</string>
   <string name="prompt_template_required">จำเป็นต้องมีเทมเพลตพรอมต์</string>
@@ -1479,6 +1636,8 @@
   <string name="tool_option_default_disabled">ค่าเริ่มต้น (ปิดใช้งาน)</string>
   <string name="tool_option_default_allowed">ค่าเริ่มต้น (อนุญาต)</string>
   <string name="tool_option_default_denied">ค่าเริ่มต้น (ปฏิเสธ)</string>
+  <string name="tool_description_info">แสดงคำอธิบายเครื่องมือ</string>
+  <string name="tool_permission_mixed">ผสม</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">โมเดล</string>
   <string name="prompt_model_default">ค่าเริ่มต้น</string>
@@ -1524,6 +1683,8 @@
   <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
   <string name="my_document_page_rename_title">เปลี่ยนชื่อหน้า</string>
   <string name="my_document_page_delete_confirmation">ลบหน้า \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">ลบหน้าเหล่านี้หรือไม่?</string>
+  <string name="my_documents_switch_document">สลับเอกสาร</string>
   <string name="my_document_new_page_name">หน้า %1$d</string>
   <string name="my_document_create_page_title">หน้าใหม่</string>
   <string name="my_document_content_type_label">ประเภทเนื้อหา</string>
@@ -1620,4 +1781,91 @@
   <string name="document_sync_started">เริ่มการซิงค์เอกสารแล้ว</string>
   <string name="document_sync_enable_dialog_title">เริ่มการซิงค์เอกสารหรือไม่?</string>
   <string name="document_sync_enable_dialog_nothing">ยังไม่มีเอกสารที่จะถ่ายโอน เอกสารที่ติดตั้งใหม่จะซิงค์โดยอัตโนมัติ</string>
+  <string name="help_document_sync_text">การซิงค์เอกสารจะคัดลอกพระคัมภีร์ คำอธิบาย และเอกสารอื่นๆ ที่คุณติดตั้งไว้ไปยังคลาวด์ และคงให้ตรงกันในทุกอุปกรณ์ของคุณ ใช้มุมมองนี้เพื่อดูสิ่งที่จัดเก็บในคลาวด์ ดาวน์โหลดหรืออัปโหลดเอกสารทีละรายการ ลบเอกสาร และควบคุมสิ่งที่ซิงค์มายังอุปกรณ์นี้</string>
+  <string name="background_image_title">ภาพพื้นหลัง</string>
+  <string name="background_image_none">ไม่มีพื้นหลัง</string>
+  <string name="background_image_import">นำเข้าจากแกลเลอรี…</string>
+  <string name="background_image_empty">ยังไม่มีภาพที่นำเข้า แตะ \"นำเข้าจากแกลเลอรี…\" เพื่อเพิ่ม</string>
+  <string name="background_image_importing">กำลังนำเข้า…</string>
+  <string name="background_image_delete_title">ลบภาพหรือไม่?</string>
+  <string name="background_image_delete_confirm">ลบภาพพื้นหลังนี้หรือไม่ พื้นที่ทำงานที่ยังใช้ภาพนี้จะกลับไปไม่มีภาพ</string>
+  <string name="background_image_day">ภาพพื้นหลัง (กลางวัน)</string>
+  <string name="background_image_night">ภาพพื้นหลัง (กลางคืน)</string>
+  <string name="background_image_opacity_day">ความทึบของภาพพื้นหลัง (กลางวัน)</string>
+  <string name="background_image_opacity_night">ความทึบของภาพพื้นหลัง (กลางคืน)</string>
+  <string name="background_image_change">เปลี่ยน</string>
+  <string name="color_picker_title">เลือกสี</string>
+  <string name="color_picker_presets">ค่าที่ตั้งไว้ล่วงหน้า</string>
+  <string name="color_picker_custom">กำหนดเอง</string>
+  <string name="bookmark_expand_row">แสดงข้อความเต็ม</string>
+  <string name="bookmark_collapse_row">แสดงน้อยลง</string>
+  <string name="bookmark_label_filter">กรองตามป้ายกำกับ</string>
+  <string name="document_quick_all_documents">เอกสารทั้งหมด…</string>
+  <string name="document_quick_tab_recent">ล่าสุด</string>
+  <string name="document_quick_tab_for_verse">ข้อนี้</string>
+  <string name="document_quick_tab_last_filter">ตัวกรองล่าสุด</string>
+  <string name="document_quick_tab_all">ทั้งหมด</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">กรองและเรียงลำดับ</string>
+  <string name="doc_arrange_repository">ที่เก็บ</string>
+  <string name="doc_arrange_all_repositories">ที่เก็บทั้งหมด</string>
+  <string name="doc_arrange_sort">ลำดับการเรียง</string>
+  <string name="doc_arrange_group_by">จัดกลุ่มตาม</string>
+  <string name="doc_arrange_remember">จดจำการตั้งค่าเหล่านี้</string>
+  <string name="doc_arrange_reset">รีเซ็ตเป็นค่าเริ่มต้น</string>
+  <string name="doc_arrange_more_filters">ตัวกรองเพิ่มเติม</string>
+  <string name="doc_arrange_reorder">จัดลำดับใหม่</string>
+  <string name="doc_sort_ascending">น้อยไปมาก</string>
+  <string name="doc_sort_descending">มากไปน้อย</string>
+  <string name="doc_sort_status">สถานะ</string>
+  <string name="doc_sort_recommended">แนะนำก่อน</string>
+  <string name="doc_sort_name">ชื่อ</string>
+  <string name="doc_sort_size">ขนาด</string>
+  <string name="doc_group_none">ไม่จัดกลุ่ม</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">กำลังดาวน์โหลด</string>
+  <string name="doc_group_status_update_available">มีการอัปเดต</string>
+  <string name="doc_group_status_installed">ติดตั้งแล้ว</string>
+  <string name="doc_group_status_not_installed">ยังไม่ได้ติดตั้ง</string>
+  <string name="prompt_filter_title">กรองพรอมต์</string>
+  <string name="prompt_filter_type">ประเภท</string>
+  <string name="prompt_type_addon">ส่วนเสริม</string>
+  <string name="prompt_type_user">กำหนดเอง</string>
+  <string name="prompt_filter_clear">ล้างตัวกรอง</string>
+  <string name="prompt_favorite_add">เพิ่มในรายการโปรด</string>
+  <string name="prompt_favorite_remove">นำออกจากรายการโปรด</string>
+  <string name="window_unmaximise">คืนค่าทุกหน้าต่าง</string>
+  <string name="window_menu_button">เมนูหน้าต่าง</string>
+  <string name="paste_from_clipboard">วาง</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">ที่จับสำหรับลาก</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">กำลังอัปเดตข้อมูลของคุณ…</string>
+  <string name="legacy_migration_progress_neutral">กำลังอัปเดต…</string>
+  <string name="legacy_migration_failed_title">ไม่สามารถอัปเดตข้อมูลของคุณได้</string>
+  <string name="legacy_migration_failed_message">ข้อมูลของคุณจากแอปเวอร์ชันก่อนหน้าปลอดภัยและไม่เปลี่ยนแปลงบนอุปกรณ์นี้ เลือกสิ่งที่จะทำต่อไป</string>
+  <string name="legacy_migration_failed_keychain">ไม่สามารถอ่านรหัสผ่านที่บันทึกไว้จากเวอร์ชันก่อนหน้าได้ ปลดล็อกอุปกรณ์ของคุณ แล้วปิดและเปิดแอปอีกครั้ง</string>
+  <string name="legacy_migration_rollback_pending">การอัปเดตถูกขัดจังหวะและยังย้อนกลับไม่สมบูรณ์ ปิดและเปิดแอปอีกครั้งเพื่อย้อนกลับให้เสร็จสิ้น</string>
+  <string name="legacy_migration_save_old_data">บันทึกข้อมูลเก่า</string>
+  <string name="legacy_migration_send_report">ส่งรายงานข้อผิดพลาด</string>
+  <string name="legacy_migration_try_again">ลองอีกครั้ง</string>
+  <string name="legacy_migration_try_again_hint">ปิดแอปแล้วเปิดใหม่เพื่อลองอีกครั้ง</string>
+  <string name="legacy_migration_restore_backup">กู้คืนข้อมูลสำรอง</string>
+  <string name="legacy_migration_start_fresh">เริ่มโดยไม่ใช้ข้อมูลเก่า</string>
+  <string name="legacy_migration_start_fresh_confirm">ข้อมูลเก่าของคุณจะยังอยู่บนอุปกรณ์นี้ คุณสามารถนำเข้าภายหลังได้ในการตั้งค่า</string>
+  <string name="legacy_import_title">นำเข้าข้อมูลจากแอปเวอร์ชันก่อนหน้า</string>
+  <string name="legacy_import_summary">แทนที่ข้อมูลปัจจุบันด้วยข้อมูลของแอปเวอร์ชันก่อนหน้า</string>
+  <string name="legacy_import_confirm">การดำเนินการนี้จะแทนที่พื้นที่ทำงาน ที่คั่นหน้า และข้อมูลอื่นๆ ปัจจุบันของคุณด้วยข้อมูลของแอปเวอร์ชันก่อนหน้า สำเนาของข้อมูลปัจจุบันจะถูกเก็บไว้บนอุปกรณ์นี้</string>
+  <string name="legacy_import_reopen">ปิดแอปแล้วเปิดใหม่เพื่อนำเข้าข้อมูลของคุณ</string>
+  <string name="legacy_notice_icloud">ขณะนี้การซิงค์ใช้ iCloud Drive เปิดใช้งานอีกครั้งใน การตั้งค่า → ซิงค์ อุปกรณ์นี้เก็บข้อมูลที่มีอยู่ไว้ การเปลี่ยนแปลงจากอุปกรณ์อื่นของคุณจะมาถึงเมื่อตั้งค่าการซิงค์อีกครั้ง หากต้องการเพิ่มพื้นที่จากข้อมูล iCloud เก่า: การตั้งค่า → ชื่อของคุณ → iCloud → จัดการพื้นที่เก็บข้อมูล → AndBible</string>
+  <string name="legacy_notice_nextcloud">การเชื่อมต่อ Nextcloud ของคุณถูกนำมาด้วย แต่การซิงค์ปิดอยู่ เปิดใช้งานใน การตั้งค่า → ซิงค์ แล้วเลือกดึงจากคลาวด์หรือสร้างใหม่</string>
+  <string name="legacy_notice_nextcloud_unsent">การเปลี่ยนแปลงบางอย่างบนอุปกรณ์นี้ยังไม่ได้ส่งไปยัง Nextcloud การเปลี่ยนแปลงเหล่านั้นไม่ได้ถูกส่งและจะอยู่เฉพาะบนอุปกรณ์นี้</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">เป็นแอปศึกษาพระคัมภีร์แบบออฟไลน์ที่ทรงพลังแต่ใช้งานง่าย</string>
+  <string name="webdav_untrusted_certificate_message_device">อุปกรณ์นี้ไม่เชื่อถือใบรับรองของ %1$s เชื่อถือเฉพาะเมื่อคุณรู้จักใบรับรองนั้น เช่น เพราะคุณตั้งค่าเซิร์ฟเวอร์นี้เอง\n\nหัวเรื่อง: %2$s\nผู้ออก: %3$s\nมีผล: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">ที่เก็บแบบกำหนดเองต้องใช้ที่อยู่ https:// ที่ปลอดภัย</string>
+  <string name="custom_repository_https_required_refresh">%1$s ใช้ที่อยู่ http:// ใช้ได้เฉพาะที่เก็บแบบ https:// เท่านั้น</string>
 </resources>

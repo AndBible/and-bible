@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">تعذّر على AndBible تشغيل WebView2، وهو مطلوب لعرض نص الكتاب المقدس. ثبّت أو أصلح Microsoft Edge WebView2 Evergreen Runtime من:\n%1$s\n\nالتفاصيل في ملف السجل:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">يتطلب AndBible رسومات Direct3D لعرض نص الكتاب المقدس باستخدام WebView2. مُصيّر الرسومات الحالي هو %1$s. تحقق من برنامج تشغيل الرسومات ودعم Direct3D.\n\nالتفاصيل في ملف السجل:\n%2$s</string>
+  <string name="desktop_update_setting_title">التحقق من التحديثات</string>
+  <string name="desktop_update_setting_summary">مرة واحدة يوميًا، من github.com</string>
+  <string name="desktop_update_consent_title">التحقق من التحديثات؟</string>
+  <string name="desktop_update_consent_message">يمكن لـ AndBible التحقق من github.com مرة واحدة يوميًا بحثًا عن إصدار أحدث. يرى GitHub عنوان IP الخاص بك ولا يُرسَل أي شيء آخر. يمكنك تغيير ذلك لاحقًا في الإعدادات.</string>
+  <string name="desktop_update_consent_yes">التحقق من التحديثات</string>
+  <string name="desktop_update_consent_no">عدم التحقق</string>
+  <string name="desktop_update_available_title">يتوفر إصدار جديد</string>
+  <string name="desktop_update_available_message">الإصدار %1$s من AndBible متوفر. لديك الإصدار %2$s.</string>
+  <string name="desktop_update_download">تحميل</string>
+  <string name="desktop_update_later">لاحقًا</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">دراسة الكتاب المقدس</string>
   <string name="app_name_medium">دراسة الكتاب المقدس (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">يوجد %d </string>
   <string name="search_showing_first">يوجد نتائج كثيرة جدا،  نعرض أول  %d نتيجة</string>
   <string name="search_bible_section_group_prompt">أين</string>
+  <string name="search_type_prompt">نوع البحث</string>
+  <string name="search_show_results">عرض نتائج البحث</string>
   <string name="search_all_bible">الإنجيل ككل</string>
   <string name="search_new_testament">العهد الجديد</string>
   <string name="search_old_testament">العهد القديم</string>
@@ -80,6 +94,28 @@
   <string name="search_what">أوجد \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">الترجمات</string>
+  <string name="recent_searches">عمليات البحث الأخيرة</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">إغلاق البحث</string>
+  <string name="search_options">إعدادات البحث</string>
+  <string name="search_submit">بحث</string>
+  <string name="search_clear">مسح نص البحث</string>
+  <string name="search_engine_changed_reindex">تم تحديث محرك البحث. يجب إنشاء فهرس البحث من جديد، وقد يستغرق ذلك بعض الوقت.</string>
+  <string name="search_unsupported_syntax">يستخدم هذا البحث صيغة غير مدعومة: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">عند انتهاء الفهرسة سيبدأ البحث تلقائيًا.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">لا يمكن البحث في %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">لا يمكن البحث في هذا المستند</string>
+  <string name="search_indexing_notification_title">جارٍ إنشاء فهرس البحث</string>
   <string name="choose_translations">اختر الترجمات…</string>
   <string name="multi_search_results">%1$d آية في %2$d ترجمات</string>
   <string name="search_index_not_created">لا يوجد فهرس</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">اختر كيفية عرض الألوان. يحافظ وضع الحبر الإلكتروني الملون على أساس أبيض وأسود لكنه يعرض ألوان الإشارات المرجعية ومؤشر النافذة النشطة والخطوط المساعدة بالألوان — لشاشات الحبر الإلكتروني الملونة.</string>
   <string name="prefs_display_color_mode_normal">عادي</string>
   <string name="prefs_display_color_mode_bw">أبيض وأسود</string>
+  <string name="prefs_display_color_mode_monochrome">أحادي اللون</string>
   <string name="prefs_display_color_mode_color_eink">حبر إلكتروني ملون</string>
+  <string name="prefs_theme_palette_style_title">نمط السمة</string>
+  <string name="prefs_theme_palette_style_summary">كيفية اشتقاق ألوان التطبيق من لون مساحة العمل. ينطبق فقط عندما يكون وضع الألوان عاديًا.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">بقعة لونية (ناعمة، تحتفظ بالرمادي)</string>
+  <string name="prefs_theme_palette_style_fidelity">الدقة (اللون الدقيق)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">بقعة لونية (الأصلي)</string>
+  <string name="prefs_theme_palette_style_content">المحتوى (قريب من اللون)</string>
+  <string name="prefs_theme_palette_style_neutral">محايد (خافت)</string>
+  <string name="prefs_theme_palette_style_monochrome">أحادي اللون (رمادي)</string>
+  <string name="prefs_theme_palette_style_vibrant">نابض بالحياة</string>
+  <string name="prefs_theme_palette_style_expressive">تعبيري</string>
+  <string name="prefs_theme_palette_style_rainbow">قوس قزح</string>
+  <string name="prefs_theme_palette_style_fruit_salad">سلطة فواكه</string>
   <string name="prefs_eink_settings_cat">إعدادات الحبر الإلكتروني</string>
   <string name="prefs_eink_display_title">ميزات الحبر الإلكتروني</string>
   <string name="prefs_eink_display_summary">تفعيل الميزات الخاصة بشاشات الحبر الإلكتروني (أزرار تمرير الصفحة، وخطوط مساعدة التمرير)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">وضع علامة مقروء على الفصول تلقائياً عند التمرير خلالها</string>
   <string name="reading_progress_read_count_scale">عدد\nالمقروء</string>
   <string name="reading_progress_percent_read_scale">نسبة\nالمقروء</string>
+  <string name="monochrome_activity_count">عدد الأنشطة: %d</string>
+  <string name="monochrome_cell_count">%d ×</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">العدد: %d</string>
+  <string name="monochrome_level">المستوى: %d/4</string>
+  <string name="monochrome_buckets">رمادي: لا شيء؛ بإطار: جزئي؛ ممتلئ: كامل أو أعلى مستوى. حدد عنصرًا لعرض القيم الدقيقة.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">سجل القراءة</string>
   <string name="reading_progress_history_for">تقدم القراءة لـ %1$s</string>
@@ -197,6 +253,8 @@
   <string name="workspace_text_options_link_summary">تعديل إعدادات عرض النص لهذه مساحة العمل</string>
   <string name="global_text_options_link">خيارات النص العامة</string>
   <string name="global_text_options_link_summary">تعديل إعدادات عرض النص الافتراضية لجميع مساحات العمل</string>
+  <string name="text_options_inherited_workspace">مساحة العمل</string>
+  <string name="text_options_inherited_global">عام</string>
   <string name="prefs_font_and_colors_title">الخط والألوان</string>
   <string name="prefs_text_layout_title">تخطيط النص</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s والصرف</string>
@@ -273,6 +331,9 @@
   <string name="copy_settings_to_workspace">مساحة العمل</string>
   <string name="copy_settings_to_window">النافذة %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">الإعدادات الافتراضية العامة</string>
+  <string name="copy_settings_to_workspaces">إلى مساحات عمل أخرى…</string>
+  <string name="copy_settings_to_global_defaults">إلى الإعدادات الافتراضية العامة…</string>
+  <string name="menu_back">رجوع</string>
   <string name="change_to_normal">التغيير إلى نافذة عادية</string>
   <string name="window_pin_mode">تثبيت</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">تعذر الاتصال بخادم المستندات التالي: \n\n%s\n\n</string>
   <string name="failed_downloads_message">تعذر تحميل الملفات التالية:\n\n%s\n\n</string>
   <string name="cant_delete_document">هذا المستند لا يمكن حذفه.</string>
+  <string name="bad_document_warning">هذا المستند به مشكلات معروفة.</string>
   <!--Install zip file-->
   <string name="install_zip">حمّل المستندات من الملفات</string>
   <string name="install_zip_module">تثبيت وحدة الكتاب المقدس</string>
@@ -366,6 +428,11 @@
   <string name="delete_index">حذف  فهرس البحث.</string>
   <string name="about">عن البرنامج</string>
   <string name="delete_doc">حذف %s ؟</string>
+  <string name="interrupted_downloads_title">انقطع التحميل</string>
+  <string name="interrupted_downloads_message">لم يتم تثبيت هذه المستندات لأن تحميلها انقطع:</string>
+  <string name="interrupted_downloads_question">هل تريد تحميلها مرة أخرى؟</string>
+  <string name="download_again">تحميل مرة أخرى</string>
+  <string name="delete_docs_confirm">هل تريد حذف هذه المستندات؟</string>
   <string name="delete_search_index_doc">حذف فهرس من %s ؟</string>
   <!--Verse context menu-->
   <string name="notes">التذييل و المراجع</string>
@@ -386,6 +453,7 @@
   <string name="assign_labels">تعيين التسميات</string>
   <string name="new_item">جديد</string>
   <string name="label_name_prompt">اسم</string>
+  <string name="new_label_default_name">تسمية %d</string>
   <string name="label_unlabelled">غير مسمى</string>
   <string name="add_bookmark1">إشارة مرجعية</string>
   <string name="add_bookmark3">تحديد</string>
@@ -436,6 +504,8 @@
   <string name="rewind">إعادة</string>
   <string name="forward">تقديم للأمام</string>
   <string name="tts_lang_not_available">اللغة غير متاحة</string>
+  <string name="tts_engine_not_available">لا يعمل تحويل النص إلى كلام على هذا الجهاز. تأكد من تثبيت محرك كلام وتفعيله في إعدادات تحويل النص إلى كلام في النظام.</string>
+  <string name="tts_audio_focus_denied">تعذّر بدء القراءة لأن تطبيقًا آخر يستخدم الصوت.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">سرعة التحدث</string>
   <string name="speak_and_play_earcons_title">التحدث وتشغيل أصوات earcon ل</string>
@@ -445,6 +515,10 @@
   <string name="speak_bookmarks_menu_title">التحدث من المرجعية</string>
   <string name="speak_advanced_settings">إعدادات متقدمة</string>
   <string name="speak_sleep_timer_title">مؤقت النوم</string>
+  <string name="speak_sleep_timer_minutes">%d د</string>
+  <string name="speak_sleep_timer_custom">مخصص…</string>
+  <string name="speak_sleep_timer_off">إيقاف</string>
+  <string name="speak_other_settings">أخرى</string>
   <string name="speak_no_books_available">لا توجد كتب متاحة للتحدث</string>
   <string name="speak_general_error">لا يمكن بدء الكلام لهذا الكتاب</string>
   <string name="repeat_passage">تكرار الفقرة</string>
@@ -473,6 +547,11 @@
   <string name="speak_autobookmarking_disabled">تم تعطيل الإشارة المرجعية التلقائية!</string>
   <string name="system_speak_settings">فتح إعدادات نظام تحويل النص إلى كلام</string>
   <string name="auto_assing_labels_help1">يمكنك هنا ان تضبط أي من الملصقات يتم تعيينها تلقائياً للعلامات المرجعية التي تُنشئها</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">هنا يمكنك إضافة التسميات وتعديلها وإزالتها، وضبط التسميات التي تُعيَّن تلقائيًا للإشارات المرجعية التي تنشئها.\n\nالتسميات الأخيرة: التسميات المستخدمة مؤخرًا.\nتسميات أخرى: جميع التسميات الأخرى.\n\nاستخدم خيارات التصفية في شريط البحث لعرض التسميات المعيّنة تلقائيًا أو المفضلة فقط.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">هذا الإعداد ينطبق على %s.</string>
   <string name="setting_scope_window">هذه النافذة</string>
@@ -578,6 +657,9 @@
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
   <string name="backup_success2">تم النسخ الاحتياطي للملاحظات، العلامات المرجعية، اللوحات الدراسية، خطط القراءة و مساحات العمل الخاصة بي بنجاح.</string>
   <string name="backup_modules_success">تم النسخ الاحتياطي للوحدات المحددة بنجاح.</string>
+  <string name="backup_modules_conflict">لم يتم إنشاء النسخة الاحتياطية: يحتوي %1$s و%2$s على الملف %3$s نفسه بمحتوى مختلف. حدد أحدهما فقط وحاول مرة أخرى.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (الإصدار %2$s، المجلد %3$s)</string>
   <string name="backup_modules_email_subject_2">نسخة احتياطية لوحدات %s</string>
   <string name="backup_modules_email_message_2">المرفق هو وحدات %1$s المنسوخة احتياطياً، والتي تحوي الوحدات التالية: %2$s</string>
   <string name="backup_email_subject_2">نسخة احتياطية لقاعدة بيانات %s</string>
@@ -586,6 +668,9 @@
   <string name="exported_studypads_message">قاعدة البيانات %s المحتوية على الإشارات المرجعية والملاحظات المتعلقة بلوحات الدراسة المحددة مرفقة</string>
   <string name="restore_unsuccessfull">استعادة قاعدة البيانات فشل. ربما أدخلت ملف قاعدة بيانات غير صالح.</string>
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
+  <string name="export_destination_title">التصدير إلى أين؟</string>
+  <string name="export_destination_message">احفظ ملف التصدير على هذا الهاتف، أو أرسله إلى مكان آخر عبر المشاركة.</string>
+  <string name="send_export_file">إرسال ملف تصدير</string>
   <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
   <string name="ask_restore_or_import">يمكن استعادة قاعدة بيانات %s (أي إزالة قاعدة البيانات الحالية وتحميل القاعدة المحددة) أو استيرادها (استيراد قاعدة البيانات المحددة في قاعدة البيانات الحالية). ماذا تريد أن تفعل؟</string>
@@ -627,12 +712,25 @@
   <string name="doc_type_book">سفر</string>
   <string name="doc_type_map">خريطة</string>
   <string name="doc_type_addons">الإضافات</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">أخرى</string>
+  <string name="document_type_label">نوع المستند</string>
   <!--Languages-->
   <string name="lang_default">إفتراضي</string>
   <!--General-->
   <string name="okay">موافق</string>
   <string name="cancel">تجاهل</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">رجوع</string>
+  <string name="settings_editor_close">إغلاق</string>
+  <string name="settings_editor_apply">تطبيق</string>
   <string name="discard_changes_confirmation">تجاهل التغييرات غير المحفوظة؟</string>
+  <string name="discard">تجاهل</string>
+  <string name="remove">إزالة</string>
+  <string name="overwrite">استبدال</string>
+  <string name="set_current_day_action">تعيين اليوم</string>
   <string name="yes">نعم</string>
   <string name="no">لا</string>
   <string name="error">خطأ</string>
@@ -642,6 +740,7 @@
   <string name="watch_tutorial_video">شاهد فيديو تعليمي (بالإنجليزية)</string>
   <string name="verse_not_found">الآية غير موجودة</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">متابعة</string>
   <string name="report_error">إرسال تقرير</string>
   <string name="error_occurred">حدث خطأ ما</string>
   <string name="error_occurred_crash_last_time">آخر مرة عندما استخدمت التطبيق، حدث خلل. لمساعدتنا في حل الخطأ، سنكون ممتنين إذا ارسلت لنا تقرير اخطاء.</string>
@@ -652,8 +751,14 @@
   <string name="error_key_not_in_document2">%1$s غير موجود في المستند %2$s.</string>
   <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
+  <string name="debug_test_error">خطأ تجريبي (إصدار تصحيح)</string>
+  <string name="bug_report_prepare_failed">تعذّر إعداد التقرير أو مشاركته. يمكنك إعادة المحاولة، أو استخدام النسخ الاحتياطي والاستعادة لحفظ بياناتك.</string>
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
+  <string name="bug_report_manual_title">إرسال التقرير بالبريد الإلكتروني</string>
+  <string name="bug_report_manual_text_saved">تم حفظ التقرير في</string>
+  <string name="bug_report_manual_text_unsaved">تعذّر فتح أي برنامج بريد إلكتروني على هذا الجهاز.\n\nيرجى إرسال التقرير بالبريد الإلكتروني إلى</string>
+  <string name="bug_report_copy_address">نسخ العنوان</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">النص إلى الكلام</string>
   <string name="notification_channel_progress_status">إشعار حالة التقدم لتنزيل المستندات وما إلى ذلك.</string>
@@ -677,6 +782,7 @@
   <string name="search_settings">إعدادات البحث</string>
   <string name="dismiss">استبعاد</string>
   <string name="workspace_listing_with_current">%s (الحالية)</string>
+  <string name="workspace_manage_workspaces">إدارة مساحات العمل…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
   <string name="beta_notice_content_1">
@@ -715,7 +821,10 @@
   <string name="help_search_title">بحث</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT</string>
+  <string name="help_search_bible">اختر طريقة مطابقة الكلمات: جميع الكلمات يجد الآيات التي تحتوي على كل كلمة، وأي كلمة يجد الآيات التي تحتوي على كلمة واحدة على الأقل، والعبارة يجد الكلمات متجاورة بهذا الترتيب.\n\nيمكنك أيضًا داخل البحث استخدام * و? كأحرف بدل (مثلًا bless* تطابق blessed وblessing)، ودمج الكلمات باستخدام AND وOR وNOT، والبحث مباشرة عن أرقام سترونغ (مثلًا strong:h0430).</string>
+  <string name="help_search_epub">اختر طريقة مطابقة الكلمات: جميع الكلمات يجد المقاطع التي تحتوي على كل كلمة، وأي كلمة يجد المقاطع التي تحتوي على كلمة واحدة على الأقل، والعبارة يجد الكلمات متجاورة بهذا الترتيب.\n\nصيغة الاستعلام الخام تمرر نصك إلى محرك البحث دون تغيير، فيمكنك كتابة استعلامك الخاص: grace AND faith وgrace OR faith وgrace NOT faith و\"hope of glory\" لعبارة مطابقة تمامًا، وbless* لمطابقة أي كلمة تبدأ بـ bless، وgrace NEAR faith للعثور عليهما متقاربتين.</string>
   <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
+  <string name="help_search_syntax">صيغة البحث</string>
   <string name="help_fts5">صيغة استعلام النص الكامل FTS5</string>
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_workspaces_text">تتيح مساحات العمل الحصول على بيئات عمل متعددة تعتمد على السياق. يمكن الوصول إلى وظائف مساحات العمل عبر عنصر \"مساحات العمل\" في قائمة الخيارات (الزاوية العلوية اليمنى). الطريقة السريعة للوصول إلى مساحات العمل هي بالتمرير للأسفل من شريط الأدوات. يمكنك أيضاً استخدام إيماءتي التمرير للوصول إلى مساحة العمل السابقة أو التالية.</string>
@@ -724,6 +833,12 @@
   <string name="help_window_pinning_title">تثبيت النافذة</string>
   <string name="help_window_pinning_text">يمكنك تفعيل تثبيت النافذة من قائمة الخيارات (ثلاث نقاط، الزاوية العلوية اليمنى). إذا تم تفعيل تثبيت النافذة، يمكنك عرض نوافذ مثبّتة متعددة في مشهد الكتاب المقدس، لكن نافذة واحدة فقط غير مثبّتة. تُعرض النوافذ المثبّتة أولاً ثم النوافذ غير المثبّتة. قد ترغب في فتح مستندات الكتاب المقدس في نوافذ مثبّتة، و التعليقات والخرائط وما شابهها في نوافذ غير مثبّتة. بهذه الطريقة يمكنك الاحتفاظ بمستندات الكتاب المقدس مفتوحة دائماً، والتبديل بسرعة بين التعليقات و المواد الإضافية الأخرى أثناء الدراسة.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">لا توجد مستندات في مكتبتك بعد. أضف بعضها للبدء.</string>
+  <string name="welcome_redownload_row_hint">اختر من المستندات المثبتة سابقًا</string>
+  <string name="welcome_download_row_hint">تصفح الكتالوج على الإنترنت</string>
+  <string name="welcome_restore_row_hint">ملف قاعدة بيانات يحتوي على الإشارات المرجعية والملاحظات</string>
+  <string name="welcome_link_website">الموقع الإلكتروني</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">عليك أن تختار الملف الذي تريد تحميله إلى %s. </string>
@@ -739,9 +854,8 @@
   <string name="format_studypads">لوحات الدراسة من قواعد بيانات AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">إغلاق</string>
+  <string name="reading_toolbar_options">خيارات إضافية</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">مفهوم</string>
-  <string name="first_time_help_show_next_time">عرض مرة أخرى في المرة القادمة</string>
   <string name="strongs_mode_title">اختر وضع strongs</string>
   <string name="download_dialog_message">تعذر تحميل الملفات للتالية:</string>
   <string name="journal_description">لوحات دراسية قابلة للتعديل من قبل المستخدم مع نصوص مخصصة وعلامات مرجعية</string>
@@ -766,6 +880,7 @@
   <string name="prefs_experimental_features_summary">اختر الميزات التجريبية التي تريد تفعيلها. هذه الميزات لا تزال قيد التطوير وقد تتغير أو تُزال</string>
   <string name="experimental_feature_bookmark_edit_actions">إجراءات تعديل الإشارات المرجعية</string>
   <string name="experimental_feature_add_paragraph_break">إضافة فاصل فقرة للإشارة المرجعية</string>
+  <string name="experimental_feature_toolbar_literal_color">استخدام لون مساحة العمل الفعلي لشريط أدوات القراءة (بدلًا من لون السمة)</string>
   <string name="raw_llm_log_title">سجل نموذج اللغة الخام</string>
   <string name="raw_llm_log_empty">لا توجد بيانات سجل خام</string>
   <string name="raw_llm_log_copied">تم نسخ السجل إلى الحافظة</string>
@@ -871,6 +986,7 @@
   <string name="display_mode_underline">تسطير</string>
   <string name="display_mode_marker">علامة فقط</string>
   <string name="display_mode_hidden">مخفي</string>
+  <string name="display_mode_inherit">مثل التحديد</string>
   <string name="workspace_override_indicator">هذه التسمية لها وضع عرض خاص بمساحة العمل</string>
   <string name="primary_label">ملصق أساسي</string>
   <string name="favourite_label">ملصق مفضل</string>
@@ -884,6 +1000,8 @@
   <string name="book_menu_show_long_book_name">إظهار اسم السفر الكامل</string>
   <string name="book_menu_show_progress_bars">إظهار أشرطة التقدم</string>
   <string name="reset_workspace_labels">هل تريد إعادة تعيين الإعدادات التلقائية والمفضلة لهذه مساحة العمل؟</string>
+  <string name="clear_auto_assign_labels">مسح تسميات التعيين التلقائي</string>
+  <string name="reset_workspace_auto_assign_labels">هل تريد إزالة جميع تسميات التعيين التلقائي من مساحة العمل هذه؟</string>
   <string name="reset_hide_labels">هل تريد إعادة تعيين إعداد إخفاء التسميات المحددة؟</string>
   <string name="reorder">إعادة ترتيب</string>
   <string name="system_items">إجراءات النظام</string>
@@ -955,6 +1073,27 @@
   <string name="instructions_for_translators">تعليمات للمترجمين</string>
   <string name="questions_title">أسئلة؟</string>
   <string name="bookmark_style">نمط الإشارة المرجعية</string>
+  <string name="bookmark_style_preview_sample">لأنه هكذا أحب الله العالم</string>
+  <string name="bookmark_style_selection">إشارات مرجعية لتحديد النص</string>
+  <string name="bookmark_style_whole_verse">إشارات مرجعية للآية كاملة</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">استخدام نمط مختلف لإشارات الآية كاملة</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">تحديد</string>
+  <string name="bookmark_style_tag_whole_verse">آية كاملة</string>
+  <string name="bookmark_style_tag_workspace">مساحة العمل</string>
+  <string name="show_style_examples">عرض أمثلة الأنماط</string>
+  <string name="labels_search_section">بحث</string>
+  <string name="labels_filter_section">عرض</string>
+  <string name="labels_filter_auto_assign">تسميات التعيين التلقائي فقط</string>
+  <string name="labels_filter_favourite">التسميات المفضلة فقط</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">ضع علامة على تسمية لتعيينها لهذه الإشارة المرجعية.</string>
+  <string name="manage_labels_help_primary">التسمية الأساسية. لونها ونمطها هما ما تعرضه الإشارة المرجعية.</string>
+  <string name="manage_labels_help_autoassign">تعيين هذه التسمية تلقائيًا لكل إشارة مرجعية جديدة. الصاعقة المفرغة تعني الإيقاف.</string>
+  <string name="manage_labels_help_favourite">إبقاء التسمية في مفضلتك للوصول السريع.</string>
+  <string name="manage_labels_help_styles">تحت الاسم يظهر مثال صغير لشكل التسمية: تحديد لإشارة تحديد نص، وآية كاملة لإشارة آية كاملة، ووسم مساحة العمل لنمط تتجاوزه مساحة العمل هذه. المثال الرمادي بلا زخرفة يعني أن إشارات التسمية المرجعية لا تُرسم. أخفِ الأمثلة من القائمة ⋮.</string>
+  <string name="manage_labels_help_reorder">أعد ترتيب القائمة من القائمة ⋮.</string>
   <string name="added_to_bookmark">مخصص لهذه الإشارة المرجعية</string>
   <string name="strongs_links">الروابط</string>
   <string name="strongs_text_and_links">النص والروابط</string>
@@ -993,6 +1132,7 @@
   <string name="sync_group_n">المجموعة %d</string>
   <string name="disable_sync">إيقاف المزامنة</string>
   <string name="open_in_window">افتح النتائج في نافذة</string>
+  <string name="open_result_in_links_window">فتح النتيجة في نافذة الروابط</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">مستودعات مخصصة</string>
@@ -1003,7 +1143,6 @@
   <string name="delete_custom_repository">هل تريد إزالة المستودع المخصص %s؟</string>
   <string name="custom_repositories_help1">لإضافة مستودع مخصص جديد، اكتب أو انسخ و الصق رابط المستودع هنا.</string>
   <string name="custom_repositories_help2">يمكنك قراءة المزيد من المعلومات عن المستودعات المخصصة في %s.</string>
-  <string name="wiki_page">صفحة WIKI</string>
   <string name="custom_repositories_help0">يمكنك تثبيت المستندات من مستودعات مخصصة خارجية عن طريق تثبيت مستودعات مخصصة </string>
   <string name="duplicate_custom_repository">مستودع بإسم %s موجود مسبقاً، لا يمكن إضافة آخر.</string>
   <string name="packages_dir">دليل الحزم (ملفات Zip)</string>
@@ -1048,6 +1187,7 @@
   <string name="reading_progress_new_cycle_confirm">هل تريد بدء دورة قراءة جديدة؟ سيبدأ هذا تتبع تقدمك من الصفر مع الحفاظ على بيانات دورتك السابقة.</string>
   <string name="reading_progress_previous_cycle">الدورة السابقة</string>
   <string name="reading_progress_next_cycle">الدورة التالية</string>
+  <string name="cloud_merge_data">دمج البيانات</string>
   <string name="cloud_fetch_and_restore_initial">نسخ من السحابة إلى هذا الجهاز</string>
   <string name="cloud_create_new">نسخ من هذا الجهاز إلى السحابة</string>
   <string name="cloud_disable_sync">إلغاء و إيقاف المزامنة</string>
@@ -1061,6 +1201,19 @@
   <string name="sync_adapter_summary">الحالي: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">عنوان مجلد WebDAV، مثل https://nas.local/dav/ أو https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">تتطلب المزامنة عنوان https:// آمنًا.</string>
+  <string name="webdav_certificate_title">شهادة الخادم</string>
+  <string name="webdav_forget_certificate_message">هل تريد نسيان شهادة الخادم الموثوقة؟ سيُطلب منك تأكيد الشهادة مرة أخرى عند الاتصال التالي.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">شهادة خادم غير موثوقة</string>
+  <string name="webdav_untrusted_certificate_message">شهادة %1$s غير موثوقة لدى Android. لا تثق بها إلا إذا كنت تعرفها، مثلًا لأنك أنت من أعدّ هذا الخادم.\n\nالموضوع: %2$s\nالمُصدر: %3$s\nصالحة: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">الوثوق بهذه الشهادة</string>
+  <string name="webdav_wrong_credentials">اسم المستخدم أو كلمة المرور غير صحيحة.</string>
+  <string name="webdav_not_a_folder">العنوان ليس مجلد WebDAV.</string>
+  <string name="webdav_certificate_changed">تغيّرت شهادة الخادم. المزامنة متوقفة مؤقتًا حتى تؤكد الشهادة الجديدة، وسيسألك AndBible عنها في المرة التالية التي يُفتح فيها أو يزامن في الواجهة.</string>
+  <string name="webdav_storage_full">مساحة تخزين الخادم ممتلئة.</string>
   <string name="auth_server_uri">عنوان URL للخادم</string>
   <string name="auth_username">اسم المستخدم</string>
   <string name="auth_password">كلمة المرور</string>
@@ -1070,6 +1223,7 @@
   <string name="sync_general_settings">المعلومات والإعدادات العامة</string>
   <string name="sync_introduction">مقدمة</string>
   <string name="are_you_sure">هل أنت متأكد؟</string>
+  <string name="are_you_sure_merge">سيتم الاحتفاظ بكل من البيانات على هذا الجهاز و%s في السحابة. وإذا تغيّر العنصر نفسه في الاثنين، يُحتفظ بالتغيير الأحدث. وستُرسل بيانات هذا الجهاز إلى أجهزتك الأخرى.</string>
   <string name="are_you_sure_reset_local">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك المحلية لـ %s بالمحتوى المخزّن حالياً في الخدمة السحابية.</string>
   <string name="are_you_sure_reset_cloud">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك السحابية لـ %s بالمحتوى الموجود على هذا الجهاز.</string>
   <string name="sync_cant_fetch">إصدار قاعدة البيانات أو ملف التصحيح المخزّن في السحابة أعلى مما يدعمه هذا التطبيق.</string>
@@ -1104,6 +1258,7 @@
   <string name="pref_font_size_multiplier_title">مضاعف حجم الخط</string>
   <string name="pref_font_size_multiplier_summary_1">ضرب أحجام خطوط النص بهذا الرقم.</string>
   <string name="pref_font_size_multiplier_summary_2">مفيد إذا كان لديك جهاز متزامن يُستخدم بخط أكبر.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">القيمة الحالية: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">إجراء إيماءة التمرير يساراً / يميناً</string>
   <string name="prefs_bible_view_swipe_mode_summary">يمكن استخدام إيماءة التمرير يساراً / يميناً للانتقال إلى الصفحة / الفصل التالي.</string>
@@ -1224,6 +1379,7 @@
   <string name="prompt_max_iterations_unlimited">غير محدود</string>
   <string name="prompt_max_iterations_global_default">الافتراضي العام (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">تجاوز الحد الأقصى العام للتكرارات لهذا الموجّه. 0 = غير محدود.\nالحالي: %s</string>
+  <string name="prompt_max_iterations_use_global">استخدام الإعداد العام (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">إدارة موجّهات الذكاء الاصطناعي</string>
   <string name="manage_prompts_summary">إنشاء وتحرير موجّهات الذكاء الاصطناعي</string>
@@ -1357,6 +1513,7 @@
   <string name="built_in_prompt_notice">هذا موجّه مدمج ولا يمكن تعديله. استخدم \"نسخ للتخصيص\" لإنشاء نسخة قابلة للتعديل.</string>
   <string name="copy_to_customize">نسخ للتخصيص</string>
   <string name="prompt_copied">تم نسخ الموجّه</string>
+  <string name="prompt_copy_failed">تعذّر نسخ الموجّه. ربما تم حذفه.</string>
   <string name="delete_prompt_confirmation">حذف الموجّه \"%s\"؟</string>
   <string name="prompt_name_required">اسم الموجّه مطلوب</string>
   <string name="prompt_template_required">قالب الموجّه مطلوب</string>
@@ -1564,6 +1721,8 @@
   <string name="tool_option_default_disabled">افتراضي (معطّل)</string>
   <string name="tool_option_default_allowed">افتراضي (مسموح)</string>
   <string name="tool_option_default_denied">افتراضي (مرفوض)</string>
+  <string name="tool_description_info">عرض وصف الأداة</string>
+  <string name="tool_permission_mixed">مختلط</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">النموذج</string>
   <string name="prompt_model_default">افتراضي</string>
@@ -1609,6 +1768,8 @@
   <string name="my_document_pages_empty">لا توجد صفحات في هذا المستند.</string>
   <string name="my_document_page_rename_title">إعادة تسمية الصفحة</string>
   <string name="my_document_page_delete_confirmation">حذف الصفحة \"%s\"؟</string>
+  <string name="my_document_pages_delete_confirmation">هل تريد حذف هذه الصفحات؟</string>
+  <string name="my_documents_switch_document">تبديل المستند</string>
   <string name="my_document_new_page_name">صفحة %1$d</string>
   <string name="my_document_create_page_title">صفحة جديدة</string>
   <string name="my_document_content_type_label">نوع المحتوى</string>
@@ -1705,4 +1866,91 @@
   <string name="document_sync_started">بدأت مزامنة المستندات</string>
   <string name="document_sync_enable_dialog_title">هل تريد بدء مزامنة المستندات؟</string>
   <string name="document_sync_enable_dialog_nothing">لا توجد مستندات للنقل بعد. ستتم مزامنة المستندات المثبَّتة حديثاً تلقائياً.</string>
+  <string name="help_document_sync_text">تنسخ مزامنة المستندات الأناجيل والتعليقات والمستندات الأخرى المثبتة لديك إلى السحابة وتُبقيها متزامنة عبر أجهزتك. استخدم هذا العرض لمعرفة ما هو مخزّن في السحابة، وتحميل مستندات فردية أو رفعها، وإزالة المستندات، والتحكم في ما يُزامَن إلى هذا الجهاز.</string>
+  <string name="background_image_title">صورة الخلفية</string>
+  <string name="background_image_none">بلا خلفية</string>
+  <string name="background_image_import">استيراد من المعرض…</string>
+  <string name="background_image_empty">لا توجد صور مستوردة بعد. اضغط \"استيراد من المعرض…\" لإضافة صورة.</string>
+  <string name="background_image_importing">جارٍ الاستيراد…</string>
+  <string name="background_image_delete_title">حذف الصورة؟</string>
+  <string name="background_image_delete_confirm">هل تريد حذف صورة الخلفية هذه؟ ستعود مساحات العمل التي لا تزال تستخدمها إلى عدم وجود صورة.</string>
+  <string name="background_image_day">صورة الخلفية (نهار)</string>
+  <string name="background_image_night">صورة الخلفية (ليل)</string>
+  <string name="background_image_opacity_day">عتامة صورة الخلفية (نهار)</string>
+  <string name="background_image_opacity_night">عتامة صورة الخلفية (ليل)</string>
+  <string name="background_image_change">تغيير</string>
+  <string name="color_picker_title">اختر لونًا</string>
+  <string name="color_picker_presets">إعدادات جاهزة</string>
+  <string name="color_picker_custom">مخصص</string>
+  <string name="bookmark_expand_row">عرض النص كاملًا</string>
+  <string name="bookmark_collapse_row">عرض أقل</string>
+  <string name="bookmark_label_filter">تصفية حسب التسمية</string>
+  <string name="document_quick_all_documents">جميع المستندات…</string>
+  <string name="document_quick_tab_recent">الأخيرة</string>
+  <string name="document_quick_tab_for_verse">هذه الآية</string>
+  <string name="document_quick_tab_last_filter">آخر تصفية</string>
+  <string name="document_quick_tab_all">الكل</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">التصفية والترتيب</string>
+  <string name="doc_arrange_repository">المستودع</string>
+  <string name="doc_arrange_all_repositories">جميع المستودعات</string>
+  <string name="doc_arrange_sort">ترتيب الفرز</string>
+  <string name="doc_arrange_group_by">التجميع حسب</string>
+  <string name="doc_arrange_remember">تذكّر هذه الإعدادات</string>
+  <string name="doc_arrange_reset">إعادة التعيين إلى الافتراضي</string>
+  <string name="doc_arrange_more_filters">مزيد من عوامل التصفية</string>
+  <string name="doc_arrange_reorder">إعادة الترتيب</string>
+  <string name="doc_sort_ascending">تصاعدي</string>
+  <string name="doc_sort_descending">تنازلي</string>
+  <string name="doc_sort_status">الحالة</string>
+  <string name="doc_sort_recommended">الموصى بها أولًا</string>
+  <string name="doc_sort_name">الاسم</string>
+  <string name="doc_sort_size">الحجم</string>
+  <string name="doc_group_none">بلا تجميع</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">قيد التحميل</string>
+  <string name="doc_group_status_update_available">يتوفر تحديث</string>
+  <string name="doc_group_status_installed">مثبّتة</string>
+  <string name="doc_group_status_not_installed">غير مثبّتة</string>
+  <string name="prompt_filter_title">تصفية الموجّهات</string>
+  <string name="prompt_filter_type">النوع</string>
+  <string name="prompt_type_addon">إضافة</string>
+  <string name="prompt_type_user">مخصص</string>
+  <string name="prompt_filter_clear">مسح عوامل التصفية</string>
+  <string name="prompt_favorite_add">إضافة إلى المفضلة</string>
+  <string name="prompt_favorite_remove">إزالة من المفضلة</string>
+  <string name="window_unmaximise">استعادة جميع النوافذ</string>
+  <string name="window_menu_button">قائمة النافذة</string>
+  <string name="paste_from_clipboard">لصق</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">مقبض السحب</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">جارٍ تحديث بياناتك…</string>
+  <string name="legacy_migration_progress_neutral">جارٍ التحديث…</string>
+  <string name="legacy_migration_failed_title">تعذّر تحديث بياناتك</string>
+  <string name="legacy_migration_failed_message">بياناتك من الإصدار السابق للتطبيق آمنة ولم تتغير على هذا الجهاز. اختر ما تريد فعله بعد ذلك.</string>
+  <string name="legacy_migration_failed_keychain">تعذّرت قراءة كلمات المرور المحفوظة من الإصدار السابق. افتح قفل جهازك، ثم أغلق التطبيق وأعد فتحه.</string>
+  <string name="legacy_migration_rollback_pending">انقطع التحديث ولم يتم التراجع عنه بالكامل بعد. أغلق التطبيق وأعد فتحه لإكمال التراجع.</string>
+  <string name="legacy_migration_save_old_data">حفظ البيانات القديمة</string>
+  <string name="legacy_migration_send_report">إرسال تقرير الخطأ</string>
+  <string name="legacy_migration_try_again">حاول مرة أخرى</string>
+  <string name="legacy_migration_try_again_hint">أغلق التطبيق وافتحه مرة أخرى للمحاولة من جديد.</string>
+  <string name="legacy_migration_restore_backup">استعادة نسخة احتياطية</string>
+  <string name="legacy_migration_start_fresh">البدء بدون البيانات القديمة</string>
+  <string name="legacy_migration_start_fresh_confirm">تبقى بياناتك القديمة على هذا الجهاز. يمكنك استيرادها لاحقًا من الإعدادات.</string>
+  <string name="legacy_import_title">استيراد بيانات من الإصدار السابق للتطبيق</string>
+  <string name="legacy_import_summary">استبدال البيانات الحالية ببيانات الإصدار السابق للتطبيق</string>
+  <string name="legacy_import_confirm">سيؤدي هذا إلى استبدال مساحات العمل والإشارات المرجعية وبياناتك الأخرى الحالية ببيانات الإصدار السابق للتطبيق. ستُحفظ نسخة من بياناتك الحالية على هذا الجهاز.</string>
+  <string name="legacy_import_reopen">أغلق التطبيق وافتحه مرة أخرى لاستيراد بياناتك.</string>
+  <string name="legacy_notice_icloud">تستخدم المزامنة الآن iCloud Drive. فعّلها مرة أخرى في الإعدادات ← المزامنة. يحتفظ هذا الجهاز بما لديه؛ وستصل التغييرات من أجهزتك الأخرى بعد إعداد المزامنة من جديد. لتحرير بيانات iCloud القديمة: الإعدادات ← اسمك ← iCloud ← إدارة المساحة ← AndBible.</string>
+  <string name="legacy_notice_nextcloud">تم نقل اتصال Nextcloud الخاص بك، لكن المزامنة متوقفة. فعّلها في الإعدادات ← المزامنة واختر الجلب من السحابة أو إنشاء جديد.</string>
+  <string name="legacy_notice_nextcloud_unsent">لم تُرسل بعض التغييرات على هذا الجهاز إلى Nextcloud بعد. لم يتم إرسالها وتبقى على هذا الجهاز فقط.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">إنه تطبيق قوي وسهل الاستخدام لدراسة الكتاب المقدس دون اتصال بالإنترنت.</string>
+  <string name="webdav_untrusted_certificate_message_device">شهادة %1$s غير موثوقة لدى هذا الجهاز. لا تثق بها إلا إذا كنت تعرفها، مثلًا لأنك أنت من أعدّ هذا الخادم.\n\nالموضوع: %2$s\nالمُصدر: %3$s\nصالحة: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">يجب أن تستخدم المستودعات المخصصة عنوان https:// آمنًا.</string>
+  <string name="custom_repository_https_required_refresh">يستخدم %1$s عنوان http://. يمكن استخدام مستودعات https:// فقط.</string>
 </resources>

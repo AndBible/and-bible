@@ -3415,6 +3415,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // where [readingViewHost] was never called; `dispose()` does not null the field, so a
         // second call would still find it and is harmless.
         composeReadingViewHost?.dispose()
+        // The factory is Activity-owned, unlike a Compose destination or a workspace. Recreation
+        // must destroy both cached and parked views, or their subscriptions retain this old host.
+        readingCommands.bibleViewFactory.clear()
         // T8a item 4: the other end of bootstrapIfNeeded()'s registerNetworkCallback(). A no-op on
         // the ~45 routes that never bootstrap; on a reading route it removes THIS bootstrap's own
         // callback object, so a second live host keeps its own -- see ReadingAppBootstrap's KDoc.

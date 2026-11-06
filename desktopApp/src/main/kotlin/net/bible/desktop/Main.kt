@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.log.configureDesktopLogFile
@@ -37,6 +38,7 @@ import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
 import net.bible.sharedui.desktop.assembly.DesktopAppHostPlatform
 import net.bible.sharedui.desktop.assembly.DesktopAppStartup
+import net.bible.sharedui.desktop.assembly.DesktopExitPersistence
 import net.bible.sharedui.desktop.assembly.DesktopHostLifecycle
 import net.bible.sharedui.desktop.assembly.DesktopStartupException
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
@@ -242,6 +244,15 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         if (!state.crashRecoveryRequired()) state.launch(startupScope)
     }
 
+    val persistence = DesktopExitPersistence(
+        persist = {
+            // No lifecycle/UI callbacks here: JVM hooks run off AWT. The saver joins any background save itself.
+            val settled = runBlocking { state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS) }
+            if (settled) persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state::markCleanExit)
+            else Log.w(TAG, "Skipping exit persistence while startup still runs")
+        },
+        afterShutdown = provider::afterJvmShutdown,
+    )
     val watchdog = ExitWatchdog()
     // exitProcessOnExit = false: the exit below runs only after the windows are gone and the AWT thread is idle.
     application(exitProcessOnExit = false) {
@@ -256,7 +267,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
-        if (closing) LaunchedEffect(Unit) { shutDown(state, closeCoordinator, watchdog) }
+        if (closing) LaunchedEffect(Unit) { shutDown(persistence, closeCoordinator, watchdog) }
         val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
         val workArea = remember { AwtWindowHandle.screenWorkArea() }
         val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
@@ -320,14 +331,12 @@ internal fun persistAndMarkClean(persist: () -> Unit, clean: () -> Unit) {
     clean()
 }
 
-private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, close: DesktopEngineCloseCoordinator, watchdog: ExitWatchdog) {
+private suspend fun ApplicationScope.shutDown(persistence: DesktopExitPersistence, close: DesktopEngineCloseCoordinator, watchdog: ExitWatchdog) {
     withFrameNanos { } // the frame that applies the removal of the panes
     withFrameNanos { }
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
-    // A close during the startup: let it finish (bounded), so nothing is persisted or shut down under a half-built graph.
-    if (!state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS)) Log.w(TAG, "closing while the startup still runs")
     close.finish(
-        persist = { withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state::markCleanExit) } },
+        persist = { withContext(Dispatchers.IO) { persistence.persistOnce() } },
         onShutdownFailure = { Log.e(TAG, "engine shutdown failed", it) },
     )
     watchdog.markPersisted()

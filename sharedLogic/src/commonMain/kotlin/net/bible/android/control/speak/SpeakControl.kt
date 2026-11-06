@@ -184,10 +184,13 @@ class SpeakControl constructor(
     }
 
     internal fun onBookRemoved(removed: Book) {
-        // currentlyPlayingBook first: it is null until TTS was used, so deleting a module never builds the TTS manager.
-        if (currentlyPlayingBook?.initials == removed.initials && !isStopped) {
+        // Never initialize TTS for a removal. Query the manager directly: the last Bible is already absent
+        // from Books, and a pending engine start has neither the speaking nor paused flag set yet.
+        // An idle manager keeps its last book; stopping it would publish a spurious SILENT, so require an active session.
+        if (ttsInitialized && ttsServiceManager.hasActiveSession &&
+            ttsServiceManager.currentlyPlayingBook?.initials == removed.initials) {
             Log.i(TAG, "Spoken module ${removed.initials} removed, stopping speech")
-            stop()
+            stop(force = true)
         }
     }
 

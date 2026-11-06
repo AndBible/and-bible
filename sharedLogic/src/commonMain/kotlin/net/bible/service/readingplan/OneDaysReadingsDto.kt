@@ -27,7 +27,6 @@ import org.crosswire.jsword.versification.VersificationsMapper
 
 import net.bible.android.database.DbDate
 import net.bible.sharedlogic.platform.LocalCalendar
-import net.bible.sharedlogic.sync.withMonitor
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -127,7 +126,8 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
         return keys()[readingNo-1]
     }
 
-    private fun checkKeysGenerated() = withMonitor(this) {
+    // Called only by init, before this object is published; date parsing needs no monitor.
+    private fun checkKeysGenerated() {
         if (readingKeys == null) {
             val readingKeyList = ArrayList<Key>()
 

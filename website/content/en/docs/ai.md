@@ -71,6 +71,13 @@ To use the AI assistant, you need an API key from your chosen provider:
 
 The first provider you add becomes the default. You can change this later.
 
+For **OpenCode Go**, add a **Custom** provider using the **OpenAI** API format
+and `https://opencode.ai/zen/go/v1` as the endpoint. AndBible automatically
+sends the required `x-opencode-session` header to `opencode.ai`. Its random
+identifier stays the same throughout one AI run, including tool calls and
+retries, and changes when you start a new run. No manual header configuration
+is needed.
+
 ### Multiple Providers
 
 You can configure multiple providers simultaneously. This is useful if you

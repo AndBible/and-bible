@@ -5,6 +5,10 @@ import os
 @main
 struct iOSApp: App {
     init() {
+        #if DEBUG
+        // The #3980 characterization fixture runs without any app bootstrap.
+        if WebKitChordProbe.isRequested { return }
+        #endif
         // macOS 26 shows an iOS app's NSLog text as <private>; log the app's own lines publicly instead
         // (Console.app / `log show --predicate 'subsystem == "org.andbible.ios"'`).
         IosPlatformBootstrap.shared.installLogSink { appLog($0) }
@@ -43,6 +47,9 @@ func appLog(_ line: String) {
 /// top-level `MainViewController()` in `sharedUi/iosMain`; it shows the AndBible I0 PoC app.
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
+        #if DEBUG
+        if WebKitChordProbe.isRequested { return WebKitChordProbe.makeController() }
+        #endif
         // Before Compose shows its first scene (every sheet's layer computes its keyboard overlap when it appears).
         CmpScreenSpaceFix.installIfNeeded()
         let compose = MainViewControllerKt.MainViewController()

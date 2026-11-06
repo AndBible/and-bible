@@ -56,6 +56,23 @@ private class FakeBackupService(
 }
 
 class BackupControllerTest {
+    /**
+     * CI run 42104803796: before the first load() completes the screen showed every switch OFF and usable; the load then
+     * switched Database back ON, so a tap made in between read the placeholder state. The state says it is unloaded.
+     */
+    @Test fun stateIsUnloadedUntilTheFirstLoadCompletes() = runTest {
+        val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDatabase to true))
+        val c = BackupController(svc, this)
+        assertFalse(c.state.value.loaded)
+
+        c.load()
+        assertFalse(c.state.value.loaded, "still unloaded while the service load runs")
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(c.state.value.loaded)
+        assertEquals(true, c.state.value.toggles[ToggleKind.RestoreDatabase])
+    }
+
     /** F103: before DB init the service cannot persist, so load() keeps answering defaults. */
     @Test fun aToggleSurvivesAReloadThatStillReturnsTheDefaults() = runTest {
         val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDocuments to false, ToggleKind.RestoreDatabase to true))
@@ -66,6 +83,23 @@ class BackupControllerTest {
         c.load(); testScheduler.advanceUntilIdle()          // ON_RESUME after the file picker
 
         assertEquals(true, c.state.value.toggles[ToggleKind.RestoreDocuments])
+    }
+
+    /** A failing load must not leave the screen disabled for good (it was usable before BackupState.loaded existed). */
+    @Test fun aFailedFirstLoadStillEnablesTheScreen() = runTest {
+        val svc = object : BackupService by FakeBackupService() {
+            override suspend fun load(): BackupState = throw IllegalStateException("cannot list backups")
+        }
+        var failure: Throwable? = null
+        val scope = kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.test.StandardTestDispatcher(testScheduler) +
+                kotlinx.coroutines.CoroutineExceptionHandler { _, e -> failure = e },
+        )
+        val c = BackupController(svc, scope)
+        c.load(); testScheduler.advanceUntilIdle()
+
+        assertTrue(c.state.value.loaded)
+        assertEquals("cannot list backups", failure?.message, "the failure still surfaces")
     }
 
     @Test fun restoreDispatchesTheScreensToggles() = runTest {

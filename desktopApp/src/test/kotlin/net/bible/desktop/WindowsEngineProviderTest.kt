@@ -21,6 +21,8 @@ import kotlin.test.assertTrue
 class WindowsEngineProviderTest {
     private class FakeEngine : DesktopWebEngine {
         var languages: (() -> String)? = null
+        var windowOwnerSource: ((String) -> (() -> String?))? = null
+        override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) { windowOwnerSource = source }
         @Volatile var shutdowns = 0
         override fun bundleUrl(lang: String, dark: Boolean) = "webview2"
         override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane = error("No pane expected")
@@ -61,9 +63,13 @@ class WindowsEngineProviderTest {
         val engine = FakeEngine()
         val deferred = DeferredWindowsEngine({ Result.success(engine) }, { (it as FakeEngine).shutdowns++ })
         deferred.setActiveLanguages { "[\"fi\"]" }
+        deferred.setPaneWindowIdSource { paneId -> { "owner-$paneId" } }
         deferred.initialize("DIRECT3D")
         assertEquals("webview2", deferred.bundleUrl("en", false))
         assertEquals("[\"fi\"]", engine.languages?.invoke())
+        assertEquals("owner-pane", engine.windowOwnerSource?.invoke("pane")?.invoke())
+        deferred.setPaneWindowIdSource { _ -> { "adopted" } }
+        assertEquals("adopted", engine.windowOwnerSource?.invoke("pane")?.invoke())
         deferred.shutdown()
         deferred.shutdown()
         assertEquals(1, engine.shutdowns)

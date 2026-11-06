@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible kunne ikke starte WebView2, som kreves for å vise bibeltekst. Installer eller reparer Microsoft Edge WebView2 Evergreen Runtime fra:\n%1$s\n\nDetaljer finnes i loggfilen:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible krever Direct3D-grafikk for å vise bibeltekst med WebView2. Den gjeldende grafikkgjengiveren er %1$s. Kontroller grafikkdriveren og Direct3D-støtten.\n\nDetaljer finnes i loggfilen:\n%2$s</string>
+  <string name="desktop_update_setting_title">Se etter oppdateringer</string>
+  <string name="desktop_update_setting_summary">Én gang om dagen, fra github.com</string>
+  <string name="desktop_update_consent_title">Se etter oppdateringer?</string>
+  <string name="desktop_update_consent_message">AndBible kan se på github.com én gang om dagen om det finnes en nyere versjon. GitHub ser IP-adressen din; ingenting annet sendes. Du kan endre dette senere i Innstillinger.</string>
+  <string name="desktop_update_consent_yes">Se etter oppdateringer</string>
+  <string name="desktop_update_consent_no">Ikke se etter</string>
+  <string name="desktop_update_available_title">Ny versjon tilgjengelig</string>
+  <string name="desktop_update_available_message">AndBible %1$s er tilgjengelig. Du har %2$s.</string>
+  <string name="desktop_update_download">Last ned</string>
+  <string name="desktop_update_later">Senere</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bibelstudie</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d treff funnet</string>
   <string name="search_showing_first">For mange treff. Viser de første %d</string>
   <string name="search_bible_section_group_prompt">Søkeområde:</string>
+  <string name="search_type_prompt">Type søk</string>
+  <string name="search_show_results">Vis søkeresultater</string>
   <string name="search_all_bible">Hele bibelen</string>
   <string name="search_new_testament">Det nye testamentet</string>
   <string name="search_old_testament">Det gamle testamentet</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Finn \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Oversettelser</string>
+  <string name="recent_searches">Nylige søk</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Lukk søk</string>
+  <string name="search_options">Søkeinnstillinger</string>
+  <string name="search_submit">Søk</string>
+  <string name="search_clear">Tøm søketeksten</string>
+  <string name="search_engine_changed_reindex">Søkemotoren er oppdatert. Søkeregisteret må lages på nytt; dette kan ta litt tid.</string>
+  <string name="search_unsupported_syntax">Dette søket bruker syntaks som ikke støttes: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Når indekseringen er ferdig, kjøres søket automatisk.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">Det er ikke mulig å søke i %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Det er ikke mulig å søke i dette dokumentet</string>
+  <string name="search_indexing_notification_title">Lager søkeregister</string>
   <string name="choose_translations">Velg oversettelser…</string>
   <string name="multi_search_results">%1$d vers i %2$d oversettelser</string>
   <string name="search_index_not_created">ingen indeks</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Velg hvordan farger vises. Farge e-ink beholder en svart-hvitt-base, men viser bokmerkefarger, indikatoren for aktivt vindu og hjelpelinjer i farger — for e-ink-skjermer med farger.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Svart-hvitt</string>
+  <string name="prefs_display_color_mode_monochrome">Monokrom</string>
   <string name="prefs_display_color_mode_color_eink">Farge e-ink</string>
+  <string name="prefs_theme_palette_style_title">Temastil</string>
+  <string name="prefs_theme_palette_style_summary">Hvordan appens farger utledes fra arbeidsområdets farge. Gjelder bare når fargemodus er Normal.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal flekk (myk, beholder grått)</string>
+  <string name="prefs_theme_palette_style_fidelity">Troskap (nøyaktig farge)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal flekk (original)</string>
+  <string name="prefs_theme_palette_style_content">Innhold (nær fargen)</string>
+  <string name="prefs_theme_palette_style_neutral">Nøytral (dempet)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monokrom (grå)</string>
+  <string name="prefs_theme_palette_style_vibrant">Livlig</string>
+  <string name="prefs_theme_palette_style_expressive">Uttrykksfull</string>
+  <string name="prefs_theme_palette_style_rainbow">Regnbue</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Fruktsalat</string>
   <string name="prefs_eink_settings_cat">E-ink-innstillinger</string>
   <string name="prefs_eink_display_title">E-ink-funksjoner</string>
   <string name="prefs_eink_display_summary">Aktiver e-ink-spesifikke funksjoner (siderulleknapper, rullehjelplinjer)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Merk kapitler automatisk som lest når du ruller gjennom dem</string>
   <string name="reading_progress_read_count_scale">Lest\nAntall</string>
   <string name="reading_progress_percent_read_scale">Prosent\nLest</string>
+  <string name="monochrome_activity_count">Antall aktiviteter: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Antall: %d</string>
+  <string name="monochrome_level">Nivå: %d/4</string>
+  <string name="monochrome_buckets">Grå: ingen; omriss: delvis; fylt: full eller høyeste nivå. Velg et element for å se nøyaktige verdier.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Lesehistorikk</string>
   <string name="reading_progress_history_for">Lesefremdrift for %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Rediger tekstvisningsinnstillinger for dette arbeidsområdet</string>
   <string name="global_text_options_link">Globale tekstinnstillinger</string>
   <string name="global_text_options_link_summary">Rediger standard tekstvisningsinnstillinger for alle arbeidsområder</string>
+  <string name="text_options_inherited_workspace">Arbeidsområde</string>
+  <string name="text_options_inherited_global">Globalt</string>
   <string name="prefs_font_and_colors_title">Skrift og farger</string>
   <string name="prefs_text_layout_title">Tekstoppsett</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s og morfologi</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Arbeidsområde</string>
   <string name="copy_settings_to_window">Vindu %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Globale standarder</string>
+  <string name="copy_settings_to_workspaces">Til andre arbeidsområder …</string>
+  <string name="copy_settings_to_global_defaults">Til globale standardverdier …</string>
+  <string name="menu_back">Tilbake</string>
   <string name="change_to_normal">Endre til normalt vindu</string>
   <string name="window_pin_mode">Fest</string>
   <!--Notes screen-->
@@ -308,6 +369,7 @@
   <string name="failed_repositories_message">Kunne ikke koble til modulserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Følgende filer kunne ikke lastes ned:\n\n%s\n\n</string>
   <string name="cant_delete_document">Dokumentet kan ikke slettes</string>
+  <string name="bad_document_warning">Dette dokumentet har kjente problemer.</string>
   <!--Install zip file-->
   <string name="install_zip">Last inn dokumenter fra filer</string>
   <string name="install_zip_module">Installer bibelmodul</string>
@@ -363,6 +425,11 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="delete_index">Slett søkeregister</string>
   <string name="about">Om</string>
   <string name="delete_doc">Slette %s?</string>
+  <string name="interrupted_downloads_title">Nedlasting avbrutt</string>
+  <string name="interrupted_downloads_message">Disse dokumentene ble ikke installert fordi nedlastingen ble avbrutt:</string>
+  <string name="interrupted_downloads_question">Laste dem ned på nytt?</string>
+  <string name="download_again">Last ned på nytt</string>
+  <string name="delete_docs_confirm">Slette disse dokumentene?</string>
   <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notater og kryssreferanser</string>
@@ -383,6 +450,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="assign_labels">Legg til i grupper</string>
   <string name="new_item">Ny</string>
   <string name="label_name_prompt">Navn</string>
+  <string name="new_label_default_name">Gruppe %d</string>
   <string name="label_unlabelled">Umerket</string>
   <string name="add_bookmark1">Bokmerke</string>
   <string name="add_bookmark3">Utvalg</string>
@@ -430,6 +498,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="rewind">Spol tilbake</string>
   <string name="forward">Spol frem</string>
   <string name="tts_lang_not_available">Språket er ikke tilgjengelig.</string>
+  <string name="tts_engine_not_available">Tekst-til-tale fungerer ikke på denne enheten. Kontroller at en talemotor er installert og aktivert i systemets innstillinger for tekst-til-tale.</string>
+  <string name="tts_audio_focus_denied">Opplesingen kunne ikke starte fordi en annen app bruker lyden.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Talehastighet</string>
   <string name="speak_and_play_earcons_title">Uttal og spill av lyder for </string>
@@ -439,6 +509,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_bookmarks_menu_title">Høytlesing av bokmerker</string>
   <string name="speak_advanced_settings">Avanserte innstillinger</string>
   <string name="speak_sleep_timer_title">Søvnavbrudd</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Egendefinert …</string>
+  <string name="speak_sleep_timer_off">Av</string>
+  <string name="speak_other_settings">Andre</string>
   <string name="speak_no_books_available">Ingen bøker tilgjengelige for høytlesing</string>
   <string name="speak_general_error">Høytlesing kunne ikke startes for denne boken</string>
   <string name="repeat_passage">Gjenta passasje</string>
@@ -467,6 +541,11 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_autobookmarking_disabled">Automatisk bokmerking avslått!</string>
   <string name="system_speak_settings">Åpne systeminnstillinger for TTS</string>
   <string name="auto_assing_labels_help1">Her kan du justere hvilke grupper som automatisk tilordnes til bokmerker du oppretter.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Her kan du legge til, redigere og fjerne grupper, og justere hvilke som tildeles automatisk til bokmerker du oppretter.\n\nNylige grupper: nylig brukte grupper.\nAndre grupper: alle andre grupper.\n\nBruk filteralternativene i søkefeltet for å se bare automatisk tildelte eller favorittgrupper.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Denne innstillingen gjelder for %s.</string>
   <string name="setting_scope_window">dette vinduet</string>
@@ -564,6 +643,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="loading_backup">Leser database fra sikkerhetskopi…</string>
   <string name="backup_success2">Mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder er sikkerhetskopiert.</string>
   <string name="backup_modules_success">Vellykket sikkerhetskopi av valgte moduler</string>
+  <string name="backup_modules_conflict">Sikkerhetskopien ble ikke laget: %1$s og %2$s inneholder begge filen %3$s, med ulikt innhold. Velg bare én av dem og prøv igjen.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (versjon %2$s, mappe %3$s)</string>
   <string name="backup_modules_email_subject_2">%s moduler sikkerhetskopiert</string>
   <string name="backup_modules_email_message_2">Vedlagt er %1$s modulers sikkerhetskopi, som inneholder følgende moduler: %2$s</string>
   <string name="backup_email_subject_2">Sikkerhetskopi av %s sin database</string>
@@ -572,6 +654,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="exported_studypads_message">Din %s-database med bokmerker og notater knyttet til valgte studiebrett er vedlagt</string>
   <string name="restore_unsuccessfull">Gjenoppretting av database feilet. Kanskje du har valgt feil databasefil.</string>
   <string name="send_backup_file">Send en sikkerhetskopi-fil</string>
+  <string name="export_destination_title">Eksportere hvorhen?</string>
+  <string name="export_destination_message">Lagre eksporten på denne telefonen, eller send den videre med Del.</string>
+  <string name="send_export_file">Send en eksportfil</string>
   <string name="backup_modules_title">Velg hvilke moduler som skal sikkerhetskopieres</string>
   <string name="install_zip_canceled">Installasjon av modul avbrutt</string>
   <string name="ask_restore_or_import">Databasen for %s kan enten gjenopprettes (dvs. eksisterende database fjernes og valgt database lastes inn) eller importeres (valgt database importeres til eksisterende database). Hva vil du gjøre?</string>
@@ -613,12 +698,25 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="doc_type_book">Bøker</string>
   <string name="doc_type_map">Kart</string>
   <string name="doc_type_addons">Tillegg</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Annet</string>
+  <string name="document_type_label">Dokumenttype</string>
   <!--Languages-->
   <string name="lang_default">Standard</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Avbryt</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Tilbake</string>
+  <string name="settings_editor_close">Lukk</string>
+  <string name="settings_editor_apply">Bruk</string>
   <string name="discard_changes_confirmation">Forkaste ulagrede endringer?</string>
+  <string name="discard">Forkast</string>
+  <string name="remove">Fjern</string>
+  <string name="overwrite">Overskriv</string>
+  <string name="set_current_day_action">Sett dag</string>
   <string name="yes">Ja</string>
   <string name="no">Nei</string>
   <string name="error">Feil</string>
@@ -628,6 +726,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="watch_tutorial_video">Se opplæringsvideo (engelsk)</string>
   <string name="verse_not_found">Vers ble ikke funnet</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Fortsett</string>
   <string name="report_error">Send feilrapport</string>
   <string name="error_occurred">En feil har oppstått</string>
   <string name="error_occurred_crash_last_time">Denne applikasjonen krasjet siste du brukte den. For å hjelpe oss å avdekke feilen, hadde vi satt pris på om du sendte inn en feilrapport.</string>
@@ -638,8 +737,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="error_key_not_in_document2">%1$s ble ikke funnet i dokumentet %2$s.</string>
   <string name="empty_list">Ingen data å vise</string>
   <string name="error_skip">Hopp over</string>
+  <string name="debug_test_error">Testfeil (feilsøkingsbygg)</string>
+  <string name="bug_report_prepare_failed">Kunne ikke forberede eller dele rapporten. Du kan prøve på nytt, eller bruke Sikkerhetskopiering og gjenoppretting for å lagre dataene dine.</string>
   <string name="bug_report_email_title">Send feilrapport via e-post</string>
   <string name="bug_report_email_text">Vennligst velg din foretrukne e-post app for å sende rapporten til utviklerteamet.</string>
+  <string name="bug_report_manual_title">Send rapporten på e-post</string>
+  <string name="bug_report_manual_text_saved">Rapporten ble lagret i</string>
+  <string name="bug_report_manual_text_unsaved">Ingen e-postprogram kunne åpnes på denne enheten.\n\nSend rapporten på e-post til</string>
+  <string name="bug_report_copy_address">Kopier adressen</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst til tale</string>
   <string name="notification_channel_progress_status">Melding om fremgangsstatus for nedlasting av dokumenter osv.</string>
@@ -663,6 +768,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="search_settings">Søkeinnstillinger</string>
   <string name="dismiss">Avvis</string>
   <string name="workspace_listing_with_current">%s (gjeldende)</string>
+  <string name="workspace_manage_workspaces">Administrer arbeidsområder …</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en prøveutgave (beta)</string>
   <string name="beta_notice_content_1">
@@ -699,7 +805,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="help_search_title">Søk</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Søketekst kan inneholde spesialtegn som *, OG, ELLER, IKKE</string>
+  <string name="help_search_bible">Velg hvordan ordene skal matches: Alle ord finner vers som inneholder hvert ord, Hvilket som helst ord finner vers som inneholder minst ett, og Frase finner ordene ved siden av hverandre i den rekkefølgen.\n\nI et søk kan du også bruke * og ? som jokertegn (for eksempel matcher bless* blessed og blessing), kombinere ledd med AND, OR og NOT, og søke direkte etter Strongs numre (for eksempel strong:h0430).</string>
+  <string name="help_search_epub">Velg hvordan ordene skal matches: Alle ord finner avsnitt som inneholder hvert ord, Hvilket som helst ord finner avsnitt som inneholder minst ett, og Frase finner ordene ved siden av hverandre i den rekkefølgen.\n\nRå søkesyntaks sender teksten din uendret til søkemotoren, slik at du kan skrive ditt eget søk: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" for en nøyaktig frase, bless* for å matche alle ord som begynner med bless, og grace NEAR faith for å finne dem nær hverandre.</string>
   <string name="help_search_details">Se %s for mer informasjon.</string>
+  <string name="help_search_syntax">Søkesyntaks</string>
   <string name="help_fts5">FTS5 fulltekstspørringssyntaks</string>
   <string name="help_workspaces_title">Arbeidsområder</string>
   <string name="help_workspaces_text">Arbeidsområder gjør det mulig å ha flere kontekstavhengige arbeidsmiljøer. Arbeidsområdefunksjoner kan nås via Arbeidsområder i alternativmenyen (øverst til høyre). En rask måte å åpne arbeidsområder er å sveipe ned fra verktøylinjen. Du kan også bruke sveip til venstre og høyre over verktøylinjen for å bytte til forrige/neste arbeidsområde.</string>
@@ -708,6 +817,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="help_window_pinning_title">Feste vindu</string>
   <string name="help_window_pinning_text">Du kan aktivere vindusfesting fra alternativmenyen (tre prikker, øverst til høyre). Hvis vindusfesting er aktivert, kan du vise mange festede vinduer i bibelvisningen, men bare ett ikke-festet vindu. Festede vinduer vises først, deretter ikke-festede vinduer. Du kan åpne bibeldokumenter som festede vinduer, og kommentarer og kart osv. som ikke-festede vinduer. Da kan du alltid ha bibeldokumenter åpne, og raskt bytte mellom kommentarer og annet tilleggsmateriell når du studerer Bibelen.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Det er ingen dokumenter i biblioteket ditt ennå. Legg til noen for å komme i gang.</string>
+  <string name="welcome_redownload_row_hint">Velg blant dokumenter som var installert tidligere</string>
+  <string name="welcome_download_row_hint">Bla gjennom nettkatalogen</string>
+  <string name="welcome_restore_row_hint">Databasefil med bokmerker og notater</string>
+  <string name="welcome_link_website">Nettsted</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du må velge filen du vil laste inn i %s.</string>
@@ -723,9 +838,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="format_studypads">Studiebrett fra AndBible-databaser (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Lukk</string>
+  <string name="reading_toolbar_options">Flere valg</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Jeg forstår</string>
-  <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
   <string name="strongs_mode_title">Velg Strong-modus</string>
   <string name="download_dialog_message">Følgende bøker kunne ikke lastes ned:</string>
   <string name="journal_description">Redigerbare studiebrett med tekster og bokmerker</string>
@@ -750,6 +864,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="prefs_experimental_features_summary">Velg hvilke eksperimentelle funksjoner som skal aktiveres. Disse funksjonene er fortsatt under utvikling og kan endres eller fjernes</string>
   <string name="experimental_feature_bookmark_edit_actions">Bokmerkeredigeringshandlinger</string>
   <string name="experimental_feature_add_paragraph_break">Legg til avsnittsbrudd-bokmerke</string>
+  <string name="experimental_feature_toolbar_literal_color">Bruk arbeidsområdets bokstavelige farge på leseverktøylinjen (i stedet for temafargen)</string>
   <string name="raw_llm_log_title">Rå KI-logg</string>
   <string name="raw_llm_log_empty">Ingen råloggdata tilgjengelig</string>
   <string name="raw_llm_log_copied">Logg kopiert til utklippstavle</string>
@@ -852,6 +967,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="display_mode_underline">Understreking</string>
   <string name="display_mode_marker">Kun markør</string>
   <string name="display_mode_hidden">Skjult</string>
+  <string name="display_mode_inherit">Samme som utvalget</string>
   <string name="workspace_override_indicator">Denne gruppen har arbeidsområdespesifikk visningsmodus</string>
   <string name="primary_label">Primærgruppe</string>
   <string name="favourite_label">Favorittgruppe</string>
@@ -865,6 +981,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="book_menu_show_long_book_name">Vis langt boknavn</string>
   <string name="book_menu_show_progress_bars">Vis fremdriftslinjer</string>
   <string name="reset_workspace_labels">Vil du tilbakestille innstillingene for auto-tilordning og favoritter for dette arbeidsområdet?</string>
+  <string name="clear_auto_assign_labels">Fjern automatisk tildelte grupper</string>
+  <string name="reset_workspace_auto_assign_labels">Vil du fjerne alle automatisk tildelte grupper fra dette arbeidsområdet?</string>
   <string name="reset_hide_labels">Vil du tilbakestille innstillingen for skjuling av angitte grupper?</string>
   <string name="reorder">Sorter på nytt</string>
   <string name="system_items">Systemhandlinger</string>
@@ -936,6 +1054,27 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="instructions_for_translators">instruksjoner for oversettere</string>
   <string name="questions_title">Spørsmål?</string>
   <string name="bookmark_style">Bokmerkestil</string>
+  <string name="bookmark_style_preview_sample">For så høyt har Gud elsket verden</string>
+  <string name="bookmark_style_selection">Bokmerker for tekstutvalg</string>
+  <string name="bookmark_style_whole_verse">Bokmerker for hele vers</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Bruk en annen stil for bokmerker for hele vers</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Utvalg</string>
+  <string name="bookmark_style_tag_whole_verse">Helt vers</string>
+  <string name="bookmark_style_tag_workspace">Arbeidsområde</string>
+  <string name="show_style_examples">Vis stileksempler</string>
+  <string name="labels_search_section">Søk</string>
+  <string name="labels_filter_section">Vis</string>
+  <string name="labels_filter_auto_assign">Bare automatisk tildelte grupper</string>
+  <string name="labels_filter_favourite">Bare favorittgrupper</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Kryss av for en gruppe for å tildele den til dette bokmerket.</string>
+  <string name="manage_labels_help_primary">Hovedgruppen. Dens farge og stil er det bokmerket viser.</string>
+  <string name="manage_labels_help_autoassign">Tildel denne gruppen automatisk til hvert nye bokmerke. Et hult lyn betyr av.</string>
+  <string name="manage_labels_help_favourite">Behold gruppen blant favorittene dine for rask tilgang.</string>
+  <string name="manage_labels_help_styles">Under navnet viser et lite eksempel gruppens utseende: Utvalg for et bokmerke for tekstutvalg, Helt vers for et bokmerke for hele vers, og en Arbeidsområde-merkelapp for en stil som dette arbeidsområdet overstyrer. Et grått eksempel uten dekor betyr at gruppens bokmerker ikke tegnes. Skjul eksemplene fra ⋮-menyen.</string>
+  <string name="manage_labels_help_reorder">Endre rekkefølgen på listen fra ⋮-menyen.</string>
   <string name="added_to_bookmark">Tilordnet til dette bokmerket</string>
   <string name="strongs_links">Lenker</string>
   <string name="strongs_text_and_links">Tekster og lenker</string>
@@ -974,6 +1113,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="sync_group_n">Gruppe %d</string>
   <string name="disable_sync">Deaktiver synkronisering</string>
   <string name="open_in_window">Åpne resultater i et vindu</string>
+  <string name="open_result_in_links_window">Åpne resultatet i lenkevinduet</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Egendefinerte arkiver</string>
@@ -984,7 +1124,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="delete_custom_repository">Vil du fjerne det egendefinerte arkivet %s?</string>
   <string name="custom_repositories_help1">For å legge til et nytt egendefinert arkiv, skriv eller kopier og lim inn egendefinert arkiv-URL her.</string>
   <string name="custom_repositories_help2">Du kan lese mer informasjon om egendefinerte arkiver i %s.</string>
-  <string name="wiki_page">WIKI-siden</string>
   <string name="custom_repositories_help0">Du kan installere dokumenter fra eksterne egendefinerte arkiver ved å installere egendefinerte arkiver.</string>
   <string name="duplicate_custom_repository">Arkiv med navn %s finnes allerede, kan ikke legge til et til.</string>
   <string name="packages_dir">Pakkemappe (Zip-filer)</string>
@@ -1024,6 +1163,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="reading_progress_new_cycle_confirm">Starte en ny lesesyklus? Dette vil begynne å spore fremdriften din fra bunnen av, mens tidligere syklusdata bevares.</string>
   <string name="reading_progress_previous_cycle">Forrige syklus</string>
   <string name="reading_progress_next_cycle">Neste syklus</string>
+  <string name="cloud_merge_data">Slå sammen data</string>
   <string name="cloud_fetch_and_restore_initial">Kopier fra skyen til denne enheten</string>
   <string name="cloud_create_new">Kopier fra denne enheten til skyen</string>
   <string name="cloud_disable_sync">Avbryt og deaktiver synkronisering</string>
@@ -1037,6 +1177,19 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="sync_adapter_summary">Gjeldende: %s</string>
   <string name="adapters_google_drive">Google Disk</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adressen til WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Synkronisering krever en sikker https://-adresse.</string>
+  <string name="webdav_certificate_title">Serversertifikat</string>
+  <string name="webdav_forget_certificate_message">Glemme det klarerte serversertifikatet? Du blir bedt om å bekrefte sertifikatet på nytt ved neste tilkobling.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Ikke-klarert serversertifikat</string>
+  <string name="webdav_untrusted_certificate_message">Sertifikatet til %1$s er ikke klarert av Android. Klarer det bare hvis du kjenner det igjen, for eksempel fordi du har satt opp denne serveren selv.\n\nEmne: %2$s\nUtsteder: %3$s\nGyldig: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Klarer dette sertifikatet</string>
+  <string name="webdav_wrong_credentials">Feil brukernavn eller passord.</string>
+  <string name="webdav_not_a_folder">Adressen er ikke en WebDAV-mappe.</string>
+  <string name="webdav_certificate_changed">Serversertifikatet har endret seg. Synkroniseringen er satt på pause til du bekrefter det nye sertifikatet, som AndBible spør om neste gang den åpnes eller synkroniserer i forgrunnen.</string>
+  <string name="webdav_storage_full">Serverens lagringsplass er full.</string>
   <string name="auth_server_uri">Server-URL</string>
   <string name="auth_username">Brukernavn</string>
   <string name="auth_password">Passord</string>
@@ -1046,6 +1199,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="sync_general_settings">Info og generelle innstillinger</string>
   <string name="sync_introduction">Innledning</string>
   <string name="are_you_sure">Er du sikker?</string>
+  <string name="are_you_sure_merge">Både dataene på denne enheten og %s i skyen beholdes. Der det samme elementet er endret begge steder, beholdes den nyeste endringen. Denne enhetens data sendes til de andre enhetene dine.</string>
   <string name="are_you_sure_reset_local">Dette vil tilbakestille den lokale databasen for %s med innholdet som for øyeblikket er lagret i skytjenesten.</string>
   <string name="are_you_sure_reset_cloud">Dette vil tilbakestille skydatabasen for %s med innholdet du har på denne enheten.</string>
   <string name="sync_cant_fetch">Versjonen av databasen eller oppdateringsfilen lagret i skyen er høyere enn den som støttes av denne appen.</string>
@@ -1080,6 +1234,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="pref_font_size_multiplier_title">Skriftstørrelsesmultiplikator</string>
   <string name="pref_font_size_multiplier_summary_1">Multipliser tekstskriftstørrelsene med dette tallet.</string>
   <string name="pref_font_size_multiplier_summary_2">Nyttig hvis du har en synkronisert enhet som brukes med større skrift.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Gjeldende verdi: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Handling for sveip til venstre/høyre</string>
   <string name="prefs_bible_view_swipe_mode_summary">Sveip til venstre/høyre kan brukes til å gå til neste side/kapittel.</string>
@@ -1200,6 +1355,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="prompt_max_iterations_unlimited">Ubegrenset</string>
   <string name="prompt_max_iterations_global_default">Global standard (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Overstyr de globale maks iterasjonene for denne prompten. 0 = ubegrenset.\nGjeldende: %s</string>
+  <string name="prompt_max_iterations_use_global">Bruk den globale innstillingen (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Administrer KI-prompter</string>
   <string name="manage_prompts_summary">Opprett og rediger KI-prompter</string>
@@ -1333,6 +1489,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="built_in_prompt_notice">Dette er en innebygd prompt og kan ikke redigeres. Bruk «Kopier for tilpasning» for å opprette en redigerbar kopi.</string>
   <string name="copy_to_customize">Kopier for tilpasning</string>
   <string name="prompt_copied">Prompt kopiert</string>
+  <string name="prompt_copy_failed">Kunne ikke kopiere prompten. Den kan ha blitt slettet.</string>
   <string name="delete_prompt_confirmation">Slett prompten \"%s\"?</string>
   <string name="prompt_name_required">Promptnavn er påkrevd</string>
   <string name="prompt_template_required">Promptmal er påkrevd</string>
@@ -1540,6 +1697,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="tool_option_default_disabled">Standard (deaktivert)</string>
   <string name="tool_option_default_allowed">Standard (tillatt)</string>
   <string name="tool_option_default_denied">Standard (avvist)</string>
+  <string name="tool_description_info">Vis verktøybeskrivelse</string>
+  <string name="tool_permission_mixed">Blandet</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
@@ -1585,6 +1744,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="my_document_pages_empty">Ingen sider i dette dokumentet.</string>
   <string name="my_document_page_rename_title">Gi siden nytt navn</string>
   <string name="my_document_page_delete_confirmation">Slette siden \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Slette disse sidene?</string>
+  <string name="my_documents_switch_document">Bytt dokument</string>
   <string name="my_document_new_page_name">Side %1$d</string>
   <string name="my_document_create_page_title">Ny side</string>
   <string name="my_document_content_type_label">Innholdstype</string>
@@ -1681,4 +1842,91 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="document_sync_started">Dokumentsynkronisering startet</string>
   <string name="document_sync_enable_dialog_title">Starte synkronisering av dokumenter?</string>
   <string name="document_sync_enable_dialog_nothing">Ingen dokumenter å overføre ennå. Nylig installerte dokumenter synkroniseres automatisk.</string>
+  <string name="help_document_sync_text">Dokumentsynkronisering kopierer dine installerte bibler, kommentarer og andre dokumenter til skyen og holder dem synkronisert mellom enhetene dine. Bruk denne visningen for å se hva som er lagret i skyen, laste ned eller laste opp enkeltdokumenter, fjerne dokumenter og styre hva som synkroniseres til denne enheten.</string>
+  <string name="background_image_title">Bakgrunnsbilde</string>
+  <string name="background_image_none">Ingen bakgrunn</string>
+  <string name="background_image_import">Importer fra galleriet …</string>
+  <string name="background_image_empty">Ingen importerte bilder ennå. Trykk på \"Importer fra galleriet …\" for å legge til ett.</string>
+  <string name="background_image_importing">Importerer …</string>
+  <string name="background_image_delete_title">Slette bildet?</string>
+  <string name="background_image_delete_confirm">Slette dette bakgrunnsbildet? Arbeidsområder som fortsatt bruker det, faller tilbake til ingen bilde.</string>
+  <string name="background_image_day">Bakgrunnsbilde (dag)</string>
+  <string name="background_image_night">Bakgrunnsbilde (natt)</string>
+  <string name="background_image_opacity_day">Bakgrunnsbildets opasitet (dag)</string>
+  <string name="background_image_opacity_night">Bakgrunnsbildets opasitet (natt)</string>
+  <string name="background_image_change">Endre</string>
+  <string name="color_picker_title">Velg en farge</string>
+  <string name="color_picker_presets">Forhåndsvalg</string>
+  <string name="color_picker_custom">Egendefinert</string>
+  <string name="bookmark_expand_row">Vis full tekst</string>
+  <string name="bookmark_collapse_row">Vis mindre</string>
+  <string name="bookmark_label_filter">Filtrer etter gruppe</string>
+  <string name="document_quick_all_documents">Alle dokumenter …</string>
+  <string name="document_quick_tab_recent">Nylige</string>
+  <string name="document_quick_tab_for_verse">Dette verset</string>
+  <string name="document_quick_tab_last_filter">Siste filter</string>
+  <string name="document_quick_tab_all">Alle</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtrer og sorter</string>
+  <string name="doc_arrange_repository">Arkiv</string>
+  <string name="doc_arrange_all_repositories">Alle arkiver</string>
+  <string name="doc_arrange_sort">Sorteringsrekkefølge</string>
+  <string name="doc_arrange_group_by">Grupper etter</string>
+  <string name="doc_arrange_remember">Husk disse innstillingene</string>
+  <string name="doc_arrange_reset">Tilbakestill til standard</string>
+  <string name="doc_arrange_more_filters">Flere filtre</string>
+  <string name="doc_arrange_reorder">Endre rekkefølge</string>
+  <string name="doc_sort_ascending">Stigende</string>
+  <string name="doc_sort_descending">Synkende</string>
+  <string name="doc_sort_status">Status</string>
+  <string name="doc_sort_recommended">Anbefalte først</string>
+  <string name="doc_sort_name">Navn</string>
+  <string name="doc_sort_size">Størrelse</string>
+  <string name="doc_group_none">Ingen gruppering</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Laster ned</string>
+  <string name="doc_group_status_update_available">Oppdatering tilgjengelig</string>
+  <string name="doc_group_status_installed">Installert</string>
+  <string name="doc_group_status_not_installed">Ikke installert</string>
+  <string name="prompt_filter_title">Filtrer prompter</string>
+  <string name="prompt_filter_type">Type</string>
+  <string name="prompt_type_addon">Tillegg</string>
+  <string name="prompt_type_user">Egendefinert</string>
+  <string name="prompt_filter_clear">Fjern filtre</string>
+  <string name="prompt_favorite_add">Legg til i favoritter</string>
+  <string name="prompt_favorite_remove">Fjern fra favoritter</string>
+  <string name="window_unmaximise">Gjenopprett alle vinduer</string>
+  <string name="window_menu_button">Vindusmeny</string>
+  <string name="paste_from_clipboard">Lim inn</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Dragehåndtak</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Oppdaterer dataene dine …</string>
+  <string name="legacy_migration_progress_neutral">Oppdaterer …</string>
+  <string name="legacy_migration_failed_title">Dataene dine kunne ikke oppdateres</string>
+  <string name="legacy_migration_failed_message">Dataene dine fra den forrige versjonen av appen er trygge og uendret på denne enheten. Velg hva du vil gjøre videre.</string>
+  <string name="legacy_migration_failed_keychain">Lagrede passord fra den forrige versjonen kunne ikke leses. Lås opp enheten, og lukk og åpne appen på nytt.</string>
+  <string name="legacy_migration_rollback_pending">Oppdateringen ble avbrutt og er ikke helt angret ennå. Lukk og åpne appen på nytt for å fullføre angringen.</string>
+  <string name="legacy_migration_save_old_data">Lagre gamle data</string>
+  <string name="legacy_migration_send_report">Send feilrapport</string>
+  <string name="legacy_migration_try_again">Prøv igjen</string>
+  <string name="legacy_migration_try_again_hint">Lukk appen og åpne den på nytt for å prøve igjen.</string>
+  <string name="legacy_migration_restore_backup">Gjenopprett en sikkerhetskopi</string>
+  <string name="legacy_migration_start_fresh">Start uten gamle data</string>
+  <string name="legacy_migration_start_fresh_confirm">De gamle dataene dine blir liggende på denne enheten. Du kan importere dem senere i Innstillinger.</string>
+  <string name="legacy_import_title">Importer data fra den forrige appversjonen</string>
+  <string name="legacy_import_summary">Erstatt gjeldende data med dataene fra den forrige appversjonen</string>
+  <string name="legacy_import_confirm">Dette erstatter dine nåværende arbeidsområder, bokmerker og andre data med dataene fra den forrige appversjonen. En kopi av dine nåværende data beholdes på denne enheten.</string>
+  <string name="legacy_import_reopen">Lukk appen og åpne den på nytt for å importere dataene dine.</string>
+  <string name="legacy_notice_icloud">Synkronisering bruker nå iCloud Drive. Slå den på igjen i Innstillinger → Synkronisering. Denne enheten beholder det den hadde; endringer fra de andre enhetene dine kommer når synkroniseringen er satt opp igjen. For å frigjøre de gamle iCloud-dataene: Innstillinger → navnet ditt → iCloud → Administrer lagring → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Nextcloud-tilkoblingen din ble ført videre, men synkroniseringen er av. Slå den på i Innstillinger → Synkronisering og velg å hente fra skyen eller å opprette ny.</string>
+  <string name="legacy_notice_nextcloud_unsent">Noen endringer på denne enheten var ikke sendt til Nextcloud ennå. De ble ikke sendt og blir liggende bare på denne enheten.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Det er et kraftig, men likevel lettbrukt bibelstudieprogram som fungerer uten nett.</string>
+  <string name="webdav_untrusted_certificate_message_device">Sertifikatet til %1$s er ikke klarert av denne enheten. Klarer det bare hvis du kjenner det igjen, for eksempel fordi du har satt opp denne serveren selv.\n\nEmne: %2$s\nUtsteder: %3$s\nGyldig: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Egendefinerte arkiver må bruke en sikker https://-adresse.</string>
+  <string name="custom_repository_https_required_refresh">%1$s bruker en http://-adresse. Bare https://-arkiver kan brukes.</string>
 </resources>

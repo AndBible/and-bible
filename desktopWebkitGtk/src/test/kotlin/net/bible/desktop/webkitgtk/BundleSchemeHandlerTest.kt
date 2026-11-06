@@ -86,6 +86,30 @@ class BundleSchemeHandlerTest {
     }
 
     @Test
+    fun eachWebViewKeepsItsOwnCurrentEpubResources() {
+        val first = com.sun.jna.Pointer(101)
+        val second = com.sun.jna.Pointer(202)
+        val firstImage = Files.writeString(outer.resolve("first.png"), "first image")
+        val secondImage = Files.writeString(outer.resolve("second.png"), "second image")
+        fun assets(image: Path) = BundleSchemeHandler(dir, DesktopPageAssets { path ->
+            if (path == "/epub/image.png") BundleResource(image, "image/png", false) else null
+        })
+        try {
+            BundleScheme.bind(first, assets(firstImage))
+            BundleScheme.bind(second, assets(secondImage))
+            assertEquals(firstImage, BundleScheme.resolve(first, "$BUNDLE_BASE/epub/image.png")?.first)
+            assertEquals(secondImage, BundleScheme.resolve(second, "$BUNDLE_BASE/epub/image.png")?.first)
+            assertNull(BundleScheme.resolve(null, "$BUNDLE_BASE/epub/image.png"))
+            BundleScheme.unbind(first)
+            assertNull(BundleScheme.resolve(first, "$BUNDLE_BASE/epub/image.png"))
+            assertEquals(secondImage, BundleScheme.resolve(second, "$BUNDLE_BASE/epub/image.png")?.first)
+        } finally {
+            BundleScheme.unbind(first)
+            BundleScheme.unbind(second)
+        }
+    }
+
+    @Test
     fun missingFileIsNull() {
         assertNull(handler.resolve("$BUNDLE_BASE/nope.js"))
     }

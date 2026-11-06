@@ -126,12 +126,15 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             }
             retired = true
             while (activeUsers != 0) monitorWait(lifetime)
+        }
+        // Retirement excludes new leases. Closing SQLite/Room can block; no lifetime lock is needed here.
+        try {
+            search.close()
+        } finally {
             try {
-                search.close()
+                readDb.close()
             } finally {
-                try {
-                    readDb.close()
-                } finally {
+                withMonitor(lifetime) {
                     closed = true
                     monitorNotifyAll(lifetime)
                 }
@@ -187,8 +190,33 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
         dao.styleSheets(frag.originalId)
             .map { file.parent!!.child(it.styleSheetFile).normalized() }
-            .filter { KFiles.exists(it) }
+            .mapNotNull { canonicalInsideBook(it) }
             .joinToString("\n") { KFiles.readUtf8(it) }
+    }
+
+    /**
+     * The canonical path of [file] when it is a regular file inside the whole extracted EPUB directory (not only the
+     * OPF folder: a stylesheet at `/css/x.css` beside `OEBPS/content.opf` is legitimate), else null. Symlinks leaving
+     * the EPUB directory are refused. Callers must read the returned path, not [file], so there is no check-then-reopen race.
+     */
+    private fun canonicalInsideBook(file: Path): Path? = try {
+        val root = FileSystem.SYSTEM.canonicalize(epubDir)
+        val real = FileSystem.SYSTEM.canonicalize(file)
+        real.takeIf {
+            FileSystem.SYSTEM.metadataOrNull(it)?.isRegularFile == true && it.root == root.root &&
+                it.segments.size > root.segments.size && it.segments.take(root.segments.size) == root.segments
+        }
+    } catch (_: Exception) {
+        null
+    }
+
+    /**
+     * The verified canonical file of a resource, for engines that serve it by path (no stream lease is held), or null
+     * when it is missing, escapes the EPUB directory, or this state is retired.
+     */
+    fun resourceFile(resourcePath: String): Path? {
+        try { acquireUse() } catch (_: IllegalStateException) { return null }
+        try { return canonicalInsideBook(rootFolder.child(resourcePath)) } finally { releaseUse() }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -306,8 +334,16 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
      * (#2632) the index is reported as not done, for every caller (search routing, `documentInfo`,
      * `hasIndex`).
      */
-    val isIndexed get() = withMonitor(lifetime) {
-        if (retired || getBookMetaData().indexStatus.isInProgress) false else search.isIndexed
+    val isIndexed: Boolean get() {
+        val acquired = withMonitor(lifetime) {
+            if (retired) false else { activeUsers++; true }
+        }
+        if (!acquired) return false
+        return try {
+            !getBookMetaData().indexStatus.isInProgress && search.isIndexed
+        } finally {
+            releaseUse()
+        }
     }
 
     fun deleteSearchIndex() {
@@ -386,8 +422,8 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     fun openResource(resourcePath: String): Source? {
         try { acquireUse() } catch (_: IllegalStateException) { return null }
         try {
-            val file = rootFolder.child(resourcePath)
-            if (!KFiles.exists(file)) {
+            val file = canonicalInsideBook(rootFolder.child(resourcePath))
+            if (file == null) {
                 releaseUse()
                 return null
             }
@@ -439,8 +475,9 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         _lastAccess = lastAccess
     }
 
+    /** Deletes this module, retiring this state first even when it is not the registered owner (#3947). */
     fun delete() {
-        deleteEpubModule(epubDir)
+        deleteEpubModule(epubDir, retiring = this)
     }
 
     suspend fun getKey(originalKey: String, htmlId: String): Key? {

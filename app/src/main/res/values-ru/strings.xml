@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible не удалось запустить WebView2, который необходим для отображения текста Библии. Установите или восстановите Microsoft Edge WebView2 Evergreen Runtime:\n%1$s\n\nПодробности в файле журнала:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">Для отображения текста Библии через WebView2 AndBible требуется графика Direct3D. Текущий графический рендерер: %1$s. Проверьте графический драйвер и поддержку Direct3D.\n\nПодробности в файле журнала:\n%2$s</string>
+  <string name="desktop_update_setting_title">Проверять обновления</string>
+  <string name="desktop_update_setting_summary">Раз в день, на github.com</string>
+  <string name="desktop_update_consent_title">Проверять обновления?</string>
+  <string name="desktop_update_consent_message">AndBible может раз в день проверять github.com на наличие новой версии. GitHub видит ваш IP-адрес; больше ничего не отправляется. Это можно изменить позже в настройках.</string>
+  <string name="desktop_update_consent_yes">Проверять обновления</string>
+  <string name="desktop_update_consent_no">Не проверять</string>
+  <string name="desktop_update_available_title">Доступна новая версия</string>
+  <string name="desktop_update_available_message">Доступна версия AndBible %1$s. У вас установлена %2$s.</string>
+  <string name="desktop_update_download">Скачать</string>
+  <string name="desktop_update_later">Позже</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Изучение Библии</string>
   <string name="app_name_medium">Изучение Библии (AndBible) </string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d совпадений найдено</string>
   <string name="search_showing_first">Слишком много совпадений. Показаны первые %d</string>
   <string name="search_bible_section_group_prompt">Искать в</string>
+  <string name="search_type_prompt">Тип поиска</string>
+  <string name="search_show_results">Показать результаты поиска</string>
   <string name="search_all_bible">Вся Библия</string>
   <string name="search_new_testament">Новый Завет</string>
   <string name="search_old_testament">Ветхий Завет</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Найти \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Переводы</string>
+  <string name="recent_searches">Недавние запросы</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Закрыть поиск</string>
+  <string name="search_options">Настройки поиска</string>
+  <string name="search_submit">Найти</string>
+  <string name="search_clear">Очистить текст поиска</string>
+  <string name="search_engine_changed_reindex">Поисковая система обновлена. Необходимо заново создать поисковый индекс; это может занять некоторое время.</string>
+  <string name="search_unsupported_syntax">В этом запросе используется неподдерживаемый синтаксис: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Когда индексация завершится, поиск запустится автоматически.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">В ресурсе %1$s нельзя выполнять поиск</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">В этом ресурсе нельзя выполнять поиск</string>
+  <string name="search_indexing_notification_title">Создание поискового индекса</string>
   <string name="choose_translations">Выбрать переводы…</string>
   <string name="multi_search_results">%1$d стихов в %2$d переводах</string>
   <string name="search_index_not_created">индекс не создан</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Выберите способ отображения цветов. Цветной e-ink сохраняет чёрно-белую основу, но показывает цвета закладок, индикатор активного окна и вспомогательные линии в цвете — для цветных экранов e-ink.</string>
   <string name="prefs_display_color_mode_normal">Обычный</string>
   <string name="prefs_display_color_mode_bw">Чёрно-белый</string>
+  <string name="prefs_display_color_mode_monochrome">Монохромный</string>
   <string name="prefs_display_color_mode_color_eink">Цветной e-ink</string>
+  <string name="prefs_theme_palette_style_title">Стиль темы</string>
+  <string name="prefs_theme_palette_style_summary">Как цвета приложения образуются из цвета рабочей области. Действует только при обычном цветовом режиме.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Тональный акцент (мягкий, сохраняет серый)</string>
+  <string name="prefs_theme_palette_style_fidelity">Точность (точный цвет)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Тональный акцент (оригинал)</string>
+  <string name="prefs_theme_palette_style_content">Содержимое (близко к цвету)</string>
+  <string name="prefs_theme_palette_style_neutral">Нейтральный (приглушённый)</string>
+  <string name="prefs_theme_palette_style_monochrome">Монохромный (серый)</string>
+  <string name="prefs_theme_palette_style_vibrant">Яркий</string>
+  <string name="prefs_theme_palette_style_expressive">Выразительный</string>
+  <string name="prefs_theme_palette_style_rainbow">Радуга</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Фруктовый салат</string>
   <string name="prefs_eink_settings_cat">Настройки E-ink</string>
   <string name="prefs_eink_display_title">Функции E-ink</string>
   <string name="prefs_eink_display_summary">Включить функции для E-ink-устройств (кнопки прокрутки страниц, вспомогательные линии прокрутки)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Автоматически отмечать главы как прочитанные при прокрутке</string>
   <string name="reading_progress_read_count_scale">Прочитано\nКол-во</string>
   <string name="reading_progress_percent_read_scale">Процент\nпрочитанного</string>
+  <string name="monochrome_activity_count">Количество действий: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Количество: %d</string>
+  <string name="monochrome_level">Уровень: %d/4</string>
+  <string name="monochrome_buckets">Серый: нет; контур: частично; заливка: полностью или наивысший уровень. Выберите элемент, чтобы увидеть точные значения.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">История чтения</string>
   <string name="reading_progress_history_for">История чтения для %1$s</string>
@@ -197,6 +253,8 @@
   <string name="workspace_text_options_link_summary">Изменить настройки отображения текста для этой рабочей области</string>
   <string name="global_text_options_link">Глобальные параметры текста</string>
   <string name="global_text_options_link_summary">Изменить настройки отображения текста по умолчанию для всех рабочих областей</string>
+  <string name="text_options_inherited_workspace">Рабочая область</string>
+  <string name="text_options_inherited_global">Общие</string>
   <string name="prefs_font_and_colors_title">Шрифт &amp; Цвета</string>
   <string name="prefs_text_layout_title">Макет текста</string>
   <string name="prefs_strongs_and_morphology_title">Номера Стронга &amp; Морфология</string>
@@ -273,6 +331,9 @@
   <string name="copy_settings_to_workspace">Рабочая область</string>
   <string name="copy_settings_to_window">Окно %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Глобальные значения по умолчанию</string>
+  <string name="copy_settings_to_workspaces">В другие рабочие области…</string>
+  <string name="copy_settings_to_global_defaults">В общие настройки по умолчанию…</string>
+  <string name="menu_back">Назад</string>
   <string name="change_to_normal">Изменить на нормальное окно</string>
   <string name="window_pin_mode">Прикрепить</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">Не удалось подключиться к следующему серверу ресурсов: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следующие файлы не могут быть загружены:\n\n%s\n\n</string>
   <string name="cant_delete_document">Этот ресурс невозможно удалить.</string>
+  <string name="bad_document_warning">В этом ресурсе есть известные проблемы.</string>
   <!--Install zip file-->
   <string name="install_zip">Загрузка ресурсов из файлов</string>
   <string name="install_zip_module">Установить библейский модуль</string>
@@ -376,6 +438,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="delete_index">Удалить поисковой индекс?</string>
   <string name="about">Источник</string>
   <string name="delete_doc">Удалить %s?</string>
+  <string name="interrupted_downloads_title">Загрузка прервана</string>
+  <string name="interrupted_downloads_message">Эти ресурсы не были установлены, так как их загрузка была прервана:</string>
+  <string name="interrupted_downloads_question">Скачать их снова?</string>
+  <string name="download_again">Скачать снова</string>
+  <string name="delete_docs_confirm">Удалить эти ресурсы?</string>
   <string name="delete_search_index_doc">Удалить индекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Заметки и ссылки</string>
@@ -396,6 +463,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="assign_labels">Прикрепить ярлыки</string>
   <string name="new_item">Новый</string>
   <string name="label_name_prompt">Название</string>
+  <string name="new_label_default_name">Метка %d</string>
   <string name="label_unlabelled">Без ярлыка</string>
   <string name="add_bookmark1">Закладка</string>
   <string name="add_bookmark3">Выделение</string>
@@ -446,6 +514,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="rewind">Назад</string>
   <string name="forward">Вперед</string>
   <string name="tts_lang_not_available">Язык не установлен</string>
+  <string name="tts_engine_not_available">Синтез речи на этом устройстве не работает. Убедитесь, что движок синтеза речи установлен и включён в системных настройках синтеза речи.</string>
+  <string name="tts_audio_focus_denied">Не удалось начать воспроизведение речи: звук занят другим приложением.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Скорость речи</string>
   <string name="speak_and_play_earcons_title">Прослушивать и воспроизводить краткие звуки для</string>
@@ -455,6 +525,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_bookmarks_menu_title">Прослушать из закладки</string>
   <string name="speak_advanced_settings">Расширенные настройки</string>
   <string name="speak_sleep_timer_title">Таймер сна</string>
+  <string name="speak_sleep_timer_minutes">%d мин</string>
+  <string name="speak_sleep_timer_custom">Другое…</string>
+  <string name="speak_sleep_timer_off">Выкл.</string>
+  <string name="speak_other_settings">Прочее</string>
   <string name="speak_no_books_available">Нет доступных книг для прослушивания</string>
   <string name="speak_general_error">Не удалось начать прослушивание этой книги</string>
   <string name="repeat_passage">Повторить отрывок</string>
@@ -483,6 +557,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>
   <string name="auto_assing_labels_help1">Здесь вы можете настроить, какие ярлыки автоматически назначаются закладкам, которые вы создаете.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Здесь можно добавлять, изменять и удалять метки, а также выбирать, какие из них автоматически назначаются создаваемым закладкам.\n\nНедавние метки: недавно использованные метки.\nДругие метки: все остальные метки.\n\nИспользуйте параметры фильтра в строке поиска, чтобы видеть только автоназначаемые или избранные метки.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Этот параметр применяется к %s.</string>
   <string name="setting_scope_window">это окно</string>
@@ -593,6 +672,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
+  <string name="backup_modules_conflict">Резервная копия не создана: %1$s и %2$s содержат файл %3$s с разным содержимым. Выберите только один из них и повторите попытку.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (версия %2$s, папка %3$s)</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
   <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули: %2$s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
@@ -601,6 +683,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="exported_studypads_message">Прикреплен %sвашей базы данных, содержащий Закладки и Заметки, относящиеся к выбранным Блокнотам</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
   <string name="send_backup_file">Отправить файл резервной копии</string>
+  <string name="export_destination_title">Куда экспортировать?</string>
+  <string name="export_destination_message">Сохраните экспорт на этом телефоне или отправьте его куда-либо через «Поделиться».</string>
+  <string name="send_export_file">Отправить файл экспорта</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
   <string name="install_zip_canceled">Установка модуля отменена</string>
   <string name="ask_restore_or_import">База данных для %sможет быть либо восстановлена (т.е. существующая база данных удаляется и загружается выбранная база данных), либо импортирована (выбранная база данных импортируется в существующую). Что Вы хотите сделать?</string>
@@ -641,12 +726,25 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
   <string name="doc_type_addons">Дополнительные компоненты</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Другое</string>
+  <string name="document_type_label">Тип ресурса</string>
   <!--Languages-->
   <string name="lang_default">По умолчанию</string>
   <!--General-->
   <string name="okay">ОК</string>
   <string name="cancel">Отмена</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Назад</string>
+  <string name="settings_editor_close">Закрыть</string>
+  <string name="settings_editor_apply">Применить</string>
   <string name="discard_changes_confirmation">Отменить несохранённые изменения?</string>
+  <string name="discard">Отменить</string>
+  <string name="remove">Убрать</string>
+  <string name="overwrite">Перезаписать</string>
+  <string name="set_current_day_action">Задать день</string>
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
@@ -656,6 +754,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <string name="verse_not_found">Стих не найден</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Продолжить</string>
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>
   <string name="error_occurred_crash_last_time">Последний раз, когда вы использовали приложение, произошел сбой. Чтобы помочь нам исправить ошибку, мы будем признательны, если вы отправите нам отчет об ошибке.</string>
@@ -666,8 +765,14 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>
   <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
+  <string name="debug_test_error">Тестовая ошибка (отладочная сборка)</string>
+  <string name="bug_report_prepare_failed">Не удалось подготовить или отправить отчёт. Можно повторить попытку или сохранить данные через «Резервное копирование и восстановление».</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
+  <string name="bug_report_manual_title">Отправить отчёт по электронной почте</string>
+  <string name="bug_report_manual_text_saved">Отчёт сохранён в</string>
+  <string name="bug_report_manual_text_unsaved">На этом устройстве не удалось открыть почтовую программу.\n\nПожалуйста, отправьте отчёт по электронной почте на адрес</string>
+  <string name="bug_report_copy_address">Копировать адрес</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
@@ -691,6 +796,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="search_settings">Настройки поиска</string>
   <string name="dismiss">Отклонить</string>
   <string name="workspace_listing_with_current">%s (текущий)</string>
+  <string name="workspace_manage_workspaces">Управление рабочими областями…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Это бета-версия!</string>
   <string name="beta_notice_content_1">
@@ -741,7 +847,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="help_search_title">Поиск</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Строка поиска может включать спецсимволы, такие как *, AND, OR, NOT</string>
+  <string name="help_search_bible">Выберите способ сопоставления слов: «Все слова» находит стихи, содержащие каждое слово, «Любое слово» находит стихи, содержащие хотя бы одно, а «Фраза» находит слова, стоящие рядом в указанном порядке.\n\nВ запросе можно также использовать * и ? как подстановочные знаки (например, bless* находит blessed и blessing), объединять термины с помощью AND, OR и NOT и искать номера Стронга напрямую (например, strong:h0430).</string>
+  <string name="help_search_epub">Выберите способ сопоставления слов: «Все слова» находит отрывки, содержащие каждое слово, «Любое слово» находит отрывки, содержащие хотя бы одно, а «Фраза» находит слова, стоящие рядом в указанном порядке.\n\nНеобработанный синтаксис передаёт ваш текст поисковой системе без изменений, поэтому можно написать собственный запрос: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" для точной фразы, bless* для любого слова, начинающегося с bless, и grace NEAR faith для поиска слов поблизости друг от друга.</string>
   <string name="help_search_details">Пожалуйста смотрите подробности в %s.</string>
+  <string name="help_search_syntax">Синтаксис поиска</string>
   <string name="help_fts5">Синтаксис полнотекстовых запросов FTS5</string>
   <string name="help_workspaces_title">Рабочие области</string>
   <string name="help_workspaces_text">
@@ -765,6 +874,12 @@ http://www.heartlight.org, разрешение предоставлено
 всегда открывать библейские ресурсы и быстро переключаться между комментариями и
 другим дополнительным материалом при изучении Библии.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">В вашей библиотеке пока нет ресурсов. Добавьте их, чтобы начать.</string>
+  <string name="welcome_redownload_row_hint">Выбрать из ранее установленных ресурсов</string>
+  <string name="welcome_download_row_hint">Просмотреть онлайн-каталог</string>
+  <string name="welcome_restore_row_hint">Файл базы данных с закладками и заметками</string>
+  <string name="welcome_link_website">Сайт</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Вам нужно выбрать файл, который вы хотите загрузить в %s.</string>
@@ -780,9 +895,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="format_studypads">Блокноты из баз данных AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
+  <string name="reading_toolbar_options">Дополнительные параметры</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Понятно</string>
-  <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
   <string name="strongs_mode_title">Выберите режим Стронга</string>
   <string name="download_dialog_message">Не удалось загрузить следующие книги:</string>
   <string name="journal_description">Редактируемые пользователем блокноты с настраиваемым текстом и закладками</string>
@@ -807,6 +921,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="prefs_experimental_features_summary">Выберите, какие экспериментальные функции включить. Эти функции ещё в разработке и могут измениться или быть удалены</string>
   <string name="experimental_feature_bookmark_edit_actions">Действия по редактированию закладок</string>
   <string name="experimental_feature_add_paragraph_break">Добавить разрыв абзаца в закладку</string>
+  <string name="experimental_feature_toolbar_literal_color">Использовать точный цвет рабочей области для панели чтения (вместо цвета темы)</string>
   <string name="raw_llm_log_title">Журнал LLM</string>
   <string name="raw_llm_log_empty">Данные журнала отсутствуют</string>
   <string name="raw_llm_log_copied">Журнал скопирован в буфер обмена</string>
@@ -915,6 +1030,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="display_mode_underline">Подчёркивание</string>
   <string name="display_mode_marker">Только маркер</string>
   <string name="display_mode_hidden">Скрытый</string>
+  <string name="display_mode_inherit">Как при выборе</string>
   <string name="workspace_override_indicator">У этой метки есть режим отображения для конкретной рабочей области</string>
   <string name="primary_label">Первичный ярлык</string>
   <string name="favourite_label">Любимый ярлык</string>
@@ -928,6 +1044,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="book_menu_show_long_book_name">Показать длинное название книги</string>
   <string name="book_menu_show_progress_bars">Показать индикаторы прогресса</string>
   <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
+  <string name="clear_auto_assign_labels">Очистить автоназначаемые метки</string>
+  <string name="reset_workspace_auto_assign_labels">Убрать все автоназначаемые метки из этой рабочей области?</string>
   <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
   <string name="reorder">Изменение порядка</string>
   <string name="system_items">Системные действия</string>
@@ -999,6 +1117,27 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="instructions_for_translators">инструкции для переводчиков</string>
   <string name="questions_title">Вопросы?</string>
   <string name="bookmark_style">Стиль закладки</string>
+  <string name="bookmark_style_preview_sample">Ибо так возлюбил Бог мир</string>
+  <string name="bookmark_style_selection">Закладки выделенного текста</string>
+  <string name="bookmark_style_whole_verse">Закладки целых стихов</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Использовать другой стиль для закладок целых стихов</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Выделение</string>
+  <string name="bookmark_style_tag_whole_verse">Целый стих</string>
+  <string name="bookmark_style_tag_workspace">Рабочая область</string>
+  <string name="show_style_examples">Показать примеры стилей</string>
+  <string name="labels_search_section">Поиск</string>
+  <string name="labels_filter_section">Показать</string>
+  <string name="labels_filter_auto_assign">Только автоназначаемые метки</string>
+  <string name="labels_filter_favourite">Только избранные метки</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Отметьте метку, чтобы назначить её этой закладке.</string>
+  <string name="manage_labels_help_primary">Основная метка. Её цвет и стиль отображаются у закладки.</string>
+  <string name="manage_labels_help_autoassign">Автоматически назначать эту метку каждой новой закладке. Пустая молния означает «выкл.».</string>
+  <string name="manage_labels_help_favourite">Держать метку в избранном для быстрого доступа.</string>
+  <string name="manage_labels_help_styles">Под названием маленький пример показывает вид метки: «Выделение» для закладки выделенного текста, «Целый стих» для закладки целого стиха и тег «Рабочая область» для стиля, переопределённого этой рабочей областью. Серый пример без оформления означает, что закладки этой метки не отображаются. Скрыть примеры можно в меню ⋮.</string>
+  <string name="manage_labels_help_reorder">Изменить порядок списка можно в меню ⋮.</string>
   <string name="added_to_bookmark">Назначено к этой закладке</string>
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
@@ -1052,6 +1191,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_group_n">Группа %d</string>
   <string name="disable_sync">Отключить синхронизацию</string>
   <string name="open_in_window">Открыть результаты в окне</string>
+  <string name="open_result_in_links_window">Открыть результат в окне ссылок</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Личные репозитории</string>
@@ -1062,7 +1202,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="delete_custom_repository">Вы хотите удалить личный репозиторий %s?</string>
   <string name="custom_repositories_help1">Чтобы добавить новый личный репозиторий, введите или скопируйте и вставьте здесь URL-адрес личного репозитория.</string>
   <string name="custom_repositories_help2">Дополнительную информацию о личных репозиториях можно прочитать в разделе %s.</string>
-  <string name="wiki_page">ВИКИ-страница</string>
   <string name="custom_repositories_help0">Вы можете установить ресурсы из внешних репозиториев, установив личные репозитории.</string>
   <string name="duplicate_custom_repository">Репозиторий с именем %s уже существует, добавить другой невозможно.</string>
   <string name="packages_dir">Каталог пакетов (Zip-файлы)</string>
@@ -1109,6 +1248,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reading_progress_new_cycle_confirm">Начать новый цикл чтения? Отслеживание прогресса начнётся заново, при этом данные предыдущего цикла будут сохранены.</string>
   <string name="reading_progress_previous_cycle">Предыдущий цикл</string>
   <string name="reading_progress_next_cycle">Следующий цикл</string>
+  <string name="cloud_merge_data">Объединить данные</string>
   <string name="cloud_fetch_and_restore_initial">Скопировать из облака на это устройство</string>
   <string name="cloud_create_new">Скопировать с этого устройства в облако</string>
   <string name="cloud_disable_sync">Отменить и отключить синхронизацию</string>
@@ -1122,6 +1262,19 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_adapter_summary">Текущее: %s</string>
   <string name="adapters_google_drive">Гугл Диск</string>
   <string name="adapters_next_cloud">Следующее облако</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Адрес папки WebDAV, например https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Для синхронизации требуется защищённый адрес https://.</string>
+  <string name="webdav_certificate_title">Сертификат сервера</string>
+  <string name="webdav_forget_certificate_message">Забыть доверенный сертификат сервера? При следующем подключении вас снова попросят подтвердить сертификат.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Ненадёжный сертификат сервера</string>
+  <string name="webdav_untrusted_certificate_message">Сертификат сервера %1$s не является доверенным для Android. Доверяйте ему, только если вы его узнаёте, например, если вы сами настроили этот сервер.\n\nСубъект: %2$s\nИздатель: %3$s\nДействителен: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Доверять этому сертификату</string>
+  <string name="webdav_wrong_credentials">Неверное имя пользователя или пароль.</string>
+  <string name="webdav_not_a_folder">Этот адрес не является папкой WebDAV.</string>
+  <string name="webdav_certificate_changed">Сертификат сервера изменился. Синхронизация приостановлена до подтверждения нового сертификата; AndBible запросит его при следующем открытии или синхронизации на переднем плане.</string>
+  <string name="webdav_storage_full">Хранилище на сервере заполнено.</string>
   <string name="auth_server_uri">URL сервера</string>
   <string name="auth_username">Имя пользователя</string>
   <string name="auth_password">Пароль</string>
@@ -1131,6 +1284,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_general_settings">Информация и общие настройки</string>
   <string name="sync_introduction">Введение</string>
   <string name="are_you_sure">Вы уверены?</string>
+  <string name="are_you_sure_merge">Будут сохранены и данные на этом устройстве, и %s в облаке. Если один и тот же элемент был изменён в обоих местах, сохраняется более новое изменение. Данные этого устройства будут отправлены на другие ваши устройства.</string>
   <string name="are_you_sure_reset_local">Это приведет к сбросу вашей локальной базы данных для %s с содержанием, которое в настоящее время хранится в облаке.</string>
   <string name="are_you_sure_reset_cloud">Это приведет к сбросу вашей облачной базы данных для %s с содержанием, которое есть на этом устройстве.</string>
   <string name="sync_cant_fetch">Версия базы данных или файла исправления, хранящегося в облаке, выше, чем версия, поддерживаемая этим приложением.</string>
@@ -1167,6 +1321,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="pref_font_size_multiplier_title">Множитель размера шрифта</string>
   <string name="pref_font_size_multiplier_summary_1">Умножить размеры шрифта текста на это число.</string>
   <string name="pref_font_size_multiplier_summary_2">Полезно, если у вас синхронизированное устройство с более крупным шрифтом.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Текущее значение: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Действие для жеста смахивания влево/вправо</string>
   <string name="prefs_bible_view_swipe_mode_summary">Жест смахивания влево/вправо можно использовать для перехода к следующей странице/главе.</string>
@@ -1287,6 +1442,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="prompt_max_iterations_unlimited">Без ограничений</string>
   <string name="prompt_max_iterations_global_default">Глобальное значение по умолчанию (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Переопределяет глобальный лимит итераций для этого промпта. 0 = без ограничений.\nТекущее: %s</string>
+  <string name="prompt_max_iterations_use_global">Использовать общую настройку (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Управление промптами ИИ</string>
   <string name="manage_prompts_summary">Создание и редактирование промптов ИИ</string>
@@ -1420,6 +1576,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="built_in_prompt_notice">Это встроенный промпт, который нельзя изменить. Используйте «Копировать для настройки», чтобы создать редактируемую копию.</string>
   <string name="copy_to_customize">Копировать для настройки</string>
   <string name="prompt_copied">Промпт скопирован</string>
+  <string name="prompt_copy_failed">Не удалось скопировать промпт. Возможно, он был удалён.</string>
   <string name="delete_prompt_confirmation">Удалить промпт «%s»?</string>
   <string name="prompt_name_required">Необходимо указать название промпта</string>
   <string name="prompt_template_required">Необходимо указать шаблон промпта</string>
@@ -1627,6 +1784,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tool_option_default_disabled">По умолчанию (отключено)</string>
   <string name="tool_option_default_allowed">По умолчанию (разрешено)</string>
   <string name="tool_option_default_denied">По умолчанию (запрещено)</string>
+  <string name="tool_description_info">Показать описание инструмента</string>
+  <string name="tool_permission_mixed">Смешанные</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Модель</string>
   <string name="prompt_model_default">По умолчанию</string>
@@ -1672,6 +1831,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="my_document_pages_empty">В этом документе нет страниц.</string>
   <string name="my_document_page_rename_title">Переименовать страницу</string>
   <string name="my_document_page_delete_confirmation">Удалить страницу \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Удалить эти страницы?</string>
+  <string name="my_documents_switch_document">Сменить документ</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Новая страница</string>
   <string name="my_document_content_type_label">Тип содержимого</string>
@@ -1768,4 +1929,91 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="document_sync_started">Синхронизация документов начата</string>
   <string name="document_sync_enable_dialog_title">Начать синхронизацию документов?</string>
   <string name="document_sync_enable_dialog_nothing">Пока нет документов для передачи. Новые установленные документы будут синхронизироваться автоматически.</string>
+  <string name="help_document_sync_text">Синхронизация ресурсов копирует установленные Библии, комментарии и другие ресурсы в облако и поддерживает их синхронизацию на всех ваших устройствах. В этом окне можно увидеть, что хранится в облаке, скачивать или загружать отдельные ресурсы, удалять их и управлять тем, что синхронизируется на это устройство.</string>
+  <string name="background_image_title">Фоновое изображение</string>
+  <string name="background_image_none">Без фона</string>
+  <string name="background_image_import">Импорт из галереи…</string>
+  <string name="background_image_empty">Импортированных изображений пока нет. Нажмите «Импорт из галереи…», чтобы добавить.</string>
+  <string name="background_image_importing">Импорт…</string>
+  <string name="background_image_delete_title">Удалить изображение?</string>
+  <string name="background_image_delete_confirm">Удалить это фоновое изображение? Рабочие области, которые его используют, будут показываться без изображения.</string>
+  <string name="background_image_day">Фоновое изображение (день)</string>
+  <string name="background_image_night">Фоновое изображение (ночь)</string>
+  <string name="background_image_opacity_day">Непрозрачность фонового изображения (день)</string>
+  <string name="background_image_opacity_night">Непрозрачность фонового изображения (ночь)</string>
+  <string name="background_image_change">Изменить</string>
+  <string name="color_picker_title">Выберите цвет</string>
+  <string name="color_picker_presets">Готовые</string>
+  <string name="color_picker_custom">Свой</string>
+  <string name="bookmark_expand_row">Показать весь текст</string>
+  <string name="bookmark_collapse_row">Свернуть</string>
+  <string name="bookmark_label_filter">Фильтр по метке</string>
+  <string name="document_quick_all_documents">Все ресурсы…</string>
+  <string name="document_quick_tab_recent">Недавние</string>
+  <string name="document_quick_tab_for_verse">Для этого стиха</string>
+  <string name="document_quick_tab_last_filter">Последний фильтр</string>
+  <string name="document_quick_tab_all">Все</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Фильтр и сортировка</string>
+  <string name="doc_arrange_repository">Репозиторий</string>
+  <string name="doc_arrange_all_repositories">Все репозитории</string>
+  <string name="doc_arrange_sort">Порядок сортировки</string>
+  <string name="doc_arrange_group_by">Группировать по</string>
+  <string name="doc_arrange_remember">Запомнить эти настройки</string>
+  <string name="doc_arrange_reset">Сбросить по умолчанию</string>
+  <string name="doc_arrange_more_filters">Другие фильтры</string>
+  <string name="doc_arrange_reorder">Изменить порядок</string>
+  <string name="doc_sort_ascending">По возрастанию</string>
+  <string name="doc_sort_descending">По убыванию</string>
+  <string name="doc_sort_status">Статус</string>
+  <string name="doc_sort_recommended">Сначала рекомендуемые</string>
+  <string name="doc_sort_name">Название</string>
+  <string name="doc_sort_size">Размер</string>
+  <string name="doc_group_none">Без группировки</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Загружаются</string>
+  <string name="doc_group_status_update_available">Есть обновление</string>
+  <string name="doc_group_status_installed">Установлены</string>
+  <string name="doc_group_status_not_installed">Не установлены</string>
+  <string name="prompt_filter_title">Фильтр промптов</string>
+  <string name="prompt_filter_type">Тип</string>
+  <string name="prompt_type_addon">Дополнение</string>
+  <string name="prompt_type_user">Пользовательский</string>
+  <string name="prompt_filter_clear">Очистить фильтры</string>
+  <string name="prompt_favorite_add">Добавить в избранное</string>
+  <string name="prompt_favorite_remove">Убрать из избранного</string>
+  <string name="window_unmaximise">Восстановить все окна</string>
+  <string name="window_menu_button">Меню окна</string>
+  <string name="paste_from_clipboard">Вставить</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Маркер перетаскивания</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Обновление ваших данных…</string>
+  <string name="legacy_migration_progress_neutral">Обновление…</string>
+  <string name="legacy_migration_failed_title">Не удалось обновить ваши данные</string>
+  <string name="legacy_migration_failed_message">Ваши данные из предыдущей версии приложения в безопасности и остались без изменений на этом устройстве. Выберите, что делать дальше.</string>
+  <string name="legacy_migration_failed_keychain">Не удалось прочитать сохранённые пароли из предыдущей версии. Разблокируйте устройство, затем закройте и снова откройте приложение.</string>
+  <string name="legacy_migration_rollback_pending">Обновление было прервано и ещё не полностью отменено. Закройте и снова откройте приложение, чтобы завершить отмену.</string>
+  <string name="legacy_migration_save_old_data">Сохранить старые данные</string>
+  <string name="legacy_migration_send_report">Отправить отчёт об ошибке</string>
+  <string name="legacy_migration_try_again">Повторить</string>
+  <string name="legacy_migration_try_again_hint">Закройте приложение и откройте его снова, чтобы повторить попытку.</string>
+  <string name="legacy_migration_restore_backup">Восстановить резервную копию</string>
+  <string name="legacy_migration_start_fresh">Начать без старых данных</string>
+  <string name="legacy_migration_start_fresh_confirm">Ваши старые данные останутся на этом устройстве. Позже их можно импортировать в настройках.</string>
+  <string name="legacy_import_title">Импорт данных из предыдущей версии приложения</string>
+  <string name="legacy_import_summary">Заменить текущие данные данными предыдущей версии приложения</string>
+  <string name="legacy_import_confirm">Это заменит ваши текущие рабочие области, закладки и другие данные данными предыдущей версии приложения. Копия текущих данных сохранится на этом устройстве.</string>
+  <string name="legacy_import_reopen">Закройте приложение и откройте его снова, чтобы импортировать данные.</string>
+  <string name="legacy_notice_icloud">Синхронизация теперь использует iCloud Drive. Включите её снова в разделе «Настройки» → «Синхронизация». Это устройство сохраняет свои данные; изменения с других ваших устройств поступят после повторной настройки синхронизации. Чтобы освободить старые данные iCloud: «Настройки» → ваше имя → iCloud → «Управление хранилищем» → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Ваше подключение к Nextcloud перенесено, но синхронизация выключена. Включите её в разделе «Настройки» → «Синхронизация» и выберите: загрузить из облака или создать заново.</string>
+  <string name="legacy_notice_nextcloud_unsent">Некоторые изменения на этом устройстве ещё не были отправлены в Nextcloud. Они не были отправлены и останутся только на этом устройстве.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Это мощное и в то же время простое в использовании приложение для изучения Библии без подключения к интернету.</string>
+  <string name="webdav_untrusted_certificate_message_device">Сертификат сервера %1$s не является доверенным для этого устройства. Доверяйте ему, только если вы его узнаёте, например, если вы сами настроили этот сервер.\n\nСубъект: %2$s\nИздатель: %3$s\nДействителен: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Пользовательские репозитории должны использовать защищённый адрес https://.</string>
+  <string name="custom_repository_https_required_refresh">%1$s использует адрес http://. Можно использовать только репозитории с https://.</string>
 </resources>

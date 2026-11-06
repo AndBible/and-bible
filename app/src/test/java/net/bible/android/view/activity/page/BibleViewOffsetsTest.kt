@@ -35,13 +35,19 @@ class BibleViewOffsetsTest {
         val window = repo.activeWindow
         val host = mock(ReadingHostActivity::class.java)
         `when`(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+        val insets = ReadingInsets(ReadingInsetsHostCallbacks(
+            transportBarVisible = { false }, transportBarHeight = { 0 },
+            agentLogVisible = { false }, agentLogHeight = { 0 },
+            restoreButtonsVisible = { true }, windowButtonHeight = { 53 },
+            composeSearchFieldFocused = { false }, applyImeBottomPadding = {},
+        )).apply { onWindowInsetsApplied(androidx.core.graphics.Insets.of(0, 0, 0, 39), androidx.core.graphics.Insets.NONE) }
         val callbacks = BibleViewHostCallbacks(
             hostActivity = mock(ActivityBase::class.java), onNext = {}, onPrevious = {}, showLlmPromptSelector = { _, _ -> },
             composeSearchIfHosted = { _, _ -> false }, composeOpenDrawerIfHosted = { false },
             openDrawerAndFocusIt = {}, composeReadingViewHost = { null }, showRegenerate = { _, _ -> },
             crashAllBibleViews = {}, currentNightMode = { false },
             imeHeight = { 0 }, topOffset2 = { 0 }, bottomOffsetForWebView = { error("Use the per-window ledger") },
-            bottomOffsetForWindow = { _, bottom -> if (bottom) 300 else 0 }, insetsChanges = { error("Unused") })
+            bottomOffsetForWindow = insets::bottomOffsetForWindow, insetsChanges = { error("Unused") })
         val activity = Robolectric.buildActivity(Activity::class.java).setup()
         val view = BibleView(host, callbacks, WeakReference(window),
             koin.get(), koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
@@ -62,9 +68,23 @@ class BibleViewOffsetsTest {
             windowControl.moveWindow(window, 2)
             assertEquals(window, repo.lastVisibleWindow)
 
+            insets.setRailCoveredWindows(setOf(window.id.toString()))
             view.updateOffsets()
             val atBottom = shadowOf(view).lastEvaluatedJavascript
             assertNotEquals("bottom window must send a non-zero bottom offset: $atBottom", true, atBottom?.contains("\"set_offsets\", 0.0, 0.0,"))
+
+            val density = host.hostContext.resources.displayMetrics.density
+            assertEquals(92f / density, view.bottomOffset, 0f)
+            // A hidden rail must send a new CSS offset even though the workspace preference stays true.
+            val sub = insets.offsetsChanged.subscribe { view.updateOffsets(it.immediate) }
+            try {
+                insets.setRailCoveredWindows(emptySet())
+                val hidden = shadowOf(view).lastEvaluatedJavascript
+                assertEquals(39f / density, view.bottomOffset, 0f)
+                assertEquals("bibleView.emit(\"set_offsets\", 0.0, ${39f / density}, {\"immediate\": true, \"imeOpen\": false});", hidden)
+                insets.setRailCoveredWindows(setOf(window.id.toString()))
+                assertEquals(92f / density, view.bottomOffset, 0f)
+            } finally { sub.cancel() }
 
             windowControl.moveWindow(window, 1)
             assertEquals(false, repo.firstVisibleWindow == window || repo.lastVisibleWindow == window)

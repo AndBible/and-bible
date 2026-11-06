@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseHost
+import net.bible.service.sword.epub.epubBackend
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedlogic.fixtures.StartupFixture
 import net.bible.sharedui.assembly.HostStartup
@@ -127,6 +128,134 @@ class DesktopAppStartupTest {
         assertSame(koin, KoinPlatform.getKoin())
     }
 
+    @Test fun installedEpubRoutesServeImagesAndStyles() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        val epub = paths.sword.resolve("epub/DesktopAssets")
+        val content = epub.resolve("OEBPS")
+        Files.createDirectories(epub.resolve("META-INF"))
+        Files.createDirectories(content.resolve("images"))
+        Files.createDirectories(content.resolve("css"))
+        Files.writeString(epub.resolve("META-INF/container.xml"), """
+            <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
+              <rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles>
+            </container>
+        """.trimIndent())
+        Files.writeString(content.resolve("content.opf"), """
+            <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="id">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Desktop Assets</dc:title><dc:language>en</dc:language></metadata>
+              <manifest><item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/></manifest>
+              <spine><itemref idref="chapter"/></spine>
+            </package>
+        """.trimIndent())
+        Files.writeString(content.resolve("chapter.xhtml"), """
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Assets</title>
+              <link rel="stylesheet" type="text/css" href="css/book.css"/></head>
+              <body><p>Illustrated chapter.</p><img src="images/pic.png"/></body>
+            </html>
+        """.trimIndent())
+        val png = byteArrayOf(0x89.toByte(), 0x50, 0x4e, 0x47, 0, 0xff.toByte())
+        Files.write(content.resolve("images/pic.png"), png)
+        Files.writeString(content.resolve("css/book.css"), "body {color: red;} p {color: red; line-height: 2; font-weight: bold;}")
+        assertEquals(StartupPhase.Ready, start(paths))
+        net.bible.service.sword.epub.addEpubBook(epub.toString().toPath(), KoinPlatform.getKoin().get(), KoinPlatform.getKoin().get())
+        val book = assertNotNull(Books.installed().getBook("Epub-DesktopAssets"))
+        val assets = KoinPlatform.getKoin().get<net.bible.sharedui.desktop.webengine.DesktopPageAssets>()
+        val image = assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/images/pic.png"))
+        kotlin.test.assertContentEquals(png, Files.readAllBytes(image.file))
+        assertEquals("image/png", image.contentType)
+        var currentBook: org.crosswire.jsword.book.Book? = book
+        val paneAssets = net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes(
+            backgrounds = { emptyMap() }, bookLocation = { null }, bookStyleFile = { null }, verify = { _, _ -> false },
+            currentBook = { id -> if (id == "epub-pane") currentBook else null },
+        )
+        var paneOwner: String? = "epub-pane"
+        val pane = paneAssets.forPane { paneOwner }
+        val paneImage = assertNotNull(pane.resolve("/epub/images/pic.png"))
+        kotlin.test.assertContentEquals(png, Files.readAllBytes(paneImage.file))
+        assertEquals("image/png", paneImage.contentType)
+        assertEquals(paneImage.file, assertNotNull(pane.resolve("/epub/images/pic.png")).file)
+        assertEquals(content.resolve("images/pic.png").toRealPath(), paneImage.file.toRealPath(), "served in place, not copied")
+        val cacheFiles = { Files.list(net.bible.sharedui.desktop.webview.DesktopAssetCache.directory()).use { it.count() } }
+        val before = cacheFiles()
+        repeat(3) {
+            assertNotNull(paneAssets.forPane { "epub-pane" }.resolve("/epub/images/pic.png"))
+            assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/images/pic.png"))
+        }
+        assertEquals(before, cacheFiles(), "EPUB images must not create temp files")
+        assertNull(paneAssets.forPane("other-pane").resolve("/epub/images/pic.png"))
+        paneOwner = "other-pane"
+        assertNull(pane.resolve("/epub/images/pic.png"), "an adopted transport uses its new owner")
+        paneOwner = "epub-pane"
+        assertNotNull(pane.resolve("/epub/images/pic.png"))
+        currentBook = null
+        assertNull(pane.resolve("/epub/images/pic.png"), "a document switch must not reuse the previous image")
+        currentBook = book
+        assertNull(pane.resolve("/epub/images/missing.png"))
+        val backend = assertNotNull(book.epubBackend)
+        val pageKey = backend.state.keys.first()
+        val key = pageKey.getOsisRef()
+        kotlinx.coroutines.withContext(mainThread) {
+            val repository = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().windowRepository
+            repository.initialize()
+            val window = repository.activeWindow
+            val document = net.bible.android.control.page.OsisDocument(
+                net.bible.android.misc.OsisFragment(fi.sykero.kdom.Element("div"), pageKey, book), book, pageKey,
+            )
+            val previousView = window.bibleView
+            try {
+                window.bibleView = java.lang.reflect.Proxy.newProxyInstance(
+                    net.bible.android.control.page.window.WindowView::class.java.classLoader,
+                    arrayOf(net.bible.android.control.page.window.WindowView::class.java),
+                ) { _, method, _ ->
+                    when (method.name) {
+                        "getFirstDocument" -> document
+                        else -> error("Unexpected view call: ${method.name}")
+                    }
+                } as net.bible.android.control.page.window.WindowView
+                val bound = net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes.koinBound().forPane(window.id.toString())
+                val boundImage = assertNotNull(bound.resolve("/epub/images/pic.png"))
+                kotlin.test.assertContentEquals(png, Files.readAllBytes(boundImage.file))
+            } finally {
+                window.bibleView = previousView
+            }
+        }
+        val css = assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/$key/style.css"))
+        assertEquals("text/css", css.contentType)
+        assertEquals(" p {  font-weight: bold;}", Files.readString(css.file))
+        val rawCss = assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/css/book.css"))
+        assertTrue(Files.readString(rawCss.file).contains("color: red"))
+        assertNull(assets.resolve("/module-style/epub/Unknown/images/pic.png"))
+        assertNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/images/missing.png"))
+        assertNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/missing/style.css"))
+        assertNull(assets.resolve("/epub/images/pic.png"), "an unbound pane has no current EPUB")
+        for (path in listOf("../secret.txt", "images/../../secret.txt", "images\\..\\secret.txt")) {
+            assertNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/$path"))
+            assertNull(pane.resolve("/epub/$path"))
+        }
+        val bundle = root.resolve("bundle").also { Files.createDirectories(it) }
+        val handler = net.bible.sharedui.desktop.webengine.kcef.BundleRequestHandler(bundle, pageAssets = pane)
+        val origin = net.bible.sharedui.desktop.webengine.kcef.BUNDLE_ORIGIN
+        assertNotNull(handler.resolve("$origin/epub/images/pic.png"))
+        assertNull(handler.resolve("$origin/epub/%2e%2e/secret.png"))
+        val secret = root.resolve("secret.png").also { Files.writeString(it, "secret") }
+        Files.createSymbolicLink(content.resolve("images/escape.png"), secret)
+        assertNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/images/escape.png"))
+        assertNull(pane.resolve("/epub/images/escape.png"))
+        val secretCss = root.resolve("secret.css").also { Files.writeString(it, "secret {font-weight: bold;}") }
+        Files.delete(content.resolve("css/book.css"))
+        Files.createSymbolicLink(content.resolve("css/book.css"), secretCss)
+        assertEquals("", Files.readString(assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/$key/style.css")).file))
+        // Retirement waits for resource leases: this also proves that the desktop copy closed every stream.
+        backend.state.close()
+        assertNull(pane.resolve("/epub/images/pic.png"))
+        assertNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/$key/style.css"))
+    }
+
     @Test fun csvRoundTripMatchesAndroidFormat() = kotlinx.coroutines.runBlocking {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
@@ -217,7 +346,7 @@ class DesktopAppStartupTest {
         }
     }
 
-    @Test fun sideBySidePaneWithoutRailKeepsOnlyTheSystemInset() = kotlinx.coroutines.runBlocking {
+    @Test fun sideBySidePaneReleasesFullWidthRailButKeepsTheSystemInset() = kotlinx.coroutines.runBlocking {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
             val target = paths.sword.resolve(name)
@@ -234,16 +363,14 @@ class DesktopAppStartupTest {
         repo.workspaceSettings.restoreButtonsVisible = true
         val offsets = net.bible.sharedui.reading.session.ReadingOffsets(restoreButtonsVisible = { true })
         offsets.setSystemBottomInset(34f)
-        offsets.setRailCoveredWindows(setOf(repo.lastVisibleWindow!!.id.toString()))
+        offsets.setRailCoveredWindows(setOf(left.id.toString(), repo.lastVisibleWindow!!.id.toString()))
         val platform = net.bible.sharedui.host.reading.HostDocumentLoaderPlatform(
             window = { left }, windowControl = { control }, settings = { koin.get() },
             nightModeState = { object : net.bible.sharedlogic.platform.NightModeState { override val nightMode = false } },
             offsets = { offsets }, isPortrait = { false }, isBeta = { false },
         )
-        assertEquals(34f, platform.bottomOffset, "the rail is at the end pane, not under the left pane")
+        assertEquals(74f, platform.bottomOffset, "the full-width rail covers every side-by-side pane")
         assertTrue(platform.configInputs(emptyList()).isBottomWindow, "every side-by-side pane paints its system-inset band")
-        offsets.setRailCoveredWindows(setOf(left.id.toString(), repo.lastVisibleWindow!!.id.toString()))
-        assertEquals(74f, platform.bottomOffset, "a wide rail also covers the left pane")
         offsets.setRailCoveredWindows(emptySet())
         assertEquals(34f, platform.bottomOffset, "hiding the rail must preserve the safe area")
         var catalogReads = 0
@@ -515,6 +642,53 @@ class DesktopAppStartupTest {
         root.toFile().deleteRecursively()
         root = Files.createTempDirectory("desktop-startup")
         assertEquals(StartupPhase.Ready, start())
+    }
+
+    @Test fun shutdownHookRestoresTheWorkspaceAndReadingPositionAfterRestart() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val reading = net.bible.sharedui.host.app.HostReadingReady
+        try {
+            reading.ensure(HostStartup.stringTable)
+            val control = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
+            val id = control.windowRepository.id
+            kotlinx.coroutines.withContext(mainThread) {
+                control.windowRepository.name = "Terminated workspace"
+                val book = assertNotNull(Books.installed().getBook("K4RawText"))
+                control.activeWindow.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 3:16"))
+            }
+            var hook: Thread? = null
+            DesktopExitPersistence(registerHook = { hook = it })
+            assertNotNull(hook).run() // The exact body registered with Runtime, not the normal window-close path.
+            reading.resetForTest()
+            net.bible.service.startup.ReadingAppInit.resetForTest()
+            DesktopAppStartup.resetForTest()
+            assertEquals(StartupPhase.Ready, start(paths))
+            reading.ensure(HostStartup.stringTable)
+            val restored = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().windowRepository
+            assertEquals(id, restored.id)
+            assertEquals("John.3.16", restored.activeWindow.pageManager.currentBible.singleKey.getOsisRef())
+            assertEquals("Terminated workspace", restored.name)
+        } finally {
+            reading.resetForTest()
+            net.bible.service.startup.ReadingAppInit.resetForTest()
+        }
+    }
+
+    @Test fun exitWithOnlyKoinStartedDoesNotOpenOrSaveDatabases() {
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(
+            paths(), FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() },
+        ))
+        var saved = false
+        DesktopAppStartup.persistBeforeExit(saveWorkspace = { saved = true })
+        assertFalse(saved)
+        assertFalse(DesktopAppStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready)
     }
 
     @Test fun exitRunsTheRegisteredTasksAfterTheWorkspaceSaveAndBounded() {

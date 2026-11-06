@@ -16,6 +16,7 @@ import androidx.compose.ui.window.rememberWindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.bible.desktop.AwtWindowHandle
 import net.bible.desktop.BibleViewBundle
@@ -27,6 +28,7 @@ import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
 import net.bible.sharedui.desktop.assembly.DesktopAppHostPlatform
 import net.bible.sharedui.desktop.assembly.DesktopAppStartup
+import net.bible.sharedui.desktop.assembly.DesktopExitPersistence
 import net.bible.sharedui.desktop.assembly.DesktopHostLifecycle
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.desktop.assembly.desktopRendererRecovery
@@ -75,6 +77,9 @@ fun appMain() {
         onExit = { exitRequested.value = true },
     )
     state.launch(CoroutineScope(SupervisorJob() + Dispatchers.IO))
+    val persistence = DesktopExitPersistence(persist = {
+        if (runBlocking { state.awaitStartupSettled(10_000) }) DesktopAppStartup.persistBeforeExit()
+    })
 
     application(exitProcessOnExit = false) {
         var closing by remember { mutableStateOf(false) }
@@ -90,8 +95,7 @@ fun appMain() {
                 withFrameNanos { }
                 withFrameNanos { }
                 repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
-                state.awaitStartupSettled(10_000)
-                withContext(Dispatchers.IO) { DesktopAppStartup.persistBeforeExit() }
+                withContext(Dispatchers.IO) { persistence.persistOnce() }
                 webViews.disposeAll()
                 wv2.shutdown()
                 bundleRoot.toFile().deleteRecursively()
