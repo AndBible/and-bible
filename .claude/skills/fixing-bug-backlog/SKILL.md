@@ -70,9 +70,9 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
 
 - Keep `max_running_children` children busy and **1–2 spawns queued**, no more; spawn the next
   one whenever a child is merged.
-- Default runner: `claude-jb` codex profile, tier opus. For a harder bug (unclear cause, layout or
-  device behaviour, several modules) use Anthropic Opus: `RUNNER="--agent claude --model opus"
-  MODEL_NAME="Claude Opus"`.
+- Runner: the one the maintainer names at the start of the session (it changes with quota); runner notes from earlier
+  sessions do not carry over. The script's default is the `claude-jb` codex profile, tier opus; override with e.g.
+  `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.
 - Waiting, reading the inbox, answering questions, statuses and cleanup: follow
   **jailbee-orchestration**. Watching children:
   - Use `jailbee inbox wait` directly and read every message, notes included. Do not wrap it in a
