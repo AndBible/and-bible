@@ -99,7 +99,10 @@ class EpubSwordDriver: AbstractBookDriver() {
 }
 
 class EpubBackend(private val createState: () -> EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
-    constructor(state: EpubBackendState, metadata: SwordBookMetaData): this({ state }, metadata)
+    /** An already opened state (manual installs): it counts as built, so delete() and closeIfOpened() reach it. */
+    constructor(state: EpubBackendState, metadata: SwordBookMetaData): this({ state }, metadata) {
+        built = Result.success(state)
+    }
 
     private val stateLock = Any()
     /** Outcome of the first build, success or failure: a broken module must not be re-parsed on every access. */
