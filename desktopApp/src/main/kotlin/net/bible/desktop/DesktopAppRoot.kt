@@ -91,6 +91,7 @@ class DesktopStartupState(
     val onCleanExit: () -> Unit = {},
     val logDirectory: java.nio.file.Path = net.bible.sharedcore.platform.desktop.DesktopPaths.system().data.resolve("logs"),
     val openLogFolder: suspend () -> Unit = {
+        ensureLogDirectory(logDirectory)
         try { java.awt.Desktop.getDesktop().open(logDirectory.toFile()) }
         catch (e: Exception) {
             val os = System.getProperty("os.name").orEmpty().lowercase()
@@ -205,12 +206,17 @@ private fun StartupSplash(dark: Boolean) {
     }
 }
 
+/** The log folder may not exist yet when startup failed early; opening it must not fail for that reason. */
+internal fun ensureLogDirectory(dir: java.nio.file.Path) {
+    java.nio.file.Files.createDirectories(dir)
+}
+
 /** Recovery remains usable without Koin or open databases, including after a failed recovery startup. */
 @Composable
 private fun StartupFailed(dark: Boolean, strings: Strings, error: Throwable, state: DesktopStartupState) {
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
-    var actionError by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    var actionError by remember { mutableStateOf<String?>(null) }
     fun runAction(action: suspend () -> Unit) {
         if (busy) return
         busy = true

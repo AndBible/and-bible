@@ -62,6 +62,17 @@ class DesktopAppRootTest {
     }
 
     @Test
+    fun logDirectoryIsCreatedBeforeOpening() {
+        val root = java.nio.file.Files.createTempDirectory("desktop-logs")
+        try {
+            val logs = root.resolve("data/logs")
+            ensureLogDirectory(logs)
+            kotlin.test.assertTrue(java.nio.file.Files.isDirectory(logs))
+            ensureLogDirectory(logs) // idempotent
+        } finally { root.toFile().deleteRecursively() }
+    }
+
+    @Test
     fun splashShowsWhileStartupRuns() = runComposeUiTest {
         val release = CountDownLatch(1)
         val state = DesktopStartupState(
