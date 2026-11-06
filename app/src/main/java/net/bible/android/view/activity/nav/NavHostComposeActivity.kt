@@ -2788,6 +2788,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * nav controller published). Only read by test host waits: a timed-out wait reports it, so a rare suite-only
      * stall names the stage it stopped at (#3947).
      */
+    @VisibleForTesting
     @Volatile internal var startStageForTest: String = "created"
         private set
 

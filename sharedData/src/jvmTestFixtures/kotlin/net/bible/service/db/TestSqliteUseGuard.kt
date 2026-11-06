@@ -76,13 +76,34 @@ object TestSqliteUseGuard {
         }
 
         /** A close found the lock taken: name the user, wait for its call to return, then let the close proceed. */
+        /**
+         * [ReentrantLock.tryLock] with a timeout that an interrupt does not cut short: Room may close from a cancelled
+         * coroutine or an interrupted thread, and an [InterruptedException] escaping here would skip both the close and
+         * the violation record. The interrupt status is restored afterwards.
+         */
+        private fun tryLockUninterruptibly(seconds: Long): Boolean {
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds)
+            var interrupted = false
+            try {
+                while (true) {
+                    try {
+                        return lock.tryLock(maxOf(0L, deadline - System.nanoTime()), TimeUnit.NANOSECONDS)
+                    } catch (_: InterruptedException) {
+                        interrupted = true
+                    }
+                }
+            } finally {
+                if (interrupted) Thread.currentThread().interrupt()
+            }
+        }
+
         private fun awaitUserBeforeClose(what: String) {
             val closer = Thread.currentThread()
             val user = inside
             val userCall = insideCall
             val userStack = user?.stackTrace?.joinToString("\n") { "\tat $it" } ?: "\t(the call returned before its stack was read)"
             val closerStack = closer.stackTrace.drop(1).joinToString("\n") { "\tat $it" }
-            val acquired = lock.tryLock(CLOSE_WAIT_SECONDS, TimeUnit.SECONDS)
+            val acquired = tryLockUninterruptibly(CLOSE_WAIT_SECONDS)
             record(
                 "SQLite $what on $path by thread '${closer.name}' while thread '${user?.name}' was inside " +
                     "SQLite ($userCall) on the same connection" +
