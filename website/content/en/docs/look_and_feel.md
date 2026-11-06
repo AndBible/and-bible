@@ -181,6 +181,14 @@ remain reachable on a phone.
     with a colored border. Makes it easier to see which window is currently
     active when using multiple windows side by side.
 
+### Display
+
+- **Show background activity in the menu:** Shows downloads, sync and indexing
+    progress, and failures, in the three-dot menu (⋮): a progress ring and a
+    failure badge on the button, and an activity list in the menu. On by default
+    on desktop and iOS, off on Android, where the system notifications show the
+    same information. See [Background activity](navigation.md#background-activity).
+
 ### One-Tap Actions
 
 When you tap on a verse or text, a quick action bar appears. You can customize
