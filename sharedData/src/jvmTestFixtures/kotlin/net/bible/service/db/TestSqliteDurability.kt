@@ -18,7 +18,7 @@ object TestSqliteDurability {
         val root = File(directory).canonicalPath + File.separator
         durableRoots -= root
         roots += root
-        sqliteConnectionDecoratorForTest = ::decorate
+        install()
     }
 
     /** Explicit opt-out, also safe if Robolectric reuses a directory registered by an earlier application. */
@@ -27,6 +27,12 @@ object TestSqliteDurability {
         val root = File(directory).canonicalPath + File.separator
         roots -= root
         durableRoots += root
+        install()
+    }
+
+    /** Every test connection also gets the [TestSqliteUseGuard], durable or not. */
+    private fun install() {
+        sqliteConnectionDecoratorForTest = { path, connection -> TestSqliteUseGuard.guard(path, decorate(path, connection)) }
     }
 
     @Synchronized

@@ -340,6 +340,9 @@ open class TestBibleApplication : BibleApplication() {
             detachedContainer = DatabaseContainer.detachInstanceForTest()
             previous?.closeAll()
         }
+        // #3947: a close that landed while another thread was inside SQLite on that connection (a JVM SIGSEGV
+        // without the guard). The violation names both threads; it may come from an earlier test's leaked job.
+        cleanup { net.bible.service.db.TestSqliteUseGuard.requireNoViolations() }
         terminationPending = false
         terminated = true
         failure?.let { throw it }
