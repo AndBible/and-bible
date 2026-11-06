@@ -722,12 +722,20 @@ final class ReadingUITests: RealAppUITestCase {
         guard isPad else { throw XCTSkip("iPad landscape rail fixture") }
         let device = XCUIDevice.shared
         addTeardownBlock { device.orientation = .portrait }
-        device.orientation = .landscapeLeft
+        device.orientation = .portrait
         let app = try launchReading()
         maximizePadWindow(app)
-        addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
+        // Rotate the running app, not SpringBoard before launch: iPadOS can restore a narrow saved window
+        // on launch, and SpringBoard's frame is still portrait while the app uses landscape coordinates.
+        device.orientation = .landscapeLeft
+        addTeardownBlock { [self] in
+            device.orientation = .portrait
+            maximizePadWindow(XCUIApplication())
+        }
         guard waitUntil(timeout: 15, { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height }) else {
-            XCTFail("iPad window did not become landscape"); return
+            attachTree(app, "rail-window-not-landscape")
+            shot(app, "rail-window-not-landscape")
+            XCTFail("iPad window did not become landscape: \(app.windows.firstMatch.frame)"); return
         }
         addWindow(app, from: 1)
         addWindow(app, from: 2)
@@ -767,7 +775,10 @@ final class ReadingUITests: RealAppUITestCase {
         }
         assertPaneText("expanded")
         _ = waitUntil(timeout: 2) { false } // let the rail animation settle for the screenshot
-        shot(app, "rail-three-panes-expanded")
+        let expandedShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        expandedShot.name = "rail-three-panes-expanded"
+        expandedShot.lifetime = .keepAlways
+        add(expandedShot)
         toggle.tap()
         guard waitUntil(timeout: 15, { self.windowTabs(app).isEmpty }) else {
             attachTree(app, "rail-not-collapsed"); XCTFail("rail tabs did not collapse"); return
@@ -775,7 +786,10 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertEqual(Set(visiblePaneIds(app)), Set(ids), "collapse must not hide or replace a pane")
         assertPaneText("collapsed")
         _ = waitUntil(timeout: 2) { false } // capture after the exit animation
-        shot(app, "rail-three-panes-collapsed")
+        let collapsedShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        collapsedShot.name = "rail-three-panes-collapsed"
+        collapsedShot.lifetime = .keepAlways
+        add(collapsedShot)
         XCTAssertTrue(toggle.isHittable, "collapsed rail must retain its expand control")
         toggle.tap()
         XCTAssertTrue(waitUntil(timeout: 15) { self.windowTabs(app).count == 4 }, "rail tabs did not reappear")
