@@ -49,6 +49,33 @@ class NotificationPermissionLogicTest {
         }
     }
 
+    @Test fun settingsFailuresAreIsolatedAndLoggedOnce() = runTest {
+        for (failingStep in listOf("enabled", "asked", "mark")) {
+            var requests = 0
+            var logged = 0
+            val original = Log.sinkOverride
+            Log.sinkOverride = { _, tag, _, _ -> if (tag == "NotificationPermission") logged++ }
+            try {
+                val permission = NotificationPermissionLogic(
+                    asked = { if (failingStep == "asked") error("asked") else false },
+                    markAsked = { if (failingStep == "mark") error("mark") },
+                    enabled = { if (failingStep == "enabled") error("enabled") else true },
+                    request = { requests++; true },
+                )
+                repeat(3) { permission.ensureAsked() }
+                assertEquals(0, requests, failingStep)
+                assertEquals(1, logged, failingStep)
+            } finally {
+                Log.sinkOverride = original
+            }
+        }
+    }
+
+    @Test fun settingsCancellationPropagates() = runTest {
+        val permission = NotificationPermissionLogic({ false }, {}, { throw CancellationException("cancel") }) { true }
+        assertFailsWith<CancellationException> { permission.ensureAsked() }
+    }
+
     @Test fun concurrentCallsAskOnce() = runTest {
         var asked = false
         var requests = 0
