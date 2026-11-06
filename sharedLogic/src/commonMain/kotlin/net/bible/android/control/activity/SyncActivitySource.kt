@@ -27,9 +27,9 @@ class SyncActivitySource(
      * Records a failure of any [kind] (the row is not tied to sync). Failures with an identical [message] and kind share
      * one row, which is refreshed and made unread again.
      */
-    fun reportFailure(kind: ActivityKind, message: String) {
+    fun reportFailure(kind: ActivityKind, message: String, background: Boolean = true) {
         val id = "failed:${kind.name}:${message.hashCode()}"
-        center.startOrFail(id, kind, message, message)
+        center.startOrFail(id, kind, message, message, background)
     }
 
     private companion object {

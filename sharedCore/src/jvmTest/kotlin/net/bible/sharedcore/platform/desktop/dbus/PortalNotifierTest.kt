@@ -1,6 +1,8 @@
 package net.bible.sharedcore.platform.desktop.dbus
 
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -63,8 +65,50 @@ class PortalNotifierTest {
     }
 
     @Test
+    fun closeDoesNotWaitForStalledTransport() {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val stalled = object : DbusNotifierBase(bus!!.desktopDbus(), scope, "test", 100) {
+            override val supportsProgress = false
+            override fun onConnected(connection: org.freedesktop.dbus.connections.impl.DBusConnection) {}
+            override fun show(n: NativeNotification) = submit(n.id) {
+                entered.countDown()
+                release.await(5, TimeUnit.SECONDS)
+            }
+            override fun remove(id: String) {}
+        }
+        try {
+            stalled.show(NativeNotification("id", "title", "body", null, false, false))
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            val start = System.nanoTime()
+            stalled.close()
+            val elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)
+            assertTrue(elapsedMs < 900, "close took $elapsedMs ms")
+        } finally {
+            release.countDown()
+        }
+    }
+
+    @Test
     fun portalReportsNoProgress() {
         assertFalse(notifier!!.supportsProgress)
+    }
+
+    @Test
+    fun forgedActionFromAnotherBusConnectionIsIgnored() {
+        val got = CopyOnWriteArrayList<String>()
+        notifier!!.setOnActivated { got.add(it) }
+        notifier!!.show(NativeNotification("job-2", "t", "b", null, false, false))
+        assertTrue(notifier!!.flush())
+        val attacker = FakeService(bus!!, "org.example.Attacker", "/org/freedesktop/portal/desktop", FakePortalNotification())
+        try {
+            attacker.emit("org.freedesktop.portal.Notification", "ActionInvoked", "ssav", "forged", "app.activate", emptyList<Variant<*>>())
+            service!!.emit("org.freedesktop.portal.Notification", "ActionInvoked", "ssav", "job-2", "app.activate", emptyList<Variant<*>>())
+            assertTrue(waitUntil { got.contains("job-2") })
+            assertEquals(listOf("job-2"), got.toList())
+        } finally {
+            attacker.stop()
+        }
     }
 
     @Test

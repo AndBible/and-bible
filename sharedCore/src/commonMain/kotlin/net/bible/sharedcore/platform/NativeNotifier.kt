@@ -22,6 +22,9 @@ interface NativeNotifier {
     /** True when the service can show a progress bar, so running items may be shown as notifications. */
     val supportsProgress: Boolean
 
+    /** Emits when progress capability may have changed; static implementations need not override this. */
+    val progressCapabilityChanges: kotlinx.coroutines.flow.Flow<Unit> get() = kotlinx.coroutines.flow.emptyFlow()
+
     /** Shows [n], replacing in place any notification already shown with the same id. */
     fun show(n: NativeNotification)
 

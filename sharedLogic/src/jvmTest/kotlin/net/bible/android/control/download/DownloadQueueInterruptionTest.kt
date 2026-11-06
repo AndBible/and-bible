@@ -93,7 +93,9 @@ class DownloadQueueInterruptionTest {
 
     @Test
     fun failedInstallIsReportedNowAndNotAgainAtTheNextLaunch() = runBlocking {
-        queue().addDocumentToDownloadQueue(kjv, "CrossWire") { throw InstallException("broken zip") }
+        val statuses = mutableListOf<DocumentStatus>()
+        queue(statuses).addDocumentToDownloadQueue(kjv, "CrossWire") { throw InstallException("broken zip") }
+        assertEquals(DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, statuses.single().documentInstallStatus)
         assertTrue(errors.isNotEmpty(), "the failure is reported when it happens")
         assertEquals(emptyList(), nextLaunch().interrupted(isInstalled = { false }))
     }

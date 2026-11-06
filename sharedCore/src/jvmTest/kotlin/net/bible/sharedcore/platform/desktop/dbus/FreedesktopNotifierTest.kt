@@ -87,7 +87,7 @@ class FreedesktopNotifierTest {
         assertEquals(2.toByte(), n.hints.getValue("urgency").value)
         assertEquals(42, n.hints.getValue("value").value)
         assertEquals(true, n.hints.getValue("transient").value)
-        assertEquals(0, n.expire)
+        assertTrue(n.expire in 1..120_000, "progress must expire within two minutes after a crash")
         assertEquals(0L, n.replacesId)
     }
 
@@ -257,6 +257,24 @@ class FreedesktopNotifierTest {
         assertEquals("final", fake.notifies.single().body)
         assertEquals(0L, fake.notifies.single().replacesId)
         assertEquals(1, warnings.size)
+    }
+
+    @Test
+    fun forgedOwnerChangeCannotReplaceOwnerOrClearServerIds() {
+        val got = CopyOnWriteArrayList<String>()
+        notifier!!.setOnActivated { got.add(it) }
+        notifier!!.show(note); flushed()
+        val attacker = FakeService(bus!!, "org.example.Attacker", "/org/freedesktop/DBus", fake)
+        try {
+            attacker.emit("org.freedesktop.DBus", "NameOwnerChanged", "sss", "org.freedesktop.Notifications", "old", "fake")
+            service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(101), "default")
+            assertTrue(waitUntil { got.isNotEmpty() })
+            notifier!!.show(note.copy(body = "updated")); flushed()
+            assertEquals(listOf(0L, 101L), fake.notifies.map { it.replacesId })
+            assertEquals(listOf("a"), got.toList())
+        } finally {
+            attacker.stop()
+        }
     }
 
     @Test

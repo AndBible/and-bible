@@ -3,11 +3,13 @@ package net.bible.android.control.activity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.log.LogLevel
 import net.bible.sharedcore.platform.AppForeground
@@ -21,7 +23,12 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class NativeNotificationPolicyTest {
 
-    private class FakeNotifier(override val supportsProgress: Boolean = true) : NativeNotifier {
+    private class FakeNotifier(supportsProgress: Boolean = true) : NativeNotifier {
+        private val capability = MutableStateFlow(supportsProgress)
+        override var supportsProgress: Boolean
+            get() = capability.value
+            set(value) { capability.value = value }
+        override val progressCapabilityChanges = capability.map { Unit }
         val calls = mutableListOf<String>()
         val shows = mutableListOf<NativeNotification>()
         var throwOnShow = false
@@ -66,6 +73,27 @@ class NativeNotificationPolicyTest {
         f.notifier.shows.single().let {
             assertTrue(it.urgent); assertEquals("T-a", it.title); assertEquals("disk full", it.body); assertNull(it.progress)
         }
+    }
+
+    @Test
+    fun routedForegroundFailureDoesNotNotifyButBackgroundFailureDoes() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val source = SyncActivitySource(center, EventSource<Boolean>()) { "Sync" }
+        val router = BackgroundErrorRouter({ true }, source) { it }
+        val notifier = FakeNotifier()
+        var foreground = true
+        val policy = NativeNotificationPolicy(center.items, notifier, { foreground }, MutableStateFlow(true), { currentTime }, backgroundScope, { "Finished" })
+        policy.start(); runCurrent()
+        router.route("foreground", false, ActivityKind.SYNC); runCurrent()
+        assertTrue(notifier.shows.isEmpty())
+        router.route("background", true, ActivityKind.SYNC); runCurrent()
+        assertEquals(listOf("background"), notifier.shows.map { it.title })
+        assertEquals("", notifier.shows.single().body)
+        foreground = false
+        policy.onForegroundChanged(false); runCurrent()
+        router.route("away", false, ActivityKind.SYNC); runCurrent()
+        assertEquals(listOf("background", "away"), notifier.shows.map { it.title })
+        policy.close(); source.close()
     }
 
     @Test
@@ -149,7 +177,7 @@ class NativeNotificationPolicyTest {
         f.set(item(progress = 10)); runCurrent()
         advance(10_000)
         assertEquals(1, f.notifier.shows.size)
-        f.set(item(progress = 10, message = "x")); runCurrent() // unchanged progress
+        f.set(item(progress = 10)); runCurrent()
         advance(2_000)
         assertEquals(1, f.notifier.shows.size)
         f.set(item(progress = 20)); runCurrent()
@@ -162,6 +190,94 @@ class NativeNotificationPolicyTest {
         advance(1) // trailing update carries the newest value
         assertEquals(3, f.notifier.shows.size)
         assertEquals(40, f.notifier.shows.last().progress)
+    }
+
+    @Test
+    fun progressReturnsAfterCapabilityRecoveryWithoutActivityUpdates() = runTest {
+        val f = fixture(supportsProgress = false)
+        f.set(item(progress = null)); runCurrent()
+        advance(20_000)
+        assertTrue(f.notifier.shows.isEmpty())
+        f.notifier.supportsProgress = true
+        advance(10_000)
+        assertEquals(1, f.notifier.shows.size)
+        f.notifier.supportsProgress = false
+        advance(60_000)
+        f.notifier.supportsProgress = true
+        advance(10_000)
+        assertEquals(2, f.notifier.shows.size)
+    }
+
+    @Test
+    fun downloadFailureNotifiesOnlyWhenAppIsAway() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val events = EventSource<net.bible.android.control.download.DocumentStatus>()
+        val source = DownloadActivitySource(center, events, { it }, { "$it failed" })
+        val notifier = FakeNotifier()
+        val policy = NativeNotificationPolicy(center.items, notifier, { true }, MutableStateFlow(true), { currentTime }, backgroundScope, { "Finished" })
+        policy.start(); runCurrent()
+        events.emit(net.bible.android.control.download.DocumentStatus("one", net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0)); runCurrent()
+        assertTrue(notifier.shows.isEmpty())
+        policy.onForegroundChanged(false); runCurrent()
+        events.emit(net.bible.android.control.download.DocumentStatus("two", net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0)); runCurrent()
+        assertEquals(listOf("two"), notifier.shows.map { it.title })
+        policy.close(); source.close()
+    }
+
+    @Test
+    fun unchangedProgressIsRefreshedBeforeExpiry() = runTest {
+        val f = fixture()
+        f.set(item(progress = 10)); runCurrent()
+        advance(10_000)
+        assertEquals(1, f.notifier.shows.size)
+        advance(60_000)
+        assertEquals(2, f.notifier.shows.size)
+        advance(120_000)
+        assertEquals(4, f.notifier.shows.size)
+    }
+
+    @Test
+    fun messageOnlyProgressChangeGetsTrailingUpdate() = runTest {
+        val f = fixture()
+        f.set(item(progress = 10, message = "first")); runCurrent()
+        advance(10_000)
+        f.set(item(progress = 10, message = "second")); runCurrent()
+        advance(1_000)
+        assertEquals(2, f.notifier.shows.size)
+        assertEquals("second", f.notifier.shows.last().body)
+    }
+
+    @Test
+    fun repeatedFailureFromCenterNotifiesAgainAfterReadAndWithoutRead() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val notifier = FakeNotifier()
+        val policy = NativeNotificationPolicy(
+            center.items, notifier, { false }, MutableStateFlow(true), { currentTime }, backgroundScope, { "Finished" },
+        )
+        policy.start(); runCurrent()
+        center.startOrFail("same", ActivityKind.SYNC, "Sync", "offline"); runCurrent()
+        center.markAllRead(); runCurrent()
+        advance(1)
+        center.startOrFail("same", ActivityKind.SYNC, "Sync", "offline"); runCurrent()
+        advance(1)
+        center.startOrFail("same", ActivityKind.SYNC, "Sync", "offline"); runCurrent()
+        assertEquals(3, notifier.shows.size)
+        center.markAllRead(); runCurrent()
+        policy.onForegroundChanged(true); runCurrent()
+        assertEquals(3, notifier.shows.size)
+        policy.close()
+    }
+
+    @Test
+    fun repeatedUnreadFailuresWithinSameMillisecondNotifyAgain() = runTest {
+        val center = ActivityCenter(backgroundScope) { 42L }
+        val notifier = FakeNotifier()
+        val policy = NativeNotificationPolicy(center.items, notifier, { false }, MutableStateFlow(true), { currentTime }, backgroundScope, { "Finished" })
+        policy.start(); runCurrent()
+        center.startOrFail("same", ActivityKind.SYNC, "Sync", "offline"); runCurrent()
+        center.startOrFail("same", ActivityKind.SYNC, "Sync", "offline"); runCurrent()
+        assertEquals(2, notifier.shows.size)
+        policy.close()
     }
 
     @Test

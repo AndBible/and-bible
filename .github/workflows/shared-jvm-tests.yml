@@ -100,6 +100,8 @@ jobs:
           scripts/check-test-sword-modules.sh --zip "$RUNNER_TEMP/testmods.zip"
       - name: Test summary helper
         run: python3 -m unittest discover -s scripts/tests -p test_shared_test_summary.py
+      - name: Install private D-Bus test daemon
+        run: sudo apt-get update && sudo apt-get install -y dbus-daemon
       - name: Run shared JVM tests
         id: tests
         run: >-

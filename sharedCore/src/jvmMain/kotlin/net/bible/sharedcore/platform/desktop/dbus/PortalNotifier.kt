@@ -5,6 +5,7 @@ import net.bible.sharedcore.platform.NativeNotification
 import org.freedesktop.dbus.annotations.DBusInterfaceName
 import org.freedesktop.dbus.connections.impl.DBusConnection
 import org.freedesktop.dbus.interfaces.DBusInterface
+import org.freedesktop.dbus.interfaces.DBus
 import org.freedesktop.dbus.types.Variant
 
 @JvmSuppressWildcards
@@ -26,7 +27,12 @@ class PortalNotifier(
     override val supportsProgress: Boolean get() = false
 
     override fun onConnected(connection: DBusConnection) {
-        listenTo(connection, INTERFACE, "ActionInvoked") { signal -> activated(signal.parameters[0] as String) }
+        listenTo(connection, INTERFACE, "ActionInvoked", PATH) { signal ->
+            val owner = runCatching {
+                connection.getRemoteObject("org.freedesktop.DBus", "/org/freedesktop/DBus", DBus::class.java).GetNameOwner(SERVICE)
+            }.getOrNull()
+            if (owner != null && signal.source == owner) activated(signal.parameters[0] as String)
+        }
     }
 
     private fun proxy(connection: DBusConnection) =

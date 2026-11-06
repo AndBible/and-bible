@@ -3,6 +3,7 @@ package net.bible.sharedcore.platform.desktop.dbus
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.map
 import net.bible.sharedcore.platform.NativeNotification
 import org.freedesktop.dbus.annotations.DBusInterfaceName
 import org.freedesktop.dbus.connections.impl.DBusConnection
@@ -52,7 +53,11 @@ class FreedesktopNotifier(
     private val ownerChangeCount = AtomicInteger()
 
     @Volatile private var owner: String? = null
-    @Volatile private var capabilitiesAnswered = false
+    private val capabilities = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private var capabilitiesAnswered: Boolean
+        get() = capabilities.value
+        set(value) { capabilities.value = value }
+    override val progressCapabilityChanges: kotlinx.coroutines.flow.Flow<Unit> = capabilities.map { Unit }
 
     override val supportsProgress: Boolean get() = capabilitiesAnswered
 
@@ -70,8 +75,8 @@ class FreedesktopNotifier(
         owner = runCatching {
             connection.getRemoteObject("org.freedesktop.DBus", "/org/freedesktop/DBus", DBus::class.java).GetNameOwner(SERVICE)
         }.getOrNull()
-        listenTo(connection, "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus") { signal ->
-            if (signal.parameters[0] == SERVICE) {
+        listenTo(connection, "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus", SERVICE, "org.freedesktop.DBus") { signal ->
+            if (signal.source == "org.freedesktop.DBus" && signal.parameters[0] == SERVICE) {
                 val newOwner = (signal.parameters[2] as String).ifEmpty { null }
                 owner = newOwner
                 serverIds.clear()
@@ -130,7 +135,7 @@ class FreedesktopNotifier(
         }
         // Servers without progress bars still show the percentage in the body; the caller's body must not repeat it.
         val body = listOfNotNull(n.body.ifBlank { null }, percent?.let { "$it %" }).joinToString("\n")
-        val expire = if (n.progress != null || n.indeterminate) 0 else -1
+        val expire = if (n.progress != null || n.indeterminate) 120_000 else -1
         notifyInFlight.add(n.id)
         try {
             val serverId = proxy(connection).Notify(
