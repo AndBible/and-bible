@@ -12,7 +12,8 @@ import kotlin.test.assertEquals
 
 /**
  * Document-sync failures on desktop/iOS must go through [UserMessages] (so the presenters record them in the activity
- * list and may reroute them), not straight to a notifier. The drain is never user-initiated, so they are background.
+ * list), not straight to a notifier. The drain runs ops the user started on the cloud documents screen ("Sync now",
+ * per-document actions) mixed with automatic ones, so the failures are foreground: they keep their dialog and are recorded.
  */
 class HostDocumentSyncStarterErrorRoutingTest {
     private val errors = mutableListOf<UserMessage.ErrorNotification>()
@@ -37,17 +38,17 @@ class HostDocumentSyncStarterErrorRoutingTest {
         { "generic" }, begin = { 1uL }, end = {},
     )
 
-    @Test fun userFacingFailureIsABackgroundSyncErrorNotificationWithoutReportButton() = runTest {
+    @Test fun userFacingFailureIsAForegroundSyncErrorNotificationWithoutReportButton() = runTest {
         val s = starter(backgroundScope, CloudSyncUserFacingException("bad password", true))
         s.start(push = listOf("A"), download = emptyList())
         s.awaitIdle()
-        assertEquals(listOf(UserMessage.ErrorNotification("bad password", null, showReportButton = false, background = true, kind = ActivityKind.SYNC)), errors)
+        assertEquals(listOf(UserMessage.ErrorNotification("bad password", null, showReportButton = false, background = false, kind = ActivityKind.SYNC)), errors)
     }
 
-    @Test fun genericFailureIsABackgroundSyncErrorNotification() = runTest {
+    @Test fun genericFailureIsAForegroundSyncErrorNotification() = runTest {
         val s = starter(backgroundScope, IllegalStateException("boom"))
         s.start(push = listOf("A"), download = emptyList())
         s.awaitIdle()
-        assertEquals(listOf(UserMessage.ErrorNotification("generic", null, showReportButton = true, background = true, kind = ActivityKind.SYNC)), errors)
+        assertEquals(listOf(UserMessage.ErrorNotification("generic", null, showReportButton = true, background = false, kind = ActivityKind.SYNC)), errors)
     }
 }
