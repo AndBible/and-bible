@@ -21,6 +21,7 @@ package net.bible.android.view.compose.golden
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
@@ -32,6 +33,7 @@ import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.reading.activity.ActivityListContent
 import net.bible.sharedui.reading.activity.ActivityMenuSection
 import net.bible.sharedui.reading.activity.ActivityMenuState
+import net.bible.sharedui.reading.activity.SyncNowMenuState
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -112,6 +114,16 @@ class ActivityCenterGoldenTest {
     @Test
     fun menu_section_single_running() = capture("menu_section_single_running") {
         Column(Modifier.width(280.dp)) { ActivityMenuSection(activity(listOf(item("Download KJV", progress = 70)))) }
+    }
+
+    @Test
+    fun menu_syncNow() = capture("menu_syncNow") {
+        Column(Modifier.width(280.dp)) {
+            ActivityMenuSection(ActivityMenuState(
+                listOf(item("Download KJV", progress = 70)), 0, {}, {},
+                SyncNowMenuState(mutableStateOf(true), mutableStateOf(false), {}),
+            ))
+        }
     }
 
     private fun list(items: List<ActivityItem>): @Composable () -> Unit = {

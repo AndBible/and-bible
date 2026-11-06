@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import net.bible.service.cloudsync.SyncNow
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
@@ -28,6 +29,7 @@ import net.bible.android.control.activity.ActivityMenuPreference
 class ActivityHostWiring(
     val center: ActivityCenter,
     val preference: ActivityMenuPreference,
+    val syncNow: SyncNow? = null,
     val onOpenItem: (ActivityItem) -> Unit,
 )
 
@@ -65,13 +67,21 @@ internal fun ActivityHostImpl(
     val unread = wiring.center.unreadFailures.collectAsState()
     var listVisible by remember { mutableStateOf(false) }
     val onShowAll = remember { { listVisible = true } }
-    val onMenuOpened = remember(wiring.center) { { wiring.center.markAllRead() } }
+    val sync = wiring.syncNow
+    val available = remember(sync) { mutableStateOf(sync?.available() == true) }
+    val running = sync?.running?.collectAsState()
+    val syncState = remember(sync, available, running) {
+        if (sync != null && running != null) SyncNowMenuState(available, running, sync::start) else null
+    }
+    val onMenuOpened = remember(wiring.center, sync, available) {
+        { available.value = sync?.available() == true; wiring.center.markAllRead() }
+    }
 
     // Turning the preference off must not leave the list orphaned on screen.
     LaunchedEffect(enabled) { if (!enabled) listVisible = false }
 
-    val state = remember(enabled, items, unread, onShowAll, onMenuOpened) {
-        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened) else null
+    val state = remember(enabled, items, unread, onShowAll, onMenuOpened, syncState) {
+        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState) else null
     }
     content(state)
     if (enabled && listVisible) {

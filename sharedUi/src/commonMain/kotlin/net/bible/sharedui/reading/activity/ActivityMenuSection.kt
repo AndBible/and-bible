@@ -52,20 +52,22 @@ internal const val MENU_ACTIVITY_ROWS = 3
  */
 @kotlin.native.HiddenFromObjC
 @Composable
-fun ActivityMenuSection(activity: ActivityMenuState) {
+fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? = null) {
     // Stable sort: the incoming order (newest first) is kept within each state.
     // Same filter as the full list (ActivityListContent): cancelled items are never shown anywhere.
     val all = activity.items.value.filter { it.state != ActivityState.CANCELLED }
     val shown = all
         .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
         .sortedBy { it.state.menuRank() }
-    if (shown.isEmpty()) return
+    val sync = activity.syncNow?.takeIf { it.available.value }
+    if (shown.isEmpty() && sync == null) return
     val strings = LocalStrings.current
     Column(Modifier.testTag(ACTIVITY_SECTION_TAG)) {
+        if (sync != null) SyncNowRow(sync, onSyncClick ?: sync.onClick)
         val rows = shown.take(MENU_ACTIVITY_ROWS)
         rows.forEach { ActivityRow(it) }
         // Whenever the list holds more than these rows (finished successes, overflow) or anything failed.
-        if (all.size > rows.size || shown.any { it.state == ActivityState.FAILED }) {
+        if (shown.isNotEmpty() && (all.size > rows.size || shown.any { it.state == ActivityState.FAILED })) {
             AbMenuItem(text = strings.activityShowAll(all.size), onClick = activity.onShowAll)
         }
         HorizontalDivider()

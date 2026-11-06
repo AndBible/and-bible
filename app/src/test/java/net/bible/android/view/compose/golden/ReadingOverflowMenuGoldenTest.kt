@@ -8,6 +8,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedui.reading.ReadingOverflowMenuRows
+import net.bible.sharedui.reading.toolbar.syncNowMenuItem
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -81,6 +82,7 @@ class ReadingOverflowMenuGoldenTest {
         "nightMode" -> painterResource(R.drawable.ic_night_mode_24)
         "bookmarks" -> painterResource(R.drawable.ic_baseline_bookmark_24)
         "textOptions" -> painterResource(R.drawable.ic_text_options_24dp)
+        "ic_sync_white_24dp" -> painterResource(R.drawable.ic_sync_white_24dp)
         else -> null
     }
 
@@ -89,6 +91,17 @@ class ReadingOverflowMenuGoldenTest {
 
     @Test fun recentSection_matrix() =
         captureMatrix("ReadingOverflowMenu", "recentSection", content = recentSectionContent())
+
+    private fun syncContent(running: Boolean): @Composable () -> Unit = {
+        val sync = requireNotNull(syncNowMenuItem(true, running, false, "Sync now"))
+        Column { ReadingOverflowMenuRows(listOf(sync) + items, onItemClick = {}, icon = { key -> icon(key) }) }
+    }
+
+    @Test fun syncNow() = listOf(GoldenMode.LIGHT, GoldenMode.DARK, GoldenMode.MONO).forEach {
+        captureGolden("ReadingOverflowMenu", "syncNow", it, content = syncContent(false))
+    }
+
+    @Test fun syncNow_disabled() = captureGolden("ReadingOverflowMenu", "syncNow_disabled", GoldenMode.LIGHT, content = syncContent(true))
 
     private fun itemsContent(): @androidx.compose.runtime.Composable () -> Unit = {
             Column { ReadingOverflowMenuRows(items, onItemClick = {}, icon = { key -> icon(key) }) }
