@@ -116,6 +116,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "eink_mode" -> R.drawable.ic_eink_24dp
     "disable_animations" -> R.drawable.ic_animate_24dp
     "show_activity_in_menu" -> R.drawable.ic_cloud_download_24dp
+    "system_notifications" -> R.drawable.ic_cloud_download_24dp
     "discrete_help" -> R.drawable.ic_warning_red_24dp
     "discrete_mode" -> R.drawable.ic_calc_24
     "show_calculator" -> R.drawable.ic_calc_smoke_screen

@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedui.reading.activity.ActivityHostWiring
@@ -787,7 +788,11 @@ class HostReadingHost(
     private fun activityWiring(): ActivityHostWiring? {
         val center = koin.getOrNull<ActivityCenter>() ?: return null
         val preference = koin.getOrNull<ActivityMenuPreference>() ?: return null
-        return ActivityHostWiring(center, preference) { item -> activityItemRoute(item)?.let { shell.navigate(it) } }
+        return ActivityHostWiring(
+            center, preference,
+            onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
+            listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
+        )
     }
 
     /** Back (Esc on desktop) closes the drawer, the search sheet and the search bar before it passes on; see [ReadingBackChain] and [ReadingBackRoute]. */

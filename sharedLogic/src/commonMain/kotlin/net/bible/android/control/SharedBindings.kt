@@ -234,6 +234,8 @@ fun buildSharedBindings() = module {
     // stay resolvable from just its ports); SharedAppStartup.startActivityCenter() resolves them at startup so work
     // that begins before any UI exists is still recorded. Adapter callbacks may arrive on any thread; ActivityCenter is thread-safe.
     single { ActivityCenter(get<AppCoroutineScope>(), net.bible.android.control.activity.monotonicActivityClock()) }
+    // "Open the activity list" requests (#4012): a native notification click on desktop; harmless where nothing emits.
+    single { net.bible.android.control.activity.ActivityListRequests() }
     // Platform default (Android false, desktop/iOS true) comes from each platform's bindings as ActivityMenuDefault.
     single { net.bible.android.control.activity.ActivityMenuPreference(get(), get()) }
     single {

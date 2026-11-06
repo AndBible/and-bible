@@ -9,25 +9,30 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.Flow
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.control.activity.ActivityMenuPreference
 
 /**
  * What a reading host needs to show background activity (#4007): the registry, the user's preference and what a
  * tapped row does. A host that leaves this out (`null`) renders today's toolbar.
  *
- * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing
+ * @param listRequests each emission opens the full list when the preference is on (a desktop notification click, #4012)
+ * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing.
+ * Kept last so Android's trailing-lambda call `ActivityHostWiring(center, preference) { ... }` still compiles.
  */
 @kotlin.native.HiddenFromObjC
 class ActivityHostWiring(
     val center: ActivityCenter,
     val preference: ActivityMenuPreference,
+    val listRequests: Flow<Unit>? = null,
     val onOpenItem: (ActivityItem) -> Unit,
 )
 
@@ -69,6 +74,10 @@ internal fun ActivityHostImpl(
 
     // Turning the preference off must not leave the list orphaned on screen.
     LaunchedEffect(enabled) { if (!enabled) listVisible = false }
+
+    // A request while the preference is off is dropped, not remembered.
+    val enabledNow by rememberUpdatedState(enabled)
+    LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
     val state = remember(enabled, items, unread, onShowAll, onMenuOpened) {
         if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened) else null

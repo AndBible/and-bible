@@ -1,0 +1,326 @@
+package net.bible.android.control.activity
+
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.LogLevel
+import net.bible.sharedcore.platform.AppForeground
+import net.bible.sharedcore.platform.NativeNotification
+import net.bible.sharedcore.platform.NativeNotifier
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class NativeNotificationPolicyTest {
+
+    private class FakeNotifier(override val supportsProgress: Boolean = true) : NativeNotifier {
+        val calls = mutableListOf<String>()
+        val shows = mutableListOf<NativeNotification>()
+        var throwOnShow = false
+        override fun show(n: NativeNotification) {
+            calls += "show:${n.id}"
+            shows += n
+            if (throwOnShow) error("boom")
+        }
+        override fun remove(id: String) { calls += "remove:$id" }
+        override fun setOnActivated(handler: (id: String) -> Unit) {}
+    }
+
+    private class Fixture(val scope: TestScope, supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true) {
+        val items = MutableStateFlow<List<ActivityItem>>(emptyList())
+        val notifier = FakeNotifier(supportsProgress)
+        val foreground = MutableStateFlow(fg)
+        val enabled = MutableStateFlow(on)
+        val policy = NativeNotificationPolicy(
+            items, notifier, { foreground.value }, enabled, { scope.currentTime }, scope.backgroundScope, { "Finished" },
+        ).also { it.start() }
+
+        fun setForeground(v: Boolean) { foreground.value = v; policy.onForegroundChanged(v) }
+        fun set(vararg i: ActivityItem) { items.value = i.toList() }
+    }
+
+    private fun TestScope.fixture(supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true) =
+        Fixture(this, supportsProgress, fg, on).also { runCurrent() }
+
+    private fun TestScope.advance(ms: Long) { advanceTimeBy(ms); runCurrent() }
+
+    private fun item(
+        id: String = "a", state: ActivityState = ActivityState.RUNNING, kind: ActivityKind = ActivityKind.DOWNLOAD,
+        progress: Int? = null, started: Long = 0, finished: Long? = null, message: String? = null,
+    ) = ActivityItem(id, kind, "T-$id", state, progress, message, null, started, finished, true)
+
+    @Test
+    fun failureNotifiesUrgentEvenInForeground() = runTest {
+        val f = fixture(fg = true)
+        f.set(item(state = ActivityState.FAILED, message = "disk full", finished = 5))
+        runCurrent()
+        assertEquals(listOf("show:andbible-a"), f.notifier.calls)
+        f.notifier.shows.single().let {
+            assertTrue(it.urgent); assertEquals("T-a", it.title); assertEquals("disk full", it.body); assertNull(it.progress)
+        }
+    }
+
+    @Test
+    fun longSuccessInBackgroundNotifiesFinished() = runTest {
+        val f = fixture()
+        f.set(item(state = ActivityState.SUCCEEDED, started = 1000, finished = 11_000))
+        runCurrent()
+        f.notifier.shows.single().let { assertEquals("Finished", it.body); assertTrue(!it.urgent); assertNull(it.progress) }
+    }
+
+    @Test
+    fun successAt9999msIsSilent() = runTest {
+        val f = fixture()
+        f.set(item(state = ActivityState.SUCCEEDED, started = 0, finished = 9_999))
+        runCurrent()
+        assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun successInForegroundIsSilent() = runTest {
+        val f = fixture(fg = true)
+        f.set(item(state = ActivityState.SUCCEEDED, started = 0, finished = 60_000))
+        runCurrent()
+        assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun syncSuccessIsSilentAndRemovesProgress() = runTest {
+        val f = fixture()
+        f.set(item(kind = ActivityKind.SYNC, progress = 10))
+        runCurrent()
+        advance(10_000)
+        assertEquals(listOf("show:andbible-a"), f.notifier.calls)
+        f.set(item(kind = ActivityKind.SYNC, state = ActivityState.SUCCEEDED, started = 0, finished = 20_000))
+        runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
+    }
+
+    @Test
+    fun longSuccessReplacesProgressInPlace() = runTest {
+        val f = fixture()
+        f.set(item(progress = 50)); runCurrent()
+        advance(10_000)
+        f.set(item(state = ActivityState.SUCCEEDED, progress = 100, finished = 12_000)); runCurrent()
+        assertEquals(listOf("show:andbible-a", "show:andbible-a"), f.notifier.calls)
+        assertEquals("Finished", f.notifier.shows.last().body)
+    }
+
+    @Test
+    fun progressOnlyWhenSupportedBackgroundAndAfter10s() = runTest {
+        val f = fixture()
+        f.set(item(progress = 5))
+        advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1) // reaches 10_000 with no new emission: the time trigger shows it
+        assertEquals(listOf("show:andbible-a"), f.notifier.calls)
+        f.notifier.shows.single().let { assertEquals(5, it.progress); assertEquals("", it.body); assertTrue(!it.indeterminate) }
+
+        val g = fixture(supportsProgress = false)
+        g.set(item(id = "b", progress = 5, started = currentTime))
+        advance(30_000)
+        assertTrue(g.notifier.calls.isEmpty())
+
+        val h = fixture(fg = true)
+        h.set(item(id = "c", progress = 5, started = currentTime))
+        advance(30_000)
+        assertTrue(h.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun indeterminateProgressShowsEmptyBody() = runTest {
+        val f = fixture()
+        f.set(item(progress = null)); runCurrent()
+        advance(10_000)
+        f.notifier.shows.single().let { assertTrue(it.indeterminate); assertEquals("", it.body); assertNull(it.progress) }
+    }
+
+    @Test
+    fun progressThrottledToOnePerSecondAndOnlyOnChange() = runTest {
+        val f = fixture()
+        f.set(item(progress = 10)); runCurrent()
+        advance(10_000)
+        assertEquals(1, f.notifier.shows.size)
+        f.set(item(progress = 10, message = "x")); runCurrent() // unchanged progress
+        advance(2_000)
+        assertEquals(1, f.notifier.shows.size)
+        f.set(item(progress = 20)); runCurrent()
+        assertEquals(2, f.notifier.shows.size)
+        f.set(item(progress = 30)); runCurrent() // throttled
+        f.set(item(progress = 40)); runCurrent()
+        assertEquals(2, f.notifier.shows.size)
+        advance(999)
+        assertEquals(2, f.notifier.shows.size)
+        advance(1) // trailing update carries the newest value
+        assertEquals(3, f.notifier.shows.size)
+        assertEquals(40, f.notifier.shows.last().progress)
+    }
+
+    @Test
+    fun sameFailureIdTwiceUpdatesInPlace() = runTest {
+        val f = fixture()
+        f.set(item(state = ActivityState.FAILED, message = "one")); runCurrent()
+        f.set(item(state = ActivityState.RUNNING)); runCurrent()
+        f.set(item(state = ActivityState.FAILED, message = "two")); runCurrent()
+        assertEquals(setOf("andbible-a"), f.notifier.shows.map { it.id }.toSet())
+        assertEquals(listOf("one", "two"), f.notifier.shows.map { it.body })
+        assertTrue(f.notifier.calls.none { it.startsWith("remove") })
+    }
+
+    @Test
+    fun closeRemovesShownProgress() = runTest {
+        val f = fixture()
+        f.set(item(id = "p", progress = 1), item(id = "f", state = ActivityState.FAILED)); runCurrent()
+        advance(10_000)
+        f.notifier.calls.clear()
+        f.policy.close(); runCurrent()
+        assertEquals(listOf("remove:andbible-p"), f.notifier.calls)
+        f.set(item(id = "q", state = ActivityState.FAILED)); runCurrent()
+        assertEquals(listOf("remove:andbible-p"), f.notifier.calls)
+    }
+
+    @Test
+    fun vanishRulesDependOnLastState() = runTest {
+        val f = fixture()
+        f.set(
+            item(id = "run", progress = 1),
+            item(id = "fail", state = ActivityState.FAILED),
+            item(id = "ok", state = ActivityState.SUCCEEDED, started = 0, finished = 20_000),
+        ); runCurrent()
+        advance(10_000)
+        f.notifier.calls.clear()
+        f.set(); runCurrent()
+        assertEquals(setOf("remove:andbible-run", "remove:andbible-fail"), f.notifier.calls.toSet())
+        assertEquals(2, f.notifier.calls.size)
+    }
+
+    @Test
+    fun cancelledItemIsRemovedLikeVanishedRunning() = runTest {
+        val f = fixture()
+        f.set(item(progress = 1)); runCurrent()
+        advance(10_000)
+        f.set(item(state = ActivityState.CANCELLED)); runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
+    }
+
+    @Test
+    fun foregroundRemovesProgress() = runTest {
+        val f = fixture()
+        f.set(item(progress = 1)); runCurrent()
+        advance(10_000)
+        f.setForeground(true); runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
+        f.set(item(progress = 2)); advance(5_000)
+        assertEquals(2, f.notifier.calls.size)
+        f.setForeground(false); runCurrent() // shown again for the same id after the window loses focus
+        assertEquals("show:andbible-a", f.notifier.calls.last())
+    }
+
+    @Test
+    fun preferenceOffRemovesAllAndOnDoesNotReplay() = runTest {
+        val f = fixture()
+        f.set(item(id = "p", progress = 1), item(id = "f", state = ActivityState.FAILED)); runCurrent()
+        advance(10_000)
+        f.notifier.calls.clear()
+        f.enabled.value = false; runCurrent()
+        assertEquals(setOf("remove:andbible-p", "remove:andbible-f"), f.notifier.calls.toSet())
+        f.notifier.calls.clear()
+        f.set(item(id = "p", progress = 2), item(id = "f", state = ActivityState.FAILED), item(id = "g", state = ActivityState.FAILED))
+        advance(5_000)
+        assertTrue(f.notifier.calls.isEmpty())
+        f.enabled.value = true; runCurrent()
+        // the failures are baseline (no replay); the still-running item resumes progress updates
+        assertEquals(listOf("show:andbible-p"), f.notifier.calls)
+        f.set(item(id = "p", progress = 2), item(id = "f", state = ActivityState.FAILED), item(id = "g", state = ActivityState.FAILED),
+            item(id = "h", state = ActivityState.FAILED)); runCurrent()
+        assertEquals("show:andbible-h", f.notifier.calls.last())
+    }
+
+    @Test
+    fun notifierExceptionsDoNotStopThePolicyAndAreLoggedOncePerKind() = runTest {
+        val logged = mutableListOf<String>()
+        val old = Log.sinkOverride
+        Log.sinkOverride = { level, _, msg, _ -> if (level == LogLevel.WARN) logged += msg }
+        try {
+            val f = fixture()
+            f.notifier.throwOnShow = true
+            f.set(item(id = "x", state = ActivityState.FAILED)); runCurrent()
+            f.set(item(id = "x", state = ActivityState.FAILED), item(id = "y", state = ActivityState.FAILED)); runCurrent()
+            f.set(item(id = "x", state = ActivityState.FAILED), item(id = "y", state = ActivityState.FAILED), item(id = "z", state = ActivityState.FAILED)); runCurrent()
+            assertEquals(listOf("show:andbible-x", "show:andbible-y", "show:andbible-z"), f.notifier.calls)
+            assertEquals(1, logged.size)
+        } finally {
+            Log.sinkOverride = old
+        }
+    }
+
+    @Test
+    fun closeIsSynchronousEvenIfScopeIsCancelledRightAfter() = runTest {
+        val f = fixture()
+        f.set(item(id = "p", progress = 1)); runCurrent()
+        advance(10_000)
+        f.notifier.calls.clear()
+        f.policy.close()
+        backgroundScope.cancel()
+        assertEquals(listOf("remove:andbible-p"), f.notifier.calls)
+        f.policy.close() // idempotent
+        assertEquals(1, f.notifier.calls.size)
+    }
+
+    @Test
+    fun shortOrForegroundNonSyncSuccessRemovesShownProgress() = runTest {
+        val f = fixture()
+        f.set(item(id = "short", progress = 1, started = 0), item(id = "fgd", progress = 1, started = 0)); runCurrent()
+        advance(10_000)
+        f.notifier.calls.clear()
+        f.set(item(id = "short", state = ActivityState.SUCCEEDED, started = 0, finished = 9_000), item(id = "fgd", progress = 1, started = 0)); runCurrent()
+        assertEquals(listOf("remove:andbible-short"), f.notifier.calls)
+        f.notifier.calls.clear()
+        f.setForeground(true); runCurrent()
+        f.notifier.calls.clear()
+        f.set(item(id = "short", state = ActivityState.SUCCEEDED, started = 0, finished = 9_000), item(id = "fgd", state = ActivityState.SUCCEEDED, started = 0, finished = 50_000)); runCurrent()
+        assertTrue(f.notifier.calls.isEmpty()) // progress was already removed by entering the foreground
+    }
+
+    @Test
+    fun neverShownRunningItemVanishingMakesNoCall() = runTest {
+        val f = fixture()
+        f.set(item(progress = 1, started = 0)); runCurrent() // under 10 s: not shown
+        f.set(); runCurrent()
+        assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun progressGateCountsFromFirstSightNotFromStartedAt() = runTest {
+        val f = fixture()
+        advance(3_000)
+        f.set(item(progress = 5, started = 987_654_321)); runCurrent() // foreign time base: must not matter
+        advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1)
+        assertEquals(listOf("show:andbible-a"), f.notifier.calls)
+    }
+
+    @Test
+    fun failureBodyDropsRepeatedTitlePrefix() = runTest {
+        val f = fixture()
+        f.set(item(id = "a", state = ActivityState.FAILED, message = "T-a: disk full")); runCurrent()
+        f.set(item(id = "a", state = ActivityState.FAILED, message = "T-a: disk full"), item(id = "b", state = ActivityState.FAILED, message = "other")); runCurrent()
+        assertEquals(listOf("disk full", "other"), f.notifier.shows.map { it.body })
+    }
+
+    @Test
+    fun activityIdOfStripsPrefix() = runTest {
+        val f = fixture()
+        assertEquals("abc", f.policy.activityIdOf("andbible-abc"))
+        assertNull(f.policy.activityIdOf("other-abc"))
+    }
+}

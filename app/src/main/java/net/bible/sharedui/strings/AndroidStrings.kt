@@ -79,6 +79,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val prefsDisableAnimationsTitle: String get() = context.getString(R.string.prefs_disable_animations_title)
     override val prefsShowActivityInMenuTitle: String get() = context.getString(R.string.prefs_show_activity_in_menu_title)
     override val prefsShowActivityInMenuSummary: String get() = context.getString(R.string.prefs_show_activity_in_menu_summary)
+    override val prefsSystemNotificationsTitle: String get() = context.getString(R.string.prefs_system_notifications_title)
+    override val prefsSystemNotificationsSummary: String get() = context.getString(R.string.prefs_system_notifications_summary)
     override val prefsDisableClickToEditSummary: String get() = context.getString(R.string.prefs_disable_click_to_edit_summary)
     override val prefsDisableClickToEditTitle: String get() = context.getString(R.string.prefs_disable_click_to_edit_title)
     override val prefsDisableTwoStepBookmarkingSummary: String get() = context.getString(R.string.prefs_disable_two_step_bookmarking_summary)

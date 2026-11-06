@@ -108,6 +108,7 @@ internal class StubCoreStrings : CoreStrings {
     override val backupSuccess2 = "backupSuccess2"
     override val pleaseWait = "pleaseWait"
     override val synchronizing = "synchronizing"
+    override val notificationFinished = "notificationFinished"
     override val restoreBackupSections = "restoreBackupSections"
     override val backupModulesTitle = "backupModulesTitle"
     override val backupModulesSuccess = "backupModulesSuccess"

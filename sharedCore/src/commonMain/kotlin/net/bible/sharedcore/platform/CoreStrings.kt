@@ -103,6 +103,8 @@ interface CoreStrings {
     val pleaseWait: String
     /** R.string.synchronizing: the activity-center row shown while a cloud sync runs. */
     val synchronizing: String
+    /** R.string.notification_finished: body of the native notification for a long background job that finished (#4012). */
+    val notificationFinished: String
     val restoreBackupSections: String
     val backupModulesTitle: String
     val backupModulesSuccess: String

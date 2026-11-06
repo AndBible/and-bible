@@ -18,6 +18,7 @@ package net.bible.desktop
 
 import androidx.compose.ui.unit.IntSize
 import net.bible.sharedui.desktop.assembly.DesktopWindowHandle
+import java.awt.Frame
 import java.awt.KeyboardFocusManager
 import java.awt.Window
 import javax.swing.RootPaneContainer
@@ -61,12 +62,19 @@ class AwtWindowHandle(
     override fun toFront() {
         val w = window ?: return
         SwingUtilities.invokeLater {
+            (w as? Frame)?.let { frame ->
+                val restored = restoredExtendedState(frame.extendedState)
+                if (restored != frame.extendedState) frame.extendedState = restored
+            }
             w.toFront()
             w.requestFocus()
         }
     }
 
     companion object {
+        /** [state] without the ICONIFIED bit (a minimized frame is restored); MAXIMIZED_* bits are kept. */
+        fun restoredExtendedState(state: Int): Int = state and Frame.ICONIFIED.inv()
+
         const val DEFAULT_WIDTH_DP = 1200
         const val DEFAULT_HEIGHT_DP = 800
         const val MIN_WIDTH_DP = 480

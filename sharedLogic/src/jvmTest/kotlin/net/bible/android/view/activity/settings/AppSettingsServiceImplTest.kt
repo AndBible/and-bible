@@ -59,6 +59,27 @@ class AppSettingsServiceImplTest {
         }
     }
 
+    @Test fun systemNotificationsSwitchWritesThroughPreference() = kotlinx.coroutines.test.runTest {
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, defaultEnabled = true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref)
+        try {
+            val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+            fun row() = controller.state.value.items.single { it.key == "system_notifications" } as SettingsItem.SwitchRow
+            assertTrue(row().visible)
+            assertTrue(row().checked)
+            controller.onSwitch("system_notifications", false)
+            testScheduler.runCurrent()
+            assertFalse(row().checked)
+            assertFalse(pref.enabled.value)
+        } finally { db.setBoolean("system_notifications", null) }
+    }
+
+    @Test fun systemNotificationsRowHiddenWithoutPreference() = kotlinx.coroutines.test.runTest {
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, null)
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        assertFalse(controller.state.value.items.single { it.key == "system_notifications" }.visible)
+    }
+
     @Test fun activityRowHiddenWithoutPreference() = kotlinx.coroutines.test.runTest {
         val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null)
         val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})

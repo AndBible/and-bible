@@ -41,6 +41,16 @@ class DesktopExitTasksTest {
         assertEquals(listOf("a", "c"), ran)
     }
 
+    @Test fun aRunFirstTaskRunsBeforeEarlierRegisteredOnes() = bounded {
+        val tasks = DesktopExitTasks()
+        val ran = mutableListOf<String>()
+        tasks.register("slow") { ran += "slow" }
+        tasks.register("first", runFirst = true) { ran += "first" }
+        tasks.register("last") { ran += "last" }
+        assertTrue(tasks.runAll(timeoutMs = 5_000))
+        assertEquals(listOf("first", "slow", "last"), ran)
+    }
+
     @Test fun aHangingTaskIsCutOffAtTheBoundAndTheRestSkipped() = bounded {
         val tasks = DesktopExitTasks()
         var after = false

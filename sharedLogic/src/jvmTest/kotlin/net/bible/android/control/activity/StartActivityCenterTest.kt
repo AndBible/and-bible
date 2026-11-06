@@ -1,5 +1,13 @@
 package net.bible.android.control.activity
 
+import org.koin.core.module.Module
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.CopyOnWriteArrayList
+import net.bible.sharedcore.platform.NativeNotification
+import net.bible.sharedcore.platform.NativeNotifier
 import net.bible.android.control.buildSharedBindings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedlogic.startup.SharedAppStartup
@@ -20,6 +28,7 @@ import org.koin.core.Koin
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import java.lang.reflect.Proxy
+import kotlinx.coroutines.cancel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -39,7 +48,7 @@ class StartActivityCenterTest {
             if (m.returnType == String::class.java) m.name else error("unexpected call of CoreStrings.${m.name}")
         } as CoreStrings
 
-    private fun app(): Koin = koinApplication {
+    private fun app(extra: Module? = null): Koin = koinApplication {
         allowOverride(false)
         modules(
             buildSharedBindings(),
@@ -62,6 +71,7 @@ class StartActivityCenterTest {
                 single<net.bible.sharedcore.platform.sync.SyncScheduler> { stub() }
                 single<net.bible.sharedcore.cloud.DocumentSyncStarter> { stub() }
             },
+            *listOfNotNull(extra).toTypedArray(),
         )
     }.koin
 
@@ -88,5 +98,53 @@ class StartActivityCenterTest {
         }
         // Closing the graph detaches the job listener: a later job is not tracked.
         assertEquals(null, JobManager.findJob("test-start-1"))
+    }
+
+    private class RecordingNotifier : NativeNotifier {
+        override val supportsProgress = false
+        val shown = CopyOnWriteArrayList<String>()
+        override fun show(n: NativeNotification) { shown += n.id }
+        override fun remove(id: String) {}
+        override fun setOnActivated(handler: (id: String) -> Unit) {}
+    }
+
+    private fun policyModule(notifier: RecordingNotifier, scope: CoroutineScope) = module {
+        single {
+            NativeNotificationPolicy(
+                get<ActivityCenter>().items, notifier, { false }, MutableStateFlow(true), { 0L }, scope, { "Finished" },
+            )
+        }
+    }
+
+    @Test
+    fun startStartsTheNativeNotificationPolicyWhenBound() {
+        val notifier = RecordingNotifier()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val koin = app(policyModule(notifier, scope))
+        try {
+            SharedAppStartup.startActivityCenter(koin)
+            val center = koin.get<ActivityCenter>()
+            center.start("x", ActivityKind.DOWNLOAD, "T")
+            center.fail("x", "boom")
+            val deadline = System.nanoTime() + 10_000_000_000L
+            while (notifier.shown.isEmpty() && System.nanoTime() < deadline) Thread.sleep(10)
+            assertEquals(listOf("andbible-x"), notifier.shown.toList(), "a failure is notified only if the policy was started")
+        } finally {
+            koin.get<NativeNotificationPolicy>().close()
+            scope.cancel()
+            koin.close()
+        }
+    }
+
+    @Test
+    fun startSkipsThePolicyWhenAbsent() {
+        val koin = app()
+        try {
+            SharedAppStartup.startActivityCenter(koin) // nothing bound (Android, iOS): no throw, sources still start
+            assertEquals(null, koin.getOrNull<NativeNotificationPolicy>())
+            assertTrue(koin.get<ActivityCenter>().items.value.isEmpty())
+        } finally {
+            koin.close()
+        }
     }
 }

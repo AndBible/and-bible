@@ -344,6 +344,14 @@ class AppSettingsController(
                 iconKey = "show_activity_in_menu",
                 visible = s.activityMenuVisible,
             ),
+            SettingsItem.SwitchRow(
+                key = "system_notifications",
+                title = labels.systemNotificationsTitle,
+                summary = labels.systemNotificationsSummary,
+                checked = s.showSystemNotifications,
+                iconKey = "system_notifications",
+                visible = s.systemNotificationsVisible,
+            ),
             // ---- E-ink ----
             SettingsItem.Category(
                 key = "prefs_eink_settings_cat",

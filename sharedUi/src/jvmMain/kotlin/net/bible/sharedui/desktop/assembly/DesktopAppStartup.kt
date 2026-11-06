@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.assembly
 
+import net.bible.android.control.activity.SystemNotificationsPreference
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -190,6 +191,7 @@ object DesktopAppStartup {
         opened = true
         // The activity-menu preference may have been read while the store still answered defaults.
         runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
+        runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<SystemNotificationsPreference>()?.refresh() }
         Log.i(TAG, "Databases open")
     }
 

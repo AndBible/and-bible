@@ -51,6 +51,10 @@ data class AppSettingsSnapshot(
     val showActivityInMenu: Boolean = false,
     /** False when no platform default is available (the row is hidden). */
     val activityMenuVisible: Boolean = true,
+    /** #4012: native system notifications for background work. */
+    val showSystemNotifications: Boolean = false,
+    /** True only where a native notifier exists (a `SystemNotificationsPreference` is bound); else the row is hidden. */
+    val systemNotificationsVisible: Boolean = false,
     // Persecution
     val discreteMode: Boolean,
     val showCalculator: Boolean,

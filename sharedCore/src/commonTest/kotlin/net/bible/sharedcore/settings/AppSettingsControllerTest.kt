@@ -31,6 +31,8 @@ class AppSettingsControllerTest {
         debugToolsVisible: Boolean = false,
         displayColorMode: String = "normal",
         legacyImportVisible: Boolean = false,
+        showSystemNotifications: Boolean = false,
+        systemNotificationsVisible: Boolean = false,
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -63,11 +65,32 @@ class AppSettingsControllerTest {
         openLinksVisible = openLinksVisible,
         debugToolsVisible = debugToolsVisible,
         legacyImportVisible = legacyImportVisible,
+        showSystemNotifications = showSystemNotifications,
+        systemNotificationsVisible = systemNotificationsVisible,
     )
 
     private fun controller(s: AppSettingsService) =
         AppSettingsController(s, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined),
             AppSettingsLabels.forTest(), onNavigate = {})
+
+    @Test fun systemNotificationsRowFollowsActivityMenuRowAndIsHiddenByDefault() {
+        val items = controller(FakeAppSettingsService(snap())).state.value.items
+        assertEquals(
+            items.indexOfFirst { it.key == "show_activity_in_menu" } + 1,
+            items.indexOfFirst { it.key == "system_notifications" },
+        )
+        assertFalse(items.single { it.key == "system_notifications" }.visible)
+    }
+
+    @Test fun systemNotificationsRowIsVisibleAndMirrorsSnapshotWhenAvailable() {
+        val svc = FakeAppSettingsService(snap(showSystemNotifications = true, systemNotificationsVisible = true))
+        val c = controller(svc)
+        val row = c.state.value.visibleItems.single { it.key == "system_notifications" } as SettingsItem.SwitchRow
+        assertTrue(row.checked)
+        svc._snap.value = svc._snap.value.copy(showSystemNotifications = false)
+        val off = c.state.value.visibleItems.single { it.key == "system_notifications" } as SettingsItem.SwitchRow
+        assertFalse(off.checked)
+    }
 
     private fun themeRow(c: AppSettingsController) =
         c.state.value.items.single { it.key == "theme_palette_style" } as SettingsItem.ListChoiceRow
@@ -228,13 +251,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyFiveRowsCarryAnIconKey() {
+    @Test fun fortySixRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(45, items.count { it.iconKeyOrNull() != null })
+        assertEquals(46, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -280,6 +303,7 @@ class AppSettingsControllerTest {
             "disable_bible_bookmark_modal_buttons",
             "disable_gen_bookmark_modal_buttons",
             "show_activity_in_menu",
+            "system_notifications",
             "prefs_eink_settings_cat",
             "display_color_mode",
             "eink_mode",
