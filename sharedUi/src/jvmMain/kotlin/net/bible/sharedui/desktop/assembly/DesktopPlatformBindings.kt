@@ -205,6 +205,8 @@ fun desktopPlatformModule(
         single<AppEnvironment> { get<DesktopAppEnvironment>() }
         single<AppDirectories> { DesktopAppDirectories(paths) }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { HostStartup.databasesOpen }) }
+        // No system notifications for background work here, so the activity menu entry is on by default (#4007).
+        single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
 
         // --- strings (retained wrappers read the current language per access)
         single {
@@ -332,7 +334,7 @@ fun desktopPlatformModule(
         single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }
         single<DocumentInstallStarter> { HostDocumentInstallStarter() }
         factory<AppSettingsService> {
-            AppSettingsServiceImpl(settings = get(), devicePrefs = get(), strings = get(), platform = get())
+            AppSettingsServiceImpl(settings = get(), devicePrefs = get(), strings = get(), platform = get(), activityMenu = get())
         }
         // LegacyDataImport is iOS-only: nothing is bound, every reader uses getOrNull.
 

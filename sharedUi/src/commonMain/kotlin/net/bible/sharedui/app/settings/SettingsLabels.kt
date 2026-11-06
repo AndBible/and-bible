@@ -86,6 +86,8 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     einkModeSummary = prefsEinkDisplaySummary,
     disableAnimationsTitle = prefsDisableAnimationsTitle,
     disableAnimationsSummary = prefsDisableAnimationsSummary,
+    showActivityInMenuTitle = prefsShowActivityInMenuTitle,
+    showActivityInMenuSummary = prefsShowActivityInMenuSummary,
 
     discreteHelpTitle = prefsPersecutedHelp,
     discreteHelpSummary = prefsPersecutedSummary,

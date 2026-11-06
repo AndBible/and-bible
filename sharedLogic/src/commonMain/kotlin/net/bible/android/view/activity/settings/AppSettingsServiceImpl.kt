@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
@@ -103,6 +104,9 @@ class AppSettingsServiceImpl(
     private val devicePrefs: DeviceLocalPrefs = KoinPlatform.getKoin().get(),
     private val strings: CoreStrings = KoinPlatform.getKoin().get(),
     private val platform: SettingsPlatformFlags = KoinPlatform.getKoin().get(),
+    // The shared activity-menu preference (#4007); the "show_activity_in_menu" row writes through it so its flow emits.
+    // Null (Koin not started, e.g. a bare unit test) falls back to the plain store with a default of true.
+    private val activityMenu: ActivityMenuPreference? = runCatching { KoinPlatform.getKoin().getOrNull<ActivityMenuPreference>() }.getOrNull(),
 ) : AppSettingsService {
 
     // The four dictionary/morphology option lists each do a live Books.installed() scan; a routine
@@ -229,6 +233,7 @@ class AppSettingsServiceImpl(
             displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(platform.isOnyx).value),
             einkMode = readBool("eink_mode", false),
             disableAnimations = readBool("disable_animations", false),
+            showActivityInMenu = activityMenu?.enabled?.value ?: readBool(ActivityMenuPreference.KEY, true),
             // Persecution
             discreteMode = readBool("discrete_mode", false),
             showCalculator = readBool("show_calculator", false),
@@ -267,7 +272,8 @@ class AppSettingsServiceImpl(
     // ---- Writes ----
 
     override fun setBool(key: String, value: Boolean) {
-        if (useRealShared(key)) devicePrefs.setBoolean(key, value)
+        if (key == ActivityMenuPreference.KEY && activityMenu != null) activityMenu.set(value)
+        else if (useRealShared(key)) devicePrefs.setBoolean(key, value)
         else settings.setBoolean(key, value)
         refresh()
         if (key == "hide_status_bar") platform.onSystemBarSettingChanged()

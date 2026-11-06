@@ -235,6 +235,8 @@ fun buildSharedBindings() = module {
     // stay resolvable from just its ports); SharedAppStartup.startActivityCenter() resolves them at startup so work
     // that begins before any UI exists is still recorded. Adapter callbacks may arrive on any thread; ActivityCenter is thread-safe.
     single { ActivityCenter(get<AppCoroutineScope>(), ::currentTimeMillis) }
+    // Platform default (Android false, desktop/iOS true) comes from each platform's bindings as ActivityMenuDefault.
+    single { net.bible.android.control.activity.ActivityMenuPreference(get(), get()) }
     single {
         val strings = get<net.bible.sharedcore.platform.CoreStrings>()
         val downloads = get<DownloadControl>()

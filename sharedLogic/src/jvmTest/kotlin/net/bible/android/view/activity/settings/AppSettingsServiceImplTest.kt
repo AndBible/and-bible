@@ -41,6 +41,23 @@ class AppSettingsServiceImplTest {
         }
     }
 
+    @Test fun appSettingsShowsActivitySwitch() = kotlinx.coroutines.test.runTest {
+        for (default in listOf(true, false)) {
+            val pref = net.bible.android.control.activity.ActivityMenuPreference(db, net.bible.sharedcore.platform.ActivityMenuDefault { default })
+            val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, pref)
+            val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+            fun row() = controller.state.value.items.single { it.key == "show_activity_in_menu" } as SettingsItem.SwitchRow
+            assertEquals(default, row().checked)
+            // The row toggles the store the preference reads, and the preference flow emits.
+            controller.onSwitch("show_activity_in_menu", !default)
+            testScheduler.runCurrent()
+            assertEquals(!default, row().checked)
+            assertEquals(!default, pref.enabled.value)
+            assertEquals(!default, db.getBoolean("show_activity_in_menu", default))
+            db.setBoolean("show_activity_in_menu", null)
+        }
+    }
+
     @Test fun bluetoothSwitchPersistsAcrossServiceRecreation() = kotlinx.coroutines.test.runTest {
         val initialService = service()
         val controller = AppSettingsController(initialService, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})

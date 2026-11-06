@@ -86,6 +86,8 @@ data class AppSettingsLabels(
     val einkModeSummary: String,
     val disableAnimationsTitle: String,
     val disableAnimationsSummary: String,
+    val showActivityInMenuTitle: String,
+    val showActivityInMenuSummary: String,
 
     // Persecution
     val discreteHelpTitle: String,
@@ -202,6 +204,8 @@ data class AppSettingsLabels(
             einkModeSummary = "Optimize display for e-ink screens",
             disableAnimationsTitle = "Disable animations",
             disableAnimationsSummary = "Turn off UI animations",
+            showActivityInMenuTitle = "Show background activity in the menu",
+            showActivityInMenuSummary = "Downloads, sync and indexing progress, and failures, in the \u22EE menu",
 
             discreteHelpTitle = "About discrete mode",
             discreteHelpSummary = "Learn how the calculator disguise works",

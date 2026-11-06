@@ -82,6 +82,8 @@ interface Strings {
     val prefsDictionariesCat: String
     val prefsDisableAnimationsSummary: String
     val prefsDisableAnimationsTitle: String
+    val prefsShowActivityInMenuTitle: String
+    val prefsShowActivityInMenuSummary: String
     val prefsDisableClickToEditSummary: String
     val prefsDisableClickToEditTitle: String
     val prefsDisableTwoStepBookmarkingSummary: String

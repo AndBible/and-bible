@@ -47,6 +47,8 @@ data class AppSettingsSnapshot(
     val displayColorMode: String,
     val einkMode: Boolean,
     val disableAnimations: Boolean,
+    /** #4007: show background activity in the overflow menu; unset follows the platform default. */
+    val showActivityInMenu: Boolean = true,
     // Persecution
     val discreteMode: Boolean,
     val showCalculator: Boolean,

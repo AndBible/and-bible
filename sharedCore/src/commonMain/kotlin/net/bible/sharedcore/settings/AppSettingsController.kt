@@ -364,6 +364,13 @@ class AppSettingsController(
                 checked = s.disableAnimations,
                 iconKey = "disable_animations",
             ),
+            SettingsItem.SwitchRow(
+                key = "show_activity_in_menu",
+                title = labels.showActivityInMenuTitle,
+                summary = labels.showActivityInMenuSummary,
+                checked = s.showActivityInMenu,
+                iconKey = "show_activity_in_menu",
+            ),
             // ---- Persecution ----
             // Classic parity: the category header, discrete_help and calculator_pin are always
             // visible; only discrete_mode + show_calculator are hidden in a discrete build

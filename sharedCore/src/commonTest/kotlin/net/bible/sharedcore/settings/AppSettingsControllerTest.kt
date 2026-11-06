@@ -228,13 +228,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyFourRowsCarryAnIconKey() {
+    @Test fun fortyFiveRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(44, items.count { it.iconKeyOrNull() != null })
+        assertEquals(45, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -283,6 +283,7 @@ class AppSettingsControllerTest {
             "display_color_mode",
             "eink_mode",
             "disable_animations",
+            "show_activity_in_menu",
             "prefs_persecution_cat",
             "discrete_help",
             "discrete_mode",
