@@ -1,5 +1,10 @@
 net.bible.android.common.resource.AndroidResourceProvider::_root_
 net.bible.android.common.resource.ResourceProvider::_root_
+net.bible.android.control.activity.ActivityCenter::_root_
+net.bible.android.control.activity.ActivityMenuPreference::_root_
+net.bible.android.control.activity.DownloadActivitySource::_root_
+net.bible.android.control.activity.JobActivitySource::_root_
+net.bible.android.control.activity.SyncActivitySource::_root_
 net.bible.android.control.backup.BackupControl::_root_
 net.bible.android.control.bookmark.BookmarkControl::_root_
 net.bible.android.control.bookmark.BookmarkJsActions::_root_
@@ -101,6 +106,7 @@ net.bible.sharedcore.cloud.DocumentSyncStarter::_root_
 net.bible.sharedcore.download.CustomRepositoryService::_root_
 net.bible.sharedcore.http.DownloadHttp::_root_
 net.bible.sharedcore.llm.http.LlmHttpTransport::_root_
+net.bible.sharedcore.platform.ActivityMenuDefault::_root_
 net.bible.sharedcore.platform.AppCoroutineScope::_root_
 net.bible.sharedcore.platform.AppDirectories::_root_
 net.bible.sharedcore.platform.AppEnvironment::_root_

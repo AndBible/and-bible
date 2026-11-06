@@ -196,6 +196,8 @@ class IosReadingHostTest {
             "speakSettingsSlot" to (deps.speakSettingsSlot !== d1.speakSettingsSlot),
             "quickSheetContent" to (deps.quickSheetContent !== d1.quickSheetContent),
             "readingDialogSlot" to (deps.readingDialogSlot !== d1.readingDialogSlot),
+            // background activity wiring (#4007); null only in a graph without the activity center
+            "activity" to (deps.activity != null),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "fields left at the inert default")
 

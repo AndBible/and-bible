@@ -78,6 +78,7 @@ object ReadingHostDepsFields {
         "searchSheetSlot",
         "searchSettingsSlot",
         "textSettingsEditorSlot",
+        "activity",
         "speakSettingsSlot",
         "quickSheetContent",
         "readingDialogSlot",
