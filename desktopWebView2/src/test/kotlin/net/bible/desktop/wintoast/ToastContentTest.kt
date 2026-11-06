@@ -68,7 +68,6 @@ class ToastContentTest {
     fun longIdTagUsesKnownSha256PrefixAndRespectsLengthBoundary() {
         assertEquals("a".repeat(64), toastTag("a".repeat(64)))
         assertEquals("635361c48bb9eab14198e76ea8ab7f1a41685d6ad62aa9146d301d4f17eb0ae0", toastTag("a".repeat(65)))
-        assertEquals("a".repeat(64), toastTag("a".repeat(64)))
         assertEquals(64, toastTag("a".repeat(65)).length)
     }
 
