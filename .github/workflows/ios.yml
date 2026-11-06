@@ -124,7 +124,10 @@ jobs:
           URL: ${{ secrets.DOWNLOAD_TEST_MODULES_URL }}
           KEY: ${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}
         run: |
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "::warning::test module secrets unavailable: no bundled KJV"; exit 0; fi
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::DOWNLOAD_TEST_MODULES_URL / TEST_MODULE_ENCRYPTION_KEY unavailable: the UI tests need the KJV test module"
+            exit 1
+          fi
           curl -fsSL --retry 3 "$URL" -o "$RUNNER_TEMP/testmods.zip.enc"
           openssl aes-256-cbc -d -a -pbkdf2 -in "$RUNNER_TEMP/testmods.zip.enc" -out "$RUNNER_TEMP/testmods.zip" -pass "pass:$KEY"
           mkdir -p "$HOME/.sword"
@@ -137,7 +140,8 @@ jobs:
             python3 -I iosApp/scripts/package-backup-test-kjv.py --sword-dir "$HOME/.sword" --output tmp/h2-files/h2-kjv.zip
             ls -l tmp/h2-files/h2-kjv.zip
           else
-            echo "::warning::no KJV test module: the UI tests fall back to the Files picker install"
+            echo "::error::no KJV in the test modules (~/.sword/mods.d/kjv.conf): the KJV-dependent UI tests cannot be provisioned"
+            exit 1
           fi
       - name: List available simulators (diagnostic)
         if: always()
@@ -156,7 +160,8 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b || true
           # Same Files-provider preparation as scripts/mac-remote.sh xcode-test (H2 Fixtures for the picker tests and
           # the picker fallback of the KJV provisioning).
-          bash iosApp/scripts/prepare-ui-test-files.sh "$UDID"
+          # Non-fatal, as on the Mac: the smoke set's KJV no longer comes through the Files picker.
+          bash iosApp/scripts/prepare-ui-test-files.sh "$UDID" || echo "::warning::Files fixture preparation failed"
           nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev" AND subsystem != "com.apple.dt.xctest"' > build/app-iphone.log 2>&1 &
           echo $! > build/logstream-iphone.pid
           sleep 2
@@ -179,7 +184,8 @@ jobs:
           [ -f build/logstream-iphone.pid ] && kill "$(cat build/logstream-iphone.pid)" || true
       - name: Test (iPad, screenshots only)
         if: always()
-        timeout-minutes: 20
+        # ~6 min of setup + 50 + 15 + export/upload stays inside the job's 90 min; the step takes ~5 min when green.
+        timeout-minutes: 15
         run: |
           mkdir -p build
           set -o pipefail

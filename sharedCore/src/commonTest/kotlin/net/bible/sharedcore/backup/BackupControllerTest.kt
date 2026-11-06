@@ -85,6 +85,23 @@ class BackupControllerTest {
         assertEquals(true, c.state.value.toggles[ToggleKind.RestoreDocuments])
     }
 
+    /** A failing load must not leave the screen disabled for good (it was usable before BackupState.loaded existed). */
+    @Test fun aFailedFirstLoadStillEnablesTheScreen() = runTest {
+        val svc = object : BackupService by FakeBackupService() {
+            override suspend fun load(): BackupState = throw IllegalStateException("cannot list backups")
+        }
+        var failure: Throwable? = null
+        val scope = kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.test.StandardTestDispatcher(testScheduler) +
+                kotlinx.coroutines.CoroutineExceptionHandler { _, e -> failure = e },
+        )
+        val c = BackupController(svc, scope)
+        c.load(); testScheduler.advanceUntilIdle()
+
+        assertTrue(c.state.value.loaded)
+        assertEquals("cannot list backups", failure?.message, "the failure still surfaces")
+    }
+
     @Test fun restoreDispatchesTheScreensToggles() = runTest {
         val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDocuments to false, ToggleKind.RestoreDatabase to true))
         val c = BackupController(svc, this)
