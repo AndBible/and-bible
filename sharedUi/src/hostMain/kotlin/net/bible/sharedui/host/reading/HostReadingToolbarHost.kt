@@ -307,6 +307,18 @@ internal class HostReadingToolbarHost(
 
     // ----- ReadingOverflowHost -----
 
+    private fun syncNow(): net.bible.service.cloudsync.SyncNow? {
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        if (koin.getOrNull<net.bible.service.cloudsync.SyncNowPorts>() == null) return null
+        return koin.get()
+    }
+
+    override fun syncNowAvailable(): Boolean = net.bible.service.startup.ReadingAppInit.initialized && syncNow()?.available() == true
+    override fun syncNowRunning(): Boolean = syncNow()?.running?.value == true
+    override fun syncNowInActivitySection(): Boolean =
+        org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.enabled?.value == true
+    override fun startSyncNow() { syncNow()?.start() }
+
     override fun toggleFullScreen() = toggleFullScreen.invoke()
 
     override fun nightMode(): Boolean = nightModeOn()

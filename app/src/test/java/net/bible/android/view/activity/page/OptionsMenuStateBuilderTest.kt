@@ -109,6 +109,56 @@ class OptionsMenuStateBuilderTest {
     private fun itemById(id: String) = items().first { it.id == id }
     private fun itemByIdOrNull(id: String) = items().firstOrNull { it.id == id }
 
+    private var syncAvailable = false
+    private var syncRunning = false
+    private var syncInActivity = false
+    private var syncStarts = 0
+
+    private fun syncItems() = OptionsMenuStateBuilder.build(
+        syncNowAvailable = { syncAvailable }, syncNowRunning = { syncRunning },
+        syncNowInActivitySection = { syncInActivity },
+    ) { _, _ -> SubMenuPreference() }
+
+    @Test fun syncNowAbsentWhenNotSetUp() {
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+    }
+
+    @Test fun syncNowPresentAndEnabled() {
+        syncAvailable = true
+        val row = syncItems().single { it.id == "syncNow" }
+        assertTrue(row.enabled)
+        assertFalse(row.checkable)
+        assertFalse(row.opensDialog)
+        assertEquals("ic_sync_white_24dp", row.iconKey)
+        assertTrue(row.iconKey in ComposeReadingViewHost.menuIconResIds)
+        assertTrue(syncItems().indexOfFirst { it.id == "syncNow" } < syncItems().indexOfFirst { it.id == "allTextOptions" })
+    }
+
+    @Test fun syncNowDisabledWhileRunning() {
+        syncAvailable = true; syncRunning = true
+        assertFalse(syncItems().single { it.id == "syncNow" }.enabled)
+    }
+
+    @Test fun syncNowAbsentWhenActivitySectionShowsIt() {
+        syncAvailable = true; syncInActivity = true
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+    }
+
+    @Test fun syncNowReReadOnEachBuild() {
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+        syncAvailable = true
+        assertTrue(syncItems().any { it.id == "syncNow" })
+    }
+
+    @Test fun syncNowClickStartsAndClosesMenu() {
+        val stayOpen = OptionsMenuStateBuilder.dispatch(
+            activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",
+            startSyncNow = { syncStarts++ },
+        )
+        assertFalse(stayOpen)
+        assertEquals(1, syncStarts)
+    }
+
     @Test
     fun nightModeIsAVisibleCheckableToggle() {
         val item = itemById(OptionsMenuStateBuilder.idFor(R.id.nightMode, 0))
@@ -246,7 +296,7 @@ class OptionsMenuStateBuilderTest {
      * `llmActionsSubMenu`/`"icon_robot"` is absent and NOT exercised by this test either. A
      * renamed/removed `menuIconResIds` entry only a gated row (like this one) depends on would not
      * fail this test. The exhaustive, state-independent guarantee is
-     * `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyTwoKeys` — don't over-trust this
+     * `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyThreeKeys` — don't over-trust this
      * test alone.
      */
     @Test

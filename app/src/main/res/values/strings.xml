@@ -254,6 +254,8 @@
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
     <string name="options_menu_night_mode">Night mode</string>
+    <string name="options_menu_sync_now">Sync now</string>
+    <string name="sync_now_no_network">No network connection</string>
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>

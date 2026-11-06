@@ -962,7 +962,11 @@ class ReadingCommands(
      * checked state).
      */
     fun buildOptionsMenuItems(): List<OptionsMenuItem> =
-        OptionsMenuStateBuilder.build { resId, order -> getItemOptions(resId, order) }
+        OptionsMenuStateBuilder.build(
+            syncNowAvailable = { net.bible.service.startup.ReadingAppInit.initialized && getKoin().getOrNull<net.bible.service.cloudsync.SyncNowPorts>() != null && getKoin().get<net.bible.service.cloudsync.SyncNow>().available() },
+            syncNowRunning = { getKoin().getOrNull<net.bible.service.cloudsync.SyncNowPorts>() != null && getKoin().get<net.bible.service.cloudsync.SyncNow>().running.value },
+            syncNowInActivitySection = { getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.enabled?.value == true },
+        ) { resId, order -> getItemOptions(resId, order) }
 
     /**
      * Dispatches a click on one of [buildOptionsMenuItems]' rows — the Compose counterpart of

@@ -82,20 +82,20 @@ class OptionsMenuStateBuilderSectionTest {
 
     @Test
     fun `all text options is the last row, below the recent settings rows`() {
-        val itemsWithNoRecents = OptionsMenuStateBuilder.build { _, _ -> option() }
+        val itemsWithNoRecents = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { _, _ -> option() }
         assertEquals("allTextOptions", itemsWithNoRecents.last().id)
     }
 
     @Test
     fun `with no recent rows the divider falls before all text options`() {
-        val items = OptionsMenuStateBuilder.build { _, _ -> option() }
+        val items = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { _, _ -> option() }
         val sectionStarts = items.filter { it.startsNewSection }.map { it.id }
         assertEquals(listOf("allTextOptions"), sectionStarts)
     }
 
     @Test
     fun `no row before the first is ever a section start`() {
-        val items = OptionsMenuStateBuilder.build { _, _ -> option() }
+        val items = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { _, _ -> option() }
         assertFalse(items.first().startsNewSection)
     }
 
@@ -104,7 +104,7 @@ class OptionsMenuStateBuilderSectionTest {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE)
 
-        val items = OptionsMenuStateBuilder.build { resId, order ->
+        val items = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { resId, order ->
             option(title = if (resId == R.id.textOptionItem) "recent$order" else null)
         }
 
@@ -126,7 +126,7 @@ class OptionsMenuStateBuilderSectionTest {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE)
 
-        val items = OptionsMenuStateBuilder.build { resId, order ->
+        val items = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { resId, order ->
             if (resId == R.id.textOptionItem && order == 0) option(visible = false)
             else option(title = if (resId == R.id.textOptionItem) "recent$order" else null)
         }
@@ -142,7 +142,7 @@ class OptionsMenuStateBuilderSectionTest {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE)
 
-        val items = OptionsMenuStateBuilder.build { resId, _ ->
+        val items = OptionsMenuStateBuilder.build({ false }, { false }, { false }) { resId, _ ->
             if (resId == R.id.textOptionItem) option(enabled = false) else option()
         }
 

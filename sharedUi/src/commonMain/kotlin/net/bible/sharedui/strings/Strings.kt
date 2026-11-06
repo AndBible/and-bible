@@ -140,6 +140,7 @@ interface Strings {
     val resetSettings: String
     val resetSync: String
     val settings: String
+    val syncNow: String
     val syncAdapter: String
     val syncGeneralSettings: String
     val syncSettingsShortcutSummary: String

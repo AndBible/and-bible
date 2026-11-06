@@ -418,7 +418,7 @@ class WindowPaneMenuStateBuilderTest {
      * `exportStudypad`/`exportStudypadCsv`, `goToReference`, `goToSpeak`, `windowClose`,
      * `llmActionsSubMenu`, and `pinMode` unless autoPin is off) are absent here, so a renamed/
      * removed map entry only THEY depend on would NOT fail this test. The exhaustive,
-     * state-independent guarantee is `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyTwoKeys`
+     * state-independent guarantee is `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyThreeKeys`
      * — don't over-trust this test alone.
      */
     @Test

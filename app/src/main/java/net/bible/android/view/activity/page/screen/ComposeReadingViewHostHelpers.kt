@@ -220,5 +220,6 @@ abstract class ComposeReadingViewHostHelpers {
         "ic_window_pinning_24" to R.drawable.ic_window_pinning_24,
         "ic_label_settings_24" to R.drawable.ic_label_settings_24,
         "icon_robot" to R.drawable.icon_robot,
+        "ic_sync_white_24dp" to R.drawable.ic_sync_white_24dp,
     )
 }

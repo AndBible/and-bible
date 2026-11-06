@@ -28,6 +28,7 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
     // --- overflow menu ---
     val toggleFullscreen get() = t.text("toggle_fullscreen")
     val nightMode get() = t.text("options_menu_night_mode")
+    val syncNow get() = t.text("options_menu_sync_now")
     val switchToWorkspace get() = t.text("switch_to_workspace")
     val tiltToScroll get() = t.text("prefs_tilt_to_scroll_title")
     val reversedSplitMode get() = t.text("reversed_split_mode")
@@ -70,7 +71,7 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
     companion object {
         /** Every resource key this class reads. */
         val KEYS = listOf(
-            "toggle_fullscreen", "options_menu_night_mode", "switch_to_workspace", "prefs_tilt_to_scroll_title",
+            "toggle_fullscreen", "options_menu_night_mode", "options_menu_sync_now", "switch_to_workspace", "prefs_tilt_to_scroll_title",
             "reversed_split_mode", "window_pinning_menutitle", "all_text_options_window_menutitle",
             "chooce_document", "search", "speak", "bookmarks", "studypads", "my_documents_title", "rdg_plan_title",
             "reading_progress_title", "history", "administration", "download", "backup_and_restore", "cloud_sync_title",
