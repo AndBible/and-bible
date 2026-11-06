@@ -208,6 +208,7 @@ fun desktopPlatformModule(
         }
         single<AppEnvironment> { get<DesktopAppEnvironment>() }
         single<AppDirectories> { DesktopAppDirectories(paths) }
+        single<net.bible.sharedcore.platform.NotificationPermission> { net.bible.sharedcore.platform.NoNotificationPermission }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { HostStartup.databasesOpen }) }
         // The activity menu entry is on by default (#4007); native notifications are bound in desktopNotificationModule (#4012).
         single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }

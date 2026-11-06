@@ -63,6 +63,7 @@ class SyncSettingsServiceImpl(
     private val strings: CoreStrings,
     private val environment: AppEnvironment,
     private val notifyDatabaseRestored: () -> Unit,
+    private val notificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
 ) : SyncSettingsService {
     private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
         adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
@@ -176,6 +177,7 @@ class SyncSettingsServiceImpl(
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
         categories.setEnabled(cat, enabled)
         if (enabled) {
+            notificationPermission?.let { permission -> writeScope.launch { permission.ensureAsked() } }
             // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
             writeScope.launch {

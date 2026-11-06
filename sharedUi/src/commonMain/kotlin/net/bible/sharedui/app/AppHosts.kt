@@ -315,6 +315,7 @@ class AppHosts(
             strings = strings,
             platform = ports.downloadPlatform(),
             notificationPermission = ports.notificationPermission,
+            backgroundNotificationPermission = koin.getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
             clipboard = koin.get<ClipboardText>(),
             openInstallZip = installZipOpener,
             // The search host owns the index jobs Progress status lists.
