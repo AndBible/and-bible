@@ -19,7 +19,7 @@ These setups may work, but they were not checked for the beta:
 - **Wayland-native sessions.** On Wayland the app runs through XWayland. It was started and a chapter was read in a test setup, but nothing beyond that was checked.
 - **GNOME and KDE specifics.** For example how file dialogs and window decorations look and behave.
 - **Input methods (IME), including Chinese, Japanese and Korean input.**
-- **Fractional display scaling** (for example 125% or 150%).
+- **Fractional display scaling** (for example 125% or 150%). On Linux you can set the scale by hand; see [Display scaling on Linux](desktop.md#display-scaling-on-linux).
 - **Touchpads.** Smooth and horizontal scrolling and pinch gestures.
 
 If you use one of these and something looks wrong, please [report it](#reporting-a-bug).
