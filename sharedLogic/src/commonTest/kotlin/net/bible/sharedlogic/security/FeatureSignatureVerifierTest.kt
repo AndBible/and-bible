@@ -29,6 +29,14 @@ class FeatureSignatureVerifierTest {
         assertTrue(verifier.verify(f, s))
     }
 
+    @Test fun verifyBytesChecksTheGivenContentNotTheFileOnDisk() {
+        val (_, s) = signed()
+        fs.write(file) { writeUtf8("changed on disk") }
+        assertTrue(verifier.verifyBytes("hello".encodeToByteArray(), s))
+        assertFalse(verifier.verifyBytes("hellO".encodeToByteArray(), s))
+        assertFalse(verifier.verifyBytes("hello".encodeToByteArray(), dir / "missing.sign"))
+    }
+
     @Test fun emptySignedFileAccepted() {
         val (f, s) = signed("", FeatureSignatureVectors.emptySignature)
         assertTrue(verifier.verify(f, s))

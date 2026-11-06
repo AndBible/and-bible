@@ -166,20 +166,14 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import fi.sykero.kdom.input.build
-import org.spongycastle.util.io.pem.PemReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.lang.IndexOutOfBoundsException
-import java.security.KeyFactory
-import java.security.Signature
 import java.util.*
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.X509EncodedKeySpec
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -919,30 +913,17 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun verifySignature(file: File, signatureFile: File): Boolean {
-        // Adapted from https://stackoverflow.com/questions/34066949/verify-digital-signature-on-android
-        if(!signatureFile.canRead()) return false
-        val reader = PemReader(InputStreamReader(application.resources.openRawResource(R.raw.publickey)))
-        val data = file.inputStream()
-        val signatureData = signatureFile.inputStream()
+    /** The release-key verifier shared with desktop and iOS (SHA1withRSA, detached binary `.sign` file). */
+    private val featureSignatureVerifier by lazy { net.bible.sharedlogic.security.FeatureSignatureVerifier() }
 
-        val publicKeyPem = reader.readPemObject()
-        val publicKeyBytes: ByteArray = publicKeyPem.content
-        val keyFactory = KeyFactory.getInstance("RSA")
-        val publicKeySpec = X509EncodedKeySpec(publicKeyBytes)
-        val publicKey = keyFactory.generatePublic(publicKeySpec) as RSAPublicKey
-        val signature = Signature.getInstance("SHA1withRSA")
-        signature.initVerify(publicKey)
-        val buffy = ByteArray(16 * 1024)
-        var read = -1
-        while (data.read(buffy).also { read = it } != -1) {
-            signature.update(buffy, 0, read)
-        }
-        val signatureBytes = ByteArray(publicKey.modulus.bitLength() / 8)
-        signatureData.read(signatureBytes)
-        return signature.verify(signatureBytes)
-    }
-    
+    /** Whether [file] matches its detached [signatureFile]; use [verifyFeatureBytes] when the verified bytes are also served. */
+    fun verifySignature(file: File, signatureFile: File): Boolean =
+        featureSignatureVerifier.verify(file.toOkioPath(), signatureFile.toOkioPath())
+
+    /** Verifies already-read feature [content] against [signatureFile], so the very same bytes can then be served. */
+    fun verifyFeatureBytes(content: ByteArray, signatureFile: File): Boolean =
+        featureSignatureVerifier.verifyBytes(content, signatureFile.toOkioPath())
+
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 

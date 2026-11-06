@@ -14,17 +14,30 @@ class FeatureSignatureVerifier(publicKeyPem: String = bundledPublicKeyPem()) {
             .joinToString("").decodeBase64()?.toByteArray()
     }.getOrNull()
 
+    /** Reads [file] once and verifies those bytes; callers that serve the file should use [verifyBytes] and serve the same bytes. */
     fun verify(file: Path, signatureFile: Path): Boolean = try {
+        val fs = FileSystem.SYSTEM
+        if (!fs.metadata(fs.canonicalize(file)).isRegularFile) false
+        else verifyBytes(fs.read(file) { readByteArray() }, signatureFile)
+    } catch (_: Exception) {
+        false
+    }
+
+    /** Verifies already-read [content] against the detached [signatureFile], so a verified body can be served without a second read. */
+    fun verifyBytes(content: ByteArray, signatureFile: Path): Boolean = try {
         val key = publicKeyDer
         val fs = FileSystem.SYSTEM
-        if (key == null || !fs.metadata(fs.canonicalize(file)).isRegularFile) false
-        else verifyFeatureSignature(key, file, signatureFile)
+        val size = fs.metadata(signatureFile).size
+        if (key == null || size == null || size > MAX_SIGNATURE_BYTES) false
+        else verifyFeatureSignature(key, content, fs.read(signatureFile) { readByteArray() })
     } catch (_: Exception) {
         false
     }
 
     companion object {
-        /** The same release key as Android's `R.raw.publickey`, available without JVM resources on iOS. */
+        private const val MAX_SIGNATURE_BYTES = 8192L
+
+        /** The one AndBible release key, used by Android, desktop and iOS. */
         fun bundledPublicKeyPem(): String = """-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzF0Mn43rUT3HPrNvYd1I
 GBd43PUFQ5hEKzBQpbIDmTb8NIt3oAQwlmQxKmPF/KlpmVcIl9RitqhT4x7Ab1+G
@@ -37,5 +50,5 @@ HYzM8pkX/EHOdvXbK4Hq4n9+7hZVzXWdwlLFlysNEESiNYvvrqdCJ3z3XlEKSvXe
     }
 }
 
-/** Platform crypto; the caller converts all I/O and format failures to false. */
-internal expect fun verifyFeatureSignature(publicKeyDer: ByteArray, file: Path, signatureFile: Path): Boolean
+/** Platform crypto over the detached [signature] (bytes beyond the modulus size are ignored); the caller converts all I/O and format failures to false. */
+internal expect fun verifyFeatureSignature(publicKeyDer: ByteArray, content: ByteArray, signature: ByteArray): Boolean

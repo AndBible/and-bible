@@ -31,7 +31,7 @@ class DesktopPageAssetRoutes(
     private val backgrounds: () -> Map<String, Path>,
     private val bookLocation: (String) -> Path?,
     private val bookStyleFile: (String) -> String?,
-    private val verify: (file: Path, signature: Path) -> Boolean,
+    private val verify: (content: ByteArray, signature: Path) -> Boolean,
     private val log: (String) -> Unit = {},
     private val fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
     private val epub: PageAssetEpubSource = DesktopEpubAssets({ null }),
@@ -41,7 +41,7 @@ class DesktopPageAssetRoutes(
         backgrounds = { backgrounds().mapValues { it.value.toOkioPath() } },
         bookLocation = { bookLocation(it)?.toOkioPath() },
         bookStyleFile = bookStyleFile,
-        verify = { file, signature -> verify(file.toNioPath(), signature.toNioPath()) },
+        verify = { content, signature -> verify(content, signature.toNioPath()) },
         epub = epub,
         log = log,
         mimeType = ::mimeFor,
@@ -109,7 +109,7 @@ class DesktopPageAssetRoutes(
                     Books.installed().getBook(initials)?.bookMetaData?.location?.getPath()?.let { Paths.get(it) }
                 },
                 bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
-                verify = { file, signature -> verifier.verify(file.toOkioPath(), signature.toOkioPath()) },
+                verify = { content, signature -> verifier.verifyBytes(content, signature.toOkioPath()) },
                 log = log,
                 fonts = { KoinPlatform.getKoin().get<net.bible.sharedlogic.addons.SharedAddonScanner>().fonts() },
                 currentBook = { id ->

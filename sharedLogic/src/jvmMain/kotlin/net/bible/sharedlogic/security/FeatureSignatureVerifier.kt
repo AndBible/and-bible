@@ -17,22 +17,17 @@
 
 package net.bible.sharedlogic.security
 
-import okio.FileSystem
-import okio.Path
-import okio.use
 import java.security.KeyFactory
 import java.security.Signature
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 
-internal actual fun verifyFeatureSignature(publicKeyDer: ByteArray, file: Path, signatureFile: Path): Boolean {
+internal actual fun verifyFeatureSignature(publicKeyDer: ByteArray, content: ByteArray, signature: ByteArray): Boolean {
     val key = KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(publicKeyDer)) as RSAPublicKey
     val verifier = Signature.getInstance("SHA1withRSA").apply { initVerify(key) }
-    FileSystem.SYSTEM.source(file).use { source ->
-        val buffer = okio.Buffer()
-        while (source.read(buffer, 16 * 1024) != -1L) verifier.update(buffer.readByteArray())
-    }
-    // Match Android: consume exactly the modulus size and ignore any trailing signature bytes.
-    val signature = FileSystem.SYSTEM.read(signatureFile) { readByteArray((key.modulus.bitLength() / 8).toLong()) }
-    return verifier.verify(signature)
+    verifier.update(content)
+    // Match Android's historical reader: consume exactly the modulus size and ignore any trailing signature bytes.
+    val size = key.modulus.bitLength() / 8
+    if (signature.size < size) return false
+    return verifier.verify(signature.copyOf(size))
 }

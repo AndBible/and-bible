@@ -10,6 +10,10 @@ import okio.use
  * Unmodified Finnish parser + detached signature from AndBible/data's RefParser 1.2 (MIT),
  * https://github.com/openbibleinfo/Bible-Passage-Reference-Parser.
  * Gzip/base64 only reduces source size; the release key verifies the original bytes.
+ *
+ * Upstream licence (LICENSE.md of the repository's master branch, fetched 2026-11-06): MIT,
+ * "Copyright (c) 2011-2026 Stephen Smith". SPDX-License-Identifier: MIT.
+ * The decompressed parser is 261690 bytes, sha256 c51274c47f971b7a4109e50ad04e79ec87c7800709e5b67edd6cd55c41da9176.
  */
 internal object SignedFeatureFixture {
     val content: ByteArray get() = GzipSource(Buffer().write(checkNotNull(compressed.decodeBase64()))).buffer().use { it.readByteArray() }
