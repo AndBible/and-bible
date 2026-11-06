@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
  * contended settings load, as under the full forked suite) then never opens, and the route stays null.
  */
 fun awaitHostRoute(activity: NavHostComposeActivity, route: String, advanceComposition: () -> Unit = {}) {
-    awaitHostCondition("host must reach ${route.substringBefore('?')}", advanceComposition) {
+    awaitHostCondition("host must reach ${route.substringBefore('?')}", advanceComposition, describe = { hostStartState(activity) }) {
         activity.currentRouteForTest()?.substringBefore('?') == route.substringBefore('?')
     }
 }
@@ -30,12 +30,25 @@ fun awaitHostUntil(message: String, ready: () -> Boolean) = awaitHostCondition(m
 
 /** Wait for real startup effects, not just Activity.resume(): settings loading suspends graph creation. */
 fun awaitReadingGraph(activity: NavHostComposeActivity, advanceComposition: () -> Unit = {}) {
-    awaitHostCondition("fixture must publish the real visible Reading destination", advanceComposition) {
+    awaitHostCondition(
+        "fixture must publish the real visible Reading destination", advanceComposition,
+        describe = { hostStartState(activity) },
+    ) {
         activity.currentRouteForTest()?.substringBefore('?') == NavRoutes.READING &&
             activity.composeReadingViewHost != null && ReadingViewVisibility.isVisible
     }
     ReadingFixtureOwners.retain(activity)
 }
+
+/**
+ * Which part of a host's start a timed-out wait stopped at (#3947: a 60 s `awaitReadingGraph` stall once, suite
+ * only): the host's start stage, its route, the reading view host, and both inputs of the visibility predicate.
+ */
+internal fun hostStartState(activity: NavHostComposeActivity): String =
+    "Host start: stage=${activity.startStageForTest}, lifecycle=${activity.lifecycle.currentState}, " +
+        "route=${activity.currentRouteForTest()}, readingViewHost=${activity.composeReadingViewHost != null}, " +
+        "readingVisible=${ReadingViewVisibility.isVisible}, foregroundIsThisHost=${ReadingHostPresence.isForeground(activity)}, " +
+        "myDocumentRegistration=${net.bible.service.common.CommonUtils.myDocumentRegistration?.let { if (it.isCompleted) "completed" else "active" }}"
 
 /** Exact test-owned jobs survive disposal and failed Main pumping until completion is proved. */
 internal object ReadingFixtureOwners {
@@ -181,6 +194,7 @@ fun awaitHostCondition(
     message: String,
     advanceComposition: () -> Unit = {},
     timeoutMs: Long = HOST_CONDITION_TIMEOUT_MS,
+    describe: () -> String = { "" },
     ready: () -> Boolean,
 ) {
     val start = System.nanoTime()
@@ -193,8 +207,9 @@ fun awaitHostCondition(
     }
     if (ready()) return
     // The report is the only evidence of a rare suite-only stall (#3947): what every live thread was doing.
+    val state = runCatching(describe).getOrElse { "(state unavailable: $it)" }
     assertTrue(false, "$message (not met after ${(System.nanoTime() - start) / 1_000_000} ms, limit $timeoutMs ms)\n" +
-        hostStallReport())
+        (if (state.isEmpty()) "" else "$state\n") + hostStallReport())
 }
 
 /** Main looper state and the stacks of all live threads, for a timed-out host wait. */

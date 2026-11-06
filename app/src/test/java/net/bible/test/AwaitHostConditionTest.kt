@@ -1,7 +1,14 @@
 package net.bible.test
 
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
+import org.junit.After
+import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -12,6 +19,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AwaitHostConditionTest {
+    private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+
+    @After fun closeHosts() = closeReadingHostsBeforeReset(controllers)
     /**
      * Reproduces the contended-machine case: a host effect that completes after 12 s of wall clock while each
      * composition pump is slow. The former fixed 10 s deadline threw here (ReadingPlanSelectorResetFlowTest; 40-50 s is that WHOLE test cold, not the wait).
@@ -51,5 +61,33 @@ class AwaitHostConditionTest {
         } finally {
             gate.countDown(); blocked.join(5_000)
         }
+    }
+
+    /**
+     * #3947: the stall report had stacks but not which part of the host start was missing. A timeout carries the
+     * caller's state description.
+     */
+    @Test fun aTimeoutCarriesTheCallersStateDescription() {
+        try {
+            awaitHostCondition("never ready", timeoutMs = 200, describe = { "STATE-3947" }) { false }
+            fail("must time out")
+        } catch (e: AssertionError) {
+            assertTrue(e.message, e.message!!.contains("STATE-3947"))
+        }
+    }
+
+    /** The host state names the start stage, route and both visibility inputs of a real started host. */
+    @Test fun hostStartStateNamesTheStageTheHostReached() {
+        firstTime = false
+        val a = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
+        ).also { controllers += it }.setup().get()
+        awaitHostRoute(a, NavRoutes.AI_TOOL_INFO)
+        val state = hostStartState(a)
+        assertTrue(state, state.contains("stage=nav controller published"))
+        assertTrue(state, state.contains("route=${NavRoutes.AI_TOOL_INFO}"))
+        assertTrue(state, state.contains("readingVisible=false"))
+        assertTrue(state, state.contains("lifecycle=RESUMED"))
     }
 }

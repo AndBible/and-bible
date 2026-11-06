@@ -2784,6 +2784,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     internal fun currentRouteForTest(): String? = navController?.currentDestination?.route
 
     /**
+     * The last startup stage this host reached (MyDocument registration wait, content set, start-settings loads,
+     * nav controller published). Only read by test host waits: a timed-out wait reports it, so a rare suite-only
+     * stall names the stage it stopped at (#3947).
+     */
+    @Volatile internal var startStageForTest: String = "created"
+        private set
+
+    /**
      * A WELCOME-started host (uninitialised, spec §3.1 rule 2) initialises the app AND its window when a flow
      * leaves Welcome for Download / InstallZip: those screens were separate, initialised Activities before
      * slice 8, so they had `FLAG_SECURE` in discrete mode (plan Correction 6) and an initialised app.
@@ -2980,6 +2988,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // Activity-result launchers must register while CREATED; only restoration and
         // composition wait for the application-owned registration job.
         if (startRoute == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
+            startStageForTest = "awaiting MyDocument registration"
             lifecycleScope.launch {
                 CommonUtils.myDocumentRegistration?.join()
                 finishHostCreation(savedInstanceState, startRoute)
@@ -2990,8 +2999,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private fun finishHostCreation(savedInstanceState: Bundle?, startRoute: String) {
+        startStageForTest = "finishing host creation"
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
+        startStageForTest = "content set, start settings not loaded"
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
             // Do not compose synchronous settings consumers until their snapshot is loaded.
@@ -2999,9 +3010,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val loadedForStart by androidx.compose.runtime.produceState<Boolean?>(null, uninitialisedStart) {
                 // Welcome/restore deliberately leave the DB unopened and have no sync consumers.
                 if (!uninitialisedStart) {
+                    startStageForTest = "loading document-sync settings"
                     documentSyncSettings.ensureLoaded()
+                    startStageForTest = "loading AI settings"
                     CommonUtils.aiSettings.ensureLoaded()
                 }
+                startStageForTest = "start settings loaded"
                 value = uninitialisedStart
             }
             if (loadedForStart != uninitialisedStart) return@setContent
@@ -3016,6 +3030,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // composition, so the field is never a handle onto a dead graph.
                 DisposableEffect(navController) {
                     this@NavHostComposeActivity.navController = navController
+                    startStageForTest = "nav controller published"
                     // T8d: the graph coming back to `reading` IS the answer a self-launched
                     // Settings/Download screen gives -- see [readingReturnDebts]. Registered here
                     // rather than in a destination effect so that nothing in `:sharedUi` has to
