@@ -131,6 +131,7 @@ import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.persistCipherKey
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.startup.ReadingAppInitPlatform
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.epub.isEpub
@@ -991,6 +992,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledESwordBooks()
             addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
             addManuallyInstalledTtfBooks()
+            addManuallyInstalledBackgroundImageBooks()
             addManuallyInstalledCsvPromptBooks()
             // Synchronous framework entry points cannot block Main on registration.
             // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.

@@ -46,6 +46,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.format.SaxTextPolicy
 import net.bible.service.llm.AiSettings
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
@@ -273,6 +274,7 @@ object ReadingAppInit {
         addManuallyInstalledESwordBooks()
         addManuallyInstalledEpubBooks(koin.get<CoreStrings>(), koin.get<AppEnvironment>())
         addManuallyInstalledTtfBooks()
+        addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()
     }
 

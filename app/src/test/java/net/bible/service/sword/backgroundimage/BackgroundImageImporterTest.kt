@@ -23,6 +23,9 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.CommonUtils
+import net.bible.service.startup.ReadingAppInit
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
@@ -105,6 +108,29 @@ class BackgroundImageImporterTest {
         assertTrue(out!!.parentFile!!.name == BACKGROUND_IMAGE_DIR)
         AndBibleAddons.clearCaches()
         assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out })
+    }
+
+    @Test fun androidStartupRegistersPreviouslyImportedImage() {
+        val src = File(tmp, "startup.png").apply { writeBytes(onePixelPng()) }
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!
+        val imported = Books.installed().getBooks().single { it.isBackgroundImageModule && it.backgroundImageFile == out }
+        Books.installed().removeBook(imported)
+        AndBibleAddons.clearCaches()
+        assertNull(Books.installed().getBook(imported.initials))
+
+        ReadingAppInit.reset()
+        try {
+            CommonUtils.initializeApp()
+            assertNotNull("Android startup must register imported backgrounds", Books.installed().getBook(imported.initials))
+            assertEquals(out.toFile(), AndBibleAddons.providedBackgroundImages[imported.initials]?.file)
+            val response = net.bible.android.view.activity.page.BibleView.BackgroundImageAssetHandler().handle(imported.initials)
+            assertTrue(response.data.use { it.readBytes().contentEquals(src.readBytes()) })
+        } finally {
+            CommonUtils.awaitSnapshotLoadsAtEdge()
+            net.bible.test.DatabaseResetter.runResetBlocking {
+                MyDocumentBookManager.launcher.join("mydocument-sync")
+            }
+        }
     }
 
     @Test fun deleteRemovesModuleAndFile() {
