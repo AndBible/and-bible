@@ -69,7 +69,13 @@ fun buildPlatformBindings() = module {
                 }
                 repository.persistence.awaitPersisted()
             },
-            networkAvailable = { network.available },
+            networkAvailable = {
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                    @Suppress("DEPRECATION")
+                    (context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager)
+                        .activeNetworkInfo?.isConnected == true
+                } else network.available
+            },
             noNetwork = { notifier.showInfo(context.getString(net.bible.android.activity.R.string.sync_now_no_network)) },
         )
     }

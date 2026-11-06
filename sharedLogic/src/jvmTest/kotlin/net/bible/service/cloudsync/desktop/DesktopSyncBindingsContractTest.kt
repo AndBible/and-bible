@@ -17,6 +17,7 @@
 package net.bible.service.cloudsync.desktop
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.CloudAdapterFactory
@@ -161,6 +162,76 @@ class DesktopSyncBindingsContractTest {
             app.koin.get<net.bible.service.cloudsync.SyncNow>().start()
             assertTrue(scheduled.await(5, java.util.concurrent.TimeUnit.SECONDS))
             assertEquals(listOf("save", "schedule"), calls)
+        } finally {
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            app.close()
+        }
+    }
+
+    @Test fun manualSignInFailureIsRecordedWithoutASecondDialog() = manualSignInOutcome(cancelled = false)
+
+    @Test fun manualSignInCancellationRemainsQuiet() = manualSignInOutcome(cancelled = true)
+
+    private fun manualSignInOutcome(cancelled: Boolean) {
+        val scope = AppCoroutineScope()
+        val started = java.util.concurrent.CountDownLatch(1)
+        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, method, _ ->
+            when (method.returnType) {
+                java.lang.Boolean.TYPE -> true
+                java.lang.Long.TYPE -> 0L
+                java.lang.Integer.TYPE -> 0
+                String::class.java -> "test"
+                else -> null
+            }
+        } as AppSettings
+        val adapter = object : net.bible.service.cloudsync.CloudAdapter by inert() {
+            override val signedIn = false
+            override suspend fun signIn(): Boolean {
+                started.countDown()
+                if (cancelled) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+                throw IllegalStateException("server unavailable")
+            }
+        }
+        val app = koinApplication {
+            modules(net.bible.android.control.buildSharedBindings(),
+                desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
+                module {
+                    single<AppSettings> { settings }; single<AppEnvironment> { inert() }; single<CoreStrings> { inert() }
+                    single { AppDialogController() }; single { scope }; single { net.bible.sharedcore.platform.OrderedLauncher(scope) }
+                    single<net.bible.sharedlogic.platform.AddonCatalog> { inert() }; single<DocumentSyncStarter> { inert() }
+                    single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> { net.bible.service.cloudsync.SyncNowWorkspaceSaver {} }
+                    single<SyncScheduler> { DesktopSyncScheduler(scope) { error("sign-in failed, cannot schedule") } }
+                    single<DeviceLocalPrefs> { MapPrefs() }; single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
+                    single<UserNotifier> { inert() }
+                    single<CloudAdapterFactory> { object : CloudAdapterFactory {
+                        override val available = listOf("test")
+                        override fun displayName(id: String) = id
+                        override fun create(id: String) = adapter
+                    } }
+                })
+        }
+        try {
+            val center = app.koin.get<net.bible.android.control.activity.ActivityCenter>()
+            val dialogs = app.koin.get<AppDialogController>()
+            val sync = app.koin.get<net.bible.service.cloudsync.SyncNow>()
+            sync.start()
+            assertTrue(started.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            runBlocking {
+                withTimeout(5_000) {
+                    if (!cancelled) {
+                        val shown = dialogs.pending.first { it != null }!!
+                        val message = assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(shown.request)
+                        assertTrue(message.message.contains("server unavailable"))
+                        val failure = center.items.value.single { it.state == net.bible.android.control.activity.ActivityState.FAILED }
+                        assertEquals(net.bible.android.control.activity.ActivityKind.SYNC, failure.kind)
+                        assertEquals(message.message, failure.message)
+                        dialogs.respond(shown.id, net.bible.sharedcore.ui.dialog.AppDialogResult.Ok)
+                    }
+                    sync.running.first { !it }
+                }
+            }
+            assertEquals(if (cancelled) 0 else 1, center.items.value.count { it.state == net.bible.android.control.activity.ActivityState.FAILED })
+            assertEquals(null, dialogs.pending.value)
         } finally {
             scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
             app.close()

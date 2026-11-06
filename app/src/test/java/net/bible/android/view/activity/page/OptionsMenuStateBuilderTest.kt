@@ -150,6 +150,28 @@ class OptionsMenuStateBuilderTest {
         assertTrue(syncItems().any { it.id == "syncNow" })
     }
 
+    @Test @Config(sdk = [23])
+    fun api23ManualSyncChecksCurrentNetworkInsteadOfOldSnapshot() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val manager = context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val shadow = org.robolectric.Shadows.shadowOf(manager)
+        val state = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        val ports = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNowPorts>()
+        val original = manager.activeNetworkInfo
+        try {
+            state.available = false
+            shadow.setActiveNetworkInfo(org.robolectric.shadows.ShadowNetworkInfo.newInstance(
+                android.net.NetworkInfo.DetailedState.CONNECTED, android.net.ConnectivityManager.TYPE_WIFI, 0, true, true))
+            assertTrue(ports.networkAvailable(), "offline snapshot must not hide a newly available network")
+            state.available = true
+            shadow.setActiveNetworkInfo(null)
+            assertFalse(ports.networkAvailable(), "online snapshot must not allow sync after disconnection")
+        } finally {
+            shadow.setActiveNetworkInfo(original)
+            state.available = false
+        }
+    }
+
     @Test fun networkCallbackUpdatesSharedManualSyncStateAcrossHosts() {
         val state = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
         val other = Robolectric.buildActivity(

@@ -213,6 +213,29 @@ class CloudSyncWatermarkTest {
         assertEquals(listOf("pending", "pending"), f.adapter.downloads)
     }
 
+    @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->
+        val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            f.adapter.onList = { throw IOException("connection refused") }
+            f.cloud.synchronize(allowInteraction = true)
+            val errors = messages.filterIsInstance<net.bible.android.control.event.UserMessage.ErrorNotification>()
+            assertEquals(1, errors.size)
+            assertEquals(false, errors.single().background)
+            assertEquals(net.bible.android.control.activity.ActivityKind.SYNC, errors.single().kind)
+        } finally { subscription.cancel() }
+    }
+
+    @Test fun backgroundTransportFailureRemainsSilent() = withFixture { f ->
+        val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            f.adapter.onList = { throw IOException("connection refused") }
+            f.cloud.synchronize(allowInteraction = false)
+            assertTrue(messages.filterIsInstance<net.bible.android.control.event.UserMessage.ErrorNotification>().isEmpty())
+        } finally { subscription.cancel() }
+    }
+
     @Test fun failedListingKeepsTheMissedPatchVisibleOnRetry() = withFixture { f ->
         f.adapter.onList = { throw IOException("Interrupted listing") }
         f.cloud.synchronize()

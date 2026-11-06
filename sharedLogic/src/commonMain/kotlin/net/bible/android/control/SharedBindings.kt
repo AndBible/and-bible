@@ -258,8 +258,11 @@ fun buildSharedBindings() = module {
     }.onClose { it?.close() }
     single {
         val ports = get<net.bible.service.cloudsync.SyncNowPorts>()
+        val failures = get<SyncActivitySource>()
         net.bible.service.cloudsync.SyncNow(
-            net.bible.service.cloudsync.CloudSyncPort.of(get()), get<DocumentSync>().runningChanged,
+            net.bible.service.cloudsync.CloudSyncPort.of(get()) { message ->
+                failures.reportFailure(net.bible.android.control.activity.ActivityKind.SYNC, message)
+            }, get<DocumentSync>().runningChanged,
             syncSetUp = {
                 net.bible.service.cloudsync.SyncableDatabaseDefinition.ALL.any {
                     it.isSyncEnabled(get<net.bible.sharedcore.platform.AppSettings>())
