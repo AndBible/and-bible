@@ -466,6 +466,25 @@ class IosReadingWindowsTest {
         assertFalse(HostReadingWindows.rebuild(IdType().toString()), "a window without an assembly is ignored")
     }
 
+    /**
+     * A late termination callback of the OLD web view (arriving after the window was rebuilt under the same id) must not
+     * mark the NEW session's page as restarting, or its JS calls would be dropped for good.
+     */
+    @Test
+    fun lateTerminationOfTheOldWebViewDoesNotTouchTheRebuiltSession() = withWindows { id ->
+        attach(id)
+        val oldView = IosReadingWebViews.webViewFor(id)
+        val oldDelegate = oldView.navigationDelegate as net.bible.sharedui.webview.IosNavDelegate
+        assertTrue(HostReadingWindows.rebuild(id))
+        attach(id)
+        val channel = HostReadingWindows.sessionFor(id).jsChannel
+        channel.markClientReady()
+        assertFalse(channel.loading)
+        assertTrue(oldDelegate.released)
+        oldDelegate.webViewWebContentProcessDidTerminate(oldView)
+        assertFalse(channel.loading, "the old web view's termination must not mark the new page restarting")
+    }
+
     /** A missing or closed window is never (re)assembled by the pane path: no session, no WebView entry. */
     @Test
     fun closedOrMissingWindowIsNotReassembled() = withWindows { id ->

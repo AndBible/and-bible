@@ -208,10 +208,11 @@ object IosReadingWebViews {
 
     /**
      * Probes the wired panes when the app becomes active and rebuilds dead or hung ones (issue #4004). Only panes that
-     * have loaded something are probed: a web view with no URL has no page that could have died.
+     * have loaded something are probed (a web view with no URL has no page that could have died) and that are on screen
+     * (`window != null`): hidden, minimised or covered panes are probed on a later activation when they are visible.
      */
     private val liveness = IosPaneLiveness(
-        panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null }.mapValues { it.value.webView } },
+        panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null && it.webView.window != null }.mapValues { it.value.webView } },
         recover = { windowId -> HostReadingWindows.rebuild(windowId) },
     )
 
@@ -299,6 +300,11 @@ object IosReadingWebViews {
         entry.webView.onBuildMenu = null
         entry.gestureRecognisers?.detach()
         entry.gestureRecognisers = null
+        // Detach the dropped web view: a window rebuilt under the same id must not hear its late termination callbacks.
+        entry.navDelegate.released = true
+        entry.webView.navigationDelegate = null
+        entry.webView.stopLoading()
+        entry.webView.removeFromSuperview()
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
         entry.webView.isEditing = { false }

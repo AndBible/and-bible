@@ -125,6 +125,30 @@ class IosPaneLivenessTest {
         spin(0.2)
     }
 
+    /** A window that keeps dying is rebuilt at most [MAX_LIVENESS_REBUILDS] times in a row; an alive probe resets the count. */
+    @Test
+    fun consecutiveRebuildsAreCappedAndAliveProbeResets() {
+        val rebuilt = mutableListOf<String>()
+        val logs = mutableListOf<String>()
+        var answer = "undefined"
+        val view = webView()
+        val liveness = IosPaneLiveness(
+            panes = { mapOf("w1" to view) },
+            recover = { rebuilt += it },
+            timeoutSeconds = 10.0,
+            evaluate = { _, _, done -> done(answer, false) },
+            log = { logs += it },
+        )
+        repeat(MAX_LIVENESS_REBUILDS + 2) { liveness.checkAll() }
+        assertEquals(MAX_LIVENESS_REBUILDS, rebuilt.size)
+        assertEquals(1, logs.count { it.contains("giving up") }, "the cap is logged once")
+        answer = "object"
+        liveness.checkAll()
+        answer = "undefined"
+        liveness.checkAll()
+        assertEquals(MAX_LIVENESS_REBUILDS + 1, rebuilt.size, "an alive probe resets the cap")
+    }
+
     /** Against real WebKit: a loaded page without BibleView is dead, one that defines `window.bibleView` is alive. */
     @Test
     fun realProbeTellsBibleViewPageFromBlankPage() {

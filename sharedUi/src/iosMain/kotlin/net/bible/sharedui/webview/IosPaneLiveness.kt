@@ -52,6 +52,9 @@ internal fun paneHealth(answered: Boolean, result: Any?, failed: Boolean, loadin
     else -> PaneHealth.Alive
 }
 
+/** Same limit as desktop's `DesktopReadingPaneEngine.MAX_RENDERER_DEATHS`. */
+internal const val MAX_LIVENESS_REBUILDS = 3
+
 /** Evaluated in the page: BibleView-JS defines `window.bibleView` (main.ts) when it starts. */
 internal const val PANE_PROBE_JS = "typeof window.bibleView"
 private const val PANE_PROBE_ALIVE = "object"
@@ -82,8 +85,13 @@ internal class IosPaneLiveness(
         webView.evaluateJavaScript(js) { result, error -> done(result, error != null) }
     },
     private val log: (String) -> Unit = { nsLog(it) },
+    /** Consecutive liveness rebuilds of one window after which it is left alone (desktop's `MAX_RENDERER_DEATHS`). */
+    private val maxRebuilds: Int = MAX_LIVENESS_REBUILDS,
 ) {
     private var observer: Any? = null
+
+    /** Consecutive rebuilds per window; reset when a probe finds the page alive. */
+    private val rebuilds = mutableMapOf<String, Int>()
 
     /** Probes every pane each time the app becomes active (once installed, later calls do nothing). */
     fun installOnBecomeActive() {
@@ -102,8 +110,16 @@ internal class IosPaneLiveness(
         fun settle(health: PaneHealth) {
             if (settled) return
             settled = true
+            if (health == PaneHealth.Alive) rebuilds.remove(windowId)
             if (health != PaneHealth.Dead && health != PaneHealth.Unresponsive) return
             if (panes()[windowId] !== webView) return
+            val count = (rebuilds[windowId] ?: 0) + 1
+            if (count > maxRebuilds) {
+                if (count == maxRebuilds + 1) log("I0-WEBVIEW-DEAD $windowId: $health after $maxRebuilds rebuilds, giving up")
+                rebuilds[windowId] = count
+                return
+            }
+            rebuilds[windowId] = count
             log("I0-WEBVIEW-DEAD $windowId: $health, rebuilding the pane")
             try {
                 recover(windowId)

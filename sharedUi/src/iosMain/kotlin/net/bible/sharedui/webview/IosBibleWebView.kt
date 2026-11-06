@@ -70,6 +70,13 @@ internal class IosNavDelegate(
     private val onPageRestart: (() -> Unit)? = null,
 ) : NSObject(), WKNavigationDelegateProtocol {
     var windowId: String = windowId
+
+    /**
+     * Set when the web view is dropped ([IosReadingWebViews.release]). A termination or probe callback of a dropped web
+     * view can arrive after the window was rebuilt under the same id; it must not touch the new session.
+     */
+    var released: Boolean = false
+
     override fun webView(
         webView: WKWebView,
         decidePolicyForNavigationAction: WKNavigationAction,
@@ -98,6 +105,7 @@ internal class IosNavDelegate(
     }
 
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
+        if (released) return
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")
             webView.reload()
