@@ -6,8 +6,6 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.ptr
-import okio.FileSystem
-import okio.Path
 import platform.CoreFoundation.CFDataCreate
 import platform.CoreFoundation.CFDataRef
 import platform.CoreFoundation.CFDictionaryCreateMutable
@@ -25,7 +23,7 @@ import platform.Security.kSecAttrKeyType
 import platform.Security.kSecAttrKeyTypeRSA
 import platform.Security.kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA1
 
-internal actual fun verifyFeatureSignature(publicKeyDer: ByteArray, file: Path, signatureFile: Path): Boolean {
+internal actual fun verifyFeatureSignature(publicKeyDer: ByteArray, content: ByteArray, signature: ByteArray): Boolean {
     // JCA uses SubjectPublicKeyInfo; Security imports the inner PKCS#1 RSAPublicKey instead.
     val pkcs1 = rsaPkcs1(publicKeyDer) ?: return false
     val attributes = CFDictionaryCreateMutable(
@@ -41,12 +39,12 @@ internal actual fun verifyFeatureSignature(publicKeyDer: ByteArray, file: Path, 
         CFRelease(attributes)
     } ?: return false
     try {
-        val fs = FileSystem.SYSTEM
         // The .sign format is binary, and Android ignores bytes beyond the RSA modulus size.
-        val signature = fs.read(signatureFile) { readByteArray(SecKeyGetBlockSize(key).toLong()) }
-        val message = fs.read(file) { readByteArray() }.cfData() ?: return false
+        val block = SecKeyGetBlockSize(key).toInt()
+        if (signature.size < block) return false
+        val message = content.cfData() ?: return false
         try {
-            val signatureData = signature.cfData() ?: return false
+            val signatureData = signature.copyOf(block).cfData() ?: return false
             try {
                 return SecKeyVerifySignature(key, kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA1, message, signatureData, null)
             } finally {

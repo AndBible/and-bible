@@ -34,7 +34,7 @@ class DesktopPageAssetRoutesTest {
     private val image = tmp.resolve("bg.jpg").also { it.writeText("jpg") }
     private val logs = mutableListOf<String>()
 
-    private fun routes(verify: (Path, Path) -> Boolean = { f, s -> f.fileName.toString() == "feat.js" && Files.exists(s) }) =
+    private fun routes(verify: (ByteArray, Path) -> Boolean = { _, s -> s.fileName.toString() == "feat.js.sign" && Files.exists(s) }) =
         DesktopPageAssetRoutes(
             backgrounds = { mapOf("D3DBackground" to image) },
             bookLocation = { if (it == "KJV") book else null },
@@ -101,7 +101,8 @@ AndBibleProvidesFont=Desktop Study;css/extra.woff2
     }
 
     @Test fun signedFeatureServed() {
-        assertEquals(book.resolve("feat.js"), assertNotNull(routes().resolve("/features/KJV/feat.js")).file)
+        // Served from the verified bytes (a cache copy), not from the book file that could change after verification.
+        assertEquals("f", assertNotNull(routes().resolve("/features/KJV/feat.js")).file.readText())
     }
 
     @Test fun unsignedFeatureRefused() {

@@ -67,7 +67,7 @@ private val epubLineHeightRe = Regex("""\bline-height:[^;]*;""")
  * - `/module/<initials>/<path>`: a file under the installed book's location ([bookLocation]).
  * - `/fonts/<initials>/<path>`: a file under the book's location. `fonts.css` declares readable add-on fonts
  *   from [fonts], with relative URLs resolved through this same traversal-safe route.
- * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]); without a verifier
+ * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]), served as the verified bytes; without a verifier
  *   nothing is served.
  * - `/module-style/<initials>/<path>`: the book's `AndBibleCSS` stylesheet (`style.css`) or a file beside it.
  * - `/module-style/epub/<initials>/<key>/style.css` and `/module-style/epub/<initials>/<path>`, `/epub/<path>`: EPUB
@@ -81,7 +81,8 @@ class PageAssetRoutes(
     private val backgrounds: () -> Map<String, Path>,
     private val bookLocation: (String) -> Path?,
     private val bookStyleFile: (String) -> String?,
-    private val verify: ((file: Path, signature: Path) -> Boolean)?,
+    /** Checks the already-read feature [content] against its `.sign` file; the same bytes are then served (no TOCTOU re-read). */
+    private val verify: ((content: ByteArray, signature: Path) -> Boolean)?,
     private val epub: PageAssetEpubSource? = null,
     private val log: (String) -> Unit = {},
     private val mimeType: (String) -> String = ::pageAssetMimeType,
@@ -144,7 +145,10 @@ class PageAssetRoutes(
         val file = within(base, relative) ?: return null
         if (signed) {
             val check = verify ?: return null
-            if (!check(file, file.parent!! / (file.name + ".sign"))) return null
+            // Read once, verify those bytes, serve those bytes: the file may change on disk after this point.
+            val content = try { fs.read(file) { readByteArray() } } catch (_: Exception) { return null }
+            if (!check(content, file.parent!! / (file.name + ".sign"))) return null
+            return PageAsset.Bytes(content, mimeType(relative))
         }
         return PageAsset.File(file, mimeType(relative))
     }
