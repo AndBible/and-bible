@@ -116,7 +116,7 @@ class ActivityCenterGoldenTest {
 
     private fun list(items: List<ActivityItem>): @Composable () -> Unit = {
         Column(Modifier.width(360.dp)) {
-            ActivityListContent(items, onDismissItem = {}, onClearFinished = {}, onOpenItem = {}, onClose = {})
+            ActivityListContent(items, onDismissItem = {}, onClearFinished = {}, onOpenItem = {})
         }
     }
 

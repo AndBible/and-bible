@@ -429,7 +429,6 @@
     <string name="activity_running_description">Background work running</string>
     <string name="activity_running">Running</string>
     <string name="activity_recent">Recent</string>
-    <string name="activity_dismiss">Dismiss</string>
     <string name="activity_clear_finished">Clear finished</string>
     <string name="activity_title">Background activity</string>
     <string name="activity_empty">Nothing running</string>

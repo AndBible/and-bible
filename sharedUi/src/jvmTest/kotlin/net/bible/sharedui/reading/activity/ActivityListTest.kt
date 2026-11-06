@@ -59,7 +59,7 @@ class ActivityListTest {
         onDismiss: (String) -> Unit = {}, onClear: () -> Unit = {}, onOpen: (ActivityItem) -> Unit = {},
     ) = setContent {
         AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
-            ActivityListContent(items, onDismissItem = onDismiss, onClearFinished = onClear, onOpenItem = onOpen, onClose = {})
+            ActivityListContent(items, onDismissItem = onDismiss, onClearFinished = onClear, onOpenItem = onOpen)
         } }
     }
 
@@ -105,7 +105,7 @@ class ActivityListTest {
             AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
                 ActivityListContent(
                     items, onDismissItem = {}, onClearFinished = { items = items.filter { it.state == ActivityState.RUNNING } },
-                    onOpenItem = {}, onClose = {},
+                    onOpenItem = {},
                 )
             } }
         }

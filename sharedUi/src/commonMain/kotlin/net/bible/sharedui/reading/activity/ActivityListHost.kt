@@ -72,7 +72,7 @@ fun ActivityListHost(
                 title = { Text(strings.activityTitle) },
                 text = {
                     ActivityListContent(
-                        items, onDismissItem, onClearFinished, onOpenItem, onClose,
+                        items, onDismissItem, onClearFinished, onOpenItem,
                         modifier = Modifier.testTag(ACTIVITY_LIST_POPOVER_TAG),
                     )
                 },
@@ -86,7 +86,7 @@ fun ActivityListHost(
             ) {
                 Column(Modifier.testTag(ACTIVITY_LIST_SHEET_TAG)) {
                     AbSheetHeader(title = strings.activityTitle, onClose = onClose)
-                    ActivityListContent(items, onDismissItem, onClearFinished, onOpenItem, onClose)
+                    ActivityListContent(items, onDismissItem, onClearFinished, onOpenItem)
                 }
             }
         }

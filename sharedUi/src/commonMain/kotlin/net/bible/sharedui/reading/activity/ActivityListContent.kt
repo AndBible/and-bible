@@ -65,7 +65,6 @@ fun ActivityListContent(
     onDismissItem: (String) -> Unit,
     onClearFinished: () -> Unit,
     onOpenItem: (ActivityItem) -> Unit,
-    onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -144,7 +143,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
         if (item.state == ActivityState.RUNNING) {
             if (cancel != null) TextButton(onClick = cancel) { Text(strings.cancel) }
         } else {
-            TextButton(onClick = { onDismiss(item.id) }) { Text(strings.activityDismiss) }
+            TextButton(onClick = { onDismiss(item.id) }) { Text(strings.dismiss) }
         }
     }
 }

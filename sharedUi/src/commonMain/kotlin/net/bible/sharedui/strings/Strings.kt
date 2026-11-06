@@ -453,7 +453,6 @@ interface Strings {
     val activityRunningDescription: String        // R.string.activity_running_description
     val activityRunning: String                   // R.string.activity_running
     val activityRecent: String                    // R.string.activity_recent
-    val activityDismiss: String                   // R.string.activity_dismiss
     val activityClearFinished: String             // R.string.activity_clear_finished
     val activityTitle: String                     // R.string.activity_title
     val activityEmpty: String                     // R.string.activity_empty
