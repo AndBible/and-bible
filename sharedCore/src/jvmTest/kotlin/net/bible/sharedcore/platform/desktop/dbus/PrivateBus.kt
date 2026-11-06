@@ -16,6 +16,12 @@ import org.freedesktop.dbus.messages.DBusSignal
 class PrivateBus private constructor(private val daemon: String, private val dir: File) : AutoCloseable {
     private val connections = CopyOnWriteArrayList<DBusConnection>()
     private val socket = File(dir, "bus")
+
+    /**
+     * A minimal config with no service directories: the stock session.conf would make the real notification service
+     * and portals activatable on this bus, so a test's Notify could spawn a real daemon (popups, flaky tests).
+     */
+    private val configFile = File(dir, "bus.conf")
     private var process: Process? = null
 
     /** The bus address; stable across [restart]. */
@@ -23,7 +29,22 @@ class PrivateBus private constructor(private val daemon: String, private val dir
 
     private fun launch(): Boolean {
         socket.delete()
-        val p = ProcessBuilder(daemon, "--session", "--nofork", "--address=$address", "--print-address")
+        configFile.writeText(
+            """<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+<busconfig>
+  <type>session</type>
+  <listen>$address</listen>
+  <auth>EXTERNAL</auth>
+  <policy context="default">
+    <allow send_destination="*" eavesdrop="true"/>
+    <allow eavesdrop="true"/>
+    <allow own="*"/>
+  </policy>
+</busconfig>
+""",
+        )
+        val p = ProcessBuilder(daemon, "--config-file=${configFile.absolutePath}", "--nofork", "--print-address")
             .redirectError(ProcessBuilder.Redirect.DISCARD).start()
         process = p
         val line = try { p.inputStream.bufferedReader().readLine()?.trim().orEmpty() } catch (e: Exception) { "" }

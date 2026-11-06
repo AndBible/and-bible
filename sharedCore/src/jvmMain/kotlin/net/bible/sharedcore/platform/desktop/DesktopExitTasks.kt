@@ -35,10 +35,13 @@ class DesktopExitTasks {
 
     private val tasks = CopyOnWriteArrayList<Task>()
 
-    /** Registers [task] under [name] (for the log); the returned function unregisters it. */
-    fun register(name: String, task: suspend () -> Unit): () -> Unit {
+    /**
+     * Registers [task] under [name] (for the log); the returned function unregisters it. With [runFirst] the task runs
+     * before every task registered so far (for work that must not wait behind the shared time budget).
+     */
+    fun register(name: String, runFirst: Boolean = false, task: suspend () -> Unit): () -> Unit {
         val entry = Task(name, task)
-        tasks += entry
+        if (runFirst) tasks.add(0, entry) else tasks += entry
         return { tasks.remove(entry) }
     }
 

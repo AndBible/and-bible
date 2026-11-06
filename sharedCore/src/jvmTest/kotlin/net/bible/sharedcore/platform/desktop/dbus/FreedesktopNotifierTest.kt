@@ -147,6 +147,59 @@ class FreedesktopNotifierTest {
     }
 
     @Test
+    fun progressBodyShowsThePercentOnlyOnce() {
+        notifier!!.show(NativeNotification("job", "Sync", "", progress = 74, indeterminate = false, urgent = false))
+        flushed()
+        assertEquals("74 %", fake.notifies.single().body)
+    }
+
+    @Test
+    fun userDismissedProgressStaysGoneUntilFinalShowOrRemove() {
+        val p = NativeNotification("job", "Dl", "", progress = 10, indeterminate = false, urgent = false)
+        notifier!!.show(p)
+        flushed()
+        service!!.emit("org.freedesktop.Notifications", "NotificationClosed", "uu", UInt32(101), UInt32(2))
+        assertTrue(waitUntil { !notifier!!.hasServerId("job") })
+        notifier!!.show(p.copy(progress = 20))
+        notifier!!.show(p.copy(progress = 30))
+        flushed()
+        assertEquals(1, fake.notifies.size)
+        notifier!!.show(p.copy(progress = null, body = "Finished"))
+        flushed()
+        assertEquals(2, fake.notifies.size)
+        assertEquals("Finished", fake.notifies.last().body)
+        // remove() also un-mutes
+        notifier!!.show(p.copy(id = "other"))
+        flushed()
+        val serverId = 100L + fake.notifies.size
+        service!!.emit("org.freedesktop.Notifications", "NotificationClosed", "uu", UInt32(serverId), UInt32(2))
+        assertTrue(waitUntil { !notifier!!.hasServerId("other") })
+        notifier!!.remove("other")
+        notifier!!.show(p.copy(id = "other", progress = 50))
+        flushed()
+        assertEquals(4, fake.notifies.size)
+    }
+
+    @Test
+    fun expiredOrClosedByCallProgressIsNotMuted() {
+        val p = NativeNotification("job", "Dl", "", progress = 10, indeterminate = false, urgent = false)
+        notifier!!.show(p)
+        flushed()
+        service!!.emit("org.freedesktop.Notifications", "NotificationClosed", "uu", UInt32(101), UInt32(1))
+        assertTrue(waitUntil { !notifier!!.hasServerId("job") })
+        notifier!!.show(p.copy(progress = 20))
+        flushed()
+        assertEquals(2, fake.notifies.size)
+    }
+
+    @Test
+    fun privateBusHasNoActivatableNotificationOrPortalServices() {
+        val names = bus!!.newConnection().getRemoteObject("org.freedesktop.DBus", "/org/freedesktop/DBus", org.freedesktop.dbus.interfaces.DBus::class.java)
+            .ListActivatableNames().toList()
+        assertTrue(names.none { it.contains("Notifications") || it.contains("portal") }, names.toString())
+    }
+
+    @Test
     fun notificationClosedForgetsMapping() {
         notifier!!.show(note)
         flushed()

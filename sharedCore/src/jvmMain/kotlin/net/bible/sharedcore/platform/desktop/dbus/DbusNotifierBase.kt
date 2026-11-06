@@ -99,7 +99,11 @@ abstract class DbusNotifierBase(
 
     private fun scheduleRetry() {
         if (pending.isEmpty() || retryJob != null) return
-        if (replayRounds >= MAX_REPLAY_ATTEMPTS) { pending.clear(); return }
+        if (replayRounds >= MAX_REPLAY_ATTEMPTS) {
+            Log.d(tag, "Dropping ${pending.size} pending notification operation(s) after $MAX_REPLAY_ATTEMPTS replay rounds")
+            pending.clear()
+            return
+        }
         replayRounds++
         retryJob = scope.launch(dispatcher) {
             val waitMs = (retryNotBeforeNanos - System.nanoTime()) / 1_000_000

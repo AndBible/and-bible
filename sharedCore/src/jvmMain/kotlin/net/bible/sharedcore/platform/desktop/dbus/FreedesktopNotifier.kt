@@ -32,6 +32,9 @@ interface FreedesktopNotificationsInterface : DBusInterface {
  * also opens the connection). It is false before the first answer, and goes false again while the notification service
  * has no owner (it left the bus) until the probe answers anew after it returns.
  *
+ * A progress popup the user dismissed (close reason 2) is muted: further progress shows for that id are ignored until a
+ * non-progress show (final or failed) or [remove] for it.
+ *
  * The service's owner is tracked through `NameOwnerChanged`: on any owner change the server-side ids are forgotten (a
  * restarted daemon knows none of them), capabilities are probed again, and signals from any other sender than the
  * current owner are ignored.
@@ -43,6 +46,8 @@ class FreedesktopNotifier(
     retryAfterFailureMs: Long = DEFAULT_RETRY_AFTER_FAILURE_MS,
 ) : DbusNotifierBase(dbus, scope, "FreedesktopNotifier", retryAfterFailureMs) {
     private val serverIds = ConcurrentHashMap<String, UInt32>()
+    private val progressKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val mutedKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val notifyInFlight: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val ownerChangeCount = AtomicInteger()
 
@@ -70,6 +75,7 @@ class FreedesktopNotifier(
                 val newOwner = (signal.parameters[2] as String).ifEmpty { null }
                 owner = newOwner
                 serverIds.clear()
+                mutedKeys.clear()
                 capabilitiesAnswered = false
                 if (newOwner != null) submit { c -> proxy(c).GetCapabilities(); capabilitiesAnswered = true }
                 ownerChangeCount.incrementAndGet()
@@ -84,7 +90,14 @@ class FreedesktopNotifier(
         listenTo(connection, INTERFACE, "NotificationClosed") { signal ->
             val serverId = (signal.parameters[0] as Number).toLong()
             // A server that echoes replaces_id may close the old notification while our Notify for it is in flight.
-            if (fromOwner(signal)) serverIds.entries.removeIf { it.value.toLong() == serverId && it.key !in notifyInFlight }
+            val reason = (signal.parameters[1] as Number).toLong()
+            if (fromOwner(signal)) {
+                serverIds.entries.filter { it.value.toLong() == serverId && it.key !in notifyInFlight }.forEach { (key, _) ->
+                    serverIds.remove(key)
+                    // The user dismissed a progress popup: do not bring it back on the next tick.
+                    if (reason == REASON_DISMISSED && key in progressKeys) mutedKeys.add(key)
+                }
+            }
         }
         proxy(connection).GetCapabilities()
         capabilitiesAnswered = true
@@ -92,6 +105,7 @@ class FreedesktopNotifier(
 
     override fun onDisconnected() {
         serverIds.clear()
+        mutedKeys.clear()
         capabilitiesAnswered = false
         owner = null
     }
@@ -100,13 +114,21 @@ class FreedesktopNotifier(
         connection.getRemoteObject(SERVICE, PATH, FreedesktopNotificationsInterface::class.java)
 
     override fun show(n: NativeNotification) = submit(n.id) { connection ->
+        val isProgress = n.progress != null || n.indeterminate
+        if (isProgress) {
+            if (n.id in mutedKeys) return@submit
+            progressKeys.add(n.id)
+        } else {
+            progressKeys.remove(n.id)
+            mutedKeys.remove(n.id)
+        }
         val percent = n.progress?.coerceIn(0, 100)
         val hints = buildMap<String, Variant<*>> {
             put("urgency", Variant(if (n.urgent) 2.toByte() else 1.toByte()))
             if (percent != null) put("value", Variant(percent))
             if (percent != null || n.indeterminate) put("transient", Variant(true))
         }
-        // Servers without progress bars still show the percentage in the body.
+        // Servers without progress bars still show the percentage in the body; the caller's body must not repeat it.
         val body = listOfNotNull(n.body.ifBlank { null }, percent?.let { "$it %" }).joinToString("\n")
         val expire = if (n.progress != null || n.indeterminate) 0 else -1
         notifyInFlight.add(n.id)
@@ -121,6 +143,8 @@ class FreedesktopNotifier(
     }
 
     override fun remove(id: String) = submit(id) { connection ->
+        progressKeys.remove(id)
+        mutedKeys.remove(id)
         serverIds[id]?.let { serverId ->
             proxy(connection).CloseNotification(serverId)
             serverIds.remove(id)
@@ -128,6 +152,7 @@ class FreedesktopNotifier(
     }
 
     private companion object {
+        const val REASON_DISMISSED = 2L
         const val SERVICE = "org.freedesktop.Notifications"
         const val PATH = "/org/freedesktop/Notifications"
         const val INTERFACE = "org.freedesktop.Notifications"
