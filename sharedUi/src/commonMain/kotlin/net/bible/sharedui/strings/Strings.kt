@@ -84,6 +84,8 @@ interface Strings {
     val prefsDisableAnimationsTitle: String
     val prefsShowActivityInMenuTitle: String
     val prefsShowActivityInMenuSummary: String
+    val prefsSystemNotificationsTitle: String
+    val prefsSystemNotificationsSummary: String
     val prefsDisableClickToEditSummary: String
     val prefsDisableClickToEditTitle: String
     val prefsDisableTwoStepBookmarkingSummary: String

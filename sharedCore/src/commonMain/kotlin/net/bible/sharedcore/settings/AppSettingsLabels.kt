@@ -88,6 +88,8 @@ data class AppSettingsLabels(
     val disableAnimationsSummary: String,
     val showActivityInMenuTitle: String,
     val showActivityInMenuSummary: String,
+    val systemNotificationsTitle: String,
+    val systemNotificationsSummary: String,
 
     // Persecution
     val discreteHelpTitle: String,
@@ -206,6 +208,8 @@ data class AppSettingsLabels(
             disableAnimationsSummary = "Turn off UI animations",
             showActivityInMenuTitle = "Show background activity in the menu",
             showActivityInMenuSummary = "Downloads, sync and indexing progress, and failures, in the \u22EE menu",
+            systemNotificationsTitle = "System notifications",
+            systemNotificationsSummary = "Notify about failed background work, long downloads that finish while AndBible is in the background, and their progress",
 
             discreteHelpTitle = "About discrete mode",
             discreteHelpSummary = "Learn how the calculator disguise works",

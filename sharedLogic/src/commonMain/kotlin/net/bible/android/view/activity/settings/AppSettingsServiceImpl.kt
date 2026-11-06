@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.settings
 
 import net.bible.android.control.activity.ActivityMenuPreference
+import net.bible.android.control.activity.SystemNotificationsPreference
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
@@ -108,6 +109,13 @@ class AppSettingsServiceImpl(
     // Null (Koin not started, e.g. a bare unit test) hides the row: there is no platform default to show.
     private val activityMenu: ActivityMenuPreference? = try {
         KoinPlatform.getKoin().getOrNull<ActivityMenuPreference>()
+    } catch (e: IllegalStateException) { // Koin not started
+        null
+    },
+    // The shared system-notifications preference (#4012); bound only where a native notifier exists (desktop/iOS), so
+    // Android and a bare unit test leave it null and the row hidden.
+    private val systemNotifications: SystemNotificationsPreference? = try {
+        KoinPlatform.getKoin().getOrNull<SystemNotificationsPreference>()
     } catch (e: IllegalStateException) { // Koin not started
         null
     },
@@ -239,6 +247,8 @@ class AppSettingsServiceImpl(
             disableAnimations = readBool("disable_animations", false),
             showActivityInMenu = activityMenu?.enabled?.value ?: false,
             activityMenuVisible = activityMenu != null,
+            showSystemNotifications = systemNotifications?.enabled?.value ?: false,
+            systemNotificationsVisible = systemNotifications != null,
             // Persecution
             discreteMode = readBool("discrete_mode", false),
             showCalculator = readBool("show_calculator", false),
@@ -278,6 +288,7 @@ class AppSettingsServiceImpl(
 
     override fun setBool(key: String, value: Boolean) {
         if (key == ActivityMenuPreference.KEY && activityMenu != null) activityMenu.set(value)
+        else if (key == SystemNotificationsPreference.KEY && systemNotifications != null) systemNotifications.set(value)
         else if (useRealShared(key)) devicePrefs.setBoolean(key, value)
         else settings.setBoolean(key, value)
         refresh()
