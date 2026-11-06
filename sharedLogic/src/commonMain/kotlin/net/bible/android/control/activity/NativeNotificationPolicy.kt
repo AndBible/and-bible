@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
@@ -60,6 +62,13 @@ class NativeNotificationPolicy(
     @Volatile private var progressIds: Set<String> = emptySet()
     @Volatile private var isClosed = false
 
+    /**
+     * Makes "check isClosed, show, publish progressIds" (collector) and "set isClosed, snapshot, remove" ([close])
+     * mutually exclusive, so a show can never land after close() removed its id. Notifier calls run under it, which is
+     * acceptable because the [NativeNotifier] port is non-blocking.
+     */
+    private val closeLock = SynchronizedObject()
+
     // Confined to the collector coroutine.
     private val shown = mutableMapOf<String, Shown>()
     private val lastSeen = mutableMapOf<String, ActivityState>()
@@ -74,8 +83,8 @@ class NativeNotificationPolicy(
         if (job != null) return
         inForeground.value = foreground.isForeground()
         job = scope.launch {
-            combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, isClosed ->
-                Input(list, on, fg, isClosed)
+            combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, closeRequested ->
+                Input(list, on, fg, closeRequested)
             }.takeWhile { evaluate(it) }.collect { }
         }
     }
@@ -89,14 +98,16 @@ class NativeNotificationPolicy(
      * contract, but do not call this on the AWT/Compose thread. Idempotent.
      */
     fun close() {
-        if (isClosed) return
-        isClosed = true
-        closed.value = true
-        job?.cancel()
-        wakeJob?.cancel()
-        val ids = progressIds
-        progressIds = emptySet()
-        ids.forEach { removeNotification(it) }
+        synchronized(closeLock) { // L1-common-ok: atomicfu lock
+            if (isClosed) return
+            isClosed = true
+            closed.value = true
+            job?.cancel()
+            wakeJob?.cancel()
+            val ids = progressIds
+            progressIds = emptySet()
+            ids.forEach { removeNotification(it) }
+        }
     }
 
     /** The activity id behind a notification id made by this policy, or null for a foreign id. */
@@ -186,11 +197,14 @@ class NativeNotificationPolicy(
     }
 
     private fun showNotification(item: ActivityItem, body: String, progress: Int?, urgent: Boolean, kind: Shown) {
-        shown[item.id] = kind
-        if (kind == Shown.FINAL) progressShown.remove(item.id)
-        publishProgressIds()
-        guarded("show") {
-            notifier.show(NativeNotification(ID_PREFIX + item.id, item.title, body, progress, progress == null && kind == Shown.PROGRESS, urgent))
+        synchronized(closeLock) { // L1-common-ok: atomicfu lock
+            if (isClosed) return
+            shown[item.id] = kind
+            if (kind == Shown.FINAL) progressShown.remove(item.id)
+            publishProgressIds()
+            guarded("show") {
+                notifier.show(NativeNotification(ID_PREFIX + item.id, item.title, body, progress, progress == null && kind == Shown.PROGRESS, urgent))
+            }
         }
     }
 
