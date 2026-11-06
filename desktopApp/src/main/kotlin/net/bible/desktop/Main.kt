@@ -230,6 +230,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             start = { openDatabases ->
                 DesktopAppStartup.ensureStarted(
                     paths, windowHandle, language, openDatabases, launchArgs = launchArgs, lifecycleEvents = lifecycle.events,
+                    notifierSource = net.bible.sharedui.desktop.assembly.linuxNotifierSource(),
                 )
             },
             platform = { platform },

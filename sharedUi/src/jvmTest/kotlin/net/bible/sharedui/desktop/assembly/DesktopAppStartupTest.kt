@@ -83,7 +83,7 @@ class DesktopAppStartupTest {
     )
 
     private fun start(paths: DesktopPaths = paths()): StartupPhase =
-        DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier })
+        DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier })
 
     @BeforeTest fun before() {
         assertNull(KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
@@ -688,7 +688,7 @@ class DesktopAppStartupTest {
 
     @Test fun koinOnlyStartLeavesTheDatabasesClosedUntilAskedToOpen() {
         val paths = paths()
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         assertNotNull(KoinPlatform.getKoinOrNull())
         assertTrue(HostStartup.isStarted)
         assertFalse(HostStartup.databasesOpen)
@@ -748,7 +748,7 @@ class DesktopAppStartupTest {
 
     @Test fun exitWithOnlyKoinStartedDoesNotOpenOrSaveDatabases() {
         assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(
-            paths(), FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier },
+            paths(), FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier },
         ))
         var saved = false
         DesktopAppStartup.persistBeforeExit(saveWorkspace = { saved = true })
@@ -775,7 +775,7 @@ class DesktopAppStartupTest {
         val events = net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents()
         assertEquals(
             StartupPhase.Ready,
-            DesktopAppStartup.ensureStarted(paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }, launchArgs = listOf("a.zip"), lifecycleEvents = events),
+            DesktopAppStartup.ensureStarted(paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }, launchArgs = listOf("a.zip"), lifecycleEvents = events),
         )
         val koin = KoinPlatform.getKoin()
         assertEquals(listOf("a.zip"), koin.get<DesktopLaunchArgs>().args)

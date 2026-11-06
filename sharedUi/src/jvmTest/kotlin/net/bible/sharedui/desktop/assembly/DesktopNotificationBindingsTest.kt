@@ -91,8 +91,8 @@ class DesktopNotificationBindingsTest {
                     single { ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now } }
                 },
                 desktopNotificationModule(
-                    window, available = true, runOnUi = { it() }, clock = { policyClockReads.incrementAndGet(); policyNow },
-                    notifierFactory = { scope -> if (dbus != null) linuxNativeNotifier(dbus, scope = scope) else notifier },
+                    window, source = DesktopNotifierSource(true) { scope -> if (dbus != null) linuxNativeNotifier(dbus, scope = scope) else notifier },
+                    runOnUi = { it() }, clock = { policyClockReads.incrementAndGet(); policyNow },
                 ),
             )
         }
@@ -121,9 +121,14 @@ class DesktopNotificationBindingsTest {
         }
     }
 
-    @Test fun nothingIsBoundWhereNoRealNotifierExists() {
+    @Test fun sourceAvailableUsesItsNotifier() = withRig { rig ->
+        kotlin.test.assertSame(rig.notifier, rig.koin.get<NativeNotifier>())
+        assertTrue(rig.koin.get<SystemNotificationsPreference>().enabled.value)
+    }
+
+    @Test fun sourceUnavailableBindsNothing() {
         val app = koinApplication {
-            modules(module { single<AppSettings> { MemoryAppSettings() } }, desktopNotificationModule(FakeWindow(), available = false))
+            modules(module { single<AppSettings> { MemoryAppSettings() } }, desktopNotificationModule(FakeWindow(), source = DesktopNotifierSource(false) { error("unavailable source called") }))
         }
         try {
             assertEquals(null, app.koin.getOrNull<SystemNotificationsPreference>(), "settings row stays hidden")
