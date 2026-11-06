@@ -166,6 +166,12 @@ AndBibleProvidesFont=Outside;../../secret.txt
         assertEquals("text/javascript", asset.mimeType)
     }
 
+    @Test fun signedFixtureIsTheDocumentedRefParserBuild() {
+        // The KDoc of SignedFeatureFixture names this digest; a re-encoded fixture must update both.
+        assertEquals("c51274c47f971b7a4109e50ad04e79ec87c7800709e5b67edd6cd55c41da9176",
+            okio.ByteString.of(*SignedFeatureFixture.content).sha256().hex())
+    }
+
     @Test fun moduleStyleServed() {
         assertEquals(book / "css/my.css", routes().resolve("/module-style/KJV/style.css").file())
         assertEquals(book / "css/extra.woff2", routes().resolve("/module-style/KJV/extra.woff2").file())
