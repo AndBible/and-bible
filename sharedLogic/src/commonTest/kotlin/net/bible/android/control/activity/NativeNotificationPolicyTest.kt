@@ -3,6 +3,7 @@ package net.bible.android.control.activity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
@@ -22,7 +23,12 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class NativeNotificationPolicyTest {
 
-    private class FakeNotifier(override val supportsProgress: Boolean = true) : NativeNotifier {
+    private class FakeNotifier(supportsProgress: Boolean = true) : NativeNotifier {
+        private val capability = MutableStateFlow(supportsProgress)
+        override var supportsProgress: Boolean
+            get() = capability.value
+            set(value) { capability.value = value }
+        override val progressCapabilityChanges = capability.map { Unit }
         val calls = mutableListOf<String>()
         val shows = mutableListOf<NativeNotification>()
         var throwOnShow = false
@@ -184,6 +190,38 @@ class NativeNotificationPolicyTest {
         advance(1) // trailing update carries the newest value
         assertEquals(3, f.notifier.shows.size)
         assertEquals(40, f.notifier.shows.last().progress)
+    }
+
+    @Test
+    fun progressReturnsAfterCapabilityRecoveryWithoutActivityUpdates() = runTest {
+        val f = fixture(supportsProgress = false)
+        f.set(item(progress = null)); runCurrent()
+        advance(20_000)
+        assertTrue(f.notifier.shows.isEmpty())
+        f.notifier.supportsProgress = true
+        advance(10_000)
+        assertEquals(1, f.notifier.shows.size)
+        f.notifier.supportsProgress = false
+        advance(60_000)
+        f.notifier.supportsProgress = true
+        advance(10_000)
+        assertEquals(2, f.notifier.shows.size)
+    }
+
+    @Test
+    fun downloadFailureNotifiesOnlyWhenAppIsAway() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val events = EventSource<net.bible.android.control.download.DocumentStatus>()
+        val source = DownloadActivitySource(center, events, { it }, { "$it failed" })
+        val notifier = FakeNotifier()
+        val policy = NativeNotificationPolicy(center.items, notifier, { true }, MutableStateFlow(true), { currentTime }, backgroundScope, { "Finished" })
+        policy.start(); runCurrent()
+        events.emit(net.bible.android.control.download.DocumentStatus("one", net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0)); runCurrent()
+        assertTrue(notifier.shows.isEmpty())
+        policy.onForegroundChanged(false); runCurrent()
+        events.emit(net.bible.android.control.download.DocumentStatus("two", net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0)); runCurrent()
+        assertEquals(listOf("two"), notifier.shows.map { it.title })
+        policy.close(); source.close()
     }
 
     @Test

@@ -163,9 +163,9 @@ abstract class DbusNotifierBase(
         handler?.let { h -> scope.launch(Dispatchers.Default) { runCatching { h(id) } } }
     }
 
-    protected fun listenTo(connection: DBusConnection, iface: String, member: String, path: String? = null, arg0: String? = null, callback: (DBusSignal) -> Unit) {
+    protected fun listenTo(connection: DBusConnection, iface: String, member: String, path: String? = null, arg0: String? = null, sender: String? = null, callback: (DBusSignal) -> Unit) {
         val rule = object : DBusMatchRule("signal", iface, member, path) {
-            override fun toString(): String = super.toString() + (arg0?.let { ",arg0='$it'" } ?: "")
+            override fun toString(): String = super.toString() + (arg0?.let { ",arg0='$it'" } ?: "") + (sender?.let { ",sender='$it'" } ?: "")
         }
         connection.addGenericSigHandler(rule) { signal ->
             runCatching { callback(signal) }

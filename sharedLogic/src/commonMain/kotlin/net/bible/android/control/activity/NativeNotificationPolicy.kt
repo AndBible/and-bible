@@ -87,6 +87,7 @@ class NativeNotificationPolicy(
         if (job != null) return
         inForeground.value = foreground.isForeground()
         job = scope.launch {
+            launch { notifier.progressCapabilityChanges.collect { tick.update { it + 1 } } }
             combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, closeRequested ->
                 Input(list, on, fg, closeRequested)
             }.takeWhile { evaluate(it) }.collect { }
