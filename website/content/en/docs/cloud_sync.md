@@ -59,6 +59,10 @@ If using Nextcloud instead of Google Drive:
 3. Optionally specify a folder path on the server.
 4. Toggle on the data categories you want to sync.
 
+When you open a text setting such as the server address, username or password,
+its editor is ready for typing without an extra tap or click. On touch devices,
+the on-screen keyboard opens automatically.
+
 Nextcloud and WebDAV server addresses work with or without a trailing `/`.
 AndBible removes trailing slashes and surrounding whitespace when saving the
 address, and also handles trailing slashes in previously saved addresses.

@@ -25,6 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
@@ -142,10 +145,42 @@ fun AbModalBottomSheet(
         }
         MirrorHostSystemBars()
         if (mono) NoDialogNavigationContrast()
-        CompositionLocalProvider(LocalAbSheetAnimatedClose provides animatedClose) { content() }
+        CompositionLocalProvider(
+            LocalAbSheetAnimatedClose provides animatedClose,
+            LocalAbSheetState provides sheetState,
+        ) { content() }
     }
     if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
     ResettleStrandedSheet(sheetState, instantMotion)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private val LocalAbSheetState = staticCompositionLocalOf<SheetState?> { null }
+
+/**
+ * Opt a text editor into initial focus, after its modal sheet is attached and has finished opening.
+ * Use on the first enabled field only, when editing text is the sheet's main action. Outside a
+ * sheet (including content-only goldens) this is inert. It never reclaims focus during editing.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Modifier.sheetInitialTextFocus(enabled: Boolean = true): Modifier {
+    val sheetState = LocalAbSheetState.current ?: return this
+    val requester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(sheetState, enabled) {
+        if (enabled) {
+            snapshotFlow {
+                sheetState.isVisible && !sheetState.isAnimationRunning &&
+                    sheetState.targetValue != SheetValue.Hidden
+            }.first { it }
+            // Allow the dialog's focus owner and this field's modifier to be attached on all hosts.
+            withFrameNanos { }
+            requester.requestFocus()
+            keyboard?.show()
+        }
+    }
+    return focusRequester(requester)
 }
 
 /**

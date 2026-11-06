@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import net.bible.sharedui.components.AbModalBottomSheet
+import net.bible.sharedui.components.sheetInitialTextFocus
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -482,7 +483,7 @@ fun RetentionSheetContent(
                 onValueChange = { text = it },
                 enabled = !disabled,
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().sheetInitialTextFocus(enabled = !disabled),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
             Row(
