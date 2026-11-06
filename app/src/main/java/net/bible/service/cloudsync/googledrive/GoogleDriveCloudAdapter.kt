@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -205,8 +207,14 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .setAutoSelectEnabled(true)
             .build()
         val beginSignInResult = oneTapClient.beginSignIn(signInRequest).await()
-        val intent = activity.awaitPendingIntent(beginSignInResult.pendingIntent).data
-        val oneTapCredential: SignInCredential = oneTapClient.getSignInCredentialFromIntent(intent)
+        val result = activity.awaitPendingIntent(beginSignInResult.pendingIntent)
+        if (result.resultCode == Activity.RESULT_CANCELED) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+        val oneTapCredential: SignInCredential = try {
+            oneTapClient.getSignInCredentialFromIntent(result.data)
+        } catch (e: ApiException) {
+            if (e.statusCode == CommonStatusCodes.CANCELED) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+            throw e
+        }
         return Account(oneTapCredential.id, BibleApplication.application.packageName)
     }
 

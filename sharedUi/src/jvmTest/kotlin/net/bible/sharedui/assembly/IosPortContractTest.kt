@@ -42,7 +42,10 @@ import kotlinx.coroutines.cancel
  */
 class IosPortContractTest {
     /** Values for required types that are not interfaces (enums etc.). */
-    private val concrete: Map<KClass<*>, Any> = mapOf(SaxTextPolicy::class to SaxTextPolicy.MODERN)
+    private val concrete: Map<KClass<*>, Any> = mapOf(
+        SaxTextPolicy::class to SaxTextPolicy.MODERN,
+        net.bible.service.cloudsync.SyncNowPorts::class to net.bible.service.cloudsync.SyncNowPorts({}, { true }, {}),
+    )
 
     /**
      * A lenient stub: answers neutral defaults (0, false, "", empty collections, a nested stub for an interface) so a

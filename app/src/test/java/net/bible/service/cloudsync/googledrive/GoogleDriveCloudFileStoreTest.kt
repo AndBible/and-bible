@@ -47,6 +47,8 @@ class GoogleDriveCloudFileStoreTest {
         override val allowThemeChange = false
         override val disableBaseSetupUi = true
         fun cancelPermission(requestCode: Int) = onActivityResult(requestCode, android.app.Activity.RESULT_CANCELED, null)
+        fun finishOneTap(requestCode: Int, resultCode: Int, data: android.content.Intent?) =
+            onActivityResult(requestCode, resultCode, data)
     }
 
     @Test
@@ -115,6 +117,93 @@ class GoogleDriveCloudFileStoreTest {
             assertTrue("cancelled account must be cleared", !adapter.signedIn)
             assertEquals(null, preferences.getString("cloud_sync_last_account", null))
             assertEquals(null, cloudDialog.pending.value)
+        } finally {
+            sync.close()
+            failures.close()
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            preferences.edit().putString("cloud_sync_last_account", oldAccount).commit()
+            controller.pause().stop().destroy()
+        }
+    }
+
+    @Test fun cancelledOneTapActivityDoesNotCreateManualSyncFailure() = oneTapResultIsHandled(
+        android.app.Activity.RESULT_CANCELED, null, false,
+    )
+
+    @Test fun cancelledOneTapApiStatusDoesNotCreateManualSyncFailure() = oneTapResultIsHandled(
+        android.app.Activity.RESULT_OK, com.google.android.gms.common.api.CommonStatusCodes.CANCELED, false,
+    )
+
+    @Test fun failedOneTapApiStatusCreatesManualSyncFailure() = oneTapResultIsHandled(
+        android.app.Activity.RESULT_OK, com.google.android.gms.common.api.CommonStatusCodes.INTERNAL_ERROR, true,
+    )
+
+    private fun oneTapResultIsHandled(resultCode: Int, status: Int?, failureExpected: Boolean) {
+        val controller = org.robolectric.Robolectric.buildActivity(PermissionActivity::class.java).setup()
+        val activity = controller.get()
+        val preferences = net.bible.service.common.CommonUtils.realSharedPreferences
+        val oldAccount = preferences.getString("cloud_sync_last_account", null)
+        preferences.edit().remove("cloud_sync_last_account").commit()
+        val adapter = GoogleDriveCloudAdapter()
+        val client = org.mockito.Mockito.mock(com.google.android.gms.auth.api.identity.SignInClient::class.java)
+        val pending = android.app.PendingIntent.getActivity(
+            activity, 0, android.content.Intent("test.one.tap"), android.app.PendingIntent.FLAG_IMMUTABLE,
+        )
+        org.mockito.Mockito.`when`(client.beginSignIn(org.mockito.ArgumentMatchers.any()))
+            .thenReturn(com.google.android.gms.tasks.Tasks.forResult(com.google.android.gms.auth.api.identity.BeginSignInResult(pending)))
+        val data = status?.let { android.content.Intent("test.one.tap.result") }
+        if (status != null) {
+            org.mockito.Mockito.`when`(client.getSignInCredentialFromIntent(data))
+                .thenThrow(com.google.android.gms.common.api.ApiException(com.google.android.gms.common.api.Status(status)))
+        } else {
+            org.mockito.Mockito.`when`(client.getSignInCredentialFromIntent(null))
+                .thenThrow(com.google.android.gms.common.api.ApiException(com.google.android.gms.common.api.Status(com.google.android.gms.common.api.CommonStatusCodes.INTERNAL_ERROR)))
+        }
+        adapter.javaClass.getDeclaredField("oneTapClient").apply { isAccessible = true }.set(adapter, client)
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        val dialog = net.bible.sharedcore.ui.dialog.AppDialogController()
+        val cloud = net.bible.service.cloudsync.CloudSync(
+            dialog, koin.get(), koin.get(), koin.get(),
+            object : net.bible.service.cloudsync.CloudAdapterFactory {
+                override val available = listOf("GOOGLE_DRIVE")
+                override fun displayName(id: String) = id
+                override fun create(id: String) = adapter
+            }, net.bible.sharedcore.platform.sync.SyncScheduler { error("failed sign-in must not schedule") },
+            koin.get(), koin.get(), koin.get(),
+        )
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+        val center = net.bible.android.control.activity.ActivityCenter(scope) { 0L }
+        val failures = net.bible.android.control.activity.SyncActivitySource(center, cloud.runningChanged) { "Syncing" }
+        val sync = net.bible.service.cloudsync.SyncNow(
+            net.bible.service.cloudsync.CloudSyncPort.of(cloud) {
+                failures.reportFailure(net.bible.android.control.activity.ActivityKind.SYNC, it)
+            }, net.bible.sharedcore.event.EventSource(), { true }, {}, { true }, { false }, {}, scope,
+        )
+        try {
+            sync.start()
+            val shadow = org.robolectric.Shadows.shadowOf(activity)
+            val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
+            while (shadow.lastIntentSenderRequest == null && System.nanoTime() < deadline) {
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+                Thread.sleep(10)
+            }
+            val request = shadow.lastIntentSenderRequest
+            assertTrue("One Tap must launch without a saved account", request != null)
+            activity.finishOneTap(request!!.requestCode, resultCode, data)
+            val completionDeadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
+            while (sync.running.value && center.items.value.isEmpty() && System.nanoTime() < completionDeadline) {
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+                Thread.sleep(10)
+            }
+            if (failureExpected) {
+                assertTrue("genuine sign-in failure must create a failed row", center.items.value.isNotEmpty())
+                assertTrue("genuine sign-in failure must show a dialog", dialog.pending.value != null)
+            } else {
+                assertTrue("One Tap cancellation must not create a failed row", center.items.value.isEmpty())
+                assertTrue("cancelled sync must finish", !sync.running.value)
+                assertEquals(null, dialog.pending.value)
+            }
+            assertTrue("unsuccessful sign-in must not leave an account", !adapter.signedIn)
         } finally {
             sync.close()
             failures.close()

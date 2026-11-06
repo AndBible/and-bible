@@ -18,6 +18,7 @@ package net.bible.sharedui.reading.toolbar
 
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -98,7 +99,7 @@ class ReadingOverflowControllerTest {
     private fun ids() = menu.build().map { it.id }
 
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
-    @Test fun openHostMenuTracksSyncStartAndFinish() = androidx.compose.ui.test.v2.runComposeUiTest {
+    @Test fun openHostMenuTracksSyncStartAndFinish() = runComposeUiTest {
         val running = kotlinx.coroutines.flow.MutableStateFlow(false)
         host.syncAvailable = true
         val snapshot = menu.build()

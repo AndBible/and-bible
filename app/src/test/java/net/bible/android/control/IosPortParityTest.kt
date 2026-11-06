@@ -27,6 +27,7 @@ class IosPortParityTest {
         "net.bible.android.platform.AndroidAddonCatalog",
         "net.bible.android.platform.AndroidSyncScheduler",
         "net.bible.android.platform.AndroidHttpClients",
+        "net.bible.android.view.activity.page.SyncNetworkState",
     )
 
     private fun bindingKeys(): Set<String> {
