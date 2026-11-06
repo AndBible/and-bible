@@ -16,6 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -177,6 +178,37 @@ class ActivitySourcesTest {
             again.done()
             assertEquals(ActivityState.SUCCEEDED, c.mine("TestIneffective").last().state)
         }
+    }
+
+    @Test
+    fun jobCancelActionIsStableAcrossProgressEvents() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            val j = job("test-stable-1", "TestStable", { })
+            advance(1000)
+            val first = assertNotNull(c.mine("TestStable").single().cancel)
+            j.work = 20
+            assertSame(first, c.mine("TestStable").single().cancel, "a new lambda per event defeats StateFlow equality")
+        }
+    }
+
+    @Test
+    fun downloadIdenticalStatusEventsDoNotEmitNewItems() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        val cancelled = mutableListOf<String>()
+        // Like jswordCancelFor: a capturing lambda, new on every call.
+        DownloadActivitySource(c, events, { it }, { it }, cancelFor = { id -> ({ cancelled += id }) })
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        advance(1000)
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        val before = c.items.value
+        val cancel = assertNotNull(before.single().cancel)
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        assertSame(before, c.items.value, "same visible values: the emission is dropped")
+        assertSame(cancel, c.items.value.single().cancel)
+        cancel()
+        assertEquals(listOf("d"), cancelled)
     }
 
     @Test

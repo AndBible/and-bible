@@ -9,6 +9,7 @@ import net.bible.service.installzip.InstallPhase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class ZipInstallActivityAdapterTest {
@@ -28,6 +29,19 @@ class ZipInstallActivityAdapterTest {
         assertEquals("kjv.zip", item.title)
         assertEquals(60, item.progress)
         item.cancel!!.invoke()
+        assertEquals(listOf("j1"), cancelled)
+    }
+
+    @Test fun identicalSnapshotsKeepTheSameCancelActionAndEmitNothing() {
+        adapter.onJobs(listOf(job(InstallPhase.Acquiring(30))))
+        now = 5_000
+        adapter.onJobs(listOf(job(InstallPhase.Acquiring(30))))
+        val before = center.items.value
+        val cancel = before.single().cancel
+        adapter.onJobs(listOf(job(InstallPhase.Acquiring(30))))
+        assertSame(before, center.items.value, "equal visible data: the StateFlow drops the emission")
+        assertSame(cancel, center.items.value.single().cancel)
+        cancel!!.invoke()
         assertEquals(listOf("j1"), cancelled)
     }
 
