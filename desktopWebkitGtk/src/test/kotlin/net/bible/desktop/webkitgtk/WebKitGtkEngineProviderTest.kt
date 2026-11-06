@@ -36,6 +36,17 @@ class WebKitGtkEngineProviderTest {
         assertEquals(mapOf("GDK_SCALE" to "2"), env)
     }
 
+    /**
+     * #4006 review: GTK's font DPI was always the neutral 96, so the rounding to a whole scale dropped the desktop's
+     * fractional rest (125 % rendered Bible text at 100 %). The leftover text factor becomes the font DPI.
+     */
+    @Test
+    fun fontDpiCarriesTheLeftoverTextFactor() {
+        assertEquals(96 * 1024, gtkXftDpiFor(1.0))
+        assertEquals(120 * 1024, gtkXftDpiFor(1.25))
+        assertEquals(72 * 1024, gtkXftDpiFor(0.75))
+    }
+
     @Test
     fun usesWindowedRendering() {
         assertTrue(WebKitGtkEngineProvider({ _, _ -> FakeEngine() }, { throw Exited(it) }).windowedRendering)

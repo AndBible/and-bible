@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import dev.datlag.kcef.KCEFBrowser
 import kotlinx.coroutines.CoroutineDispatcher
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
+import net.bible.sharedui.desktop.webengine.LocalDensityOverAwt
 import org.cef.browser.CefRendering
 import org.cef.input.CefCompositionUnderline
 import org.cef.misc.CefRange
@@ -50,6 +51,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import kotlin.math.roundToInt
 
 /**
  * Off-screen pane: CEF paints into [OsrFrameBuffer] and [Content] draws the latest frame in a Compose canvas, one frame pixel
@@ -100,10 +102,12 @@ internal class KcefOsrPane(
         DisposableEffect(scale) {
             // A new device scale reaches CEF through the next layout size and this notification.
             ime.scale = scale
-            update(geometry.widthPx, geometry.heightPx, scale, geometry.screenOrigin)
+            update(geometry.widthPx, geometry.heightPx, scale)
             onDispose {}
         }
         val focusManager = LocalFocusManager.current
+        // The window's AWT scale: the Compose density without the host's fractional factor (#4006).
+        val awtScale = (scale / LocalDensityOverAwt.current * 10_000).roundToInt() / 10_000.0
         SideEffect { focus.clearFocus = { focusManager.clearFocus(force = true) } }
         DisposableEffect(Unit) {
             val outsidePress = OsrOutsidePress(focus, ::paneScreenRect) { OsrOutsidePress.windowOf(paneScreenRect()) }
@@ -115,11 +119,12 @@ internal class KcefOsrPane(
         }
         Canvas(
             modifier
-                .onSizeChanged { update(it.width, it.height, scale, geometry.screenOrigin) }
+                .onSizeChanged { update(it.width, it.height, scale) }
                 .onGloballyPositioned { coords ->
                     val p = coords.positionOnScreen()
                     coords.positionInRoot().let { if (it.isSpecified) ime.originInRootPx = it }
-                    if (p.isSpecified) geometry = geometry.copy(screenOrigin = Point((p.x / scale).toInt(), (p.y / scale).toInt()))
+                    // Screen pixels: AWT units are pixels / awtScale, CEF's screen DIP pixels / scale.
+                    if (p.isSpecified) geometry = geometry.copy(screenOriginPx = Point(p.x.toInt(), p.y.toInt()), awtScale = awtScale)
                 }
                 .pointerHoverIcon(cursor)
                 .osrPointerInput(input, onPress = focus::requestFocus)
@@ -133,12 +138,12 @@ internal class KcefOsrPane(
     }
 
     /** The pane's bounds on screen in AWT units, from the last layout. */
-    private fun paneScreenRect(): Rectangle? = geometry.let { g -> Rectangle(g.screenOrigin.x, g.screenOrigin.y, g.widthDip, g.heightDip) }
+    private fun paneScreenRect(): Rectangle? = geometry.awtScreenRect
 
     /** Applies a new view size or scale: the frame buffer gets the size CEF will paint, CEF is told. */
-    private fun update(widthPx: Int, heightPx: Int, scale: Double, origin: Point) {
+    private fun update(widthPx: Int, heightPx: Int, scale: Double) {
         val old = geometry
-        val g = OsrGeometry(widthPx, heightPx, scale, origin)
+        val g = old.copy(widthPx = widthPx, heightPx = heightPx, scale = scale)
         geometry = g
         if (old.widthPx == widthPx && old.heightPx == heightPx && old.scale == scale) return
         frames.resize(g.bufferWidthPx, g.bufferHeightPx)
