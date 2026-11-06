@@ -101,6 +101,8 @@ interface CoreStrings {
     val backupBackupMessage: String
     val backupSuccess2: String
     val pleaseWait: String
+    /** R.string.synchronizing: the activity-center row shown while a cloud sync runs. */
+    val synchronizing: String
     val restoreBackupSections: String
     val backupModulesTitle: String
     val backupModulesSuccess: String

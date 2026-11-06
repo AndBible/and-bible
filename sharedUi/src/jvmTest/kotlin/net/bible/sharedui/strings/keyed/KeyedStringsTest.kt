@@ -197,6 +197,7 @@ class KeyedStringsTest {
         assertText("backupBackupMessage", core.backupBackupMessage, filled = false)
         assertText("backupSuccess2", core.backupSuccess2, filled = false)
         assertText("pleaseWait", core.pleaseWait, filled = false)
+        assertText("synchronizing", core.synchronizing, filled = false)
         assertText("restoreBackupSections", core.restoreBackupSections, filled = false)
         assertText("backupModulesTitle", core.backupModulesTitle, filled = false)
         assertText("backupModulesSuccess", core.backupModulesSuccess, filled = false)

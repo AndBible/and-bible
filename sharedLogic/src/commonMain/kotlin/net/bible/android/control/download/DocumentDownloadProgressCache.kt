@@ -17,6 +17,8 @@
 package net.bible.android.control.download
 
 import org.crosswire.common.progress.JobManager
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
@@ -30,12 +32,20 @@ import org.crosswire.jsword.book.Book
 class DocumentDownloadProgressCache(private val onProgress: (DocumentStatus) -> Unit) {
     private val percentDoneByInitials: MutableMap<String, Int> = HashMap()
     private val progressUpdater: WorkListener
+    private val monitorLock = SynchronizedObject()
+    private var monitors = 0
+
+    /**
+     * Reference counted: the download screen and the activity center each hold one, and the JSword listener
+     * stays registered until the last holder stops (so closing the download screen does not blind the activity center).
+     */
     fun startMonitoringDownloads() {
-        JobManager.addWorkListener(progressUpdater)
+        if (synchronized(monitorLock) { monitors++ == 0 }) JobManager.addWorkListener(progressUpdater)
     }
 
     fun stopMonitoringDownloads() {
-        JobManager.removeWorkListener(progressUpdater)
+        val last = synchronized(monitorLock) { if (monitors == 0) false else --monitors == 0 }
+        if (last) JobManager.removeWorkListener(progressUpdater)
     }
 
     /**

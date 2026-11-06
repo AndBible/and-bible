@@ -1,5 +1,7 @@
 package net.bible.android.control.activity
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
  * shown at once and kept until dismissed; a success is kept [SUCCESS_KEEP_MS] (SYNC successes are not
  * kept); a cancelled item is dropped immediately; at most [MAX_FINISHED] finished items are kept.
  *
- * Intended to be called from one thread (the main thread); [scope] must run on that thread too. It hosts
+ * Thread-safe: every mutation is serialised by one lock, so the source adapters may call it from whatever
+ * thread JSword jobs, downloads or sync happen to report on. The registered [scope] hosts
  * one coroutine that wakes at the next debounce end / success expiry, using [delay], so a test
  * scheduler's virtual time works as long as [clock] follows it.
  */
@@ -31,6 +34,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         val nextDeadline: Long?,
     )
 
+    private val lock = SynchronizedObject()
     private val model = MutableStateFlow(build(0L, emptyMap()))
     private val _items = MutableStateFlow<List<ActivityItem>>(emptyList())
     private val _unread = MutableStateFlow(0)
@@ -53,6 +57,9 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
             }
         }
     }
+
+    /** True while [id] is a RUNNING item, shown or still inside its debounce window. */
+    fun isRunning(id: String): Boolean = model.value.recs[id]?.item?.state == ActivityState.RUNNING
 
     fun start(id: String, kind: ActivityKind, title: String, cancel: (() -> Unit)? = null) = change { recs ->
         val now = clock()
@@ -95,7 +102,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private var seqCounter = 0L
     private fun nextSeq() = ++seqCounter
 
-    private fun change(f: (Map<String, Rec>) -> Map<String, Rec>) {
+    private fun change(f: (Map<String, Rec>) -> Map<String, Rec>) = synchronized(lock) {
         val m = build(clock(), f(model.value.recs))
         model.value = m
         _items.value = m.items

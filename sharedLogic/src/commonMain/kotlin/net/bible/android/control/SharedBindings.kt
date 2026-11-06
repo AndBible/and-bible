@@ -4,7 +4,13 @@ import kotlinx.coroutines.flow.map
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.DownloadActivitySource
+import net.bible.android.control.activity.JobActivitySource
+import net.bible.android.control.activity.SyncActivitySource
 import net.bible.android.control.download.DownloadControl
+import net.bible.sharedlogic.util.currentTimeMillis
+import org.crosswire.jsword.book.Books
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.navigation.NavigationControl
@@ -225,6 +231,26 @@ fun buildSharedBindings() = module {
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
+    // Activity center (#4007): the registry plus its three source adapters. They are plain singles (the module must
+    // stay resolvable from just its ports); SharedAppStartup.startActivityCenter() resolves them at startup so work
+    // that begins before any UI exists is still recorded. Adapter callbacks may arrive on any thread; ActivityCenter is thread-safe.
+    single { ActivityCenter(get<AppCoroutineScope>(), ::currentTimeMillis) }
+    single {
+        val strings = get<net.bible.sharedcore.platform.CoreStrings>()
+        val downloads = get<DownloadControl>()
+        // The activity center holds one monitoring reference for good, so progress events flow without the download screen.
+        downloads.startMonitoringDownloads()
+        DownloadActivitySource(
+            get(), downloads.progress,
+            // repoIdentity is "<repo>--<initials>"; show the installed-catalogue name when known, else the initials.
+            titleOf = { id -> id.substringAfter("--").let { initials -> Books.installed().getBook(initials)?.name ?: initials } },
+            failedText = { title -> "$title: ${strings.errorDownloading}" },
+        )
+    }.onClose { it?.close() }
+    single { JobActivitySource(get()).also { it.attach() } }.onClose { it?.detach() }
+    single {
+        SyncActivitySource(get(), get<CloudSync>().runningChanged) { get<net.bible.sharedcore.platform.CoreStrings>().synchronizing }
+    }.onClose { it?.close() }
     single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<CloudSync>().runningChanged) }
         .onClose { it?.close() } bind ToolbarStateService::class
     singleOf(::LinkControl)

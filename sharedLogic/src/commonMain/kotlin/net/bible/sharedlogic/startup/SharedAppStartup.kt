@@ -1,6 +1,10 @@
 package net.bible.sharedlogic.startup
 
 import androidx.annotation.VisibleForTesting
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.DownloadActivitySource
+import net.bible.android.control.activity.JobActivitySource
+import net.bible.android.control.activity.SyncActivitySource
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.platform.SuspendHttpTransport
@@ -109,6 +113,27 @@ object SharedAppStartup {
 
         // BookInstallWatcher is Koin-resolved, so it can only start once Koin is up (not inside initialiseJSwordFolders)
         if (hooks.isSwordLoaded()) startBookInstallWatcher(koin)
+
+        startActivityCenter(koin)
+    }
+
+    /**
+     * Resolves the [ActivityCenter] and its three sources so they listen from the start (downloads, JSword jobs,
+     * cloud sync); the module defines them lazily. Each failure is logged, never rethrown: the activity center is
+     * an aid and must not stop app startup. Runs on Android, desktop and iOS because all call [start].
+     */
+    fun startActivityCenter(koin: Koin) {
+        fun start(name: String, resolve: () -> Any) {
+            try {
+                resolve()
+            } catch (e: Exception) {
+                Log.e(TAG, "Activity center component $name failed to start", e)
+            }
+        }
+        start("ActivityCenter") { koin.get<ActivityCenter>() }
+        start("DownloadActivitySource") { koin.get<DownloadActivitySource>() }
+        start("JobActivitySource") { koin.get<JobActivitySource>() }
+        start("SyncActivitySource") { koin.get<SyncActivitySource>() }
     }
 
     /** Installs the shared download transport; needs Koin up, and must run before any download consumer is resolved. */

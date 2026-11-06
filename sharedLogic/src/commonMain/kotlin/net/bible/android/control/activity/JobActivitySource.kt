@@ -1,0 +1,71 @@
+package net.bible.android.control.activity
+
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import net.bible.service.sword.epub.EPUB_INDEX_JOB_PREFIX
+import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.Progress
+import org.crosswire.common.progress.ProgressMode
+import org.crosswire.common.progress.WorkEvent
+import org.crosswire.common.progress.WorkListener
+
+/** True for the JSword jobs that build or download a search index (SWORD, downloaded index, EPUB). */
+fun Progress.isIndexJob(): Boolean =
+    jobID.startsWith(Progress.CREATE_INDEX.substringBefore("%s")) ||
+        jobID.startsWith(Progress.DOWNLOAD_SEARCH_INDEX.substringBefore("%s")) ||
+        jobID.startsWith(EPUB_INDEX_JOB_PREFIX)
+
+/** True for the `INSTALL_BOOK-<docId>` jobs that `DownloadQueue`/`DownloadManager` create; [DownloadActivitySource] owns those. */
+fun Progress.isDownloadInstallJob(): Boolean = jobID.startsWith(Progress.INSTALL_BOOK.substringBefore("%s"))
+
+/**
+ * Shows JSword [JobManager] jobs (search indexing, other long jobs) in the [ActivityCenter] as `job:<jobID>`.
+ *
+ * Jobs for which [isDownloadJob] is true are skipped (a download must not show twice). Cancel is offered only
+ * when the job is cancelable at the moment it first appears. JSword reports a cancel like a normal finish, so
+ * a cancel requested through the row is remembered and recorded as cancelled; a cancel from elsewhere looks
+ * like a success. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
+ */
+class JobActivitySource(
+    private val center: ActivityCenter,
+    private val isDownloadJob: (Progress) -> Boolean = Progress::isDownloadInstallJob,
+    private val kindOf: (Progress) -> ActivityKind = { if (it.isIndexJob()) ActivityKind.INDEX else ActivityKind.OTHER },
+) {
+    private val lock = SynchronizedObject()
+    private val cancelRequested = HashSet<String>()
+
+    private val listener = object : WorkListener {
+        override fun workProgressed(ev: WorkEvent) = onJob(ev.job)
+        override fun workStateChanged(ev: WorkEvent) = onJob(ev.job)
+    }
+
+    /** Starts listening and picks up jobs that are already running. */
+    fun attach() {
+        JobManager.addWorkListener(listener)
+        val it = JobManager.iterator()
+        while (it.hasNext()) onJob(it.next())
+    }
+
+    fun detach() = JobManager.removeWorkListener(listener)
+
+    private fun onJob(job: Progress) {
+        if (isDownloadJob(job)) return
+        val id = "job:${job.jobID}"
+        if (job.isFinished) {
+            val cancelled = synchronized(lock) { cancelRequested.remove(id) }
+            if (cancelled) center.cancelled(id) else if (center.isRunning(id)) center.succeed(id)
+            return
+        }
+        val percent = if (job.progressMode == ProgressMode.UNKNOWN) null else job.work.coerceIn(0, 100)
+        if (center.isRunning(id)) {
+            center.update(id, percent)
+        } else {
+            val cancel = if (job.isCancelable) ({
+                synchronized(lock) { cancelRequested.add(id) }
+                job.cancel()
+            }) else null
+            center.start(id, kindOf(job), job.jobName, cancel)
+            center.update(id, percent)
+        }
+    }
+}
