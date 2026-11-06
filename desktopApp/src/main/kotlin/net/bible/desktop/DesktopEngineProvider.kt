@@ -36,12 +36,20 @@ class KcefEngineProvider(private val onFailure: (String) -> Nothing = ::fail) : 
         }
         if (problem != null) onFailure("the cache directory $cache cannot be used ($problem); check the cache location (XDG_CACHE_HOME on Linux) and its permissions")
         val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { onFailure(it.message ?: it.toString()) }
-        val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
+        val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() } +
+            windowedScaleArgs(windowedRendering, DesktopDisplayScale.scale)
         KcefWebEngine.init(installDir, args, cacheDir = cache).onFailure { onFailure(it.message ?: it.toString()) }
         return KcefWebEngine(installDir, bundleDir, log, pageAssets = DesktopPageAssetRoutes.koinBound())
     }
     override fun shutdown() = KcefWebEngine.shutdown()
 }
+
+/**
+ * Windowed CEF panes are child X windows that pick their own device scale; give them the app's (#4006). Off-screen panes
+ * follow the Compose density instead.
+ */
+internal fun windowedScaleArgs(windowed: Boolean, scale: Double): List<String> =
+    if (windowed && scale != 1.0) listOf("--force-device-scale-factor=$scale") else emptyList()
 
 internal fun defaultDesktopEngineProvider(): DesktopEngineProvider =
     if (System.getProperty("os.name").orEmpty().startsWith("Windows", ignoreCase = true)) WindowsEngineProvider() else KcefEngineProvider()

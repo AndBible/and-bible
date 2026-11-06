@@ -26,9 +26,13 @@ import javax.swing.SwingUtilities
 /**
  * [DesktopWindowHandle] over the AWT window of the Compose `Window`, which exists only once the window is composed:
  * until [attach] (and while the window has no size yet) it answers the default window size at density 1. AWT sizes on
- * a scaled display are already in logical pixels, which are Compose dp; the density is the screen's scale.
+ * a scaled display are already in logical pixels; the density is the screen's scale. With a Compose [factor] (the
+ * fractional part of the Linux display scale, `DisplayScale.composeFactor`) a dp is [factor] logical pixels.
  */
-class AwtWindowHandle(private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP)) : DesktopWindowHandle {
+class AwtWindowHandle(
+    private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP),
+    private val factor: Double = 1.0,
+) : DesktopWindowHandle {
     @Volatile private var window: Window? = null
 
     fun attach(window: Window) {
@@ -39,11 +43,12 @@ class AwtWindowHandle(private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_D
         get() {
             val w = window ?: return defaultSize
             val content = (w as? RootPaneContainer)?.contentPane ?: w
-            return IntSize(content.width, content.height).takeIf { it.width > 0 && it.height > 0 } ?: defaultSize
+            return IntSize((content.width / factor).toInt(), (content.height / factor).toInt())
+                .takeIf { it.width > 0 && it.height > 0 } ?: defaultSize
         }
 
     override val density: Float
-        get() = window?.graphicsConfiguration?.defaultTransform?.scaleX?.toFloat()?.takeIf { it > 0f } ?: 1f
+        get() = ((window?.graphicsConfiguration?.defaultTransform?.scaleX?.takeIf { it > 0.0 } ?: 1.0) * factor).toFloat()
 
     override val isFocusedAndVisible: Boolean
         get() {
@@ -70,15 +75,22 @@ class AwtWindowHandle(private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_D
         /**
          * The first window size: the default, shrunk to fit [workArea] (the screen minus the taskbar, in AWT user space,
          * i.e. dp on a scaled Windows display), but never below the minimum size. At 150 % a 1920 x 1080 laptop has only
-         * 1280 x ~690 dp above the taskbar (W1). A null [workArea] (headless, unknown) keeps the default.
+         * 1280 x ~690 dp above the taskbar (W1). A null [workArea] (headless, unknown) keeps the default. [factor] is the
+         * Compose part of the display scale (`DisplayScale.composeFactor`): sizes are in AWT units, the content in
+         * Compose dp scaled by it.
          */
-        fun initialSizeDp(workArea: java.awt.Rectangle?): IntSize {
-            if (workArea == null || workArea.width <= 0 || workArea.height <= 0) return IntSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP)
+        fun initialSizeDp(workArea: java.awt.Rectangle?, factor: Double = 1.0): IntSize {
+            val width = (DEFAULT_WIDTH_DP * factor).toInt()
+            val height = (DEFAULT_HEIGHT_DP * factor).toInt()
+            if (workArea == null || workArea.width <= 0 || workArea.height <= 0) return IntSize(width, height)
             return IntSize(
-                DEFAULT_WIDTH_DP.coerceAtMost(workArea.width).coerceAtLeast(MIN_WIDTH_DP),
-                DEFAULT_HEIGHT_DP.coerceAtMost(workArea.height).coerceAtLeast(MIN_HEIGHT_DP),
+                width.coerceAtMost(workArea.width).coerceAtLeast(minSize(MIN_WIDTH_DP, factor)),
+                height.coerceAtMost(workArea.height).coerceAtLeast(minSize(MIN_HEIGHT_DP, factor)),
             )
         }
+
+        /** A minimum size in AWT units for the Compose [factor]. */
+        fun minSize(minDp: Int, factor: Double = 1.0): Int = (minDp * factor).toInt()
 
         /**
          * Where the first window goes: centred on [workArea], but never above or left of it, so the title bar stays on
