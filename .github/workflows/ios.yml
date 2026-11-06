@@ -77,7 +77,8 @@ jobs:
   ios:
     if: github.event_name != 'pull_request'
     runs-on: macos-15
-    timeout-minutes: 90
+    # The cold K/N framework build alone took 22 min on 2026-11-05 and over 45 min on 2026-11-06 on the hosted runner.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       # settings.gradle.kts includes :jsword and the kdom composite build (submodules), so the Gradle build needs them. Only those: the
@@ -146,6 +147,13 @@ jobs:
       - name: List available simulators (diagnostic)
         if: always()
         run: xcrun simctl list devices available
+      - name: Build the SharedUi framework (Debug, simulator)
+        # Its own step and timeout, so the slow cold K/N build (22-50 min on the hosted runner) is not charged to the
+        # test step's timeout. The Xcode pre-build phase (embedAndSignAppleFrameworkForXcode) then finds the link task
+        # up to date. A timeout here also kills Gradle cleanly instead of leaving xcodebuild's build database locked
+        # for the iPad step ("unable to attach DB", 2026-11-06).
+        timeout-minutes: 80
+        run: ./gradlew -Dorg.gradle.native=false :sharedUi:linkDebugFrameworkIosSimulatorArm64
       - name: Test (iPhone, UI smoke set)
         # A step timeout well inside the job's 90 min, so a hang still reaches the artifact upload below (a job timeout
         # skips it: the timed-out runs since 2026-10-20 left no log and no xcresult).
