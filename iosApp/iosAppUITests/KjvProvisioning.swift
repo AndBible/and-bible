@@ -4,6 +4,12 @@ import XCTest
 /// InstallRobustnessUITests). A freshly installed app has only the bundled NASB fallback, so each such class establishes
 /// its own precondition with `ensureKJVInstalled()` instead of relying on an earlier class having left KJV behind.
 ///
+/// `ensureKJVInstalled()` installs KJV through the production incoming queue and InstallZip (`-incomingFixture kjv`, the
+/// debug bundle's `h2-kjv.zip`), with no Files picker: the picker is not what these classes test, and its UI (Files
+/// provider contents, Backup switches, folder scrolling) made them fail wherever the Files storage was not seeded, as on
+/// CI (run 42104803796). Only a build without the bundled KJV falls back to the picker route; BackupUITests keeps
+/// calling `provisionKJV()` directly, so the picker install stays covered there.
+///
 /// `provisionKJV()` is the original BackupUITests bootstrap, moved verbatim: reset launch -> controls relaunch -> Backup
 /// -> Restore -> Files picker install of `H2 Fixtures/h2-kjv.zip`. Selectors are label/identifier based (no iPhone
 /// geometry) and `local(_:)` has an iPad branch (sidebar `On My iPad`); the iPad Files-picker path is NOT measured yet
@@ -87,7 +93,62 @@ extension RealAppUITestCase {
             }
         }
         app.terminate()
-        if !present { provisionKJV(cleanFirst: false) }
+        guard !present else { return }
+        if installBundledKJV() { verifyInstalledKJV(launch(kjvChooserArguments)) } else { provisionKJV(cleanFirst: false) }
+    }
+
+    private var kjvChooserArguments: [String] {
+        ["-standardTestFixture", "-incomingRuntimeTest", "-incomingRuntimeControls", "-featureScenario", "chooser",
+         "-openDocument", "KJV", "-openRef", "John.3.16"]
+    }
+
+    /// Offers the debug bundle's KJV archive to the production incoming queue on the reading route (the chooser start
+    /// route shows no install prompt) and confirms the production prompt. False, with nothing changed, when this build
+    /// bundled no KJV (`incoming-fixture-missing`); then the caller uses the Files picker.
+    func installBundledKJV() -> Bool {
+        let app = launch(["-standardTestFixture", "-resetDatabases", "-incomingRuntimeTest", "-incomingFixture", "kjv",
+                          "-openDocument", "KJV", "-openRef", "John.3.16"])
+        defer { app.terminate() }
+        let prompt = app.staticTexts.matching(NSPredicate(format: "label == %@",
+            "Do you want to install module (h2-kjv.zip)?")).firstMatch
+        let missing = element(app, "incoming-fixture-missing")
+        harnessRequire(waitUntil(timeout: 90) { prompt.exists || missing.exists }, app,
+                       "HARNESS: production install prompt for the bundled KJV (or its absence marker)")
+        if missing.exists {
+            attachTree(app, "kjv-fixture-not-bundled")
+            return false
+        }
+        // The prompt's button, not a debug overlay text that also reads "OK".
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        harnessRequire(ok.waitForExistence(timeout: 30) && ok.isHittable && ok.isEnabled, app, "HARNESS: KJV install prompt OK")
+        ok.tap()
+        let overwrite = app.staticTexts["Overwrite files?"].firstMatch
+        let installed = element(app, "incoming-cold-fixtures-installed")
+        var overwriteAccepted = false
+        let done = waitUntil(timeout: 120) {
+            if overwrite.exists && !overwriteAccepted {
+                // Leftover KJV files without a registered book (an earlier interrupted install): replace them.
+                self.harnessTapLabel(app, "Yes")
+                overwriteAccepted = true
+            }
+            return installed.exists
+        }
+        harnessRequire(done, app, "HARNESS: production installer registered the bundled KJV")
+        return true
+    }
+
+    /// The chooser and the exact KJV John 3:16 text prove the installation; leaves the app terminated.
+    func verifyInstalledKJV(_ app: XCUIApplication) {
+        // debug-open-chooser is an overlay, not proof that the chooser is the current destination.
+        harnessRequire(waitUntil(timeout: 90) { self.harnessChooserTitles(app).count == 1 }, app,
+                "HARNESS: actual document chooser context after local provisioning")
+        let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
+        harnessRequire(kjv.waitForExistence(timeout: 30) && kjv.isHittable, app,
+                "HARNESS: actual installed KJV chooser row required, no NASB fallback")
+        selectKJV(app)
+        assertExactJohn316(app)
+        sendToBackground(app)
+        app.terminate()
     }
 
     func provisionKJV(cleanFirst: Bool = true) {
@@ -116,19 +177,9 @@ extension RealAppUITestCase {
             awaitLocalModuleInstall(app)
             // Bootstrap only: the acceptance restore below must inspect immediate state before relaunch.
             app.terminate()
-            app = launch(["-standardTestFixture", "-incomingRuntimeTest", "-incomingRuntimeControls", "-featureScenario", "chooser",
-                          "-openDocument", "KJV", "-openRef", "John.3.16"])
+            app = launch(kjvChooserArguments)
         }
-        // debug-open-chooser is an overlay, not proof that the chooser is the current destination.
-        harnessRequire(waitUntil(timeout: 90) { self.harnessChooserTitles(app).count == 1 }, app,
-                "HARNESS: actual document chooser context after local provisioning")
-        let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
-        harnessRequire(kjv.waitForExistence(timeout: 30) && kjv.isHittable, app,
-                "HARNESS: actual installed KJV chooser row required, no NASB fallback")
-        selectKJV(app)
-        assertExactJohn316(app)
-        sendToBackground(app)
-        app.terminate()
+        verifyInstalledKJV(app)
     }
 
     func awaitLocalModuleInstall(_ app: XCUIApplication) {
@@ -180,6 +231,10 @@ extension RealAppUITestCase {
                 && !self.element(app, "incoming-offer-epub").exists
                 && documents.count == 2 && database.count == 2 && restore.count == 1
                 && restore.element(boundBy: 0).isHittable
+                // Disabled until the screen's first load answered (BackupState.loaded): before that every switch reads
+                // OFF and the load flips Database back ON (CI run 42104803796, "validate switch AX state Database").
+                && restore.element(boundBy: 0).isEnabled
+                && documents.element(boundBy: 1).isEnabled && database.element(boundBy: 1).isEnabled
         }
         harnessRequire(ready, app, "HARNESS: hidden debug actions and actual ordered Backup/Restore surface")
         guard ready else { return }
@@ -197,7 +252,7 @@ extension RealAppUITestCase {
         }
         harnessRequire(control.isHittable, app, "HARNESS: reveal \(name) switch")
         if control.isSelected != on { control.tap() }
-        harnessRequire(control.isSelected == on, app, "HARNESS: validate switch AX state \(name)")
+        harnessRequire(waitUntil(timeout: 5) { control.isSelected == on }, app, "HARNESS: validate switch AX state \(name)")
     }
 
     func configure(_ app: XCUIApplication, restore: Bool, database: Bool) {

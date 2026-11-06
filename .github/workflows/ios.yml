@@ -38,7 +38,8 @@ concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
 jobs:
   jsword-ios-tests:
     runs-on: macos-15
-    timeout-minutes: 45
+    # 23-36 min on green runs; run 41981288468 hit the old 45 min limit in its last (sharedLogic) step.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: Init jsword and kdom submodules
@@ -106,10 +107,49 @@ jobs:
           scripts/ios-version-xcconfig.sh
           cd iosApp
           xcodegen generate
+      # The UI tests that need an installed KJV install it from the debug bundle's h2-kjv.zip through the production
+      # incoming queue (KjvProvisioning.swift); generate-files-test-fixtures.py bundles tmp/h2-files/h2-kjv.zip when it
+      # exists. KJV is not in the repository: package it from the same encrypted test modules the Android unit tests use
+      # (run-tests.yml), exactly as scripts/mac-remote.sh does from ~/.sword on the Mac. Without it (e.g. secrets not
+      # available) the tests fall back to the Files picker and fail with a HARNESS message naming the missing fixture.
+      - name: Restore test modules cache
+        id: cache-test-modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.sword
+          key: ${{ runner.os }}-test-modules
+      - name: Download test modules if not cached
+        if: steps.cache-test-modules.outputs.cache-hit != 'true'
+        env:
+          URL: ${{ secrets.DOWNLOAD_TEST_MODULES_URL }}
+          KEY: ${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::DOWNLOAD_TEST_MODULES_URL / TEST_MODULE_ENCRYPTION_KEY unavailable: the UI tests need the KJV test module"
+            exit 1
+          fi
+          curl -fsSL --retry 3 "$URL" -o "$RUNNER_TEMP/testmods.zip.enc"
+          openssl aes-256-cbc -d -a -pbkdf2 -in "$RUNNER_TEMP/testmods.zip.enc" -out "$RUNNER_TEMP/testmods.zip" -pass "pass:$KEY"
+          mkdir -p "$HOME/.sword"
+          unzip -q -o -d "$HOME/.sword" "$RUNNER_TEMP/testmods.zip"
+          rm -f "$RUNNER_TEMP/testmods.zip" "$RUNNER_TEMP/testmods.zip.enc"
+      - name: Package the KJV UI-test fixture
+        run: |
+          if [ -f "$HOME/.sword/mods.d/kjv.conf" ]; then
+            mkdir -p tmp/h2-files
+            python3 -I iosApp/scripts/package-backup-test-kjv.py --sword-dir "$HOME/.sword" --output tmp/h2-files/h2-kjv.zip
+            ls -l tmp/h2-files/h2-kjv.zip
+          else
+            echo "::error::no KJV in the test modules (~/.sword/mods.d/kjv.conf): the KJV-dependent UI tests cannot be provisioned"
+            exit 1
+          fi
       - name: List available simulators (diagnostic)
         if: always()
         run: xcrun simctl list devices available
       - name: Test (iPhone, UI smoke set)
+        # A step timeout well inside the job's 90 min, so a hang still reaches the artifact upload below (a job timeout
+        # skips it: the timed-out runs since 2026-10-20 left no log and no xcresult).
+        timeout-minutes: 50
         run: |
           mkdir -p build
           set -o pipefail
@@ -118,6 +158,10 @@ jobs:
           # to that simulator, and stream the app's unified log to a file for the duration of the run.
           UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPhone 16")
           xcrun simctl bootstatus "$UDID" -b || true
+          # Same Files-provider preparation as scripts/mac-remote.sh xcode-test (H2 Fixtures for the picker tests and
+          # the picker fallback of the KJV provisioning).
+          # Non-fatal, as on the Mac: the smoke set's KJV no longer comes through the Files picker.
+          bash iosApp/scripts/prepare-ui-test-files.sh "$UDID" || echo "::warning::Files fixture preparation failed"
           nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev" AND subsystem != "com.apple.dt.xctest"' > build/app-iphone.log 2>&1 &
           echo $! > build/logstream-iphone.pid
           sleep 2
@@ -131,6 +175,7 @@ jobs:
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
             -destination "platform=iOS Simulator,id=$UDID" \
             -only-testing:iosAppUnitTests "${SMOKE[@]}" \
+            -test-timeouts-enabled YES -default-test-execution-time-allowance 600 -maximum-test-execution-time-allowance 900 \
             -resultBundlePath build/ios-iphone.xcresult | tee build/xcodebuild-iphone.log
       - name: Stop app log stream (iphone)
         if: always()
@@ -139,6 +184,8 @@ jobs:
           [ -f build/logstream-iphone.pid ] && kill "$(cat build/logstream-iphone.pid)" || true
       - name: Test (iPad, screenshots only)
         if: always()
+        # ~6 min of setup + 50 + 15 + export/upload stays inside the job's 90 min; the step takes ~5 min when green.
+        timeout-minutes: 15
         run: |
           mkdir -p build
           set -o pipefail

@@ -35,7 +35,7 @@ class BackupController(
     private val service: BackupService,
     private val scope: CoroutineScope,
 ) {
-    private val _state = MutableStateFlow(BackupState())
+    private val _state = MutableStateFlow(BackupState(loaded = false))
     val state: StateFlow<BackupState> = _state.asStateFlow()
 
     /**
@@ -49,8 +49,13 @@ class BackupController(
     /** (Re)loads the full screen state from [service]; toggles the user set on this screen win. */
     fun load() {
         scope.launch {
-            val loaded = service.load()
-            _state.value = loaded.copy(toggles = loaded.toggles + userToggles)
+            try {
+                val loaded = service.load()
+                _state.value = loaded.copy(toggles = loaded.toggles + userToggles, loaded = true)
+            } finally {
+                // A failed load must not leave the switches and actions disabled for good; the failure still propagates.
+                if (!_state.value.loaded) _state.value = _state.value.copy(loaded = true)
+            }
         }
     }
 
