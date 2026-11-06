@@ -191,7 +191,10 @@ remain reachable on a phone.
 - **System notifications:** (Linux desktop for now; other platforms later) Shows a system notification
     when background work fails, and when a long download, install or index (over
     about 10 seconds) finishes while AndBible is in the background. Successful
-    syncs never notify. A running job also shows a progress
+    syncs never notify. If work you started fails while AndBible is in the
+    foreground, only the in-app error dialog is shown, without a duplicate system
+    notification. Background failures still notify even while you use the app;
+    repeated occurrences update the same notification. A running job also shows a progress
     notification while AndBible is in the background: KDE Plasma and several
     other desktops show a progress bar, GNOME shows the percentage as text, and
     the Flatpak build shows no progress notifications. Clicking a notification
