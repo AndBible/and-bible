@@ -184,15 +184,15 @@ object IosAppStartup {
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
             // Subscribe before JSword/Koin initialization: neither the notifier nor a UI exists yet.
-            if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { text ->
-                // Background errors go to the activity list when the preference is on (#4007); Koin exists by the time one is presented.
-                KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.reroute(text)
+            if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { text, background, kind ->
+                // Background errors (only) go to the activity list when the preference is on (#4007); Koin exists by the time one is presented.
+                KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.route(text, background, kind)
             })
             owner ?: HostStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
                     if (IosDebugLaunchArgs.hasLaunchFlag("-startupUserMessage")) {
-                        net.bible.android.control.event.UserMessages.errorNotification(p.strings.text("debug_test_error"), false)
+                        net.bible.android.control.event.UserMessages.errorNotification(p.strings.text("debug_test_error"), showReportButton = false, background = true, kind = net.bible.android.control.activity.ActivityKind.SYNC)
                     }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
                     else if (IosDebugLaunchArgs.resetDatabases()) IosDebugLaunchArgs.resetAppDatabases()

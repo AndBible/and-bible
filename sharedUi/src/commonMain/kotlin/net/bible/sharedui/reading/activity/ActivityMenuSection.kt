@@ -47,22 +47,26 @@ internal const val MENU_ACTIVITY_ROWS = 3
 /**
  * The activity section at the top of the overflow menu (#4007): up to [MENU_ACTIVITY_ROWS] rows (running first,
  * then failures; newest first within each; finished successes only appear in the full list), each a title with a slim progress bar or the
- * failure message, then "Show all (N)" when more exist or any failure exists, then a divider.
+ * failure message, then "Show all (N)" (N = what the full list shows) when the list holds more than the rows shown or any failure exists, then a divider.
  * Renders nothing when there is nothing to show, so the menu is then exactly the normal one.
  */
 @kotlin.native.HiddenFromObjC
 @Composable
 fun ActivityMenuSection(activity: ActivityMenuState) {
     // Stable sort: the incoming order (newest first) is kept within each state.
-    val shown = activity.items
+    // Same filter as the full list (ActivityListContent): cancelled items are never shown anywhere.
+    val all = activity.items.value.filter { it.state != ActivityState.CANCELLED }
+    val shown = all
         .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
         .sortedBy { it.state.menuRank() }
     if (shown.isEmpty()) return
     val strings = LocalStrings.current
     Column(Modifier.testTag(ACTIVITY_SECTION_TAG)) {
-        shown.take(MENU_ACTIVITY_ROWS).forEach { ActivityRow(it) }
-        if (shown.size > MENU_ACTIVITY_ROWS || shown.any { it.state == ActivityState.FAILED }) {
-            AbMenuItem(text = strings.activityShowAll(shown.size), onClick = activity.onShowAll)
+        val rows = shown.take(MENU_ACTIVITY_ROWS)
+        rows.forEach { ActivityRow(it) }
+        // Whenever the list holds more than these rows (finished successes, overflow) or anything failed.
+        if (all.size > rows.size || shown.any { it.state == ActivityState.FAILED }) {
+            AbMenuItem(text = strings.activityShowAll(all.size), onClick = activity.onShowAll)
         }
         HorizontalDivider()
     }

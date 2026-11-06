@@ -9,7 +9,6 @@ import net.bible.android.control.activity.DownloadActivitySource
 import net.bible.android.control.activity.JobActivitySource
 import net.bible.android.control.activity.SyncActivitySource
 import net.bible.android.control.download.DownloadControl
-import net.bible.sharedlogic.util.currentTimeMillis
 import org.crosswire.jsword.book.Books
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
@@ -234,7 +233,7 @@ fun buildSharedBindings() = module {
     // Activity center (#4007): the registry plus its three source adapters. They are plain singles (the module must
     // stay resolvable from just its ports); SharedAppStartup.startActivityCenter() resolves them at startup so work
     // that begins before any UI exists is still recorded. Adapter callbacks may arrive on any thread; ActivityCenter is thread-safe.
-    single { ActivityCenter(get<AppCoroutineScope>(), ::currentTimeMillis) }
+    single { ActivityCenter(get<AppCoroutineScope>(), net.bible.android.control.activity.monotonicActivityClock()) }
     // Platform default (Android false, desktop/iOS true) comes from each platform's bindings as ActivityMenuDefault.
     single { net.bible.android.control.activity.ActivityMenuPreference(get(), get()) }
     single {

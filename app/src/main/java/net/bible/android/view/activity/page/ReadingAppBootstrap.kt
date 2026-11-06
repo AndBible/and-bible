@@ -243,6 +243,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             showInterruptedInstallsNotice()
         }
         initialized = true
+        // The activity-menu preference may have been built while the settings still answered defaults (#4007).
+        runCatching { getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
     }
 
     /**

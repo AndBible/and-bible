@@ -154,7 +154,6 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
-            notifier = get<UserNotifier>(),
             syncErrorMessage = get<HostSyncStrings>().syncError,
             begin = { 0uL },
             end = {},
@@ -209,7 +208,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
     }
     single(createdAtStart = true) {
         // Background errors go to the activity list when the preference is on (#4007); resolved lazily per error.
-        DesktopUserMessagesPresenter({ get<UserNotifier>() }, reroute = { text -> getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.reroute(text) })
+        DesktopUserMessagesPresenter({ get<UserNotifier>() }, reroute = { text, background, kind -> getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.route(text, background, kind) })
     } onClose { it?.close() }
     single<BackupHost> {
         HostBackupHost(

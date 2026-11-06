@@ -15,18 +15,18 @@ import net.bible.sharedcore.platform.AppSettings
  * touched the switch.
  *
  * The backing store may answer the default until the settings database is open (`DatabaseAppSettings.getBoolean`),
- * so a value read earlier can be stale. Therefore every access to [enabled] re-reads the store first, and [refresh]
- * is also called when the databases open (desktop, iOS startup).
+ * so the value read at construction can be stale. [enabled] is a plain flow; the owner of the startup calls [refresh]
+ * once the settings are readable: desktop and iOS when their databases open, Android when the reading app has been
+ * initialised (`ReadingAppBootstrap.showFirstRunNotices`, where `CommonUtils.settings` starts answering stored values).
  */
 class ActivityMenuPreference(
     private val settings: AppSettings,
     private val default: ActivityMenuDefault,
 ) {
     private val _enabled = MutableStateFlow(read())
-    private val flow = _enabled.asStateFlow()
 
     /** Current value; emits when [set] or [refresh] changes it (including from the settings screen). */
-    val enabled: StateFlow<Boolean> get() { refresh(); return flow }
+    val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
     /** Re-reads the store; call once the settings database is ready. */
     fun refresh() { _enabled.value = read() }

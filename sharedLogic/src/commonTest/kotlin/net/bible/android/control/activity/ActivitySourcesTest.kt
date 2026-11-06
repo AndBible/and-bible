@@ -1,7 +1,9 @@
 package net.bible.android.control.activity
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -16,6 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,6 +128,26 @@ class ActivitySourcesTest {
         }
     }
 
+    /** The default predicate, with the job id `DownloadQueue` really creates (`INSTALL_BOOK-<repo>--<initials>`). */
+    @Test
+    fun jobDefaultPredicateSkipsRealInstallBookJobButNotIndexJob() = runTest {
+        val c = center()
+        val source = JobActivitySource(c)
+        source.attach()
+        val install = JobManager.createJob(Progress.INSTALL_BOOK.replace("%s", "CrossWire--TestInstDoc"), "TestInstall", null)
+        val index = JobManager.createJob("${Progress.CREATE_INDEX.replace("%s", "KJV")}-t2", "TestIndexing2", null)
+        try {
+            install.beginJob("x", 100); install.work = 30
+            index.beginJob("x", 100); index.work = 30
+            advance(1000)
+            index.work = 40
+            assertEquals(listOf("TestIndexing2"), c.mine("TestInstall", "TestIndexing2").map { it.title })
+        } finally {
+            runCatching { install.done() }; runCatching { index.done() }
+            source.detach()
+        }
+    }
+
     @Test
     fun jobCancelOnlyWhenCancelable() = runTest {
         val c = center()
@@ -180,6 +203,76 @@ class ActivitySourcesTest {
     }
 
     @Test
+    fun jobCancelActionIsStableAcrossProgressEvents() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            val j = job("test-stable-1", "TestStable", { })
+            advance(1000)
+            val first = assertNotNull(c.mine("TestStable").single().cancel)
+            j.work = 20
+            assertSame(first, c.mine("TestStable").single().cancel, "a new lambda per event defeats StateFlow equality")
+        }
+    }
+
+    @Test
+    fun downloadIdenticalStatusEventsDoNotEmitNewItems() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        val cancelled = mutableListOf<String>()
+        // Like jswordCancelFor: a capturing lambda, new on every call.
+        DownloadActivitySource(c, events, { it }, { it }, cancelFor = { id -> ({ cancelled += id }) })
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        advance(1000)
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        val before = c.items.value
+        val cancel = assertNotNull(before.single().cancel)
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        assertSame(before, c.items.value, "same visible values: the emission is dropped")
+        assertSame(cancel, c.items.value.single().cancel)
+        cancel()
+        assertEquals(listOf("d"), cancelled)
+    }
+
+    @Test
+    fun downloadCancelAfterFailRetryCycleTargetsCurrentJob() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        val cancelled = mutableListOf<String>()
+        var generation = 1
+        // Like jswordCancelFor: the returned action names the job that is current when it is created.
+        DownloadActivitySource(c, events, { it }, { it }, cancelFor = { id -> val g = generation; ({ cancelled += "$id#$g" }) })
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        advance(1000)
+        assertNotNull(c.items.value.single().cancel)
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        generation = 2
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 1))
+        advance(1000)
+        val retry = assertNotNull(c.items.value.single().cancel)
+        assertTrue(c.items.value.single().state == ActivityState.RUNNING)
+        retry()
+        assertEquals(listOf("d#2"), cancelled, "cancel resolves the job current at tap time")
+    }
+
+    @Test
+    fun jobRestartedWithSameIdGetsWorkingCancel() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            var cancelled = 0
+            val first = job("test-restart-1", "TestRestart") { cancelled += 1 }
+            advance(1000)
+            assertNotNull(c.mine("TestRestart").single().cancel)
+            first.done()
+            val second = job("test-restart-1", "TestRestart") { cancelled += 10 }
+            advance(1000)
+            second.work = 20
+            val secondCancel = assertNotNull(c.mine("TestRestart").last().cancel)
+            secondCancel()
+            assertEquals(10, cancelled, "the restarted job is the one cancelled")
+        }
+    }
+
+    @Test
     fun downloadCloseReleasesMonitoringAndSubscription() = runTest {
         val c = center()
         val events = EventSource<DocumentStatus>()
@@ -227,12 +320,54 @@ class ActivitySourcesTest {
     fun repeatedSyncFailureCollapsesToOneRow() = runTest {
         val c = center()
         val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
-        sync.reportFailure("x")
-        sync.reportFailure("x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
         assertEquals(listOf(ActivityState.FAILED), c.items.value.map { it.state })
         assertEquals(1, c.unreadFailures.value)
-        sync.reportFailure("y")
+        sync.reportFailure(ActivityKind.SYNC, "y")
         assertEquals(2, c.items.value.size)
         assertFalse(c.items.value.any { it.state != ActivityState.FAILED })
+    }
+
+    /** Collects every emission of [ActivityCenter.items] and [ActivityCenter.unreadFailures] (unconfined, so none is skipped). */
+    private fun TestScope.record(c: ActivityCenter): Pair<MutableList<List<ActivityItem>>, MutableList<Int>> {
+        val items = mutableListOf<List<ActivityItem>>()
+        val unread = mutableListOf<Int>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { c.items.collect { items += it } }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { c.unreadFailures.collect { unread += it } }
+        return items to unread
+    }
+
+    @Test
+    fun repeatedFailureNeverDropsRowOrUnreadCount() = runTest {
+        val c = center()
+        val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        val (items, unread) = record(c)
+        items.clear(); unread.clear()
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        assertTrue(items.all { list -> list.any { it.state == ActivityState.FAILED } }, "row vanished between emissions: $items")
+        assertTrue(unread.all { it == 1 }, "unread count dipped: $unread")
+    }
+
+    @Test
+    fun downloadErrorWithoutRunningRowIsOneFailedEmission() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        download(c, events)
+        val (items, _) = record(c)
+        items.clear()
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        assertEquals(listOf(listOf(ActivityState.FAILED)), items.map { l -> l.map { it.state } })
+    }
+
+    @Test
+    fun failureKeepsItsKindAndSameMessageOfAnotherKindIsAnotherRow() = runTest {
+        val c = center()
+        val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
+        sync.reportFailure(ActivityKind.OTHER, "x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        assertEquals(setOf(ActivityKind.OTHER, ActivityKind.SYNC), c.items.value.map { it.kind }.toSet())
+        assertEquals(2, c.items.value.size)
     }
 }

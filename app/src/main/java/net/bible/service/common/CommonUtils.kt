@@ -1018,7 +1018,11 @@ object CommonUtils : CommonUtilsBase() {
      */
     internal fun awaitSnapshotLoadsAtEdge() = ReadingAppInit.awaitSnapshotLoadsAtEdge()
 
-    suspend fun initializeAppCoroutine() = ReadingAppInit.initialise(readingAppInitPlatform)
+    suspend fun initializeAppCoroutine() {
+        ReadingAppInit.initialise(readingAppInitPlatform)
+        // The settings store answers defaults until now: re-read the activity menu preference (#4007).
+        runCatching { org.koin.mp.KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
+    }
 
     fun prepareForDestruction() {
         if(!initialized) return

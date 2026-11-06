@@ -7,6 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.CloudSyncProvider
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -18,7 +20,6 @@ import net.bible.service.cloudsync.documents.buildDocumentSyncOps
 import net.bible.service.cloudsync.documents.runDocumentSyncOp
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
-import net.bible.sharedcore.platform.UserNotifier
 import kotlin.coroutines.coroutineContext
 
 private const val TAG = "IosDocumentSyncStarter"
@@ -41,14 +42,15 @@ internal interface DocumentSyncDriver {
  * so a started transfer can finish after the app is backgrounded; when iOS expires the task the drain
  * is cancelled (unfinished ops are retried on the next sync, like on Android).
  *
- * Queue semantics mirror the Android service: UserFacing -> notify, drop the adapter if a reconnect
+ * Queue semantics mirror the Android service: UserFacing -> notify (through [UserMessages], as a foreground SYNC
+ * error: the drain mixes ops the user started on the cloud documents screen with automatic ones, so the error keeps its
+ * dialog and the presenters also record it in the activity list), drop the adapter if a reconnect
  * is needed, abandon the queue; Failed -> generic sync error, continue; RetryLater -> silent.
  * `notifyRunning(false)` is always emitted when the drain ends, including cancellation.
  */
 class HostDocumentSyncStarter private constructor(
     private val scope: CoroutineScope,
     private val driver: () -> DocumentSyncDriver,
-    private val notifier: UserNotifier,
     private val syncErrorMessage: () -> String,
     private val begin: (() -> Unit) -> ULong,
     private val end: (ULong) -> Unit,
@@ -59,7 +61,6 @@ class HostDocumentSyncStarter private constructor(
         scope: CoroutineScope,
         documents: DocumentSyncProvider,
         cloudSync: CloudSyncProvider,
-        notifier: UserNotifier,
         syncErrorMessage: () -> String,
         actions: (DocumentSync) -> DocumentSyncActions = { it.asActions() },
         begin: (() -> Unit) -> ULong,
@@ -76,7 +77,7 @@ class HostDocumentSyncStarter private constructor(
                 override fun dropAdapterForReconnect() = cloudSync.get().dropAdapterForReconnect()
             }
         },
-        notifier, syncErrorMessage, begin, end, invalidTask,
+        syncErrorMessage, begin, end, invalidTask,
     )
 
     companion object {
@@ -84,12 +85,11 @@ class HostDocumentSyncStarter private constructor(
         internal fun forDriver(
             scope: CoroutineScope,
             driver: DocumentSyncDriver,
-            notifier: UserNotifier,
             syncErrorMessage: () -> String,
             begin: (() -> Unit) -> ULong,
             end: (ULong) -> Unit,
             invalidTask: ULong = ULong.MAX_VALUE,
-        ) = HostDocumentSyncStarter(scope, { driver }, notifier, syncErrorMessage, begin, end, invalidTask)
+        ) = HostDocumentSyncStarter(scope, { driver }, syncErrorMessage, begin, end, invalidTask)
     }
 
     private val lock = SynchronizedObject()
@@ -178,12 +178,12 @@ class HostDocumentSyncStarter private constructor(
                     when (val outcome = runDocumentSyncOp(op, d.actions) { _, _ -> }) {
                         DocumentSyncOpOutcome.Done, DocumentSyncOpOutcome.RetryLater -> {}
                         is DocumentSyncOpOutcome.UserFacing -> {
-                            notifier.showError(outcome.message)
+                            UserMessages.errorNotification(outcome.message, showReportButton = false, background = false, kind = ActivityKind.SYNC)
                             // Fenced: a stale session (stop() + start()) must not touch the new one.
                             val current = synchronized(lock) { (gen == generation).also { if (it) queue.clear() } }
                             if (current && outcome.requiresReconnect) d.dropAdapterForReconnect()
                         }
-                        DocumentSyncOpOutcome.Failed -> notifier.showError(syncErrorMessage())
+                        DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(syncErrorMessage(), background = false, kind = ActivityKind.SYNC)
                     }
                 }
                 finishedNormally = true

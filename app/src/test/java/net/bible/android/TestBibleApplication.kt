@@ -313,6 +313,11 @@ open class TestBibleApplication : BibleApplication() {
         // Same for the activity sources (#4007): SyncActivitySource listened to the CloudSync stream reset above.
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.SyncActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.DownloadActivitySource::class) }
+        // JobActivitySource's onClose detaches its JobManager listener (a JVM global); the center goes last, after its sources.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.JobActivitySource::class) }
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.ActivityCenter::class) }
+        // The preference caches its value now: a test that switched it on must not leak "on" into later tests.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.ActivityMenuPreference::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakSettingsServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakTransportServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakControl::class) }

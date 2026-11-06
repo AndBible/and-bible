@@ -25,6 +25,9 @@ class ZipInstallActivityAdapter(
     private val names = HashMap<String, String>()
     private val finished = HashSet<String>()
 
+    /** One cancel action per job, so equal snapshots give equal items (the center's StateFlow then drops them). */
+    private val cancelActions = HashMap<String, () -> Unit>()
+
     /**
      * The controller's current jobs; each unfinished one is started or updated. Ids of finished jobs that are no
      * longer in [jobs] are forgotten. The lock spans the check and the [ActivityCenter] call, so a terminal event
@@ -34,6 +37,7 @@ class ZipInstallActivityAdapter(
         val c = center() ?: return@guarded
         synchronized(lock) {
             finished.retainAll(jobs.map { it.jobId }.toSet())
+            cancelActions.keys.retainAll(jobs.map { it.jobId }.toSet())
             for (job in jobs) {
                 if (job.jobId in finished) continue
                 names[job.jobId] = job.displayName ?: job.jobId
@@ -42,7 +46,8 @@ class ZipInstallActivityAdapter(
                     is InstallPhase.Committing -> phase.percent
                     else -> null
                 }
-                c.startOrUpdate(itemId(job.jobId), ActivityKind.INSTALL, job.displayName ?: job.jobId, progress) { cancel(job.jobId) }
+                c.startOrUpdate(itemId(job.jobId), ActivityKind.INSTALL, job.displayName ?: job.jobId, progress,
+                    cancelActions.getOrPut(job.jobId) { { cancel(job.jobId) } })
             }
         }
     }
@@ -55,14 +60,14 @@ class ZipInstallActivityAdapter(
         val c = center() ?: return@guarded
         synchronized(lock) {
             finished += jobId
+            cancelActions.remove(jobId)
             val name = names.remove(jobId) ?: jobId
             val id = itemId(jobId)
             when (phase) {
                 is InstallPhase.Done -> c.succeed(id)
                 is InstallPhase.Cancelled -> c.cancelled(id)
                 is InstallPhase.Error -> {
-                    if (!c.isRunning(id)) c.start(id, ActivityKind.INSTALL, name)
-                    c.fail(id, if (message.isBlank()) name else "$name: $message")
+                    c.startOrFail(id, ActivityKind.INSTALL, name, if (message.isBlank()) name else "$name: $message")
                 }
                 else -> Unit
             }

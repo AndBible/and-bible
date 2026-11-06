@@ -611,8 +611,7 @@ fun ReadingToolbar(
                             onClick = callbacks.onOverflow,
                         )
                         if (activity != null) {
-                            // The host marks failures read once the menu is seen (the badge goes, the rows stay).
-                            LaunchedEffect(overflowExpanded) { if (overflowExpanded) activity.onMenuOpened() }
+                            MarkReadWhileOpen(activity, overflowExpanded)
                         }
                         ReadingOverflowMenu(
                             items = overflowItems,
@@ -623,7 +622,7 @@ fun ReadingToolbar(
                             // "Show all" closes the menu first so the list never opens over a still-open dropdown.
                             header = remember(activity, onOverflowDismiss) {
                                 activity?.let { a ->
-                                    val closing = a.copy(onShowAll = { onOverflowDismiss(); a.onShowAll() })
+                                    val closing = a.withShowAll { onOverflowDismiss(); a.onShowAll() }
                                     val section: @Composable () -> Unit = { ActivityMenuSection(closing) }
                                     section
                                 }
@@ -635,6 +634,16 @@ fun ReadingToolbar(
         }
         if (mono) HorizontalDivider(Modifier.align(Alignment.BottomCenter), thickness = 1.dp, color = onContainer)
     }
+}
+
+/**
+ * The host marks failures read once the menu is seen (the badge goes, the rows stay), and again when a failure
+ * arrives while the menu is still open. Its own composable so that reading the unread count recomposes only it.
+ */
+@Composable
+private fun MarkReadWhileOpen(activity: ActivityMenuState, expanded: Boolean) {
+    val unread = if (expanded) activity.unreadFailures.value else 0
+    LaunchedEffect(expanded, unread) { if (expanded) activity.onMenuOpened() }
 }
 
 @Composable

@@ -27,7 +27,12 @@ fun Progress.isDownloadInstallJob(): Boolean = jobID.startsWith(Progress.INSTALL
  * Jobs for which [isDownloadJob] is true are skipped (a download must not show twice). Cancel is offered only
  * while the job is cancelable (re-checked on every progress event). JSword reports a cancel like a normal finish, so
  * a cancel requested through the row is remembered and recorded as cancelled; a cancel from elsewhere looks
- * like a success. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
+ * like a success.
+ *
+ * Known limitation: a job that ends in error is recorded as SUCCEEDED. JSword's [Progress] has no error state
+ * (it only knows finished or not; failures are reported through `Reporter`, not on the job), so a failed job cannot be
+ * told from a finished one here. Sources that do know their outcome (downloads, zip installs, sync) report failures
+ * themselves. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
  */
 class JobActivitySource(
     private val center: ActivityCenter,
@@ -36,6 +41,15 @@ class JobActivitySource(
 ) {
     private val lock = SynchronizedObject()
     private val cancelRequested = HashSet<String>()
+
+    /** The latest [Progress] per item id, read by the cached cancel action at call time. */
+    private val jobs = HashMap<String, Progress>()
+
+    /**
+     * One cancel action per item id, so successive progress events carry an equal [ActivityItem] and the
+     * center's StateFlow drops the emission (a fresh lambda per event made every event look like a change).
+     */
+    private val cancelActions = HashMap<String, () -> Unit>()
 
     private val listener = object : WorkListener {
         override fun workProgressed(ev: WorkEvent) = onJob(ev.job)
@@ -55,20 +69,32 @@ class JobActivitySource(
         if (isDownloadJob(job)) return
         val id = "job:${job.jobID}"
         if (job.isFinished) {
-            val cancelled = synchronized(lock) { cancelRequested.remove(id) }
+            val cancelled = synchronized(lock) {
+                jobs.remove(id)
+                cancelActions.remove(id)
+                cancelRequested.remove(id)
+            }
             if (cancelled) center.cancelled(id) else if (center.isRunning(id)) center.succeed(id)
             return
         }
         val percent = if (job.progressMode == ProgressMode.UNKNOWN) null else job.work.coerceIn(0, 100)
         // Re-read cancelability on every event (JobManager listeners see progress events, not state changes).
-        val cancel = if (job.isCancelable) ({
-            if (!job.isFinished) {
-                synchronized(lock) { cancelRequested.add(id) }
-                job.cancel()
-                // A cancel that did not end the job was ineffective: a later normal finish is a success.
-                if (!job.isFinished) synchronized(lock) { cancelRequested.remove(id) }
-            }
-        }) else null
+        val cancel = if (job.isCancelable) cancelActionFor(id, job) else null
         center.startOrUpdate(id, kindOf(job), job.jobName, percent, cancel)
+    }
+
+    private fun cancelActionFor(id: String, job: Progress): () -> Unit = synchronized(lock) {
+        jobs[id] = job
+        cancelActions.getOrPut(id) {
+            {
+                val current = synchronized(lock) { jobs[id] }
+                if (current != null && !current.isFinished) {
+                    synchronized(lock) { cancelRequested.add(id) }
+                    current.cancel()
+                    // A cancel that did not end the job was ineffective: a later normal finish is a success.
+                    if (!current.isFinished) synchronized(lock) { cancelRequested.remove(id) }
+                }
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class ActivityMenuPreferenceTest {
@@ -65,15 +66,17 @@ class ActivityMenuPreferenceTest {
         assertFalse(p.enabled.value)
     }
 
-    @Test fun accessingEnabledAfterReadyAlsoRecovers() {
-        val s = MemorySettings().apply { setBoolean(ActivityMenuPreference.KEY, false) }
-        var ready = false
-        val gated = object : AppSettings by s {
-            override fun getBoolean(key: String, default: Boolean) = if (ready) s.getBoolean(key, default) else default
+    @Test fun readingEnabledDoesNotReReadTheStore() {
+        val s = MemorySettings()
+        var reads = 0
+        val counting = object : AppSettings by s {
+            override fun getBoolean(key: String, default: Boolean): Boolean { reads++; return s.getBoolean(key, default) }
         }
-        val p = ActivityMenuPreference(gated, ActivityMenuDefault { true })
-        ready = true
-        assertFalse(p.enabled.value)
+        val p = ActivityMenuPreference(counting, ActivityMenuDefault { true })
+        val afterConstruction = reads
+        repeat(5) { p.enabled.value }
+        assertSame(p.enabled, p.enabled)
+        assertEquals(afterConstruction, reads)
     }
 
     @Test fun keyIsStable() = assertEquals("show_activity_in_menu", ActivityMenuPreference.KEY)

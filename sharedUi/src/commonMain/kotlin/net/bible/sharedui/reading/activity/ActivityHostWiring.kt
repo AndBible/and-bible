@@ -4,6 +4,8 @@ package net.bible.sharedui.reading.activity
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,21 +35,34 @@ class ActivityHostWiring(
  * Collects the activity flows into an [ActivityMenuState] for [content] (`null` while the preference is off or
  * [wiring] is `null`, so the toolbar renders as before) and owns the full list's visibility.
  *
- * The state's lambdas are remembered, so two states with equal data are equal and the toolbar does not
- * recompose on every unrelated items update.
+ * The state is remembered and carries the flows as Compose `State`s that only the drawing composables read, so
+ * activity updates do not recompose the reading screen (with the preference off nothing reads them at all).
  */
 @kotlin.native.HiddenFromObjC
 @Composable
-fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) {
+fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) =
+    ActivityHostImpl(wiring, onHostComposed = null, content = content)
+
+/**
+ * [ActivityHost]'s body. [onHostComposed] is a test probe, called after each composition of this function itself
+ * (not of [content]): tests use it to prove the host never reads the item flows on the reading screen's behalf.
+ */
+@Composable
+internal fun ActivityHostImpl(
+    wiring: ActivityHostWiring?,
+    onHostComposed: (() -> Unit)?,
+    content: @Composable (ActivityMenuState?) -> Unit,
+) {
+    if (onHostComposed != null) SideEffect(onHostComposed)
     if (wiring == null) {
         content(null)
         return
     }
-    // The preference's `enabled` getter re-reads the store on each access: take the flow once.
-    val enabledFlow = remember(wiring.preference) { wiring.preference.enabled }
-    val enabled by enabledFlow.collectAsState()
-    val items by wiring.center.items.collectAsState()
-    val unread by wiring.center.unreadFailures.collectAsState()
+    val enabled by wiring.preference.enabled.collectAsState()
+    // The State objects are only handed on: reading `.value` here would recompose the whole reading screen on
+    // every progress event. The readers (button, menu section, list layer) read them where they draw.
+    val items = wiring.center.items.collectAsState()
+    val unread = wiring.center.unreadFailures.collectAsState()
     var listVisible by remember { mutableStateOf(false) }
     val onShowAll = remember { { listVisible = true } }
     val onMenuOpened = remember(wiring.center) { { wiring.center.markAllRead() } }
@@ -59,13 +74,31 @@ fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenu
         if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened) else null
     }
     content(state)
+    if (enabled && listVisible) {
+        ActivityListLayer(
+            items = items,
+            wiring = wiring,
+            onOpenItem = { item -> listVisible = false; wiring.onOpenItem(item) },
+            onClose = { listVisible = false },
+        )
+    }
+}
+
+/** The full list; it is the only host-level reader of the items, and exists only while the list is open. */
+@Composable
+private fun ActivityListLayer(
+    items: State<List<ActivityItem>>,
+    wiring: ActivityHostWiring,
+    onOpenItem: (ActivityItem) -> Unit,
+    onClose: () -> Unit,
+) {
     ActivityListHost(
-        visible = enabled && listVisible,
-        items = items,
+        visible = true,
+        items = items.value,
         onDismissItem = wiring.center::dismiss,
         onClearFinished = wiring.center::clearFinished,
-        onOpenItem = { item -> listVisible = false; wiring.onOpenItem(item) },
-        onClose = { listVisible = false },
+        onOpenItem = onOpenItem,
+        onClose = onClose,
     )
 }
 

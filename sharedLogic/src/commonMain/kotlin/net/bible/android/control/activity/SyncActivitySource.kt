@@ -5,7 +5,7 @@ import net.bible.sharedcore.event.Subscription
 
 /**
  * Shows cloud sync in the [ActivityCenter]: one indeterminate `sync` item while it runs (a successful sync
- * leaves no row), and failures through [reportFailure].
+ * leaves no row), and failures of any kind through [reportFailure].
  */
 class SyncActivitySource(
     private val center: ActivityCenter,
@@ -23,11 +23,13 @@ class SyncActivitySource(
 
     fun close() = subscription.cancel()
 
-    /** Records a failed sync. Failures with an identical [message] share one row, which is refreshed and made unread again. */
-    fun reportFailure(message: String) {
-        val id = "sync-failed:${message.hashCode()}"
-        center.start(id, ActivityKind.SYNC, message)
-        center.fail(id, message)
+    /**
+     * Records a failure of any [kind] (the row is not tied to sync). Failures with an identical [message] and kind share
+     * one row, which is refreshed and made unread again.
+     */
+    fun reportFailure(kind: ActivityKind, message: String) {
+        val id = "failed:${kind.name}:${message.hashCode()}"
+        center.startOrFail(id, kind, message, message)
     }
 
     private companion object {
