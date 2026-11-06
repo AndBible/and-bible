@@ -232,7 +232,11 @@ class DailyReadingPassageStaysInHostTest {
         val activity = doneFrom(day = 365, daysAgo = 364)
         assertBackInTheReader(activity)
         val rpc = org.koin.core.context.GlobalContext.get().get<net.bible.android.control.readingplan.ReadingPlanControl>()
-        assertEquals("", rpc.currentPlanCode, "the plan was not reset; day=${kotlinx.coroutines.runBlocking { rpc.currentPlanDay() }}")
+        // The message is built eagerly: with the plan correctly reset (empty code) currentPlanDay() throws
+        // "No bundled reading plan", so only look the day up when the code is not empty.
+        if (rpc.currentPlanCode != "") {
+            assertEquals("", rpc.currentPlanCode, "the plan was not reset; day=${kotlinx.coroutines.runBlocking { rpc.currentPlanDay() }}")
+        }
         reopenReadingPlanExpectingTheSelector(activity, controllers.last())
     }
 
