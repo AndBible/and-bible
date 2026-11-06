@@ -271,6 +271,9 @@ including after restoring a database backup.
 - **Colors:** Adjust text color, background color, and background noise
     (a subtle texture overlay on the background). The texture also extends behind
     the window buttons bar, using the same day or night noise setting as the reading area.
+    You can also import a background image and select it separately for day and night
+    mode. Imported images remain available after restarting the app; you do not need
+    to import them again.
 - **Font size:** Set the base text size in points.
 - **Font family:** Change the typeface. Additional fonts can be installed via
     font add-on modules. With the default `sans-serif` setting, a font add-on
