@@ -336,6 +336,14 @@ class AppSettingsController(
                 selectedValues = s.enabledGenBookmarkModalButtons,
                 iconKey = "disable_gen_bookmark_modal_buttons",
             ),
+            SettingsItem.SwitchRow(
+                key = "show_activity_in_menu",
+                title = labels.showActivityInMenuTitle,
+                summary = labels.showActivityInMenuSummary,
+                checked = s.showActivityInMenu,
+                iconKey = "show_activity_in_menu",
+                visible = s.activityMenuVisible,
+            ),
             // ---- E-ink ----
             SettingsItem.Category(
                 key = "prefs_eink_settings_cat",
@@ -363,14 +371,6 @@ class AppSettingsController(
                 summary = labels.disableAnimationsSummary,
                 checked = s.disableAnimations,
                 iconKey = "disable_animations",
-            ),
-            SettingsItem.SwitchRow(
-                key = "show_activity_in_menu",
-                title = labels.showActivityInMenuTitle,
-                summary = labels.showActivityInMenuSummary,
-                checked = s.showActivityInMenu,
-                iconKey = "show_activity_in_menu",
-                visible = s.activityMenuVisible,
             ),
             // ---- Persecution ----
             // Classic parity: the category header, discrete_help and calculator_pin are always

@@ -48,7 +48,7 @@ data class AppSettingsSnapshot(
     val einkMode: Boolean,
     val disableAnimations: Boolean,
     /** #4007: show background activity in the overflow menu; unset follows the platform default. */
-    val showActivityInMenu: Boolean = true,
+    val showActivityInMenu: Boolean = false,
     /** False when no platform default is available (the row is hidden). */
     val activityMenuVisible: Boolean = true,
     // Persecution
