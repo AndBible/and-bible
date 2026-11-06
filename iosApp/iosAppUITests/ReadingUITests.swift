@@ -716,6 +716,73 @@ final class ReadingUITests: RealAppUITestCase {
         }
     }
 
+    /// Establishes the landscape fixture for #3981 and records the rail in both states. The WebView frames do not
+    /// expose the page's CSS bottom offset, and the transparent rail has no accessible full-width frame.
+    func testIPadLandscapeRailWithMinimisedWindow() throws {
+        guard isPad else { throw XCTSkip("iPad landscape rail fixture") }
+        let device = XCUIDevice.shared
+        addTeardownBlock { device.orientation = .portrait }
+        device.orientation = .landscapeLeft
+        let app = try launchReading()
+        maximizePadWindow(app)
+        addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
+        guard waitUntil(timeout: 15, { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height }) else {
+            XCTFail("iPad window did not become landscape"); return
+        }
+        addWindow(app, from: 1)
+        addWindow(app, from: 2)
+        addWindow(app, from: 3)
+        guard let tab = windowTabs(app).last else {
+            attachTree(app, "rail-no-fourth-tab"); XCTFail("fourth window tab missing"); return
+        }
+        tab.press(forDuration: 1)
+        tapMenuItem(app, ["Minimise"], "rail minimise fourth window")
+        guard waitUntil(timeout: 15, { self.visiblePaneIds(app).count == 3 && self.windowTabs(app).count == 4 }) else {
+            attachTree(app, "rail-three-visible-setup"); XCTFail("expected three visible panes and four window tabs"); return
+        }
+        let ids = visiblePaneIds(app)
+        let panes = ids.map { app.webViews.matching(identifier: $0).firstMatch }
+        func assertPaneText(_ step: String) {
+            let rendered = waitUntil(timeout: 30) {
+                panes.allSatisfy {
+                    $0.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count == self.nicodemusPerPane
+                }
+            }
+            if !rendered { attachTree(app, "rail-\(step)-text-missing") }
+            XCTAssertTrue(rendered, "\(step): every visible pane must render KJV John 3 exactly once")
+        }
+        let frames = panes.map(\.frame).sorted { $0.minX < $1.minX }
+        for frame in frames {
+            XCTAssertGreaterThan(frame.width, 0)
+            XCTAssertGreaterThan(frame.height, 0)
+            XCTAssertEqual(frame.minY, frames[0].minY, accuracy: 2, "panes must be side by side")
+            XCTAssertEqual(frame.maxY, frames[0].maxY, accuracy: 2, "panes must share a bottom edge")
+        }
+        for (left, right) in zip(frames, frames.dropFirst()) {
+            XCTAssertLessThanOrEqual(left.maxX, right.minX + 2, "pane frames must not overlap")
+        }
+        let toggle = byLabel(app, "Expand/collapse")
+        guard toggle.waitForExistence(timeout: 10), toggle.isHittable else {
+            attachTree(app, "rail-no-collapse"); XCTFail("rail collapse control missing"); return
+        }
+        assertPaneText("expanded")
+        _ = waitUntil(timeout: 2) { false } // let the rail animation settle for the screenshot
+        shot(app, "rail-three-panes-expanded")
+        toggle.tap()
+        guard waitUntil(timeout: 15, { self.windowTabs(app).isEmpty }) else {
+            attachTree(app, "rail-not-collapsed"); XCTFail("rail tabs did not collapse"); return
+        }
+        XCTAssertEqual(Set(visiblePaneIds(app)), Set(ids), "collapse must not hide or replace a pane")
+        assertPaneText("collapsed")
+        _ = waitUntil(timeout: 2) { false } // capture after the exit animation
+        shot(app, "rail-three-panes-collapsed")
+        XCTAssertTrue(toggle.isHittable, "collapsed rail must retain its expand control")
+        toggle.tap()
+        XCTAssertTrue(waitUntil(timeout: 15) { self.windowTabs(app).count == 4 }, "rail tabs did not reappear")
+        XCTAssertEqual(Set(visiblePaneIds(app)), Set(ids), "re-expansion must keep all three panes")
+        assertPaneText("re-expanded")
+    }
+
     /// iPad only: rotate with a quick sheet open and back. The sheet must reflow (stay inside the window, keep its
     /// close control reachable) and must not stay stuck at a half-height or stale size: after rotating back to portrait
     /// its frame and the close button's frame equal those from before the rotation (same content, same orientation).
