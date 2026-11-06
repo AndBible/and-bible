@@ -244,6 +244,8 @@ class HostReadingHost(
             shell = shell,
             hostState = hostState,
             links = koin.get<ExternalLinks>(),
+            dialogs = koin.get(),
+            strings = strings,
             labelResults = labelResults,
             downloadControl = { koin.get<DownloadControl>() },
             fakeBooks = { koin.get<FakeBookFactory>() },
