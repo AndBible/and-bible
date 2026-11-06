@@ -36,9 +36,9 @@ import platform.UIKit.UILongPressGestureRecognizer
 import platform.UIKit.UITouchTypeDirect
 import platform.UIKit.UITouchTypeIndirectPointer
 import platform.UIKit.UIPanGestureRecognizer
-import kotlinx.cinterop.ObjCSignatureOverride
-import platform.UIKit.UIScreenEdgePanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
+import platform.UIKit.UITouch
+import net.bible.sharedui.HostBackDispatcher
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
 import platform.UIKit.UISwipeGestureRecognizerDirectionRight
 import platform.UIKit.UITapGestureRecognizer
@@ -126,29 +126,36 @@ internal class IosReadingGestureRecognisers(
         webView.scrollView.panGestureRecognizer.removeTarget(this, NSSelectorFromString("scrollPanned:"))
     }
 
-    /**
-     * Simultaneous with everything (WebKit's selection, scrolling, links) except the scene's back edge-swipe recogniser
-     * (#4003): a chapter swipe must not also run when the same drag is a back swipe.
-     */
-    @ObjCSignatureOverride
     override fun gestureRecognizer(
         gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWithGestureRecognizer: UIGestureRecognizer,
-    ): Boolean = !isChapterSwipeAgainstBackEdge(gestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer)
+    ): Boolean = true
+
+    /** Whether the touch that the chapter swipes are tracking started in a screen-edge back zone. */
+    private var swipeTouchAtScreenEdge = false
+
+    override fun gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch: UITouch): Boolean {
+        // By type, not identity: the recogniser UIKit passes back is not `===` to the Kotlin reference. Only this class's
+        // own recognisers have it as their delegate, and only the chapter swipes are swipe recognisers.
+        if (gestureRecognizer is UISwipeGestureRecognizer) {
+            val window = webView.window
+            swipeTouchAtScreenEdge = window != null && shouldReceiveTouch.locationInView(window).useContents {
+                val width = window.bounds.useContents { size.width }
+                x < BACK_EDGE_ZONE_POINTS || x > width - BACK_EDGE_ZONE_POINTS
+            }
+        }
+        return true
+    }
 
     /**
-     * A chapter swipe waits for the back edge-swipe to fail (#4003). The edge recogniser is enabled only while back has
-     * something to close (Find, the drawer, a sheet); there a drag from the left edge closes that and no longer also
-     * turns the chapter. On the plain reading view the edge recogniser is off and the swipe turns the chapter as before.
+     * #4003: a drag from the screen edge while back has something to close (Find, the drawer, a sheet) is the scene's
+     * back edge-swipe; it must not also turn the chapter. UIKit let both recognise (seen on the iOS 26.5 simulator: one
+     * drag closed Find and turned John 3 to John 2), so the chapter swipe steps aside itself. On the plain
+     * reading view nothing is enabled, the back recogniser is off, and an edge drag turns the chapter as before.
      */
-    @ObjCSignatureOverride
-    override fun gestureRecognizer(
-        gestureRecognizer: UIGestureRecognizer,
-        shouldRequireFailureOfGestureRecognizer: UIGestureRecognizer,
-    ): Boolean = isChapterSwipeAgainstBackEdge(gestureRecognizer, shouldRequireFailureOfGestureRecognizer)
-
-    private fun isChapterSwipeAgainstBackEdge(ours: UIGestureRecognizer, other: UIGestureRecognizer): Boolean =
-        (ours === swipeLeft || ours === swipeRight) && other is UIScreenEdgePanGestureRecognizer
+    override fun gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer): Boolean =
+        !(gestureRecognizer is UISwipeGestureRecognizer && swipeTouchAtScreenEdge &&
+            HostBackDispatcher.hasEnabledHandler())
 
     @ObjCAction
     fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()
@@ -187,3 +194,6 @@ internal class IosReadingGestureRecognisers(
         }
     }
 }
+
+/** Width of the screen-edge zone where UIKit's back edge-swipe starts (its recogniser takes touches about 20 pt in). */
+private const val BACK_EDGE_ZONE_POINTS = 24.0

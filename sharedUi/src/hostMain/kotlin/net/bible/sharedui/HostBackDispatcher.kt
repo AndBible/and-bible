@@ -87,6 +87,9 @@ internal object HostBackDispatcher {
         return true
     }
 
+    /** Whether any attached scene has an enabled back handler (on iOS: its back edge-swipe recogniser is on). */
+    fun hasEnabledHandler(): Boolean = synchronized(lock) { attachments.any { it.input.hasEnabled } }
+
     fun back(): Boolean {
         unhandled = false
         return dispatchTopmost() && !unhandled

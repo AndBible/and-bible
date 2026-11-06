@@ -1630,7 +1630,8 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(findClosed, "the second back swipe must close Find")
         // The same drags must not also turn the chapter (the pane's chapter swipe waits for the back swipe to fail).
         usleep(1_500_000)
-        XCTAssertEqual(nicodemusInWebViews(app), nicodemusPerPane, "a back swipe also turned the chapter away from John 3")
+        let title = toolbarTitle(app)?.label ?? ""
+        XCTAssertTrue(title.hasPrefix("John 3"), "a back swipe also turned the chapter: the title is '\(title)', expected John 3")
         XCTAssertTrue(element(app, "reading-host").exists, "back left the reading view")
         XCTAssertFalse(app.buttons["Back"].exists, "back opened a pushed screen")
     }
