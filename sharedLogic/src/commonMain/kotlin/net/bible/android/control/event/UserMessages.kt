@@ -40,6 +40,11 @@ sealed interface UserMessage {
         /** The activity-list kind of the row recording this failure. */
         val kind: ActivityKind = ActivityKind.OTHER,
         val cause: Throwable? = null,
+        /**
+         * True when the same work failed already in its previous run with no success since (#4031): presenters record it
+         * in the activity list (and show a toast) instead of popping the dialog again. Implies [background].
+         */
+        val repeated: Boolean = false,
     ) : UserMessage
 }
 
@@ -61,6 +66,9 @@ object UserMessages {
 
     fun errorNotification(id: Int, background: Boolean = false, kind: ActivityKind = ActivityKind.OTHER, cause: Throwable? = null) =
         _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true, background = background, kind = kind, cause = cause))
+
+    /** Presents a ready-made [message] (a coalescing reporter builds it, see `SyncErrorReporter`). */
+    fun errorNotification(message: UserMessage.ErrorNotification) = _messages.emit(message)
 
     fun errorNotification(
         text: String,

@@ -106,6 +106,15 @@ class AppDialogController {
     fun post(request: AppDialogRequest, onResult: (AppDialogResult) -> Unit = {}): Long =
         enqueue(request, onResult)
 
+    /**
+     * [post], unless an equal [request] is already queued or showing (#4031): the same error raised again before the
+     * user dismissed it must not stack a second modal behind it. Returns null when nothing was posted.
+     */
+    fun postUnlessQueued(request: AppDialogRequest.Message, onResult: (AppDialogResult) -> Unit = {}): Long? =
+        synchronized(lock) {
+            if (queue.any { it.request == request }) null else enqueueLocked(request, onResult, null)
+        }
+
     /** Shows a modal progress; it stays until [dismiss] with the returned id. */
     fun show(progress: AppDialogRequest.Progress): Long = enqueue(progress, null)
 
@@ -142,13 +151,16 @@ class AppDialogController {
         // inside response/withdrawal bookkeeping: a failed refresh cannot strand an awaiting caller.
         val initial = (request as? AppDialogRequest.Localized)?.resolve() ?: request
         val input = initial as? AppDialogRequest.TextInput
-        return synchronized(lock) {
-            val id = nextId++
-            val draftKey = input?.let { it.draftKey ?: "id:$id" }
-            queue.add(Entry(id, request, onResult, draftKey, input?.draftKey != null))
-            publish()
-            id
-        }
+        return synchronized(lock) { enqueueLocked(request, onResult, input) }
+    }
+
+    /** Adds [request] to the queue; the caller holds [lock]. */
+    private fun enqueueLocked(request: AppDialogRequest, onResult: ((AppDialogResult) -> Unit)?, input: AppDialogRequest.TextInput?): Long {
+        val id = nextId++
+        val draftKey = input?.let { it.draftKey ?: "id:$id" }
+        queue.add(Entry(id, request, onResult, draftKey, input?.draftKey != null))
+        publish()
+        return id
     }
 
     private fun remove(id: Long) {

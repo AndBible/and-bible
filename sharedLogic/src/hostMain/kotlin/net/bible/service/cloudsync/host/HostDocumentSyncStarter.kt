@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.CloudSyncProvider
 import net.bible.service.cloudsync.DocumentSyncProvider
@@ -45,7 +44,8 @@ internal interface DocumentSyncDriver {
  * Queue semantics mirror the Android service: UserFacing -> notify (through [UserMessages], as a foreground SYNC
  * error: the drain mixes ops the user started on the cloud documents screen with automatic ones, so the error keeps its
  * dialog and the presenters also record it in the activity list), drop the adapter if a reconnect
- * is needed, abandon the queue; Failed -> generic sync error, continue; RetryLater -> silent.
+ * is needed, abandon the queue; Failed -> generic sync error, continue; RetryLater -> silent. A drain session shows at
+ * most one error, and a session failing right after a failed one only a toast and a list row (#4031).
  * `notifyRunning(false)` is always emitted when the drain ends, including cancellation.
  */
 class HostDocumentSyncStarter private constructor(
@@ -98,6 +98,11 @@ class HostDocumentSyncStarter private constructor(
     private var generation = 0
     private var drainJob: Job? = null
     private var lastJob: Job? = null
+    /**
+     * One error per drain session (#4031: a drain of ten failing documents raised ten modals); a session that fails
+     * right after a failed one is recorded in the activity list with a toast instead of a dialog.
+     */
+    private val errorReporter = net.bible.service.cloudsync.SyncErrorReporter()
 
     override fun pushDocuments(initials: List<String>) = start(push = initials, download = emptyList())
 
@@ -155,6 +160,7 @@ class HostDocumentSyncStarter private constructor(
         // asynchronous (a blocking op may outlive the deadline), so the handler ends the task itself.
         task.attach(begin { task.expire { self?.cancel() } }, end, invalidTask)
         var finishedNormally = false
+        val run = errorReporter.beginRun()
         try {
             val d = driver()
             d.notifyRunning(true)
@@ -176,14 +182,16 @@ class HostDocumentSyncStarter private constructor(
                     // Re-assert running per op (see Android's drain): late subscribers learn of the drain.
                     d.notifyRunning(true)
                     when (val outcome = runDocumentSyncOp(op, d.actions) { _, _ -> }) {
-                        DocumentSyncOpOutcome.Done, DocumentSyncOpOutcome.RetryLater -> {}
+                        DocumentSyncOpOutcome.Done -> {}
+                        DocumentSyncOpOutcome.RetryLater -> run.noteSilentFailure()
                         is DocumentSyncOpOutcome.UserFacing -> {
-                            UserMessages.errorNotification(outcome.message, showReportButton = false, background = false, kind = ActivityKind.SYNC)
+                            run.report(outcome.message, showReportButton = false, background = false)
                             // Fenced: a stale session (stop() + start()) must not touch the new one.
                             val current = synchronized(lock) { (gen == generation).also { if (it) queue.clear() } }
                             if (current && outcome.requiresReconnect) d.dropAdapterForReconnect()
                         }
-                        DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(syncErrorMessage(), background = false, kind = ActivityKind.SYNC)
+                        // runDocumentSyncOp logged the op and its exception.
+                        DocumentSyncOpOutcome.Failed -> run.report(syncErrorMessage(), background = false)
                     }
                 }
                 finishedNormally = true
@@ -196,6 +204,7 @@ class HostDocumentSyncStarter private constructor(
                 // Cancelled or crashed: drop the session unless stop()/a newer session already did.
                 if (gen == generation) { queue.clear(); active = false; drainJob = null }
             }
+            run.end(completed = finishedNormally)
             task.endOnce()
         }
     }
