@@ -138,6 +138,15 @@ class DesktopExitTasksTest {
         assertTrue(tasks.runAll(1000))
     }
 
+    @Test fun cancelledTaskDoesNotReportSuccessfulCompletion() = bounded {
+        val tasks = DesktopExitTasks()
+        var after = false
+        tasks.register("cancel") { throw CancellationException("task cancelled") }
+        tasks.register("after") { after = true }
+        assertFalse(tasks.runAll(1000))
+        assertFalse(after)
+    }
+
     @Test fun callerCancellationPropagates() = bounded {
         val tasks = DesktopExitTasks()
         val started = CompletableDeferred<Unit>()

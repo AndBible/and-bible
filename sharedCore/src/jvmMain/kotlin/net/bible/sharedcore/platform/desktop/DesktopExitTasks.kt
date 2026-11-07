@@ -107,12 +107,15 @@ class DesktopExitTasks {
             val completed = withTimeoutOrNull(timeoutMs) {
                 select<Boolean> {
                     signal.onAwait { false }
-                    worker.onJoin { !signal.isCompleted }
+                    worker.onJoin { !signal.isCompleted && !worker.isCancelled }
                 }
             }
             when (completed) {
                 null -> { Log.w(TAG, "Exit tasks did not finish within $timeoutMs ms"); false }
-                false -> { Log.w(TAG, "Exit tasks skipped by user"); false }
+                false -> {
+                    Log.w(TAG, if (signal.isCompleted) "Exit tasks skipped by user" else "Exit task cancelled")
+                    false
+                }
                 true -> true
             }
         } finally {
