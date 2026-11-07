@@ -251,3 +251,23 @@ class SyncTriggerDriver(
         private const val TAG = "SyncTriggerDriver"
     }
 }
+
+/**
+ * Turns a platform's stream of "is the network usable" reports into "the network came back" edges for
+ * [SyncTriggerDriver.onNetworkAvailable]. The first report only records the state (a monitor reports the current path
+ * when it starts, which is not a restore); afterwards only an unusable-to-usable change counts.
+ */
+class NetworkRestoreEdge {
+    private val lock = SynchronizedObject()
+    private var known: Boolean? = null
+
+    /** The latest report; true until the first one, so a platform without a report never blocks a pass. */
+    val available: Boolean get() = synchronized(lock) { known != false }
+
+    /** Records [usable]; returns true when this report is a restore. */
+    fun report(usable: Boolean): Boolean = synchronized(lock) {
+        val restored = known == false && usable
+        known = usable
+        restored
+    }
+}

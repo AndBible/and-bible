@@ -226,3 +226,22 @@ class SyncTriggerDriverTest {
         assertFalse(d.isForeground)
     }
 }
+
+class NetworkRestoreEdgeTest {
+    @Test fun onlyAnUnusableToUsableChangeIsARestore() {
+        val edge = NetworkRestoreEdge()
+        assertTrue(edge.available, "no report yet: do not block passes")
+        assertFalse(edge.report(true), "the monitor's first report is the current state, not a restore")
+        assertFalse(edge.report(true))
+        assertFalse(edge.report(false)); assertFalse(edge.available)
+        assertFalse(edge.report(false))
+        assertTrue(edge.report(true)); assertTrue(edge.available)
+        assertFalse(edge.report(true))
+    }
+
+    @Test fun startingOfflineThenComingOnlineIsARestore() {
+        val edge = NetworkRestoreEdge()
+        assertFalse(edge.report(false))
+        assertTrue(edge.report(true))
+    }
+}

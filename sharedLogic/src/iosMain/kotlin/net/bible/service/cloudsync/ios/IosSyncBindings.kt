@@ -9,6 +9,10 @@ import net.bible.service.cloudsync.CloudSyncProvider
 import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
+import net.bible.service.cloudsync.NetworkRestoreEdge
+import net.bible.service.cloudsync.SyncNowWorkspaceSaver
+import net.bible.service.cloudsync.SyncTriggerDriver
+import org.koin.core.scope.Scope
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.runDatabaseSyncJob
 import net.bible.service.cloudsync.webdav.WebDavMessage
@@ -103,23 +107,34 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
             { get<net.bible.sharedcore.platform.CoreStrings>().errorSkip })
     }
     single {
-        IosBackgroundSync(
-            BackgroundSyncPolicy(
-                syncEnabled = { SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) } },
-                replacing = { DatabaseContainer.replacing },
-                intervalSeconds = { get<AppSettings>().getLong("cloud_sync_interval", DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS) },
-                lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },
-                nowMs = ::nowMs,
-                signedIn = { get<CloudSync>().signedIn },
-                signIn = { get<CloudSync>().signIn(background = true) },
-                startSync = {
-                    (get<SyncScheduler>() as IosSyncScheduler).startBackgroundDatabaseSync {
-                        runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
-                    }
-                },
-                stopSync = { result -> (get<SyncScheduler>() as IosSyncScheduler).stop(result) },
-            ),
-            backgroundRefresh,
+        IosBackgroundSync(iosSyncPolicy(), backgroundRefresh)
+    }
+    single { NetworkRestoreEdge() }
+    single {
+        SyncTriggerDriver(
+            policy = iosSyncPolicy(),
+            scope = get<AppCoroutineScope>(),
+            prepare = { getOrNull<SyncNowWorkspaceSaver>()?.save() },
+            networkAvailable = { get<NetworkRestoreEdge>().available },
+            backgroundAllowance = uiKitLeaveAllowance,
         )
     }
+    single { IosSyncTriggers(get(), get()) }
 }
+
+/** The sync policy of every iOS pass (the BGTask refresh and the [SyncTriggerDriver]): non-interactive, never prompts. */
+private fun Scope.iosSyncPolicy() = BackgroundSyncPolicy(
+    syncEnabled = { SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) } },
+    replacing = { DatabaseContainer.replacing },
+    intervalSeconds = { get<AppSettings>().getLong("cloud_sync_interval", DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS) },
+    lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },
+    nowMs = ::nowMs,
+    signedIn = { get<CloudSync>().signedIn },
+    signIn = { get<CloudSync>().signIn(background = true) },
+    startSync = {
+        (get<SyncScheduler>() as IosSyncScheduler).startBackgroundDatabaseSync {
+            runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
+        }
+    },
+    stopSync = { result -> (get<SyncScheduler>() as IosSyncScheduler).stop(result) },
+)

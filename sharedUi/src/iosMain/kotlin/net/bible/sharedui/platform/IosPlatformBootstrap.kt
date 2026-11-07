@@ -4,6 +4,7 @@ package net.bible.sharedui.platform
 
 import kotlinx.coroutines.MainScope
 import net.bible.service.cloudsync.ios.IosBackgroundSync
+import net.bible.service.cloudsync.ios.IosSyncTriggers
 import net.bible.service.cloudsync.ios.iosBackgroundRefreshEntry
 import net.bible.sharedcore.platform.sync.BackgroundRefresh
 import net.bible.sharedcore.platform.sync.IosBackgroundRefresh
@@ -84,6 +85,15 @@ object IosPlatformBootstrap {
             openDatabases = { net.bible.sharedui.assembly.IosAppStartup.openDatabases() },
             refresh = backgroundRefresh,
         )
+    }
+
+    /**
+     * Starts the foreground sync triggers (#4025): a sync now, every `cloud_sync_interval` while the app is open, on each
+     * return to the foreground, on leaving the app and when the network comes back. Main thread, once startup is Ready.
+     * No-op before Koin starts.
+     */
+    fun startForegroundSync() {
+        KoinPlatform.getKoinOrNull()?.getOrNull<IosSyncTriggers>()?.start()
     }
 
     /** Requests the first background refresh; `MainViewController` calls it (off the main thread) once startup is Ready. No-op before Koin starts. */

@@ -245,6 +245,9 @@ fun MainViewController(): UIViewController {
                 runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
                     .onFailure { nsLog("background sync scheduling failed: ${it.stackTraceToString()}") }
             }
+            // Main thread: the triggers read the application state and register UIKit observers.
+            runCatching { IosPlatformBootstrap.startForegroundSync() }
+                .onFailure { nsLog("foreground sync start failed: ${it.stackTraceToString()}") }
         }
         LaunchedEffect(Unit) {
             // showPending logs its own failures, but the setup around it (Koin, string table, dialogs) can throw too, and
