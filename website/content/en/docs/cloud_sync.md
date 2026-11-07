@@ -4,8 +4,9 @@
 across multiple devices using Google Drive, iCloud Drive, Nextcloud or your own WebDAV server.
 Which backends are offered depends on the platform; see [Platform differences](platform_differences.md).
 
-Sync is automatic — once set up, changes are synchronized in the background
-while the app is open, as well as when opening or exiting the app.
+Sync is automatic — once set up, changes are synchronized when you open the app,
+every few minutes while it is open, and when you leave or exit it (see
+[How Sync Works](#how-sync-works)).
 
 On desktop, the sync when you close AndBible sends only your database changes (bookmarks, workspaces and so on);
 documents are synchronized while the app is open. If syncing takes longer when you close AndBible, a status screen appears.
@@ -189,9 +190,14 @@ independently.
 
 ## How Sync Works
 
-- Sync runs automatically approximately every 60 seconds while the app is in
-    the foreground and device is online.
-- Sync also runs when the app is opened and when exiting the app.
+- Sync runs when the app is opened or brought back to the foreground, then
+    every 5 minutes while it stays open and the device is online. Each of these
+    syncs also fetches the changes made on your other devices.
+- Sync also runs when you leave or quit the app, and (on Android, iPhone, iPad and
+    Mac) when the network comes back after being offline.
+- On iPhone, iPad and Mac, iOS can also give *AndBible* time to sync in the
+    background; see [iOS background refresh](#ios-background-refresh).
+- See [Platform differences](platform_differences.md#sync) for the differences between platforms.
 - Only changes since the last sync are uploaded — not the entire database each time.
 - If two devices change the same item, the most recent change wins automatically
     (based on timestamps).
