@@ -135,3 +135,22 @@ if (providers.gradleProperty("coverage").isPresent) {
 } else {
     kover { disable() }
 }
+
+// Store-screenshot demo content: turns a demo-content YAML into a normal AndBible database backup zip (the generator
+// lives in jvmTest, next to the round-trip test that restores it through BackupControl).
+//   ./gradlew :sharedLogic:generateDemoBackup -PdemoContent=<yaml> -PdemoOut=<zip>   (paths relative to the repo root)
+val generateDemoBackup by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Generates a demo database backup zip from a demo-content YAML (-PdemoContent, -PdemoOut)."
+    val testCompilation = kotlin.jvm().compilations.getByName("test")
+    dependsOn(testCompilation.compileTaskProvider)
+    classpath = files(testCompilation.output.allOutputs, testCompilation.runtimeDependencyFiles)
+    mainClass.set("net.bible.demo.DemoBackupGeneratorKt")
+    workingDir = rootProject.projectDir
+    doFirst {
+        val content = providers.gradleProperty("demoContent").orNull
+        val out = providers.gradleProperty("demoOut").orNull
+        require(content != null && out != null) { "Pass -PdemoContent=<yaml> and -PdemoOut=<zip>" }
+        args("--content", rootProject.file(content).absolutePath, "--out", rootProject.file(out).absolutePath)
+    }
+}
