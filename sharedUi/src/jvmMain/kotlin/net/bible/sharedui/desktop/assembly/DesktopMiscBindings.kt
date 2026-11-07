@@ -57,6 +57,10 @@ import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
 import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
 import net.bible.sharedui.desktop.misc.manualSendText
+import net.bible.sharedui.desktop.misc.openContainingFolder
+import net.bible.sharedcore.settings.SettingsItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.sharedui.desktop.misc.DesktopCrashTracker
 import net.bible.sharedui.desktop.update.DesktopUpdatePrompts
 import net.bible.sharedui.desktop.update.checksForUpdates
@@ -187,12 +191,28 @@ fun desktopMiscModule(): Module = module {
             savedPath = { fileDelivery.lastSavedPath },
             instructions = { info ->
                 val strings = table.current
-                val body = strings.manualSendText(info)
-                while (dialogs.await(AppDialogRequest.Message(strings.text("bug_report_manual_title"), body,
-                        strings.text("okay"), neutralText = strings.text("bug_report_copy_address"))) == AppDialogResult.Neutral) {
-                    clipboard.write("", info.address)
+                val actions = buildList {
+                    add(SettingsItem.Choice("address", strings.text("bug_report_copy_address")))
+                    add(SettingsItem.Choice("subject", strings.text("bug_report_copy_subject")))
+                    if (info.savedPath != null) {
+                        add(SettingsItem.Choice("path", strings.text("bug_report_copy_path")))
+                        add(SettingsItem.Choice("folder", strings.text("bug_report_open_folder")))
+                    }
+                }
+                while (true) {
+                    val answer = dialogs.await(AppDialogRequest.Options(strings.text("bug_report_manual_title"),
+                        strings.manualSendText(info), actions, strings.text("okay"), asActionSheet = false))
+                    if (answer !is AppDialogResult.Selected) break
+                    when (answer.value) {
+                        "address" -> clipboard.write("", info.address)
+                        "subject" -> clipboard.write("", info.subject)
+                        "path" -> info.savedPath?.let { clipboard.write("", it) }
+                        "folder" -> info.savedPath?.let { withContext(Dispatchers.IO) { openContainingFolder(it) } }
+                    }
                 }
             },
+            suggestedSubject = { table.current.fmt("bug_report_subject_suggestion", get<DesktopAppEnvironment>().versionName) },
+            attachLine = { table.current.fmt("bug_report_attach_line", it) },
             confirm = { ai ->
                 val strings = table.current
                 dialogs.await(AppDialogRequest.Confirm(

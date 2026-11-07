@@ -742,8 +742,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="bug_report_email_title">Send feilrapport via e-post</string>
   <string name="bug_report_email_text">Vennligst velg din foretrukne e-post app for å sende rapporten til utviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten på e-post</string>
-  <string name="bug_report_manual_text_saved">Rapporten ble lagret i</string>
-  <string name="bug_report_manual_text_unsaved">Ingen e-postprogram kunne åpnes på denne enheten.\n\nSend rapporten på e-post til</string>
   <string name="bug_report_copy_address">Kopier adressen</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst til tale</string>

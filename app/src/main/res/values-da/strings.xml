@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Send fejlrapport via e-mail</string>
   <string name="bug_report_email_text">Vælg venligst dit foretrukne e-mailprogram (f.eks. Gmail) for at sende rapporten til udviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten med e-mail</string>
-  <string name="bug_report_manual_text_saved">Rapporten blev gemt i</string>
-  <string name="bug_report_manual_text_unsaved">Intet e-mailprogram kunne åbnes på denne enhed.\n\nSend rapporten med e-mail til</string>
   <string name="bug_report_copy_address">Kopiér adresse</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst til tale</string>

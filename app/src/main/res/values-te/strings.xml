@@ -761,8 +761,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>
   <string name="bug_report_manual_title">నివేదికను ఇమెయిల్ ద్వారా పంపండి</string>
-  <string name="bug_report_manual_text_saved">నివేదిక సేవ్ చేయబడింది:</string>
-  <string name="bug_report_manual_text_unsaved">ఈ పరికరంలో ఏ ఇమెయిల్ ప్రోగ్రామ్ తెరవబడలేదు.\n\nదయచేసి నివేదికను ఈ చిరునామాకు ఇమెయిల్ ద్వారా పంపండి:</string>
   <string name="bug_report_copy_address">చిరునామాను కాపీ చేయండి</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">వచనం నుండి బిగ్గరగా చదువు</string>

@@ -752,8 +752,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="bug_report_email_title">Kirim laporan bug melalui email</string>
   <string name="bug_report_email_text">Selanjutnya, silakan pilih aplikasi email pilihan Anda (misalnya Gmail) untuk mengirim laporan ke tim pengembang.</string>
   <string name="bug_report_manual_title">Kirim laporan lewat email</string>
-  <string name="bug_report_manual_text_saved">Laporan disimpan di</string>
-  <string name="bug_report_manual_text_unsaved">Tidak ada program email yang dapat dibuka di perangkat ini.\n\nSilakan kirim laporan lewat email ke</string>
   <string name="bug_report_copy_address">Salin alamat</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks ke bicara</string>

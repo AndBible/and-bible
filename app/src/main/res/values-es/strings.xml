@@ -769,8 +769,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
   <string name="bug_report_email_text">A continuación, por favor seleccione su aplicación de correo preferida (por ejemplo Gmail) para enviar el informe al equipo de desarrollo.</string>
   <string name="bug_report_manual_title">Enviar el informe por correo electrónico</string>
-  <string name="bug_report_manual_text_saved">El informe se guardó en</string>
-  <string name="bug_report_manual_text_unsaved">No se pudo abrir ningún programa de correo en este dispositivo.\n\nEnvía el informe por correo electrónico a</string>
   <string name="bug_report_copy_address">Copiar dirección</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto a voz</string>

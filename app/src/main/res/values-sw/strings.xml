@@ -736,8 +736,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="bug_report_email_title">Tuma ripoti ya hitilafu kupitia barua pepe</string>
   <string name="bug_report_email_text">Inayofuata, tafadhali chagua programu yako unayoipenda ya barua pepe (Gmail kwa mfano) kutuma ripoti kwa timu ya wasanidi.</string>
   <string name="bug_report_manual_title">Tuma ripoti kwa barua pepe</string>
-  <string name="bug_report_manual_text_saved">Ripoti imehifadhiwa kwenye</string>
-  <string name="bug_report_manual_text_unsaved">Hakuna programu ya barua pepe iliyoweza kufunguliwa kwenye kifaa hiki.\n\nTafadhali tuma ripoti kwa barua pepe kwa</string>
   <string name="bug_report_copy_address">Nakili anwani</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Maandishi-hadi-usemi</string>

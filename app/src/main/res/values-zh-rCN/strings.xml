@@ -769,8 +769,6 @@ http://www.heartlight.org 准予使用
   <string name="bug_report_email_title">通过电子邮件发送缺陷报告</string>
   <string name="bug_report_email_text">请在下一步选择您想要的电子邮件应用（例如 Gmail）来将报告发送给开发者团队。</string>
   <string name="bug_report_manual_title">通过电子邮件发送报告</string>
-  <string name="bug_report_manual_text_saved">报告已保存到</string>
-  <string name="bug_report_manual_text_unsaved">此设备上无法打开任何电子邮件程序。\n\n请将报告通过电子邮件发送到</string>
   <string name="bug_report_copy_address">复制地址</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字转语音</string>

@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">इमेल मार्फत बग रिपोर्ट पठाउनुहोस्</string>
   <string name="bug_report_email_text">अब कृपया विकासकर्ता टिमलाई रिपोर्ट पठाउन आफ्नो मनपर्ने इमेल अनुप्रयोग (उदाहरणका लागि Gmail) चयन गर्नुहोस्।</string>
   <string name="bug_report_manual_title">प्रतिवेदन इमेलबाट पठाउनुहोस्</string>
-  <string name="bug_report_manual_text_saved">प्रतिवेदन यहाँ सुरक्षित गरियो:</string>
-  <string name="bug_report_manual_text_unsaved">यो यन्त्रमा कुनै इमेल प्रोग्राम खोल्न सकिएन।\n\nकृपया प्रतिवेदन इमेलबाट यहाँ पठाउनुहोस्:</string>
   <string name="bug_report_copy_address">ठेगाना प्रतिलिपि गर्नुहोस्</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">पाठबाट भाषण</string>

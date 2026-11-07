@@ -766,8 +766,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="bug_report_email_title">ईमेल द्वारा बग रिपोर्ट भेजें</string>
   <string name="bug_report_email_text">इसके बाद, कृपया डेवलपर टीम को रिपोर्ट भेजने के लिए अपना पसंदीदा ईमेल एप्लिकेशन (जैसे Gmail) चुनें।</string>
   <string name="bug_report_manual_title">रिपोर्ट ईमेल से भेजें</string>
-  <string name="bug_report_manual_text_saved">रिपोर्ट यहाँ सेव की गई:</string>
-  <string name="bug_report_manual_text_unsaved">इस डिवाइस पर कोई ईमेल प्रोग्राम नहीं खुल सका।\n\nकृपया रिपोर्ट इस ईमेल पते पर भेजें:</string>
   <string name="bug_report_copy_address">पता कॉपी करें</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>

@@ -773,8 +773,6 @@
   <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
   <string name="bug_report_email_text">Следеће, молимо Вас да одаберете Вашу жељену имејл апликацију (као на пример Gmail) како бисте послати извештај програмерском тиму.</string>
   <string name="bug_report_manual_title">Пошаљите извештај имејлом</string>
-  <string name="bug_report_manual_text_saved">Извештај је сачуван у</string>
-  <string name="bug_report_manual_text_unsaved">На овом уређају није могао да се отвори ниједан програм за имејл.\n\nПошаљите извештај имејлом на</string>
   <string name="bug_report_copy_address">Копирај адресу</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст у изговор</string>

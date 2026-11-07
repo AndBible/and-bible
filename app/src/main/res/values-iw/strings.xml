@@ -750,8 +750,6 @@
   <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
   <string name="bug_report_email_text">לאחר מכן, אנא בחר את אפליקציית הדוא\"ל המועדפת עליך (Gmail למשל) לשליחת הדוח לצוות המפתחים.</string>
   <string name="bug_report_manual_title">שליחת הדוח בדוא\"ל</string>
-  <string name="bug_report_manual_text_saved">הדוח נשמר ב-</string>
-  <string name="bug_report_manual_text_unsaved">לא ניתן היה לפתוח תוכנת דוא\"ל במכשיר זה.\n\nאנא שלחו את הדוח בדוא\"ל אל</string>
   <string name="bug_report_copy_address">העתקת הכתובת</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">הקראת טקסט</string>

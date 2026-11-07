@@ -775,8 +775,6 @@
   <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
   <string name="bug_report_email_text">Ardından, raporu geliştirici ekibine göndermek için lütfen tercih ettiğiniz e-posta uygulamasını (örneğin Gmail) seçin.</string>
   <string name="bug_report_manual_title">Raporu e-postayla gönderin</string>
-  <string name="bug_report_manual_text_saved">Rapor şuraya kaydedildi:</string>
-  <string name="bug_report_manual_text_unsaved">Bu cihazda hiçbir e-posta uygulaması açılamadı.\n\nLütfen raporu şu e-posta adresine gönderin:</string>
   <string name="bug_report_copy_address">Adresi kopyala</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Metin seslendirmesi</string>

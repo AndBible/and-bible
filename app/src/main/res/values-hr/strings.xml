@@ -761,8 +761,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="bug_report_email_title">Pošaljite prijavu o pogrešci putem e-pošte</string>
   <string name="bug_report_email_text">Sljedeće, molimo Vas da odaberete Vašu željenu aplikaciju e-pošte (primjerice Gmail) kako biste poslali izvješće programerskom timu.</string>
   <string name="bug_report_manual_title">Pošaljite izvješće e-poštom</string>
-  <string name="bug_report_manual_text_saved">Izvješće je spremljeno u</string>
-  <string name="bug_report_manual_text_unsaved">Na ovom uređaju nije bilo moguće otvoriti nijedan program za e-poštu.\n\nPošaljite izvješće e-poštom na</string>
   <string name="bug_report_copy_address">Kopiraj adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst u izgovor</string>

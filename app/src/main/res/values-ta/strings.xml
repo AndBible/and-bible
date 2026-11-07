@@ -772,8 +772,6 @@
   <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
   <string name="bug_report_email_text">அடுத்து, டெவலப்பர் குழுவிற்கு அறிக்கையை அனுப்ப, உங்களுக்கு விருப்பமான மின்னஞ்சல் பயன்பாட்டை (உதாரணமாக ஜிமெயில்) தேர்ந்தெடுக்கவும்.</string>
   <string name="bug_report_manual_title">அறிக்கையை மின்னஞ்சலில் அனுப்பு</string>
-  <string name="bug_report_manual_text_saved">அறிக்கை சேமிக்கப்பட்டது:</string>
-  <string name="bug_report_manual_text_unsaved">இந்தச் சாதனத்தில் மின்னஞ்சல் செயலி எதையும் திறக்க முடியவில்லை.\n\nஅறிக்கையை இந்த முகவரிக்கு மின்னஞ்சலில் அனுப்பவும்:</string>
   <string name="bug_report_copy_address">முகவரியை நகலெடு</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">உரையிலிருந்து பேச்சுக்கு</string>

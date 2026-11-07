@@ -16,7 +16,7 @@ import net.bible.sharedui.host.report.reportSafely
 
 /**
  * What the user needs to send the report by hand: the file they saved ([savedPath], null when unknown), the [address]
- * and the suggested [subject]. Shown when the mail client could not be opened.
+ * and the suggested [subject]. Shown after every saved report: `mailto:` cannot attach the file itself.
  */
 class BugReportInstructions(val address: String, val subject: String, val savedPath: String?)
 
@@ -35,7 +35,7 @@ class DesktopBugReport(
     private val version: String,
     private val log: () -> String,
     private val deliver: suspend (Path, String, String) -> DeliveryResult,
-    /** Opens the `mailto:` URL; false (or a throw) means no mail client came up and [instructions] is shown. */
+    /** Opens the `mailto:` URL, after [instructions] has been shown. */
     private val open: suspend (String) -> Boolean,
     private val confirm: suspend (Boolean) -> Boolean = { true },
     private val failure: suspend (Exception) -> Unit = { Log.w("DesktopBugReport", "Report failed", it) },
@@ -44,13 +44,17 @@ class DesktopBugReport(
     private val retainReport: Boolean = false,
     /** Where the user's chosen save location is, once [deliver] has saved the file. */
     private val savedPath: () -> String? = { null },
+    /** Shown after every saved report, before the mail client is opened. */
     private val instructions: suspend (BugReportInstructions) -> Unit = {},
+    /** The subject suggested in [instructions]: version and a short description placeholder. */
+    private val suggestedSubject: () -> String = { "AndBible $version bug: <short description>" },
+    /** The mail body line asking to attach the saved file at the given path. */
+    private val attachLine: (String) -> String = { "Please attach the file $it" },
 ) : net.bible.sharedui.desktop.assembly.DesktopBugReport {
     override suspend fun report(cause: Throwable?) = reportSafely(failure) {
         if (!confirm(false)) return@reportSafely
         val details = details(cause)
-        val body = "${introduction()}\n\n$details"
-        send("Bug Report v$version", "$body\n\n${log()}", "app_log.txt.gz", body)
+        send("Bug Report v$version", "$details\n\n${log()}", "app_log.txt.gz", "${introduction()}\n\n$details")
     }
 
     suspend fun ai(model: String, summary: String, compressedLog: ByteArray, supported: Boolean) = reportSafely(failure) {
@@ -60,8 +64,8 @@ class DesktopBugReport(
                 input.readNBytes(MAX_REPORT_BYTES).toString(Charsets.UTF_8)
             }
         }
-        val body = "${introduction()}\n\n$summary\n\n${details(null)}"
-        send("AI Bug Report v$version: $model", "$body\n\n$text", "ai_raw_log.txt.gz", body)
+        val details = "$summary\n\n${details(null)}"
+        send("AI Bug Report v$version: $model", "$details\n\n$text", "ai_raw_log.txt.gz", "${introduction()}\n\n$details")
     }
 
     private suspend fun send(subject: String, text: String, name: String, body: String) {
@@ -76,19 +80,26 @@ class DesktopBugReport(
             val result = deliver(path, name, subject)
             if (result == DeliveryResult.FAILED) error("Report file delivery failed")
             if (result == DeliveryResult.DELIVERED) {
-                val prefix = "mailto:$BUG_REPORT_EMAIL?subject=${encodeBounded(subject, 1024)}&body="
-                val suffix = if (retainReport) encode("\n\n$path") else ""
-                val mailBody = encodeBounded(body, (MAX_MAIL_BYTES - prefix.length - suffix.length).coerceAtLeast(0))
                 completed = true
-                val opened = try {
+                // The file location the user must attach: their chosen save location; the retained file for recovery.
+                val shown = savedPath() ?: if (retainReport) path.toString() else null
+                try {
+                    instructions(BugReportInstructions(BUG_REPORT_EMAIL, suggestedSubject(), shown))
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w("DesktopBugReport", "Could not show the instructions", e)
+                }
+                val prefix = "mailto:$BUG_REPORT_EMAIL?subject=${encodeBounded(subject, 1024)}&body="
+                val suffix = if (shown != null) encode("\n\n${attachLine(shown)}") else ""
+                val mailBody = encodeBounded(body, (MAX_MAIL_BYTES - prefix.length - suffix.length).coerceAtLeast(0))
+                try {
                     open(prefix + mailBody + suffix)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     Log.w("DesktopBugReport", "Could not open the mail client", e)
-                    false
                 }
-                if (!opened) instructions(BugReportInstructions(BUG_REPORT_EMAIL, subject, savedPath()))
             }
         } finally {
             if (!retainReport || !completed) Files.deleteIfExists(path)
@@ -163,4 +174,19 @@ internal fun desktopReportFacts(): List<Pair<String, String>> = buildList {
     add("Java" to "${System.getProperty("java.vendor")} ${System.getProperty("java.version")}")
     add("Locale" to java.util.Locale.getDefault().toLanguageTag())
     addAll(net.bible.sharedcore.log.ReportFacts.global.snapshot().filter { (k, _) -> none { it.first == k } })
+}
+
+/**
+ * Opens the folder holding [file] in the system file manager: `Desktop.open` first, `xdg-open` on other Unix
+ * desktops. Returns whether a launcher accepted it; the folder of a path without a parent is not opened.
+ */
+fun openContainingFolder(file: String): Boolean {
+    val folder = Path.of(file).parent?.toFile() ?: return false
+    return try {
+        java.awt.Desktop.getDesktop().open(folder); true
+    } catch (_: Exception) {
+        val os = System.getProperty("os.name").orEmpty().lowercase()
+        if (os.startsWith("windows") || os.startsWith("mac")) false
+        else try { ProcessBuilder("xdg-open", folder.path).start(); true } catch (_: Exception) { false }
+    }
 }

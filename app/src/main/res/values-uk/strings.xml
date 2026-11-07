@@ -766,8 +766,6 @@
   <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
   <string name="bug_report_manual_title">Надіслати звіт електронною поштою</string>
-  <string name="bug_report_manual_text_saved">Звіт збережено в</string>
-  <string name="bug_report_manual_text_unsaved">Не вдалося відкрити жодну поштову програму на цьому пристрої.\n\nБудь ласка, надішліть звіт електронною поштою на адресу</string>
   <string name="bug_report_copy_address">Скопіювати адресу</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Синтез мовлення</string>

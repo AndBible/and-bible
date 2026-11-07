@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">メールでバグ報告を送信</string>
   <string name="bug_report_email_text">次に、レポートを開発チームに送信するためのメールアプリ（Gmailなど）を選択してください。</string>
   <string name="bug_report_manual_title">レポートをメールで送信</string>
-  <string name="bug_report_manual_text_saved">レポートの保存先:</string>
-  <string name="bug_report_manual_text_unsaved">このデバイスでは、メールプログラムを開けませんでした。\n\nレポートを次のアドレスにメールで送信してください:</string>
   <string name="bug_report_copy_address">アドレスをコピー</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">テキスト読み上げ</string>

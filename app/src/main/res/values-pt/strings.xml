@@ -746,8 +746,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
   <string name="bug_report_email_text">Próximo, selecione seu aplicativo de e-mail preferencial (Gmail por exemplo) para enviar o relatório para a equipe de desenvolvimento.</string>
   <string name="bug_report_manual_title">Enviar o relatório por e-mail</string>
-  <string name="bug_report_manual_text_saved">O relatório foi guardado em</string>
-  <string name="bug_report_manual_text_unsaved">Não foi possível abrir nenhum programa de e-mail neste dispositivo.\n\nEnvie o relatório por e-mail para</string>
   <string name="bug_report_copy_address">Copiar endereço</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto para fala</string>

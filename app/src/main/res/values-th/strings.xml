@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
   <string name="bug_report_email_text">ถัดไป กรุณาเลือกแอปอีเมลที่คุณต้องการ (เช่น Gmail) เพื่อส่งรายงานให้ทีมนักพัฒนา</string>
   <string name="bug_report_manual_title">ส่งรายงานทางอีเมล</string>
-  <string name="bug_report_manual_text_saved">บันทึกรายงานไว้ที่</string>
-  <string name="bug_report_manual_text_unsaved">ไม่สามารถเปิดโปรแกรมอีเมลบนอุปกรณ์นี้ได้\n\nโปรดส่งรายงานทางอีเมลไปที่</string>
   <string name="bug_report_copy_address">คัดลอกที่อยู่</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">การอ่านข้อความเป็นเสียง</string>

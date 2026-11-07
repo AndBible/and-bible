@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Hantar laporan pepijat melalui e-mel</string>
   <string name="bug_report_email_text">Seterusnya, sila pilih aplikasi e-mel pilihan anda (Gmail contohnya) untuk menghantar laporan kepada pasukan pembangun.</string>
   <string name="bug_report_manual_title">Hantar laporan melalui e-mel</string>
-  <string name="bug_report_manual_text_saved">Laporan telah disimpan ke</string>
-  <string name="bug_report_manual_text_unsaved">Tiada program e-mel dapat dibuka pada peranti ini.\n\nSila hantar laporan melalui e-mel kepada</string>
   <string name="bug_report_copy_address">Salin alamat</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks ke pertuturan</string>

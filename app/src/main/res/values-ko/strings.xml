@@ -772,8 +772,6 @@
   <string name="bug_report_email_title">이메일로 버그 리포트 보내기</string>
   <string name="bug_report_email_text">다음으로 선호하는 이메일 애플리케이션(예: Gmail)을 선택하여 개발팀에 리포트를 보내주세요.</string>
   <string name="bug_report_manual_title">보고서를 이메일로 보내기</string>
-  <string name="bug_report_manual_text_saved">보고서가 저장되었습니다:</string>
-  <string name="bug_report_manual_text_unsaved">이 기기에서 이메일 프로그램을 열 수 없었습니다.\n\n보고서를 다음 주소로 이메일로 보내 주세요:</string>
   <string name="bug_report_copy_address">주소 복사</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">읽을 텍스트</string>
