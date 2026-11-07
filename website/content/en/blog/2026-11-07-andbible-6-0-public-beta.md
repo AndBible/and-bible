@@ -25,7 +25,7 @@ so your Bibles, bookmarks, notes and StudyPads work the same way wherever you op
   Android. On a Mac it is the iPad app, on any Mac with Apple Silicon.
 - **A new interface,** rebuilt with Compose Multiplatform and shared between the platforms.
 - **Sync between platforms.** Nextcloud and WebDAV sync work everywhere. iCloud Drive is available
-  on iPhone, iPad and Mac, Google Drive on Android.
+  on iPhone, iPad and Mac, Google Drive on Android (not in the F-Droid build).
 - **Sync now:** start a synchronization yourself from the menu of the reading view.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
   activity list, and finished or failed work is reported with a notification.
@@ -40,7 +40,7 @@ There are many more fixes and improvements. The full list is on the
 **Android.** Join the [beta programme on Google Play](https://play.google.com/apps/testing/net.bible.android.activity)
 with the Google account of your phone or tablet. Google Play then updates AndBible to the beta.
 You can leave the programme on the same page at any time and go back to the stable version at its
-next update. If you do not use Google Play, download the `andbible-…apk` file from the newest
+next update. If you do not use Google Play, download the `andbible-<tag>.apk` file (not `calculator-…`) from the newest
 pre-release on our [GitHub releases page](https://github.com/AndBible/and-bible/releases).
 
 **Windows and Linux.** AndBible for the desktop is new in 6.0. Download the Windows installer
@@ -49,9 +49,17 @@ pre-release on our [GitHub releases page](https://github.com/AndBible/and-bible/
 computers. The [Getting started](/docs/getting_started/#windows) guide walks you through the
 installation, and [AndBible on Windows and Linux](/docs/desktop/) has the details.
 
-**iPhone, iPad and Mac.** The 6.0 beta for Apple devices is **coming soon** through Apple's
-TestFlight; we will add the link to [Getting started](/docs/getting_started/#iphone-and-ipad) as
-soon as it is open. Until then the App Store has the current AndBible for iOS.
+<!-- if ios_beta -->
+**iPhone, iPad and Mac.** Install Apple's *TestFlight* app, then open our
+[TestFlight public beta]({{ testflight }}) link on your iPhone, iPad or Apple Silicon Mac and accept
+the invitation. The beta replaces the App Store version on that device. See
+[Getting started](/docs/getting_started/#iphone-and-ipad).
+<!-- else -->
+**iPhone, iPad and Mac.** The 6.0 beta for Apple devices is **coming in a few days** through
+Apple's TestFlight, as soon as we have finished testing it on real devices. This post and
+[Getting started](/docs/getting_started/#iphone-and-ipad) will have the link when it is open.
+Until then the App Store has the current AndBible for iOS.
+<!-- end -->
 
 As always, AndBible is free and open source, with no ads and no tracking, on every platform.
 

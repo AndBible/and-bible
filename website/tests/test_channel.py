@@ -15,13 +15,14 @@ SITE_YAML = Path(__file__).resolve().parents[1] / "content" / "en" / "site.yaml"
 TESTFLIGHT = "https://testflight.apple.com/join/AbCdEf12"
 APP_STORE = "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"
 BETA = Release(channel="beta")
-BETA_TF = Release(channel="beta", ios_testflight_link=TESTFLIGHT)
+BETA_TF = Release(channel="beta", ios_beta_link=TESTFLIGHT, ios_beta_enabled=True)
 STABLE = Release(channel="stable")
 
 
 def _site(**release):
     site = yaml.safe_load(SITE_YAML.read_text())
-    site["release"] = {"channel": "stable", "ios_testflight_link": "", "beta_release_link": ""} | release
+    site["release"] = {"channel": "stable", "ios_beta_link": "", "ios_beta_enabled": False,
+                       "beta_release_link": ""} | release
     return site
 
 
@@ -36,7 +37,7 @@ def test_missing_release_section_means_stable():
     assert settings({}) == STABLE
 
 
-@pytest.mark.parametrize("release", [{"channel": "rc"}, {"channel": "beta", "ios_testflight_link": "http://x"},
+@pytest.mark.parametrize("release", [{"channel": "rc"}, {"channel": "beta", "ios_beta_link": "http://x"},
                                      {"channel": "beta", "beta_release_link": "github.com/x"}])
 def test_invalid_release_settings_fail(release):
     with pytest.raises(ValueError):
@@ -45,7 +46,23 @@ def test_invalid_release_settings_fail(release):
 
 def test_testflight_only_counts_in_beta():
     assert BETA_TF.testflight and not BETA.testflight
-    assert not Release(channel="stable", ios_testflight_link=TESTFLIGHT).testflight
+    assert not Release(channel="stable", ios_beta_link=TESTFLIGHT, ios_beta_enabled=True).testflight
+    assert not Release(channel="beta", ios_beta_link=TESTFLIGHT).testflight  # link set, beta switched off
+
+
+def test_ios_beta_condition_ignores_the_channel():
+    text = "<!-- if ios_beta -->\n[TF]({{ testflight }})\n<!-- else -->\nsoon\n<!-- end -->\n"
+    on = {"ios_beta_link": TESTFLIGHT, "ios_beta_enabled": True}
+    assert apply(text, Release(channel="stable", **on)) == apply(text, Release(channel="beta", **on)) \
+        == f"[TF]({TESTFLIGHT})\n"
+    assert apply(text, Release(channel="beta", ios_beta_link=TESTFLIGHT)) == "soon\n"
+
+
+def test_ios_beta_enabled_needs_a_link():
+    with pytest.raises(ValueError, match="ios_beta_link"):
+        settings({"release": {"channel": "beta", "ios_beta_enabled": True}})
+    with pytest.raises(ValueError, match="true or false"):
+        settings({"release": {"channel": "beta", "ios_beta_enabled": "yes"}})
 
 
 # --- docs blocks ---------------------------------------------------------------------------
@@ -77,7 +94,7 @@ def test_apply_beta_without_testflight():
 
 
 def test_apply_beta_with_testflight_and_a_beta_release_link():
-    release = Release(channel="beta", ios_testflight_link=TESTFLIGHT,
+    release = Release(channel="beta", ios_beta_link=TESTFLIGHT, ios_beta_enabled=True,
                       beta_release_link="https://github.com/AndBible/and-bible/releases/tag/production-1260")
     assert apply(PAGE, release) == f"A\nbeta {release.beta_release_link}\ntf {TESTFLIGHT}\nZ\n"
 
@@ -89,10 +106,32 @@ def test_text_without_markers_is_unchanged():
 
 @pytest.mark.parametrize("text", ["<!-- if beta -->\nx\n", "x\n<!-- end -->\n", "<!-- else -->\n",
                                   "<!-- if gamma -->\nx\n<!-- end -->\n", "a <!-- if beta --> b\n",
-                                  "{{ nonsense }}\n"])
+                                  "{{ nonsense }}\n",
+                                  "<!-- if beta -->\na\n<!-- else -->\nb\n<!-- else -->\nc\n<!-- end -->\n"])
 def test_malformed_markers_fail(text):
     with pytest.raises(ValueError):
         apply(text, BETA)
+
+
+def test_fenced_code_is_left_alone():
+    text = "```\n<!-- if beta -->\n{{ anything }}\n<!-- end -->\n```\n~~~md\n{{ x }}\n~~~\n"
+    assert apply(text, BETA) == text == apply(text, STABLE)
+
+
+def test_placeholders_in_hidden_branches_are_not_checked():
+    text = "<!-- if testflight -->\n[TF]({{ testflight }})\n<!-- end -->\nend\n"
+    assert apply(text, BETA) == apply(text, STABLE) == "end\n"
+
+
+def test_nested_beta_block_vanishes_in_stable():
+    assert apply("<!-- if beta -->\n<!-- if not testflight -->\nsoon\n<!-- end -->\n<!-- end -->\nZ\n", STABLE) == "Z\n"
+
+
+def test_a_non_string_when_is_a_clear_error():
+    site = _site(channel="beta")
+    site["getapp"]["beta"]["stores"][0]["when"] = True
+    with pytest.raises(ValueError, match="when"):
+        getapp(site)
 
 
 def test_an_empty_testflight_placeholder_fails_instead_of_linking_nowhere():
@@ -136,7 +175,7 @@ def test_beta_landing_links_reach_the_beta_assets():
 
 def test_beta_landing_with_testflight_and_a_release_link():
     tag = "https://github.com/AndBible/and-bible/releases/tag/production-1260"
-    app = getapp(_site(channel="beta", ios_testflight_link=TESTFLIGHT, beta_release_link=tag))
+    app = getapp(_site(channel="beta", ios_beta_link=TESTFLIGHT, ios_beta_enabled=True, beta_release_link=tag))
     stores = _urls(app["stores"])
     assert stores["TestFlight"] == TESTFLIGHT and "App Store" not in stores
     assert _urls(app["others"])["App Store"] == APP_STORE
@@ -210,7 +249,7 @@ def beta_docs(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def testflight_docs(tmp_path_factory):
-    return _docs(tmp_path_factory, channel="beta", ios_testflight_link=TESTFLIGHT)
+    return _docs(tmp_path_factory, channel="beta", ios_beta_link=TESTFLIGHT, ios_beta_enabled=True)
 
 
 def _text(html):
@@ -262,3 +301,32 @@ def test_testflight_link_reaches_every_ios_mention(testflight_docs):
         html = testflight_docs(page)
         assert f'href="{TESTFLIGHT}"' in html, page
         assert "coming soon" not in _text(html), page
+
+
+# --- blog posts follow the iOS beta switch -------------------------------------------------
+
+POST = paths.CONTENT / "en" / "blog" / "2026-11-07-andbible-6-0-public-beta.md"
+
+
+def _post_html(content, tmp_path, **release):
+    (content / "en" / "site.yaml").write_text(yaml.safe_dump(_site(**release), allow_unicode=True))
+    (content / "en" / "blog").mkdir(exist_ok=True)
+    (content / "en" / "blog" / POST.name).write_text(POST.read_text())
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    return (out / "2026" / "11" / "07" / "andbible-6-0-public-beta" / "index.html").read_text()
+
+
+def test_announcement_says_ios_is_coming_until_the_switch(content, tmp_path):
+    html = _post_html(content, tmp_path, channel="beta", ios_beta_link=TESTFLIGHT)
+    assert "coming in a few days" in html and "testflight.apple.com" not in html and "<!--" not in html
+
+
+def test_announcement_links_testflight_once_switched_on_also_after_stable(content, tmp_path):
+    for channel_name in ("beta", "stable"):
+        html = _post_html(content, tmp_path, channel=channel_name, ios_beta_link=TESTFLIGHT, ios_beta_enabled=True)
+        assert f'href="{TESTFLIGHT}"' in html and "coming in a few days" not in html, channel_name
+
+
+def test_announcement_names_no_exact_version():
+    assert not re.search(r"6\.0\.\d", POST.read_text())
