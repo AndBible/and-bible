@@ -798,7 +798,7 @@ class DesktopAppStartupTest {
             }
         }
         assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(
-            paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierFactory = { notifier },
+            paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierSource = DesktopNotifierSource(true) { notifier },
         ))
         val koin = KoinPlatform.getKoin()
         koin.get<net.bible.sharedcore.platform.NativeNotifier>()
