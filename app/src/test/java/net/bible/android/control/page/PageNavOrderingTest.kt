@@ -177,6 +177,7 @@ class PageNavOrderingTest {
         val repo = WindowRepository(CoroutineScope(coroutineContext + repoJob))
         var view: BibleView? = null
         val gate = CompletableDeferred<Unit>()
+        var bodyFailure: Throwable? = null
         try {
             koin.loadModules(listOf(module { single<OrderedLauncher> { actor } }))
             activity.create()
@@ -247,6 +248,9 @@ class PageNavOrderingTest {
                 assertEquals(labels.single { it.id == expected }.name, (page.currentGeneralBook.key as StudyPadKey).label.name)
             }
             assertEquals(expected, finalKey())
+        } catch (e: Throwable) {
+            bodyFailure = e
+            throw e
         } finally {
             gate.complete(Unit)
             try {
@@ -260,6 +264,9 @@ class PageNavOrderingTest {
                 org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
                 // The view's session lives in the activity's lifecycle scope; its work may still be returning from IO (#4020).
                 activity.closeAndJoinLifecycle()
+            } catch (cleanup: Throwable) {
+                // A cleanup failure must not replace the test's own failure.
+                bodyFailure?.addSuppressed(cleanup) ?: throw cleanup
             } finally {
                 originalDb?.let { DatabaseContainer.instance.bookmarkDb = it }
                 control.windowRepository = originalRepo
