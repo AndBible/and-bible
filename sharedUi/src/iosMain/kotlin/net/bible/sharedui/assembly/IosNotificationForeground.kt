@@ -26,9 +26,10 @@ internal fun notificationForeground(appActive: Boolean, sceneActive: Boolean, ke
 
 /** UIKit must be read on Main; only an active scene with a key window counts as foreground. */
 internal fun isIosNotificationForeground(): Boolean {
-    val app = UIApplication.sharedApplication
+    val app: UIApplication? = UIApplication.sharedApplication
+    val scenes: Set<*> = app?.connectedScenes ?: return false
     val active = app.applicationState == UIApplicationState.UIApplicationStateActive
-    return app.connectedScenes.filterIsInstance<UIWindowScene>().any { scene ->
+    return scenes.filterIsInstance<UIWindowScene>().any { scene ->
         notificationForeground(active, scene.activationState == UISceneActivationStateForegroundActive,
             scene.windows.filterIsInstance<UIWindow>().any { it.isKeyWindow() })
     }

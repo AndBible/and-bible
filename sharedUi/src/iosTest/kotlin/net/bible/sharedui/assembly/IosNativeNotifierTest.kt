@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.assembly
 
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.control.activity.ActivityListRequests
@@ -86,6 +87,11 @@ class IosNativeNotifierTest {
     }
 
     @Test
+    fun foregroundQueryHandlesBareNativeTestProcess() = awaitStartupOnMain {
+        assertFalse(isIosNotificationForeground())
+    }
+
+    @Test
     fun foregroundRequiresActiveAppAndActiveKeyWindowScene() {
         assertFalse(notificationForeground(false, true, true))
         assertFalse(notificationForeground(true, false, true))
@@ -108,6 +114,36 @@ class IosNativeNotifierTest {
         }
         center.postNotificationName(platform.UIKit.UISceneDidActivateNotification, null)
         assertEquals(2, calls)
+    }
+
+    @Test
+    fun closingRuntimeDetachesActivationAndStopsPolicy() = awaitStartupOnMain {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        val activations = IosNotificationBootstrap.activations
+        val center = Center()
+        val notifier = IosNativeNotifier(center, activations)
+        val requests = ActivityListRequests()
+        val settings = net.bible.sharedlogic.settings.DatabaseAppSettings({ error("database not open") }, { false })
+        val preference = net.bible.android.control.activity.SystemNotificationsPreference(settings, true)
+        val activities = net.bible.android.control.activity.ActivityCenter(scope) { 0L }
+        val runtime = IosNotificationRuntime(activities, notifier, requests, preference) { "Finished" }
+        try {
+            runtime.policy.start()
+            activities.startOrFail("before", net.bible.android.control.activity.ActivityKind.DOWNLOAD, "Download", "Error")
+            kotlinx.coroutines.delay(20)
+            assertEquals(1, center.added.size)
+            runtime.close()
+            activations.activate("after-close")
+            assertEquals(null, withTimeoutOrNull(20) { requests.requests.first() })
+            activities.startOrFail("failed", net.bible.android.control.activity.ActivityKind.DOWNLOAD, "Download", "Error")
+            kotlinx.coroutines.delay(20)
+            assertEquals(1, center.added.size)
+        } finally {
+            runtime.close()
+            activations.attach { }
+            activations.detach()
+            scope.cancel()
+        }
     }
 
     @Test

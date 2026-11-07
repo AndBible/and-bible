@@ -18,6 +18,7 @@ package net.bible.sharedui.assembly
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.async
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
@@ -540,6 +541,17 @@ class IosAssemblyTest {
         assertTrue(settings.snapshot.value.systemNotificationsVisible)
         settings.setBool(net.bible.android.control.activity.SystemNotificationsPreference.KEY, false)
         assertFalse(preference.enabled.value)
+    }
+
+    @Test
+    fun bootstrapTapBeforeGraphReachesActivityRequestsOnlyOnce() {
+        awaitStartupOnMain { IosNotificationBootstrap.activations.activate("before-graph") }
+        startApp()
+        val requests = KoinPlatform.getKoin().get<net.bible.android.control.activity.ActivityListRequests>()
+        awaitStartupOnMain {
+            kotlin.test.assertNotNull(kotlinx.coroutines.withTimeoutOrNull(1_000) { requests.requests.first() })
+            assertEquals(null, kotlinx.coroutines.withTimeoutOrNull(10) { requests.requests.first() })
+        }
     }
 
     @Test
