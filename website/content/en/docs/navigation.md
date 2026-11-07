@@ -150,18 +150,20 @@ When the setting is on:
     read, but does not clear a permission-waiting agent's attention badge; that
     badge remains until the permission request is resolved.
 - *Show all (N)* opens the *Background activity* list, with a *Running* and a
-    *Recent* section. Items needing attention appear first. Running items that
-    can be stopped have *Cancel*, finished items have *Dismiss*, and *Clear
+    *Recent* section. Running items that can be stopped have *Cancel*, finished
+    items have *Dismiss*, and *Clear
     finished* removes all finished items. Tap a download row to open the download
     screen, or a sync failure to open the sync settings. On wide windows the list
     is a dialog, on phones a bottom sheet.
 - An AI-agent run appears as one activity for its workspace. Its title includes
-    the workspace name. While it runs, the row can show its latest log message;
-    if it is waiting for your permission, the row says which tool needs approval
-    and is kept at the top as an item needing attention. Tapping the row switches
-    to that workspace and opens the agent log. *Cancel* stops only that run. A
-    failed run stays in the list as unread until dismissed; a completed run stays
-    for one minute, and a cancelled run is removed.
+    the workspace name when available, and otherwise uses the generic *AI agent*
+    title. While it runs, the row can show its latest log message; if it is
+    waiting for your permission, the row says which tool needs approval and is
+    kept at the top of the menu activity section as an item needing attention.
+    Tapping the row switches to that workspace and opens the agent log. *Cancel*
+    stops only that run. A failed run stays in the list until dismissed or the app
+    restarts; opening the menu marks it as read. A completed run stays for one
+    minute, and a cancelled run is removed.
 - On desktop and iOS, a background sync error appears as a short message
     ("... see menu") and a row in the list instead of an error dialog.
 
