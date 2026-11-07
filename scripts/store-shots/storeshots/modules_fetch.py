@@ -2,7 +2,9 @@
 (app/src/main/res/raw/repositories.txt), into a cache folder of `<initials>.zip` files the drivers install."""
 from __future__ import annotations
 
+import http.client
 import urllib.request
+import zipfile
 from pathlib import Path
 
 import yaml
@@ -42,14 +44,22 @@ def fetch(lang: str, out: Path, root: Path) -> list[Path]:
     got = []
     for initials, repo in modules_for(root / "store-screenshots/demo-content/modules.yaml", lang):
         dest = out / f"{initials}.zip"
+        if dest.exists() and not zipfile.is_zipfile(dest):
+            dest.unlink()  # corrupt cache entry: fetch again
         if not dest.exists():
             url = module_url(repos, repo, initials)
-            tmp = dest.with_suffix(".part")
+            tmp = dest.with_name(dest.name + ".part")
             try:
-                with urllib.request.urlopen(url, timeout=300) as r, open(tmp, "wb") as f:
-                    f.write(r.read())
-            except OSError as e:
+                with urllib.request.urlopen(url, timeout=300) as r:
+                    tmp.write_bytes(r.read())
+                if not zipfile.is_zipfile(tmp):
+                    raise ShotError(initials, f"{url} did not return a zip file")
+            except (OSError, http.client.HTTPException) as e:
+                tmp.unlink(missing_ok=True)
                 raise ShotError(initials, f"cannot download {url}: {e}") from e
+            except ShotError:
+                tmp.unlink(missing_ok=True)
+                raise
             tmp.replace(dest)
         got.append(dest)
     return got

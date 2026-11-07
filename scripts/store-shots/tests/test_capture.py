@@ -92,3 +92,15 @@ def test_plan_unknown_bookmark_fails_naming_it():
     shots = [mk("n", ["ios-iphone-69"], action="note", arg="nope")]
     with pytest.raises(ShotError, match="nope"):
         plan_for(shots, "en", "ios-iphone-69", None, {"bookmarks": [], "labels": []})
+
+
+def test_import_validates_all_before_recording_any(tmp_path):
+    src = tmp_path / "in"
+    raw(src / "a.png", TARGETS["ios-iphone-69"].raw_size)  # good, sorts first
+    raw(src / "b.png", (10, 10))                           # bad
+    state = RunState(tmp_path / "work", "en")
+    with pytest.raises(ShotError):
+        import_raws(state, SHOTS, "ios-iphone-69", src)
+    assert state.recorded("a", "ios-iphone-69") is None
+    assert not (tmp_path / "work" / "en" / "state.json").exists()
+    assert not state.raw_path("ios-iphone-69", "a").exists()

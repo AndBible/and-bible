@@ -62,15 +62,16 @@ def import_raws(state: RunState, shots: list[Shot], target_id: str, src: Path,
     """Record every `<shot>.png` in src that belongs to target_id; returns the recorded shot ids.
     A raw of the wrong size raises ShotError before anything is recorded for it."""
     target = TARGETS[target_id]
+    for tid in [target_id, *(also or [])]:
+        if TARGETS[tid].raw_size != target.raw_size:
+            raise ShotError(tid, f"{tid} is not framed from {target_id} raws (raw sizes differ)")
     wanted = {s.id for s in shots if target_id in s.targets}
-    got = []
-    for png in sorted(Path(src).glob("*.png")):
-        if png.stem not in wanted:
-            continue
+    candidates = [png for png in sorted(Path(src).glob("*.png")) if png.stem in wanted]
+    for png in candidates:  # validate everything first: a bad file records nothing
         validate_raw(png, target)
+    got = []
+    for png in candidates:
         for tid in [target_id, *(also or [])]:
-            if TARGETS[tid].raw_size != target.raw_size:
-                raise ShotError(png.stem, f"{tid} is not framed from {target_id} raws (raw sizes differ)")
             dest = state.raw_path(tid, png.stem)
             dest.parent.mkdir(parents=True, exist_ok=True)
             if dest.resolve() != png.resolve():
