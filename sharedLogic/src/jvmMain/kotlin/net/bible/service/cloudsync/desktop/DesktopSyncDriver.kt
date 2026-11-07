@@ -28,6 +28,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.atomic.AtomicBoolean
 import net.bible.service.cloudsync.BackgroundSyncPolicy
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.desktop.ExitTaskScope
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
@@ -36,7 +37,7 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
  * Runs the desktop's background sync: one pass when startup is ready, then one every [BackgroundSyncPolicy.nextEarliestSeconds],
  * all in [scope] (never on the UI thread). Passes never overlap. On the exit it stops the periodic loop and, as an exit
  * task, waits for the pass that is not yet completed (or runs [closePass], retrying the lock 3 times over 2 s) for at
- * most [closeWaitMs]; the exit-task runner's own bound is 10 s, so the default 9 s lets this task finish inside it.
+ * most [closeWaitMs]; the default 30 s fits inside the exit-task runner's 31 s budget.
  *
  * Every failure (offline, sign-in, exceptions) is logged and swallowed: the app stays usable and the loop continues. When the
  * wait runs out the pass is NOT cancelled (database work cannot always be cancelled cleanly); the process exits and the
@@ -52,7 +53,7 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
  */
 class DesktopSyncDriver(
     private val policy: BackgroundSyncPolicy,
-    private val closePass: suspend () -> Boolean?,
+    private val closePass: suspend (onVisibleWork: () -> Unit) -> Boolean?,
     exitTasks: DesktopExitTasks,
     events: DesktopLifecycleEvents,
     private val scope: CoroutineScope,
@@ -80,7 +81,7 @@ class DesktopSyncDriver(
 
     init {
         events.observe { if (it == DesktopLifecycleEvent.Background) stop() }
-        exitTasks.register("cloud-sync") { closeSync() }
+        exitTasks.register("cloud-sync") { closeSync(this) }
         loop = scope.launch {
             try {
                 awaitReady()
@@ -129,19 +130,23 @@ class DesktopSyncDriver(
         return pass.job
     }
 
-    private suspend fun closeSync() {
+    internal suspend fun closeSync(task: ExitTaskScope) {
         stop()
         if (!databasesReady()) return
         val finished = withTimeoutOrNull(closeWaitMs) {
             // A pass that is running is only waited for: never cancelled, and no second pass starts behind it.
             val pass = current
             if (pass != null && !pass.job.isCompleted) { // also a pass that is still Starting or being cancelled
+                task.beginVisibleWork()
                 pass.job.join()
-                if (pass.ran.get()) { externalPass()?.join(); return@withTimeoutOrNull true }
+                if (pass.ran.get()) { externalPass()?.takeUnless { it.isCompleted }?.join(); return@withTimeoutOrNull true }
                 // It saw the stop before it began: it did nothing, so the close pass is still owed.
             }
-            externalPass()?.join()
-            runClosePass()
+            externalPass()?.takeUnless { it.isCompleted }?.let {
+                task.beginVisibleWork()
+                it.join()
+            }
+            runClosePass(task::beginVisibleWork)
             true
         }
         if (finished == null) {
@@ -156,7 +161,7 @@ class DesktopSyncDriver(
      * moment: retry the lock (3 tries over 2 s) instead of dropping the final push. A holder that really ran a pass is
      * only waited for.
      */
-    private suspend fun runClosePass() {
+    private suspend fun runClosePass(onVisibleWork: () -> Unit) {
         var attempt = 1
         while (!passLock.tryLock()) {
             val pass = current
@@ -172,7 +177,7 @@ class DesktopSyncDriver(
         val close = scope.launch(start = CoroutineStart.LAZY) {
             closeBegan.set(true)
             try {
-                closePass()
+                closePass(onVisibleWork)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
@@ -186,7 +191,7 @@ class DesktopSyncDriver(
     }
 
     companion object {
-        const val DEFAULT_CLOSE_WAIT_MS = 9_000L
+        const val DEFAULT_CLOSE_WAIT_MS = 30_000L
         private const val CLOSE_LOCK_TRIES = 3
         private const val CLOSE_LOCK_RETRY_MS = 1_000L
         private const val TAG = "DesktopSyncDriver"

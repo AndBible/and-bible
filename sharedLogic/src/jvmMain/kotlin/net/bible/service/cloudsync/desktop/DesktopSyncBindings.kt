@@ -95,10 +95,15 @@ internal suspend fun runClosePass(
     signIn: suspend () -> Boolean?,
     hasChanges: suspend () -> Boolean,
     push: suspend () -> Boolean,
+    onVisibleWork: () -> Unit = {},
 ): Boolean? {
     if (!enabled()) return null
-    if (!signedIn() && signIn() != true) return null
+    if (!signedIn()) {
+        onVisibleWork()
+        if (signIn() != true) return null
+    }
     if (!hasChanges()) return null
+    onVisibleWork()
     return push()
 }
 
@@ -189,8 +194,9 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
                 },
                 stopSync = { result -> scheduler.stop(result) },
             ),
-            closePass = {
+            closePass = { onVisibleWork ->
                 runClosePass(
+                    onVisibleWork = onVisibleWork,
                     enabled = { closeReady() && syncEnabled() },
                     signedIn = { get<CloudSync>().signedIn },
                     signIn = { get<CloudSync>().signIn(background = true) },
