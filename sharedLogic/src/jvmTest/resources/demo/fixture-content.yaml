@@ -1,0 +1,52 @@
+labels:
+  - id: char-god
+    name: "Character of God"
+    color: "#E57373"
+    favourite: true
+  - id: sower
+    name: "Parable of the Sower"
+    color: "#81C784"
+    displayStyle: UNDERLINE
+bookmarks:
+  - id: jer-9-24
+    module: KJV
+    ref: "Jer.9.23-Jer.9.24"
+    labels: [char-god]
+    primaryLabel: char-god
+    note: "<p>This passage names <i>three</i> things:</p><ol><li>mercy</li><li>justice</li><li>righteousness</li></ol>"
+  - id: ps-33-5
+    ref: "Ps.33.5"
+    labels: [char-god]
+    note: "Plain note"
+  - id: mat-13-3
+    ref: "Matt.13.3"
+    labels: [sower]
+studypads:
+  - label: sower
+    entries:
+      - text: "<p>Jesus tells a parable.</p>"
+      - bookmark: mat-13-3
+workspaces:
+  - name: bookmarks-labels
+    windows:
+      - category: BIBLE
+        document: KJV
+        key: "Jer.9.24"
+      - category: STUDYPAD
+        label: sower
+        weight: 0.5
+  - name: strongs-split
+    textDisplaySettings:
+      strongsMode: 1
+      showXrefs: true
+    windows:
+      - category: BIBLE
+        document: KJV
+        key: "Ps.33.5"
+        pinned: true
+      - category: COMMENTARY
+        document: TSK
+        key: "Ps.33.5"
+        bibleDocument: KJV
+        synchronized: false
+        state: MINIMISED
