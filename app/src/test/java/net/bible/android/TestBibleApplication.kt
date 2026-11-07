@@ -311,6 +311,7 @@ open class TestBibleApplication : BibleApplication() {
         // Their subscriptions die with the stream resets; drop them so the next test builds subscribed ones.
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.page.toolbar.ToolbarStateServiceImpl::class) }
         // Same for the activity sources (#4007): SyncActivitySource listened to the CloudSync stream reset above.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.AgentActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.SyncActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.DownloadActivitySource::class) }
         // JobActivitySource's onClose detaches its JobManager listener (a JVM global); the center goes last, after its sources.
