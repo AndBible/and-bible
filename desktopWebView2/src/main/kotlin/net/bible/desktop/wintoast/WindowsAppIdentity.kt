@@ -38,7 +38,11 @@ internal fun applyWindowsIdentity(
             val existingExecutable = existingServer?.let(::serverExecutable)
             val registeredTargetsExist = existingIcon != null && existingExecutable != null &&
                 exists(existingIcon) && exists(existingExecutable)
-            if (!registeredTargetsExist || existingExecutable == executable) plan.forEach(write)
+            when {
+                !registeredTargetsExist -> plan.forEach(write)
+                existingExecutable.equals(executable, ignoreCase = true) -> plan.forEach(write)
+                else -> plan.take(3).filter { it.name != "IconUri" && read(it) != it.value }.forEach(write)
+            }
         }
         setProcessId(ANDBIBLE_AUMID)
         WindowsIdentityResult(true, ANDBIBLE_AUMID)
