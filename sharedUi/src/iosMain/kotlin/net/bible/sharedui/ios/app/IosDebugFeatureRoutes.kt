@@ -37,31 +37,31 @@ import net.bible.sharedui.host.app.HostReadingReady
 @Composable
 internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts, askBookmarks: () -> Unit) {
     if (ready && IosDebugLaunchArgs.hasLaunchFlag("-notificationDebugControls")) {
-        val strings = LocalStrings.current
+        val text = koin.get<net.bible.sharedcore.platform.CoreStrings>().debugTestError
         val scope = rememberCoroutineScope()
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
             Column {
                 TextButton(onClick = {
                     net.bible.android.control.event.UserMessages.errorNotification(
-                        strings.debugTestError, showReportButton = false, background = true,
+                        text, showReportButton = false, background = true,
                         kind = net.bible.android.control.activity.ActivityKind.SYNC,
                     )
-                }, modifier = Modifier.testTag("notification-debug-automatic")) { Text(strings.debugTestError) }
+                }, modifier = Modifier.testTag("notification-debug-automatic")) { Text(text) }
                 TextButton(onClick = {
                     scope.launch {
                         delay(5000)
                         net.bible.android.control.event.UserMessages.errorNotification(
-                            strings.debugTestError, showReportButton = false, background = true,
+                            text, showReportButton = false, background = true,
                             kind = net.bible.android.control.activity.ActivityKind.SYNC,
                         )
                     }
-                }, modifier = Modifier.testTag("notification-debug-background")) { Text(strings.debugTestError) }
+                }, modifier = Modifier.testTag("notification-debug-background")) { Text(text) }
                 TextButton(onClick = {
                     net.bible.android.control.event.UserMessages.errorNotification(
-                        strings.debugTestError, showReportButton = false, background = false,
+                        text, showReportButton = false, background = false,
                         kind = net.bible.android.control.activity.ActivityKind.SYNC,
                     )
-                }, modifier = Modifier.testTag("notification-debug-user")) { Text(strings.debugTestError) }
+                }, modifier = Modifier.testTag("notification-debug-user")) { Text(text) }
             }
         }
     }
