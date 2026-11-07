@@ -35,6 +35,6 @@ See [Platform differences](../platform_differences.md).
 - **Links in the text:** on iOS and desktop, AndBible asks before opening an external link you tapped.
 - **Reading plans** are included in synchronization.
 - **Windows and Linux:** the desktop app uses WebView2 on Windows and Chromium (KCEF) on Linux,
-    and installs as an MSI, `.deb` or AppImage. See [Linux and Windows](../desktop.md).
+    and installs as an MSI, `.deb` or AppImage. See [Windows and Linux](../desktop.md).
 
 Many more bug fixes, features and improvements.

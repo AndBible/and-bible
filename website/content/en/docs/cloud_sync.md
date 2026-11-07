@@ -22,7 +22,7 @@ Errors raised during startup remain queued until the app can display them.
 
 ## Requirements
 
-- Android 5.1 or newer, iOS or iPadOS 16 or newer, Windows or Linux
+- Android 6.0 or newer, iOS or iPadOS 16 or newer, Windows or Linux
 - A Google account (for Google Drive sync on Android), an iCloud account (for iCloud Drive sync on iPhone, iPad and Mac), a Nextcloud server, or a WebDAV server
 - Internet connection
 

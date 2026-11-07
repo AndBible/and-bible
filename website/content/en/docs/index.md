@@ -79,7 +79,7 @@ shows how to find your way around the app.
 | Doc | What's inside |
 |---|---|
 | [Backup and Restore](backup_restore.md) | Exporting your data and restoring it on another device |
-| [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive or Nextcloud |
+| [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive, iCloud Drive, Nextcloud or WebDAV |
 | [Document Sync](document_sync.md) | Syncing your installed Bibles and other documents across devices |
 
 ### Desktop
@@ -102,6 +102,6 @@ shows how to find your way around the app.
 | [FAQ](faq.md) | Answers to common questions, such as missing modules and older phones |
 | [Platform differences](platform_differences.md) | What works differently on Android, iPhone, iPad, Mac, Windows and Linux |
 | [Support](support.md) | Where to ask questions, report bugs and suggest features |
-| [Releases](releases/index.md) | What changed in releases 5.0, 4.1 and 4.0 |
+| [Releases](releases/index.md) | What changed in releases 6.0, 5.0, 4.1 and 4.0 |
 
 </div>

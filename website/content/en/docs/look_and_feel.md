@@ -200,10 +200,8 @@ remain reachable on a phone.
     repeated occurrences update the same notification. A running job also shows a progress
     notification while AndBible is in the background: Windows updates a toast
     progress bar in place, KDE Plasma and several other Linux desktops show a
-    progress bar, GNOME shows the percentage as text, and the Flatpak build and
-    iOS show no progress notifications. On Windows, use the MSI installation with its
-    Start-menu shortcut, or the MSIX package; notifications from the portable zip
-    are not guaranteed without an installed app identity. Clicking a notification
+    progress bar, GNOME shows the percentage as text, and iOS shows no progress
+    notifications. On Windows, use the MSI installation with its Start-menu shortcut. Clicking a notification
     brings AndBible to the front, and opens the activity list when "Show
     background activity in the menu" is on. This separate setting is on by default.
     On iOS, AndBible asks for permission when you first start background work,

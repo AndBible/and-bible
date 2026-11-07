@@ -2,7 +2,7 @@
 
 AndBible 6.0 is the same app on every platform; these are the differences.
 
-The columns are **Android**, **iPhone, iPad & Mac** and **Windows & Linux**. On a Mac, AndBible is the iPad app running on an Apple Silicon Mac, so the iPhone, iPad & Mac column applies to it. A feature that is missing from this page works the same everywhere.
+The columns are **Android**, **iPhone, iPad & Mac** and **Windows & Linux**. On a Mac, AndBible is the iPad app running on an Apple Silicon Mac, so the iPhone, iPad & Mac column applies to it. These are the main differences.
 
 ## Sync {#sync}
 
@@ -46,12 +46,12 @@ On Windows and Linux, starting AndBible again while it is running hands the file
 
 | | Android | iPhone, iPad & Mac | Windows & Linux |
 |---|---|---|---|
-| System notifications | Android notifications | iOS notifications; AndBible asks for permission the first time you start a sync or a download | Desktop notifications on Linux, toast notifications on Windows |
+| System notifications | Android notifications for downloads, sync, indexing and failures | iOS notifications; AndBible asks for permission the first time you start a sync or a download | Desktop notifications on Linux, toast notifications on Windows |
 
 ## Install and updates {#install-and-updates}
 
 | | Android | iPhone, iPad & Mac | Windows & Linux |
 |---|---|---|---|
 | Where you get AndBible | Google Play, F-Droid and other stores, or a GitHub download | The App Store | GitHub Releases |
-| Updates | Through your store | Through the App Store | AndBible checks GitHub and offers the update itself |
-| Requirements | See [Getting started](getting_started.md) | iOS or iPadOS 16 or newer; on a Mac, an Apple Silicon Mac | See [Desktop](desktop.md) |
+| Updates | Through your store | Through the App Store | Optional check on GitHub; opens the release page, and you install the update yourself |
+| Requirements | See [Getting started](getting_started.md) | iOS or iPadOS 16 or newer; on a Mac, an Apple Silicon Mac | See [Getting started](getting_started.md#windows) (Windows) and [Getting started](getting_started.md#linux) (Linux) |

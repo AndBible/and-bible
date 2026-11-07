@@ -53,7 +53,7 @@ build, and Intel Macs are not supported.
 2. Open it. The installer is not signed yet, so Windows SmartScreen may say
     "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
-See [AndBible on Linux and Windows](desktop.md) for updates and data locations.
+See [AndBible on Windows and Linux](desktop.md) for updates and data locations.
 
 ### Linux {#linux}
 
@@ -66,14 +66,14 @@ Linux (amd64 / x86_64).
     `chmod +x andbible-desktop-*.AppImage`, then run it. If it does not start, install FUSE 2
     (`libfuse2`) first.
 
-See [AndBible on Linux and Windows](desktop.md) for details.
+See [AndBible on Windows and Linux](desktop.md) for details.
 
 ## First start
 
 When you open *AndBible* for the first time, your library is empty, and the welcome screen offers
 ways to add documents.
 
-If your phone is set to English, the screen has two tabs:
+If your device is set to English, the screen has two tabs:
 
 - **Easy** downloads a recommended set of Bibles, dictionaries and cross-references with one tap
   (**Download and start**). If you have used *AndBible* on this device before, a
@@ -117,11 +117,13 @@ error reports use the same consent flow and include the WebView error diagnostic
 
 The iOS drawer does not currently offer a rating or development-purchase action.
 
-## Help and bug reports on Windows and Linux {#help-and-sharing-on-windows-and-linux}
+## Help and bug reports on Windows and Linux {#help-and-bug-reports-on-windows-and-linux}
 
 **Report a bug** (*Help & tips*, then *Feedback / bug report*) asks where to save a report
 file, then tries to open your email program. If that fails, a dialog shows the saved file,
 the address to send it to and a **Copy address** button. See [Desktop](desktop.md#reporting-a-bug).
+
+Sharing text offers a choice between **Copy** and **Save** (see [Platform differences](platform_differences.md#files-and-sharing)).
 
 ## Linux setup {#linux-setup}
 
