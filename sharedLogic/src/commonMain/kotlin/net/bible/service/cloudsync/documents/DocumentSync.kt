@@ -94,8 +94,9 @@ class DocumentSync(
 
     private suspend fun store(): DocumentStore? {
         documentSettings.ensureLoaded()
-        val adapter = cloud.get().cloudAdapter ?: return null
-        val folderId = cloud.get().documentsSyncFolderId() ?: return null
+        // Never the adapter of a sign-in still running (#4031): wait for it, and skip when not signed in.
+        val adapter = cloud.get().signedInAdapter() ?: return null
+        val folderId = cloud.get().documentsSyncFolderId(adapter) ?: return null
         return DocumentStore(adapter, folderId, env)
     }
 
