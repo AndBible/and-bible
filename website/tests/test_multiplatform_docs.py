@@ -93,7 +93,5 @@ def test_release_6_0_page(built_docs):
     index = (paths.CONTENT / "en" / "docs" / "releases" / "index.md").read_text()
     links = re.findall(r"\]\((release_[\d_]+\.md)\)", index)
     assert links[0] == "release_6_0.md"
-    nav = (paths.ROOT / "zensical.toml").read_text() if hasattr(paths, "ROOT") else None
-    if nav is None:
-        nav = (paths.CONTENT.parent / "zensical.toml").read_text()
+    nav = (paths.WEBSITE / "zensical.toml").read_text()
     assert nav.index("release_6_0.md") < nav.index("release_5_0.md")

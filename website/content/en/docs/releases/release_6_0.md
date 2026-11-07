@@ -23,18 +23,18 @@ See [Platform differences](../platform_differences.md).
 
 - **Every platform:** AndBible now runs on iPhone, iPad, Mac, Windows and Linux as well as Android.
 - **New interface:** all screens are rebuilt with Compose Multiplatform and shared between the platforms.
-- **Sync between platforms:** sync with Nextcloud (WebDAV) works on the desktop and with the
-    Android app. iCloud Drive is available on iPhone, iPad and Mac, Google Drive on Android.
+- **Sync between platforms:** Nextcloud and WebDAV sync work on every platform. iCloud Drive is
+    available on iPhone, iPad and Mac, Google Drive on Android.
     See [Cloud synchronization](../cloud_sync.md).
 - **Sync now:** start a synchronization yourself from the overflow menu of the reading view.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
     activity list in the menu. See [Navigation](../navigation.md#background-activity).
 - **Notifications:** finished or failed background work is reported with a notification on iPhone,
-    iPad, Windows (toast with progress) and Linux. See [Platform differences](../platform_differences.md).
+    iPad and Mac, Windows (toast with progress) and Linux. See [Platform differences](../platform_differences.md).
 - **Search results:** *Find all occurrences* no longer opens a separate full-screen results page.
 - **Links in the text:** on iOS and desktop, AndBible asks before opening an external link you tapped.
 - **Reading plans** are included in synchronization.
-- **Windows and Linux:** the desktop app uses the web view of the system (WebView2 on Windows,
-    WebKitGTK on Linux) and installs as an MSI, `.deb` or AppImage. See [Linux and Windows](../desktop.md).
+- **Windows and Linux:** the desktop app uses WebView2 on Windows and Chromium (KCEF) on Linux,
+    and installs as an MSI, `.deb` or AppImage. See [Linux and Windows](../desktop.md).
 
 Many more bug fixes, features and improvements.
