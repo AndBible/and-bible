@@ -18,6 +18,7 @@ class WindowsToastNotifier(
     private val closeThread: () -> Unit = {},
     private val log: (String) -> Unit = { Log.w("WindowsToast", it) },
     private val cleanupThread: (Runnable) -> Unit = thread,
+    private val clockNanos: () -> Long = System::nanoTime,
 ) : NativeNotifier, AutoCloseable {
     private class Owner(
         private val pumpFactory: () -> MessagePump = { Win32MessagePump() },
@@ -50,6 +51,7 @@ class WindowsToastNotifier(
     private val dispatchLock = Any()
     private val reported = ConcurrentHashMap.newKeySet<String>()
     private var native: ToastApi? = null
+    private var lastInitializationFailure: Long? = null
     private val shown = linkedMapOf<String, NativeNotification>()
     private val dismissed = linkedSetOf<String>()
     private val removed = linkedSetOf<String>()
@@ -71,6 +73,8 @@ class WindowsToastNotifier(
 
     private fun getApi(): ToastApi? {
         native?.let { return it }
+        val now = clockNanos()
+        if (lastInitializationFailure?.let { now - it < INITIALIZATION_RETRY_NANOS } == true) return null
         var result: ToastApi? = null
         guarded("initialize") {
             val created = api()
@@ -88,6 +92,7 @@ class WindowsToastNotifier(
             }
             0
         }
+        lastInitializationFailure = if (result == null) clockNanos() else null
         return result
     }
 
@@ -139,7 +144,6 @@ class WindowsToastNotifier(
         synchronized(dispatchLock) {
             if (!closed.compareAndSet(false, true)) return
         }
-        removed.clear()
         activated = {}
         try {
             guarded("schedule cleanup") {
@@ -155,6 +159,7 @@ class WindowsToastNotifier(
                         native = null
                         shown.clear()
                         dismissed.clear()
+                        removed.clear()
                     }
                 })
                 0
@@ -165,4 +170,8 @@ class WindowsToastNotifier(
     }
 
     private val NativeNotification.isProgress: Boolean get() = progress != null || indeterminate
+
+    private companion object {
+        const val INITIALIZATION_RETRY_NANOS = 5_000_000_000L
+    }
 }
