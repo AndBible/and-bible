@@ -81,3 +81,19 @@ def test_cloud_sync_names_every_backend(built_docs):
     html = _page(built_docs, "cloud_sync")
     for word in ("iCloud Drive", "Google Drive", "Nextcloud", "WebDAV"):
         assert word in html, word
+
+
+def test_release_6_0_page(built_docs):
+    page = built_docs / "docs" / "releases" / "release_6_0" / "index.html"
+    assert page.is_file()
+    html = page.read_text()
+    assert 'href="../../platform_differences/' in html
+    for anchor in ("android", "iphone-and-ipad", "mac", "windows", "linux"):
+        assert f"getting_started/#{anchor}" in html, anchor
+    index = (paths.CONTENT / "en" / "docs" / "releases" / "index.md").read_text()
+    links = re.findall(r"\]\((release_[\d_]+\.md)\)", index)
+    assert links[0] == "release_6_0.md"
+    nav = (paths.ROOT / "zensical.toml").read_text() if hasattr(paths, "ROOT") else None
+    if nav is None:
+        nav = (paths.CONTENT.parent / "zensical.toml").read_text()
+    assert nav.index("release_6_0.md") < nav.index("release_5_0.md")

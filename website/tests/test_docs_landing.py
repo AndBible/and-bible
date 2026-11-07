@@ -14,7 +14,7 @@ INDEX = paths.CONTENT / "en" / "docs" / "index.md"
 # hidden video page stay reachable from the nav; releases/* are covered by the one Releases row).
 EXCLUDED = {"index.md", "style_guide.md", "videos/note_add_to_existing_bookmark.md",
             "customisation/custom_css.md", "customisation/module_creation.md",
-            "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"}
+            "releases/release_6_0.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"}
 
 
 def md_links(text: str) -> list[str]:
