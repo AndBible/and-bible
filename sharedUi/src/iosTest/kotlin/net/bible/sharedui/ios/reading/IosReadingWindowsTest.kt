@@ -116,6 +116,8 @@ class IosReadingWindowsTest {
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
+            currentHost?.dispose()
+            currentHost = null
             HostReadingWindows.resetForTest()
             IosReadingWebViews.resetForTest()
             HostReadingReady.resetForTest()
@@ -310,8 +312,13 @@ class IosReadingWindowsTest {
         NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
         val scope = HostReadingReady.scope
         val night = FakeNight(false)
-        HostReadingWindows.bind(HostReadingHost(scope, HostNavShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night, IosReadingPaneEngine)
-        assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
+        val host = HostReadingHost(scope, HostNavShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
+        try {
+            HostReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
+            assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
+        } finally {
+            host.dispose()
+        }
     }
 
     @Test
