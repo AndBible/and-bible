@@ -1,6 +1,5 @@
 import Foundation
 import XCTest
-@testable import iosApp
 
 final class RecentCrashDiagnosticStoreTests: XCTestCase {
     func testOlderDeliveryCannotReplaceNewerCrash() throws {
