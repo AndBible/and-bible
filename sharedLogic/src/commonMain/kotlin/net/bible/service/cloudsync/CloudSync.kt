@@ -132,23 +132,43 @@ class CloudSync(
 
     val signedIn get() = !signInMutex.isLocked && _adapter?.signedIn == true
 
-    internal val cloudAdapter: CloudAdapter? get() = _adapter
+    /**
+     * The adapter document sync may use: waits out a sign-in that is running, then returns the adapter only when it is
+     * signed in (null otherwise, so document sync stays a quiet no-op as when never signed in).
+     *
+     * [signIn] publishes `_adapter` before the adapter's own sign-in has finished, so reading `_adapter` directly hands
+     * out a half-built adapter. At startup the background pass signs in while [net.bible.android.control.versification.BookInstallWatcher]
+     * queues auto-upload ops for every MyBible/EPUB book it registers; those ops failed with "WebDAV adapter not signed in",
+     * one sync error per document (#4031). Waiting shares the running sign-in: no second attempt, no prompt.
+     */
+    internal suspend fun signedInAdapter(): CloudAdapter? {
+        while (signInMutex.isLocked) {
+            val running = signInDone
+            // The holder assigns its deferred right after taking the lock: yield across that gap instead of returning early.
+            if (running != null && !running.isCompleted) running.await() else kotlinx.coroutines.yield()
+        }
+        return _adapter?.takeIf { it.signedIn }
+    }
 
     val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
 
-    suspend fun documentsSyncFolderId(): String? {
-        val adapter = _adapter ?: return null
+    suspend fun documentsSyncFolderId(): String? = documentsSyncFolderId(_adapter ?: return null)
+
+    internal suspend fun documentsSyncFolderId(adapter: CloudAdapter): String? {
         val name = syncFolderName(DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX)
         val existing = adapter.listFiles(name = name).firstOrNull()
         return existing?.id ?: adapter.createNewFolder(name).id
     }
 
     private val signInMutex = Mutex()
+    /** Completed when the sign-in holding [signInMutex] ends; [signedInAdapter] waits on it without taking the lock. */
+    @kotlin.concurrent.Volatile private var signInDone: kotlinx.coroutines.CompletableDeferred<Unit>? = null
     suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}, waitForExisting: Boolean = false): Boolean? {
         if (!signInMutex.tryLock()) {
             Log.i(TAG, "Already signing in!")
             return if (waitForExisting) signInMutex.withLock { _adapter?.signedIn == true } else null
         }
+        val done = kotlinx.coroutines.CompletableDeferred<Unit>().also { signInDone = it }
         var errorMessage: String? = null
         var cancelledByUser = false
         val success = try {
@@ -169,6 +189,7 @@ class CloudSync(
             }.also { if (!it) _adapter = null }
         } finally {
             signInMutex.unlock()
+            done.complete(Unit)
         }
         if(!success) {
             if (errorMessage == null) Log.w(TAG, "Sync sign-in did not succeed (background=$background, cancelled by user=$cancelledByUser)")

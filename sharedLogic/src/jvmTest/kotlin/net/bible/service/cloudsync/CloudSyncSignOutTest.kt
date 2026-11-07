@@ -71,7 +71,14 @@ class CloudSyncSignOutTest {
         var onSignIn: suspend () -> Boolean = { true }
         override suspend fun signIn() = onSignIn()
         override suspend fun signOut() { loggedIn = false }
-        override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?) = emptyList<CloudFile>()
+        /** Like WebDavCloudAdapter.client: a call before sign-in has completed throws. */
+        var listingsBeforeSignIn = 0
+        var listings = 0
+        override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
+            if (!loggedIn) { listingsBeforeSignIn++; throw IllegalStateException("WebDAV adapter not signed in") }
+            listings++
+            return emptyList()
+        }
         var createdFolders = 0
         var allowCreate = false
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
@@ -106,6 +113,8 @@ class CloudSyncSignOutTest {
         val settings: DatabaseAppSettings,
         val container: DatabaseContainer,
         val stopping: () -> Boolean,
+        val documents: DocumentSync,
+        val documentSettings: DocumentSyncSettings,
     )
 
     private fun withFixture(block: suspend kotlinx.coroutines.test.TestScope.(Fixture) -> Unit) = runTest {
@@ -153,7 +162,7 @@ class CloudSyncSignOutTest {
             db.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "sync-folder")
             db.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "device-folder")
             container.bookmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "upload me"))
-            block(Fixture(cloud, adapter, db, settings, container) { stopping })
+            block(Fixture(cloud, adapter, db, settings, container, { stopping }, documents, docSettings))
         } finally {
             try {
                 DatabaseContainer.detachInstanceForTest()
@@ -302,6 +311,50 @@ class CloudSyncSignOutTest {
         release.complete(Unit)
         assertEquals(true, existing.await())
         assertTrue(f.cloud.signedIn)
+    }
+
+    /**
+     * #4031 (document sync before sign-in): at startup the background sync pass signs in while BookInstallWatcher
+     * queues auto-upload ops for every MyBible/EPUB book it registers. The drain reached the adapter CloudSync had
+     * already published but not yet signed in, so every document failed with "WebDAV adapter not signed in" and a
+     * sync error. Document sync waits for the running sign-in and then uses the signed-in adapter.
+     */
+    @Test fun documentSyncDuringSignInWaitsForItAndUsesTheSignedInAdapter() = withFixture { f ->
+        f.adapter.allowCreate = true
+        f.adapter.loggedIn = false
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        f.adapter.onSignIn = { entered.complete(Unit); release.await(); f.adapter.loggedIn = true; true }
+        val signIn = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        entered.await()
+        // Loaded up front so the refresh reaches the adapter before the sign-in is released (UNDISPATCHED).
+        f.documentSettings.ensureLoaded()
+        val refresh = async(start = CoroutineStart.UNDISPATCHED) { runCatching { f.documents.refreshCache() } }
+        release.complete(Unit)
+        assertEquals(true, signIn.await())
+        val result = refresh.await()
+        assertTrue(result.isSuccess, "Document sync must not fail while the sign-in is still running: ${result.exceptionOrNull()}")
+        assertEquals(0, f.adapter.listingsBeforeSignIn, "Document sync used the adapter before its sign-in completed")
+        assertTrue(f.adapter.listings > 0, "Document sync must run against the signed-in adapter once the sign-in completes")
+    }
+
+    /** A sign-in that fails leaves document sync a quiet no-op, as when never signed in: no exception, no adapter use. */
+    @Test fun documentSyncDuringFailingSignInIsAQuietNoOp() = withFixture { f ->
+        f.adapter.loggedIn = false
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        f.adapter.onSignIn = { entered.complete(Unit); release.await(); false }
+        val signIn = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        entered.await()
+        // Loaded up front so the refresh reaches the adapter before the sign-in is released (UNDISPATCHED).
+        f.documentSettings.ensureLoaded()
+        val refresh = async(start = CoroutineStart.UNDISPATCHED) { runCatching { f.documents.refreshCache() } }
+        release.complete(Unit)
+        assertEquals(false, signIn.await())
+        val result = refresh.await()
+        assertTrue(result.isSuccess, "A failed sign-in must not surface as a document-sync error: ${result.exceptionOrNull()}")
+        assertEquals(0, f.adapter.listingsBeforeSignIn)
+        assertEquals(0, f.adapter.listings)
     }
 
     @Test fun manualSignInWaitsForExistingSuccessfulSignInWithoutAnotherAttempt() = withFixture { f ->
