@@ -110,6 +110,18 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun startupUsesInjectedNotifierSource() {
+        val notifier = object : net.bible.sharedcore.platform.NativeNotifier {
+            override val supportsProgress = false
+            override fun show(notification: net.bible.sharedcore.platform.NativeNotification) = Unit
+            override fun remove(id: String) = Unit
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+        }
+        val source = DesktopNotifierSource(true) { notifier }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierSource = source))
+        assertSame(notifier, KoinPlatform.getKoin().get<net.bible.sharedcore.platform.NativeNotifier>())
+    }
+
     @Test fun swordEpubIsDiscoveredBeforeKoinAndReadableAfterStartup() {
         val paths = paths()
         val epub = paths.sword.resolve("modules/epub/startup")
