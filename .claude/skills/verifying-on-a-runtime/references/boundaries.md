@@ -17,7 +17,7 @@ old status notes. Current source documents:
 The existing VM base, the container's emulator and the remote Mac are real project
 capabilities. Missing credentials, a relay or a package may block setup; report the exact
 prerequisite and ask through the appropriate channel, rather than assigning ordinary tests
-to the maintainer. A child asks the orchestrator with `jailbee inbox send message --kind question`.
+to the maintainer. A child asks its orchestrator (jailbee-orchestration-child).
 Remote Mac optional mount is `mac-ssh`: follow ios-mac's exact mount/relay checks, never look
 for keys elsewhere. No new test environment is required merely because CI is remote.
 

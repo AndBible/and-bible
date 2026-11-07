@@ -25,12 +25,11 @@ Context:
 - Keep the change focused on this issue; no unrelated refactoring. English strings only. If user-visible behaviour changes, update the matching website/content/en/docs page.
 - Do not re-record Roborazzi goldens; if your change could move a golden, say so in the report (the orchestrator runs the full verify gate).
 - Do not run the full :app verify gate; run only the tests relevant to your change.
-- GitHub: never stage GitHub writes and never write files under ~/.jailbee/*outbox* by hand. A follow-up issue or comment goes to the orchestrator as a message with the exact title, body and labels.
-- Independent code review happens on the orchestrator side after your \`done\` (you cannot dispatch reviewers). Do not wait for or ask for a review before sending \`done\`.
+- Independent code review happens on the orchestrator side after your \`done\`. Do not wait for or ask the orchestrator for a review before sending \`done\`.
 
 Acceptance: $tests
 
-Commit: small commits on your branch. The fix commit message starts with "Fixes #$n (short description)", then details, and a line "Implemented by: ${MODEL_NAME:-jb.codex.capable via claude-jb}". No Claude session info in commit messages. Do not push.
+Commit: small commits on your branch; commit early (WIP commits are fine). The fix commit message starts with "Fixes #$n (short description)", then details, and a line "Implemented by: ${MODEL_NAME:-jb.codex.capable via claude-jb}". No Claude session info in commit messages. Do not push.
 
 Report: send \`done\` with a short summary: root cause, fix, tests added and their red/green evidence, tests run and results, your confidence (high/medium/low) that this fixes the reported bug, and any risk or follow-up. Send \`question\` if you are stuck.
 Commit everything before you send \`done\`.

@@ -1,6 +1,6 @@
 ---
 name: fixing-bug-backlog
-description: Use when the maintainer wants a batch of AndBible GitHub bugs fixed in parallel by JailBee child containers from an orchestrator container — "käy backlogia läpi ja korjaa selkeät bugit", "jaa tiketit konteille", "fix the clear bugs in the backlog", "work through the bug backlog with child containers". Needs an orchestration grant (~/.jailbee/orchestration/grant.json).
+description: Use when the maintainer wants a batch of AndBible GitHub bugs fixed in parallel by JailBee child containers from an orchestrator container — "käy backlogia läpi ja korjaa selkeät bugit", "jaa tiketit konteille", "fix the clear bugs in the backlog", "work through the bug backlog with child containers". Needs an orchestration grant (`jailbee inbox grant`).
 ---
 
 # Fixing the bug backlog with child containers
@@ -13,12 +13,10 @@ one issue. Children do the debugging and TDD; the orchestrator owns review, merg
 inbox, done, import, destroy); jailbee-issue-management for staging issue actions (`jailbee issue ...`);
 issue-management for tracker rules. This skill only adds the AndBible-specific choices.
 
-## 0. Keep the orchestrator's context for coordination
+## 0. Orchestrator role
 
-Larger reading and writing tasks go to a fork (Agent `subagent_type: "fork"`, inherits the conversation)
-or a fresh subagent: code surveys, spec drafts, implementation plans, long status write-ups, reviews.
-The orchestrator keeps live conversation with the user, decisions, merges and short lookups
-(memory `orchestrator-delegate-reading-and-writing`).
+Follow **jailbee-orchestration** ("Containers are not subagents"): investigation, reviews and larger
+reading/writing go to subagents or a fork; debugging that runs programs goes to a child.
 
 ## 1. Pick candidates
 
@@ -71,50 +69,38 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
 - Keep `max_running_children` children busy and **1–2 spawns queued**, no more; spawn the next
   one whenever a child is merged.
 - Runner: the one the maintainer names at the start of the session (it changes with quota); runner notes from earlier
-  sessions do not carry over. The script's default is the `claude-jb` codex profile, tier opus; override with e.g.
-  `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.
-- Waiting, reading the inbox, answering questions, statuses and cleanup: follow
-  **jailbee-orchestration**. Watching children:
-  - Use `jailbee inbox wait` directly and read every message, notes included. Do not wrap it in a
-    filter that marks notes read: a restarted child reports its recovery as a note.
-  - Run exactly one wait loop, and never while a `send ... --wait` is pending (they race for
-    the same status message).
-  - A child silent for over an hour may have lost its agent (no `blocked` arrives when the agent
-    dies by a signal or exits 0). Send it a status message; if it stays silent, `import` it to
-    see its commits and park a note for the user (see "Decisions") before a `stop` + `restart`.
-  - Tell each child to commit early (WIP commits are fine), so a dead agent loses little.
+  sessions do not carry over. Check `jailbee inbox runners` for what is available. The script's default is the
+  `claude-jb` codex profile, tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.
+- Waiting, reading the inbox, watching quiet or dead children, answering questions, statuses and cleanup:
+  follow **jailbee-orchestration** as is.
+- The spawn prompt tells each child to commit early (WIP commits are fine), so a dead agent loses little.
 
 ## Decisions: park them, never block the run on the user
 
-The run is autonomous and may go on overnight with nobody at the keyboard. **Never interrupt it
-with an `AskUserQuestion`** for a decision a child or a review raises (a design choice, a product
-question, "merge or rework?"): a pending question stops the orchestrator, and every queued
-child, merge and gate waits behind it until morning.
+The run is autonomous and may go on overnight. **jailbee-orchestration's "Never block on the user"
+applies as is:** no question dialogs while orchestrating. For a decision a child or a review raises (a
+design choice, a product question, "merge or rework?"):
 
-- **Park it.** Write the question, the options and your recommendation into a decision list in the
-  batch folder (`$BATCH/decisions.md`), and keep the affected work in a safe state: leave the
-  import unmerged (or preserve it as a local branch, e.g. `wip/issue-<n>-v1`), or merge only the
-  safe default. Then carry on with everything else.
-- **Remind, don't ask.** In your normal progress messages, say how many decisions are pending
-  (one line, e.g. "2 decisions parked in decisions.md"). Present them as an `AskUserQuestion`
-  only when the user asks for them, or when the user is evidently present (they just wrote to
-  you) and the rest of the batch is done.
-- **Why:** the orchestrator's job is to keep many things moving at once; one item waiting on the
-  user must never stall the rest.
-- **Brainstorming with the user is the opposite case.** While a brainstorming (or similar live
-  conversation) with the user is under way, it has priority: answer and ask there, one question at
-  a time, and do not start new work (spawns, merges, gates) in between. Children keep running on
-  their own; handle their reports after the brainstorming reaches its next stopping point.
-- **The only exception** is a blocker that makes the whole run pointless (e.g. no egress, the grant
-  revoked, the disk full): report it as a plain message and stop cleanly.
-- A child's own `question` is answered by you from the issue, the code and the spec; forward
-  it to the user's decision list only if it truly needs the user, and give the child a safe
-  interim instruction (skip that part, take the conservative option) so it is not left waiting.
+- **Park it.** Write the question, the options and your recommendation into `$BATCH/decisions.md`. Take
+  the recommended default when there is a safe one ("default taken, pending maintainer"); otherwise keep
+  the work safe (leave the import unmerged, or preserve it as a local branch, e.g. `wip/issue-<n>-v1`).
+  Then carry on with everything else.
+- **Remind, don't ask.** In your normal replies, say how many decisions are parked (one line). Present
+  them as a numbered plain-text list when the user asks for them or the round is done.
+- **Brainstorming with the user has priority:** while it is under way, do not start new work (spawns,
+  merges, gates) in between; children keep running, and their reports wait for the next stopping point.
+- A blocker that makes the whole run pointless (no egress, the grant revoked, the disk full): report it
+  plainly and stop cleanly.
+- A child's own `question` is answered by you from the issue, the code and the spec; forward it to the
+  decision list only if it truly needs the user, and give the child a safe interim instruction (skip that
+  part, take the conservative option) so it is not left waiting.
+
+Memory `orchestrator-defer-decisions-to-end` has the history.
 
 ## 4. Review, fix and merge each `done`
 
-Import as **jailbee-orchestration** describes ("When a child says done"). The child's own review
-does not count: children may not dispatch subagents and ask the orchestrator to review.
+Import as **jailbee-orchestration** describes ("When a child says done"). Merge only after the
+orchestrator's own independent review below; a review the child ran itself does not replace it.
 
 1. **Review with a subagent** (superpowers:requesting-code-review; reviewer model sonnet or opus,
    never fable). Give it the issue file, the child's report and `git diff HEAD...<imported_ref>`,
@@ -122,10 +108,10 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
    behaviour (bibleview-js vs Kotlin `:app` vs the shared modules), or is it a narrow ad hoc
    patch for the reported symptom; are other entry points (a gesture path, another caller, other
    platforms) covered; does a test go red without the fix; any regression risk.
-   Several reviews at once may each run in their own git worktree of this container (`isolation:
-   "worktree"` on the Agent call), so a reviewer can check out the import and run tests without
-   touching the orchestrator tree; this is the one exception to the no-worktrees rule. For a larger or riskier diff, also ask the container's other Claude process
-   (different model family) for a read-only review.
+   Reviews are read-only; several at once may each read the import in their own git worktree
+   (`isolation: "worktree"` on the Agent call), as jailbee-orchestration allows. A finding that needs
+   a test run to confirm goes to a child, not to a reviewer here. For a larger or riskier diff, also
+   ask the container's other Claude process (different model family) for a read-only review.
 2. **Read the production diff yourself** too, and verify every finding against the code
    (superpowers:receiving-code-review) before acting on it.
 3. **Fix what the review found:**
@@ -164,11 +150,10 @@ commit reaches the default branch. An issue found already fixed is closed too; o
 fix (nothing merged, or not reproducible) is not. Keep body files outside the work tree (`/tmp`), so
 the tree stays clean for fork spawns.
 
-When the round is done, `jailbee outbox submit fix-comments-<date> --kind issue`. If `grant.json`
-`publish.issues` covers the actions, publish with `jailbee inbox send publish --issue <file> --wait`
+When the round is done, `jailbee outbox submit fix-comments-<date> --kind issue`. If `jailbee inbox grant`
+shows `publish issues` covering the actions, publish with `jailbee inbox send publish --issue <file> --wait`
 and read the final status; otherwise tell the user to run `jb issue apply <container>` (or
-`jb outbox <container>` to inspect) on the host. A child never stages GitHub writes: it sends the
-exact text to the orchestrator, which stages it.
+`jb outbox <container>` to inspect) on the host. Relay a child's GitHub requests as **jailbee-orchestration** says.
 
 ## 6. Final gate and report
 
@@ -199,6 +184,6 @@ exact text to the orchestrator, which stages it.
 |---|---|
 | Spawning a bug that is already fixed on the branch | grep the log for `#<n>` first |
 | Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
-| Asking the user mid-run (`AskUserQuestion` at night) | park it in `decisions.md`, remind, ask when asked |
+| A question dialog mid-run (`AskUserQuestion` at night) | park it in `decisions.md`, remind, list it when asked |
 | Merging on the child's word | subagent review + your own read of the diff, every time |
 | Child cannot reach a download/osTicket | put the file in the shared batch folder |

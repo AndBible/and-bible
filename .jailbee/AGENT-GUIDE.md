@@ -76,7 +76,7 @@ Each rule: the instruction, then why. Background and measurements:
 
 ## Git and GitHub
 
-- Never push from the container; commit locally. No worktrees, no branch switching unless asked.
+- Never push from the container; commit locally. No worktrees, no branch switching unless asked (an orchestrator may use the worktrees its `jailbee-orchestration` skill allows).
   Why: the user pushes from the host, and the container is already a per-task sandbox.
 - `gh` is read-only; stage outward writes with the jailbee skills (issue management, PR review).
   Why: outward writes are published by a human on the host.
