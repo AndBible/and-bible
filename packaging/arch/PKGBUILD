@@ -1,0 +1,100 @@
+# Maintainer: Timmy Braun <tim.bze@gmail.com>
+#
+# AndBible desktop for Arch Linux, repackaged from the Linux x64 tarball of a GitHub release
+# (https://github.com/AndBible/and-bible/releases). The tarball is a self-contained jpackage app
+# image with its own Java runtime and Chromium (JCEF), so nothing is compiled here.
+#
+# Bump to another release with ../arch/update-pkgbuild.py <tag> (see README.md); it rewrites
+# _tag, pkgver, the checksums and .SRCINFO.
+
+pkgname=andbible-bin
+_tag=test-1254
+pkgver=6.0.1254
+pkgrel=1
+pkgdesc="Offline Bible study app: translations, commentaries, dictionaries, bookmarks and notes (desktop release)"
+arch=('x86_64')
+url="https://andbible.org"
+license=('GPL-3.0-or-later')
+# The bundled Java runtime and Chromium link against these system libraries (the NEEDED entries of the
+# tarball's binaries, see README.md "Dependencies"); gtk3 is loaded at run time by AWT and Chromium.
+depends=(
+  'alsa-lib'
+  'at-spi2-core'
+  'cairo'
+  'dbus'
+  'expat'
+  'fontconfig'
+  'freetype2'
+  'gcc-libs'
+  'glib2'
+  'glibc'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libcups'
+  'libdrm'
+  'libglvnd'
+  'libx11'
+  'libxcb'
+  'libxcomposite'
+  'libxcursor'
+  'libxdamage'
+  'libxext'
+  'libxfixes'
+  'libxi'
+  'libxkbcommon'
+  'libxrandr'
+  'libxrender'
+  'libxtst'
+  'libxxf86vm'
+  'mesa'
+  'nspr'
+  'nss'
+  'pango'
+  'zlib'
+)
+optdepends=(
+  'libnotify: desktop notifications'
+  'xdg-utils: open links and files with the default applications'
+)
+provides=('andbible')
+conflicts=('andbible')
+# The app image ships prebuilt native libraries and a Java runtime: leave them as released.
+options=('!strip' '!debug')
+_base="https://github.com/AndBible/and-bible"
+source=(
+  "andbible-desktop-${_tag}-linux-x64.tar.gz::${_base}/releases/download/${_tag}/andbible-desktop-${_tag}-linux-x64.tar.gz"
+  "org.andbible.AndBible-${_tag}.desktop::https://raw.githubusercontent.com/AndBible/and-bible/${_tag}/desktopApp/packaging/linux/org.andbible.AndBible.desktop"
+  "org.andbible.AndBible-${_tag}.metainfo.xml::https://raw.githubusercontent.com/AndBible/and-bible/${_tag}/desktopApp/packaging/linux/org.andbible.AndBible.metainfo.xml"
+)
+sha256sums=(
+  'cca6002e854bf246ba74d62b147629b7aa84a4166634e0a84ee375566451086c'
+  '4a6fc2de6d5376669ef39212ae048d93e32910ff69d2bbc51a99ccd6e1fe4067'
+  '35b3b4672d7d1a48c0c73c82cd6137d24211fcf0a70cd211740a4ca6d1644bd4'
+)
+
+package() {
+  # The whole app image goes to /opt/andbible, the path the release's own .desktop file and .deb use.
+  install -d "$pkgdir/opt"
+  cp -a "$srcdir/andbible" "$pkgdir/opt/andbible"
+
+  # Tell the app it is a distribution package: DesktopDistribution.SYSTEM_PACKAGE, so it leaves
+  # updates to pacman instead of running its own GitHub update check (DesktopMiscBindings.kt).
+  local cfg="$pkgdir/opt/andbible/lib/app/andbible.cfg"
+  grep -qx '\[JavaOptions\]' "$cfg" || { echo "No [JavaOptions] section in $cfg" >&2; return 1; }
+  sed -i '/^\[JavaOptions\]$/a java-options=-Dandbible.systemPackage=aur' "$cfg"
+  grep -qxF 'java-options=-Dandbible.systemPackage=aur' "$cfg" || { echo "Marker not written to $cfg" >&2; return 1; }
+
+  # The jpackage launcher finds its lib/ through /proc/self/exe, so a symlink is enough.
+  install -d "$pkgdir/usr/bin"
+  ln -s /opt/andbible/bin/andbible "$pkgdir/usr/bin/andbible"
+
+  # Launcher entry and icon under the standard paths (the release file points at /opt/andbible).
+  install -Dm644 "$srcdir/org.andbible.AndBible-${_tag}.desktop" \
+    "$pkgdir/usr/share/applications/org.andbible.AndBible.desktop"
+  sed -i -e 's|^Exec=.*|Exec=andbible %F|' -e 's|^Icon=.*|Icon=org.andbible.AndBible|' \
+    "$pkgdir/usr/share/applications/org.andbible.AndBible.desktop"
+  install -Dm644 "$srcdir/andbible/lib/andbible.png" \
+    "$pkgdir/usr/share/icons/hicolor/512x512/apps/org.andbible.AndBible.png"
+  install -Dm644 "$srcdir/org.andbible.AndBible-${_tag}.metainfo.xml" \
+    "$pkgdir/usr/share/metainfo/org.andbible.AndBible.metainfo.xml"
+}

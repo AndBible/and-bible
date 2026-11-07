@@ -136,6 +136,25 @@ jobs:
         run: |
           python3 -I packaging/flatpak/test-source-merge.py
           bash packaging/flatpak/check-sources.sh
+  # The AUR package (packaging/arch) is a mirror of this directory; the AUR itself runs no checks.
+  arch-pkgbuild:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: PKGBUILD, .SRCINFO and update script agree
+        run: |
+          set -euo pipefail
+          pacman -Syu --noconfirm --needed namcap python
+          # makepkg refuses to run as root; the checkout belongs to another user than the job's.
+          useradd -m builder && chown -R builder packaging/arch
+          cd packaging/arch
+          su builder -c 'makepkg --printsrcinfo' | diff -u .SRCINFO - \
+            || { echo '.SRCINFO is stale: run packaging/arch/update-pkgbuild.py or makepkg --printsrcinfo > .SRCINFO' >&2; exit 1; }
+          namcap -i PKGBUILD
+          python3 -I test-update-pkgbuild.py
   flatpak:
     needs: flatpak-sources
     runs-on: ubuntu-24.04
