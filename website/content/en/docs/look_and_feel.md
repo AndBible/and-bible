@@ -205,7 +205,10 @@ remain reachable on a phone.
     Start-menu shortcut, or the MSIX package; notifications from the portable zip
     are not guaranteed without an installed app identity. Clicking a notification
     brings AndBible to the front, and opens the activity list when "Show
-    background activity in the menu" is on. This separate setting is on by default.
+    background activity in the menu" is on. On Windows, clicking a retained notification
+    also starts AndBible if it has exited (MSI or MSIX installation). The activity list
+    may be empty because completed work is not restored across app restarts.
+    This separate setting is on by default.
     On iOS, AndBible asks for permission when you first start background work,
     such as installing a document, enabling sync, or choosing **Sync now**, not at
     launch. The permission prompt does not delay synchronization, and turning this
