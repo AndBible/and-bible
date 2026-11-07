@@ -24,6 +24,16 @@ class IosNativeNotifierTest {
     }
 
     @Test
+    fun asynchronousAddErrorsAreLoggedOnlyOnce() {
+        val messages = mutableListOf<String>()
+        val completion = NotificationAddErrorLogger { messages += it }
+        completion.onComplete(null)
+        completion.onComplete("first")
+        completion.onComplete("second")
+        assertEquals(listOf("first"), messages)
+    }
+
+    @Test
     fun showUsesStableIdAndOnlyUrgentSound() {
         val center = Center()
         val notifier = IosNativeNotifier(center)

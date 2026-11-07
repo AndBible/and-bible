@@ -41,6 +41,10 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
         val scope = rememberCoroutineScope()
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
             Column {
+                val resetReceipt by net.bible.sharedui.assembly.IosAppStartup.notificationResetReceipt.collectAsState()
+                resetReceipt?.let { receipt ->
+                    Text(receipt, modifier = Modifier.testTag("notification-debug-reset-$receipt"))
+                }
                 TextButton(onClick = {
                     net.bible.android.control.event.UserMessages.errorNotification(
                         text, showReportButton = false, background = true,

@@ -26,8 +26,8 @@ final class NotificationsUITests: RealAppUITestCase {
         XCUIApplication().terminate()
         // Restore the app preference and asked flag for subsequent suites, without requesting permission.
         let cleanup = launch(["-standardTestFixture", "-notificationReset", "-notificationDebugControls"] + english)
-        XCTAssertTrue(element(cleanup, "notification-debug-automatic").waitForExistence(timeout: 60),
-                      "Reading must be ready after database initialization and notification reset")
+        XCTAssertTrue(element(cleanup, "notification-debug-reset-success").waitForExistence(timeout: 60),
+                      "Notification reset must complete successfully before cleanup exits")
         cleanup.terminate()
         super.tearDown()
     }

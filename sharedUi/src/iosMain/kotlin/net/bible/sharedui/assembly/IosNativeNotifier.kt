@@ -26,7 +26,16 @@ internal interface UserNotificationCenterApi {
     fun removePending(id: String)
 }
 
+internal class NotificationAddErrorLogger(private val log: (String) -> Unit) {
+    private val logged = kotlinx.atomicfu.atomic(false)
+
+    fun onComplete(error: String?) {
+        if (error != null && logged.compareAndSet(expect = false, update = true)) log(error)
+    }
+}
+
 internal object SystemUserNotificationCenter : UserNotificationCenterApi {
+    private val addErrors = NotificationAddErrorLogger { Log.e("IosNativeNotifier", "Notification request failed: $it") }
     override fun add(id: String, title: String, body: String, sound: Boolean) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
@@ -35,7 +44,7 @@ internal object SystemUserNotificationCenter : UserNotificationCenterApi {
         }
         val request = UNNotificationRequest.requestWithIdentifier(id, content, null)
         UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(request) { error ->
-            if (error != null) Log.e("IosNativeNotifier", "Notification request failed: $error")
+            addErrors.onComplete(error?.toString())
         }
     }
 
