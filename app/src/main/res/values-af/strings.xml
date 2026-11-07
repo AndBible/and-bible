@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible vereis Direct3D-grafika om Bybelteks met WebView2 te vertoon. Die huidige grafika-weergawer is %1$s. Kontroleer jou grafikadrywer en Direct3D-ondersteuning.\n\nBesonderhede is in die loglêer:\n%2$s</string>
   <string name="desktop_update_setting_title">Soek na opdaterings</string>
   <string name="desktop_update_setting_summary">Een keer per dag, vanaf github.com</string>
+  <string name="desktop_beta_update_setting_title">Bied openbare beta-opdaterings aan</string>
+  <string name="desktop_beta_update_setting_summary">Bied ook openbare beta-weergawes aan. Wanneer af, kry \'n beta-installasie net produksie-vrystellings.</string>
   <string name="desktop_update_consent_title">Soek na opdaterings?</string>
   <string name="desktop_update_consent_message">AndBible kan een keer per dag github.com nagaan vir \'n nuwer weergawe. GitHub sien jou IP-adres; niks anders word gestuur nie. Jy kan dit later in Instellings verander.</string>
   <string name="desktop_update_consent_yes">Soek na opdaterings</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Aktiveer e-ink spesifieke funksies (bladerblaai-knoppies, blaai-hulpslyne)</string>
   <string name="prefs_disable_animations_title">Deaktiveer animasies</string>
   <string name="prefs_disable_animations_summary">Deaktiveer verskeie animasies soos gladde blaai.</string>
+  <string name="prefs_show_activity_in_menu_title">Wys agtergrondaktiwiteit in die kieslys</string>
+  <string name="prefs_show_activity_in_menu_summary">Aflaaie, sinkronisering- en indekseringsvordering, en mislukkings, in die ⋮-kieslys</string>
+  <string name="prefs_system_notifications_title">Stelselkennisgewings</string>
+  <string name="prefs_system_notifications_denied">Afgeskakel in iOS-instellings</string>
+  <string name="prefs_system_notifications_summary">Stel in kennis oor mislukte agtergrondwerk, lang aflaaie wat voltooi terwyl AndBible in die agtergrond is, en hul vordering</string>
   <string name="prefs_disable_click_to_edit_title">Deaktiveer studie blok klik-om-te-wysig</string>
   <string name="prefs_disable_click_to_edit_summary">Vereis die gebruik van die wysig-knoppie om notas in die studie blok te wysig.</string>
   <string name="prefs_notes_content_type_title">Formaat vir nuwe boekmerk notas</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>
   <string name="options_menu_night_mode">Nag mode</string>
+  <string name="options_menu_sync_now">Sinkroniseer nou</string>
+  <string name="exit_sync_title">Sinkroniseer veranderinge…</string>
+  <string name="exit_sync_body">Jou veranderinge word na jou ander toestelle gestuur. Dit kan \'n paar sekondes neem.</string>
+  <string name="exit_sync_quit_now">Sluit nou af</string>
+  <string name="exit_sync_closing">Sluit tans…</string>
+  <string name="sync_now_no_network">Geen netwerkverbinding nie</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Skakels venster</string>
@@ -358,6 +371,17 @@ Woordafbreking</string>
   <string name="chooce_language_hint">Taal</string>
   <string name="one_more_back_press">Druk weer terug om die toep te sluit</string>
   <string name="document_filter_results">%ddocumente</string>
+  <string name="activity_show_all">Wys alles (%1$d)</string>
+  <string name="activity_failed_badge">%1$d het misluk</string>
+  <string name="activity_attention_badge">%1$d benodig aandag</string>
+  <string name="activity_combined_badge">%1$d het misluk, %2$d benodig aandag</string>
+  <string name="activity_running_description">Agtergrondwerk loop</string>
+  <string name="activity_running">Loop</string>
+  <string name="activity_recent">Onlangs</string>
+  <string name="activity_clear_finished">Vee voltooide uit</string>
+  <string name="activity_title">Agtergrondaktiwiteit</string>
+  <string name="activity_empty">Niks loop nie</string>
+  <string name="activity_failed_toast">%1$s — sien kieslys</string>
   <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
   <string name="download_question_message">As u in \'n vervolgde land woon,
 moet jy miskien versigtig wees met die aflaai van Christelike materiaal via die internet.
@@ -635,6 +659,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_backup_title">Rugsteun na waar?</string>
   <string name="backup_backup_message">Rugsteun na foon of elders via die deel-funksie (e-pos, Google Drive, ens.)?</string>
   <string name="backup_phone_storage">Foon berging</string>
+  <string name="backup_save_to_files">Stoor in Lêers</string>
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup_modules2">Rugsteun dokumente na ...</string>
   <string name="backup_app2">Rugsteun toep (.apk-lêer) na …</string>
@@ -688,6 +713,9 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_repository">Verspreidings bediener: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Loggids</string>
+  <string name="open_log_folder">Maak loggids oop</string>
+  <string name="startup_report_bug">Rapporteer \'n fout</string>
   <string name="send_bug_report_title">Terugvoer / fout verslag</string>
   <string name="report_bug_email_subject_3">[%1$s] Fout verslag vir %2$s %3$s</string>
   <string name="report_bug_big_heading">HUUR SKRYF JOU TERUGVOER OF FOUTVERSLAG BO HIERDIE LYN</string>
@@ -755,8 +783,16 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="debug_test_error">Toetsfout (ontfoutingsbou)</string>
   <string name="bug_report_prepare_failed">Kon nie die verslag voorberei of deel nie. Jy kan weer probeer, of Rugsteun en Herstel gebruik om jou data te bêre.</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
+  <string name="bug_report_desktop_text">Daarna sal jy gevra word waar om die foutverslaglêer te stoor. Dan kry jy instruksies om dit aan die ontwikkelaarspan te stuur.</string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
   <string name="bug_report_manual_title">Stuur die verslag per e-pos</string>
+  <string name="bug_report_manual_text_saved">Die verslag is gestoor in <b>%1$s</b>.\n\nStuur asseblief \'n e-pos aan <b>%2$s</b> en heg daardie lêer aan; \'n e-posprogram kan dit nie vir jou aanheg nie. Voorgestelde onderwerp: <b>%3$s</b>. Vertel ons in die boodskap wat jy gedoen het en wat gebeur het.</string>
+  <string name="bug_report_manual_text_unsaved">Die verslag is gestoor op die plek wat jy gekies het.\n\nStuur asseblief \'n e-pos aan <b>%1$s</b> en heg die gestoorde verslaglêer aan; \'n e-posprogram kan dit nie vir jou aanheg nie. Voorgestelde onderwerp: <b>%2$s</b>. Vertel ons in die boodskap wat jy gedoen het en wat gebeur het.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s-fout: &lt;kort beskrywing&gt;</string>
+  <string name="bug_report_attach_line">Heg asseblief die lêer %1$s aan</string>
+  <string name="bug_report_copy_subject">Kopieer onderwerp</string>
+  <string name="bug_report_copy_path">Kopieer lêerpad</string>
+  <string name="bug_report_open_folder">Maak gids oop</string>
   <string name="bug_report_copy_address">Kopieer adres</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks na spraak</string>
@@ -787,6 +823,37 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="beta_notice_github_issues">Github kwessies</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ONTWIKKELAAR SE SPESIALE KENNISGEWING AAN BETA-TOETSERS (November 2026)</string>
+  <string name="beta_special_intro_android">Welkom by die AndBible 6.0-beta! Dit is die grootste verandering in AndBible se geskiedenis. Die hele toepassing is herskryf met \'n nuwe gebruikerskoppelvlak-gereedskapstel, en die koppelvlak is langs die pad herontwerp: elke skerm is hersien, en die meeste het beduidende gebruiksverbeterings bo-op die opgedateerde Material 3-voorkoms gekry.</string>
+  <string name="beta_special_intro_ios">Welkom by die AndBible 6.0-beta! As jy AndBible vir iOS 1.0 gebruik het, is dit \'n groot verandering: weergawe 6.0 vervang dit met die gedeelde AndBible-toepassing, dieselfde toepassing wat op Android, iPhone, iPad en Apple Silicon-Macs, Windows en Linux loop. Dit is gebou op die kode wat Android-gebruikers al meer as \'n dekade lank dien, herskryf met \'n nuwe gebruikerskoppelvlak-gereedskapstel, en die koppelvlak is langs die pad herontwerp: elke skerm is hersien, en die meeste het beduidende gebruiksverbeterings gekry.</string>
+  <string name="beta_special_intro_desktop">Welkom by die AndBible 6.0-beta, en by AndBible op Windows en Linux! Dit is die eerste rekenaarweergawe van AndBible: dieselfde toepassing loop nou op Android, iPhone, iPad en Apple Silicon-Macs, Windows en Linux. Dit is gebou op die kode wat Android-gebruikers al meer as \'n dekade lank dien, herskryf met \'n nuwe gebruikerskoppelvlak-gereedskapstel, en die koppelvlak is langs die pad herontwerp: elke skerm is hersien, en die meeste het beduidende gebruiksverbeterings gekry.</string>
+  <string name="beta_special_redesign">\'n Herontwerpte koppelvlak: duideliker kieslyste, instellings en dialoë, meer konsekwente navigasie, en baie klein werkvloeiverbeterings deur die hele toepassing.</string>
+  <string name="beta_special_data_kept">Jou kenmerke, data en instellings is almal steeds daar.</string>
+  <string name="beta_special_platforms">Dieselfde toepassing loop nou op Android, iPhone, iPad en Apple Silicon-Macs, Windows en Linux. Die nuwe platforms is ook in toetsing.</string>
+  <string name="beta_special_additions_android">Twee kleiner toevoegings: WebDAV-sinkronisering (jou eie bediener, \'n NAS of enige WebDAV-diens, benewens Google Drive en Nextcloud), en \'n nuwe soekindeks wat na die opdatering een keer outomaties herbou word.</string>
+  <string name="beta_special_one_app">Een toepassing op al jou toestelle: dieselfde kenmerke en werkvloeie op jou foon, tablet en rekenaar.</string>
+  <string name="beta_special_sync_ios">Sinkronisering tussen jou toestelle via Nextcloud, WebDAV (jou eie bediener, \'n NAS of enige WebDAV-diens) of iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Sinkronisering tussen jou toestelle via Nextcloud of WebDAV (jou eie bediener, \'n NAS of enige WebDAV-diens).</string>
+  <string name="beta_special_feedback">As iets ontbreek, anders werk as voorheen of moeiliker is om te vind, sê dit asseblief vir ons, selfs al is dit dalk doelbewus.</string>
+  <string name="beta_special_backup">Dit is \'n goeie idee om \'n rugsteun te maak voordat jy toets (Hoofkieslys → %s).</string>
+  <string name="beta_special_beta_warning">Dit is \'n beta-weergawe: nie alles is klaar of ten volle getoets nie, en dit kan foute bevat. Deur dit te gebruik is jy \'n beta-toetser, en jou foutverslae is wat die finale vrystelling goed maak.</string>
+  <string name="beta_special_leave_beta_android">As jy nie bedoel het om te toets nie, kan jy die %s verlaat en terugkeer na die stabiele weergawe.</string>
+  <string name="beta_special_report">Rapporteer asseblief foute via %1$s (verkieslik) of Hoofkieslys → %2$s.</string>
+  <string name="beta_special_report_android">Rapporteer asseblief foute via %1$s (verkieslik), Google Play of Hoofkieslys → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible op jou ander toestelle</string>
+  <string name="beta_special_other_devices_intro">Dieselfde beta is vir al jou toestelle beskikbaar:</string>
+  <string name="beta_special_other_android">Android: sluit aan by die %1$s, of laai die APK af van die nuutste beta-vrystelling op %2$s.</string>
+  <string name="beta_special_play_beta_link">betaprogram op Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad en Apple Silicon-Mac: installeer Apple se TestFlight-toepassing en sluit aan by die %s.</string>
+  <string name="beta_special_testflight_link">AndBible openbare beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) en Linux (.deb of AppImage): laai dit af van die nuutste beta-vrystelling op %s.</string>
+  <string name="beta_special_installation_guide">Stap-vir-stap-instruksies is in die %s.</string>
+  <string name="beta_special_installation_guide_link">installasiegids</string>
+  <string name="beta_special_regards">Beste groete, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Jy kan AndBible se ontwikkeling finansieel ondersteun deur %s.</string>
+  <string name="beta_special_sponsor_link">ontwikkelingsure te borg</string>
   <string name="stable_notice_title">Die aansoek is opgegradeer!</string>
   <string name="upgrade_video_message">Sien asseblief video met nuwe kenmerke van hierdie vrystelling (%s)</string>
   <string name="stable_notice_par1">Nuwe weergawe %1$svan %2$s is suksesvol geïnstalleer!</string>
@@ -1179,6 +1246,7 @@ Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, ni
   <string name="db_repositories">Bewaarplekke en verwante instellings</string>
   <string name="db_bookmarks">Boekmerke, My Notas, Etikette en Studie Blokkies</string>
   <string name="synchronizing">Sinchroniseer...</string>
+  <string name="notification_finished">Voltooi</string>
   <string name="overrideBackup">
 Bestaande databasis waarmee hierdie toestel nie gesinchroniseer is nie, word in Cloud gevind.
 Databasis bevat  %s. Wat wil jy doen?</string>
@@ -1760,6 +1828,12 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="agent_log_response_received">Reaksie ontvang</string>
   <string name="agent_log_saved">Gestoor: %s</string>
   <string name="agent_log_done">Klaar: %s</string>
+  <string name="agent_activity_title">KI-agent</string>
+  <string name="agent_activity_title_in">KI-agent: %s</string>
+  <string name="agent_activity_waiting">Wag vir jou toestemming</string>
+  <string name="agent_activity_waiting_for">Wag vir jou toestemming: %s</string>
+  <string name="agent_activity_failed">KI-agent het misluk</string>
+  <string name="agent_activity_attention_needed">KI-agent benodig jou aandag</string>
   <string name="agent_log_cancelled">Gekanselleer</string>
   <string name="agent_already_running">\'n KI-agent loop reeds. Wag asseblief of stop dit eers.</string>
   <!--AI Agent Notifications-->
