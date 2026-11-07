@@ -135,6 +135,7 @@ class DownloadHost(
     private val strings: Strings,
     private val platform: DownloadHostPlatform,
     private val notificationPermission: NotificationPermission,
+    private val backgroundNotificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
     private val clipboard: ClipboardText,
     private val openInstallZip: InstallZipOpener,
     /** Progress status' running-job feed (the search host owns the index jobs it reports). */
@@ -765,6 +766,17 @@ class DownloadHost(
 
     /** Classic `doDownload` (`:656-665`). */
     private fun doDownload(session: DownloadSession, document: Book) = downloadScope.launch(Dispatchers.Main) {
+        backgroundNotificationPermission?.let { permission ->
+            downloadScope.launch(Dispatchers.Main) {
+                try {
+                    permission.ensureAsked()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG_DOWNLOAD, "Unable to request notification permission", e)
+                }
+            }
+        }
         try {
             downloadControl.downloadDocument(session.repoFactory, document)
             refreshDownloadRowStatus(session, document)

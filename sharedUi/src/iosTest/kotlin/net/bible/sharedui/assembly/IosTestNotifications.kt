@@ -1,0 +1,17 @@
+package net.bible.sharedui.assembly
+
+import net.bible.sharedcore.platform.NativeNotifier
+import org.koin.dsl.module
+
+/** Native test executables have no application bundle, so UserNotifications cannot resolve their process. */
+internal object IosTestNotificationCenter : UserNotificationCenterApi {
+    override fun add(id: String, title: String, body: String, sound: Boolean) = Unit
+    override fun removeDelivered(id: String) = Unit
+    override fun removePending(id: String) = Unit
+}
+
+internal fun iosTestNotificationModule() = module {
+    single<NativeNotifier> { IosNativeNotifier(IosTestNotificationCenter) }
+    single<net.bible.sharedcore.settings.NotificationsDenied> { net.bible.sharedcore.settings.NotificationsDenied { false } }
+    single<net.bible.sharedcore.settings.NotificationSettingsLink> { net.bible.sharedcore.settings.NotificationSettingsLink { } }
+}

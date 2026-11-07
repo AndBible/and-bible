@@ -20,7 +20,7 @@ class HostStartupIosTest {
         awaitStartupOnMain { IosAppStartup.ensureStarted(IosAppConfig(
             root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
             repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-        )) }
+        ), listOf(iosTestNotificationModule())) }
         assertTrue(HostStartup.isStarted)
         assertSame(IosAppStartup.stringTable, HostStartup.stringTable)
     }

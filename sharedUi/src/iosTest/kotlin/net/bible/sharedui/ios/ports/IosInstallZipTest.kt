@@ -188,7 +188,7 @@ class IosInstallZipTest {
                 net.bible.sharedui.assembly.IosAppStartup.ensureStarted(net.bible.sharedui.assembly.IosAppConfig(
                     root = root, uiLanguage = "en", repositories = org.crosswire.common.util.PropertyMap(),
                     secretStore = net.bible.sharedui.assembly.InMemorySecretStore(),
-                ))
+                ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule()))
             }
             val koin = org.koin.mp.KoinPlatform.getKoin()
             val modules = koin.get<net.bible.sharedcore.platform.AppDirectories>().modulesDir

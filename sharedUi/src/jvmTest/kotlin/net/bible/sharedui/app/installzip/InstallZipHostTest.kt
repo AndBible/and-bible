@@ -123,6 +123,15 @@ class InstallZipHostTest {
     }
 
     @Test
+    fun cancelledPickerNeverSubmitsInstall() = runTest(UnconfinedTestDispatcher()) {
+        val session = host(backgroundScope).sessionFor(null, emptyList()) { }
+        session.start()
+        assertTrue(started.isEmpty())
+        session.confirm()
+        assertTrue(started.isEmpty())
+    }
+
+    @Test
     fun legacyDrainWatcherLosesConflatedJobTransitions() = runTest(StandardTestDispatcher()) {
         val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
         val answers = mutableListOf<InstallZipResult>()

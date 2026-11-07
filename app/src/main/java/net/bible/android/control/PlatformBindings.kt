@@ -45,6 +45,7 @@ fun buildPlatformBindings() = module {
     }
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
+    single<net.bible.sharedcore.platform.NotificationPermission> { net.bible.sharedcore.platform.NoNotificationPermission }
     single<AppSettings> { CommonUtils.settings }
     // Android has system notifications for background work: the activity menu entry is opt-in here (#4007).
     single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { false } }

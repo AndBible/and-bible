@@ -206,6 +206,7 @@ fun buildSharedBindings() = module {
         SyncSettingsServiceImpl(
             scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
             { DatabaseContainer.notifyDatabaseRestored() },
+            notificationPermission = getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
         )
     }
     single<CloudSyncProvider> { CloudSyncProvider { get() } }

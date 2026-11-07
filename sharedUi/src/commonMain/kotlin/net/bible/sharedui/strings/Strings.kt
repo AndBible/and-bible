@@ -85,6 +85,8 @@ interface Strings {
     val prefsShowActivityInMenuTitle: String
     val prefsShowActivityInMenuSummary: String
     val prefsSystemNotificationsTitle: String
+    val openSettings: String
+    val prefsSystemNotificationsDenied: String
     val prefsSystemNotificationsSummary: String
     val prefsDisableClickToEditSummary: String
     val prefsDisableClickToEditTitle: String

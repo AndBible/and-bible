@@ -30,6 +30,11 @@ object IosPlatformBootstrap {
         net.bible.sharedui.ios.report.startIosReportLog()
     }
 
+    /** Installs the retained notification delegate before the application finishes launching. */
+    fun installNotificationDelegate() {
+        net.bible.sharedui.assembly.IosNotificationBootstrap.install()
+    }
+
     /** Null on success; an explicit diagnostic otherwise, including unsupported release builds. */
     fun runFilesClipboardSelfTest(): String? = net.bible.sharedui.ios.files.IosFilesRuntimeHarness.clipboardSelfTest()
 

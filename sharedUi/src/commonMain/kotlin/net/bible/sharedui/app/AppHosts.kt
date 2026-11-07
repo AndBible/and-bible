@@ -315,6 +315,7 @@ class AppHosts(
             strings = strings,
             platform = ports.downloadPlatform(),
             notificationPermission = ports.notificationPermission,
+            backgroundNotificationPermission = koin.getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
             clipboard = koin.get<ClipboardText>(),
             openInstallZip = installZipOpener,
             // The search host owns the index jobs Progress status lists.
@@ -354,6 +355,7 @@ class AppHosts(
             // The bookmark host's saved state carries the screen's filters across a recreation.
             restoredFilters = { bookmark.restoredState?.cloudFilters },
             consumeRestoredFilters = { bookmark.updateRestored { state -> state?.copy(cloudFilters = null) } },
+            notificationPermission = koin.getOrNull(),
         )
     }
 

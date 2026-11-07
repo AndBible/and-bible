@@ -180,6 +180,7 @@
     <string name="prefs_show_activity_in_menu_title">Show background activity in the menu</string>
     <string name="prefs_show_activity_in_menu_summary">Downloads, sync and indexing progress, and failures, in the ⋮ menu</string>
     <string name="prefs_system_notifications_title">System notifications</string>
+    <string name="prefs_system_notifications_denied">Turned off in iOS Settings</string>
     <string name="prefs_system_notifications_summary">Notify about failed background work, long downloads that finish while AndBible is in the background, and their progress</string>
 
     <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>

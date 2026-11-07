@@ -59,6 +59,66 @@ class AppSettingsServiceImplTest {
         }
     }
 
+    @Test fun systemNotificationsDeniedRefreshAndAction() = kotlinx.coroutines.test.runTest {
+        var denied = true
+        var opened = 0
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref,
+            NotificationsDenied { denied }, NotificationSettingsLink { opened++ }, backgroundScope)
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        fun switch() = controller.state.value.items.single { it.key == "system_notifications" } as SettingsItem.SwitchRow
+        fun link() = controller.state.value.items.filter { it.key == "system_notifications_denied" && it.visible }
+        s.refresh()
+        testScheduler.runCurrent()
+        assertEquals("Turned off in iOS Settings", switch().summary)
+        assertEquals(1, link().size)
+        assertEquals("Open settings", (link().single() as SettingsItem.NavigationRow).title)
+        controller.onNavigate("system_notifications_denied")
+        assertEquals(1, opened)
+        assertTrue(pref.enabled.value)
+        denied = false
+        s.refresh()
+        testScheduler.runCurrent()
+        assertEquals(AppSettingsLabels.forTest().systemNotificationsSummary, switch().summary)
+        assertTrue(link().isEmpty())
+    }
+
+    @Test fun systemNotificationsStaleNoncancellableResultCannotOverrideNewerRefresh() = kotlinx.coroutines.test.runTest {
+        val pending = mutableListOf<kotlinx.coroutines.CompletableDeferred<Boolean>>()
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref,
+            NotificationsDenied {
+                val answer = kotlinx.coroutines.CompletableDeferred<Boolean>()
+                pending.add(answer)
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { answer.await() }
+            }, null, backgroundScope)
+        s.refresh()
+        testScheduler.runCurrent()
+        s.setBool("system_notifications", false)
+        testScheduler.runCurrent()
+        assertEquals(2, pending.size)
+        pending[1].complete(true)
+        testScheduler.runCurrent()
+        assertTrue(s.snapshot.value.systemNotificationsDenied)
+        assertFalse(s.snapshot.value.showSystemNotifications)
+        pending[0].complete(false)
+        testScheduler.runCurrent()
+        assertTrue(s.snapshot.value.systemNotificationsDenied)
+        assertFalse(s.snapshot.value.showSystemNotifications)
+    }
+
+    @Test fun systemNotificationsQueryFailureLeavesSettingsUsable() = kotlinx.coroutines.test.runTest {
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref,
+            NotificationsDenied { error("query failed") }, null, backgroundScope)
+        s.refresh()
+        testScheduler.runCurrent()
+        assertFalse(s.snapshot.value.systemNotificationsDenied)
+        s.setBool("system_notifications", false)
+        testScheduler.runCurrent()
+        assertFalse(s.snapshot.value.showSystemNotifications)
+    }
+
     @Test fun systemNotificationsSwitchWritesThroughPreference() = kotlinx.coroutines.test.runTest {
         val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, defaultEnabled = true)
         val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref)
@@ -67,6 +127,8 @@ class AppSettingsServiceImplTest {
             fun row() = controller.state.value.items.single { it.key == "system_notifications" } as SettingsItem.SwitchRow
             assertTrue(row().visible)
             assertTrue(row().checked)
+            assertEquals(AppSettingsLabels.forTest().systemNotificationsSummary, row().summary)
+            assertTrue(controller.state.value.items.none { it.key == "system_notifications_denied" })
             controller.onSwitch("system_notifications", false)
             testScheduler.runCurrent()
             assertFalse(row().checked)

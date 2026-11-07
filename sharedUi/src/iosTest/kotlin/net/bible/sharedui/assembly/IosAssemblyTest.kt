@@ -18,6 +18,7 @@ package net.bible.sharedui.assembly
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.async
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
@@ -47,6 +48,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -122,9 +124,9 @@ class IosAssemblyTest {
         }
     }
 
-    private fun startApp(language: String? = "en") {
+    private fun startApp(language: String? = "en", extra: List<org.koin.core.module.Module> = emptyList()) {
         ownsAppGraph = true
-        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language)) }
+        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language), listOf(iosTestNotificationModule()) + extra) }
     }
 
     @Test fun concurrentForegroundAndBackgroundJoinRealStartupOffMain() {
@@ -143,8 +145,8 @@ class IosAssemblyTest {
         }
         awaitStartupOnMain {
             kotlinx.coroutines.coroutineScope {
-                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra)) }
-                val foreground = async { IosAppStartup.ensureStarted(config()) }
+                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra, iosTestNotificationModule())) }
+                val foreground = async { IosAppStartup.ensureStarted(config(), listOf(iosTestNotificationModule())) }
                 try {
                     entered.await()
                     assertFalse(onMain.value, "eager initialization must run off Main")
@@ -273,8 +275,10 @@ class IosAssemblyTest {
     fun userMessagesDuringKoinStartupSurviveUntilTheDialogHostExists() {
         ownsAppGraph = true
         awaitStartupOnMain {
-            IosAppStartup.ensureStarted(config(), extraModules = listOf(org.koin.dsl.module {
+            IosAppStartup.ensureStarted(config(), extraModules = listOf(iosTestNotificationModule(), org.koin.dsl.module {
                 single<StartupMessageProbe>(createdAtStart = true) {
+                    val notifier = get<net.bible.sharedcore.platform.NativeNotifier>() as IosNativeNotifier
+                    assertSame(IosTestNotificationCenter, notifier.center, "startup graph must use the test notification center")
                     net.bible.android.control.event.UserMessages.errorNotification("early sync failure", false)
                     StartupMessageProbe()
                 }
@@ -515,8 +519,70 @@ class IosAssemblyTest {
         // ... and the platform module binds nothing that the declared list does not name (concrete helpers excepted).
         val module = buildIosPlatformBindings(config())
         val bound = module.mappings.values.flatMap { f -> listOf(f.beanDefinition.primaryType) + f.beanDefinition.secondaryTypes }.toSet()
+        val router = net.bible.android.control.activity.BackgroundErrorRouter::class
+        assertTrue(router in bound, "iOS background error router must be bound by the platform module")
+        koin.get<net.bible.android.control.activity.BackgroundErrorRouter>()
+        assertTrue(net.bible.android.control.activity.NativeNotificationPolicy::class in bound)
+        assertTrue(net.bible.android.control.activity.SystemNotificationsPreference::class in bound)
+        assertTrue(net.bible.sharedcore.platform.NativeNotifier::class in bound)
         val undeclared = bound - IOS_BOUND_PORT_TYPES.toSet() - IOS_CONCRETE_BINDINGS
         assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
+    }
+
+    @Test
+    fun notificationPolicyAndPreferenceResolveFromTheIosGraph() {
+        startApp()
+        openDatabasesDiagnosing()
+        val koin = KoinPlatform.getKoin()
+        koin.get<net.bible.android.control.activity.NativeNotificationPolicy>()
+        val preference = koin.get<net.bible.android.control.activity.SystemNotificationsPreference>()
+        assertTrue(preference.enabled.value, "system notifications default to enabled on iOS")
+        koin.get<net.bible.sharedcore.platform.NotificationPermission>()
+        koin.get<net.bible.sharedcore.platform.NativeNotifier>()
+        val settings = koin.get<net.bible.sharedcore.settings.AppSettingsService>()
+        settings.refresh()
+        assertTrue(settings.snapshot.value.systemNotificationsVisible)
+        settings.setBool(net.bible.android.control.activity.SystemNotificationsPreference.KEY, false)
+        assertFalse(preference.enabled.value)
+    }
+
+    @Test
+    fun bootstrapTapBeforeGraphReachesActivityRequestsOnlyOnce() {
+        awaitStartupOnMain { IosNotificationBootstrap.activations.activate("before-graph") }
+        startApp()
+        val requests = KoinPlatform.getKoin().get<net.bible.android.control.activity.ActivityListRequests>()
+        awaitStartupOnMain {
+            kotlin.test.assertNotNull(kotlinx.coroutines.withTimeoutOrNull(1_000) { requests.requests.first() })
+            assertEquals(null, kotlinx.coroutines.withTimeoutOrNull(10) { requests.requests.first() })
+        }
+    }
+
+    @Test
+    fun closingKoinCancelsNotificationScopeAndDetachesActivation() {
+        var registered = 0
+        var removed = 0
+        val observerModule = org.koin.dsl.module {
+            single<IosForegroundObserverFactory> {
+                IosForegroundObserverFactory { _ ->
+                    registered++
+                    AutoCloseable { removed++ }
+                }
+            }
+        }
+        startApp(extra = listOf(observerModule))
+        val runtime = KoinPlatform.getKoin().get<IosNotificationRuntime>()
+        val job = assertNotNull(runtime.scope.coroutineContext[kotlinx.coroutines.Job])
+        awaitStartupOnMain {
+            assertTrue(job.isActive)
+            assertNotNull(IosNotificationBootstrap.activations.handler)
+            assertEquals(1, registered)
+            assertEquals(0, removed)
+            IosAppStartup.resetForTest()
+            assertFalse(job.isActive)
+            assertNull(IosNotificationBootstrap.activations.handler)
+            assertEquals(1, removed, "graph close must unregister the notification observer")
+        }
+        ownsAppGraph = false
     }
 
     @Test
@@ -577,6 +643,15 @@ class IosAssemblyTest {
             // Optional iOS-only seam (#3973) read through getOrNull by SharedBindings; Android has no binding, so it is
             // deliberately not in IOS_BOUND_PORT_TYPES (IosPortParityTest would require it on Android).
             net.bible.android.control.download.DownloadKeepAlive::class,
+            // iOS presentation helper, not an Android platform port; resolved explicitly by the graph test above.
+            net.bible.android.control.activity.BackgroundErrorRouter::class,
+            net.bible.sharedcore.platform.NativeNotifier::class,
+            net.bible.sharedcore.settings.NotificationsDenied::class,
+            net.bible.sharedcore.settings.NotificationSettingsLink::class,
+            net.bible.android.control.activity.SystemNotificationsPreference::class,
+            net.bible.android.control.activity.NativeNotificationPolicy::class,
+            IosNotificationRuntime::class,
+            IosForegroundObserverFactory::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */

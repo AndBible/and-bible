@@ -19,13 +19,7 @@
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.NotificationPermission
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import platform.UserNotifications.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 @kotlin.native.HiddenFromObjC
 interface IosNotificationCenter {
@@ -46,23 +40,10 @@ private object SystemNotificationCenter : IosNotificationCenter {
     }
 }
 
-/** Serializes concurrent callers through both the status query and the system prompt. */
+/** Legacy screen-resume requests do not prompt on iOS. */
 @kotlin.native.HiddenFromObjC
 class IosNotificationPermission(
     private val center: IosNotificationCenter = SystemNotificationCenter,
 ) : NotificationPermission {
-    private val mutex = Mutex()
-    private var completed = false
-    override suspend fun request() = withContext(Dispatchers.Main) {
-        mutex.withLock {
-            if (!completed) {
-                // The OS prompt cannot be cancelled: retain the lock until its callback arrives.
-                val decided = suspendCoroutine { continuation -> center.authorizationDecided { continuation.resume(it) } }
-                if (!decided) suspendCoroutine { continuation ->
-                    center.requestAlertAndSound { continuation.resume(Unit) }
-                }
-                completed = true
-            }
-        }
-    }
+    override suspend fun request() = Unit
 }

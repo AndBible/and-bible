@@ -89,11 +89,14 @@ class DownloadHostTest {
         platform: DownloadHostPlatform = unused(),
         hostShell: HostShell = shell,
         uiLanguage: String = "en",
+        backgroundPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
+        downloadControlProvider: () -> net.bible.android.control.download.DownloadControl = { error("unused") },
     ) = DownloadHost(
         shell = hostShell,
         strings = iosStrings(uiLanguage),
         platform = platform,
         notificationPermission = unused(),
+        backgroundNotificationPermission = backgroundPermission,
         clipboard = unused(),
         openInstallZip = { _, _, _ -> },
         observeProgressJobs = { { } },
@@ -113,7 +116,7 @@ class DownloadHostTest {
                 unused(),
             )
         },
-        downloadControlProvider = { error("unused") },
+        downloadControlProvider = downloadControlProvider,
         documentControlProvider = { error("unused") },
         fakeBookFactoryProvider = { error("unused") },
         customRepositoryServiceProvider = { error("unused") },
@@ -282,6 +285,82 @@ class DownloadHostTest {
                     assertEquals(false, settings.getBoolean("download_do_not_ask", false), "ordinary Yes is not permanent consent")
                 }
             }
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun userDownloadAsksPermission() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        try {
+            var asks = 0
+            val pending = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val downloadControl = net.bible.android.control.download.DownloadControl(unused(), unused(), unused())
+            val host = host(IntSettings(),
+                backgroundPermission = net.bible.sharedcore.platform.NotificationPermission { asks++; pending.await() },
+                downloadControlProvider = { downloadControl },
+            )
+            assertEquals(0, asks, "constructing the host must not ask")
+            val controller = host.downloadControllerFor(DocTypeFilter.ALL)
+            val book = SwordBook(SwordBookMetaData("""
+                [engKJV2006eb]
+                Description=King James Version
+                ModDrv=RawText
+                Versification=KJV
+                Lang=en
+            """.trimIndent().encodeToByteArray(), "engKJV2006eb"), NullBackend())
+            val session = DownloadHost::class.java.getDeclaredField("session").apply { isAccessible = true }.get(host)
+            session.javaClass.getDeclaredField("booksById").apply { isAccessible = true }
+                .set(session, mapOf(book.repoIdentity to book))
+            assertEquals(0, asks, "constructing a host and opening its catalogue must not ask")
+            controller.requestDownloadConfirm(book.repoIdentity, "confirm")
+            controller.confirmDialog()
+            assertEquals(1, asks)
+            assertEquals(book.name, downloadControl.documentName(book.repoIdentity), "download starts while permission is pending")
+            pending.complete(Unit)
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun failedPermissionDoesNotCancelCurrentOrLaterDownloads() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        try {
+            var requests = 0
+            val pending = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val downloadControl = net.bible.android.control.download.DownloadControl(unused(), unused(), unused())
+            val host = host(IntSettings(),
+                backgroundPermission = net.bible.sharedcore.platform.NotificationPermission {
+                    requests++
+                    if (requests == 1) { pending.await(); error("permission failed") }
+                },
+                downloadControlProvider = { downloadControl },
+            )
+            val controller = host.downloadControllerFor(DocTypeFilter.ALL)
+            fun book(id: String) = SwordBook(SwordBookMetaData("""
+                [$id]
+                Description=$id
+                ModDrv=RawText
+                Versification=KJV
+                Lang=en
+            """.trimIndent().encodeToByteArray(), id), NullBackend())
+            val first = book("firstTest")
+            val second = book("secondTest")
+            val session = DownloadHost::class.java.getDeclaredField("session").apply { isAccessible = true }.get(host)
+            session.javaClass.getDeclaredField("booksById").apply { isAccessible = true }
+                .set(session, listOf(first, second).associateBy { it.repoIdentity })
+            controller.requestDownloadConfirm(first.repoIdentity, "confirm")
+            controller.confirmDialog()
+            assertEquals(first.name, downloadControl.documentName(first.repoIdentity))
+            pending.complete(Unit)
+            controller.requestDownloadConfirm(second.repoIdentity, "confirm")
+            controller.confirmDialog()
+            assertEquals(2, requests)
+            assertEquals(second.name, downloadControl.documentName(second.repoIdentity))
         } finally {
             Dispatchers.resetMain()
         }

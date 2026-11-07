@@ -220,6 +220,56 @@ class SettingsHostTest {
     }
 
     @Test
+    fun systemNotificationsDeniedLinkRoutesThroughSettingsGraph() = runComposeUiTest {
+        val local = object : net.bible.sharedcore.settings.DeviceLocalPrefs {
+            override fun getString(key: String, default: String?) = default
+            override fun getBoolean(key: String, default: Boolean) = default
+            override fun setString(key: String, value: String) = Unit
+            override fun setBoolean(key: String, value: Boolean) = Unit
+            override fun remove(key: String) = Unit
+        }
+        val options = object : net.bible.android.view.activity.settings.DictionaryOptionsProvider {
+            override val greekDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val hebrewDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val greekMorphOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val wordLookupDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+        }
+        val flags = java.lang.reflect.Proxy.newProxyInstance(
+            net.bible.sharedcore.settings.SettingsPlatformFlags::class.java.classLoader,
+            arrayOf(net.bible.sharedcore.settings.SettingsPlatformFlags::class.java),
+        ) { _, method, _ -> if (method.returnType == Boolean::class.javaPrimitiveType) false else null } as net.bible.sharedcore.settings.SettingsPlatformFlags
+        var opened = 0
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined)
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(prefs, true)
+        val service = net.bible.android.view.activity.settings.AppSettingsServiceImpl(
+            options, prefs, local, net.bible.sharedui.strings.keyed.KeyedCoreStrings(
+                net.bible.sharedui.assembly.hostStringTable("en")
+            ), flags, null, pref,
+            net.bible.sharedcore.settings.NotificationsDenied { true },
+            net.bible.sharedcore.settings.NotificationSettingsLink { opened++ }, scope,
+        )
+        try {
+            setContent {
+                val nav = rememberNavController()
+                val deps = androidx.compose.runtime.remember {
+                    host(serviceProvider = { service }).navDeps(nav, NavResultChannel<ReadingProgressResult> { })
+                }
+                androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides strings) {
+                    net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                        net.bible.sharedui.components.AbNavHost(nav, startDestination = net.bible.sharedcore.nav.NavRoutes.SETTINGS) {
+                            settingsNavGraph(nav, deps)
+                        }
+                    }
+                }
+            }
+            onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-system_notifications_denied"))
+            onNodeWithTag("settings-row-system_notifications_denied").performClick()
+            assertEquals(1, opened)
+            assertTrue(pref.enabled.value)
+        } finally { scope.coroutineContext[Job]?.cancel() }
+    }
+
+    @Test
     fun readingProgressInitialTab() {
         val host = host()
         assertEquals(ReadingTab.MEMORIZE, host.readingProgressInitialTab(1))

@@ -24,6 +24,7 @@ object AppSettingsNav {
     const val TEST_ERROR_DIALOG = "test_error_dialog"
     const val TEST_ERROR_DIALOG_QUEUE = "test_error_dialog_queue"
     const val IMPORT_LEGACY_DATA = "import_legacy_data"
+    const val NOTIFICATION_SETTINGS = "system_notifications_denied"
 }
 
 /** Which modal the main app settings screen is currently showing (screen-local, driven by the
@@ -108,7 +109,7 @@ class AppSettingsController(
         // `settingsDrawableRes` owns the actual drawable lookup); `request_sdcard_permission_pref`
         // stays iconless, matching `res/xml/settings.xml`. (It was one of two such rows until
         // Batch Z-late's epilogue deleted the Developer category and its single switch.)
-        val items = listOf(
+        val items = listOfNotNull(
             // ---- Dictionaries ----
             SettingsItem.Category(
                 key = "dictionaries_category",
@@ -347,11 +348,16 @@ class AppSettingsController(
             SettingsItem.SwitchRow(
                 key = "system_notifications",
                 title = labels.systemNotificationsTitle,
-                summary = labels.systemNotificationsSummary,
+                summary = if (s.systemNotificationsDenied) labels.systemNotificationsDenied else labels.systemNotificationsSummary,
                 checked = s.showSystemNotifications,
                 iconKey = "system_notifications",
                 visible = s.systemNotificationsVisible,
             ),
+            if (s.systemNotificationsVisible && s.systemNotificationsDenied && s.notificationSettingsLinkAvailable)
+                SettingsItem.NavigationRow(
+                    key = AppSettingsNav.NOTIFICATION_SETTINGS,
+                    title = labels.openSettings,
+                ) else null,
             // ---- E-ink ----
             SettingsItem.Category(
                 key = "prefs_eink_settings_cat",
@@ -533,5 +539,8 @@ class AppSettingsController(
     /** Forwards the positive selected set; the service impl re-inverts inverse prefs. */
     fun onMultiSelectChange(key: String, values: Set<String>) = service.setStringSet(key, values)
 
-    fun onNavigate(key: String) = onNavigate.invoke(key)
+    fun onNavigate(key: String) {
+        if (key == AppSettingsNav.NOTIFICATION_SETTINGS) service.openNotificationSettings()
+        else onNavigate.invoke(key)
+    }
 }

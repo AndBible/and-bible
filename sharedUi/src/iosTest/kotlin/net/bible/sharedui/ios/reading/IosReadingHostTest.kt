@@ -67,8 +67,7 @@ class IosReadingHostTest {
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-                ),
-            ) }
+                ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
             val platform = HostReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {

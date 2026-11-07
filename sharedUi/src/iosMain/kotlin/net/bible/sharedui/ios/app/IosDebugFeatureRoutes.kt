@@ -11,6 +11,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
@@ -33,6 +36,45 @@ import net.bible.sharedui.host.app.HostReadingReady
 /** Real graph only: no production reading callbacks, arbitrary routes, or replacement feature UI. */
 @Composable
 internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts, askBookmarks: () -> Unit) {
+    if (ready && IosDebugLaunchArgs.hasLaunchFlag("-notificationDebugControls")) {
+        val text = koin.get<net.bible.sharedcore.platform.CoreStrings>().debugTestError
+        val scope = rememberCoroutineScope()
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+            Column {
+                val resetReceipt by net.bible.sharedui.assembly.IosAppStartup.notificationResetReceipt.collectAsState()
+                resetReceipt?.let { receipt ->
+                    Text(receipt, modifier = Modifier.testTag("notification-debug-reset-$receipt"))
+                }
+                TextButton(onClick = {
+                    net.bible.android.control.event.UserMessages.errorNotification(
+                        text, showReportButton = false, background = true,
+                        kind = net.bible.android.control.activity.ActivityKind.SYNC,
+                    )
+                }, modifier = Modifier.testTag("notification-debug-automatic")) { Text(text) }
+                TextButton(onClick = {
+                    val release = net.bible.sharedui.assembly.IosDownloadKeepAlive.hold("notification-debug")
+                    scope.launch {
+                        try {
+                            delay(5000)
+                            net.bible.android.control.event.UserMessages.errorNotification(
+                                text, showReportButton = false, background = true,
+                                kind = net.bible.android.control.activity.ActivityKind.SYNC,
+                            )
+                            delay(1000)
+                        } finally {
+                            release()
+                        }
+                    }
+                }, modifier = Modifier.testTag("notification-debug-background")) { Text(text) }
+                TextButton(onClick = {
+                    net.bible.android.control.event.UserMessages.errorNotification(
+                        text, showReportButton = false, background = false,
+                        kind = net.bible.android.control.activity.ActivityKind.SYNC,
+                    )
+                }, modifier = Modifier.testTag("notification-debug-user")) { Text(text) }
+            }
+        }
+    }
     val scenario = remember { IosDebugLaunchArgs.featureScenario() } ?: return
     val once = remember { DebugFeatureOnce() }
     LaunchedEffect(ready) {

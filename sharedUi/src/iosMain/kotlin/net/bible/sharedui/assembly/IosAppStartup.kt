@@ -140,6 +140,7 @@ internal class IosPlatformParts(val config: IosAppConfig) {
  * 2. [openDatabases] opens every database off the main thread, behind the splash/progress state.
  */
 object IosAppStartup {
+    internal val notificationResetReceipt = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
     private var parts: IosPlatformParts? = null
     private val shownErrors = HashMap<String, Long>()
     private val errorLock = NSRecursiveLock()
@@ -208,7 +209,7 @@ object IosAppStartup {
                                     single { net.bible.service.cloudsync.CloudSyncNamespace(value) }
                                 }
                             }
-                            listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()) + extraModules, p))
+                            listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()), p)) + extraModules
                         },
                         reportJSwordError = { ev -> reportJSwordError(p, ev) },
                         isSwordLoaded = { HostSwordEnvironment.isLoaded },
@@ -227,6 +228,45 @@ object IosAppStartup {
                     withContext(Dispatchers.Main.immediate) { opened = true }
                     // The activity-menu preference may have been read while the store still answered defaults.
                     runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
+                    val koin = org.koin.mp.KoinPlatform.getKoin()
+                    if (IosDebugLaunchArgs.hasLaunchFlag("-notificationReset")) {
+                        notificationResetReceipt.value = null
+                        try {
+                            val enabled = !IosDebugLaunchArgs.hasLaunchFlag("-notificationSettingOff")
+                            koin.get<net.bible.sharedcore.platform.AppSettings>().setBoolean("notification_permission_asked", false)
+                            koin.get<net.bible.android.control.activity.SystemNotificationsPreference>().set(enabled)
+                            val db = DatabaseContainer.instance
+                            db.settingsStore.flush()
+                            val dao = db.settingsDb.booleanSettingDao()
+                            check(dao.byKey("notification_permission_asked")?.value == false)
+                            check(dao.byKey(net.bible.android.control.activity.SystemNotificationsPreference.KEY)?.value == enabled)
+                            val center = platform.UserNotifications.UNUserNotificationCenter.currentNotificationCenter()
+                            center.removeAllDeliveredNotifications()
+                            center.removeAllPendingNotificationRequests()
+                            val cleaned = withTimeoutOrNull(10_000) {
+                                val delivered = kotlinx.coroutines.suspendCancellableCoroutine<List<*>?> { continuation ->
+                                    center.getDeliveredNotificationsWithCompletionHandler { result ->
+                                        if (continuation.isActive) continuation.resumeWith(Result.success(result))
+                                    }
+                                }
+                                val pending = kotlinx.coroutines.suspendCancellableCoroutine<List<*>?> { continuation ->
+                                    center.getPendingNotificationRequestsWithCompletionHandler { result ->
+                                        if (continuation.isActive) continuation.resumeWith(Result.success(result))
+                                    }
+                                }
+                                delivered != null && pending != null && delivered.isEmpty() && pending.isEmpty()
+                            }
+                            check(cleaned == true) { "Notification center did not clear in time" }
+                            notificationResetReceipt.value = "success"
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            throw e
+                        } catch (e: Throwable) {
+                            Log.e(TAG, "Notification debug reset failed", e)
+                            notificationResetReceipt.value = "failure"
+                        }
+                    } else {
+                        runCatching { koin.getOrNull<net.bible.android.control.activity.SystemNotificationsPreference>()?.refresh() }
+                    }
                 },
             ).also { owner = it }
         }
@@ -303,6 +343,7 @@ object IosAppStartup {
         withContext(Dispatchers.Main.immediate) { owner = null; parts = null }
         selectedParts = null
         opened = false
+        notificationResetReceipt.value = null
         errorHookCalls = 0
         errorLock.lock()
         try { shownErrors.clear() } finally { errorLock.unlock() }

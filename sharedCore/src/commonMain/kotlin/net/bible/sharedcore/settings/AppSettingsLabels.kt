@@ -90,6 +90,8 @@ data class AppSettingsLabels(
     val showActivityInMenuSummary: String,
     val systemNotificationsTitle: String,
     val systemNotificationsSummary: String,
+    val systemNotificationsDenied: String,
+    val openSettings: String,
 
     // Persecution
     val discreteHelpTitle: String,
@@ -208,6 +210,8 @@ data class AppSettingsLabels(
             disableAnimationsSummary = "Turn off UI animations",
             showActivityInMenuTitle = "Show background activity in the menu",
             showActivityInMenuSummary = "Downloads, sync and indexing progress, and failures, in the \u22EE menu",
+            systemNotificationsDenied = "Turned off in iOS Settings",
+            openSettings = "Open settings",
             systemNotificationsTitle = "System notifications",
             systemNotificationsSummary = "Notify about failed background work, long downloads that finish while AndBible is in the background, and their progress",
 

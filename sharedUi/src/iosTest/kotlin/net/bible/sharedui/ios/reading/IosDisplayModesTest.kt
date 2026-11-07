@@ -107,8 +107,7 @@ class IosDisplayModesTest {
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-                ),
-            ) }
+                ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
             awaitOnMain { HostReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = HostReadingReady.scope
