@@ -21,6 +21,10 @@ fun monotonicActivityClock(): () -> Long {
     return { mark.elapsedNow().inWholeMilliseconds }
 }
 
+data class ActivityBadgeCounts(val failures: Int = 0, val attention: Int = 0) {
+    val total: Int get() = failures + attention
+}
+
 /**
  * Registry of long-running background work (downloads, installs, indexing, sync) for the activity center UI.
  *
@@ -33,10 +37,6 @@ fun monotonicActivityClock(): () -> Long {
  * one coroutine that wakes at the next debounce end / success expiry, using [delay], so a test
  * scheduler's virtual time works as long as [clock] follows it. Production passes [monotonicActivityClock].
  */
-data class ActivityBadgeCounts(val failures: Int = 0, val attention: Int = 0) {
-    val total: Int get() = failures + attention
-}
-
 class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 
     private class Rec(val seq: Long, val item: ActivityItem)

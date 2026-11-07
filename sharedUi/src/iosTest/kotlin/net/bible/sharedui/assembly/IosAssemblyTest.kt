@@ -557,7 +557,7 @@ class IosAssemblyTest {
             while (notifier.notifications.isEmpty()) delay(10)
             notifier.notifications.last()
         }
-        assertEquals("AI agent needs your permission", notification.title)
+        assertEquals("AI agent needs your attention", notification.title)
         assertEquals("Waiting for permission", notification.body)
         assertEquals(null, notification.progress)
         assertTrue(notification.urgent)

@@ -86,7 +86,7 @@ class AgentActivitySource(
                 val run = runs.remove(ws) ?: return
                 when (change.stopReason) {
                     AgentStopReason.COMPLETED -> center.succeed(id)
-                    AgentStopReason.ERROR -> center.fail(id, run.lastError ?: strings().failed, reportable = true, cause = change.cause)
+                    AgentStopReason.ERROR -> center.fail(id, run.lastError ?: strings().failed, reportable = change.cause != null, cause = change.cause)
                     AgentStopReason.CANCELLED -> center.cancelled(id)
                     null -> Unit
                 }

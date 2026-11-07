@@ -203,7 +203,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
             val koin = getKoin()
             IosNotificationRuntime(
                 center = get(), notifier = get(), requests = get(), preference = get(), observerFactory = get(),
-                attentionText = { koin.get<LlmStrings>().agentActivityPermissionNeeded },
+                attentionText = { koin.get<LlmStrings>().agentActivityAttentionNeeded },
                 finishedText = { koin.get<CoreStrings>().notificationFinished },
             )
         } onClose { it?.close() }
