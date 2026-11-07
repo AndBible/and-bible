@@ -45,6 +45,11 @@ data class BackupState(
      * would flip them to the persisted values under the user's finger.
      */
     val loaded: Boolean = true,
+    /**
+     * False where the platform has no APK to back up (iOS, desktop: `AppEnvironment.apkPath == null`); the screen then
+     * hides the Application row. Defaults to true (Android) so the placeholder state does not flicker the row.
+     */
+    val appBackupAvailable: Boolean = true,
 )
 
 /**

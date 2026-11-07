@@ -61,9 +61,9 @@ import org.koin.mp.KoinPlatform
  * classic screen lists them in. **This is "back up all checked", not classic's first-match
  * `when`** -- see [BackupServiceImpl] kdoc for why.
  */
-@VisibleForTesting fun backupActionsFor(backupApp: Boolean, backupDatabase: Boolean, backupDocuments: Boolean): List<BackupAction> =
+@VisibleForTesting fun backupActionsFor(backupApp: Boolean, backupDatabase: Boolean, backupDocuments: Boolean, appBackupAvailable: Boolean = true): List<BackupAction> =
     buildList {
-        if (backupApp) add(BackupAction.App)
+        if (backupApp && appBackupAvailable) add(BackupAction.App)
         if (backupDatabase) add(BackupAction.Database)
         if (backupDocuments) add(BackupAction.Documents)
     }
@@ -103,6 +103,7 @@ class BackupServiceImpl(
                 ResetDbRow(dbFileName = db.dbFileName, title = strings.databaseTitle(db.dbFileName))
             },
             crash = loadCrash(),
+            appBackupAvailable = env.apkPath != null,
         )
     }
 
@@ -126,6 +127,7 @@ class BackupServiceImpl(
             backupApp = toggles[ToggleKind.BackupApp] ?: false,
             backupDatabase = toggles[ToggleKind.BackupDatabase] ?: true,
             backupDocuments = toggles[ToggleKind.BackupDocuments] ?: false,
+            appBackupAvailable = env.apkPath != null,
         )
         for (action in actions) {
             when (action) {
