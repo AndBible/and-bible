@@ -184,7 +184,7 @@ def sort_key(m: dict, locale: Locale) -> tuple:
 
 
 def describe(m: dict) -> str:
-    return f"{m['init']} ({m['repo'].replace('_', ' ').strip()}): {m['desc']}"
+    return f"{m['init']} ({display_repo(m['repo'])}): {m['desc']}"
 
 
 def propose(catalog_rows: list[dict], locales: list[Locale] | None = None,
@@ -276,6 +276,17 @@ def parse_conf(text: str) -> dict | None:
             "feat": values.get("Feature", []), "opts": values.get("GlobalOptionFilter", []),
             "locked": "CipherKey" in values and not one("CipherKey"), "lic": one("DistributionLicense"),
             "cat": one("Category"), "v11n": one("Versification")}
+
+
+def display_repo(repo: str) -> str:
+    """The repository's name as the app lists it (catalog rows may carry the `repo_key` form, e.g. Lockman__CrossWire_)."""
+    from .state import repo_root
+    try:
+        names = parse_repositories((repo_root() / "app/src/main/res/raw/repositories.txt").read_text())
+    except OSError:
+        names = {}
+    by_key = {repo_key(n): n for n in names}
+    return repo if repo in names else by_key.get(repo, repo.replace("_", " ").strip())
 
 
 def parse_mods_tar(data: bytes, repo: str) -> list[dict]:
