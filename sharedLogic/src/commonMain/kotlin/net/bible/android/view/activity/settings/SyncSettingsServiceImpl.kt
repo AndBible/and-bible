@@ -204,9 +204,22 @@ class SyncSettingsServiceImpl(
         }
     }
 
-    override fun setDocumentsEnabled(summary: DocSyncSummaryData) = mutateDocuments {
-        documentSettings.enabled = true
-        starter.start(summary.uploadInitials, summary.downloadInitials)
+    override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
+        notificationPermission?.let { permission ->
+            writeScope.launch {
+                try {
+                    permission.ensureAsked()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    net.bible.sharedcore.log.Log.e("SyncSettingsService", "Unable to request notification permission", e)
+                }
+            }
+        }
+        mutateDocuments {
+            documentSettings.enabled = true
+            starter.start(summary.uploadInitials, summary.downloadInitials)
+        }
     }
 
     override fun disableDocuments() = mutateDocuments {

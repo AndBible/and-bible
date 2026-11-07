@@ -355,6 +355,7 @@ class AppHosts(
             // The bookmark host's saved state carries the screen's filters across a recreation.
             restoredFilters = { bookmark.restoredState?.cloudFilters },
             consumeRestoredFilters = { bookmark.updateRestored { state -> state?.copy(cloudFilters = null) } },
+            notificationPermission = koin.getOrNull(),
         )
     }
 

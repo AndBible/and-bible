@@ -79,6 +79,7 @@ class CloudDocumentsHost(
     private val restoredFilters: () -> CloudFiltersValue?,
     /** Called once [restoredFilters] has been applied, so a later leave-and-reopen starts fresh. */
     private val consumeRestoredFilters: () -> Unit,
+    private val notificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
 ) {
     private val appSettings: AppSettings by lazy(appSettingsProvider)
     private val documentSyncSettings: DocumentSyncSettings by lazy(documentSyncSettingsProvider)
@@ -479,6 +480,17 @@ class CloudDocumentsHost(
     private fun handleCloudDocumentsSyncNowConfirm(entry: CloudDocumentsEntry, download: Boolean, upload: Boolean, delete: Boolean) {
         val plan = entry.lastPlan ?: return
         entry.lastPlan = null
+        notificationPermission?.let { permission ->
+            shell.hostScope.launch {
+                try {
+                    permission.ensureAsked()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    net.bible.sharedcore.log.Log.e("CloudDocumentsHost", "Unable to request notification permission", e)
+                }
+            }
+        }
         documentSyncSettings.syncNowDownload = download
         documentSyncSettings.syncNowUpload = upload
         documentSyncSettings.syncNowDelete = delete

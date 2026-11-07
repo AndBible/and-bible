@@ -115,6 +115,7 @@ net.bible.sharedcore.platform.AppSettings::_root_
 net.bible.sharedcore.platform.CoreStrings::_root_
 net.bible.sharedcore.platform.DateTimeFormats::_root_
 net.bible.sharedcore.platform.MarkdownRenderer::_root_
+net.bible.sharedcore.platform.NotificationPermission::_root_
 net.bible.sharedcore.platform.OrderedLauncher::_root_
 net.bible.sharedcore.platform.UserNotifier::_root_
 net.bible.sharedcore.platform.secrets.SecretStore::_root_

@@ -87,7 +87,49 @@ class NotificationPermissionCallTest {
         assertEquals(0, asks)
     }
 
-    private fun service(scope: CoroutineScope, permission: NotificationPermission, writeScope: CoroutineScope = scope, onStart: () -> Unit = {}): SyncSettingsServiceImpl {
+    @Test fun documentEnableAsksAndStartsTransfer() = runTest {
+        var asks = 0
+        var transfers = 0
+        val service = service(this, NotificationPermission { asks++ }, onDocumentStart = { transfers++ })
+        runCurrent()
+        assertEquals(0, asks)
+        service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(listOf("A"), listOf("B"), 1, 2))
+        runCurrent()
+        assertEquals(1, asks)
+        assertEquals(1, transfers)
+    }
+
+    @Test fun documentDisableDoesNotAsk() = runTest {
+        var asks = 0
+        val service = service(this, NotificationPermission { asks++ })
+        service.disableDocuments()
+        runCurrent()
+        assertEquals(0, asks)
+    }
+
+    @Test fun pendingDocumentPermissionDoesNotBlockTransfer() = runTest {
+        var transfers = 0
+        val pending = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val service = service(this, NotificationPermission { pending.await() }, onDocumentStart = { transfers++ })
+        service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), emptyList(), 0, 0))
+        runCurrent()
+        assertEquals(1, transfers)
+        pending.complete(Unit)
+    }
+
+    @Test fun failedDocumentPermissionDoesNotCancelTransfer() = runTest {
+        var transfers = 0
+        val failures = mutableListOf<Throwable>()
+        val writeScope = CoroutineScope(coroutineContext + SupervisorJob() + CoroutineExceptionHandler { _, e -> failures += e })
+        val service = service(this, NotificationPermission { error("permission failed") }, writeScope, onDocumentStart = { transfers++ })
+        service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), emptyList(), 0, 0))
+        runCurrent()
+        assertEquals(1, transfers)
+        assertEquals(0, failures.size)
+        writeScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+    }
+
+    private fun service(scope: CoroutineScope, permission: NotificationPermission, writeScope: CoroutineScope = scope, onDocumentStart: () -> Unit = {}, onStart: () -> Unit = {}): SyncSettingsServiceImpl {
         val settings = inert<AppSettings>()
         val env = inert<AppEnvironment>()
         val strings = inert<CoreStrings>()
@@ -97,7 +139,11 @@ class NotificationPermissionCallTest {
             override fun create(id: String): CloudAdapter = error("not used")
         }
         val documents = DocumentSyncSettings({ inert<net.bible.android.database.DocumentSyncPreferencesDao>() }, { error("not used") }, { error("not used") }, OrderedLauncher(scope), env)
-        val starter = inert<DocumentSyncStarter>()
+        val starter = object : DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) = Unit
+            override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) = onDocumentStart()
+            override fun stop() = Unit
+        }
         val provider = DocumentSyncProvider { error("not used") }
         val cloud = CloudSync(AppDialogController(), strings, env, settings, adapters,
             SyncScheduler { onStart(); kotlinx.coroutines.CompletableDeferred(true) }, starter, provider, documents)
