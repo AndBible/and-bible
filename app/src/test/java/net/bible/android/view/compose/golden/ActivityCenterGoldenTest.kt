@@ -73,6 +73,7 @@ class ActivityCenterGoldenTest {
         ReadingToolbar(state = toolbarState, icons = goldenToolbarIcons(), callbacks = goldenToolbarCallbacks(), activity = activity)
     }
 
+    @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
     private fun capture(state: String, content: @Composable () -> Unit) =
         modes.forEach { captureGolden("ActivityCenter", state, it, content = content) }
 
