@@ -23,6 +23,7 @@
     <div class="getapp">
       <div class="getapp__bar">
         <h2>{{ strings.getapp.title }}</h2>
+        {% if strings.getapp.banner %}<p class="getapp__beta">{{ strings.getapp.banner | md_inline }}</p>{% endif %}
         {% for store in strings.getapp.stores %}
         <a class="store" href="{{ store.url }}">{{ store.name }} <small>{{ store.note }}</small></a>
         {% endfor %}

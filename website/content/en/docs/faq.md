@@ -74,7 +74,11 @@ If you have an older Android device, you can download older versions:
 | 2.3 (Gingerbread)+ | 2.9.5 (unsupported) | [Download](https://github.com/AndBible/and-bible/releases/tag/build-02.09.05) |
 | 4.4 (KitKat)+ | 3.2.343 (unsupported) | [Download](https://github.com/AndBible/and-bible/releases/tag/v3.2.343) |
 | 5.0 (Lollipop)+ | 4.0.687 | [Download](https://github.com/AndBible/and-bible/releases/tag/production-687) |
+<!-- if beta -->
+| 6.0 (Marshmallow)+ | Latest | [Download](https://github.com/AndBible/and-bible/releases/latest) ([6.0 beta]({{ beta_release }})) |
+<!-- else -->
 | 6.0 (Marshmallow)+ | Latest | [Download](https://github.com/AndBible/and-bible/releases/latest) |
+<!-- end -->
 
 ## What happens if the reading pane's WebView renderer crashes?
 
@@ -101,6 +105,17 @@ Yes! *AndBible* is in the
 [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527)
 for iPhone, iPad and Apple Silicon Macs. See [Platform differences](platform_differences.md)
 for what works differently from Android.
+
+<!-- if testflight -->
+The new AndBible 6.0 is in public beta on iPhone, iPad and Mac through
+[TestFlight]({{ testflight }}); see [Getting started](getting_started.md#iphone-and-ipad).
+<!-- end -->
+<!-- if beta -->
+<!-- if not testflight -->
+The new AndBible 6.0, shared with Android, Windows and Linux, is coming to iPhone, iPad and Mac
+soon as a public beta through TestFlight.
+<!-- end -->
+<!-- end -->
 
 If you’re still on an older Android device and prefer not to switch:
 

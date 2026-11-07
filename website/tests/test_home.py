@@ -14,7 +14,10 @@ SITE_YAML = Path(__file__).resolve().parents[1] / "content" / "en" / "site.yaml"
 def content(tmp_path):
     en = tmp_path / "content" / "en"
     en.mkdir(parents=True)
-    en.joinpath("site.yaml").write_text(SITE_YAML.read_text())
+    # The stable channel: the landing as #4022 left it. The beta entries are tested in test_channel.py.
+    text, switched = re.subn(r"(?m)^  channel: \w+$", "  channel: stable", SITE_YAML.read_text())
+    assert switched == 1, "site.yaml release.channel not found"
+    en.joinpath("site.yaml").write_text(text)
     return tmp_path / "content"
 
 
@@ -92,6 +95,37 @@ def test_appshots_crop_to_the_display(tmp_path):
     assert [p.name for p in written] == [f"{n:02d}.webp" for n in range(1, len(appshots.SHOTS) + 1)]
     with Image.open(written[0]) as image:
         assert image.size == (appshots.WIDTH, round(1455 * appshots.WIDTH / 700))
+
+
+def test_raw_appshots_drop_the_status_and_gesture_bars(tmp_path):
+    from PIL import Image
+
+    from sitegen import appshots
+
+    source = tmp_path / "raw"
+    source.mkdir()
+    for stem in appshots.RAW_SHOTS:
+        image = Image.new("RGB", (1440, 3120), (255, 255, 255))
+        image.paste((255, 0, 0), (0, 0, 1440, 110))      # status bar
+        image.paste((0, 0, 255), (0, 3050, 1440, 3120))  # gesture bar
+        image.save(source / f"{stem}.png")
+    written = appshots.build_raw(source, tmp_path / "out")
+    assert [p.name for p in written] == [f"{n:02d}.webp" for n in range(1, len(appshots.RAW_SHOTS) + 1)]
+    with Image.open(written[0]) as image:
+        assert image.size == (appshots.WIDTH, round(2940 * appshots.WIDTH / 1440))
+        top, bottom = image.convert("RGB").getpixel((200, 1)), image.convert("RGB").getpixel((200, image.height - 2))
+    assert min(top) > 200 and min(bottom) > 200, (top, bottom)
+
+
+def test_raw_appshots_keep_the_old_set_when_a_capture_is_missing(tmp_path):
+    from sitegen import appshots
+
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "01.webp").write_bytes(b"old")
+    with pytest.raises(FileNotFoundError):
+        appshots.build_raw(tmp_path, out)
+    assert (out / "01.webp").read_bytes() == b"old"
 
 
 def test_no_literal_colours_outside_token_blocks():

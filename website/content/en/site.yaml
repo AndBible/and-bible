@@ -1,4 +1,19 @@
 site_name: AndBible
+# Release channel switch (sitegen/channel.py). `beta` while 6.0 is in public beta, `stable` after the
+# 6.0 release: it picks the landing page's download entries (getapp vs getapp.beta) and the
+# <!-- if beta --> blocks of the docs.
+# ios_beta_link: the public TestFlight link of the iOS beta. ios_beta_enabled: true once that beta is
+# open; false shows iOS as "coming soon" (the link alone does nothing). Leave it true after the
+# stable switch: the beta announcement post reads it (<!-- if ios_beta -->).
+# beta_release_link: the beta's GitHub release page (empty = the GitHub releases list, which shows
+# the newest pre-release first; set it to the beta's tag page, because test-* builds are
+# pre-releases too). The repository README.md is not built from this: edit its "Get AndBible"
+# section by hand when switching (docs/superpowers/status/2026-11-07-6-0-beta-site.md).
+release:
+  channel: beta
+  ios_beta_link: "https://testflight.apple.com/join/sB7guYsk"
+  ios_beta_enabled: false
+  beta_release_link: ""
 nav:
   blog: Blog
   docs: Docs
@@ -43,6 +58,26 @@ getapp:
     - {name: Samsung}
     - {name: Huawei}
     - {name: Accrescent, url: "https://accrescent.app/app/org.andbible.andbible"}
+  # Used instead of `stores` and `others` while release.channel is beta (sitegen/channel.py).
+  # `when: testflight` / `when: not testflight` keep an entry only with / without a TestFlight link;
+  # URLs may use {{ beta_release }}, {{ play_beta }} and {{ testflight }}.
+  beta:
+    banner: "**AndBible 6.0 is in public beta.** [What's new](/docs/releases/release_6_0/) · [How to join](/2026/11/07/andbible-6-0-public-beta/)"
+    stores:
+      - {name: Google Play, note: "Android · join the beta", url: "{{ play_beta }}"}
+      - {name: GitHub, note: "Android APK · beta", url: "{{ beta_release }}"}
+      - {name: TestFlight, note: "iPhone, iPad & Mac · beta", url: "{{ testflight }}", when: testflight}
+      - {name: App Store, note: "iPhone, iPad & Mac · 6.0 beta soon", url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527", when: not testflight}
+      - {name: Windows, note: "MSI · beta", url: "{{ beta_release }}"}
+      - {name: Linux, note: ".deb, AppImage · beta", url: "{{ beta_release }}"}
+    others_intro: Stable version on
+    others:
+      - {name: Google Play, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity"}
+      - {name: F-Droid, url: "https://f-droid.org/packages/net.bible.android.activity/"}
+      - {name: App Store, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527", when: testflight}
+      - {name: GitHub, url: "{{ releases_latest }}"}
+      - {name: Amazon, url: "https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK"}
+      - {name: Accrescent, url: "https://accrescent.app/app/org.andbible.andbible"}
 features:
   - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}
   - {title: StudyPads, text: Notes and bookmarks woven into the Bible text, organised by labels.}

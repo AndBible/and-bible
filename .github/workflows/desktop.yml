@@ -2,7 +2,7 @@ name: Desktop
 on:
   workflow_dispatch:
   push:
-    tags: ["test-*", "production-*"]
+    tags: ["test-*", "beta-*", "production-*"]
     paths:
       - "desktopApp/**"
       - "desktopWebView2/**"
@@ -78,6 +78,8 @@ jobs:
           kind=dev
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
+          # A beta build updates like a production one: it is offered the next production-* release.
+          if [[ "$REF_TYPE" == tag && "$REF_NAME" == beta-* ]]; then kind=production; fi
           ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopWebView2:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
       - name: WebKitGTK desktop tests and package
         if: env.WEBKITGTK_ENABLED == 'true'
@@ -88,6 +90,8 @@ jobs:
           kind=dev
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
+          # A beta build updates like a production one: it is offered the next production-* release.
+          if [[ "$REF_TYPE" == tag && "$REF_NAME" == beta-* ]]; then kind=production; fi
           ./gradlew "-PdesktopReleaseKind=$kind" :desktopWebkitGtk:test :desktopWebkitGtk:packageDeb
       # v4
       - if: env.WEBKITGTK_ENABLED == 'true'
@@ -233,6 +237,8 @@ jobs:
             $kind = 'dev'
             if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'test-*') { $kind = 'test' }
             if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'production-*') { $kind = 'production' }
+            # A beta build updates like a production one: it is offered the next production-* release.
+            if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'beta-*') { $kind = 'production' }
             .\gradlew.bat "-PdesktopReleaseKind=$kind" :desktopApp:packageWindowsZip :desktopApp:packageWindowsMsix :desktopApp:packageWindowsMsi
             if ($LASTEXITCODE -ne 0) { throw "Windows packaging failed" }
             foreach ($extension in @('zip', 'msix', 'msi')) {
@@ -264,7 +270,7 @@ jobs:
           retention-days: 14
 
   release-assets:
-    if: github.ref_type == 'tag' && (startsWith(github.ref_name, 'test-') || startsWith(github.ref_name, 'production-'))
+    if: github.ref_type == 'tag' && (startsWith(github.ref_name, 'test-') || startsWith(github.ref_name, 'beta-') || startsWith(github.ref_name, 'production-'))
     needs: [linux-packages, windows]
     runs-on: ubuntu-24.04
     timeout-minutes: 75

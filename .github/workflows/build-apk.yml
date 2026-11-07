@@ -68,7 +68,7 @@ jobs:
         echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
         if [[ -n "$VERSION_SUFFIX" ]]; then version_name "$VERSION_SUFFIX" > VNAME; else version_name > VNAME; fi
         echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
-        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ test- ]]; then echo "Test release $(cat VNAME)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
+        echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ test- ]]; then echo "Test release $(cat VNAME)"; elif [[ $GITHUB_REF =~ beta- ]]; then echo "Beta release $(cat VNAME)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
         # Changelog filenames use the versionCode (fastlane/F-Droid convention),
         # e.g. 1099.txt, not the versionName 5.1.1099.txt.
         VCODE=$(version_code)
@@ -88,8 +88,8 @@ jobs:
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calculator-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
     # Releases are immutable: assets can only be added while the release is a draft. Always create a
-    # draft. test-/production- tags also get desktop packages: the Desktop workflow's release-assets job
-    # uploads them and publishes the draft. Other tags (alpha-/beta-) are published right here.
+    # draft. test-/beta-/production- tags also get desktop packages: the Desktop workflow's release-assets
+    # job uploads them and publishes the draft. Other tags (alpha-) are published right here.
     - name: Create draft release
       if: contains(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v3
@@ -108,7 +108,7 @@ jobs:
           ./calculator-${{ env.TAG_NAME }}.apk
 
     - name: Publish release (tags without desktop packages)
-      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref_name, 'test-') && !startsWith(github.ref_name, 'production-')
+      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref_name, 'test-') && !startsWith(github.ref_name, 'beta-') && !startsWith(github.ref_name, 'production-')
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}

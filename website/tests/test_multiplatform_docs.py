@@ -9,7 +9,7 @@ from sitegen.docs import build_docs
 @pytest.fixture(scope="module")
 def built_docs(tmp_path_factory):
     out = tmp_path_factory.mktemp("docs-out")
-    build_docs(paths.CONTENT, out, {})
+    build_docs(paths.CONTENT, out, {}, release={"channel": "stable"})  # today's #4022 pages; beta: test_channel.py
     return out
 
 

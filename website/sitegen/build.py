@@ -10,10 +10,11 @@ from __future__ import annotations
 
 import argparse
 import shutil
+from dataclasses import replace
 import sys
 from pathlib import Path
 
-from sitegen import home, paths, redirects
+from sitegen import channel, home, paths, redirects
 from sitegen.blog import render_blog, render_pages, write_sitemap
 from sitegen.content import load_pages, load_posts
 from sitegen.docs import build_docs, published_pages
@@ -32,7 +33,9 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
     (out / "CNAME").write_text("andbible.org\n")
     shutil.copytree(paths.ASSETS, out / "assets")
     env = home.environment()
-    posts = load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)
+    release = channel.settings(strings(content, DEFAULT_LANG), f"content/{DEFAULT_LANG}/site.yaml")
+    posts = [replace(p, body_md=channel.apply(p.body_md, release, str(p.source)))  # <!-- if ios_beta --> etc.
+             for p in load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)]
     reviews = load_reviews(data / "reviews.yaml")
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     videos = load_videos(data / "videos.yaml", docs_pages)

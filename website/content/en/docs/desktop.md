@@ -1,8 +1,26 @@
 # AndBible on Windows and Linux
 
+<!-- if beta -->
+!!! note "Public beta"
+    AndBible for Windows and Linux is new in AndBible 6.0, which is in public beta. Please
+    [report the problems you find](#reporting-a-bug).
+
+AndBible runs on Windows and Linux as well as on Android, iPhone, iPad and Mac. It is the same app; see [Platform differences](platform_differences.md) for what differs. Download the Windows MSI and the Linux `.deb` and AppImage of the beta from the newest *Beta release* on the [GitHub releases page]({{ beta_release }}) only. For step-by-step installation see [Getting started](getting_started.md).
+<!-- else -->
 AndBible runs on Windows and Linux as well as on Android, iPhone, iPad and Mac. It is the same app; see [Platform differences](platform_differences.md) for what differs. Download the Windows MSI and the Linux `.deb` and AppImage from [GitHub Releases](https://github.com/AndBible/and-bible/releases/latest) only. For step-by-step installation see [Getting started](getting_started.md).
+<!-- end -->
+
+![AndBible on Linux: the King James Version with Strong's numbers beside a Greek dictionary entry](images/desktop-linux.webp)
 
 On a Mac there is no separate desktop build. Install the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527) on an Apple Silicon Mac; Intel Macs are not supported.
+<!-- if testflight -->
+The 6.0 beta for Mac is the iPad app's [TestFlight beta]({{ testflight }}).
+<!-- end -->
+<!-- if beta -->
+<!-- if not testflight -->
+The 6.0 beta for iPhone, iPad and Mac is coming soon through TestFlight; until then the App Store has the current version.
+<!-- end -->
+<!-- end -->
 
 ## Windows reading engine
 

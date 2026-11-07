@@ -12,7 +12,7 @@ import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 
-from sitegen import github, paths
+from sitegen import channel, github, paths
 from sitegen.content import Post
 from sitegen.i18n import prefix
 from sitegen.reviews import Review
@@ -64,6 +64,7 @@ def headline_posts(posts: Sequence[Post], today: date) -> list[Post]:
 def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], out: Path,
                 reviews: Sequence[Review] = (), videos: Sequence[Video] = (), today: date | None = None) -> None:
     target = out / prefix(lang).lstrip("/") / "index.html"
+    strings = strings | {"getapp": channel.getapp(strings, f"content/{lang}/site.yaml")}
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("home.html").render(
         lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3], reviews=reviews,
