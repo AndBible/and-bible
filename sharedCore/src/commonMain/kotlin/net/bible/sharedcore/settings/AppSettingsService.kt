@@ -55,6 +55,8 @@ data class AppSettingsSnapshot(
     val showSystemNotifications: Boolean = false,
     /** True only where a native notifier exists (a `SystemNotificationsPreference` is bound); else the row is hidden. */
     val systemNotificationsVisible: Boolean = false,
+    val systemNotificationsDenied: Boolean = false,
+    val notificationSettingsLinkAvailable: Boolean = false,
     // Persecution
     val discreteMode: Boolean,
     val showCalculator: Boolean,
@@ -87,6 +89,9 @@ data class AppSettingsSnapshot(
 /** value/label pair mirrored from a classic entries/entryValues array pair. */
 data class Choice2(val value: String, val label: String)
 
+fun interface NotificationsDenied { suspend fun isDenied(): Boolean }
+fun interface NotificationSettingsLink { fun open() }
+
 interface AppSettingsService {
     val snapshot: StateFlow<AppSettingsSnapshot>
     fun setBool(key: String, value: Boolean)
@@ -95,4 +100,5 @@ interface AppSettingsService {
     /** Writes a POSITIVE selection set; the impl converts back to the inverse form when [key] is an inverse pref. */
     fun setStringSet(key: String, value: Set<String>)
     fun refresh()
+    fun openNotificationSettings() {}
 }

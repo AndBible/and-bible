@@ -458,6 +458,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                     AppSettingsNav.TEST_ERROR_DIALOG -> d.onTestErrorDialog()
                     AppSettingsNav.TEST_ERROR_DIALOG_QUEUE -> d.onTestErrorDialogQueue()
                     AppSettingsNav.IMPORT_LEGACY_DATA -> d.onImportLegacyData()
+                    AppSettingsNav.NOTIFICATION_SETTINGS -> controller.onNavigate(key)
                 }
             },
             onReset = controller::requestReset,

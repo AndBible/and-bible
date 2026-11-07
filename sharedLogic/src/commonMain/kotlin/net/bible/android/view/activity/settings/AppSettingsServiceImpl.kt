@@ -24,6 +24,12 @@ import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedcore.settings.doubleTapToFullscreen
 import org.koin.mp.KoinPlatform
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.settings.NotificationsDenied
+import net.bible.sharedcore.settings.NotificationSettingsLink
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -119,6 +125,9 @@ class AppSettingsServiceImpl(
     } catch (e: IllegalStateException) { // Koin not started
         null
     },
+    private val notificationsDenied: NotificationsDenied? = try { KoinPlatform.getKoin().getOrNull() } catch (e: IllegalStateException) { null },
+    private val notificationSettingsLink: NotificationSettingsLink? = try { KoinPlatform.getKoin().getOrNull() } catch (e: IllegalStateException) { null },
+    private val scope: CoroutineScope = try { KoinPlatform.getKoin().get<AppCoroutineScope>() } catch (e: IllegalStateException) { AppCoroutineScope() },
 ) : AppSettingsService {
 
     // The four dictionary/morphology option lists each do a live Books.installed() scan; a routine
@@ -131,6 +140,8 @@ class AppSettingsServiceImpl(
     private val greekMorphOptions: List<DictOption> by lazy { dictionaryOptionsProvider.greekMorphOptions }
     private val wordLookupDictOptions: List<DictOption> by lazy { dictionaryOptionsProvider.wordLookupDictOptions }
 
+    private var denied = false
+    private var denialRefresh: Job? = null
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<AppSettingsSnapshot> = _snapshot.asStateFlow()
 
@@ -249,6 +260,8 @@ class AppSettingsServiceImpl(
             activityMenuVisible = activityMenu != null,
             showSystemNotifications = systemNotifications?.enabled?.value ?: false,
             systemNotificationsVisible = systemNotifications != null,
+            systemNotificationsDenied = denied,
+            notificationSettingsLinkAvailable = notificationSettingsLink != null,
             // Persecution
             discreteMode = readBool("discrete_mode", false),
             showCalculator = readBool("show_calculator", false),
@@ -322,5 +335,13 @@ class AppSettingsServiceImpl(
 
     override fun refresh() {
         _snapshot.value = build()
+        denialRefresh?.cancel()
+        if (notificationsDenied != null) denialRefresh = scope.launch {
+            val result = notificationsDenied.isDenied()
+            denied = result
+            _snapshot.value = _snapshot.value.copy(systemNotificationsDenied = result)
+        }
     }
+
+    override fun openNotificationSettings() { notificationSettingsLink?.open() }
 }

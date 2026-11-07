@@ -90,6 +90,8 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     showActivityInMenuSummary = prefsShowActivityInMenuSummary,
     systemNotificationsTitle = prefsSystemNotificationsTitle,
     systemNotificationsSummary = prefsSystemNotificationsSummary,
+    systemNotificationsDenied = prefsSystemNotificationsDenied,
+    openSettings = openSettings,
 
     discreteHelpTitle = prefsPersecutedHelp,
     discreteHelpSummary = prefsPersecutedSummary,

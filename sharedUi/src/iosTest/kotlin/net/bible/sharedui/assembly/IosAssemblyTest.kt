@@ -646,6 +646,8 @@ class IosAssemblyTest {
             // iOS presentation helper, not an Android platform port; resolved explicitly by the graph test above.
             net.bible.android.control.activity.BackgroundErrorRouter::class,
             net.bible.sharedcore.platform.NativeNotifier::class,
+            net.bible.sharedcore.settings.NotificationsDenied::class,
+            net.bible.sharedcore.settings.NotificationSettingsLink::class,
             net.bible.android.control.activity.SystemNotificationsPreference::class,
             net.bible.android.control.activity.NativeNotificationPolicy::class,
             IosNotificationRuntime::class,
