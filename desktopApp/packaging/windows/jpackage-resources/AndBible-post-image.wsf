@@ -1,0 +1,20 @@
+<job>
+<script language="JScript"><![CDATA[
+var fs = new ActiveXObject("Scripting.FileSystemObject");
+var path = fs.BuildPath(fs.GetParentFolderName(WScript.ScriptFullName), "bundle.wxf");
+var xml = new ActiveXObject("Msxml2.DOMDocument.6.0");
+xml.async = false;
+xml.setProperty("SelectionLanguage", "XPath");
+xml.setProperty("SelectionNamespaces", "xmlns:w='http://schemas.microsoft.com/wix/2006/wi'");
+if (!xml.load(path)) throw new Error("Cannot load bundle.wxf: " + xml.parseError.reason);
+var shortcuts = xml.selectNodes("//w:Shortcut[@Name='AndBible']");
+if (shortcuts.length == 0) throw new Error("AndBible shortcut not found in bundle.wxf");
+for (var i = 0; i < shortcuts.length; i++) {
+    var property = xml.createNode(1, "util:ShortcutProperty", "http://schemas.microsoft.com/wix/UtilExtension");
+    property.setAttribute("Key", "System.AppUserModel.ID");
+    property.setAttribute("Value", "org.andbible.AndBible");
+    shortcuts.item(i).appendChild(property);
+}
+xml.save(path);
+]]></script>
+</job>

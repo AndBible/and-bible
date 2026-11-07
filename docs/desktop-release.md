@@ -8,6 +8,8 @@ Windows packaging requires Windows x64, JDK 17, Node 24, the Windows SDK desktop
 .\gradlew.bat :desktopApp:packageWindowsZip :desktopApp:packageWindowsMsix :desktopApp:packageWindowsMsi
 ```
 
+The MSI post-image WiX resource assigns `org.andbible.AndBible` to its AndBible shortcuts; retain `packaging/windows/jpackage-resources` when packaging. Portable ZIP builds have no installer-created Start menu shortcut, so Windows toast identity and notification delivery are not guaranteed. Verify the installed MSI shortcut and notification delivery on Windows.
+
 The versioned zip, MSIX and MSI are in `desktopApp/build/compose/binaries/main/`. The MSI in `main/msi/AndBible-<version>.msi` is the intermediate unsigned jpackage output, not the signed release copy. Use `-PwindowsPackageVersion=<version>` for a test upgrade build; do not reuse a release version for a different payload.
 
 ### Reading engines

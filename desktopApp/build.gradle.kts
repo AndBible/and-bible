@@ -308,6 +308,12 @@ compose.desktop {
         jvmArgs += "-Dandbible.releaseKind=${providers.gradleProperty("desktopReleaseKind").orElse("dev").get()}"
     }
 }
+tasks.withType<org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask>().configureEach {
+    if (name == "packageMsi" || name == "packageReleaseMsi") {
+        freeArgs.addAll("--resource-dir", project.file("packaging/windows/jpackage-resources").absolutePath)
+    }
+}
+
 tasks.matching { it.name == "run" }.configureEach { if (!isWindowsHost) dependsOn(prepareKcefNatives) }
 // `run` points the app at the natives in this build dir by absolute path. This must stay out of
 // compose.desktop.application.jvmArgs: those land in the packaged app's .cfg and would beat the resources dir that
