@@ -157,6 +157,20 @@ class DesktopNotificationBindingsTest {
         assertTrue(got.isCompleted, "the list was requested after the window was raised")
     }
 
+    @Test fun coldStartActivationKeepsListRequestUntilReadingHostAppears() = runBlocking {
+        val window = FakeWindow()
+        val requests = ActivityListRequests()
+        val notifier = RecordingNotifier()
+        val ui = mutableListOf<() -> Unit>()
+        installNotificationActivation(notifier, window, requests) { ui += it }
+
+        // COM can deliver a history click as soon as the graph starts, before the reading host exists.
+        notifier.handler!!("andbible-completed-in-previous-process")
+        ui.single()()
+        assertEquals(listOf("toFront"), window.log)
+        withTimeout(1_000) { requests.requests.first() }
+    }
+
     @Test fun foregroundEventsReachThePolicy() = withRig { rig ->
         rig.koin.get<NativeNotificationPolicy>().start()
         rig.events.emit(DesktopLifecycleEvent.ResignActive)

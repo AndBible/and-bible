@@ -15,10 +15,19 @@ class ToastActivationTest {
         for (bad in listOf("", "-Embedding", "job", "andbible-toast:v1:!", "andbible-toast:v1:" + "a".repeat(9000))) {
             assertNull(parseToastActivationArguments(bad))
         }
-        for (switch in listOf("-Embedding", "/Embedding", "-ToastActivated", "-embedding")) {
-            assertNull(toastLaunchFiles(listOf(switch, "document.epub")))
+    }
+
+    @Test fun comLaunchStartsWithoutImportingShellArguments() {
+        for (switch in listOf("-Embedding", "/Embedding", "-ToastActivated", "-embedding", "-toastactivated")) {
+            assertEquals(emptyList(), toastLaunchFiles(listOf(switch)))
+            assertEquals(emptyList(), toastLaunchFiles(listOf(switch, "document.epub")))
         }
-        assertEquals(listOf("document.epub"), toastLaunchFiles(listOf("document.epub")))
+    }
+
+    @Test fun ordinaryLaunchPreservesIncomingFiles() {
+        assertEquals(emptyList(), toastLaunchFiles(emptyList()))
+        val files = listOf("document.epub", "C:/Books/-ToastActivated.epub")
+        assertEquals(files, toastLaunchFiles(files))
     }
 
     @Test fun outstandingComReferenceRemainsValidButCannotActivateAfterServerClose() {
