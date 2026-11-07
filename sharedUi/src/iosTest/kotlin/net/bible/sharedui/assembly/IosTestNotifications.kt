@@ -12,4 +12,6 @@ internal object IosTestNotificationCenter : UserNotificationCenterApi {
 
 internal fun iosTestNotificationModule() = module {
     single<NativeNotifier> { IosNativeNotifier(IosTestNotificationCenter) }
+    single<net.bible.sharedcore.settings.NotificationsDenied> { net.bible.sharedcore.settings.NotificationsDenied { false } }
+    single<net.bible.sharedcore.settings.NotificationSettingsLink> { net.bible.sharedcore.settings.NotificationSettingsLink { } }
 }

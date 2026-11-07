@@ -83,6 +83,42 @@ class AppSettingsServiceImplTest {
         assertTrue(link().isEmpty())
     }
 
+    @Test fun systemNotificationsStaleNoncancellableResultCannotOverrideNewerRefresh() = kotlinx.coroutines.test.runTest {
+        val pending = mutableListOf<kotlinx.coroutines.CompletableDeferred<Boolean>>()
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref,
+            NotificationsDenied {
+                val answer = kotlinx.coroutines.CompletableDeferred<Boolean>()
+                pending.add(answer)
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { answer.await() }
+            }, null, backgroundScope)
+        s.refresh()
+        testScheduler.runCurrent()
+        s.setBool("system_notifications", false)
+        testScheduler.runCurrent()
+        assertEquals(2, pending.size)
+        pending[1].complete(true)
+        testScheduler.runCurrent()
+        assertTrue(s.snapshot.value.systemNotificationsDenied)
+        assertFalse(s.snapshot.value.showSystemNotifications)
+        pending[0].complete(false)
+        testScheduler.runCurrent()
+        assertTrue(s.snapshot.value.systemNotificationsDenied)
+        assertFalse(s.snapshot.value.showSystemNotifications)
+    }
+
+    @Test fun systemNotificationsQueryFailureLeavesSettingsUsable() = kotlinx.coroutines.test.runTest {
+        val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, true)
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref,
+            NotificationsDenied { error("query failed") }, null, backgroundScope)
+        s.refresh()
+        testScheduler.runCurrent()
+        assertFalse(s.snapshot.value.systemNotificationsDenied)
+        s.setBool("system_notifications", false)
+        testScheduler.runCurrent()
+        assertFalse(s.snapshot.value.showSystemNotifications)
+    }
+
     @Test fun systemNotificationsSwitchWritesThroughPreference() = kotlinx.coroutines.test.runTest {
         val pref = net.bible.android.control.activity.SystemNotificationsPreference(db, defaultEnabled = true)
         val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null, pref)

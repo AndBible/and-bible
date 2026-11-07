@@ -24,7 +24,13 @@ import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedcore.settings.doubleTapToFullscreen
 import org.koin.mp.KoinPlatform
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.update
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -140,7 +146,9 @@ class AppSettingsServiceImpl(
     private val greekMorphOptions: List<DictOption> by lazy { dictionaryOptionsProvider.greekMorphOptions }
     private val wordLookupDictOptions: List<DictOption> by lazy { dictionaryOptionsProvider.wordLookupDictOptions }
 
+    private val refreshLock = SynchronizedObject()
     private var denied = false
+    private var refreshGeneration = 0L
     private var denialRefresh: Job? = null
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<AppSettingsSnapshot> = _snapshot.asStateFlow()
@@ -334,13 +342,29 @@ class AppSettingsServiceImpl(
     }
 
     override fun refresh() {
-        _snapshot.value = build()
-        denialRefresh?.cancel()
-        if (notificationsDenied != null) denialRefresh = scope.launch {
-            val result = notificationsDenied.isDenied()
-            denied = result
-            _snapshot.value = _snapshot.value.copy(systemNotificationsDenied = result)
+        val job = synchronized(refreshLock) {
+            val generation = ++refreshGeneration
+            _snapshot.value = build()
+            denialRefresh?.cancel()
+            notificationsDenied?.let { port ->
+                scope.launch(start = CoroutineStart.LAZY) {
+                    try {
+                        val result = port.isDenied()
+                        synchronized(refreshLock) {
+                            if (generation == refreshGeneration) {
+                                denied = result
+                                _snapshot.update { it.copy(systemNotificationsDenied = result) }
+                            }
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e("AppSettingsService", "Could not read notification authorization", e)
+                    }
+                }.also { denialRefresh = it }
+            }
         }
+        job?.start()
     }
 
     override fun openNotificationSettings() { notificationSettingsLink?.open() }
