@@ -104,8 +104,7 @@ class IosReadingWindowsTest {
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-                ),
-            ) }
+                ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
             // The production step (initialise, prepareData, window repository), not a hand-ordered copy of it.
             awaitOnMain { HostReadingReady.ensure(IosAppStartup.stringTable) }
@@ -523,8 +522,7 @@ class IosReadingWindowsTest {
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-                ),
-            ) }
+                ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
             HostReadingReady.initialise = { order += "initialise" }
             HostReadingReady.prepareData = { order += "prepareData" }
             HostReadingReady.createRepository = {

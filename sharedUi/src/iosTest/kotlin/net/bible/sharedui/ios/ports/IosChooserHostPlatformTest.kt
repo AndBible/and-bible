@@ -25,7 +25,7 @@ import net.bible.sharedui.host.ports.HostChooserHostPlatform
 class IosChooserHostPlatformTest {
     @Test fun docRowsMatchAndroidMapping() {
         awaitStartupOnMain { IosAppStartup.ensureStarted(IosAppConfig(root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
-            repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore())) }
+            repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore()), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
         try {
             awaitStartupOnMain { IosAppStartup.openDatabases() }
             val koin = KoinPlatform.getKoin()

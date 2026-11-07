@@ -125,7 +125,7 @@ class IosAssemblyTest {
 
     private fun startApp(language: String? = "en") {
         ownsAppGraph = true
-        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language)) }
+        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language), listOf(iosTestNotificationModule())) }
     }
 
     @Test fun concurrentForegroundAndBackgroundJoinRealStartupOffMain() {
@@ -144,8 +144,8 @@ class IosAssemblyTest {
         }
         awaitStartupOnMain {
             kotlinx.coroutines.coroutineScope {
-                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra)) }
-                val foreground = async { IosAppStartup.ensureStarted(config()) }
+                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra, iosTestNotificationModule())) }
+                val foreground = async { IosAppStartup.ensureStarted(config(), listOf(iosTestNotificationModule())) }
                 try {
                     entered.await()
                     assertFalse(onMain.value, "eager initialization must run off Main")
@@ -274,7 +274,7 @@ class IosAssemblyTest {
     fun userMessagesDuringKoinStartupSurviveUntilTheDialogHostExists() {
         ownsAppGraph = true
         awaitStartupOnMain {
-            IosAppStartup.ensureStarted(config(), extraModules = listOf(org.koin.dsl.module {
+            IosAppStartup.ensureStarted(config(), extraModules = listOf(iosTestNotificationModule(), org.koin.dsl.module {
                 single<StartupMessageProbe>(createdAtStart = true) {
                     net.bible.android.control.event.UserMessages.errorNotification("early sync failure", false)
                     StartupMessageProbe()
@@ -552,6 +552,27 @@ class IosAssemblyTest {
             kotlin.test.assertNotNull(kotlinx.coroutines.withTimeoutOrNull(1_000) { requests.requests.first() })
             assertEquals(null, kotlinx.coroutines.withTimeoutOrNull(10) { requests.requests.first() })
         }
+    }
+
+    @Test
+    fun closingKoinCancelsNotificationScopeAndDetachesActivation() {
+        startApp()
+        val runtime = KoinPlatform.getKoin().get<IosNotificationRuntime>()
+        val job = assertNotNull(runtime.scope.coroutineContext[kotlinx.coroutines.Job])
+        awaitStartupOnMain {
+            assertTrue(job.isActive)
+            assertNotNull(IosNotificationBootstrap.activations.handler)
+            val observerDescriptions = runtime.observer.observers.map { it.toString() }
+            val center = platform.Foundation.NSNotificationCenter.defaultCenter
+            val before = assertNotNull(center.debugDescription())
+            assertTrue(observerDescriptions.all { it in before }, "observers must be registered before graph close")
+            IosAppStartup.resetForTest()
+            assertFalse(job.isActive)
+            assertNull(IosNotificationBootstrap.activations.handler)
+            val after = assertNotNull(center.debugDescription())
+            assertTrue(observerDescriptions.none { it in after }, "graph close must unregister notification observers")
+        }
+        ownsAppGraph = false
     }
 
     @Test

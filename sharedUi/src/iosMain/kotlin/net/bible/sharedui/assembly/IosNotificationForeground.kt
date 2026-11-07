@@ -38,7 +38,7 @@ internal fun isIosNotificationForeground(): Boolean {
 internal class IosNotificationForegroundObserver(onChanged: () -> Unit) {
     private val center = NSNotificationCenter.defaultCenter
     private val closed = atomic(false)
-    private val observers = listOf(
+    internal val observers = listOf(
         UIApplicationDidBecomeActiveNotification,
         UIApplicationWillResignActiveNotification,
         UIApplicationDidEnterBackgroundNotification,

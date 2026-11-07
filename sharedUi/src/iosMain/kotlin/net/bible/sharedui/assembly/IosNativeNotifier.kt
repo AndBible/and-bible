@@ -74,7 +74,8 @@ internal class IosNativeNotifier(
 /** Main-queue handoff keeps a tap received before the graph alive until its notifier attaches. */
 internal class IosNotificationActivations {
     private var pending: String? = null
-    private var handler: ((String) -> Unit)? = null
+    internal var handler: ((String) -> Unit)? = null
+        private set
 
     fun activate(id: String) = onMain {
         val current = handler
@@ -99,12 +100,16 @@ internal class IosNotificationDelegate(private val onTap: (String) -> Unit) : NS
         try { onTap(id) } finally { completion() }
     }
 
+    internal fun present(completion: (ULong) -> Unit) {
+        completion(UNNotificationPresentationOptionBanner or UNNotificationPresentationOptionList or UNNotificationPresentationOptionSound)
+    }
+
     override fun userNotificationCenter(
         center: UNUserNotificationCenter,
         willPresentNotification: UNNotification,
         withCompletionHandler: (ULong) -> Unit,
     ) {
-        withCompletionHandler(UNNotificationPresentationOptionBanner or UNNotificationPresentationOptionList or UNNotificationPresentationOptionSound)
+        present(withCompletionHandler)
     }
 
     override fun userNotificationCenter(

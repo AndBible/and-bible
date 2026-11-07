@@ -49,8 +49,7 @@ class IosStartRouteTest {
             IosAppConfig(
                 root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                 repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-            ),
-        ) }
+            ), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
         return assertNotNull(Books.installed().getBook("K4RawText"), "fixture Bible K4RawText is not installed")
     }
 

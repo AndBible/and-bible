@@ -66,7 +66,7 @@ class IosBookmarkHostPlatformTest {
         runBlocking { IosAppStartup.resetForTest() }
         files.deleteRecursively(IosAssemblyTest.sharedRoot / IosAppConfig.DATABASES_DIR)
         awaitStartupOnMain { IosAppStartup.ensureStarted(IosAppConfig(root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
-            repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore())) }
+            repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore()), extraModules = listOf(net.bible.sharedui.assembly.iosTestNotificationModule())) }
         awaitStartupOnMain { IosAppStartup.openDatabases() }
         val koin = KoinPlatform.getKoin()
         control = koin.get()

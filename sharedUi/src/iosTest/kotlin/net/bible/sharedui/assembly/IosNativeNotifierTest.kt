@@ -50,12 +50,9 @@ class IosNativeNotifierTest {
     }
 
     @Test
-    fun delegatePresentsBannerListAndSoundInForeground() {
+    fun foregroundPresentationIncludesBannerListAndSound() {
         var options: ULong? = null
-        IosNotificationDelegate {}.userNotificationCenter(
-            platform.UserNotifications.UNUserNotificationCenter.currentNotificationCenter(),
-            platform.UserNotifications.UNNotification(),
-        ) { options = it }
+        IosNotificationDelegate {}.present { options = it }
         assertEquals(
             platform.UserNotifications.UNNotificationPresentationOptionBanner or
                 platform.UserNotifications.UNNotificationPresentationOptionList or

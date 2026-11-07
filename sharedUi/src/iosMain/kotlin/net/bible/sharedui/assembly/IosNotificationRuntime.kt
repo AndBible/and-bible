@@ -26,7 +26,7 @@ internal class IosNotificationRuntime(
     preference: SystemNotificationsPreference,
     finishedText: () -> String,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val active = atomic(false)
     private val closed = atomic(false)
     val policy = NativeNotificationPolicy(
@@ -38,7 +38,7 @@ internal class IosNotificationRuntime(
         scope = scope,
         finishedText = finishedText,
     )
-    private val observer: IosNotificationForegroundObserver
+    internal val observer: IosNotificationForegroundObserver
 
     init {
         notifier.setOnActivated { if (!closed.value) requests.request() }
