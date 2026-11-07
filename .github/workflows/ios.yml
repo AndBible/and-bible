@@ -192,8 +192,12 @@ jobs:
           [ -f build/logstream-iphone.pid ] && kill "$(cat build/logstream-iphone.pid)" || true
       - name: Test (iPad, screenshots only)
         if: always()
-        # ~6 min of setup + 50 + 15 + export/upload stays inside the job's 90 min; the step takes ~5 min when green.
-        timeout-minutes: 15
+        # On a slow runner every app launch takes ~35 s and the step needs ~15-20 min (run 42399347352 hit the old
+        # 15 min limit while progressing normally); ~5 min when green on a fast one. Budget against the job's 150 min:
+        # ~6 min setup + 50 (framework build, typically 22-50; its cap is 80) + 50 (iPhone) + 25 (this step)
+        # + ~5 export/upload = ~136 min. Only if the build and the iPhone step ALL hit their caps (80 + 50) would the
+        # sum (166) exceed 150; the job timeout then ends the run, which is acceptable for that pathological case.
+        timeout-minutes: 25
         run: |
           mkdir -p build
           set -o pipefail
