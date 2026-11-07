@@ -61,7 +61,7 @@ internal interface WinRtCalls {
     fun deleteString(value: Pointer?)
     fun factory(name: Pointer?, iid: Iid): ToastCom
     fun activate(name: Pointer?): ToastCom
-    fun registerActivator(factory: Pointer): Int
+    fun registerActivator(factory: Pointer, clsid: String): Int
     fun revokeActivator(cookie: Int)
 }
 
@@ -97,10 +97,10 @@ private interface ToastOle : StdCallLibrary {
 
 private class NativeWinRtCalls : WinRtCalls {
     private val ole by lazy { Native.load("ole32", ToastOle::class.java) }
-    override fun registerActivator(factory: Pointer): Int {
+    override fun registerActivator(factory: Pointer, clsid: String): Int {
         val cookie = com.sun.jna.ptr.IntByReference()
         // CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE. The server is the existing running JVM, not a DLL.
-        checked(ole.CoRegisterClassObject(Iid(TOAST_ACTIVATOR_CLSID).memory, factory, 4, 1, cookie), "CoRegisterClassObject")
+        checked(ole.CoRegisterClassObject(Iid(clsid).memory, factory, 4, 1, cookie), "CoRegisterClassObject")
         return cookie.value
     }
     override fun revokeActivator(cookie: Int) { checked(ole.CoRevokeClassObject(cookie), "CoRevokeClassObject") }
@@ -172,7 +172,10 @@ class WinRtToastApi internal constructor(
             result.server = ToastComServer { appId, args ->
                 if (!closed && (aumid == null || appId == aumid) && parseToastActivationArguments(args) != null) handler(args)
             }
-            result.cookie = calls.registerActivator(result.server!!.factoryPointer)
+            result.cookie = calls.registerActivator(
+                result.server!!.factoryPointer,
+                if (aumid == null) MSIX_TOAST_ACTIVATOR_CLSID else TOAST_ACTIVATOR_CLSID,
+            )
             hstring(calls, ToastAbi.MANAGER_CLASS) { className ->
                 use(calls.factory(className, ToastAbi.MANAGER)) { manager ->
                     result.notifier = result.own(if (aumid == null) manager.get(ToastAbi.CREATE_NOTIFIER)

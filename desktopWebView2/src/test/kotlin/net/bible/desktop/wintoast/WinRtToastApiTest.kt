@@ -55,6 +55,22 @@ class WinRtToastApiTest {
     }
 
     @Test
+    fun packagedAndMsiFactoriesRegisterDistinctStableClasses() {
+        for ((aumid, clsid) in listOf(
+            ANDBIBLE_AUMID to "C8B03B6B-3F3A-4F8E-9A57-24A610C03A13",
+            null to "AD705591-F554-40C0-9EE2-0DE1C1E5C695",
+        )) {
+            val runtime = RecordingWinRt()
+            val api = WinRtToastApi(aumid) { runtime }
+            try {
+                api.onActivated {}
+                assertEquals(clsid, runtime.registeredClsid, "packaged COM must not shadow the MSI activator")
+            } finally { api.close() }
+            runtime.assertReleased()
+        }
+    }
+
+    @Test
     fun updateChecksResultAndRemoveUsesExplicitOrPackageIdentity() {
         for (aumid in listOf("org.andbible.AndBible", null)) {
             val runtime = RecordingWinRt()
@@ -170,8 +186,10 @@ class WinRtToastApiTest {
         private val strings = mutableMapOf<Pointer, String>()
         private val objects = mutableSetOf<ToastCom>()
         var activator: ComPtr? = null
+        var registeredClsid: String? = null
         private var registeredFactory: ComPtr? = null
-        override fun registerActivator(factory: Pointer): Int {
+        override fun registerActivator(factory: Pointer, clsid: String): Int {
+            registeredClsid = clsid
             events += "register"
             if (fail == "register") throw net.bible.desktop.webview2.ComException("register", 0x80004005.toInt())
             registeredFactory = ComPtr(factory).also { it.addRef() }

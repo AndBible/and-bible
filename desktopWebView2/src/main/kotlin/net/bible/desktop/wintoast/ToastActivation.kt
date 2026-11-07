@@ -11,6 +11,8 @@ import java.util.Collections
 import java.util.concurrent.atomic.AtomicInteger
 
 const val TOAST_ACTIVATOR_CLSID = "C8B03B6B-3F3A-4F8E-9A57-24A610C03A13"
+// Packaged COM is visible outside the package; sharing the MSI class would shadow its running server.
+const val MSIX_TOAST_ACTIVATOR_CLSID = "AD705591-F554-40C0-9EE2-0DE1C1E5C695"
 private const val PREFIX = "andbible-toast:v1:"
 private const val MAX_ARGUMENTS = 8192
 

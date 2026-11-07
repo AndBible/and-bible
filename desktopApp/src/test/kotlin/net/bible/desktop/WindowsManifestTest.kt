@@ -51,7 +51,7 @@ class WindowsManifestTest {
         fun elements(name: String) = xml.getElementsByTagNameNS("*", name).let { nodes ->
             (0 until nodes.length).map { nodes.item(it) as Element }
         }
-        val activator = "C8B03B6B-3F3A-4F8E-9A57-24A610C03A13"
+        val activator = "AD705591-F554-40C0-9EE2-0DE1C1E5C695"
         assertEquals(activator, elements("ToastNotificationActivation").single().getAttribute("ToastActivatorCLSID"))
         assertEquals(activator, elements("Class").single().getAttribute("Id"))
         assertEquals("AndBible.exe", elements("ExeServer").single().getAttribute("Executable"))
