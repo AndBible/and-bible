@@ -157,7 +157,9 @@ targets:
   iosAppUnitTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [iosAppUnitTests]
+    sources:
+      - iosAppUnitTests
+      - iosApp/RecentCrashDiagnosticStore.swift
     dependencies: [{target: iosApp}]
     settings:
       base:
