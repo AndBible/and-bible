@@ -177,6 +177,10 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: HostNavShell, table: 
     }
 }
 
+/** Optional host-owned capture of the resolved theme and language; never resolves settings itself. */
+@kotlin.native.HiddenFromObjC
+val LocalHostAppearanceCapture = androidx.compose.runtime.staticCompositionLocalOf<@Composable () -> Unit> { {} }
+
 /**
  * The production iOS app root, shown once startup is Ready: resolves the start route behind a splash, then composes
  * the shared [AppRoot] with every feature graph and the reading destination (the iOS reading host). [platform] holds
@@ -204,6 +208,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
                 *hostIconLocals(),
             ) {
                 AbTheme(darkTheme = recoveryDark) {
+                    LocalHostAppearanceCapture.current()
                     check(!HostStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
                     Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
                         HostAppContent(platform, liveStrings, HostStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
@@ -256,6 +261,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
             *hostIconLocals(),
         ) {
             HostTheme(dark, koin, modesVersion) {
+                LocalHostAppearanceCapture.current()
                 val route = startRoute
                 if (route == null) {
                     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
