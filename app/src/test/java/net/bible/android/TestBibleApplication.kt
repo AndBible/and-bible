@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.map
 import net.bible.android.view.activity.ai.RawLogServiceImpl
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.bind
+import org.koin.dsl.bind
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
@@ -166,7 +167,7 @@ open class TestBibleApplication : BibleApplication() {
             singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
             singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
             singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
-            singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+            single { AgentSessionServiceImpl() } bind net.bible.sharedcore.ai.reading.AgentSessionService::class
             singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
             singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
             singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
@@ -288,7 +289,7 @@ open class TestBibleApplication : BibleApplication() {
                     singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
                     singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
                     singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
-                    singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+                    single { AgentSessionServiceImpl() } bind net.bible.sharedcore.ai.reading.AgentSessionService::class
                     singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
                     singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
                     singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }

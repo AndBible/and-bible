@@ -229,7 +229,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
-    private val agentSessionService: AgentSessionService by inject()
     private val speakTransportService: SpeakTransportService by inject()
     private val speakSettingsService: SpeakSettingsService by inject()
 
@@ -247,6 +246,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      *  [dispose] — one host per activity (re-)creation, mirroring the [subscriptions]
      *  lifecycle right below. */
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val agentSessionService: AgentSessionService by lazy {
+        net.bible.android.view.activity.ai.AgentSessionServiceImpl(
+            workspaceId = { activity.hostWindowRepository.id },
+            owner = net.bible.sharedcore.platform.AppCoroutineScope(hostScope.coroutineContext),
+        )
+    }
 
     /**
      * The overlay/sheet/dialog/history/share/pane-menu/drawer state, in common code (`:sharedUi`

@@ -333,7 +333,7 @@ fun buildSharedBindings() = module {
     single { AppDialogController() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
-    singleOf(::AgentSessionServiceImpl) { bind<AgentSessionService>() }
+    single { AgentSessionServiceImpl() } bind AgentSessionService::class
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
