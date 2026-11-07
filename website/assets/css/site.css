@@ -208,6 +208,11 @@ section.block { padding: 48px 0 0; }
 @media (max-width: 899px) { .post-list { grid-template-columns: minmax(0, 1fr); } }
 .post-card { display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--surface);
   border: 1px solid var(--border); border-radius: var(--radius); }
+/* <div class="gallery" markdown> in a post: images side by side, each paragraph a cell. */
+.post .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: start; margin: 1.5em 0; }
+.post .gallery p { margin: 0; }
+.post .gallery--narrow { max-width: 480px; }  /* phone screenshots: keep them phone-sized */
+.post .gallery img { display: block; width: 100%; border-radius: 6px; border: 1px solid var(--border); }
 .post-card img { width: 100%; aspect-ratio: 1200 / 630; object-fit: cover; background: var(--surface-2); }
 .post-card__body { padding: 16px; }
 .post-card time { color: var(--faint); font-size: .85rem; }
