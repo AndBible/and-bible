@@ -173,11 +173,6 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     // COM may ask to launch an absent server. Never treat its launcher switches as import paths.
     if (net.bible.desktop.wintoast.toastLaunchFiles(launchArgs) == null) return
     val paths = DesktopPaths.system()
-    val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
-        val launcher = System.getProperty("jpackage.app-path")
-        val installDir = launcher?.let { Paths.get(it).toAbsolutePath().parent } ?: Paths.get("").toAbsolutePath()
-        net.bible.desktop.wintoast.windowsToastNotifierSource(net.bible.desktop.wintoast.WindowsAppIdentity.resolve(installDir))
-    } else net.bible.sharedui.desktop.assembly.linuxNotifierSource()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {
         val files = try { launchArgs.map { Paths.get(it).toAbsolutePath().normalize() } } catch (e: Exception) {
@@ -188,6 +183,14 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         System.err.println("AndBible is already running, but incoming files could not be delivered")
         exitProcess(1)
     }
+    val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+        val identity = if (lockFailure == null) {
+            val launcher = System.getProperty("jpackage.app-path")
+            val installDir = launcher?.let { Paths.get(it).toAbsolutePath().parent }
+            net.bible.desktop.wintoast.WindowsAppIdentity.resolve(installDir)
+        } else net.bible.desktop.wintoast.WindowsIdentityResult(false, null)
+        net.bible.desktop.wintoast.windowsToastNotifierSource(identity)
+    } else net.bible.sharedui.desktop.assembly.linuxNotifierSource()
     // The lock proved the data directory writable: from here on every failure (CEF, natives) reaches the log file too.
     if (lockFailure == null) {
         configureDesktopLogFile(paths.data.resolve("logs"))
