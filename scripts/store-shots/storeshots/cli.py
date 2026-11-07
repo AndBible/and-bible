@@ -12,6 +12,8 @@ def build_parser() -> argparse.ArgumentParser:
     pipeline.register(sub)
     from . import capture
     capture.register(sub)
+    from . import modules_fetch
+    modules_fetch.register(sub)
     return parser
 
 
