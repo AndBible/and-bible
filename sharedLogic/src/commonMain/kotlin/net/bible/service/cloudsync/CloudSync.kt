@@ -690,11 +690,16 @@ class CloudSync(
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false, background = background, kind = ActivityKind.SYNC)
     }
 
-    /** Interaction controls initialization prompts independently of error presentation. */
+    /**
+     * Interaction controls initialization prompts independently of error presentation.
+     * [includeDocuments] false skips the document step (the desktop exit pass syncs databases only,
+     * because a first document sync can be long).
+     */
     suspend fun synchronize(
         allowInteraction: Boolean = true,
         backgroundErrors: Boolean = !allowInteraction,
         reportTransportErrors: Boolean = allowInteraction,
+        includeDocuments: Boolean = true,
     ) = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
@@ -781,7 +786,7 @@ class CloudSync(
                         UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
                     }
                 }
-                try {
+                if (includeDocuments) try {
                     documents.get().runSync(
                         download = documentSettings.autoDownload,
                         upload = documentSettings.autoUpload,
