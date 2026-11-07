@@ -257,6 +257,10 @@
     <string name="prefs_night_mode_system">System</string>
     <string name="options_menu_night_mode">Night mode</string>
     <string name="options_menu_sync_now">Sync now</string>
+    <string name="exit_sync_title">Synchronizing changes…</string>
+    <string name="exit_sync_body">Sending your changes to your other devices. This can take a few seconds.</string>
+    <string name="exit_sync_quit_now">Quit now</string>
+    <string name="exit_sync_closing">Closing…</string>
     <string name="sync_now_no_network">No network connection</string>
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
