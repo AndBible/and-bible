@@ -23,19 +23,27 @@ A powerful, yet easy to use, offline Bible study application.
   <a href="https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK"><img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-black.png" alt="Get it on Amazon Appstore" height="40"></a>
 </p>
 
+## 📥 Get AndBible
+
+- **Android:** the badges above (Google Play, F-Droid, Accrescent, Obtainium, Amazon Appstore).
+- **iPhone and iPad:** [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527).
+- **Mac:** there is no separate macOS build. Apple Silicon Macs run the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527).
+- **Windows:** MSI installer from the [latest release](https://github.com/AndBible/and-bible/releases/latest).
+- **Linux:** `.deb` package and AppImage from the [latest release](https://github.com/AndBible/and-bible/releases/latest).
+
 ## 🎬 Promo Video
 
 [![See promovideo in Youtube](https://img.youtube.com/vi/xf7m4rSuxGw/0.jpg)](https://www.youtube.com/watch?v=xf7m4rSuxGw)
 
 ## 👥 Users
 
-Please see the [AndBible website](https://andbible.org/) for a list of features and additional user guides.
+Please see the [AndBible website](https://andbible.org/) for a list of features and additional user guides. New users can start with the [getting started guide](https://andbible.org/docs/getting_started/), and the [platform differences](https://andbible.org/docs/platform_differences/) page lists what differs between Android, iOS, Mac, Windows and Linux.
 
 For help, see the [wiki](https://github.com/andbible/and-bible/wiki) and [FAQ](https://github.com/andbible/and-bible/wiki/FAQ), or chat with us on [Matrix](https://matrix.to/#/#andbible:matrix.org).
 
 ## 🏗️ Developers
 
-Do you know Android development, Kotlin, Javascript, or Vue.js? These are the main technologies used in the project. If you are a developer, your skills would be of great use in this project. Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation) in the project wiki for details.
+The project is built with Kotlin Multiplatform and Compose Multiplatform (Android, iOS, desktop), plus Vue.js for the Bible view. If you know these technologies, your skills would be of great use in this project. Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation) in the project wiki for details.
 
 Current Developers:
 
