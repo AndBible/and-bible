@@ -68,6 +68,19 @@ val keystoreProperties: Properties = Properties().apply {
 fun expandUserHome(path: String): String =
     if (path.startsWith("~/")) System.getProperty("user.home") + path.substring(1) else path
 
+/**
+ * The release keystore: `ANDBIBLE_RELEASE_KEYSTORE` if set; else the `storeFile` path from keystore.properties.gpg
+ * (a host path); else, when that is missing, the same file name in `~/.release-secrets/` (the JailBee
+ * `release-secrets` mount), so a container can sign with the mounted key.
+ */
+fun releaseKeystorePath(storeFilePath: String): String {
+    System.getenv("ANDBIBLE_RELEASE_KEYSTORE")?.takeIf { it.isNotBlank() }?.let { return expandUserHome(it) }
+    val configured = expandUserHome(storeFilePath)
+    if (java.io.File(configured).exists()) return configured
+    val mounted = java.io.File(System.getProperty("user.home"), ".release-secrets/" + java.io.File(configured).name)
+    return if (mounted.exists()) mounted.path else configured
+}
+
 // The flavor dimension for the appearance of the app
 val dimAppearanceName = "appearance"
 val discreteFlavorName = "discrete"
@@ -236,7 +249,7 @@ android {
         create("release") {
             val storeFilePath = keystoreProperties.getProperty("storeFile")
             if (storeFilePath != null) {
-                storeFile = file(expandUserHome(storeFilePath))
+                storeFile = file(releaseKeystorePath(storeFilePath))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
@@ -635,7 +648,7 @@ bundletool {
     val storeFilePath = keystoreProperties.getProperty("storeFile")
     if (storeFilePath != null) {
         signingConfig {
-            storeFile.set(file(expandUserHome(storeFilePath)))
+            storeFile.set(file(releaseKeystorePath(storeFilePath)))
             storePassword.set(keystoreProperties.getProperty("storePassword"))
             keyAlias.set(keystoreProperties.getProperty("keyAlias"))
             keyPassword.set(keystoreProperties.getProperty("keyPassword"))
