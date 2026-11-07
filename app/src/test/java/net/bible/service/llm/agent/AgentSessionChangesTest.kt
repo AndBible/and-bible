@@ -29,13 +29,13 @@ class AgentSessionChangesTest {
     private fun session() = AgentSession(ws) { seen += it }
     private fun ctx() = AgentContext(promptId = IdType())
 
-    @Test fun tryStartEmitsTheStartEntryThenRunning() {
+    @Test fun tryStartEmitsRunningBeforeTheStartEntry() {
         val s = session()
         assertTrue(s.tryStart(ctx()))
         assertEquals(2, seen.size)
-        val log = seen[0] as AgentSessionChange.LogUpdated
+        assertEquals(AgentSessionChange.StatusChanged(ws, isRunning = true), seen[0])
+        val log = seen[1] as AgentSessionChange.LogUpdated
         assertEquals("Agent started", log.entry.message)
-        assertEquals(AgentSessionChange.StatusChanged(ws, isRunning = true), seen[1])
     }
 
     @Test fun aLostTryStartEmitsNothing() {

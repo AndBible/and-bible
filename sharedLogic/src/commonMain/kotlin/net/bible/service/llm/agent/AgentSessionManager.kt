@@ -133,10 +133,12 @@ class AgentSession(
     var rawLlmLog: RawLlmLog? = null
         private set
 
-    private val running = atomic(false)
+    private enum class Lifecycle { IDLE, RUNNING, STOPPING }
+    // STOPPING keeps replacement starts behind terminal delivery.
+    private val lifecycle = atomic(Lifecycle.IDLE)
 
-    /** True between a successful [tryStart] and [stop]. */
-    val isRunning: Boolean get() = running.value
+    /** False as soon as stopping begins; the start gate remains closed through terminal delivery. */
+    val isRunning: Boolean get() = lifecycle.value == Lifecycle.RUNNING
 
     /** Cumulative session cost in USD, updated on each API call. */
     @Volatile
@@ -160,29 +162,32 @@ class AgentSession(
      * start is announced, so a losing call can never replace it and [stop] always reaches the run that won.
      */
     fun tryStart(context: AgentContext, job: Job? = null): Boolean {
-        if (!running.compareAndSet(false, true)) return false
+        if (!lifecycle.compareAndSet(Lifecycle.IDLE, Lifecycle.RUNNING)) return false
         this.job = job
         this.context = context
         this.sessionCostUsd = 0.0
         _logEntries.clear()
         rawLlmLog = RawLlmLog()
-        addLogEntry(AgentLogEntry.info("Agent started"))
         emit(AgentSessionChange.StatusChanged(workspaceId, true))
+        addLogEntry(AgentLogEntry.info("Agent started"))
         return true
     }
 
     fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
-        if (message != null) {
-            val hasRawLog = rawLlmLog?.isEmpty() == false
-            addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
+        if (!lifecycle.compareAndSet(Lifecycle.RUNNING, Lifecycle.STOPPING)) return
+        try {
+            if (message != null) {
+                val hasRawLog = rawLlmLog?.isEmpty() == false
+                addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
+            }
+            // Reentrant starts and duplicate stops cannot publish before terminal delivery finishes.
+            val stopped = this.job
+            this.job = null
+            stopped?.cancel()
+            emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
+        } finally {
+            lifecycle.value = Lifecycle.IDLE
         }
-        // F134: unbind and cancel the job before releasing `running`. Once it is false a new winner can bind its
-        // own job in tryStart; nulling afterwards would unbind that one.
-        val stopped = this.job
-        this.job = null
-        stopped?.cancel()
-        running.value = false
-        emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
     }
 
     fun addLogEntry(entry: AgentLogEntry) {

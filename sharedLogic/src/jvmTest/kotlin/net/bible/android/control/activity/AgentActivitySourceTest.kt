@@ -18,6 +18,90 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class AgentActivitySourceTest {
     @Test
+    fun oldTerminalDeliveredAfterReplacementDoesNotStopNewRun() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val terminalEntered = java.util.concurrent.CountDownLatch(1)
+        val releaseTerminal = java.util.concurrent.CountDownLatch(1)
+        val session = net.bible.service.llm.agent.AgentSession(ws) { event ->
+            if (event is AgentSessionChange.StatusChanged && !event.isRunning) {
+                terminalEntered.countDown()
+                check(releaseTerminal.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+            events.emit(event)
+        }
+        val context = net.bible.service.llm.agent.AgentContext(promptId = IdType())
+        assertTrue(session.tryStart(context))
+        val stopping = kotlin.concurrent.thread { session.stop() }
+        assertTrue(terminalEntered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+        try {
+            val restarted = session.tryStart(context)
+            releaseTerminal.countDown()
+            stopping.join(5000)
+            if (!restarted) assertTrue(session.tryStart(context))
+            assertTrue(center.isRunning(agentActivityId(ws)))
+        } finally {
+            releaseTerminal.countDown()
+            stopping.join(5000)
+            source.close()
+        }
+    }
+
+    @Test
+    fun reentrantStartCannotOvertakeTerminalSubscribers() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val context = net.bible.service.llm.agent.AgentContext(promptId = IdType())
+        lateinit var session: net.bible.service.llm.agent.AgentSession
+        var reentrantStart = true
+        var terminalCount = 0
+        var runningAtStop = true
+        val subscription = events.subscribe { event ->
+            if (event is AgentSessionChange.StatusChanged && !event.isRunning) {
+                terminalCount++
+                runningAtStop = session.isRunning
+                if (terminalCount == 1) {
+                    session.stop()
+                    reentrantStart = session.tryStart(context)
+                }
+            }
+        }
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        session = net.bible.service.llm.agent.AgentSession(ws, events::emit)
+        assertTrue(session.tryStart(context))
+        session.stop()
+        assertEquals(false, reentrantStart)
+        assertEquals(false, runningAtStop)
+        assertEquals(1, terminalCount)
+        assertTrue(session.tryStart(context))
+        assertTrue(center.isRunning(agentActivityId(ws)))
+        subscription.cancel()
+        source.close()
+    }
+
+    @Test
+    fun initialSessionLogIsVisible() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val session = net.bible.service.llm.agent.AgentSession(ws, events::emit)
+        assertTrue(session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType())))
+        advanceTimeBy(1000); runCurrent()
+        assertEquals("Agent started", center.items.value.single().message)
+        source.close()
+    }
+
+    @Test
     fun runLifecycleAndPermission() = runTest {
         val events = EventSource<AgentSessionChange>()
         val center = ActivityCenter(backgroundScope) { currentTime }

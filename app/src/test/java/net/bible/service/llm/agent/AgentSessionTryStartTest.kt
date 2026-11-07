@@ -77,6 +77,18 @@ class AgentSessionTryStartTest {
         assertTrue("a start that won during stop() must keep its job bound", !restarted || session.job === next)
     }
 
+    @Test fun terminalSubscriberCannotRestartUntilDeliveryCompletes() {
+        lateinit var session: AgentSession
+        var restartDuringStop = true
+        session = AgentSession(IdType(), emit = {
+            if (it is AgentSessionChange.StatusChanged && !it.isRunning) restartDuringStop = session.tryStart(ctx())
+        })
+        assertTrue(session.tryStart(ctx()))
+        session.stop()
+        assertFalse(restartDuringStop)
+        assertTrue(session.tryStart(ctx()))
+    }
+
     @Test fun theJobIsBoundBeforeTheStartIsAnnounced() {
         val winner = Job()
         var jobSeenAtStart: Job? = null
