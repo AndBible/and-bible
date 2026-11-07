@@ -93,6 +93,7 @@ sealed interface AgentSessionChange {
         override val workspaceId: IdType,
         val isRunning: Boolean,
         val stopReason: AgentStopReason? = null,
+        val cause: Throwable? = null,
     ) : AgentSessionChange
 
     /** An unresolved dialog, identified independently of background notification state. */
@@ -145,7 +146,8 @@ class AgentSession(
     private enum class Lifecycle { IDLE, STARTING, RUNNING, STOPPING }
     private val lifecycleLock = kotlinx.atomicfu.locks.SynchronizedObject()
     private var lifecycle = Lifecycle.IDLE
-    private var pendingStop: Pair<String?, AgentStopReason>? = null
+    private data class StopRequest(val message: String?, val reason: AgentStopReason, val cause: Throwable?)
+    private var pendingStop: StopRequest? = null
 
     /** False as soon as stopping begins; the start gate remains closed through terminal delivery. */
     val isRunning: Boolean get() = kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
@@ -193,27 +195,27 @@ class AgentSession(
                 lifecycle = if (request == null) Lifecycle.RUNNING else Lifecycle.STOPPING
                 request
             }
-            if (stop != null) finishStop(stop.first, stop.second)
+            if (stop != null) finishStop(stop.message, stop.reason, stop.cause)
         }
         return true
     }
 
-    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED, owner: Job? = null) {
+    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED, owner: Job? = null, cause: Throwable? = null) {
         kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
             if (owner != null && job !== owner) return
             when (lifecycle) {
                 Lifecycle.STARTING -> {
-                    if (pendingStop == null) pendingStop = message to reason
+                    if (pendingStop == null) pendingStop = StopRequest(message, reason, cause)
                     return
                 }
                 Lifecycle.RUNNING -> lifecycle = Lifecycle.STOPPING
                 else -> return
             }
         }
-        finishStop(message, reason)
+        finishStop(message, reason, cause)
     }
 
-    private fun finishStop(message: String?, reason: AgentStopReason) {
+    private fun finishStop(message: String?, reason: AgentStopReason, cause: Throwable?) {
         try {
             if (message != null) {
                 val hasRawLog = rawLlmLog?.isEmpty() == false
@@ -223,7 +225,7 @@ class AgentSession(
             val stopped = this.job
             this.job = null
             stopped?.cancel()
-            emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
+            emit(AgentSessionChange.StatusChanged(workspaceId, false, reason, cause))
         } finally {
             kotlinx.atomicfu.locks.synchronized(lifecycleLock) { lifecycle = Lifecycle.IDLE }
         }
@@ -487,7 +489,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
             executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId).collect { event ->
-                handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
+                handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId, runJob)
             }
         } catch (e: CancellationException) {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
@@ -719,7 +721,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         context: AgentContext,
         cacheableContext: CacheableContext,
         usedWriteToolsTracker: AtomicBoolean,
-        targetWindowId: IdType? = null
+        targetWindowId: IdType?,
+        runJob: Job?,
     ) {
 
         when (event) {
@@ -814,46 +817,46 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     val pageInfo = saveAndLogDocument(title, content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                     openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
                 }
-                completeSession(session, event, prompt)
+                completeSession(session, event, prompt, runJob)
             }
             is AgentEvent.CompletedWithDocument -> {
                 val pageInfo = saveAndLogDocument(event.title, event.content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                 openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
-                completeSession(session, event, prompt)
+                completeSession(session, event, prompt, runJob)
             }
             is AgentEvent.CompletedWithoutDocument -> {
                 session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
-                completeSession(session, event, prompt)
+                completeSession(session, event, prompt, runJob)
             }
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openStudyPadResult(event.labelId, event.scrollToEntryId, session)
-                completeSession(session, event, prompt)
+                completeSession(session, event, prompt, runJob)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
                 session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
-                completeSession(session, event, prompt)
+                completeSession(session, event, prompt, runJob)
             }
             is AgentEvent.Error -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message, showRawLogLink = hasRawLog))
                 persistRawLogFromIterations(session, prompt)
-                session.stop(reason = AgentStopReason.ERROR)
+                session.stop(reason = AgentStopReason.ERROR, owner = runJob, cause = event.cause)
             }
             is AgentEvent.Cancelled -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
                 session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled, showRawLogLink = hasRawLog))
                 persistRawLogFromIterations(session, prompt)
-                session.stop()
+                session.stop(owner = runJob)
             }
         }
     }
 
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
-    private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
+    private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt, runJob: Job?) {
 
-        session.stop(strings.agentLogCompleted, AgentStopReason.COMPLETED)
+        session.stop(strings.agentLogCompleted, AgentStopReason.COMPLETED, owner = runJob)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
         persistRawLog(
             session, prompt,

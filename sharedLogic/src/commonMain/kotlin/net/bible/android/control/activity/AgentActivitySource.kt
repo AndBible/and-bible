@@ -69,7 +69,9 @@ class AgentActivitySource(
                 // A run token prevents a slow lookup from renaming a replacement run.
                 if (name == null && finder != null) scope.launch {
                     val found = try {
-                        finder(ws)?.takeIf { it.isNotBlank() }
+                        net.bible.service.db.DatabaseContainer.aiLifetime.use {
+                            finder(ws)?.takeIf { it.isNotBlank() }
+                        }
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         throw e
                     } catch (_: Exception) {
@@ -84,7 +86,7 @@ class AgentActivitySource(
                 val run = runs.remove(ws) ?: return
                 when (change.stopReason) {
                     AgentStopReason.COMPLETED -> center.succeed(id)
-                    AgentStopReason.ERROR -> center.fail(id, run.lastError ?: strings().failed)
+                    AgentStopReason.ERROR -> center.fail(id, run.lastError ?: strings().failed, reportable = true, cause = change.cause)
                     AgentStopReason.CANCELLED -> center.cancelled(id)
                     null -> Unit
                 }

@@ -1,6 +1,7 @@
 package net.bible.android.control.activity
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -61,9 +62,11 @@ class AgentActivitySourceTest {
         assertTrue(session.tryStart(context, first))
         session.stop()
         assertTrue(session.tryStart(context, replacement))
-        session.stop(owner = first)
-        assertTrue(session.isRunning)
-        assertTrue(replacement.isActive)
+        for (reason in AgentStopReason.entries) {
+            session.stop(reason = reason, owner = first, cause = IllegalStateException("stale"))
+            assertTrue(session.isRunning)
+            assertTrue(replacement.isActive)
+        }
         session.stop()
     }
 
@@ -137,6 +140,39 @@ class AgentActivitySourceTest {
             starter.join(5000)
             blocker.cancel()
             source.close()
+        }
+    }
+
+    @Test
+    fun errorDuringStartPreservesCauseUntilTerminalDelivery() = runTest {
+        val ws = IdType()
+        val cause = IllegalStateException("startup failure")
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val changes = java.util.concurrent.CopyOnWriteArrayList<AgentSessionChange>()
+        val session = net.bible.service.llm.agent.AgentSession(ws) { change ->
+            if (change is AgentSessionChange.StatusChanged && change.isRunning) {
+                entered.countDown()
+                check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+            changes.add(change)
+        }
+        val job = kotlinx.coroutines.Job()
+        val starter = kotlin.concurrent.thread {
+            session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType()), job)
+        }
+        try {
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            session.stop(reason = AgentStopReason.ERROR, owner = job, cause = cause)
+            release.countDown()
+            starter.join(5000)
+            assertEquals(false, starter.isAlive)
+            val terminal = changes.filterIsInstance<AgentSessionChange.StatusChanged>().single { !it.isRunning }
+            assertEquals(AgentStopReason.ERROR, terminal.stopReason)
+            assertTrue(terminal.cause === cause)
+        } finally {
+            release.countDown()
+            starter.join(5000)
         }
     }
 
@@ -228,6 +264,80 @@ class AgentActivitySourceTest {
         } finally {
             source.close()
             net.bible.service.llm.agent.AgentSessionManager.clearSession(ws)
+        }
+    }
+
+    @Test
+    fun databaseReplacementWaitsForWorkspaceNameLookup() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val replacementEntered = java.util.concurrent.CountDownLatch(1)
+        source.resolveWorkspaceNames {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                entered.countDown()
+                check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+            "Study"
+        }
+        try {
+            events.emit(AgentSessionChange.StatusChanged(IdType(), true))
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            val attempted = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val replacement = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                attempted.complete(Unit)
+                net.bible.service.db.DatabaseContainer.aiLifetime.replace { replacementEntered.countDown() }
+            }
+            try {
+                attempted.await()
+                assertEquals(false, replacementEntered.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+            } finally {
+                release.countDown()
+                replacement.join()
+            }
+            assertEquals(0L, replacementEntered.count)
+        } finally {
+            release.countDown()
+            source.close()
+        }
+    }
+
+    @Test
+    fun failuresCarryLatestCauseAndRemainReportableAcrossRuns() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val source = AgentActivitySource(center, events, {}, { "Study" }, {
+            AgentActivityStrings("Agent", { "Agent: $it" }, { "waiting" }, "failed")
+        })
+        val session = net.bible.service.llm.agent.AgentSession(ws, events::emit)
+        val context = net.bible.service.llm.agent.AgentContext(promptId = IdType())
+        val first = IllegalStateException("first cause")
+        val latest = IllegalArgumentException("latest cause")
+        try {
+            assertTrue(session.tryStart(context))
+            session.addLogEntry(AgentLogEntry.error("first failure"))
+            session.stop(reason = AgentStopReason.ERROR, cause = first)
+            val initial = center.items.value.single()
+            assertTrue(initial.reportable)
+            assertTrue(initial.cause === first)
+            assertTrue(session.tryStart(context))
+            advanceTimeBy(1000); runCurrent()
+            assertEquals(false, center.items.value.single().reportable)
+            session.addLogEntry(AgentLogEntry.error("latest failure"))
+            session.stop(reason = AgentStopReason.ERROR, cause = latest)
+            val item = center.items.value.single()
+            assertEquals("latest failure", item.message)
+            assertTrue(item.reportable)
+            assertTrue(item.cause === latest)
+            assertEquals("Agent: Study", item.title)
+            assertEquals(ws, workspaceIdOfAgentItem(item))
+        } finally {
+            source.close()
         }
     }
 
