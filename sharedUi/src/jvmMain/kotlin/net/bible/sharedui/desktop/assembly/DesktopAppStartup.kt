@@ -37,6 +37,7 @@ import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedlogic.platform.desktop.DesktopDatabaseHost
+import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedlogic.platform.desktop.DesktopLocaleProvider
 import net.bible.sharedlogic.platform.host.HostSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
@@ -149,7 +150,9 @@ object DesktopAppStartup {
         ensureWritableDirectory(paths.data)
         configureDesktopLogFile(paths.data.resolve("logs"))
         Log.i(TAG, "Starting (data ${paths.data}, config ${paths.config}, cache ${paths.cache}, language $language)")
-        SharedAppStartup.installEnvironment(repositories(), DesktopLocaleProvider())
+        SharedAppStartup.installEnvironment(repositories(), DesktopLocaleProvider {
+            DesktopUiLanguage.jswordLocale(KoinPlatform.getKoinOrNull()?.getOrNull<DesktopDeviceSettings>())
+        })
         DesktopSwordFolders.initialise(paths.sword) // also turns JSword's default-location scan (~/.sword etc.) off
         check(KoinPlatform.getKoinOrNull() == null) { "a Koin context is already running; the desktop startup owns it" }
         val app = KoinApplication.init()

@@ -391,7 +391,10 @@ object IosReadingWebViews {
         entry.webView.configuration.userContentController.addScriptMessageHandler(handler, "bridge")
         entry.handlerCount++
         if (selectionMenu != null) attachSelectionMenu(entry, windowId, selectionMenu)
-        val lang = NSLocale.currentLocale.languageCode.ifEmpty { "en" }
+        // The app's UI language (#4028), not the device's: `locale_pref` may differ, and a page rebuilt after a
+        // language change must load in the new one.
+        val lang = org.koin.mp.KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedui.assembly.HostStringTableHolder>()?.current?.tag
+            ?: NSLocale.currentLocale.languageCode.ifEmpty { "en" }
         bundleLoader(entry.webView, lang, dark)
     }
 }

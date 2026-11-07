@@ -709,6 +709,30 @@ class DesktopAppStartupTest {
         assertTrue(HostStartup.databasesOpen)
     }
 
+    /** #4028: JSword's book names follow the app language (`locale_pref`) at start and after a change, not the JVM locale. */
+    @Test fun bookNamesFollowTheAppLanguageAtStartAndAfterAChange() {
+        val previous = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(java.util.Locale.US)
+        try {
+            val paths = paths()
+            Files.createDirectories(paths.config)
+            net.bible.sharedcore.platform.desktop.DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE))
+                .setString("locale_pref", "fi")
+            assertEquals(StartupPhase.Ready, start(paths))
+            val eccl = org.crosswire.jsword.versification.BibleBook.ECCL
+            assertEquals("fi", org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale().language)
+            assertEquals("Saarnaaja", org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")!!.getLongName(eccl))
+            val settings = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.desktop.DesktopDeviceSettings>()
+            settings.setString("locale_pref", "de")
+            assertEquals("de", org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale().language)
+            settings.setString("locale_pref", "")
+            assertEquals("en", org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale().language)
+            assertEquals("Ecclesiastes", org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")!!.getLongName(eccl))
+        } finally {
+            java.util.Locale.setDefault(previous)
+        }
+    }
+
     @Test fun resetForTestForgetsEveryGlobal() {
         assertEquals(StartupPhase.Ready, start())
         DesktopAppStartup.resetForTest()

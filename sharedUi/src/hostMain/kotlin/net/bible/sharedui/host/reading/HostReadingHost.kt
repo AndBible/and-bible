@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
@@ -638,6 +639,27 @@ class HostReadingHost(
         koin.get<ToolbarStateService>().toolbar.collect { rebuildDrawer() }
     }
 
+    /**
+     * #4028: an app language change (Application preferences) reaches this long-lived host without a restart. The
+     * toolbar state (its Bible book names come from JSword, whose locale follows the app language), the drawer and an
+     * open overflow menu are snapshots built on events, so they are rebuilt here; the BibleView pages read their
+     * language once, from their URL, so [HostReadingWindows.languageChanged] reloads them. Android gets the same by
+     * recreating its activity.
+     */
+    private val languageWatch = koin.getOrNull<net.bible.sharedui.assembly.HostStringTableHolder>()?.let { holder ->
+        scope.launch {
+            holder.language.drop(1).collect { onLanguageChanged() }
+        }
+    }
+
+    internal fun onLanguageChanged() {
+        toolbarHost.refreshToolbar()
+        rebuildDrawer() // the toolbar flow does not emit when the toolbar state itself did not change
+        refreshOverlay()
+        if (toolbarHost.overflowExpanded.value) toolbarHost.overflowItems.value = overflowMenu.build()
+        HostReadingWindows.languageChanged()
+    }
+
     /** Strong's find-all in the reading view's search; false: not handled, the caller falls back to its own route. */
     fun openSearchStrongs(ref: String, documentInitials: List<String>): Boolean = searchState.openSearchStrongs(ref, documentInitials)
 
@@ -659,6 +681,7 @@ class HostReadingHost(
     fun dispose() {
         if (fullScreen.state.value) setFullScreen(false) // never leave the status bar hidden behind a closed reading view
         drawerWatch.cancel()
+        languageWatch?.cancel()
         searchSubscriptions.cancelAll()
         slots.dispose()
     }

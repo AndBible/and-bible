@@ -63,6 +63,16 @@ class DesktopUiLanguageTest {
         assertEquals("sv", resolve("LANG" to "fi_FI.UTF-8", prefs = Prefs(mapOf("locale_pref" to "sv"))))
     }
 
+    @Test fun jswordLocaleIsTheChosenAppLanguageElseTheSystemLocale() {
+        assertEquals("fi", DesktopUiLanguage.jswordLocale(Prefs(mapOf("locale_pref" to "fi")), english).language)
+        val brazil = DesktopUiLanguage.jswordLocale(Prefs(mapOf("locale_pref" to "pt_BR")), english)
+        assertEquals("pt" to "BR", brazil.language to brazil.country)
+        assertEquals("Latn", DesktopUiLanguage.jswordLocale(Prefs(mapOf("locale_pref" to "sr-Latn")), english).script)
+        assertEquals(english, DesktopUiLanguage.jswordLocale(Prefs(mapOf("locale_pref" to " ")), english))
+        assertEquals(english, DesktopUiLanguage.jswordLocale(Prefs(), english))
+        assertEquals(english, DesktopUiLanguage.jswordLocale(null, english))
+    }
+
     @Test fun preferredLanguagesDropEncodingModifierAndPosixNames() {
         val tags = DesktopUiLanguage.preferredLanguages(
             mapOf("LANGUAGE" to "pt_BR:C", "LC_ALL" to "POSIX", "LANG" to "ca_ES.UTF-8@valencia")::get, english,
