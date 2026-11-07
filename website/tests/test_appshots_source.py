@@ -1,3 +1,4 @@
+import pytest
 from PIL import Image
 
 from sitegen import appshots
@@ -27,6 +28,12 @@ def test_source_falls_back_to_fastlane_when_submodule_empty_or_absent(monkeypatc
     assert appshots.default_source() == old
 
 
+needs_frames = pytest.mark.skipif(
+    not appshots.FRAMES.is_file(), reason="store-screenshots submodule not checked out (update = none)"
+)
+
+
+@needs_frames
 def test_build_from_framed_source_crops_the_screen(monkeypatch, tmp_path):
     sub, _ = _patch(monkeypatch, tmp_path, True)
     Image.new("RGB", (1080, 1920), "white").save(sub / "02.webp")
@@ -37,6 +44,7 @@ def test_build_from_framed_source_crops_the_screen(monkeypatch, tmp_path):
         assert image.size == (appshots.WIDTH, round((bottom - top) * appshots.WIDTH / (right - left)))
 
 
+@needs_frames
 def test_framed_screen_rect_is_inside_the_canvas():
     left, top, right, bottom = appshots.framed_screen_rect()
     assert 0 < left < right <= 1080 and 0 < top < bottom <= 1920
@@ -57,6 +65,8 @@ def test_framed_source_crop_lands_inside_the_screen(monkeypatch, tmp_path):
         from storeshots import frame
         from storeshots.targets import TARGETS
         frame.style_dir()
+        if not (repo / "store-screenshots/style/fonts/NotoSans-Bold.ttf").is_file():
+            raise FileNotFoundError("caption fonts not fetched (store-screenshots/style/fetch-fonts.sh)")
     except Exception as e:  # noqa: BLE001 - submodule/fonts not available
         pytest.skip(f"framing code unavailable: {e}")
     finally:
