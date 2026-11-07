@@ -24,6 +24,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.runtime.Composable
 import kotlin.test.Test
 import net.bible.sharedui.MemoryAppSettings
@@ -104,6 +107,45 @@ class ActivityHostWiringTest {
         waitForIdle()
         onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
         assertTrue(same(offBefore, pixels()), "ring gone, sync glyph back exactly as before")
+    }
+
+    @Test fun tappingAgentMenuRowOpensItsWorkspaceItem() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val workspace = net.bible.android.database.IdType()
+        var opened: net.bible.android.database.IdType? = null
+        f.center.start(net.bible.android.control.activity.agentActivityId(workspace), ActivityKind.AI_AGENT, "Agent")
+        f.now = 5_000L
+        f.center.update(net.bible.android.control.activity.agentActivityId(workspace), 40)
+        host(ActivityHostWiring(f.center, f.preference, onOpenAgent = { opened = it }, onOpenItem = {}), expanded = true)
+        onNodeWithText("Agent").performClick()
+        assertEquals(workspace, opened)
+    }
+
+    @Test fun tappingAgentFullListRowCallsOnOpenAgentWithWorkspace() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val workspace = net.bible.android.database.IdType()
+        var opened: net.bible.android.database.IdType? = null
+        f.center.start(net.bible.android.control.activity.agentActivityId(workspace), ActivityKind.AI_AGENT, "Agent")
+        f.now = 5_000L
+        f.center.update(net.bible.android.control.activity.agentActivityId(workspace), 40)
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(ActivityHostWiring(f.center, f.preference, onOpenAgent = { opened = it }, onOpenItem = {}), seen = seen)
+        waitForIdle()
+        seen.last()!!.onShowAll()
+        waitForIdle()
+        onNodeWithText("Agent").performClick()
+        assertEquals(workspace, opened)
+    }
+
+    @Test fun attentionFromCenterIsCountedOnce() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.center.start("agent", ActivityKind.AI_AGENT, "Agent")
+        f.center.setAttention("agent", true)
+        f.now = 5_000L
+        f.center.update("agent", 40)
+        host(f.wiring)
+        onNodeWithText("1", useUnmergedTree = true).assertExists()
+        onAllNodesWithText("2", useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test fun menuOpenMarksRead() = runComposeUiTest {

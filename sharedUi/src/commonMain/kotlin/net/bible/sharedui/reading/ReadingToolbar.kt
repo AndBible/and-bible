@@ -622,7 +622,10 @@ fun ReadingToolbar(
                             // "Show all" closes the menu first so the list never opens over a still-open dropdown.
                             header = remember(activity, onOverflowDismiss) {
                                 activity?.let { a ->
-                                    val closing = a.withShowAll { onOverflowDismiss(); a.onShowAll() }
+                                    val closing = a.withShowAll(
+                                        onShowAll = { onOverflowDismiss(); a.onShowAll() },
+                                        onOpenItem = { onOverflowDismiss(); a.onOpenItem(it) },
+                                    )
                                     val section: @Composable () -> Unit = { ActivityMenuSection(closing) { onOverflowDismiss(); a.syncNow?.onClick?.invoke() } }
                                     section
                                 }

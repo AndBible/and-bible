@@ -78,6 +78,13 @@ class ActivityListTest {
         assertEquals(0, onAllNodesWithText("Clear finished").fetchSemanticsNodes().size)
     }
 
+    @Test fun agentRowShowsCancelWhileRunning() = runComposeUiTest {
+        var cancelled = false
+        content(listOf(item("agent", cancel = { cancelled = true }).copy(kind = ActivityKind.AI_AGENT)))
+        onNodeWithText("Cancel").performClick()
+        assertEquals(true, cancelled)
+    }
+
     @Test fun cancelOnlyWhenSupported() = runComposeUiTest {
         var cancelled = 0
         content(listOf(item("a", cancel = { cancelled++ }), item("b")))

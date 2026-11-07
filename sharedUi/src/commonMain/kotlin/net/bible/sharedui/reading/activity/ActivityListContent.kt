@@ -25,10 +25,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import org.jetbrains.compose.resources.painterResource
+import net.bible.sharedui.generated.resources.Res
+import net.bible.sharedui.generated.resources.icon_robot
+import net.bible.android.control.activity.ActivityKind
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -116,10 +123,15 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
             .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (item.kind == ActivityKind.AI_AGENT) {
+            Icon(painterResource(Res.drawable.icon_robot), contentDescription = null, modifier = Modifier.size(24.dp))
+            androidx.compose.foundation.layout.Spacer(Modifier.width(12.dp))
+        }
         Column(Modifier.weight(1f)) {
             Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             when {
                 item.state == ActivityState.RUNNING -> {
+                    if (message != null && item.kind == ActivityKind.AI_AGENT) Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     val barColor = LocalContentColor.current
                     val trackColor = barColor.copy(alpha = 0.2f)
                     val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)

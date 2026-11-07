@@ -95,8 +95,10 @@ fun ActivityOverflowButton(
         if (running.isNotEmpty()) {
             ActivityRing(percent = single, description = strings.activityRunningDescription)
         }
-        val unread = activity.unreadFailures.value
-        if (unread > 0) {
+        val count = activity.unreadFailures.value
+        val attention = activity.items.value.count { it.state == ActivityState.RUNNING && it.attention }.coerceAtMost(count)
+        val unread = count - attention
+        if (count > 0) {
             val mono = isPureMonochrome()
             Badge(
                 containerColor = if (mono) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
@@ -106,10 +108,14 @@ fun ActivityOverflowButton(
                     .offset(x = (-2).dp, y = 4.dp)
                     .testTag(ACTIVITY_BADGE_TAG)
                     .clearAndSetSemantics {
-                        this.contentDescription = strings.activityFailedBadge(unread)
+                        this.contentDescription = when {
+                            attention == 0 -> strings.activityFailedBadge(unread)
+                            unread == 0 -> strings.activityAttentionBadge(attention)
+                            else -> strings.activityCombinedBadge(unread, attention)
+                        }
                     },
             ) {
-                Text(unread.toString(), fontSize = 10.sp)
+                Text(count.toString(), fontSize = 10.sp)
             }
         }
     }

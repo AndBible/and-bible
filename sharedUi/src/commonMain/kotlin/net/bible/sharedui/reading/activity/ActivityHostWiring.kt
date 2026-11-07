@@ -19,6 +19,8 @@ import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.ActivityState
+import net.bible.android.control.activity.workspaceIdOfAgentItem
+import net.bible.android.database.IdType
 import net.bible.sharedcore.nav.NavRoutes
 
 /**
@@ -35,8 +37,14 @@ class ActivityHostWiring(
     val preference: ActivityMenuPreference,
     val listRequests: Flow<Unit>? = null,
     val syncNow: SyncNow? = null,
+    val onOpenAgent: ((IdType) -> Unit)? = null,
     val onOpenItem: (ActivityItem) -> Unit,
-)
+) {
+    fun open(item: ActivityItem) {
+        val workspace = workspaceIdOfAgentItem(item)
+        if (workspace != null && onOpenAgent != null) onOpenAgent.invoke(workspace) else onOpenItem(item)
+    }
+}
 
 /**
  * Collects the activity flows into an [ActivityMenuState] for [content] (`null` while the preference is off or
@@ -90,14 +98,14 @@ internal fun ActivityHostImpl(
     LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
     val state = remember(enabled, items, unread, onShowAll, onMenuOpened, syncState) {
-        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState) else null
+        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState, wiring::open) else null
     }
     content(state)
     if (enabled && listVisible) {
         ActivityListLayer(
             items = items,
             wiring = wiring,
-            onOpenItem = { item -> listVisible = false; wiring.onOpenItem(item) },
+            onOpenItem = { item -> listVisible = false; wiring.open(item) },
             onClose = { listVisible = false },
         )
     }

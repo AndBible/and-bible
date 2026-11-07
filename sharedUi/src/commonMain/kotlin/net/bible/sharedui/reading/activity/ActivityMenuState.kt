@@ -47,13 +47,15 @@ class ActivityMenuState(
     val onShowAll: () -> Unit,
     val onMenuOpened: () -> Unit,
     val syncNow: SyncNowMenuState? = null,
+    val onOpenItem: (ActivityItem) -> Unit = {},
 ) {
     /** A snapshot of plain values, for tests and goldens. */
     constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit, syncNow: SyncNowMenuState? = null) :
         this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened, syncNow)
 
     /** The same data with another "show all" action. */
-    fun withShowAll(onShowAll: () -> Unit) = ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow)
+    fun withShowAll(onShowAll: () -> Unit, onOpenItem: (ActivityItem) -> Unit = this.onOpenItem) =
+        ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow, onOpenItem)
 }
 
 /** Semantics test tags of the activity UI. */
