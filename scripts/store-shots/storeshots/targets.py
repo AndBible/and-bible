@@ -42,7 +42,7 @@ TARGETS: dict[str, Target] = dict([
     _t("play-ten", "play", (2560, 1440), (2560, 1600), "tablet"),
     _t("ios-iphone-69", "appstore", (1320, 2868), (1320, 2868), "iphone"),
     _t("ios-iphone-65", "appstore", (1284, 2778), (1320, 2868), "iphone"),
-    _t("ios-ipad-13", "appstore", (2064, 2752), (2064, 2752), "ipad"),
+    _t("ios-ipad-13", "appstore", (2752, 2064), (2752, 2064), "ipad_land"),  # landscape: split windows side by side
     _t("web-phone", "website", (1080, 1920), (1440, 3120), "phone"),
     _t("web-desktop", "website", (1920, 1200), (1600, 1000), "desktop"),
     _t("web-mac", "website", (1920, 1200), (1600, 1000), "desktop"),

@@ -71,6 +71,8 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
     }
 
     private func capture(_ shot: PlanShot, lang: String) -> Bool {
+        // iPad shots are landscape (target ios-ipad-13 is 2752x2064): split windows sit side by side.
+        if isPad { XCUIDevice.shared.orientation = .landscapeLeft }
         let app = launchStore(lang)
         guard element(app, "reading-host").waitForExistence(timeout: 120) else {
             return fail(app, shot, "reading host did not appear")
@@ -182,8 +184,7 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
             let create = label(app, "Create")
             if create.waitForExistence(timeout: 10) {
                 create.tap()
-                _ = waitUntil(timeout: 180) { !create.exists }
-                sleep(3)
+                sleep(2)
             }
             // The search field shows "Find" as its placeholder; it is not exposed as a TextField.
             let field = app.textFields.firstMatch.exists ? app.textFields.firstMatch : label(app, "Find")
@@ -191,8 +192,12 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
             field.tap()
             sleep(1)
             app.typeText((shot.action_arg ?? "love") + "\n")
+            // While the index is built a progress sheet shows "Creating index..."; the search runs when it finishes.
+            let indexing = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Creating index'")).firstMatch
+            sleep(2)
+            _ = waitUntil(timeout: 300) { !indexing.exists }
             sleep(8)
-            return true
+            return !indexing.exists
         default:
             attachTree(app, "action-\(shot.action)-unsupported")
             return false
