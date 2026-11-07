@@ -156,6 +156,7 @@ fun desktopMiscModule(): Module = module {
     }
     val distribution = detectDistribution(
         System.getenv(), System.getProperty("compose.application.resources.dir"), System.getProperty("jpackage.app-path"),
+        System.getProperty("andbible.systemPackage"),
     )
     val channel = net.bible.sharedui.desktop.update.DesktopChannel.fromReleaseKind(System.getProperty("andbible.releaseKind"))
     val version = System.getProperty("andbible.version") ?: "dev"

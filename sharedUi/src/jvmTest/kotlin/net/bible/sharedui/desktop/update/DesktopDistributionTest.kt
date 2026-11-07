@@ -22,6 +22,18 @@ class DesktopDistributionTest {
         assertTrue(DesktopDistribution.APPIMAGE.checksForUpdates)
         assertTrue(DesktopDistribution.GITHUB_PACKAGE.checksForUpdates)
         assertFalse(DesktopDistribution.FLATPAK.checksForUpdates)
+        assertFalse(DesktopDistribution.SYSTEM_PACKAGE.checksForUpdates)
+    }
+
+    @Test fun systemPackageMarkerOverridesGithubPackageOnly() {
+        // The AUR package adds -Dandbible.systemPackage=aur to the launcher .cfg of the release tarball.
+        assertEquals(DesktopDistribution.SYSTEM_PACKAGE, detectDistribution(emptyMap(), "resources", "/opt/andbible/bin/andbible", "aur"))
+        // A blank marker is no marker.
+        assertEquals(DesktopDistribution.GITHUB_PACKAGE, detectDistribution(emptyMap(), "resources", "/opt/andbible/bin/andbible", " "))
+        // Sandboxed installs keep their own kind even with the marker, and a dev run has no resources dir to mark.
+        assertEquals(DesktopDistribution.FLATPAK, detectDistribution(mapOf("FLATPAK_ID" to "x"), "resources", null, "aur"))
+        assertEquals(DesktopDistribution.APPIMAGE, detectDistribution(mapOf("APPIMAGE" to "x"), "resources", null, "aur"))
+        assertEquals(DesktopDistribution.DEV, detectDistribution(emptyMap(), null, null, "aur"))
         assertFalse(DesktopDistribution.MSIX.checksForUpdates)
         assertFalse(DesktopDistribution.DEV.checksForUpdates)
     }
