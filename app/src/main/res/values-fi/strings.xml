@@ -813,7 +813,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_manage_workspaces">Hallitse työtiloja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
-  <string name="beta_notice_github_issues">GitHub tiketit</string>
+  <string name="beta_notice_github_issues">GitHub-tiketit</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
@@ -831,16 +831,16 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="beta_special_sync_desktop">Laitteidesi välinen synkronointi Nextcloudin tai WebDAVin (oma palvelin, NAS tai mikä tahansa WebDAV-palvelu) kautta.</string>
   <string name="beta_special_feedback">Jos jotain puuttuu, toimii eri tavalla kuin ennen tai on vaikeampi löytää, kerro meille, vaikka se olisikin tarkoituksellista.</string>
   <string name="beta_special_backup">Varmuuskopion tekeminen ennen testaamista on hyvä idea (päävalikko → %s).</string>
-  <string name="beta_special_beta_warning">Tämä on beta-versio: kaikki ei ole valmista tai täysin testattua, ja siinä voi olla virheitä. Käyttämällä sitä olet betatestaaja, ja virheilmoituksesi tekevät lopullisesta julkaisusta hyvän.</string>
-  <string name="beta_special_leave_beta_android">Jos et tarkoittanut testata, voit poistua kohteesta %s ja palata vakaaseen versioon.</string>
-  <string name="beta_special_report">Ilmoita virheistä kohteessa %1$s (suositeltu) tai päävalikossa → %2$s.</string>
-  <string name="beta_special_report_android">Ilmoita virheistä kohteessa %1$s (suositeltu), Google Playssa tai päävalikossa → %2$s.</string>
+  <string name="beta_special_beta_warning">Tämä on betaversio: kaikki ei ole vielä valmista tai täysin testattua, ja siinä voi olla virheitä. Käyttämällä sitä olet betatestaaja, ja virheilmoituksesi tekevät lopullisesta versiosta hyvän.</string>
+  <string name="beta_special_leave_beta_android">Jos et halunnut testata, voit erota betaohjelmasta (%s) ja palata vakaaseen versioon.</string>
+  <string name="beta_special_report">Ilmoita virheistä mieluiten: %1$s, tai päävalikosta → %2$s.</string>
+  <string name="beta_special_report_android">Ilmoita virheistä mieluiten: %1$s, tai Google Playssa tai päävalikosta → %2$s.</string>
   <string name="beta_special_other_devices_title">AndBible muilla laitteillasi</string>
   <string name="beta_special_other_devices_intro">Sama beta on saatavilla kaikille laitteillesi:</string>
-  <string name="beta_special_other_android">Android: liity kohteeseen %1$s tai lataa APK uusimmasta beta-julkaisusta kohteessa %2$s.</string>
-  <string name="beta_special_play_beta_link">Google Playn beta-ohjelma</string>
-  <string name="beta_special_other_apple">iPhone, iPad ja Apple Silicon -Mac: asenna Applen TestFlight-sovellus ja liity kohteeseen %s.</string>
-  <string name="beta_special_testflight_link">AndBible julkinen beta</string>
+  <string name="beta_special_other_android">Android: liity betaohjelmaan (%1$s) tai lataa APK uusimmasta betajulkaisusta: %2$s.</string>
+  <string name="beta_special_play_beta_link">Google Playn betaohjelma</string>
+  <string name="beta_special_other_apple">iPhone, iPad ja Apple Silicon -Mac: asenna Applen TestFlight-sovellus ja liity betaan: %s.</string>
+  <string name="beta_special_testflight_link">AndBiblen julkinen beta</string>
   <string name="beta_special_other_desktop">Windows (.msi) ja Linux (.deb tai AppImage): lataa ne uusimmasta beta-julkaisusta kohteessa %s.</string>
   <string name="beta_special_installation_guide">Vaiheittaiset ohjeet löytyvät kohteesta %s.</string>
   <string name="beta_special_installation_guide_link">asennusopas</string>
