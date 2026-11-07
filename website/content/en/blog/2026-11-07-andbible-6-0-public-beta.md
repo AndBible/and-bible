@@ -2,7 +2,7 @@
 title: 'AndBible 6.0 public beta: one app for Android, iPhone, iPad, Mac, Windows and Linux'
 date: '2026-11-07'
 slug: andbible-6-0-public-beta
-summary: AndBible 6.0 is in public beta. It is one app for Android, iPhone, iPad, Mac, Windows and Linux, with a new shared interface and sync between all of them. Here is how to join the beta on your device and how to tell us what you find.
+summary: AndBible 6.0 is in public beta, sooner than planned. It is one app for Android, iPhone, iPad, Mac, Windows and Linux, with a new shared interface and sync between all of them. Here is how to join the beta on your device and how to tell us what you find.
 categories:
 - New features
 tags:
@@ -14,12 +14,41 @@ image: blog/2026/11/andbible-6-0-public-beta.webp
 image_alt: 'AndBible 6.0 public beta on Android, iPhone, iPad, Mac, Windows and Linux: a phone and the Linux desktop app showing the Bible'
 ---
 
-Today we are opening the **public beta of AndBible 6.0**. It is the biggest change in AndBible's
-history: for the first time, one app runs on **Android, iPhone, iPad, Mac, Windows and Linux**.
+Today I am opening the **public beta of AndBible 6.0**. It is the biggest change in AndBible's
+history: one shared app for **Android, iPhone, iPad, Mac, Windows and Linux**. The Android, Windows
+and Linux betas are available now; the iPhone and iPad beta (which also runs on Apple Silicon Macs)
+follows in a few days.
 
-Until now AndBible was an Android app, with a separate app for iOS that reached the App Store in
-September. Version 6.0 brings them together. The whole interface has been rebuilt once and is shared by every platform,
-so your Bibles, bookmarks, notes and StudyPads work the same way wherever you open them.
+## Faster than planned
+
+This is not what I expected to be writing this autumn. In July the separate
+[iOS app opened its public beta](/2026/07/17/andbible-for-ios-the-public-beta-is-here/) as an early
+MVP, and in September it [reached the App Store](/2026/09/26/andbible-for-ios-now-available-on-the-app-store/).
+A month ago, in the [roadmap for Q4 2026 and Q1 2027](/2026/10/09/the-road-ahead-q4-2026-q1-2027/),
+the plan was:
+
+- **Q4 2026:** release the Compose version to **Android users only**, first as a beta, with no new
+  features.
+- **Q1–Q2 2027:** bring the shared codebase to iOS in a unified release, "when it is ready, not by
+  the calendar".
+- **WebDAV sync:** to be built after the Compose release.
+
+What is here now, in November:
+
+- The 6.0 beta is the **multiplatform** version, not an Android-only one. The same code runs on
+  Android and on iPhone and iPad, and the iOS beta of it opens in a few days.
+- **Windows and Linux** are new platforms that were not in any roadmap.
+- **WebDAV sync** is already in, next to Nextcloud on every platform, iCloud Drive on Apple devices
+  and Google Drive on Android.
+
+One big factor in this pace is JailBee, a side project of mine. It runs each piece of development
+work in its own isolated container and lets me coordinate many of them at once, so large efforts
+like this port move more smoothly than before. Like AndBible, [JailBee](https://jailbee.gisgro.io)
+is open source under the GPL-3.0 licence.
+
+Version 6.0 brings everything together. The whole interface has been rebuilt once and is shared by
+every platform, so your Bibles, bookmarks, notes and StudyPads work the same way wherever you open
+them.
 
 ## What is new
 
@@ -76,7 +105,7 @@ the invitation. The beta replaces the App Store version on that device. See
 [Getting started](/docs/getting_started/#iphone-and-ipad).
 <!-- else -->
 **iPhone, iPad and Mac.** The 6.0 beta for Apple devices is **coming in a few days** through
-Apple's TestFlight, as soon as we have finished testing it on real devices. This post and
+Apple's TestFlight, as soon as I have finished testing it on real devices. This post and
 [Getting started](/docs/getting_started/#iphone-and-ipad) will have the link when it is open.
 Until then the App Store has the current AndBible for iOS.
 <!-- end -->
@@ -102,3 +131,7 @@ Please tell us your device and operating system, and what you were doing when th
 More about reporting is on the [Support](/docs/support/#reporting-issues) page.
 
 Thank you for testing, and for helping AndBible reach every device.
+
+God bless,  
+Tuomas Airaksinen  
+Lead developer, AndBible Open Source Project
