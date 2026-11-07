@@ -20,10 +20,15 @@ SHOTS = [mk(f"s{i}", "play-phone", "play-seven") for i in range(1, 6)]
 TARGET_IDS = ["play-phone", "play-seven"]
 
 
-def png(path: Path, color=(1, 2, 3)):
+def png(path: Path, color=(1, 2, 3), size=(4, 4)):
     path.parent.mkdir(parents=True, exist_ok=True)
-    Image.new("RGB", (4, 4), color).save(path)
+    Image.new("RGB", size, color).save(path)
     return path
+
+
+def framed_png(state, t, sid, color=(5, 5, 5)):
+    """A valid framed image (exact target size, RGB) at the framed path of the shot."""
+    return png(state.framed_path(t, sid), color, TARGETS[t].size)
 
 
 def record_all(state, shots, skip=()):
@@ -32,7 +37,7 @@ def record_all(state, shots, skip=()):
             if (s.id, t) in skip:
                 continue
             state.record(s.id, t, png(state.raw_path(t, s.id)))
-            png(state.framed_path(t, s.id))
+            framed_png(state, t, s.id)
 
 
 def test_store_path_layout():
@@ -134,3 +139,70 @@ def test_cli_frame_status_promote_roundtrip(tmp_path, monkeypatch):
     # web-phone reuses the play-phone raw
     framed, _ = frame_platform(state, shots, load_captions("en", sub), "web", {"map"})
     assert [p.parent.name for p in framed] == ["web-phone"]
+
+
+def test_promote_skips_targets_without_a_listing(tmp_path):
+    """`ar` has a Play folder but no App Store locale: only Play shots are required and promoted."""
+    shots = [mk("a", "play-phone", "ios-iphone-69"), mk("b", "play-phone", "ios-iphone-69")]
+    state = RunState(tmp_path / "work", "ar")
+    for s in shots:
+        state.record(s.id, "play-phone", png(state.raw_path("play-phone", s.id)))
+        framed_png(state, "play-phone", s.id)
+    assert state.promote(shots, tmp_path / "store") is True
+    assert state.skipped_targets == ["ios-iphone-69"]
+    assert (tmp_path / "store/android/ar/phone/02.png").exists()
+    assert not (tmp_path / "store/ios").exists()
+
+
+def test_status_ignores_targets_without_a_listing(tmp_path, monkeypatch, capsys):
+    from storeshots import cli
+    from storeshots import pipeline
+    shots = [mk("a", "play-phone", "ios-iphone-69")]
+    monkeypatch.setenv("STORE_SHOTS_WORK", str(tmp_path))
+    monkeypatch.setattr(pipeline, "load_manifest", lambda p: shots)
+    state = RunState(tmp_path, "ar")
+    state.record("a", "play-phone", png(state.raw_path("play-phone", "a")))
+    framed_png(state, "play-phone", "a")
+    assert cli.main(["status", "--lang", "ar"]) == 0
+    out = capsys.readouterr().out
+    assert "ios-iphone-69: no listing for ar, skipped" in out and out.strip().endswith("complete")
+
+
+def test_web_phone_falls_back_to_play_phone_raw(tmp_path, monkeypatch):
+    from storeshots import cli
+    from storeshots import pipeline
+    shots = [mk("a", "play-phone", "web-phone")]
+    monkeypatch.setenv("STORE_SHOTS_WORK", str(tmp_path))
+    monkeypatch.setattr(pipeline, "load_manifest", lambda p: shots)
+    state = RunState(tmp_path, "en")
+    state.record("a", "play-phone", png(state.raw_path("play-phone", "a")))
+    framed_png(state, "play-phone", "a")
+    framed_png(state, "web-phone", "a")
+    assert state.raw_for("a", "web-phone") == state.recorded("a", "play-phone")
+    assert state.missing(shots, ["web-phone"]) == []
+    assert cli.main(["status", "--lang", "en"]) == 0
+    assert state.promote(shots, tmp_path / "store") is True
+    assert (tmp_path / "store/website/phone/01.webp").exists()
+
+
+def test_stale_framed_is_not_promoted(tmp_path):
+    import os
+    shots = [mk("a", "play-phone")]
+    state = RunState(tmp_path / "work", "en")
+    record_all(state, shots)
+    raw, framed = state.raw_path("play-phone", "a"), state.framed_path("play-phone", "a")
+    os.utime(framed, (1000, 1000))
+    os.utime(raw, (2000, 2000))  # raw re-captured after framing
+    assert state.promote(shots, tmp_path / "store") is False
+    assert not (tmp_path / "store").exists()
+
+
+def test_invalid_framed_is_not_promoted(tmp_path):
+    shots = [mk("a", "play-phone")]
+    state = RunState(tmp_path / "work", "en")
+    record_all(state, shots)
+    png(state.framed_path("play-phone", "a"), size=(10, 10))  # wrong size
+    from storeshots.errors import ShotError
+    with pytest.raises(ShotError):
+        state.promote(shots, tmp_path / "store")
+    assert not (tmp_path / "store").exists()

@@ -11,6 +11,9 @@ from .layout import extension, target_folder
 from .locales import locale_for
 from .manifest import Shot
 from .targets import TARGETS
+from .validate import validate_final
+
+RAW_FALLBACK = {"web-phone": "play-phone"}
 
 
 def repo_root() -> Path:
@@ -34,6 +37,7 @@ class RunState:
         self.lang = lang
         self.dir = Path(root) / lang
         self.file = self.dir / "state.json"
+        self.skipped_targets: list[str] = []
         self.raws: dict[str, dict[str, str]] = {}  # target -> shot -> raw path
         if self.file.exists():
             self.raws = json.loads(self.file.read_text()).get("raw", {})
@@ -55,36 +59,58 @@ class RunState:
         p = self.raws.get(target_id, {}).get(shot_id)
         return Path(p) if p and Path(p).exists() else None
 
+    def raw_for(self, shot_id: str, target_id: str) -> Path | None:
+        """The raw a target is framed from: its own, or for web-phone the play-phone raw when it has none."""
+        raw = self.recorded(shot_id, target_id)
+        if raw is None and target_id in RAW_FALLBACK:
+            raw = self.recorded(shot_id, RAW_FALLBACK[target_id])
+        return raw
+
     def missing(self, shots: list[Shot], targets: list[str]) -> list[tuple[str, str]]:
         return [(s.id, t) for t in targets for s in shots
-                if t in s.targets and self.recorded(s.id, t) is None]
+                if t in s.targets and self.raw_for(s.id, t) is None]
 
-    def _jobs(self, shots: list[Shot]) -> dict[str, list[Shot]]:
+    def framed_ok(self, target_id: str, shot_id: str) -> bool:
+        """A framed image exists and is not older than the raw it was made from."""
+        framed, raw = self.framed_path(target_id, shot_id), self.raw_for(shot_id, target_id)
+        return framed.exists() and raw is not None and framed.stat().st_mtime >= raw.stat().st_mtime
+
+    def jobs(self, shots: list[Shot]) -> dict[str, list[Shot]]:
+        """Targets this language is delivered for, with their shots. Targets whose store has no listing
+        for the locale (see `skipped_targets`) are left out, as are website targets for non-English."""
         locale = locale_for(self.lang)
         out: dict[str, list[Shot]] = {}
+        self.skipped_targets = []
         for tid, target in TARGETS.items():
             used = [s for s in shots if tid in s.targets]
-            if used and (target.store != "website" or locale.app == "en"):
-                out[tid] = used
+            if not used or (target.store == "website" and locale.app != "en"):
+                continue
+            try:
+                target_folder(target, locale)
+            except ValueError:
+                self.skipped_targets.append(tid)
+                continue
+            out[tid] = used
         return out
 
     def promote(self, shots: list[Shot], dest_root: Path) -> bool:
-        """Copy framed images into dest_root's store layout, only if every shot of every target
-        is recorded and framed. Replaces each target folder atomically (rename); returns False and
-        touches nothing otherwise."""
+        """Copy framed images into dest_root's store layout, only if every shot of every target with a
+        listing is recorded, framed after its raw was captured, and a valid final image. Replaces each target
+        folder atomically (rename); returns False and touches nothing otherwise. Targets without a listing
+        for the locale are left out and named in `skipped_targets` (the English set is used there)."""
         locale = locale_for(self.lang)
-        jobs = self._jobs(shots)
+        jobs = self.jobs(shots)
         for tid, used in jobs.items():
             for s in used:
-                if self.recorded(s.id, tid) is None or not self.framed_path(tid, s.id).exists():
+                if not self.framed_ok(tid, s.id):
                     return False
+        for tid, used in jobs.items():
+            for s in used:
+                validate_final(self.framed_path(tid, s.id), TARGETS[tid])
         dest_root = Path(dest_root)
         for tid, used in jobs.items():
             target = TARGETS[tid]
-            try:
-                folder = dest_root / target_folder(target, locale)
-            except ValueError:
-                continue  # no listing for this locale and store: English fallback is used there
+            folder = dest_root / target_folder(target, locale)
             folder.parent.mkdir(parents=True, exist_ok=True)
             tmp = folder.with_name(folder.name + ".tmp")
             shutil.rmtree(tmp, ignore_errors=True)

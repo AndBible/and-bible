@@ -36,9 +36,7 @@ def frame_platform(state: RunState, shots, captions: dict[str, str], platform: s
         for shot in shots:
             if target.id not in shot.targets or (only and shot.id not in only):
                 continue
-            raw = state.recorded(shot.id, target.id)
-            if raw is None and target.id == "web-phone":
-                raw = state.recorded(shot.id, "play-phone")
+            raw = state.raw_for(shot.id, target.id)
             if raw is None:
                 skipped.append((shot.id, target.id))
                 continue
@@ -69,15 +67,14 @@ def cmd_status(args) -> int:
     shots = load_manifest(sub / "shots.yaml")
     state = RunState(work_root(), args.lang)
     complete = True
-    for tid in TARGETS:
-        used = [s for s in shots if tid in s.targets]
-        if not used:
-            continue
+    for tid, used in state.jobs(shots).items():
         missing = state.missing(used, [tid])
-        have_framed = sum(state.framed_path(tid, s.id).exists() for s in used)
+        have_framed = sum(state.framed_ok(tid, s.id) for s in used)
         complete &= not missing and have_framed == len(used)
         print(f"{tid}: raw {len(used) - len(missing)}/{len(used)}, framed {have_framed}/{len(used)}"
               + (f", missing: {', '.join(s for s, _ in missing)}" if missing else ""))
+    for tid in state.skipped_targets:
+        print(f"{tid}: no listing for {args.lang}, skipped")
     print("complete" if complete else "incomplete")
     return 0 if complete else 1
 
@@ -91,6 +88,8 @@ def cmd_promote(args) -> int:
         print(f"{args.lang}: incomplete, nothing promoted (see `status`)")
         return 1
     print(f"promoted {args.lang} into {dest}")
+    for tid in state.skipped_targets:
+        print(f"skipped {tid}: no store listing for {args.lang} (English set is used there)")
     return 0
 
 
