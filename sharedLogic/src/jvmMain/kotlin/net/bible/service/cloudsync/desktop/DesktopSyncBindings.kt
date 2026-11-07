@@ -202,7 +202,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
                     hasChanges = { get<CloudSync>().hasChanges() },
                     push = {
                         scheduler.startBackgroundDatabaseSync {
-                            runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
+                            runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false, includeDocuments = false)
                         }.await()
                     },
                 )

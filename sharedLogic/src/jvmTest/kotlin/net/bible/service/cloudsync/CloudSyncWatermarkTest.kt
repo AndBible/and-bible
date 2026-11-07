@@ -93,6 +93,7 @@ class CloudSyncWatermarkTest {
         val adapter: Adapter,
         val db: SyncableDatabaseAccessor<*>,
         val container: DatabaseContainer,
+        val documentSyncCalls: java.util.concurrent.atomic.AtomicInteger,
     )
 
     // Reuse the real-container setup and exact global restoration from CloudSyncSignOutTest.
@@ -123,7 +124,8 @@ class CloudSyncWatermarkTest {
             }
             val adapter = Adapter()
             lateinit var documents: DocumentSync
-            val provider = DocumentSyncProvider { documents }
+            val documentSyncCalls = java.util.concurrent.atomic.AtomicInteger()
+            val provider = DocumentSyncProvider { documentSyncCalls.incrementAndGet(); documents }
             val cloud = CloudSync(AppDialogController(), StubCoreStrings(), env, settings, object : CloudAdapterFactory {
                 override val available = listOf("test")
                 override fun displayName(id: String) = id
@@ -148,7 +150,7 @@ class CloudSyncWatermarkTest {
             container.bookmarkDb.bookmarkDao().delete(label)
             db.dao.clearLog()
             adapter.files = listOf(CloudFile("pending", "1.${db.version()}.sqlite3.gz", 1L, 200L, "remote-folder"))
-            block(Fixture(cloud, adapter, db, container))
+            block(Fixture(cloud, adapter, db, container, documentSyncCalls))
         } finally {
             try {
                 DatabaseContainer.detachInstanceForTest()
@@ -310,5 +312,16 @@ class CloudSyncWatermarkTest {
         f.adapter.folders = emptyList()
         f.cloud.synchronize()
         assertTrue(checkNotNull(f.db.dao.getLong(LAST_SYNCHRONIZED_KEY)) > 200L)
+    }
+
+    @Test fun normalSynchronizeRunsTheDocumentStep() = withFixture { f ->
+        f.cloud.synchronize()
+        assertEquals(1, f.documentSyncCalls.get())
+    }
+
+    @Test fun synchronizeWithoutDocumentsSkipsTheDocumentStepButStillSyncsDatabases() = withFixture { f ->
+        f.cloud.synchronize(includeDocuments = false)
+        assertEquals(0, f.documentSyncCalls.get())
+        assertEquals(listOf("missed patch"), f.container.bookmarkDb.bookmarkDao().allLabelsSortedByName().map { it.name })
     }
 }

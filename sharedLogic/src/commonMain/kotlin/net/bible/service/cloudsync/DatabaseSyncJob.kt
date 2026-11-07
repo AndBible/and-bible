@@ -60,10 +60,11 @@ suspend fun runDatabaseSyncJob(
 suspend fun runDatabaseSyncJob(
     cloudSync: CloudSync, settings: AppSettings, allowInteraction: Boolean = true,
     backgroundErrors: Boolean = !allowInteraction, reportTransportErrors: Boolean = allowInteraction,
+    includeDocuments: Boolean = true,
 ): Boolean =
     runDatabaseSyncJob(
         notifyRunning = { cloudSync.notifySyncRunning(it) },
-        synchronize = { cloudSync.synchronize(allowInteraction, backgroundErrors, reportTransportErrors) },
+        synchronize = { cloudSync.synchronize(allowInteraction, backgroundErrors, reportTransportErrors, includeDocuments) },
         waitUntilFinished = { cloudSync.waitUntilFinished(true) },
         recordFinished = { recordSyncFinished(settings, cloudSync) },
     )
