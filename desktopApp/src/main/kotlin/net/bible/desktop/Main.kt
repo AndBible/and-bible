@@ -232,7 +232,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
         val log: (String) -> Unit = ::desktopEngineLog
         val engine = createDesktopEngine(provider, index.parent, paths, log)
-        val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
+        val panes = DesktopReadingPaneEngine(engine, log, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
         val webViews = DesktopBibleWebViews(engine, log)
         state = DesktopStartupState(

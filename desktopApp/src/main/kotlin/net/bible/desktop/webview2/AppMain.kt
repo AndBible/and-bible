@@ -66,7 +66,7 @@ fun appMain() {
     val wv2 = WebView2Engine.start(index.parent, paths.cache.resolve("webview2"), log, DesktopPageAssetRoutes.koinBound())
         .getOrElse { fail("WebView2 unavailable (the app would fall back to KCEF): ${it.message}") }
     val engine = System.getProperty("andbible.w2.evalDir")?.let { EvalProbeEngine(wv2, Paths.get(it)) } ?: wv2
-    val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
+    val panes = DesktopReadingPaneEngine(engine, log, onRendererGone = desktopRendererRecovery())
     val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
     val webViews = DesktopBibleWebViews(engine, log)
     val state = DesktopStartupState(

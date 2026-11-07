@@ -605,6 +605,80 @@ class WorkspaceSwitchContentTest {
         }
     }
 
+    /**
+     * #4028: an app language change (Application preferences writes `locale_pref` and the shell switches the string
+     * table) reaches the live reading view without a restart: the drawer rows, the toolbar's Bible book name (JSword)
+     * and the BibleView pages, which reload in the new language.
+     */
+    @Test fun appLanguageChangeReachesTheDrawerTheToolbarBookNameAndThePanes() = runBlocking {
+        val previousLocale = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(java.util.Locale.US)
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        try {
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
+            HostReadingReady.ensure(HostStartup.stringTable)
+            val koin = KoinPlatform.getKoin()
+            val scope = HostReadingReady.scope
+            val fake = FakeWebEngine()
+            val engine = DesktopReadingPaneEngine(fake, {}, koin = { koin })
+            val holder = koin.get<net.bible.sharedui.assembly.HostStringTableHolder>()
+            val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Gray)
+            val icons = net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter)
+            withContext(Dispatchers.Main) {
+                val host = HostReadingHost(scope, HostNavShell(scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+                try {
+                    HostReadingWindows.bind(host, scope, koin, Day, engine)
+                    val window = koin.get<WindowControl>().activeWindow
+                    val book = checkNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+                    window.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 3:16"))
+                    val deps = host.deps(icons)
+                    val id = window.id.toString()
+                    fun attach() {
+                        val session = HostReadingWindows.sessionFor(id)
+                        engine.attach(id, false, HostReadingWindows.bridgeFor(id), {}, { session.jsChannel.flush() })
+                    }
+                    attach()
+                    settleMain()
+                    val englishPane = fake.live(id)
+                    assertTrue("lang=en" in englishPane.url, englishPane.url)
+                    assertTrue(host.drawerMenuState.value.groups.flatMap { it.items }.any { it.label == "Choose Document" })
+                    assertTrue(deps.toolbar.value.pageTitle.startsWith("John"), deps.toolbar.value.pageTitle)
+
+                    koin.get<net.bible.sharedcore.platform.desktop.DesktopDeviceSettings>().setString("locale_pref", "fi")
+                    holder.switchTo("fi")
+                    // The host's language collector and the page rebuild run on Main after this coroutine yields.
+                    kotlinx.coroutines.withTimeout(10_000) {
+                        while (!englishPane.disposed || !deps.toolbar.value.pageTitle.startsWith("Johannes")) kotlinx.coroutines.delay(20)
+                    }
+
+                    val labels = host.drawerMenuState.value.groups.flatMap { it.items }.map { it.label }
+                    assertTrue("Valitse teos" in labels, "the drawer must follow the new language: $labels")
+                    assertTrue(deps.toolbar.value.pageTitle.startsWith("Johannes"), deps.toolbar.value.pageTitle)
+                    assertTrue(englishPane.disposed, "the page loaded in the old language must be replaced")
+                    attach()
+                    val finnishPane = fake.live(id)
+                    assertTrue("lang=fi" in finnishPane.url, finnishPane.url)
+                } finally {
+                    host.dispose()
+                }
+            }
+        } finally {
+            java.util.Locale.setDefault(previousLocale)
+        }
+    }
+
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
     @Test fun hostDrawerRowsRemainReachableAtAx5() = drawerChromeJourney("en")
 

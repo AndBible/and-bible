@@ -41,8 +41,20 @@ class HostStringTableHolder(initial: StringTable) {
     var current: StringTable by mutableStateOf(initial)
         private set
 
+    private val _language = kotlinx.coroutines.flow.MutableStateFlow(initial.tag)
+
+    /**
+     * The current language tag, for holders of snapshots built from the strings (the reading view's drawer, toolbar
+     * and BibleView pages) that must rebuild them on a change (#4028). A flow, not only Compose state, so that a
+     * collector outside composition sees the change without waiting for a snapshot apply notification.
+     */
+    val language: kotlinx.coroutines.flow.StateFlow<String> = _language
+
     fun switchTo(language: String) {
-        if (current.tag != language) current = hostStringTable(language, current.raw)
+        if (current.tag != language) {
+            current = hostStringTable(language, current.raw)
+            _language.value = language
+        }
     }
 
     /** A stable facade for platform ports retained by hosts, including their deferred callbacks. */

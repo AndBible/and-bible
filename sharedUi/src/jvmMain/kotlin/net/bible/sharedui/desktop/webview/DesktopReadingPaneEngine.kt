@@ -38,6 +38,7 @@ import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
 import java.nio.file.Files
 import java.nio.file.Path
+import net.bible.sharedui.assembly.HostStringTableHolder
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.SwingUtilities
@@ -68,7 +69,14 @@ import javax.swing.SwingUtilities
 class DesktopReadingPaneEngine(
     private val engine: DesktopWebEngine,
     private val log: (String) -> Unit,
-    private val lang: () -> String = { Locale.getDefault().language.ifEmpty { "en" } },
+    /**
+     * The UI language a new page loads its strings in (`index.html?lang=`): the app's current language (#4028, read
+     * when each pane is created, so a page rebuilt after a language change follows it); the JVM locale only before
+     * the app graph exists.
+     */
+    private val lang: () -> String = {
+        KoinPlatform.getKoinOrNull()?.getOrNull<HostStringTableHolder>()?.current?.tag ?: Locale.getDefault().language.ifEmpty { "en" }
+    },
     /**
      * Called (Swing thread) after a window's renderer died, once the dead pane is disposed, at most [MAX_RENDERER_DEATHS]
      * times per window. The owner rebuilds the window's session and asks it to load again (see [DesktopReadingRecovery]),

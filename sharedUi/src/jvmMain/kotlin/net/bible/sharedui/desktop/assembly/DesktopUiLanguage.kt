@@ -49,6 +49,15 @@ object DesktopUiLanguage {
         locale: Locale = Locale.getDefault(),
     ): String = resolveDeviceUiLanguage(settings) { preferredLanguages(env, locale) }
 
+    /**
+     * The locale JSword names Bible books in (#4028): the app language (`locale_pref` of [settings]) when one is
+     * chosen, else [system], as Android's `LocaleHelper.uiLocaleFor`. Read on every JSword locale lookup, so a change
+     * in Application preferences applies at once. [settings] is null before the app graph exists.
+     */
+    fun jswordLocale(settings: DeviceLocalPrefs?, system: Locale = Locale.getDefault()): Locale =
+        settings?.getString("locale_pref", null)?.takeIf { it.isNotBlank() }?.let { Locale.forLanguageTag(it.replace('_', '-')) }
+            ?: system
+
     /** Whether [language] is written right to left. */
     fun isRtl(language: String): Boolean = HostUiLanguage.isRtl(language)
 }
