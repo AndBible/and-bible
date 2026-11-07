@@ -10,6 +10,8 @@ tags:
 - news
 - ios
 - desktop
+image: blog/2026/11/andbible-6-0-public-beta.webp
+image_alt: 'AndBible 6.0 public beta on Android, iPhone, iPad, Mac, Windows and Linux: a phone and the Linux desktop app showing the Bible'
 ---
 
 Today we are opening the **public beta of AndBible 6.0**. It is the biggest change in AndBible's
@@ -31,6 +33,24 @@ so your Bibles, bookmarks, notes and StudyPads work the same way wherever you op
   activity list, and finished or failed work is reported with a notification.
 - **Reading plans** are now included in synchronization.
 - **Search:** *Find all occurrences* no longer opens a separate full-screen results page.
+
+![AndBible 6.0 on Linux: the King James Version with Strong's numbers beside a Greek dictionary entry](/media/blog/2026/11/6-0-beta-linux-desktop.webp)
+
+<div class="gallery" markdown>
+
+![A StudyPad beside the Bible text on an Android tablet](/media/blog/2026/11/6-0-beta-tablet-studypad.webp)
+
+![Two Bibles side by side in night mode on a tablet](/media/blog/2026/11/6-0-beta-tablet-night.webp)
+
+</div>
+
+<div class="gallery gallery--narrow" markdown>
+
+![A formatted note on a bookmark, on an Android phone](/media/blog/2026/11/6-0-beta-phone-note.webp)
+
+![Bookmarks with labels on an Android phone](/media/blog/2026/11/6-0-beta-phone-bookmarks.webp)
+
+</div>
 
 There are many more fixes and improvements. The full list is on the
 [Release 6.0](/docs/releases/release_6_0/) page.
