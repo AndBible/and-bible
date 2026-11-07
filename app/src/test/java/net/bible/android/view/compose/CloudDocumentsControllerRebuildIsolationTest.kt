@@ -87,8 +87,10 @@ import kotlin.test.assertTrue
  * Robolectric test method runs ON the thread `Looper.getMainLooper()` is bound to -- so the
  * coroutine body runs SYNCHRONOUSLY up to its first genuine suspension point the moment `launch` is
  * called, before the triggering call (`controller.setShowRemoved(...)`/`.rescan()`) even returns.
- * The Sync-now test additionally holds the real adapter boundary: `withContext(IO)` alone does not
- * guarantee suspension, since a fast computation can finish before the caller returns.
+ * The show-removed and Sync-now tests additionally hold their cache/adapter IO boundaries:
+ * `withContext(IO)` alone does not guarantee suspension, since a fast computation can finish before
+ * the caller returns and already balance busy. Both tests release and join the operation before
+ * checking that only its original controller was balanced.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -104,10 +106,13 @@ class CloudDocumentsControllerRebuildIsolationTest {
     private val activities = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var heldAdapter: HeldCloudAdapter? = null
     private var restoreAdapter: (() -> Unit)? = null
+    private var cacheReadRelease: CompletableDeferred<Unit>? = null
+    private var restoreCacheDao: (() -> Unit)? = null
 
     @After fun tearDown() {
         try {
             heldAdapter?.release?.complete(Unit)
+            cacheReadRelease?.complete(Unit)
             val jobs = activities.map { requireNotNull(it.get().lifecycleScope.coroutineContext[Job]) }
             try {
                 var closeFailure: Throwable? = null
@@ -122,6 +127,7 @@ class CloudDocumentsControllerRebuildIsolationTest {
                 jobs.forEach { it.cancel() }
                 DatabaseResetter.runResetBlocking(timeoutMs = 10_000) { jobs.forEach { it.join() } }
                 assertTrue(jobs.all { it.isCompleted && it.children.none() }, "owned Activity jobs must finish before DB reset")
+                restoreCacheDao?.invoke()
             }
         } finally {
             restoreAdapter?.invoke()
@@ -152,6 +158,33 @@ class CloudDocumentsControllerRebuildIsolationTest {
             assertTrue(field.get(cloudSync) === original, "restore the exact pre-test adapter")
         }
         return HeldCloudAdapter().also { heldAdapter = it; field.set(cloudSync, it) }
+    }
+
+    /**
+     * Hold only the cache DAO boundary; the real host callback and DocumentSync scan still run.
+     * Room's generated Lazy holder is reflected because this test's real host has no swappable
+     * cache-read port. A generator field change fails explicitly rather than losing the hold.
+     */
+    private fun holdCacheRead(): CompletableDeferred<Unit> {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val field = db.javaClass.getDeclaredField("_cloudDocumentCacheDao").apply { isAccessible = true }
+        val original = field.get(db)
+        val real = db.cloudDocumentCacheDao()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>().also { cacheReadRelease = it }
+        val held = object : net.bible.android.database.CloudDocumentCacheDao by real {
+            override suspend fun all(): List<net.bible.android.database.CachedCloudDocument> {
+                entered.complete(Unit)
+                release.await()
+                return real.all()
+            }
+        }
+        field.set(db, lazyOf(held))
+        restoreCacheDao = {
+            field.set(db, original)
+            assertTrue(field.get(db) === original, "restore the exact pre-test DAO holder")
+        }
+        return entered
     }
 
     /** Only the external IO boundary is replaced; host and DocumentSync computation stay real. */
@@ -242,11 +275,24 @@ class CloudDocumentsControllerRebuildIsolationTest {
         val activity = buildActivity()
         val first = buildController(activity)
         val second = buildController(activity)
+        val entered = holdCacheRead()
+        val lifecycleJob = requireNotNull(activity.lifecycleScope.coroutineContext[Job])
+        val previousJobs = lifecycleJob.children.toSet()
 
         first.setShowRemoved(true)
+        val operation = lifecycleJob.children.single { it !in previousJobs }
+        DatabaseResetter.runResetBlocking(timeoutMs = 10_000) { entered.await() }
 
         assertTrue(first.busy.value, "the toggle must push busy onto the controller that started it")
         assertFalse(second.busy.value, "the toggle must not leak onto the ref's current (later) controller")
+        assertFalse(cacheReadRelease!!.isCompleted, "identity is checked while the cache read remains held")
+        DatabaseResetter.runResetBlocking(timeoutMs = 10_000) {
+            cacheReadRelease!!.complete(Unit)
+            operation.join()
+        }
+        assertTrue(operation.isCompleted, "the cache read and its finally must finish")
+        assertFalse(first.busy.value, "completion must balance busy on its original controller")
+        assertFalse(second.busy.value, "completion must leave the later controller untouched")
     }
 
     /**

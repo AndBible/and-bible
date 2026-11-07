@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
@@ -23,6 +22,9 @@ import net.bible.desktop.BibleViewBundle
 import net.bible.desktop.DesktopAppFocusTracker
 import net.bible.desktop.DesktopAppRoot
 import net.bible.desktop.DesktopStartupState
+import net.bible.desktop.ExitSyncWindow
+import net.bible.desktop.ScaledDensity
+import net.bible.desktop.DesktopDisplayScale
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
@@ -82,13 +84,12 @@ fun appMain() {
     })
 
     application(exitProcessOnExit = false) {
-        var closing by remember { mutableStateOf(false) }
-        val requestClose: () -> Unit = {
-            if (!closing) {
-                lifecycle.onExit()
-                closing = true
-            }
-        }
+        val tasks = net.bible.desktop.exitTasksAfterStartup(state)
+        val liveTasks by androidx.compose.runtime.rememberUpdatedState(tasks)
+        val closeRequests = remember { net.bible.desktop.DesktopCloseRequests(tasks = { liveTasks }, beforeClose = lifecycle::onExit) }
+        val closing = closeRequests.closing
+        val skipRequested = closeRequests.skipRequested
+        val requestClose = closeRequests::requestClose
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
         if (closing) {
             LaunchedEffect(Unit) {
@@ -124,7 +125,9 @@ fun appMain() {
                 if (awtWindow.isActive) tracker.activated(awtWindow)
                 onDispose { uninstall() }
             }
-            if (!closing) DesktopAppRoot(state)
+            ScaledDensity(DesktopDisplayScale.composeFactor) {
+                ExitSyncWindow(closing, state.language, skipRequested, requestClose, tasks = tasks) { DesktopAppRoot(state) }
+            }
         }
     }
     exitProcess(0)

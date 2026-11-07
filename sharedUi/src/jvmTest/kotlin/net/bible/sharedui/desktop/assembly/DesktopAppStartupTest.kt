@@ -783,6 +783,54 @@ class DesktopAppStartupTest {
         assertTrue(tookMs < 10_000, "persistBeforeExit took $tookMs ms")
     }
 
+    @Test fun notifierCloseThatBlocksForeverDoesNotDelayExitTasks() {
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val finished = java.util.concurrent.CountDownLatch(1)
+        val notifier = object : net.bible.sharedcore.platform.NativeNotifier, AutoCloseable {
+            override val supportsProgress = true
+            override fun show(n: net.bible.sharedcore.platform.NativeNotification) = Unit
+            override fun remove(id: String) = Unit
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+            override fun close() {
+                entered.countDown()
+                try { release.await() } finally { finished.countDown() }
+            }
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(
+            paths(), FakeWindow(), "en", repositories = { PropertyMap() }, notifierFactory = { notifier },
+        ))
+        val koin = KoinPlatform.getKoin()
+        koin.get<net.bible.sharedcore.platform.NativeNotifier>()
+        val tasksRan = java.util.concurrent.CountDownLatch(1)
+        koin.get<net.bible.sharedcore.platform.desktop.DesktopExitTasks>().register("test") { tasksRan.countDown() }
+        val host = DatabaseContainer.host
+        val flushed = java.util.concurrent.CountDownLatch(1)
+        var flushTimeout: Long? = null
+        DatabaseContainer.installHost(object : DatabaseHost by host {
+            override fun flushSettingsBeforeExit(store: net.bible.sharedcore.settings.store.SettingsStore?, timeoutMs: Long?) {
+                flushTimeout = timeoutMs
+                host.flushSettingsBeforeExit(store, timeoutMs)
+                flushed.countDown()
+            }
+        })
+        val worker = Thread { DesktopAppStartup.persistBeforeExit(exitTasksTimeoutMs = 300, saveWorkspace = {}) }
+        try {
+            worker.start()
+            assertTrue(entered.await(2, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue(tasksRan.await(1_500, java.util.concurrent.TimeUnit.MILLISECONDS))
+            assertTrue(flushed.await(3, java.util.concurrent.TimeUnit.SECONDS))
+            assertEquals(2_000L, flushTimeout)
+            worker.join(2_000)
+            assertFalse(worker.isAlive)
+        } finally {
+            release.countDown()
+            worker.join(5_000)
+            assertTrue(finished.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            DatabaseContainer.installHost(host)
+        }
+    }
+
     @Test fun launchArgumentsAndLifecycleEventsReachTheGraph() {
         val events = net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents()
         assertEquals(

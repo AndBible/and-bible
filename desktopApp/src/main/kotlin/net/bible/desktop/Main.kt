@@ -277,16 +277,18 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     val watchdog = ExitWatchdog()
     // exitProcessOnExit = false: the exit below runs only after the windows are gone and the AWT thread is idle.
     application(exitProcessOnExit = false) {
-        var closing by remember { mutableStateOf(false) }
-        val requestClose: () -> Unit = {
-            if (!closing) {
-                // Stop acknowledging hand-offs: the sync push below can take seconds, and a file acked now would be dropped.
+        val tasks = exitTasksAfterStartup(state)
+        val liveTasks by androidx.compose.runtime.rememberUpdatedState(tasks)
+        val closeRequests = remember {
+            DesktopCloseRequests(tasks = { liveTasks }, beforeClose = {
+                // Stop acknowledging hand-offs before the sync push; lifecycle saves precede pane removal.
                 DesktopEarlyIncomingFiles.closeInstalled()
-                // ResignActive and Background reach every observer (the workspace save) before the content goes away.
                 lifecycle.onExit()
-                closing = true
-            }
+            })
         }
+        val closing = closeRequests.closing
+        val skipRequested = closeRequests.skipRequested
+        val requestClose = closeRequests::requestClose
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
         if (closing) LaunchedEffect(Unit) { shutDown(persistence, closeCoordinator, watchdog) }
         val defaultSize = AwtWindowHandle.initialSizeDp(null, scaleFactor)
@@ -330,16 +332,18 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             // Closing is two-phase: the content (and with it the CEF panes' SwingPanels) leaves the composition first;
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
             // SkiaLayer ("SkiaLayer is disposed" crash, process left hanging).
-            if (!closing) DesktopEngineReadyGate(
-                awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },
-                onFailure = { e ->
-                    Log.e(TAG, "desktop engine window readiness failed", e)
-                    exitStatus = 1
-                    requestClose()
-                },
-                onCancelled = closeCoordinator::readinessCancelled,
-            ) {
-                ScaledDensity(scaleFactor) { DesktopAppRoot(state) }
+            ScaledDensity(scaleFactor) {
+                ExitSyncWindow(closing, state.language, skipRequested, requestClose, tasks = tasks) {
+                    DesktopEngineReadyGate(
+                        awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },
+                        onFailure = { e ->
+                            Log.e(TAG, "desktop engine window readiness failed", e)
+                            exitStatus = 1
+                            requestClose()
+                        },
+                        onCancelled = closeCoordinator::readinessCancelled,
+                    ) { DesktopAppRoot(state) }
+                }
             }
         }
     }

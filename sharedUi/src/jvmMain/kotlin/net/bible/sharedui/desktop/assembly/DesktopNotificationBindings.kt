@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.withContext
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.NativeNotificationPolicy
@@ -14,7 +13,6 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.NativeNotifier
-import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
@@ -56,11 +54,11 @@ fun desktopNotificationModule(
     runOnUi: (() -> Unit) -> Unit = { SwingUtilities.invokeLater(it) },
     clock: () -> Long = monotonicActivityClock(),
 ): Module = if (!source.available) module { } else module {
-    // Real exit never closes Koin: the exit path runs these tasks (on IO, bounded) after the lifecycle's Background event.
+    // Real exit never closes Koin: the exit path runs these bounded steps after the lifecycle's Background event.
     // onClose covers graph teardown in tests and startup failure; shutdown() is idempotent.
     single {
         NotificationRuntime().also { runtime ->
-            getOrNull<DesktopExitTasks>()?.register("native notifications", runFirst = true) { withContext(Dispatchers.IO) { runtime.shutdown() } }
+            get<DesktopPreExitSteps>().register("native notifications", 1_000) { runtime.shutdown() }
         }
     } onClose { it?.shutdown() }
     single<NativeNotifier> {

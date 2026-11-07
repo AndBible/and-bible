@@ -25,6 +25,8 @@ dependencies {
     implementation(libs.jna) // NativeLibrary.addSearchPath for the WebView2 loader (WindowsEngineProvider)
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
+    implementation(project(":sharedLogic"))
+    implementation(libs.koin.core)
     implementation(compose.desktop.currentOs)
     implementation(compose.material3) // the splash and startup-failed screens (DesktopAppRoot)
     // Dispatchers.Main on the AWT event thread: the hoisted host code (hostMain) uses Dispatchers.Main.

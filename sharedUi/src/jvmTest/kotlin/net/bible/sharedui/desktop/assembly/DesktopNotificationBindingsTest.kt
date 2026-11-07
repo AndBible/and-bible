@@ -64,7 +64,7 @@ class DesktopNotificationBindingsTest {
             if (m.returnType == String::class.java) m.name else error("unexpected ${m.name}")
         } as CoreStrings
 
-    private class Rig(val koin: Koin, val window: FakeWindow, val events: DesktopLifecycleEvents, val center: ActivityCenter, val notifier: RecordingNotifier, val exitTasks: DesktopExitTasks)
+    private class Rig(val koin: Koin, val window: FakeWindow, val events: DesktopLifecycleEvents, val center: ActivityCenter, val notifier: RecordingNotifier, val exitTasks: DesktopExitTasks, val preExit: DesktopPreExitSteps)
 
     private var now = 0L
 
@@ -80,6 +80,7 @@ class DesktopNotificationBindingsTest {
         val window = FakeWindow()
         val events = DesktopLifecycleEvents()
         val exitTasks = DesktopExitTasks()
+        val preExit = DesktopPreExitSteps()
         val app = koinApplication {
             modules(
                 module {
@@ -87,6 +88,7 @@ class DesktopNotificationBindingsTest {
                     single<CoreStrings> { strings }
                     single { events }
                     single { exitTasks }
+                    single { preExit }
                     single { ActivityListRequests() }
                     single { ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now } }
                 },
@@ -97,7 +99,7 @@ class DesktopNotificationBindingsTest {
             )
         }
         try {
-            return block(Rig(app.koin, window, events, app.koin.get(), notifier, exitTasks))
+            return block(Rig(app.koin, window, events, app.koin.get(), notifier, exitTasks, preExit))
         } finally {
             app.close()
         }
@@ -186,6 +188,14 @@ class DesktopNotificationBindingsTest {
         assertTrue("show:andbible-b" !in rig.notifier.events, "a long finish while focused is silent")
     }
 
+    @Test fun notificationShutdownIsNoLongerAnExitTask() = withRig { rig ->
+        rig.koin.get<NativeNotifier>()
+        assertTrue(runBlocking { rig.exitTasks.runAll(1_000) })
+        assertTrue(!rig.notifier.closed)
+        rig.preExit.runAll()
+        assertTrue(rig.notifier.closed)
+    }
+
     @Test fun exitTasksRemoveProgressThenCloseNotifierAndNothingShowsAfter() {
         val notifier = RecordingNotifier()
         withRig(notifier) { rig ->
@@ -205,6 +215,7 @@ class DesktopNotificationBindingsTest {
 
             // What persistBeforeExit does: Koin stays open, only the registered exit tasks run.
             rig.events.emit(DesktopLifecycleEvent.Background)
+            rig.preExit.runAll()
             assertTrue(runBlocking { rig.exitTasks.runAll(5_000) })
             assertEquals(listOf("show:andbible-a", "remove:andbible-a", "close"), notifier.events.toList())
 

@@ -200,6 +200,7 @@ fun desktopPlatformModule(
         single { DesktopLaunchArgs(launchArgs) }
         single { lifecycleEvents }
         single { DesktopExitTasks() }
+        single { DesktopPreExitSteps() }
 
         // --- device, sandbox and settings
         single { DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)) }

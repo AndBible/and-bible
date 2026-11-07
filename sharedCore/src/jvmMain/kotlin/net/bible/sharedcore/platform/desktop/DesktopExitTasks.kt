@@ -16,11 +16,18 @@
  */
 package net.bible.sharedcore.platform.desktop
 
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.selects.select
 import net.bible.sharedcore.log.Log
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.cancellation.CancellationException
+
+interface ExitTaskScope {
+    fun beginVisibleWork()
+}
 
 /**
  * The work that must run when the desktop app closes, after the workspace save and before the settings flush and the
@@ -31,15 +38,30 @@ import kotlin.coroutines.cancellation.CancellationException
  * behaviour: nothing is registered, so the exit path does exactly what it did before.
  */
 class DesktopExitTasks {
-    private class Task(val name: String, val run: suspend () -> Unit)
+    private class Task(val name: String, val run: suspend ExitTaskScope.() -> Unit)
 
     private val tasks = CopyOnWriteArrayList<Task>()
+    private val lock = Any()
+    private val mutableSyncing = MutableStateFlow(false)
+    val syncing: StateFlow<Boolean> = mutableSyncing.asStateFlow()
+    private val mutableRunning = MutableStateFlow(false)
+    /** True only while a run has an installed skip signal, including invisible local preflight work. */
+    val running: StateFlow<Boolean> = mutableRunning.asStateFlow()
+    @Volatile private var runningJob: Job? = null
+    private var skipSignal: CompletableDeferred<Unit>? = null
+
+    fun skipRemaining() {
+        synchronized(lock) {
+            skipSignal?.complete(Unit)
+            runningJob?.cancel()
+        }
+    }
 
     /**
      * Registers [task] under [name] (for the log); the returned function unregisters it. With [runFirst] the task runs
      * before every task registered so far (for work that must not wait behind the shared time budget).
      */
-    fun register(name: String, runFirst: Boolean = false, task: suspend () -> Unit): () -> Unit {
+    fun register(name: String, runFirst: Boolean = false, task: suspend ExitTaskScope.() -> Unit): () -> Unit {
         val entry = Task(name, task)
         if (runFirst) tasks.add(0, entry) else tasks += entry
         return { tasks.remove(entry) }
@@ -54,24 +76,62 @@ class DesktopExitTasks {
     suspend fun runAll(timeoutMs: Long): Boolean {
         val snapshot = tasks.toList()
         if (snapshot.isEmpty()) return true
-        var current: String? = null
-        return try {
-            withTimeout(timeoutMs) {
-                for (task in snapshot) {
-                    current = task.name
-                    try {
-                        task.run()
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Throwable) {
-                        Log.e(TAG, "Exit task ${task.name} failed", e)
+        val signal = CompletableDeferred<Unit>()
+        val workerJob = Job()
+        synchronized(lock) {
+            check(runningJob == null) { "Exit tasks are already running" }
+            runningJob = workerJob
+            skipSignal = signal
+            mutableRunning.value = true
+        }
+        val worker = CoroutineScope(workerJob + Dispatchers.IO).async {
+            for (task in snapshot) {
+                val scope = object : ExitTaskScope {
+                    override fun beginVisibleWork() {
+                        synchronized(lock) {
+                            if (runningJob === workerJob && workerJob.isActive) mutableSyncing.value = true
+                        }
                     }
                 }
+                try {
+                    task.run(scope)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Exit task ${task.name} failed", e)
+                } finally {
+                    synchronized(lock) {
+                        if (runningJob === workerJob) mutableSyncing.value = false
+                    }
+                }
+                ensureActive()
             }
-            true
-        } catch (e: TimeoutCancellationException) {
-            Log.w(TAG, "Exit tasks did not finish within $timeoutMs ms (running: $current)")
-            false
+        }
+        return try {
+            val completed = withTimeoutOrNull(timeoutMs) {
+                select<Boolean> {
+                    signal.onAwait { false }
+                    worker.onJoin { !signal.isCompleted && !worker.isCancelled }
+                }
+            }
+            when (completed) {
+                null -> { Log.w(TAG, "Exit tasks did not finish within $timeoutMs ms"); false }
+                false -> {
+                    Log.w(TAG, if (signal.isCompleted) "Exit tasks skipped by user" else "Exit task cancelled")
+                    false
+                }
+                true -> true
+            }
+        } finally {
+            synchronized(lock) {
+                if (runningJob === workerJob) {
+                    runningJob = null
+                    skipSignal = null
+                    mutableSyncing.value = false
+                    mutableRunning.value = false
+                }
+            }
+            workerJob.cancel()
         }
     }
 

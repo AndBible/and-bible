@@ -21,6 +21,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
@@ -42,8 +43,103 @@ import kotlin.test.assertTrue
 class DesktopSyncDriverTest {
     private val intervalSeconds = 300L
 
+    @Test fun closeWaitBoundIs30Seconds() = runTest {
+        val f = fixture { CompletableDeferred(true) }
+        val started = CompletableDeferred<Unit>()
+        val finish = CompletableDeferred<Unit>()
+        val d = DesktopSyncDriver(policy(f), { started.complete(Unit); finish.await(); true }, f.exitTasks, f.events,
+            backgroundScope, { f.ready.await() })
+        val close = backgroundScope.launch { runClose(d) }
+        runCurrent(); started.await()
+        advanceTimeBy(9_000); runCurrent(); assertTrue(close.isActive)
+        advanceTimeBy(20_999); runCurrent(); assertTrue(close.isActive)
+        advanceTimeBy(1); runCurrent(); assertTrue(close.isCompleted)
+        assertFalse(finish.isCompleted)
+        finish.complete(Unit)
+    }
+
+    @Test fun closeVisibilityFollowsActualWork() = runTest {
+        suspend fun run(enabled: Boolean, signedIn: Boolean, changes: Boolean): List<String> {
+            val calls = mutableListOf<String>()
+            runClosePass({ enabled }, { signedIn }, { calls += "signIn"; true },
+                { calls += "changes"; changes }, { calls += "push"; true }, { calls += "visible" })
+            return calls
+        }
+        assertEquals(emptyList(), run(false, true, true))
+        assertEquals(listOf("changes"), run(true, true, false))
+        assertEquals(listOf("changes", "visible", "push"), run(true, true, true))
+        assertEquals(listOf("changes", "visible", "signIn", "visible", "push"), run(true, false, true))
+    }
+
+    @Test fun unsignedUnchangedCloseDoesNotWaitForSignInOrBecomeVisible() = runTest {
+        var signIns = 0
+        var visibleMarks = 0
+        var pushes = 0
+        var completed = false
+        val blockedSignIn = CompletableDeferred<Unit>()
+        kotlinx.coroutines.withTimeoutOrNull(1_000) {
+            assertEquals(null, runClosePass(
+                enabled = { true }, signedIn = { false },
+                signIn = { signIns++; blockedSignIn.await(); true },
+                hasChanges = { false }, push = { pushes++; true },
+                onVisibleWork = { visibleMarks++ },
+            ))
+            completed = true
+        }
+        assertEquals(0, signIns, "Unchanged local data must not attempt even non-interactive sign-in")
+        assertEquals(0, visibleMarks)
+        assertEquals(0, pushes)
+        assertTrue(completed, "The local no-work preflight must return without waiting for the network")
+    }
+
+    @Test fun closeWaitingForRunningPassMarksVisible() = runTest {
+        val pass = CompletableDeferred<Boolean>()
+        val f = fixture { pass }
+        val d = driver(f); f.ready.complete(Unit); runCurrent()
+        var visible = false
+        val close = backgroundScope.launch { d.closeSync(object : net.bible.sharedcore.platform.desktop.ExitTaskScope {
+            override fun beginVisibleWork() { visible = true }
+        }) }
+        runCurrent(); assertTrue(visible); assertTrue(close.isActive)
+        pass.complete(true); runCurrent(); assertTrue(close.isCompleted)
+    }
+
+    @Test fun completedExternalPassDoesNotMarkVisible() = runTest {
+        val f = fixture { CompletableDeferred(true) }
+        val d = driver(f, external = { CompletableDeferred(true) })
+        var visible = false
+        d.closeSync(object : net.bible.sharedcore.platform.desktop.ExitTaskScope {
+            override fun beginVisibleWork() { visible = true }
+        })
+        assertFalse(visible)
+    }
+
+    @Test fun skipDuringCloseLeavesRunningPassAlone() = kotlinx.coroutines.runBlocking {
+        val started = CompletableDeferred<() -> Unit>()
+        val finish = CompletableDeferred<Unit>()
+        val completed = CompletableDeferred<Unit>()
+        val tasks = DesktopExitTasks()
+        val f = Fixture(TestScope(), { CompletableDeferred(true) })
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+        try {
+            DesktopSyncDriver(policy(f), { visible -> started.complete(visible); finish.await(); completed.complete(Unit); true }, tasks,
+                f.events, scope, { kotlinx.coroutines.awaitCancellation() })
+            val run = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).async { tasks.runAll(5_000) }
+            val callback = kotlinx.coroutines.withTimeout(2_000) { started.await() }
+            callback(); assertTrue(tasks.syncing.value)
+            tasks.skipRemaining()
+            assertFalse(kotlinx.coroutines.withTimeout(2_000) { run.await() })
+            callback(); assertFalse(tasks.syncing.value)
+            assertFalse(finish.isCancelled)
+            finish.complete(Unit)
+            kotlinx.coroutines.withTimeout(2_000) { completed.await() }
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+        Unit
+    }
+
     private class Fixture(val scope: TestScope, val startSync: () -> Deferred<Boolean>) {
         val exitTasks = DesktopExitTasks()
+        lateinit var driver: DesktopSyncDriver
         val events = DesktopLifecycleEvents()
         val ready = CompletableDeferred<Unit>()
         var closePasses = 0
@@ -64,7 +160,11 @@ class DesktopSyncDriverTest {
         policy = policy(f), closePass = { f.closePasses++; f.closeResult }, exitTasks = f.exitTasks, events = f.events,
         scope = f.scope.backgroundScope, awaitReady = { f.ready.await() }, closeWaitMs = closeWaitMs,
         databasesReady = { f.databasesReady }, externalPass = external,
-    )
+    ).also { f.driver = it }
+
+    private suspend fun runClose(driver: DesktopSyncDriver) {
+        driver.closeSync(object : net.bible.sharedcore.platform.desktop.ExitTaskScope { override fun beginVisibleWork() {} })
+    }
 
     @Test fun startPassRunsOnceAfterReady() = runTest {
         var starts = 0
@@ -111,8 +211,8 @@ class DesktopSyncDriverTest {
         runCurrent()
         f.events.emit(DesktopLifecycleEvent.Background)
         val before = currentTime
-        // The exit-task runner's own bound is 10 s; the driver stops waiting at 9 s so the whole run finishes inside it.
-        assertTrue(f.exitTasks.runAll(10_000), "the task returns before the runner's bound")
+        // This fixture explicitly uses a 9 s driver bound.
+        runClose(f.driver)
         assertEquals(9_000L, currentTime - before)
         // Teardown: the running pass ends late; no close pass and no new pass may start behind it.
         pass.complete(true)
@@ -128,7 +228,7 @@ class DesktopSyncDriverTest {
         runCurrent()
         backgroundScope.launch { delay(2_000); pass.complete(true) }
         val before = currentTime
-        assertTrue(f.exitTasks.runAll(10_000))
+        runClose(f.driver)
         assertEquals(2_000L, currentTime - before)
     }
 
@@ -136,10 +236,10 @@ class DesktopSyncDriverTest {
         val f = fixture { CompletableDeferred(true) }
         driver(f); f.ready.complete(Unit)
         runCurrent()
-        f.exitTasks.runAll(10_000)
+        runClose(f.driver)
         assertEquals(1, f.closePasses)
         f.databasesReady = false
-        f.exitTasks.runAll(10_000)
+        runClose(f.driver)
         assertEquals(1, f.closePasses, "closed or replaced databases: nothing to push")
     }
 
@@ -168,12 +268,12 @@ class DesktopSyncDriverTest {
 
     @Test fun aThrowingClosePassIsSwallowed() = runTest {
         val f = fixture { CompletableDeferred(true) }
-        DesktopSyncDriver(
+        f.driver = DesktopSyncDriver(
             policy(f), closePass = { error("boom") }, exitTasks = f.exitTasks, events = f.events,
             scope = backgroundScope, awaitReady = { f.ready.await() },
         )
         f.ready.complete(Unit); runCurrent()
-        assertTrue(f.exitTasks.runAll(10_000))
+        runClose(f.driver)
     }
 
     /**
@@ -210,9 +310,9 @@ class DesktopSyncDriverTest {
             val first = DesktopSyncScheduler(backgroundScope) { upload() }
             val ready = CompletableDeferred<Unit>()
             val exit = DesktopExitTasks()
-            DesktopSyncDriver(pass(first), { null }, exit, DesktopLifecycleEvents(), backgroundScope, { ready.await() })
+            val firstDriver = DesktopSyncDriver(pass(first), { null }, exit, DesktopLifecycleEvents(), backgroundScope, { ready.await() }, closeWaitMs = 9_000)
             ready.complete(Unit); runCurrent()
-            assertTrue(exit.runAll(10_000))
+            runClose(firstDriver)
             assertTrue(Files.exists(remote.resolve("a.db")))
             assertFalse(Files.exists(remote.resolve("b.db")), "b was not completed")
             assertTrue(Files.exists(remote.resolve("b.db.part")))
@@ -270,9 +370,20 @@ class DesktopSyncDriverTest {
         val f = fixture { CompletableDeferred(true) }
         driver(f, external = { external.takeIf { it.isActive } }); f.ready.complete(Unit)
         runCurrent()
-        backgroundScope.launch { delay(3_000); external.complete(true) }
+        var visible = false
         val before = currentTime
-        assertTrue(f.exitTasks.runAll(10_000))
+        val close = backgroundScope.launch {
+            f.driver.closeSync(object : net.bible.sharedcore.platform.desktop.ExitTaskScope {
+                override fun beginVisibleWork() { visible = true }
+            })
+        }
+        runCurrent()
+        assertTrue(visible, "an active external pass is visible before it completes")
+        assertTrue(close.isActive)
+        advanceTimeBy(3_000)
+        external.complete(true)
+        runCurrent()
+        assertTrue(close.isCompleted)
         assertEquals(3_000L, currentTime - before, "waited for the external pass")
         assertEquals(1, f.closePasses, "then the close pass ran")
     }
@@ -286,13 +397,13 @@ class DesktopSyncDriverTest {
         fun drain() { while (queue.isNotEmpty()) queue.removeFirst().run() }
         val f = fixture { CompletableDeferred(true) }
         val ready = CompletableDeferred(Unit)
-        DesktopSyncDriver(
+        f.driver = DesktopSyncDriver(
             policy(f), { f.closePasses++; true }, f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
             awaitReady = { ready.await() }, databasesReady = { true },
         )
         queue.removeFirst().run()     // only the loop starts: it launches its first pass, which is queued, not yet run
         f.events.emit(DesktopLifecycleEvent.Background)
-        val exit = backgroundScope.launch { f.exitTasks.runAll(10_000) }
+        val exit = backgroundScope.launch { runClose(f.driver) }
         runCurrent()                  // the exit task joins the queued pass
         drain(); runCurrent(); drain(); runCurrent()
         exit.join()
@@ -315,9 +426,10 @@ class DesktopSyncDriverTest {
             f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
             awaitReady = { }, databasesReady = { true },
         )
+        f.driver = driver
         var exit: kotlinx.coroutines.Job? = null
         driver.beforePassStart = {
-            exit = backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { f.exitTasks.runAll(10_000) }
+            exit = backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { runClose(f.driver) }
         }
         queue.removeFirst().run()
         repeat(6) { drain(); runCurrent() }
@@ -333,7 +445,7 @@ class DesktopSyncDriverTest {
         f.ready.complete(Unit); runCurrent()
         backgroundScope.launch { delay(1_500); d.passLock.unlock() }
         val before = currentTime
-        assertTrue(f.exitTasks.runAll(10_000))
+        runClose(f.driver)
         assertEquals(1, f.closePasses, "the pass saw the stop and did nothing; the close pass still pushed")
         assertEquals(0, f.startedPasses)
         assertEquals(1_500L, currentTime - before, "no extra 1 s delay after the join")
@@ -346,7 +458,7 @@ class DesktopSyncDriverTest {
         d.passLock.lock()
         backgroundScope.launch { delay(1_500); d.passLock.unlock() }
         val before = currentTime
-        assertTrue(f.exitTasks.runAll(10_000))
+        runClose(f.driver)
         assertEquals(1, f.closePasses, "the close pass retried the lock and pushed")
         assertTrue(currentTime - before <= 2_000, "within the 2 s retry window")
     }
@@ -355,7 +467,7 @@ class DesktopSyncDriverTest {
         val f = fixture { CompletableDeferred(true) }
         val d = driver(f)
         d.passLock.lock()
-        assertTrue(f.exitTasks.runAll(10_000))
+        runClose(f.driver)
         assertEquals(0, f.closePasses)
         assertTrue(currentTime <= 2_000, "bounded retries")
     }

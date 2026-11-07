@@ -143,6 +143,10 @@ interface Strings {
     val resetSync: String
     val settings: String
     val syncNow: String
+    val exitSyncTitle: String
+    val exitSyncBody: String
+    val exitSyncQuitNow: String
+    val exitSyncClosing: String
     val syncAdapter: String
     val syncGeneralSettings: String
     val syncSettingsShortcutSummary: String
