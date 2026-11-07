@@ -6,6 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.koin.core.annotation.KoinInternalApi
 import org.koin.dsl.koinApplication
+import java.io.File
 
 /**
  * Port parity between Android and iOS: every port type [buildPlatformBindings] binds is either bound by
@@ -41,9 +42,15 @@ class IosPortParityTest {
 
     private val iosPorts: Set<String> get() = IOS_BOUND_PORT_TYPES.map { it.qualifiedName!! }.toSet()
 
+    private fun iosHostPorts(): Set<String> {
+        val source = File("../sharedUi/src/iosMain/kotlin/net/bible/sharedui/ios/app/IosHostBindings.kt").readText()
+        return Regex("single<([A-Za-z_][A-Za-z0-9_.]*)>\\s*\\{")
+            .findAll(source).map { it.groupValues[1] }.filter { '.' in it }.toSet()
+    }
+
     @Test
     fun everyAndroidPortHasAnIosBinding() {
-        val missing = bindingKeys() - androidOnly - iosPorts
+        val missing = bindingKeys() - androidOnly - iosPorts - iosHostPorts()
         assertEquals("Android binds ports that iOS does not bind (add them to IosPlatformBindings and IOS_BOUND_PORT_TYPES)",
             emptySet<String>(), missing)
     }
@@ -59,5 +66,7 @@ class IosPortParityTest {
         val keys = bindingKeys()
         assertTrue("only ${keys.size} Android bindings found: $keys", keys.size > 40)
         assertTrue(keys.contains("net.bible.sharedcore.platform.AppSettings"))
+        assertTrue("iOS host parser missed the actual reporter binding",
+            iosHostPorts().contains("net.bible.android.control.activity.ActivityReporter"))
     }
 }
