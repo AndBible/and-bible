@@ -116,7 +116,7 @@ class ActivityHostWiringTest {
         val f = Fixture(default = true)
         val cause = IllegalStateException("download failed")
         f.center.start("x", ActivityKind.DOWNLOAD, "KJV")
-        f.center.fail("x", "failed", cause = cause)
+        f.center.fail("x", "failed", reportable = true, cause = cause)
         val available = kotlinx.coroutines.flow.MutableStateFlow(false)
         val reports = mutableListOf<net.bible.android.control.activity.ActivityItem>()
         val reporter = object : net.bible.android.control.activity.ActivityReporter {
