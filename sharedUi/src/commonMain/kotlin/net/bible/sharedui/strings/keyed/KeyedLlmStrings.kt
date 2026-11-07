@@ -62,7 +62,7 @@ class KeyedLlmStrings(private val table: () -> StringTable) : LlmStrings {
     override val agentActivityWaiting: String get() = t.text("agent_activity_waiting")
     override fun agentActivityWaitingFor(tool: String): String = t.fmt("agent_activity_waiting_for", tool)
     override val agentActivityFailed: String get() = t.text("agent_activity_failed")
-    override val agentActivityPermissionNeeded: String get() = t.text("agent_activity_permission_needed")
+    override val agentActivityAttentionNeeded: String get() = t.text("agent_activity_attention_needed")
     override val agentAlreadyRunning: String get() = t.text("agent_already_running")
     override val agentLogCancelled: String get() = t.text("agent_log_cancelled")
     override val agentLogCompleted: String get() = t.text("agent_log_completed")

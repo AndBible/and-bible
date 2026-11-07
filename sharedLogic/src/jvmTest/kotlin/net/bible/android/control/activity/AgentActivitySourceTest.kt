@@ -13,6 +13,7 @@ import net.bible.service.llm.agent.AgentStopReason
 import net.bible.sharedcore.event.EventSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -259,6 +260,7 @@ class AgentActivitySourceTest {
             assertTrue(session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType())))
             session.stop(reason = AgentStopReason.ERROR)
             assertEquals(ActivityState.FAILED, center.items.value.single().state)
+            assertFalse(center.items.value.single().reportable, "an error without a cause is not a reportable bug")
             net.bible.service.llm.agent.AgentSessionManager.clearSession(ws)
             assertTrue(center.items.value.isEmpty())
         } finally {

@@ -38,7 +38,7 @@ interface LlmStrings {
     val agentActivityWaiting: String
     fun agentActivityWaitingFor(tool: String): String
     val agentActivityFailed: String
-    val agentActivityPermissionNeeded: String
+    val agentActivityAttentionNeeded: String
     val agentAlreadyRunning: String
     val agentLogCancelled: String
     val agentLogCompleted: String

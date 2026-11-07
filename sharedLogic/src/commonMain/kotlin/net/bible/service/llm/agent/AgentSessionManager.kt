@@ -487,8 +487,31 @@ object AgentSessionManager : AgentSessionManagerBase() {
         // Execute via AgentExecutor
         val effectiveMaxIterations = prompt.maxIterations ?: aiSettings.maxIterations
         val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
+        collectAgentRun(
+            executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId),
+            session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId, runJob
+        )
+        return true
+    }
+
+    /**
+     * Collects the executor's events into [session]. A cancellation stops the session as cancelled; any other
+     * exception (e.g. a DB failure while saving the result document) stops it as ERROR with that exception as the
+     * cause, so the activity row never keeps spinning, and is then rethrown to the caller. Public only so the
+     * `:app` tests can drive it with a fake event flow.
+     */
+    suspend fun collectAgentRun(
+        events: kotlinx.coroutines.flow.Flow<AgentEvent>,
+        session: AgentSession,
+        prompt: AgentPrompt,
+        context: AgentContext,
+        cacheableContext: CacheableContext,
+        usedWriteToolsTracker: AtomicBoolean,
+        targetWindowId: IdType?,
+        runJob: Job?,
+    ) {
         try {
-            executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId).collect { event ->
+            events.collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId, runJob)
             }
         } catch (e: CancellationException) {
@@ -496,8 +519,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
             // Ensure the session is properly stopped so the UI reflects cancellation.
             session.stop(strings.agentLogCancelled, owner = runJob)
             throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Agent run failed unexpectedly", e)
+            session.stop(reason = AgentStopReason.ERROR, owner = runJob, cause = e)
+            throw e
         }
-        return true
     }
 
     /**

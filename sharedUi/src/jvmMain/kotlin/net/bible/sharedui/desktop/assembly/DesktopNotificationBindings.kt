@@ -78,7 +78,7 @@ fun desktopNotificationModule(
             enabled = get<SystemNotificationsPreference>().enabled,
             clock = clock,
             scope = runtime.scope,
-            attentionText = { get<net.bible.service.llm.LlmStrings>().agentActivityPermissionNeeded },
+            attentionText = { get<net.bible.service.llm.LlmStrings>().agentActivityAttentionNeeded },
             finishedText = { get<CoreStrings>().notificationFinished },
         )
         get<DesktopLifecycleEvents>().observe { policy.onForegroundChanged(it == DesktopLifecycleEvent.Active) }
