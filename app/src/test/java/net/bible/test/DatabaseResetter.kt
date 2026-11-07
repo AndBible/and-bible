@@ -256,10 +256,31 @@ object DatabaseResetter {
         }
 
         @Volatile var diagnosticJob: kotlinx.coroutines.Job? = null
-        @Synchronized fun diagnostic() = "stage=$stage $details tree=${diagnosticJob?.let { jobTree(it) }}"
+        @Synchronized fun diagnostic(): String {
+            val tree = try { diagnosticJob?.let { jobTree(it) } } catch (_: Throwable) { "unavailable" }
+            return "stage=$stage $details tree=$tree"
+        }
 
-        private fun jobTree(job: kotlinx.coroutines.Job, depth: Int = 0): String =
-            if (depth >= 12) "depth-limit" else jobState(job) + job.children.joinToString(prefix = "{", postfix = "}") { jobTree(it, depth + 1) }
+        private fun jobTree(root: kotlinx.coroutines.Job): String {
+            val result = StringBuilder()
+            var remaining = 48
+            fun append(job: kotlinx.coroutines.Job, depth: Int) {
+                if (remaining == 0 || depth >= 12) { result.append(" limit"); return }
+                remaining--
+                result.append(" ").append(depth).append(":").append(jobIdentity(job))
+                    .append(" active=").append(job.isActive).append(" completed=").append(job.isCompleted)
+                    .append(" cancelled=").append(job.isCancelled)
+                val children = job.children.iterator()
+                if (depth >= 11) {
+                    if (children.hasNext()) result.append(" limit")
+                } else {
+                    while (remaining > 0 && children.hasNext()) append(children.next(), depth + 1)
+                    if (remaining == 0) result.append(" limit")
+                }
+            }
+            append(root, 0)
+            return result.toString()
+        }
 
         @Synchronized fun abortBeforeCommit(): Boolean {
             if (phase == Phase.COMMITTED) return false
@@ -322,9 +343,14 @@ object DatabaseResetter {
      * so a producer launched on another thread while the reset snapshots `children` is visible with a
      * null context for a moment, and its `toString()` (via `nameString`) throws an NPE on `coroutineName`.
      */
-    internal fun jobState(job: kotlinx.coroutines.Job): String =
-        "${job.javaClass.simpleName}@${System.identityHashCode(job)} active=${job.isActive} completed=${job.isCompleted} " +
-            "cancelled=${job.isCancelled} children=${job.children.joinToString(prefix = "[", postfix = "]") { "${it.javaClass.simpleName}@${System.identityHashCode(it)}" }}"
+    private fun jobIdentity(job: kotlinx.coroutines.Job): String =
+        "${job.javaClass.simpleName.take(100)}@${System.identityHashCode(job)}"
+
+    internal fun jobState(job: kotlinx.coroutines.Job): String = try {
+        val children = job.children.take(17).map { jobIdentity(it) }.toList()
+        "${jobIdentity(job)} active=${job.isActive} completed=${job.isCompleted} " +
+            "cancelled=${job.isCancelled} children=${children.take(16)}${if (children.size > 16) " limit" else ""}"
+    } catch (_: Throwable) { "${jobIdentity(job)} unavailable" }
 
     private suspend fun checkpoint(stage: String, details: String = "") {
         kotlinx.coroutines.currentCoroutineContext()[ResetDecision]?.checkpoint(stage, details)
