@@ -60,7 +60,6 @@ class BetaNoticeTest {
                 "sponsoring development hours",
                 strings.betaSpecialBetaWarning,
                 strings.betaNoticeGithubIssues,
-                "href=\"${BetaNotice.GITHUB_LINK}\"",
                 strings.versionText(version),
             ).forEach { assertTrue(html.contains(it), "$platform notice lacks '$it'") }
             // The two statements the November 2026 text corrected.
@@ -85,7 +84,9 @@ class BetaNoticeTest {
             val html = body(it)
             assertFalse(html.contains("Standard beta notice below"), "$it")
             assertFalse(html.contains("Beta users are encouraged"), "$it")
-            assertTrue(html.contains("contributing bug fixes on"), "$it")
+            assertTrue(html.contains("By using it you are a beta tester"), "$it")
+            assertFalse(html.contains("stable version") && it != BetaNoticePlatform.ANDROID, "$it")
+            assertFalse(html.contains("Compose"), "$it")
         }
     }
 
@@ -114,8 +115,7 @@ class BetaNoticeTest {
     fun androidVariantNamesItsOwnSyncTargetsAndUpgrade() {
         val html = body(BetaNoticePlatform.ANDROID)
         assertTrue(html.contains("besides Google Drive and Nextcloud"))
-        assertTrue(html.contains("differently from 5.x"))
-        assertTrue(html.contains("Jetpack Compose"))
+        assertTrue(html.contains("leave the <a href=\"${BetaNotice.PLAY_BETA_LINK}\">beta programme on Google Play</a>"))
         assertFalse(html.contains("iCloud"))
     }
 
@@ -128,7 +128,6 @@ class BetaNoticeTest {
         assertFalse(html.contains("Google Drive"), "no Google Drive sync on iOS")
         assertFalse(html.contains("search index"), "the index rebuild is an Android upgrade step")
         assertFalse(html.contains("5.x"))
-        assertFalse(html.contains("Jetpack"))
     }
 
     @Test

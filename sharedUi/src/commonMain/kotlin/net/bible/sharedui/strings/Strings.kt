@@ -1319,15 +1319,12 @@ interface Strings {
     val betaSpecialOneApp: String // R.string.beta_special_one_app
     val betaSpecialSyncIos: String // R.string.beta_special_sync_ios
     val betaSpecialSyncDesktop: String // R.string.beta_special_sync_desktop
-    val betaSpecialLookoutAndroid: String // R.string.beta_special_lookout_android
-    val betaSpecialLookoutIos: String // R.string.beta_special_lookout_ios
-    val betaSpecialLookoutDesktop: String // R.string.beta_special_lookout_desktop
     val betaSpecialFeedback: String // R.string.beta_special_feedback
     fun betaSpecialBackup(menuItem: String): String // R.string.beta_special_backup
     val betaSpecialBetaWarning: String // R.string.beta_special_beta_warning
+    fun betaSpecialLeaveBetaAndroid(playBetaLink: String): String // R.string.beta_special_leave_beta_android
     fun betaSpecialReport(githubLink: String, menuItem: String): String // R.string.beta_special_report
     fun betaSpecialReportAndroid(githubLink: String, menuItem: String): String // R.string.beta_special_report_android
-    fun betaSpecialContribute(githubLink: String): String // R.string.beta_special_contribute
     val betaSpecialOtherDevicesTitle: String // R.string.beta_special_other_devices_title
     val betaSpecialOtherDevicesIntro: String // R.string.beta_special_other_devices_intro
     fun betaSpecialOtherAndroid(playBetaLink: String, releasesLink: String): String // R.string.beta_special_other_android

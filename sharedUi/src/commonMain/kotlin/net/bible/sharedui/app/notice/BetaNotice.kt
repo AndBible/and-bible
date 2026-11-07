@@ -48,7 +48,6 @@ object BetaNotice {
     const val ANNOUNCE_VERSION = 5
 
     const val NEW_ISSUE_LINK = "https://github.com/AndBible/and-bible/issues/new/choose"
-    const val GITHUB_LINK = "https://github.com/AndBible/and-bible"
     const val RELEASES_LINK = "https://github.com/AndBible/and-bible/releases"
     /** The public TestFlight beta; keep equal to `ios_beta_link` in website/content/en/site.yaml. */
     const val TESTFLIGHT_LINK = "https://testflight.apple.com/join/sB7guYsk"
@@ -102,26 +101,26 @@ object BetaNotice {
         val bugReportItem = escape(reportGeneralBugLabel)
         val intro: String
         val news: List<String>
-        val lookout: String
         val report: String
+        val leaveBeta: String?
         when (platform) {
             BetaNoticePlatform.ANDROID -> {
                 intro = betaSpecialIntroAndroid
                 news = listOf("$betaSpecialRedesign $betaSpecialDataKept", betaSpecialPlatforms, betaSpecialAdditionsAndroid)
-                lookout = betaSpecialLookoutAndroid
                 report = betaSpecialReportAndroid(github, bugReportItem)
+                leaveBeta = betaSpecialLeaveBetaAndroid(link(PLAY_BETA_LINK, betaSpecialPlayBetaLink))
             }
             BetaNoticePlatform.IOS -> {
                 intro = betaSpecialIntroIos
                 news = listOf(betaSpecialRedesign, betaSpecialOneApp, betaSpecialSyncIos)
-                lookout = betaSpecialLookoutIos
                 report = betaSpecialReport(github, bugReportItem)
+                leaveBeta = null
             }
             BetaNoticePlatform.DESKTOP -> {
                 intro = betaSpecialIntroDesktop
                 news = listOf(betaSpecialRedesign, betaSpecialOneApp, betaSpecialSyncDesktop)
-                lookout = betaSpecialLookoutDesktop
                 report = betaSpecialReport(github, bugReportItem)
+                leaveBeta = null
             }
         }
         val releases = link(RELEASES_LINK, "GitHub")
@@ -134,11 +133,11 @@ object BetaNotice {
             "<b>$betaSpecialHeading</b>",
             intro,
             bullets(news),
-            "$betaSpecialBetaWarning $lookout $betaSpecialFeedback ${betaSpecialBackup(escape(backupAndRestoreTitle))}",
+            listOfNotNull(betaSpecialBetaWarning, leaveBeta).joinToString(" "),
+            "$betaSpecialFeedback ${betaSpecialBackup(escape(backupAndRestoreTitle))}",
             report,
             "<b>$betaSpecialOtherDevicesTitle</b><br>$betaSpecialOtherDevicesIntro<br>" + bullets(otherDevices) + "<br>" +
                 betaSpecialInstallationGuide(link(INSTALLATION_GUIDE_LINK, betaSpecialInstallationGuideLink)),
-            betaSpecialContribute(link(GITHUB_LINK, betaNoticeGithub)),
             betaSpecialRegards,
             betaSpecialSponsor(link(SiteLinks.SHOP_URL, betaSpecialSponsorLink)),
         ).joinToString("<br><br>")
