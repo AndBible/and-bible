@@ -110,9 +110,10 @@ def lock_rotation(dev: Device, landscape: bool) -> None:
     dev.shell("settings put system accelerometer_rotation 1")
     want = "landscape" if landscape else "portrait"
     for _ in range(5):
-        out = dev.shell("dumpsys window displays | grep -m1 -o 'mDisplayRotation=ROTATION_[0-9]*'", check=False)
-        rot = out.strip().rsplit("_", 1)[-1]
-        if rot and (rot in ("90", "270")) == landscape:
+        # Current size, not the rotation number: a pixel_tablet's natural orientation is already landscape.
+        out = dev.shell("dumpsys window displays 2>/dev/null | grep -m1 -o 'cur=[0-9]*x[0-9]*'", check=False)
+        m = re.search(r"cur=(\d+)x(\d+)", out)
+        if m and (int(m.group(1)) > int(m.group(2))) == landscape:
             return
         dev.adb("emu", "rotate", check=False)
         time.sleep(3)
