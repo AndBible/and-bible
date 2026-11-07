@@ -412,9 +412,7 @@ private fun HostAppContent(
             isPortrait = { liveWindowSize.value.let { it.width <= it.height } },
         )
     }
-    val appHosts = remember { AppHosts(koin, shell, ports, strings, onReportBug = {
-        scope.launch { platform.reportBug(table, null) }
-    }) }
+    val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     DisposableEffect(appHosts) {
         val backup = ports.backupHost as HostBackupHost
         val restore: () -> Unit = { appHosts.installZip.open() }

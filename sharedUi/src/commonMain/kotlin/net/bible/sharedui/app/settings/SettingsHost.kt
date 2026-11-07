@@ -81,7 +81,6 @@ class SettingsHost(
     private val syncSettingsServiceProvider: () -> SyncSettingsService,
     private val readingProgressSettingsServiceProvider: () -> ReadingProgressSettingsService,
     private val readingProgressServiceProvider: () -> ReadingProgressService,
-    private val onReportBug: (() -> Unit)? = null,
     /** The platform's legacy-data import, or null where there is none (Android). Resolved when the row is tapped. */
     private val legacyDataImport: () -> LegacyDataImport? = { null },
 ) {
@@ -163,7 +162,6 @@ class SettingsHost(
             onResume = { appSettingsService.refresh() },
             askBeforeOpeningLink = { links.askBeforeOpening },
             onOpenExternal = { links.open(it) },
-            onReportBug = onReportBug,
             onImportLegacyData = {
                 legacyDataImport()?.let { import ->
                     shell.hostScope.launch {

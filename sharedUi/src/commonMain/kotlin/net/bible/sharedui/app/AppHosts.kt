@@ -109,7 +109,6 @@ class AppHosts(
     private val shell: HostShell,
     private val ports: HostPorts,
     private val strings: Strings,
-    private val onReportBug: (() -> Unit)? = null,
 ) {
     /** The first-run welcome's deps builder; built on first use, no database access. */
     val welcome: WelcomeHost by lazy { WelcomeHost(shell, ports.welcomePlatform()) }
@@ -133,7 +132,6 @@ class AppHosts(
             syncSettingsServiceProvider = { koin.get<SyncSettingsServiceImpl> { parametersOf(shell.hostScope) } },
             readingProgressSettingsServiceProvider = { koin.get() },
             readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
-            onReportBug = onReportBug,
             legacyDataImport = { koin.getOrNull<LegacyDataImport>() },
         )
     }

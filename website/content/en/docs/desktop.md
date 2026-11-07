@@ -89,7 +89,7 @@ See also [Platform differences](platform_differences.md).
 
 ## Reporting a bug {#reporting-a-bug}
 
-In the app open the navigation menu, then *Feedback / bug report* (in its *Contact* group). The same item is also in the toolbar of the *Application preferences* screen. Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
+In the app open the navigation menu, then *Feedback / bug report* (in its *Contact* group). Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
 
 The app first asks you where to save the report file. A short dialog then always shows what to do next, whether or not an email program can be opened:
 
