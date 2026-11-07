@@ -25,6 +25,7 @@ internal class IosNotificationRuntime(
     requests: ActivityListRequests,
     preference: SystemNotificationsPreference,
     observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) },
+    attentionText: (() -> String)? = null,
     finishedText: () -> String,
 ) {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -37,6 +38,7 @@ internal class IosNotificationRuntime(
         enabled = preference.enabled,
         clock = monotonicActivityClock(),
         scope = scope,
+        attentionText = attentionText,
         finishedText = finishedText,
     )
     private val observer: AutoCloseable

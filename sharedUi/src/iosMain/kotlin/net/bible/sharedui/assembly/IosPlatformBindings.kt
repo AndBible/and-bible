@@ -201,9 +201,11 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<IosForegroundObserverFactory> { IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) } }
         single {
             val koin = getKoin()
-            IosNotificationRuntime(get(), get(), get(), get(), get()) {
-                koin.get<CoreStrings>().notificationFinished
-            }
+            IosNotificationRuntime(
+                center = get(), notifier = get(), requests = get(), preference = get(), observerFactory = get(),
+                attentionText = { koin.get<LlmStrings>().agentActivityPermissionNeeded },
+                finishedText = { koin.get<CoreStrings>().notificationFinished },
+            )
         } onClose { it?.close() }
         single { get<IosNotificationRuntime>().policy }
         single {

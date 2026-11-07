@@ -81,6 +81,24 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
+    fun agentAttentionNotifiesWithoutProgressSupportLikeIos() = runTest {
+        val f = fixture(supportsProgress = false)
+        val running = item(kind = ActivityKind.AI_AGENT, message = "Working")
+        f.set(running); runCurrent()
+        advance(20_000)
+        assertTrue(f.notifier.shows.isEmpty())
+
+        f.set(running.copy(attention = true, message = "Allow tool?")); runCurrent()
+        val notification = f.notifier.shows.single()
+        assertTrue(notification.urgent)
+        assertNull(notification.progress)
+        assertEquals("Localized permission", notification.title)
+        assertEquals("Allow tool?", notification.body)
+        f.set(running); runCurrent()
+        assertEquals("remove:andbible-a", f.notifier.calls.last())
+    }
+
+    @Test
     fun progressIsReplacedByAttentionAndResumesAfterResolution() = runTest {
         val f = fixture()
         val running = item(kind = ActivityKind.AI_AGENT, progress = 25, message = "Working")
