@@ -28,17 +28,42 @@ interface MessagePump {
  * workers) never touch WebView2 directly: [post] and [call] marshal the work onto this thread. The thread never waits on
  * the AWT event thread, so a synchronous [call] from the EDT cannot deadlock.
  */
-class StaThread(name: String, private val pump: MessagePump) {
+class StaThread(
+    name: String,
+    private val pump: MessagePump,
+    private val onFailure: (Throwable) -> Unit = { Log.e("WebView2", "COM message pump failed", it) },
+) {
     private val queue = ConcurrentLinkedQueue<Runnable>()
     private val started = CountDownLatch(1)
-
-    @Volatile
-    private var closed = false
+    private val lifecycleLock = Any()
+    private val pending = mutableSetOf<CompletableFuture<*>>()
+    @Volatile private var closed = false
+    @Volatile private var terminated = false
+    @Volatile private var didStart = false
+    @Volatile private var failure: Throwable? = null
 
     private val thread = Thread({
-        pump.run {
-            started.countDown()
-            drain()
+        var error: Throwable? = null
+        try {
+            pump.run {
+                didStart = true
+                started.countDown()
+                drain()
+            }
+        } catch (t: Throwable) {
+            error = t
+        } finally {
+            synchronized(lifecycleLock) {
+                if (error == null && !closed) error = IllegalStateException("COM message pump exited unexpectedly")
+                failure = error
+                terminated = true
+                queue.clear()
+                val cause = error ?: IllegalStateException("StaThread stopped")
+                pending.forEach { it.completeExceptionally(cause) }
+                pending.clear()
+                started.countDown()
+            }
+            error?.let { runCatching { onFailure(it) } }
         }
     }, name).apply { isDaemon = true }
 
@@ -49,26 +74,33 @@ class StaThread(name: String, private val pump: MessagePump) {
 
     val isCurrent: Boolean get() = Thread.currentThread() === thread
 
-    /** Runs [task] on the thread, later (also when called on it). Ignored after [close]. */
-    fun post(task: () -> Unit) {
-        if (closed) return
+    /** Runs [task] later; returns false after close or pump failure without retaining the task. */
+    fun post(task: () -> Unit): Boolean = synchronized(lifecycleLock) {
+        if (closed || terminated) return false
         queue.add(Runnable(task))
         pump.wake()
+        true
     }
 
     /** Runs [task] on the thread and returns its result; directly when already on it. Throws the task's exception. */
     fun <T> call(timeoutMs: Long = CALL_TIMEOUT_MS, task: () -> T): T {
         if (isCurrent) return task()
-        check(!closed) { "StaThread is closed" }
         val result = CompletableFuture<T>()
-        queue.add(Runnable {
-            try {
-                result.complete(task())
-            } catch (t: Throwable) {
-                result.completeExceptionally(t)
-            }
-        })
-        pump.wake()
+        synchronized(lifecycleLock) {
+            failure?.let { throw it }
+            check(!closed && !terminated) { "StaThread is stopped" }
+            pending += result
+            queue.add(Runnable {
+                try {
+                    result.complete(task())
+                } catch (t: Throwable) {
+                    result.completeExceptionally(t)
+                } finally {
+                    synchronized(lifecycleLock) { pending -= result }
+                }
+            })
+            pump.wake()
+        }
         return try {
             result.get(timeoutMs, TimeUnit.MILLISECONDS)
         } catch (e: ExecutionException) {
@@ -77,13 +109,30 @@ class StaThread(name: String, private val pump: MessagePump) {
     }
 
     /** Waits until the pump runs. */
-    fun awaitStarted(timeoutMs: Long = CALL_TIMEOUT_MS): Boolean = started.await(timeoutMs, TimeUnit.MILLISECONDS)
+    fun awaitStarted(timeoutMs: Long = CALL_TIMEOUT_MS): Boolean =
+        started.await(timeoutMs, TimeUnit.MILLISECONDS) && didStart
 
     /** Stops the pump after the queued tasks. */
-    fun close() {
+    fun close() = synchronized(lifecycleLock) {
         if (closed) return
-        post { pump.quit() }
+        if (!terminated) {
+            queue.add(Runnable { pump.quit() })
+            pump.wake()
+        }
         closed = true
+    }
+
+    /** Stops after queued cleanup and waits at most [timeoutMs]; never joins the owner from itself. */
+    fun closeAndJoin(timeoutMs: Long) {
+        require(timeoutMs > 0)
+        close()
+        if (!isCurrent) {
+            try {
+                thread.join(timeoutMs)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
     }
 
     private fun drain() {

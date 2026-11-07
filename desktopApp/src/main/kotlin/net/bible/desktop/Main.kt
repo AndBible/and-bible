@@ -170,7 +170,14 @@ internal fun createDesktopEngine(
  * startup-failed screen naming the directory.
  */
 private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
+    // COM may ask to launch an absent server. Never treat its launcher switches as import paths.
+    if (net.bible.desktop.wintoast.toastLaunchFiles(launchArgs) == null) return
     val paths = DesktopPaths.system()
+    val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+        val launcher = System.getProperty("jpackage.app-path")
+        val installDir = launcher?.let { Paths.get(it).toAbsolutePath().parent } ?: Paths.get("").toAbsolutePath()
+        net.bible.desktop.wintoast.windowsToastNotifierSource(net.bible.desktop.wintoast.WindowsAppIdentity.resolve(installDir))
+    } else net.bible.sharedui.desktop.assembly.linuxNotifierSource()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {
         val files = try { launchArgs.map { Paths.get(it).toAbsolutePath().normalize() } } catch (e: Exception) {
@@ -230,6 +237,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             start = { openDatabases ->
                 DesktopAppStartup.ensureStarted(
                     paths, windowHandle, language, openDatabases, launchArgs = launchArgs, lifecycleEvents = lifecycle.events,
+                    notifierSource = notifierSource,
                 )
             },
             platform = { platform },

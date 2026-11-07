@@ -336,6 +336,14 @@ stageKcefNatives.configure {
         }
     }
 }
+val stageWindowsToastIcon by tasks.registering(Copy::class) {
+    from(layout.projectDirectory.file("packaging/windows/andbible.ico"))
+    into(layout.buildDirectory.dir("desktop-resources/windows-x64"))
+}
+tasks.matching { it.name in packagingTaskNames }.configureEach {
+    if (isWindowsHost) dependsOn(stageWindowsToastIcon)
+}
+
 // Sync alone would leave the old Windows payload behind in an incremental dual-engine build.
 val removeWindowsKcefNatives by tasks.registering(Delete::class) {
     delete(layout.buildDirectory.dir("desktop-resources/windows-x64/kcef-natives"))
@@ -832,7 +840,8 @@ val packageWindowsZip by tasks.registering(Zip::class) {
             "The Windows archive must not include Chromium natives"
         }
         for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/runtime/bin/java.dll",
-            "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt")) {
+            "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt",
+            "AndBible/app/resources/andbible.ico")) {
             check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
         }
     }
@@ -895,8 +904,14 @@ fun windowsSdkTool(name: String): String {
         ?: throw GradleException("Windows SDK $name.exe not found under $bin; install Windows SDK desktop tools")
 }
 
-fun runWindowsTool(command: List<String>) {
-    val process = ProcessBuilder(command).redirectErrorStream(true).start()
+fun runWindowsTool(command: List<String>, wixDir: File? = null) {
+    val builder = ProcessBuilder(command).redirectErrorStream(true)
+    if (wixDir != null) {
+        val environment = builder.environment()
+        val pathKey = environment.keys.firstOrNull { it.equals("PATH", ignoreCase = true) } ?: "PATH"
+        environment[pathKey] = "${wixDir.absolutePath};${environment[pathKey].orEmpty()}"
+    }
+    val process = builder.start()
     val output = process.inputStream.bufferedReader().use { it.readText() }
     check(process.waitFor() == 0) { "Windows packaging tool failed: ${command.first()}\n$output" }
     if (output.isNotBlank()) logger.lifecycle(output)
@@ -932,12 +947,34 @@ tasks.register("packageWindowsMsix") {
 }
 tasks.register("packageWindowsMsi") {
     group = "distribution"
-    dependsOn("packageMsi")
+    dependsOn(createWindowsAppImage)
+    val composeMsi = tasks.named<org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask>("packageMsi")
+    dependsOn(rootProject.tasks.named("unzipWix"))
     doLast {
         check(hostTarget == "windows-x64") { "Windows x64 is required" }
         val dir = layout.buildDirectory.dir("compose/binaries/main/msi").get().asFile
-        val msi = dir.listFiles { f -> f.extension.equals("msi", true) }?.singleOrNull()
-            ?: throw GradleException("Expected exactly one MSI in $dir")
+        dir.mkdirs()
+        val msi = File(dir, "AndBible-$windowsPackageVersion.msi")
+        msi.delete()
+        val associationsDir = layout.buildDirectory.dir("windows-msi/associations").get().asFile.apply { mkdirs() }
+        val associationArgs = windowsAssociations.flatMap { (ext, mime) ->
+            val association = File(associationsDir, "$ext.properties")
+            association.writeText("extension=$ext\nmime-type=$mime\ndescription=AndBible $ext file\n")
+            listOf("--file-associations", association.absolutePath)
+        }
+        val jpackage = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
+            .get().metadata.installationPath.file("bin/jpackage.exe").asFile.absolutePath
+        runWindowsTool(listOf(
+            jpackage, "--type", "msi", "--app-image",
+            layout.buildDirectory.dir("compose/binaries/main/app/AndBible").get().asFile.absolutePath,
+            "--resource-dir", project.file("packaging/windows/jpackage-resources").absolutePath,
+            "--dest", dir.absolutePath, "--name", "AndBible", "--app-version", windowsPackageVersion,
+            "--description", "Offline Bible study app", "--vendor", "AndBible",
+            "--license-file", rootProject.file("LICENSE.txt").absolutePath,
+            "--win-dir-chooser", "--win-per-user-install", "--win-shortcut", "--win-menu",
+            "--win-upgrade-uuid", windowsUpgradeUuid,
+        ) + associationArgs, composeMsi.get().wixToolsetDir.get().asFile)
+        check(msi.isFile) { "Expected MSI at $msi" }
         val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
         Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
         signWindowsArtifact(output)

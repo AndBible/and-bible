@@ -146,7 +146,7 @@ class HostCopyFromCloudReloadTest {
         }
         assertEquals(
             StartupPhase.Ready,
-            DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }),
+            DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }),
         )
         val koin = KoinPlatform.getKoin()
         runBlocking { HostReadingReady.ensure(HostStartup.stringTable) }

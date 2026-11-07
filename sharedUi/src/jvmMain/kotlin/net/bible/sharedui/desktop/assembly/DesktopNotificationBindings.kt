@@ -28,6 +28,11 @@ import javax.swing.SwingUtilities
 
 private const val TAG = "DesktopNotifications"
 
+class DesktopNotifierSource(val available: Boolean, val create: (CoroutineScope) -> NativeNotifier)
+
+fun linuxNotifierSource(): DesktopNotifierSource =
+    DesktopNotifierSource(DesktopDbus().supportedOs) { linuxNativeNotifier(scope = it) }
+
 /**
  * Native system notifications of the desktop graph (#4012): the [NativeNotifier] (D-Bus on Linux; Windows and macOS
  * follow in #4013), the [SystemNotificationsPreference] (default on), and the [NativeNotificationPolicy] that
@@ -38,21 +43,19 @@ private const val TAG = "DesktopNotifications"
  * graph closes the policy first (it removes its progress notifications through the notifier) and then the notifier
  * (flushes its queue for at most 250 ms; transport close is separate), then cancels the scope.
  *
- * Nothing is bound when [available] is false (Windows and macOS until #4013): there the notifier would be a no-op, and
- * an unbound [SystemNotificationsPreference] keeps the settings row hidden instead of showing a toggle that does nothing.
+ * Nothing is bound when [source] is unavailable: an unbound [SystemNotificationsPreference] keeps the settings row
+ * hidden instead of showing a toggle that does nothing.
  *
- * @param available whether a real notifier exists on this OS; defaults to the D-Bus platforms
+ * @param source availability and factory for the current OS
  * @param clock the policy's clock, only compared with itself (not with ActivityCenter's); a test seam
  * @param runOnUi posts to the UI thread; a notification click raises the window there
- * @param notifierFactory test seam, given the IO scope
  */
 fun desktopNotificationModule(
     window: DesktopWindowHandle,
-    available: Boolean = DesktopDbus().supportedOs,
+    source: DesktopNotifierSource = linuxNotifierSource(),
     runOnUi: (() -> Unit) -> Unit = { SwingUtilities.invokeLater(it) },
     clock: () -> Long = monotonicActivityClock(),
-    notifierFactory: (CoroutineScope) -> NativeNotifier = { scope -> linuxNativeNotifier(scope = scope) },
-): Module = if (!available) module { } else module {
+): Module = if (!source.available) module { } else module {
     // Real exit never closes Koin: the exit path runs these tasks (on IO, bounded) after the lifecycle's Background event.
     // onClose covers graph teardown in tests and startup failure; shutdown() is idempotent.
     single {
@@ -62,7 +65,7 @@ fun desktopNotificationModule(
     } onClose { it?.shutdown() }
     single<NativeNotifier> {
         val runtime = get<NotificationRuntime>()
-        notifierFactory(runtime.scope).also { notifier ->
+        source.create(runtime.scope).also { notifier ->
             installNotificationActivation(notifier, window, get(), runOnUi)
             runtime.onShutdown { (notifier as? AutoCloseable)?.close() }
         }

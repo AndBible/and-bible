@@ -17,7 +17,6 @@
 package net.bible.sharedui.desktop.assembly
 
 import net.bible.android.control.activity.SystemNotificationsPreference
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -32,8 +31,6 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.log.configureDesktopLogFile
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.CoreStrings
-import net.bible.sharedcore.platform.NativeNotifier
-import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.desktop.DataDirUnwritableException
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
@@ -116,7 +113,7 @@ object DesktopAppStartup {
      * crash-recovery backup path needs the databases closed); a later call with true opens them. [repositories] is the
      * repository site map (`repositories.txt` on the classpath; tests pass their own). [launchArgs] and
      * [lifecycleEvents] go into the graph (see [desktopPlatformModule]); only the first successful start uses them.
-     * [notifierFactory] lets tests replace the native notifier without connecting to the session bus.
+     * [notifierSource] selects the native notifier and its availability.
      */
     fun ensureStarted(
         paths: DesktopPaths,
@@ -126,11 +123,11 @@ object DesktopAppStartup {
         repositories: () -> PropertyMap = ::classpathRepositories,
         launchArgs: List<String> = emptyList(),
         lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
-        notifierFactory: (CoroutineScope) -> NativeNotifier = { linuxNativeNotifier(scope = it) },
+        notifierSource: DesktopNotifierSource = linuxNotifierSource(),
     ): StartupPhase = synchronized(lock) {
         HostStartup.register(info)
         try {
-            if (koinApp == null) startCore(paths, window, language, repositories, launchArgs, lifecycleEvents, notifierFactory)
+            if (koinApp == null) startCore(paths, window, language, repositories, launchArgs, lifecycleEvents, notifierSource)
             if (openDatabases && !opened) openDatabasesLocked()
             StartupPhase.Ready
         } catch (e: Throwable) {
@@ -147,7 +144,7 @@ object DesktopAppStartup {
         repositories: () -> PropertyMap,
         launchArgs: List<String>,
         lifecycleEvents: DesktopLifecycleEvents,
-        notifierFactory: (CoroutineScope) -> NativeNotifier,
+        notifierSource: DesktopNotifierSource,
     ) {
         ensureWritableDirectory(paths.data)
         configureDesktopLogFile(paths.data.resolve("logs"))
@@ -158,7 +155,7 @@ object DesktopAppStartup {
         val app = KoinApplication.init()
         try {
             app.modules(
-                desktopPlatformModule(paths, window, language, launchArgs, lifecycleEvents, notifierFactory),
+                desktopPlatformModule(paths, window, language, launchArgs, lifecycleEvents, notifierSource),
                 desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(), desktopSyncModule(),
             )
             // Before any eager instance or other reader can touch a setting: the settings store opens through this host.
