@@ -25,6 +25,7 @@ internal class IosNotificationRuntime(
     requests: ActivityListRequests,
     preference: SystemNotificationsPreference,
     observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) },
+    private val foregroundQuery: () -> Boolean = ::isIosNotificationForeground,
     finishedText: () -> String,
 ) {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -46,10 +47,11 @@ internal class IosNotificationRuntime(
         onMain {
             if (!closed.value) {
                 notifier.setOnActivated(activationHandler)
-                active.value = isIosNotificationForeground()
+                active.value = foregroundQuery()
+                policy.onForegroundChanged(active.value)
                 observer = observerFactory.observe {
                     if (!closed.value) {
-                        active.value = isIosNotificationForeground()
+                        active.value = foregroundQuery()
                         policy.onForegroundChanged(active.value)
                     }
                 }
