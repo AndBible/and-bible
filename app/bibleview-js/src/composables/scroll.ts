@@ -213,6 +213,26 @@ export function useScroll(
         }
     }
 
+    /**
+     * Resolves once the view has a real size. The desktop off-screen pane is a 1 x 1 view until it is laid out (WebKitGTK
+     * likewise starts at 1 x 1): a document set up before that lays out one word per line, and a scroll to a verse there
+     * lands thousands of pixels down, past the verse (or in the bottom padding, a blank page) once the view gets its size
+     * (#4026). The scroll waits for the first resize to a usable size instead.
+     */
+    function waitForUsableViewport(): Promise<void> {
+        const usable = () => window.innerWidth > 1 && window.innerHeight > 1;
+        if (usable()) return Promise.resolve();
+        console.log("setupContent: waiting for the view to get its size", window.innerWidth, window.innerHeight);
+        return new Promise(resolve => {
+            const onResize = () => {
+                if (!usable()) return;
+                window.removeEventListener("resize", onResize);
+                resolve();
+            };
+            window.addEventListener("resize", onResize);
+        });
+    }
+
     const scrollY = ref<number>(0);
     setupWindowEventListener('scroll', () => scrollY.value = window.scrollY);
 
@@ -249,6 +269,9 @@ export function useScroll(
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: true});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+        if (epoch !== documentEpoch()) return;
+        // A scroll computed for a placeholder view is wrong for the real one (#4026).
+        await waitForUsableViewport();
         if (epoch !== documentEpoch()) return;
 
         if (jumpToOrdinal != null) {
