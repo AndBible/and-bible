@@ -43,6 +43,7 @@ class AndroidLlmStrings(private val context: Context) : LlmStrings {
     override val agentActivityWaiting: String get() = context.getString(R.string.agent_activity_waiting)
     override fun agentActivityWaitingFor(tool: String): String = context.getString(R.string.agent_activity_waiting_for, tool)
     override val agentActivityFailed: String get() = context.getString(R.string.agent_activity_failed)
+    override val agentActivityPermissionNeeded: String get() = context.getString(R.string.agent_activity_permission_needed)
     override val agentAlreadyRunning: String get() = context.getString(R.string.agent_already_running)
     override val agentLogCancelled: String get() = context.getString(R.string.agent_log_cancelled)
     override val agentLogCompleted: String get() = context.getString(R.string.agent_log_completed)

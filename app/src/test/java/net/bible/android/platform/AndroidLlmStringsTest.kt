@@ -67,6 +67,7 @@ class AndroidLlmStringsTest {
             "agentActivityWaiting" to R.string.agent_activity_waiting,
             "agentActivityWaitingFor" to R.string.agent_activity_waiting_for,
             "agentActivityFailed" to R.string.agent_activity_failed,
+            "agentActivityPermissionNeeded" to R.string.agent_activity_permission_needed,
             "agentAlreadyRunning" to R.string.agent_already_running,
             "agentLogCancelled" to R.string.agent_log_cancelled,
             "agentLogCompleted" to R.string.agent_log_completed,

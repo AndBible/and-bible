@@ -322,6 +322,7 @@ class KeyedStringsTest {
         assertText("agentActivityWaiting", llm.agentActivityWaiting, filled = false)
         assertText("agentActivityWaitingFor", llm.agentActivityWaitingFor("x"))
         assertText("agentActivityFailed", llm.agentActivityFailed, filled = false)
+        assertText("agentActivityPermissionNeeded", llm.agentActivityPermissionNeeded, filled = false)
         assertText("agentAlreadyRunning", llm.agentAlreadyRunning, filled = false)
         assertText("agentLogCancelled", llm.agentLogCancelled, filled = false)
         assertText("agentLogCompleted", llm.agentLogCompleted, filled = false)

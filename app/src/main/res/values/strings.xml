@@ -2001,6 +2001,7 @@
     <string name="agent_activity_waiting">Waiting for your permission</string>
     <string name="agent_activity_waiting_for">Waiting for your permission: %s</string>
     <string name="agent_activity_failed">AI agent failed</string>
+    <string name="agent_activity_permission_needed">AI agent needs your permission</string>
     <string name="agent_log_cancelled">Cancelled</string>
     <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
 
