@@ -37,15 +37,9 @@ cleanup() {
 trap cleanup EXIT
 mkdir -p "$run"/{home,data,config,cache} "$run/data/andbible/databases" "$run/data/andbible/sword"
 unzip -q -o -j "$zip" 'db/*.sqlite3' -d "$run/data/andbible/databases"
-python3 -I - "$repo/store-screenshots/demo-content/modules.yaml" "$lang" <<'PY' | while read -r m; do unzip -q -o "$work/modules/$m.zip" -d "$run/data/andbible/sword"; done
-import re, sys
-cur = None
-for line in open(sys.argv[1]):
-    m = re.match(r'^([A-Za-z0-9+_-]+):\s*$', line)
-    if m: cur = m.group(1); continue
-    m = re.search(r'initials:\s*([^,}\s]+)', line)
-    if m and cur == sys.argv[2]: print(m.group(1))
-PY
+mods=$("$here/run.sh" modules --lang "$lang" --out "$work/modules")
+[ -n "$mods" ] || { echo "desktop-capture: no modules for $lang" >&2; exit 1; }
+while read -r z; do unzip -q -o "$z" -d "$run/data/andbible/sword"; done <<<"$mods"
 
 # Display wider/taller than the client area: openbox puts a 1 px border and a title bar around it.
 procs start "$run" xvfb -- bash -c 'exec Xvfb -displayfd 3 -screen 0 1640x1060x24 -nolisten tcp -noreset 3>"$1"' \
@@ -80,14 +74,31 @@ for s in plan["shots"]:
         print(f"SKIP {s['id']} (action {s['action']}, night {s['night']}: not scripted on desktop)", file=sys.stderr); continue
     print(s["id"], names.index(s["workspace"]))
 PY
-while read -r shot index; do
+switch_and_capture() {  # shot index
     xdotool windowactivate --sync "$w"
     click 1527 27                      # toolbar: Workspaces
     sleep 2
-    click 600 $((571 + 48 * index))    # sheet row of that workspace
+    click 600 $((571 + 48 * $2))       # sheet row of that workspace
     sleep 7                            # WebView layout, fonts, images
     xdotool mousemove $((cx + 1620)) $((cy + 1040))  # pointer outside the window (no hover state)
-    ffmpeg -v error -f x11grab -video_size 1600x1000 -i "$DISPLAY+$cx,$cy" -frames:v 1 -update 1 -y "$raws/$shot.png"
+    ffmpeg -nostdin -v error -f x11grab -video_size 1600x1000 -i "$DISPLAY+$cx,$cy" -frames:v 1 -update 1 -y "$raws/$1.png"
+}
+# A switch that did not happen leaves the previous workspace on screen: a capture byte-identical to the previous
+# shot's (of a different workspace) is retried once, then fails the run naming the shot.
+prev_index="" prev_hash=""
+while read -r shot index; do
+    switch_and_capture "$shot" "$index"
+    hash=$(sha256sum < "$raws/$shot.png")
+    if [ -n "$prev_hash" ] && [ "$index" != "$prev_index" ] && [ "$hash" = "$prev_hash" ]; then
+        echo "desktop-capture: $shot identical to the previous shot, retrying the workspace switch" >&2
+        switch_and_capture "$shot" "$index"
+        hash=$(sha256sum < "$raws/$shot.png")
+        if [ "$hash" = "$prev_hash" ]; then
+            echo "desktop-capture: workspace switch for $shot failed (capture unchanged after retry)" >&2
+            exit 1
+        fi
+    fi
+    prev_index="$index" prev_hash="$hash"
     echo "desktop-capture: $shot"
 done < "$run/jobs"
 "$here/run.sh" record --lang "$lang" --target "$target" --dir "$raws"

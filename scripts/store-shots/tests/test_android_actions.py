@@ -44,3 +44,10 @@ def test_real_dump_parses(dump):
     xml = dump.read_text()
     assert "bounds=" in xml
     find_node(xml, text_re=r".+")
+
+
+def test_input_text_arg_quotes_for_the_device_shell():
+    from storeshots.android_driver import input_text_arg
+    assert input_text_arg("love") == "love"
+    assert input_text_arg("God is love") == "God%sis%slove"
+    assert input_text_arg("it's; rm -rf x") == "'it'\"'\"'s;%srm%s-rf%sx'"

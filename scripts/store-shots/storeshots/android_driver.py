@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import html
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -118,6 +119,15 @@ def lock_rotation(dev: Device, landscape: bool) -> None:
         dev.adb("emu", "rotate", check=False)
         time.sleep(3)
     raise RuntimeError(f"display did not rotate to {want}")
+
+
+def input_text_arg(text: str) -> str:
+    """`input text` argument: spaces are `%s` to adb's input tool, the rest is quoted for the device shell."""
+    return shlex.quote(text.replace(" ", "%s"))
+
+
+def exit_demo_mode(dev: Device) -> None:
+    dev.shell("am broadcast -a com.android.systemui.demo -e command exit", check=False)
 
 
 def set_night(dev: Device, night: bool) -> None:
@@ -269,7 +279,7 @@ def perform(dev: Device, content: Content, action: str, arg: str | None) -> None
         dev.tap_node(desc=UI_TEXT["menu"])
         dev.tap_node(text=UI_TEXT["find"])
         dev.tap_node(text=UI_TEXT["find"])
-        dev.shell(f"input text {arg or 'love'}")
+        dev.shell(f"input text {input_text_arg(arg or 'love')}")
         dev.shell("input keyevent 66")
         time.sleep(3)
         try:
@@ -287,30 +297,39 @@ def run_plan(repo: Path, plan: dict, content_path: Path, demo_zip: Path, out_dir
     content = Content(content_path)
     prepare_device(dev, plan["lang"], landscape)
     done, failed = [], []
-    for night in (False, True):
-        shots = [s for s in plan["shots"] if s["night"] == night]
-        if not shots:
-            continue
-        set_night(dev, night)
-        for s in shots:
+    try:
+        for night in (False, True):
+            shots = [s for s in plan["shots"] if s["night"] == night]
+            if not shots:
+                continue
+            set_night(dev, night)
+            for s in shots:
+                try:
+                    subprocess.run([str(repo / "scripts/store-shots/android-seed.sh"), str(demo_zip), dev.pkg],
+                                   check=True, capture_output=True, stdin=subprocess.DEVNULL)
+                    lock_rotation(dev, landscape)
+                    open_app(dev)
+                    switch_workspace(dev, s["workspace"])
+                    time.sleep(settle)
+                    perform(dev, content, s["action"], s["action_arg"])
+                    time.sleep(settle)
+                    dev.screencap(out_dir / f"{s['id']}.png")
+                    done.append(s["id"])
+                    print(f"android: {s['id']}", flush=True)
+                except Exception as e:  # noqa: BLE001 - record and continue; the set stays incomplete
+                    failed.append(s["id"])
+                    print(f"android: FAILED {s['id']}: {e}", file=sys.stderr, flush=True)
+                    try:  # diagnostics are best effort: they must not stop the remaining shots
+                        dev.screencap(out_dir / "failed" / f"{s['id']}.png")
+                        (out_dir / "failed" / f"{s['id']}.xml").write_text(dev.dump())
+                    except Exception as e2:  # noqa: BLE001
+                        print(f"android: no diagnostics for {s['id']}: {e2}", file=sys.stderr, flush=True)
+    finally:
+        for restore in (lambda: set_night(dev, False), lambda: exit_demo_mode(dev)):
             try:
-                subprocess.run([str(repo / "scripts/store-shots/android-seed.sh"), str(demo_zip), dev.pkg],
-                               check=True, capture_output=True, stdin=subprocess.DEVNULL)
-                lock_rotation(dev, landscape)
-                open_app(dev)
-                switch_workspace(dev, s["workspace"])
-                time.sleep(settle)
-                perform(dev, content, s["action"], s["action_arg"])
-                time.sleep(settle)
-                dev.screencap(out_dir / f"{s['id']}.png")
-                done.append(s["id"])
-                print(f"android: {s['id']}", flush=True)
-            except Exception as e:  # noqa: BLE001 - record and continue; the set stays incomplete
-                failed.append(s["id"])
-                dev.screencap(out_dir / "failed" / f"{s['id']}.png")
-                (out_dir / "failed" / f"{s['id']}.xml").write_text(dev.dump())
-                print(f"android: FAILED {s['id']}: {e}", file=sys.stderr, flush=True)
-    set_night(dev, False)
+                restore()
+            except Exception as e:  # noqa: BLE001
+                print(f"android: cleanup failed: {e}", file=sys.stderr, flush=True)
     if failed:
         print(f"android: failed shots: {', '.join(failed)}", file=sys.stderr)
     return done

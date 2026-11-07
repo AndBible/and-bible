@@ -41,15 +41,10 @@ if [ "$boot" = 1 ]; then
     fi
 fi
 "$emu" install "$apk" >/dev/null
-python3 -I - "$repo/store-screenshots/demo-content/modules.yaml" "$lang" <<'PY' | while read -r m; do "$emu" push-module "$work/modules/$m.zip" >/dev/null </dev/null; done
-import re, sys
-cur = None
-for line in open(sys.argv[1]):
-    m = re.match(r'^([A-Za-z0-9+_-]+):\s*$', line)
-    if m: cur = m.group(1); continue
-    m = re.search(r'initials:\s*([^,}\s]+)', line)
-    if m and cur == sys.argv[2]: print(m.group(1))
-PY
+# One zip path per line from the Python side (fails loudly for a language without a module list).
+mods=$("$here/run.sh" modules --lang "$lang" --out "$work/modules")
+[ -n "$mods" ] || { echo "android-capture: no modules for $lang" >&2; exit 1; }
+while read -r z; do "$emu" push-module "$z" >/dev/null </dev/null; done <<<"$mods"
 plan="$work/$lang/plan-$target.json"
 "$here/run.sh" plan --lang "$lang" --target "$target" --out "$plan" >/dev/null
 if [ -n "$only" ]; then
