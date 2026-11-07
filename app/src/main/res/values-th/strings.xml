@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">จัดการพื้นที่ทำงาน…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
-  <string name="beta_notice_content_1">ในเวอร์ชันทดสอบ มีฟีเจอร์ใหม่ที่ยังไม่ได้ทดสอบอย่างครบถ้วน การใช้เวอร์ชันทดสอบอาจทำให้เกิดพฤติกรรมที่ไม่คาดคิด เช่น ข้อผิดพลาด แนะนำให้ผู้อ่านพระคัมภีร์ทั่วไปใช้เวอร์ชันเสถียรแทน</string>
-  <string name="beta_notice_content_2">ผู้ใช้เวอร์ชันทดสอบควรรายงานข้อผิดพลาดผ่าน Google Play หรือ (ควรทำ) ผ่าน %s</string>
-  <string name="beta_notice_content_3">หากคุณเป็นนักพัฒนา กรุณาช่วยส่ง การแก้ไขข้อผิดพลาดผ่าน %s ด้วยตนเอง :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>

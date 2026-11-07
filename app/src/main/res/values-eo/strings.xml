@@ -767,11 +767,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="workspace_manage_workspaces">Administri laborspacojn…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
-  <string name="beta_notice_content_1">
-En versio “beta” troviĝas novaj eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
-  <string name="beta_notice_content_2">
-Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</string>
-  <string name="beta_notice_content_3">Se vi estas programisto, bonvolu konsideri mem ripari erarojn per %s. :-)</string>
   <string name="beta_notice_github_issues">erar‑spurilo ĉe GitHub</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>

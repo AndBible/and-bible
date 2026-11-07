@@ -799,17 +799,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="workspace_manage_workspaces">Upravljaj radnim površima…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ovo je beta verzija!</string>
-  <string name="beta_notice_content_1">
-        U beta izdanju, postoje nove mogućnosti koje nisu temeljno testirane,
-        i stoga upotreba beta izdanja može uvesti neočekivano ponašanje, t.j. bagove.
-        Preporučeno je da prosečni čitaoci Biblije koriste stabilnu verziju.
-    </string>
-  <string name="beta_notice_content_2">
-        Korisnici beta verzije se ohrabruju da prijave greške putem Gugl Prodavnice ili
-        (preferirano) putem %s.
-    </string>
-  <string name="beta_notice_content_3">Ako ste programer, molimo da razmotrite da i sami doprinesete
-        razrešavanju grešaka putem %s . :-)</string>
   <string name="beta_notice_github_issues">Githab problemi</string>
   <string name="beta_notice_github">Githab</string>
   <string name="beta_notice_dismiss_until_update">Skloni do sledećeg ažuriranja</string>

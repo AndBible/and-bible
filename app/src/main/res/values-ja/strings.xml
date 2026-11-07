@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">ワークスペースを管理…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">これはベータ版です！</string>
-  <string name="beta_notice_content_1">ベータ版には、まだ十分にテストされていない新機能が含まれているため、予期しない動作（バグ）が発生することがあります。 通常の聖書読者の方には、安定版のご利用をお勧めします。</string>
-  <string name="beta_notice_content_2">ベータユーザーの方は、Google Play または（できれば）%s を通じてバグを報告することをお勧めします。</string>
-  <string name="beta_notice_content_3">プログラマーの方は、%s でバグ修正のコントリビューションをご検討ください。:-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">次のアップデートまで閉じる</string>

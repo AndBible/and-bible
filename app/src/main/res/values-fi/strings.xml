@@ -777,13 +777,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_manage_workspaces">Hallitse työtiloja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
-  <string name="beta_notice_content_1">
-Betaversiossa on uusia ominaisuuksia joita ei ole vielä kunnolla testattu,
-ja siksi betaversion käyttö voi tuoda mukanaan odotamatonta käyttäytymistä, eli bugeja. 
-On suositeltavaa että tavalliset Raamatun lukijat käyttävät vakaata versiota tämän sijaan.</string>
-  <string name="beta_notice_content_2">
-Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluummin) Githubin kautta: %s.</string>
-  <string name="beta_notice_content_3">Jos olet ohjelmoija, voisitko harkita bugien korjaamista itse Githubissa: %s. :-) </string>
   <string name="beta_notice_github_issues">Github tiketit</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>

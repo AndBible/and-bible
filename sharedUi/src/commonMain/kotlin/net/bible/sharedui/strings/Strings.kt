@@ -1303,13 +1303,11 @@ interface Strings {
 
     // Beta notice (BetaNotice)
     val betaNoticeTitle: String                    // R.string.beta_notice_title
-    val betaNoticeContent1: String                 // R.string.beta_notice_content_1
-    fun betaNoticeContent2(link: String): String   // R.string.beta_notice_content_2
-    fun betaNoticeContent3(link: String): String   // R.string.beta_notice_content_3
     val betaNoticeGithubIssues: String             // R.string.beta_notice_github_issues
     val betaNoticeGithub: String                   // R.string.beta_notice_github
     val betaNoticeDismissUntilUpdate: String       // R.string.beta_notice_dismiss_until_update
     fun versionText(version: String): String       // R.string.version_text
+    val reportGeneralBugLabel: String             // R.string.send_bug_report_title (BetaNotice names the menu item)
     val betaSpecialHeading: String // R.string.beta_special_heading
     val betaSpecialIntroAndroid: String // R.string.beta_special_intro_android
     val betaSpecialIntroIos: String // R.string.beta_special_intro_ios
@@ -1321,26 +1319,24 @@ interface Strings {
     val betaSpecialOneApp: String // R.string.beta_special_one_app
     val betaSpecialSyncIos: String // R.string.beta_special_sync_ios
     val betaSpecialSyncDesktop: String // R.string.beta_special_sync_desktop
-    val betaSpecialLookoutAndroid: String // R.string.beta_special_lookout_android
-    val betaSpecialLookoutIos: String // R.string.beta_special_lookout_ios
-    val betaSpecialLookoutDesktop: String // R.string.beta_special_lookout_desktop
     val betaSpecialFeedback: String // R.string.beta_special_feedback
     fun betaSpecialBackup(menuItem: String): String // R.string.beta_special_backup
+    val betaSpecialBetaWarning: String // R.string.beta_special_beta_warning
+    fun betaSpecialLeaveBetaAndroid(playBetaLink: String): String // R.string.beta_special_leave_beta_android
     fun betaSpecialReport(githubLink: String, menuItem: String): String // R.string.beta_special_report
-    fun betaSpecialReportIos(githubLink: String, menuItem: String): String // R.string.beta_special_report_ios
-    fun betaSpecialReportDesktop(githubLink: String, menuItem: String): String // R.string.beta_special_report_desktop
+    fun betaSpecialReportAndroid(githubLink: String, menuItem: String): String // R.string.beta_special_report_android
     val betaSpecialOtherDevicesTitle: String // R.string.beta_special_other_devices_title
     val betaSpecialOtherDevicesIntro: String // R.string.beta_special_other_devices_intro
     fun betaSpecialOtherAndroid(playBetaLink: String, releasesLink: String): String // R.string.beta_special_other_android
     val betaSpecialPlayBetaLink: String // R.string.beta_special_play_beta_link
-    val betaSpecialOtherApple: String // R.string.beta_special_other_apple
+    fun betaSpecialOtherApple(testFlightLink: String): String // R.string.beta_special_other_apple
+    val betaSpecialTestflightLink: String // R.string.beta_special_testflight_link
     fun betaSpecialOtherDesktop(releasesLink: String): String // R.string.beta_special_other_desktop
     fun betaSpecialInstallationGuide(guideLink: String): String // R.string.beta_special_installation_guide
     val betaSpecialInstallationGuideLink: String // R.string.beta_special_installation_guide_link
     val betaSpecialRegards: String // R.string.beta_special_regards
     fun betaSpecialSponsor(sponsorLink: String): String // R.string.beta_special_sponsor
     val betaSpecialSponsorLink: String // R.string.beta_special_sponsor_link
-    val betaSpecialStandardBelow: String // R.string.beta_special_standard_below
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

@@ -800,17 +800,6 @@ i GT och NT varje dag.
   <string name="workspace_manage_workspaces">Hantera arbetsytor…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Detta är en beta version!</string>
-  <string name="beta_notice_content_1">
-        I betaversionen finns det nya funktioner som inte ännu testats tillräckligt,
-        och därför kan betan ge upphov till oväntat beteende, dvs. buggar.
-        Vanliga bibelläsare rekommenderas använda den stabila versionen istället.
-    </string>
-  <string name="beta_notice_content_2">
-        Betaanvändare uppmuntras att rapportera buggar via Google Play eller
-        (helst) via %s.
-    </string>
-  <string name="beta_notice_content_3">Om du är en programmerare, överväg gärna att
-        själv bidra med buggfixar på %s :-)</string>
   <string name="beta_notice_github_issues">Github-ärenden</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>

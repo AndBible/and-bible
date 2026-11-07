@@ -802,17 +802,6 @@
   <string name="workspace_manage_workspaces">Çalışma alanlarını yönet…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
-  <string name="beta_notice_content_1">
-    Beta sürümünde henüz tam anlamıyla test edilmemiş yeni özellikler var,
-    bu yüzden beta sürümünü kullanmak beklenmedik davranışlara, yani hatalara neden olabilir.
-    Sıradan Kutsal Kitap okuyucularının bunun yerine kararlı sürümü kullanması tavsiye edilir.
-  </string>
-  <string name="beta_notice_content_2">
-    Beta kullanıcılarının, hataları Google Play ya da
-    (tercihen) %s aracılığıyla bildirmeleri önerilir.
-  </string>
-  <string name="beta_notice_content_3">Programcıysanız, lütfen %s aracılığıyla hata düzeltmelerine
-katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_github_issues">Github sorun listesi</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>

@@ -775,13 +775,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="workspace_manage_workspaces">Διαχείριση χώρων εργασίας…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Αυτή είναι μία δοκιμαστική έκδοση!</string>
-  <string name="beta_notice_content_1">
-Στην δοκιμαστική έκδοση,υπάρχουν κάποιες νέες λειτουργίες που δεν έχουν δοκιμαστεί ακόμα επαρκώς,
-γι\'αυτο η χρήση δοκιμαστικής έκδοσης μπορεί να οδηγήσει σε απρόβλεπτη συμπεριφορά π.χ. σφάλματα.
-Συνίσταται η χρήση της σταθερής έκδοσης, από όσους κάνουν συνήθως μόνο ανάγνωση.</string>
-  <string name="beta_notice_content_2">
-Ενθαρρύνουμε τους χρήστες δοκιμαστικών εκδόσεων να αναφέρουν σφάλματα μέσω του Google Play ή (προτιμότερο) μέσω %s</string>
-  <string name="beta_notice_content_3">Αν είστε προγραμματιστής, παρακαλώ συμβάλλετε με διορθώσεις σφαλμάτων μέσω %s εσείς οι ίδιοι :-)</string>
   <string name="beta_notice_github_issues">Προβλήματα του Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Απόρριψη ως την επόμενη ενημέρωση</string>

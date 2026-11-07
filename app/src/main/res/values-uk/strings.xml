@@ -793,17 +793,6 @@
   <string name="workspace_manage_workspaces">Керування робочими областями…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Це бета-версія!</string>
-  <string name="beta_notice_content_1">
-У бета-версії є нові функції, які ще не перевірені належним чином, і, тому, використання
-бета-версії може спричинити несподівану поведінку, помилки. Звичайним читачам
-Біблії рекомендується замість цього використовувати стабільну версію.
-  </string>
-  <string name="beta_notice_content_2">
-        Користувачам бета-версії рекомендується повідомляти про помилки
-        через Google Play або (бажано) через %s.
-    </string>
-  <string name="beta_notice_content_3">Якщо ви програміст, рекомендуємо внести виправлення
-        помилок через %s самим. :-)</string>
   <string name="beta_notice_github_issues">Проблеми з Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>

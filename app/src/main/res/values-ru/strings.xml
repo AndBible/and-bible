@@ -797,17 +797,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="workspace_manage_workspaces">Управление рабочими областями…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Это бета-версия!</string>
-  <string name="beta_notice_content_1">
-        В бета-версии есть новые функции, которые еще не были должным образом протестированы,
-и, следовательно, использование бета-версии может привести к неожиданному поведению, то есть к ошибкам.
-Вместо этого рекомендуется, чтобы обычные читатели Библии использовали стабильную версию.
-    </string>
-  <string name="beta_notice_content_2">
-        Пользователям бета-версии рекомендуется сообщать об ошибках через Google Play или
-(предпочтительно) через %s.
-    </string>
-  <string name="beta_notice_content_3">Если вы программист, пожалуйста, рассмотрите возможность
-сами внести исправления ошибки через %s :-)</string>
   <string name="beta_notice_github_issues">Github вопросы</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>

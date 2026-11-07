@@ -784,18 +784,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="workspace_manage_workspaces">Bestuur werkspasies…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
-  <string name="beta_notice_content_1">
-In die beta-weergawe is daar nuwe funksies wat nog nie behoorlik getoets is nie,
-en dus gebruik van beta kan onverwagte gedrag veroorsaak, dit wil sê foute.
-Dit word aanbeveel dat gewone Bybellesers eerder \'n stabiele weergawe gebruik.
- </string>
-  <string name="beta_notice_content_2">
-Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
-  (verkieslik) via %s
- </string>
-  <string name="beta_notice_content_3">As u programmeerder is, oorweeg dit om fout oplossings 
- regstellings via %s jouself. :-)
- </string>
   <string name="beta_notice_github_issues">Github kwessies</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>

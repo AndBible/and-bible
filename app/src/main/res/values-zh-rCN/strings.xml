@@ -796,14 +796,6 @@ http://www.heartlight.org 准予使用
   <string name="workspace_manage_workspaces">管理工作区…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">这是beta版本！</string>
-  <string name="beta_notice_content_1">
-在Beta版本中，有些功能尚未完全测试，
-因此或会导致预料以外的状况。
-我们建议一般使用者使用稳定版。
-</string>
-  <string name="beta_notice_content_2">
-Beta用家请透过 %s 、或Google Play回报错误。</string>
-  <string name="beta_notice_content_3">如果你是程式员，请考虑透过 %s 参与除错。 :-)</string>
   <string name="beta_notice_github_issues">Github问题</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>

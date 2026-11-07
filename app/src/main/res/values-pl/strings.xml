@@ -762,11 +762,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="workspace_manage_workspaces">Zarządzaj obszarami roboczymi…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To jest wersja beta!</string>
-  <string name="beta_notice_content_1">
-Wersja beta zawiera funkcje, które nie zostały jeszcze wystarczająco przetestowane, więc podczas korzystania z niej mogą wystąpić błędy. Zaleca się, aby zwykli czytacze Pisma Świętego używali wersji stabilnej aplikacji.</string>
-  <string name="beta_notice_content_2">
-Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google Play bądź (najlepiej) przez %s.</string>
-  <string name="beta_notice_content_3">Jeżeli jesteś programistą, proszę rozważyć naprawienie błędów samemu (%s). :-)</string>
   <string name="beta_notice_github_issues">system śledzenia błędów na GitHubie</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>

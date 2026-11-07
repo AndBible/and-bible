@@ -527,14 +527,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="workspace_listing_with_current">%s (လက်ရှိ)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">beta ဗားရှင်းဖြစ်သည်။ </string>
-  <string name="beta_notice_content_1">
-Beta ဗားရှင်းတွင် စနစ်တကျမစမ်းသပ် ရသေးသည့် အသွင်အပြင်သစ်များစွာရှိသည့်အတွက် beta အသုံးပြုရာတွင် ချွတ်ယွင်းချက် ကဲ့သို့သော မထင်မှတ်ထားသည့် အပြုအမူများတွေ့ကြုံ ရနိုင်သည်။ ထို့ကြောင့် သာမန်ကျမ်းစာ အသုံးပြုသူများသည် တည်ငြိမ်သည့် ဗားရှင်းကိုသာ အသုံးပြုရန် အကြုံပြုလိုပါသည်။ </string>
-  <string name="beta_notice_content_2">
-        Beta အသုံးပြုသူများသည် Google Play သို့မဟုတ်
-        (ဖြစ်နိုင်လျှင်) %sမှ ချို့ယွင်းမှုသတင်း ပေးပို့စေလိုပါသည်။
-    </string>
-  <string name="beta_notice_content_3">သင်သည် ပရိုဂရမ်မာတစ်ယောက်ဖြစ်ခဲ့လျှင် စက်ချို့ယွင်းမှုကို ကျေးဇူးပြုပြီး ကူညီဖြေရှင်းစေလိုပါသည်၊
-        သင်ကိုယ်တိုင် %s မှ ပြုပြင်ပါ။ :-)</string>
   <string name="beta_notice_github_issues">Github ပြဿနာများ</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>

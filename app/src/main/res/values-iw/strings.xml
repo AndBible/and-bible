@@ -777,16 +777,6 @@
   <string name="workspace_manage_workspaces">ניהול סביבות עבודה…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">זו גרסת בטא !</string>
-  <string name="beta_notice_content_1">
-        בגרסת הבטא, ישנן אפשרויות חדשות שלא נבדקו כהלכה,
-        ועלולים לקרות דברים מוזרים, כמו באגים.
-        אז לכן עדיף למשתמשים רגילים להשתמש בגרסה היציבה במקום.
-    </string>
-  <string name="beta_notice_content_2">
-        משתמשי גרסת הבטא מוזמנים לדווח על באגים באמצעות  Google Play או
-        (וזה עדיף) באמצעות %s.
-    </string>
-  <string name="beta_notice_content_3">אם אתה מתכנת, אולי תוכל לעזור לנו לפתור באגים כאן %s  בעצמך :-)</string>
   <string name="beta_notice_github_issues">נושאי Github </string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>

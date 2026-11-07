@@ -793,18 +793,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="workspace_manage_workspaces">Tvarkyti darbo sritis…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
-  <string name="beta_notice_content_1">
-        Beta versijoje yra naujų ypatybių, kurios dar nebuvo tinkamai išbandytos
-        ir todėl, naudojantis beta versija, gali atsirasti netikėtos elgsenos, t. y. programėlės klaidų.
-        Yra rekomenduojama, kad vietoj šios versijos, įprasti Biblijos skaitytojai naudotų stabilią versiją.
-    </string>
-  <string name="beta_notice_content_2">
-        Beta versija besinaudojantys žmonės yra skatinami pranešti
-        apie programėlės klaidas per „Google Play“ arba (labiau pageidautina)
-        per %s.
-    </string>
-  <string name="beta_notice_content_3">Jei esate programuotojas, apsvarstykite galimybę asmeniškai
-        pateikti klaidų pataisymus per %s. :-)</string>
   <string name="beta_notice_github_issues">Github klaidų pranešimus</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>

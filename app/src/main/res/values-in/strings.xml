@@ -779,13 +779,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="workspace_manage_workspaces">Kelola ruang kerja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_notice_content_1">
-Dalam versi beta, terdapat beberapa fitur-fitur baru yang belum diuji dengan benar,
- dengan demikian menggunakan versi beta dapat mengakibatkan perilaku yang tidak diduga, yaitu bug.
- Oleh karena itu pembaca Alkitab biasa direkomendasikan untuk menggunakan versi yang sudah stabil.</string>
-  <string name="beta_notice_content_2">
-Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (sebaiknya) melalui %s.</string>
-  <string name="beta_notice_content_3">Jika Anda adalah seorang programmer, mohon mempertimbangkan untuk berkontribusi dalam memperbaiki bug melalui %s. :)</string>
   <string name="beta_notice_github_issues">Masalah-masalah Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>

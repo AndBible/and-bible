@@ -779,14 +779,6 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="workspace_manage_workspaces">Munkaterületek kezelése…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Béta verzió!</string>
-  <string name="beta_notice_content_1">
-        A béta verzióban új, nem tesztelt funkciók találhatóak,
-        használata kövben váratlan események fordulhatnak elő, vagyis szoftverhibákat találhat.
-        Javasoljuk, hogy a mindennapi bibliaolvasók a stabil változatot használják.
-    </string>
-  <string name="beta_notice_content_2">
-A béta felhasználókat kifejezetten kérjük a hibák bejelentésére Google Play-en vagy (elsősorban) %s-on keresztül.</string>
-  <string name="beta_notice_content_3">Ha ért a programozáshoz, gondolja meg nem tudna-e hibajavítást készíteni %s-on :-)</string>
   <string name="beta_notice_github_issues">GitHub issues</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Elvetés a következő frissítésig</string>

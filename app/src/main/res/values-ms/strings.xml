@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">Urus ruang kerja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_notice_content_1">Dalam versi beta, terdapat ciri baharu yang belum diuji dengan betul, dan oleh itu menggunakan beta mungkin memperkenalkan gelagat yang tidak dijangka, iaitu pepijat. Adalah disyorkan bahawa pembaca Alkitab biasa menggunakan versi stabil sebaliknya.</string>
-  <string name="beta_notice_content_2">Pengguna beta digalakkan untuk melaporkan pepijat melalui Google Play atau (lebih baik) melalui %s.</string>
-  <string name="beta_notice_content_3">Jika anda pengaturcara, sila pertimbangkan untuk menyumbang pembaikan pepijat melalui %s sendiri. :-)</string>
   <string name="beta_notice_github_issues">Isu Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Tutup sehingga kemas kini berikutnya</string>

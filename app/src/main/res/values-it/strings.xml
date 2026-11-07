@@ -766,11 +766,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="workspace_manage_workspaces">Gestisci spazi di lavoro…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
-  <string name="beta_notice_content_1">
-Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
-  <string name="beta_notice_content_2">
-Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o (preferibilmente) via %s.</string>
-  <string name="beta_notice_content_3">Se sei un programmatore, prendi in considerazione la possibilità di contribuire con dei bug fix tramite %s :-)</string>
   <string name="beta_notice_github_issues">Problemi Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ignora fino al prossimo aggiornamento</string>

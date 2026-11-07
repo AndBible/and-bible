@@ -787,15 +787,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="workspace_manage_workspaces">ওয়ার্কস্পেস পরিচালনা করুন…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">এটি বিটা সংস্করণ!</string>
-  <string name="beta_notice_content_1">
-বিটা সংস্করণে, এমন নতুন বৈশিষ্ট্য রয়েছে যা এখনও সঠিকভাবে পরীক্ষা করা হয়নি,
- এবং এইভাবে বিটা ব্যবহার করা অপ্রত্যাশিত আচরণের অর্থাত্‍ বাগগুলি প্রবর্তন করতে পারে।
- সাধারণ বাইবেল পাঠকদের পরিবর্তে স্থিতিশীল সংস্করণ ব্যবহার করা বাঞ্ছনীয়।</string>
-  <string name="beta_notice_content_2">
-বিটা ব্যবহারকারীদের গুগল প্লে বা এর মাধ্যমে বাগ প্রতিবেদন করতে উত্সাহ দেওয়া হচ্ছে
-(সাধারণত) মাধ্যমে। %s </string>
-  <string name="beta_notice_content_3">আপনি যদি প্রোগ্রামার হন তবে দয়া করে বাগটি অবদানের বিষয়টি বিবেচনা করুন
-নিজের মাধ্যমে  %s ঠিক করে নিন। :-)</string>
   <string name="beta_notice_github_issues">গিথুব ইস্যু</string>
   <string name="beta_notice_github">গিথুব </string>
   <string name="beta_notice_dismiss_until_update">পরবর্তী আপডেট হওয়া পর্যন্ত খারিজ করুন</string>

@@ -788,13 +788,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="workspace_manage_workspaces">కార్యస్థలాలను నిర్వహించండి…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">ఇది బీటా వెర్షన్!</string>
-  <string name="beta_notice_content_1">
-బీటా వెర్షన్‌లో, ఇంకా సరిగ్గా పరీక్షించబడని కొత్త ఫీచర్‌లు ఉన్నాయి,
-అందువలన బీటాను ఉపయోగించడం వలన ఊహించని ప్రవర్తన, అంటే \"బగ్‌\" దోషాలు  తారస పడొచ్చు.
-సాధారణ బైబిల్ పాఠకులు బీటా వెర్షన్‌కు బదులుగా స్థిరమైన వర్షన్ ఉపయోగించాలని సిఫార్సు చేయబడింది.</string>
-  <string name="beta_notice_content_2">
-Google Play లేదా (ప్రాధాన్యంగా) %s ద్వారా బగ్‌లను నివేదించమని బీటా వినియోగదారులను ప్రోత్సహించటం జరుగుతుంది.</string>
-  <string name="beta_notice_content_3">మీరు ప్రోగ్రామర్ అయితే, దయచేసి మీరే %s ద్వారా బగ్ పరిష్కారాలను అందించడాన్ని పరిగణించండి. :-)</string>
   <string name="beta_notice_github_issues">Github సమస్యలు</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">తదుపరి నవీకరణ వరకు తీసివేయండి</string>
