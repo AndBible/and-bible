@@ -63,6 +63,68 @@ class ActivityListTest {
         } }
     }
 
+    @Test fun reportShownOnReportableFailedRow() = runComposeUiTest {
+        val failed = item("failed", ActivityState.FAILED).copy(reportable = true)
+        setContent {
+            AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityListContent(listOf(failed), {}, {}, {}, onReport = {})
+            } }
+        }
+        onNodeWithText("Report").assertIsDisplayed()
+    }
+
+    @Test fun reportShownForCauseOnlyFailure() = runComposeUiTest {
+        val failed = item("failed", ActivityState.FAILED).copy(cause = IllegalStateException("failure"))
+        setContent {
+            AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityListContent(listOf(failed), {}, {}, {}, onReport = {})
+            } }
+        }
+        onNodeWithText("Report").assertIsDisplayed()
+    }
+
+    @Test fun reportHiddenOnExpectedErrorsAndNonFailedRows() = runComposeUiTest {
+        val expectedError = item("sync", ActivityState.FAILED).copy(kind = ActivityKind.SYNC, message = "Sign in")
+        val running = item("running").copy(reportable = true, cause = IllegalStateException("old"))
+        val succeeded = item("success", ActivityState.SUCCEEDED).copy(reportable = true)
+        setContent {
+            AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityListContent(listOf(expectedError, running, succeeded), {}, {}, {}, onReport = {})
+            } }
+        }
+        onAllNodesWithText("Report").assertCountEquals(0)
+    }
+
+    @Test fun reportHiddenWithoutReporter() = runComposeUiTest {
+        content(listOf(item("failed", ActivityState.FAILED).copy(reportable = true)))
+        onAllNodesWithText("Report").assertCountEquals(0)
+    }
+
+    @Test fun reportTapUsesLatestRowAndDoesNotOpenOrDismiss() = runComposeUiTest {
+        val firstCause = IllegalStateException("first")
+        val latestCause = IllegalStateException("latest")
+        var current by androidx.compose.runtime.mutableStateOf(
+            item("failed", ActivityState.FAILED, message = "first").copy(cause = firstCause)
+        )
+        var reported: ActivityItem? = null
+        var opened = false
+        var dismissed = false
+        setContent {
+            AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityListContent(
+                    listOf(current), { dismissed = true }, {}, { opened = true }, onReport = { reported = it },
+                )
+            } }
+        }
+        runOnIdle { current = current.copy(message = "latest", cause = latestCause) }
+        onNodeWithText("Report").performClick()
+        assertEquals("latest", reported?.message)
+        assertEquals(latestCause, reported?.cause)
+        assertEquals(false, opened)
+        assertEquals(false, dismissed)
+        onAllNodesWithTag(ACTIVITY_LIST_ROW_TAG).assertCountEquals(1)
+    }
+
     @Test fun sectionsRunningAndRecent() = runComposeUiTest {
         content(listOf(item("r"), item("ok", ActivityState.SUCCEEDED), item("bad", ActivityState.FAILED, message = "boom")))
         onNodeWithText("Running").assertExists()

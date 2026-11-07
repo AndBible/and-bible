@@ -1,6 +1,7 @@
 package net.bible.android.control
 
 import net.bible.sharedui.assembly.IOS_BOUND_PORT_TYPES
+import net.bible.sharedui.assembly.IOS_HOST_BINDING_TYPES
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,7 +10,8 @@ import org.koin.dsl.koinApplication
 
 /**
  * Port parity between Android and iOS: every port type [buildPlatformBindings] binds is either bound by
- * `IosPlatformBindings` or `buildIosSyncBindings` (declared in [IOS_BOUND_PORT_TYPES]), or a documented Android-only class.
+ * `IosPlatformBindings`, `buildIosSyncBindings` or `buildIosHostBindings` (declared in the iOS port contracts),
+ * or a documented Android-only class.
  * The other way round, iOS binds no port that Android does not. This covers what the JVM discovery in `IosPortContractTest` cannot see (ports a definition looks
  * up lazily), so a port added to the Android bindings without an iOS counterpart fails here.
  *
@@ -41,10 +43,12 @@ class IosPortParityTest {
 
     private val iosPorts: Set<String> get() = IOS_BOUND_PORT_TYPES.map { it.qualifiedName!! }.toSet()
 
+    private val iosHostPorts: Set<String> get() = IOS_HOST_BINDING_TYPES.map { it.qualifiedName!! }.toSet()
+
     @Test
     fun everyAndroidPortHasAnIosBinding() {
-        val missing = bindingKeys() - androidOnly - iosPorts
-        assertEquals("Android binds ports that iOS does not bind (add them to IosPlatformBindings and IOS_BOUND_PORT_TYPES)",
+        val missing = bindingKeys() - androidOnly - iosPorts - iosHostPorts
+        assertEquals("Android binds ports absent from iOS platform and host port contracts",
             emptySet<String>(), missing)
     }
 
@@ -52,6 +56,13 @@ class IosPortParityTest {
     fun iosBindsNoPortThatAndroidDoesNot() {
         val extra = iosPorts - bindingKeys()
         assertEquals("iOS declares ports that Android does not bind", emptySet<String>(), extra)
+    }
+
+    @Test
+    fun activityReporterIsDeclaredAsAnIosHostPort() {
+        assertTrue(IOS_HOST_BINDING_TYPES.contains(
+            net.bible.android.control.activity.ActivityReporter::class,
+        ))
     }
 
     @Test

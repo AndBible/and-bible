@@ -146,6 +146,9 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
+    single<net.bible.android.control.activity.ActivityReporter> {
+        net.bible.android.control.activity.HostActivityReporter(get<AppCoroutineScope>())
+    }
     val distribution = detectDistribution(
         System.getenv(), System.getProperty("compose.application.resources.dir"), System.getProperty("jpackage.app-path"),
     )

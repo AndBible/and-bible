@@ -168,7 +168,7 @@ class InstallServiceController(
                 // `launch` uncaught on the handler-less SupervisorJob scope (a crash), while
                 // `terminal` stayed at its `Cancelled` default, misreporting a real error as a
                 // user cancellation.
-                InstallPhase.Error(InstallError.GENERIC, null)
+                InstallPhase.Error(InstallError.GENERIC, null, e)
             }
         }
         synchronized(mapsLock) { jobCoroutines[jobId] = job } // L1-common-ok: atomicfu lock

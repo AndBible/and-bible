@@ -57,6 +57,16 @@ class InstallJobRunnerTest {
         override suspend fun commitBackgroundImage(localFile: Path, fileName: String) { calls += "img" }
         override suspend fun commitStudyPad(unzipFolder: Path) { calls += "studypad" }
     }
+    @Test fun acquisitionFailurePreservesOriginalCause() = runBlocking {
+        val original = IOException("acquisition failed")
+        val terminal = runner(FakeCommitter()).runJob(
+            src("module.zip"), tmp(), { throw original }, { false },
+            { error("not studypad") }, { error("not zip") }, { false }, {}, { true },
+        ) as InstallPhase.Error
+        assertEquals(InstallError.GENERIC, terminal.kind)
+        org.junit.Assert.assertSame(original, terminal.cause)
+    }
+
     @Test fun decodedUriFallbackRetainsFilename() = runBlocking {
         val fixtures = listOf(
             "content://x/document/primary%3ADownload%2Ffoo.zip",

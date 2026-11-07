@@ -36,6 +36,10 @@ import org.koin.dsl.module
  * Builds a NEW Koin `Module` on every call (see [buildCoreModule]).
  */
 fun buildPlatformBindings() = module {
+    single<net.bible.android.control.activity.ActivityReporter> {
+        val koin = getKoin()
+        net.bible.android.control.report.AndroidActivityReporter({ koin.get<net.bible.sharedcore.platform.AppCoroutineScope>() })
+    }
     // ResourceProvider interface binding (was ApplicationModule.provideResourceProvider)
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     single<net.bible.sharedcore.http.DownloadHttp> {

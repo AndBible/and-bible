@@ -791,6 +791,7 @@ class HostReadingHost(
         return ActivityHostWiring(
             center, preference,
             syncNow = koin.get(),
+            reporter = koin.getOrNull(),
             onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
             listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
         )

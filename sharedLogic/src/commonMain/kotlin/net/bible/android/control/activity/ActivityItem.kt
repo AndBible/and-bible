@@ -28,4 +28,6 @@ data class ActivityItem(
     val read: Boolean,
     val backgroundFailure: Boolean = true,
     val failureOccurrence: Long = 0,
+    val reportable: Boolean = false,
+    val cause: Throwable? = null,
 )

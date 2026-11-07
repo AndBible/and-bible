@@ -101,7 +101,9 @@ class DesktopUserMessagesPresenterTest {
         val sync = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
         val router = BackgroundErrorRouter({ pref.enabled.value }, sync) { "$it - see menu" }
         val recorder = Recorder()
-        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = router::route)
+        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = { message ->
+            router.route(message.text.orEmpty(), message.background, message.kind, message.showReportButton, message.cause)
+        })
         try { block(recorder, center, pref, router) } finally { presenter.close(); sync.close() }
     }
 
@@ -115,6 +117,17 @@ class DesktopUserMessagesPresenterTest {
         assertEquals(ActivityState.FAILED, item.state)
         assertEquals("WebDAV failed", item.message)
         assertEquals(1, center.unreadFailures.value)
+    }
+
+    @Test fun routedNotificationCarriesReportPolicyAndCause() = withRouter(enabled = true) { _, center, _, _ ->
+        val cause = IllegalStateException("network")
+        UserMessages.errorNotification("sync failed", background = true, kind = ActivityKind.SYNC, cause = cause)
+        UserMessages.errorNotification("authentication failed", showReportButton = false, background = true, kind = ActivityKind.SYNC, cause = cause)
+        val rows = center.items.value.associateBy { it.message }
+        assertTrue(rows.getValue("sync failed").reportable)
+        kotlin.test.assertSame(cause, rows.getValue("sync failed").cause)
+        kotlin.test.assertFalse(rows.getValue("authentication failed").reportable)
+        assertNull(rows.getValue("authentication failed").cause)
     }
 
     @Test fun foregroundErrorKeepsItsDialogAndIsRecordedWhenOn() = withRouter(enabled = true) { r, center, _, _ ->
@@ -166,7 +179,7 @@ class DesktopUserMessagesPresenterTest {
 
     @Test fun aThrowingRouterFallsBackToTheErrorDialog() {
         val recorder = Recorder()
-        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = { _, _, _ -> error("router broke") })
+        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = { error("router broke") })
         try {
             UserMessages.errorNotification("WebDAV failed", background = true, kind = ActivityKind.SYNC)
             assertEquals(listOf("error:WebDAV failed"), recorder.calls)

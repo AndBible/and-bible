@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.event.Events
-import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
@@ -17,13 +16,13 @@ import net.bible.sharedcore.platform.UserNotifier
  * delivery waits for [attach] without needing Koin or a UI host. The notifier's dialog queue and
  * toast state retain messages until the UI mounts. [close] belongs to app teardown, not composition.
  *
- * [reroute] takes an error notification's text, background flag and kind, records it in the activity list (#4007) and
+ * [reroute] records an error notification in the activity list (#4007) and
  * answers the toast text to show instead of the dialog (background work only); null keeps the dialog. It runs on Main, after [attach].
  */
 @OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
 class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage> = UserMessages.messages,
-    private val reroute: (String, Boolean, ActivityKind) -> String? = { _, _, _ -> null },
+    private val reroute: (UserMessage.ErrorNotification) -> String? = { null },
 ) : AutoCloseable {
     private val pending = Channel<UserMessage>(Channel.UNLIMITED)
     private val notifier = CompletableDeferred<UserNotifier>()
@@ -34,7 +33,7 @@ class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage>
             try {
                 when (message) {
                     is UserMessage.Toast -> message.text?.let { target.showInfo(it, message.long) } ?: dropped(message)
-                    is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text, message.background, message.kind)?.let { target.showInfo(it, false) } ?: target.showError(text) } ?: dropped(message)
+                    is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(message)?.let { target.showInfo(it, false) } ?: target.showError(text) } ?: dropped(message)
                 }
             } catch (e: CancellationException) {
                 throw e

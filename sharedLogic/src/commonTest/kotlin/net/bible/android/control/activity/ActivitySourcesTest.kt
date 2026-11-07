@@ -79,6 +79,30 @@ class ActivitySourcesTest {
     }
 
     @Test
+    fun downloadFailureIsReportable() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        download(c, events)
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        val item = c.items.value.single()
+        assertEquals(ActivityState.FAILED, item.state)
+        assertTrue(item.reportable)
+        assertNull(item.cause)
+    }
+
+    @Test
+    fun repeatFailureKeepsNewestCause() = runTest {
+        val c = center()
+        val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
+        val first = IllegalStateException("first")
+        val newest = IllegalStateException("newest")
+        sync.reportFailure(ActivityKind.SYNC, "x", reportable = true, cause = first)
+        sync.reportFailure(ActivityKind.SYNC, "x", reportable = true, cause = newest)
+        assertEquals(1, c.items.value.size)
+        assertSame(newest, c.items.value.single().cause)
+    }
+
+    @Test
     fun cancelledDownloadIsDropped() = runTest {
         val c = center()
         val events = EventSource<DocumentStatus>()

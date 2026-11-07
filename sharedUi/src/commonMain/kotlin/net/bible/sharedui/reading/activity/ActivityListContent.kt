@@ -66,6 +66,7 @@ fun ActivityListContent(
     onClearFinished: () -> Unit,
     onOpenItem: (ActivityItem) -> Unit,
     modifier: Modifier = Modifier,
+    onReport: ((ActivityItem) -> Unit)? = null,
 ) {
     val strings = LocalStrings.current
     val visible = items.filter { it.state != ActivityState.CANCELLED }
@@ -81,13 +82,13 @@ fun ActivityListContent(
         }
         if (running.isNotEmpty()) {
             SectionHeader(strings.activityRunning)
-            running.forEach { ListRow(it, onOpenItem, onDismissItem) }
+            running.forEach { ListRow(it, onOpenItem, onDismissItem, onReport) }
         }
         if (finished.isNotEmpty()) {
             SectionHeader(strings.activityRecent) {
                 TextButton(onClick = onClearFinished) { Text(strings.activityClearFinished) }
             }
-            finished.forEach { ListRow(it, onOpenItem, onDismissItem) }
+            finished.forEach { ListRow(it, onOpenItem, onDismissItem, onReport) }
         }
     }
 }
@@ -105,7 +106,7 @@ private fun SectionHeader(text: String, action: (@Composable () -> Unit)? = null
 }
 
 @Composable
-private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismiss: (String) -> Unit) {
+private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismiss: (String) -> Unit, onReport: ((ActivityItem) -> Unit)?) {
     val strings = LocalStrings.current
     val mono = isPureMonochrome()
     val message = item.message
@@ -143,6 +144,9 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
         if (item.state == ActivityState.RUNNING) {
             if (cancel != null) TextButton(onClick = cancel) { Text(strings.cancel) }
         } else {
+            if (item.state == ActivityState.FAILED && (item.reportable || item.cause != null) && onReport != null) {
+                TextButton(onClick = { onReport(item) }) { Text(strings.activityReport) }
+            }
             TextButton(onClick = { onDismiss(item.id) }) { Text(strings.dismiss) }
         }
     }

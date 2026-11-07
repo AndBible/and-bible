@@ -529,6 +529,16 @@ class IosAssemblyTest {
         assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
     }
 
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    @Test
+    fun activityReporterIsRegisteredByTheHostModule() {
+        val module = net.bible.sharedui.ios.app.buildIosHostBindings()
+        val bound = module.mappings.values.flatMap { f ->
+            listOf(f.beanDefinition.primaryType) + f.beanDefinition.secondaryTypes
+        }.toSet()
+        assertTrue(net.bible.android.control.activity.ActivityReporter::class in bound)
+    }
+
     @Test
     fun notificationPolicyAndPreferenceResolveFromTheIosGraph() {
         startApp()

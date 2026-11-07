@@ -39,6 +39,7 @@ sealed interface UserMessage {
         val background: Boolean = false,
         /** The activity-list kind of the row recording this failure. */
         val kind: ActivityKind = ActivityKind.OTHER,
+        val cause: Throwable? = null,
     ) : UserMessage
 }
 
@@ -58,13 +59,14 @@ object UserMessages {
 
     fun toast(text: String) = _messages.emit(UserMessage.Toast(text, null, long = false))
 
-    fun errorNotification(id: Int, background: Boolean = false, kind: ActivityKind = ActivityKind.OTHER) =
-        _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true, background = background, kind = kind))
+    fun errorNotification(id: Int, background: Boolean = false, kind: ActivityKind = ActivityKind.OTHER, cause: Throwable? = null) =
+        _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true, background = background, kind = kind, cause = cause))
 
     fun errorNotification(
         text: String,
         showReportButton: Boolean = true,
         background: Boolean = false,
         kind: ActivityKind = ActivityKind.OTHER,
-    ) = _messages.emit(UserMessage.ErrorNotification(text, null, showReportButton, background, kind))
+        cause: Throwable? = null,
+    ) = _messages.emit(UserMessage.ErrorNotification(text, null, showReportButton, background, kind, cause))
 }

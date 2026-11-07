@@ -466,6 +466,7 @@ interface Strings {
     val activityRunning: String                   // R.string.activity_running
     val activityRecent: String                    // R.string.activity_recent
     val activityClearFinished: String             // R.string.activity_clear_finished
+    val activityReport: String                    // R.string.report
     val activityTitle: String                     // R.string.activity_title
     val activityEmpty: String                     // R.string.activity_empty
     fun activityFailedToast(message: String): String // R.string.activity_failed_toast

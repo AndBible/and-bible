@@ -18,6 +18,7 @@ import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityMenuPreference
+import net.bible.android.control.activity.ActivityReporter
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedcore.nav.NavRoutes
 
@@ -36,6 +37,7 @@ class ActivityHostWiring(
     val listRequests: Flow<Unit>? = null,
     val syncNow: SyncNow? = null,
     val syncReady: () -> Boolean = { net.bible.service.startup.ReadingAppInit.initialized },
+    val reporter: ActivityReporter? = null,
     val onOpenItem: (ActivityItem) -> Unit,
 )
 
@@ -116,6 +118,8 @@ private fun ActivityListLayer(
     onOpenItem: (ActivityItem) -> Unit,
     onClose: () -> Unit,
 ) {
+    val reporter = wiring.reporter
+    val available = reporter?.available?.collectAsState()?.value == true
     ActivityListHost(
         visible = true,
         items = items.value,
@@ -123,6 +127,7 @@ private fun ActivityListLayer(
         onClearFinished = wiring.center::clearFinished,
         onOpenItem = onOpenItem,
         onClose = onClose,
+        onReport = if (available) reporter?.let { { item -> it.report(item) } } else null,
     )
 }
 
