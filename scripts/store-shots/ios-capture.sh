@@ -29,17 +29,9 @@ zip=$("$here/prepare-lang.sh" "$lang" | tail -1)
 stage="$repo/tmp/store-shots"
 rm -rf "$stage"; mkdir -p "$stage/db" "$stage/modules"
 unzip -q -o -j "$zip" 'db/*.sqlite3' -d "$stage/db"
-python3 -I - "$repo/store-screenshots/demo-content/modules.yaml" "$lang" "$work/modules" "$stage/modules" <<'PY'
-import shutil, sys, re
-path, lang, cache, out = sys.argv[1:]
-# minimal YAML read of "<lang>:\n  - {initials: X, repo: Y}" (the full parser lives in storeshots; no deps here)
-cur = None
-for line in open(path):
-    m = re.match(r'^([A-Za-z0-9+_-]+):\s*$', line)
-    if m: cur = m.group(1); continue
-    m = re.search(r'initials:\s*([^,}\s]+)', line)
-    if m and cur == lang: shutil.copy(f"{cache}/{m.group(1)}.zip", out)
-PY
+modules=$("$here/run.sh" modules --lang "$lang" --out "$work/modules")
+[ -n "$modules" ] || { echo "ios-capture: no modules for $lang" >&2; exit 1; }
+while read -r m; do cp "$m" "$stage/modules/"; done <<<"$modules"
 "$here/run.sh" plan --lang "$lang" --target "$target" --mode light --out "$stage/plan-light.json"
 "$here/run.sh" plan --lang "$lang" --target "$target" --mode dark --out "$stage/plan-dark.json"
 test_id="-only-testing:iosAppUITests/StoreScreenshotsUITests"
@@ -57,7 +49,7 @@ run_id=$(sed -n 's/^mac-remote: run \([^ ]*\) .*/\1/p' "$log" | head -1)
 [ "$keep" = 1 ] || "$repo/scripts/mac-remote.sh" cleanup >/dev/null 2>&1 || true
 rm -rf "$stage"
 [ -n "$run_id" ] || { echo "ios-capture: no mac-remote run id in $log" >&2; exit 1; }
-container=$(python3 -c 'import json;print(json.load(open("/etc/jailbee/container.json"))["name"])' 2>/dev/null || hostname)
+container="${MAC_CONTAINER:-$(hostname)}"   # the evidence folder name mac-remote.sh uses
 evidence="$repo/.local/mac/$container/runs/$run_id"
 raws="$work/$lang/ios-$device-attachments"
 rm -rf "$raws"; mkdir -p "$raws"

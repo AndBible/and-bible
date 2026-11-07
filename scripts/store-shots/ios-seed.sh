@@ -21,8 +21,16 @@ cp "$src"/db/*.sqlite3 "$support/databases/"
 for z in "$src"/modules/*.zip; do unzip -q -o "$z" -d "$data/Documents/sword"; done
 cp "$src/plan-$mode.json" "$src/plan.json"
 xcrun simctl ui "$udid" appearance "$mode"
-# A parseable time is re-formatted with the Mac's region ("9.41" on a Finnish Mac); a trailing word joiner
-# (U+2060, invisible) makes simctl show the string verbatim.
-xcrun simctl status_bar "$udid" override --time "$(python3 -c 'print("9:41\u2060", end="")')" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+# The status bar formats its time with the simulator's own region, which a new simulator copies from the Mac
+# ("9.41" on a Finnish Mac): switch the simulator to en_US once, which needs a reboot of the simulator.
+if [ "$(xcrun simctl spawn "$udid" defaults read -g AppleLocale 2>/dev/null)" != en_US ]; then
+    xcrun simctl spawn "$udid" defaults write -g AppleLocale en_US
+    xcrun simctl spawn "$udid" defaults write -g AppleLanguages -array en
+    xcrun simctl shutdown "$udid"
+    xcrun simctl boot "$udid"
+    xcrun simctl bootstatus "$udid" -b >/dev/null
+    xcrun simctl ui "$udid" appearance "$mode"
+fi
+xcrun simctl status_bar "$udid" override --time "2026-11-07T09:41:00" --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
 echo "ios-seed: $udid $app_id seeded ($(ls "$support/databases" | wc -l) databases, $(ls "$data/Documents/sword/mods.d" | wc -l) modules), appearance $mode"

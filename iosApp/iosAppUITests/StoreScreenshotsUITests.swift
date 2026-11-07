@@ -178,17 +178,20 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
             let find = app.buttons.matching(NSPredicate(format: "label == 'Find'")).firstMatch
             guard find.waitForExistence(timeout: 20) else { return false }
             find.tap()
-            let field = app.textFields.firstMatch
+            // The first search of a module asks to build its index (the measured dialog has no text field yet).
+            let create = label(app, "Create")
+            if create.waitForExistence(timeout: 10) {
+                create.tap()
+                _ = waitUntil(timeout: 180) { !create.exists }
+                sleep(3)
+            }
+            // The search field shows "Find" as its placeholder; it is not exposed as a TextField.
+            let field = app.textFields.firstMatch.exists ? app.textFields.firstMatch : label(app, "Find")
             guard field.waitForExistence(timeout: 20) else { return false }
             field.tap()
-            field.typeText((shot.action_arg ?? "love") + "\n")
-            let create = label(app, "Create")
-            if create.waitForExistence(timeout: 20) {
-                create.tap()
-                sleep(60)
-            } else {
-                sleep(6)
-            }
+            sleep(1)
+            app.typeText((shot.action_arg ?? "love") + "\n")
+            sleep(8)
             return true
         default:
             attachTree(app, "action-\(shot.action)-unsupported")
