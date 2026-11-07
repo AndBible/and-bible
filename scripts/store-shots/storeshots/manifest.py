@@ -8,7 +8,7 @@ import yaml
 
 from .targets import TARGETS
 
-ACTIONS = ("none", "book_chooser", "label_dialog", "verse_menu", "search", "workspaces")
+ACTIONS = ("none", "book_chooser", "label_dialog", "verse_menu", "note", "search", "workspaces")
 ACTIONS_WITH_ARG = ("label_dialog", "verse_menu", "search")
 PLAY_RANGE = (2, 8)
 APPSTORE_MAX = 10

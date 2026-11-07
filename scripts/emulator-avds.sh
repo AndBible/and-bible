@@ -14,7 +14,8 @@
 #   t9_api30           API 30, pixel_4  - API 30-34 cutout/insets path
 #   t9_api34           API 34, pixel_6  - API 30-34 cutout/insets path
 #   emu_api30_tablet   API 30, 10.1in WXGA tablet, 1280x800 @213
-#   tablet_api36       API 36, pixel_tablet
+#   tablet_api36       API 36, pixel_tablet (10" store screenshots, 2560x1600 landscape)
+#   screenshot_tablet7 API 36, Nexus 7 2013, 1200x1920 @320 (7" store screenshots, 1920x1200 landscape)
 #
 # Needs $ANDROID_HOME with cmdline-tools and the profile's system image. The jailbee golden
 # image installs all of them in /opt/android-sdk (.jailbee/install.d/94-android-sdk.sh). If the
@@ -32,6 +33,7 @@ declare -A PROFILES=(
     [t9_api34]="34|pixel_6|"
     [emu_api30_tablet]="30|10.1in WXGA (Tablet)|213"
     [tablet_api36]="36|pixel_tablet|"
+    [screenshot_tablet7]="36|Nexus 7 2013|"
 )
 
 name=screenshot_phone
