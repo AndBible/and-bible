@@ -41,10 +41,11 @@ What is here now, in November:
 - **WebDAV sync** is already in, next to Nextcloud on every platform, iCloud Drive on Apple devices
   and Google Drive on Android.
 
-One big factor in this pace is JailBee, a side project of mine. It runs each piece of development
-work in its own isolated container and lets me coordinate many of them at once, so large efforts
-like this port move more smoothly than before. Like AndBible, [JailBee](https://jailbee.gisgro.io)
-is open source under the GPL-3.0 licence.
+One big factor in this pace is JailBee, my own side project, which I develop partly at my
+workplace, Gisgro Oy. It runs each piece of development work in its own isolated container and
+lets me coordinate many of them at once, so large efforts like this port move more smoothly than
+before. Like AndBible, [JailBee](https://jailbee.gisgro.io) is open source under the GPL-3.0
+licence.
 
 Version 6.0 brings everything together. The whole interface has been rebuilt once and is shared by
 every platform, so your Bibles, bookmarks, notes and StudyPads work the same way wherever you open
