@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">Для отображения текста Библии через WebView2 AndBible требуется графика Direct3D. Текущий графический рендерер: %1$s. Проверьте графический драйвер и поддержку Direct3D.\n\nПодробности в файле журнала:\n%2$s</string>
   <string name="desktop_update_setting_title">Проверять обновления</string>
   <string name="desktop_update_setting_summary">Раз в день, на github.com</string>
+  <string name="desktop_beta_update_setting_title">Предлагать публичные бета-обновления</string>
+  <string name="desktop_beta_update_setting_summary">Предлагать также публичные бета-версии. Если выключено, бета-версия получает только стабильные выпуски.</string>
   <string name="desktop_update_consent_title">Проверять обновления?</string>
   <string name="desktop_update_consent_message">AndBible может раз в день проверять github.com на наличие новой версии. GitHub видит ваш IP-адрес; больше ничего не отправляется. Это можно изменить позже в настройках.</string>
   <string name="desktop_update_consent_yes">Проверять обновления</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Включить функции для E-ink-устройств (кнопки прокрутки страниц, вспомогательные линии прокрутки)</string>
   <string name="prefs_disable_animations_title">Отключить анимацию</string>
   <string name="prefs_disable_animations_summary">Отключить различные анимации, например плавную прокрутку.</string>
+  <string name="prefs_show_activity_in_menu_title">Показывать фоновую активность в меню</string>
+  <string name="prefs_show_activity_in_menu_summary">Ход загрузок, синхронизации и индексирования, а также сбои, в меню ⋮</string>
+  <string name="prefs_system_notifications_title">Системные уведомления</string>
+  <string name="prefs_system_notifications_denied">Отключено в настройках iOS</string>
+  <string name="prefs_system_notifications_summary">Уведомлять о сбоях фоновой работы, о долгих загрузках, завершившихся, пока AndBible был в фоновом режиме, и об их ходе</string>
   <string name="prefs_disable_click_to_edit_title">Отключить редактирование нажатием в блокноте</string>
   <string name="prefs_disable_click_to_edit_summary">Для редактирования заметок в блокноте потребуется нажать кнопку правки.</string>
   <string name="prefs_notes_content_type_title">Формат новых заметок к закладкам</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Ночной режим</string>
+  <string name="options_menu_sync_now">Синхронизировать сейчас</string>
+  <string name="exit_sync_title">Синхронизация изменений…</string>
+  <string name="exit_sync_body">Изменения отправляются на другие ваши устройства. Это может занять несколько секунд.</string>
+  <string name="exit_sync_quit_now">Выйти сейчас</string>
+  <string name="exit_sync_closing">Закрытие…</string>
+  <string name="sync_now_no_network">Нет подключения к сети</string>
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
   <string name="prefs_open_links_in_special_window_title">Окно ссылок</string>
@@ -357,6 +370,17 @@
   <string name="chooce_language_hint">Язык</string>
   <string name="one_more_back_press">Нажмите еще раз, чтобы закрыть приложение</string>
   <string name="document_filter_results">%d документов,модулей</string>
+  <string name="activity_show_all">Показать все (%1$d)</string>
+  <string name="activity_failed_badge">Сбоев: %1$d</string>
+  <string name="activity_attention_badge">Требуют внимания: %1$d</string>
+  <string name="activity_combined_badge">Сбоев: %1$d, требуют внимания: %2$d</string>
+  <string name="activity_running_description">Выполняется фоновая работа</string>
+  <string name="activity_running">Выполняется</string>
+  <string name="activity_recent">Недавние</string>
+  <string name="activity_clear_finished">Очистить завершённые</string>
+  <string name="activity_title">Фоновая активность</string>
+  <string name="activity_empty">Ничего не выполняется</string>
+  <string name="activity_failed_toast">%1$s — см. меню</string>
   <string name="download_question_title">Вы хотите продолжить загрузку документов?</string>
   <string name="download_question_message">Если вы живете в стране, где преследуют,
 вам может быть нужно быть осторожными при загрузке христианских материалов через Интернет.
@@ -649,6 +673,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_backup_title">Сохранить резервную копию куда?</string>
   <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
   <string name="backup_phone_storage">Память телефона</string>
+  <string name="backup_save_to_files">Сохранить в «Файлы»</string>
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules2">Резервное копирование документов на...</string>
   <string name="backup_app2">Создать резервную копию приложения (файл .apk) в…</string>
@@ -701,6 +726,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Папка журналов</string>
+  <string name="open_log_folder">Открыть папку журналов</string>
+  <string name="startup_report_bug">Сообщить об ошибке</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
   <string name="report_bug_email_subject_3">[%1$s] Отчет об ошибке для %2$s %3$s</string>
   <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
@@ -768,8 +796,16 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="debug_test_error">Тестовая ошибка (отладочная сборка)</string>
   <string name="bug_report_prepare_failed">Не удалось подготовить или отправить отчёт. Можно повторить попытку или сохранить данные через «Резервное копирование и восстановление».</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
+  <string name="bug_report_desktop_text">Далее вас попросят выбрать, где сохранить файл отчёта об ошибке. Затем вы получите инструкции по его отправке команде разработчиков.</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
   <string name="bug_report_manual_title">Отправить отчёт по электронной почте</string>
+  <string name="bug_report_manual_text_saved">Отчёт сохранён в <b>%1$s</b>.\n\nОтправьте письмо на адрес <b>%2$s</b> и приложите этот файл: почтовая программа не может сделать это за вас. Предлагаемая тема: <b>%3$s</b>. В письме расскажите, что вы делали и что произошло.</string>
+  <string name="bug_report_manual_text_unsaved">Отчёт сохранён в выбранное вами место.\n\nОтправьте письмо на адрес <b>%1$s</b> и приложите сохранённый файл отчёта: почтовая программа не может сделать это за вас. Предлагаемая тема: <b>%2$s</b>. В письме расскажите, что вы делали и что произошло.</string>
+  <string name="bug_report_subject_suggestion">Ошибка AndBible %1$s: &lt;краткое описание&gt;</string>
+  <string name="bug_report_attach_line">Приложите файл %1$s</string>
+  <string name="bug_report_copy_subject">Копировать тему</string>
+  <string name="bug_report_copy_path">Копировать путь к файлу</string>
+  <string name="bug_report_open_folder">Открыть папку</string>
   <string name="bug_report_copy_address">Копировать адрес</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>
@@ -800,6 +836,37 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_github_issues">Github вопросы</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ОСОБОЕ ОБРАЩЕНИЕ РАЗРАБОТЧИКА К БЕТА-ТЕСТЕРАМ (ноябрь 2026)</string>
+  <string name="beta_special_intro_android">Добро пожаловать в бета-версию AndBible 6.0! Это самое большое изменение за всю историю AndBible. Всё приложение переписано с новым инструментарием пользовательского интерфейса, а сам интерфейс при этом переработан: каждый экран был пересмотрен, и большинство из них стали заметно удобнее, помимо обновлённого оформления Material 3.</string>
+  <string name="beta_special_intro_ios">Добро пожаловать в бета-версию AndBible 6.0! Если вы пользовались AndBible для iOS 1.0, это большая перемена: версия 6.0 заменяет её общим приложением AndBible, тем же, что работает на Android, iPhone, iPad и компьютерах Mac с Apple Silicon, Windows и Linux. Оно основано на коде, которому более десяти лет доверяют пользователи Android, переписано с новым инструментарием пользовательского интерфейса, а сам интерфейс при этом переработан: каждый экран был пересмотрен, и большинство из них стали заметно удобнее.</string>
+  <string name="beta_special_intro_desktop">Добро пожаловать в бета-версию AndBible 6.0 и в AndBible для Windows и Linux! Это первая настольная версия AndBible: одно и то же приложение теперь работает на Android, iPhone, iPad и компьютерах Mac с Apple Silicon, Windows и Linux. Оно основано на коде, которому более десяти лет доверяют пользователи Android, переписано с новым инструментарием пользовательского интерфейса, а сам интерфейс при этом переработан: каждый экран был пересмотрен, и большинство из них стали заметно удобнее.</string>
+  <string name="beta_special_redesign">Переработанный интерфейс: более понятные меню, настройки и диалоги, более единообразная навигация и множество небольших улучшений удобства по всему приложению.</string>
+  <string name="beta_special_data_kept">Все ваши функции, данные и настройки на месте.</string>
+  <string name="beta_special_platforms">Одно и то же приложение теперь работает на Android, iPhone, iPad и компьютерах Mac с Apple Silicon, Windows и Linux. Новые платформы тоже проходят тестирование.</string>
+  <string name="beta_special_additions_android">Два небольших дополнения: синхронизация через WebDAV (ваш собственный сервер, NAS или любой сервис WebDAV, помимо Google Drive и Nextcloud) и новый поисковый индекс, который после обновления один раз автоматически перестраивается.</string>
+  <string name="beta_special_one_app">Одно приложение на всех ваших устройствах: те же функции и тот же порядок работы на телефоне, планшете и компьютере.</string>
+  <string name="beta_special_sync_ios">Синхронизация между вашими устройствами через Nextcloud, WebDAV (ваш собственный сервер, NAS или любой сервис WebDAV) или iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Синхронизация между вашими устройствами через Nextcloud или WebDAV (ваш собственный сервер, NAS или любой сервис WebDAV).</string>
+  <string name="beta_special_feedback">Если чего-то не хватает, что-то работает иначе, чем раньше, или стало сложнее найти, пожалуйста, сообщите нам, даже если так и задумано.</string>
+  <string name="beta_special_backup">Перед тестированием стоит сделать резервную копию (Главное меню → %s).</string>
+  <string name="beta_special_beta_warning">Это бета-версия: не всё завершено или полностью протестировано, возможны ошибки. Пользуясь ею, вы становитесь бета-тестером, и именно ваши сообщения об ошибках делают окончательный выпуск хорошим.</string>
+  <string name="beta_special_leave_beta_android">Если вы не собирались тестировать, вы можете выйти из %s и вернуться к стабильной версии.</string>
+  <string name="beta_special_report">Сообщайте об ошибках через %1$s (предпочтительно) или Главное меню → %2$s.</string>
+  <string name="beta_special_report_android">Сообщайте об ошибках через %1$s (предпочтительно), Google Play или Главное меню → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible на ваших других устройствах</string>
+  <string name="beta_special_other_devices_intro">Та же бета-версия доступна для всех ваших устройств:</string>
+  <string name="beta_special_other_android">Android: присоединяйтесь к %1$s или скачайте APK из последнего бета-выпуска на %2$s.</string>
+  <string name="beta_special_play_beta_link">бета-программе в Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad и Mac с Apple Silicon: установите приложение Apple TestFlight и присоединитесь к %s.</string>
+  <string name="beta_special_testflight_link">публичной бета-версии AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) и Linux (.deb или AppImage): скачайте их из последнего бета-выпуска на %s.</string>
+  <string name="beta_special_installation_guide">Пошаговые инструкции есть в %s.</string>
+  <string name="beta_special_installation_guide_link">руководстве по установке</string>
+  <string name="beta_special_regards">С наилучшими пожеланиями, Туомас</string>
+  <string name="beta_special_sponsor">P.S. Вы можете финансово поддержать разработку AndBible, %s.</string>
+  <string name="beta_special_sponsor_link">оплатив часы разработки</string>
   <string name="stable_notice_title">Приложение обновлено!</string>
   <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
   <string name="stable_notice_par1">Новая версия %1$s \"%2$s\" успешно установлена!</string>
@@ -1209,6 +1276,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="db_repositories">Репозитории и связанные с ними настройки</string>
   <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
   <string name="synchronizing">Синхронизация…</string>
+  <string name="notification_finished">Завершено</string>
   <string name="overrideBackup">
         Существующая база данных, с которой это устройство не синхронизировано, находится в облаке.
         База данных содержит%s. Что ты хочешь делать?
@@ -1792,6 +1860,12 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="agent_log_response_received">Ответ получен</string>
   <string name="agent_log_saved">Сохранено: %s</string>
   <string name="agent_log_done">Готово: %s</string>
+  <string name="agent_activity_title">ИИ-агент</string>
+  <string name="agent_activity_title_in">ИИ-агент: %s</string>
+  <string name="agent_activity_waiting">Ожидается ваше разрешение</string>
+  <string name="agent_activity_waiting_for">Ожидается ваше разрешение: %s</string>
+  <string name="agent_activity_failed">Сбой ИИ-агента</string>
+  <string name="agent_activity_attention_needed">ИИ-агенту требуется ваше внимание</string>
   <string name="agent_log_cancelled">Отменено</string>
   <string name="agent_already_running">AI-агент уже запущен. Подождите или остановите его.</string>
   <!--AI Agent Notifications-->

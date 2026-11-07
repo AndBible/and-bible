@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible은 WebView2로 성경 본문을 표시하기 위해 Direct3D 그래픽이 필요합니다. 현재 그래픽 렌더러는 %1$s입니다. 그래픽 드라이버와 Direct3D 지원을 확인하세요.\n\n자세한 내용은 로그 파일에 있습니다:\n%2$s</string>
   <string name="desktop_update_setting_title">업데이트 확인</string>
   <string name="desktop_update_setting_summary">하루에 한 번, github.com에서 확인</string>
+  <string name="desktop_beta_update_setting_title">공개 베타 업데이트 제공</string>
+  <string name="desktop_beta_update_setting_summary">공개 베타 버전도 함께 제공합니다. 끄면 베타 설치본은 정식 릴리스만 받습니다.</string>
   <string name="desktop_update_consent_title">업데이트를 확인하시겠습니까?</string>
   <string name="desktop_update_consent_message">AndBible은 하루에 한 번 github.com에서 새 버전이 있는지 확인할 수 있습니다. GitHub에는 사용자의 IP 주소만 보이며, 그 밖의 정보는 전송되지 않습니다. 나중에 설정에서 변경할 수 있습니다.</string>
   <string name="desktop_update_consent_yes">업데이트 확인</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">E-ink 전용 기능 활성화 (페이지 스크롤 버튼, 스크롤 보조선)</string>
   <string name="prefs_disable_animations_title">애니메이션 끄기</string>
   <string name="prefs_disable_animations_summary">부드러운 스크롤과 같은 애니메이션을 끕니다.</string>
+  <string name="prefs_show_activity_in_menu_title">메뉴에 백그라운드 작업 표시</string>
+  <string name="prefs_show_activity_in_menu_summary">다운로드, 동기화, 색인 진행 상황과 실패 내역을 ⋮ 메뉴에 표시합니다</string>
+  <string name="prefs_system_notifications_title">시스템 알림</string>
+  <string name="prefs_system_notifications_denied">iOS 설정에서 꺼져 있음</string>
+  <string name="prefs_system_notifications_summary">백그라운드 작업 실패, AndBible이 백그라운드에 있는 동안 완료된 긴 다운로드, 그리고 그 진행 상황을 알립니다</string>
   <string name="prefs_disable_click_to_edit_title">스터디 패드 클릭 편집 비활성화</string>
   <string name="prefs_disable_click_to_edit_summary">스터디 패드에서 노트를 편집하려면 편집 버튼을 사용해야 합니다.</string>
   <string name="prefs_notes_content_type_title">새 북마크 노트 형식</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">자동</string>
   <string name="prefs_night_mode_system">시스템</string>
   <string name="options_menu_night_mode">야간 모드</string>
+  <string name="options_menu_sync_now">지금 동기화</string>
+  <string name="exit_sync_title">변경 사항 동기화 중…</string>
+  <string name="exit_sync_body">변경 사항을 다른 기기로 보내는 중입니다. 몇 초 걸릴 수 있습니다.</string>
+  <string name="exit_sync_quit_now">지금 종료</string>
+  <string name="exit_sync_closing">닫는 중…</string>
+  <string name="sync_now_no_network">네트워크에 연결되어 있지 않습니다</string>
   <string name="prefs_navigate_to_verse_title">절로 이동</string>
   <string name="prefs_navigate_to_verse_summary">문장을 선택할 때 절(과 장)을 선택</string>
   <string name="prefs_open_links_in_special_window_title">링크 윈도우</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">언어</string>
   <string name="one_more_back_press">앱을 닫으려면 뒤로가기 버튼을 다시 누르세요</string>
   <string name="document_filter_results">%d 문서</string>
+  <string name="activity_show_all">모두 보기 (%1$d)</string>
+  <string name="activity_failed_badge">%1$d개 실패</string>
+  <string name="activity_attention_badge">%1$d개 확인 필요</string>
+  <string name="activity_combined_badge">%1$d개 실패, %2$d개 확인 필요</string>
+  <string name="activity_running_description">백그라운드 작업 실행 중</string>
+  <string name="activity_running">실행 중</string>
+  <string name="activity_recent">최근</string>
+  <string name="activity_clear_finished">완료된 항목 지우기</string>
+  <string name="activity_title">백그라운드 작업</string>
+  <string name="activity_empty">실행 중인 작업 없음</string>
+  <string name="activity_failed_toast">%1$s — 메뉴 참조</string>
   <string name="download_question_title">문서들을 다운로드하시겠습니까?</string>
   <string name="download_question_message">만약 당신이 박해받는 나라에 살고 계신다면,
 인터넷으로 기독교 관련 파일을 다운로드 받는 것을 조심해야 할 수도 있습니다.
@@ -650,6 +674,7 @@
   <string name="backup_backup_title">어디에 백업할까요?</string>
   <string name="backup_backup_message">전화기에 백업할까요 아니면 공유 기능을 이용해 다른 곳(이메일, 구글 드라이브 등)에 백업할까요?</string>
   <string name="backup_phone_storage">폰 저장소</string>
+  <string name="backup_save_to_files">파일에 저장</string>
   <string name="backup_and_restore">백업과 복원</string>
   <string name="backup_modules2">문서 백업 위치…</string>
   <string name="backup_app2">앱 백업 (.apk 파일) 위치…</string>
@@ -702,6 +727,9 @@
   <string name="module_about_repository">배포 서버: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">로그 폴더</string>
+  <string name="open_log_folder">로그 폴더 열기</string>
+  <string name="startup_report_bug">버그 신고</string>
   <string name="send_bug_report_title">피드백 / 버그 리포트</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s 버그 리포트</string>
   <string name="report_bug_big_heading">이 라인 위에 피드백이나 버그 리포트를 적어주세요</string>
@@ -770,8 +798,16 @@
   <string name="debug_test_error">테스트 오류 (디버그 빌드)</string>
   <string name="bug_report_prepare_failed">보고서를 준비하거나 공유하지 못했습니다. 다시 시도하거나 백업 및 복원으로 데이터를 저장할 수 있습니다.</string>
   <string name="bug_report_email_title">이메일로 버그 리포트 보내기</string>
+  <string name="bug_report_desktop_text">다음으로 버그 보고서 파일을 저장할 위치를 묻습니다. 그런 다음 개발팀에 보내는 방법을 안내해 드립니다.</string>
   <string name="bug_report_email_text">다음으로 선호하는 이메일 애플리케이션(예: Gmail)을 선택하여 개발팀에 리포트를 보내주세요.</string>
   <string name="bug_report_manual_title">보고서를 이메일로 보내기</string>
+  <string name="bug_report_manual_text_saved">보고서가 <b>%1$s</b>에 저장되었습니다.\n\n<b>%2$s</b>(으)로 이메일을 보내면서 해당 파일을 첨부해 주세요. 이메일 프로그램이 파일을 대신 첨부할 수는 없습니다. 제안하는 제목: <b>%3$s</b>. 본문에는 어떤 작업을 했고 무슨 일이 일어났는지 적어 주세요.</string>
+  <string name="bug_report_manual_text_unsaved">보고서가 선택한 위치에 저장되었습니다.\n\n<b>%1$s</b>(으)로 이메일을 보내면서 저장된 보고서 파일을 첨부해 주세요. 이메일 프로그램이 파일을 대신 첨부할 수는 없습니다. 제안하는 제목: <b>%2$s</b>. 본문에는 어떤 작업을 했고 무슨 일이 일어났는지 적어 주세요.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s 버그: &lt;간단한 설명&gt;</string>
+  <string name="bug_report_attach_line">%1$s 파일을 첨부해 주세요</string>
+  <string name="bug_report_copy_subject">제목 복사</string>
+  <string name="bug_report_copy_path">파일 경로 복사</string>
+  <string name="bug_report_open_folder">폴더 열기</string>
   <string name="bug_report_copy_address">주소 복사</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">읽을 텍스트</string>
@@ -802,6 +838,37 @@
   <string name="beta_notice_github_issues">깃허브 이슈</string>
   <string name="beta_notice_github">깃허브</string>
   <string name="beta_notice_dismiss_until_update">다음 업데이트 때까지 끄기</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">베타 테스터를 위한 개발자의 특별 안내 (2026년 11월)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 베타에 오신 것을 환영합니다! 이번 버전은 AndBible 역사상 가장 큰 변화입니다. 앱 전체를 새로운 사용자 인터페이스 툴킷으로 다시 작성했고, 그 과정에서 인터페이스도 새로 디자인했습니다. 모든 화면을 검토했으며, 대부분의 화면이 새로워진 Material 3 디자인에 더해 사용성이 크게 개선되었습니다.</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 베타에 오신 것을 환영합니다! iOS용 AndBible 1.0을 사용해 보셨다면 이번 버전은 큰 변화입니다. 6.0 버전은 이를 공용 AndBible 앱으로 대체합니다. 이 앱은 Android, iPhone, iPad, Apple Silicon Mac, Windows, Linux에서 동일하게 실행됩니다. 10년 넘게 Android 사용자에게 사랑받아 온 코드를 기반으로 새로운 사용자 인터페이스 툴킷으로 다시 작성했으며, 그 과정에서 인터페이스도 새로 디자인했습니다. 모든 화면을 검토했고 대부분의 화면에서 사용성이 크게 개선되었습니다.</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 베타와 Windows 및 Linux용 AndBible에 오신 것을 환영합니다! 이번 버전은 AndBible의 첫 데스크톱 버전입니다. 이제 같은 앱이 Android, iPhone, iPad, Apple Silicon Mac, Windows, Linux에서 실행됩니다. 10년 넘게 Android 사용자에게 사랑받아 온 코드를 기반으로 새로운 사용자 인터페이스 툴킷으로 다시 작성했으며, 그 과정에서 인터페이스도 새로 디자인했습니다. 모든 화면을 검토했고 대부분의 화면에서 사용성이 크게 개선되었습니다.</string>
+  <string name="beta_special_redesign">새롭게 디자인된 인터페이스: 더 명확해진 메뉴, 설정, 대화 상자, 더 일관된 탐색, 그리고 앱 전반의 수많은 작은 작업 흐름 개선.</string>
+  <string name="beta_special_data_kept">기존 기능, 데이터, 설정은 모두 그대로 있습니다.</string>
+  <string name="beta_special_platforms">이제 같은 앱이 Android, iPhone, iPad, Apple Silicon Mac, Windows, Linux에서 실행됩니다. 새로운 플랫폼도 테스트 중입니다.</string>
+  <string name="beta_special_additions_android">두 가지 작은 추가 사항: WebDAV 동기화(Google Drive 및 Nextcloud 외에 자체 서버, NAS 또는 모든 WebDAV 서비스 사용 가능)와, 업데이트 후 자동으로 한 번 다시 만들어지는 새 검색 색인입니다.</string>
+  <string name="beta_special_one_app">모든 기기에서 하나의 앱: 휴대폰, 태블릿, 컴퓨터에서 같은 기능과 작업 흐름을 사용하세요.</string>
+  <string name="beta_special_sync_ios">Nextcloud, WebDAV(자체 서버, NAS 또는 모든 WebDAV 서비스) 또는 iCloud Drive를 통한 기기 간 동기화.</string>
+  <string name="beta_special_sync_desktop">Nextcloud 또는 WebDAV(자체 서버, NAS 또는 모든 WebDAV 서비스)를 통한 기기 간 동기화.</string>
+  <string name="beta_special_feedback">없어진 기능이 있거나, 이전과 다르게 동작하거나, 찾기 어려워진 부분이 있다면 의도된 변경일지라도 알려 주세요.</string>
+  <string name="beta_special_backup">테스트 전에 백업해 두는 것이 좋습니다 (메인 메뉴 → %s).</string>
+  <string name="beta_special_beta_warning">이 버전은 베타 버전입니다. 모든 것이 완성되었거나 완전히 테스트된 것은 아니며 버그가 있을 수 있습니다. 사용하시면 베타 테스터가 되며, 여러분의 버그 보고가 정식 릴리스를 좋게 만듭니다.</string>
+  <string name="beta_special_leave_beta_android">테스트할 생각이 없었다면 %s에서 나와 안정 버전으로 돌아갈 수 있습니다.</string>
+  <string name="beta_special_report">버그는 %1$s(권장) 또는 메인 메뉴 → %2$s을(를) 통해 신고해 주세요.</string>
+  <string name="beta_special_report_android">버그는 %1$s(권장), Google Play 또는 메인 메뉴 → %2$s을(를) 통해 신고해 주세요.</string>
+  <string name="beta_special_other_devices_title">다른 기기에서의 AndBible</string>
+  <string name="beta_special_other_devices_intro">같은 베타를 모든 기기에서 사용할 수 있습니다.</string>
+  <string name="beta_special_other_android">Android: %1$s에 참여하거나, %2$s의 최신 베타 릴리스에서 APK를 다운로드하세요.</string>
+  <string name="beta_special_play_beta_link">Google Play 베타 프로그램</string>
+  <string name="beta_special_other_apple">iPhone, iPad, Apple Silicon Mac: Apple의 TestFlight 앱을 설치하고 %s에 참여하세요.</string>
+  <string name="beta_special_testflight_link">AndBible 공개 베타</string>
+  <string name="beta_special_other_desktop">Windows(.msi)와 Linux(.deb 또는 AppImage): %s의 최신 베타 릴리스에서 다운로드하세요.</string>
+  <string name="beta_special_installation_guide">단계별 안내는 %s에 있습니다.</string>
+  <string name="beta_special_installation_guide_link">설치 가이드</string>
+  <string name="beta_special_regards">감사합니다. 투오마스 드림</string>
+  <string name="beta_special_sponsor">추신: %s을(를) 통해 AndBible 개발을 재정적으로 후원하실 수 있습니다.</string>
+  <string name="beta_special_sponsor_link">개발 시간 후원하기</string>
   <string name="stable_notice_title">앱이 업그레이드되었습니다!</string>
   <string name="upgrade_video_message">이번 릴리즈의 신기능을 소개하는 영상을 시청하세요(%s).</string>
   <string name="stable_notice_par1">%2$s의 새 버전 %1$s이(가) 성공적으로 설치되었습니다!</string>
@@ -1217,6 +1284,7 @@
   <string name="db_repositories">저장소 및 관련 설정</string>
   <string name="db_bookmarks">북마크, 내 참고들, 레이블 및 스터디 패드</string>
   <string name="synchronizing">동기화 중…</string>
+  <string name="notification_finished">완료됨</string>
   <string name="overrideBackup">
         이 기기와 동기화되지 않은 기존 데이터베이스가 클라우드에서 발견되었습니다.
         데이터베이스에 %s이(가) 포함되어 있습니다. 어떻게 하시겠습니까?
@@ -1800,6 +1868,12 @@
   <string name="agent_log_response_received">응답 수신됨</string>
   <string name="agent_log_saved">저장됨: %s</string>
   <string name="agent_log_done">완료: %s</string>
+  <string name="agent_activity_title">AI 에이전트</string>
+  <string name="agent_activity_title_in">AI 에이전트: %s</string>
+  <string name="agent_activity_waiting">사용자의 권한 승인 대기 중</string>
+  <string name="agent_activity_waiting_for">사용자의 권한 승인 대기 중: %s</string>
+  <string name="agent_activity_failed">AI 에이전트 실패</string>
+  <string name="agent_activity_attention_needed">AI 에이전트에 확인이 필요합니다</string>
   <string name="agent_log_cancelled">취소됨</string>
   <string name="agent_already_running">AI 에이전트가 이미 실행 중입니다. 기다리거나 먼저 중지하세요.</string>
   <!--AI Agent Notifications-->

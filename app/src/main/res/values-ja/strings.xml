@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBibleがWebView2で聖書の本文を表示するには、Direct3Dグラフィックスが必要です。現在のグラフィックスレンダラーは%1$sです。グラフィックスドライバーとDirect3Dのサポートを確認してください。\n\n詳細はログファイルを参照してください:\n%2$s</string>
   <string name="desktop_update_setting_title">アップデートを確認</string>
   <string name="desktop_update_setting_summary">1日1回、github.comから</string>
+  <string name="desktop_beta_update_setting_title">公開ベータ版の更新を通知する</string>
+  <string name="desktop_beta_update_setting_summary">公開ベータ版も通知します。オフの場合、ベータ版をインストールしていても正式版のリリースのみ通知されます。</string>
   <string name="desktop_update_consent_title">アップデートを確認しますか？</string>
   <string name="desktop_update_consent_message">AndBibleは1日1回github.comで新しいバージョンを確認できます。GitHubにはお使いのIPアドレスが表示されますが、それ以外は何も送信されません。この設定は後で「設定」から変更できます。</string>
   <string name="desktop_update_consent_yes">アップデートを確認</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">電子インク専用機能を有効にします（ページスクロールボタン、スクロール補助線）</string>
   <string name="prefs_disable_animations_title">アニメーションを無効化</string>
   <string name="prefs_disable_animations_summary">スムーズスクロールなどのアニメーションを無効にします。</string>
+  <string name="prefs_show_activity_in_menu_title">バックグラウンドの動作をメニューに表示</string>
+  <string name="prefs_show_activity_in_menu_summary">ダウンロード、同期、インデックス作成の進行状況と失敗を ⋮ メニューに表示します</string>
+  <string name="prefs_system_notifications_title">システム通知</string>
+  <string name="prefs_system_notifications_denied">iOSの設定でオフになっています</string>
+  <string name="prefs_system_notifications_summary">バックグラウンド処理の失敗、AndBibleがバックグラウンドにある間に完了した長時間のダウンロード、およびその進行状況を通知します</string>
   <string name="prefs_disable_click_to_edit_title">スタディパッドのクリック編集を無効化</string>
   <string name="prefs_disable_click_to_edit_summary">スタディパッドのメモを編集するには編集ボタンを使用する必要があります。</string>
   <string name="prefs_notes_content_type_title">新規ブックマークメモの形式</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">自動</string>
   <string name="prefs_night_mode_system">システム</string>
   <string name="options_menu_night_mode">ナイトモード</string>
+  <string name="options_menu_sync_now">今すぐ同期</string>
+  <string name="exit_sync_title">変更を同期しています…</string>
+  <string name="exit_sync_body">変更内容を他のデバイスに送信しています。数秒かかることがあります。</string>
+  <string name="exit_sync_quit_now">今すぐ終了</string>
+  <string name="exit_sync_closing">終了しています…</string>
+  <string name="sync_now_no_network">ネットワークに接続されていません</string>
   <string name="prefs_navigate_to_verse_title">節へ移動</string>
   <string name="prefs_navigate_to_verse_summary">聖句を選択する際に節（と章）を選びます</string>
   <string name="prefs_open_links_in_special_window_title">リンクウィンドウ</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">言語</string>
   <string name="one_more_back_press">もう一度戻るを押すとアプリを閉じます</string>
   <string name="document_filter_results">%d 件のドキュメント</string>
+  <string name="activity_show_all">すべて表示 (%1$d)</string>
+  <string name="activity_failed_badge">%1$d 件失敗</string>
+  <string name="activity_attention_badge">%1$d 件要確認</string>
+  <string name="activity_combined_badge">%1$d 件失敗、%2$d 件要確認</string>
+  <string name="activity_running_description">バックグラウンド処理を実行中</string>
+  <string name="activity_running">実行中</string>
+  <string name="activity_recent">最近</string>
+  <string name="activity_clear_finished">完了したものを消去</string>
+  <string name="activity_title">バックグラウンドの動作</string>
+  <string name="activity_empty">実行中のものはありません</string>
+  <string name="activity_failed_toast">%1$s — メニューを確認してください</string>
   <string name="download_question_title">ドキュメントのダウンロードを続けますか？</string>
   <string name="download_question_message">迫害を受けている国にお住まいの場合、 インターネット経由でキリスト教の資料をダウンロードする際は注意が必要な場合があります。 代わりに、モジュールのZIPファイルをより安全な方法で入手し、 「ZIPからドキュメントを読み込む」からインストールすることをお勧めします。ダウンロードを続けますか？ モジュールサーバーからのすべてのダウンロードは暗号化（HTTPS）されています。</string>
   <string name="do_not_ask_again">はい、今後は確認しない</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">バックアップ先は？</string>
   <string name="backup_backup_message">共有機能（メール、Google ドライブなど）を使って端末またはその他の場所にバックアップしますか？</string>
   <string name="backup_phone_storage">端末ストレージ</string>
+  <string name="backup_save_to_files">ファイルに保存</string>
   <string name="backup_and_restore">バックアップと復元</string>
   <string name="backup_modules2">ドキュメントをバックアップ先…</string>
   <string name="backup_app2">アプリ（.apk ファイル）をバックアップ先…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">配布サーバー：%s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">ログフォルダ</string>
+  <string name="open_log_folder">ログフォルダを開く</string>
+  <string name="startup_report_bug">バグを報告</string>
   <string name="send_bug_report_title">フィードバック / バグ報告</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s のバグ報告</string>
   <string name="report_bug_big_heading">この行より上にフィードバックまたはバグ報告を記入してください</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">テストエラー（デバッグビルド）</string>
   <string name="bug_report_prepare_failed">レポートを準備または共有できませんでした。再試行するか、「バックアップと復元」を使ってデータを保存してください。</string>
   <string name="bug_report_email_title">メールでバグ報告を送信</string>
+  <string name="bug_report_desktop_text">次に、バグ報告ファイルの保存先を指定します。その後、開発チームへの送り方が表示されます。</string>
   <string name="bug_report_email_text">次に、レポートを開発チームに送信するためのメールアプリ（Gmailなど）を選択してください。</string>
   <string name="bug_report_manual_title">レポートをメールで送信</string>
+  <string name="bug_report_manual_text_saved">報告は <b>%1$s</b> に保存されました。\n\n<b>%2$s</b> 宛てにメールを送り、そのファイルを添付してください。メールソフトからは自動で添付できません。件名の例: <b>%3$s</b>。本文には、行った操作と起きたことを書いてください。</string>
+  <string name="bug_report_manual_text_unsaved">報告は指定した場所に保存されました。\n\n<b>%1$s</b> 宛てにメールを送り、保存した報告ファイルを添付してください。メールソフトからは自動で添付できません。件名の例: <b>%2$s</b>。本文には、行った操作と起きたことを書いてください。</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s のバグ: &lt;簡単な説明&gt;</string>
+  <string name="bug_report_attach_line">次のファイルを添付してください: %1$s</string>
+  <string name="bug_report_copy_subject">件名をコピー</string>
+  <string name="bug_report_copy_path">ファイルパスをコピー</string>
+  <string name="bug_report_open_folder">フォルダを開く</string>
   <string name="bug_report_copy_address">アドレスをコピー</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">テキスト読み上げ</string>
@@ -736,6 +772,37 @@
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">次のアップデートまで閉じる</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ベータテスターの皆様への開発者からの特別なお知らせ (2026年11月)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 ベータ版へようこそ！これはAndBible史上最大の変更です。アプリ全体が新しいユーザーインターフェースツールキットで書き直され、その過程でインターフェースも再設計されました。すべての画面を見直し、刷新されたMaterial 3のデザインに加えて、ほとんどの画面で使いやすさが大きく向上しています。</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 ベータ版へようこそ！iOS版AndBible 1.0をお使いだった方にとって、これは大きな変更です。バージョン6.0はそれを置き換え、Android、iPhone、iPad、Apple Silicon搭載Mac、Windows、Linuxで動作する共通のAndBibleアプリになります。10年以上Androidユーザーに使われてきたコードをベースに、新しいユーザーインターフェースツールキットで書き直し、その過程でインターフェースも再設計されました。すべての画面を見直し、ほとんどの画面で使いやすさが大きく向上しています。</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 ベータ版、そしてWindowsとLinux版AndBibleへようこそ！これはAndBible初のデスクトップ版です。同じアプリが、Android、iPhone、iPad、Apple Silicon搭載Mac、Windows、Linuxで動作します。10年以上Androidユーザーに使われてきたコードをベースに、新しいユーザーインターフェースツールキットで書き直し、その過程でインターフェースも再設計されました。すべての画面を見直し、ほとんどの画面で使いやすさが大きく向上しています。</string>
+  <string name="beta_special_redesign">再設計されたインターフェース: より分かりやすいメニュー、設定、ダイアログ、より一貫したナビゲーション、そしてアプリ全体にわたる多くの細かな操作性の改善。</string>
+  <string name="beta_special_data_kept">機能、データ、設定はすべてそのまま残っています。</string>
+  <string name="beta_special_platforms">同じアプリが、Android、iPhone、iPad、Apple Silicon搭載Mac、Windows、Linuxで動作するようになりました。新しいプラットフォームもテスト中です。</string>
+  <string name="beta_special_additions_android">2つの小さな追加機能: WebDAV同期 (Google DriveやNextcloudに加えて、ご自身のサーバー、NAS、または任意のWebDAVサービスを利用可能)、そして、アップデート後に一度だけ自動的に再構築される新しい検索インデックスです。</string>
+  <string name="beta_special_one_app">すべてのデバイスで1つのアプリ: スマートフォン、タブレット、パソコンで同じ機能と操作性を提供します。</string>
+  <string name="beta_special_sync_ios">Nextcloud、WebDAV (ご自身のサーバー、NAS、または任意のWebDAVサービス)、またはiCloud Driveによるデバイス間の同期。</string>
+  <string name="beta_special_sync_desktop">NextcloudまたはWebDAV (ご自身のサーバー、NAS、または任意のWebDAVサービス) によるデバイス間の同期。</string>
+  <string name="beta_special_feedback">足りないものがある、以前と動作が違う、見つけにくくなった、といったことがあれば、意図的な変更であっても、ぜひお知らせください。</string>
+  <string name="beta_special_backup">テストの前にバックアップを取ることをおすすめします (メインメニュー → %s)。</string>
+  <string name="beta_special_beta_warning">これはベータ版です。すべてが完成している、または十分にテストされているわけではなく、バグが含まれている可能性があります。ご利用いただくことでベータテスターとなり、皆様のバグ報告が最終版の品質を高めます。</string>
+  <string name="beta_special_leave_beta_android">テストするつもりがなかった場合は、%sから退出して安定版に戻すことができます。</string>
+  <string name="beta_special_report">バグは %1$s (推奨) またはメインメニュー → %2$s から報告してください。</string>
+  <string name="beta_special_report_android">バグは %1$s (推奨)、Google Play、またはメインメニュー → %2$s から報告してください。</string>
+  <string name="beta_special_other_devices_title">他のデバイスでのAndBible</string>
+  <string name="beta_special_other_devices_intro">同じベータ版を、すべてのデバイスでご利用いただけます。</string>
+  <string name="beta_special_other_android">Android: %1$sに参加するか、%2$sの最新ベータリリースからAPKをダウンロードしてください。</string>
+  <string name="beta_special_play_beta_link">Google Playのベータプログラム</string>
+  <string name="beta_special_other_apple">iPhone、iPad、Apple Silicon搭載Mac: AppleのTestFlightアプリをインストールし、%sに参加してください。</string>
+  <string name="beta_special_testflight_link">AndBible公開ベータ</string>
+  <string name="beta_special_other_desktop">Windows (.msi) とLinux (.deb またはAppImage): %sの最新ベータリリースからダウンロードしてください。</string>
+  <string name="beta_special_installation_guide">手順は%sに記載されています。</string>
+  <string name="beta_special_installation_guide_link">インストールガイド</string>
+  <string name="beta_special_regards">どうぞよろしくお願いします。Tuomasより</string>
+  <string name="beta_special_sponsor">追伸: %sによって、AndBibleの開発を資金面で支援していただけます。</string>
+  <string name="beta_special_sponsor_link">開発時間のスポンサーになること</string>
   <string name="stable_notice_title">アプリケーションがアップグレードされました！</string>
   <string name="upgrade_video_message">このリリースの新機能を紹介した動画をご覧ください（%s）。</string>
   <string name="stable_notice_par1">%2$s の新バージョン %1$s が正常にインストールされました！</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">リポジトリと関連設定</string>
   <string name="db_bookmarks">ブックマーク、マイノート、ラベル、スタディパッド</string>
   <string name="synchronizing">同期中…</string>
+  <string name="notification_finished">完了</string>
   <string name="overrideBackup">このデバイスが同期していないデータベースがクラウドに見つかりました。 データベースには%sが含まれています。どうしますか？</string>
   <string name="reading_plans_content">読書プランとその進捗状況</string>
   <string name="bookmarks_contents">ブックマーク、ラベル、スタディパッド</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">レスポンスを受信しました</string>
   <string name="agent_log_saved">保存済み：%s</string>
   <string name="agent_log_done">完了：%s</string>
+  <string name="agent_activity_title">AIエージェント</string>
+  <string name="agent_activity_title_in">AIエージェント: %s</string>
+  <string name="agent_activity_waiting">許可を待っています</string>
+  <string name="agent_activity_waiting_for">許可を待っています: %s</string>
+  <string name="agent_activity_failed">AIエージェントが失敗しました</string>
+  <string name="agent_activity_attention_needed">AIエージェントの確認が必要です</string>
   <string name="agent_log_cancelled">キャンセルされました</string>
   <string name="agent_already_running">AIエージェントはすでに実行中です。完了するまでお待ちいただくか、停止してください。</string>
   <!--AI Agent Notifications-->
