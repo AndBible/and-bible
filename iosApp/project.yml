@@ -50,6 +50,8 @@ targets:
           ICLOUD_CONTAINER: iCloud.org.andbible.ios
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The product name differs per configuration (AndBibleDev / AndBible); the unit tests `@testable import iosApp`.
+        PRODUCT_MODULE_NAME: iosApp
         INFOPLIST_FILE: iosApp/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -157,9 +159,7 @@ targets:
   iosAppUnitTests:
     type: bundle.unit-test
     platform: iOS
-    sources:
-      - iosAppUnitTests
-      - iosApp/RecentCrashDiagnosticStore.swift
+    sources: [iosAppUnitTests]
     dependencies: [{target: iosApp}]
     settings:
       base:

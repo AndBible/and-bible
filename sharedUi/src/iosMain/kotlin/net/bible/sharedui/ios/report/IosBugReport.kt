@@ -84,14 +84,33 @@ internal class IosBugReport(
     companion object { const val RECIPIENT = net.bible.sharedui.host.report.BUG_REPORT_EMAIL }
 }
 
+/** File name of the attached MetricKit crash diagnostic (gzipped like the app log). */
+internal const val CRASH_DIAGNOSTIC_ATTACHMENT = "recent_crash_diagnostic.json.gz"
+
 private fun recentCrashDiagnostic(): Attachment? {
     val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first() as String
+    // Path shared with RecentCrashDiagnosticStore.swift (iosApp); keep both in step.
     return readCrashDiagnostic("$support/AndBible/recent-crash-diagnostic.json".toPath(), NSDate().timeIntervalSince1970)
 }
 
-internal fun readCrashDiagnostic(path: okio.Path, now: Double): Attachment? = runCatching {
+/**
+ * Reads the envelope `RecentCrashDiagnosticStore.swift` writes (`{"occurrence":<epoch seconds>,"payload":"<base64>"}`,
+ * produced by Swift's `JSONEncoder`: `Data` is base64 and `/` is escaped as `\/`, which the JSON parser undoes).
+ * Returns the payload gzipped, or null when there is nothing fresh and valid to attach; a read or parse failure is
+ * logged as a warning and treated the same way, so a damaged file never blocks the report.
+ * The checked-in sample `iosApp/test-fixtures/crash-envelope.json` pins the format on both sides.
+ */
+internal fun readCrashDiagnostic(path: okio.Path, now: Double): Attachment? = try {
+    parseCrashDiagnostic(path, now)
+} catch (e: Exception) {
+    net.bible.sharedcore.log.Log.w("IosBugReport", "Recent crash diagnostic could not be read", e)
+    null
+}
+
+private fun parseCrashDiagnostic(path: okio.Path, now: Double): Attachment? {
     if (!FileSystem.SYSTEM.exists(path)) return null
-    // Bound the encoded envelope before reading it; the payload itself is limited to 2 MiB.
+    // Bound the encoded envelope before reading it. The payload is capped at 2 MiB (maximumPayloadBytes in the Swift
+    // store); base64 makes that 2.67 MiB, escaped slashes add up to ~1.6 %, so 3 MiB covers the largest valid file.
     if ((FileSystem.SYSTEM.metadata(path).size ?: return null) > 3 * 1024 * 1024) return null
     val envelope = Json.parseToJsonElement(FileSystem.SYSTEM.read(path) { readUtf8() }).jsonObject
     val occurrence = envelope["occurrence"]?.jsonPrimitive?.doubleOrNull ?: return null
@@ -101,8 +120,8 @@ internal fun readCrashDiagnostic(path: okio.Path, now: Double): Attachment? = ru
     if (bytes.isEmpty() || bytes.size > 2 * 1024 * 1024) return null
     val crashArray = Json.parseToJsonElement(bytes.decodeToString())
     if (crashArray !is kotlinx.serialization.json.JsonArray || crashArray.isEmpty()) return null
-    Attachment("recent_crash_diagnostic.json", "application/json", bytes)
-}.getOrNull()
+    return Attachment(CRASH_DIAGNOSTIC_ATTACHMENT, "application/gzip", RawLlmLog.gzipCompress(bytes.decodeToString()))
+}
 
 internal fun device(): ReportDevice {
     val bundle = NSBundle.mainBundle
