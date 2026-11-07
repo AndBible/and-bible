@@ -35,20 +35,34 @@ object TestSqliteDurability {
         sqliteConnectionDecoratorForTest = { path, connection -> TestSqliteUseGuard.guard(path, decorate(path, connection)) }
     }
 
+    /** True when [path] lies under a registered directory and under no durable opt-out. */
     @Synchronized
-    private fun decorate(path: String, connection: SQLiteConnection): SQLiteConnection {
-        if (path == ":memory:") return connection
+    private fun isNonDurable(path: String): Boolean {
+        if (path == ":memory:") return false
         var parent = File(path).canonicalFile.parentFile
         var enabled = false
         while (parent != null) {
             val root = parent.path + File.separator
-            if (root in durableRoots) return connection
+            if (root in durableRoots) return false
             if (root in roots) enabled = true
             parent = parent.parentFile
         }
-        if (!enabled) return connection
+        return enabled
+    }
+
+    /** Not synchronized: the lock wait below must not block other tests' opens on this object's monitor. */
+    private fun decorate(path: String, connection: SQLiteConnection): SQLiteConnection {
+        if (!isNonDurable(path)) return connection
         try {
+            // `PRAGMA synchronous` reads the schema and so needs a SHARED lock, unlike `PRAGMA busy_timeout`. A fresh
+            // connection has no busy handler, so another connection's commit in that instant (in the app suite Room's
+            // invalidation-tracker refresh, a few microseconds after every Room write) failed this test-only open at
+            // once with "database is locked". Wait for such a holder here, then hand the caller the driver's own
+            // busy timeout unchanged, so lock behavior stays as in production.
+            val driverBusyTimeout = connection.queryLong("PRAGMA busy_timeout") ?: 0L
+            connection.execSQL("PRAGMA busy_timeout=$DECORATION_BUSY_TIMEOUT_MS")
             connection.execSQL("PRAGMA synchronous=OFF")
+            connection.execSQL("PRAGMA busy_timeout=$driverBusyTimeout")
         } catch (failure: Throwable) {
             connection.close()
             throw failure
@@ -62,6 +76,9 @@ object TestSqliteDurability {
             }
         }
     }
+
+    /** Bounds the wait for another connection's lock while decorating; a holder longer than this is a real hang. */
+    private const val DECORATION_BUSY_TIMEOUT_MS = 10_000
 
     private val SYNCHRONOUS_ASSIGNMENT = Regex(
         "\\s*PRAGMA\\s+synchronous\\s*=.*", RegexOption.IGNORE_CASE,
