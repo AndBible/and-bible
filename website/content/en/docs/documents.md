@@ -5,8 +5,6 @@
 *AndBible* supports various document modules: [Bibles](#bibles), [Commentaries](#commentaries), [Dictionaries](#dictionaries),
 [Books](#books), and [Maps](#maps). You can [Download Documents](#download-documents), [Backup and Restore](backup_restore.md)
 documents, and [Load Documents](#load-documents) from your device’s filesystem.
-Which files you can open in AndBible depends on the platform; see [Platform differences](platform_differences.md).
-
 ## Document Library
 
 The *Document Library* contains the list of all Bibles, commentaries, dictionaries,
@@ -168,6 +166,8 @@ running for a short while after you switch to another app.
 ## Load Documents
 
 To load a document from your device’s filesystem:
+
+On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
 
 1. Click on the top left main menu (☰).
 2. Click *Download documents*.

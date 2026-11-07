@@ -76,7 +76,7 @@ select it.
     - *Automatic* – on Android devices with a light sensor, switch based on
       ambient light. Enabling this mode starts monitoring immediately; no app
       restart is needed.
-    - *System* – follow the Android system dark mode setting (Android 10+).
+    - *System* – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
 - **Theme style:** Choose how the app's colors are derived from the
     workspace color. *Tonal spot (soft, keeps grey)* (default) gives soft
     tones and keeps grey and black workspace colors grey; *Tonal spot

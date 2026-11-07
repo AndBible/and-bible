@@ -124,7 +124,7 @@ def test_home_title_and_description_come_from_meta(content, tmp_path):
     build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
     assert "<title>AndBible: Free &amp; open source Bible study</title>" in html
-    assert "Android and iOS, no ads, no tracking." in html  # meta description
+    assert "Mac, Windows and Linux, with no ads and no tracking." in html  # meta description
     assert "Open source · No ads · No tracking" in html  # new eyebrow
 
 
@@ -329,3 +329,27 @@ def test_home_has_no_news_row_without_posts(content, tmp_path):
     out = tmp_path / "out"
     build(content, out, data=tmp_path / "data", docs=False)
     assert 'class="news"' not in (out / "index.html").read_text()
+
+
+def test_getapp_offers_every_platform(content, tmp_path):
+    stores = {s["name"]: s for s in strings(content, "en")["getapp"]["stores"]}
+    assert "Mac" in stores["App Store"]["note"]
+    release = "https://github.com/AndBible/and-bible/releases/latest"
+    assert stores["Windows"]["url"] == release and stores["Linux"]["url"] == release
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    bar = (out / "index.html").read_text().split('class="getapp__bar"')[1].split('class="phone"')[0]
+    assert "Windows" in bar and "Linux" in bar
+
+
+def test_meta_and_hero_name_every_platform(content):
+    en = strings(content, "en")
+    for text in (en["meta"]["description"], en["hero"]["lead"]):
+        for word in ("Windows", "Linux", "Mac", "Android"):
+            assert word in text, (word, text)
+        assert "iPhone" in text or "iPad" in text, text
+
+
+def test_sync_feature_is_not_android_only(content):
+    text = next(f["text"] for f in strings(content, "en")["features"] if f["title"] == "Sync")
+    assert "iCloud" in text or not any(n in text for n in ("Google Drive", "NextCloud", "Nextcloud"))
