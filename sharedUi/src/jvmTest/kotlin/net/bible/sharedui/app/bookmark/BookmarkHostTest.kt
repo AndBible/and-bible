@@ -74,7 +74,10 @@ class BookmarkHostTest {
         override fun setStyleTagsVisible(visible: Boolean) = Unit
     }
 
-    private fun host() = BookmarkHost(
+    private fun host(
+        destinations: net.bible.sharedcore.platform.files.DeliveryDestinations =
+            net.bible.sharedcore.platform.files.DeliveryDestinations.SHARE_AND_PHONE_STORAGE,
+    ) = BookmarkHost(
         shell = shell,
         strings = strings,
         icons = NoIcons,
@@ -98,6 +101,7 @@ class BookmarkHostTest {
         orderedLauncherProvider = { error("orderedLauncher must stay lazy") },
         userNotifierProvider = { error("userNotifier must stay lazy") },
         restored = null,
+        deliveryDestinations = { destinations },
     )
 
     private fun session(): ManageLabelsSession {
@@ -153,5 +157,22 @@ class BookmarkHostTest {
         runOnIdle { host.manageLabelsSession = "payload" to session() }
         waitForIdle()
         assertEquals(0, onAllNodesWithText(strings.studyPadsHelpText, substring = true).fetchSemanticsNodes().size)
+    }
+
+    // --- #4027: the export destination depends on what the platform offers ---
+
+    @Test
+    fun saveOnlyPlatformAnswersTheDestinationWithoutAsking() = kotlinx.coroutines.test.runTest {
+        val host = host(net.bible.sharedcore.platform.files.DeliveryDestinations.SAVE_ONLY)
+        assertEquals(net.bible.sharedcore.platform.files.SaveOrShare.SAVE, host.askDestination())
+        assertEquals(null, host.destinationRequest, "no sheet may be raised when there is nothing to choose")
+    }
+
+    @Test
+    fun saveRowIsLabelledPerPlatform() {
+        val d = net.bible.sharedcore.platform.files.DeliveryDestinations.entries.associateBy { it.name }
+        assertEquals(strings.backupPhoneStorage, host(d.getValue("SHARE_AND_PHONE_STORAGE")).saveDestinationLabel())
+        assertEquals(strings.backupSaveToFiles, host(d.getValue("SHARE_AND_FILES")).saveDestinationLabel())
+        assertEquals("Save to Files", strings.backupSaveToFiles)
     }
 }

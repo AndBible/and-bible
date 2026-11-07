@@ -174,6 +174,9 @@ class BookmarkHost(
     private val orderedLauncherProvider: () -> OrderedLauncher,
     private val userNotifierProvider: () -> UserNotifier,
     restored: BookmarkRecreationState?,
+    /** What the platform's file delivery offers; decides the label of the save row in the export sheet (#4027). */
+    private val deliveryDestinations: () -> net.bible.sharedcore.platform.files.DeliveryDestinations =
+        { net.bible.sharedcore.platform.files.DeliveryDestinations.SHARE_AND_PHONE_STORAGE },
 ) {
     private val appSettings: AppSettings by lazy(appSettingsProvider)
     private val bookmarksService: BookmarksServiceImpl by lazy(bookmarksServiceProvider)
@@ -1053,11 +1056,18 @@ class BookmarkHost(
      */
     internal var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
 
+    /** The save row's label: "Save to Files" on Apple platforms, "Phone storage" on Android. */
+    internal fun saveDestinationLabel(): String =
+        if (deliveryDestinations() == net.bible.sharedcore.platform.files.DeliveryDestinations.SHARE_AND_FILES)
+            strings.backupSaveToFiles else strings.backupPhoneStorage
+
     /**
      * Asks "save or share?" through the host-level sheet in [Overlays]. Also the chooser of the My Documents page
      * export, which still lives in the activity.
      */
     suspend fun askDestination(): SaveOrShare? {
+        // A platform with only a save dialog has nothing to ask (#4027); the sheet below is never raised there.
+        if (deliveryDestinations() == net.bible.sharedcore.platform.files.DeliveryDestinations.SAVE_ONLY) return SaveOrShare.SAVE
         val deferred = CompletableDeferred<SaveOrShare?>()
         destinationRequest = deferred
         return try { deferred.await() } finally { destinationRequest = null }
@@ -1296,7 +1306,7 @@ class BookmarkHost(
                     icon = { icons.ShareIcon() },
                 )
                 AbActionSheetRow(
-                    label = strings.backupPhoneStorage,
+                    label = saveDestinationLabel(),
                     onClick = { req.complete(SaveOrShare.SAVE) },
                     icon = { icons.SaveIcon() },
                 )

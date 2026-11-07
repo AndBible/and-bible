@@ -115,6 +115,10 @@ class IosFilePickerTest {
         } finally { FileSystem.SYSTEM.delete(path, mustExist = false) }
     }
 
+    @Test fun iosOffersShareAndFiles() {
+        assertEquals(DeliveryDestinations.SHARE_AND_FILES, IosFileDelivery { null }.destinations)
+    }
+
     @Test fun missingDeliveryFailsWithoutPresentation() = runOnMainRunLoop<Unit> {
         var presenterCalls = 0
         val result = IosFileDelivery { presenterCalls++; null }.deliver(

@@ -102,6 +102,7 @@ internal class StubCoreStrings : CoreStrings {
     override fun databaseTitle(dbFileName: String): String = dbFileName
     override val share = "share"
     override val backupPhoneStorage = "backupPhoneStorage"
+    override val backupSaveToFiles = "backupSaveToFiles"
     override val sendBackupFile = "sendBackupFile"
     override val backupBackupTitle = "backupBackupTitle"
     override val backupBackupMessage = "backupBackupMessage"

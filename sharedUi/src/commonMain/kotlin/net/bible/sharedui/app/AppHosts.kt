@@ -217,6 +217,7 @@ class AppHosts(
             orderedLauncherProvider = { koin.get<OrderedLauncher>() },
             userNotifierProvider = { koin.get<UserNotifier>() },
             restored = current.bookmarks,
+            deliveryDestinations = { ports.backupHost.destinations },
         )
     }
 

@@ -192,6 +192,7 @@ class KeyedStringsTest {
         assertText("syncDisabling", core.syncDisabling("x"))
         assertText("share", core.share, filled = false)
         assertText("backupPhoneStorage", core.backupPhoneStorage, filled = false)
+        assertText("backupSaveToFiles", core.backupSaveToFiles, filled = false)
         assertText("sendBackupFile", core.sendBackupFile, filled = false)
         assertText("backupBackupTitle", core.backupBackupTitle, filled = false)
         assertText("backupBackupMessage", core.backupBackupMessage, filled = false)

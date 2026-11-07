@@ -147,6 +147,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     })
     override val share: String get() = t.text("share")
     override val backupPhoneStorage: String get() = t.text("backup_phone_storage")
+    override val backupSaveToFiles: String get() = t.text("backup_save_to_files")
     override val sendBackupFile: String get() = t.text("send_backup_file")
     override val backupBackupTitle: String get() = t.text("backup_backup_title")
     override val backupBackupMessage: String get() = t.text("backup_backup_message")

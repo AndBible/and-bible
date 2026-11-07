@@ -21,6 +21,9 @@ import platform.Foundation.setValue
 import platform.UIKit.*
 
 class IosFileDelivery(private val presenter: () -> UIViewController? = IosPresenter::topViewController) : FileDelivery {
+    /** The share sheet, or the Files app (a document picker); not "phone storage" (#4027). */
+    override val destinations: DeliveryDestinations = DeliveryDestinations.SHARE_AND_FILES
+
     override suspend fun deliver(
         file: String, fileName: String, mode: SaveOrShare, shareMimeType: String, saveMimeType: String,
         subject: String?, message: String?, chooserTitle: String,

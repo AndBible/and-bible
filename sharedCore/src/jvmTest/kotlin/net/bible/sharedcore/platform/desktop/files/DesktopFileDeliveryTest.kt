@@ -11,6 +11,15 @@ import kotlin.test.assertFalse
 
 class DesktopFileDeliveryTest {
     @Test
+    fun desktopOffersOnlyTheSaveDialog() {
+        val chooser = object : FileChooserBackend {
+            override suspend fun open(filters: List<FileFilter>, multiple: Boolean, directory: Boolean): List<Path>? = null
+            override suspend fun save(suggestedName: String, filters: List<FileFilter>): Path? = null
+        }
+        assertEquals(net.bible.sharedcore.platform.files.DeliveryDestinations.SAVE_ONLY, DesktopFileDelivery(chooser).destinations)
+    }
+
+    @Test
     fun cancelReturnsCancelled() = runTest {
         val source = Files.createTempFile("delivery-test", ".abk")
         val chooser = object : FileChooserBackend {

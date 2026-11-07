@@ -771,6 +771,7 @@
     <string name="backup_backup_title">Backup to where?</string>
     <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
     <string name="backup_phone_storage">Phone storage</string>
+    <string name="backup_save_to_files">Save to Files</string>
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
     <string name="backup_app2">Backup app (.apk file) to …</string>
