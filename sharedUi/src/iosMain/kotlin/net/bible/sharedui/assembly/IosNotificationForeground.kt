@@ -35,10 +35,14 @@ internal fun isIosNotificationForeground(): Boolean {
     }
 }
 
-internal class IosNotificationForegroundObserver(onChanged: () -> Unit) {
+internal fun interface IosForegroundObserverFactory {
+    fun observe(onChanged: () -> Unit): AutoCloseable
+}
+
+internal class IosNotificationForegroundObserver(onChanged: () -> Unit) : AutoCloseable {
     private val center = NSNotificationCenter.defaultCenter
     private val closed = atomic(false)
-    internal val observers = listOf(
+    private val observers = listOf(
         UIApplicationDidBecomeActiveNotification,
         UIApplicationWillResignActiveNotification,
         UIApplicationDidEnterBackgroundNotification,
@@ -53,7 +57,7 @@ internal class IosNotificationForegroundObserver(onChanged: () -> Unit) {
         dispatch_async(dispatch_get_main_queue()) { if (!closed.value) onChanged() }
     } }
 
-    fun close() {
+    override fun close() {
         closed.value = true
         observers.forEach { center.removeObserver(it) }
     }

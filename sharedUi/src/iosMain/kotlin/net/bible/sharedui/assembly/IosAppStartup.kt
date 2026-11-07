@@ -208,7 +208,7 @@ object IosAppStartup {
                                     single { net.bible.service.cloudsync.CloudSyncNamespace(value) }
                                 }
                             }
-                            listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()) + extraModules, p))
+                            listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()), p)) + extraModules
                         },
                         reportJSwordError = { ev -> reportJSwordError(p, ev) },
                         isSwordLoaded = { HostSwordEnvironment.isLoaded },

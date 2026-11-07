@@ -24,6 +24,7 @@ internal class IosNotificationRuntime(
     notifier: NativeNotifier,
     requests: ActivityListRequests,
     preference: SystemNotificationsPreference,
+    observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory(::IosNotificationForegroundObserver),
     finishedText: () -> String,
 ) {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -38,14 +39,14 @@ internal class IosNotificationRuntime(
         scope = scope,
         finishedText = finishedText,
     )
-    internal val observer: IosNotificationForegroundObserver
+    private val observer: AutoCloseable
 
     init {
         notifier.setOnActivated { if (!closed.value) requests.request() }
-        var installed: IosNotificationForegroundObserver? = null
+        var installed: AutoCloseable? = null
         onMainSync {
             active.value = isIosNotificationForeground()
-            installed = IosNotificationForegroundObserver {
+            installed = observerFactory.observe {
                 if (!closed.value) {
                     active.value = isIosNotificationForeground()
                     policy.onForegroundChanged(active.value)

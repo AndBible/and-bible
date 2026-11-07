@@ -50,7 +50,7 @@ internal object SystemUserNotificationCenter : UserNotificationCenterApi {
 
 @kotlin.native.HiddenFromObjC
 internal class IosNativeNotifier(
-    private val center: UserNotificationCenterApi = SystemUserNotificationCenter,
+    internal val center: UserNotificationCenterApi = SystemUserNotificationCenter,
     private val activations: IosNotificationActivations = IosNotificationBootstrap.activations,
 ) : NativeNotifier {
     override val supportsProgress = false

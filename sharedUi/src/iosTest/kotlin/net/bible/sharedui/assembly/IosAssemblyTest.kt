@@ -48,6 +48,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -123,9 +124,9 @@ class IosAssemblyTest {
         }
     }
 
-    private fun startApp(language: String? = "en") {
+    private fun startApp(language: String? = "en", extra: List<org.koin.core.module.Module> = emptyList()) {
         ownsAppGraph = true
-        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language), listOf(iosTestNotificationModule())) }
+        awaitStartupOnMain { IosAppStartup.ensureStarted(config(language), listOf(iosTestNotificationModule()) + extra) }
     }
 
     @Test fun concurrentForegroundAndBackgroundJoinRealStartupOffMain() {
@@ -276,6 +277,8 @@ class IosAssemblyTest {
         awaitStartupOnMain {
             IosAppStartup.ensureStarted(config(), extraModules = listOf(iosTestNotificationModule(), org.koin.dsl.module {
                 single<StartupMessageProbe>(createdAtStart = true) {
+                    val notifier = get<net.bible.sharedcore.platform.NativeNotifier>() as IosNativeNotifier
+                    assertSame(IosTestNotificationCenter, notifier.center, "startup graph must use the test notification center")
                     net.bible.android.control.event.UserMessages.errorNotification("early sync failure", false)
                     StartupMessageProbe()
                 }
@@ -556,21 +559,28 @@ class IosAssemblyTest {
 
     @Test
     fun closingKoinCancelsNotificationScopeAndDetachesActivation() {
-        startApp()
+        var registered = 0
+        var removed = 0
+        val observerModule = org.koin.dsl.module {
+            single<IosForegroundObserverFactory> {
+                IosForegroundObserverFactory { _ ->
+                    registered++
+                    AutoCloseable { removed++ }
+                }
+            }
+        }
+        startApp(extra = listOf(observerModule))
         val runtime = KoinPlatform.getKoin().get<IosNotificationRuntime>()
         val job = assertNotNull(runtime.scope.coroutineContext[kotlinx.coroutines.Job])
         awaitStartupOnMain {
             assertTrue(job.isActive)
             assertNotNull(IosNotificationBootstrap.activations.handler)
-            val observerDescriptions = runtime.observer.observers.map { it.toString() }
-            val center = platform.Foundation.NSNotificationCenter.defaultCenter
-            val before = assertNotNull(center.debugDescription())
-            assertTrue(observerDescriptions.all { it in before }, "observers must be registered before graph close")
+            assertEquals(1, registered)
+            assertEquals(0, removed)
             IosAppStartup.resetForTest()
             assertFalse(job.isActive)
             assertNull(IosNotificationBootstrap.activations.handler)
-            val after = assertNotNull(center.debugDescription())
-            assertTrue(observerDescriptions.none { it in after }, "graph close must unregister notification observers")
+            assertEquals(1, removed, "graph close must unregister the notification observer")
         }
         ownsAppGraph = false
     }
@@ -639,6 +649,7 @@ class IosAssemblyTest {
             net.bible.android.control.activity.SystemNotificationsPreference::class,
             net.bible.android.control.activity.NativeNotificationPolicy::class,
             IosNotificationRuntime::class,
+            IosForegroundObserverFactory::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */
