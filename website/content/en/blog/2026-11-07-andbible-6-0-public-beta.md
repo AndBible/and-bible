@@ -75,7 +75,13 @@ work the same way wherever you open them.
 - **Reading plans** are now included in synchronization.
 - **Search:** *Find all occurrences* no longer opens a separate full-screen results page.
 
-![AndBible 6.0 on Linux: the King James Version with Strong's numbers beside a Greek dictionary entry](/media/blog/2026/11/6-0-beta-linux-desktop.webp)
+<div class="gallery gallery--narrow" markdown>
+
+![A formatted note on a bookmark, on an Android phone](/media/blog/2026/11/6-0-beta-phone-note.webp)
+
+![Bookmarks with labels on an Android phone](/media/blog/2026/11/6-0-beta-phone-bookmarks.webp)
+
+</div>
 
 <div class="gallery" markdown>
 
@@ -85,13 +91,7 @@ work the same way wherever you open them.
 
 </div>
 
-<div class="gallery gallery--narrow" markdown>
-
-![A formatted note on a bookmark, on an Android phone](/media/blog/2026/11/6-0-beta-phone-note.webp)
-
-![Bookmarks with labels on an Android phone](/media/blog/2026/11/6-0-beta-phone-bookmarks.webp)
-
-</div>
+![AndBible 6.0 on Linux: the King James Version with Strong's numbers beside a Greek dictionary entry](/media/blog/2026/11/6-0-beta-linux-desktop.webp)
 
 There are many more fixes and improvements. The full list is on the
 [Release 6.0](/docs/releases/release_6_0/) page.
