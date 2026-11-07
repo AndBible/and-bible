@@ -9,6 +9,7 @@ struct iOSApp: App {
         // The #3980 characterization fixture runs without any app bootstrap.
         if WebKitChordProbe.isRequested { return }
         #endif
+        RecentCrashDiagnosticStore.shared.start()
         // macOS 26 shows an iOS app's NSLog text as <private>; log the app's own lines publicly instead
         // (Console.app / `log show --predicate 'subsystem == "org.andbible.ios"'`).
         IosPlatformBootstrap.shared.installLogSink { appLog($0) }

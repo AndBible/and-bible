@@ -8,6 +8,14 @@ import net.bible.sharedcore.log.iosRecentLogSnapshot
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.ios.startup.IosCrashTracker
 import net.bible.sharedui.strings.keyed.StringTable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
+import okio.ByteString.Companion.decodeBase64
+import platform.Foundation.NSApplicationSupportDirectory
+import platform.Foundation.NSUserDomainMask
+import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import platform.Foundation.NSBundle
@@ -37,6 +45,7 @@ internal class IosBugReport(
     private val confirm: suspend (Boolean) -> Boolean = { ai -> confirmReport(table, ai) },
     private val send: suspend (String, String, String, List<Attachment>) -> Unit = IosMailOrShare()::send,
     private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
+    private val crashDiagnostic: () -> Attachment? = ::recentCrashDiagnostic,
 ) {
     /** [extraAttachments] are sent after the app log, e.g. the legacy migration report. */
     suspend fun report(cause: Throwable? = null, extraAttachments: List<Attachment> = emptyList()) = reportSafely(failure) {
@@ -44,7 +53,9 @@ internal class IosBugReport(
         val (body, attachments) = withContext(Dispatchers.Default) {
             val details = details(cause)
             val log = iosRecentLogSnapshot()
-            (table.text("report_bug_line_1") + "\n\n" + details) to reportAttachments(RawLlmLog.gzipCompress(log), extraAttachments)
+            val crash = crashDiagnostic()
+            (table.text("report_bug_line_1") + "\n\n" + details) to reportAttachments(
+                RawLlmLog.gzipCompress(log), extraAttachments + listOfNotNull(crash))
         }
         send(RECIPIENT, "Bug Report v${device().version}", body, attachments)
     }
@@ -72,6 +83,26 @@ internal class IosBugReport(
 
     companion object { const val RECIPIENT = net.bible.sharedui.host.report.BUG_REPORT_EMAIL }
 }
+
+private fun recentCrashDiagnostic(): Attachment? {
+    val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first() as String
+    return readCrashDiagnostic("$support/AndBible/recent-crash-diagnostic.json".toPath(), NSDate().timeIntervalSince1970)
+}
+
+internal fun readCrashDiagnostic(path: okio.Path, now: Double): Attachment? = runCatching {
+    if (!FileSystem.SYSTEM.exists(path)) return null
+    // Bound the encoded envelope before reading it; the payload itself is limited to 2 MiB.
+    if ((FileSystem.SYSTEM.metadata(path).size ?: return null) > 3 * 1024 * 1024) return null
+    val envelope = Json.parseToJsonElement(FileSystem.SYSTEM.read(path) { readUtf8() }).jsonObject
+    val occurrence = envelope["occurrence"]?.jsonPrimitive?.doubleOrNull ?: return null
+    val age = now - occurrence
+    if (age < 0 || age > 86400) return null
+    val bytes = envelope["payload"]?.jsonPrimitive?.content?.decodeBase64()?.toByteArray() ?: return null
+    if (bytes.isEmpty() || bytes.size > 2 * 1024 * 1024) return null
+    val crashArray = Json.parseToJsonElement(bytes.decodeToString())
+    if (crashArray !is kotlinx.serialization.json.JsonArray || crashArray.isEmpty()) return null
+    Attachment("recent_crash_diagnostic.json", "application/json", bytes)
+}.getOrNull()
 
 internal fun device(): ReportDevice {
     val bundle = NSBundle.mainBundle

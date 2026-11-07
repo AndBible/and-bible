@@ -4,6 +4,7 @@ package net.bible.sharedui.ios.report
 
 import kotlinx.coroutines.*
 import net.bible.sharedui.assembly.hostStringTable
+import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import platform.Foundation.*
@@ -46,6 +47,35 @@ class IosReportLifecycleTest {
         report.ai("model", "details", byteArrayOf(1), true)
         assertEquals(0, sends)
         assertEquals(before, staged())
+    }
+
+    @Test fun swiftEnvelopeIsAttachedOnlyWhenFreshAndValid() = awaitOnMain {
+        val path = (NSTemporaryDirectory() + NSUUID().UUIDString).toPath()
+        val fs = FileSystem.SYSTEM
+        val now = 2_000_000.0
+        suspend fun report(envelope: String, confirmed: Boolean = true): List<Attachment>? {
+            fs.write(path) { writeUtf8(envelope) }
+            var sent: List<Attachment>? = null
+            IosBugReport(hostStringTable("en"), confirm = { confirmed },
+                send = { _, _, _, attachments -> sent = attachments },
+                failure = { throw it }, crashDiagnostic = { readCrashDiagnostic(path, now) }).report()
+            return sent
+        }
+        try {
+            // JSONEncoder encodes Swift Data as base64; this is the array [{"x":1}].
+            fun envelope(time: Double, payload: String) = """{"occurrence":$time,"payload":"$payload"}"""
+            val sent = assertNotNull(report(envelope(now - 1, "W3sieCI6MX1d")))
+            val attachment = sent.single { it.name == "recent_crash_diagnostic.json" }
+            assertEquals("application/json", attachment.mime)
+            assertEquals("[{\"x\":1}]", attachment.bytes.decodeToString())
+            for (invalid in listOf(envelope(now - 86401, "W3sieCI6MX1d"), envelope(now + 1, "W3sieCI6MX1d"),
+                "not json", envelope(now, "bad!"), envelope(now, ""))) {
+                assertTrue(assertNotNull(report(invalid)).none { it.name == "recent_crash_diagnostic.json" })
+            }
+            val oversized = ByteArray(2 * 1024 * 1024 + 1).toByteString().base64()
+            assertTrue(assertNotNull(report(envelope(now, oversized))).none { it.name == "recent_crash_diagnostic.json" })
+            assertNull(report(envelope(now, "W3sieCI6MX1d"), confirmed = false))
+        } finally { fs.delete(path, mustExist = false) }
     }
 
     @Test fun emptyAiLogNeverAsksConfirmation() = awaitOnMain {
