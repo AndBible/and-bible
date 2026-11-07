@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -24,7 +25,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.app.notice.BetaNotice
+import net.bible.sharedui.app.notice.BetaNoticePlatform
 import net.bible.sharedui.components.AbNoticeDialog
+import net.bible.sharedui.strings.AndroidStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -127,4 +131,30 @@ class AbNoticeDialogGoldenTest {
                 logoPainter = StandInLogo, moneyPainter = StandInMoney,
             )
         }
+
+    /**
+     * The real beta notice ([BetaNotice.request], the shared builder Android, iOS and desktop use), with a fixed
+     * version so the golden does not move on a version bump. Android in every mode; the iOS and desktop wordings
+     * differ only in text, so one light capture each.
+     */
+    @Composable
+    private fun BetaNoticeDialog(platform: BetaNoticePlatform) {
+        val strings = AndroidStrings(androidx.test.core.app.ApplicationProvider.getApplicationContext())
+        val request = BetaNotice.request(platform, strings, "6.0.1254-beta")
+        AbNoticeDialog(
+            title = request.title, showTitleLogo = request.showTitleLogo, blocks = request.blocks,
+            confirmText = request.confirmText, onConfirm = {}, onDismissRequest = {},
+            dismissText = request.dismissText, neutralText = request.neutralText, onNeutral = {},
+            logoPainter = StandInLogo, moneyPainter = StandInMoney,
+        )
+    }
+
+    @Test fun betaNoticeAndroid_matrix() =
+        captureMatrix("AbNoticeDialog", "betaNoticeAndroid") { BetaNoticeDialog(BetaNoticePlatform.ANDROID) }
+
+    @Test fun betaNoticeIos() =
+        captureGolden("AbNoticeDialog", "betaNoticeIos", EDGE_MODE) { BetaNoticeDialog(BetaNoticePlatform.IOS) }
+
+    @Test fun betaNoticeDesktop() =
+        captureGolden("AbNoticeDialog", "betaNoticeDesktop", EDGE_MODE) { BetaNoticeDialog(BetaNoticePlatform.DESKTOP) }
 }

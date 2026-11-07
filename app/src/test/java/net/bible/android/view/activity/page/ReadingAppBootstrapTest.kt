@@ -36,6 +36,8 @@ import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.app.notice.BetaNotice
+import net.bible.sharedui.app.notice.BetaNoticePlatform
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -603,24 +605,30 @@ class ReadingAppBootstrapTest {
     /**
      * `CommonUtils.isBeta` is `true` under every Robolectric unit test (measured:
      * `application.applicationInfo` carries `FLAG_DEBUGGABLE` on the `standardGoogleplayDebug` test
-     * variant, and `isBeta` is `... || isDebugMode`) -- so [showBetaNotice]'s guard passes and
-     * [showStableNotice]'s does not, in every test below that does not call this first. Flipping the
-     * flag off also clears the OTHER two `isBeta` disjuncts for this build (`applicationVersionName`
-     * doesn't end in `-beta`/`-alpha`, and the package name doesn't end in `.next`), so it reliably
-     * forces `isBeta` to `false` -- restored in `finally` so it never bleeds into another test.
+     * variant, and `isBeta` is `... || isDebugMode`), and also because `version.properties` gives 6.0
+     * builds a `-beta` `versionNameSuffix` -- so [showBetaNotice]'s guard passes and
+     * [showStableNotice]'s does not, in every test below that does not call this first.
+     *
+     * This forces a non-beta build whatever the file's suffix: it clears the debuggable flag AND
+     * strips a `-beta`/`-alpha` suffix from the installed package's `versionName` (the package name
+     * does not end in `.next` in this variant, the third disjunct). Both are restored in `finally`
+     * so they never bleed into another test.
      */
-    private suspend fun withDebuggableFlag(debuggable: Boolean, block: suspend () -> Unit) {
-        val info = ApplicationProvider.getApplicationContext<android.app.Application>().applicationInfo
-        val original = info.flags
-        info.flags = if (debuggable) {
-            original or android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
-        } else {
-            original and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE.inv()
-        }
+    private suspend fun withNonBetaBuild(block: suspend () -> Unit) {
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val info = app.applicationInfo
+        val originalFlags = info.flags
+        val packageInfo = org.robolectric.Shadows.shadowOf(app.packageManager)
+            .getInternalMutablePackageInfo(app.packageName)
+        val originalVersionName = packageInfo.versionName
+        info.flags = originalFlags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE.inv()
+        packageInfo.versionName = originalVersionName?.removeSuffix("-beta")?.removeSuffix("-alpha")
         try {
+            assertFalse("test precondition: isBeta must be false here", CommonUtils.isBeta)
             block()
         } finally {
-            info.flags = original
+            info.flags = originalFlags
+            packageInfo.versionName = originalVersionName
         }
     }
 
@@ -639,7 +647,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun showStableNoticeSkipsWithNoDialogWhenAlreadyDisplayedForThisVersion() = runTest(timeout = 30.seconds) {
-        withDebuggableFlag(false) {
+        withNonBetaBuild {
             CommonUtils.settings.setString("stable-notice-displayed", CommonUtils.mainVersion)
             val controller = navHostOnReading()
             try {
@@ -655,7 +663,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun showStableNoticeRaisesTodaysBlocksAndPersistsOnDismissUntilUpdate() = runTest(timeout = 30.seconds) {
-        withDebuggableFlag(false) {
+        withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
             val controller = navHostOnReading()
             try {
@@ -702,7 +710,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun showStableNoticeNeutralDismissReturnsFalseAndDoesNotPersist() = runTest(timeout = 30.seconds) {
-        withDebuggableFlag(false) {
+        withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
             val controller = navHostOnReading()
             try {
@@ -724,7 +732,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun showBetaNoticeSkipsWithNoDialogWhenNotBeta() = runTest(timeout = 30.seconds) {
-        withDebuggableFlag(false) {
+        withNonBetaBuild {
             val controller = navHostOnReading()
             try {
                 val activity = controller.create().get()
@@ -739,7 +747,7 @@ class ReadingAppBootstrapTest {
     /** Fix batch 6 A6 (surfaces 1, 3): discrete by PREFERENCE only (standard flavor) -- no real name, no body logo. */
     @Test
     fun showStableNoticeFollowsTheDiscretePreferenceNotTheFlavor() = runTest(timeout = 30.seconds) {
-        withDebuggableFlag(false) {
+        withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
             CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
             val controller = navHostOnReading()
@@ -785,9 +793,9 @@ class ReadingAppBootstrapTest {
     }
 
     @Test
-    fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnouncedAtVersion4() = runTest(timeout = 30.seconds) {
+    fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnouncedAtVersion5() = runTest(timeout = 30.seconds) {
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
-        CommonUtils.settings.setInt("beta-notice-displayed2", 4)
+        CommonUtils.settings.setInt("beta-notice-displayed2", 5)
         val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
@@ -800,9 +808,9 @@ class ReadingAppBootstrapTest {
     }
 
     @Test
-    fun showBetaNoticeShowsAgainForTestersWhoDismissedVersion3() = runTest(timeout = 30.seconds) {
+    fun showBetaNoticeShowsAgainForTestersWhoDismissedVersion4() = runTest(timeout = 30.seconds) {
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
-        CommonUtils.settings.setInt("beta-notice-displayed2", 3)
+        CommonUtils.settings.setInt("beta-notice-displayed2", 4)
         val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
@@ -837,6 +845,9 @@ class ReadingAppBootstrapTest {
             assertTrue("carries the 6.0 text", body.contains("Welcome to the AndBible 6.0 beta!"))
             assertTrue("carries the issues link", body.contains("https://github.com/AndBible/and-bible/issues/new/choose"))
             assertTrue("carries the sponsor link", body.contains(buyDevelopmentLink))
+            assertTrue("Android wording", body.contains(BetaNotice.specialNoticeHtml(BetaNoticePlatform.ANDROID, net.bible.sharedui.strings.AndroidStrings(activity))))
+            assertTrue("carries the installation guide", body.contains(BetaNotice.INSTALLATION_GUIDE_LINK))
+            assertTrue("carries the version", body.contains(CommonUtils.applicationVersionName))
             assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
             assertEquals(activity.getString(R.string.dismiss), request.neutralText)
             assertNull(request.dismissText)
@@ -846,7 +857,7 @@ class ReadingAppBootstrapTest {
 
             assertTrue(done.isCompleted)
             assertTrue(done.await())
-            assertEquals(4, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
+            assertEquals(5, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
         } finally {
             controller.close()
             CommonUtils.settings.setInt("beta-notice-displayed2", null)

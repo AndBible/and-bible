@@ -21,6 +21,9 @@ import android.Manifest
 import android.content.Context
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.app.notice.BetaNotice
+import net.bible.sharedui.app.notice.BetaNoticePlatform
+import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -387,75 +390,20 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         }
     }
 
-    /** Ported the same way as [showStableNotice] -- see its kdoc. */
+    /**
+     * The beta notice, built and gated by the shared [BetaNotice] (the same source as iOS): a beta build, not
+     * discrete, and [BetaNotice.ANNOUNCE_VERSION] not dismissed with "Dismiss until next update" yet.
+     */
     internal suspend fun showBetaNotice(): Boolean {
-        if (!shouldShowBetaNotice(CommonUtils.isBeta, CommonUtils.isDiscrete)) return false
-
-        val announceVersion = 4
-        val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
-        if (displayedVer >= announceVersion) return false
-
-        val par1 = host.getString(R.string.beta_notice_content_1)
-        val par2 = host.getString(R.string.beta_notice_content_2,
-             " <a href=\"https://github.com/AndBible/and-bible/issues\">"
-                + "${host.getString(R.string.beta_notice_github_issues)}</a>"
+        return BetaNotice.showIfNeeded(
+            platform = BetaNoticePlatform.ANDROID,
+            isBeta = CommonUtils.isBeta,
+            discrete = CommonUtils.isDiscrete,
+            settings = preferences,
+            strings = AndroidStrings(host),
+            version = CommonUtils.applicationVersionName,
+            ask = appDialogs::await,
         )
-        val par3 = host.getString(R.string.beta_notice_content_3,
-            " <a href=\"https://github.com/AndBible/and-bible\">"
-                + "${host.getString(R.string.beta_notice_github)}</a>"
-
-        )
-        val extraMessage = """
-            |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (November 2026)</b><br><br>
-            |Welcome to the AndBible 6.0 beta! This is the biggest change in AndBible's history.
-            | The whole app has been rewritten with a new user interface toolkit (Jetpack Compose),
-            | and the interface has been redesigned along the way: every screen was reviewed, and
-            | most of them got significant usability improvements on top of the refreshed
-            | Material 3 look.<br>
-            |<br>
-            |• <b>A redesigned interface</b>: clearer menus, settings and dialogs, more consistent
-            | navigation, and many small workflow improvements throughout the app. Your features,
-            | data and settings are all still there.<br>
-            |• <b>The same code now also runs AndBible on iOS and on desktop</b> (Linux, Windows,
-            | macOS), which are in testing too.<br>
-            |• Two smaller additions: <b>WebDAV synchronisation</b> (your own server, a NAS or any
-            | WebDAV service, besides Google Drive and Nextcloud), and a new search index that is
-            | rebuilt once, automatically, after the update.<br>
-            |<br>
-            |Because so much has changed, please be on the lookout for anything that behaves
-            | differently from 5.x: missing options, screens that look wrong in dark, light or
-            | monochrome mode, or data that does not look right after the update. Feedback on the
-            | new design is just as welcome as bug reports: if something got harder to find or use,
-            | please tell us. Making a backup before testing is a good idea
-            | (Main Menu &rarr; Backup &amp; Restore).<br>
-            |<br>
-            |Please report bugs via
-            |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
-            | or Main Menu &rarr; Report a bug.<br>
-            |<br>
-            |Best regards, Tuomas<br><br>
-            |P.S. You can support AndBible development financially by
-            |<a href="$buyDevelopmentLink">sponsoring development hours</a>.
-            | <br><br>
-            | (Standard beta notice below)
-        """.trimMargin()
-        val htmlMessage = "$extraMessage<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${host.getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
-
-        val result = appDialogs.await(
-            AppDialogRequest.Notice(
-                title = host.getString(R.string.beta_notice_title),
-                showTitleLogo = true,
-                blocks = listOf(AppDialogRequest.NoticeBlock.Html(htmlMessage)),
-                confirmText = host.getString(R.string.beta_notice_dismiss_until_update),
-                neutralText = host.getString(R.string.dismiss),
-            ),
-        )
-        return if (result == AppDialogResult.Ok) {
-            preferences.setInt("beta-notice-displayed2", announceVersion)
-            true
-        } else {
-            false
-        }
     }
 
     // ——— §2.3 row 4: the deep link ———————————————————————————————————————————————————————————————
@@ -691,7 +639,8 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  * Fix batch 6 A6 (surface 4): the beta notice is English-only and links github.com/AndBible, so it is
  * never shown when [discrete] (the maintainer's decision, spec §0).
  */
-internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean = isBeta && !discrete
+internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean =
+    BetaNotice.shouldShow(isBeta, discrete, dismissedVersion = 0)
 
 /**
  * Most recent touch time among the attached BibleViews. With none attached (e.g. the sync settings

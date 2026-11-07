@@ -34,6 +34,8 @@ import kotlin.native.Platform
  * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
  * - `-clearLegacySeed`: [clearLegacySeed], undoes the seed so other suites do not inherit it.
  * - `-seedInterruptedInstall <initials>@<repository>`: [seedInterruptedInstall] (#3973 next-launch report).
+ * - `-betaBuild`: a simulator or debug run counts as a beta build (beta notice, beta features); read by
+ *   `IosBetaBuild` in `:sharedCore`, not here.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  * - `-seedPageAssets` / `-probePageAssets` / `-clearPageAssets`: page asset route fixture and probe (#3918), see `IosPageAssetsDebugSeed`.
  *   `-openDocument` may then name a non-Bible book (the EPUB): `-openRef` is looked up in that book, else its first key.

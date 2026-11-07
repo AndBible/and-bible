@@ -46,6 +46,12 @@ import org.koin.core.Koin
  */
 @kotlin.native.HiddenFromObjC
 interface AppHostPlatform {
+    /**
+     * Whose wording the startup beta notice uses (`BetaNotice`); null shows none. It is shown only when the app
+     * environment says the build is beta.
+     */
+    val betaNoticePlatform: net.bible.sharedui.app.notice.BetaNoticePlatform? get() = null
+
     /** Debug launch arguments (iOS: `IosDebugLaunchArgs`). */
     val debugArgs: HostDebugArgs
 

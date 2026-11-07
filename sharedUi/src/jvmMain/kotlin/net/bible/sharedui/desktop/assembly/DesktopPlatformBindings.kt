@@ -206,7 +206,10 @@ fun desktopPlatformModule(
         single { DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)) }
         single<DeviceLocalPrefs> { get<DesktopDeviceSettings>() }
         single {
-            DesktopAppEnvironment(paths, get<SecretStore>(), get<DesktopDeviceSettings>(), initialized = { ReadingAppInit.initialized })
+            DesktopAppEnvironment(
+                paths, get<SecretStore>(), get<DesktopDeviceSettings>(), initialized = { ReadingAppInit.initialized },
+                isBeta = net.bible.sharedui.desktop.update.DesktopChannel.isBetaBuild(System::getProperty, System::getenv),
+            )
         }
         single<AppEnvironment> { get<DesktopAppEnvironment>() }
         single<AppDirectories> { DesktopAppDirectories(paths) }

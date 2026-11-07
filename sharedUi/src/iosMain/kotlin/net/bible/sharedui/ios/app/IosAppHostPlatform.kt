@@ -95,6 +95,7 @@ object IosAppHostPlatform : AppHostPlatform {
     override val paneEngine: ReadingPaneEngine get() = IosReadingPaneEngine
     override val displayModeSignals: DisplayModeSignals get() = IosDisplayModeSignals
     override val dialogHost: AppDialogHost get() = IosAppDialogHost
+    override val betaNoticePlatform get() = net.bible.sharedui.app.notice.BetaNoticePlatform.IOS
 
     override fun deviceUiLanguage(koin: Koin): String =
         resolveDeviceUiLanguage(koin.get<IosDeviceSettings>(), ::iosPreferredLanguages)

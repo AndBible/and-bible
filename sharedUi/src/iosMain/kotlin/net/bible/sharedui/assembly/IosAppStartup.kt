@@ -79,6 +79,8 @@ internal class IosPlatformParts(val config: IosAppConfig) {
     val environment: IosAppEnvironment by lazy {
         IosAppEnvironment(
             secrets, isDiscrete = { deviceSettings.getBoolean("discrete_mode", false) },
+            // TestFlight installs are beta builds (the beta notice, beta features); see IosBetaBuild.
+            isBeta = net.bible.sharedcore.platform.detectIosBetaBuild(),
             initialized = { net.bible.service.startup.ReadingAppInit.initialized },
             deviceSettings = deviceSettings,
         )

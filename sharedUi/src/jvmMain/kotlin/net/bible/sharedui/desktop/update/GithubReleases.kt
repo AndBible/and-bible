@@ -34,6 +34,24 @@ enum class DesktopChannel(val tagPrefix: String) {
         /** Maps the build's `andbible.releaseKind`; `dev` and unknown values have no channel (no update check). */
         fun fromReleaseKind(kind: String?): DesktopChannel? = entries.firstOrNull { it.tagPrefix == kind }
         fun fromTagPrefix(prefix: String): DesktopChannel? = fromReleaseKind(prefix)
+
+        /** System property that makes any build (e.g. `gradle run`, release kind `dev`) a beta build, to check the beta notice. */
+        const val FORCE_BETA_PROPERTY = "andbible.forceBeta"
+        /** Environment variable alternative to [FORCE_BETA_PROPERTY] (`ANDBIBLE_FORCE_BETA=1`). */
+        const val FORCE_BETA_ENV = "ANDBIBLE_FORCE_BETA"
+
+        /**
+         * Whether this desktop build is a beta build (the beta notice, beta features): packaged from a `beta-*` or
+         * `test-*` tag (release kind [BETA] or [TEST]). Production packages and dev runs are not, unless forced with
+         * [FORCE_BETA_PROPERTY] = `true` or [FORCE_BETA_ENV] = `1`.
+         */
+        fun isBetaBuild(properties: (String) -> String?, environment: (String) -> String?): Boolean {
+            if (properties(FORCE_BETA_PROPERTY) == "true" || environment(FORCE_BETA_ENV) == "1") return true
+            return when (fromReleaseKind(properties("andbible.releaseKind"))) {
+                BETA, TEST -> true
+                PRODUCTION, null -> false
+            }
+        }
     }
 }
 
