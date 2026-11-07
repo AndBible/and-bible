@@ -131,6 +131,28 @@ class TestSqliteUseGuardTest {
         assertFailsWith<SQLiteException> { connection.prepare("SELECT 1") }
     }
 
+    /** An interrupted closer (cancelled coroutine, interrupted thread) must still close and keep its interrupt flag. */
+    @Test fun anInterruptedCloserStillClosesRecordsTheViolationAndKeepsItsInterruptFlag() {
+        val connection = TestSqliteUseGuard.guard(":memory:", BundledSQLiteDriver().open(":memory:"))
+        val statement = connection.prepare(LONG_SINGLE_STEP_QUERY)
+        val reader = thread(name = "guard-test-interrupt-reader") { runCatching { statement.step() } }
+        awaitInsideNative(connection, reader)
+        var closeFailure: Throwable? = null
+        var flagAfterClose = false
+        val closer = thread(name = "guard-test-interrupted-closer") {
+            Thread.currentThread().interrupt()
+            try { connection.close() } catch (t: Throwable) { closeFailure = t }
+            flagAfterClose = Thread.currentThread().isInterrupted
+        }
+        closer.join(120_000)
+        reader.join(60_000)
+        assertTrue(!closer.isAlive && !reader.isAlive, "both threads must finish")
+        assertNull(closeFailure, "close must not throw: $closeFailure")
+        assertTrue(flagAfterClose, "the interrupt status must be restored")
+        assertTrue(TestSqliteUseGuard.takeViolations().isNotEmpty(), "the violation must still be recorded")
+        assertFailsWith<SQLiteException> { connection.prepare("SELECT 1") }
+    }
+
     private fun awaitInsideNative(connection: SQLiteConnection, reader: Thread) {
         val deadline = System.nanoTime() + 60_000_000_000L
         while (TestSqliteUseGuard.threadInsideNative(connection) !== reader) {
