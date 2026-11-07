@@ -7,14 +7,20 @@ import sys
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="storeshots", description=__doc__)
-    parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=True)
+    from . import pipeline
+    pipeline.register(sub)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    from .errors import ShotError
     args = build_parser().parse_args(argv)
-    handler = getattr(args, "handler", None)
-    return handler(args) if handler else 2
+    try:
+        return args.handler(args)
+    except ShotError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
