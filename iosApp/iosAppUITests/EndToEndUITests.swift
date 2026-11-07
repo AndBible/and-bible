@@ -93,10 +93,11 @@ final class EndToEndUITests: RealAppUITestCase {
         app.terminate()
     }
 
-    /// #4025: the shared sync triggers on iOS. After the Bookmarks category is set up, the app stays open on the sync
-    /// screen: leaving and returning syncs (app log, `DeviceSync`), and the interval timer (default 5 min) runs another
-    /// pass while the app is open, which moves the Bookmarks row's "Last updated:" time without any user action.
-    /// Needs the same fixture as the chain (`scripts/e2e-sync-fixture.sh run ... -only-testing:...testSyncRunsWhileOpen`).
+    /// #4025: the shared sync triggers on iOS. After the Bookmarks category is set up, leaving and returning to the app
+    /// syncs, and the interval timer (default 5 min) syncs again while the app stays open, without any user action. The
+    /// oracle is the Bookmarks row's "Last updated:" time, read on a freshly opened sync screen (the open screen does not
+    /// refresh its snapshot after a background pass); the app log (`DeviceSync`) has each pass.
+    /// Needs the same fixture as the chain (`scripts/e2e-sync-fixture.sh run iphone -only-testing:...testSyncRunsWhileOpen`).
     func testSyncRunsWhileOpen() throws {
         guard ProcessInfo.processInfo.environment["E2E_SYNC_FIXTURE_JSON"]?.isEmpty == false else {
             XCTFail("E2E sync fixture missing: pass TEST_RUNNER_E2E_SYNC_FIXTURE_JSON='{\"url\":...,\"user\":...,\"password\":...}'")
@@ -105,19 +106,36 @@ final class EndToEndUITests: RealAppUITestCase {
         guard let fixture = syncFixture() else { return }
         let app = installAndRead()
         syncBookmarksOverWebDav(app, fixture)
-        let row = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Bookmarks'")).firstMatch
-        // Leave and return: a leave pass (inside a UIKit background task) and an open pass; the app log shows both.
+        let setUp = bookmarksSyncLabel(app)
+        // Leave and return: a leave pass (inside a UIKit background task) and an open pass.
         sendToBackground(app)
         sleep(15)
         app.activate()
-        harnessRequire(row.waitForExistence(timeout: 30), app, "the sync screen is back after returning to the app")
-        sleep(20) // the open pass ends; its time is the baseline
-        let first = row.label
-        // The timer: no input for longer than the 5 min interval; the row's time must move on its own.
-        let moved = waitUntil(timeout: 420) { row.exists && row.label != first }
-        harnessRequire(moved, app, "the Bookmarks row's 'Last updated:' changed while the app stayed open (was '\(first)', now '\(row.label)')")
+        sleep(20)
+        let returned = reopenedBookmarksSyncLabel(app)
+        harnessRequire(returned != setUp, app, "leaving and returning synced (was '\(setUp)', now '\(returned)')")
+        // The timer: the reading screen stays open with no input for longer than the 5 min interval.
+        tapBack(app, "back to reading")
+        sleep(340)
+        let timed = reopenedBookmarksSyncLabel(app, fromReading: true)
+        harnessRequire(timed != returned, app, "the timer synced while the app stayed open (was '\(returned)', now '\(timed)')")
         sendToBackground(app)
         app.terminate()
+    }
+
+    private func bookmarksSyncLabel(_ app: XCUIApplication) -> String {
+        let row = syncUI.reveal(app, "Bookmarks", toggle: true)
+        harnessRequire(row.label.contains("Last updated:"), app, "the Bookmarks row shows 'Last updated:' ('\(row.label)')")
+        return row.label
+    }
+
+    /// Opens the sync screen anew (from reading, or after leaving the open one) and reads the Bookmarks row.
+    private func reopenedBookmarksSyncLabel(_ app: XCUIApplication, fromReading: Bool = false) -> String {
+        if !fromReading { tapBack(app, "leave the sync screen") }
+        openDrawerRow(app, "Device synchronization")
+        harnessRequire(syncUI.rowButton(app, "Synchronization Backend").waitForExistence(timeout: 30), app,
+                       "the Device synchronization screen opened again")
+        return bookmarksSyncLabel(app)
     }
 
     /// Stage 1. Fresh install, real Welcome -> Easy start download (KJV), reading John 3.

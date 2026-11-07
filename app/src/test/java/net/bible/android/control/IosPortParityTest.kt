@@ -30,6 +30,9 @@ class IosPortParityTest {
         "net.bible.android.platform.AndroidSyncScheduler",
         "net.bible.android.platform.AndroidHttpClients",
         "net.bible.android.view.activity.page.SyncNetworkState",
+        // The cloud-sync trigger driver (#4025): a concrete class every platform binds in its own sync wiring (iOS in
+        // buildIosSyncBindings, desktop inside DesktopSyncDriver), not a port of the shared graph.
+        "net.bible.service.cloudsync.SyncTriggerDriver",
     )
 
     private fun bindingKeys(): Set<String> {

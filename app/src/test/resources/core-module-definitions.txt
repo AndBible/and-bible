@@ -74,6 +74,7 @@ net.bible.service.cloudsync.SyncNow::_root_
 net.bible.service.cloudsync.SyncNowPorts::_root_
 net.bible.service.cloudsync.SyncSettingsCategories::_root_
 net.bible.service.cloudsync.SyncSettingsPlatform::_root_
+net.bible.service.cloudsync.SyncTriggerDriver::_root_
 net.bible.service.cloudsync.documents.DocumentSync::_root_
 net.bible.service.cloudsync.documents.DocumentSyncSettings::_root_
 net.bible.service.common.GlobalTextDisplaySettingsStore::_root_
