@@ -81,6 +81,32 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
+    fun progressIsReplacedByAttentionAndResumesAfterResolution() = runTest {
+        val f = fixture()
+        val running = item(kind = ActivityKind.AI_AGENT, progress = 25, message = "Working")
+        f.set(running); runCurrent()
+        advance(10_000)
+        f.notifier.shows.single().let { assertEquals(25, it.progress); assertTrue(!it.urgent) }
+
+        f.set(running.copy(attention = true, message = "Allow tool?")); runCurrent()
+        assertEquals(listOf("show:andbible-a", "show:andbible-a"), f.notifier.calls)
+        f.notifier.shows.last().let {
+            assertEquals("andbible-a", it.id); assertTrue(it.urgent)
+            assertNull(it.progress); assertEquals("Allow tool?", it.body)
+        }
+        advance(70_000)
+        assertEquals(2, f.notifier.shows.size)
+
+        f.set(running.copy(progress = 50)); runCurrent()
+        assertEquals("remove:andbible-a", f.notifier.calls.last())
+        advance(9_999)
+        assertEquals(2, f.notifier.shows.size)
+        advance(1)
+        f.notifier.shows.last().let { assertEquals(50, it.progress); assertTrue(!it.urgent) }
+        assertEquals(3, f.notifier.shows.size)
+    }
+
+    @Test
     fun pendingAttentionNotifiesOnBackgroundAndIsRemovedOnClose() = runTest {
         val f = fixture(fg = true)
         f.set(item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)); runCurrent()
