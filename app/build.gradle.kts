@@ -17,6 +17,7 @@
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileInputStream
 import java.util.Locale
 import java.util.Properties
@@ -76,8 +77,8 @@ fun expandUserHome(path: String): String =
 fun releaseKeystorePath(storeFilePath: String): String {
     System.getenv("ANDBIBLE_RELEASE_KEYSTORE")?.takeIf { it.isNotBlank() }?.let { return expandUserHome(it) }
     val configured = expandUserHome(storeFilePath)
-    if (java.io.File(configured).exists()) return configured
-    val mounted = java.io.File(System.getProperty("user.home"), ".release-secrets/" + java.io.File(configured).name)
+    if (File(configured).exists()) return configured
+    val mounted = File(System.getProperty("user.home"), ".release-secrets/" + File(configured).name)
     return if (mounted.exists()) mounted.path else configured
 }
 
