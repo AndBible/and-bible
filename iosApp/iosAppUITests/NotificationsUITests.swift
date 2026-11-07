@@ -69,7 +69,12 @@ final class NotificationsUITests: RealAppUITestCase {
         let app = install()
         app.buttons["OK"].firstMatch.tap()
         XCTAssertTrue(permission.waitForExistence(timeout: 30))
-        permission.buttons["Don't Allow"].tap()
+        let deny = permission.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Don't Allow", "Don\u{2019}t Allow")).firstMatch
+        let denyReady = deny.waitForExistence(timeout: 10)
+        if !denyReady { attachTree(springboard, "notification-deny-control-missing") }
+        XCTAssertTrue(denyReady, "The system permission dialog offers a denial button")
+        guard denyReady else { return }
+        deny.tap()
         app.terminate()
         let settings = launch(["-standardTestFixture", "-task5Settings"] + english)
         XCTAssertTrue(waitForSettingsRoot(settings))
