@@ -1,5 +1,7 @@
 package net.bible.android.control.activity
 
+import net.bible.android.control.event.UserMessage
+
 /**
  * Decides where an error notification goes (#4007): every failure is recorded in the activity list, and a failure of
  * background work is additionally rerouted from the modal dialog to a toast on platforms that have the list as the
@@ -19,8 +21,8 @@ class BackgroundErrorRouter(
      * failures). Returns the toast text when [background] is true and the preference is on; null means the caller must
      * show the dialog.
      */
-    fun route(message: String, background: Boolean, kind: ActivityKind): String? {
-        sync.reportFailure(kind, message, background)
+    fun route(message: String, background: Boolean, kind: ActivityKind, reportable: Boolean = false, cause: Throwable? = null): String? {
+        sync.reportFailure(kind, message, background, reportable, cause.takeIf { reportable })
         return if (background && enabled()) toastText(message) else null
     }
 }
@@ -29,9 +31,9 @@ class BackgroundErrorRouter(
  * [BackgroundErrorRouter.route] for presenters: the toast text when the error went to the list only, null when the
  * dialog must be shown. A failing router is logged and counts as "not rerouted", so an error is never lost.
  */
-fun ((String, Boolean, ActivityKind) -> String?).rerouteOrNull(message: String, background: Boolean, kind: ActivityKind): String? =
+fun ((UserMessage.ErrorNotification) -> String?).rerouteOrNull(message: UserMessage.ErrorNotification): String? =
     try {
-        this(message, background, kind)
+        this(message)
     } catch (e: Exception) {
         net.bible.sharedcore.log.Log.w("BackgroundErrorRouter", "Rerouting an error to the activity list failed", e)
         null

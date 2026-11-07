@@ -84,7 +84,7 @@ class InstallJobRunner(
         try {
             acquire(openStream, acquireTo) { percent -> onPhase(InstallPhase.Acquiring(percent)) }
         } catch (e: IOException) {
-            return InstallPhase.Error(InstallError.GENERIC, null).also(onPhase)
+            return InstallPhase.Error(InstallError.GENERIC, null, e).also(onPhase)
         }
 
         onPhase(InstallPhase.Inspecting)
@@ -221,9 +221,9 @@ class InstallJobRunner(
     private suspend fun commitCatching(displayName: String, block: suspend () -> Boolean): InstallPhase = try {
         if (block()) InstallPhase.Done else InstallPhase.Error(InstallError.INVALID_FILE, displayName)
     } catch (e: InvalidInstallFile) {
-        InstallPhase.Error(InstallError.INVALID_FILE, e.filename)
+        InstallPhase.Error(InstallError.INVALID_FILE, e.filename, e)
     } catch (e: IOException) {
-        InstallPhase.Error(InstallError.GENERIC, null)
+        InstallPhase.Error(InstallError.GENERIC, null, e)
     }
 
     /** Copies [openStream] to [acquireTo], reporting best-effort percent and honoring cancellation. */

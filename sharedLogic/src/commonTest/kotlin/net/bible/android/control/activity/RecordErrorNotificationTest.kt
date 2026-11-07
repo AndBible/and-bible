@@ -25,6 +25,27 @@ class RecordErrorNotificationTest {
     }
 
     @Test
+    fun errorNotificationWithoutReportButtonIsNotReportable() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val source = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
+        val cause = IllegalStateException("authentication")
+        recordErrorNotification({ source }, UserMessage.ErrorNotification("authentication failed", null, false, cause = cause)) { "unused" }
+        assertEquals(ActivityState.FAILED, center.items.value.single().state)
+        kotlin.test.assertFalse(center.items.value.single().reportable)
+        kotlin.test.assertNull(center.items.value.single().cause)
+    }
+
+    @Test
+    fun errorNotificationWithReportButtonIsReportable() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val source = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
+        val cause = IllegalStateException("network")
+        recordErrorNotification({ source }, UserMessage.ErrorNotification("sync failed", null, true, cause = cause)) { "unused" }
+        assertTrue(center.items.value.single().reportable)
+        kotlin.test.assertSame(cause, center.items.value.single().cause)
+    }
+
+    @Test
     fun noSourceOrAThrowingResolverRecordsNothingAndDoesNotThrow() = runTest {
         recordErrorNotification({ null }, UserMessage.ErrorNotification("x", null, true)) { "y" }
         val center = ActivityCenter(backgroundScope) { currentTime }

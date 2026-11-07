@@ -92,14 +92,14 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
      * [unreadFailures] never lose an existing failed row while it is refreshed, and a concurrent [dismiss] cannot
      * make the failure vanish.
      */
-    fun startOrFail(id: String, kind: ActivityKind, title: String, message: String, backgroundFailure: Boolean = true) = change { recs ->
+    fun startOrFail(id: String, kind: ActivityKind, title: String, message: String, backgroundFailure: Boolean = true, reportable: Boolean = false, cause: Throwable? = null) = change { recs ->
         val rec = recs[id]
         val now = clock()
         val occurrence = nextSeq()
         if (rec != null && rec.item.state == ActivityState.RUNNING) {
-            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.FAILED, message = message, finishedAt = now, cancel = null, read = false, backgroundFailure = backgroundFailure, failureOccurrence = occurrence)))
+            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.FAILED, message = message, finishedAt = now, cancel = null, read = false, backgroundFailure = backgroundFailure, failureOccurrence = occurrence, reportable = reportable, cause = cause)))
         } else {
-            recs + (id to Rec(occurrence, ActivityItem(id, kind, title, ActivityState.FAILED, null, message, null, now, now, false, backgroundFailure, occurrence)))
+            recs + (id to Rec(occurrence, ActivityItem(id, kind, title, ActivityState.FAILED, null, message, null, now, now, false, backgroundFailure, occurrence, reportable, cause)))
         }
     }
 
@@ -123,8 +123,8 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         }
     }
 
-    fun fail(id: String, message: String) = modify(id) {
-        it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false)
+    fun fail(id: String, message: String, reportable: Boolean = false, cause: Throwable? = null) = modify(id) {
+        it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false, reportable = reportable, cause = cause)
     }
 
     fun cancelled(id: String) = change { it - id }

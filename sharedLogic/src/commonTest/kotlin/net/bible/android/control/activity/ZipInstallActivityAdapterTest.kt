@@ -68,6 +68,16 @@ class ZipInstallActivityAdapterTest {
         assertEquals(1, center.unreadFailures.value)
     }
 
+    @Test fun zipInstallFailureIsReportableWithCause() {
+        val cause = IllegalStateException("bad archive")
+        adapter.onJobs(listOf(job(InstallPhase.Committing(10))))
+        adapter.onTerminal("j1", InstallPhase.Error(InstallError.INVALID_FILE, null, cause = cause), "Invalid module")
+        val item = center.items.value.single()
+        assertEquals(ActivityState.FAILED, item.state)
+        assertTrue(item.reportable)
+        assertSame(cause, item.cause)
+    }
+
     @Test fun failureOfAJobNeverSeenRunningIsStillRecorded() {
         adapter.onTerminal("j2", InstallPhase.Error(InstallError.INVALID_FILE, null), "Invalid module")
         assertEquals(ActivityState.FAILED, center.items.value.single().state)

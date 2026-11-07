@@ -184,9 +184,10 @@ object IosAppStartup {
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
             // Subscribe before JSword/Koin initialization: neither the notifier nor a UI exists yet.
-            if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { text, background, kind ->
+            if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { message ->
                 // Background errors (only) go to the activity list when the preference is on (#4007); Koin exists by the time one is presented.
-                KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.route(text, background, kind)
+                KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.route(
+                    message.text.orEmpty(), message.background, message.kind, message.showReportButton, message.cause)
             })
             owner ?: HostStartupOwner(processScope,
                 initialize = {

@@ -18,7 +18,6 @@ package net.bible.service.cloudsync.desktop
 
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
@@ -31,13 +30,13 @@ import net.bible.sharedcore.event.Subscription
  * Toasts go to [UserNotifier.showInfo], error notifications to [UserNotifier.showError]; a message that carries only an
  * Android resource id cannot be resolved here and is logged and dropped. The subscription lives until [close].
  *
- * [reroute] takes an error notification's text, background flag and kind, records it (the activity list, #4007) and
+ * [reroute] records an error notification (the activity list, #4007) and
  * answers the toast text to show instead of the dialog (background work only); null keeps the dialog.
  */
 class DesktopUserMessagesPresenter(
     private val notifier: () -> UserNotifier,
     messages: Events<UserMessage> = UserMessages.messages,
-    private val reroute: (String, Boolean, ActivityKind) -> String? = { _, _, _ -> null },
+    private val reroute: (UserMessage.ErrorNotification) -> String? = { null },
 ) : AutoCloseable {
     private val subscription: Subscription = messages.subscribe(::present)
 
@@ -45,7 +44,7 @@ class DesktopUserMessagesPresenter(
         try {
             when (message) {
                 is UserMessage.Toast -> message.text?.let { notifier().showInfo(it, message.long) } ?: dropped(message)
-                is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text, message.background, message.kind)?.let { notifier().showInfo(it, false) } ?: notifier().showError(text) } ?: dropped(message)
+                is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(message)?.let { notifier().showInfo(it, false) } ?: notifier().showError(text) } ?: dropped(message)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Presenting a user message failed", e)

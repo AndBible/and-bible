@@ -70,7 +70,7 @@ sealed class InstallPhase {
     data class Committing(val percent: Int) : InstallPhase()
     object Done : InstallPhase()
     /** [arg] is an optional format argument (e.g. filename). */
-    data class Error(val kind: InstallError, val arg: String?) : InstallPhase()
+    data class Error(val kind: InstallError, val arg: String?, val cause: Throwable? = null) : InstallPhase()
     object Cancelled : InstallPhase()
 }
 

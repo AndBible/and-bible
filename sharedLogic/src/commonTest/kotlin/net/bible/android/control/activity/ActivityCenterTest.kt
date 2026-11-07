@@ -203,6 +203,34 @@ class ActivityCenterTest {
     }
 
     @Test
+    fun startOrFailCarriesReportableAndCause() = runTest {
+        val c = center()
+        val cause = IllegalStateException("broken")
+        c.start("running", ActivityKind.INSTALL, "Running")
+        c.startOrFail("running", ActivityKind.INSTALL, "Running", "failed", reportable = true, cause = cause)
+        c.startOrFail("new", ActivityKind.DOWNLOAD, "New", "failed", reportable = true, cause = cause)
+        assertEquals(setOf("running", "new"), c.items.value.map { it.id }.toSet())
+        c.items.value.forEach {
+            assertTrue(it.reportable)
+            kotlin.test.assertSame(cause, it.cause)
+        }
+    }
+
+    @Test
+    fun failCarriesReportDataAndDefaultsRemainNonReportable() = runTest {
+        val c = center()
+        val cause = IllegalStateException("broken")
+        c.start("a", ActivityKind.DOWNLOAD, "A")
+        c.fail("a", "failed", reportable = true, cause = cause)
+        assertTrue(c.items.value.single().reportable)
+        kotlin.test.assertSame(cause, c.items.value.single().cause)
+        c.startOrFail("b", ActivityKind.SYNC, "B", "failed")
+        val default = c.items.value.single { it.id == "b" }
+        assertFalse(default.reportable)
+        kotlin.test.assertNull(default.cause)
+    }
+
+    @Test
     fun monotonicClockStartsNearZeroAndNeverGoesBack() {
         val clock = monotonicActivityClock()
         val first = clock()

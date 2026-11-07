@@ -107,8 +107,8 @@ class UserMessagesPresenterTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val events = EventSource<UserMessage>()
         val rerouted = mutableListOf<String>()
-        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { text, background, kind ->
-            if (text == "sync broke" && background && kind == ActivityKind.SYNC) { rerouted += text; "sync broke - see menu" } else null
+        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { message ->
+            if (message.text == "sync broke" && message.background && message.kind == ActivityKind.SYNC) { rerouted += message.text; "sync broke - see menu" } else null
         })
         val calls = mutableListOf<String>()
         try {
@@ -133,7 +133,7 @@ class UserMessagesPresenterTest {
     fun aThrowingRouterFallsBackToTheErrorDialog() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val events = EventSource<UserMessage>()
-        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { _, _, _ -> error("router broke") })
+        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { error("router broke") })
         val calls = mutableListOf<String>()
         try {
             presenter.attach(object : UserNotifier {
