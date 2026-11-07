@@ -10,6 +10,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     from . import pipeline
     pipeline.register(sub)
+    from . import capture
+    capture.register(sub)
     return parser
 
 
