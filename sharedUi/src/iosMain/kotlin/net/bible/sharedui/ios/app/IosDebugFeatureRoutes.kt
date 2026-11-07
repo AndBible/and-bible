@@ -48,12 +48,18 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
                     )
                 }, modifier = Modifier.testTag("notification-debug-automatic")) { Text(text) }
                 TextButton(onClick = {
+                    val release = net.bible.sharedui.assembly.IosDownloadKeepAlive.hold("notification-debug")
                     scope.launch {
-                        delay(5000)
-                        net.bible.android.control.event.UserMessages.errorNotification(
-                            text, showReportButton = false, background = true,
-                            kind = net.bible.android.control.activity.ActivityKind.SYNC,
-                        )
+                        try {
+                            delay(5000)
+                            net.bible.android.control.event.UserMessages.errorNotification(
+                                text, showReportButton = false, background = true,
+                                kind = net.bible.android.control.activity.ActivityKind.SYNC,
+                            )
+                            delay(1000)
+                        } finally {
+                            release()
+                        }
                     }
                 }, modifier = Modifier.testTag("notification-debug-background")) { Text(text) }
                 TextButton(onClick = {
