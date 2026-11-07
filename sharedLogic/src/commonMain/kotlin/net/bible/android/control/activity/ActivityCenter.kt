@@ -33,6 +33,10 @@ fun monotonicActivityClock(): () -> Long {
  * one coroutine that wakes at the next debounce end / success expiry, using [delay], so a test
  * scheduler's virtual time works as long as [clock] follows it. Production passes [monotonicActivityClock].
  */
+data class ActivityBadgeCounts(val failures: Int = 0, val attention: Int = 0) {
+    val total: Int get() = failures + attention
+}
+
 class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 
     private class Rec(val seq: Long, val item: ActivityItem)
@@ -40,7 +44,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private class Model(
         val recs: Map<String, Rec>,
         val items: List<ActivityItem>,
-        val unread: Int,
+        val badge: ActivityBadgeCounts,
         /** Next time visibility changes by itself, or null. */
         val nextDeadline: Long?,
     )
@@ -49,6 +53,8 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private val model = MutableStateFlow(build(0L, emptyMap()))
     private val _items = MutableStateFlow<List<ActivityItem>>(emptyList())
     private val _unread = MutableStateFlow(0)
+    private val _badge = MutableStateFlow(ActivityBadgeCounts())
+    val badge: StateFlow<ActivityBadgeCounts> = _badge.asStateFlow()
 
     /**
      * Visible items: running first, then finished; each group newest first.
@@ -56,7 +62,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
      */
     val items: StateFlow<List<ActivityItem>> = _items.asStateFlow()
 
-    /** Number of failed items the user has not acknowledged with [markAllRead]. Updated after [items], not atomically with it. */
+    /** Unread failures plus running items requiring attention. Updated after [items], not atomically with it. */
     val unreadFailures: StateFlow<Int> = _unread.asStateFlow()
 
     init {
@@ -97,7 +103,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         val now = clock()
         val occurrence = nextSeq()
         if (rec != null && rec.item.state == ActivityState.RUNNING) {
-            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.FAILED, message = message, finishedAt = now, cancel = null, read = false, backgroundFailure = backgroundFailure, failureOccurrence = occurrence, reportable = reportable, cause = cause)))
+            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.FAILED, message = message, finishedAt = now, cancel = null, read = false, backgroundFailure = backgroundFailure, failureOccurrence = occurrence, reportable = reportable, cause = cause, attention = false)))
         } else {
             recs + (id to Rec(occurrence, ActivityItem(id, kind, title, ActivityState.FAILED, null, message, null, now, now, false, backgroundFailure, occurrence, reportable, cause)))
         }
@@ -113,18 +119,30 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         if (it.state == ActivityState.RUNNING) it.copy(progress = progress) else it
     }
 
+    internal fun setTitle(id: String, title: String) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(title = title) else it
+    }
+
+    fun setMessage(id: String, message: String?) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(message = message) else it
+    }
+
+    fun setAttention(id: String, attention: Boolean) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(attention = attention) else it
+    }
+
     fun succeed(id: String) = change { recs ->
         val rec = recs[id] ?: return@change recs
         val now = clock()
         if (rec.item.kind == ActivityKind.SYNC || now - rec.item.startedAt < DEBOUNCE_MS) {
             recs - id // never shown, or not worth keeping
         } else {
-            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.SUCCEEDED, progress = 100, finishedAt = now, cancel = null)))
+            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.SUCCEEDED, progress = 100, finishedAt = now, cancel = null, attention = false)))
         }
     }
 
     fun fail(id: String, message: String, reportable: Boolean = false, cause: Throwable? = null) = modify(id) {
-        it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false, reportable = reportable, cause = cause)
+        it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false, reportable = reportable, cause = cause, attention = false)
     }
 
     fun cancelled(id: String) = change { it - id }
@@ -148,7 +166,8 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         val m = build(clock(), f(model.value.recs))
         model.value = m
         _items.value = m.items
-        _unread.value = m.unread
+        _unread.value = m.badge.total
+        _badge.value = m.badge
     }
 
     companion object {
@@ -176,7 +195,10 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
             return Model(
                 recs,
                 (visibleRunning + visibleFinished).map { it.item },
-                recs.values.count { it.item.state == ActivityState.FAILED && !it.item.read },
+                ActivityBadgeCounts(
+                    failures = recs.values.count { it.item.state == ActivityState.FAILED && !it.item.read },
+                    attention = recs.values.count { it.item.state == ActivityState.RUNNING && it.item.attention },
+                ),
                 deadlines.minOrNull(),
             )
         }

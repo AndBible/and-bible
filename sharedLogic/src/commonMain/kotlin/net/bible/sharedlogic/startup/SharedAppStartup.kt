@@ -119,8 +119,8 @@ object SharedAppStartup {
     }
 
     /**
-     * Resolves the [ActivityCenter] and its three sources so they listen from the start (downloads, JSword jobs,
-     * cloud sync); the module defines them lazily. Each failure is logged, never rethrown: the activity center is
+     * Resolves the [ActivityCenter] and its sources so they listen from the start (downloads, JSword jobs,
+     * cloud sync, agent sessions); the module defines them lazily. Each failure is logged, never rethrown: the activity center is
      * an aid and must not stop app startup. Runs on Android, desktop and iOS because all call [start].
      */
     fun startActivityCenter(koin: Koin) {
@@ -135,6 +135,7 @@ object SharedAppStartup {
         start("DownloadActivitySource") { koin.get<DownloadActivitySource>() }
         start("JobActivitySource") { koin.get<JobActivitySource>() }
         start("SyncActivitySource") { koin.get<SyncActivitySource>() }
+        start("AgentActivitySource") { koin.get<net.bible.android.control.activity.AgentActivitySource>() }
         // Native system notifications (#4012): bound only on platforms that have a native notifier (desktop).
         start("NativeNotificationPolicy") { koin.getOrNull<NativeNotificationPolicy>()?.start() ?: Unit }
     }

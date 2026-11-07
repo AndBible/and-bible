@@ -229,7 +229,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
-    private val agentSessionService: AgentSessionService by inject()
     private val speakTransportService: SpeakTransportService by inject()
     private val speakSettingsService: SpeakSettingsService by inject()
 
@@ -247,6 +246,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      *  [dispose] — one host per activity (re-)creation, mirroring the [subscriptions]
      *  lifecycle right below. */
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val agentSessionService: AgentSessionService by lazy {
+        net.bible.android.view.activity.ai.AgentSessionServiceImpl(
+            workspaceId = { activity.hostWindowRepository.id },
+            owner = net.bible.sharedcore.platform.AppCoroutineScope(hostScope.coroutineContext),
+        )
+    }
 
     /**
      * The overlay/sheet/dialog/history/share/pane-menu/drawer state, in common code (`:sharedUi`
@@ -1421,7 +1426,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun activityWiring(): ActivityHostWiring? {
         val center = getKoin().getOrNull<ActivityCenter>() ?: return null
         val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
-        return ActivityHostWiring(center, preference, syncNow = getKoin().get(), reporter = getKoin().getOrNull()) { item ->
+        return ActivityHostWiring(center, preference, syncNow = getKoin().get(), reporter = getKoin().getOrNull(), onOpenAgent = { id ->
+            hostScope.launch {
+                if (activity.hostWindowRepository.id != id) activity.readingCommands.quickSwitchToWorkspace(id.toString())
+                if (activity.hostWindowRepository.id == id) {
+                    agentSessionService.refresh()
+                    if (activity.hostWindowRepository.id == id) agentLog.show()
+                }
+            }
+        }) { item ->
             activityItemRoute(item)?.let { route ->
                 activity.hostActivity.startActivity(NavHostComposeActivity.intentFor(activity.hostContext, route))
             }

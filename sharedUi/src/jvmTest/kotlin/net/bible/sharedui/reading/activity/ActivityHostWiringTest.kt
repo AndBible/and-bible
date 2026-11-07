@@ -24,6 +24,10 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.runtime.Composable
 import kotlin.test.Test
@@ -39,6 +43,7 @@ import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedcore.platform.ActivityMenuDefault
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -77,7 +82,7 @@ class ActivityHostWiringTest {
         syncRunning: Boolean = false,
     ) = setContent {
         AbTheme(disableAnimations = true) {
-            CompositionLocalProvider(LocalStrings provides strings) {
+            CompositionLocalProvider(LocalStrings provides strings, LocalAgentStatusIcon provides { painter }) {
                 ActivityHost(wiring) { activity ->
                     seen += activity
                     ReadingToolbar(toolbarState.copy(syncRunning = syncRunning), icons, callbacks, overflowExpanded = expanded, activity = activity)
@@ -111,7 +116,7 @@ class ActivityHostWiringTest {
         val f = Fixture(default = true)
         val cause = IllegalStateException("download failed")
         f.center.start("x", ActivityKind.DOWNLOAD, "KJV")
-        f.center.fail("x", "failed", cause = cause)
+        f.center.fail("x", "failed", reportable = true, cause = cause)
         val available = kotlinx.coroutines.flow.MutableStateFlow(false)
         val reports = mutableListOf<net.bible.android.control.activity.ActivityItem>()
         val reporter = object : net.bible.android.control.activity.ActivityReporter {
@@ -133,6 +138,54 @@ class ActivityHostWiringTest {
         available.value = false
         waitForIdle()
         onAllNodes(androidx.compose.ui.test.hasText("Report")).assertCountEquals(0)
+    }
+
+    @Test fun tappingAgentMenuRowOpensItsWorkspaceItem() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val workspace = net.bible.android.database.IdType()
+        var opened: net.bible.android.database.IdType? = null
+        f.center.start(net.bible.android.control.activity.agentActivityId(workspace), ActivityKind.AI_AGENT, "Agent")
+        f.now = 5_000L
+        f.center.update(net.bible.android.control.activity.agentActivityId(workspace), 40)
+        host(ActivityHostWiring(f.center, f.preference, onOpenAgent = { opened = it }, onOpenItem = {}), expanded = true)
+        onNodeWithText("Agent").performClick()
+        assertEquals(workspace, opened)
+    }
+
+    @Test fun tappingAgentFullListRowCallsOnOpenAgentWithWorkspace() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val workspace = net.bible.android.database.IdType()
+        var opened: net.bible.android.database.IdType? = null
+        f.center.start(net.bible.android.control.activity.agentActivityId(workspace), ActivityKind.AI_AGENT, "Agent")
+        f.now = 5_000L
+        f.center.update(net.bible.android.control.activity.agentActivityId(workspace), 40)
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(ActivityHostWiring(f.center, f.preference, onOpenAgent = { opened = it }, onOpenItem = {}), seen = seen)
+        waitForIdle()
+        seen.last()!!.onShowAll()
+        waitForIdle()
+        onNodeWithText("Agent").performClick()
+        assertEquals(workspace, opened)
+    }
+
+    @Test fun attentionFromCenterIsCountedOnce() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.center.start("agent", ActivityKind.AI_AGENT, "Agent")
+        f.center.setAttention("agent", true)
+        f.now = 5_000L
+        f.center.update("agent", 40)
+        host(f.wiring)
+        onNodeWithText("1", useUnmergedTree = true).assertExists()
+        onAllNodesWithText("2", useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test fun permissionWaitBeforeDebounceIsNotDescribedAsFailure() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.center.start("agent", ActivityKind.AI_AGENT, "Agent")
+        f.center.setAttention("agent", true)
+        host(f.wiring)
+        onNodeWithContentDescription("1 need attention", useUnmergedTree = true).assertExists()
+        onAllNodesWithContentDescription("1 failed", useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test fun menuOpenMarksRead() = runComposeUiTest {

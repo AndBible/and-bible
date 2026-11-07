@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.longClick
@@ -90,6 +92,15 @@ class ReadingPlanSelectorResetFlowTest {
         val planName = runBlocking {
             GlobalContext.get().get<ReadingPlanControl>().readingPlanList().first { it.planCode == PLAN }.planName!!
         }
+        // The selector loads its own list asynchronously; the separate lookup above does not await it.
+        net.bible.test.awaitHostCondition(
+            "fixture: the selector has loaded the plan",
+            advanceComposition = { compose.waitForIdle() },
+            describe = {
+                "route=${activity.currentRouteForTest()}\n" +
+                    runCatching { compose.onRoot().printToString() }.getOrElse { "semantics unavailable: $it" }
+            },
+        ) { runCatching { compose.onNodeWithText(planName).assertExists() }.isSuccess }
         compose.onNodeWithText(planName).performTouchInput { longClick() }
         idle()
         compose.onNode(hasText("Reset") and hasClickAction()).performClick()

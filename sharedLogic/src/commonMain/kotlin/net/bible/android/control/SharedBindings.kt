@@ -231,7 +231,7 @@ fun buildSharedBindings() = module {
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
-    // Activity center (#4007): the registry plus its three source adapters. They are plain singles (the module must
+    // Activity center (#4007): the registry and source adapters. They are plain singles (the module must
     // stay resolvable from just its ports); SharedAppStartup.startActivityCenter() resolves them at startup so work
     // that begins before any UI exists is still recorded. Adapter callbacks may arrive on any thread; ActivityCenter is thread-safe.
     single { ActivityCenter(get<AppCoroutineScope>(), net.bible.android.control.activity.monotonicActivityClock()) }
@@ -258,6 +258,26 @@ fun buildSharedBindings() = module {
     single { JobActivitySource(get()).also { it.attach() } }.onClose { it?.detach() }
     single {
         SyncActivitySource(get(), get<CloudSync>().runningChanged) { get<net.bible.sharedcore.platform.CoreStrings>().synchronizing }
+    }.onClose { it?.close() }
+    single {
+        val center = get<ActivityCenter>()
+        net.bible.android.control.activity.AgentActivitySource(
+            center, net.bible.service.llm.agent.AgentSessionManager.changes,
+            net.bible.service.llm.agent.AgentSessionManager::stopAgent,
+            { null }, // DAO lookup below runs off the event emitter thread.
+            {
+                val s = get<net.bible.service.llm.LlmStrings>()
+                net.bible.android.control.activity.AgentActivityStrings(
+                    s.agentActivityTitle, s::agentActivityTitleIn,
+                    { tool -> if (tool.isNullOrBlank()) s.agentActivityWaiting else s.agentActivityWaitingFor(tool) },
+                    s.agentActivityFailed,
+                )
+            },
+        ).also { source ->
+            source.resolveWorkspaceNames { id ->
+                if (DatabaseContainer.ready) DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(id)?.name else null
+            }
+        }
     }.onClose { it?.close() }
     single {
         val ports = get<net.bible.service.cloudsync.SyncNowPorts>()
@@ -314,7 +334,7 @@ fun buildSharedBindings() = module {
     single { AppDialogController() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
-    singleOf(::AgentSessionServiceImpl) { bind<AgentSessionService>() }
+    single { AgentSessionServiceImpl() } bind AgentSessionService::class
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin

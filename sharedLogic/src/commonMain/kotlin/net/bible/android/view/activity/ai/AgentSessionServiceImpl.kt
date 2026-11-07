@@ -73,19 +73,21 @@ fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
  * Android impl of [AgentSessionService], bridging [AgentSessionManager.changes] and [aiSettings.defaultModelChanged]
- * into a [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace. The
- * `windowControl.windowRepository.id` lookup below was taken from the classic `AgentLogWidget`.
- *
- * Registered as a Koin single (lives for the process); the host calls [refresh] on workspace switch.
+ * into a [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace.
+ * A host can supply its own workspace provider and lifetime; the default uses the process-wide
+ * window control and application scope. The host calls [refresh] on workspace switch.
  */
-class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
+class AgentSessionServiceImpl(
+    private val workspaceId: (() -> IdType)? = null,
+    private val owner: AppCoroutineScope? = null,
+) : AgentSessionService, KoinComponent {
     private val aiSettings: AiSettings by inject()
     private val appScope: AppCoroutineScope by inject()
     private val settings: AppSettings by inject()
     private val windowControl: WindowControl by inject()
 
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
-    private fun wsId(): IdType = windowControl.windowRepository.id
+    private fun wsId(): IdType = workspaceId?.invoke() ?: windowControl.windowRepository.id
 
     /**
      * F127: terminal stop reason of the most recent [AgentSessionChange.StatusChanged], per workspace;
@@ -99,7 +101,8 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
     init {
-        AgentSessionManager.changes.collectOwned(appScope) { change ->
+        val scope = owner ?: appScope
+        AgentSessionManager.changes.collectOwned(scope) { change ->
                 withContext(Dispatchers.Main.immediate) {
                     if (change is AgentSessionChange.StatusChanged) {
                         lastStopByWorkspace[change.workspaceId] = change.stopReason?.toVd()
@@ -107,8 +110,8 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
                     if (change.workspaceId == wsId() && change !is AgentSessionChange.PermissionWaiting) refresh()
                 }
         }
-        aiSettings.defaultModelChanged.collectOwned(appScope) { withContext(Dispatchers.Main.immediate) { refresh() } }
-        appScope.launch { aiSettings.ensureLoaded(); withContext(Dispatchers.Main.immediate) { refresh() } }
+        aiSettings.defaultModelChanged.collectOwned(scope) { withContext(Dispatchers.Main.immediate) { refresh() } }
+        scope.launch { aiSettings.ensureLoaded(); withContext(Dispatchers.Main.immediate) { refresh() } }
     }
 
     private suspend fun build(): AgentLogSnapshot {

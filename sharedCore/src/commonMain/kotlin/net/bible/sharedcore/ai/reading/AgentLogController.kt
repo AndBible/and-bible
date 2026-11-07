@@ -153,8 +153,10 @@ class AgentLogController(
     }
 
     fun show() {
+        val snapshot = service.snapshot.value
+        lastHandledStopReason = snapshot.takeIf { !it.running }?.lastStopReason
         service.setLogVisiblePref(true)
-        _state.update { it.copy(visible = true) }
+        _state.update { it.copy(visible = true, snapshot = snapshot) }
     }
 
     fun hide() {

@@ -18,6 +18,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -164,6 +165,19 @@ class ActivityMenuTest {
     @Test fun noBadgeWithoutUnreadFailures() = runComposeUiTest {
         toolbar(menu(listOf(item("a", ActivityState.FAILED, message = "x")), unread = 0))
         onAllNodesWithTag(ACTIVITY_BADGE_TAG, useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test fun attentionItemListedFirstInMenuSection() = runComposeUiTest {
+        val items = (1..3).map { item("$it") } + item("waiting").copy(kind = ActivityKind.AI_AGENT, attention = true)
+        setContent { Section(menu(items)) }
+        onNodeWithText("Item waiting").assertExists()
+        assertEquals(0, onAllNodesWithText("Item 3").fetchSemanticsNodes().size)
+    }
+
+    @Test fun badgeCountsAttentionItem() = runComposeUiTest {
+        toolbar(menu(listOf(item("waiting").copy(kind = ActivityKind.AI_AGENT, attention = true)), unread = 1))
+        onNodeWithText("1", useUnmergedTree = true).assertExists()
+        onAllNodesWithContentDescription("1 failed", useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test fun menuSectionCapsAtThreeRows() = runComposeUiTest {

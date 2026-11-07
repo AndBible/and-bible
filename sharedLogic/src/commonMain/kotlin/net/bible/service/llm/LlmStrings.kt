@@ -33,6 +33,12 @@ interface LlmStrings {
     fun actionUpdateNoteOnBookmarkAt(a1: String): String
     fun actionUpdateStudypadTextEntry(a1: String): String
     val actionWithNote: String
+    val agentActivityTitle: String
+    fun agentActivityTitleIn(name: String): String
+    val agentActivityWaiting: String
+    fun agentActivityWaitingFor(tool: String): String
+    val agentActivityFailed: String
+    val agentActivityPermissionNeeded: String
     val agentAlreadyRunning: String
     val agentLogCancelled: String
     val agentLogCompleted: String

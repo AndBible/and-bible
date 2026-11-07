@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.map
 import net.bible.android.view.activity.ai.RawLogServiceImpl
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.bind
+import org.koin.dsl.bind
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
@@ -166,7 +167,7 @@ open class TestBibleApplication : BibleApplication() {
             singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
             singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
             singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
-            singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+            single { AgentSessionServiceImpl() } bind net.bible.sharedcore.ai.reading.AgentSessionService::class
             singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
             singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
             singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
@@ -288,7 +289,7 @@ open class TestBibleApplication : BibleApplication() {
                     singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
                     singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
                     singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
-                    singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+                    single { AgentSessionServiceImpl() } bind net.bible.sharedcore.ai.reading.AgentSessionService::class
                     singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
                     singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
                     singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
@@ -311,6 +312,7 @@ open class TestBibleApplication : BibleApplication() {
         // Their subscriptions die with the stream resets; drop them so the next test builds subscribed ones.
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.page.toolbar.ToolbarStateServiceImpl::class) }
         // Same for the activity sources (#4007): SyncActivitySource listened to the CloudSync stream reset above.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.AgentActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.SyncActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.DownloadActivitySource::class) }
         // JobActivitySource's onClose detaches its JobManager listener (a JVM global); the center goes last, after its sources.

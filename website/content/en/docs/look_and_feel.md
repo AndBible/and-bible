@@ -183,11 +183,14 @@ remain reachable on a phone.
 
 ### Look & feel
 
-- **Show background activity in the menu:** Shows downloads, sync and indexing
-    progress, and failures, in the three-dot menu (⋮): a progress ring and a
-    failure badge on the button, and an activity list in the menu. On by default
-    on desktop and iOS, off on Android, where the system notifications show the
-    same information. See [Background activity](navigation.md#background-activity).
+- **Show background activity in the menu:** Shows downloads, sync, indexing
+    progress, AI-agent runs and failures in the three-dot menu (⋮): a progress
+    ring and a badge for failures or items needing attention on the button, and
+    an activity list in the menu. Opening the menu clears unread failure badges,
+    but an agent permission-wait badge remains until the request is resolved. On
+    by default on desktop and iOS, off on Android, where the system notifications
+    show the same information. See
+    [Background activity](navigation.md#background-activity).
 - **System notifications:** (Linux and Windows desktop, iOS, and the iOS app on a Mac) Shows a system notification
     when background work fails, and when a long download, install or index (over
     about 10 seconds) finishes while AndBible is in the background. Successful
@@ -209,7 +212,9 @@ remain reachable on a phone.
     setting off prevents the prompt. If permission is denied, use **Open settings**
     in this setting to open the notification settings (the app's settings on older
     iOS versions) and allow notifications; AndBible will not repeatedly ask. Your operating system's
-    notification settings apply on top. See
+    notification settings apply on top. On Linux, an AI agent waiting for permission
+    also raises an urgent background notification; Android's agent foreground-service
+    notification is unchanged. See
     [Background activity](navigation.md#background-activity).
 
 ### One-Tap Actions

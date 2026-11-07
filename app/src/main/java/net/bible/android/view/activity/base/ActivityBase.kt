@@ -379,6 +379,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         isScreenOn = true
     }
 
+    override fun finish() {
+        super.finish()
+        CurrentActivityHolder.activityFinishing(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.i(TAG, "onDestroy")

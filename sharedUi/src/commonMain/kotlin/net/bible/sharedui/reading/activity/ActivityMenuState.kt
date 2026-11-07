@@ -24,6 +24,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import net.bible.android.control.activity.ActivityItem
+import net.bible.android.control.activity.ActivityBadgeCounts
+import net.bible.android.control.activity.ActivityState
 
 /**
  * What the reading toolbar's overflow button and menu need to show background activity (#4007).
@@ -47,13 +49,21 @@ class ActivityMenuState(
     val onShowAll: () -> Unit,
     val onMenuOpened: () -> Unit,
     val syncNow: SyncNowMenuState? = null,
+    val onOpenItem: (ActivityItem) -> Unit = {},
+    val badge: State<ActivityBadgeCounts> = mutableStateOf(ActivityBadgeCounts(failures = unreadFailures.value)),
 ) {
     /** A snapshot of plain values, for tests and goldens. */
     constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit, syncNow: SyncNowMenuState? = null) :
-        this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened, syncNow)
+        this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened, syncNow, badge = mutableStateOf(
+            ActivityBadgeCounts(
+                failures = (unreadFailures - items.count { it.state == ActivityState.RUNNING && it.attention }).coerceAtLeast(0),
+                attention = items.count { it.state == ActivityState.RUNNING && it.attention }.coerceAtMost(unreadFailures),
+            ),
+        ))
 
     /** The same data with another "show all" action. */
-    fun withShowAll(onShowAll: () -> Unit) = ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow)
+    fun withShowAll(onShowAll: () -> Unit, onOpenItem: (ActivityItem) -> Unit = this.onOpenItem) =
+        ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow, onOpenItem, badge)
 }
 
 /** Semantics test tags of the activity UI. */

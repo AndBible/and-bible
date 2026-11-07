@@ -140,6 +140,29 @@ class WorkspaceSwitchContentTest {
      * over, so each pane keeps its old page on screen until the new document replaces it; only the views no incoming
      * window takes are destroyed, once the new panes are composed.
      */
+    @Test fun agentActivityNavigationSavesOutgoingWorkspaceBeforeSwitch() {
+        val a = workspaceA()
+        val outgoingId = a.repo.id
+        val targetId = newWorkspaceB(a.repo)
+        a.repo.name = "Unsaved agent navigation workspace"
+        val host = checkNotNull(a.activity.readingCommands.composeReadingViewHost)
+        val wiring = host.javaClass.getDeclaredMethod("activityWiring").apply { isAccessible = true }
+            .invoke(host) as net.bible.sharedui.reading.activity.ActivityHostWiring
+        val item = net.bible.android.control.activity.ActivityItem(
+            net.bible.android.control.activity.agentActivityId(targetId),
+            net.bible.android.control.activity.ActivityKind.AI_AGENT, "Agent",
+            net.bible.android.control.activity.ActivityState.RUNNING, null, null, null, 0L, null, true,
+        )
+        wiring.open(item)
+        settleWorkspaceSwitches()
+        compose.waitForIdle()
+        assertEquals(targetId, a.repo.id)
+        a.activity.lifecycleScope.launch { a.activity.readingCommands.switchWorkspace(outgoingId) }
+        settleWorkspaceSwitches()
+        compose.waitForIdle()
+        assertEquals("unsaved workspace name must survive agent navigation", "Unsaved agent navigation workspace", a.repo.name)
+    }
+
     @Test fun switchHandsTheOutgoingViewsToTheIncomingWindows() {
         val a = workspaceA()
         val oldViews = a.oldWindows.map { it.bibleView as BibleView }

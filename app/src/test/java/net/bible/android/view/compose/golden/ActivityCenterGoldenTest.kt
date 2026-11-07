@@ -73,6 +73,7 @@ class ActivityCenterGoldenTest {
         ReadingToolbar(state = toolbarState, icons = goldenToolbarIcons(), callbacks = goldenToolbarCallbacks(), activity = activity)
     }
 
+    @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
     private fun capture(state: String, content: @Composable () -> Unit) =
         modes.forEach { captureGolden("ActivityCenter", state, it, content = content) }
 
@@ -152,6 +153,20 @@ class ActivityCenterGoldenTest {
             )
         }
     }
+
+    @Test
+    fun activityList_agentRunning() = capture(
+        "activityList_agentRunning",
+        list(listOf(item("AI agent: Study", message = "Searching references").copy(kind = ActivityKind.AI_AGENT, cancel = {}))),
+    )
+
+    @Test
+    fun activityList_agentWaiting() = capture(
+        "activityList_agentWaiting",
+        list(listOf(item("AI agent: Study", message = "Waiting for your permission: search").copy(
+            kind = ActivityKind.AI_AGENT, attention = true, cancel = {},
+        ))),
+    )
 
     @Test
     fun list_empty() = capture("list_empty", list(emptyList()))

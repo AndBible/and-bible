@@ -35,6 +35,39 @@ class DatabaseResetterJobStateTest {
 
     @OptIn(InternalCoroutinesApi::class)
     @Test
+    fun timeoutDiagnosticsBoundWideAndDeepTreesAndSurviveBrokenJobs() {
+        val root = SupervisorJob()
+        try {
+            repeat(200) { SupervisorJob(root) }
+            val decision = DatabaseResetter.ResetDecision()
+            decision.diagnosticJob = root
+            val result = decision.diagnostic()
+            assertTrue("bounded output", result.length < 10_000)
+            assertTrue("truncation reported", result.contains("limit"))
+            val broken = object : Job by root {
+                override val children: Sequence<Job> get() = error("broken children")
+            }
+            decision.diagnosticJob = broken
+            assertTrue("diagnostic failure contained", decision.diagnostic().contains("unavailable"))
+        } finally { root.cancel() }
+    }
+
+    @Test
+    fun timeoutDiagnosticsStopAtDepthLimit() {
+        val root = SupervisorJob()
+        try {
+            var branch: Job = root
+            repeat(20) { branch = SupervisorJob(branch) }
+            val decision = DatabaseResetter.ResetDecision().apply { diagnosticJob = root }
+            val result = decision.diagnostic()
+            assertTrue("depth limit reported", result.contains("limit"))
+            assertTrue("depth 11 included", result.contains(" 11:"))
+            assertTrue("depth 12 excluded", !result.contains(" 12:"))
+        } finally { root.cancel() }
+    }
+
+    @OptIn(InternalCoroutinesApi::class)
+    @Test
     fun describingAParentWhoseChildIsStillBeingConstructedDoesNotThrow() {
         // The NPE in toString() only occurs in kotlinx coroutines debug mode (enabled by -ea); without it the test would pass vacuously.
         assumeTrue("needs kotlinx coroutines debug mode (-ea)", DEBUG_MODE)

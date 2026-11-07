@@ -122,6 +122,55 @@ class AgentSessionServiceImplTest {
         }
     }
 
+    @Test fun hostWorkspaceOverridesGlobalForRefreshEventsAndStop() = kotlinx.coroutines.test.runTest {
+        val dispatcher = kotlinx.coroutines.test.StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(dispatcher)
+        val global = org.koin.core.context.GlobalContext.get()
+            .get<net.bible.android.control.page.window.WindowControl>().windowRepository.id
+        var host = IdType()
+        val first = host
+        val ownerJob = kotlinx.coroutines.SupervisorJob()
+        val owner = net.bible.sharedcore.platform.AppCoroutineScope(ownerJob + dispatcher)
+        try {
+            val service = AgentSessionServiceImpl(workspaceId = { host }, owner = owner)
+            assertEquals(first.toString(), service.currentWorkspaceId())
+            val entry = net.bible.service.llm.agent.AgentLogEntry.info("host entry")
+            AgentSessionManager.addLogEntry(first, entry)
+            testScheduler.runCurrent()
+            service.refresh()
+            assertEquals(listOf("host entry"), service.snapshot.value.entries.map { it.message })
+            val beforeGlobalEvent = service.snapshot.value
+            entry.message = "updated without an event"
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(global, false, AgentStopReason.COMPLETED))
+            testScheduler.runCurrent()
+            assertEquals(beforeGlobalEvent, service.snapshot.value)
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(first, false, AgentStopReason.ERROR))
+            testScheduler.runCurrent()
+            assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+            host = IdType()
+            service.refresh()
+            assertNull(service.snapshot.value.lastStopReason)
+            assertEquals(host.toString(), service.currentWorkspaceId())
+            val session = AgentSessionManager.getOrCreateSession(host)
+            assertTrue(session.tryStart(AgentContext(promptId = IdType())))
+            service.stop()
+            assertFalse(AgentSessionManager.isRunning(host))
+            testScheduler.runCurrent()
+            ownerJob.cancel()
+            ownerJob.join()
+            val afterCancellation = service.snapshot.value
+            AgentSessionManager.addLogEntry(host, net.bible.service.llm.agent.AgentLogEntry.info("after cancellation"))
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(host, false, AgentStopReason.COMPLETED))
+            testScheduler.runCurrent()
+            assertEquals(afterCancellation, service.snapshot.value)
+        } finally {
+            ownerJob.cancel()
+            AgentSessionManager.clearSession(host)
+            AgentSessionManager.clearSession(first)
+            Dispatchers.setMain(UnconfinedTestDispatcher())
+        }
+    }
+
     // --- AgentSessionManager.changes ------------------------------------------------------------
 
     @Test
