@@ -76,14 +76,14 @@ class ActivityListTest {
         onNodeWithText("Report").assertIsDisplayed()
     }
 
-    @Test fun reportShownForCauseOnlyFailure() = runComposeUiTest {
+    @Test fun reportHiddenForNonReportableFailureWithCause() = runComposeUiTest {
         val failed = item("failed", ActivityState.FAILED).copy(cause = IllegalStateException("failure"))
         setContent {
             AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
                 ActivityListContent(listOf(failed), {}, {}, {}, onReport = {})
             } }
         }
-        onNodeWithText("Report").assertIsDisplayed()
+        onAllNodesWithText("Report").assertCountEquals(0)
     }
 
     @Test fun reportHiddenOnExpectedErrorsAndNonFailedRows() = runComposeUiTest {
@@ -107,7 +107,7 @@ class ActivityListTest {
         val firstCause = IllegalStateException("first")
         val latestCause = IllegalStateException("latest")
         var current by androidx.compose.runtime.mutableStateOf(
-            item("failed", ActivityState.FAILED, message = "first").copy(cause = firstCause)
+            item("failed", ActivityState.FAILED, message = "first").copy(reportable = true, cause = firstCause)
         )
         var reported: ActivityItem? = null
         var opened = false

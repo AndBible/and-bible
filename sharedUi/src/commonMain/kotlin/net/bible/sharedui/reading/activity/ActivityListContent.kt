@@ -154,7 +154,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
         if (item.state == ActivityState.RUNNING) {
             if (cancel != null) TextButton(onClick = cancel) { Text(strings.cancel) }
         } else {
-            if (item.state == ActivityState.FAILED && (item.reportable || item.cause != null) && onReport != null) {
+            if (item.state == ActivityState.FAILED && item.reportable && onReport != null) {
                 TextButton(onClick = { onReport(item) }) { Text(strings.activityReport) }
             }
             TextButton(onClick = { onDismiss(item.id) }) { Text(strings.dismiss) }
