@@ -51,6 +51,9 @@ class DesktopUpdateBindingTest {
             System.setProperty("andbible.releaseKind", "test")
             val eligible = koinApplication { modules(dependencies, desktopMiscModule()) }
             try { assertNotNull(eligible.koin.get<DesktopUpdateCheckSetting>()) } finally { eligible.close() }
+            System.setProperty("andbible.releaseKind", "beta")
+            val beta = koinApplication { modules(dependencies, desktopMiscModule()) }
+            try { assertNotNull(beta.koin.get<DesktopUpdateCheckSetting>()) } finally { beta.close() }
             System.setProperty("andbible.releaseKind", "dev")
             val dev = koinApplication { modules(desktopMiscModule()) }
             try { assertNull(dev.koin.getOrNull<DesktopUpdateCheckSetting>()) } finally { dev.close() }

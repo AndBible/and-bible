@@ -39,7 +39,7 @@ class DesktopUpdatePromptsTest {
             override val askBeforeOpening = false
             override fun open(url: String) { opened += url }
         }
-        fun start() = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, true, dialogs,
+        fun start() = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
             HostStringTableHolder(table), links, { true }, { now }, {
                 """[{"tag_name":"production-$build","draft":false,"html_url":"https://example.com/$build","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
             })
@@ -83,7 +83,7 @@ class DesktopUpdatePromptsTest {
         var language = "first"
         val table = StringTable.of("en", { "$language:$it" }, { _, _ -> "" }, { emptyList() })
         var ready = false
-        val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, true, dialogs,
+        val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
             HostStringTableHolder(table), object : ExternalLinks {
                 override val askBeforeOpening = false
                 override fun open(url: String) = Unit

@@ -26,7 +26,7 @@ class DesktopUpdateCheckTest {
         val answer = CompletableDeferred<Boolean?>()
         var questions = 0
         var requests = 0
-        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, true, backgroundScope, {},
+        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { questions++; answer.await() })
         checker.start(); checker.start(); runCurrent()
         assertEquals(1, questions)
@@ -41,11 +41,11 @@ class DesktopUpdateCheckTest {
         val prefs = settings()
         var requests = 0
         var questions = 0
-        val first = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, true, backgroundScope, {},
+        val first = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { questions++; false })
         first.start(); runCurrent()
         assertEquals("no", prefs.getString("desktop_update_check"))
-        val upgraded = DesktopUpdateCheck(prefs, { 200000000L }, { requests++; "[]" }, 2, true, backgroundScope, {},
+        val upgraded = DesktopUpdateCheck(prefs, { 200000000L }, { requests++; "[]" }, 2, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { questions++; true })
         upgraded.start(); runCurrent()
         assertEquals(1, questions)
@@ -56,7 +56,7 @@ class DesktopUpdateCheckTest {
         val prefs = settings().apply { putString("desktop_update_check", "yes") }
         var now = 100000000L
         var requests = 0
-        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; throw IOException("offline") }, 1, true, backgroundScope, {})
+        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; throw IOException("offline") }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
         checker.start(); runCurrent()
         assertEquals(now, prefs.getLong("desktop_update_last_check", 0))
         now += 23 * 60 * 60 * 1000L
@@ -70,7 +70,7 @@ class DesktopUpdateCheckTest {
         var now = 100000000L
         var body = release(1240)
         val announced = mutableListOf<Int>()
-        val checker = DesktopUpdateCheck(prefs, { now }, { body }, 1239, true, backgroundScope, { announced += it.build })
+        val checker = DesktopUpdateCheck(prefs, { now }, { body }, 1239, DesktopChannel.PRODUCTION, backgroundScope, { announced += it.build })
         checker.start(); runCurrent()
         now += 86400000; checker.start(); runCurrent()
         body = release(1241); now += 86400000; checker.start(); runCurrent()
@@ -82,7 +82,7 @@ class DesktopUpdateCheckTest {
     @Test fun cancelledConsentDoesNotPersistOrFetch() = runTest {
         val prefs = settings()
         var requests = 0
-        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, true, backgroundScope, {},
+        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { null })
         checker.start(); runCurrent()
         assertNull(prefs.getString("desktop_update_check"))
@@ -96,7 +96,7 @@ class DesktopUpdateCheckTest {
         var now = 100000000L
         val firstJob = Job(backgroundScope.coroutineContext[Job])
         val firstScope = CoroutineScope(backgroundScope.coroutineContext + firstJob)
-        val first = DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, true, firstScope, {},
+        val first = DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, DesktopChannel.PRODUCTION, firstScope, {},
             announceAndAwait = {
                 dialogs.await(AppDialogRequest.Confirm("Update", "New release", "Download", "Later")) == AppDialogResult.Ok
             })
@@ -107,7 +107,7 @@ class DesktopUpdateCheckTest {
         assertNull(dialogs.pending.value)
         now += 86400000L
         val offered = mutableListOf<Int>()
-        DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, true, backgroundScope, { offered += it.build })
+        DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, DesktopChannel.PRODUCTION, backgroundScope, { offered += it.build })
             .start()
         runCurrent()
         assertEquals(listOf(1240), offered)
@@ -117,7 +117,7 @@ class DesktopUpdateCheckTest {
         val prefs = settings().apply { putString("desktop_update_check", "yes") }
         val pending = CompletableDeferred<String>()
         val announced = mutableListOf<Int>()
-        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { pending.await() }, 1, true, backgroundScope, { announced += it.build })
+        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, { announced += it.build })
         checker.start(); runCurrent()
         prefs.putString("desktop_update_check", "no")
         pending.complete(release(2)); runCurrent()
@@ -129,7 +129,7 @@ class DesktopUpdateCheckTest {
         val prefs = settings().apply { putString("desktop_update_check", "yes") }
         val pending = CompletableDeferred<String>()
         var entered = false
-        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { entered = true; pending.await() }, 1, true, backgroundScope, {})
+        val checker = DesktopUpdateCheck(prefs, { 100000000L }, { entered = true; pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
         checker.start(); runCurrent()
         assertEquals(true, entered)
         checker.start(); runCurrent()
