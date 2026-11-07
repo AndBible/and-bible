@@ -68,7 +68,6 @@ fun AppSettingsScreen(
     onDismissDialog: () -> Unit = {},
     askBeforeOpeningLink: Boolean = false,
     onOpenExternal: (String) -> Unit = {},
-    onReportBug: (() -> Unit)? = null,
     settingsKoin: Koin? = KoinPlatform.getKoinOrNull(),
 ) {
     val strings = LocalStrings.current
@@ -123,11 +122,6 @@ fun AppSettingsScreen(
         onOpenSearch = onOpenSearch,
         onCloseSearch = onCloseSearch,
         actions = {
-            if (onReportBug != null) {
-                androidx.compose.material3.TextButton(onClick = onReportBug) {
-                    androidx.compose.material3.Text(strings.reportGeneralBugLabel)
-                }
-            }
             IconButton(onClick = onReset) {
                 Icon(Icons.Filled.RestartAlt, contentDescription = resetContentDescription)
             }

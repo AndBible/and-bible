@@ -136,7 +136,7 @@ A beta is a version for everyday use, but it will have rough edges, and that is 
 need you. When something does not work:
 
 - In the app, open the menu, then *Help & tips*, then *Feedback / bug report*. The report includes
-  the details we need to find the problem. On iPhone and iPad the same action is in Settings.
+  the details we need to find the problem. The same menu item is there on every platform.
 - Or open an issue on [GitHub](https://github.com/AndBible/and-bible/issues/new/choose).
 
 Please tell us your device and operating system, and what you were doing when the problem happened.

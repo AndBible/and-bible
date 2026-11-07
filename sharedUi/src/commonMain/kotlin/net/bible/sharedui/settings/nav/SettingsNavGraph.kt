@@ -146,7 +146,6 @@ class AppSettingsDeps(
     val onResume: () -> Unit,
     val askBeforeOpeningLink: () -> Boolean,
     val onOpenExternal: (String) -> Unit,
-    val onReportBug: (() -> Unit)? = null,
     /** Asks for the legacy-data import (iOS); the default does nothing because the row is hidden elsewhere. */
     val onImportLegacyData: () -> Unit = {},
 )
@@ -473,7 +472,6 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onDismissDialog = controller::dismissDialog,
             askBeforeOpeningLink = d.askBeforeOpeningLink(),
             onOpenExternal = d.onOpenExternal,
-            onReportBug = d.onReportBug,
         )
     }
 
