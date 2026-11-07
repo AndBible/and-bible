@@ -22,8 +22,8 @@ const result = run(['AndBible', 'Other', 'AndBible']);
 assert(result.xml.saved);
 for (const index of [0, 2]) {
     const property = result.shortcuts[index].children[0];
-    assert.strictEqual(property.name, 'util:ShortcutProperty');
-    assert.strictEqual(property.namespace, 'http://schemas.microsoft.com/wix/UtilExtension');
+    assert.strictEqual(property.name, 'ShortcutProperty');
+    assert.strictEqual(property.namespace, 'http://schemas.microsoft.com/wix/2006/wi');
     assert.strictEqual(property.attributes.Key, 'System.AppUserModel.ID');
     assert.strictEqual(property.attributes.Value, 'org.andbible.AndBible');
 }
