@@ -5,6 +5,8 @@ TMP:=$(shell mktemp -d)
 STEP ?= 1
 increment-version:
 	./scripts/increment-version.sh --step $(STEP)
+increment-beta-version:
+	./scripts/increment-version.sh --beta --step $(STEP)
 increment-test-version:
 	./scripts/increment-version.sh --build --step $(STEP)
 
@@ -137,4 +139,4 @@ testflight:
 	@case "$(DEST)" in ""|upload|export) ;; *) echo "testflight: DEST must be empty, upload or export (got '$(DEST)')" >&2; exit 1;; esac
 	@scripts/release/ios-build.sh $(if $(filter export,$(DEST)),--export-only,)
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight
+.PHONY: increment-version increment-beta-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight

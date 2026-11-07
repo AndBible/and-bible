@@ -2,8 +2,10 @@
 
 # Version increment script for AndBible
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
-# Usage: ./scripts/increment-version.sh [--build] [--step N]
-#   --build:  Create a test release tag (test-X) instead of production tag (production-X)
+# Usage: ./scripts/increment-version.sh [--build | --beta] [--step N]
+#   --build:  Create a test release tag (test-X, developer-only build) instead of production tag (production-X)
+#   --beta:   Create a public beta tag (beta-X), signed and pushed after confirmation like a production
+#             release; needs versionNameSuffix=-beta in version.properties so the apps show the beta notice
 #   --step N: Increase versionCode by N instead of 1, e.g. to leave a gap of
 #             version codes free for current-stable bug-fix releases
 
@@ -38,14 +40,20 @@ retry_command() {
 
 # Parse arguments
 BUILD_MODE=false
+BETA_MODE=false
 STEP=1
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --build) BUILD_MODE=true; shift ;;
+        --beta) BETA_MODE=true; shift ;;
         --step) STEP="$2"; shift 2 ;;
         *) echo -e "${RED}Error: Unknown argument: $1${NC}"; exit 1 ;;
     esac
 done
+if [[ "$BUILD_MODE" == true && "$BETA_MODE" == true ]]; then
+    echo -e "${RED}Error: --build and --beta cannot be combined${NC}"
+    exit 1
+fi
 if ! [[ "$STEP" =~ ^[1-9][0-9]*$ ]]; then
     echo -e "${RED}Error: --step must be a positive integer, got '$STEP'${NC}"
     exit 1
@@ -63,6 +71,9 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 if [[ "$BUILD_MODE" == true ]]; then
     echo -e "${GREEN}AndBible Test Build Script${NC}"
     echo "=========================="
+elif [[ "$BETA_MODE" == true ]]; then
+    echo -e "${GREEN}AndBible Beta Release Script${NC}"
+    echo "============================"
 else
     echo -e "${GREEN}AndBible Version Increment Script${NC}"
     echo "=================================="
@@ -93,6 +104,19 @@ if [[ -z "$CURRENT_VERSION_CODE" ]] || [[ -z "$CURRENT_VERSION_NAME" ]]; then
 fi
 
 echo "Current version: $CURRENT_VERSION_NAME (code: $CURRENT_VERSION_CODE)"
+
+# The suffix decides whether the Android app calls itself a beta (CommonUtils.isBeta, beta notice).
+VERSION_SUFFIX=$(_version_get versionNameSuffix)
+if [[ "$BETA_MODE" == true && "$VERSION_SUFFIX" != "-beta" ]]; then
+    echo -e "${RED}Error: a beta release needs versionNameSuffix=-beta in $VERSION_FILE_REL (found '$VERSION_SUFFIX').${NC}"
+    echo "Set it, commit, and run again."
+    exit 1
+fi
+if [[ "$BUILD_MODE" != true && "$BETA_MODE" != true && -n "$VERSION_SUFFIX" ]]; then
+    echo -e "${RED}Error: a production release needs an empty versionNameSuffix in $VERSION_FILE_REL (found '$VERSION_SUFFIX').${NC}"
+    echo "Clear it, commit, and run again (or use --beta / --build)."
+    exit 1
+fi
 
 # versionNameSuffix (e.g. -beta) stays in the file and is not touched by an increment.
 NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + STEP))
@@ -130,9 +154,14 @@ grep -q "<release version=\"$NEW_VERSION_NAME\"" "$METAINFO_REL" || { echo -e "$
 # Generate changelog with auto-summarized release notes
 # For production builds, diff against the latest production-* tag
 # For test builds, diff against the latest test-* tag (to show only changes since last test build)
+# For beta releases, diff against the nearest beta-* or production-* tag
 if [[ "$BUILD_MODE" == true ]]; then
     PREVIOUS_TAG=$(git describe --tags --match 'test-*' --abbrev=0 HEAD 2>/dev/null || \
                    git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+elif [[ "$BETA_MODE" == true ]]; then
+    # The nearest beta-* or production-* tag: an old beta (e.g. 5.0's beta-740.3) older than the last
+    # production release must not pull years of history into the changelog.
+    PREVIOUS_TAG=$(git describe --tags --match 'beta-*' --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 else
     PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 fi
@@ -211,7 +240,7 @@ if [[ "$response" =~ ^[Ee]$ ]]; then
 fi
 if [[ ! "$response" =~ ^[Yy]$ ]]; then
     echo "Aborted by user. Reverting changes..."
-    git checkout -- "$VERSION_FILE_REL"
+    git checkout -- "$VERSION_FILE_REL" "$METAINFO_REL"
     rm -f "$NEW_CHANGELOG"
     exit 1
 fi
@@ -233,6 +262,9 @@ fi
 if [[ "$BUILD_MODE" == true ]]; then
     TAG_NAME="test-$NEW_VERSION_CODE"
     TAG_MESSAGE="Test release $NEW_VERSION_NAME"
+elif [[ "$BETA_MODE" == true ]]; then
+    TAG_NAME="beta-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Beta release $NEW_VERSION_NAME"
 else
     TAG_NAME="production-$NEW_VERSION_CODE"
     TAG_MESSAGE="Release $NEW_VERSION_NAME"
