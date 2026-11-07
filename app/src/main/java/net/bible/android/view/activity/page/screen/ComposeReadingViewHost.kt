@@ -1423,10 +1423,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
         return ActivityHostWiring(center, preference, syncNow = getKoin().get(), onOpenAgent = { id ->
             hostScope.launch {
-                if (windowControl.windowRepository.id != id) activity.readingCommands.quickSwitchToWorkspace(id.toString())
-                if (windowControl.windowRepository.id == id) {
+                if (activity.hostWindowRepository.id != id) activity.readingCommands.quickSwitchToWorkspace(id.toString())
+                if (activity.hostWindowRepository.id == id) {
                     agentSessionService.refresh()
-                    if (windowControl.windowRepository.id == id) agentLog.show()
+                    if (activity.hostWindowRepository.id == id) agentLog.show()
                 }
             }
         }) { item ->

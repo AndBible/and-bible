@@ -39,8 +39,6 @@ class DatabaseResetterJobStateTest {
         val root = SupervisorJob()
         try {
             repeat(200) { SupervisorJob(root) }
-            var branch: Job = root
-            repeat(20) { branch = SupervisorJob(branch) }
             val decision = DatabaseResetter.ResetDecision()
             decision.diagnosticJob = root
             val result = decision.diagnostic()
@@ -51,6 +49,20 @@ class DatabaseResetterJobStateTest {
             }
             decision.diagnosticJob = broken
             assertTrue("diagnostic failure contained", decision.diagnostic().contains("unavailable"))
+        } finally { root.cancel() }
+    }
+
+    @Test
+    fun timeoutDiagnosticsStopAtDepthLimit() {
+        val root = SupervisorJob()
+        try {
+            var branch: Job = root
+            repeat(20) { branch = SupervisorJob(branch) }
+            val decision = DatabaseResetter.ResetDecision().apply { diagnosticJob = root }
+            val result = decision.diagnostic()
+            assertTrue("depth limit reported", result.contains("limit"))
+            assertTrue("depth 11 included", result.contains(" 11:"))
+            assertTrue("depth 12 excluded", !result.contains(" 12:"))
         } finally { root.cancel() }
     }
 

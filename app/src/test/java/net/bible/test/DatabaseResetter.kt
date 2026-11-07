@@ -350,7 +350,7 @@ object DatabaseResetter {
         val children = job.children.take(17).map { jobIdentity(it) }.toList()
         "${jobIdentity(job)} active=${job.isActive} completed=${job.isCompleted} " +
             "cancelled=${job.isCancelled} children=${children.take(16)}${if (children.size > 16) " limit" else ""}"
-    } catch (_: Throwable) { "${jobIdentity(job)} unavailable" }
+    } catch (_: Throwable) { "job unavailable" }
 
     private suspend fun checkpoint(stage: String, details: String = "") {
         kotlinx.coroutines.currentCoroutineContext()[ResetDecision]?.checkpoint(stage, details)
