@@ -101,8 +101,22 @@ def prepare_device(dev: Device, locale_tag: str, landscape: bool) -> None:
                   "-e command network -e mobile show -e datatype none -e level 4 -e fully true",
                   "-e command notifications -e visible false"):
         dev.shell(f"am broadcast -a com.android.systemui.demo {extra}")
-    dev.shell("settings put system accelerometer_rotation 0")
-    dev.shell(f"settings put system user_rotation {1 if landscape else 0}")
+    lock_rotation(dev, landscape)
+
+
+def lock_rotation(dev: Device, landscape: bool) -> None:
+    """Rotate the emulated device itself (`adb emu rotate`, auto-rotate on) until the display is landscape or
+    portrait. A window-manager rotation lock does not hold: every `uiautomator dump` unfreezes it again."""
+    dev.shell("settings put system accelerometer_rotation 1")
+    want = "landscape" if landscape else "portrait"
+    for _ in range(5):
+        out = dev.shell("dumpsys window displays | grep -m1 -o 'mDisplayRotation=ROTATION_[0-9]*'", check=False)
+        rot = out.strip().rsplit("_", 1)[-1]
+        if rot and (rot in ("90", "270")) == landscape:
+            return
+        dev.adb("emu", "rotate", check=False)
+        time.sleep(3)
+    raise RuntimeError(f"display did not rotate to {want}")
 
 
 def set_night(dev: Device, night: bool) -> None:
@@ -138,16 +152,20 @@ class Content:
 
 
 def verse_number_node(xml: str, verse: int) -> tuple[int, int]:
-    """The verse number of `verse` in the reading WebView: a node whose text is exactly the number, directly
-    followed by a text node (the verse text); footnote markers are letters, not numbers."""
+    """The verse number of `verse` in the reading WebView: a node below the toolbar whose text is exactly the
+    number, directly followed by a text node (the verse text); footnote markers are letters, not numbers."""
     import xml.etree.ElementTree as ET
     nodes = list(ET.fromstring(xml.encode()).iter("node"))
     from .android_actions import _centre
+    toolbar = 0
+    for n in nodes:
+        if n.attrib.get("content-desc") == UI_TEXT["more_options"]:
+            toolbar = int(re.findall(r"-?\d+", n.attrib["bounds"])[3])
     for i, n in enumerate(nodes[:-1]):
         if n.attrib.get("text") == str(verse):
             nxt = nodes[i + 1].attrib.get("text", "")
             x, y = _centre(n.attrib["bounds"])
-            if len(nxt.strip()) >= 2 and y > 300:
+            if len(nxt.strip()) >= 2 and y > toolbar:
                 return x + 30, y
     raise NodeNotFound(f"verse number {verse}")
 
@@ -277,6 +295,7 @@ def run_plan(repo: Path, plan: dict, content_path: Path, demo_zip: Path, out_dir
             try:
                 subprocess.run([str(repo / "scripts/store-shots/android-seed.sh"), str(demo_zip), dev.pkg],
                                check=True, capture_output=True, stdin=subprocess.DEVNULL)
+                lock_rotation(dev, landscape)
                 open_app(dev)
                 switch_workspace(dev, s["workspace"])
                 time.sleep(settle)

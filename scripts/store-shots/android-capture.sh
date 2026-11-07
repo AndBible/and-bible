@@ -41,7 +41,7 @@ if [ "$boot" = 1 ]; then
     fi
 fi
 "$emu" install "$apk" >/dev/null
-python3 -I - "$repo/store-screenshots/demo-content/modules.yaml" "$lang" <<'PY' | while read -r m; do "$emu" push-module "$work/modules/$m.zip" >/dev/null; done
+python3 -I - "$repo/store-screenshots/demo-content/modules.yaml" "$lang" <<'PY' | while read -r m; do "$emu" push-module "$work/modules/$m.zip" >/dev/null </dev/null; done
 import re, sys
 cur = None
 for line in open(sys.argv[1]):
