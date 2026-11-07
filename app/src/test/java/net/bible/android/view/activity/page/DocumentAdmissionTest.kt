@@ -288,6 +288,19 @@ class DocumentAdmissionTest {
         val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
+        // Keep the old page's IO read in flight until Genesis replaces it and cancels that read.
+        val readEntered = CountDownLatch(1)
+        val readRelease = CountDownLatch(1)
+        val readExited = CountDownLatch(1)
+        loader.chapterReadFailureForTest = {
+            readEntered.countDown()
+            try {
+                check(readRelease.await(10, TimeUnit.SECONDS))
+                false
+            } finally {
+                readExited.countDown()
+            }
+        }
         val caller = Thread {
             loader.runForPageDocument(a, call = {
                 entered.countDown()
@@ -304,9 +317,12 @@ class DocumentAdmissionTest {
         Thread.sleep(500)
         release.countDown()
         caller.join(10_000)
+        assertTrue(readEntered.await(10, TimeUnit.SECONDS))
         view.awaitLastRequestEnded()
         waitUntil("Genesis admitted") { session.documentGeneration != a && session.documentGeneration != NO_DOCUMENT_GENERATION }
-        waitUntil("51 answered") { response(51).isNotEmpty() }
+        // Replacement cancels the old page's in-flight read, so a response is not guaranteed.
+        readRelease.countDown()
+        assertTrue(readExited.await(10, TimeUnit.SECONDS))
         assertEquals("Genesis 3's range", 3 to 3, session.minChapter to session.maxChapter)
     }
 
