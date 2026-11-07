@@ -51,6 +51,8 @@ object BetaNotice {
     const val NEW_ISSUE_LINK = "https://github.com/AndBible/and-bible/issues/new/choose"
     const val GITHUB_LINK = "https://github.com/AndBible/and-bible"
     const val RELEASES_LINK = "https://github.com/AndBible/and-bible/releases"
+    /** The public TestFlight beta; keep equal to `ios_beta_link` in website/content/en/site.yaml. */
+    const val TESTFLIGHT_LINK = "https://testflight.apple.com/join/sB7guYsk"
     const val PLAY_BETA_LINK = "https://play.google.com/apps/testing/net.bible.android.activity"
     val INSTALLATION_GUIDE_LINK: String = DocsLinks.page("getting_started", "installation")
 
@@ -83,7 +85,10 @@ object BetaNotice {
     /** The dialog: the platform's special notice, the standard paragraphs and the [version] line. */
     fun request(platform: BetaNoticePlatform, strings: Strings, version: String): AppDialogRequest.Notice {
         val par1 = strings.betaNoticeContent1
-        val par2 = strings.betaNoticeContent2(" <a href=\"$ISSUES_LINK\">${strings.betaNoticeGithubIssues}</a>")
+        val issuesLink = " <a href=\"$ISSUES_LINK\">${strings.betaNoticeGithubIssues}</a>"
+        // Google Play exists only on Android; iOS and desktop name the in-app report action instead.
+        val par2 = if (platform == BetaNoticePlatform.ANDROID) strings.betaNoticeContent2(issuesLink)
+        else strings.betaNoticeContent2App(issuesLink)
         val par3 = strings.betaNoticeContent3(" <a href=\"$GITHUB_LINK\">${strings.betaNoticeGithub}</a>")
         val html = "${specialNoticeHtml(platform, strings)}<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> " +
             "<i>${strings.versionText(version)}</i>"
@@ -118,19 +123,19 @@ object BetaNotice {
                 intro = betaSpecialIntroIos
                 news = listOf(betaSpecialRedesign, betaSpecialOneApp, betaSpecialSyncIos)
                 lookout = betaSpecialLookoutIos
-                report = betaSpecialReportIos(github, bugReportItem)
+                report = betaSpecialReport(github, bugReportItem)
             }
             BetaNoticePlatform.DESKTOP -> {
                 intro = betaSpecialIntroDesktop
                 news = listOf(betaSpecialRedesign, betaSpecialOneApp, betaSpecialSyncDesktop)
                 lookout = betaSpecialLookoutDesktop
-                report = betaSpecialReportDesktop(github, bugReportItem)
+                report = betaSpecialReport(github, bugReportItem)
             }
         }
         val releases = link(RELEASES_LINK, "GitHub")
         val otherDevices = listOf(
             betaSpecialOtherAndroid(link(PLAY_BETA_LINK, betaSpecialPlayBetaLink), releases),
-            betaSpecialOtherApple,
+            betaSpecialOtherApple(link(TESTFLIGHT_LINK, betaSpecialTestflightLink)),
             betaSpecialOtherDesktop(releases),
         )
         listOf(

@@ -69,6 +69,33 @@ class BetaNoticeTest {
     }
 
     @Test
+    fun googlePlayIsNamedOnlyOnAndroid() {
+        assertTrue(body(BetaNoticePlatform.ANDROID).contains("report bugs via Google Play"))
+        listOf(BetaNoticePlatform.IOS, BetaNoticePlatform.DESKTOP).forEach {
+            val html = body(it)
+            assertFalse(html.contains("report bugs via Google Play"), "$it")
+            assertTrue(html.contains("via the app (Main menu → Feedback / bug report)"), "$it")
+            assertTrue(html.contains("href=\"${BetaNotice.ISSUES_LINK}\""), "$it")
+        }
+    }
+
+    @Test
+    fun removedBugReportButtonsAreNotMentioned() {
+        BetaNoticePlatform.entries.forEach {
+            val html = body(it)
+            assertFalse(html.contains("the same action is also"), "$it")
+            assertFalse(html.contains("toolbar of the application preferences"), "$it")
+        }
+    }
+
+    @Test
+    fun testFlightLinkIsInTheAppleItem() {
+        val html = body(BetaNoticePlatform.IOS)
+        assertTrue(html.contains("<a href=\"https://testflight.apple.com/join/sB7guYsk\">AndBible public beta</a>"))
+        assertFalse(html.contains("link is in the installation guide"))
+    }
+
+    @Test
     fun installationGuideLinkPointsAtTheInstallationHeading() {
         assertTrue(BetaNotice.INSTALLATION_GUIDE_LINK.endsWith("/getting_started/#installation"))
     }
