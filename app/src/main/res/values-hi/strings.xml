@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">WebView2 के साथ बाइबल का पाठ दिखाने के लिए AndBible को Direct3D ग्राफ़िक्स चाहिए। वर्तमान ग्राफ़िक्स रेंडरर %1$s है। अपना ग्राफ़िक्स ड्राइवर और Direct3D सपोर्ट जाँचें।\n\nविवरण लॉग फ़ाइल में हैं:\n%2$s</string>
   <string name="desktop_update_setting_title">अपडेट की जाँच करें</string>
   <string name="desktop_update_setting_summary">दिन में एक बार, github.com से</string>
+  <string name="desktop_beta_update_setting_title">सार्वजनिक बीटा अपडेट प्रदान करें</string>
+  <string name="desktop_beta_update_setting_summary">सार्वजनिक बीटा संस्करण भी प्रदान करें। बंद होने पर, बीटा इंस्टॉलेशन को केवल प्रोडक्शन रिलीज़ मिलती हैं।</string>
   <string name="desktop_update_consent_title">अपडेट की जाँच करें?</string>
   <string name="desktop_update_consent_message">AndBible नए संस्करण के लिए दिन में एक बार github.com देख सकता है। GitHub आपका IP पता देख सकता है; इसके अलावा कुछ नहीं भेजा जाता। आप इसे बाद में सेटिंग्स में बदल सकते हैं।</string>
   <string name="desktop_update_consent_yes">अपडेट की जाँच करें</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">E-ink विशिष्ट सुविधाएँ सक्षम करें (पेज स्क्रॉल बटन, स्क्रॉल सहायक रेखाएं)</string>
   <string name="prefs_disable_animations_title">एनिमेशन बंद करें</string>
   <string name="prefs_disable_animations_summary">सहज स्क्रॉलिंग जैसे विभिन्न एनिमेशन बंद करें।</string>
+  <string name="prefs_show_activity_in_menu_title">मेनू में बैकग्राउंड गतिविधि दिखाएँ</string>
+  <string name="prefs_show_activity_in_menu_summary">डाउनलोड, सिंक और इंडेक्सिंग की प्रगति तथा विफलताएँ, ⋮ मेनू में</string>
+  <string name="prefs_system_notifications_title">सिस्टम सूचनाएँ</string>
+  <string name="prefs_system_notifications_denied">iOS सेटिंग्स में बंद है</string>
+  <string name="prefs_system_notifications_summary">विफल बैकग्राउंड कार्य, AndBible के बैकग्राउंड में होने पर पूरे होने वाले लंबे डाउनलोड और उनकी प्रगति के बारे में सूचित करें</string>
   <string name="prefs_disable_click_to_edit_title">स्टडी पैड क्लिक-टू-एडिट अक्षम करें</string>
   <string name="prefs_disable_click_to_edit_summary">स्टडी पैड में नोट्स संपादित करने के लिए एडिट बटन का उपयोग करना आवश्यक है।</string>
   <string name="prefs_notes_content_type_title">नए बुकमार्क नोट्स का प्रारूप</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
   <string name="prefs_night_mode_system">सिस्टम</string>
   <string name="options_menu_night_mode"> नाइट मोड</string>
+  <string name="options_menu_sync_now">अभी सिंक करें</string>
+  <string name="exit_sync_title">बदलाव सिंक हो रहे हैं…</string>
+  <string name="exit_sync_body">आपके बदलाव आपके अन्य डिवाइस पर भेजे जा रहे हैं। इसमें कुछ सेकंड लग सकते हैं।</string>
+  <string name="exit_sync_quit_now">अभी बंद करें</string>
+  <string name="exit_sync_closing">बंद हो रहा है…</string>
+  <string name="sync_now_no_network">नेटवर्क कनेक्शन नहीं है</string>
   <string name="prefs_navigate_to_verse_title">छंद पर पहुंचे</string>
   <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
   <string name="prefs_open_links_in_special_window_title">लिंक विंडो</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">भाषा</string>
   <string name="one_more_back_press">ऐप को बंद करने के लिए फिर से बैक दबाएं</string>
   <string name="document_filter_results">%d किताबे</string>
+  <string name="activity_show_all">सभी दिखाएँ (%1$d)</string>
+  <string name="activity_failed_badge">%1$d विफल</string>
+  <string name="activity_attention_badge">%1$d पर ध्यान देना आवश्यक है</string>
+  <string name="activity_combined_badge">%1$d विफल, %2$d पर ध्यान देना आवश्यक है</string>
+  <string name="activity_running_description">बैकग्राउंड कार्य चल रहा है</string>
+  <string name="activity_running">चल रहा है</string>
+  <string name="activity_recent">हाल के</string>
+  <string name="activity_clear_finished">पूरे हुए साफ़ करें</string>
+  <string name="activity_title">बैकग्राउंड गतिविधि</string>
+  <string name="activity_empty">कुछ नहीं चल रहा</string>
+  <string name="activity_failed_toast">%1$s — मेनू देखें</string>
   <string name="download_question_title"> क्या आप किताबों को डाउनलोड करने के लिए आगे बढ़ना चाहते हैं?</string>
   <string name="download_question_message"> यदि आप उत्पीड़ित देश में रहते हैं, 
 तो आपको इंटरनेट के माध्यम से ईसाई सामग्री को डाउनलोड करने के बारे में सावधान रहने की आवश्यकता हो सकती है।
@@ -644,6 +668,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="backup_backup_title">कहां बैकअप करे?</string>
   <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
   <string name="backup_phone_storage">फोन स्टोरेज</string>
+  <string name="backup_save_to_files">Files में सहेजें</string>
   <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
   <string name="backup_modules2">पुस्तक बैकअप करे...</string>
   <string name="backup_app2">ऐप (.apk फ़ाइल) का बैकअप करें…</string>
@@ -696,6 +721,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="module_about_repository">वितरण सर्वर: %s</string>
   <string name="module_about_osisId">OSIS IS: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">लॉग फ़ोल्डर</string>
+  <string name="open_log_folder">लॉग फ़ोल्डर खोलें</string>
+  <string name="startup_report_bug">बग की रिपोर्ट करें</string>
   <string name="send_bug_report_title">प्रतिक्रिया / बग रिपोर्ट</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s के लिए बग रिपोर्ट</string>
   <string name="report_bug_big_heading">कृपया इस लाइन के ऊपर अपना प्रतिक्रिया या बग रिपोर्ट लिखें</string>
@@ -764,8 +792,16 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="debug_test_error">परीक्षण त्रुटि (डीबग बिल्ड)</string>
   <string name="bug_report_prepare_failed">रिपोर्ट तैयार या शेयर नहीं हो सकी। आप फिर कोशिश कर सकते हैं, या अपना डेटा सेव करने के लिए बैकअप और रीस्टोर का उपयोग करें।</string>
   <string name="bug_report_email_title">ईमेल द्वारा बग रिपोर्ट भेजें</string>
+  <string name="bug_report_desktop_text">इसके बाद आपसे पूछा जाएगा कि बग रिपोर्ट फ़ाइल कहाँ सहेजनी है। फिर आपको उसे डेवलपर टीम को भेजने के निर्देश मिलेंगे।</string>
   <string name="bug_report_email_text">इसके बाद, कृपया डेवलपर टीम को रिपोर्ट भेजने के लिए अपना पसंदीदा ईमेल एप्लिकेशन (जैसे Gmail) चुनें।</string>
   <string name="bug_report_manual_title">रिपोर्ट ईमेल से भेजें</string>
+  <string name="bug_report_manual_text_saved">रिपोर्ट <b>%1$s</b> में सहेजी गई।\n\nकृपया <b>%2$s</b> को ईमेल भेजें और वह फ़ाइल संलग्न करें; ईमेल प्रोग्राम उसे आपके लिए संलग्न नहीं कर सकता। सुझाया गया विषय: <b>%3$s</b>। संदेश में बताएँ कि आपने क्या किया और क्या हुआ।</string>
+  <string name="bug_report_manual_text_unsaved">रिपोर्ट आपके चुने हुए स्थान पर सहेजी गई।\n\nकृपया <b>%1$s</b> को ईमेल भेजें और सहेजी गई रिपोर्ट फ़ाइल संलग्न करें; ईमेल प्रोग्राम उसे आपके लिए संलग्न नहीं कर सकता। सुझाया गया विषय: <b>%2$s</b>। संदेश में बताएँ कि आपने क्या किया और क्या हुआ।</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s बग: &lt;संक्षिप्त विवरण&gt;</string>
+  <string name="bug_report_attach_line">कृपया फ़ाइल %1$s संलग्न करें</string>
+  <string name="bug_report_copy_subject">विषय कॉपी करें</string>
+  <string name="bug_report_copy_path">फ़ाइल पथ कॉपी करें</string>
+  <string name="bug_report_open_folder">फ़ोल्डर खोलें</string>
   <string name="bug_report_copy_address">पता कॉपी करें</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>
@@ -796,6 +832,37 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="beta_notice_github_issues">गिटहब के मुद्दे</string>
   <string name="beta_notice_github"> गिटहब</string>
   <string name="beta_notice_dismiss_until_update">अगले अद्यतन तक खारिज करे</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">बीटा परीक्षकों के लिए डेवलपर की विशेष सूचना (नवंबर 2026)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 बीटा में आपका स्वागत है! यह AndBible के इतिहास का सबसे बड़ा बदलाव है। पूरा ऐप एक नए यूज़र इंटरफ़ेस टूलकिट से दोबारा लिखा गया है, और इस दौरान इंटरफ़ेस भी नया बनाया गया है: हर स्क्रीन की समीक्षा की गई, और ताज़ा Material 3 रूप के साथ अधिकांश स्क्रीन में उपयोग की सुगमता में उल्लेखनीय सुधार हुए हैं।</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 बीटा में आपका स्वागत है! यदि आपने iOS के लिए AndBible 1.0 उपयोग किया है, तो यह एक बड़ा बदलाव है: संस्करण 6.0 उसकी जगह साझा AndBible ऐप लाता है, वही ऐप जो Android, iPhone, iPad और Apple Silicon Mac, Windows और Linux पर चलता है। यह उस कोड पर बना है जो एक दशक से अधिक समय से Android उपयोगकर्ताओं की सेवा कर रहा है, जिसे नए यूज़र इंटरफ़ेस टूलकिट से दोबारा लिखा गया है, और इस दौरान इंटरफ़ेस भी नया बनाया गया है: हर स्क्रीन की समीक्षा की गई, और अधिकांश स्क्रीन में उपयोग की सुगमता में उल्लेखनीय सुधार हुए हैं।</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 बीटा में, और Windows और Linux पर AndBible में आपका स्वागत है! यह AndBible का पहला डेस्कटॉप संस्करण है: वही ऐप अब Android, iPhone, iPad और Apple Silicon Mac, Windows और Linux पर चलता है। यह उस कोड पर बना है जो एक दशक से अधिक समय से Android उपयोगकर्ताओं की सेवा कर रहा है, जिसे नए यूज़र इंटरफ़ेस टूलकिट से दोबारा लिखा गया है, और इस दौरान इंटरफ़ेस भी नया बनाया गया है: हर स्क्रीन की समीक्षा की गई, और अधिकांश स्क्रीन में उपयोग की सुगमता में उल्लेखनीय सुधार हुए हैं।</string>
+  <string name="beta_special_redesign">नया डिज़ाइन किया गया इंटरफ़ेस: अधिक स्पष्ट मेनू, सेटिंग्स और डायलॉग, अधिक एकरूप नेविगेशन, और पूरे ऐप में कई छोटे कार्यप्रवाह सुधार।</string>
+  <string name="beta_special_data_kept">आपकी सभी सुविधाएँ, डेटा और सेटिंग्स पहले की तरह मौजूद हैं।</string>
+  <string name="beta_special_platforms">वही ऐप अब Android, iPhone, iPad और Apple Silicon Mac, Windows और Linux पर चलता है। नए प्लैटफ़ॉर्म का भी परीक्षण चल रहा है।</string>
+  <string name="beta_special_additions_android">दो छोटे जोड़: WebDAV सिंक्रनाइज़ेशन (आपका अपना सर्वर, NAS या कोई भी WebDAV सेवा, Google Drive और Nextcloud के अलावा), और एक नया खोज इंडेक्स जो अपडेट के बाद एक बार अपने आप दोबारा बनाया जाता है।</string>
+  <string name="beta_special_one_app">आपके सभी डिवाइस पर एक ही ऐप: फ़ोन, टैबलेट और कंप्यूटर पर वही सुविधाएँ और कार्यप्रवाह।</string>
+  <string name="beta_special_sync_ios">Nextcloud, WebDAV (आपका अपना सर्वर, NAS या कोई भी WebDAV सेवा) या iCloud Drive के माध्यम से आपके डिवाइस के बीच सिंक्रनाइज़ेशन।</string>
+  <string name="beta_special_sync_desktop">Nextcloud या WebDAV (आपका अपना सर्वर, NAS या कोई भी WebDAV सेवा) के माध्यम से आपके डिवाइस के बीच सिंक्रनाइज़ेशन।</string>
+  <string name="beta_special_feedback">यदि कुछ गायब है, पहले से अलग काम करता है या ढूँढना कठिन हो गया है, तो कृपया हमें बताएँ, भले ही वह जानबूझकर किया गया हो।</string>
+  <string name="beta_special_backup">परीक्षण से पहले बैकअप बना लेना अच्छा विचार है (मुख्य मेनू → %s)।</string>
+  <string name="beta_special_beta_warning">यह एक बीटा संस्करण है: सब कुछ पूरा या पूरी तरह परीक्षित नहीं है, और इसमें बग हो सकते हैं। इसका उपयोग करके आप बीटा परीक्षक हैं, और आपकी बग रिपोर्ट ही अंतिम रिलीज़ को अच्छा बनाती हैं।</string>
+  <string name="beta_special_leave_beta_android">यदि आप परीक्षण नहीं करना चाहते थे, तो आप %s छोड़कर स्थिर संस्करण पर लौट सकते हैं।</string>
+  <string name="beta_special_report">कृपया बग की रिपोर्ट %1$s के माध्यम से करें (अनुशंसित) या मुख्य मेनू → %2$s से।</string>
+  <string name="beta_special_report_android">कृपया बग की रिपोर्ट %1$s के माध्यम से करें (अनुशंसित), Google Play से, या मुख्य मेनू → %2$s से।</string>
+  <string name="beta_special_other_devices_title">आपके अन्य डिवाइस पर AndBible</string>
+  <string name="beta_special_other_devices_intro">वही बीटा आपके सभी डिवाइस के लिए उपलब्ध है:</string>
+  <string name="beta_special_other_android">Android: %1$s से जुड़ें, या %2$s पर नवीनतम बीटा रिलीज़ से APK डाउनलोड करें।</string>
+  <string name="beta_special_play_beta_link">Google Play पर बीटा कार्यक्रम</string>
+  <string name="beta_special_other_apple">iPhone, iPad और Apple Silicon Mac: Apple का TestFlight ऐप इंस्टॉल करें और %s से जुड़ें।</string>
+  <string name="beta_special_testflight_link">AndBible सार्वजनिक बीटा</string>
+  <string name="beta_special_other_desktop">Windows (.msi) और Linux (.deb या AppImage): इन्हें %s पर नवीनतम बीटा रिलीज़ से डाउनलोड करें।</string>
+  <string name="beta_special_installation_guide">चरण-दर-चरण निर्देश %s में हैं।</string>
+  <string name="beta_special_installation_guide_link">इंस्टॉलेशन गाइड</string>
+  <string name="beta_special_regards">सादर, Tuomas</string>
+  <string name="beta_special_sponsor">पुनश्च: आप %s करके AndBible के विकास को आर्थिक रूप से समर्थन दे सकते हैं।</string>
+  <string name="beta_special_sponsor_link">विकास के घंटों को प्रायोजित</string>
   <string name="stable_notice_title">एप्लिकेशन को अपग्रेड कर दिया गया है!</string>
   <string name="upgrade_video_message">कृपया इस रिलीज़ की नई विशेषताओं वाला वीडियो देखें (%s)</string>
   <string name="stable_notice_par1">%2$s का नया संस्करण %1$s सफलतापूर्वक इंस्टॉल हो गया!</string>
@@ -1189,6 +1256,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="db_repositories">रिपॉज़िटरी और संबंधित सेटिंग्स</string>
   <string name="db_bookmarks">बुकमार्क, मेरे नोट्स, लेबल और स्टडी पैड</string>
   <string name="synchronizing">सिंक्रनाइज़ हो रहा है…</string>
+  <string name="notification_finished">पूरा हुआ</string>
   <string name="overrideBackup">क्लाउड में ऐसा डेटाबेस मिला जिससे यह डिवाइस सिंक्रनाइज़ नहीं है। डेटाबेस में %s है। आप क्या करना चाहते हैं?</string>
   <string name="reading_plans_content">पठन योजनाएं और उनकी स्थिति</string>
   <string name="bookmarks_contents">बुकमार्क, लेबल और स्टडी पैड</string>
@@ -1767,6 +1835,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="agent_log_response_received">प्रतिक्रिया प्राप्त हुई</string>
   <string name="agent_log_saved">सहेजा गया: %s</string>
   <string name="agent_log_done">पूर्ण: %s</string>
+  <string name="agent_activity_title">AI एजेंट</string>
+  <string name="agent_activity_title_in">AI एजेंट: %s</string>
+  <string name="agent_activity_waiting">आपकी अनुमति की प्रतीक्षा है</string>
+  <string name="agent_activity_waiting_for">आपकी अनुमति की प्रतीक्षा है: %s</string>
+  <string name="agent_activity_failed">AI एजेंट विफल रहा</string>
+  <string name="agent_activity_attention_needed">AI एजेंट को आपके ध्यान की आवश्यकता है</string>
   <string name="agent_log_cancelled">रद्द किया गया</string>
   <string name="agent_already_running">एक AI एजेंट पहले से चल रहा है। कृपया प्रतीक्षा करें या पहले इसे रोकें।</string>
   <!--AI Agent Notifications-->

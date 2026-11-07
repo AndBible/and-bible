@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible vyžaduje ke zobrazení textu Bible pomocí WebView2 grafiku Direct3D. Aktuální grafický renderer je %1$s. Zkontrolujte grafický ovladač a podporu Direct3D.\n\nPodrobnosti jsou v souboru protokolu:\n%2$s</string>
   <string name="desktop_update_setting_title">Kontrolovat aktualizace</string>
   <string name="desktop_update_setting_summary">Jednou denně, z github.com</string>
+  <string name="desktop_beta_update_setting_title">Nabízet veřejné beta aktualizace</string>
+  <string name="desktop_beta_update_setting_summary">Nabízet také veřejné beta verze. Když je vypnuto, beta instalace dostává pouze produkční vydání.</string>
   <string name="desktop_update_consent_title">Kontrolovat aktualizace?</string>
   <string name="desktop_update_consent_message">AndBible může jednou denně zkontrolovat na github.com novější verzi. GitHub uvidí vaši IP adresu, nic dalšího se neodesílá. Toto můžete později změnit v Nastavení.</string>
   <string name="desktop_update_consent_yes">Kontrolovat aktualizace</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Povolit funkce specifické pro e-ink (tlačítka stránkování, pomocné čáry pro posouvání)</string>
   <string name="prefs_disable_animations_title">Vypnout animace</string>
   <string name="prefs_disable_animations_summary">Vypnout různé animace, jako např. jemné posouvání.</string>
+  <string name="prefs_show_activity_in_menu_title">Zobrazit aktivitu na pozadí v nabídce</string>
+  <string name="prefs_show_activity_in_menu_summary">Průběh stahování, synchronizace a indexování a selhání, v nabídce ⋮</string>
+  <string name="prefs_system_notifications_title">Systémová oznámení</string>
+  <string name="prefs_system_notifications_denied">Vypnuto v nastavení iOS</string>
+  <string name="prefs_system_notifications_summary">Upozorňovat na neúspěšnou práci na pozadí, dlouhá stahování dokončená, když je AndBible na pozadí, a na jejich průběh</string>
   <string name="prefs_disable_click_to_edit_title">Zakázat kliknutí pro úpravu studijní složky</string>
   <string name="prefs_disable_click_to_edit_summary">Ke změnám poznámek ve studijní složce je nutné použít tlačítko pro úpravu.</string>
   <string name="prefs_notes_content_type_title">Formát nových poznámek záložek</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_night_mode_system">Výchozí nastavení systému</string>
   <string name="options_menu_night_mode">Noční režim</string>
+  <string name="options_menu_sync_now">Synchronizovat nyní</string>
+  <string name="exit_sync_title">Synchronizace změn…</string>
+  <string name="exit_sync_body">Odesílám vaše změny do vašich dalších zařízení. Může to trvat několik sekund.</string>
+  <string name="exit_sync_quit_now">Ukončit nyní</string>
+  <string name="exit_sync_closing">Zavírání…</string>
+  <string name="sync_now_no_network">Žádné připojení k síti</string>
   <string name="prefs_navigate_to_verse_title">Přejít na verš</string>
   <string name="prefs_navigate_to_verse_summary">Zadávat i verš při výběru pasáže</string>
   <string name="prefs_open_links_in_special_window_title">Okno odkazů</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Jazyk</string>
   <string name="one_more_back_press">Opětovným stiskem tlačítka Zpět ukončíte aplikaci</string>
   <string name="document_filter_results">%d dokument(ů)</string>
+  <string name="activity_show_all">Zobrazit vše (%1$d)</string>
+  <string name="activity_failed_badge">%1$d selhalo</string>
+  <string name="activity_attention_badge">%1$d vyžaduje pozornost</string>
+  <string name="activity_combined_badge">%1$d selhalo, %2$d vyžaduje pozornost</string>
+  <string name="activity_running_description">Probíhá práce na pozadí</string>
+  <string name="activity_running">Probíhá</string>
+  <string name="activity_recent">Nedávné</string>
+  <string name="activity_clear_finished">Vymazat dokončené</string>
+  <string name="activity_title">Aktivita na pozadí</string>
+  <string name="activity_empty">Nic neprobíhá</string>
+  <string name="activity_failed_toast">%1$s — viz nabídka</string>
   <string name="download_question_title">Chcete přistoupit ke stažení dokumentů?</string>
   <string name="download_question_message">Pokud žijete v nedemokratické zemi,
 měli byste být opatrní při stahování křesťanského obsahu z internetu.
@@ -646,6 +670,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_backup_title">Umístění zálohy</string>
   <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
   <string name="backup_phone_storage">Úložiště telefonu</string>
+  <string name="backup_save_to_files">Uložit do Souborů</string>
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules2">Zálohovat dokumenty do ...</string>
   <string name="backup_app2">Zálohovat aplikaci (soubor .apk) do …</string>
@@ -698,6 +723,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="module_about_repository">Zdrojový server: %s</string>
   <string name="module_about_osisId">Zkratka OSIS: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Složka s protokoly</string>
+  <string name="open_log_folder">Otevřít složku s protokoly</string>
+  <string name="startup_report_bug">Nahlásit chybu</string>
   <string name="send_bug_report_title">Zpětná vazba / hlášení chyb</string>
   <string name="report_bug_email_subject_3">[%1$s] Nahlášení chyby u %2$s %3$s</string>
   <string name="report_bug_big_heading">CHYBOVÉ HLÁŠENÍ / ZPĚTNOU VAZBU PROSÍM PIŠTE NAD TOUTO LINKOU</string>
@@ -765,8 +793,16 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="debug_test_error">Testovací chyba (ladicí sestavení)</string>
   <string name="bug_report_prepare_failed">Hlášení se nepodařilo připravit nebo sdílet. Můžete to zkusit znovu nebo použít Zálohu a obnovení k uložení svých dat.</string>
   <string name="bug_report_email_title">Nahlášení chyby emailem</string>
+  <string name="bug_report_desktop_text">Dále budete vyzváni, kam uložit soubor s hlášením o chybě. Poté dostanete pokyny, jak jej odeslat vývojářskému týmu.</string>
   <string name="bug_report_email_text">Dále prosím vyberte preferovanou mailovou aplikaci (například Gmail) pro poslání hlášení chyby vývojovému týmu.</string>
   <string name="bug_report_manual_title">Odeslat hlášení e-mailem</string>
+  <string name="bug_report_manual_text_saved">Hlášení bylo uloženo do</string>
+  <string name="bug_report_manual_text_unsaved">Hlášení bylo uloženo na místo, které jste vybrali.\n\nPošlete prosím e-mail na adresu</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s chyba: &lt;krátký popis&gt;</string>
+  <string name="bug_report_attach_line">Přiložte prosím soubor %1$s</string>
+  <string name="bug_report_copy_subject">Kopírovat předmět</string>
+  <string name="bug_report_copy_path">Kopírovat cestu k souboru</string>
+  <string name="bug_report_open_folder">Otevřít složku</string>
   <string name="bug_report_copy_address">Kopírovat adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Převod textu na řeč</string>
@@ -797,6 +833,37 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ZVLÁŠTNÍ UPOZORNĚNÍ VÝVOJÁŘE PRO BETA TESTERY (listopad 2026)</string>
+  <string name="beta_special_intro_android">Vítejte v betě AndBible 6.0! Je to největší změna v historii AndBible. Celá aplikace byla přepsána pomocí nové sady pro uživatelské rozhraní a rozhraní bylo mezitím přepracováno: každá obrazovka byla zkontrolována a většina z nich se kromě osvěženého vzhledu Material 3 výrazně zlepšila v použitelnosti.</string>
+  <string name="beta_special_intro_ios">Vítejte v betě AndBible 6.0! Pokud jste používali AndBible pro iOS 1.0, je to velká změna: verze 6.0 jej nahrazuje sdílenou aplikací AndBible, stejnou aplikací, která běží na Androidu, iPhonu, iPadu a Macích s Apple Silicon, ve Windows a Linuxu. Je postavena na kódu, který slouží uživatelům Androidu přes deset let, přepsaném pomocí nové sady pro uživatelské rozhraní, a rozhraní bylo mezitím přepracováno: každá obrazovka byla zkontrolována a většina z nich získala výrazná zlepšení použitelnosti.</string>
+  <string name="beta_special_intro_desktop">Vítejte v betě AndBible 6.0 a v AndBible pro Windows a Linux! Je to první desktopová verze AndBible: stejná aplikace nyní běží na Androidu, iPhonu, iPadu a Macích s Apple Silicon, ve Windows a Linuxu. Je postavena na kódu, který slouží uživatelům Androidu přes deset let, přepsaném pomocí nové sady pro uživatelské rozhraní, a rozhraní bylo mezitím přepracováno: každá obrazovka byla zkontrolována a většina z nich získala výrazná zlepšení použitelnosti.</string>
+  <string name="beta_special_redesign">Přepracované rozhraní: přehlednější nabídky, nastavení a dialogy, konzistentnější navigace a mnoho drobných zlepšení postupů v celé aplikaci.</string>
+  <string name="beta_special_data_kept">Všechny vaše funkce, data i nastavení zůstávají zachovány.</string>
+  <string name="beta_special_platforms">Stejná aplikace nyní běží na Androidu, iPhonu, iPadu a Macích s Apple Silicon, ve Windows a Linuxu. Nové platformy se také testují.</string>
+  <string name="beta_special_additions_android">Dvě menší novinky: synchronizace přes WebDAV (váš vlastní server, NAS nebo jakákoli služba WebDAV, vedle Google Drive a Nextcloud) a nový vyhledávací index, který se po aktualizaci jednou automaticky přestaví.</string>
+  <string name="beta_special_one_app">Jedna aplikace na všech vašich zařízeních: stejné funkce a postupy na telefonu, tabletu i počítači.</string>
+  <string name="beta_special_sync_ios">Synchronizace mezi vašimi zařízeními přes Nextcloud, WebDAV (váš vlastní server, NAS nebo jakákoli služba WebDAV) nebo iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronizace mezi vašimi zařízeními přes Nextcloud nebo WebDAV (váš vlastní server, NAS nebo jakákoli služba WebDAV).</string>
+  <string name="beta_special_feedback">Pokud něco chybí, funguje jinak než dříve nebo se hůře hledá, dejte nám prosím vědět, i když to může být záměr.</string>
+  <string name="beta_special_backup">Před testováním je dobré vytvořit zálohu (Hlavní nabídka → %s).</string>
+  <string name="beta_special_beta_warning">Toto je beta verze: ne vše je dokončeno nebo plně otestováno a může obsahovat chyby. Používáním se stáváte beta testerem a vaše hlášení o chybách pomáhají udělat z finálního vydání kvalitní verzi.</string>
+  <string name="beta_special_leave_beta_android">Pokud jste testovat nechtěli, můžete opustit %s a vrátit se ke stabilní verzi.</string>
+  <string name="beta_special_report">Chyby prosím hlaste přes %1$s (upřednostňováno) nebo Hlavní nabídka → %2$s.</string>
+  <string name="beta_special_report_android">Chyby prosím hlaste přes %1$s (upřednostňováno), Google Play nebo Hlavní nabídka → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible na vašich dalších zařízeních</string>
+  <string name="beta_special_other_devices_intro">Stejná beta je k dispozici pro všechna vaše zařízení:</string>
+  <string name="beta_special_other_android">Android: připojte se k %1$s nebo si stáhněte APK z nejnovějšího beta vydání na %2$s.</string>
+  <string name="beta_special_play_beta_link">beta programu na Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad a Mac s Apple Silicon: nainstalujte aplikaci Apple TestFlight a připojte se k %s.</string>
+  <string name="beta_special_testflight_link">veřejné betě AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) a Linux (.deb nebo AppImage): stáhněte si je z nejnovějšího beta vydání na %s.</string>
+  <string name="beta_special_installation_guide">Podrobné pokyny najdete v %s.</string>
+  <string name="beta_special_installation_guide_link">instalační příručce</string>
+  <string name="beta_special_regards">S pozdravem, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Vývoj AndBible můžete finančně podpořit %s.</string>
+  <string name="beta_special_sponsor_link">sponzorováním vývojářských hodin</string>
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
   <string name="upgrade_video_message">Podívejte se na video o novinkách této verze (%s).</string>
   <string name="stable_notice_par1">Nová verze %1$s %2$s úspěšně nainstalována!</string>
@@ -1212,6 +1279,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="db_repositories">Repozitáře a související nastavení</string>
   <string name="db_bookmarks">Záložky, poznámky, štítky a studijní složky</string>
   <string name="synchronizing">Synchronizace...</string>
+  <string name="notification_finished">Dokončeno</string>
   <string name="overrideBackup">
         V síťovém uložišti existuje databáze, která dosud nebyla synchronizována na toto zařízení.
         Databáze obsahuje %s. Co chcete udělat?
@@ -1795,6 +1863,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="agent_log_response_received">Odpověď přijata</string>
   <string name="agent_log_saved">Uloženo: %s</string>
   <string name="agent_log_done">Hotovo: %s</string>
+  <string name="agent_activity_title">AI agent</string>
+  <string name="agent_activity_title_in">AI agent: %s</string>
+  <string name="agent_activity_waiting">Čeká na vaše povolení</string>
+  <string name="agent_activity_waiting_for">Čeká na vaše povolení: %s</string>
+  <string name="agent_activity_failed">AI agent selhal</string>
+  <string name="agent_activity_attention_needed">AI agent potřebuje vaši pozornost</string>
   <string name="agent_log_cancelled">Zrušeno</string>
   <string name="agent_already_running">Agent AI již běží. Počkejte nebo ho nejprve zastavte.</string>
   <!--AI Agent Notifications-->

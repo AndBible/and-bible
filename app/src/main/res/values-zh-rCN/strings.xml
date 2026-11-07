@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible 需要 Direct3D 图形才能通过 WebView2 显示圣经文本。当前的图形渲染器是 %1$s。请检查您的显卡驱动程序和 Direct3D 支持。\n\n详细信息见日志文件：\n%2$s</string>
   <string name="desktop_update_setting_title">检查更新</string>
   <string name="desktop_update_setting_summary">每天一次，来自 github.com</string>
+  <string name="desktop_beta_update_setting_title">提供公开测试版更新</string>
+  <string name="desktop_beta_update_setting_summary">同时提供公开测试版。关闭后，测试版安装只会获得正式版更新。</string>
   <string name="desktop_update_consent_title">检查更新？</string>
   <string name="desktop_update_consent_message">AndBible 可以每天一次访问 github.com 检查是否有新版本。GitHub 会看到您的 IP 地址，除此之外不会发送任何其他信息。您以后可以在“设置”中更改。</string>
   <string name="desktop_update_consent_yes">检查更新</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">启用电子墨水专属功能（翻页按钮、滚动辅助线）</string>
   <string name="prefs_disable_animations_title">禁用动画</string>
   <string name="prefs_disable_animations_summary">禁用动画，例如平滑滚动。</string>
+  <string name="prefs_show_activity_in_menu_title">在菜单中显示后台活动</string>
+  <string name="prefs_show_activity_in_menu_summary">在 ⋮ 菜单中显示下载、同步和索引进度以及失败信息</string>
+  <string name="prefs_system_notifications_title">系统通知</string>
+  <string name="prefs_system_notifications_denied">已在 iOS 设置中关闭</string>
+  <string name="prefs_system_notifications_summary">通知失败的后台任务、AndBible 在后台运行时完成的长时间下载及其进度</string>
   <string name="prefs_disable_click_to_edit_title">禁用学习笔记点击编辑</string>
   <string name="prefs_disable_click_to_edit_summary">需使用编辑按钮来编辑学习笔记中的内容。</string>
   <string name="prefs_notes_content_type_title">新建书签笔记的格式</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">自动</string>
   <string name="prefs_night_mode_system">跟随系统</string>
   <string name="options_menu_night_mode">夜间模式</string>
+  <string name="options_menu_sync_now">立即同步</string>
+  <string name="exit_sync_title">正在同步更改…</string>
+  <string name="exit_sync_body">正在将您的更改发送到其他设备。这可能需要几秒钟。</string>
+  <string name="exit_sync_quit_now">立即退出</string>
+  <string name="exit_sync_closing">正在关闭…</string>
+  <string name="sync_now_no_network">无网络连接</string>
   <string name="prefs_navigate_to_verse_title">导航到经节</string>
   <string name="prefs_navigate_to_verse_summary">选择圣经段落时选择章节</string>
   <string name="prefs_open_links_in_special_window_title">链接窗口</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">语言</string>
   <string name="one_more_back_press">再按一次返回键以关闭程序</string>
   <string name="document_filter_results">%d文件</string>
+  <string name="activity_show_all">显示全部 (%1$d)</string>
+  <string name="activity_failed_badge">%1$d 个失败</string>
+  <string name="activity_attention_badge">%1$d 个需要关注</string>
+  <string name="activity_combined_badge">%1$d 个失败，%2$d 个需要关注</string>
+  <string name="activity_running_description">后台任务正在运行</string>
+  <string name="activity_running">运行中</string>
+  <string name="activity_recent">最近</string>
+  <string name="activity_clear_finished">清除已完成</string>
+  <string name="activity_title">后台活动</string>
+  <string name="activity_empty">没有正在运行的任务</string>
+  <string name="activity_failed_toast">%1$s — 请查看菜单</string>
   <string name="download_question_title">你想继续下载文件吗？</string>
   <string name="download_question_message">如果你生活的地区存在迫害行为，
 在下载基督教的材料时，你或许更要小心。
@@ -648,6 +672,7 @@ http://www.heartlight.org 准予使用
   <string name="backup_backup_title">备份目的地</string>
   <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
   <string name="backup_phone_storage">手机空间</string>
+  <string name="backup_save_to_files">保存到“文件”</string>
   <string name="backup_and_restore">备份及恢复</string>
   <string name="backup_modules2">备份文件</string>
   <string name="backup_app2">备份应用（.apk 文件）到...</string>
@@ -700,6 +725,9 @@ http://www.heartlight.org 准予使用
   <string name="module_about_repository">分发伺服器：%s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">日志文件夹</string>
+  <string name="open_log_folder">打开日志文件夹</string>
+  <string name="startup_report_bug">报告错误</string>
   <string name="send_bug_report_title">意见或回报错误</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s 的缺陷报告</string>
   <string name="report_bug_big_heading">请在此行以上填写你的意见及错误回报</string>
@@ -767,8 +795,16 @@ http://www.heartlight.org 准予使用
   <string name="debug_test_error">测试错误（调试版本）</string>
   <string name="bug_report_prepare_failed">无法准备或分享报告。您可以重试，或使用“备份与恢复”来保存您的数据。</string>
   <string name="bug_report_email_title">通过电子邮件发送缺陷报告</string>
+  <string name="bug_report_desktop_text">接下来，系统会询问您将错误报告文件保存在哪里。然后您会看到将其发送给开发团队的说明。</string>
   <string name="bug_report_email_text">请在下一步选择您想要的电子邮件应用（例如 Gmail）来将报告发送给开发者团队。</string>
   <string name="bug_report_manual_title">通过电子邮件发送报告</string>
+  <string name="bug_report_manual_text_saved">报告已保存到</string>
+  <string name="bug_report_manual_text_unsaved">报告已保存到您选择的位置。\n\n请发送电子邮件至</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s 错误：&lt;简短描述&gt;</string>
+  <string name="bug_report_attach_line">请附上文件 %1$s</string>
+  <string name="bug_report_copy_subject">复制主题</string>
+  <string name="bug_report_copy_path">复制文件路径</string>
+  <string name="bug_report_open_folder">打开文件夹</string>
   <string name="bug_report_copy_address">复制地址</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字转语音</string>
@@ -799,6 +835,37 @@ http://www.heartlight.org 准予使用
   <string name="beta_notice_github_issues">Github问题</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">开发者给测试版用户的特别通知（2026 年 11 月）</string>
+  <string name="beta_special_intro_android">欢迎使用 AndBible 6.0 测试版！这是 AndBible 历史上最大的一次变化。整个应用已使用新的用户界面工具包重写，界面也在此过程中重新设计：每个屏幕都经过审查，其中大多数在全新的 Material 3 外观之上还获得了显著的易用性改进。</string>
+  <string name="beta_special_intro_ios">欢迎使用 AndBible 6.0 测试版！如果您用过 AndBible for iOS 1.0，这是一次重大变化：6.0 版本取代了它，成为共享的 AndBible 应用，同一个应用可运行于 Android、iPhone、iPad、Apple Silicon Mac、Windows 和 Linux。它基于已为 Android 用户服务十多年的代码，使用新的用户界面工具包重写，界面也在此过程中重新设计：每个屏幕都经过审查，其中大多数获得了显著的易用性改进。</string>
+  <string name="beta_special_intro_desktop">欢迎使用 AndBible 6.0 测试版，欢迎使用 Windows 和 Linux 上的 AndBible！这是 AndBible 的首个桌面版本：同一个应用现在可运行于 Android、iPhone、iPad、Apple Silicon Mac、Windows 和 Linux。它基于已为 Android 用户服务十多年的代码，使用新的用户界面工具包重写，界面也在此过程中重新设计：每个屏幕都经过审查，其中大多数获得了显著的易用性改进。</string>
+  <string name="beta_special_redesign">重新设计的界面：更清晰的菜单、设置和对话框，更一致的导航，以及整个应用中许多细小的工作流程改进。</string>
+  <string name="beta_special_data_kept">您的功能、数据和设置都完整保留。</string>
+  <string name="beta_special_platforms">同一个应用现在可运行于 Android、iPhone、iPad、Apple Silicon Mac、Windows 和 Linux。新平台也在测试中。</string>
+  <string name="beta_special_additions_android">两项较小的新增功能：WebDAV 同步（您自己的服务器、NAS 或任何 WebDAV 服务，此外还支持 Google Drive 和 Nextcloud），以及更新后会自动重建一次的全新搜索索引。</string>
+  <string name="beta_special_one_app">一个应用覆盖您所有的设备：手机、平板和电脑上拥有相同的功能和工作流程。</string>
+  <string name="beta_special_sync_ios">通过 Nextcloud、WebDAV（您自己的服务器、NAS 或任何 WebDAV 服务）或 iCloud Drive 在您的设备之间同步。</string>
+  <string name="beta_special_sync_desktop">通过 Nextcloud 或 WebDAV（您自己的服务器、NAS 或任何 WebDAV 服务）在您的设备之间同步。</string>
+  <string name="beta_special_feedback">如果有什么功能缺失、与以前的工作方式不同或变得更难找到，请告诉我们，即使这可能是有意为之。</string>
+  <string name="beta_special_backup">测试前最好先做一次备份（主菜单 → %s）。</string>
+  <string name="beta_special_beta_warning">这是测试版：并非所有内容都已完成或经过充分测试，可能包含错误。使用它，您就是测试人员，您的错误报告将帮助最终版本变得更好。</string>
+  <string name="beta_special_leave_beta_android">如果您并不打算参与测试，可以退出%s并回到稳定版。</string>
+  <string name="beta_special_report">请通过 %1$s（首选）或主菜单 → %2$s 报告错误。</string>
+  <string name="beta_special_report_android">请通过 %1$s（首选）、Google Play 或主菜单 → %2$s 报告错误。</string>
+  <string name="beta_special_other_devices_title">您其他设备上的 AndBible</string>
+  <string name="beta_special_other_devices_intro">同一个测试版适用于您的所有设备：</string>
+  <string name="beta_special_other_android">Android：加入%1$s，或从 %2$s 上最新的测试版发布中下载 APK。</string>
+  <string name="beta_special_play_beta_link">Google Play 测试计划</string>
+  <string name="beta_special_other_apple">iPhone、iPad 和 Apple Silicon Mac：安装 Apple 的 TestFlight 应用并加入%s。</string>
+  <string name="beta_special_testflight_link">AndBible 公开测试版</string>
+  <string name="beta_special_other_desktop">Windows (.msi) 和 Linux (.deb 或 AppImage)：从 %s 上最新的测试版发布中下载。</string>
+  <string name="beta_special_installation_guide">分步说明见%s。</string>
+  <string name="beta_special_installation_guide_link">安装指南</string>
+  <string name="beta_special_regards">此致，Tuomas</string>
+  <string name="beta_special_sponsor">附言：您可以通过%s在经济上支持 AndBible 的开发。</string>
+  <string name="beta_special_sponsor_link">赞助开发工时</string>
   <string name="stable_notice_title">程式已更新！</string>
   <string name="upgrade_video_message">请参看影片以观看此版本的新功能 (%s)。</string>
   <string name="stable_notice_par1">新版本 %1$s 的 %2$s 已成功安装！</string>
@@ -1192,6 +1259,7 @@ http://www.heartlight.org 准予使用
   <string name="db_repositories">存储库与相关设置</string>
   <string name="db_bookmarks">书签、我的笔记、标签、研经笔记</string>
   <string name="synchronizing">同步中...</string>
+  <string name="notification_finished">已完成</string>
   <string name="overrideBackup">
 在云端发现当前设备尚未同步的数据库。
 数据库包含%s，请问你希望如何操作？</string>
@@ -1773,6 +1841,12 @@ http://www.heartlight.org 准予使用
   <string name="agent_log_response_received">已收到回应</string>
   <string name="agent_log_saved">已保存：%s</string>
   <string name="agent_log_done">完成：%s</string>
+  <string name="agent_activity_title">AI 代理</string>
+  <string name="agent_activity_title_in">AI 代理：%s</string>
+  <string name="agent_activity_waiting">正在等待您的许可</string>
+  <string name="agent_activity_waiting_for">正在等待您的许可：%s</string>
+  <string name="agent_activity_failed">AI 代理失败</string>
+  <string name="agent_activity_attention_needed">AI 代理需要您的关注</string>
   <string name="agent_log_cancelled">已取消</string>
   <string name="agent_already_running">AI代理已在运行中，请等待或先停止它。</string>
   <!--AI Agent Notifications-->

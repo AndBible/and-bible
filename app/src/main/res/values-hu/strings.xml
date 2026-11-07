@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">Az AndBible a bibliaszöveg WebView2-vel történő megjelenítéséhez Direct3D grafikát igényel. A jelenlegi grafikus megjelenítő: %1$s. Ellenőrizze a grafikus illesztőprogramot és a Direct3D-támogatást.\n\nA részletek a naplófájlban találhatók:\n%2$s</string>
   <string name="desktop_update_setting_title">Frissítések keresése</string>
   <string name="desktop_update_setting_summary">Naponta egyszer, a github.com oldalról</string>
+  <string name="desktop_beta_update_setting_title">Nyilvános béta frissítések felajánlása</string>
+  <string name="desktop_beta_update_setting_summary">Nyilvános béta verziók felajánlása is. Kikapcsolva a béta telepítés csak éles kiadásokat kap.</string>
   <string name="desktop_update_consent_title">Keres frissítéseket?</string>
   <string name="desktop_update_consent_message">Az AndBible naponta egyszer megnézheti a github.com oldalon, hogy van-e újabb verzió. A GitHub látja az Ön IP-címét, de semmi más nem kerül elküldésre. Ezt később a Beállításokban módosíthatja.</string>
   <string name="desktop_update_consent_yes">Frissítések keresése</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">E-ink-specifikus funkciók engedélyezése (lapozógombok, görgetési segédvonalak)</string>
   <string name="prefs_disable_animations_title">Animációk kikapcsolása</string>
   <string name="prefs_disable_animations_summary">Különböző animációk kikapcsolása, mint például a sima görgetés.</string>
+  <string name="prefs_show_activity_in_menu_title">Háttértevékenység megjelenítése a menüben</string>
+  <string name="prefs_show_activity_in_menu_summary">Letöltések, szinkronizálás és indexelés előrehaladása, valamint hibák a ⋮ menüben</string>
+  <string name="prefs_system_notifications_title">Rendszerértesítések</string>
+  <string name="prefs_system_notifications_denied">Kikapcsolva az iOS Beállításokban</string>
+  <string name="prefs_system_notifications_summary">Értesítés a sikertelen háttérmunkákról, a hosszú letöltések befejezéséről, ha az AndBible a háttérben van, és azok előrehaladásáról</string>
   <string name="prefs_disable_click_to_edit_title">Kattintásos szerkesztés letiltása a Jegyzetlapon</string>
   <string name="prefs_disable_click_to_edit_summary">A Jegyzetlapon a jegyzetek szerkesztéséhez a szerkesztés gombot kell használni.</string>
   <string name="prefs_notes_content_type_title">Új könyvjelző-jegyzetek formátuma</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatikus</string>
   <string name="prefs_night_mode_system">Rendszerbeállítás</string>
   <string name="options_menu_night_mode">Éjszakai mód</string>
+  <string name="options_menu_sync_now">Szinkronizálás most</string>
+  <string name="exit_sync_title">Módosítások szinkronizálása…</string>
+  <string name="exit_sync_body">A módosítások elküldése a többi eszközére. Ez eltarthat néhány másodpercig.</string>
+  <string name="exit_sync_quit_now">Kilépés most</string>
+  <string name="exit_sync_closing">Bezárás…</string>
+  <string name="sync_now_no_network">Nincs hálózati kapcsolat</string>
   <string name="prefs_navigate_to_verse_title">Navigálás versig</string>
   <string name="prefs_navigate_to_verse_summary">Válaszd ki a verset is (és a fejezetet) navigálásnál</string>
   <string name="prefs_open_links_in_special_window_title">Hivatkozások ablak</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Nyelv</string>
   <string name="one_more_back_press">Nyomja meg a vissza gombot még egyszer, ha be akarja zárni az alkalmazást</string>
   <string name="document_filter_results">%d könyv</string>
+  <string name="activity_show_all">Összes megjelenítése (%1$d)</string>
+  <string name="activity_failed_badge">%1$d sikertelen</string>
+  <string name="activity_attention_badge">%1$d figyelmet igényel</string>
+  <string name="activity_combined_badge">%1$d sikertelen, %2$d figyelmet igényel</string>
+  <string name="activity_running_description">Háttérmunka fut</string>
+  <string name="activity_running">Fut</string>
+  <string name="activity_recent">Legutóbbi</string>
+  <string name="activity_clear_finished">Befejezettek törlése</string>
+  <string name="activity_title">Háttértevékenység</string>
+  <string name="activity_empty">Nem fut semmi</string>
+  <string name="activity_failed_toast">%1$s — lásd a menüt</string>
   <string name="download_question_title">Biztos, hogy letölti a könyveket?</string>
   <string name="download_question_message">Ha elnyomás alatt lévő országban él,
 legyen óvatos keresztény tartalmak letöltésével az Internetről. 
@@ -631,6 +655,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_backup_title">Biztonsági mentés hova?</string>
   <string name="backup_backup_message">Biztonsági mentése a telefonra vagy megosztása (email, Google Drive, etc.)?</string>
   <string name="backup_phone_storage">Belső memória</string>
+  <string name="backup_save_to_files">Mentés a Fájlokba</string>
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
   <string name="backup_modules2">Biztonsági mentés készítése a telepített dokumentumokról ide…</string>
   <string name="backup_app2">Alkalmazás (.apk fájl) mentése…</string>
@@ -683,6 +708,9 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="module_about_repository">Disztribúció kiszolgáló: %s</string>
   <string name="module_about_osisId">OSIS azonosító: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Naplómappa</string>
+  <string name="open_log_folder">Naplómappa megnyitása</string>
+  <string name="startup_report_bug">Hiba jelentése</string>
   <string name="send_bug_report_title">Visszajelzés / hibabejelentés</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s-hez hibabejelentés</string>
   <string name="report_bug_big_heading">LEGYEN SZÍVES A VISSZAJELZÉST VAGY HIBABEJELENTÉST E SOR FÖLÉ ÍRJA</string>
@@ -750,8 +778,16 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="debug_test_error">Tesztelési hiba (hibakeresési verzió)</string>
   <string name="bug_report_prepare_failed">A jelentést nem sikerült előkészíteni vagy megosztani. Próbálja újra, vagy használja a Mentés és visszaállítás funkciót az adatai mentéséhez.</string>
   <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
+  <string name="bug_report_desktop_text">Ezután megkérdezzük, hová mentse a hibajelentés fájlját. Utána útmutatást kap arról, hogyan küldheti el a fejlesztői csapatnak.</string>
   <string name="bug_report_email_text">A következőkben válassza ki az email alkalmazást (például Gmail), amivel el szeretné küldeni a jelentést a fejlesztőknek.</string>
   <string name="bug_report_manual_title">A jelentés elküldése e-mailben</string>
+  <string name="bug_report_manual_text_saved">A jelentés ide lett mentve: <b>%1$s</b>.\n\nKérjük, küldjön egy e-mailt a következő címre: <b>%2$s</b>, és csatolja a fájlt; az e-mail program nem tudja helyette csatolni. Javasolt tárgy: <b>%3$s</b>. Az üzenetben írja le, mit csinált, és mi történt.</string>
+  <string name="bug_report_manual_text_unsaved">A jelentés az Ön által választott helyre lett mentve.\n\nKérjük, küldjön egy e-mailt a következő címre: <b>%1$s</b>, és csatolja a mentett jelentésfájlt; az e-mail program nem tudja helyette csatolni. Javasolt tárgy: <b>%2$s</b>. Az üzenetben írja le, mit csinált, és mi történt.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s hiba: &lt;rövid leírás&gt;</string>
+  <string name="bug_report_attach_line">Kérjük, csatolja a(z) %1$s fájlt</string>
+  <string name="bug_report_copy_subject">Tárgy másolása</string>
+  <string name="bug_report_copy_path">Fájl elérési útjának másolása</string>
+  <string name="bug_report_open_folder">Mappa megnyitása</string>
   <string name="bug_report_copy_address">Cím másolása</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Felolvasás</string>
@@ -782,6 +818,37 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="beta_notice_github_issues">GitHub issues</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Elvetés a következő frissítésig</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">A FEJLESZTŐ KÜLÖNLEGES KÖZLEMÉNYE A BÉTATESZTELŐKNEK (2026. november)</string>
+  <string name="beta_special_intro_android">Üdvözöljük az AndBible 6.0 béta verziójában! Ez az AndBible történetének legnagyobb változása. Az egész alkalmazást újraírtuk egy új felhasználói felületi eszközkészlettel, és közben a felületet is újratervezéssel újítottuk meg: minden képernyőt átnéztünk, és a legtöbbjük jelentős használhatósági fejlesztést kapott a megújult Material 3 megjelenés mellett.</string>
+  <string name="beta_special_intro_ios">Üdvözöljük az AndBible 6.0 béta verziójában! Ha használta az AndBible iOS 1.0 verzióját, ez nagy változás: a 6.0-s verzió a közös AndBible alkalmazással váltja fel, amely ugyanaz az alkalmazás, mint amely Androidon, iPhone-on, iPaden, Apple Silicon Mac gépeken, Windowson és Linuxon fut. Arra a kódra épül, amely több mint egy évtizede szolgálja az Android-felhasználókat, új felhasználói felületi eszközkészlettel újraírva, és közben a felületet is újratervezéssel újítottuk meg: minden képernyőt átnéztünk, és a legtöbbjük jelentős használhatósági fejlesztést kapott.</string>
+  <string name="beta_special_intro_desktop">Üdvözöljük az AndBible 6.0 béta verziójában, és az AndBible-ben Windowson és Linuxon! Ez az AndBible első asztali verziója: ugyanaz az alkalmazás fut Androidon, iPhone-on, iPaden, Apple Silicon Mac gépeken, Windowson és Linuxon. Arra a kódra épül, amely több mint egy évtizede szolgálja az Android-felhasználókat, új felhasználói felületi eszközkészlettel újraírva, és közben a felületet is újratervezéssel újítottuk meg: minden képernyőt átnéztünk, és a legtöbbjük jelentős használhatósági fejlesztést kapott.</string>
+  <string name="beta_special_redesign">Újratervezett felület: átláthatóbb menük, beállítások és párbeszédablakok, következetesebb navigáció és számos apró munkafolyamat-fejlesztés az egész alkalmazásban.</string>
+  <string name="beta_special_data_kept">A funkciói, adatai és beállításai mind megmaradtak.</string>
+  <string name="beta_special_platforms">Ugyanaz az alkalmazás fut Androidon, iPhone-on, iPaden, Apple Silicon Mac gépeken, Windowson és Linuxon. Az új platformok is tesztelés alatt állnak.</string>
+  <string name="beta_special_additions_android">Két kisebb újdonság: WebDAV-szinkronizálás (saját szerver, NAS vagy bármely WebDAV-szolgáltatás, a Google Drive és a Nextcloud mellett), valamint egy új keresési index, amely a frissítés után egyszer, automatikusan újraépül.</string>
+  <string name="beta_special_one_app">Egy alkalmazás az összes eszközén: ugyanazok a funkciók és munkafolyamatok a telefonján, táblagépén és számítógépén.</string>
+  <string name="beta_special_sync_ios">Szinkronizálás az eszközei között Nextcloud, WebDAV (saját szerver, NAS vagy bármely WebDAV-szolgáltatás) vagy iCloud Drive segítségével.</string>
+  <string name="beta_special_sync_desktop">Szinkronizálás az eszközei között Nextcloud vagy WebDAV (saját szerver, NAS vagy bármely WebDAV-szolgáltatás) segítségével.</string>
+  <string name="beta_special_feedback">Ha valami hiányzik, másként működik, mint korábban, vagy nehezebben található, kérjük, jelezze nekünk, akkor is, ha esetleg szándékos.</string>
+  <string name="beta_special_backup">Tesztelés előtt érdemes biztonsági mentést készíteni (Főmenü → %s).</string>
+  <string name="beta_special_beta_warning">Ez egy béta verzió: nem minden van kész vagy teljesen letesztelve, és hibákat tartalmazhat. A használatával bétatesztelővé válik, és az Ön hibajelentései teszik jóvá a végleges kiadást.</string>
+  <string name="beta_special_leave_beta_android">Ha nem szándékozott tesztelni, kiléphet a(z) %s programból, és visszatérhet a stabil verzióhoz.</string>
+  <string name="beta_special_report">Kérjük, a hibákat itt jelentse: %1$s (ez az előnyben részesített), vagy a Főmenü → %2$s menüpontban.</string>
+  <string name="beta_special_report_android">Kérjük, a hibákat itt jelentse: %1$s (ez az előnyben részesített), a Google Playen vagy a Főmenü → %2$s menüpontban.</string>
+  <string name="beta_special_other_devices_title">Az AndBible a többi eszközén</string>
+  <string name="beta_special_other_devices_intro">Ugyanez a béta elérhető az összes eszközére:</string>
+  <string name="beta_special_other_android">Android: csatlakozzon a(z) %1$s programhoz, vagy töltse le az APK-t a legújabb béta kiadásból itt: %2$s.</string>
+  <string name="beta_special_play_beta_link">Google Play bétaprogram</string>
+  <string name="beta_special_other_apple">iPhone, iPad és Apple Silicon Mac: telepítse az Apple TestFlight alkalmazását, és csatlakozzon a következőhöz: %s.</string>
+  <string name="beta_special_testflight_link">AndBible nyilvános béta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) és Linux (.deb vagy AppImage): töltse le őket a legújabb béta kiadásból itt: %s.</string>
+  <string name="beta_special_installation_guide">A lépésenkénti útmutató itt található: %s.</string>
+  <string name="beta_special_installation_guide_link">telepítési útmutató</string>
+  <string name="beta_special_regards">Üdvözlettel: Tuomas</string>
+  <string name="beta_special_sponsor">Ui.: Az AndBible fejlesztését anyagilag is támogathatja a következővel: %s.</string>
+  <string name="beta_special_sponsor_link">fejlesztési órák szponzorálása</string>
   <string name="stable_notice_title">Az alkalmazás frissült!</string>
   <string name="upgrade_video_message">Tekintse meg az új verzió funkcióit bemutató videót (%s)!</string>
   <string name="stable_notice_par1">Új verzió %1$s, %2$s sikeresen települt!</string>
@@ -1180,6 +1247,7 @@ jelentse be az észlelt problémát</string>
   <string name="db_repositories">Tárolók és a tárolókkal kapcsolatos beállítások</string>
   <string name="db_bookmarks">Könyvjelzők, Jegyzeteim, Címkék és Jegyzetlapok</string>
   <string name="synchronizing">Összehangolás...</string>
+  <string name="notification_finished">Befejezve</string>
   <string name="overrideBackup">
          A tárhelyen olyan adatbázis található, ami erre az eszközre nincs szinkronizálva.
         Az adatbázis tartalma:%s. Mit szeretne tenni?
@@ -1763,6 +1831,12 @@ jelentse be az észlelt problémát</string>
   <string name="agent_log_response_received">Válasz érkezett</string>
   <string name="agent_log_saved">Mentve: %s</string>
   <string name="agent_log_done">Kész: %s</string>
+  <string name="agent_activity_title">MI-ügynök</string>
+  <string name="agent_activity_title_in">MI-ügynök: %s</string>
+  <string name="agent_activity_waiting">Az engedélyére vár</string>
+  <string name="agent_activity_waiting_for">Az engedélyére vár: %s</string>
+  <string name="agent_activity_failed">Az MI-ügynök hibázott</string>
+  <string name="agent_activity_attention_needed">Az MI-ügynöknek szüksége van a figyelmére</string>
   <string name="agent_log_cancelled">Megszakítva</string>
   <string name="agent_already_running">Egy AI ügynök már fut. Kérjük, várjon, vagy állítsa le azt.</string>
   <!--AI Agent Notifications-->

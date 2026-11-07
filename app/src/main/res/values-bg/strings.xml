@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible изисква графика Direct3D, за да показва библейския текст с WebView2. Текущият графичен рендерер е %1$s. Проверете графичния си драйвер и поддръжката на Direct3D.\n\nПодробности има в лог файла:\n%2$s</string>
   <string name="desktop_update_setting_title">Проверка за актуализации</string>
   <string name="desktop_update_setting_summary">Веднъж дневно, от github.com</string>
+  <string name="desktop_beta_update_setting_title">Предлагане на публични бета актуализации</string>
+  <string name="desktop_beta_update_setting_summary">Предлага и публични бета версии. Когато е изключено, бета инсталацията получава само производствени издания.</string>
   <string name="desktop_update_consent_title">Да се проверява ли за актуализации?</string>
   <string name="desktop_update_consent_message">AndBible може веднъж дневно да проверява github.com за по-нова версия. GitHub вижда вашия IP адрес; нищо друго не се изпраща. Можете да го промените по-късно в Настройки.</string>
   <string name="desktop_update_consent_yes">Проверявай за актуализации</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Активирай специфични E-ink функции (бутони за превъртане на страница, помощни линии за превъртане)</string>
   <string name="prefs_disable_animations_title">Деактивирай анимации</string>
   <string name="prefs_disable_animations_summary">Деактивирай различни анимации като плавно превъртане.</string>
+  <string name="prefs_show_activity_in_menu_title">Показване на фоновата дейност в менюто</string>
+  <string name="prefs_show_activity_in_menu_summary">Изтегляния, синхронизиране и напредък на индексирането, както и грешки, в менюто ⋮</string>
+  <string name="prefs_system_notifications_title">Системни известия</string>
+  <string name="prefs_system_notifications_denied">Изключено в настройките на iOS</string>
+  <string name="prefs_system_notifications_summary">Известяване за неуспешна фонова работа, за дълги изтегляния, завършили докато AndBible е на заден план, и за техния напредък</string>
   <string name="prefs_disable_click_to_edit_title">Деактивирай редактиране с клик в Study Pad</string>
   <string name="prefs_disable_click_to_edit_summary">Изисква използването на бутона за редактиране, за да се редактират бележки в Study Pad.</string>
   <string name="prefs_notes_content_type_title">Формат за нови бележки към отметки</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Автоматично</string>
   <string name="prefs_night_mode_system">Системно</string>
   <string name="options_menu_night_mode">Нощен режим</string>
+  <string name="options_menu_sync_now">Синхронизиране сега</string>
+  <string name="exit_sync_title">Синхронизиране на промените…</string>
+  <string name="exit_sync_body">Промените ви се изпращат към другите ви устройства. Това може да отнеме няколко секунди.</string>
+  <string name="exit_sync_quit_now">Изход сега</string>
+  <string name="exit_sync_closing">Затваряне…</string>
+  <string name="sync_now_no_network">Няма мрежова връзка</string>
   <string name="prefs_navigate_to_verse_title">Отвори стих</string>
   <string name="prefs_navigate_to_verse_summary">Избери стих (и глава) при отваряне на пасажа</string>
   <string name="prefs_open_links_in_special_window_title">Прозорец за връзки</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Език</string>
   <string name="one_more_back_press">Натиснете назад отново, за да затворите приложението</string>
   <string name="document_filter_results">%d документа</string>
+  <string name="activity_show_all">Показване на всички (%1$d)</string>
+  <string name="activity_failed_badge">%1$d неуспешни</string>
+  <string name="activity_attention_badge">%1$d изискват внимание</string>
+  <string name="activity_combined_badge">%1$d неуспешни, %2$d изискват внимание</string>
+  <string name="activity_running_description">Върви фонова работа</string>
+  <string name="activity_running">Изпълнява се</string>
+  <string name="activity_recent">Скорошни</string>
+  <string name="activity_clear_finished">Изчистване на завършените</string>
+  <string name="activity_title">Фонова дейност</string>
+  <string name="activity_empty">Нищо не се изпълнява</string>
+  <string name="activity_failed_toast">%1$s — вижте менюто</string>
   <string name="download_question_title">Искате ли да продължите с изтеглянето на документи?</string>
   <string name="download_question_message">Ако живеете в страна, където се преследват вярващи, трябва да внимавате при изтеглянето на християнски материали от интернет. Вместо това може да искате да получите zip файлове с модули по-сигурен начин и да ги инсталирате чрез „Зареждане на документи от Zip\". Сигурни ли сте, че искате да продължите с изтеглянето? Всички изтегляния от сървърите за модули са криптирани (HTTPS).</string>
   <string name="do_not_ask_again">Да, не питай повече</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">Резервно копие — къде?</string>
   <string name="backup_backup_message">Резервно копие на телефона или другаде чрез функцията за споделяне (имейл, Google Диск и др.)?</string>
   <string name="backup_phone_storage">Хранилище на телефона</string>
+  <string name="backup_save_to_files">Запазване във Files</string>
   <string name="backup_and_restore">Резервно копие</string>
   <string name="backup_modules2">Резервно копие на ресурсите в…</string>
   <string name="backup_app2">Резервно копие на приложението (.apk файл) в…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">Сървър за разпространение: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Папка с дневници</string>
+  <string name="open_log_folder">Отваряне на папката с дневници</string>
+  <string name="startup_report_bug">Докладване на грешка</string>
   <string name="send_bug_report_title">Обратна връзка / доклад за грешка</string>
   <string name="report_bug_email_subject_3">[%1$s] Доклад за грешка за %2$s %3$s</string>
   <string name="report_bug_big_heading">МОЛЯ, НАПИШЕТЕ СВОЯТА ОБРАТНА ВРЪЗКА ИЛИ ДОКЛАД ЗА ГРЕШКА НАД ТОЗИ РЕД</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">Тестова грешка (дебъг версия)</string>
   <string name="bug_report_prepare_failed">Отчетът не можа да бъде подготвен или споделен. Можете да опитате отново или да използвате Резервно копие и възстановяване, за да запазите данните си.</string>
   <string name="bug_report_email_title">Изпрати доклад за грешка по имейл</string>
+  <string name="bug_report_desktop_text">След това ще бъдете попитани къде да запазите файла с доклада за грешката. После ще получите указания как да го изпратите на екипа на разработчиците.</string>
   <string name="bug_report_email_text">Моля, изберете предпочитаното от вас имейл приложение (например Gmail), за да изпратите доклада до екипа на разработчиците.</string>
   <string name="bug_report_manual_title">Изпратете отчета по имейл</string>
+  <string name="bug_report_manual_text_saved">Докладът беше запазен в</string>
+  <string name="bug_report_manual_text_unsaved">Докладът беше запазен на избраното от вас място.\n\nМоля, изпратете имейл до</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s грешка: &lt;кратко описание&gt;</string>
+  <string name="bug_report_attach_line">Моля, прикачете файла %1$s</string>
+  <string name="bug_report_copy_subject">Копиране на темата</string>
+  <string name="bug_report_copy_path">Копиране на пътя до файла</string>
+  <string name="bug_report_open_folder">Отваряне на папката</string>
   <string name="bug_report_copy_address">Копирай адреса</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Реч</string>
@@ -736,6 +772,37 @@
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Затвори до следващата актуализация</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">СПЕЦИАЛНО ИЗВЕСТИЕ ОТ РАЗРАБОТЧИКА ЗА БЕТА ТЕСТЕРИТЕ (ноември 2026 г.)</string>
+  <string name="beta_special_intro_android">Добре дошли в бета версията на AndBible 6.0! Това е най-голямата промяна в историята на AndBible. Цялото приложение е пренаписано с нов инструментариум за потребителски интерфейс, а интерфейсът е преработен по пътя: всеки екран е прегледан и повечето от тях получиха значителни подобрения в удобството, освен обновения вид на Material 3.</string>
+  <string name="beta_special_intro_ios">Добре дошли в бета версията на AndBible 6.0! Ако сте използвали AndBible за iOS 1.0, това е голяма промяна: версия 6.0 я заменя със споделеното приложение AndBible, същото приложение, което работи на Android, iPhone, iPad и Mac с Apple Silicon, Windows и Linux. То е изградено върху кода, който служи на потребителите на Android повече от десетилетие, пренаписан с нов инструментариум за потребителски интерфейс, а интерфейсът е преработен по пътя: всеки екран е прегледан и повечето от тях получиха значителни подобрения в удобството.</string>
+  <string name="beta_special_intro_desktop">Добре дошли в бета версията на AndBible 6.0 и в AndBible за Windows и Linux! Това е първата настолна версия на AndBible: същото приложение вече работи на Android, iPhone, iPad и Mac с Apple Silicon, Windows и Linux. То е изградено върху кода, който служи на потребителите на Android повече от десетилетие, пренаписан с нов инструментариум за потребителски интерфейс, а интерфейсът е преработен по пътя: всеки екран е прегледан и повечето от тях получиха значителни подобрения в удобството.</string>
+  <string name="beta_special_redesign">Преработен интерфейс: по-ясни менюта, настройки и диалози, по-последователна навигация и много малки подобрения в работния процес из цялото приложение.</string>
+  <string name="beta_special_data_kept">Функциите, данните и настройките ви са все още налични.</string>
+  <string name="beta_special_platforms">Същото приложение вече работи на Android, iPhone, iPad и Mac с Apple Silicon, Windows и Linux. Новите платформи също са в тестване.</string>
+  <string name="beta_special_additions_android">Две по-малки допълнения: синхронизиране чрез WebDAV (собствен сървър, NAS или всяка WebDAV услуга, освен Google Drive и Nextcloud) и нов индекс за търсене, който се изгражда наново еднократно и автоматично след актуализацията.</string>
+  <string name="beta_special_one_app">Едно приложение на всичките ви устройства: същите функции и работни процеси на телефона, таблета и компютъра.</string>
+  <string name="beta_special_sync_ios">Синхронизиране между вашите устройства чрез Nextcloud, WebDAV (собствен сървър, NAS или всяка WebDAV услуга) или iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Синхронизиране между вашите устройства чрез Nextcloud или WebDAV (собствен сървър, NAS или всяка WebDAV услуга).</string>
+  <string name="beta_special_feedback">Ако нещо липсва, работи по различен начин от преди или е станало по-трудно за намиране, моля, кажете ни, дори да е било умишлено.</string>
+  <string name="beta_special_backup">Добре е да направите резервно копие преди тестването (Главно меню → %s).</string>
+  <string name="beta_special_beta_warning">Това е бета версия: не всичко е завършено или напълно тествано и може да съдържа грешки. Използвайки я, вие сте бета тестер, а вашите доклади за грешки са това, което прави окончателното издание добро.</string>
+  <string name="beta_special_leave_beta_android">Ако не сте искали да тествате, можете да напуснете %s и да се върнете към стабилната версия.</string>
+  <string name="beta_special_report">Моля, докладвайте грешки чрез %1$s (за предпочитане) или Главно меню → %2$s.</string>
+  <string name="beta_special_report_android">Моля, докладвайте грешки чрез %1$s (за предпочитане), Google Play или Главно меню → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible на другите ви устройства</string>
+  <string name="beta_special_other_devices_intro">Същата бета версия е достъпна за всичките ви устройства:</string>
+  <string name="beta_special_other_android">Android: присъединете се към %1$s или изтеглете APK от най-новото бета издание в %2$s.</string>
+  <string name="beta_special_play_beta_link">бета програмата в Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad и Mac с Apple Silicon: инсталирайте приложението TestFlight на Apple и се присъединете към %s.</string>
+  <string name="beta_special_testflight_link">публичната бета на AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) и Linux (.deb или AppImage): изтеглете ги от най-новото бета издание в %s.</string>
+  <string name="beta_special_installation_guide">Подробни инструкции има в %s.</string>
+  <string name="beta_special_installation_guide_link">ръководството за инсталиране</string>
+  <string name="beta_special_regards">С най-добри пожелания, Туомас</string>
+  <string name="beta_special_sponsor">P.S. Можете да подкрепите разработката на AndBible финансово чрез %s.</string>
+  <string name="beta_special_sponsor_link">спонсориране на часове за разработка</string>
   <string name="stable_notice_title">Приложението е актуализирано!</string>
   <string name="upgrade_video_message">Моля, вижте видеото с новите функции на тази версия (%s).</string>
   <string name="stable_notice_par1">Новата версия %1$s на %2$s е инсталирана успешно!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">Хранилища и свързани настройки</string>
   <string name="db_bookmarks">Отметки, мои бележки, етикети и бележници</string>
   <string name="synchronizing">Синхронизиране…</string>
+  <string name="notification_finished">Завършено</string>
   <string name="overrideBackup">В облака е намерена съществуваща база данни, с която това устройство не е синхронизирано. Базата данни съдържа %s. Какво искате да направите?</string>
   <string name="reading_plans_content">Планове за четене и техните статуси</string>
   <string name="bookmarks_contents">Отметки, етикети и бележници</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">Получен отговор</string>
   <string name="agent_log_saved">Запазено: %s</string>
   <string name="agent_log_done">Готово: %s</string>
+  <string name="agent_activity_title">AI агент</string>
+  <string name="agent_activity_title_in">AI агент: %s</string>
+  <string name="agent_activity_waiting">Чака вашето разрешение</string>
+  <string name="agent_activity_waiting_for">Чака вашето разрешение: %s</string>
+  <string name="agent_activity_failed">AI агентът се провали</string>
+  <string name="agent_activity_attention_needed">AI агентът се нуждае от вашето внимание</string>
   <string name="agent_log_cancelled">Отменено</string>
   <string name="agent_already_running">Вече работи AI агент. Изчакайте или го спрете първо.</string>
   <!--AI Agent Notifications-->

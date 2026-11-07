@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible zahtijeva Direct3D grafiku za prikaz biblijskog teksta pomoću WebView2. Trenutni grafički renderer je %1$s. Provjerite grafički upravljački program i podršku za Direct3D.\n\nPojedinosti su u datoteci dnevnika:\n%2$s</string>
   <string name="desktop_update_setting_title">Provjeri ažuriranja</string>
   <string name="desktop_update_setting_summary">Jednom dnevno, s github.com</string>
+  <string name="desktop_beta_update_setting_title">Nudi javna beta ažuriranja</string>
+  <string name="desktop_beta_update_setting_summary">Nudi i javne beta verzije. Kad je isključeno, beta instalacija dobiva samo produkcijska izdanja.</string>
   <string name="desktop_update_consent_title">Provjeriti ažuriranja?</string>
   <string name="desktop_update_consent_message">AndBible može jednom dnevno provjeriti github.com radi novije verzije. GitHub vidi vašu IP adresu; ništa drugo se ne šalje. To možete promijeniti kasnije u postavkama.</string>
   <string name="desktop_update_consent_yes">Provjeri ažuriranja</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Omogući značajke specifične za e-ink (gumbi za listanje stranica, pomoćne linije za pomicanje)</string>
   <string name="prefs_disable_animations_title">Isključite animacije</string>
   <string name="prefs_disable_animations_summary">Isključite razne animacije kao što su neprimjetno pomicanje.</string>
+  <string name="prefs_show_activity_in_menu_title">Prikaži pozadinsku aktivnost u izborniku</string>
+  <string name="prefs_show_activity_in_menu_summary">Napredak preuzimanja, sinkronizacije i indeksiranja te pogreške, u izborniku ⋮</string>
+  <string name="prefs_system_notifications_title">Sistemske obavijesti</string>
+  <string name="prefs_system_notifications_denied">Isključeno u iOS postavkama</string>
+  <string name="prefs_system_notifications_summary">Obavijesti o neuspjelim pozadinskim poslovima, dugim preuzimanjima koja završe dok je AndBible u pozadini te o njihovu napretku</string>
   <string name="prefs_disable_click_to_edit_title">Onemogući uređivanje klikom u radnoj bilježnici</string>
   <string name="prefs_disable_click_to_edit_summary">Zahtijeva korištenje gumba za uređivanje bilješki u radnoj bilježnici.</string>
   <string name="prefs_notes_content_type_title">Format za nove bilješke straničnika</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatski</string>
   <string name="prefs_night_mode_system">Sustavni</string>
   <string name="options_menu_night_mode">Noćni način rada</string>
+  <string name="options_menu_sync_now">Sinkroniziraj sada</string>
+  <string name="exit_sync_title">Sinkronizacija promjena…</string>
+  <string name="exit_sync_body">Šaljem vaše promjene na vaše druge uređaje. To može potrajati nekoliko sekundi.</string>
+  <string name="exit_sync_quit_now">Izađi sada</string>
+  <string name="exit_sync_closing">Zatvaranje…</string>
+  <string name="sync_now_no_network">Nema mrežne veze</string>
   <string name="prefs_navigate_to_verse_title">Idi na redak</string>
   <string name="prefs_navigate_to_verse_summary">Odaberi redak (i poglavlje) kada se označi odlomak</string>
   <string name="prefs_open_links_in_special_window_title">Prozor sa poveznicama</string>
@@ -357,6 +370,17 @@
   <string name="chooce_language_hint">Jezik</string>
   <string name="one_more_back_press">Dodirnite ponovno natrag kako biste isključili aplikaciju</string>
   <string name="document_filter_results">%d dokumen(a)ta</string>
+  <string name="activity_show_all">Prikaži sve (%1$d)</string>
+  <string name="activity_failed_badge">%1$d neuspjelo</string>
+  <string name="activity_attention_badge">%1$d traži pažnju</string>
+  <string name="activity_combined_badge">%1$d neuspjelo, %2$d traži pažnju</string>
+  <string name="activity_running_description">Pozadinski posao je u tijeku</string>
+  <string name="activity_running">U tijeku</string>
+  <string name="activity_recent">Nedavno</string>
+  <string name="activity_clear_finished">Očisti završeno</string>
+  <string name="activity_title">Pozadinska aktivnost</string>
+  <string name="activity_empty">Ništa nije u tijeku</string>
+  <string name="activity_failed_toast">%1$s — vidi izbornik</string>
   <string name="download_question_title">Želite li nastaviti preuzimanje dokumenata?</string>
   <string name="download_question_message">Ako živite u zemlji koja progoni,
 možda je potrebno da budete oprezni kada preuzimate kršćanski materijal preko interneta.
@@ -640,6 +664,7 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="backup_backup_title">Gdje želite spremiti sigurnosnu kopiju?</string>
   <string name="backup_backup_message">Sigurnosna kopija na uređaj ili drugom mjestu putem dijeljenja (e-pošta, Google Drive itd.)?</string>
   <string name="backup_phone_storage">Pohrana uređaja</string>
+  <string name="backup_save_to_files">Spremi u Datoteke</string>
   <string name="backup_and_restore">Sigurnosna kopija i vraćanje</string>
   <string name="backup_modules2">Sigurnosna kopija dokumenata na...</string>
   <string name="backup_app2">Napravi sigurnosnu kopiju aplikacije (.apk fajl) na...</string>
@@ -692,6 +717,9 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="module_about_repository">Distribucijski sustav: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Mapa dnevnika</string>
+  <string name="open_log_folder">Otvori mapu dnevnika</string>
+  <string name="startup_report_bug">Prijavi grešku</string>
   <string name="send_bug_report_title">Povratne informacije / prijavite pogrešku</string>
   <string name="report_bug_email_subject_3">[%1$s] Prijavite pogrešku za %2$s %3$s</string>
   <string name="report_bug_big_heading">MOLIMO VAS NAPIŠITE VAŠE POVRATNE INFORMACIJE ILI PRIJAVITE POGREŠKU IZNAD OVOGA REDA</string>
@@ -759,8 +787,16 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="debug_test_error">Testna pogreška (debug izdanje)</string>
   <string name="bug_report_prepare_failed">Izvješće nije moguće pripremiti ni podijeliti. Možete pokušati ponovno ili upotrijebiti Sigurnosno kopiranje i vraćanje za spremanje podataka.</string>
   <string name="bug_report_email_title">Pošaljite prijavu o pogrešci putem e-pošte</string>
+  <string name="bug_report_desktop_text">Zatim ćete biti upitani gdje spremiti datoteku s prijavom greške. Nakon toga dobit ćete upute za slanje razvojnom timu.</string>
   <string name="bug_report_email_text">Sljedeće, molimo Vas da odaberete Vašu željenu aplikaciju e-pošte (primjerice Gmail) kako biste poslali izvješće programerskom timu.</string>
   <string name="bug_report_manual_title">Pošaljite izvješće e-poštom</string>
+  <string name="bug_report_manual_text_saved">Prijava je spremljena u</string>
+  <string name="bug_report_manual_text_unsaved">Prijava je spremljena na mjesto koje ste odabrali.\n\nPošaljite e-poruku na</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s greška: &lt;kratak opis&gt;</string>
+  <string name="bug_report_attach_line">Priložite datoteku %1$s</string>
+  <string name="bug_report_copy_subject">Kopiraj predmet</string>
+  <string name="bug_report_copy_path">Kopiraj putanju datoteke</string>
+  <string name="bug_report_open_folder">Otvori mapu</string>
   <string name="bug_report_copy_address">Kopiraj adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst u izgovor</string>
@@ -791,6 +827,37 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="beta_notice_github_issues">Github problemi</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Odbaci do sljedećeg ažuriranja</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">POSEBNA OBAVIJEST RAZVOJNOG PROGRAMERA ZA BETA TESTERE (studeni 2026.)</string>
+  <string name="beta_special_intro_android">Dobro došli u AndBible 6.0 beta! Ovo je najveća promjena u povijesti AndBiblea. Cijela je aplikacija prepisana novim alatom za korisničko sučelje, a usput je redizajnirano i sučelje: svaki je zaslon pregledan, a većina ih je dobila značajna poboljšanja upotrebljivosti povrh osvježenog izgleda Material 3.</string>
+  <string name="beta_special_intro_ios">Dobro došli u AndBible 6.0 beta! Ako ste koristili AndBible za iOS 1.0, ovo je velika promjena: verzija 6.0 zamjenjuje ga zajedničkom aplikacijom AndBible, istom koja radi na Androidu, iPhoneu, iPadu i Apple Silicon Macovima, Windowsu i Linuxu. Izgrađena je na kodu koji više od desetljeća služi korisnicima Androida, prepisanom novim alatom za korisničko sučelje, a usput je redizajnirano i sučelje: svaki je zaslon pregledan, a većina ih je dobila značajna poboljšanja upotrebljivosti.</string>
+  <string name="beta_special_intro_desktop">Dobro došli u AndBible 6.0 beta i u AndBible na Windowsu i Linuxu! Ovo je prva desktop verzija AndBiblea: ista aplikacija sada radi na Androidu, iPhoneu, iPadu i Apple Silicon Macovima, Windowsu i Linuxu. Izgrađena je na kodu koji više od desetljeća služi korisnicima Androida, prepisanom novim alatom za korisničko sučelje, a usput je redizajnirano i sučelje: svaki je zaslon pregledan, a većina ih je dobila značajna poboljšanja upotrebljivosti.</string>
+  <string name="beta_special_redesign">Redizajnirano sučelje: jasniji izbornici, postavke i dijalozi, dosljednija navigacija i mnoga mala poboljšanja tijeka rada u cijeloj aplikaciji.</string>
+  <string name="beta_special_data_kept">Sve vaše značajke, podaci i postavke i dalje su tu.</string>
+  <string name="beta_special_platforms">Ista aplikacija sada radi na Androidu, iPhoneu, iPadu i Apple Silicon Macovima, Windowsu i Linuxu. Nove se platforme također testiraju.</string>
+  <string name="beta_special_additions_android">Dva manja dodatka: WebDAV sinkronizacija (vaš vlastiti poslužitelj, NAS ili bilo koja WebDAV usluga, uz Google Drive i Nextcloud) te novi indeks pretraživanja koji se nakon ažuriranja jednom automatski ponovno izgrađuje.</string>
+  <string name="beta_special_one_app">Jedna aplikacija na svim vašim uređajima: iste značajke i tijekovi rada na telefonu, tabletu i računalu.</string>
+  <string name="beta_special_sync_ios">Sinkronizacija između vaših uređaja putem Nextclouda, WebDAV-a (vaš vlastiti poslužitelj, NAS ili bilo koja WebDAV usluga) ili iCloud Drivea.</string>
+  <string name="beta_special_sync_desktop">Sinkronizacija između vaših uređaja putem Nextclouda ili WebDAV-a (vaš vlastiti poslužitelj, NAS ili bilo koja WebDAV usluga).</string>
+  <string name="beta_special_feedback">Ako nešto nedostaje, radi drukčije nego prije ili ga je teže pronaći, javite nam, čak i ako je to možda namjerno.</string>
+  <string name="beta_special_backup">Prije testiranja dobro je napraviti sigurnosnu kopiju (Glavni izbornik → %s).</string>
+  <string name="beta_special_beta_warning">Ovo je beta verzija: nije sve dovršeno ni u potpunosti testirano, a može sadržavati greške. Korištenjem postajete beta tester, a vaše prijave grešaka čine konačno izdanje dobrim.</string>
+  <string name="beta_special_leave_beta_android">Ako niste željeli testirati, možete napustiti %s i vratiti se na stabilnu verziju.</string>
+  <string name="beta_special_report">Greške prijavite putem %1$s (poželjno) ili Glavni izbornik → %2$s.</string>
+  <string name="beta_special_report_android">Greške prijavite putem %1$s (poželjno), Google Playa ili Glavni izbornik → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible na vašim drugim uređajima</string>
+  <string name="beta_special_other_devices_intro">Ista beta dostupna je za sve vaše uređaje:</string>
+  <string name="beta_special_other_android">Android: pridružite se %1$s ili preuzmite APK iz najnovijeg beta izdanja na %2$s.</string>
+  <string name="beta_special_play_beta_link">beta programu na Google Playu</string>
+  <string name="beta_special_other_apple">iPhone, iPad i Apple Silicon Mac: instalirajte Appleovu aplikaciju TestFlight i pridružite se %s.</string>
+  <string name="beta_special_testflight_link">AndBible javnoj beti</string>
+  <string name="beta_special_other_desktop">Windows (.msi) i Linux (.deb ili AppImage): preuzmite ih iz najnovijeg beta izdanja na %s.</string>
+  <string name="beta_special_installation_guide">Upute korak po korak nalaze se u %s.</string>
+  <string name="beta_special_installation_guide_link">vodiču za instalaciju</string>
+  <string name="beta_special_regards">Srdačan pozdrav, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Razvoj AndBiblea možete financijski podržati %s.</string>
+  <string name="beta_special_sponsor_link">sponzoriranjem razvojnih sati</string>
   <string name="stable_notice_title">Aplikacija je ažurirana!</string>
   <string name="upgrade_video_message">Molimo Vas pogledajte video zapis koji pokazuje nove stavke ovog izdanja (%s).</string>
   <string name="stable_notice_par1">Nova verzija %1$s od %2$s je uspješno instalirana!</string>
@@ -1180,6 +1247,7 @@ Kada koristite Google Drive, %s dozvoljen je pristup samo datotekama aplikacije,
   <string name="db_repositories">Repozitorij i srodna podešavanja</string>
   <string name="db_bookmarks">Straničnici, Moje bilješke, Oznake i Radne bilježnice</string>
   <string name="synchronizing">Usklađivanje...</string>
+  <string name="notification_finished">Završeno</string>
   <string name="overrideBackup">
 Postojeća baza podataka koja nije usklađena sa uređajem je pronađena na oblaku.
 Baza podataka sadrži %s. Kako želite postupiti?</string>
@@ -1762,6 +1830,12 @@ Ne prikazuj ovu poruku ponovno.
   <string name="agent_log_response_received">Odgovor primljen</string>
   <string name="agent_log_saved">Spremljeno: %s</string>
   <string name="agent_log_done">Gotovo: %s</string>
+  <string name="agent_activity_title">AI agent</string>
+  <string name="agent_activity_title_in">AI agent: %s</string>
+  <string name="agent_activity_waiting">Čeka vaše dopuštenje</string>
+  <string name="agent_activity_waiting_for">Čeka vaše dopuštenje: %s</string>
+  <string name="agent_activity_failed">AI agent nije uspio</string>
+  <string name="agent_activity_attention_needed">AI agent traži vašu pažnju</string>
   <string name="agent_log_cancelled">Otkazano</string>
   <string name="agent_already_running">AI agent već radi. Pričekajte ili ga prvo zaustavite.</string>
   <!--AI Agent Notifications-->

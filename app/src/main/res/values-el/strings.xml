@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">Το AndBible απαιτεί γραφικά Direct3D για την εμφάνιση του κειμένου της Αγίας Γραφής με το WebView2. Ο τρέχων επεξεργαστής γραφικών είναι %1$s. Ελέγξτε το πρόγραμμα οδήγησης γραφικών και την υποστήριξη Direct3D.\n\nΟι λεπτομέρειες βρίσκονται στο αρχείο καταγραφής:\n%2$s</string>
   <string name="desktop_update_setting_title">Έλεγχος για ενημερώσεις</string>
   <string name="desktop_update_setting_summary">Μία φορά την ημέρα, από το github.com</string>
+  <string name="desktop_beta_update_setting_title">Προσφορά δημόσιων beta ενημερώσεων</string>
+  <string name="desktop_beta_update_setting_summary">Προσφέρονται επίσης δημόσιες beta εκδόσεις. Όταν είναι απενεργοποιημένο, μια beta εγκατάσταση λαμβάνει μόνο παραγωγικές εκδόσεις.</string>
   <string name="desktop_update_consent_title">Έλεγχος για ενημερώσεις;</string>
   <string name="desktop_update_consent_message">Το AndBible μπορεί να ελέγχει το github.com μία φορά την ημέρα για νεότερη έκδοση. Το GitHub βλέπει τη διεύθυνση IP σας· δεν αποστέλλεται τίποτα άλλο. Μπορείτε να το αλλάξετε αργότερα στις Ρυθμίσεις.</string>
   <string name="desktop_update_consent_yes">Έλεγχος για ενημερώσεις</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Ενεργοποίηση λειτουργιών ειδικά για E-ink (κουμπιά κύλισης σελίδας, βοηθητικές γραμμές κύλισης)</string>
   <string name="prefs_disable_animations_title">Απενεργοποίηση κινούμενων σχεδίων</string>
   <string name="prefs_disable_animations_summary">Απενεργοποίηση διάφορων animation όπως smooth scrolling</string>
+  <string name="prefs_show_activity_in_menu_title">Εμφάνιση δραστηριότητας παρασκηνίου στο μενού</string>
+  <string name="prefs_show_activity_in_menu_summary">Πρόοδος λήψεων, συγχρονισμού και ευρετηρίασης, καθώς και αποτυχίες, στο μενού ⋮</string>
+  <string name="prefs_system_notifications_title">Ειδοποιήσεις συστήματος</string>
+  <string name="prefs_system_notifications_denied">Απενεργοποιημένο στις Ρυθμίσεις του iOS</string>
+  <string name="prefs_system_notifications_summary">Ειδοποίηση για αποτυχημένες εργασίες παρασκηνίου, για μεγάλες λήψεις που ολοκληρώνονται ενώ το AndBible βρίσκεται στο παρασκήνιο, και για την πρόοδό τους</string>
   <string name="prefs_disable_click_to_edit_title">Απενεργοποίηση κλικ για επεξεργασία στον Χώρο Μελέτης</string>
   <string name="prefs_disable_click_to_edit_summary">Απαιτεί χρήση του κουμπιού επεξεργασίας για επεξεργασία σημειώσεων στον Χώρο Μελέτης.</string>
   <string name="prefs_notes_content_type_title">Μορφή νέων σημειώσεων σελιδοδεικτών</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Αυτόματα</string>
   <string name="prefs_night_mode_system">Σύστημα</string>
   <string name="options_menu_night_mode">Λειτουργία νυκτός</string>
+  <string name="options_menu_sync_now">Συγχρονισμός τώρα</string>
+  <string name="exit_sync_title">Συγχρονισμός αλλαγών…</string>
+  <string name="exit_sync_body">Αποστολή των αλλαγών σας στις άλλες συσκευές σας. Αυτό μπορεί να διαρκέσει μερικά δευτερόλεπτα.</string>
+  <string name="exit_sync_quit_now">Έξοδος τώρα</string>
+  <string name="exit_sync_closing">Κλείσιμο…</string>
+  <string name="sync_now_no_network">Δεν υπάρχει σύνδεση δικτύου</string>
   <string name="prefs_navigate_to_verse_title">Πλοήγηση στον στίχο</string>
   <string name="prefs_navigate_to_verse_summary">Επιλογή στίχου (και κεφαλαίου) κατά την επιλογή ενός περάσματος</string>
   <string name="prefs_open_links_in_special_window_title">Παράθυρο συνδέσμων</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Γλώσσα</string>
   <string name="one_more_back_press">Πατήστε πίσω ξανά για να κλείσετε την εφαρμογή</string>
   <string name="document_filter_results">%d έγγραφα</string>
+  <string name="activity_show_all">Εμφάνιση όλων (%1$d)</string>
+  <string name="activity_failed_badge">%1$d απέτυχαν</string>
+  <string name="activity_attention_badge">%1$d χρειάζονται προσοχή</string>
+  <string name="activity_combined_badge">%1$d απέτυχαν, %2$d χρειάζονται προσοχή</string>
+  <string name="activity_running_description">Εργασία παρασκηνίου σε εξέλιξη</string>
+  <string name="activity_running">Σε εξέλιξη</string>
+  <string name="activity_recent">Πρόσφατα</string>
+  <string name="activity_clear_finished">Εκκαθάριση ολοκληρωμένων</string>
+  <string name="activity_title">Δραστηριότητα παρασκηνίου</string>
+  <string name="activity_empty">Τίποτα σε εξέλιξη</string>
+  <string name="activity_failed_toast">%1$s — δείτε το μενού</string>
   <string name="download_question_title">Συνέχεια στην λήψη εγγράφων?</string>
   <string name="download_question_message">Αν ζείτε σε διωκόμενη χώρα,
 ίσως χρειάζετε να είστε προσεκτικοί κατά την λήψη χριστιανικού υλικού από το ίντερνετ.
@@ -627,6 +651,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="backup_backup_title">Που να δημιουργηθεί το αντίγραφο ασφαλείας?</string>
   <string name="backup_backup_message">Αντίγραφο ασφαλείας στο τηλέφωνο ή αλλού μέσω της Κοινοποίησης (email, Google Drive κλπ.)?</string>
   <string name="backup_phone_storage">Αποθηκευτικός χώρος τηλεφώνου</string>
+  <string name="backup_save_to_files">Αποθήκευση στα Αρχεία</string>
   <string name="backup_and_restore">Αντίγραφο ασφαλείας &amp; επαναφορά</string>
   <string name="backup_modules2">Αντίγραφο ασφαλείας εγγράφων στο...</string>
   <string name="backup_app2">Αντίγραφο εφαρμογής (αρχείο .apk) στο ....</string>
@@ -679,6 +704,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="module_about_repository">Διακομιστής διαμοιρασμού: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Φάκελος αρχείων καταγραφής</string>
+  <string name="open_log_folder">Άνοιγμα φακέλου αρχείων καταγραφής</string>
+  <string name="startup_report_bug">Αναφορά σφάλματος</string>
   <string name="send_bug_report_title">Ανατροφοδότηση / Αναφορά σφάλματος</string>
   <string name="report_bug_email_subject_3">[%1$s] Αναφορά σφάλματος για %2$s %3$s </string>
   <string name="report_bug_big_heading">ΠΑΡΑΚΑΛΩ ΓΡΑΨΤΕ ΤΑ ΣΧΟΛΙΑ ΣΑΣ Ή ΑΝΑΦΕΡΕΤΕ ΣΦΑΛΜΑΤΑ ΚΑΤΩ ΑΠΟ ΑΥΤΗ ΤΗ ΓΡΑΜΜΗ</string>
@@ -746,8 +774,16 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="debug_test_error">Δοκιμαστικό σφάλμα (έκδοση αποσφαλμάτωσης)</string>
   <string name="bug_report_prepare_failed">Δεν ήταν δυνατή η προετοιμασία ή η κοινοποίηση της αναφοράς. Μπορείτε να δοκιμάσετε ξανά ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας και επαναφορά για να αποθηκεύσετε τα δεδομένα σας.</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
+  <string name="bug_report_desktop_text">Στη συνέχεια θα σας ζητηθεί να επιλέξετε πού θα αποθηκευτεί το αρχείο αναφοράς σφάλματος. Έπειτα θα λάβετε οδηγίες για την αποστολή του στην ομάδα ανάπτυξης.</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
   <string name="bug_report_manual_title">Αποστολή της αναφοράς με email</string>
+  <string name="bug_report_manual_text_saved">Η αναφορά αποθηκεύτηκε στο <b>%1$s</b>.\n\nΣτείλτε ένα email στη διεύθυνση <b>%2$s</b> και επισυνάψτε αυτό το αρχείο· ένα πρόγραμμα email δεν μπορεί να το επισυνάψει για εσάς. Προτεινόμενο θέμα: <b>%3$s</b>. Στο μήνυμα, πείτε μας τι κάνατε και τι συνέβη.</string>
+  <string name="bug_report_manual_text_unsaved">Η αναφορά αποθηκεύτηκε στη θέση που επιλέξατε.\n\nΣτείλτε ένα email στη διεύθυνση <b>%1$s</b> και επισυνάψτε το αποθηκευμένο αρχείο αναφοράς· ένα πρόγραμμα email δεν μπορεί να το επισυνάψει για εσάς. Προτεινόμενο θέμα: <b>%2$s</b>. Στο μήνυμα, πείτε μας τι κάνατε και τι συνέβη.</string>
+  <string name="bug_report_subject_suggestion">Σφάλμα AndBible %1$s: &lt;σύντομη περιγραφή&gt;</string>
+  <string name="bug_report_attach_line">Επισυνάψτε το αρχείο %1$s</string>
+  <string name="bug_report_copy_subject">Αντιγραφή θέματος</string>
+  <string name="bug_report_copy_path">Αντιγραφή διαδρομής αρχείου</string>
+  <string name="bug_report_open_folder">Άνοιγμα φακέλου</string>
   <string name="bug_report_copy_address">Αντιγραφή διεύθυνσης</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Κείμενο σε ομιλία</string>
@@ -778,6 +814,37 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="beta_notice_github_issues">Προβλήματα του Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Απόρριψη ως την επόμενη ενημέρωση</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ΕΙΔΙΚΗ ΑΝΑΚΟΙΝΩΣΗ ΤΟΥ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ ΓΙΑ ΤΟΥΣ BETA TESTERS (Νοέμβριος 2026)</string>
+  <string name="beta_special_intro_android">Καλώς ήρθατε στην beta του AndBible 6.0! Αυτή είναι η μεγαλύτερη αλλαγή στην ιστορία του AndBible. Ολόκληρη η εφαρμογή γράφτηκε εκ νέου με ένα νέο εργαλείο διεπαφής χρήστη και η διεπαφή επανασχεδιάστηκε στην πορεία: κάθε οθόνη αναθεωρήθηκε και οι περισσότερες απέκτησαν σημαντικές βελτιώσεις χρηστικότητας πάνω στην ανανεωμένη εμφάνιση Material 3.</string>
+  <string name="beta_special_intro_ios">Καλώς ήρθατε στην beta του AndBible 6.0! Αν έχετε χρησιμοποιήσει το AndBible για iOS 1.0, πρόκειται για μεγάλη αλλαγή: η έκδοση 6.0 το αντικαθιστά με την κοινή εφαρμογή AndBible, την ίδια εφαρμογή που τρέχει σε Android, iPhone, iPad και Mac με Apple Silicon, Windows και Linux. Βασίζεται στον κώδικα που εξυπηρετεί τους χρήστες Android για πάνω από μια δεκαετία, γραμμένο εκ νέου με ένα νέο εργαλείο διεπαφής χρήστη, και η διεπαφή επανασχεδιάστηκε στην πορεία: κάθε οθόνη αναθεωρήθηκε και οι περισσότερες απέκτησαν σημαντικές βελτιώσεις χρηστικότητας.</string>
+  <string name="beta_special_intro_desktop">Καλώς ήρθατε στην beta του AndBible 6.0 και στο AndBible για Windows και Linux! Αυτή είναι η πρώτη έκδοση του AndBible για υπολογιστές: η ίδια εφαρμογή τρέχει πλέον σε Android, iPhone, iPad και Mac με Apple Silicon, Windows και Linux. Βασίζεται στον κώδικα που εξυπηρετεί τους χρήστες Android για πάνω από μια δεκαετία, γραμμένο εκ νέου με ένα νέο εργαλείο διεπαφής χρήστη, και η διεπαφή επανασχεδιάστηκε στην πορεία: κάθε οθόνη αναθεωρήθηκε και οι περισσότερες απέκτησαν σημαντικές βελτιώσεις χρηστικότητας.</string>
+  <string name="beta_special_redesign">Επανασχεδιασμένη διεπαφή: πιο σαφή μενού, ρυθμίσεις και διάλογοι, πιο συνεπής πλοήγηση και πολλές μικρές βελτιώσεις στη ροή εργασίας σε όλη την εφαρμογή.</string>
+  <string name="beta_special_data_kept">Οι λειτουργίες, τα δεδομένα και οι ρυθμίσεις σας βρίσκονται όλα στη θέση τους.</string>
+  <string name="beta_special_platforms">Η ίδια εφαρμογή τρέχει πλέον σε Android, iPhone, iPad και Mac με Apple Silicon, Windows και Linux. Οι νέες πλατφόρμες βρίσκονται επίσης σε δοκιμή.</string>
+  <string name="beta_special_additions_android">Δύο μικρότερες προσθήκες: συγχρονισμός WebDAV (ο δικός σας διακομιστής, ένα NAS ή οποιαδήποτε υπηρεσία WebDAV, εκτός από το Google Drive και το Nextcloud) και ένα νέο ευρετήριο αναζήτησης που ξαναχτίζεται μία φορά, αυτόματα, μετά την ενημέρωση.</string>
+  <string name="beta_special_one_app">Μία εφαρμογή σε όλες τις συσκευές σας: οι ίδιες λειτουργίες και ροές εργασίας στο τηλέφωνο, το tablet και τον υπολογιστή σας.</string>
+  <string name="beta_special_sync_ios">Συγχρονισμός μεταξύ των συσκευών σας μέσω Nextcloud, WebDAV (ο δικός σας διακομιστής, ένα NAS ή οποιαδήποτε υπηρεσία WebDAV) ή iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Συγχρονισμός μεταξύ των συσκευών σας μέσω Nextcloud ή WebDAV (ο δικός σας διακομιστής, ένα NAS ή οποιαδήποτε υπηρεσία WebDAV).</string>
+  <string name="beta_special_feedback">Αν κάτι λείπει, λειτουργεί διαφορετικά από πριν ή έγινε πιο δύσκολο να βρεθεί, πείτε το μας, ακόμη κι αν ίσως είναι σκόπιμο.</string>
+  <string name="beta_special_backup">Καλό είναι να κάνετε αντίγραφο ασφαλείας πριν από τη δοκιμή (Κύριο μενού → %s).</string>
+  <string name="beta_special_beta_warning">Αυτή είναι beta έκδοση: δεν είναι όλα ολοκληρωμένα ή πλήρως δοκιμασμένα και μπορεί να περιέχει σφάλματα. Χρησιμοποιώντας την γίνεστε beta tester και οι αναφορές σφαλμάτων σας είναι αυτές που κάνουν καλή την τελική έκδοση.</string>
+  <string name="beta_special_leave_beta_android">Αν δεν είχατε σκοπό να κάνετε δοκιμές, μπορείτε να αποχωρήσετε από το %s και να επιστρέψετε στη σταθερή έκδοση.</string>
+  <string name="beta_special_report">Αναφέρετε σφάλματα μέσω %1$s (προτιμότερο) ή Κύριο μενού → %2$s.</string>
+  <string name="beta_special_report_android">Αναφέρετε σφάλματα μέσω %1$s (προτιμότερο), Google Play ή Κύριο μενού → %2$s.</string>
+  <string name="beta_special_other_devices_title">Το AndBible στις άλλες συσκευές σας</string>
+  <string name="beta_special_other_devices_intro">Η ίδια beta είναι διαθέσιμη για όλες τις συσκευές σας:</string>
+  <string name="beta_special_other_android">Android: συμμετάσχετε στο %1$s ή κατεβάστε το APK από την πιο πρόσφατη beta έκδοση στο %2$s.</string>
+  <string name="beta_special_play_beta_link">πρόγραμμα beta στο Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad και Mac με Apple Silicon: εγκαταστήστε την εφαρμογή TestFlight της Apple και συμμετάσχετε στο %s.</string>
+  <string name="beta_special_testflight_link">δημόσια beta του AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) και Linux (.deb ή AppImage): κατεβάστε τα από την πιο πρόσφατη beta έκδοση στο %s.</string>
+  <string name="beta_special_installation_guide">Οδηγίες βήμα προς βήμα υπάρχουν στον %s.</string>
+  <string name="beta_special_installation_guide_link">οδηγό εγκατάστασης</string>
+  <string name="beta_special_regards">Με εκτίμηση, Tuomas</string>
+  <string name="beta_special_sponsor">Υ.Γ. Μπορείτε να στηρίξετε οικονομικά την ανάπτυξη του AndBible %s.</string>
+  <string name="beta_special_sponsor_link">χορηγώντας ώρες ανάπτυξης</string>
   <string name="stable_notice_title">H εφαρμογή αναβαθμίστηκε!</string>
   <string name="upgrade_video_message">Παρακαλώ δείτε βίντεο παρουσίασης των νέων λειτουργιών αυτής της έκδοσης (%s).</string>
   <string name="stable_notice_par1">Η νέα έκδοση %1$s του %2$s εγκαταστάθηκε επιτυχώς!</string>
@@ -1166,6 +1233,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="db_repositories">Αποθετήρια και σχετικές ρυθμίσεις</string>
   <string name="db_bookmarks">Σελιδοδείκτες, Σημειώσεις Μου, Ετικέτες και Μπλοκ Μελέτης</string>
   <string name="synchronizing">Συγχρονισμός...</string>
+  <string name="notification_finished">Ολοκληρώθηκε</string>
   <string name="overrideBackup">
 Βρέθηκε στο Cloud, βάση δεδομένων που δεν είναι συγχρονισμένη σε αυτή τη συσκευή.
 Η βάση περιέχει %s. Τι θέλετε να κάνετε?</string>
@@ -1747,6 +1815,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_log_response_received">Ελήφθη απάντηση</string>
   <string name="agent_log_saved">Αποθηκεύτηκε: %s</string>
   <string name="agent_log_done">Ολοκλήρωση: %s</string>
+  <string name="agent_activity_title">Πράκτορας AI</string>
+  <string name="agent_activity_title_in">Πράκτορας AI: %s</string>
+  <string name="agent_activity_waiting">Αναμονή για την άδειά σας</string>
+  <string name="agent_activity_waiting_for">Αναμονή για την άδειά σας: %s</string>
+  <string name="agent_activity_failed">Ο πράκτορας AI απέτυχε</string>
+  <string name="agent_activity_attention_needed">Ο πράκτορας AI χρειάζεται την προσοχή σας</string>
   <string name="agent_log_cancelled">Ακυρώθηκε</string>
   <string name="agent_already_running">Ένας βοηθός AI εκτελείται ήδη. Παρακαλώ περιμένετε ή σταματήστε τον πρώτα.</string>
   <!--AI Agent Notifications-->
