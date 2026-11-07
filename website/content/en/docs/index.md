@@ -86,8 +86,7 @@ shows how to find your way around the app.
 
 | Doc | What's inside |
 |---|---|
-| [AndBible on Linux and Windows](desktop.md) | Installation, update checks and data locations on Linux and Windows |
-| [Desktop beta](desktop-beta.md) | Known limitations of the desktop beta, untested setups and how to report a bug |
+| [AndBible on Linux and Windows](desktop.md) | Installation, update checks, data locations, known limitations and how to report a bug |
 
 ### Customisation & Advanced
 

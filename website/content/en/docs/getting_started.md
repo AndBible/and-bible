@@ -121,7 +121,7 @@ The iOS drawer does not currently offer a rating or development-purchase action.
 
 **Report a bug** (*Help & tips*, then *Feedback / bug report*) asks where to save a report
 file, then tries to open your email program. If that fails, a dialog shows the saved file,
-the address to send it to and a **Copy address** button. See [Desktop beta](desktop-beta.md#reporting-a-bug).
+the address to send it to and a **Copy address** button. See [Desktop](desktop.md#reporting-a-bug).
 
 ## Linux {#linux-setup}
 

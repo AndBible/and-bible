@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from sitegen import paths
@@ -47,3 +49,21 @@ def test_docs_home_is_not_android_only(built_docs):
     html = _page(built_docs, "index")
     assert "Android app" not in html
     assert "Windows" in html and "iPhone" in html
+
+
+def test_desktop_page_is_not_beta(built_docs):
+    html = _page(built_docs, "desktop")
+    h1 = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S).group(1)
+    title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
+    assert "beta" not in (h1 + title).lower()
+    assert "beta" not in html.lower()
+    for word in ("Mac", "App Store", "releases/latest", 'id="known-limitations"', 'id="reporting-a-bug"'):
+        assert word in html, word
+    assert "Flathub" not in html and "winget" not in html
+
+
+def test_desktop_beta_page_is_gone_and_url_redirects(built_docs):
+    assert not (built_docs / "docs" / "desktop-beta" / "index.html").exists()
+    from sitegen import redirects
+    mapping = redirects.load(paths.DATA / "redirects.yaml")
+    assert mapping["/docs/desktop-beta/"] == "/docs/desktop/"
