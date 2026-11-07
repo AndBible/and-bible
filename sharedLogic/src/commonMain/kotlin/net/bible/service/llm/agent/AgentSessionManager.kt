@@ -95,6 +95,15 @@ sealed interface AgentSessionChange {
         val stopReason: AgentStopReason? = null,
     ) : AgentSessionChange
 
+    /** An unresolved dialog, identified independently of background notification state. */
+    data class UserDecisionPending(
+        override val workspaceId: IdType,
+        val waiting: Boolean,
+        val toolName: String? = null,
+        val decisionId: IdType? = null,
+    ) : AgentSessionChange
+    data class SessionCleared(override val workspaceId: IdType) : AgentSessionChange
+
     /** The agent waits for an Activity to ask the user, or stopped waiting. */
     data class PermissionWaiting(
         override val workspaceId: IdType,
@@ -189,8 +198,9 @@ class AgentSession(
         return true
     }
 
-    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
+    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED, owner: Job? = null) {
         kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+            if (owner != null && job !== owner) return
             when (lifecycle) {
                 Lifecycle.STARTING -> {
                     if (pendingStop == null) pendingStop = message to reason
@@ -306,6 +316,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
+        val decisionId = IdType()
+        emitChange(AgentSessionChange.UserDecisionPending(workspaceId, true, toolName, decisionId))
         val state = atomic(DECISION_IDLE)
         fun close(emitFalse: Boolean) {
             if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
@@ -323,20 +335,17 @@ object AgentSessionManager : AgentSessionManagerBase() {
             state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) {
             notifyPermissionWaiting(workspaceId, true, toolName)
         }
-        val result = try {
-            block()
+        var cancelled = false
+        try {
+            return block()
         } catch (e: CancellationException) {
-            subscription.cancel()
-            state.value = DECISION_CLOSED
+            cancelled = true
             throw e
-        } catch (e: Throwable) {
+        } finally {
             subscription.cancel()
-            close(emitFalse = true)
-            throw e
+            close(emitFalse = !cancelled)
+            emitChange(AgentSessionChange.UserDecisionPending(workspaceId, false, decisionId = decisionId))
         }
-        subscription.cancel()
-        close(emitFalse = true)
-        return result
     }
 
     private const val DECISION_IDLE = 0
@@ -392,6 +401,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.clearLog()
             }
             activeSessions.remove(workspaceId)
+            emitChange(AgentSessionChange.SessionCleared(workspaceId))
         }
     }
 
@@ -442,7 +452,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
         // Start session (prevent concurrent runs; F122: atomically)
         val session = getOrCreateSession(workspaceId)
-        if (!session.tryStart(context, currentCoroutineContext()[Job])) {
+        val runJob = currentCoroutineContext()[Job]
+        if (!session.tryStart(context, runJob)) {
             withContext(Dispatchers.Main) {
                 platform.showShortMessage(strings.agentAlreadyRunning)
             }
@@ -452,7 +463,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             onStarted()
         } catch (e: Exception) {
             // The session is already marked running; without a stop() every later run reports "already running".
-            session.stop()
+            session.stop(owner = runJob)
             throw e
         }
 
@@ -469,11 +480,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         } catch (e: CancellationException) {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
             // Ensure the session is properly stopped so the UI reflects cancellation.
-            if (session.isRunning) {
-
-                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled))
-                session.stop()
-            }
+            session.stop(strings.agentLogCancelled, owner = runJob)
             throw e
         }
         return true

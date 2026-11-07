@@ -34,7 +34,7 @@ class AgentActivitySource(
     private val workspaceName: (IdType) -> String?,
     private val strings: () -> AgentActivityStrings,
 ) {
-    private class Run(var lastMessage: String? = null, var lastError: String? = null, var waiting: Boolean = false)
+    private class Run(var lastMessage: String? = null, var lastError: String? = null, var waiting: Boolean = false, var decisionId: IdType? = null)
     // Serialize per-run bookkeeping and center mutations, including asynchronous name enrichment.
     private val lock = SynchronizedObject()
     private val runs = mutableMapOf<IdType, Run>()
@@ -95,9 +95,16 @@ class AgentActivitySource(
                 if (change.entry.type == LogEntryType.ERROR) run.lastError = change.entry.message
                 if (!run.waiting) center.setMessage(id, run.lastMessage)
             }
-            is AgentSessionChange.PermissionWaiting -> {
+            is AgentSessionChange.PermissionWaiting -> Unit
+            is AgentSessionChange.SessionCleared -> {
+                runs.remove(ws)
+                center.dismiss(id)
+            }
+            is AgentSessionChange.UserDecisionPending -> {
                 val run = runs[ws] ?: return
+                if (!change.waiting && run.decisionId != change.decisionId) return
                 run.waiting = change.waiting
+                run.decisionId = if (change.waiting) change.decisionId else null
                 center.setMessage(id, if (change.waiting) strings().waiting(change.toolName) else run.lastMessage)
                 center.setAttention(id, change.waiting)
             }

@@ -48,7 +48,7 @@ class AwaitingUserDecisionTest {
         else org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AgentPlatform> { platform } })
         setCurrentActivity(true)
         AgentSessionManager.resetSubscribersForTest()
-        sub = AgentSessionManager.changes.subscribe { seen += it }
+        sub = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.PermissionWaiting) seen += it }
     }
 
     @After fun cleanup() {
@@ -72,6 +72,66 @@ class AwaitingUserDecisionTest {
         gate.complete("ok")
         assertEquals("ok", job.await())
         assertEquals(2, seen.size)
+    }
+
+    @Test fun foregroundDecisionAnnouncesUntilResponse() = runTest {
+        val decisions = mutableListOf<AgentSessionChange.UserDecisionPending>()
+        val subscription = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.UserDecisionPending) decisions += it }
+        try {
+            val gate = CompletableDeferred<Unit>()
+            val job = async(start = CoroutineStart.UNDISPATCHED) {
+                AgentSessionManager.awaitingUserDecision(ws, "T") { gate.await() }
+            }
+            assertEquals(1, decisions.size)
+            assertEquals(true, decisions.single().waiting)
+            assertEquals("T", decisions.single().toolName)
+            val decisionId = decisions.single().decisionId
+            platform.foregroundChanges.emit(false)
+            platform.foregroundChanges.emit(true)
+            assertEquals(1, decisions.size)
+            gate.complete(Unit)
+            job.await()
+            assertEquals(2, decisions.size)
+            assertEquals(AgentSessionChange.UserDecisionPending(ws, false, decisionId = decisionId), decisions.last())
+        } finally { subscription.cancel() }
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun oldDecisionClosingDoesNotClearReplacementAttention() = runTest {
+        val center = net.bible.android.control.activity.ActivityCenter(backgroundScope) { testScheduler.currentTime }
+        val source = net.bible.android.control.activity.AgentActivitySource(center, AgentSessionManager.changes, {}, { null }, {
+            net.bible.android.control.activity.AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val oldGate = CompletableDeferred<Unit>()
+        val newGate = CompletableDeferred<Unit>()
+        try {
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, true))
+            val old = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "old") { oldGate.await() } }
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.CANCELLED))
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, true))
+            val replacement = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "new") { newGate.await() } }
+            old.cancelAndJoin()
+            assertEquals(1, center.unreadFailures.value)
+            newGate.complete(Unit)
+            replacement.await()
+            assertEquals(0, center.unreadFailures.value)
+        } finally { source.close() }
+    }
+
+    @Test fun decisionClosesOnFailureAndCancellation() = runTest {
+        val decisions = mutableListOf<AgentSessionChange.UserDecisionPending>()
+        val subscription = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.UserDecisionPending) decisions += it }
+        try {
+            runCatching { AgentSessionManager.awaitingUserDecision(ws, "error") { error("boom") } }
+            assertEquals(listOf(true, false), decisions.map { it.waiting })
+            assertEquals(decisions[0].decisionId, decisions[1].decisionId)
+            decisions.clear()
+            val gate = CompletableDeferred<Unit>()
+            val job = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "cancel") { gate.await() } }
+            job.cancelAndJoin()
+            assertEquals(listOf(true, false), decisions.map { it.waiting })
+            assertEquals(decisions[0].decisionId, decisions[1].decisionId)
+        } finally { subscription.cancel() }
     }
 
     @Test fun foregroundWithoutPriorBackgroundEmitsNothing() = runTest {

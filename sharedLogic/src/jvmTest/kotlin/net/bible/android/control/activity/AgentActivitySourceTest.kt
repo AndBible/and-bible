@@ -52,6 +52,22 @@ class AgentActivitySourceTest {
     }
 
     @Test
+    fun delayedCancellationCleanupDoesNotStopReplacement() = runTest {
+        val ws = IdType()
+        val session = net.bible.service.llm.agent.AgentSession(ws) {}
+        val context = net.bible.service.llm.agent.AgentContext(promptId = IdType())
+        val first = kotlinx.coroutines.Job()
+        val replacement = kotlinx.coroutines.Job()
+        assertTrue(session.tryStart(context, first))
+        session.stop()
+        assertTrue(session.tryStart(context, replacement))
+        session.stop(owner = first)
+        assertTrue(session.isRunning)
+        assertTrue(replacement.isActive)
+        session.stop()
+    }
+
+    @Test
     fun reentrantStartCannotOvertakeTerminalSubscribers() = runTest {
         val events = EventSource<AgentSessionChange>()
         val center = ActivityCenter(backgroundScope) { currentTime }
@@ -179,13 +195,13 @@ class AgentActivitySourceTest {
         assertEquals(listOf(ws), stopped)
         events.emit(AgentSessionChange.LogUpdated(ws, AgentLogEntry.info("Working")))
         assertEquals("Working", center.items.value.single().message)
-        events.emit(AgentSessionChange.PermissionWaiting(ws, true, "Bookmarks tool"))
+        events.emit(AgentSessionChange.UserDecisionPending(ws, true, "Bookmarks tool"))
         assertEquals("Waiting: Bookmarks tool", center.items.value.single().message)
         assertTrue(center.items.value.single().attention)
         assertEquals(1, center.unreadFailures.value)
         events.emit(AgentSessionChange.LogUpdated(ws, AgentLogEntry.info("Still working")))
         assertEquals("Waiting: Bookmarks tool", center.items.value.single().message)
-        events.emit(AgentSessionChange.PermissionWaiting(ws, false))
+        events.emit(AgentSessionChange.UserDecisionPending(ws, false))
         assertEquals("Still working", center.items.value.single().message)
         assertEquals(0, center.unreadFailures.value)
         events.emit(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
@@ -193,6 +209,26 @@ class AgentActivitySourceTest {
         source.close()
         events.emit(AgentSessionChange.StatusChanged(ws, true))
         assertEquals(ActivityState.SUCCEEDED, center.items.value.single().state)
+    }
+
+    @Test
+    fun clearingStoppedSessionRemovesFailedActivity() = runTest {
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val source = AgentActivitySource(center, net.bible.service.llm.agent.AgentSessionManager.changes, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val session = net.bible.service.llm.agent.AgentSessionManager.getOrCreateSession(ws)
+        try {
+            assertTrue(session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType())))
+            session.stop(reason = AgentStopReason.ERROR)
+            assertEquals(ActivityState.FAILED, center.items.value.single().state)
+            net.bible.service.llm.agent.AgentSessionManager.clearSession(ws)
+            assertTrue(center.items.value.isEmpty())
+        } finally {
+            source.close()
+            net.bible.service.llm.agent.AgentSessionManager.clearSession(ws)
+        }
     }
 
     @Test
@@ -217,7 +253,7 @@ class AgentActivitySourceTest {
         assertEquals(0, center.unreadFailures.value)
         events.emit(AgentSessionChange.StatusChanged(a, false, AgentStopReason.ERROR))
         assertEquals("AI agent failed", center.items.value.single { it.id == agentActivityId(a) }.message)
-        events.emit(AgentSessionChange.PermissionWaiting(b, true, null))
+        events.emit(AgentSessionChange.UserDecisionPending(b, true, null))
         events.emit(AgentSessionChange.StatusChanged(b, false, AgentStopReason.CANCELLED))
         assertEquals(1, center.unreadFailures.value)
         assertEquals(1, center.items.value.size)
