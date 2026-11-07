@@ -260,7 +260,7 @@ class AgentActivitySourceTest {
             assertTrue(session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType())))
             session.stop(reason = AgentStopReason.ERROR)
             assertEquals(ActivityState.FAILED, center.items.value.single().state)
-            assertFalse("an error without a cause is not a reportable bug", center.items.value.single().reportable)
+            assertFalse(center.items.value.single().reportable, "an error without a cause is not a reportable bug")
             net.bible.service.llm.agent.AgentSessionManager.clearSession(ws)
             assertTrue(center.items.value.isEmpty())
         } finally {
