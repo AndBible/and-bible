@@ -18,3 +18,8 @@
 	path = kdom
 	url = https://github.com/Sykero-Software/kdom.git
 	branch = main
+[submodule "store-screenshots"]
+	path = store-screenshots
+	url = https://github.com/AndBible/and-bible-store-screenshots.git
+	branch = master
+	update = none
