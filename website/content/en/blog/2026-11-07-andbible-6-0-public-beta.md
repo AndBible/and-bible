@@ -47,9 +47,21 @@ lets me coordinate many of them at once, so large efforts like this port move mo
 before. Like AndBible, [JailBee](https://jailbee.gisgro.io) is open source under the GPL-3.0
 licence.
 
-Version 6.0 brings everything together. The whole interface has been rebuilt once and is shared by
-every platform, so your Bibles, bookmarks, notes and StudyPads work the same way wherever you open
-them.
+## The whole interface, gone through screen by screen
+
+The largest part of this release is one you could not see until now. Since early summer, when the
+UI modernisation work started, I have gone through AndBible's whole interface view by view. In
+July every screen was rebuilt in Compose and checked against the classic one. August went into
+round after round of comparing old and new screens side by side on a real device. In September
+the structure underneath changed: one navigation graph instead of separate Android activities, a
+restructured reading view and a new dialog system. Since then every section has been verified,
+and every defect found has been fixed.
+
+Along the way a large part of the interface was redesigned, not just copied: Material 3
+throughout, clearer menus and dialogs, and many small usability improvements in places that had
+aged. It has been long and largely invisible work. With this beta it finally reaches you, and the
+same interface is now shared by every platform, so your Bibles, bookmarks, notes and StudyPads
+work the same way wherever you open them.
 
 ## What is new
 
