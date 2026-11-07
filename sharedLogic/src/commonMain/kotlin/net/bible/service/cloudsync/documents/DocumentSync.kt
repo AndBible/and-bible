@@ -75,6 +75,8 @@ class DocumentSync(
 
 
     private var runningSource = EventSource<Boolean>()
+    private val runningStateMutable = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val runningState: kotlinx.coroutines.flow.StateFlow<Boolean> get() = runningStateMutable
 
     /**
      * `true` when a document-sync drain starts, `false` when it ends. An edge stream: never conflate it
@@ -82,7 +84,10 @@ class DocumentSync(
      */
     val runningChanged: Events<Boolean> get() = runningSource
 
-    fun notifyRunning(running: Boolean) = runningSource.emit(running)
+    fun notifyRunning(running: Boolean) {
+        runningStateMutable.value = running
+        runningSource.emit(running)
+    }
 
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }

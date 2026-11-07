@@ -87,6 +87,7 @@ class OptionsMenuStateBuilderTest {
 
     @Before
     fun setUp() {
+        runBlocking { org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.documents.DocumentSyncSettings>().ensureLoaded() }
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
@@ -108,6 +109,114 @@ class OptionsMenuStateBuilderTest {
     private fun items() = activity.readingCommands.buildOptionsMenuItems()
     private fun itemById(id: String) = items().first { it.id == id }
     private fun itemByIdOrNull(id: String) = items().firstOrNull { it.id == id }
+
+    private var syncAvailable = false
+    private var syncRunning = false
+    private var syncInActivity = false
+    private var syncStarts = 0
+
+    private fun syncItems() = OptionsMenuStateBuilder.build(
+        syncNowAvailable = { syncAvailable }, syncNowRunning = { syncRunning },
+        syncNowInActivitySection = { syncInActivity },
+    ) { _, _ -> SubMenuPreference() }
+
+    @Test fun syncNowAbsentWhenNotSetUp() {
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+    }
+
+    @Test fun syncNowPresentAndEnabled() {
+        syncAvailable = true
+        val row = syncItems().single { it.id == "syncNow" }
+        assertTrue(row.enabled)
+        assertFalse(row.checkable)
+        assertFalse(row.opensDialog)
+        assertEquals("ic_sync_white_24dp", row.iconKey)
+        assertTrue(row.iconKey in ComposeReadingViewHost.menuIconResIds)
+        assertTrue(syncItems().indexOfFirst { it.id == "syncNow" } < syncItems().indexOfFirst { it.id == "allTextOptions" })
+    }
+
+    @Test fun syncNowDisabledWhileRunning() {
+        syncAvailable = true; syncRunning = true
+        assertFalse(syncItems().single { it.id == "syncNow" }.enabled)
+    }
+
+    @Test fun syncNowAbsentWhenActivitySectionShowsIt() {
+        syncAvailable = true; syncInActivity = true
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+    }
+
+    @Test fun syncNowReReadOnEachBuild() {
+        assertNull(syncItems().firstOrNull { it.id == "syncNow" })
+        syncAvailable = true
+        assertTrue(syncItems().any { it.id == "syncNow" })
+    }
+
+    @Test @Config(sdk = [23])
+    fun api23ManualSyncChecksCurrentNetworkInsteadOfOldSnapshot() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val manager = context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val shadow = org.robolectric.Shadows.shadowOf(manager)
+        val state = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        val ports = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNowPorts>()
+        val original = manager.activeNetworkInfo
+        try {
+            state.available = false
+            shadow.setActiveNetworkInfo(org.robolectric.shadows.ShadowNetworkInfo.newInstance(
+                android.net.NetworkInfo.DetailedState.CONNECTED, android.net.ConnectivityManager.TYPE_WIFI, 0, true, true))
+            assertTrue(ports.networkAvailable(), "offline snapshot must not hide a newly available network")
+            state.available = true
+            shadow.setActiveNetworkInfo(null)
+            assertFalse(ports.networkAvailable(), "online snapshot must not allow sync after disconnection")
+        } finally {
+            shadow.setActiveNetworkInfo(original)
+            state.available = false
+        }
+    }
+
+    @Test fun networkCallbackUpdatesSharedManualSyncStateAcrossHosts() {
+        val state = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        val other = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        val network = org.mockito.Mockito.mock(android.net.Network::class.java)
+        state.available = false
+        activity.readingAppBootstrap.hostPaused = true
+        try {
+            activity.readingAppBootstrap.networkCallback.onAvailable(network)
+            assertTrue(other.readingAppBootstrap.networkAvailable)
+            other.readingAppBootstrap.networkCallback.onLost(network)
+            assertFalse(state.available)
+            assertFalse(activity.readingAppBootstrap.networkAvailable)
+        } finally { state.available = false }
+    }
+
+    @Test fun realSyncNowDispatchReportsOfflineWithoutStarting() {
+        val network = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        network.available = false
+        val sync = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNow>()
+        val messages = mutableListOf<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            val stayOpen = OptionsMenuStateBuilder.dispatch(
+                activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",
+            )
+            assertFalse(stayOpen)
+            assertFalse(sync.running.value)
+            assertEquals(net.bible.android.control.event.UserMessage.Toast("No network connection", null, false), messages.last())
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test fun syncNowClickStartsAndClosesMenu() {
+        val stayOpen = OptionsMenuStateBuilder.dispatch(
+            activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",
+            startSyncNow = { syncStarts++ },
+        )
+        assertFalse(stayOpen)
+        assertEquals(1, syncStarts)
+    }
 
     @Test
     fun nightModeIsAVisibleCheckableToggle() {
@@ -246,7 +355,7 @@ class OptionsMenuStateBuilderTest {
      * `llmActionsSubMenu`/`"icon_robot"` is absent and NOT exercised by this test either. A
      * renamed/removed `menuIconResIds` entry only a gated row (like this one) depends on would not
      * fail this test. The exhaustive, state-independent guarantee is
-     * `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyTwoKeys` — don't over-trust this
+     * `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyThreeKeys` — don't over-trust this
      * test alone.
      */
     @Test

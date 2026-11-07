@@ -137,6 +137,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val resetSettings: String get() = context.getString(R.string.reset_settings)
     override val resetSync: String get() = context.getString(R.string.reset_sync)
     override val settings: String get() = context.getString(R.string.settings)
+    override val syncNow: String get() = context.getString(R.string.options_menu_sync_now)
     override val syncAdapter: String get() = context.getString(R.string.sync_adapter)
     override val syncGeneralSettings: String get() = context.getString(R.string.sync_general_settings)
     override val syncSettingsShortcutSummary: String get() = context.getString(R.string.sync_settings_shortcut_summary)

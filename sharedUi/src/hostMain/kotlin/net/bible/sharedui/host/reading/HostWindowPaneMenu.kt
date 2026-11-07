@@ -300,6 +300,7 @@ fun hostPaneMenuIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_reverse_split_mode_24dp" -> Icons.Outlined.SwapVert
     "ic_window_pinning_24" -> Icons.Outlined.PushPin
     "ic_label_settings_24" -> Icons.Outlined.Label
+    "ic_sync_white_24dp" -> Icons.Outlined.Sync
     else -> null
 }
 

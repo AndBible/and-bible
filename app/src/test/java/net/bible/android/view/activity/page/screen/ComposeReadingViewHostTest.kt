@@ -326,7 +326,7 @@ class ComposeReadingViewHostTest {
      * once: a key removed/renamed here (the silent on-device icon-loss regression this whole task
      * exists to prevent) and a dead key left in the map that no builder ever emits.
      */
-    @Test fun menuIconResIdsIsExactlyTheseTwentyTwoKeys() {
+    @Test fun menuIconResIdsIsExactlyTheseTwentyThreeKeys() {
         val expected = setOf(
             "ic_window_add_outline_black_24dp",
             "ic_window_maximise_24dp",
@@ -350,6 +350,7 @@ class ComposeReadingViewHostTest {
             "ic_window_pinning_24",
             "ic_label_settings_24",
             "icon_robot",
+            "ic_sync_white_24dp",
         )
         assertEquals(expected, ComposeReadingViewHost.menuIconResIds.keys)
     }

@@ -258,6 +258,23 @@ fun buildSharedBindings() = module {
     single {
         SyncActivitySource(get(), get<CloudSync>().runningChanged) { get<net.bible.sharedcore.platform.CoreStrings>().synchronizing }
     }.onClose { it?.close() }
+    single {
+        val ports = get<net.bible.service.cloudsync.SyncNowPorts>()
+        val failures = get<SyncActivitySource>()
+        net.bible.service.cloudsync.SyncNow(
+            net.bible.service.cloudsync.CloudSyncPort.of(get()) { message ->
+                failures.reportFailure(net.bible.android.control.activity.ActivityKind.SYNC, message)
+            }, get<DocumentSync>().runningChanged,
+            syncSetUp = {
+                net.bible.service.cloudsync.SyncableDatabaseDefinition.ALL.any {
+                    it.isSyncEnabled(get<net.bible.sharedcore.platform.AppSettings>())
+                } || get<DocumentSyncSettings>().enabled
+            },
+            saveWorkspace = ports.saveWorkspace, networkAvailable = ports.networkAvailable,
+            replacing = { DatabaseContainer.replacing }, noNetwork = ports.noNetwork, scope = get<AppCoroutineScope>(),
+            cloudRunningState = get<CloudSync>().runningState, documentRunningState = get<DocumentSync>().runningState,
+        )
+    }.onClose { it?.close() }
     single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<CloudSync>().runningChanged) }
         .onClose { it?.close() } bind ToolbarStateService::class
     singleOf(::LinkControl)

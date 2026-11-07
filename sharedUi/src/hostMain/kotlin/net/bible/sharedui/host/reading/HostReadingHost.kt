@@ -790,6 +790,7 @@ class HostReadingHost(
         val preference = koin.getOrNull<ActivityMenuPreference>() ?: return null
         return ActivityHostWiring(
             center, preference,
+            syncNow = koin.get(),
             onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
             listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
         )

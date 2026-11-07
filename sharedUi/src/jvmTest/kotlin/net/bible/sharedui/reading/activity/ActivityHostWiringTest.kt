@@ -7,10 +7,16 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
+import kotlinx.coroutines.CompletableDeferred
+import net.bible.service.cloudsync.CloudSyncPort
+import net.bible.service.cloudsync.SyncNow
+import net.bible.sharedcore.event.EventSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -202,6 +208,65 @@ class ActivityHostWiringTest {
         assertEquals(0.7f, progressOfRing(this)!!, 0.001f, "the reader of the state shows the new progress")
         assertEquals(before, counter.n, "the content must not recompose on a progress update")
         assertEquals(hostBefore, hostCounter.n, "ActivityHost itself must not read the items either")
+    }
+
+    @Test fun menuOpenRefreshesSyncAvailability() = runComposeUiTest {
+        val f = Fixture(default = true)
+        var available = false
+        val cloud = object : CloudSyncPort {
+            override val signedIn = true
+            override suspend fun signIn() = true
+            override fun start() = CompletableDeferred(true)
+            override suspend fun waitUntilFinished() = Unit
+            override val runningChanged = EventSource<Boolean>()
+        }
+        val sync = SyncNow(cloud, EventSource(), { available }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(ActivityHostWiring(f.center, f.preference, syncNow = sync, onOpenItem = {}), seen = seen)
+        waitForIdle()
+        assertFalse(seen.last()!!.syncNow!!.available.value)
+        available = true
+        seen.last()!!.onMenuOpened()
+        waitForIdle()
+        assertTrue(seen.last()!!.syncNow!!.available.value)
+        sync.close()
+    }
+
+    @Test fun runningChangeDoesNotRecomposeReadingContent() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val events = EventSource<Boolean>()
+        val cloud = object : CloudSyncPort {
+            override val signedIn = true
+            override suspend fun signIn() = true
+            override fun start() = CompletableDeferred(true)
+            override suspend fun waitUntilFinished() = Unit
+            override val runningChanged = events
+        }
+        val sync = SyncNow(cloud, EventSource(), { true }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+        val counter = Counter()
+        val hostCounter = Counter()
+        val wiring = ActivityHostWiring(f.center, f.preference, syncNow = sync, onOpenItem = {})
+        setContent {
+            AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityHostImpl(wiring, onHostComposed = { hostCounter.n++ }) { activity ->
+                    SyncProbeContent(activity, counter)
+                }
+            } }
+        }
+        onNodeWithTag(SYNC_NOW_ROW_TAG).assertIsEnabled()
+        val before = counter.n
+        val hostBefore = hostCounter.n
+        events.emit(true)
+        onNodeWithTag(SYNC_NOW_ROW_TAG).assertIsNotEnabled()
+        assertEquals(before, counter.n)
+        assertEquals(hostBefore, hostCounter.n)
+        sync.close()
+    }
+
+    @Composable
+    private fun SyncProbeContent(activity: ActivityMenuState?, counter: Counter) {
+        SideEffect { counter.n++ }
+        if (activity != null) ActivityMenuSection(activity)
     }
 
     @Test fun nothingReadsTheItemsWhilePreferenceIsOff() = runComposeUiTest {

@@ -166,6 +166,76 @@ class UserMessagesPresenterTest {
     }
 
     @Test
+    fun foregroundSyncFailureShowsDialogAndRecordsExactlyOneFailure() {
+        activity()
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        val center = koin.get<net.bible.android.control.activity.ActivityCenter>()
+        val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+        center.clearFinished()
+        dialogs.cancelAll()
+        try {
+            UserMessages.errorNotification("Sync transport failed", background = false, kind = net.bible.android.control.activity.ActivityKind.SYNC)
+            idle()
+            val failures = center.items.value.filter { it.state == net.bible.android.control.activity.ActivityState.FAILED }
+            assertEquals(1, failures.size)
+            assertEquals("Sync transport failed", failures.single().message)
+            val request = dialogs.pending.value?.request as? net.bible.sharedcore.ui.dialog.AppDialogRequest.Message
+            assertEquals("Sync transport failed", request?.message)
+            assertTrue(notifications().isEmpty())
+        } finally { dialogs.cancelAll(); center.clearFinished() }
+    }
+
+    @Test
+    fun syncFailureWithoutLiveHostUsesSystemNotification() {
+        val activities = holderActivities()
+        val saved = activities.toList()
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        val center = koin.get<net.bible.android.control.activity.ActivityCenter>()
+        val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+        center.clearFinished(); dialogs.cancelAll()
+        try {
+            activities.clear()
+            UserMessages.errorNotification("sync without host", background = false, kind = net.bible.android.control.activity.ActivityKind.SYNC)
+            idle()
+            assertEquals("sync without host", notifications().single().extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+            assertNull(dialogs.pending.value)
+            assertEquals(1, center.items.value.count { it.state == net.bible.android.control.activity.ActivityState.FAILED })
+        } finally {
+            activities.clear(); activities.addAll(saved)
+            dialogs.cancelAll(); center.clearFinished()
+        }
+    }
+
+    @Test
+    fun foregroundOtherErrorStillUsesSystemNotification() {
+        activity()
+        val dialogs = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+        dialogs.cancelAll()
+        try {
+            UserMessages.errorNotification("other failure", background = false, kind = net.bible.android.control.activity.ActivityKind.OTHER)
+            idle()
+            assertEquals("other failure", notifications().single().extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+            assertNull(dialogs.pending.value)
+        } finally { dialogs.cancelAll() }
+    }
+
+    @Test
+    fun backgroundSyncFailureStillUsesSystemNotification() {
+        activity()
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        val center = koin.get<net.bible.android.control.activity.ActivityCenter>()
+        val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+        center.clearFinished(); dialogs.cancelAll()
+        try {
+            UserMessages.errorNotification("background sync failed", background = true, kind = net.bible.android.control.activity.ActivityKind.SYNC)
+            idle()
+            assertEquals("background sync failed", notifications().single().extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+            assertNull(dialogs.pending.value)
+            assertEquals(1, center.items.value.count { it.state == net.bible.android.control.activity.ActivityState.FAILED })
+        } finally { dialogs.cancelAll(); center.clearFinished() }
+    }
+
+    @Test
     fun errorNotificationShowsTheResolvedTextAndTheReportAction() {
         UserMessages.errorNotification(R.string.sync_error)
         idle()

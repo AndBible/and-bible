@@ -134,7 +134,12 @@ object OptionsMenuStateBuilder {
      * that case, which doesn't exist on this Compose path) — so [staticEntries]' [StaticEntry.titleRes]
      * (the exact string resource each XML `<item>` declares) is used as the label instead.
      */
-    fun build(getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface): List<OptionsMenuItem> {
+    fun build(
+        syncNowAvailable: () -> Boolean,
+        syncNowRunning: () -> Boolean,
+        syncNowInActivitySection: () -> Boolean,
+        getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface,
+    ): List<OptionsMenuItem> {
         val items = mutableListOf<OptionsMenuItem>()
         for (entry in staticEntries) {
             // Emitted last instead, below the recent rows — classic orders it there via
@@ -151,6 +156,11 @@ object OptionsMenuStateBuilder {
                 opensDialog = m.opensDialog,
                 iconKey = entry.iconKey,
             )
+        }
+        if (syncNowAvailable()) {
+            net.bible.sharedui.reading.toolbar.syncNowMenuItem(
+                true, syncNowRunning(), syncNowInActivitySection(), application.getString(R.string.options_menu_sync_now),
+            )?.let { items += it }
         }
         var isFirstOfSection = true
         for ((order, _) in CommonUtils.lastDisplaySettingsSorted.withIndex()) {
@@ -225,7 +235,12 @@ object OptionsMenuStateBuilder {
         composeReadingViewHost: () -> ComposeReadingViewHost?,
         getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface,
         id: String,
+        startSyncNow: () -> Unit = { org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.SyncNow>(net.bible.service.cloudsync.SyncNow::class.java).start() },
     ): Boolean {
+        if (id == net.bible.sharedui.reading.toolbar.SYNC_NOW_MENU_ID) {
+            startSyncNow()
+            return false
+        }
         val (resId, order) = parseId(id)
         val itemOptions = getItemOptions(resId, order)
         if (itemOptions is SubMenuPreference) return false

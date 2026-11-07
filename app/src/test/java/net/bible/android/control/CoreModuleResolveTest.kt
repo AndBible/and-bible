@@ -40,6 +40,13 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CoreModuleResolveTest {
 
+    @Test
+    fun `sync now and its explicitly constructed ports resolve`() {
+        val koin = GlobalContext.get()
+        assertNotNull(koin.get<net.bible.service.cloudsync.SyncNowPorts>())
+        assertNotNull(koin.get<net.bible.service.cloudsync.SyncNow>())
+    }
+
     private class OpeningTrap {
         val calls = java.util.concurrent.atomic.AtomicInteger()
         private val attempts = java.util.concurrent.ConcurrentLinkedQueue<Throwable>()

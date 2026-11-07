@@ -623,7 +623,7 @@ fun ReadingToolbar(
                             header = remember(activity, onOverflowDismiss) {
                                 activity?.let { a ->
                                     val closing = a.withShowAll { onOverflowDismiss(); a.onShowAll() }
-                                    val section: @Composable () -> Unit = { ActivityMenuSection(closing) }
+                                    val section: @Composable () -> Unit = { ActivityMenuSection(closing) { onOverflowDismiss(); a.syncNow?.onClick?.invoke() } }
                                     section
                                 }
                             },

@@ -16,6 +16,9 @@
  */
 package net.bible.sharedui.reading.toolbar
 
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -56,6 +59,13 @@ class ReadingOverflowControllerTest {
         var recent: List<Pair<Types, PrefItemHandle>> = emptyList()
         var onReady: (() -> Unit)? = null
         var llm = false
+        var syncAvailable = false
+        var syncRunning = false
+        var syncInActivity = false
+        override fun syncNowAvailable() = syncAvailable
+        override fun syncNowRunning() = syncRunning
+        override fun syncNowInActivitySection() = syncInActivity
+        override fun startSyncNow() { calls += "syncNow" }
 
         override fun editAutoAssignLabels() { calls += "autoAssign" }
         override fun llmConfigured() = llm
@@ -87,6 +97,56 @@ class ReadingOverflowControllerTest {
     private val menu = ReadingOverflowController(host) { KeyedReadingMenuStrings(table) }
 
     private fun ids() = menu.build().map { it.id }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun openHostMenuTracksSyncStartAndFinish() = runComposeUiTest {
+        val running = kotlinx.coroutines.flow.MutableStateFlow(false)
+        host.syncAvailable = true
+        val snapshot = menu.build()
+        setContent {
+            androidx.compose.foundation.layout.Column {
+                net.bible.sharedui.reading.ReadingOverflowMenuRows(snapshot, {}, syncRunning = running)
+            }
+        }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsEnabled()
+        runOnIdle { running.value = true }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsNotEnabled()
+        runOnIdle { running.value = false }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsEnabled()
+    }
+
+    @Test fun syncNowAbsentWhenSyncNotSetUp() { assertFalse("syncNow" in ids()) }
+
+    @Test fun syncNowPresentAndEnabled() {
+        host.syncAvailable = true
+        val row = menu.build().single { it.id == "syncNow" }
+        assertTrue(row.enabled)
+        assertFalse(row.checkable)
+        assertFalse(row.opensDialog)
+        assertEquals("ic_sync_white_24dp", row.iconKey)
+        assertTrue(ids().indexOf("syncNow") < ids().indexOf("allTextOptions"))
+    }
+
+    @Test fun syncNowDisabledWhileRunning() {
+        host.syncAvailable = true; host.syncRunning = true
+        assertFalse(menu.build().single { it.id == "syncNow" }.enabled)
+    }
+
+    @Test fun syncNowAbsentWhenActivitySectionShowsIt() {
+        host.syncAvailable = true; host.syncInActivity = true
+        assertFalse("syncNow" in ids())
+    }
+
+    @Test fun syncNowClickStartsAndClosesMenu() {
+        assertFalse(menu.handle("syncNow"))
+        assertEquals(listOf("syncNow"), host.calls)
+    }
+
+    @Test fun syncNowReReadOnEachBuild() {
+        assertFalse("syncNow" in ids())
+        host.syncAvailable = true
+        assertTrue("syncNow" in ids())
+    }
 
     @Test fun fullScreenRowIsFirstAndClosesTheMenu() {
         val row = menu.build().first()

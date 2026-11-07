@@ -46,13 +46,14 @@ class ActivityMenuState(
     val unreadFailures: State<Int>,
     val onShowAll: () -> Unit,
     val onMenuOpened: () -> Unit,
+    val syncNow: SyncNowMenuState? = null,
 ) {
     /** A snapshot of plain values, for tests and goldens. */
-    constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit) :
-        this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened)
+    constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit, syncNow: SyncNowMenuState? = null) :
+        this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened, syncNow)
 
     /** The same data with another "show all" action. */
-    fun withShowAll(onShowAll: () -> Unit) = ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened)
+    fun withShowAll(onShowAll: () -> Unit) = ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow)
 }
 
 /** Semantics test tags of the activity UI. */
@@ -64,3 +65,10 @@ const val ACTIVITY_BADGE_TAG = "activityBadge"
 const val ACTIVITY_SECTION_TAG = "activitySection"
 @kotlin.native.HiddenFromObjC
 const val ACTIVITY_ROW_TAG = "activityRow"
+
+@kotlin.native.HiddenFromObjC
+@Stable
+class SyncNowMenuState(val available: State<Boolean>, val running: State<Boolean>, val onClick: () -> Unit)
+
+@kotlin.native.HiddenFromObjC
+const val SYNC_NOW_ROW_TAG = "syncNowRow"

@@ -163,6 +163,10 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
     single<SyncScheduler> {
         DesktopSyncScheduler(get<AppCoroutineScope>()) { runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>()) }
     }
+    single {
+        val saver = get<net.bible.service.cloudsync.SyncNowWorkspaceSaver>()
+        net.bible.service.cloudsync.SyncNowPorts({ saver.save() }, { true }, {})
+    }
     single<BackgroundRefresh> { DesktopBackgroundRefresh() }
     single(createdAtStart = true) {
         val scheduler = get<SyncScheduler>() as DesktopSyncScheduler

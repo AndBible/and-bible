@@ -54,6 +54,31 @@ fun buildPlatformBindings() = module {
     single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }
     single<net.bible.service.cloudsync.CloudAdapterFactory> { net.bible.android.platform.AndroidCloudAdapterFactory(androidContext()) }
     single { net.bible.android.platform.AndroidSyncScheduler(androidContext()) }
+    single { net.bible.android.view.activity.page.SyncNetworkState() }
+    single {
+        val koin = getKoin()
+        val network = get<net.bible.android.view.activity.page.SyncNetworkState>()
+        val context = androidContext()
+        val notifier = get<UserNotifier>()
+        net.bible.service.cloudsync.SyncNowPorts(
+            saveWorkspace = {
+                val repository = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    koin.get<net.bible.android.control.page.window.WindowControl>().windowRepository.also {
+                        it.saveIntoDb(false)
+                    }
+                }
+                repository.persistence.awaitPersisted()
+            },
+            networkAvailable = {
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                    @Suppress("DEPRECATION")
+                    (context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager)
+                        .activeNetworkInfo?.isConnected == true
+                } else network.available
+            },
+            noNetwork = { notifier.showInfo(context.getString(net.bible.android.activity.R.string.sync_now_no_network)) },
+        )
+    }
     single<net.bible.sharedcore.platform.sync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single<UserNotifier> { AndroidUserNotifier() }

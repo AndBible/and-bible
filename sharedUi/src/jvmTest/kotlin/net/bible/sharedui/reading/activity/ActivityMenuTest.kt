@@ -13,6 +13,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.assertCountEquals
@@ -228,6 +230,45 @@ class ActivityMenuTest {
         setContent { Section(menu(items, unread = 3)) }
         onNodeWithText("Item run").assertExists()
         assertEquals(0, onAllNodesWithText("Item f3").fetchSemanticsNodes().size)
+    }
+
+    @Test fun syncNowIsFirstRowOfSection() = runComposeUiTest {
+        val sync = SyncNowMenuState(mutableStateOf(true), mutableStateOf(false), {})
+        setContent { Section(ActivityMenuState(listOf(item("a")), 0, {}, {}, sync)) }
+        val syncTop = onNodeWithTag(SYNC_NOW_ROW_TAG).fetchSemanticsNode().boundsInRoot.top
+        val activityTop = onNodeWithTag(ACTIVITY_ROW_TAG).fetchSemanticsNode().boundsInRoot.top
+        assertTrue(syncTop < activityTop)
+    }
+
+    @Test fun syncNowRowDisabledWhileRunning() = runComposeUiTest {
+        val running = mutableStateOf(false)
+        setContent { Section(ActivityMenuState(emptyList(), 0, {}, {}, SyncNowMenuState(mutableStateOf(true), running, {}))) }
+        onNodeWithTag(SYNC_NOW_ROW_TAG).assertIsEnabled()
+        running.value = true
+        onNodeWithTag(SYNC_NOW_ROW_TAG).assertIsNotEnabled()
+    }
+
+    @Test fun syncNowRowTapStartsAndClosesMenu() = runComposeUiTest {
+        val actions = mutableListOf<String>()
+        val activity = ActivityMenuState(emptyList(), 0, {}, {}, SyncNowMenuState(mutableStateOf(true), mutableStateOf(false)) { actions += "start" })
+        setContent { AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+            ReadingToolbar(toolbarState(), icons, callbacks, overflowExpanded = true, onOverflowDismiss = { actions += "close" }, activity = activity)
+        } } }
+        onNodeWithTag(SYNC_NOW_ROW_TAG).performClick()
+        assertEquals(listOf("close", "start"), actions)
+    }
+
+    @Test fun sectionShowsOnlySyncNowWhenNoItems() = runComposeUiTest {
+        setContent { Section(ActivityMenuState(emptyList(), 0, {}, {}, SyncNowMenuState(mutableStateOf(true), mutableStateOf(false), {}))) }
+        onNodeWithTag(ACTIVITY_SECTION_TAG).assertExists()
+        onNodeWithTag(SYNC_NOW_ROW_TAG).assertExists()
+        onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(0)
+        onAllNodesWithText("Show all", substring = true).assertCountEquals(0)
+    }
+
+    @Test fun noSectionWhenSyncNotSetUpAndNoItems() = runComposeUiTest {
+        setContent { Section(ActivityMenuState(emptyList(), 0, {}, {}, SyncNowMenuState(mutableStateOf(false), mutableStateOf(false), {}))) }
+        onAllNodesWithTag(ACTIVITY_SECTION_TAG).assertCountEquals(0)
     }
 
     @Test fun emptyItemsRenderNothing() = runComposeUiTest {

@@ -98,11 +98,16 @@ class CloudSync(
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 
     private var runningSource = EventSource<Boolean>()
+    private val runningStateMutable = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val runningState: kotlinx.coroutines.flow.StateFlow<Boolean> get() = runningStateMutable
 
     /** `true` when a cloud sync starts, `false` when it finishes (replaces `CloudSyncEvent`). */
     val runningChanged: Events<Boolean> get() = runningSource
 
-    fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
+    fun notifySyncRunning(running: Boolean) {
+        runningStateMutable.value = running
+        runningSource.emit(running)
+    }
 
     private var refreshSource = EventSource<Unit>()
 
@@ -140,7 +145,7 @@ class CloudSync(
     }
 
     private val signInMutex = Mutex()
-    suspend fun signIn(background: Boolean = false): Boolean? {
+    suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}): Boolean? {
         if(signInMutex.isLocked) {
             Log.i(TAG, "Already signing in!")
             return null
@@ -164,7 +169,11 @@ class CloudSync(
         }
         if(!success) {
             _adapter = null
-            if (!background && !cancelledByUser) dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
+            if (!background && !cancelledByUser) {
+                val message = strings.signInFailed + " " + (errorMessage ?: "")
+                onForegroundFailure(message)
+                dialogs.await(AppDialogRequest.Message(null, message, strings.okay, cancellable = false))
+            }
         }
         return success
     }
@@ -704,6 +713,11 @@ class CloudSync(
             val reported = atomic(false)
             val needsReconnect = atomic(false)
             val background = !allowInteraction
+            fun reportTransportFailure() {
+                if (!background && reported.compareAndSet(false, true)) {
+                    UserMessages.errorNotification(strings.syncError, background = false, kind = ActivityKind.SYNC)
+                }
+            }
             try {
                 DatabaseContainer.databaseAccessorFactories.asyncMap {
                     val dbDef = it.invoke()
@@ -716,6 +730,7 @@ class CloudSync(
                         return@asyncMap
                     } catch (e: IOException) {
                         Log.e(TAG, "IOException (probably network down)", e)
+                        reportTransportFailure()
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
                         reportUserFacing(e, reported, needsReconnect, background)
@@ -729,6 +744,7 @@ class CloudSync(
                         createAndUploadNewPatch(dbDef)
                     } catch (e: IOException) {
                         Log.e(TAG, "IOException", e)
+                        reportTransportFailure()
                         return@asyncMap
                     } catch (e: MissingSyncFolderIds) {
                         Log.w(TAG, "Skipping upload, will rejoin on the next sync", e)
@@ -750,6 +766,7 @@ class CloudSync(
                         }
                     } catch (e: IOException) {
                         Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
+                        reportTransportFailure()
                     } catch (e: MissingSyncFolderIds) {
                         Log.w(TAG, "Skipping download, will rejoin on the next sync", e)
                         return@asyncMap
@@ -774,6 +791,9 @@ class CloudSync(
                     )
                 } catch (e: CloudSyncUserFacingException) {
                     reportUserFacing(e, reported, needsReconnect, background)
+                } catch (e: IOException) {
+                    Log.e(TAG, "Document sync pull failed", e)
+                    reportTransportFailure()
                 } catch (e: Exception) {
                     Log.e(TAG, "Document sync pull failed", e)
                 }

@@ -31,6 +31,10 @@ import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 interface ReadingOverflowHost {
     /** Flips full-screen reading (Android: `SharedActivityState.toggleFullScreen`). */
     fun toggleFullScreen()
+    fun syncNowAvailable(): Boolean
+    fun syncNowRunning(): Boolean
+    fun syncNowInActivitySection(): Boolean
+    fun startSyncNow()
 
     fun nightMode(): Boolean
 
@@ -130,6 +134,9 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
                 opensDialog = true, iconKey = "icon_robot",
             )
         }
+        if (host.syncNowAvailable()) {
+            syncNowMenuItem(true, host.syncNowRunning(), host.syncNowInActivitySection(), s.syncNow)?.let { items += it }
+        }
         var firstOfSection = true
         host.recentTextOptions().forEachIndexed { order, (_, item) ->
             if (!(item.enabled && item.visible)) return@forEachIndexed
@@ -167,6 +174,7 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
             ID_AUTO_PIN_MODE -> { host.setAutoPin(!host.autoPin()); return true }
             ID_AUTO_ASSIGN_LABELS -> host.editAutoAssignLabels()
             ID_LLM_ACTIONS -> host.showLlmActions()
+            SYNC_NOW_MENU_ID -> host.startSyncNow()
             ID_ALL_TEXT_OPTIONS -> host.openAllTextOptions()
             else -> if (id.startsWith(TEXT_OPTION_PREFIX)) return handleTextOption(id.removePrefix(TEXT_OPTION_PREFIX).toIntOrNull())
         }

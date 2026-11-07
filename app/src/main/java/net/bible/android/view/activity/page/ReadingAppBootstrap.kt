@@ -78,6 +78,10 @@ private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
  */
 internal val syncScope = CoroutineScope(Dispatchers.IO)
 
+class SyncNetworkState {
+    @Volatile var available: Boolean = false
+}
+
 /**
  * The request code `requestSdcardPermission` sends and `NavHostComposeActivity.onRequestPermissionsResult`
  * reads (slice 8 M2; classic `MainBibleActivity` read it before that). It lives at package level
@@ -505,7 +509,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
     // ——— §2.3 row 5: the network callback ————————————————————————————————————————————————————————
 
-    var networkAvailable: Boolean = false
+    var networkAvailable: Boolean
+        get() = getKoin().get<SyncNetworkState>().available
+        set(value) { getKoin().get<SyncNetworkState>().available = value }
 
     val networkCallback = object: ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
@@ -539,6 +545,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      *  is `MainBibleActivity.kt:604`. Balanced by [unregisterNetworkCallback]. */
     fun registerNetworkCallback() {
         val connManager = host.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        @Suppress("DEPRECATION")
+        networkAvailable = connManager.activeNetworkInfo?.isConnected == true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             connManager.registerDefaultNetworkCallback(networkCallback)
             networkCallbackRegistered = true

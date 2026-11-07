@@ -84,6 +84,7 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     SaxTextPolicy::class, SearchTextHighlighter::class, ManualInstallFolderEnabler::class, TextDisplayPrefItems::class,
     // Stream D, bound by `buildIosSyncBindings` (joined into the Koin start in I2 phase 2)
     CloudAdapterFactory::class, SyncSettingsPlatform::class, DocumentSyncStarter::class, SyncScheduler::class,
+    net.bible.service.cloudsync.SyncNowPorts::class,
 )
 
 /**

@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -178,7 +180,13 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             account = null
             throw e
         }
-        val success = ensureDriveAccess(activity)
+        val success = try {
+            ensureDriveAccess(activity)
+        } catch (e: net.bible.service.cloudsync.CloudSyncUserCancelledException) {
+            account = null
+            lastAccount = null
+            throw e
+        }
         if(!success) {
             account = null
             lastAccount = null
@@ -199,8 +207,14 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .setAutoSelectEnabled(true)
             .build()
         val beginSignInResult = oneTapClient.beginSignIn(signInRequest).await()
-        val intent = activity.awaitPendingIntent(beginSignInResult.pendingIntent).data
-        val oneTapCredential: SignInCredential = oneTapClient.getSignInCredentialFromIntent(intent)
+        val result = activity.awaitPendingIntent(beginSignInResult.pendingIntent)
+        if (result.resultCode == Activity.RESULT_CANCELED) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+        val oneTapCredential: SignInCredential = try {
+            oneTapClient.getSignInCredentialFromIntent(result.data)
+        } catch (e: ApiException) {
+            if (e.statusCode == CommonStatusCodes.CANCELED) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+            throw e
+        }
         return Account(oneTapCredential.id, BibleApplication.application.packageName)
     }
 
@@ -212,7 +226,8 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                 .execute()
         } catch (e: UserRecoverableAuthIOException) {
             val result = activity.awaitIntent(e.intent)
-            return result.resultCode == Activity.RESULT_OK
+            if (result.resultCode != Activity.RESULT_OK) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+            return true
         } catch (e: IOException) {
             Log.e(TAG, "Network unavailable", e)
             return true // We do not want to log out because of this!

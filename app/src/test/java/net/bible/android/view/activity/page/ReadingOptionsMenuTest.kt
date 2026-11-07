@@ -83,6 +83,7 @@ class ReadingOptionsMenuTest {
 
     @Before
     fun setUp() {
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.service.cloudsync.documents.DocumentSyncSettings>().ensureLoaded() }
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
