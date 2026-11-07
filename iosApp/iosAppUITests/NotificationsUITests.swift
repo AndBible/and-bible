@@ -73,8 +73,14 @@ final class NotificationsUITests: RealAppUITestCase {
         XCTAssertTrue(waitForSettingsRoot(settings))
         _ = revealSettingsRow(settings, "system_notifications")
         XCTAssertTrue(settings.staticTexts["Turned off in iOS Settings"].firstMatch.waitForExistence(timeout: 10))
-        XCTAssertTrue(settings.staticTexts["Open settings"].firstMatch.exists)
+        let openSettings = settings.staticTexts["Open settings"].firstMatch
+        XCTAssertTrue(openSettings.waitForExistence(timeout: 10))
         shot(settings, "notification-denied-settings")
+        openSettings.tap()
+        let systemSettings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+        XCTAssertTrue(waitUntil(timeout: 15) { systemSettings.state == .runningForeground },
+                      "The link opens iOS Settings")
+        shot(systemSettings, "notification-system-settings")
     }
 
     private func failureApp() -> XCUIApplication {
