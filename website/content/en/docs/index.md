@@ -101,6 +101,7 @@ shows how to find your way around the app.
 | Doc | What's inside |
 |---|---|
 | [FAQ](faq.md) | Answers to common questions, such as missing modules and older phones |
+| [Platform differences](platform_differences.md) | What works differently on Android, iPhone, iPad, Mac, Windows and Linux |
 | [Support](support.md) | Where to ask questions, report bugs and suggest features |
 | [Releases](releases/index.md) | What changed in releases 5.0, 4.1 and 4.0 |
 
