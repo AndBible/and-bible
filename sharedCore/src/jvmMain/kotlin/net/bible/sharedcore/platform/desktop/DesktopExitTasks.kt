@@ -44,6 +44,9 @@ class DesktopExitTasks {
     private val lock = Any()
     private val mutableSyncing = MutableStateFlow(false)
     val syncing: StateFlow<Boolean> = mutableSyncing.asStateFlow()
+    private val mutableRunning = MutableStateFlow(false)
+    /** True only while a run has an installed skip signal, including invisible local preflight work. */
+    val running: StateFlow<Boolean> = mutableRunning.asStateFlow()
     @Volatile private var runningJob: Job? = null
     private var skipSignal: CompletableDeferred<Unit>? = null
 
@@ -79,6 +82,7 @@ class DesktopExitTasks {
             check(runningJob == null) { "Exit tasks are already running" }
             runningJob = workerJob
             skipSignal = signal
+            mutableRunning.value = true
         }
         val worker = CoroutineScope(workerJob + Dispatchers.IO).async {
             for (task in snapshot) {
@@ -124,6 +128,7 @@ class DesktopExitTasks {
                     runningJob = null
                     skipSignal = null
                     mutableSyncing.value = false
+                    mutableRunning.value = false
                 }
             }
             workerJob.cancel()

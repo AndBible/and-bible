@@ -85,9 +85,9 @@ fun desktopSyncNamespace(versionName: String?, suffixOverride: String?): String 
 }
 
 /**
- * The on-close push: only when sync is on, the session is signed in (non-interactive sign-in is attempted first: a quick restart
- * skips the start pass's sign-in because the last sync is within the interval) and there are local changes. Null means "nothing
- * done".
+ * The on-close push: check enabled sync and local DAO changes before any network work or visible status. A quick restart
+ * can still be unsigned when the last sync is within the interval; only changed data needs non-interactive sign-in.
+ * Null means "nothing done".
  */
 internal suspend fun runClosePass(
     enabled: () -> Boolean,
@@ -97,12 +97,11 @@ internal suspend fun runClosePass(
     push: suspend () -> Boolean,
     onVisibleWork: () -> Unit = {},
 ): Boolean? {
-    if (!enabled()) return null
+    if (!enabled() || !hasChanges()) return null
     if (!signedIn()) {
         onVisibleWork()
         if (signIn() != true) return null
     }
-    if (!hasChanges()) return null
     onVisibleWork()
     return push()
 }

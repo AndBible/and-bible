@@ -68,7 +68,28 @@ class DesktopSyncDriverTest {
         assertEquals(emptyList(), run(false, true, true))
         assertEquals(listOf("changes"), run(true, true, false))
         assertEquals(listOf("changes", "visible", "push"), run(true, true, true))
-        assertEquals(listOf("visible", "signIn", "changes", "visible", "push"), run(true, false, true))
+        assertEquals(listOf("changes", "visible", "signIn", "visible", "push"), run(true, false, true))
+    }
+
+    @Test fun unsignedUnchangedCloseDoesNotWaitForSignInOrBecomeVisible() = runTest {
+        var signIns = 0
+        var visibleMarks = 0
+        var pushes = 0
+        var completed = false
+        val blockedSignIn = CompletableDeferred<Unit>()
+        kotlinx.coroutines.withTimeoutOrNull(1_000) {
+            assertEquals(null, runClosePass(
+                enabled = { true }, signedIn = { false },
+                signIn = { signIns++; blockedSignIn.await(); true },
+                hasChanges = { false }, push = { pushes++; true },
+                onVisibleWork = { visibleMarks++ },
+            ))
+            completed = true
+        }
+        assertEquals(0, signIns, "Unchanged local data must not attempt even non-interactive sign-in")
+        assertEquals(0, visibleMarks)
+        assertEquals(0, pushes)
+        assertTrue(completed, "The local no-work preflight must return without waiting for the network")
     }
 
     @Test fun closeWaitingForRunningPassMarksVisible() = runTest {

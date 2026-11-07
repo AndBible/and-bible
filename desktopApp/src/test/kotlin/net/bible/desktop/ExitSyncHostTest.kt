@@ -165,7 +165,7 @@ class ExitSyncHostTest {
         assertEquals(1, paneEntries)
     }
 
-    @Test fun repeatedCloseBeforeStartupReplaysSkipWhenIdleTasksBeginSyncing() = runComposeUiTest {
+    @Test fun repeatedCloseBeforeStartupSkipsInvisibleRunnerAndFlushesSettingsOnce() = runComposeUiTest {
         val tasks = DesktopExitTasks()
         val releaseStartup = java.util.concurrent.CountDownLatch(1)
         val scope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
@@ -176,13 +176,35 @@ class ExitSyncHostTest {
         }, platform = { error("closed content must not build the platform") })
         val allowPersistence = CompletableDeferred<Unit>()
         val persisted = CompletableDeferred<Unit>()
-        val syncStarted = CompletableDeferred<Unit>()
+        val taskStarted = java.util.concurrent.CountDownLatch(1)
+        val releaseTask = java.util.concurrent.CountDownLatch(1)
+        val taskFinished = java.util.concurrent.CountDownLatch(1)
+        val interrupted = java.util.concurrent.atomic.AtomicBoolean()
+        val afterRan = java.util.concurrent.atomic.AtomicBoolean()
+        val releaseSettingsWrite = CompletableDeferred<Unit>()
+        val written = CompletableDeferred<net.bible.sharedcore.settings.store.SettingWrite>()
+        val settings = net.bible.sharedcore.settings.store.SettingsStore(object : net.bible.sharedcore.settings.store.SettingsBackend {
+            override suspend fun loadAll() = error("No initial settings read needed")
+            override suspend fun write(write: net.bible.sharedcore.settings.store.SettingWrite) {
+                releaseSettingsWrite.await()
+                written.complete(write)
+            }
+        }, scope)
+        settings.setString("exit-regression", "saved")
         val starts = java.util.concurrent.atomic.AtomicInteger()
         var result: Boolean? = null
-        tasks.register("late sync") { beginVisibleWork(); syncStarted.complete(Unit); CompletableDeferred<Unit>().await() }
+        tasks.register("local preflight") {
+            taskStarted.countDown()
+            try { releaseTask.await() }
+            catch (e: InterruptedException) { interrupted.set(true); throw e }
+            finally { taskFinished.countDown() }
+        }
+        tasks.register("after") { afterRan.set(true) }
         val persistence = net.bible.sharedui.desktop.assembly.DesktopExitPersistence(registerHook = {}, persist = {
             starts.incrementAndGet()
             result = runBlocking { tasks.runAll(10_000) }
+            releaseSettingsWrite.complete(Unit)
+            runBlocking { net.bible.service.db.DatabaseHostSupport.flushOrderedWrites(settings, timeoutMs = 2_000) }
             persisted.complete(Unit)
         })
         val closes = DesktopCloseRequests(tasks = {
@@ -194,8 +216,10 @@ class ExitSyncHostTest {
             setContent {
                 val lateTasks = exitTasksAfterStartup(state)
                 if (closes.closing) LaunchedEffect(Unit) {
-                    allowPersistence.await()
-                    kotlinx.coroutines.withContext(Dispatchers.IO) { persistence.persistOnce() }
+                    kotlinx.coroutines.withContext(Dispatchers.IO) {
+                        allowPersistence.await()
+                        persistence.persistOnce()
+                    }
                 }
                 ExitSyncWindow(closes.closing, "en", closes.skipRequested, closes::requestClose, tasks = lateTasks) {}
             }
@@ -207,12 +231,19 @@ class ExitSyncHostTest {
             // Make the graph visible while its runner is still idle. An idle skip alone is a no-op.
             mainClock.advanceTimeBy(100)
             onNodeWithText("Closing…").assertIsDisplayed()
-            allowPersistence.complete(Unit)
-            mainClock.advanceTimeByFrame()
-            runBlocking { kotlinx.coroutines.withTimeout(5_000) { syncStarted.await() } }
+            // Hold the UI thread until entry so replay must skip actually running invisible work.
+            runOnUiThread {
+                allowPersistence.complete(Unit)
+                assertTrue(taskStarted.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+            assertFalse(tasks.syncing.value, "Local preflight never marks visible work")
             mainClock.advanceTimeBy(100)
             waitUntil(timeoutMillis = 2_000) { persisted.isCompleted }
             assertEquals(false, result, "The eventual real exit runner must receive the pending skip")
+            assertFalse(afterRan.get(), "Later exit tasks must be skipped")
+            assertTrue(written.isCompleted, "The bounded settings flush must drain writes before persistence completes")
+            assertEquals(net.bible.sharedcore.settings.store.SettingWrite.Str("exit-regression", "saved"), runBlocking { written.await() })
+            assertFalse(interrupted.get(), "Quit must not interrupt a thread inside local/native work")
             runOnUiThread { closes.requestClose() }
             mainClock.advanceTimeByFrame()
             assertEquals(1, starts.get())
@@ -221,6 +252,9 @@ class ExitSyncHostTest {
             releaseStartup.countDown()
             allowPersistence.complete(Unit)
             tasks.skipRemaining()
+            releaseTask.countDown()
+            assertTrue(taskFinished.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            runBlocking { kotlinx.coroutines.withTimeout(5_000) { persisted.await() } }
             scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
             org.koin.core.context.stopKoin()
         }

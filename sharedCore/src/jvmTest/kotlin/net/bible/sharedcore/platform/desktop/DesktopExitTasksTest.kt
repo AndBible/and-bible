@@ -83,12 +83,14 @@ class DesktopExitTasksTest {
         tasks.register("visible") { entered.complete(Unit); proceed.await(); beginVisibleWork(); awaitCancellation() }
         val run = CoroutineScope(Dispatchers.Default).async { tasks.runAll(5000) }
         entered.await()
+        assertTrue(tasks.running.value, "Invisible work must still accept a pending skip")
         assertFalse(tasks.syncing.value)
         proceed.complete(Unit)
         withTimeout(2000) { tasks.syncing.first { it } }
         tasks.skipRemaining()
         assertFalse(run.await())
         assertFalse(tasks.syncing.value)
+        assertFalse(tasks.running.value)
     }
 
     @Test fun syncingTurnsOffWhenTaskEndsFailsOrTimesOut() = bounded {
@@ -99,8 +101,10 @@ class DesktopExitTasksTest {
                 assertTrue(tasks.syncing.value)
                 when (kind) { 1 -> error("failure"); 2 -> awaitCancellation() }
             }
-            assertEquals(kind != 2, tasks.runAll(200))
+            // Only the hanging branch tests the short deadline; logging a failure can exceed 200 ms under load.
+            assertEquals(kind != 2, tasks.runAll(if (kind == 2) 200 else 5_000))
             assertFalse(tasks.syncing.value)
+            assertFalse(tasks.running.value)
         }
     }
 
@@ -123,8 +127,12 @@ class DesktopExitTasksTest {
 
     @Test fun skipRemainingWhenIdleIsNoOp() = bounded {
         val tasks = DesktopExitTasks()
+        var ran = false
+        tasks.register("later") { ran = true }
         tasks.skipRemaining()
+        assertFalse(tasks.running.value)
         assertTrue(tasks.runAll(1000))
+        assertTrue(ran, "An idle skip must not poison the next registered run")
     }
 
     @Test fun runAllAfterSkipRunsNormally() = bounded {
@@ -136,6 +144,43 @@ class DesktopExitTasksTest {
         started.await(); tasks.skipRemaining()
         assertFalse(run.await())
         assertTrue(tasks.runAll(1000))
+    }
+
+    @Test fun skippedWorkerCallbacksAndCompletionCannotChangeTheNextRun() = bounded {
+        val tasks = DesktopExitTasks()
+        val firstEntered = CompletableDeferred<() -> Unit>()
+        val releaseFirst = CountDownLatch(1)
+        val firstFinished = CountDownLatch(1)
+        val unregister = tasks.register("old blocked worker") {
+            currentCoroutineContext().job.invokeOnCompletion { firstFinished.countDown() }
+            firstEntered.complete(::beginVisibleWork)
+            releaseFirst.await()
+        }
+        val first = CoroutineScope(Dispatchers.Default).async { tasks.runAll(5_000) }
+        val oldVisible = firstEntered.await()
+        tasks.skipRemaining()
+        assertFalse(first.await())
+        unregister()
+        val secondEntered = CompletableDeferred<() -> Unit>()
+        tasks.register("new worker") { secondEntered.complete(::beginVisibleWork); awaitCancellation() }
+        val second = CoroutineScope(Dispatchers.Default).async { tasks.runAll(5_000) }
+        try {
+            val newVisible = secondEntered.await()
+            oldVisible()
+            assertFalse(tasks.syncing.value, "A stale marker cannot make the new run visible")
+            newVisible()
+            releaseFirst.countDown()
+            assertTrue(firstFinished.await(2, TimeUnit.SECONDS))
+            assertTrue(tasks.syncing.value, "The old worker cannot clear the new run's visibility")
+            assertTrue(tasks.running.value, "Only releasing the current runner clears its lifecycle")
+            tasks.skipRemaining()
+            assertFalse(second.await())
+            assertFalse(tasks.running.value)
+        } finally {
+            releaseFirst.countDown()
+            tasks.skipRemaining()
+            second.await()
+        }
     }
 
     @Test fun cancelledTaskDoesNotReportSuccessfulCompletion() = bounded {
