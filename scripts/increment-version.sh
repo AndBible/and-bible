@@ -162,12 +162,13 @@ sed -i -E "s|<release version=\"[^\"]*\" date=\"[^\"]*\"|<release version=\"$NEW
 grep -q "<release version=\"$NEW_VERSION_NUMERIC\"" "$METAINFO_REL" || { echo -e "${RED}Error: release update failed in $METAINFO_REL${NC}"; exit 1; }
 
 # Generate changelog with auto-summarized release notes
-# For production builds, diff against the latest production-* tag
-# For test builds, diff against the latest test-* tag (to show only changes since last test build)
-# For beta releases, diff against the nearest beta-* or production-* tag
+# Changelog range: from the nearest earlier release of the same or a wider audience.
+# - test build: the nearest test-*, beta-* or production-* tag (any earlier build);
+# - beta: the nearest beta-* or production-* tag;
+# - production: the nearest production-* tag.
+# git describe picks the tag with the fewest commits to HEAD among the matches.
 if [[ "$BUILD_MODE" == true ]]; then
-    PREVIOUS_TAG=$(git describe --tags --match 'test-*' --abbrev=0 HEAD 2>/dev/null || \
-                   git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+    PREVIOUS_TAG=$(git describe --tags --match 'test-*' --match 'beta-*' --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 elif [[ "$BETA_MODE" == true ]]; then
     # The nearest beta-* or production-* tag: an old beta (e.g. 5.0's beta-740.3) older than the last
     # production release must not pull years of history into the changelog.
