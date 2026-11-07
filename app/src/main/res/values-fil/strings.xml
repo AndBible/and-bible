@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">Kailangan ng AndBible ang Direct3D graphics para maipakita ang teksto ng Bibliya gamit ang WebView2. Ang kasalukuyang graphics renderer ay %1$s. Tingnan ang iyong graphics driver at suporta sa Direct3D.\n\nMakikita ang mga detalye sa log file:\n%2$s</string>
   <string name="desktop_update_setting_title">Tingnan kung may update</string>
   <string name="desktop_update_setting_summary">Minsan isang araw, mula sa github.com</string>
+  <string name="desktop_beta_update_setting_title">Mag-alok ng mga pampublikong beta update</string>
+  <string name="desktop_beta_update_setting_summary">Mag-alok din ng mga beta na bersyon. Kapag naka-off, mga production release lang ang makukuha ng beta install.</string>
   <string name="desktop_update_consent_title">Tingnan kung may update?</string>
   <string name="desktop_update_consent_message">Maaaring tingnan ng AndBible ang github.com minsan isang araw para sa mas bagong bersyon. Makikita ng GitHub ang iyong IP address; wala nang ibang ipinapadala. Maaari mo itong baguhin sa Mga Setting.</string>
   <string name="desktop_update_consent_yes">Tingnan kung may update</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">I-enable ang mga tampok na partikular sa e-ink (mga button na scroll ng pahina, mga linya ng tulong sa pag-scroll)</string>
   <string name="prefs_disable_animations_title">I-disable ang mga animation</string>
   <string name="prefs_disable_animations_summary">I-disable ang iba\'t ibang animation tulad ng maayos na pag-scroll.</string>
+  <string name="prefs_show_activity_in_menu_title">Ipakita ang background activity sa menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Progreso ng mga download, sync at pag-index, pati mga pagkabigo, sa ⋮ menu</string>
+  <string name="prefs_system_notifications_title">Mga notification ng system</string>
+  <string name="prefs_system_notifications_denied">Naka-off sa Settings ng iOS</string>
+  <string name="prefs_system_notifications_summary">Mag-notify tungkol sa mga bigong background work, mahahabang download na natapos habang nasa background ang AndBible, at ang progreso ng mga ito</string>
   <string name="prefs_disable_click_to_edit_title">I-disable ang click-to-edit ng Study Pad</string>
   <string name="prefs_disable_click_to_edit_summary">Kailangan gamitin ang button na i-edit para ma-edit ang mga tala sa Study Pad.</string>
   <string name="prefs_notes_content_type_title">Format para sa mga bagong tala ng bookmark</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Awtomatiko</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Night mode</string>
+  <string name="options_menu_sync_now">I-sync ngayon</string>
+  <string name="exit_sync_title">Sini-synchronize ang mga pagbabago…</string>
+  <string name="exit_sync_body">Ipinapadala ang iyong mga pagbabago sa iba mong device. Maaaring abutin ito ng ilang segundo.</string>
+  <string name="exit_sync_quit_now">Lumabas na ngayon</string>
+  <string name="exit_sync_closing">Isinasara…</string>
+  <string name="sync_now_no_network">Walang koneksyon sa network</string>
   <string name="prefs_navigate_to_verse_title">Pumunta sa talata</string>
   <string name="prefs_navigate_to_verse_summary">Pumili ng talata (at kabanata) kapag pumipili ng sipi</string>
   <string name="prefs_open_links_in_special_window_title">Window ng mga link</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Wika</string>
   <string name="one_more_back_press">Pindutin muli ang back para isara ang app</string>
   <string name="document_filter_results">%d na dokumento</string>
+  <string name="activity_show_all">Ipakita lahat (%1$d)</string>
+  <string name="activity_failed_badge">%1$d ang nabigo</string>
+  <string name="activity_attention_badge">%1$d ang kailangang tingnan</string>
+  <string name="activity_combined_badge">%1$d ang nabigo, %2$d ang kailangang tingnan</string>
+  <string name="activity_running_description">Tumatakbo ang background work</string>
+  <string name="activity_running">Tumatakbo</string>
+  <string name="activity_recent">Kamakailan</string>
+  <string name="activity_clear_finished">I-clear ang mga natapos</string>
+  <string name="activity_title">Background activity</string>
+  <string name="activity_empty">Walang tumatakbo</string>
+  <string name="activity_failed_toast">%1$s — tingnan ang menu</string>
   <string name="download_question_title">Nais mo bang magpatuloy sa pag-download ng mga dokumento?</string>
   <string name="download_question_message">Kung nakatira ka sa isang bansang may pag-uusig, maaaring kailangang mag-ingat ka sa pag-download ng mga Kristiyanong materyal sa pamamagitan ng Internet. Sa halip, maaaring gusto mong makuha ang mga module zip file nang mas ligtas at i-install ang mga ito sa pamamagitan ng \"I-load ang Mga Dokumento Mula sa Zip\". Sigurado ka bang nais mong magpatuloy sa pag-download? Lahat ng mga download mula sa mga module server ay naka-encrypt (HTTPS).</string>
   <string name="do_not_ask_again">Oo, huwag nang itanong pa</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">I-backup saan?</string>
   <string name="backup_backup_message">I-backup sa telepono o sa ibang lugar sa pamamagitan ng function na I-share (email, Google Drive, atbp.)?</string>
   <string name="backup_phone_storage">Storage ng telepono</string>
+  <string name="backup_save_to_files">I-save sa Files</string>
   <string name="backup_and_restore">Backup at I-restore</string>
   <string name="backup_modules2">I-backup ang Mga Dokumento sa…</string>
   <string name="backup_app2">I-backup ang app (file na .apk) sa…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">Server ng distribusyon: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Folder ng log</string>
+  <string name="open_log_folder">Buksan ang folder ng log</string>
+  <string name="startup_report_bug">Mag-ulat ng bug</string>
   <string name="send_bug_report_title">Feedback / ulat ng bug</string>
   <string name="report_bug_email_subject_3">[%1$s] Ulat ng bug para sa %2$s %3$s</string>
   <string name="report_bug_big_heading">PAKISULAT ANG IYONG FEEDBACK O ULAT NG BUG SA ITAAS NG LINYANG ITO</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">Test error (debug build)</string>
   <string name="bug_report_prepare_failed">Hindi naihanda o naibahagi ang ulat. Maaari kang subukang muli, o gamitin ang Backup at Restore para i-save ang iyong data.</string>
   <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
+  <string name="bug_report_desktop_text">Susunod, tatanungin ka kung saan ise-save ang file ng bug report. Pagkatapos, makakakuha ka ng mga tagubilin para ipadala ito sa developer team.</string>
   <string name="bug_report_email_text">Susunod, mangyaring piliin ang iyong gustong email application (tulad ng Gmail) para ipadala ang ulat sa team ng developer.</string>
   <string name="bug_report_manual_title">Ipadala ang ulat sa pamamagitan ng email</string>
+  <string name="bug_report_manual_text_saved">Na-save ang ulat sa <b>%1$s</b>.\n\nMagpadala ng email sa <b>%2$s</b> at ilakip ang file na iyon; hindi ito kayang ilakip para sa iyo ng email program. Iminumungkahing paksa: <b>%3$s</b>. Sa mensahe, sabihin sa amin kung ano ang ginawa mo at ano ang nangyari.</string>
+  <string name="bug_report_manual_text_unsaved">Na-save ang ulat sa lugar na pinili mo.\n\nMagpadala ng email sa <b>%1$s</b> at ilakip ang na-save na file ng ulat; hindi ito kayang ilakip para sa iyo ng email program. Iminumungkahing paksa: <b>%2$s</b>. Sa mensahe, sabihin sa amin kung ano ang ginawa mo at ano ang nangyari.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s bug: &lt;maikling paglalarawan&gt;</string>
+  <string name="bug_report_attach_line">Pakilakip ang file na %1$s</string>
+  <string name="bug_report_copy_subject">Kopyahin ang paksa</string>
+  <string name="bug_report_copy_path">Kopyahin ang path ng file</string>
+  <string name="bug_report_open_folder">Buksan ang folder</string>
   <string name="bug_report_copy_address">Kopyahin ang address</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text to speech</string>
@@ -736,6 +772,37 @@
   <string name="beta_notice_github_issues">Mga Github issue</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Isara hanggang sa susunod na update</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ESPESYAL NA PAUNAWA NG DEVELOPER PARA SA MGA BETA TESTER (Nobyembre 2026)</string>
+  <string name="beta_special_intro_android">Maligayang pagdating sa AndBible 6.0 beta! Ito ang pinakamalaking pagbabago sa kasaysayan ng AndBible. Muling isinulat ang buong app gamit ang bagong user interface toolkit, at muling dinisenyo ang interface: sinuri ang bawat screen, at karamihan ay nagkaroon ng malalaking pagpapabuti sa usability bukod sa bagong hitsura ng Material 3.</string>
+  <string name="beta_special_intro_ios">Maligayang pagdating sa AndBible 6.0 beta! Kung ginamit mo na ang AndBible para sa iOS 1.0, malaking pagbabago ito: pinapalitan ng bersyon 6.0 ito ng pinagsasaluhang AndBible app, ang parehong app na tumatakbo sa Android, iPhone, iPad at Apple Silicon Mac, Windows at Linux. Binuo ito sa code na naglingkod sa mga gumagamit ng Android nang mahigit isang dekada, muling isinulat gamit ang bagong user interface toolkit, at muling dinisenyo ang interface: sinuri ang bawat screen, at karamihan ay nagkaroon ng malalaking pagpapabuti sa usability.</string>
+  <string name="beta_special_intro_desktop">Maligayang pagdating sa AndBible 6.0 beta, at sa AndBible sa Windows at Linux! Ito ang unang desktop na bersyon ng AndBible: ang parehong app ay tumatakbo na ngayon sa Android, iPhone, iPad at Apple Silicon Mac, Windows at Linux. Binuo ito sa code na naglingkod sa mga gumagamit ng Android nang mahigit isang dekada, muling isinulat gamit ang bagong user interface toolkit, at muling dinisenyo ang interface: sinuri ang bawat screen, at karamihan ay nagkaroon ng malalaking pagpapabuti sa usability.</string>
+  <string name="beta_special_redesign">Muling dinisenyong interface: mas malilinaw na menu, setting at dialog, mas pare-parehong nabigasyon, at maraming maliliit na pagpapabuti sa daloy ng paggamit sa buong app.</string>
+  <string name="beta_special_data_kept">Nandoon pa rin ang lahat ng iyong feature, data at setting.</string>
+  <string name="beta_special_platforms">Ang parehong app ay tumatakbo na ngayon sa Android, iPhone, iPad at Apple Silicon Mac, Windows at Linux. Sinusubukan din ang mga bagong platform.</string>
+  <string name="beta_special_additions_android">Dalawang mas maliit na dagdag: WebDAV synchronisation (sarili mong server, NAS o anumang serbisyo ng WebDAV, bukod sa Google Drive at Nextcloud), at bagong search index na awtomatikong muling binubuo nang isang beses pagkatapos ng update.</string>
+  <string name="beta_special_one_app">Isang app sa lahat ng iyong device: parehong mga feature at daloy ng paggamit sa iyong telepono, tablet at computer.</string>
+  <string name="beta_special_sync_ios">Synchronisation sa pagitan ng iyong mga device gamit ang Nextcloud, WebDAV (sarili mong server, NAS o anumang serbisyo ng WebDAV) o iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronisation sa pagitan ng iyong mga device gamit ang Nextcloud o WebDAV (sarili mong server, NAS o anumang serbisyo ng WebDAV).</string>
+  <string name="beta_special_feedback">Kung may kulang, iba na ang takbo kaysa dati o naging mas mahirap hanapin, pakisabi sa amin, kahit na sinadya ito.</string>
+  <string name="beta_special_backup">Magandang ideya ang gumawa ng backup bago subukan (Main menu → %s).</string>
+  <string name="beta_special_beta_warning">Ito ay beta na bersyon: hindi pa lahat ay tapos o ganap na nasubukan, at maaari itong magkaroon ng mga bug. Sa paggamit nito, isa kang beta tester, at ang iyong mga bug report ang gagawa ng mahusay na final release.</string>
+  <string name="beta_special_leave_beta_android">Kung hindi mo balak sumubok, maaari mong iwan ang %s at bumalik sa stable na bersyon.</string>
+  <string name="beta_special_report">Mag-ulat ng mga bug sa pamamagitan ng %1$s (mas mainam) o Main menu → %2$s.</string>
+  <string name="beta_special_report_android">Mag-ulat ng mga bug sa pamamagitan ng %1$s (mas mainam), Google Play o Main menu → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible sa iba mong device</string>
+  <string name="beta_special_other_devices_intro">Available ang parehong beta para sa lahat ng iyong device:</string>
+  <string name="beta_special_other_android">Android: sumali sa %1$s, o i-download ang APK mula sa pinakabagong beta release sa %2$s.</string>
+  <string name="beta_special_play_beta_link">beta programme sa Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad at Apple Silicon Mac: i-install ang TestFlight app ng Apple at sumali sa %s.</string>
+  <string name="beta_special_testflight_link">AndBible public beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) at Linux (.deb o AppImage): i-download ang mga ito mula sa pinakabagong beta release sa %s.</string>
+  <string name="beta_special_installation_guide">Nasa %s ang sunud-sunod na tagubilin.</string>
+  <string name="beta_special_installation_guide_link">gabay sa pag-install</string>
+  <string name="beta_special_regards">Taos-pusong bumabati, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Maaari mong suportahan ang pag-develop ng AndBible sa pamamagitan ng pananalapi sa pamamagitan ng %s.</string>
+  <string name="beta_special_sponsor_link">pag-sponsor ng mga oras ng development</string>
   <string name="stable_notice_title">Na-upgrade na ang application!</string>
   <string name="upgrade_video_message">Pakitingnan ang video na nagtatampok ng mga bagong feature ng release na ito (%s).</string>
   <string name="stable_notice_par1">Matagumpay na na-install ang bagong bersyon %1$s ng %2$s!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">Mga Repository at kaugnay na mga setting</string>
   <string name="db_bookmarks">Mga Bookmark, My Notes, Mga Label at Study Pad</string>
   <string name="synchronizing">Nagsi-synchronize…</string>
+  <string name="notification_finished">Tapos na</string>
   <string name="overrideBackup">May nakitang umiiral na database sa Cloud na hindi naka-synchronize ang device na ito. Ang database ay naglalaman ng %s. Ano ang nais mong gawin?</string>
   <string name="reading_plans_content">Mga plano sa pagbabasa at kanilang mga katayuan</string>
   <string name="bookmarks_contents">Mga Bookmark, Mga Label at Study Pad</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">Natanggap ang tugon</string>
   <string name="agent_log_saved">Na-save: %s</string>
   <string name="agent_log_done">Tapos na: %s</string>
+  <string name="agent_activity_title">AI agent</string>
+  <string name="agent_activity_title_in">AI agent: %s</string>
+  <string name="agent_activity_waiting">Naghihintay ng iyong pahintulot</string>
+  <string name="agent_activity_waiting_for">Naghihintay ng iyong pahintulot: %s</string>
+  <string name="agent_activity_failed">Nabigo ang AI agent</string>
+  <string name="agent_activity_attention_needed">Kailangan ng AI agent ang iyong atensyon</string>
   <string name="agent_log_cancelled">Kinansela</string>
   <string name="agent_already_running">May AI agent na tumatakbo na. Mangyaring maghintay o itigil ito muna.</string>
   <!--AI Agent Notifications-->
