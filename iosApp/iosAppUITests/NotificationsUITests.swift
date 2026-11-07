@@ -155,6 +155,21 @@ final class NotificationsUITests: RealAppUITestCase {
         notification.tap()
         let activity = app.staticTexts["Background activity"].firstMatch
         XCTAssertTrue(activity.waitForExistence(timeout: 60), "Notification activation opens the activity list")
+        let empty = app.staticTexts["Nothing running"].firstMatch
+        var previous = CGRect.null
+        var stable = 0
+        let settled = waitUntil(timeout: 30) {
+            guard activity.exists && activity.isHittable && empty.exists && empty.isHittable else {
+                stable = 0
+                return false
+            }
+            let frame = activity.frame
+            stable = frame == previous && !frame.isEmpty ? stable + 1 : 0
+            previous = frame
+            return stable >= 3
+        }
+        if !settled { attachTree(app, "notification-activity-not-settled") }
+        XCTAssertTrue(settled, "The activity list and its empty state are visible and settled")
         shot(app, "notification-cold-launch-activity")
     }
 }
