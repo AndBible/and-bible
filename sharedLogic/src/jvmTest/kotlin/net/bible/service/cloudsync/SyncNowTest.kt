@@ -145,6 +145,47 @@ class SyncNowTest {
         sync.close()
     }
 
+    @Test fun permissionPromptDoesNotDelaySync() = runTest {
+        val cloud = Cloud().apply { signedIn = true }
+        val permissionResult = CompletableDeferred<Unit>()
+        var requests = 0
+        val sync = SyncNow(cloud, EventSource(), { true }, {}, { true }, { false }, {}, this,
+            notificationPermission = object : net.bible.sharedcore.platform.NotificationPermission {
+                override suspend fun ensureAsked() { requests++; permissionResult.await() }
+            })
+        sync.start(); runCurrent()
+        assertEquals(1, requests)
+        assertEquals(listOf("start", "wait"), cloud.calls)
+        assertFalse(permissionResult.isCompleted)
+        cloud.finish.complete(Unit)
+        permissionResult.complete(Unit)
+        runCurrent()
+        sync.close()
+    }
+
+    @Test fun permissionFailureDoesNotCancelSync() = runTest {
+        val cloud = Cloud().apply { signedIn = true; finish.complete(Unit) }
+        val sync = SyncNow(cloud, EventSource(), { true }, {}, { true }, { false }, {}, this,
+            notificationPermission = object : net.bible.sharedcore.platform.NotificationPermission {
+                override suspend fun ensureAsked() { error("permission unavailable") }
+            })
+        sync.start(); runCurrent()
+        assertEquals(listOf("start", "wait"), cloud.calls)
+        assertFalse(sync.running.value)
+        sync.close()
+    }
+
+    @Test fun rejectedStartDoesNotAskPermission() = runTest {
+        var requests = 0
+        val sync = SyncNow(Cloud(), EventSource(), { true }, {}, { false }, { false }, {}, this,
+            notificationPermission = object : net.bible.sharedcore.platform.NotificationPermission {
+                override suspend fun ensureAsked() { requests++ }
+            })
+        sync.start(); runCurrent()
+        assertEquals(0, requests)
+        sync.close()
+    }
+
     @Test fun availableFollowsSettings() = runTest {
         var enabled = false
         val sync = SyncNow(Cloud(), EventSource(), { enabled }, {}, { true }, { false }, {}, this)

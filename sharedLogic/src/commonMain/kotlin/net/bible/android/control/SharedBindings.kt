@@ -274,6 +274,7 @@ fun buildSharedBindings() = module {
             saveWorkspace = ports.saveWorkspace, networkAvailable = ports.networkAvailable,
             replacing = { DatabaseContainer.replacing }, noNetwork = ports.noNetwork, scope = get<AppCoroutineScope>(),
             cloudRunningState = get<CloudSync>().runningState, documentRunningState = get<DocumentSync>().runningState,
+            notificationPermission = getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
         )
     }.onClose { it?.close() }
     single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<CloudSync>().runningChanged) }
