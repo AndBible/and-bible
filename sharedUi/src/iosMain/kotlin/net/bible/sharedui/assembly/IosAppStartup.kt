@@ -190,7 +190,7 @@ object IosAppStartup {
             if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { message ->
                 // Background errors (only) go to the activity list when the preference is on (#4007); Koin exists by the time one is presented.
                 KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.route(
-                    message.text.orEmpty(), message.background, message.kind, message.showReportButton, message.cause)
+                    message.text.orEmpty(), message.background, message.kind, message.showReportButton, message.cause, message.repeated)
             })
             owner ?: HostStartupOwner(processScope,
                 initialize = {

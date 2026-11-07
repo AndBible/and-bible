@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -60,6 +61,19 @@ class AppDialogControllerTest {
         c.respond(c.pending.value!!.id, AppDialogResult.Ok)
         assertEquals(listOf("first", "second"), seen)
         assertNull(c.pending.value)
+    }
+
+    /** #4031: the same error message posted while it is still queued or showing must not stack a second modal. */
+    @Test fun postUnlessQueuedSkipsAnEqualMessageStillQueued() = runTest {
+        val c = AppDialogController()
+        val first = c.postUnlessQueued(msg("sync error"))
+        assertNotNull(first)
+        assertNull(c.postUnlessQueued(msg("sync error")))
+        assertNotNull(c.postUnlessQueued(msg("other error")))
+        c.respond(first, AppDialogResult.Ok)
+        c.respond(c.pending.value!!.id, AppDialogResult.Ok)
+        assertNull(c.pending.value)
+        assertNotNull(c.postUnlessQueued(msg("sync error")), "Once answered, the same message may be shown again")
     }
 
     @Test fun aSecondRequestDoesNotReplaceTheOneShowing() = runTest {

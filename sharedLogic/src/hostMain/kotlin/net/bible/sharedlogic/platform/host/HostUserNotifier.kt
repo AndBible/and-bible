@@ -23,7 +23,8 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 
 /**
- * iOS [UserNotifier]. [showError] raises an owner-less [AppDialogRequest.Message] on [dialogs] (fire-and-forget; the
+ * iOS [UserNotifier]. [showError] raises an owner-less [AppDialogRequest.Message] on [dialogs] (fire-and-forget, and not
+ * while an equal message is still queued; the
  * shared dialog host draws it, there is no activity to own it). [okText] is the confirm button label, read per call
  * so a language change is picked up; the iOS binding passes the localized "OK".
  *
@@ -48,7 +49,8 @@ class HostUserNotifier(
 
     override fun showError(message: String, cause: Throwable?) {
         Log.e(TAG, message, cause)
-        dialogs.post(AppDialogRequest.Message(title = null, message = message, confirmText = okText()))
+        // The same error still waiting for its OK is not queued again (#4031: identical sync errors stacked ten modals).
+        dialogs.postUnlessQueued(AppDialogRequest.Message(title = null, message = message, confirmText = okText()))
     }
 
     private companion object { const val TAG = "UserNotifier" }

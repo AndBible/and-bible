@@ -22,7 +22,6 @@ import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem
 import net.bible.sharedcore.platform.cloud.CloudFile
-import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
@@ -163,6 +162,8 @@ class CloudSync(
                 cancelledByUser = true
                 false
             } catch (e: Exception){
+                // Logged always: a background pass shows nothing for a failed sign-in, so the log is its only trace (#4031).
+                Log.e(TAG, "Sync sign-in failed (background=$background): ${e::class.simpleName}: ${e.message}", e)
                 errorMessage = e.message
                 false
             }.also { if (!it) _adapter = null }
@@ -170,6 +171,7 @@ class CloudSync(
             signInMutex.unlock()
         }
         if(!success) {
+            if (errorMessage == null) Log.w(TAG, "Sync sign-in did not succeed (background=$background, cancelled by user=$cancelledByUser)")
             if (!background && !cancelledByUser) {
                 val message = strings.signInFailed + " " + (errorMessage ?: "")
                 onForegroundFailure(message)
@@ -601,8 +603,8 @@ class CloudSync(
             dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
             throw CancelStartedSync()
         } catch (e: IOException) {
-            Log.e(TAG, "Merge failed (probably network down)", e)
-            UserMessages.errorNotification(strings.syncError, background = backgroundErrors, kind = ActivityKind.SYNC)
+            logSyncFailure(dbDef, "merge", e, "probably network down")
+            reportSyncError(strings.syncError, backgroundErrors, e)
             throw CancelStartedSync()
         } finally {
             // On success, and after every restore, the durable copy is no longer needed.
@@ -652,7 +654,7 @@ class CloudSync(
             runCatching { FileSystem.SYSTEM.delete(partial, mustExist = false) }
         }
         dbDef.category.setSyncEnabled(settings, false)
-        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
+        reportSyncError(strings.syncError, background, null)
         throw CancelStartedSync()
     }
 
@@ -676,18 +678,24 @@ class CloudSync(
     /** Drops the adapter so the next foreground sync signs in again (and can prompt), keeping all sync state. */
     fun dropAdapterForReconnect() { _adapter = null }
 
+    /** Coalesces this object's sync errors: one per pass, quiet repeats (#4031). */
+    private val errorReporter = SyncErrorReporter()
+
+    /** The pass [synchronize] is running, so the per-category join steps report into its single error; null outside a pass. */
+    @kotlin.concurrent.Volatile private var passRun: SyncErrorReporter.Run? = null
+
+    /** Reports a sync error into the running pass, or directly when no pass runs (a direct [initializeSync]). */
+    private fun reportSyncError(text: String, background: Boolean, cause: Throwable?) {
+        passRun?.report(text, background = background, cause = cause)
+            ?: UserMessages.errorNotification(text, background = background, kind = ActivityKind.SYNC, cause = cause)
+    }
+
     /**
-     * Notifies once per sync. Only records [needsReconnect]; the adapter is dropped after every
-     * category has finished (see [synchronize]) so concurrent categories never see a null adapter.
+     * Every failed sync step leaves one ERROR line naming its category and step, with the exception, so the log a bug
+     * report attaches always says what failed and why (#4031), also when the pass showed no message for it.
      */
-    private fun reportUserFacing(
-        e: CloudSyncUserFacingException,
-        reported: AtomicBoolean,
-        needsReconnect: AtomicBoolean,
-        background: Boolean,
-    ) {
-        if (e.requiresReconnect) needsReconnect.value = true
-        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false, background = background, kind = ActivityKind.SYNC)
+    private fun logSyncFailure(dbDef: SyncableDatabaseAccessor<*>, step: String, e: Throwable, note: String? = null) {
+        Log.e(TAG, "Sync failed: category=${dbDef.categoryName} step=$step${note?.let { " ($it)" } ?: ""}: ${e::class.simpleName}: ${e.message}", e)
     }
 
     /**
@@ -714,14 +722,20 @@ class CloudSync(
             Log.i(TAG, "Synchronizing starts")
             val timerStart = Clock.System.now().toEpochMilliseconds()
 
-            val reported = atomic(false)
             val needsReconnect = atomic(false)
             val background = backgroundErrors
-            fun reportTransportFailure() {
-                if (reportTransportErrors && reported.compareAndSet(false, true)) {
-                    UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
-                }
+            // One error per pass (#4031); an automatic pass that fails like the previous one is recorded quietly.
+            val run = errorReporter.beginRun(quietRepeats = !allowInteraction)
+            fun reportTransportFailure(e: Exception) {
+                if (reportTransportErrors) run.report(strings.syncError, background = background, cause = e)
+                else run.noteSilentFailure()
             }
+            fun reportUserFacing(e: CloudSyncUserFacingException) {
+                if (e.requiresReconnect) needsReconnect.value = true
+                run.report(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false, background = background, cause = e)
+            }
+            passRun = run
+            var completed = false
             try {
                 DatabaseContainer.databaseAccessorFactories.asyncMap {
                     val dbDef = it.invoke()
@@ -733,32 +747,34 @@ class CloudSync(
                         Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
                         return@asyncMap
                     } catch (e: IOException) {
-                        Log.e(TAG, "IOException (probably network down)", e)
-                        reportTransportFailure()
+                        logSyncFailure(dbDef, "initialize", e, "probably network down")
+                        reportTransportFailure(e)
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect, background)
+                        logSyncFailure(dbDef, "initialize", e)
+                        reportUserFacing(e)
                         return@asyncMap
                     } catch (e: Exception) {
-                        Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
+                        logSyncFailure(dbDef, "initialize", e)
+                        run.report(strings.syncError, background = background, cause = e)
                         return@asyncMap
                     }
                     try {
                         createAndUploadNewPatch(dbDef)
                     } catch (e: IOException) {
-                        Log.e(TAG, "IOException", e)
-                        reportTransportFailure()
+                        logSyncFailure(dbDef, "upload", e, "probably network down")
+                        reportTransportFailure(e)
                         return@asyncMap
                     } catch (e: MissingSyncFolderIds) {
                         Log.w(TAG, "Skipping upload, will rejoin on the next sync", e)
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect, background)
+                        logSyncFailure(dbDef, "upload", e)
+                        reportUserFacing(e)
                         return@asyncMap
                     } catch (e: Exception) {
-                        Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
+                        logSyncFailure(dbDef, "upload", e)
+                        run.report(strings.syncError, background = background, cause = e)
                     }
                     try {
                         try {
@@ -769,21 +785,23 @@ class CloudSync(
                             downloadAndApplyNewPatches(dbDef)
                         }
                     } catch (e: IOException) {
-                        Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
-                        reportTransportFailure()
+                        logSyncFailure(dbDef, "download", e, "probably network down")
+                        reportTransportFailure(e)
                     } catch (e: MissingSyncFolderIds) {
                         Log.w(TAG, "Skipping download, will rejoin on the next sync", e)
                         return@asyncMap
                     } catch (e: IncompatiblePatchVersion) {
-                        UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false, background = background, kind = ActivityKind.SYNC)
+                        logSyncFailure(dbDef, "download", e, "patch from a newer app version; category disabled for this version")
+                        run.report(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false, background = background, cause = e)
                         dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect, background)
+                        logSyncFailure(dbDef, "download", e)
+                        reportUserFacing(e)
                         return@asyncMap
                     } catch (e: Exception) {
-                        Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
+                        logSyncFailure(dbDef, "download", e)
+                        run.report(strings.syncError, background = background, cause = e)
                     }
                 }
                 if (includeDocuments) try {
@@ -794,14 +812,20 @@ class CloudSync(
                         manual = false,
                     )
                 } catch (e: CloudSyncUserFacingException) {
-                    reportUserFacing(e, reported, needsReconnect, background)
+                    Log.e(TAG, "Sync failed: documents (plan)", e)
+                    reportUserFacing(e)
                 } catch (e: IOException) {
-                    Log.e(TAG, "Document sync pull failed", e)
-                    reportTransportFailure()
+                    Log.e(TAG, "Sync failed: documents (plan), probably network down", e)
+                    reportTransportFailure(e)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Document sync pull failed", e)
+                    Log.e(TAG, "Sync failed: documents (plan)", e)
+                    run.noteSilentFailure()
                 }
+                completed = true
             } finally {
+                passRun = null
+                // The pass's one error is shown now; only a pass that ran to its end moves the failing streak.
+                run.end(completed)
                 if (needsReconnect.value) dropAdapterForReconnect()
             }
             Log.i(TAG, "Synchronization complete in ${(Clock.System.now().toEpochMilliseconds() - timerStart)/1000.0} seconds.")

@@ -18,12 +18,13 @@ class BackgroundErrorRouter(
 ) {
     /**
      * Records [message] as a failed row of [kind], always (so turning the preference on later still shows earlier
-     * failures). Returns the toast text when [background] is true and the preference is on; null means the caller must
+     * failures). Returns the toast text when [background] is true and the preference is on, or when [repeated]; null means the caller must
      * show the dialog.
      */
-    fun route(message: String, background: Boolean, kind: ActivityKind, reportable: Boolean = false, cause: Throwable? = null): String? {
+    fun route(message: String, background: Boolean, kind: ActivityKind, reportable: Boolean = false, cause: Throwable? = null, repeated: Boolean = false): String? {
         sync.reportFailure(kind, message, background, reportable, cause.takeIf { reportable })
-        return if (background && enabled()) toastText(message) else null
+        // A repeated error (#4031) never pops the dialog again, whatever the preference: the list row and a toast suffice.
+        return if (background && enabled() || repeated) toastText(message) else null
     }
 }
 

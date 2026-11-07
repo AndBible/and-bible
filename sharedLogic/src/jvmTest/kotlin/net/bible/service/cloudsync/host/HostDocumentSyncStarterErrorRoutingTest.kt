@@ -51,4 +51,19 @@ class HostDocumentSyncStarterErrorRoutingTest {
         s.awaitIdle()
         assertEquals(listOf(UserMessage.ErrorNotification("generic", null, showReportButton = true, background = false, kind = ActivityKind.SYNC)), errors)
     }
+
+    /** #4031: a failing drain of ten documents raised ten modal dialogs; it shows one, and the next failing drain none. */
+    @Test fun failingDrainShowsOneErrorAndTheNextFailingDrainIsQuiet() = runTest {
+        val s = starter(backgroundScope, IllegalStateException("boom"))
+        s.start(push = (1..10).map { "M$it" }, download = emptyList())
+        s.awaitIdle()
+        assertEquals(1, errors.size, "$errors")
+        assertEquals(false, errors.single().background)
+        errors.clear()
+        s.start(push = listOf("A", "B"), download = emptyList())
+        s.awaitIdle()
+        assertEquals(1, errors.size, "$errors")
+        assertEquals(true, errors.single().repeated)
+        assertEquals(true, errors.single().background)
+    }
 }

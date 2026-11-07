@@ -80,7 +80,9 @@ class CloudSyncSignOutTest {
             return CloudFile("new-folder-$createdFolders", name, 0L, 1L, parentId ?: "root")
         }
         override suspend fun get(id: String): CloudFile = error("unused")
+        var onGetFolders: suspend () -> Unit = {}
         override suspend fun getFolders(parentId: String): List<CloudFile> {
+            onGetFolders()
             downloaded = true
             return emptyList()
         }
@@ -204,6 +206,39 @@ class CloudSyncSignOutTest {
             } finally {
                 subscription.cancel()
             }
+        }
+    }
+
+    /**
+     * #4031: every failing step of every category raised its own modal "Error occurred in Cloud synchronization" (one
+     * per category for the download, another for the upload), so one pass on the Mac stacked about ten dialogs. One
+     * pass shows at most one error, with the first failure as its cause; the next non-interactive pass failing the
+     * same way is recorded quietly (repeated) instead of popping the dialog again.
+     */
+    @Test fun failingPassShowsOneErrorAndARepeatedFailureIsQuiet() = withFixture { f ->
+        val (cloud, adapter, _, settings, _) = f
+        val workspaces = DatabaseContainer.databaseAccessorsByCategory.getValue(SyncableDatabaseDefinition.WORKSPACES)
+        workspaces.category.setSyncEnabled(settings, true)
+        workspaces.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "sync-folder-w")
+        workspaces.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "device-folder-w")
+        val errors = mutableListOf<UserMessage.ErrorNotification>()
+        val subscription = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        try {
+            adapter.finishUpload.complete(Unit)
+            adapter.onUpload = { throw IllegalStateException("upload refused") }
+            adapter.onGetFolders = { throw IllegalStateException("listing refused") }
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(1, errors.size, "One failing pass must show one error: $errors")
+            assertTrue(errors.single().cause is IllegalStateException, "The first failure travels as the cause")
+            assertFalse(errors.single().repeated)
+
+            errors.clear()
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(1, errors.size, "$errors")
+            assertTrue(errors.single().repeated, "The same failure in the next pass is recorded quietly")
+            assertTrue(errors.single().background)
+        } finally {
+            subscription.cancel()
         }
     }
 
