@@ -6,10 +6,20 @@ final class NotificationsUITests: RealAppUITestCase {
     private let message = "Test error (debug build)"
     private static var kjvEnsured = false
     private let english = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    private var provisioning = false
+
+    override func launch(_ arguments: [String]) -> XCUIApplication {
+        super.launch(arguments + (provisioning ? ["-notificationReset", "-notificationSettingOff"] : []))
+    }
 
     override func setUp() {
         super.setUp()
-        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+        if !Self.kjvEnsured {
+            provisioning = true
+            ensureKJVInstalled()
+            provisioning = false
+            Self.kjvEnsured = true
+        }
     }
 
     override func tearDown() {
