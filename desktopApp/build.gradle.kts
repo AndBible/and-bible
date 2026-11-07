@@ -308,12 +308,6 @@ compose.desktop {
         jvmArgs += "-Dandbible.releaseKind=${providers.gradleProperty("desktopReleaseKind").orElse("dev").get()}"
     }
 }
-tasks.withType<org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask>().configureEach {
-    if (name == "packageMsi" || name == "packageReleaseMsi") {
-        freeArgs.addAll("--resource-dir", project.file("packaging/windows/jpackage-resources").absolutePath)
-    }
-}
-
 tasks.matching { it.name == "run" }.configureEach { if (!isWindowsHost) dependsOn(prepareKcefNatives) }
 // `run` points the app at the natives in this build dir by absolute path. This must stay out of
 // compose.desktop.application.jvmArgs: those land in the packaged app's .cfg and would beat the resources dir that
@@ -342,6 +336,14 @@ stageKcefNatives.configure {
         }
     }
 }
+val stageWindowsToastIcon by tasks.registering(Copy::class) {
+    from(layout.projectDirectory.file("packaging/windows/andbible.ico"))
+    into(layout.buildDirectory.dir("desktop-resources/windows-x64"))
+}
+tasks.matching { it.name in packagingTaskNames }.configureEach {
+    if (isWindowsHost) dependsOn(stageWindowsToastIcon)
+}
+
 // Sync alone would leave the old Windows payload behind in an incremental dual-engine build.
 val removeWindowsKcefNatives by tasks.registering(Delete::class) {
     delete(layout.buildDirectory.dir("desktop-resources/windows-x64/kcef-natives"))
@@ -838,7 +840,8 @@ val packageWindowsZip by tasks.registering(Zip::class) {
             "The Windows archive must not include Chromium natives"
         }
         for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/runtime/bin/java.dll",
-            "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt")) {
+            "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt",
+            "AndBible/app/resources/andbible.ico")) {
             check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
         }
     }
@@ -938,12 +941,32 @@ tasks.register("packageWindowsMsix") {
 }
 tasks.register("packageWindowsMsi") {
     group = "distribution"
-    dependsOn("packageMsi")
+    dependsOn(createWindowsAppImage)
     doLast {
         check(hostTarget == "windows-x64") { "Windows x64 is required" }
         val dir = layout.buildDirectory.dir("compose/binaries/main/msi").get().asFile
-        val msi = dir.listFiles { f -> f.extension.equals("msi", true) }?.singleOrNull()
-            ?: throw GradleException("Expected exactly one MSI in $dir")
+        dir.mkdirs()
+        val msi = File(dir, "AndBible-$windowsPackageVersion.msi")
+        msi.delete()
+        val associationsDir = layout.buildDirectory.dir("windows-msi/associations").get().asFile.apply { mkdirs() }
+        val associationArgs = windowsAssociations.flatMap { (ext, mime) ->
+            val association = File(associationsDir, "$ext.properties")
+            association.writeText("extension=$ext\nmime-type=$mime\ndescription=AndBible $ext file\n")
+            listOf("--file-associations", association.absolutePath)
+        }
+        val jpackage = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
+            .get().metadata.installationPath.file("bin/jpackage.exe").asFile.absolutePath
+        runWindowsTool(listOf(
+            jpackage, "--type", "msi", "--app-image",
+            layout.buildDirectory.dir("compose/binaries/main/app/AndBible").get().asFile.absolutePath,
+            "--resource-dir", project.file("packaging/windows/jpackage-resources").absolutePath,
+            "--dest", dir.absolutePath, "--name", "AndBible", "--app-version", windowsPackageVersion,
+            "--description", "Offline Bible study app", "--vendor", "AndBible",
+            "--license-file", rootProject.file("LICENSE.txt").absolutePath,
+            "--win-dir-chooser", "--win-per-user-install", "--win-shortcut", "--win-menu",
+            "--win-upgrade-uuid", windowsUpgradeUuid,
+        ) + associationArgs)
+        check(msi.isFile) { "Expected MSI at $msi" }
         val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
         Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
         signWindowsArtifact(output)
