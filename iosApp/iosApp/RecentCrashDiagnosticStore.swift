@@ -48,15 +48,23 @@ final class RecentCrashDiagnosticStore: NSObject, MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
         queue.async {
             guard let latest = payloads.filter({ !($0.crashDiagnostics?.isEmpty ?? true) })
-                .max(by: { $0.timeStampEnd < $1.timeStampEnd }),
-                  let crashes = latest.dictionaryRepresentation()["crashDiagnostics"],
-                  JSONSerialization.isValidJSONObject(crashes),
-                  let data = try? JSONSerialization.data(withJSONObject: crashes, options: [.sortedKeys]) else { return }
-            self.save(payload: data, occurrence: latest.timeStampEnd)
+                .max(by: { $0.timeStampEnd < $1.timeStampEnd }) else { return }
+            self.saveCrashRepresentation(latest.dictionaryRepresentation()["crashDiagnostics"], occurrence: latest.timeStampEnd)
         }
     }
 
     // Called on the callback queue; tests may also invoke this directly.
+    func saveCrashRepresentation(_ crashes: Any?, occurrence: Date, now: Date = Date()) {
+        let data: Data
+        if let crashes, JSONSerialization.isValidJSONObject(crashes),
+           let encoded = try? JSONSerialization.data(withJSONObject: crashes, options: [.sortedKeys]) {
+            data = encoded
+        } else {
+            data = Data()
+        }
+        save(payload: data, occurrence: occurrence, now: now)
+    }
+
     func save(payload: Data, occurrence: Date, now: Date = Date()) {
         guard occurrence <= now, now.timeIntervalSince(occurrence) <= 86400 else { return }
         if let data = try? Data(contentsOf: storageURL),
