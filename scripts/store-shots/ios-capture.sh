@@ -56,6 +56,17 @@ rm -rf "$raws"; mkdir -p "$raws"
 find "$evidence" -name 'store-*.png' ! -name 'store-FAILED-*' | while read -r f; do
     b=$(basename "$f" .png); cp "$f" "$raws/${b#store-}.png"
 done
+if [ "$device" = ipad ]; then
+    # XCUIScreen stores a landscape iPad screen in the portrait buffer (content turned 90 degrees clockwise).
+    python3 -I - "$raws" <<'PY'
+import pathlib, sys
+from PIL import Image
+for p in pathlib.Path(sys.argv[1]).glob("*.png"):
+    with Image.open(p) as im:
+        if im.height > im.width:
+            im.rotate(90, expand=True).save(p)
+PY
+fi
 find "$evidence" -name 'store-FAILED-*' -print | sed 's/^/ios-capture: FAILED shot evidence: /' >&2
 "$here/run.sh" record --lang "$lang" --target "$target" --dir "$raws" "${also[@]}"
 exit "$rc"

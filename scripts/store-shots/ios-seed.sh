@@ -31,6 +31,6 @@ if [ "$(xcrun simctl spawn "$udid" defaults read -g AppleLocale 2>/dev/null)" !=
     xcrun simctl bootstatus "$udid" -b >/dev/null
     xcrun simctl ui "$udid" appearance "$mode"
 fi
-xcrun simctl status_bar "$udid" override --time "$(python3 -c 'import datetime; print(datetime.datetime.now().astimezone().replace(hour=9, minute=41, second=0, microsecond=0).isoformat())')" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
 echo "ios-seed: $udid $app_id seeded ($(ls "$support/databases" | wc -l) databases, $(ls "$data/Documents/sword/mods.d" | wc -l) modules), appearance $mode"
