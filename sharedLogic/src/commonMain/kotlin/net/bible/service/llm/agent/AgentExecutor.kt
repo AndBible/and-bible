@@ -915,34 +915,36 @@ class AgentExecutor(
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, arguments: JsonObject, workspaceId: IdType? = null): DialogResult {
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
-        awaitActivity(workspaceId, toolDisplayName)
-        val actionDescription = try {
-            tool.formatActionDescription(arguments)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to format action description for ${tool.agentTool.camelCaseName}", e)
-            null
-        }
-        return AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName) {
-            when (platform.askToolPermission(toolDisplayName, tool.description, actionDescription)) {
-                ToolPermissionAnswer.ALLOW -> DialogResult.Allowed
-                ToolPermissionAnswer.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
-                ToolPermissionAnswer.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
-                ToolPermissionAnswer.ALLOW_ALWAYS -> {
-                    // Show confirmation dialog
-                    val confirmed = platform.askQuestion(
-                        message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
-                            "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
-                        title = strings.permissionAlwaysAllowConfirmTitle
-                    )
-                    if (confirmed) {
-                        aiSettings.permanentlyAllowedTools += tool.agentTool
-                        // Also remove from denied set if present
-                        aiSettings.permanentlyDeniedTools -= tool.agentTool
+        return AgentSessionManager.withPendingUserDecision(workspaceId, toolDisplayName) {
+            awaitActivity(workspaceId, toolDisplayName)
+            val actionDescription = try {
+                tool.formatActionDescription(arguments)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to format action description for ${tool.agentTool.camelCaseName}", e)
+                null
+            }
+            AgentSessionManager.awaitDecisionDialog(workspaceId, toolDisplayName) {
+                when (platform.askToolPermission(toolDisplayName, tool.description, actionDescription)) {
+                    ToolPermissionAnswer.ALLOW -> DialogResult.Allowed
+                    ToolPermissionAnswer.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
+                    ToolPermissionAnswer.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
+                    ToolPermissionAnswer.ALLOW_ALWAYS -> {
+                        // Show confirmation dialog
+                        val confirmed = platform.askQuestion(
+                            message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
+                                "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
+                            title = strings.permissionAlwaysAllowConfirmTitle
+                        )
+                        if (confirmed) {
+                            aiSettings.permanentlyAllowedTools += tool.agentTool
+                            // Also remove from denied set if present
+                            aiSettings.permanentlyDeniedTools -= tool.agentTool
+                        }
+                        // Allow this operation regardless of confirmation
+                        DialogResult.Allowed
                     }
-                    // Allow this operation regardless of confirmation
-                    DialogResult.Allowed
+                    ToolPermissionAnswer.DENY -> DialogResult.Denied
                 }
-                ToolPermissionAnswer.DENY -> DialogResult.Denied
             }
         }
     }
@@ -952,12 +954,14 @@ class AgentExecutor(
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
-        awaitActivity(workspaceId)
-        return AgentSessionManager.awaitingUserDecision(workspaceId, null) {
-            platform.askQuestion(
-                message = strings.llmContinueIterationsMessage(currentIteration, increment),
-                title = strings.llmContinueIterationsTitle
-            )
+        return AgentSessionManager.withPendingUserDecision(workspaceId, null) {
+            awaitActivity(workspaceId)
+            AgentSessionManager.awaitDecisionDialog(workspaceId, null) {
+                platform.askQuestion(
+                    message = strings.llmContinueIterationsMessage(currentIteration, increment),
+                    title = strings.llmContinueIterationsTitle
+                )
+            }
         }
     }
 

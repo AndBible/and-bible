@@ -295,6 +295,21 @@ object AgentSessionManager : AgentSessionManagerBase() {
     fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
         emitChange(AgentSessionChange.PermissionWaiting(workspaceId, waiting, toolName))
 
+    /** Announces an unresolved decision across both foreground acquisition and dialog interaction. */
+    suspend fun <T> withPendingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
+        if (workspaceId == null) return block()
+        val decisionId = IdType()
+        emitChange(AgentSessionChange.UserDecisionPending(workspaceId, true, toolName, decisionId))
+        try {
+            return block()
+        } finally {
+            emitChange(AgentSessionChange.UserDecisionPending(workspaceId, false, decisionId = decisionId))
+        }
+    }
+
+    suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T =
+        withPendingUserDecision(workspaceId, toolName) { awaitDecisionDialog(workspaceId, toolName, block) }
+
     /**
      * Runs [block], a user dialog the agent is blocked on, and mirrors the app leaving and returning
      * into [AgentSessionChange.PermissionWaiting]. Why: `AgentExecutor.awaitActivity` only announces a
@@ -314,10 +329,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * State is a CAS tri-state (IDLE / ANNOUNCED / CLOSED), so no thread assumption is needed and a
      * handler running after close can never emit.
      */
-    suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
+    suspend fun <T> awaitDecisionDialog(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
-        val decisionId = IdType()
-        emitChange(AgentSessionChange.UserDecisionPending(workspaceId, true, toolName, decisionId))
         val state = atomic(DECISION_IDLE)
         fun close(emitFalse: Boolean) {
             if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
@@ -344,7 +357,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         } finally {
             subscription.cancel()
             close(emitFalse = !cancelled)
-            emitChange(AgentSessionChange.UserDecisionPending(workspaceId, false, decisionId = decisionId))
         }
     }
 

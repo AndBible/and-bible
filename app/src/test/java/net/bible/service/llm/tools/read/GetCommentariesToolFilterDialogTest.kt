@@ -281,7 +281,7 @@ class GetCommentariesToolFilterDialogTest {
             val deferred = async { GetCommentariesTool.filterByResponseSizeLimit(results, ctx) }
             yield()
             CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
-            assertEquals(listOf<AgentSessionChange>(AgentSessionChange.PermissionWaiting(ws, true, null)), seen.toList())
+            assertEquals(listOf(AgentSessionChange.PermissionWaiting(ws, true, null)), seen.filterIsInstance<AgentSessionChange.PermissionWaiting>())
             dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
             deferred.await()
             assertEquals(listOf(true, false), seen.filterIsInstance<AgentSessionChange.PermissionWaiting>().map { it.waiting })
