@@ -30,6 +30,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 
 /**
  * The bindings that stay in `:app`: everything that needs an Android context, an Android class or a non-domain view class.
@@ -85,6 +86,32 @@ fun buildPlatformBindings() = module {
         )
     }
     single<net.bible.sharedcore.platform.sync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
+    // #4025: the shared cloud-sync triggers, one per process so two reading hosts never run two passes. A pass starts the
+    // SyncService through CloudSync.start, so the sync notification is unchanged. The scope is the driver's own: closing
+    // Koin (tests) cancels its timer and passes.
+    single {
+        val ports = get<net.bible.service.cloudsync.SyncNowPorts>()
+        val koin = getKoin()
+        fun cloudSync() = koin.get<net.bible.service.cloudsync.CloudSync>()
+        net.bible.service.cloudsync.SyncTriggerDriver(
+            policy = net.bible.service.cloudsync.BackgroundSyncPolicy(
+                syncEnabled = { CommonUtils.isCloudSyncEnabled },
+                replacing = { net.bible.service.db.DatabaseContainer.replacing },
+                intervalSeconds = {
+                    CommonUtils.settings.getLong("cloud_sync_interval", net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS)
+                },
+                lastSynchronizedMs = { CommonUtils.settings.getLong("globalLastSynchronized", 0L) },
+                nowMs = System::currentTimeMillis,
+                signedIn = { cloudSync().signedIn },
+                signIn = { cloudSync().signIn() },
+                startSync = { cloudSync().start() },
+            ),
+            scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO),
+            // The workspace save is queued; cloud sync must not apply remote rows before it has landed.
+            prepare = ports.saveWorkspace,
+            networkAvailable = ports.networkAvailable,
+        )
+    } onClose { it?.close() }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }

@@ -67,7 +67,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -115,7 +114,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
     private fun closeFixture(afterClose: () -> Unit = {}) {
         toastSubscription?.cancel()
-        controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
+        controllers.forEach { runCatching { it.get().readingAppBootstrap.syncTriggers.stop() } }
         net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose = afterClose, restoreBeforeReset = {
             try {
                 SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
@@ -190,8 +189,8 @@ class ReadingHostSyncAndRestoreEventsTest {
         get() = CommonUtils.settings.getLong("globalLastSynchronized", 0L)
         set(value) = CommonUtils.settings.setLong("globalLastSynchronized", value)
 
-    private val syncJobField = ReadingAppBootstrap::class.java.getDeclaredField("syncJob").apply { isAccessible = true }
-    private fun syncJobOf(a: NavHostComposeActivity): Job? = syncJobField.get(a.readingAppBootstrap) as Job?
+    /** Whether the host's sync triggers (#4025) are in the foreground with their interval timer running. */
+    private fun syncTimerRunning(a: NavHostComposeActivity): Boolean = a.readingAppBootstrap.syncTriggers.timerRunning
 
     private val lastForceSyncAllField = WindowSync::class.java.getDeclaredField("lastForceSyncAll").apply { isAccessible = true }
 
@@ -303,15 +302,20 @@ class ReadingHostSyncAndRestoreEventsTest {
     // ——— CurrentActivityHolder.appPositionChanges ————————————————————————————————————————————————————————————————————
 
     @Test
+    fun theReadingBootstrapStartsTheSyncTriggers() {
+        val activity = readingHost().get()
+        assertTrue(syncTimerRunning(activity), "the host that owns the reading workspace opens: sync now, then every interval")
+    }
+
+    @Test
     fun goingToBackgroundStopsThePeriodicSync() {
         val activity = readingHost().get()
-        val seeded = Job()
-        syncJobField.set(activity.readingAppBootstrap, seeded)
+        assertTrue(syncTimerRunning(activity), "sanity: the bootstrap started the timer")
 
         CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
 
-        assertTrue(seeded.isCancelled, "going to background must cancel the periodic sync job")
-        assertNull(syncJobOf(activity), "…and forget it, so the return to foreground can start a new one")
+        assertFalse(syncTimerRunning(activity), "going to background must stop the interval timer")
+        assertFalse(activity.readingAppBootstrap.syncTriggers.isForeground)
     }
 
     @Test
@@ -323,19 +327,17 @@ class ReadingHostSyncAndRestoreEventsTest {
         val state = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.view.activity.page.SyncNetworkState>()
         val originalAvailable = state.available
         try {
-            // The periodic job is started even offline; avoid launching real sign-in in this lifecycle test.
+            // Offline: the passes skip themselves, so no real sign-in runs in this lifecycle test.
             shadow.setActiveNetworkInfo(null)
             val activity = readingHost().get()
             assertFalse(activity.readingAppBootstrap.networkAvailable)
             SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
-            assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
+            CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+            assertFalse(syncTimerRunning(activity), "sanity: no timer in the background")
 
             CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
 
-            // startSync runs on syncScope (Dispatchers.IO); bounded wait for its synchronous prefix.
-            val deadline = System.currentTimeMillis() + 5_000
-            while (syncJobOf(activity) == null && System.currentTimeMillis() < deadline) Thread.sleep(10)
-            assertNotNull(syncJobOf(activity), "returning to foreground must start the cloud-sync loop")
+            assertTrue(syncTimerRunning(activity), "returning to foreground must restart the cloud-sync triggers")
         } finally {
             shadow.setActiveNetworkInfo(original)
             state.available = originalAvailable
@@ -392,7 +394,7 @@ class ReadingHostSyncAndRestoreEventsTest {
             { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },
         ).joinToString("") { notifyCapturingErrors(it) }
-        Thread.sleep(200) // let anything syncScope was handed run
+        Thread.sleep(200) // let anything the sync triggers were handed run
         idleMain()
 
         assertFalse(
@@ -402,7 +404,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         assertEquals(0, toasts, "no workspace switch on a host without a reading bootstrap")
         assertEquals(0L, lastSynchronized, "no globalLastSynchronized write on a host without a reading bootstrap")
         assertEquals(0L, lastForceSyncAllField.getLong(windowSync), "no forced resync on a host without a reading bootstrap")
-        assertNull(syncJobOf(activity), "no cloud-sync loop on a host without a reading bootstrap")
+        assertFalse(syncTimerRunning(activity), "no cloud-sync timer on a host without a reading bootstrap")
     }
 
     /** Review Focus 1: onDestroy must cancel every host subscription. */
@@ -432,6 +434,6 @@ class ReadingHostSyncAndRestoreEventsTest {
         assertFalse(errors.contains("Exception"), "a destroyed host must not run its handlers:\n$errors")
         assertEquals(0, toasts)
         assertEquals(0L, lastSynchronized)
-        assertNull(syncJobOf(activity))
+        assertFalse(syncTimerRunning(activity), "a destroyed host's timer is stopped and its handlers do not restart it")
     }
 }

@@ -62,7 +62,7 @@ class IosSyncTriggers(
     },
 ) {
     private var observers: List<NSObjectProtocol> = emptyList()
-    private val monitor = nw_path_monitor_create()
+    private var monitor: platform.Network.nw_path_monitor_t = null
     private var started = false
 
     fun start() {
@@ -79,6 +79,7 @@ class IosSyncTriggers(
         )
         val edge = network
         val triggers = driver
+        val monitor = nw_path_monitor_create().also { monitor = it }
         nw_path_monitor_set_update_handler(monitor) { path ->
             if (path != null && edge.report(nw_path_get_status(path) == nw_path_status_satisfied)) triggers.onNetworkAvailable()
         }
@@ -97,7 +98,8 @@ class IosSyncTriggers(
         started = false
         observers.forEach { NSNotificationCenter.defaultCenter.removeObserver(it) }
         observers = emptyList()
-        nw_path_monitor_cancel(monitor)
+        monitor?.let { nw_path_monitor_cancel(it) }
+        monitor = null
         driver.stop()
     }
 

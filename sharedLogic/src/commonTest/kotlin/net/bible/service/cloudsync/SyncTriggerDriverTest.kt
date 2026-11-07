@@ -216,6 +216,56 @@ class SyncTriggerDriverTest {
         assertTrue(d.timerRunning)
     }
 
+    @Test fun openingOfflineDoesNotSwallowTheNetworkRestore() = runTest {
+        val f = Fixture(this)
+        f.online = false
+        val d = f.driver()
+        d.onForeground(); runCurrent()
+        assertEquals(0, f.syncs)
+        advanceTimeBy(1_000)
+        f.online = true
+        d.onNetworkAvailable(); runCurrent()
+        assertEquals(1, f.syncs, "the restore right after an offline open syncs at once")
+    }
+
+    @Test fun aZeroIntervalDoesNotSpin() = runTest {
+        val f = Fixture(this)
+        val d = SyncTriggerDriver(
+            policy = BackgroundSyncPolicy(
+                syncEnabled = { true }, replacing = { false }, intervalSeconds = { 0 }, lastSynchronizedMs = { 0 },
+                nowMs = { currentTime }, signedIn = { true }, signIn = { true }, startSync = { f.syncs++; CompletableDeferred(true) },
+            ),
+            scope = backgroundScope,
+        )
+        d.onForeground()
+        advanceTimeBy(10 * 60_000L)
+        assertTrue(f.syncs in 2..12, "at most one pass a minute, got ${f.syncs}")
+    }
+
+    @Test fun aSecondLeaveWithoutReturningAddsNoPass() = runTest {
+        val f = Fixture(this)
+        val d = f.driver()
+        d.onForeground(); runCurrent()
+        d.onBackground(); runCurrent()
+        d.onBackground(); runCurrent()
+        assertEquals(2, f.syncs, "open + one leave; the second host's leave notice joins")
+        d.onForeground(); runCurrent()
+        d.onBackground(); runCurrent()
+        assertEquals(4, f.syncs)
+    }
+
+    @Test fun anExpiredQueuedLeaveDoesNotHideTheRunningPass() = runTest {
+        val f = Fixture(this); f.passMs = 10_000
+        val d = f.driver(withAllowance = true)
+        val open = d.onForeground()!!
+        runCurrent()
+        val leave = d.onBackground()
+        f.expire!!() // iOS takes the time back before the queued pass started
+        runCurrent()
+        assertTrue(leave.isCancelled)
+        assertSame(open, d.latestPass?.job, "the exit path must still see the running pass")
+    }
+
     @Test fun stopEndsTheTimerWithoutAPass() = runTest {
         val f = Fixture(this)
         val d = f.driver()

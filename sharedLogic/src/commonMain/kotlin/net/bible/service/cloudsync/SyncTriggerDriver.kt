@@ -23,6 +23,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.log.Log
@@ -97,10 +98,15 @@ class SyncTriggerDriver(
     private var queued: Pass? = null
     private var timer: Job? = null
     private var foreground = false
+    /** Set by [onBackground], cleared by [onForeground]: a second leave notice (two Android hosts) adds no pass. */
+    private var left = false
 
-    /** Policy time when the latest pass started or ended; the timer counts the interval from it. */
+    /** Policy time when the latest syncing pass started or ended; the timer counts the interval from it. */
     private val lastPassMarkMs = atomic(0L)
-    /** Policy time when the latest pass started; [NEVER] before the first. The network-restore gap counts from it. */
+    /**
+     * Policy time when the latest syncing pass started; [NEVER] before the first. The network-restore gap counts from it.
+     * A pass that skipped itself (offline, sync off) sets neither mark, so the restore that follows is not swallowed.
+     */
     private val lastPassStartMs = atomic(NEVER)
 
     /** Test seam: runs after a pass is published and before its job starts. */
@@ -113,7 +119,7 @@ class SyncTriggerDriver(
     val timerRunning: Boolean get() = synchronized(lock) { timer?.isActive == true }
 
     /** The latest pass (queued, running or finished), for a caller that must wait for it (the desktop exit). */
-    val latestPass: Pass? get() = synchronized(lock) { queued ?: running }
+    val latestPass: Pass? get() = synchronized(lock) { queued?.takeUnless { it.job.isCompleted } ?: running }
 
     /**
      * The app opened or returned to the foreground: a pass at once, and the interval timer. A repeated call without an
@@ -125,6 +131,7 @@ class SyncTriggerDriver(
         synchronized(lock) {
             if (foreground) return null
             foreground = true
+            left = false
             timer?.cancel()
             timer = scope.launch { timerLoop() }
         }
@@ -133,12 +140,15 @@ class SyncTriggerDriver(
 
     /**
      * The app is being left: the timer stops and a pass runs inside the [backgroundAllowance], started synchronously
-     * here. The allowance's expiry cancels the pass.
+     * here. The allowance's expiry cancels the pass. A repeated call without an [onForeground] in between only returns the
+     * latest pass (Android reports the leave once per reading host).
      *
      * @return the pass's job; its completion ends the allowance
      */
     fun onBackground(): Job {
+        val again = synchronized(lock) { left.also { left = true } }
         stopTimer()
+        if (again) return latestPass?.job ?: Job().apply { complete() }
         val pass = trigger(SyncTrigger.Background)
         val allowance = backgroundAllowance ?: return pass.job
         val ended = atomic(false)
@@ -179,6 +189,12 @@ class SyncTriggerDriver(
     /** Stops the timer without a pass (the host is destroyed, or the desktop exit owns its own close pass). */
     fun stop() = stopTimer()
 
+    /** Stops the timer and cancels [scope], with any pass in it: for a driver that owns its scope (a Koin single's close). */
+    fun close() {
+        stopTimer()
+        scope.cancel()
+    }
+
     private fun stopTimer() {
         synchronized(lock) {
             foreground = false
@@ -196,6 +212,9 @@ class SyncTriggerDriver(
                 continue
             }
             trigger(SyncTrigger.Timer).job.join()
+            // A pass that skipped itself (offline, sync off) moves no mark: retry after a minute, never in a tight loop
+            // (also with a zero interval).
+            delay(MIN_TIMER_RETRY_MS)
         }
     }
 
@@ -226,11 +245,11 @@ class SyncTriggerDriver(
         try {
             passWrapper(pass) {
                 pass.markRan()
+                if (!policy.canRun() || !networkAvailable()) return@passWrapper
                 val start = policy.now()
                 lastPassStartMs.value = start
                 lastPassMarkMs.value = start
                 try {
-                    if (!policy.canRun() || !networkAvailable()) return@passWrapper
                     prepare()
                     if (!policy.runOnce(force = true)) Log.i(TAG, "${pass.trigger} sync did not complete (sign-in or sync failed)")
                 } finally {
@@ -247,6 +266,7 @@ class SyncTriggerDriver(
     companion object {
         const val DEFAULT_NETWORK_RESTORE_GAP_MS = 30_000L
         private const val MIN_TIMER_WAIT_MS = 1_000L
+        private const val MIN_TIMER_RETRY_MS = 60_000L
         private const val NEVER = Long.MIN_VALUE
         private const val TAG = "SyncTriggerDriver"
     }
