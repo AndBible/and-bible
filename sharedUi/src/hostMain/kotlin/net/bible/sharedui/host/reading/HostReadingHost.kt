@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
@@ -647,8 +646,16 @@ class HostReadingHost(
      * recreating its activity.
      */
     private val languageWatch = koin.getOrNull<net.bible.sharedui.assembly.HostStringTableHolder>()?.let { holder ->
+        // Compared with the language at construction, not drop(1): a switch before this Main-dispatched collector
+        // starts must still count, and the StateFlow replays only its latest value.
+        var shown = holder.language.value
         scope.launch {
-            holder.language.drop(1).collect { onLanguageChanged() }
+            holder.language.collect { language ->
+                if (language != shown) {
+                    shown = language
+                    onLanguageChanged()
+                }
+            }
         }
     }
 

@@ -263,10 +263,14 @@ object HostReadingWindows {
 
     /**
      * The app language changed (#4028): the BibleView pages took their UI language from their URL when they loaded,
-     * so every assembled window is [rebuild]t; the new pages load in the new language at the current position. Main
+     * so every assembled window is [rebuild]t and parked spares are dropped; the new pages load in the new language at
+     * the current position. Main
      * thread.
      */
     fun languageChanged() {
+        // Pages parked by a workspace switch hold the old language too: drop them, so no window adopts one.
+        for ((id, a) in spares.toMap()) disposeAssembly(id, a)
+        spares.clear()
         for (id in assemblies.keys.toList()) rebuild(id)
     }
 

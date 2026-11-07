@@ -605,7 +605,6 @@ class WorkspaceSwitchContentTest {
         }
     }
 
-    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
     /**
      * #4028: an app language change (Application preferences writes `locale_pref` and the shell switches the string
      * table) reaches the live reading view without a restart: the drawer rows, the toolbar's Bible book name (JSword)
@@ -659,7 +658,10 @@ class WorkspaceSwitchContentTest {
 
                     koin.get<net.bible.sharedcore.platform.desktop.DesktopDeviceSettings>().setString("locale_pref", "fi")
                     holder.switchTo("fi")
-                    settleMain()
+                    // The host's language collector and the page rebuild run on Main after this coroutine yields.
+                    kotlinx.coroutines.withTimeout(10_000) {
+                        while (!englishPane.disposed || !deps.toolbar.value.pageTitle.startsWith("Johannes")) kotlinx.coroutines.delay(20)
+                    }
 
                     val labels = host.drawerMenuState.value.groups.flatMap { it.items }.map { it.label }
                     assertTrue("Valitse teos" in labels, "the drawer must follow the new language: $labels")
@@ -677,6 +679,7 @@ class WorkspaceSwitchContentTest {
         }
     }
 
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
     @Test fun hostDrawerRowsRemainReachableAtAx5() = drawerChromeJourney("en")
 
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
