@@ -349,9 +349,20 @@ class DesktopSyncDriverTest {
         val f = fixture { CompletableDeferred(true) }
         driver(f, external = { external.takeIf { it.isActive } }); f.ready.complete(Unit)
         runCurrent()
-        backgroundScope.launch { delay(3_000); external.complete(true) }
+        var visible = false
         val before = currentTime
-        runClose(f.driver)
+        val close = backgroundScope.launch {
+            f.driver.closeSync(object : net.bible.sharedcore.platform.desktop.ExitTaskScope {
+                override fun beginVisibleWork() { visible = true }
+            })
+        }
+        runCurrent()
+        assertTrue(visible, "an active external pass is visible before it completes")
+        assertTrue(close.isActive)
+        advanceTimeBy(3_000)
+        external.complete(true)
+        runCurrent()
+        assertTrue(close.isCompleted)
         assertEquals(3_000L, currentTime - before, "waited for the external pass")
         assertEquals(1, f.closePasses, "then the close pass ran")
     }
