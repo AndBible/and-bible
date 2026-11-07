@@ -317,6 +317,7 @@ fun ReadingToolbar(
     modifier: Modifier = Modifier,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
     activity: ActivityMenuState? = null,
+    syncRunning: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
 ) {
     val mono = isPureMonochrome()
     val density = LocalDensity.current
@@ -608,7 +609,7 @@ fun ReadingToolbar(
                             icon = icons.overflow,
                             contentDescription = strings.readingToolbarOptions,
                             activity = activity,
-                            onClick = callbacks.onOverflow,
+                            onClick = { activity?.onMenuOpened?.invoke(); callbacks.onOverflow() },
                         )
                         if (activity != null) {
                             MarkReadWhileOpen(activity, overflowExpanded)
@@ -619,6 +620,7 @@ fun ReadingToolbar(
                             onItemClick = onOverflowItemClick,
                             onDismiss = onOverflowDismiss,
                             icon = overflowIcon,
+                            syncRunning = syncRunning,
                             // "Show all" closes the menu first so the list never opens over a still-open dropdown.
                             header = remember(activity, onOverflowDismiss) {
                                 activity?.let { a ->

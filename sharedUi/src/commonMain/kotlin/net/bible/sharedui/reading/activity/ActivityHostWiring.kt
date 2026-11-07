@@ -35,6 +35,7 @@ class ActivityHostWiring(
     val preference: ActivityMenuPreference,
     val listRequests: Flow<Unit>? = null,
     val syncNow: SyncNow? = null,
+    val syncReady: () -> Boolean = { net.bible.service.startup.ReadingAppInit.initialized },
     val onOpenItem: (ActivityItem) -> Unit,
 )
 
@@ -73,13 +74,17 @@ internal fun ActivityHostImpl(
     var listVisible by remember { mutableStateOf(false) }
     val onShowAll = remember { { listVisible = true } }
     val sync = wiring.syncNow
-    val available = remember(sync) { mutableStateOf(sync?.available() == true) }
+    val available = remember(sync, wiring) {
+        object : State<Boolean> {
+            override val value: Boolean get() = wiring.syncReady() && sync?.available() == true
+        }
+    }
     val running = sync?.running?.collectAsState()
     val syncState = remember(sync, available, running) {
         if (sync != null && running != null) SyncNowMenuState(available, running, sync::start) else null
     }
-    val onMenuOpened = remember(wiring.center, sync, available) {
-        { available.value = sync?.available() == true; wiring.center.markAllRead() }
+    val onMenuOpened = remember(wiring, sync, available) {
+        { wiring.center.markAllRead() }
     }
 
     // Turning the preference off must not leave the list orphaned on screen.

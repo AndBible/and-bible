@@ -30,10 +30,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.coroutines.flow.StateFlow
-import net.bible.service.cloudsync.SyncNow
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedui.reading.toolbar.SYNC_NOW_MENU_ID
-import org.koin.mp.KoinPlatform
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.UncappedFontScale
@@ -65,6 +63,7 @@ fun ReadingOverflowMenu(
     modifier: Modifier = Modifier,
     icon: @Composable (iconKey: String) -> Painter? = { null },
     header: (@Composable () -> Unit)? = null,
+    syncRunning: StateFlow<Boolean>? = null,
 ) {
     // Closing the menu (Esc) leaves the focus nowhere: the platform returns the keys to the pane that had them.
     TrackOverlay(active = expanded)
@@ -78,9 +77,6 @@ fun ReadingOverflowMenu(
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
             header?.invoke()
-            val syncRunning = if (expanded && items.any { it.id == SYNC_NOW_MENU_ID }) {
-                KoinPlatform.getKoin().get<SyncNow>().running
-            } else null
             ReadingOverflowMenuRows(items, onItemClick, icon, syncRunning)
         }
     }
@@ -140,7 +136,7 @@ private fun OverflowMenuRow(
     onItemClick: (String) -> Unit,
     syncRunning: StateFlow<Boolean>?,
 ) {
-    val enabled = if (item.id == SYNC_NOW_MENU_ID && syncRunning != null) !syncRunning.collectAsState().value else item.enabled
+    val enabled = item.enabled && (item.id != SYNC_NOW_MENU_ID || syncRunning == null || !syncRunning.collectAsState().value)
     AbMenuItem(
         text = if (item.opensDialog) "${item.label} …" else item.label,
         onClick = { onItemClick(item.id) },

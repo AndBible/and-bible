@@ -65,6 +65,20 @@ class CloudSyncStartTest {
     }
 
     @Test
+    fun manualAndAutomaticStartsPropagateOriginToServiceIntent() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val scheduler = org.koin.core.context.GlobalContext.get().get<net.bible.android.platform.AndroidSyncScheduler>()
+        val cloud = org.koin.core.context.GlobalContext.get().get<CloudSync>()
+        try {
+            cloud.start(userInitiated = true)
+            assertTrue(org.robolectric.Shadows.shadowOf(context).nextStartedService.getBooleanExtra(SyncService.USER_INITIATED, false))
+            scheduler.complete(true)
+            cloud.start()
+            assertFalse(org.robolectric.Shadows.shadowOf(context).nextStartedService.getBooleanExtra(SyncService.USER_INITIATED, false))
+        } finally { scheduler.complete(false) }
+    }
+
+    @Test
     fun refusedScheduleReturnsFalseAndDoesNotLeaveWaiterOrBlockRetry() = runBlocking {
         val calls = AtomicInteger()
         val cloudSync = sync(SyncScheduler { calls.incrementAndGet(); CompletableDeferred(false) })

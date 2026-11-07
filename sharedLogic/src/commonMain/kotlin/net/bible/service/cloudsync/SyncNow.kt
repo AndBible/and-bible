@@ -25,8 +25,8 @@ interface CloudSyncPort {
     companion object {
         fun of(cloudSync: CloudSync, onSignInFailure: (String) -> Unit = {}): CloudSyncPort = object : CloudSyncPort {
             override val signedIn get() = cloudSync.signedIn
-            override suspend fun signIn() = cloudSync.signIn(onForegroundFailure = onSignInFailure)
-            override fun start() = cloudSync.start()
+            override suspend fun signIn() = cloudSync.signIn(onForegroundFailure = onSignInFailure, waitForExisting = true)
+            override fun start() = cloudSync.start(userInitiated = true)
             override suspend fun waitUntilFinished() = cloudSync.waitUntilFinished()
             override val runningChanged get() = cloudSync.runningChanged
         }
