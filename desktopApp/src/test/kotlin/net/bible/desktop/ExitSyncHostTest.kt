@@ -165,6 +165,67 @@ class ExitSyncHostTest {
         assertEquals(1, paneEntries)
     }
 
+    @Test fun repeatedCloseBeforeStartupReplaysSkipWhenIdleTasksBeginSyncing() = runComposeUiTest {
+        val tasks = DesktopExitTasks()
+        val releaseStartup = java.util.concurrent.CountDownLatch(1)
+        val scope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
+        val state = DesktopStartupState("en", start = {
+            check(releaseStartup.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            org.koin.core.context.startKoin { modules(org.koin.dsl.module { single { tasks } }) }
+            net.bible.sharedui.assembly.StartupPhase.Ready
+        }, platform = { error("closed content must not build the platform") })
+        val allowPersistence = CompletableDeferred<Unit>()
+        val persisted = CompletableDeferred<Unit>()
+        val syncStarted = CompletableDeferred<Unit>()
+        val starts = java.util.concurrent.atomic.AtomicInteger()
+        var result: Boolean? = null
+        tasks.register("late sync") { beginVisibleWork(); syncStarted.complete(Unit); CompletableDeferred<Unit>().await() }
+        val persistence = net.bible.sharedui.desktop.assembly.DesktopExitPersistence(registerHook = {}, persist = {
+            starts.incrementAndGet()
+            result = runBlocking { tasks.runAll(10_000) }
+            persisted.complete(Unit)
+        })
+        val closes = DesktopCloseRequests(tasks = {
+            if (state.phase.value is net.bible.sharedui.assembly.StartupPhase.Starting) null else tasks
+        })
+        state.launch(scope)
+        mainClock.autoAdvance = false
+        try {
+            setContent {
+                val lateTasks = exitTasksAfterStartup(state)
+                if (closes.closing) LaunchedEffect(Unit) {
+                    allowPersistence.await()
+                    kotlinx.coroutines.withContext(Dispatchers.IO) { persistence.persistOnce() }
+                }
+                ExitSyncWindow(closes.closing, "en", closes.skipRequested, closes::requestClose, tasks = lateTasks) {}
+            }
+            mainClock.advanceTimeByFrame()
+            runOnUiThread { closes.requestClose(); closes.requestClose() }
+            mainClock.advanceTimeByFrame()
+            releaseStartup.countDown()
+            runBlocking { assertTrue(state.awaitStartupSettled(5_000)) }
+            // Make the graph visible while its runner is still idle. An idle skip alone is a no-op.
+            mainClock.advanceTimeBy(100)
+            onNodeWithText("Closing…").assertIsDisplayed()
+            allowPersistence.complete(Unit)
+            mainClock.advanceTimeByFrame()
+            runBlocking { kotlinx.coroutines.withTimeout(5_000) { syncStarted.await() } }
+            mainClock.advanceTimeBy(100)
+            waitUntil(timeoutMillis = 2_000) { persisted.isCompleted }
+            assertEquals(false, result, "The eventual real exit runner must receive the pending skip")
+            runOnUiThread { closes.requestClose() }
+            mainClock.advanceTimeByFrame()
+            assertEquals(1, starts.get())
+            onNodeWithText("Closing…").assertIsDisplayed()
+        } finally {
+            releaseStartup.countDown()
+            allowPersistence.complete(Unit)
+            tasks.skipRemaining()
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            org.koin.core.context.stopKoin()
+        }
+    }
+
     @Test fun closeBeforeGraphReadyObservesLateSyncTasks() = runComposeUiTest {
         val tasks = DesktopExitTasks()
         val releaseStartup = java.util.concurrent.CountDownLatch(1)

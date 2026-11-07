@@ -108,6 +108,11 @@ internal fun ExitSyncHost(tasks: DesktopExitTasks?, showAfterMs: Long = 400, ski
     var visible by remember(tasks) { mutableStateOf(false) }
     var quitRequested by remember(tasks) { mutableStateOf(false) }
     val quitting = quitRequested || skipRequested
+    // An early second WM close can precede both graph arrival and runAll. Idle skipRemaining is a no-op;
+    // retain intent and replay on the real syncing signal, without polling or touching persistence/DB threads.
+    LaunchedEffect(tasks, quitting) {
+        if (quitting) tasks.syncing.collect { active -> if (active) tasks.skipRemaining() }
+    }
     LaunchedEffect(tasks, syncing) {
         if (syncing) {
             delay(showAfterMs)
