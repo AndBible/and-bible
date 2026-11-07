@@ -6,6 +6,8 @@
 
 where `OSISREF` is a standard OSIS reference to a Bible verse, such as `Gen.1.1`.
 
+`read.andbible.org` links open in the app on Android only; on other platforms they open in the browser (see [Platform differences](platform_differences.md)).
+
 Opening a link from another app navigates the active window to that passage without
 creating another window. This works both when *AndBible* is closed and when it is
 already running. Without a `document` parameter, the active window's remembered

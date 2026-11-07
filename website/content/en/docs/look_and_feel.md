@@ -67,7 +67,7 @@ select it.
     sizes use the selected language's decimal separator and digits (for example,
     `1,5 MB` in Finnish). The file-installation instructions and supported-format
     list also follow language changes without restarting the app.
-- **Keep screen on:** Prevent the screen from sleeping while using the app.
+- **Keep screen on:** Prevent the screen from sleeping while using the app. Not available on Windows and Linux; see [Platform differences](platform_differences.md).
     Changes take effect when you return from settings to the reader; no app
     restart is needed.
 - **Night mode:** Control when the dark theme is used:

@@ -237,6 +237,8 @@ scrolling`.
 
 ### Volume Keys Scrolling
 
+Volume-key scrolling works on Android only; see [Platform differences](platform_differences.md).
+
 By default, the device volume buttons scroll the Bible text up and down instead
 of adjusting the system volume. This is useful for hands-free reading.
 

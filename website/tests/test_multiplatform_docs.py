@@ -67,3 +67,17 @@ def test_desktop_beta_page_is_gone_and_url_redirects(built_docs):
     from sitegen import redirects
     mapping = redirects.load(paths.DATA / "redirects.yaml")
     assert mapping["/docs/desktop-beta/"] == "/docs/desktop/"
+
+
+@pytest.mark.parametrize("stem", ["cloud_sync", "speak", "backup_restore", "bible_links", "share",
+                                  "look_and_feel", "navigation", "discrete_build", "documents",
+                                  "my_documents"])
+def test_platform_notes_link_the_differences_page(built_docs, stem):
+    html = _page(built_docs, stem)
+    assert 'href="../platform_differences/' in html, stem
+
+
+def test_cloud_sync_names_every_backend(built_docs):
+    html = _page(built_docs, "cloud_sync")
+    for word in ("iCloud Drive", "Google Drive", "Nextcloud", "WebDAV"):
+        assert word in html, word

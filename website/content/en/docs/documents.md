@@ -5,6 +5,7 @@
 *AndBible* supports various document modules: [Bibles](#bibles), [Commentaries](#commentaries), [Dictionaries](#dictionaries),
 [Books](#books), and [Maps](#maps). You can [Download Documents](#download-documents), [Backup and Restore](backup_restore.md)
 documents, and [Load Documents](#load-documents) from your device’s filesystem.
+Which files you can open in AndBible depends on the platform; see [Platform differences](platform_differences.md).
 
 ## Document Library
 

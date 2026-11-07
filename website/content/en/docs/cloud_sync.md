@@ -1,7 +1,8 @@
 # Cloud Sync
 
 *AndBible* can synchronize your bookmarks, notes, labels, study pads, and workspaces
-across multiple devices using Google Drive, Nextcloud or your own WebDAV server.
+across multiple devices using Google Drive, iCloud Drive, Nextcloud or your own WebDAV server.
+Which backends are offered depends on the platform; see [Platform differences](platform_differences.md).
 
 Sync is automatic — once set up, changes are synchronized in the background
 while the app is open, as well as when opening or exiting the app.
@@ -21,8 +22,8 @@ Errors raised during startup remain queued until the app can display them.
 
 ## Requirements
 
-- Android 5.1 or newer
-- A Google account (for Google Drive sync), a Nextcloud server, or a WebDAV server
+- Android 5.1 or newer, iOS or iPadOS 16 or newer, Windows or Linux
+- A Google account (for Google Drive sync on Android), an iCloud account (for iCloud Drive sync on iPhone, iPad and Mac), a Nextcloud server, or a WebDAV server
 - Internet connection
 
 !!! note
@@ -34,7 +35,7 @@ Errors raised during startup remain queued until the app can display them.
 
 1. Open the top left main menu (☰).
 2. Tap `Sync settings`.
-3. Choose your sync adapter: **Google Drive** (default), **Nextcloud** or **WebDAV**.
+3. Choose your sync adapter: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. Windows and Linux offer Nextcloud and WebDAV.
 4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
 
 When enabling sync for the first time:
@@ -210,7 +211,7 @@ All release versions of *AndBible* use the same synced data: the Android app
 from the Play Store, F-Droid, GitHub, and the other stores, the discrete
 (calculator) version, the Accrescent version, and the iOS app. The shared
 folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
-Google Drive is currently available only on Android.
+Google Drive is available only on Android, and iCloud Drive only on iPhone, iPad and Mac. Windows and Linux use Nextcloud or WebDAV; see [Platform differences](platform_differences.md).
 
 If you already use sync on the **standard Android** version, nothing changes
 when you update: sync keeps working as before.

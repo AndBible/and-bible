@@ -5,6 +5,8 @@ applications are not tolerated. It appears as a calculator application.
 
 ## Usage
 
+Discrete mode is a separate app on Android and a setting on iPhone, iPad and Mac. It is not available on Windows and Linux; see [Platform differences](platform_differences.md).
+
 With the discrete version, the user first sees a calculator application where
 it is possible to do basic calculations. To enter *AndBible*, type the secret PIN
 code and press `=`.
