@@ -156,6 +156,11 @@ When the setting is on:
 - On desktop and iOS, a background sync error appears as a short message
     ("... see menu") and a row in the list instead of an error dialog.
 
+Reportable failed rows also have a *Report* action, which opens the existing
+bug-report flow with the failure attached; reporting does not dismiss the row.
+Expected sync errors, such as authentication or quota errors, do not offer
+*Report*.
+
 Successful items stay in the list for one minute, and a successful sync is not
 listed. Failures stay until you dismiss them or restart the app. Very short
 jobs (under a second) are not shown.
