@@ -296,6 +296,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val exportDestinationTitle: String get() = context.getString(R.string.export_destination_title)
     override val exportDestinationMessage: String get() = context.getString(R.string.export_destination_message)
     override val backupPhoneStorage: String get() = context.getString(R.string.backup_phone_storage)
+    override val backupSaveToFiles: String get() = context.getString(R.string.backup_save_to_files)
     override val reorder: String get() = context.getString(R.string.reorder)
     override val clearAutoAssignLabels: String get() = context.getString(R.string.clear_auto_assign_labels)
     override fun deleteLabelConfirmation(name: String): String = context.getString(R.string.delete_label_confirmation, name)

@@ -37,6 +37,7 @@ On Windows and Linux, quitting shows a short "synchronizing" window while your c
 | Choose a file inside AndBible (install from zip, restore a backup, import) | The system file picker | The system file picker (Files) | The system file picker |
 | Open a file from outside AndBible | Zip, EPUB and font (`.ttf`) files from the share sheet or a file manager | The same, with **Open in** | **Open with** AndBible in the file manager; also CSV, images and several Bible database formats |
 | `read.andbible.org` links open in the app | Yes | No, they open in the browser | No, they open in the browser |
+| Exporting a file (backup, export) | Asks **Share** or **Phone storage** | Asks **Share** or **Save to Files** | Opens the save dialog directly |
 | Sharing text | Share sheet | Share sheet | A choice between **Copy** and **Save** |
 | Discrete (calculator) mode | A separate discrete app | A setting, with an alternate calculator icon | Not available |
 | Import from the previous iOS app | Not applicable | Yes, when old data is found | Not applicable |

@@ -49,8 +49,12 @@ Opening and sharing files differs between platforms; see [Files and sharing](pla
 3. Tap *Backup To…*.
 4. Choose where you would like to send the backup:
 
-    - *Phone Storage* (you will be prompted to choose a folder on your device)
+    - *Phone Storage* (Android; you will be prompted to choose a folder on your device)
+    - *Save to Files* (iPhone, iPad and Mac; you will be prompted to choose a place in the Files app)
     - *Share* (you will be able to choose from a list of installed applications)
+
+    On Windows and Linux there is no such question: a save dialog opens straight away,
+    and you choose the folder and file name there.
 
 Document backups store each file path only once, even when selected modules share
 files. If two installed versions provide the same path, the first selected version's

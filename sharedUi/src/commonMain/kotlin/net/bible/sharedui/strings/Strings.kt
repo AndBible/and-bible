@@ -299,6 +299,7 @@ interface Strings {
     val exportDestinationTitle: String        // R.string.export_destination_title
     val exportDestinationMessage: String      // R.string.export_destination_message
     val backupPhoneStorage: String            // R.string.backup_phone_storage
+    val backupSaveToFiles: String             // R.string.backup_save_to_files
     val reorder: String                       // R.string.reorder
     val clearAutoAssignLabels: String         // R.string.clear_auto_assign_labels
     fun deleteLabelConfirmation(name: String): String         // R.string.delete_label_confirmation

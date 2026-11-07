@@ -8,6 +8,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import net.bible.sharedcore.platform.files.DeliveryDestinations
 import net.bible.sharedcore.platform.files.DeliveryResult
 import net.bible.sharedcore.platform.files.FileDelivery
 import net.bible.sharedcore.platform.files.SaveOrShare
@@ -18,6 +19,9 @@ class DesktopFileDelivery(
     private val openInput: (Path) -> java.io.InputStream = { Files.newInputStream(it) },
     private val isPortalPath: (Path) -> Boolean = { Regex("^/run/user/[^/]+/doc/").containsMatchIn(it.toString()) },
 ) : FileDelivery {
+    /** No share sheet on Windows or Linux: the save dialog is the only destination (#4027). */
+    override val destinations: DeliveryDestinations = DeliveryDestinations.SAVE_ONLY
+
     /** The file the last successful [deliver] wrote, for dialogs that tell the user where the save went. */
     @Volatile var lastSavedPath: String? = null
         private set

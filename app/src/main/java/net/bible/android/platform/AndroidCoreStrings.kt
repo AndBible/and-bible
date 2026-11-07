@@ -125,6 +125,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     })
     override val share: String get() = context.getString(R.string.share)
     override val backupPhoneStorage: String get() = context.getString(R.string.backup_phone_storage)
+    override val backupSaveToFiles: String get() = context.getString(R.string.backup_save_to_files)
     override val sendBackupFile: String get() = context.getString(R.string.send_backup_file)
     override val backupBackupTitle: String get() = context.getString(R.string.backup_backup_title)
     override val backupBackupMessage: String get() = context.getString(R.string.backup_backup_message)

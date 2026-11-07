@@ -29,6 +29,7 @@ import okio.buffer
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import net.bible.sharedcore.platform.files.PickedSource
+import net.bible.sharedcore.platform.files.DeliveryDestinations
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedcore.platform.files.DeliveryResult
 import net.bible.sharedcore.platform.files.BackupFileType
@@ -194,14 +195,24 @@ class BackupControl(
      * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
      * flow (`activity.awaitIntent` etc.).
      */
-    @VisibleForTesting suspend fun classicDestinationPrompt(promptTitle: String, promptMessage: String): SaveOrShare? {
+    @VisibleForTesting suspend fun classicDestinationPrompt(
+        promptTitle: String,
+        promptMessage: String,
+        destinations: DeliveryDestinations = DeliveryDestinations.SHARE_AND_PHONE_STORAGE,
+    ): SaveOrShare? {
+        // Nothing to choose between (#4027): go straight to the save dialog.
+        if (destinations == DeliveryDestinations.SAVE_ONLY) return SaveOrShare.SAVE
+        val saveLabel = when (destinations) {
+            DeliveryDestinations.SHARE_AND_FILES -> strings.backupSaveToFiles
+            else -> strings.backupPhoneStorage
+        }
         val result = dialogs.await(
             AppDialogRequest.Options(
                 title = promptTitle,
                 message = promptMessage,
                 options = listOf(
                     SettingsItem.Choice(SHARE_VALUE, strings.share),
-                    SettingsItem.Choice(SAVE_VALUE, strings.backupPhoneStorage),
+                    SettingsItem.Choice(SAVE_VALUE, saveLabel),
                 ),
                 dismissText = null,
                 asActionSheet = true,
@@ -213,6 +224,18 @@ class BackupControl(
             else -> null // Cancel, back, or scrim.
         }
     }
+
+    /**
+     * [resolveDestination] behind the platform's [DeliveryDestinations]: with nothing to choose
+     * ([DeliveryDestinations.SAVE_ONLY]) neither the host's chooser nor the prompt runs (#4027).
+     */
+    @VisibleForTesting suspend fun resolveDestinationFor(
+        destinations: DeliveryDestinations,
+        chooseDestination: (suspend () -> SaveOrShare?)?,
+        platformPrompt: suspend () -> SaveOrShare?,
+    ): SaveOrShare? =
+        if (destinations == DeliveryDestinations.SAVE_ONLY) SaveOrShare.SAVE
+        else resolveDestination(chooseDestination, platformPrompt)
 
     internal suspend fun saveDbBackupFileViaIntent(host: BackupHost, file: Path) =
         saveOrShare(
@@ -244,8 +267,8 @@ class BackupControl(
         // owner-less AppDialogController fallback below.
         chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
-        val saveOrShare = resolveDestination(chooseDestination) {
-            classicDestinationPrompt(promptTitle, promptMessage)
+        val saveOrShare = resolveDestinationFor(host.destinations, chooseDestination) {
+            classicDestinationPrompt(promptTitle, promptMessage, host.destinations)
         } ?: return false
 
         // What File.absolutePath gave: a relative path is resolved against the working directory.

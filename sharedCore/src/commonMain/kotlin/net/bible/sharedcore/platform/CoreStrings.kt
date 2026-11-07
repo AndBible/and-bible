@@ -96,6 +96,7 @@ interface CoreStrings {
     fun databaseTitle(dbFileName: String): String
     val share: String
     val backupPhoneStorage: String
+    val backupSaveToFiles: String
     val sendBackupFile: String
     val backupBackupTitle: String
     val backupBackupMessage: String
