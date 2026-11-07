@@ -25,15 +25,17 @@ final class NotificationsUITests: RealAppUITestCase {
     override func tearDown() {
         XCUIApplication().terminate()
         // Restore the app preference and asked flag for subsequent suites, without requesting permission.
-        let cleanup = launch(["-standardTestFixture", "-notificationReset"] + english)
+        let cleanup = launch(["-standardTestFixture", "-notificationReset", "-notificationDebugControls"] + english)
+        XCTAssertTrue(element(cleanup, "notification-debug-automatic").waitForExistence(timeout: 60),
+                      "Reading must be ready after database initialization and notification reset")
         cleanup.terminate()
         super.tearDown()
     }
 
-    private func install(_ extra: [String] = []) -> XCUIApplication {
+    private func install(_ extra: [String] = [], delayMs: String = "1500") -> XCUIApplication {
         let app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV",
                           "-openRef", "John.3.16", "-incomingRuntimeTest", "-incomingFixture", "sword",
-                          "-incomingRemoveFixtures", "-installCommitDelayMs", "1500", "-notificationReset"] + extra + english)
+                          "-incomingRemoveFixtures", "-installCommitDelayMs", delayMs, "-notificationReset"] + extra + english)
         XCTAssertTrue(app.staticTexts["Do you want to install module (f-rawtext.zip)?"].firstMatch.waitForExistence(timeout: 60))
         return app
     }
@@ -83,6 +85,21 @@ final class NotificationsUITests: RealAppUITestCase {
         shot(systemSettings, "notification-system-settings")
     }
 
+    /// Requires a fresh install, so the real authorization prompt is observable before the long job.
+    func testLongInstallCompletionNotifiesInBackground() {
+        let app = install(delayMs: "3000")
+        app.buttons["OK"].firstMatch.tap()
+        XCTAssertTrue(permission.waitForExistence(timeout: 30), "Fresh installation requests permission")
+        permission.buttons["Allow"].tap()
+        let progress = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS '[commit '")).firstMatch
+        XCTAssertTrue(progress.waitForExistence(timeout: 60), "The real SWORD install reached commit")
+        shot(app, "long-install-in-progress")
+        XCUIDevice.shared.press(.home)
+        let finished = springboard.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'Finished'")).firstMatch
+        XCTAssertTrue(finished.waitForExistence(timeout: 60), "The long background installation posts a completion notification")
+        shot(springboard, "long-install-finished-notification")
+    }
+
     private func failureApp() -> XCUIApplication {
         launch(["-standardTestFixture", "-notificationReset", "-notificationDebugControls"] + english)
     }
@@ -121,7 +138,14 @@ final class NotificationsUITests: RealAppUITestCase {
         XCTAssertTrue(notification.waitForExistence(timeout: 30), "Background failure must reach SpringBoard")
         shot(springboard, "background-failure-notification")
         app.terminate()
-        XCTAssertTrue(notification.exists, "Delivered notification survives termination")
+        if !notification.exists {
+            // A delivered banner can move to Notification Center while the app terminates.
+            let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.01))
+            let middle = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+            top.press(forDuration: 0.1, thenDragTo: middle)
+        }
+        XCTAssertTrue(notification.waitForExistence(timeout: 10), "Delivered notification is reachable in SpringBoard")
+        shot(springboard, "background-failure-before-tap")
         notification.tap()
         let activity = app.staticTexts["Background activity"].firstMatch
         XCTAssertTrue(activity.waitForExistence(timeout: 60), "Notification activation opens the activity list")
