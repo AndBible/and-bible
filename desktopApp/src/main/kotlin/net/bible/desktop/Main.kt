@@ -169,9 +169,9 @@ internal fun createDesktopEngine(
  * [DesktopHostLifecycle]. A data directory that cannot be written skips CEF and the startup and shows the
  * startup-failed screen naming the directory.
  */
-private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
-    // COM may ask to launch an absent server. Never treat its launcher switches as import paths.
-    if (net.bible.desktop.wintoast.toastLaunchFiles(launchArgs) == null) return
+private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
+    // A cold toast click starts the same lock-protected app and COM server as an ordinary launch.
+    val launchArgs = net.bible.desktop.wintoast.toastLaunchFiles(args)
     val paths = DesktopPaths.system()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {

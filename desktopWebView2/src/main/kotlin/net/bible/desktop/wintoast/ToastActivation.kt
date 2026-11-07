@@ -27,10 +27,10 @@ fun parseToastActivationArguments(args: String): String? {
     }.getOrNull()
 }
 
-/** Shell COM launch arguments are not incoming files; closed-process toast relaunch is not a supported import. */
-fun toastLaunchFiles(args: List<String>): List<String>? = if (args.any {
+/** Start the normal, single-instance app for a COM activation, but never import Shell switches as files. */
+fun toastLaunchFiles(args: List<String>): List<String> = if (args.any {
     it.equals("-Embedding", true) || it.equals("/Embedding", true) || it.equals("-ToastActivated", true)
-}) null else args
+}) emptyList() else args
 
 private interface RefFn : Callback { fun invoke(self: Pointer?): Int }
 private interface QueryFn : Callback { fun invoke(self: Pointer?, iid: Pointer?, out: Pointer?): Int }
