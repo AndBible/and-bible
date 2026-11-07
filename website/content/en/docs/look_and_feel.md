@@ -183,24 +183,30 @@ remain reachable on a phone.
 
 ### Look & feel
 
-- **Show background activity in the menu:** Shows downloads, sync and indexing
-    progress, and failures, in the three-dot menu (⋮): a progress ring and a
-    failure badge on the button, and an activity list in the menu. On by default
-    on desktop and iOS, off on Android, where the system notifications show the
-    same information. See [Background activity](navigation.md#background-activity).
-- **System notifications:** (Linux desktop for now; other platforms later) Shows a system notification
-    when background work fails, and when a long download, install or index (over
-    about 10 seconds) finishes while AndBible is in the background. Successful
-    syncs never notify. If work you started fails while AndBible is in the
-    foreground, only the in-app error dialog is shown, without a duplicate system
-    notification. Background failures still notify even while you use the app;
-    repeated occurrences update the same notification. A running job also shows a progress
+- **Show background activity in the menu:** Shows downloads, sync, indexing
+    progress, AI-agent runs and failures in the three-dot menu (⋮): a progress
+    ring and a badge for failures or items needing attention on the button, and
+    an activity list in the menu. Opening the menu clears unread failure badges,
+    but an agent permission-wait badge remains until the request is resolved. On
+    by default on desktop and iOS, off on Android, where the system notifications
+    show the same information. See
+    [Background activity](navigation.md#background-activity).
+- **System notifications:** (Linux desktop for now; other platforms are being
+    implemented separately.) Shows a system notification when background work
+    fails, and when a long download, install or index (over about 10 seconds)
+    finishes while AndBible is in the background. Successful syncs never notify.
+    If work you started fails while AndBible is in the foreground, only the
+    in-app error dialog is shown, without a duplicate system notification.
+    Background failures still notify even while you use the app; repeated
+    occurrences update the same notification. A running job also shows a progress
     notification while AndBible is in the background: KDE Plasma and several
     other desktops show a progress bar, GNOME shows the percentage as text, and
-    the Flatpak build shows no progress notifications. Clicking a notification
-    brings AndBible to the front, and opens the activity list when "Show
-    background activity in the menu" is on. On by default; your
-    operating system's notification settings apply on top. See
+    the Flatpak build shows no progress notifications. On Linux, an AI agent
+    waiting for permission also raises an urgent background notification; the
+    Android agent foreground-service notification is unchanged. Clicking a
+    notification brings AndBible to the front, and opens the activity list when
+    "Show background activity in the menu" is on. On by default; your operating
+    system's notification settings apply on top. See
     [Background activity](navigation.md#background-activity).
 
 ### One-Tap Actions
