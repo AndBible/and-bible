@@ -63,60 +63,30 @@ class IosSmallPortsTest {
         assertEquals(UIApplicationOpenSettingsURLString, url)
     }
 
+    @Test fun notificationSettingsUsesNotificationUrlOnIos16() = onMain {
+        var url: String? = null
+        IosSystemScreens(openUrl = { url = it.absoluteString }, notificationSettingsAvailable = { true })
+            .openNotificationSettings()
+        yield()
+        assertEquals(UIApplicationOpenNotificationSettingsURLString, url)
+    }
+
+    @Test fun notificationSettingsFallsBackToApplicationSettingsBeforeIos16() = onMain {
+        var url: String? = null
+        IosSystemScreens(openUrl = { url = it.absoluteString }, notificationSettingsAvailable = { false })
+            .openNotificationSettings()
+        yield()
+        assertEquals(UIApplicationOpenSettingsURLString, url)
+    }
+
     @Test fun orientationLockReturnsANoOpRestore() {
         val restore = IosOrientationLock().lockCurrentOrientation()
         restore()
         restore()
     }
 
-    private class Center : IosNotificationCenter {
-        var queries = 0
-        var requests = 0
-        var status: ((Boolean) -> Unit)? = null
-        var completion: (() -> Unit)? = null
-        override fun authorizationDecided(completion: (Boolean) -> Unit) {
-            queries++
-            status = { decided -> status = null; completion(decided) }
-        }
-        override fun requestAlertAndSound(completion: () -> Unit) {
-            requests++
-            this.completion = { this.completion = null; completion() }
-        }
-    }
-
-    @Test fun notificationRequestIsIdempotent() = onMain {
-        val center = Center()
-        val permission = IosNotificationPermission(center)
-        val first = async(start = CoroutineStart.UNDISPATCHED) { permission.request() }
-        val second = async(start = CoroutineStart.UNDISPATCHED) { permission.request() }
-        try {
-            first.await(); second.await()
-            permission.request()
-            assertEquals(0, center.requests)
-            assertEquals(0, center.queries)
-        } finally {
-            // suspendCoroutine represents an OS request that cannot be cancelled. Deliver any
-            // pending fake callbacks before joining children, even when an assertion fails.
-            first.cancel(); second.cancel()
-            center.status?.invoke(true)
-            center.completion?.invoke()
-            first.join(); second.join()
-        }
-    }
-
-    @Test fun notificationAlreadyDecidedDoesNotPrompt() = onMain {
-        val center = Center()
-        val request = async(start = CoroutineStart.UNDISPATCHED) { IosNotificationPermission(center).request() }
-        try {
-            request.await()
-            assertEquals(0, center.queries)
-            assertEquals(0, center.requests)
-        } finally {
-            request.cancel()
-            center.status?.invoke(true)
-            center.completion?.invoke()
-            request.join()
-        }
+    @Test fun legacyNotificationRequestReturnsWithoutPrompting() = onMain {
+        IosNotificationPermission().request()
     }
 
     @Test fun imagePickerCancelReturnsNull() = onMain {

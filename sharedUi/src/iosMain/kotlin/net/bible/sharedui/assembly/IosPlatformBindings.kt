@@ -196,7 +196,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single { net.bible.android.control.activity.SystemNotificationsPreference(get(), defaultEnabled = true) }
         single<net.bible.sharedcore.platform.NotificationPermission> { iosNotificationPermission(get(), get()) }
         single<net.bible.sharedcore.settings.NotificationsDenied> { net.bible.sharedcore.settings.NotificationsDenied { iosNotificationsDenied() } }
-        single<net.bible.sharedcore.settings.NotificationSettingsLink> { net.bible.sharedcore.settings.NotificationSettingsLink { net.bible.sharedui.ios.ports.IosSystemScreens().openAppLinkSettings() } }
+        single<net.bible.sharedcore.settings.NotificationSettingsLink> { net.bible.sharedcore.settings.NotificationSettingsLink { net.bible.sharedui.ios.ports.IosSystemScreens().openNotificationSettings() } }
         single<net.bible.sharedcore.platform.NativeNotifier> { IosNativeNotifier() }
         single<IosForegroundObserverFactory> { IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) } }
         single {

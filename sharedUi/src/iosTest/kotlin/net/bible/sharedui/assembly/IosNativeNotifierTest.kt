@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.assembly
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
@@ -165,6 +166,62 @@ class IosNativeNotifierTest {
             runtime.close()
             activations.attach { }
             activations.detach()
+            scope.cancel()
+        }
+    }
+
+    @Test
+    fun closingOldRuntimeKeepsNewRuntimeActivationHandler() = awaitStartupOnMain {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        val activations = IosNotificationBootstrap.activations
+        val settings = net.bible.sharedlogic.settings.DatabaseAppSettings({ error("database not open") }, { false })
+        val preference = net.bible.android.control.activity.SystemNotificationsPreference(settings, true)
+        val activities = net.bible.android.control.activity.ActivityCenter(scope) { 0L }
+        val first = IosNotificationRuntime(activities, IosNativeNotifier(Center(), activations), ActivityListRequests(), preference) { "Finished" }
+        val requests = ActivityListRequests()
+        val second = IosNotificationRuntime(activities, IosNativeNotifier(Center(), activations), requests, preference) { "Finished" }
+        try {
+            first.close()
+            activations.activate("new-graph")
+            kotlin.test.assertNotNull(withTimeoutOrNull(1_000) { requests.requests.first() })
+        } finally {
+            first.close()
+            second.close()
+            scope.cancel()
+        }
+    }
+
+    @Test
+    fun backgroundConstructionAndCloseDoNotWaitForMainOrInstallAfterClose() = awaitStartupOnMain {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        val settings = net.bible.sharedlogic.settings.DatabaseAppSettings({ error("database not open") }, { false })
+        val preference = net.bible.android.control.activity.SystemNotificationsPreference(settings, true)
+        val activities = net.bible.android.control.activity.ActivityCenter(scope) { 0L }
+        val semaphore = platform.darwin.dispatch_semaphore_create(0)
+        var installed = 0
+        val worker = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).async {
+            try {
+                val runtime = IosNotificationRuntime(
+                    activities, IosNativeNotifier(Center()), ActivityListRequests(), preference,
+                    observerFactory = IosForegroundObserverFactory { installed++; AutoCloseable {} },
+                    finishedText = { "Finished" },
+                )
+                runtime.close()
+            } finally {
+                platform.darwin.dispatch_semaphore_signal(semaphore)
+            }
+        }
+        try {
+            // Keep Main unavailable until construction and close have had time to return.
+            val returned = platform.darwin.dispatch_semaphore_wait(
+                semaphore, platform.darwin.dispatch_time(platform.darwin.DISPATCH_TIME_NOW, 1_000_000_000),
+            ) == 0L
+            worker.await()
+            kotlinx.coroutines.delay(50)
+            kotlin.test.assertTrue(returned, "Background lifecycle must not wait for Main")
+            assertEquals(0, installed, "A closed runtime must not install an observer later")
+        } finally {
+            worker.cancel()
             scope.cancel()
         }
     }

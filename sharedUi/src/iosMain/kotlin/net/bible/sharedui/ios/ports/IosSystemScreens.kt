@@ -25,16 +25,32 @@ import kotlinx.coroutines.launch
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
+import platform.UIKit.UIApplicationOpenNotificationSettingsURLString
+import platform.UIKit.UIDevice
 
 @kotlin.native.HiddenFromObjC
 class IosSystemScreens(
     private val openUrl: (NSURL) -> Unit = {
         UIApplication.sharedApplication.openURL(it, options = emptyMap<Any?, Any>(), completionHandler = null)
     },
+    private val notificationSettingsAvailable: () -> Boolean = {
+        (UIDevice.currentDevice.systemVersion.substringBefore('.').toIntOrNull() ?: 0) >= 16
+    },
 ) : SystemScreens {
     override fun openAppLinkSettings() {
         CoroutineScope(Dispatchers.Main).launch {
             NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let(openUrl)
+        }
+    }
+
+    fun openNotificationSettings() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val settingsUrl = if (notificationSettingsAvailable()) {
+                UIApplicationOpenNotificationSettingsURLString
+            } else {
+                UIApplicationOpenSettingsURLString
+            }
+            NSURL.URLWithString(settingsUrl)?.let(openUrl)
         }
     }
 }
