@@ -40,6 +40,10 @@ The optional `andbible-webkitgtk` `.deb` uses the system's **WebKitGTK 6.0 (GTK4
 
 The two `.deb` packages have separate launchers but share the same AndBible data and settings. Only one can use that data at a time. The WebKitGTK variant is an alternative; keep the regular Chromium package available if you encounter rendering or input problems.
 
+### Arch Linux and derivatives {#arch-linux}
+
+On Arch Linux, Omarchy, CachyOS, EndeavourOS, Manjaro and other Arch-based distributions, install the `andbible-bin` package from the [AUR](https://aur.archlinux.org/packages/andbible-bin) with an AUR helper (`yay -S andbible-bin` or `paru -S andbible-bin`). It repackages the Linux tarball of the GitHub release (the same app as the `.deb` and the AppImage, Chromium included) into `/opt/andbible`, adds the `andbible` command and a launcher entry with the icon, and is updated with your other packages (`yay -Syu`). AndBible therefore does not run its own update check in that install; see [Update checks](#update-checks).
+
 ## Display scaling on Linux
 
 AndBible follows your desktop's display scale: the menus, toolbars and the Bible text get the same size as in other apps. It reads the scale that GNOME, KDE Plasma and Xfce publish for X11 apps (the `Xft.dpi` setting, which also includes GNOME's "Large Text" setting), or `GDK_SCALE` when it is set. On Wayland the app runs through Xwayland, so the scale comes from what the desktop gives Xwayland apps.
@@ -60,10 +64,10 @@ The chosen scale and where it came from are written at start-up to the log as a 
 
 ## Update checks
 
-Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. The update check never offers a release that is less stable than the one you have installed.
+Eligible GitHub builds (the `.deb`, the AppImage and the Windows MSI) ask whether to check for updates. Installs that a package manager or store updates (the AUR package, Flatpak, Microsoft Store) never check. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. The update check never offers a release that is less stable than the one you have installed.
 <!-- if beta -->
 
-**Offer public beta updates** (also in Settings) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for Flatpak, Microsoft Store (MSIX) and development installs, which update through their own channel or not at all, nor for developer test builds, which always see every channel.
+**Offer public beta updates** (also in Settings) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for AUR, Flatpak, Microsoft Store (MSIX) and development installs, which update through their own channel or not at all, nor for developer test builds, which always see every channel.
 
 <!-- end -->
 

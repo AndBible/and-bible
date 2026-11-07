@@ -115,6 +115,11 @@ Linux (amd64 / x86_64).
     `chmod +x andbible-desktop-*.AppImage`, then run it. If it does not start, install FUSE 2
     (`libfuse2`) first.
 
+On Arch Linux and its derivatives (Omarchy, CachyOS, EndeavourOS, Manjaro), install the `andbible-bin`
+package from the AUR with your AUR helper, for example `yay -S andbible-bin` or `paru -S andbible-bin`.
+It installs the same release, adds AndBible to your application launcher and is updated together with
+your other packages. See [Linux packages](desktop.md#linux-packages).
+
 See [AndBible on Windows and Linux](desktop.md) for details.
 
 ## First start
