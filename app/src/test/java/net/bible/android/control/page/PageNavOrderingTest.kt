@@ -174,6 +174,7 @@ class PageNavOrderingTest {
         val activity = Robolectric.buildActivity(NavigationTestActivity::class.java)
         val repoJob = SupervisorJob(coroutineContext[Job])
         val repo = WindowRepository(CoroutineScope(coroutineContext + repoJob))
+        println("PAGE_NAV_IDENT repoJob=${DatabaseResetter.jobState(repoJob)} parent=${coroutineContext[Job]?.let { DatabaseResetter.jobState(it) }} originalRepoJob=${originalRepo.scope.coroutineContext[Job]?.let { DatabaseResetter.jobState(it) }}")
         var view: BibleView? = null
         val gate = CompletableDeferred<Unit>()
         try {

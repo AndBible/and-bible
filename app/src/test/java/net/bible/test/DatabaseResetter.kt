@@ -103,6 +103,7 @@ object DatabaseResetter {
                 val drain = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
                     jobs.forEach {
                         checkpoint("join-producer", jobState(it))
+                        kotlinx.coroutines.currentCoroutineContext()[ResetDecision]?.diagnosticJob = it
                         it.join()
                     }
                 }
@@ -254,7 +255,11 @@ object DatabaseResetter {
             println("DB_RESET stage=$stage $details")
         }
 
-        @Synchronized fun diagnostic() = "stage=$stage $details"
+        @Volatile var diagnosticJob: kotlinx.coroutines.Job? = null
+        @Synchronized fun diagnostic() = "stage=$stage $details tree=${diagnosticJob?.let { jobTree(it) }}"
+
+        private fun jobTree(job: kotlinx.coroutines.Job, depth: Int = 0): String =
+            if (depth >= 12) "depth-limit" else jobState(job) + job.children.joinToString(prefix = "{", postfix = "}") { jobTree(it, depth + 1) }
 
         @Synchronized fun abortBeforeCommit(): Boolean {
             if (phase == Phase.COMMITTED) return false
