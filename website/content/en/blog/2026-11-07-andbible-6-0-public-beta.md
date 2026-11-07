@@ -61,10 +61,10 @@ There are many more fixes and improvements. The full list is on the
 with the Google account of your phone or tablet. Google Play then updates AndBible to the beta.
 You can leave the programme on the same page at any time and go back to the stable version at its
 next update. If you do not use Google Play, download the `andbible-<tag>.apk` file (not `calculator-…`) from the newest
-pre-release on our [GitHub releases page](https://github.com/AndBible/and-bible/releases).
+*Beta release* on our [GitHub releases page](https://github.com/AndBible/and-bible/releases).
 
 **Windows and Linux.** AndBible for the desktop is new in 6.0. Download the Windows installer
-(`.msi`) or the Linux `.deb` package or AppImage from the newest pre-release on the
+(`.msi`) or the Linux `.deb` package or AppImage from the newest *Beta release* on the
 [GitHub releases page](https://github.com/AndBible/and-bible/releases). Both are for 64-bit
 computers. The [Getting started](/docs/getting_started/#windows) guide walks you through the
 installation, and [AndBible on Windows and Linux](/docs/desktop/) has the details.

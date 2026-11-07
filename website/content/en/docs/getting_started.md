@@ -46,7 +46,7 @@ to load the AndBible config directly into Obtainium.
 [beta programme on Google Play]({{ play_beta }}) with the Google account of your device, and
 Google Play updates AndBible to the beta. You can leave the programme on the same page; you then
 go back to the stable version at its next update. Alternatively, download the
-`andbible-<tag>.apk` file (not `calculator-…`) from the newest pre-release on the
+`andbible-<tag>.apk` file (not `calculator-…`) from the newest *Beta release* on the
 [GitHub releases page]({{ beta_release }}).
 <!-- end -->
 
@@ -85,7 +85,7 @@ the Mac App Store and open the link there.
 <!-- if beta -->
 AndBible for Windows is new in 6.0 and is in public beta.
 
-1. Download the `.msi` file (`andbible-desktop-<version>-x64.msi`) from the newest pre-release
+1. Download the `.msi` file (`andbible-desktop-<version>-x64.msi`) from the newest *Beta release*
     on the [GitHub releases page]({{ beta_release }}).
     It is for 64-bit Windows (x64).
 <!-- else -->
@@ -102,7 +102,7 @@ See [AndBible on Windows and Linux](desktop.md) for updates and data locations.
 
 <!-- if beta -->
 AndBible for Linux is new in 6.0 and is in public beta. Download one of these from the newest
-pre-release on the [GitHub releases page]({{ beta_release }}). Both are for 64-bit
+*Beta release* on the [GitHub releases page]({{ beta_release }}). Both are for 64-bit
 Linux (amd64 / x86_64).
 <!-- else -->
 Download one of these from the

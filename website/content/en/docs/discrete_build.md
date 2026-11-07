@@ -36,7 +36,7 @@ not system notifications.
 The discrete build is available from the
 [GitHub releases page](https://github.com/AndBible/and-bible/releases/latest).
 <!-- if beta -->
-The discrete build of the AndBible 6.0 beta is in the newest pre-release on the
+The discrete build of the AndBible 6.0 beta is in the newest *Beta release* on the
 [GitHub releases page]({{ beta_release }}).
 <!-- end -->
 
