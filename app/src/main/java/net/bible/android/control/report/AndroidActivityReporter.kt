@@ -1,8 +1,13 @@
 package net.bible.android.control.report
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.control.activity.ActivityFailureReport
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityReporter
@@ -28,10 +33,22 @@ class AndroidActivityReporter(
         if (!reporting.compareAndSet(false, true)) return
         try {
             scope().launch {
-                if (activity.isFinishing || activity.isDestroyed) {
-                    Log.w("AndroidActivityReporter", "Skipping activity report: captured activity is no longer live")
-                } else {
-                    dispatch(activity, ActivityFailureReport(item), "activity list")
+                withContext(Dispatchers.Main.immediate) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_DESTROY) cancel()
+                    }
+                    activity.lifecycle.addObserver(observer)
+                    try {
+                        if (activity.isFinishing || activity.isDestroyed ||
+                            activity.lifecycle.currentState == Lifecycle.State.DESTROYED
+                        ) {
+                            Log.w("AndroidActivityReporter", "Skipping activity report: captured activity is no longer live")
+                        } else {
+                            dispatch(activity, ActivityFailureReport(item), "activity list")
+                        }
+                    } finally {
+                        activity.lifecycle.removeObserver(observer)
+                    }
                 }
             }.invokeOnCompletion { reporting.value = false }
         } catch (error: Throwable) {

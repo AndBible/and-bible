@@ -74,6 +74,38 @@ class AndroidActivityReporterTest {
     }
 
     @Test
+    fun destroyingActivityDuringDispatchAllowsReplacementToReport() = runTest {
+        val first = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        val replacement = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        val release = CompletableDeferred<Unit>()
+        var current: ActivityBase = first.get()
+        val calls = mutableListOf<ActivityBase>()
+        val reporter = AndroidActivityReporter({ this }, { current }) { activity, _, _ ->
+            calls += activity
+            release.await()
+        }
+        try {
+            reporter.report(item())
+            runCurrent()
+            assertEquals(listOf(first.get()), calls)
+            first.pause().stop()
+            current = replacement.get()
+            reporter.report(item())
+            runCurrent()
+            assertEquals(1, calls.size)
+            first.destroy()
+            runCurrent()
+            reporter.report(item())
+            runCurrent()
+            assertEquals(listOf(first.get(), replacement.get()), calls)
+        } finally {
+            release.complete(Unit)
+            runCurrent()
+            replacement.pause().stop().destroy()
+        }
+    }
+
+    @Test
     fun finishingActivitySkipsDispatch() = runTest {
         val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
         try {
