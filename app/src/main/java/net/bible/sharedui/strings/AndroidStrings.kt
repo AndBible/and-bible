@@ -503,6 +503,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchIndex: String get() = context.getString(R.string.search_index)
     override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
     override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
+    override val desktopBetaUpdateSettingTitle: String get() = context.getString(R.string.desktop_beta_update_setting_title)
+    override val desktopBetaUpdateSettingSummary: String get() = context.getString(R.string.desktop_beta_update_setting_summary)
     override val searchSettings: String get() = context.getString(R.string.search_settings)
     override val allWords: String get() = context.getString(R.string.search_all_words)
     override val anyWord: String get() = context.getString(R.string.search_any_word)

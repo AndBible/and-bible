@@ -79,11 +79,25 @@ fun AppSettingsScreen(
         val unsubscribe = updateSetting?.observeChanges { updateEnabled = updateSetting.enabled }
         onDispose { unsubscribe?.invoke() }
     }
+    val betaSetting = remember(settingsKoin) { settingsKoin?.getOrNull<DesktopBetaUpdateSetting>() }
+    var betaEnabled by remember(betaSetting) { mutableStateOf(betaSetting?.enabled == true) }
+    DisposableEffect(betaSetting) {
+        val unsubscribe = betaSetting?.observeChanges { betaEnabled = betaSetting.enabled }
+        onDispose { unsubscribe?.invoke() }
+    }
     val updateKey = "desktop_update_check"
-    val screenState = if (updateSetting == null) state else state.copy(items = state.items + SettingsItem.SwitchRow(
-        key = updateKey, title = strings.desktopUpdateSettingTitle,
-        summary = strings.desktopUpdateSettingSummary, checked = updateEnabled,
-    ))
+    val betaKey = "desktop_update_offer_beta"
+    val desktopRows = buildList {
+        if (updateSetting != null) add(SettingsItem.SwitchRow(
+            key = updateKey, title = strings.desktopUpdateSettingTitle,
+            summary = strings.desktopUpdateSettingSummary, checked = updateEnabled,
+        ))
+        if (betaSetting != null) add(SettingsItem.SwitchRow(
+            key = betaKey, title = strings.desktopBetaUpdateSettingTitle,
+            summary = strings.desktopBetaUpdateSettingSummary, checked = betaEnabled,
+        ))
+    }
+    val screenState = if (desktopRows.isEmpty()) state else state.copy(items = state.items + desktopRows)
     AbSettingsScreen(
         state = screenState,
         onUp = onUp,
@@ -91,6 +105,9 @@ fun AppSettingsScreen(
             if (key == updateKey && updateSetting != null) {
                 updateSetting.setEnabled(value)
                 updateEnabled = updateSetting.enabled
+            } else if (key == betaKey && betaSetting != null) {
+                betaSetting.setEnabled(value)
+                betaEnabled = betaSetting.enabled
             } else onSwitch(key, value)
         },
         onListChoice = onListChoice,

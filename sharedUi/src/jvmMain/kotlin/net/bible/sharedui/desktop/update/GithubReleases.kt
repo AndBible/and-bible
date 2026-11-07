@@ -17,6 +17,19 @@ enum class DesktopChannel(val tagPrefix: String) {
     /** Whether an installation on this channel may be offered [release]. */
     fun accepts(release: DesktopRelease): Boolean = release.channel >= this
 
+    /** Default of the "offer public beta updates" setting: ON for a beta install, OFF for a production install. */
+    val defaultOfferBeta: Boolean get() = this == BETA
+
+    /**
+     * Least stable channel offered to an install on this channel. Test builds always see test/beta/production;
+     * beta and production installs see betas only with [offerBeta] (null = [defaultOfferBeta]).
+     */
+    fun offerFloor(offerBeta: Boolean?): DesktopChannel = when {
+        this == TEST -> TEST
+        offerBeta ?: defaultOfferBeta -> BETA
+        else -> PRODUCTION
+    }
+
     companion object {
         /** Maps the build's `andbible.releaseKind`; `dev` and unknown values have no channel (no update check). */
         fun fromReleaseKind(kind: String?): DesktopChannel? = entries.firstOrNull { it.tagPrefix == kind }
@@ -42,6 +55,6 @@ fun parseDesktopReleases(json: String): List<DesktopRelease> {
     }
 }
 
-fun newestOffered(releases: List<DesktopRelease>, ownBuild: Int, ownChannel: DesktopChannel, announcedBuild: Int): DesktopRelease? =
-    releases.filter { it.build > ownBuild && it.build > announcedBuild && ownChannel.accepts(it) }
+fun newestOffered(releases: List<DesktopRelease>, ownBuild: Int, ownChannel: DesktopChannel, announcedBuild: Int, offerBeta: Boolean? = null): DesktopRelease? =
+    releases.filter { it.build > ownBuild && it.build > announcedBuild && it.channel >= ownChannel.offerFloor(offerBeta) }
         .maxByOrNull { it.build }

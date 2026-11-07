@@ -1057,6 +1057,8 @@ interface Strings {
     // Batch 10-remainder — preference search (main Settings screen)
     val desktopUpdateSettingTitle: String
     val desktopUpdateSettingSummary: String
+    val desktopBetaUpdateSettingTitle: String
+    val desktopBetaUpdateSettingSummary: String
     val searchSettings: String                              // R.string.search_settings
     val help: String                                        // help
 

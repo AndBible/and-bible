@@ -13,10 +13,12 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.desktop.assembly.desktopMiscModule
+import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -50,13 +52,29 @@ class DesktopUpdateBindingTest {
             System.clearProperty("jpackage.app-path")
             System.setProperty("andbible.releaseKind", "test")
             val eligible = koinApplication { modules(dependencies, desktopMiscModule()) }
-            try { assertNotNull(eligible.koin.get<DesktopUpdateCheckSetting>()) } finally { eligible.close() }
+            try { assertNotNull(eligible.koin.get<DesktopUpdateCheckSetting>()); assertNull(eligible.koin.getOrNull<DesktopBetaUpdateSetting>()) } finally { eligible.close() }
             System.setProperty("andbible.releaseKind", "beta")
             val beta = koinApplication { modules(dependencies, desktopMiscModule()) }
-            try { assertNotNull(beta.koin.get<DesktopUpdateCheckSetting>()) } finally { beta.close() }
+            try {
+                assertNotNull(beta.koin.get<DesktopUpdateCheckSetting>())
+                val offer = beta.koin.get<DesktopBetaUpdateSetting>()
+                assertEquals(true, offer.enabled)
+                offer.setEnabled(false)
+                assertEquals("no", prefs.getString("desktop_update_offer_beta"))
+                assertEquals(false, offer.enabled)
+            } finally { beta.close() }
+            System.setProperty("andbible.releaseKind", "production")
+            val production = koinApplication { modules(dependencies, desktopMiscModule()) }
+            try {
+                val offer = production.koin.get<DesktopBetaUpdateSetting>()
+                prefs.remove("desktop_update_offer_beta")
+                assertEquals(false, offer.enabled)
+                offer.setEnabled(true)
+                assertEquals(true, offer.enabled)
+            } finally { production.close() }
             System.setProperty("andbible.releaseKind", "dev")
             val dev = koinApplication { modules(desktopMiscModule()) }
-            try { assertNull(dev.koin.getOrNull<DesktopUpdateCheckSetting>()) } finally { dev.close() }
+            try { assertNull(dev.koin.getOrNull<DesktopUpdateCheckSetting>()); assertNull(dev.koin.getOrNull<DesktopBetaUpdateSetting>()) } finally { dev.close() }
         } finally {
             scope.cancel()
             previous.forEach { (key, value) -> if (value == null) System.clearProperty(key) else System.setProperty(key, value) }
