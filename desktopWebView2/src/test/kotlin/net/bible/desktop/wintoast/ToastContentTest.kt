@@ -11,6 +11,16 @@ import org.xml.sax.InputSource
 
 class ToastContentTest {
     @Test
+    fun historyLaunchCarriesOriginalActivityIdRatherThanHashedTag() {
+        val id = "activity-" + "a".repeat(80)
+        val n = notification().copy(id = id)
+        val xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(StringReader(toastXml(n))))
+        val root = xml.documentElement
+        assertEquals("foreground", root.getAttribute("activationType"))
+        assertEquals(id, parseToastActivationArguments(root.getAttribute("launch")))
+    }
+
+    @Test
     fun xmlEscapesTitleAndBody() {
         val title = "Q&A <draft>"
         val body = "Body & details <here>"

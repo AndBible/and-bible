@@ -50,9 +50,9 @@ class WindowsToastNotifier(
     private val dispatchLock = Any()
     private val reported = ConcurrentHashMap.newKeySet<String>()
     private var native: ToastApi? = null
-    private val shown = mutableMapOf<String, NativeNotification>()
-    private val dismissed = mutableSetOf<String>()
-    private val ids = ConcurrentHashMap<String, String>()
+    private val shown = linkedMapOf<String, NativeNotification>()
+    private val dismissed = linkedSetOf<String>()
+    private val removed = linkedSetOf<String>()
     @Volatile private var activated: (String) -> Unit = {}
 
     private fun report(operation: String, error: String) {
@@ -75,9 +75,10 @@ class WindowsToastNotifier(
         guarded("initialize") {
             val created = api()
             try {
-                created.onCleanupFailure { operation, hr -> report("cleanup $operation", hresultString(hr)) }
-                created.onActivated { tag ->
-                    if (!closed.get()) ids[tag]?.let { id -> guarded("activation") { activated(id); 0 } }
+                created.onActivated { args ->
+                    if (!closed.get()) parseToastActivationArguments(args)?.let { id ->
+                        if (toastTag(id) !in removed) guarded("activation") { activated(id); 0 }
+                    }
                 }
                 native = created
                 result = created
@@ -106,9 +107,17 @@ class WindowsToastNotifier(
             else service.show(toastXml(n), tag, TOAST_GROUP, toastData(n))
         }
         if (hr != null && hr >= 0) {
-            shown[tag] = n
-            ids[tag] = n.id
+            // Final history activation is self-describing; no completed activity or COM object needs retaining.
+            if (n.isProgress) shown[tag] = n else shown.remove(tag)
+            removed -= tag
             if (update && hr == 1) dismissed += tag else dismissed -= tag
+            while (shown.size > 256) {
+                val oldest = shown.keys.first()
+                shown.remove(oldest)
+                dismissed.remove(oldest)
+                guarded("remove evicted progress") { service.remove(oldest, TOAST_GROUP) }
+            }
+            while (dismissed.size > 256) dismissed.remove(dismissed.first())
         }
     }
 
@@ -116,7 +125,8 @@ class WindowsToastNotifier(
         val tag = toastTag(id)
         getApi()?.let { service -> guarded("remove") { service.remove(tag, TOAST_GROUP) } }
         shown.remove(tag)
-        ids.remove(tag)
+        removed += tag
+        while (removed.size > 256) removed.remove(removed.first())
         dismissed.remove(tag)
     }
 
@@ -126,7 +136,7 @@ class WindowsToastNotifier(
         synchronized(dispatchLock) {
             if (!closed.compareAndSet(false, true)) return
         }
-        ids.clear()
+        removed.clear()
         activated = {}
         try {
             guarded("schedule cleanup") {

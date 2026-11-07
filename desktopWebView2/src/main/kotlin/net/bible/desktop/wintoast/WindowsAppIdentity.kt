@@ -22,7 +22,7 @@ internal fun applyWindowsIdentity(
 ): WindowsIdentityResult = try {
     if (packaged()) WindowsIdentityResult(true, null)
     else {
-        aumidRegistryPlan(false, installDir.resolve("app/resources/andbible.ico").toString()).forEach(write)
+        aumidRegistryPlan(false, installDir.resolve("app/resources/andbible.ico").toString(), installDir.resolve("AndBible.exe").toString()).forEach(write)
         setProcessId(ANDBIBLE_AUMID)
         WindowsIdentityResult(true, ANDBIBLE_AUMID)
     }

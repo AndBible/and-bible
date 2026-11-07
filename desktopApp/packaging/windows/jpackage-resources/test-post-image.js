@@ -26,6 +26,9 @@ for (const index of [0, 2]) {
     assert.strictEqual(property.namespace, 'http://schemas.microsoft.com/wix/2006/wi');
     assert.strictEqual(property.attributes.Key, 'System.AppUserModel.ID');
     assert.strictEqual(property.attributes.Value, 'org.andbible.AndBible');
+    const activator = result.shortcuts[index].children[1];
+    assert.strictEqual(activator.attributes.Key, 'System.AppUserModel.ToastActivatorCLSID');
+    assert.strictEqual(activator.attributes.Value, '{C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}');
 }
 assert.strictEqual(result.shortcuts[1].children.length, 0);
 assert.throws(() => run(['Other']), /shortcut not found/);

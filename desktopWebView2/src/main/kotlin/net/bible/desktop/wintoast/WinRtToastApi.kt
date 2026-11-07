@@ -6,12 +6,9 @@ import com.sun.jna.Pointer
 import com.sun.jna.WString
 import com.sun.jna.ptr.PointerByReference
 import com.sun.jna.win32.StdCallLibrary
-import net.bible.desktop.webview2.ComCallback
 import net.bible.desktop.webview2.ComException
 import net.bible.desktop.webview2.ComPtr
 import net.bible.desktop.webview2.Iid
-import net.bible.desktop.webview2.hresultString
-import net.bible.sharedcore.log.Log
 
 /** SDK ABI declarations. Slots include IUnknown (0..2) and IInspectable (3..5). */
 internal object ToastAbi {
@@ -23,7 +20,6 @@ internal object ToastAbi {
     val TOAST_4 = Iid("15154935-28ea-4727-88e9-c58680e2d118")
     val NOTIFIER_2 = Iid("354389c6-7c01-4bd5-9c20-604340cd2b74")
     val NOTIFICATION_DATA = Iid("9ffd2312-9d6a-4aaf-b6ac-ff17f0c1f280")
-    val ACTIVATED = Iid("ab54de2d-97d9-5528-b6ad-105afe156530")
     const val CREATE_NOTIFIER = 6
     const val CREATE_NOTIFIER_WITH_ID = 7
     const val GET_HISTORY = 6
@@ -36,8 +32,6 @@ internal object ToastAbi {
     const val UPDATE_WITH_TAG_AND_GROUP = 6
     const val REMOVE_GROUPED_TAG_WITH_ID = 8
     const val REMOVE_GROUPED_TAG = 9
-    const val ADD_ACTIVATED = 11
-    const val REMOVE_ACTIVATED = 12
     // windows.data.xml.dom.h
     val XML_DOCUMENT = Iid("f7f3a506-1e87-42d6-bcfb-b8c809fa5494")
     val XML_IO = Iid("6cd0e74e-ee65-4489-9ebf-ca43e87ba637")
@@ -67,6 +61,8 @@ internal interface WinRtCalls {
     fun deleteString(value: Pointer?)
     fun factory(name: Pointer?, iid: Iid): ToastCom
     fun activate(name: Pointer?): ToastCom
+    fun registerActivator(factory: Pointer): Int
+    fun revokeActivator(cookie: Int)
 }
 
 private interface Combase : StdCallLibrary {
@@ -94,7 +90,20 @@ private class NativeToastCom(override val pointer: Pointer) : ToastCom {
     override fun release() = com.release()
 }
 
+private interface ToastOle : StdCallLibrary {
+    fun CoRegisterClassObject(clsid: Pointer, factory: Pointer, context: Int, flags: Int, cookie: com.sun.jna.ptr.IntByReference): Int
+    fun CoRevokeClassObject(cookie: Int): Int
+}
+
 private class NativeWinRtCalls : WinRtCalls {
+    private val ole by lazy { Native.load("ole32", ToastOle::class.java) }
+    override fun registerActivator(factory: Pointer): Int {
+        val cookie = com.sun.jna.ptr.IntByReference()
+        // CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE. The server is the existing running JVM, not a DLL.
+        checked(ole.CoRegisterClassObject(Iid(TOAST_ACTIVATOR_CLSID).memory, factory, 4, 1, cookie), "CoRegisterClassObject")
+        return cookie.value
+    }
+    override fun revokeActivator(cookie: Int) { checked(ole.CoRevokeClassObject(cookie), "CoRevokeClassObject") }
     private val library by lazy { Native.load("combase", Combase::class.java) }
     override fun initialize(): Int = library.RoInitialize(0) // RO_INIT_SINGLETHREADED, compatible with the existing pump.
     override fun uninitialize() = library.RoUninitialize()
@@ -118,7 +127,7 @@ private class NativeWinRtCalls : WinRtCalls {
 
 /**
  * WinRT toasts owned entirely by the caller's pumped STA. Construction/unused close never load Windows libraries.
- * Each retained toast owns its Activated subscription; replacement commits only after Show succeeds.
+ * One registered classic COM activator handles popup and Action Center clicks. Toast interfaces are released after Show.
  */
 class WinRtToastApi internal constructor(
     private val aumid: String?,
@@ -130,18 +139,6 @@ class WinRtToastApi internal constructor(
     private var closed = false
     private var state: State? = null
     private var handler: (String) -> Unit = {}
-    private val reportedCleanup = mutableSetOf<Pair<String, Int>>()
-    private var cleanupFailure: (String, Int) -> Unit = { operation, hr ->
-        Log.w("WindowsToast", "Windows toast cleanup $operation failed: ${hresultString(hr)}")
-    }
-    private val retained = mutableMapOf<Pair<String, String>, Subscription>()
-
-    private class Subscription(val toast: ToastCom, val token: Long) {
-        fun close() {
-            try { checked(toast.call(ToastAbi.REMOVE_ACTIVATED, token), "remove_Activated") }
-            finally { toast.release() }
-        }
-    }
 
     private class State(val calls: WinRtCalls) {
         val roots = mutableListOf<ToastCom>()
@@ -149,10 +146,13 @@ class WinRtToastApi internal constructor(
         lateinit var updates: ToastCom
         lateinit var history: ToastCom
         lateinit var factory: ToastCom
+        var server: ToastComServer? = null
+        var cookie: Int? = null
         fun own(com: ToastCom): ToastCom = com.also { roots += it }
         fun close() {
-            try { cleanup(roots.asReversed().map { com -> { com.release() } }) }
-            finally { roots.clear(); calls.uninitialize() }
+            try {
+                cleanup(listOf<() -> Unit>({ cookie?.let(calls::revokeActivator) }, { server?.close() }) + roots.asReversed().map { com -> { com.release() } })
+            } finally { roots.clear(); server = null; cookie = null; calls.uninitialize() }
         }
     }
 
@@ -169,6 +169,10 @@ class WinRtToastApi internal constructor(
         checked(calls.initialize(), "RoInitialize") // S_FALSE also needs a matching RoUninitialize.
         val result = State(calls)
         try {
+            result.server = ToastComServer { appId, args ->
+                if (!closed && (aumid == null || appId == aumid) && parseToastActivationArguments(args) != null) handler(args)
+            }
+            result.cookie = calls.registerActivator(result.server!!.factoryPointer)
             hstring(calls, ToastAbi.MANAGER_CLASS) { className ->
                 use(calls.factory(className, ToastAbi.MANAGER)) { manager ->
                     result.notifier = result.own(if (aumid == null) manager.get(ToastAbi.CREATE_NOTIFIER)
@@ -198,21 +202,6 @@ class WinRtToastApi internal constructor(
         this.handler = handler
     }
 
-    override fun onCleanupFailure(handler: (String, Int) -> Unit) {
-        checkOwner()
-        cleanupFailure = handler
-    }
-
-    private fun closeSubscription(subscription: Subscription?) {
-        try {
-            subscription?.close()
-        } catch (e: ComException) {
-            if (reportedCleanup.add("remove_Activated" to e.hresult)) {
-                runCatching { cleanupFailure("remove_Activated", e.hresult) }
-            }
-        }
-    }
-
     override fun show(xml: String, tag: String, group: String, data: Map<String, String>): Int = operation { s ->
         val toast = use(hstring(s.calls, ToastAbi.XML_CLASS) { s.calls.activate(it) }) { instance ->
             use(instance.query(ToastAbi.XML_DOCUMENT)) { document ->
@@ -222,9 +211,7 @@ class WinRtToastApi internal constructor(
                 s.factory.get(ToastAbi.CREATE_TOAST, document.pointer)
             }
         }
-        var subscription: Subscription? = null
-        var transferred = false
-        try {
+        use(toast) {
             use(toast.query(ToastAbi.TOAST_2)) { options ->
                 hstring(s.calls, tag) { checked(options.call(ToastAbi.PUT_TAG, it), "put_Tag") }
                 hstring(s.calls, group) { checked(options.call(ToastAbi.PUT_GROUP, it), "put_Group") }
@@ -234,21 +221,8 @@ class WinRtToastApi internal constructor(
                     checked(options.call(ToastAbi.PUT_DATA, notificationData.pointer), "put_Data")
                 }
             }
-            val token = Memory(8)
-            // TypedEventHandler derives from IUnknown, so ComCallback's four-slot layout is intentional.
-            ComCallback(ToastAbi.ACTIVATED) { _, _ -> if (!closed) handler(tag); 0 }.use { callback ->
-                checked(toast.call(ToastAbi.ADD_ACTIVATED, callback, token), "add_Activated")
-            }
-            subscription = Subscription(toast, token.getLong(0))
             checked(s.notifier.call(ToastAbi.SHOW, toast.pointer), "Show")
-            val previous = retained.put(tag to group, subscription)
-            transferred = true
-            closeSubscription(previous)
             0
-        } finally {
-            if (!transferred) {
-                if (subscription != null) closeSubscription(subscription) else toast.release()
-            }
         }
     }
 
@@ -279,7 +253,7 @@ class WinRtToastApi internal constructor(
                 checked(s.updates.call(ToastAbi.UPDATE_WITH_TAG_AND_GROUP, notificationData.pointer, t, g, result), "UpdateWithTagAndGroup")
                 when (result.getInt(0)) {
                     0 -> 0 // NotificationUpdateResult_Succeeded
-                    2 -> { closeSubscription(retained.remove(tag to group)); 1 } // NotificationNotFound -> S_FALSE, no resurrection.
+                    2 -> 1 // NotificationNotFound -> S_FALSE, no resurrection.
                     else -> ToastAbi.E_FAIL
                 }
             } }
@@ -287,12 +261,10 @@ class WinRtToastApi internal constructor(
     }
 
     override fun remove(tag: String, group: String): Int = operation { s ->
-        try {
-            hstring(s.calls, tag) { t -> hstring(s.calls, group) { g ->
+        hstring(s.calls, tag) { t -> hstring(s.calls, group) { g ->
                 if (aumid == null) s.history.call(ToastAbi.REMOVE_GROUPED_TAG, t, g)
                 else hstring(s.calls, aumid) { s.history.call(ToastAbi.REMOVE_GROUPED_TAG_WITH_ID, t, g, it) }
-            } }
-        } finally { closeSubscription(retained.remove(tag to group)) }
+        } }
     }
 
     override fun close() {
@@ -301,8 +273,8 @@ class WinRtToastApi internal constructor(
         closed = true
         handler = {}
         try {
-            cleanup(retained.values.map { subscription -> { closeSubscription(subscription) } } + listOf({ state?.close(); Unit }))
-        } finally { retained.clear(); state = null }
+            state?.close()
+        } finally { state = null }
     }
 
     companion object {
@@ -311,7 +283,7 @@ class WinRtToastApi internal constructor(
             val string = calls.createString(value)
             return try { block(string) } finally { calls.deleteString(string) }
         }
-        /** A failure to unsubscribe one toast must not prevent release of other toasts or RoUninitialize. */
+        /** Revocation failure must not prevent release of the class server/roots or RoUninitialize. */
         private fun cleanup(actions: List<() -> Unit>) {
             var failure: Throwable? = null
             actions.forEach { action ->

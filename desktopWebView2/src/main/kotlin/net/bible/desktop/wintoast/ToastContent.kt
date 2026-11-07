@@ -8,7 +8,7 @@ const val TOAST_GROUP = "andbible"
 const val ANDBIBLE_AUMID = "org.andbible.AndBible"
 
 fun toastXml(n: NativeNotification): String = buildString {
-    append("<toast><visual><binding template=\"ToastGeneric\">")
+    append("<toast activationType=\"foreground\" launch=\"").append(toastActivationArguments(n.id)).append("\"><visual><binding template=\"ToastGeneric\">")
     append("<text>").append(xmlEscape(n.title)).append("</text>")
     append("<text>").append(xmlEscape(n.body)).append("</text>")
     if (n.progress != null || n.indeterminate) {

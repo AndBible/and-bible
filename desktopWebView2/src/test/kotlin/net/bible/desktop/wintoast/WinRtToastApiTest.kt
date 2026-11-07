@@ -13,13 +13,13 @@ import kotlin.test.assertFailsWith
 /** Exercises the native ABI adapter with owned COM interfaces but without loading any Windows library. */
 class WinRtToastApiTest {
     @Test
-    fun showUsesHstringsMapTagGroupAndTypedActivationThenUnsubscribesOnReplacement() {
+    fun showUsesHstringsMapAndProcessActivatorWithoutRetainingToasts() {
         val runtime = RecordingWinRt()
         val api = WinRtToastApi("org.andbible.AndBible") { runtime }
         val clicked = mutableListOf<String>()
         api.onActivated { clicked += it }
         assertEquals(0, api.show("<toast/>", "job", "andbible", mapOf("progressValue" to "0.42")))
-        assertEquals(listOf("initialize", "factory:Windows.UI.Notifications.ToastNotificationManager"), runtime.events.take(2))
+        assertEquals(listOf("initialize", "register"), runtime.events.take(2))
         assertTrue(runtime.events.contains("CreateToastNotifierWithId:org.andbible.AndBible"))
         assertTrue(runtime.events.contains("LoadXml:<toast/>"))
         assertTrue(runtime.events.contains("Tag:job"))
@@ -27,12 +27,14 @@ class WinRtToastApiTest {
         assertTrue(runtime.events.contains("Insert:progressValue:0.42"))
         assertTrue(runtime.events.indexOf("put_Data") < runtime.events.indexOf("Show"))
         runtime.activate()
-        assertEquals(listOf("job"), clicked)
+        assertEquals(listOf("andbible-toast:v1:am9i"), clicked)
         assertEquals(0, api.show("<toast/>", "job", "andbible", emptyMap()))
-        assertEquals(1, runtime.events.count { it == "remove_Activated:91" })
+        assertEquals(1, runtime.events.count { it == "register" })
         api.close()
-        assertEquals(2, runtime.events.count { it.startsWith("remove_Activated:") })
+        assertEquals(1, runtime.events.count { it == "revoke:42" })
         assertEquals("uninitialize", runtime.events.last())
+        assertTrue(runtime.events.indexOf("register") < runtime.events.indexOf("CreateToastNotifierWithId:org.andbible.AndBible"))
+        assertTrue(runtime.events.indexOf("revoke:42") < runtime.events.lastIndexOf("release:notifier"))
         runtime.assertReleased()
     }
 
@@ -63,12 +65,12 @@ class WinRtToastApiTest {
         val clicked = mutableListOf<String>()
         api.onActivated { clicked += it }
         api.show("<toast/>", "job", "andbible", emptyMap())
-        val oldCallback = runtime.callbackPointers().single()
+        val oldCallback = runtime.activator
         runtime.fail = "Show"
         assertTrue(api.show("<toast/>", "job", "andbible", emptyMap()) < 0)
-        assertEquals(listOf(oldCallback), runtime.callbackPointers(), "failed Show removed the prior toast's callback")
+        assertEquals(oldCallback, runtime.activator, "failed Show replaced process activation")
         runtime.activate()
-        assertEquals(listOf("job"), clicked)
+        assertEquals(listOf("andbible-toast:v1:am9i"), clicked)
         runtime.fail = null
         api.close()
         runtime.assertReleased()
@@ -76,7 +78,7 @@ class WinRtToastApiTest {
 
     @Test
     fun failingInitializationAndHstringInsertionBalanceOwnership() {
-        for (failure in listOf("initialize", "CreateToastNotifier", "LoadXml", "Insert", "add_Activated", "put_Data")) {
+        for (failure in listOf("initialize", "CreateToastNotifier", "LoadXml", "Insert", "register", "put_Data")) {
             val runtime = RecordingWinRt().apply { fail = failure }
             val api = WinRtToastApi(null) { runtime }
             assertTrue(api.show("<toast/>", "job", "andbible", mapOf("key" to "value")) < 0, failure)
@@ -87,54 +89,46 @@ class WinRtToastApiTest {
     }
 
     @Test
-    fun cleanupContinuesAfterUnsubscribeFailure() {
+    fun manyDistinctFinalToastsReleaseAllNativeObjectsWhileHistoryClickStillWorks() {
         val runtime = RecordingWinRt()
         val api = WinRtToastApi(null) { runtime }
-        api.show("<toast/>", "one", "andbible", emptyMap())
-        api.show("<toast/>", "two", "andbible", emptyMap())
-        val failures = mutableListOf<Pair<String, Int>>()
-        api.onCleanupFailure { operation, hr -> failures += operation to hr }
-        runtime.fail = "remove_Activated"
+        val clicked = mutableListOf<String>()
+        api.onActivated { clicked += it }
+        repeat(2000) {
+            assertEquals(0, api.show("<toast/>", "final-$it", "andbible", emptyMap()))
+            assertEquals(4, runtime.objectCount(), "per-toast COM reference leaked")
+        }
+        runtime.activate()
+        assertEquals(listOf("andbible-toast:v1:am9i"), clicked)
         api.close()
-        assertEquals(listOf("remove_Activated" to 0x80004005.toInt()), failures)
-        assertEquals(2, runtime.events.count { it.startsWith("remove_Activated:") })
+        runtime.assertReleased()
+    }
+
+    @Test
+    fun processActivationRejectsForeignAumidAndMalformedPayloadWithoutHistoryState() {
+        val runtime = RecordingWinRt()
+        val api = WinRtToastApi(ANDBIBLE_AUMID) { runtime }
+        val clicked = mutableListOf<String>()
+        api.onActivated { clicked += it }
+        api.show("<toast/>", "job", "andbible", emptyMap())
+        runtime.activate("another.app", "andbible-toast:v1:am9i")
+        runtime.activate(ANDBIBLE_AUMID, "-Embedding")
+        runtime.activate(ANDBIBLE_AUMID, "andbible-toast:v1:!")
+        assertTrue(clicked.isEmpty())
+        runtime.activate()
+        assertEquals(listOf("andbible-toast:v1:am9i"), clicked)
+        api.close()
+        runtime.assertReleased()
+    }
+
+    @Test
+    fun failedRevokeStillReleasesFactoryAndRootsAndUninitializes() {
+        val runtime = RecordingWinRt()
+        val api = WinRtToastApi(null) { runtime }
+        api.show("<toast/>", "job", "andbible", emptyMap())
+        runtime.fail = "revoke"
+        assertFailsWith<net.bible.desktop.webview2.ComException> { api.close() }
         assertEquals("uninitialize", runtime.events.last())
-        runtime.assertReleased()
-    }
-
-    @Test
-    fun cleanupFailureDoesNotRemoveSuccessfullyShownFinalToastAtNotifierClose() {
-        val runtime = RecordingWinRt()
-        val api = WinRtToastApi(null) { runtime }
-        val logs = mutableListOf<String>()
-        val notifier = WindowsToastNotifier({ api }, { it.run() }, log = { logs += it })
-        notifier.show(NativeNotification("job", "Title", "Working", 1, false, false))
-        runtime.fail = "remove_Activated"
-        notifier.show(NativeNotification("job", "Title", "Finished", null, false, false))
-        notifier.close()
-        assertFalse(runtime.events.any { it.startsWith("RemoveGroupedTag") }, "final toast was mistaken for progress")
-        assertEquals(2, runtime.events.count { it.startsWith("Show") })
-        assertEquals(1, logs.count { "cleanup" in it && "0x80004005" in it })
-        assertFalse(logs.any { "show failed" in it })
-        runtime.assertReleased()
-    }
-
-    @Test
-    fun cleanupFailureAfterNotFoundDoesNotCauseEndlessProgressUpdates() {
-        val runtime = RecordingWinRt()
-        val api = WinRtToastApi(null) { runtime }
-        val logs = mutableListOf<String>()
-        val notifier = WindowsToastNotifier({ api }, { it.run() }, log = { logs += it })
-        val n = NativeNotification("job", "Title", "Working", 1, false, false)
-        notifier.show(n)
-        runtime.updateResult = 2
-        runtime.fail = "remove_Activated"
-        repeat(4) { notifier.show(n.copy(progress = it + 2)) }
-        assertEquals(1, runtime.events.count { it.startsWith("Update:") })
-        assertEquals(1, logs.count { "cleanup" in it && "0x80004005" in it })
-        assertFalse(logs.any { "update failed" in it })
-        runtime.fail = null
-        notifier.close()
         runtime.assertReleased()
     }
 
@@ -159,8 +153,24 @@ class WinRtToastApiTest {
         private var nextPointer = 1L
         private val strings = mutableMapOf<Pointer, String>()
         private val objects = mutableSetOf<ToastCom>()
-        private val callbacks = linkedMapOf<Pair<Pointer, Long>, ComPtr>()
-        private var nextToken = 91L
+        var activator: ComPtr? = null
+        private var registeredFactory: ComPtr? = null
+        override fun registerActivator(factory: Pointer): Int {
+            events += "register"
+            if (fail == "register") throw net.bible.desktop.webview2.ComException("register", 0x80004005.toInt())
+            registeredFactory = ComPtr(factory).also { it.addRef() }
+            val output = com.sun.jna.ptr.PointerByReference()
+            assertEquals(0, ComPtr(factory).call(3, null, Iid("53E31837-6600-4A81-9395-75CFFE746F94").memory, output))
+            activator = ComPtr(output.value)
+            return 42
+        }
+        override fun revokeActivator(cookie: Int) {
+            events += "revoke:$cookie"
+            assertEquals(1, activator!!.call(2), "creator-owned activator should remain until server close")
+            assertEquals(1, registeredFactory!!.call(2), "creator-owned factory should remain until server close")
+            activator = null; registeredFactory = null
+            if (fail == "revoke") throw net.bible.desktop.webview2.ComException("revoke", 0x80004005.toInt())
+        }
         private fun string(value: Any?) = strings[value as Pointer?] ?: ""
         private fun result(name: String): Int = if (fail == name) 0x80004005.toInt() else 0
         override fun initialize(): Int { events += "initialize"; return result("initialize") }
@@ -177,7 +187,7 @@ class WinRtToastApiTest {
         private fun obj(kind: String): ToastCom = object : ToastCom {
             override val pointer = Pointer(nextPointer++)
             private var released = false
-            override fun release() { check(!released); released = true; check(objects.remove(this)) }
+            override fun release() { check(!released); released = true; check(objects.remove(this)); events += "release:$kind" }
             override fun query(iid: Iid): ToastCom = obj(when {
                 kind == "inspectable-xml" -> {
                     assertTrue(iid.bytes.contentEquals(Iid("f7f3a506-1e87-42d6-bcfb-b8c809fa5494").bytes))
@@ -211,26 +221,6 @@ class WinRtToastApiTest {
                     "toast2" -> when (slot) { 6 -> "Tag:${string(args[0])}"; 8 -> "Group:${string(args[0])}"; else -> error("toast2 $slot") }
                     "toast4" -> { assertEquals(7, slot); "put_Data" }
                     "map" -> { assertEquals(10, slot); (args[2] as Pointer).setByte(0, 0); "Insert:${string(args[0])}:${string(args[1])}" }
-                    "toast" -> when (slot) {
-                        11 -> {
-                            val callback = ComPtr(args[0] as Pointer)
-                            if (result("add_Activated") >= 0) {
-                                val typed = callback.query(ToastAbi.ACTIVATED)!!
-                                typed.release()
-                                callback.addRef()
-                                val token = nextToken++
-                                callbacks[pointer to token] = callback
-                                (args[1] as Pointer).setLong(0, token)
-                            }
-                            "add_Activated"
-                        }
-                        12 -> {
-                            val callback = checkNotNull(callbacks.remove(pointer to (args[0] as Long))) { "wrong toast/token unsubscription" }
-                            assertEquals(0, callback.call(2), "callback creator reference leaked")
-                            "remove_Activated:${args[0]}"
-                        }
-                        else -> error("toast $slot")
-                    }
                     "notifier" -> { assertEquals(6, slot); "Show" }
                     "notifier2" -> { assertEquals(6, slot); (args[3] as Pointer).setInt(0, updateResult); "Update:${string(args[1])}:${string(args[2])}" }
                     "history" -> when (slot) {
@@ -245,12 +235,15 @@ class WinRtToastApiTest {
             }
         }.also { objects += it }
 
-        fun callbackPointers(): List<Pointer> = callbacks.values.map { it.ptr }
-        fun activate() { callbacks.values.last().call(3, null, null) }
+        fun objectCount() = objects.size
+        fun activate(app: String = ANDBIBLE_AUMID, args: String = "andbible-toast:v1:am9i") {
+            fun wide(s: String) = com.sun.jna.Memory((s.length + 1L) * 2).apply { s.forEachIndexed { i, c -> setShort(i * 2L, c.code.toShort()) }; setShort(s.length * 2L, 0) }
+            activator!!.call(3, wide(app), wide(args), null, 0)
+        }
         fun assertReleased() {
             assertTrue(objects.isEmpty(), "leaked ${objects.size} COM interfaces")
             assertTrue(strings.isEmpty(), "leaked HSTRINGs")
-            assertTrue(callbacks.isEmpty(), "leaked callback subscriptions")
+            assertEquals(null, activator, "leaked process activator")
         }
     }
 }

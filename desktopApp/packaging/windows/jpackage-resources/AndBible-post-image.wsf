@@ -15,6 +15,10 @@ for (var i = 0; i < shortcuts.length; i++) {
     shortcutProperty.setAttribute("Key", "System.AppUserModel.ID");
     shortcutProperty.setAttribute("Value", "org.andbible.AndBible");
     shortcuts.item(i).appendChild(shortcutProperty);
+    var activatorProperty = xml.createNode(1, "ShortcutProperty", "http://schemas.microsoft.com/wix/2006/wi");
+    activatorProperty.setAttribute("Key", "System.AppUserModel.ToastActivatorCLSID");
+    activatorProperty.setAttribute("Value", "{C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}");
+    shortcuts.item(i).appendChild(activatorProperty);
 }
 xml.save(path);
 ]]></script>

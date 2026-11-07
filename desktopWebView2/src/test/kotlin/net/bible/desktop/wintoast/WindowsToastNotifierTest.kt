@@ -40,6 +40,23 @@ class WindowsToastNotifierTest {
         NativeNotification(id, "Title", body, progress, false, false)
 
     @Test
+    fun completedHistoryClicksDoNotRequireRetainedIdsOrNativeToastObjects() {
+        val api = FakeApi()
+        val notifier = WindowsToastNotifier({ api }, { it.run() })
+        val id = "a".repeat(65)
+        val clicked = mutableListOf<String>()
+        notifier.setOnActivated { clicked += it }
+        notifier.show(notification(id = id, progress = null))
+        repeat(2000) { notifier.show(notification(id = "final-$it", progress = null)) }
+        // Action Center carries the original id even after all per-toast state was discarded.
+        api.activated(toastActivationArguments(id))
+        assertEquals(listOf(id), clicked)
+        val state = WindowsToastNotifier::class.java.getDeclaredField("shown").apply { isAccessible = true }.get(notifier) as Map<*, *>
+        assertTrue(state.size <= 256, "completed ids retained unbounded: ${state.size}")
+        notifier.close()
+    }
+
+    @Test
     fun firstShowThenInPlaceUpdate() {
         val api = FakeApi()
         val notifier = WindowsToastNotifier({ api }, { it.run() })
@@ -77,7 +94,7 @@ class WindowsToastNotifierTest {
         notifier.setOnActivated { clicked += it }
         notifier.show(notification())
         notifier.remove("job")
-        api.activated("job")
+        api.activated("andbible-toast:v1:am9i")
         assertEquals(listOf("show:job:andbible", "remove:job:andbible"), api.calls)
         assertTrue(clicked.isEmpty())
     }
@@ -90,10 +107,10 @@ class WindowsToastNotifierTest {
         notifier.setOnActivated { clicked += it }
         notifier.show(notification(id = "a".repeat(65)))
         api.activated("unknown")
-        api.activated("635361c48bb9eab14198e76ea8ab7f1a41685d6ad62aa9146d301d4f17eb0ae0")
+        api.activated(toastActivationArguments("a".repeat(65)))
         assertEquals(listOf("a".repeat(65)), clicked)
         notifier.close()
-        api.activated("635361c48bb9eab14198e76ea8ab7f1a41685d6ad62aa9146d301d4f17eb0ae0")
+        api.activated(toastActivationArguments("a".repeat(65)))
         assertEquals(1, clicked.size)
     }
 

@@ -4,9 +4,11 @@
          xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
          xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
          xmlns:uap7="http://schemas.microsoft.com/appx/manifest/uap/windows10/7"
+         xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+         xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
          xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
          xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-         IgnorableNamespaces="uap uap2 uap3 uap7 desktop6 rescap">
+         IgnorableNamespaces="uap uap2 uap3 uap7 desktop desktop6 com rescap">
   <Identity Name="@NAME@" Publisher="@PUBLISHER@" Version="@VERSION@" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>AndBible</DisplayName>
@@ -20,6 +22,16 @@
     <Application Id="AndBible" Executable="AndBible.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements DisplayName="AndBible" Description="Offline Bible study app" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" />
       <Extensions>
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="C8B03B6B-3F3A-4F8E-9A57-24A610C03A13" />
+        </desktop:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="AndBible.exe" Arguments="-ToastActivated" DisplayName="AndBible">
+              <com:Class Id="C8B03B6B-3F3A-4F8E-9A57-24A610C03A13" DisplayName="AndBible" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
         <uap:Extension Category="windows.fileTypeAssociation">
           <uap3:FileTypeAssociation Name="andbible" Parameters="&quot;%1&quot;">
             <uap:SupportedFileTypes>

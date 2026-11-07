@@ -170,6 +170,8 @@ internal fun createDesktopEngine(
  * startup-failed screen naming the directory.
  */
 private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
+    // COM may ask to launch an absent server. Never treat its launcher switches as import paths.
+    if (net.bible.desktop.wintoast.toastLaunchFiles(launchArgs) == null) return
     val paths = DesktopPaths.system()
     val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
         val launcher = System.getProperty("jpackage.app-path")
