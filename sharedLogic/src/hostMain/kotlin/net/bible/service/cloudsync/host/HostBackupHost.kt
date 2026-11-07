@@ -11,7 +11,13 @@ private const val TAG = "IosBackupHost"
 
 /** Installed by the UI host without introducing a sharedLogic -> sharedUi dependency. */
 object HostErrorReportHooks {
+    private val reportAvailability = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val available: kotlinx.coroutines.flow.StateFlow<Boolean> = reportAvailability
     var report: (suspend (Throwable?) -> Unit)? = null
+        set(value) {
+            field = value
+            reportAvailability.value = value != null
+        }
     var backup: (() -> Unit)? = null
 }
 
