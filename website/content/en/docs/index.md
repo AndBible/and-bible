@@ -1,6 +1,6 @@
 # AndBible documentation {#welcome-to-the-andbible-bible-study-s-documentation}
 
-**AndBible: Bible Study** is a free, open-source Bible study app for Android, iPhone, iPad, Mac, Windows and Linux for studying the Bible: several
+**AndBible: Bible Study** is a free, open-source app for studying the Bible on Android, iPhone, iPad, Mac, Windows and Linux: several
 Bibles, commentaries and dictionaries side by side, bookmarks, notes and study pads, all offline.
 
 New here? [Getting Started](getting_started.md) covers installation, and [Navigation](navigation.md)
@@ -86,7 +86,7 @@ shows how to find your way around the app.
 
 | Doc | What's inside |
 |---|---|
-| [AndBible on Linux and Windows](desktop.md) | Installation, update checks, data locations, known limitations and how to report a bug |
+| [AndBible on Windows and Linux](desktop.md) | Installation, update checks, data locations, known limitations and how to report a bug |
 
 ### Customisation & Advanced
 

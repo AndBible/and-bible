@@ -27,7 +27,7 @@ A powerful, yet easy to use, offline Bible study application.
 
 - **Android:** the badges above (Google Play, F-Droid, Accrescent, Obtainium, Amazon Appstore).
 - **iPhone and iPad:** [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527).
-- **Mac:** there is no separate macOS build. Apple Silicon Macs run the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527).
+- **Mac:** there is no separate macOS build. Apple Silicon Macs run the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527); Intel Macs are not supported.
 - **Windows:** MSI installer from the [latest release](https://github.com/AndBible/and-bible/releases/latest).
 - **Linux:** `.deb` package and AppImage from the [latest release](https://github.com/AndBible/and-bible/releases/latest).
 

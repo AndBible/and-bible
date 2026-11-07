@@ -5,6 +5,7 @@
 *AndBible* supports various document modules: [Bibles](#bibles), [Commentaries](#commentaries), [Dictionaries](#dictionaries),
 [Books](#books), and [Maps](#maps). You can [Download Documents](#download-documents), [Backup and Restore](backup_restore.md)
 documents, and [Load Documents](#load-documents) from your device’s filesystem.
+
 ## Document Library
 
 The *Document Library* contains the list of all Bibles, commentaries, dictionaries,
@@ -167,13 +168,13 @@ running for a short while after you switch to another app.
 
 To load a document from your device’s filesystem:
 
-On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
-
 1. Click on the top left main menu (☰).
 2. Click *Download documents*.
 3. Click the three vertical dot menu on the right of the top menu bar.
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
+
+On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
 
 Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or
 document sync makes the new text available for subsequent reads without restarting

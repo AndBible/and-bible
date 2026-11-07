@@ -60,7 +60,7 @@ On Windows, data is in `%APPDATA%\AndBible`, configuration in its `config` subdi
 
 - Printing is not available.
 - There is no find in the current page. Use the search in the app to search in a Bible instead.
-- Your reading position is saved when you close the window and on a normal process termination, such as logging out or shutting down. A forced kill (SIGKILL or *End process*) or a power cut can lose changes since the previous save.
+- Your reading position is saved when you close the window. A forced kill (SIGKILL or *End process*) or a power cut can lose changes since the previous save.
 
 See also [Platform differences](platform_differences.md).
 

@@ -352,4 +352,4 @@ def test_meta_and_hero_name_every_platform(content):
 
 def test_sync_feature_is_not_android_only(content):
     text = next(f["text"] for f in strings(content, "en")["features"] if f["title"] == "Sync")
-    assert "iCloud" in text or not any(n in text for n in ("Google Drive", "NextCloud", "Nextcloud"))
+    assert "iCloud" in text, text

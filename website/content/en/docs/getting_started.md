@@ -117,17 +117,17 @@ error reports use the same consent flow and include the WebView error diagnostic
 
 The iOS drawer does not currently offer a rating or development-purchase action.
 
-## Help and sharing on Windows and Linux
+## Help and bug reports on Windows and Linux {#help-and-sharing-on-windows-and-linux}
 
 **Report a bug** (*Help & tips*, then *Feedback / bug report*) asks where to save a report
 file, then tries to open your email program. If that fails, a dialog shows the saved file,
 the address to send it to and a **Copy address** button. See [Desktop](desktop.md#reporting-a-bug).
 
-## Linux {#linux-setup}
+## Linux setup {#linux-setup}
 
 AndBible has a native Linux app. See [Linux](#linux) above.
 
-## Windows {#windows-11-setup}
+## Windows setup {#windows-11-setup}
 
 AndBible has a native Windows app. See [Windows](#windows) above.
 
