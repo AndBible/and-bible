@@ -67,6 +67,8 @@ object DemoBackupGenerator {
             DatabaseContainer.detachInstanceForTest()
             previousHost?.let { DatabaseContainer.installHost(it) }
             if (ownsKoin) stopKoin()
+            // The databases live in a temp dir that only this call needs: the zip is already copied to outZip.
+            java.io.File(dir).deleteRecursively()
         }
     }
 
