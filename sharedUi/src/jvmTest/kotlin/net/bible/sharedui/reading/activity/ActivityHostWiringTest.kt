@@ -107,6 +107,34 @@ class ActivityHostWiringTest {
         assertTrue(same(offBefore, pixels()), "ring gone, sync glyph back exactly as before")
     }
 
+    @Test fun listReportsThroughAvailableReporterAndTracksAvailability() = runComposeUiTest {
+        val f = Fixture(default = true)
+        val cause = IllegalStateException("download failed")
+        f.center.start("x", ActivityKind.DOWNLOAD, "KJV")
+        f.center.fail("x", "failed", cause = cause)
+        val available = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val reports = mutableListOf<net.bible.android.control.activity.ActivityItem>()
+        val reporter = object : net.bible.android.control.activity.ActivityReporter {
+            override val available = available
+            override fun report(item: net.bible.android.control.activity.ActivityItem) { reports += item }
+        }
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(ActivityHostWiring(f.center, f.preference, reporter = reporter, onOpenItem = {}), seen = seen)
+        waitForIdle()
+        seen.last()!!.onShowAll()
+        waitForIdle()
+        onAllNodes(androidx.compose.ui.test.hasText("Report")).assertCountEquals(0)
+        available.value = true
+        waitForIdle()
+        onNode(androidx.compose.ui.test.hasText("Report")).performClick()
+        assertEquals(cause, reports.single().cause)
+        assertEquals(1, f.center.items.value.size)
+        onAllNodesWithTag(ACTIVITY_LIST_ROW_TAG).assertCountEquals(1)
+        available.value = false
+        waitForIdle()
+        onAllNodes(androidx.compose.ui.test.hasText("Report")).assertCountEquals(0)
+    }
+
     @Test fun menuOpenMarksRead() = runComposeUiTest {
         val f = Fixture(default = true)
         f.center.start("x", ActivityKind.DOWNLOAD, "KJV")

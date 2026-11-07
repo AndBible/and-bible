@@ -434,6 +434,7 @@
     <string name="activity_running">Running</string>
     <string name="activity_recent">Recent</string>
     <string name="activity_clear_finished">Clear finished</string>
+    <string name="activity_report">Report</string>
     <string name="activity_title">Background activity</string>
     <string name="activity_empty">Nothing running</string>
     <string name="activity_failed_toast">%1$s — see menu</string>

@@ -1421,7 +1421,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun activityWiring(): ActivityHostWiring? {
         val center = getKoin().getOrNull<ActivityCenter>() ?: return null
         val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
-        return ActivityHostWiring(center, preference, syncNow = getKoin().get()) { item ->
+        return ActivityHostWiring(center, preference, syncNow = getKoin().get(), reporter = getKoin().getOrNull()) { item ->
             activityItemRoute(item)?.let { route ->
                 activity.hostActivity.startActivity(NavHostComposeActivity.intentFor(activity.hostContext, route))
             }

@@ -144,5 +144,15 @@ class ActivityCenterGoldenTest {
     )
 
     @Test
+    fun activityList_reportableFailure() = capture("activityList_reportableFailure") {
+        Column(Modifier.width(360.dp)) {
+            ActivityListContent(
+                listOf(item("Download KJV", ActivityState.FAILED, message = "Download failed").copy(reportable = true)),
+                onDismissItem = {}, onClearFinished = {}, onOpenItem = {}, onReport = {},
+            )
+        }
+    }
+
+    @Test
     fun list_empty() = capture("list_empty", list(emptyList()))
 }

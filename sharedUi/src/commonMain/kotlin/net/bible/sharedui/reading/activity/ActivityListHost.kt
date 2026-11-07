@@ -62,6 +62,7 @@ fun ActivityListHost(
     onClearFinished: () -> Unit,
     onOpenItem: (ActivityItem) -> Unit,
     onClose: () -> Unit,
+    onReport: ((ActivityItem) -> Unit)? = null,
 ) {
     if (!visible) return
     val strings = LocalStrings.current
@@ -73,7 +74,7 @@ fun ActivityListHost(
                 text = {
                     ActivityListContent(
                         items, onDismissItem, onClearFinished, onOpenItem,
-                        modifier = Modifier.testTag(ACTIVITY_LIST_POPOVER_TAG),
+                        modifier = Modifier.testTag(ACTIVITY_LIST_POPOVER_TAG), onReport = onReport,
                     )
                 },
                 confirmButton = { TextButton(onClick = onClose) { Text(strings.settingsEditorClose) } },
@@ -86,7 +87,7 @@ fun ActivityListHost(
             ) {
                 Column(Modifier.testTag(ACTIVITY_LIST_SHEET_TAG)) {
                     AbSheetHeader(title = strings.activityTitle, onClose = onClose)
-                    ActivityListContent(items, onDismissItem, onClearFinished, onOpenItem)
+                    ActivityListContent(items, onDismissItem, onClearFinished, onOpenItem, onReport = onReport)
                 }
             }
         }
