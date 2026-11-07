@@ -152,12 +152,12 @@ fun desktopMiscModule(): Module = module {
     val distribution = detectDistribution(
         System.getenv(), System.getProperty("compose.application.resources.dir"), System.getProperty("jpackage.app-path"),
     )
-    val releaseKind = System.getProperty("andbible.releaseKind")
+    val channel = net.bible.sharedui.desktop.update.DesktopChannel.fromReleaseKind(System.getProperty("andbible.releaseKind"))
     val version = System.getProperty("andbible.version") ?: "dev"
     val build = desktopBuildNumber(version)
-    if (distribution.checksForUpdates && releaseKind in setOf("test", "production") && build != null) {
+    if (distribution.checksForUpdates && channel != null && build != null) {
         single<DesktopUpdateCheckSetting>(createdAtStart = true) {
-            DesktopUpdatePrompts(get(), get<AppCoroutineScope>(), get(), version, build, releaseKind == "production", get(), get(), get())
+            DesktopUpdatePrompts(get(), get<AppCoroutineScope>(), get(), version, build, channel, get(), get(), get())
         } onClose { (it as? DesktopUpdatePrompts)?.close() }
     }
     single<DesktopNightModeSource> { DesktopNightModeAdapter(net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState(get())) }

@@ -54,7 +54,7 @@ For Flathub, submit the manifest, source lists and packaging files according to 
 
 ## Release train
 
-A push of `test-<build>` or `production-<build>` runs the desktop workflow. Linux and Windows packages receive `-PdesktopReleaseKind=test` or `production` from the tag; ordinary builds default to `dev`. Dev builds do not check for updates. Production checks only production tags; test builds can also see test tags. This selection uses the tag, not GitHub's prerelease flag. The Flatpak bundle is a CI artifact, not a GitHub release asset.
+A push of `test-<build>`, `beta-<build>` or `production-<build>` runs the desktop workflow. Linux and Windows packages receive `-PdesktopReleaseKind=test`, `beta` or `production` from the tag; ordinary builds default to `dev`. Dev builds do not check for updates. Channels are ordered by stability, test < beta < production, and an installation is offered a newer release only on its own channel or a more stable one: test sees test, beta and production; beta sees beta and production; production sees production only. This selection uses the tag, not GitHub's prerelease flag. The Flatpak bundle is a CI artifact, not a GitHub release asset.
 
 The desktop release job waits up to 30 minutes for `build-apk.yml` to create the release, then uploads exactly these assets (`<tag>` is the full tag):
 

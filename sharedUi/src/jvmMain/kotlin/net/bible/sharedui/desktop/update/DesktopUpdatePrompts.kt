@@ -30,7 +30,7 @@ class DesktopUpdatePrompts(
     environment: AppEnvironment,
     version: String,
     build: Int,
-    production: Boolean,
+    channel: DesktopChannel,
     private val dialogs: AppDialogController,
     private val strings: HostStringTableHolder,
     private val links: ExternalLinks,
@@ -51,7 +51,7 @@ class DesktopUpdatePrompts(
             check(response.statusCode() in 200..299) { "Update request failed" }
             response.body()
         }
-    }, build, production, updateScope, {}, consent = {
+    }, build, channel, updateScope, {}, consent = {
         when (val result = dialogs.await(AppDialogRequest.Localized {
             val table = strings.current
             AppDialogRequest.Options(table.text("desktop_update_consent_title"), table.text("desktop_update_consent_message"),

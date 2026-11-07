@@ -7,11 +7,28 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
-data class DesktopRelease(val tag: String, val build: Int, val production: Boolean, val htmlUrl: String)
+/**
+ * Release channel, ordered by stability: [TEST] < [BETA] < [PRODUCTION]. An installation is offered
+ * releases of its own channel or a more stable one, never a less stable one.
+ */
+enum class DesktopChannel(val tagPrefix: String) {
+    TEST("test"), BETA("beta"), PRODUCTION("production");
+
+    /** Whether an installation on this channel may be offered [release]. */
+    fun accepts(release: DesktopRelease): Boolean = release.channel >= this
+
+    companion object {
+        /** Maps the build's `andbible.releaseKind`; `dev` and unknown values have no channel (no update check). */
+        fun fromReleaseKind(kind: String?): DesktopChannel? = entries.firstOrNull { it.tagPrefix == kind }
+        fun fromTagPrefix(prefix: String): DesktopChannel? = fromReleaseKind(prefix)
+    }
+}
+
+data class DesktopRelease(val tag: String, val build: Int, val channel: DesktopChannel, val htmlUrl: String)
 
 fun parseDesktopReleases(json: String): List<DesktopRelease> {
     val releases = Json.parseToJsonElement(json) as? JsonArray ?: return emptyList()
-    val tagPattern = Regex("^(test|production)-(\\d+)$")
+    val tagPattern = Regex("^(test|beta|production)-(\\d+)$")
     return releases.mapNotNull { element ->
         val release = element as? JsonObject ?: return@mapNotNull null
         if (release["draft"]?.jsonPrimitive?.booleanOrNull != false) return@mapNotNull null
@@ -21,10 +38,10 @@ fun parseDesktopReleases(json: String): List<DesktopRelease> {
         val assets = release["assets"] as? JsonArray ?: return@mapNotNull null
         if (assets.none { (it as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull?.startsWith("andbible-desktop-") == true }) return@mapNotNull null
         val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
-        DesktopRelease(tag, build, match.groupValues[1] == "production", url)
+        DesktopRelease(tag, build, DesktopChannel.fromTagPrefix(match.groupValues[1]) ?: return@mapNotNull null, url)
     }
 }
 
-fun newestOffered(releases: List<DesktopRelease>, ownBuild: Int, ownIsProduction: Boolean, announcedBuild: Int): DesktopRelease? =
-    releases.filter { it.build > ownBuild && it.build > announcedBuild && (!ownIsProduction || it.production) }
+fun newestOffered(releases: List<DesktopRelease>, ownBuild: Int, ownChannel: DesktopChannel, announcedBuild: Int): DesktopRelease? =
+    releases.filter { it.build > ownBuild && it.build > announcedBuild && ownChannel.accepts(it) }
         .maxByOrNull { it.build }

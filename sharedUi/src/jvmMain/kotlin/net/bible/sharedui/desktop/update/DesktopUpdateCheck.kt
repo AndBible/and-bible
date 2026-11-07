@@ -18,7 +18,7 @@ class DesktopUpdateCheck(
     private val clock: () -> Long,
     private val fetch: suspend () -> String,
     private val ownBuild: Int,
-    private val ownIsProduction: Boolean,
+    private val ownChannel: DesktopChannel,
     private val scope: CoroutineScope,
     private val announce: (DesktopRelease) -> Unit,
     private val consent: suspend () -> Boolean? = { null },
@@ -50,7 +50,7 @@ class DesktopUpdateCheck(
         if (last != Long.MIN_VALUE && (now < last || now - last < DAY_MS)) return
         settings.putLong(LAST_CHECK_KEY, now)
         try {
-            val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownIsProduction, settings.getInt(ANNOUNCED_KEY, 0))
+            val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownChannel, settings.getInt(ANNOUNCED_KEY, 0))
             if (release != null && settings.getString(CONSENT_KEY) == "yes") {
                 if (announceAndAwait(release)) settings.putInt(ANNOUNCED_KEY, release.build)
             }
