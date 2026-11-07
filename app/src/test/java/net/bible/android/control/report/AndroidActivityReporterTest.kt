@@ -1,7 +1,13 @@
 package net.bible.android.control.report
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
@@ -11,6 +17,7 @@ import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityState
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -31,9 +38,81 @@ class AndroidActivityReporterTest {
     )
 
     @Test
+    fun availabilityIsFalseWithoutAnActivity() = runTest {
+        val reporter = AndroidActivityReporter({ backgroundScope }, { null }) { _, _, _ -> }
+        runCurrent()
+        assertEquals(false, reporter.available.value)
+    }
+
+    @Test
+    fun availabilityEmitsWhenCurrentActivityStartsAndStops() = runTest {
+        CurrentActivityHolder.forgetActivitiesForTest()
+        val reporter = AndroidActivityReporter({ backgroundScope })
+        val emissions = mutableListOf<Boolean>()
+        val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            reporter.available.collect { emissions += it }
+        }
+        runCurrent()
+        val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        try {
+            runCurrent()
+            assertEquals(listOf(false, true), emissions)
+            controller.pause().stop().destroy()
+            runCurrent()
+            assertEquals(listOf(false, true, false), emissions)
+        } finally {
+            collector.cancel()
+            if (!controller.get().isDestroyed) controller.pause().stop().destroy()
+            CurrentActivityHolder.forgetActivitiesForTest()
+        }
+    }
+
+    @Test
+    fun cancellingReporterScopeStopsAvailabilityUpdates() = runTest {
+        CurrentActivityHolder.forgetActivitiesForTest()
+        val reporterScope = CoroutineScope(backgroundScope.coroutineContext + Job())
+        val reporter = AndroidActivityReporter({ reporterScope })
+        runCurrent()
+        reporterScope.cancel()
+        runCurrent()
+        val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        try {
+            runCurrent()
+            assertEquals(false, reporter.available.value)
+        } finally {
+            controller.pause().stop().destroy()
+            CurrentActivityHolder.forgetActivitiesForTest()
+        }
+    }
+
+    @Test
+    fun availabilityTracksActivityFinishingAndDestruction() = runTest {
+        val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        val activity = controller.get()
+        val reporter = AndroidActivityReporter({ backgroundScope }, { activity }) { _, _, _ -> }
+        try {
+            runCurrent()
+            assertEquals(true, reporter.available.value)
+            val emissions = mutableListOf<Boolean>()
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                reporter.available.collect { emissions += it }
+            }
+            activity.finish()
+            runCurrent()
+            assertEquals(false, reporter.available.value)
+            assertEquals(listOf(true, false), emissions)
+            controller.pause().stop().destroy()
+            runCurrent()
+            assertEquals(false, reporter.available.value)
+        } finally {
+            if (!activity.isDestroyed) controller.pause().stop().destroy()
+        }
+    }
+
+    @Test
     fun noActivitySkipsDispatch() = runTest {
         var calls = 0
-        val reporter = AndroidActivityReporter({ this }, { null }) { _, _, _ -> calls++ }
+        val reporter = AndroidActivityReporter({ backgroundScope }, { null }) { _, _, _ -> calls++ }
         reporter.report(item())
         runCurrent()
         assertEquals(0, calls)
@@ -48,7 +127,7 @@ class AndroidActivityReporterTest {
             val release = CompletableDeferred<Unit>()
             val cause = IllegalStateException("original")
             val calls = mutableListOf<Triple<ActivityBase, Throwable, String>>()
-            val reporter = AndroidActivityReporter({ this }, { current }) { captured, error, source ->
+            val reporter = AndroidActivityReporter({ backgroundScope }, { current }) { captured, error, source ->
                 calls += Triple(captured, error, source)
                 release.await()
             }
@@ -80,7 +159,7 @@ class AndroidActivityReporterTest {
         val release = CompletableDeferred<Unit>()
         var current: ActivityBase = first.get()
         val calls = mutableListOf<ActivityBase>()
-        val reporter = AndroidActivityReporter({ this }, { current }) { activity, _, _ ->
+        val reporter = AndroidActivityReporter({ backgroundScope }, { current }) { activity, _, _ ->
             calls += activity
             release.await()
         }
@@ -112,7 +191,7 @@ class AndroidActivityReporterTest {
             val activity = controller.get()
             activity.finish()
             var calls = 0
-            val reporter = AndroidActivityReporter({ this }, { activity }) { _, _, _ -> calls++ }
+            val reporter = AndroidActivityReporter({ backgroundScope }, { activity }) { _, _, _ -> calls++ }
             reporter.report(item())
             runCurrent()
             assertEquals(0, calls)

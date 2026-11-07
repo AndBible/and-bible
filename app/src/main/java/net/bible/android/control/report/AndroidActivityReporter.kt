@@ -7,6 +7,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import net.bible.android.control.activity.ActivityFailureReport
 import net.bible.android.control.activity.ActivityItem
@@ -23,6 +32,23 @@ class AndroidActivityReporter(
     },
 ) : ActivityReporter {
     private val reporting = atomic(false)
+
+    private fun isLive(activity: ActivityBase?) = activity != null &&
+        !activity.isFinishing && !activity.isDestroyed &&
+        activity.lifecycle.currentState != Lifecycle.State.DESTROYED
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val available: StateFlow<Boolean> = CurrentActivityHolder.currentActivityChanges.flatMapLatest {
+        callbackFlow {
+            val activity = currentActivity()
+            fun update() { trySend(isLive(currentActivity())) }
+            val observer = LifecycleEventObserver { _, _ -> update() }
+            activity?.lifecycle?.addObserver(observer)
+            update()
+            awaitClose { activity?.lifecycle?.removeObserver(observer) }
+        }
+    }.distinctUntilChanged().flowOn(Dispatchers.Main.immediate)
+        .stateIn(scope(), SharingStarted.Eagerly, false)
 
     override fun report(item: ActivityItem) {
         val activity = currentActivity()

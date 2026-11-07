@@ -17,6 +17,8 @@
 package net.bible.android.view.activity.base
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -30,6 +32,17 @@ enum class AppPosition { FOREGROUND, BACKGROUND }
 
 object CurrentActivityHolder {
     private val activities = ArrayList<ActivityBase>()
+    private val currentActivityState = MutableStateFlow<Pair<ActivityBase?, Boolean>>(null to false)
+    val currentActivityChanges = currentActivityState.asStateFlow()
+
+    private fun publishCurrentActivity() {
+        val activity = currentActivity
+        currentActivityState.value = activity to (activity != null && !activity.isFinishing && !activity.isDestroyed)
+    }
+
+    fun activityFinishing(activity: ActivityBase) {
+        if (activity == currentActivity) currentActivityState.value = activity to false
+    }
 
     private var positionSource = EventSource<AppPosition>()
     /** The first activity started or the last one stopped; synchronous on the caller's thread. */
@@ -46,7 +59,10 @@ object CurrentActivityHolder {
      * necessarily the activities a test built and never stopped, so without this a test (any class, one JVM) can
      * start with "an activity is already active" and never see its first activation as [AppPosition.FOREGROUND].
      */
-    @VisibleForTesting fun forgetActivitiesForTest() { activities.clear() }
+    @VisibleForTesting fun forgetActivitiesForTest() {
+        activities.clear()
+        currentActivityState.value = null to false
+    }
 
     /** Activities a finished test left activated. Reset joins their owners before closing the database. */
     @VisibleForTesting fun liveActivitiesForTest(): List<ActivityBase> = activities.toList()
@@ -69,6 +85,7 @@ object CurrentActivityHolder {
         if(activity == currentActivity) return
         val wasEmpty = activities.isEmpty()
         activities.add(activity)
+        publishCurrentActivity()
         activity.unFreeze()
         if (wasEmpty) {
             notifyAppPosition(AppPosition.FOREGROUND)
@@ -81,6 +98,7 @@ object CurrentActivityHolder {
 
     fun deactivate(activity: ActivityBase) {
         activities.remove(activity)
+        publishCurrentActivity()
         if (activities.isEmpty()) {
             notifyAppPosition(AppPosition.BACKGROUND)
         } else {
