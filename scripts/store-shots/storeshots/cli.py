@@ -14,6 +14,11 @@ def build_parser() -> argparse.ArgumentParser:
     capture.register(sub)
     from . import modules_fetch
     modules_fetch.register(sub)
+    from . import modules_table
+    modules_table.register(sub)
+    from . import contact, fastlane
+    contact.register(sub)
+    fastlane.register(sub)
     return parser
 
 
