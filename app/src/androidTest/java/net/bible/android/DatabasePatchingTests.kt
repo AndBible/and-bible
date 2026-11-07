@@ -47,6 +47,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import net.bible.service.db.queryRows
+import net.bible.service.db.useWriterConnectionMarked
+import kotlinx.coroutines.runBlocking
+import net.bible.sharedcore.platform.AppEnvironment
 import java.io.File
 import java.util.UUID
 import org.crosswire.jsword.versification.BibleBook
@@ -56,13 +60,15 @@ infix fun <E, T : Iterable<E>> T?.mustEqualTo(theOther: Iterable<E>) = Assert.as
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class DatabasePatchingTests {
+    private val env: AppEnvironment by lazy { org.koin.java.KoinJavaComponent.get(AppEnvironment::class.java) }
+
     @Before
     fun setUp() {
         DatabaseContainer.ready = true
         DatabaseContainer.instance
     }
 
-    private fun getDbDef(dbFile1: File): SyncableDatabaseAccessor<BookmarkDatabase> {
+    private suspend fun getDbDef(dbFile1: File): SyncableDatabaseAccessor<BookmarkDatabase> {
         var bmarkDb = DatabaseContainer.instance.getBookmarkDb(dbFile1.absolutePath)
         val dbDef = SyncableDatabaseAccessor(
             bmarkDb,
@@ -81,7 +87,7 @@ class DatabasePatchingTests {
     }
 
     /** A fresh database of [category] standing in for one device. */
-    private fun <T : SyncableRoomDatabase> newDevice(
+    private suspend fun <T : SyncableRoomDatabase> newDevice(
         category: SyncableDatabaseDefinition,
         open: (String) -> T,
     ): SyncableDatabaseAccessor<T> {
@@ -95,7 +101,7 @@ class DatabasePatchingTests {
                 db = open(dbFile.absolutePath)
                 db
             },
-            dbFile,
+            dbFile.path,
             category,
             deviceId = UUID.randomUUID().toString(),
         )
@@ -103,36 +109,36 @@ class DatabasePatchingTests {
         return dbDef
     }
 
-    private fun workspaceDevice() = newDevice(SyncableDatabaseDefinition.WORKSPACES) { DatabaseContainer.instance.getWorkspaceDb(it) }
-    private fun bookmarkDevice() = newDevice(SyncableDatabaseDefinition.BOOKMARKS) { DatabaseContainer.instance.getBookmarkDb(it) }
-    private fun myDocumentDevice() = newDevice(SyncableDatabaseDefinition.MYDOCUMENTS) { DatabaseContainer.instance.getMyDocumentDb(it) }
-    private fun aiSettingsDevice() = newDevice(SyncableDatabaseDefinition.AI_SETTINGS) { DatabaseContainer.instance.getAiSettingsDb(it) }
+    private suspend fun workspaceDevice() = newDevice(SyncableDatabaseDefinition.WORKSPACES) { DatabaseContainer.instance.getWorkspaceDb(it) }
+    private suspend fun bookmarkDevice() = newDevice(SyncableDatabaseDefinition.BOOKMARKS) { DatabaseContainer.instance.getBookmarkDb(it) }
+    private suspend fun myDocumentDevice() = newDevice(SyncableDatabaseDefinition.MYDOCUMENTS) { DatabaseContainer.instance.getMyDocumentDb(it) }
+    private suspend fun aiSettingsDevice() = newDevice(SyncableDatabaseDefinition.AI_SETTINGS) { DatabaseContainer.instance.getAiSettingsDb(it) }
 
-    private fun sync(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
-        val patch1 = createPatchForDatabase(dbDef1)
-        val patch2 = createPatchForDatabase(dbDef2)
-        applyPatchesForDatabase(dbDef1, patch2)
-        applyPatchesForDatabase(dbDef2, patch1)
+    private suspend fun sync(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
+        val patch1 = createPatchForDatabase(dbDef1, env)
+        val patch2 = createPatchForDatabase(dbDef2, env)
+        applyPatchesForDatabase(dbDef1, env, patch2)
+        applyPatchesForDatabase(dbDef2, env, patch1)
         checkLog(dbDef1, dbDef2)
     }
 
-    private fun sync3(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>, dbDef3: SyncableDatabaseAccessor<*>) {
-        val patch1 = createPatchForDatabase(dbDef1)
-        val patch2 = createPatchForDatabase(dbDef2)
-        val patch3 = createPatchForDatabase(dbDef3)
-        applyPatchesForDatabase(dbDef1, patch2, patch3)
-        applyPatchesForDatabase(dbDef2, patch1, patch3)
-        applyPatchesForDatabase(dbDef3, patch1, patch2)
+    private suspend fun sync3(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>, dbDef3: SyncableDatabaseAccessor<*>) {
+        val patch1 = createPatchForDatabase(dbDef1, env)
+        val patch2 = createPatchForDatabase(dbDef2, env)
+        val patch3 = createPatchForDatabase(dbDef3, env)
+        applyPatchesForDatabase(dbDef1, env, patch2, patch3)
+        applyPatchesForDatabase(dbDef2, env, patch1, patch3)
+        applyPatchesForDatabase(dbDef3, env, patch1, patch2)
         checkLog(dbDef1, dbDef2)
         checkLog(dbDef2, dbDef3)
     }
 
-    private fun checkLog(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
+    private suspend fun checkLog(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
         dbDef1.dao.allLogEntries() mustEqualTo dbDef2.dao.allLogEntries()
     }
 
     @Test
-    fun testSimplePatchFileWritingAndReading() {
+    fun testSimplePatchFileWritingAndReading() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
 
@@ -140,16 +146,16 @@ class DatabasePatchingTests {
         dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
         assertThat(dbDef1.localDb.syncDao().allLogEntries().size, equalTo(2))
 
-        val patchFile = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patchFile)
+        val patchFile = createPatchForDatabase(dbDef1, env)!!
+        applyPatchesForDatabase(dbDef2, env, patchFile)
         checkLog(dbDef1, dbDef2)
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
-        assertThat(createPatchForDatabase(dbDef1), equalTo(null))
-        assertThat(createPatchForDatabase(dbDef2), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef1, env), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef2, env), equalTo(null))
     }
 
     @Test
-    fun testMergingChanges() {
+    fun testMergingChanges() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
 
@@ -163,12 +169,12 @@ class DatabasePatchingTests {
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(4))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(4))
 
-        assertThat(createPatchForDatabase(dbDef1), equalTo(null))
-        assertThat(createPatchForDatabase(dbDef2), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef1, env), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef2, env), equalTo(null))
     }
 
     @Test
-    fun testBasicDeletion() {
+    fun testBasicDeletion() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
 
@@ -176,24 +182,24 @@ class DatabasePatchingTests {
         dbDef1.localDb.bookmarkDao().insert(label1)
         dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
 
-        val patchFile1 = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patchFile1)
+        val patchFile1 = createPatchForDatabase(dbDef1, env)!!
+        applyPatchesForDatabase(dbDef2, env, patchFile1)
         checkLog(dbDef1, dbDef2)
 
         dbDef2.localDb.bookmarkDao().delete(label1)
-        val patchFile2 = createPatchForDatabase(dbDef2)!!
-        applyPatchesForDatabase(dbDef1, patchFile2)
+        val patchFile2 = createPatchForDatabase(dbDef2, env)!!
+        applyPatchesForDatabase(dbDef1, env, patchFile2)
         checkLog(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
 
-        assertThat(createPatchForDatabase(dbDef1), equalTo(null))
-        assertThat(createPatchForDatabase(dbDef2), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef1, env), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef2, env), equalTo(null))
     }
 
     @Test
-    fun testBasicUpdate() {
+    fun testBasicUpdate() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
 
@@ -201,15 +207,15 @@ class DatabasePatchingTests {
         dbDef1.localDb.bookmarkDao().insert(label1)
         dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
 
-        val patchFile1 = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patchFile1)
+        val patchFile1 = createPatchForDatabase(dbDef1, env)!!
+        applyPatchesForDatabase(dbDef2, env, patchFile1)
         checkLog(dbDef1, dbDef2)
 
         val label1mod = label1.copy()
         label1mod.name = "label 1 mod"
         dbDef2.localDb.bookmarkDao().update(label1mod)
-        val patchFile2 = createPatchForDatabase(dbDef2)!!
-        applyPatchesForDatabase(dbDef1, patchFile2)
+        val patchFile2 = createPatchForDatabase(dbDef2, env)!!
+        applyPatchesForDatabase(dbDef1, env, patchFile2)
         checkLog(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
@@ -217,12 +223,12 @@ class DatabasePatchingTests {
 
         assertThat(dbDef1.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod"));
 
-        assertThat(createPatchForDatabase(dbDef1), equalTo(null))
-        assertThat(createPatchForDatabase(dbDef2), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef1, env), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef2, env), equalTo(null))
     }
 
     @Test
-    fun testSimultaneousUpdate() {
+    fun testSimultaneousUpdate() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
 
@@ -230,8 +236,8 @@ class DatabasePatchingTests {
         dbDef1.localDb.bookmarkDao().insert(label1)
         dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
 
-        val patchFile1 = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patchFile1)
+        val patchFile1 = createPatchForDatabase(dbDef1, env)!!
+        applyPatchesForDatabase(dbDef2, env, patchFile1)
         checkLog(dbDef1, dbDef2)
 
         val label1mod1 = label1.copy()
@@ -249,12 +255,12 @@ class DatabasePatchingTests {
         assertThat(dbDef1.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod 2"));
         assertThat(dbDef2.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod 2"));
 
-        assertThat(createPatchForDatabase(dbDef1), equalTo(null))
-        assertThat(createPatchForDatabase(dbDef2), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef1, env), equalTo(null))
+        assertThat(createPatchForDatabase(dbDef2, env), equalTo(null))
     }
 
     @Test
-    fun testBookmarkToLabelUpdates() {
+    fun testBookmarkToLabelUpdates() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
         val label1 = BookmarkEntities.Label()
@@ -266,8 +272,8 @@ class DatabasePatchingTests {
         dbDef1.localDb.bookmarkDao().insert(label1)
         dbDef1.localDb.bookmarkDao().insert(bl1)
 
-        val patchFile1 = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patchFile1)
+        val patchFile1 = createPatchForDatabase(dbDef1, env)!!
+        applyPatchesForDatabase(dbDef2, env, patchFile1)
         val bl2 = BookmarkEntities.BibleBookmarkToLabel(bookmark2.bookmarkEntity, label1)
         dbDef2.localDb.bookmarkDao().insert(bl2)
         dbDef1.localDb.bookmarkDao().delete(label1)
@@ -279,22 +285,22 @@ class DatabasePatchingTests {
         assertThat(dbDef1.dao.findLogEntries("BibleBookmarkToLabel", "DELETE").size, equalTo(0))
 
         // Now these patch files are conflicting: in one, there's new usage of label1, in other, label1 is removed
-        val patchFile1b = createPatchForDatabase(dbDef1)!!
-        val patchFile2 = createPatchForDatabase(dbDef2)!!
+        val patchFile1b = createPatchForDatabase(dbDef1, env)!!
+        val patchFile2 = createPatchForDatabase(dbDef2, env)!!
 
-        applyPatchesForDatabase(dbDef2, patchFile1b)
+        applyPatchesForDatabase(dbDef2, env, patchFile1b)
         val bls2 = dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
         assertThat(bls2.size, equalTo(0))
 
         // We try to add BookmarkToLabel to a label that does not exist any more.
-        applyPatchesForDatabase(dbDef1, patchFile2)
+        applyPatchesForDatabase(dbDef1, env, patchFile2)
         val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
         assertThat(bls1.size, equalTo(0))
         checkLog(dbDef1, dbDef2)
     }
 
     @Test
-    fun testBookmarkToLabelIsAddedAgain() {
+    fun testBookmarkToLabelIsAddedAgain() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
         val label1 = BookmarkEntities.Label()
@@ -321,7 +327,7 @@ class DatabasePatchingTests {
     }
 
     @Test
-    fun testBookmarkToLabelIsAddedAgain1() {
+    fun testBookmarkToLabelIsAddedAgain1() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
         val label1 = BookmarkEntities.Label()
@@ -347,7 +353,7 @@ class DatabasePatchingTests {
     }
 
     @Test
-    fun testThreeDevices() {
+    fun testThreeDevices() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef3 = getDbDef(File.createTempFile("bookmarks3-", ".sqlite3", CommonUtils.tmpDir))
@@ -371,7 +377,7 @@ class DatabasePatchingTests {
     }
 
     @Test
-    fun testThreeDevices1() {
+    fun testThreeDevices1() = runBlocking<Unit> {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
         val dbDef3 = getDbDef(File.createTempFile("bookmarks3-", ".sqlite3", CommonUtils.tmpDir))
@@ -425,7 +431,7 @@ class DatabasePatchingTests {
         jsState = null,
     )
 
-    private fun insertWindowWithPage(dbDef: SyncableDatabaseAccessor<WorkspaceDatabase>): Pair<WorkspaceEntities.Window, WorkspaceEntities.PageManager> {
+    private suspend fun insertWindowWithPage(dbDef: SyncableDatabaseAccessor<WorkspaceDatabase>): Pair<WorkspaceEntities.Window, WorkspaceEntities.PageManager> {
         val dao = dbDef.localDb.workspaceDao()
         val workspace = WorkspaceEntities.Workspace("workspace")
         val window = newWindow(workspace.id)
@@ -436,14 +442,14 @@ class DatabasePatchingTests {
         return Pair(window, pageManager)
     }
 
-    private fun assertEveryWindowHasPageManager(dbDef: SyncableDatabaseAccessor<WorkspaceDatabase>) {
+    private suspend fun assertEveryWindowHasPageManager(dbDef: SyncableDatabaseAccessor<WorkspaceDatabase>) {
         val dao = dbDef.localDb.workspaceDao()
         for (window in dao.allWindows()) {
             assertNotNull("Window ${window.id} has no PageManager on device ${dbDef.deviceId}", dao.pageManager(window.id))
         }
     }
 
-    private fun assertPagesMatch(
+    private suspend fun assertPagesMatch(
         dbDef1: SyncableDatabaseAccessor<WorkspaceDatabase>,
         dbDef2: SyncableDatabaseAccessor<WorkspaceDatabase>,
         windowId: IdType,
@@ -460,7 +466,7 @@ class DatabasePatchingTests {
      * on the other device still wins, and the window change still syncs.
      */
     @Test
-    fun testWindowMoveDoesNotOverwriteUnsyncedVerseChange() {
+    fun testWindowMoveDoesNotOverwriteUnsyncedVerseChange() = runBlocking<Unit> {
         val dbDef1 = workspaceDevice()
         val dbDef2 = workspaceDevice()
         val dao1 = dbDef1.localDb.workspaceDao()
@@ -492,46 +498,45 @@ class DatabasePatchingTests {
      * them all on one device; [deleteParent] and [editParent] change only the parent row.
      */
     private class Family<T : SyncableRoomDatabase>(
-        val newDevice: () -> SyncableDatabaseAccessor<T>,
+        val newDevice: suspend () -> SyncableDatabaseAccessor<T>,
         val childTables: List<String>,
-        val create: T.() -> Unit,
-        val deleteParent: T.() -> Unit,
-        val editParent: T.() -> Unit,
+        val create: suspend T.() -> Unit,
+        val deleteParent: suspend T.() -> Unit,
+        val editParent: suspend T.() -> Unit,
     )
 
     /** Every row of each table, as text, sorted. */
-    private fun rows(dbDef: SyncableDatabaseAccessor<*>, tables: List<String>): Map<String, List<String>> =
-        tables.associateWith { table ->
-            val columns = getColumnNames(dbDef.writableDb, table).joinToString(" || '|' || ") { "quote(`$it`)" }
-            val rows = mutableListOf<String>()
-            dbDef.writableDb.query("SELECT $columns FROM $table").use { cursor ->
-                while (cursor.moveToNext()) rows.add(cursor.getString(0))
+    private suspend fun rows(dbDef: SyncableDatabaseAccessor<*>, tables: List<String>): Map<String, List<String>> =
+        dbDef.localDb.useWriterConnectionMarked { c ->
+            tables.associateWith { table ->
+                val names = c.queryRows("SELECT name FROM pragma_table_info('$table')") { it.getText(0) }
+                val columns = names.joinToString(" || '|' || ") { "quote(`$it`)" }
+                c.queryRows("SELECT $columns FROM `$table`") { it.getText(0) }.sorted()
             }
-            rows.sorted()
         }
 
     /**
      * Swaps patches between all devices, then checks that their logs match. The last device
      * applies the others' patches in reverse order.
      */
-    private fun syncAll(devices: List<SyncableDatabaseAccessor<*>>) {
-        val patches = devices.map { createPatchForDatabase(it) }
+    private suspend fun syncAll(devices: List<SyncableDatabaseAccessor<*>>) {
+        val patches = devices.map { createPatchForDatabase(it, env) }
         devices.forEachIndexed { i, device ->
             val others = patches.filterIndexed { j, _ -> j != i }
             val ordered = if (i == devices.lastIndex) others.reversed() else others
-            applyPatchesForDatabase(device, *ordered.toTypedArray())
+            applyPatchesForDatabase(device, env, *ordered.toTypedArray())
         }
         devices.zipWithNext { a, b -> checkLog(a, b) }
     }
 
     /** Four devices sharing [family]'s rows. Without log entries, the rows predate sync. */
-    private fun <T : SyncableRoomDatabase> devicesWith(family: Family<T>, withLogEntries: Boolean = true): List<SyncableDatabaseAccessor<T>> {
+    private suspend fun <T : SyncableRoomDatabase> devicesWith(family: Family<T>, withLogEntries: Boolean = true): List<SyncableDatabaseAccessor<T>> {
         val devices = List(4) { family.newDevice() }
         family.create(devices[0].localDb)
         syncAll(devices)
         if (!withLogEntries) {
             // As after enabling sync, which clears the log on the first device and copies its database
-            devices.forEach { it.writableDb.execSQL("DELETE FROM LogEntry") }
+            devices.forEach { it.dao.clearLog() }
         }
         val children = rows(devices[0], family.childTables)
         for (table in family.childTables) {
@@ -545,7 +550,7 @@ class DatabasePatchingTests {
      * The newer edit keeps the parent on every device, so the rows the delete cascaded to must
      * come back too, whatever order the patches arrive in.
      */
-    private fun <T : SyncableRoomDatabase> assertNewerEditKeepsChildren(family: Family<T>, withLogEntries: Boolean) {
+    private suspend fun <T : SyncableRoomDatabase> assertNewerEditKeepsChildren(family: Family<T>, withLogEntries: Boolean) {
         val devices = devicesWith(family, withLogEntries)
         val children = rows(devices[0], family.childTables)
 
@@ -568,7 +573,7 @@ class DatabasePatchingTests {
     }
 
     /** A delete newer than the other device's edit still removes the parent's children everywhere. */
-    private fun <T : SyncableRoomDatabase> assertNewerDeleteRemovesChildren(family: Family<T>) {
+    private suspend fun <T : SyncableRoomDatabase> assertNewerDeleteRemovesChildren(family: Family<T>) {
         val devices = devicesWith(family)
 
         Thread.sleep(10)
@@ -584,7 +589,7 @@ class DatabasePatchingTests {
         }
     }
 
-    private fun <T : SyncableRoomDatabase> testParentDeleteConflicts(family: () -> Family<T>) {
+    private suspend fun <T : SyncableRoomDatabase> testParentDeleteConflicts(family: () -> Family<T>) {
         assertNewerEditKeepsChildren(family(), withLogEntries = true)
         assertNewerEditKeepsChildren(family(), withLogEntries = false)
         assertNewerDeleteRemovesChildren(family())
@@ -700,32 +705,32 @@ class DatabasePatchingTests {
      * opens at Genesis 1:1 and never saves its position again.
      */
     @Test
-    fun testParentDeleteConflictsWindow() = testParentDeleteConflicts(::windowFamily)
+    fun testParentDeleteConflictsWindow() = runBlocking<Unit> { testParentDeleteConflicts(::windowFamily) }
 
     @Test
-    fun testParentDeleteConflictsWorkspace() = testParentDeleteConflicts(::workspaceFamily)
+    fun testParentDeleteConflictsWorkspace() = runBlocking<Unit> { testParentDeleteConflicts(::workspaceFamily) }
 
     @Test
-    fun testParentDeleteConflictsBibleBookmark() = testParentDeleteConflicts(::bibleBookmarkFamily)
+    fun testParentDeleteConflictsBibleBookmark() = runBlocking<Unit> { testParentDeleteConflicts(::bibleBookmarkFamily) }
 
     @Test
-    fun testParentDeleteConflictsGenericBookmark() = testParentDeleteConflicts(::genericBookmarkFamily)
+    fun testParentDeleteConflictsGenericBookmark() = runBlocking<Unit> { testParentDeleteConflicts(::genericBookmarkFamily) }
 
     @Test
-    fun testParentDeleteConflictsLabel() = testParentDeleteConflicts(::labelFamily)
+    fun testParentDeleteConflictsLabel() = runBlocking<Unit> { testParentDeleteConflicts(::labelFamily) }
 
     @Test
-    fun testParentDeleteConflictsMyDocument() = testParentDeleteConflicts(::myDocumentFamily)
+    fun testParentDeleteConflictsMyDocument() = runBlocking<Unit> { testParentDeleteConflicts(::myDocumentFamily) }
 
     @Test
-    fun testParentDeleteConflictsLlmProvider() = testParentDeleteConflicts(::llmProviderFamily)
+    fun testParentDeleteConflictsLlmProvider() = runBlocking<Unit> { testParentDeleteConflicts(::llmProviderFamily) }
 
     /**
      * A note cleared before its bookmark was deleted was a delete of its own. When a newer
      * bookmark edit elsewhere brings the bookmark back, the note must stay cleared.
      */
     @Test
-    fun testClearedNoteStaysClearedWhenBookmarkComesBack() {
+    fun testClearedNoteStaysClearedWhenBookmarkComesBack() = runBlocking<Unit> {
         val family = bibleBookmarkFamily()
         val devices = devicesWith(family)
         val bookmarkId = devices[0].localDb.bookmarkDao().allBookmarks().single().id
@@ -753,7 +758,7 @@ class DatabasePatchingTests {
      * table silently brings back the lost-children bug.
      */
     @Test
-    fun testEveryCascadeIsDeclaredAsParent() {
+    fun testEveryCascadeIsDeclaredAsParent() = runBlocking<Unit> {
         val notCarried = setOf("AiPageCacheEntry")
         val devices = listOf(
             bookmarkDevice(),
@@ -768,14 +773,11 @@ class DatabasePatchingTests {
             val tables = dbDef.tableDefinitions
             tables.forEachIndexed { i, table ->
                 val cascades = mutableMapOf<String, String>()
-                dbDef.writableDb.query("PRAGMA foreign_key_list(${table.tableName})").use { cursor ->
-                    while (cursor.moveToNext()) {
-                        if (cursor.getString(cursor.getColumnIndexOrThrow("on_delete")) == "CASCADE") {
-                            cascades[cursor.getString(cursor.getColumnIndexOrThrow("table"))] =
-                                cursor.getString(cursor.getColumnIndexOrThrow("from"))
-                        }
+                dbDef.localDb.useWriterConnectionMarked { c ->
+                    c.queryRows("SELECT `table`, `from` FROM pragma_foreign_key_list('${table.tableName}') WHERE on_delete = 'CASCADE'") {
+                        it.getText(0) to it.getText(1)
                     }
-                }
+                }.forEach { (parent, column) -> cascades[parent] = column }
                 val expected = if (table.tableName in notCarried) emptyMap() else cascades
                 assertEquals(table.tableName, expected, table.parents)
                 for (parent in table.parents.keys) {

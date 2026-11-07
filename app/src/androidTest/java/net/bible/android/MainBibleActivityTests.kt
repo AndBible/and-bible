@@ -25,7 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import net.bible.android.activity.R
 
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import org.junit.Ignore
 import org.junit.Test
 
@@ -36,7 +36,7 @@ class MainBibleActivityTests {
 
     @Test
     fun testMainActivity() {
-        launch(MainBibleActivity::class.java).use {
+        launch(NavHostComposeActivity::class.java).use {
             //mainBibleActivity.windowControl.activeWindowPageManager.currentPage.key =
             onView(withId(R.id.speakButton))
         }
