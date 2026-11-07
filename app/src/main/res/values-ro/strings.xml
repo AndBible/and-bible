@@ -775,8 +775,6 @@
   <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
   <string name="bug_report_email_text">Apoi, alege aplicația de e-mail preferată (Gmail, de exemplu) pentru a trimite raportul către echipa de programatori.</string>
   <string name="bug_report_manual_title">Trimite raportul prin e-mail</string>
-  <string name="bug_report_manual_text_saved">Raportul a fost salvat în</string>
-  <string name="bug_report_manual_text_unsaved">Niciun program de e-mail nu a putut fi deschis pe acest dispozitiv.\n\nTrimite raportul prin e-mail la</string>
   <string name="bug_report_copy_address">Copiază adresa</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Vorbitor</string>

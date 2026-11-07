@@ -773,8 +773,6 @@ i GT och NT varje dag.
   <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
   <string name="bug_report_email_text">Välj nu den e-postapp du föredrar (t.ex. Gmail) för att skicka rapporten till utvecklarna.</string>
   <string name="bug_report_manual_title">Skicka rapporten med e-post</string>
-  <string name="bug_report_manual_text_saved">Rapporten sparades till</string>
-  <string name="bug_report_manual_text_unsaved">Inget e-postprogram kunde öppnas på den här enheten.\n\nSkicka rapporten med e-post till</string>
   <string name="bug_report_copy_address">Kopiera adress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text till tal</string>

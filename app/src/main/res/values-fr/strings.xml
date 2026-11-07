@@ -750,8 +750,6 @@ Le fichier est peut-être invalide.</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
   <string name="bug_report_email_text">Ensuite, veuillez sélectionner votre application de messagerie préférée (Gmail par exemple) pour envoyer le rapport à l’équipe de développeurs.</string>
   <string name="bug_report_manual_title">Envoyer le rapport par e-mail</string>
-  <string name="bug_report_manual_text_saved">Le rapport a été enregistré dans</string>
-  <string name="bug_report_manual_text_unsaved">Aucun programme de messagerie n\'a pu être ouvert sur cet appareil.\n\nVeuillez envoyer le rapport par e-mail à</string>
   <string name="bug_report_copy_address">Copier l\'adresse</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>

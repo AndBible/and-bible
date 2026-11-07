@@ -761,8 +761,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="bug_report_email_title">Saada vearaport e-postiga</string>
   <string name="bug_report_email_text">Järgmise sammuna vali oma eelistatud emaili rakendus (näiteks Gmail), et saata arendustiimile teade.</string>
   <string name="bug_report_manual_title">Saada aruanne e-postiga</string>
-  <string name="bug_report_manual_text_saved">Aruanne salvestati:</string>
-  <string name="bug_report_manual_text_unsaved">Sellel seadmel ei õnnestunud ühtegi e-posti rakendust avada.\n\nPalun saada aruanne e-postiga aadressile</string>
   <string name="bug_report_copy_address">Kopeeri aadress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst kõneks</string>

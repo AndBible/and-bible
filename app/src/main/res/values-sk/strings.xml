@@ -771,8 +771,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
   <string name="bug_report_email_text">Potom vyberte preferovanú e-mailovú aplikáciu (napríklad Gmail), aby ste správu odoslali tímu vývojárov.</string>
   <string name="bug_report_manual_title">Odoslať správu e-mailom</string>
-  <string name="bug_report_manual_text_saved">Správa bola uložená do</string>
-  <string name="bug_report_manual_text_unsaved">Na tomto zariadení sa nepodarilo otvoriť žiadny e-mailový program.\n\nPošlite správu e-mailom na adresu</string>
   <string name="bug_report_copy_address">Kopírovať adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>

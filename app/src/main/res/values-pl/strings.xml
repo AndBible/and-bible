@@ -735,8 +735,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="bug_report_email_title">Wyślij raport o błędach e-pocztą</string>
   <string name="bug_report_email_text">W następnym kroku wybierz preferowaną aplikację pocztową (np. Gmail), aby wysłać zgłoszenie do zespołu programistów.</string>
   <string name="bug_report_manual_title">Wyślij raport e-mailem</string>
-  <string name="bug_report_manual_text_saved">Raport został zapisany w</string>
-  <string name="bug_report_manual_text_unsaved">Na tym urządzeniu nie udało się otworzyć żadnego programu pocztowego.\n\nWyślij raport e-mailem na adres</string>
   <string name="bug_report_copy_address">Kopiuj adres</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Syntezator mowy</string>

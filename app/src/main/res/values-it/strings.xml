@@ -739,8 +739,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="bug_report_email_title">Invia segnalazione di errore via email</string>
   <string name="bug_report_email_text">Successivamente, seleziona l\'applicazione di posta elettronica preferita (ad esempio Gmail) per inviare la segnalazione al team di sviluppo.</string>
   <string name="bug_report_manual_title">Invia la segnalazione per email</string>
-  <string name="bug_report_manual_text_saved">La segnalazione è stata salvata in</string>
-  <string name="bug_report_manual_text_unsaved">Non è stato possibile aprire alcun programma di posta su questo dispositivo.\n\nInvia la segnalazione per email a</string>
   <string name="bug_report_copy_address">Copia indirizzo</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Pronuncia</string>

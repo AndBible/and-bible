@@ -760,8 +760,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
   <string name="bug_report_email_text">এরপর, ডেভেলপার দলের কাছে রিপোর্ট পাঠাতে অনুগ্রহ করে আপনার পছন্দের ইমেল অ্যাপ্লিকেশন (উদাহরণস্বরূপ Gmail) নির্বাচন করুন।</string>
   <string name="bug_report_manual_title">রিপোর্ট ইমেইলে পাঠান</string>
-  <string name="bug_report_manual_text_saved">রিপোর্টটি সংরক্ষণ করা হয়েছে:</string>
-  <string name="bug_report_manual_text_unsaved">এই ডিভাইসে কোনো ইমেইল প্রোগ্রাম খোলা যায়নি।\n\nঅনুগ্রহ করে রিপোর্টটি ইমেইলে এই ঠিকানায় পাঠান:</string>
   <string name="bug_report_copy_address">ঠিকানা কপি করুন</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">পাঠ্যাংশ থেকে বাক্য</string>

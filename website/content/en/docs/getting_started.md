@@ -169,8 +169,9 @@ The iOS drawer does not currently offer a rating or development-purchase action.
 ## Help and bug reports on Windows and Linux {#help-and-bug-reports-on-windows-and-linux}
 
 **Report a bug** (*Feedback / bug report* in the navigation menu) asks where to save a report
-file, then tries to open your email program. If that fails, a dialog shows the saved file,
-the address to send it to and a **Copy address** button. See [Desktop](desktop.md#reporting-a-bug).
+file, then always shows short instructions: send an email to the address shown (**Copy address**),
+attach the saved file (its path is shown, with **Copy file path** and **Open folder**), and use the
+suggested subject (**Copy subject**). Your email program is then opened if possible. See [Desktop](desktop.md#reporting-a-bug).
 
 Sharing text offers a choice between **Copy** and **Save** (see [Platform differences](platform_differences.md#files-and-sharing)).
 

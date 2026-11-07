@@ -752,8 +752,6 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
   <string name="bug_report_email_text">A következőkben válassza ki az email alkalmazást (például Gmail), amivel el szeretné küldeni a jelentést a fejlesztőknek.</string>
   <string name="bug_report_manual_title">A jelentés elküldése e-mailben</string>
-  <string name="bug_report_manual_text_saved">A jelentés mentve ide:</string>
-  <string name="bug_report_manual_text_unsaved">Ezen az eszközön nem sikerült megnyitni e-mail programot.\n\nKérjük, küldje el a jelentést e-mailben erre a címre:</string>
   <string name="bug_report_copy_address">Cím másolása</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Felolvasás</string>

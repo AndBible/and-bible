@@ -740,8 +740,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
   <string name="bug_report_email_text">Sekve elektu vian preferatan retpoŝtilon (ekzemple Gmail) por sendi raporton al la programistoj.</string>
   <string name="bug_report_manual_title">Sendi la raporton retpoŝte</string>
-  <string name="bug_report_manual_text_saved">La raporto estis konservita al</string>
-  <string name="bug_report_manual_text_unsaved">Neniu retpoŝta programo povis esti malfermita en ĉi tiu aparato.\n\nBonvolu sendi la raporton retpoŝte al</string>
   <string name="bug_report_copy_address">Kopii adreson</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>

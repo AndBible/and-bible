@@ -54,7 +54,7 @@ class DesktopBugReportTest {
         instructionsReport(open = { false }, shown = shown).report(null)
         val only = shown.single()
         assertEquals(BUG_REPORT_EMAIL, only.address)
-        assertEquals("Bug Report v1.2", only.subject)
+        assertEquals("AndBible 1.2 bug: <short description>", only.subject)
         assertEquals("/home/u/andbible-report.gz", only.savedPath)
     }
 
@@ -66,10 +66,48 @@ class DesktopBugReportTest {
     }
 
     @Test
-    fun noInstructionsWhenMailClientOpened() = runBlocking {
+    fun instructionsShownEvenWhenMailClientOpens() = runBlocking {
         val shown = mutableListOf<BugReportInstructions>()
         instructionsReport(open = { true }, shown = shown).report(null)
-        assertTrue(shown.isEmpty())
+        assertEquals(1, shown.size)
+    }
+
+    @Test
+    fun instructionsComeBeforeTheMailClientOpens() = runBlocking {
+        val events = mutableListOf<String>()
+        DesktopBugReport(Files.createTempDirectory("report-order"), "1.2", { "log" },
+            { _, _, _ -> DeliveryResult.DELIVERED }, { events += "mail"; true },
+            savedPath = { "/home/u/r.gz" }, instructions = { events += "instructions" }).report(null)
+        assertEquals(listOf("instructions", "mail"), events)
+    }
+
+    @Test
+    fun suggestedSubjectHasVersionAndDescriptionPlaceholder() = runBlocking {
+        val shown = mutableListOf<BugReportInstructions>()
+        DesktopBugReport(Files.createTempDirectory("report-subj"), "6.0.1255-beta", { "log" },
+            { _, _, _ -> DeliveryResult.DELIVERED }, { true }, instructions = { shown += it }).report(null)
+        assertEquals("AndBible 6.0.1255-beta bug: <short description>", shown.single().subject)
+    }
+
+    @Test
+    fun mailBodyAsksToAttachTheSavedFile() = runBlocking {
+        var url = ""
+        instructionsReport(open = { url = it; true }, shown = mutableListOf()).report(null)
+        val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
+        assertTrue(decoded.endsWith("Please attach the file /home/u/andbible-report.gz"), decoded)
+    }
+
+    @Test
+    fun savedLogFileHasNoWriteAboveThisLineIntroduction() = runBlocking {
+        var saved = ""
+        var url = ""
+        DesktopBugReport(Files.createTempDirectory("report-nointro"), "1.2", { "the log" }, { path, _, _ ->
+            saved = GZIPInputStream(Files.newInputStream(path)).bufferedReader().readText()
+            DeliveryResult.DELIVERED
+        }, { url = it; true }, introduction = { "WRITE ABOVE THIS LINE" }).report(null)
+        assertFalse("WRITE ABOVE" in saved, saved)
+        assertTrue("the log" in saved && "net.bible.desktop" in saved, saved)
+        assertTrue("WRITE+ABOVE" in url || "WRITE%20ABOVE" in url, url)
     }
 
     @Test

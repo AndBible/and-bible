@@ -91,4 +91,11 @@ See also [Platform differences](platform_differences.md).
 
 In the app open the navigation menu, then *Feedback / bug report* (in its *Contact* group). The same item is also in the toolbar of the *Application preferences* screen. Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
 
-The app first asks you where to save the report file, then tries to open your email program with a prepared message. If no email program can be opened (common on Linux), a dialog shows where the file was saved, the address to send it to (`errors.andbible@gmail.com`, with a *Copy address* button) and the subject to use. Send the saved file to that address as an email attachment.
+The app first asks you where to save the report file. A short dialog then always shows what to do next, whether or not an email program can be opened:
+
+- send an email to `errors.andbible@gmail.com` (*Copy address*);
+- attach the saved report file, whose full path is shown (*Copy file path*, *Open folder*), because an email link cannot attach files itself;
+- use the suggested subject, for example `AndBible 6.0.1255 bug: <short description>` (*Copy subject*), replacing the placeholder with a few words;
+- in the message, tell us what you did and what happened.
+
+When you close the dialog, AndBible tries to open your email program with a prepared message that already holds the device and version details. If none opens (common on Linux), use the copied address and subject in any email program. The report file contains only device and version details and the log; what you did and what happened go in your email.

@@ -758,8 +758,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
   <string name="bug_report_manual_title">Rapport per e-mail verzenden</string>
-  <string name="bug_report_manual_text_saved">Het rapport is opgeslagen in</string>
-  <string name="bug_report_manual_text_unsaved">Er kon geen e-mailprogramma worden geopend op dit apparaat.\n\nStuur het rapport per e-mail naar</string>
   <string name="bug_report_copy_address">Adres kopiëren</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>

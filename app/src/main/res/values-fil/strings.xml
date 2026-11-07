@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
   <string name="bug_report_email_text">Susunod, mangyaring piliin ang iyong gustong email application (tulad ng Gmail) para ipadala ang ulat sa team ng developer.</string>
   <string name="bug_report_manual_title">Ipadala ang ulat sa pamamagitan ng email</string>
-  <string name="bug_report_manual_text_saved">Na-save ang ulat sa</string>
-  <string name="bug_report_manual_text_unsaved">Walang email program na mabuksan sa device na ito.\n\nPakipadala ang ulat sa pamamagitan ng email sa</string>
   <string name="bug_report_copy_address">Kopyahin ang address</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text to speech</string>

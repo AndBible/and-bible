@@ -766,8 +766,6 @@ http://www.heartlight.org 准予使用
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
   <string name="bug_report_email_text">然後，請選擇你想用的電郵程式 (例如Gmail)，將回報發送至開發團隊。</string>
   <string name="bug_report_manual_title">以電子郵件傳送報告</string>
-  <string name="bug_report_manual_text_saved">報告已儲存到</string>
-  <string name="bug_report_manual_text_unsaved">此裝置上無法開啟任何電子郵件程式。\n\n請以電子郵件將報告傳送到</string>
   <string name="bug_report_copy_address">複製地址</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字轉語音</string>

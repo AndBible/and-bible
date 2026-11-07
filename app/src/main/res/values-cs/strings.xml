@@ -767,8 +767,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="bug_report_email_title">Nahlášení chyby emailem</string>
   <string name="bug_report_email_text">Dále prosím vyberte preferovanou mailovou aplikaci (například Gmail) pro poslání hlášení chyby vývojovému týmu.</string>
   <string name="bug_report_manual_title">Odeslat hlášení e-mailem</string>
-  <string name="bug_report_manual_text_saved">Hlášení bylo uloženo do</string>
-  <string name="bug_report_manual_text_unsaved">Na tomto zařízení nebylo možné otevřít žádný e-mailový program.\n\nOdešlete prosím hlášení e-mailem na adresu</string>
   <string name="bug_report_copy_address">Kopírovat adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Převod textu na řeč</string>

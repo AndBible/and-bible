@@ -756,8 +756,6 @@
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
   <string name="bug_report_manual_title">إرسال التقرير بالبريد الإلكتروني</string>
-  <string name="bug_report_manual_text_saved">تم حفظ التقرير في</string>
-  <string name="bug_report_manual_text_unsaved">تعذّر فتح أي برنامج بريد إلكتروني على هذا الجهاز.\n\nيرجى إرسال التقرير بالبريد الإلكتروني إلى</string>
   <string name="bug_report_copy_address">نسخ العنوان</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">النص إلى الكلام</string>

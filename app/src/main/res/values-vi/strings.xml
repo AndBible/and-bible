@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
   <string name="bug_report_email_text">Tiếp theo, vui lòng chọn ứng dụng email ưa thích của bạn (ví dụ: Gmail) để gửi báo cáo đến nhóm phát triển.</string>
   <string name="bug_report_manual_title">Gửi báo cáo qua email</string>
-  <string name="bug_report_manual_text_saved">Báo cáo đã được lưu tại</string>
-  <string name="bug_report_manual_text_unsaved">Không thể mở chương trình email nào trên thiết bị này.\n\nHãy gửi báo cáo qua email đến</string>
   <string name="bug_report_copy_address">Sao chép địa chỉ</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Đọc văn bản</string>

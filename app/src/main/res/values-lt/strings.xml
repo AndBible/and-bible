@@ -766,8 +766,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
   <string name="bug_report_email_text">Toliau, pasirinkite pageidaujamą el. pašto kliento programėlę (pvz., Gmail), kad išsiųstumėte plėtotojų komandai pranešimą apie klaidą.</string>
   <string name="bug_report_manual_title">Siųsti ataskaitą el. paštu</string>
-  <string name="bug_report_manual_text_saved">Ataskaita išsaugota</string>
-  <string name="bug_report_manual_text_unsaved">Šiame įrenginyje nepavyko atidaryti jokios el. pašto programos.\n\nIšsiųskite ataskaitą el. paštu adresu</string>
   <string name="bug_report_copy_address">Kopijuoti adresą</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>

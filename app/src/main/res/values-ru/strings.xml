@@ -770,8 +770,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
   <string name="bug_report_manual_title">Отправить отчёт по электронной почте</string>
-  <string name="bug_report_manual_text_saved">Отчёт сохранён в</string>
-  <string name="bug_report_manual_text_unsaved">На этом устройстве не удалось открыть почтовую программу.\n\nПожалуйста, отправьте отчёт по электронной почте на адрес</string>
   <string name="bug_report_copy_address">Копировать адрес</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>

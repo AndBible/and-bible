@@ -740,8 +740,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="bug_report_email_title">Fehlerbericht via E-Mail senden</string>
   <string name="bug_report_email_text">Als nächstes wähle bitte deine bevorzugte E-Mail Anwendung (z.B. Gmail) aus, um den Fehlerbericht an das Entwicklerteam zu senden.</string>
   <string name="bug_report_manual_title">Bericht per E-Mail senden</string>
-  <string name="bug_report_manual_text_saved">Der Bericht wurde gespeichert unter</string>
-  <string name="bug_report_manual_text_unsaved">Auf diesem Gerät konnte kein E-Mail-Programm geöffnet werden.\n\nBitte senden Sie den Bericht per E-Mail an</string>
   <string name="bug_report_copy_address">Adresse kopieren</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text zu Sprache</string>

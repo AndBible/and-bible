@@ -772,8 +772,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="bug_report_email_title">Pošaljite prijavu o grešci putem imejla</string>
   <string name="bug_report_email_text">Sledeće, molimo Vas da odaberete Vašu željenu imejl aplikaciju (kao na primer Gmail) kako biste poslali izveštaj programerskom timu.</string>
   <string name="bug_report_manual_title">Pošaljite izveštaj e-poštom</string>
-  <string name="bug_report_manual_text_saved">Izveštaj je sačuvan u</string>
-  <string name="bug_report_manual_text_unsaved">Nijedan program za e-poštu nije mogao da se otvori na ovom uređaju.\n\nPošaljite izveštaj e-poštom na adresu</string>
   <string name="bug_report_copy_address">Kopiraj adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst u izgovor</string>

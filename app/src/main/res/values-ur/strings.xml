@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
   <string name="bug_report_email_text">اگلے، براہ کرم اپنی پسندیدہ ای میل ایپلیکیشن (مثلاً Gmail) منتخب کریں تاکہ رپورٹ ڈویلپر ٹیم کو بھیجی جا سکے۔</string>
   <string name="bug_report_manual_title">رپورٹ ای میل سے بھیجیں</string>
-  <string name="bug_report_manual_text_saved">رپورٹ یہاں محفوظ کی گئی:</string>
-  <string name="bug_report_manual_text_unsaved">اس آلے پر کوئی ای میل پروگرام نہیں کھل سکا۔\n\nبراہ کرم رپورٹ اس پتے پر ای میل کریں:</string>
   <string name="bug_report_copy_address">پتہ کاپی کریں</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">متن سے تقریر</string>

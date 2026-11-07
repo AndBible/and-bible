@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
   <string name="bug_report_email_text">A continuació, selecciona la teva aplicació de correu electrònic preferida (per exemple, Gmail) per enviar l\'informe a l\'equip de desenvolupadors.</string>
   <string name="bug_report_manual_title">Envia l\'informe per correu electrònic</string>
-  <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a</string>
-  <string name="bug_report_manual_text_unsaved">No s\'ha pogut obrir cap programa de correu electrònic en aquest dispositiu.\n\nEnvia l\'informe per correu electrònic a</string>
   <string name="bug_report_copy_address">Copia l\'adreça</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text a veu</string>

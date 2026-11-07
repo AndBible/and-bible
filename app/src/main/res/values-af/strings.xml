@@ -757,8 +757,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
   <string name="bug_report_manual_title">Stuur die verslag per e-pos</string>
-  <string name="bug_report_manual_text_saved">Die verslag is gestoor by</string>
-  <string name="bug_report_manual_text_unsaved">Geen e-posprogram kon op hierdie toestel oopgemaak word nie.\n\nStuur asseblief die verslag per e-pos na</string>
   <string name="bug_report_copy_address">Kopieer adres</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks na spraak</string>

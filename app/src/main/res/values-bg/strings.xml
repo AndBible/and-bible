@@ -706,8 +706,6 @@
   <string name="bug_report_email_title">Изпрати доклад за грешка по имейл</string>
   <string name="bug_report_email_text">Моля, изберете предпочитаното от вас имейл приложение (например Gmail), за да изпратите доклада до екипа на разработчиците.</string>
   <string name="bug_report_manual_title">Изпратете отчета по имейл</string>
-  <string name="bug_report_manual_text_saved">Отчетът беше запазен в</string>
-  <string name="bug_report_manual_text_unsaved">На това устройство не можа да бъде отворена програма за имейл.\n\nМоля, изпратете отчета по имейл на</string>
   <string name="bug_report_copy_address">Копирай адреса</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Реч</string>

@@ -768,8 +768,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="bug_report_email_title">Poročilo o napaki pošljite prek e-pošte</string>
   <string name="bug_report_email_text">Nato izberite želeno e-poštno aplikacijo (na primer Gmail) da pošljete poročilo ekipi razvijalcev.</string>
   <string name="bug_report_manual_title">Pošlji poročilo po e-pošti</string>
-  <string name="bug_report_manual_text_saved">Poročilo je bilo shranjeno v</string>
-  <string name="bug_report_manual_text_unsaved">Na tej napravi ni bilo mogoče odpreti nobenega e-poštnega programa.\n\nPoročilo pošljite po e-pošti na</string>
   <string name="bug_report_copy_address">Kopiraj naslov</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Besedilo v govor</string>

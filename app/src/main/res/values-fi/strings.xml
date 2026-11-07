@@ -750,8 +750,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
   <string name="bug_report_email_text">Valitse seuraavaksi haluamasi sähköpostisovellus (GMail esimerkiksi) lähettääksi raportin kehittäjätiimille.</string>
   <string name="bug_report_manual_title">Lähetä raportti sähköpostilla</string>
-  <string name="bug_report_manual_text_saved">Raportti tallennettiin kohteeseen</string>
-  <string name="bug_report_manual_text_unsaved">Tällä laitteella ei voitu avata sähköpostiohjelmaa.\n\nLähetä raportti sähköpostilla osoitteeseen</string>
   <string name="bug_report_copy_address">Kopioi osoite</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teksti puheeksi</string>

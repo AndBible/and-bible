@@ -748,8 +748,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
   <string name="bug_report_manual_title">Αποστολή της αναφοράς με email</string>
-  <string name="bug_report_manual_text_saved">Η αναφορά αποθηκεύτηκε στο</string>
-  <string name="bug_report_manual_text_unsaved">Δεν ήταν δυνατό να ανοίξει πρόγραμμα email σε αυτή τη συσκευή.\n\nΠαρακαλούμε στείλτε την αναφορά με email στη διεύθυνση</string>
   <string name="bug_report_copy_address">Αντιγραφή διεύθυνσης</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Κείμενο σε ομιλία</string>
