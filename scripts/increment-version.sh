@@ -4,7 +4,7 @@
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
 # Usage: ./scripts/increment-version.sh [--build | --beta] [--step N]
 #   --build:  Create a test release tag (test-X, developer-only build) instead of production tag (production-X)
-#   --beta:   Create a public beta tag (beta-X), signed and pushed after confirmation like a production
+#   --beta:   Create a public beta tag (beta-X), pushed after confirmation like a production
 #             release; needs versionNameSuffix=-beta in version.properties so the apps show the beta notice
 #   --step N: Increase versionCode by N instead of 1, e.g. to leave a gap of
 #             version codes free for current-stable bug-fix releases
@@ -252,11 +252,7 @@ git add "$VERSION_FILE_REL" "$METAINFO_REL" "$NEW_CHANGELOG"
 # Commit changes
 COMMIT_MESSAGE="Increment version to $NEW_VERSION_NAME"
 echo "Creating commit: $COMMIT_MESSAGE"
-if [[ "$BUILD_MODE" == true ]]; then
-    git commit -m "$COMMIT_MESSAGE"
-else
-    retry_command "Signed commit" git commit -S -m "$COMMIT_MESSAGE"
-fi
+git commit -m "$COMMIT_MESSAGE"
 
 # Create tag
 if [[ "$BUILD_MODE" == true ]]; then
@@ -270,11 +266,7 @@ else
     TAG_MESSAGE="Release $NEW_VERSION_NAME"
 fi
 echo "Creating tag: $TAG_NAME"
-if [[ "$BUILD_MODE" == true ]]; then
-    git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
-else
-    retry_command "Signed tag" git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
-fi
+git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
 

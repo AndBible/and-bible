@@ -70,7 +70,7 @@ fdroid-release:
 	if [ -z "$$VERSION_NAME" ]; then echo "fdroid-release: could not read the version from version.properties" >&2; exit 1; fi; \
 	TAG="v$$VERSION_NAME-fdroid"; \
 	echo "Creating F-Droid tag: $$TAG"; \
-	git tag -s "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
+	git tag -a "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
 	echo "Pushing tag to GitHub..."; \
 	git push origin "$$TAG"; \
 	echo "Done: $$TAG"
