@@ -163,7 +163,7 @@ its homepage, without an app-store link.
 The iOS **Report a bug** action asks for confirmation before preparing a report with device
 and version details, any retained crash details, and a compressed recent app log. If iOS has
 delivered a crash diagnostic from the last 24 hours, it is also attached as
-`recent_crash_diagnostic.json`. Diagnostics are not sent automatically. JavaScript error
+`recent_crash_diagnostic.json.gz`. Diagnostics are not sent automatically. JavaScript error
 reports use the same consent flow and include the WebView error diagnostic.
 
 The iOS drawer does not currently offer a rating or development-purchase action.

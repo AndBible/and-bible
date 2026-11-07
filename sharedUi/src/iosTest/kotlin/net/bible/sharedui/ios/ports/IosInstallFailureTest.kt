@@ -112,7 +112,11 @@ class IosInstallFailureTest {
                 assertTrue(errors.isEmpty())
                 assertEquals(listOf(strings.installZipCanceled), infos)
             } else if (failInitialization || failFactory) {
-                assertEquals(InstallPhase.Error(InstallError.GENERIC, null), phase)
+                // #4018 passes the failure through as `cause` so the Report action can show it.
+                val error = assertIs<InstallPhase.Error>(phase)
+                assertEquals(InstallError.GENERIC, error.kind)
+                assertNull(error.arg)
+                assertEquals(if (failFactory) "dependency resolution failed" else "initialization failed", error.cause?.message)
                 assertEquals(listOf(strings.errorOccurred), errors)
                 assertTrue(infos.isEmpty())
             } else {
