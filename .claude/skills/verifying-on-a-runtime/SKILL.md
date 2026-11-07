@@ -31,7 +31,10 @@ and successful compilation do not replace a live check of native glue.
 1. Use `CLAUDE.md` and `docs/superpowers/CLAUDE.md` **Gate selection** for the current diff;
    record paths and chosen gates. Roborazzi verify already includes the app unit suite:
    do not run it twice. Load the selected environment skill before runtime commands.
-2. Include a fresh-install/empty-profile pass for onboarding or a verification round;
+2. Include a fresh-install/empty-profile pass for onboarding or a verification round, **first in the
+   round** (if first run is broken nothing else is trustworthy) and as its own checklist box, since a
+   walk that silently reuses an install looks identical in the record (`adb uninstall` + install, or
+   `pm clear`, walked until the app is usable);
    test migration/persistence with a separate appropriate old/existing profile. Inspect
    screenshots and the actual native action, not just a ready log.
 3. Report: **revision; behavior; environment/API/engine/profile; observed action/result;
@@ -44,6 +47,9 @@ and successful compilation do not replace a live check of native glue.
   pre-fix failing test; still use the matching runtime for OS behavior.
 - Simulator success claimed as real iOS-on-Mac/device success, or Xvfb as physical GPU.
 - Handing Windows tests to the maintainer because they own Windows: use the VM yourself.
+- Playwright WebKit (iOS shim tests) in the container: it does not run (Ubuntu 26.04 lacks the
+  libraries of Playwright's 24.04 WebKit build). Run WebKit shim tests in the macOS CI job; vitest
+  (jsdom) is the container-side coverage.
 - Waiting for pushed CI instead of the remote Mac, or leaving 6 GiB guests running.
 
 Details, examples and gate pointers: [verification boundaries](references/boundaries.md).

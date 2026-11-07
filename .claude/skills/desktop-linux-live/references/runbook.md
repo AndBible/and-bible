@@ -151,7 +151,15 @@ Inspect the after image to verify the action/text. Root capture on Xvfb includes
 Compose popup/sheet windows; window-only capture can miss them. For one chosen window use
 `ffmpeg -f x11grab -window_id <id> -i "$DISPLAY" ...` instead. Native keyboard verification
 requires clicking a real Compose field or browser editor, then testing letters, Backspace,
-Ctrl+B/Ctrl+Z and Escape as relevant. CDP may inspect DOM but cannot replace these input tests.
+Ctrl+B/Ctrl+Z and Escape as relevant.
+Use Xvfb + openbox, never headless Weston/Xwayland (no seat keyboard, so XTest keys reach nothing).
+Under a window manager AWT keeps X focus on its FocusProxy and CEF's `setFocus(true)` does not move it
+for a parented browser, so an embedded KCEF pane gets keys only through `kcef/X11PaneFocus` (page
+mousedown -> cefQuery -> XSetInputFocus on CEF's innermost child; needs
+`--add-opens java.desktop/sun.awt.X11=ALL-UNNAMED`). A switch to off-screen rendering may drop it but
+must keep letters, Backspace, the editor's Ctrl+B/Ctrl+Z, Esc and IME composition. CDP via
+`-Dkcef.args=--remote-debugging-port=<port>` helps in-page probes. AWT maps X buttons 8/9 (mouse
+back/forward) to AWT 6/7. CDP may inspect DOM but cannot replace these input tests.
 XTest ASCII input is not an IME test. For UI changes explicitly exercise relevant light,
 dark, monochrome and no-animation settings; do not claim them from one light screenshot.
 
@@ -227,7 +235,10 @@ owned processes remain. Keep shared cached build inputs, not temporary profiles.
   and the logged actual module path; don't create directories at the guessed doubled path.
 - Background boolean settings still false: `DatabaseContainer.ready` precedes the host's
   databases-open signal. Gate on `AppEnvironment.isInitialized` / host startup, not merely
-  a non-null DB. See `desktop-appsettings-boolean-guard` memory.
+  a non-null DB. Rule: `DatabaseAppSettings.getBoolean` answers the default
+  until the host's databases-open flag is set (desktop `HostStartup.databasesOpen`, after
+  `DatabaseContainer.instance.sync()`); other getters stay readable early. A silent "nothing happened"
+  in a background pass: check this first.
 - Existing evidence: `docs/superpowers/status/2026-10-30-desktop-d3a-live-checks.md`
   (focus/input), `2026-10-29-desktop-d2b-live-checks.md` (startup/exit),
   `2026-11-03-desktop-webkitgtk-deb.md` (real GTK launcher).

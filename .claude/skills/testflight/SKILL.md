@@ -63,11 +63,13 @@ command it prints (`scripts/mac-remote.sh ssh 'hdiutil detach -force /Volumes/<v
 | Dirty tree refusal | Commit (or stash), rerun. |
 | Mac lock held by another container | Wait for it; do not `unlock` another container's lock. |
 | Version/commit mismatch with `Version.xcconfig` | Stale sync; rerun (the sync regenerates it). |
-| K/N link `OutOfMemoryError` | Memory `ios-release-kn-link-oom` (`iosApp/project.yml` runs the Release link out of process). |
-| Missing iCloud entitlements, "Copy failed" (Homebrew rsync), orphan "Created via API" cert | Memory `ios-release-archive-mac-traps`. |
+| K/N link `OutOfMemoryError` (`DevirtualizationAnalysis`, Java heap space) | The Release link does not fit the shared 4g Gradle daemon: the "Compile & embed SharedUi Kotlin framework" phase in `iosApp/project.yml` runs it out of process (`-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g`, Release only). If it OOMs again, raise `jvmArgs` there, not the daemon heap in `gradle.properties`. Check the Mac's free memory with `scripts/mac-remote.sh check`; shut booted simulators down first (`scripts/mac-remote.sh cleanup`); two of them left only about 4 GiB free on the 16 GiB Mac. |
+| Missing iCloud entitlements | `archive.sh` ad-hoc re-signs the unsigned archive with the Release-expanded `iosApp.entitlements`; check with `codesign -d --entitlements :-` on the exported app (`ipa-entitlements.txt`). |
+| `-exportArchive` "Copy failed" | openrsync spawns Homebrew rsync from PATH; the export must run with `PATH=/usr/bin:/bin:/usr/sbin:/sbin` (`EXPORT_PATH` in `archive.sh`). |
+| Xcode blocked by an orphan "Apple Development: Created via API" cert on the Mac | A per-run temporary keychain with `-allowProvisioningUpdates` leaves a dev cert bound to the Mac. Do not add such a keychain or provisioning flag to the archive path; revoke the cert via the App Store Connect API (ask the maintainer). |
 | Nonzero rc after the upload step | Read `upload.log` and `summary.txt` before treating it as a failed upload; the upload may have succeeded (`result=PASS upload`) with the failure only later. |
 | ITMS-9xxxx rejection | Read `upload.log` in the evidence directory; fix the app/plist, new commit, new build number. |
-| Mac leftovers / simulators | Memory `mac-cleanup-after-use`; run step 7. |
+| Mac leftovers / simulators | Run step 7 (`ios-mac` skill, "Clean up after use"). |
 
 ## 6. Status entry
 

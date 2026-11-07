@@ -24,6 +24,9 @@ Background and measurements: `docs/emulator-and-webview-debugging.md`.
 | Launch, look, tap | `start`, `shot <name>`, `texts`, `tap-text <regex>` |
 | Is it healthy? | `scripts/andbible-emu.sh health` |
 | Stop | `scripts/andbible-emu.sh kill` |
+| Press real keys | `scripts/andbible-emu.sh key KEY_A` (sendevent; not `adb emu event`) |
+| Screenshot of a FLAG_SECURE screen | `scripts/andbible-emu.sh emushot <name>` (`shot` is black) |
+| JS in the BibleView | `scripts/webview-cdp.sh <pkg> list/eval/tail/break` |
 
 Smoke test from an empty container, in order (modules are read at app start only):
 `boot` → `install <apk>` → `push-module <zip>` → `start` → `shot <name>`.
@@ -44,16 +47,28 @@ stale AVD lock and a wedged `netsimd`, and warns if the emulator is older than 3
 - After pushing files, `adb shell sync` (`push-module` does it). A crash loses unflushed writes.
 - One emulator per container, started only by `boot` (never `emulator` directly). To switch AVD
   or Android version, `kill` first; `boot` refuses while any qemu runs.
+- While the emulator is up, run Gradle as `nice -n 19 ./gradlew --max-workers=3`, and `kill` the
+  emulator before the full unit suite and Roborazzi gates. Never `./gradlew --stop` or kill
+  daemons to cut load: it kills a running build.
 - `kill` the emulator as soon as the emulator work is done, including when a session or a
   verification run ends. An idle emulator still holds about 6 GB of the machine's shared RAM, and
   forgotten ones in several containers add up. If you leave it running on purpose (the next step
   needs it), say so in your report.
+
+Recipes and traps (input, restart vs process death, workspace chips, discrete build, two-device
+sync, CDP): [references/driving-and-traps.md](references/driving-and-traps.md). Short version:
+read a text field back (`dump`) before Enter, `start` force-stops (it loses state; for persistence
+tests use the process-death recipe there), and `uiautomator` cannot see the search-results and
+History sheets.
 
 ## When something goes wrong
 
 | Symptom | Cause | Do |
 |---------|-------|----|
 | `health` says emulator < 37.3.4, or it exits 139 after app restarts | gfxstream leak/crash in 37.2.x | Use the golden image's `/opt/android-sdk` (the script's default); report if the image lacks it |
+| `EMULATOR-EXIT=139` at host load average 15-22 (a Gradle run overlapping the emulator), no FATAL in `logcat -b crash` | CPU starvation, not an app crash or gfxstream | Do not reboot into the same load: see the nice rule above; `kill` and `boot` once the load is gone |
+| After a reboot with `ANDBIBLE_EMU_WRITABLE_SYSTEM=1`, the llm-stub CA is missing | APEX mounts are temporary | `scripts/llm-stub/install-ca-on-avd.sh emulator-SERIAL AVD_NAME` again |
+| BibleView blank on an old userdebug AVD (API 28/29) | stock WebView too old | Sideload AOSP WebView 91: `docs/emulator-and-webview-debugging.md` |
 | `EMULATOR-EXIT=139` after "detected a hanging thread" (boot or later) | wedged `netsimd` | `kill`, then `boot` again (boot clears it) |
 | "Another emulator instance is running" | lock left by a killed emulator | `kill`, then `boot` |
 | `boot`: "an emulator is already running (AVD x, up t)" | an earlier emulator in this container, maybe from another session | Check it is not in use (ask if unsure), then `kill` and `boot` |

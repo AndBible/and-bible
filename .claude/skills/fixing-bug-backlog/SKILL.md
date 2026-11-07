@@ -27,15 +27,20 @@ reading/writing go to subagents or a fork; debugging that runs programs goes to 
    may not name the issue with `#`), the `docs/superpowers` log, and the issue comments
    (`gh issue view <n> --json comments`: a "Fixed: ..." / "already fixed" comment or a
    `_— bug-fix round_` signature means it is done).
-3. Keep a bug only when it is **self-contained**: concrete repro or stack trace, an identifiable
+3. **Compare the reported build with HEAD.** Find the build tag (`test-<build>`, e.g. `test-1242`), then
+   `git log test-<build>..HEAD` with keywords from the issue and the files it touches. A fix already on a
+   development branch (the container branch, `origin/ios`, `origin/dev`) means: close the issue with a
+   comment naming the commit (issue-management Flow 4) and spawn no child. Run this for every candidate
+   and show the result column before splitting the work.
+4. Keep a bug only when it is **self-contained**: concrete repro or stack trace, an identifiable
    code area, and a test that can show it red. Skip design debates (e.g. "Psalm vs Psalms"),
    feature requests disguised as bugs, and "maybe just my phone" reports without repro steps.
    A device/layout bug with concrete repro steps is in: give it to Opus (step 3), which can
    reproduce it on the emulator.
-4. A bug whose evidence nobody here can reach (a video or attachment egress blocks, a device-only
+5. A bug whose evidence nobody here can reach (a video or attachment egress blocks, a device-only
    state, an answer only the reporter has) is out of the round: leave it waiting. If a child hits
    such a blocker mid-work, destroy it unchanged and take the next bug.
-5. Stop when no clear bug is left; say which ones were skipped and why.
+6. Stop when no clear bug is left; say which ones were skipped and why.
 
 ## 2. Prepare shared material
 
@@ -73,6 +78,8 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
   `claude-jb` codex profile, tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.
 - Waiting, reading the inbox, watching quiet or dead children, answering questions, statuses and cleanup:
   follow **jailbee-orchestration** as is.
+- AndBible rules for every orchestration (egress, `.local` evidence folder, holds on shared resources, quiet
+  notes): "Orchestrating JailBee children" in `docs/superpowers/CLAUDE.md`.
 - The spawn prompt tells each child to commit early (WIP commits are fine), so a dead agent loses little.
 
 ## Decisions: park them, never block the run on the user
@@ -122,7 +129,10 @@ orchestrator's own independent review below; a review the child ran itself does 
      (fresh fork, new branch name such as `fix/issue-<n>-2`) with the review findings in its
      context.
 4. **Merge** with `--no-ff` and a message naming the issue:
-   `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`.
+   `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`. After a conflicted merge stage only the
+   conflicted paths: `git add <submodule>` records the submodule worktree's old HEAD and silently reverts
+   the child's gitlink bump. Compare `git ls-tree HEAD <sub>` with `git ls-tree MERGE_HEAD <sub>` before
+   committing, then `git submodule update --checkout <sub>`.
 5. A child that found "already fixed" may still bring a regression test: merge that, and name the
    earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
    report it to the user, no comment.
@@ -182,7 +192,7 @@ and read the final status; otherwise tell the user to run `jb issue apply <conta
 
 | Mistake | Fix |
 |---|---|
-| Spawning a bug that is already fixed on the branch | grep the log for `#<n>` first |
+| Spawning a bug that is already fixed on the branch | grep the log for `#<n>`, and `git log test-<build>..HEAD` |
 | Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
 | A question dialog mid-run (`AskUserQuestion` at night) | park it in `decisions.md`, remind, list it when asked |
 | Merging on the child's word | subagent review + your own read of the diff, every time |

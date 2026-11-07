@@ -184,10 +184,20 @@ Do not attempt concurrent light jobs by bypassing the lock.
 | What did the app log | `sim log [minutes]`; during XCUITest runs `xcode/app-<device>.log` |
 | See the screen now | `sim shot <name>` |
 | Reproduce by hand | `xcode-build iphone` (installs + launches), `sim launch`, `sim shot`, `sim log 2` |
+| Screenshot or launch on a specific device (two simulators booted, `sim shot` shows the wrong home screen, `sim launch` says "failed to open") | `xcode-build` prints the UDID it used; then `run "xcrun simctl launch <UDID> org.andbible.ios.dev; sleep 12; xcrun simctl io <UDID> screenshot build/shots/x.png"` and `fetch build/shots/x.png` |
 | Need something else (lldb, defaults, simctl) | `run '<command>'`, e.g. `run 'xcrun simctl get_app_container booted org.andbible.ios.dev data'` |
 
 A Native-only failure in kdom reproduces faster in the container (`:kdom:linuxX64Test`); everything
 using Foundation/UIKit needs the Mac.
+
+## Writing and reading UI tests
+
+`references/xcuitest-traps.md`: launch arguments that stop state leaking between classes
+(`-task6ResetCrashState`, `-standardTestFixture`, `-openDocument KJV`, `-resetDatabases`), night-mode and
+discrete-alert conventions, the first-run flow, runtime-independent assertions, reading a fetched `.xcresult`
+on Linux, the https E2E sync fixture (`scripts/e2e-sync-fixture.sh run|reset`), and why a Release "fresh
+install" on a Mac is a legacy-data migration (`MAC_RELEASE_KEEP_INSTALL=1`). A new test class belongs in a
+full-suite run before it counts as green.
 
 ## Mac facts that differ from CI
 
@@ -199,7 +209,9 @@ using Foundation/UIKit needs the Mac.
   Gradle daemon while `gradle.properties` (JVM args) is the same, so `check` should show 1; after the last Mac step of a session: `cleanup` (see "Clean up after use"; it takes the lock, so it never cuts another
   container's run short; the next run boots the simulator again).
 - Known red on the Mac exactly as on CI: `KeychainSelfTests` -34018 (simulator app unsigned; status
-  backlog item), not a setup problem.
+  backlog item), not a setup problem. The host app is ad-hoc signed for the simulator in `iosApp/project.yml`
+  (test targets without an Info.plist must stay unsigned); Kotlin/Native test binaries have no keychain at
+  all and must use an in-memory `SecretStore`.
 - Never install software or change settings on the Mac yourself; the build user is not an admin.
   Missing tool: tell the user what to install (`docs/ios-remote-mac.md`).
 
@@ -236,7 +248,7 @@ A UI class takes 1-25 minutes, a multi-class batch can take over an hour. Waitin
 - Every remote step has a built-in wall-clock limit (`MAC_TIMEOUT`: 2400 s for `xcode-test`, 3000 s for the
   rest, per step; a step-level watchdog kills everything the step started, including npm/xcodegen/simulator
   boot, `MAC_STEP_MARGIN` = 600 s after that). A stuck step ends by itself, the exit code is 142 and the run's `exit` marker says
-  `timeout`; a `batch` then stops there. For a full UI suite pass a larger `MAC_TIMEOUT` (e.g. 9000).
+  `timeout`; a `batch` then stops there. For a full UI suite pass `MAC_TIMEOUT=5400` (with `--parallel 2`, about 35 min of testing).
 - Prompt-cache TTL is one hour. If a wait will exceed ~55 minutes, schedule a wake-up no later than minute 55
   (`CronCreate` / `ScheduleWakeup`) so the session never goes cold on a long wait, and use it to check
   `check`, the log's mtime and the result.

@@ -38,6 +38,12 @@ All commands below are arguments to `bash scripts/windows-vm.sh`.
   emulator first using `android-emulator`. **Only one container may run a Windows VM at a
   time**; get the orchestrator's VM token before `install`/`start`/`dev-start`.
   One VM per container; inspect ownership before stopping any existing process.
+- **Token policy (orchestrator).** The default is one token across all children; two VMs at once have
+  exhausted host memory (a second VM hung in OVMF firmware beside a Gradle gate). A child needing the VM
+  is told not to start any until it receives "Windows VM token: yours", and stops the VM and removes the
+  overlay before handing it back. The maintainer may allow more for one session only (said in that
+  session); check host memory first, because `free -g` in a container shows the container limit, not the
+  host's. Message the next waiting child explicitly on release; the default returns with a new session.
 - `start` means QMP ready, not Windows/SSH ready. Check SSH with a deadline; a login-screen
   screenshot proves only VM boot, not an AndBible test.
 - An SSH-launched GUI is invisible and may crash Skia. Log on at the console, then use

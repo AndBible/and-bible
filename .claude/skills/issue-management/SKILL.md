@@ -184,6 +184,16 @@ drafting an area.
   release"). Do not leave it open "until it ships" (maintainer, 2026-10-31; the old In-review-until-
   release rule is retired, e.g. #3837 WebDAV was closed this way). Only work still in an unmerged PR
   stays open with Status In review.
+- **Module requests** (new Bible/commentary modules; maintainer, 2026-10-24): close as `wontfix`. The
+  comment says AndBible does not create modules, custom repositories and direct MyBible/MySword installs
+  exist, and if the contributor has the right to publish and the module is acceptable, a pull request to
+  the AndBible module repository (https://github.com/AndBible/data) may be accepted at the maintainer's
+  discretion. Do not promise acceptance.
+- **Ask only what needs judgement.** In area reviews ask the maintainer only about low-confidence
+  verdicts, `wontfix` and merges. Apply medium/high-confidence closes, plain priorities and In review
+  marks without asking, and list them in the summary. Keep question batches small (about 1-3
+  questions), give each ticket a one-sentence description (never bare numbers), and include only the
+  context for that decision.
 - The maintainer reviews from a Finnish summary. For each item it gives **what the issue is about**
   in one sentence, then the verdict and why, so nobody needs to open the tickets. Lead with the
   ranking principle (P1/P2/P3/Someday) and end with a "look at these first" list (low/medium
