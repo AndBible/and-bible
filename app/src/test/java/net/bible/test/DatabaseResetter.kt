@@ -344,7 +344,22 @@ object DatabaseResetter {
      * null context for a moment, and its `toString()` (via `nameString`) throws an NPE on `coroutineName`.
      */
     private fun jobIdentity(job: kotlinx.coroutines.Job): String =
-        "${job.javaClass.simpleName.take(100)}@${System.identityHashCode(job)}"
+        "${job.javaClass.simpleName.take(100)}@${System.identityHashCode(job)}${coroutineOwner(job)}"
+
+    /**
+     * For a coroutine: its [kotlinx.coroutines.CoroutineName] (the owner, e.g. `BibleWindowSession`) and dispatcher. A
+     * cancelled coroutine that never completes is usually waiting for a dispatch that will never run, such as a
+     * resumption queued on a test's `StandardTestDispatcher` after its `runTest` returned (#4020). Reads only the two
+     * context elements: a coroutine still being constructed has no context yet (see the class comment on `toString`).
+     */
+    private fun coroutineOwner(job: kotlinx.coroutines.Job): String = try {
+        val context = (job as? CoroutineScope)?.coroutineContext
+        if (context == null) "" else {
+            val name = context[kotlinx.coroutines.CoroutineName]?.name?.take(80)
+            val dispatcher = context[kotlin.coroutines.ContinuationInterceptor]
+            " name=$name dispatcher=${dispatcher?.let { "${it.javaClass.simpleName.take(60)}:${it.toString().take(80)}" }}"
+        }
+    } catch (_: Throwable) { " name=unavailable" }
 
     internal fun jobState(job: kotlinx.coroutines.Job): String = try {
         val children = job.children.take(17).map { jobIdentity(it) }.toList()
