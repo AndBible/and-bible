@@ -6,7 +6,9 @@ the shots of one target, optionally only the light or only the dark ones, with t
 each raw's pixel size; `--also` records the same raw for targets framed from the same capture (iPhone 6.5")."""
 from __future__ import annotations
 
+import html
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -18,15 +20,41 @@ from .targets import TARGETS
 from .validate import validate_raw
 
 
-def plan_for(shots: list[Shot], lang: str, target_id: str, night: bool | None) -> dict:
+BOOKMARK_ACTIONS = ("verse_menu", "note", "label_dialog")
+
+
+def _plain(note_html: str) -> str:
+    text = re.sub(r"</?(i|b|em|strong|u|span|a)\b[^>]*>", "", note_html or "")
+    text = re.sub(r"<[^>]+>", " ", text)
+    return re.sub(r"\s+", " ", html.unescape(text)).strip()
+
+
+def _resolve(shot: Shot, content: dict) -> dict:
+    """For bookmark actions: the verse number to tap, the note's first characters and the primary label's name,
+    taken from the language's content.yaml so the drivers need no knowledge of the Bible text or UI language."""
+    bookmarks = {b["id"]: b for b in content.get("bookmarks", [])}
+    labels = {l["id"]: l for l in content.get("labels", [])}
+    b = bookmarks.get(shot.action_arg or "")
+    if b is None:
+        raise ShotError(shot.id, f"action {shot.action} names unknown bookmark {shot.action_arg!r}")
+    label_id = b.get("primaryLabel") or (b.get("labels") or [None])[0]
+    return {"verse": int(b["ref"].split("-")[0].split(".")[-1]),
+            "note_prefix": _plain(b.get("note", ""))[:24],
+            "label": labels[label_id]["name"] if label_id in labels else None}
+
+
+def plan_for(shots: list[Shot], lang: str, target_id: str, night: bool | None, content: dict | None = None) -> dict:
     if target_id not in TARGETS:
         raise ShotError("plan", f"unknown target {target_id}")
     chosen = [s for s in shots if target_id in s.targets and (night is None or s.night == night)]
-    return {
-        "lang": locale_for(lang).bcp47,
-        "shots": [{"id": s.id, "workspace": s.workspace, "action": s.action, "action_arg": s.action_arg,
-                   "night": s.night} for s in chosen],
-    }
+    out = []
+    for s in chosen:
+        entry = {"id": s.id, "workspace": s.workspace, "action": s.action, "action_arg": s.action_arg,
+                 "night": s.night}
+        if content is not None and s.action in BOOKMARK_ACTIONS:
+            entry.update(_resolve(s, content))
+        out.append(entry)
+    return {"lang": locale_for(lang).bcp47, "shots": out}
 
 
 def import_raws(state: RunState, shots: list[Shot], target_id: str, src: Path,
@@ -59,7 +87,11 @@ def _manifest():
 
 def cmd_plan(args) -> int:
     night = {"any": None, "light": False, "dark": True}[args.mode]
-    plan = plan_for(_manifest(), args.lang, args.target, night)
+    import yaml
+    from .pipeline import submodule_dir
+    content_path = submodule_dir() / "demo-content" / args.lang / "content.yaml"
+    content = yaml.safe_load(content_path.read_text()) if content_path.exists() else None
+    plan = plan_for(_manifest(), args.lang, args.target, night, content)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(plan, indent=1, ensure_ascii=False))

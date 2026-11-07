@@ -21,6 +21,8 @@ cp "$src"/db/*.sqlite3 "$support/databases/"
 for z in "$src"/modules/*.zip; do unzip -q -o "$z" -d "$data/Documents/sword"; done
 cp "$src/plan-$mode.json" "$src/plan.json"
 xcrun simctl ui "$udid" appearance "$mode"
+# The status bar formats its time with the simulator's region (a Finnish Mac shows "9.41").
+xcrun simctl spawn "$udid" defaults write -g AppleLocale en_US || true
 xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
 echo "ios-seed: $udid $app_id seeded ($(ls "$support/databases" | wc -l) databases, $(ls "$data/Documents/sword/mods.d" | wc -l) modules), appearance $mode"

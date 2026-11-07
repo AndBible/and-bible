@@ -73,3 +73,22 @@ def test_import_ignores_unknown_and_unassigned_files(tmp_path):
     raw(src / "c.png", TARGETS["ios-ipad-13"].raw_size)
     state = RunState(tmp_path / "work", "en")
     assert import_raws(state, SHOTS, "ios-ipad-13", src) == ["c"]
+
+
+def test_plan_resolves_bookmark_actions_from_content():
+    content = {
+        "labels": [{"id": "char", "name": "Character of God", "color": "#FB8C00"}],
+        "bookmarks": [{"id": "jer", "ref": "Jer.9.23-Jer.9.24", "labels": ["char"],
+                       "note": "<p>This passage <i>describes</i> the character of God in three</p>"}],
+    }
+    shots = [mk("n", ["ios-iphone-69"], action="note", arg="jer")]
+    s = plan_for(shots, "en", "ios-iphone-69", None, content)["shots"][0]
+    assert s["verse"] == 23
+    assert s["note_prefix"] == "This passage describes t"
+    assert s["label"] == "Character of God"
+
+
+def test_plan_unknown_bookmark_fails_naming_it():
+    shots = [mk("n", ["ios-iphone-69"], action="note", arg="nope")]
+    with pytest.raises(ShotError, match="nope"):
+        plan_for(shots, "en", "ios-iphone-69", None, {"bookmarks": [], "labels": []})

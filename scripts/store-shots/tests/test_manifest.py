@@ -73,7 +73,20 @@ def test_real_manifest_matches_agreed_list():
     by = {s.id: s for s in shots}
     assert by["search"].action == "search" and by["search"].action_arg == "love"
     assert by["night-split"].night is True
-    assert by["formatted-note"].action_arg == "Jer.9.24"
+    assert by["formatted-note"].action == "note"
+
+
+def test_every_bookmark_action_resolves_in_english_content():
+    from storeshots.capture import BOOKMARK_ACTIONS, plan_for
+    content = yaml.safe_load((SUB / "demo-content" / "en" / "content.yaml").read_text())
+    shots = load_manifest(SUB / "shots.yaml")
+    names = {w["name"] for w in content["workspaces"]}
+    for s in shots:
+        assert s.workspace in names, s.id
+    for t in ("play-phone", "ios-iphone-69"):
+        for e in plan_for(shots, "en", t, None, content)["shots"]:
+            if e["action"] in BOOKMARK_ACTIONS:
+                assert e["verse"] > 0 and e["label"] and e["note_prefix"], e["id"]
 
 
 def test_every_caption_exists_and_is_short():

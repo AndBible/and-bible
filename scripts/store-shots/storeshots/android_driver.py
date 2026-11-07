@@ -125,8 +125,8 @@ def set_night(dev: Device, night: bool) -> None:
 
 
 def plain(note_html: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", note_html or "")
-    return re.sub(r"\s+", " ", html.unescape(text)).strip()
+    from .capture import _plain
+    return _plain(note_html)
 
 
 class Content:
