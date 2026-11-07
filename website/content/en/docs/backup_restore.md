@@ -45,7 +45,7 @@ Opening and sharing files differs between platforms; see [Files and sharing](pla
     > - Choose *Documents* to backup your Bibles, Dictionaries,
     >     Commentaries, Maps, etc. (You will be prompted which modules you
     >     want to backup)
-    > - Choose *Application* to backup the .apk file
+    > - Choose *Application* to backup the .apk file (Android only; the switch is not shown on iOS and desktop)
 3. Tap *Backup To…*.
 4. Choose where you would like to send the backup:
 

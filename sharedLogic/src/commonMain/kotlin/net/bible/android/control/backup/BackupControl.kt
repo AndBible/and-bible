@@ -724,12 +724,14 @@ class BackupControl(
         )
     }
 
+    /** Backs up the APK; a no-op where there is none (iOS, desktop: `AppEnvironment.apkPath` is null). */
     suspend fun backupApp(host: BackupHost) {
+        val apkPath = env.apkPath ?: return
 
         val tempFile = internalDbBackupDir / strings.apkFile
         withContext(Dispatchers.IO) {
             fileSystem.delete(tempFile, mustExist = false)
-            fileSystem.copy(requireNotNull(env.apkPath).toPath(), tempFile)
+            fileSystem.copy(apkPath.toPath(), tempFile)
         }
 
         saveOrShare(

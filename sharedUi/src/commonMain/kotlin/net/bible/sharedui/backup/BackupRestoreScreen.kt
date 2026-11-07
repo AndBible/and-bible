@@ -102,13 +102,15 @@ fun BackupRestoreScreen(
                 onCheckedChange = { onToggle(ToggleKind.BackupDocuments, it) },
                 enabled = state.loaded,
             )
-            AbSwitchRow(
-                label = strings.backupApplicationLabel,
-                summary = strings.backupApplicationInfo,
-                checked = state.toggles[ToggleKind.BackupApp] ?: false,
-                onCheckedChange = { onToggle(ToggleKind.BackupApp, it) },
-                enabled = state.loaded,
-            )
+            if (state.appBackupAvailable) {
+                AbSwitchRow(
+                    label = strings.backupApplicationLabel,
+                    summary = strings.backupApplicationInfo,
+                    checked = state.toggles[ToggleKind.BackupApp] ?: false,
+                    onCheckedChange = { onToggle(ToggleKind.BackupApp, it) },
+                    enabled = state.loaded,
+                )
+            }
             Button(
                 onClick = onBackup,
                 enabled = state.loaded,
