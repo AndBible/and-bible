@@ -227,7 +227,18 @@ object IosAppStartup {
                     withContext(Dispatchers.Main.immediate) { opened = true }
                     // The activity-menu preference may have been read while the store still answered defaults.
                     runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
-                    runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.SystemNotificationsPreference>()?.refresh() }
+                    runCatching {
+                        val koin = org.koin.mp.KoinPlatform.getKoin()
+                        val preference = koin.getOrNull<net.bible.android.control.activity.SystemNotificationsPreference>()
+                        if (IosDebugLaunchArgs.hasLaunchFlag("-notificationReset")) {
+                            koin.get<net.bible.sharedcore.platform.AppSettings>().setBoolean("notification_permission_asked", false)
+                            preference?.set(!IosDebugLaunchArgs.hasLaunchFlag("-notificationSettingOff"))
+                            platform.UserNotifications.UNUserNotificationCenter.currentNotificationCenter().removeAllDeliveredNotifications()
+                            platform.UserNotifications.UNUserNotificationCenter.currentNotificationCenter().removeAllPendingNotificationRequests()
+                        } else {
+                            preference?.refresh()
+                        }
+                    }
                 },
             ).also { owner = it }
         }
