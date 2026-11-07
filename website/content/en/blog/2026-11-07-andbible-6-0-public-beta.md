@@ -70,7 +70,6 @@ work the same way wherever you open them.
 - **A new interface,** rebuilt with Compose Multiplatform and shared between the platforms.
 - **Sync between platforms.** Nextcloud and WebDAV sync work everywhere. iCloud Drive is available
   on iPhone, iPad and Mac, Google Drive on Android (not in the F-Droid build).
-- **Sync now:** start a synchronization yourself from the menu of the reading view.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
   activity list, and finished or failed work is reported with a notification.
 - **Reading plans** are now included in synchronization.
