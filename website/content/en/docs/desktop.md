@@ -61,6 +61,11 @@ The chosen scale and where it came from are written at start-up to the log as a 
 ## Update checks
 
 Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. The update check never offers a release that is less stable than the one you have installed.
+<!-- if beta -->
+
+**Offer public beta updates** (also in Settings) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for Flatpak, Microsoft Store (MSIX) and development installs, which update through their own channel or not at all, nor for developer test builds, which always see every channel.
+
+<!-- end -->
 
 ## If AndBible cannot start
 

@@ -62,6 +62,7 @@ import net.bible.sharedui.desktop.update.DesktopUpdatePrompts
 import net.bible.sharedui.desktop.update.checksForUpdates
 import net.bible.sharedui.desktop.update.desktopBuildNumber
 import net.bible.sharedui.desktop.update.detectDistribution
+import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import java.nio.file.Path
 
@@ -159,6 +160,9 @@ fun desktopMiscModule(): Module = module {
         single<DesktopUpdateCheckSetting>(createdAtStart = true) {
             DesktopUpdatePrompts(get(), get<AppCoroutineScope>(), get(), version, build, channel, get(), get(), get())
         } onClose { (it as? DesktopUpdatePrompts)?.close() }
+        if (channel != net.bible.sharedui.desktop.update.DesktopChannel.TEST) {
+            single<DesktopBetaUpdateSetting> { (get<DesktopUpdateCheckSetting>() as DesktopUpdatePrompts).offerBeta }
+        }
     }
     single<DesktopNightModeSource> { DesktopNightModeAdapter(net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState(get())) }
     single<NightModeState> { get<DesktopNightModeSource>() }

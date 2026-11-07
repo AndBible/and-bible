@@ -10,6 +10,7 @@ import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 
 private const val DAY_MS = 24 * 60 * 60 * 1000L
 internal const val CONSENT_KEY = "desktop_update_check"
+internal const val OFFER_BETA_KEY = "desktop_update_offer_beta"
 private const val LAST_CHECK_KEY = "desktop_update_last_check"
 private const val ANNOUNCED_KEY = "desktop_update_announced_build"
 
@@ -50,7 +51,8 @@ class DesktopUpdateCheck(
         if (last != Long.MIN_VALUE && (now < last || now - last < DAY_MS)) return
         settings.putLong(LAST_CHECK_KEY, now)
         try {
-            val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownChannel, settings.getInt(ANNOUNCED_KEY, 0))
+            val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownChannel, settings.getInt(ANNOUNCED_KEY, 0),
+                when (settings.getString(OFFER_BETA_KEY)) { "yes" -> true; "no" -> false; else -> null })
             if (release != null && settings.getString(CONSENT_KEY) == "yes") {
                 if (announceAndAwait(release)) settings.putInt(ANNOUNCED_KEY, release.build)
             }

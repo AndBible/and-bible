@@ -134,4 +134,23 @@ class DesktopUpdateCheckTest {
         assertEquals(true, entered)
         checker.start(); runCurrent()
     }
+
+    private fun mixed() = """[
+        {"tag_name":"beta-1245","draft":false,"html_url":"https://example.com/b","assets":[{"name":"andbible-desktop-linux.deb"}]},
+        {"tag_name":"production-1240","draft":false,"html_url":"https://example.com/p","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+
+    private suspend fun kotlinx.coroutines.test.TestScope.offeredTag(channel: DesktopChannel, offerBeta: String?): String? {
+        val prefs = settings().apply { putString("desktop_update_check", "yes"); offerBeta?.let { putString("desktop_update_offer_beta", it) } }
+        var tag: String? = null
+        DesktopUpdateCheck(prefs, { 100000000L }, { mixed() }, 1230, channel, backgroundScope, { tag = it.tag }).start()
+        runCurrent()
+        return tag
+    }
+
+    @Test fun storedOfferBetaChoiceDrivesTheCheck() = runTest {
+        assertEquals("production-1240", offeredTag(DesktopChannel.PRODUCTION, null))
+        assertEquals("beta-1245", offeredTag(DesktopChannel.PRODUCTION, "yes"))
+        assertEquals("beta-1245", offeredTag(DesktopChannel.BETA, null))
+        assertEquals("production-1240", offeredTag(DesktopChannel.BETA, "no"))
+    }
 }

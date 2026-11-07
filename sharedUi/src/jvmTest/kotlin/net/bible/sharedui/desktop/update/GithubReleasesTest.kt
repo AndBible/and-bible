@@ -54,6 +54,40 @@ class GithubReleasesTest {
         }
     }
 
+    /** (installed channel, offerBeta setting, releases) -> offered tag; null setting = default (ON for beta installs only). */
+    @Test fun offeredReleaseBySettingAndChannel() {
+        val t = DesktopChannel.TEST; val b = DesktopChannel.BETA; val p = DesktopChannel.PRODUCTION
+        val all3 = listOf(release(t, 1301), release(b, 1302), release(p, 1300))
+        val cases: List<Quadruple> = listOf(
+            Quadruple(p, true, listOf(release(b, 1302), release(p, 1300)), "beta-1302"),
+            Quadruple(p, true, listOf(release(b, 1302), release(p, 1303)), "production-1303"),
+            Quadruple(p, true, listOf(release(t, 1310)), null),
+            Quadruple(p, false, listOf(release(b, 1302), release(p, 1300)), "production-1300"),
+            Quadruple(p, false, listOf(release(b, 1302)), null),
+            Quadruple(p, null, listOf(release(b, 1302)), null),
+            Quadruple(b, true, listOf(release(b, 1302), release(p, 1300)), "beta-1302"),
+            Quadruple(b, null, listOf(release(b, 1302), release(p, 1300)), "beta-1302"),
+            Quadruple(b, false, listOf(release(b, 1302), release(p, 1300)), "production-1300"),
+            Quadruple(b, false, listOf(release(b, 1302)), null),
+            Quadruple(b, false, listOf(release(b, 1302), release(p, 1303)), "production-1303"),
+            Quadruple(b, false, listOf(release(p, 1249)), null),
+            Quadruple(t, false, all3, "beta-1302"),
+            Quadruple(t, true, all3, "beta-1302"),
+            Quadruple(t, null, listOf(release(t, 1301)), "test-1301"),
+        )
+        cases.forEach { c ->
+            assertEquals(c.expected, newestOffered(c.releases, 1250, c.own, 0, c.offerBeta)?.tag,
+                "own=${c.own} offerBeta=${c.offerBeta} releases=${c.releases.map { it.tag }}")
+        }
+    }
+
+    private data class Quadruple(val own: DesktopChannel, val offerBeta: Boolean?, val releases: List<DesktopRelease>, val expected: String?)
+
+    @Test fun defaultOfferBetaIsOnOnlyForBetaInstalls() {
+        assertEquals(true, DesktopChannel.BETA.defaultOfferBeta)
+        assertEquals(false, DesktopChannel.PRODUCTION.defaultOfferBeta)
+    }
+
     @Test fun fixtureOffersPerChannel() {
         assertEquals("production-1240", newestOffered(all, 1239, DesktopChannel.PRODUCTION, 0)?.tag)
         assertEquals("beta-1245", newestOffered(all, 1239, DesktopChannel.BETA, 0)?.tag)

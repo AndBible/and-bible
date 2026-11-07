@@ -19,6 +19,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.HostStringTableHolder
+import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import net.bible.service.db.DatabaseContainer
 
@@ -30,7 +31,7 @@ class DesktopUpdatePrompts(
     environment: AppEnvironment,
     version: String,
     build: Int,
-    channel: DesktopChannel,
+    private val channel: DesktopChannel,
     private val dialogs: AppDialogController,
     private val strings: HostStringTableHolder,
     private val links: ExternalLinks,
@@ -86,6 +87,13 @@ class DesktopUpdatePrompts(
     }
 
     override val enabled: Boolean get() = settings.getString(CONSENT_KEY) == "yes"
+    /** The offer-beta row; bound separately because a test build has none. */
+    val offerBeta: DesktopBetaUpdateSetting = object : DesktopBetaUpdateSetting {
+        override val enabled: Boolean
+            get() = when (settings.getString(OFFER_BETA_KEY)) { "yes" -> true; "no" -> false; else -> channel.defaultOfferBeta }
+        override fun setEnabled(enabled: Boolean) = settings.putString(OFFER_BETA_KEY, if (enabled) "yes" else "no")
+        override fun observeChanges(onChange: () -> Unit): () -> Unit = settings.observeChanges(onChange)
+    }
     override fun setEnabled(enabled: Boolean) {
         settings.putString(CONSENT_KEY, if (enabled) "yes" else "no")
         if (enabled) checker.start()
