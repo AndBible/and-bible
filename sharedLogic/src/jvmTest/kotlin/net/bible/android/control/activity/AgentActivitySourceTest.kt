@@ -87,6 +87,64 @@ class AgentActivitySourceTest {
     }
 
     @Test
+    fun concurrentStopDuringStartIsDeliveredAfterStart() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val blocker = events.subscribe { event ->
+            if (event is AgentSessionChange.StatusChanged && event.isRunning) {
+                entered.countDown()
+                check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+        }
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        val session = net.bible.service.llm.agent.AgentSession(ws, events::emit)
+        val job = kotlinx.coroutines.Job()
+        val starter = kotlin.concurrent.thread {
+            session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType()), job)
+        }
+        try {
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            session.stop()
+            release.countDown()
+            starter.join(5000)
+            assertEquals(false, starter.isAlive)
+            assertTrue(job.isCancelled)
+            assertEquals(false, session.isRunning)
+            assertEquals(false, center.isRunning(agentActivityId(ws)))
+        } finally {
+            release.countDown()
+            starter.join(5000)
+            blocker.cancel()
+            source.close()
+        }
+    }
+
+    @Test
+    fun reentrantStopDuringStartLeavesNoRunningRow() = runTest {
+        val events = EventSource<AgentSessionChange>()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val ws = IdType()
+        lateinit var session: net.bible.service.llm.agent.AgentSession
+        val stopper = events.subscribe { event ->
+            if (event is AgentSessionChange.StatusChanged && event.isRunning) session.stop()
+        }
+        val source = AgentActivitySource(center, events, {}, { null }, {
+            AgentActivityStrings("Agent", { it }, { "waiting" }, "failed")
+        })
+        session = net.bible.service.llm.agent.AgentSession(ws, events::emit)
+        assertTrue(session.tryStart(net.bible.service.llm.agent.AgentContext(promptId = IdType())))
+        assertEquals(false, session.isRunning)
+        assertEquals(false, center.isRunning(agentActivityId(ws)))
+        stopper.cancel()
+        source.close()
+    }
+
+    @Test
     fun initialSessionLogIsVisible() = runTest {
         val events = EventSource<AgentSessionChange>()
         val center = ActivityCenter(backgroundScope) { currentTime }

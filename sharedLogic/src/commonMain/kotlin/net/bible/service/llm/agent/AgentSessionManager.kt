@@ -133,12 +133,15 @@ class AgentSession(
     var rawLlmLog: RawLlmLog? = null
         private set
 
-    private enum class Lifecycle { IDLE, RUNNING, STOPPING }
-    // STOPPING keeps replacement starts behind terminal delivery.
-    private val lifecycle = atomic(Lifecycle.IDLE)
+    private enum class Lifecycle { IDLE, STARTING, RUNNING, STOPPING }
+    private val lifecycleLock = kotlinx.atomicfu.locks.SynchronizedObject()
+    private var lifecycle = Lifecycle.IDLE
+    private var pendingStop: Pair<String?, AgentStopReason>? = null
 
     /** False as soon as stopping begins; the start gate remains closed through terminal delivery. */
-    val isRunning: Boolean get() = lifecycle.value == Lifecycle.RUNNING
+    val isRunning: Boolean get() = kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+        (lifecycle == Lifecycle.STARTING && pendingStop == null) || lifecycle == Lifecycle.RUNNING
+    }
 
     /** Cumulative session cost in USD, updated on each API call. */
     @Volatile
@@ -162,19 +165,45 @@ class AgentSession(
      * start is announced, so a losing call can never replace it and [stop] always reaches the run that won.
      */
     fun tryStart(context: AgentContext, job: Job? = null): Boolean {
-        if (!lifecycle.compareAndSet(Lifecycle.IDLE, Lifecycle.RUNNING)) return false
-        this.job = job
-        this.context = context
-        this.sessionCostUsd = 0.0
-        _logEntries.clear()
-        rawLlmLog = RawLlmLog()
-        emit(AgentSessionChange.StatusChanged(workspaceId, true))
-        addLogEntry(AgentLogEntry.info("Agent started"))
+        kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+            if (lifecycle != Lifecycle.IDLE) return false
+            lifecycle = Lifecycle.STARTING
+            this.job = job
+            this.context = context
+            this.sessionCostUsd = 0.0
+            _logEntries.clear()
+            rawLlmLog = RawLlmLog()
+        }
+        try {
+            emit(AgentSessionChange.StatusChanged(workspaceId, true))
+            addLogEntry(AgentLogEntry.info("Agent started"))
+        } finally {
+            val stop = kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+                val request = pendingStop
+                pendingStop = null
+                lifecycle = if (request == null) Lifecycle.RUNNING else Lifecycle.STOPPING
+                request
+            }
+            if (stop != null) finishStop(stop.first, stop.second)
+        }
         return true
     }
 
     fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
-        if (!lifecycle.compareAndSet(Lifecycle.RUNNING, Lifecycle.STOPPING)) return
+        kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+            when (lifecycle) {
+                Lifecycle.STARTING -> {
+                    if (pendingStop == null) pendingStop = message to reason
+                    return
+                }
+                Lifecycle.RUNNING -> lifecycle = Lifecycle.STOPPING
+                else -> return
+            }
+        }
+        finishStop(message, reason)
+    }
+
+    private fun finishStop(message: String?, reason: AgentStopReason) {
         try {
             if (message != null) {
                 val hasRawLog = rawLlmLog?.isEmpty() == false
@@ -186,7 +215,7 @@ class AgentSession(
             stopped?.cancel()
             emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
         } finally {
-            lifecycle.value = Lifecycle.IDLE
+            kotlinx.atomicfu.locks.synchronized(lifecycleLock) { lifecycle = Lifecycle.IDLE }
         }
     }
 
