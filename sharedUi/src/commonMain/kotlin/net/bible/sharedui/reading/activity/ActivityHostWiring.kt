@@ -78,6 +78,7 @@ internal fun ActivityHostImpl(
     // every progress event. The readers (button, menu section, list layer) read them where they draw.
     val items = wiring.center.items.collectAsState()
     val unread = wiring.center.unreadFailures.collectAsState()
+    val badge = wiring.center.badge.collectAsState()
     var listVisible by remember { mutableStateOf(false) }
     val onShowAll = remember { { listVisible = true } }
     val sync = wiring.syncNow
@@ -97,8 +98,8 @@ internal fun ActivityHostImpl(
     val enabledNow by rememberUpdatedState(enabled)
     LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
-    val state = remember(enabled, items, unread, onShowAll, onMenuOpened, syncState) {
-        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState, wiring::open) else null
+    val state = remember(enabled, items, unread, badge, onShowAll, onMenuOpened, syncState, wiring) {
+        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState, wiring::open, badge) else null
     }
     content(state)
     if (enabled && listVisible) {

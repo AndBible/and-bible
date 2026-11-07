@@ -26,6 +26,8 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.runtime.Composable
 import kotlin.test.Test
@@ -146,6 +148,15 @@ class ActivityHostWiringTest {
         host(f.wiring)
         onNodeWithText("1", useUnmergedTree = true).assertExists()
         onAllNodesWithText("2", useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test fun permissionWaitBeforeDebounceIsNotDescribedAsFailure() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.center.start("agent", ActivityKind.AI_AGENT, "Agent")
+        f.center.setAttention("agent", true)
+        host(f.wiring)
+        onNodeWithContentDescription("1 need attention", useUnmergedTree = true).assertExists()
+        onAllNodesWithContentDescription("1 failed", useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test fun menuOpenMarksRead() = runComposeUiTest {

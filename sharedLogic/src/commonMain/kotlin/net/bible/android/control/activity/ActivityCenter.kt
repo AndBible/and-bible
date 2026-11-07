@@ -33,6 +33,10 @@ fun monotonicActivityClock(): () -> Long {
  * one coroutine that wakes at the next debounce end / success expiry, using [delay], so a test
  * scheduler's virtual time works as long as [clock] follows it. Production passes [monotonicActivityClock].
  */
+data class ActivityBadgeCounts(val failures: Int = 0, val attention: Int = 0) {
+    val total: Int get() = failures + attention
+}
+
 class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 
     private class Rec(val seq: Long, val item: ActivityItem)
@@ -40,7 +44,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private class Model(
         val recs: Map<String, Rec>,
         val items: List<ActivityItem>,
-        val unread: Int,
+        val badge: ActivityBadgeCounts,
         /** Next time visibility changes by itself, or null. */
         val nextDeadline: Long?,
     )
@@ -49,6 +53,8 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private val model = MutableStateFlow(build(0L, emptyMap()))
     private val _items = MutableStateFlow<List<ActivityItem>>(emptyList())
     private val _unread = MutableStateFlow(0)
+    private val _badge = MutableStateFlow(ActivityBadgeCounts())
+    val badge: StateFlow<ActivityBadgeCounts> = _badge.asStateFlow()
 
     /**
      * Visible items: running first, then finished; each group newest first.
@@ -160,7 +166,8 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         val m = build(clock(), f(model.value.recs))
         model.value = m
         _items.value = m.items
-        _unread.value = m.unread
+        _unread.value = m.badge.total
+        _badge.value = m.badge
     }
 
     companion object {
@@ -188,7 +195,10 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
             return Model(
                 recs,
                 (visibleRunning + visibleFinished).map { it.item },
-                recs.values.count { (it.item.state == ActivityState.FAILED && !it.item.read) || (it.item.state == ActivityState.RUNNING && it.item.attention) },
+                ActivityBadgeCounts(
+                    failures = recs.values.count { it.item.state == ActivityState.FAILED && !it.item.read },
+                    attention = recs.values.count { it.item.state == ActivityState.RUNNING && it.item.attention },
+                ),
                 deadlines.minOrNull(),
             )
         }

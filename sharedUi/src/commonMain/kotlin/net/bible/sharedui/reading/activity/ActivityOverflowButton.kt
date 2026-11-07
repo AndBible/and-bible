@@ -95,9 +95,10 @@ fun ActivityOverflowButton(
         if (running.isNotEmpty()) {
             ActivityRing(percent = single, description = strings.activityRunningDescription)
         }
-        val count = activity.unreadFailures.value
-        val attention = activity.items.value.count { it.state == ActivityState.RUNNING && it.attention }.coerceAtMost(count)
-        val unread = count - attention
+        val badge = activity.badge.value
+        val count = badge.total
+        val attention = badge.attention
+        val unread = badge.failures
         if (count > 0) {
             val mono = isPureMonochrome()
             Badge(
