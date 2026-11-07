@@ -21,13 +21,11 @@ class NotificationPermissionLogic(
 
     override suspend fun ensureAsked() {
         try {
-            val shouldRequest = mutex.withLock {
-                if (!enabled() || asked()) false else {
-                    markAsked()
-                    true
-                }
+            mutex.withLock {
+                if (!enabled() || asked()) return
+                request()
+                markAsked()
             }
-            if (shouldRequest) request()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

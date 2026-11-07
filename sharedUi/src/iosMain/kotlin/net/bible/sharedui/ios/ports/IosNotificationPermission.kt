@@ -14,36 +14,12 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
-
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.NotificationPermission
-import platform.UserNotifications.*
-
-@kotlin.native.HiddenFromObjC
-interface IosNotificationCenter {
-    fun authorizationDecided(completion: (Boolean) -> Unit)
-    fun requestAlertAndSound(completion: () -> Unit)
-}
-
-private object SystemNotificationCenter : IosNotificationCenter {
-    override fun authorizationDecided(completion: (Boolean) -> Unit) {
-        UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler {
-            completion(it?.authorizationStatus != UNAuthorizationStatusNotDetermined)
-        }
-    }
-    override fun requestAlertAndSound(completion: () -> Unit) {
-        UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
-            UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
-        ) { _, _ -> completion() }
-    }
-}
 
 /** Legacy screen-resume requests do not prompt on iOS. */
 @kotlin.native.HiddenFromObjC
-class IosNotificationPermission(
-    private val center: IosNotificationCenter = SystemNotificationCenter,
-) : NotificationPermission {
+class IosNotificationPermission : NotificationPermission {
     override suspend fun request() = Unit
 }

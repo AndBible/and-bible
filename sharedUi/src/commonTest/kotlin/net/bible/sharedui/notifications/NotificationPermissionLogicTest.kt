@@ -3,6 +3,7 @@ package net.bible.sharedui.notifications
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.log.Log
 import kotlin.test.Test
@@ -31,18 +32,23 @@ class NotificationPermissionLogicTest {
         assertEquals(0, requests)
     }
 
-    @Test fun requestErrorIsMarkedAndNotRetried() = runTest {
+    @Test fun requestErrorDoesNotConsumeAskAndCanBeRetried() = runTest {
         var asked = false
         var requests = 0
-        val permission = NotificationPermissionLogic({ asked }, { asked = true }, { true }) { requests++; error("failure") }
+        val permission = NotificationPermissionLogic({ asked }, { asked = true }, { true }) {
+            requests++
+            if (requests == 1) error("failure")
+            true
+        }
         var logged = 0
         val original = Log.sinkOverride
         Log.sinkOverride = { _, tag, _, _ -> if (tag == "NotificationPermission") logged++ }
         try {
             permission.ensureAsked()
+            assertFalse(asked)
             permission.ensureAsked()
             assertTrue(asked)
-            assertEquals(1, requests)
+            assertEquals(2, requests)
             assertEquals(1, logged)
         } finally {
             Log.sinkOverride = original
@@ -63,7 +69,7 @@ class NotificationPermissionLogicTest {
                     request = { requests++; true },
                 )
                 repeat(3) { permission.ensureAsked() }
-                assertEquals(0, requests, failingStep)
+                assertEquals(if (failingStep == "mark") 3 else 0, requests, failingStep)
                 assertEquals(1, logged, failingStep)
             } finally {
                 Log.sinkOverride = original
@@ -90,15 +96,32 @@ class NotificationPermissionLogicTest {
         val first = async { permission.ensureAsked() }
         entered.await()
         val second = async { permission.ensureAsked() }
+        try {
+            yield()
+            assertFalse(second.isCompleted)
+            assertFalse(asked)
+            assertEquals(1, requests)
+        } finally {
+            release.complete(Unit)
+        }
+        first.await()
         second.await()
         assertTrue(asked)
         assertEquals(1, requests)
-        release.complete(Unit)
-        first.await()
     }
 
-    @Test fun cancellationPropagates() = runTest {
-        val permission = NotificationPermissionLogic({ false }, {}, { true }) { throw CancellationException("cancel") }
+    @Test fun cancellationPropagatesWithoutConsumingAsk() = runTest {
+        var asked = false
+        var requests = 0
+        val permission = NotificationPermissionLogic({ asked }, { asked = true }, { true }) {
+            requests++
+            if (requests == 1) throw CancellationException("cancel")
+            true
+        }
         assertFailsWith<CancellationException> { permission.ensureAsked() }
+        assertFalse(asked)
+        permission.ensureAsked()
+        assertTrue(asked)
+        assertEquals(2, requests)
     }
 }
