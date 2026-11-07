@@ -904,8 +904,14 @@ fun windowsSdkTool(name: String): String {
         ?: throw GradleException("Windows SDK $name.exe not found under $bin; install Windows SDK desktop tools")
 }
 
-fun runWindowsTool(command: List<String>) {
-    val process = ProcessBuilder(command).redirectErrorStream(true).start()
+fun runWindowsTool(command: List<String>, wixDir: File? = null) {
+    val builder = ProcessBuilder(command).redirectErrorStream(true)
+    if (wixDir != null) {
+        val environment = builder.environment()
+        val pathKey = environment.keys.firstOrNull { it.equals("PATH", ignoreCase = true) } ?: "PATH"
+        environment[pathKey] = "${wixDir.absolutePath};${environment[pathKey].orEmpty()}"
+    }
+    val process = builder.start()
     val output = process.inputStream.bufferedReader().use { it.readText() }
     check(process.waitFor() == 0) { "Windows packaging tool failed: ${command.first()}\n$output" }
     if (output.isNotBlank()) logger.lifecycle(output)
@@ -942,6 +948,8 @@ tasks.register("packageWindowsMsix") {
 tasks.register("packageWindowsMsi") {
     group = "distribution"
     dependsOn(createWindowsAppImage)
+    val composeMsi = tasks.named<org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask>("packageMsi")
+    dependsOn(rootProject.tasks.named("unzipWix"))
     doLast {
         check(hostTarget == "windows-x64") { "Windows x64 is required" }
         val dir = layout.buildDirectory.dir("compose/binaries/main/msi").get().asFile
@@ -965,7 +973,7 @@ tasks.register("packageWindowsMsi") {
             "--license-file", rootProject.file("LICENSE.txt").absolutePath,
             "--win-dir-chooser", "--win-per-user-install", "--win-shortcut", "--win-menu",
             "--win-upgrade-uuid", windowsUpgradeUuid,
-        ) + associationArgs)
+        ) + associationArgs, composeMsi.get().wixToolsetDir.get().asFile)
         check(msi.isFile) { "Expected MSI at $msi" }
         val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
         Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
