@@ -52,6 +52,23 @@ class DatabaseResetterJobStateTest {
         } finally { root.cancel() }
     }
 
+    /** #4020: a teardown stuck joining a host's scope must name whose coroutine never finished, and where it runs. */
+    @Test
+    fun timeoutDiagnosticsNameTheStuckCoroutinesOwnerAndDispatcher() {
+        val root = SupervisorJob()
+        val session = SupervisorJob(root)
+        val hold = kotlinx.coroutines.CompletableDeferred<Unit>()
+        try {
+            CoroutineScope(Dispatchers.Default + session + kotlinx.coroutines.CoroutineName("BibleWindowSession")).launch { hold.await() }
+            val decision = DatabaseResetter.ResetDecision().apply { diagnosticJob = root }
+            val result = decision.diagnostic()
+            assertTrue(result, result.contains("name=BibleWindowSession"))
+            assertTrue(result, result.contains("dispatcher=") && result.contains("Dispatchers.Default"))
+            assertTrue("a bare job has no owner to name: $result", DatabaseResetter.jobState(session).startsWith("SupervisorJobImpl@") &&
+                !DatabaseResetter.jobState(session).substringBefore(" active=").contains("name="))
+        } finally { root.cancel() }
+    }
+
     @Test
     fun timeoutDiagnosticsStopAtDepthLimit() {
         val root = SupervisorJob()

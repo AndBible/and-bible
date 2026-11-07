@@ -21,6 +21,7 @@ package net.bible.sharedui.reading.session
 
 import kotlin.concurrent.Volatile
 import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -72,7 +73,8 @@ class BibleWindowSession(
 
     private val sessionScope = lazy {
         val parent = hostScopeProvider()
-        CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]))
+        // The name tells a stuck test teardown's job tree whose work it is (#4020).
+        CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]) + CoroutineName("BibleWindowSession"))
     }
 
     /**
