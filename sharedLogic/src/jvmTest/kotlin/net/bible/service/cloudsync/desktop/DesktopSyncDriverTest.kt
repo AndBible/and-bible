@@ -152,7 +152,7 @@ class DesktopSyncDriverTest {
 
     private fun policy(f: Fixture) = BackgroundSyncPolicy(
         syncEnabled = { true }, replacing = { false }, intervalSeconds = { intervalSeconds },
-        lastSynchronizedMs = { 0L }, nowMs = { Long.MAX_VALUE / 2 }, signedIn = { true }, signIn = { true },
+        lastSynchronizedMs = { 0L }, nowMs = { f.scope.currentTime }, signedIn = { true }, signIn = { true },
         startSync = { f.startedPasses++; f.startSync() },
     )
 
@@ -302,7 +302,7 @@ class DesktopSyncDriverTest {
             }
             fun pass(scheduler: DesktopSyncScheduler) = BackgroundSyncPolicy(
                 syncEnabled = { true }, replacing = { false }, intervalSeconds = { intervalSeconds }, lastSynchronizedMs = { 0L },
-                nowMs = { Long.MAX_VALUE / 2 }, signedIn = { true }, signIn = { true },
+                nowMs = { currentTime }, signedIn = { true }, signIn = { true },
                 startSync = { scheduler.startDatabaseSync() }, stopSync = { scheduler.stop(it) },
             )
 

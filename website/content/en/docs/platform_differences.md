@@ -14,9 +14,12 @@ See [Cloud synchronization](cloud_sync.md) for how to set sync up.
 | iCloud Drive | No | Yes | No |
 | Nextcloud | Yes | Yes | Yes |
 | WebDAV | Yes | Yes | Yes |
-| When it syncs | In the background, with a sync notification | In the background, when iOS gives the app time | Regularly while AndBible is open, and a last time when you quit |
+| When it syncs | On opening, every 5 minutes while open, on leaving the app, and when the network comes back | On opening, every 5 minutes while open, on leaving the app, and when the network comes back; also in the background when iOS gives the app time | On opening, every 5 minutes while open, and a last time when you quit |
+| While it syncs | A "synchronizing" notification | Nothing visible | Nothing visible while open; a short status window when you quit |
 
-On Windows and Linux, quitting shows a short "synchronizing" window while your changes are uploaded. **Quit now** skips the wait.
+Every platform also fetches changes made on your other devices on each of these syncs, not only when you have changed something yourself.
+
+On Windows and Linux, quitting shows a short "synchronizing" window while your changes are uploaded. The sync on quit only sends changes you have not sent yet. **Quit now** skips the wait.
 
 ## Reading and display {#reading-and-display}
 

@@ -27,6 +27,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.atomic.AtomicBoolean
 import net.bible.service.cloudsync.BackgroundSyncPolicy
+import net.bible.service.cloudsync.SyncTriggerDriver
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.desktop.ExitTaskScope
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
@@ -34,17 +35,21 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 
 /**
- * Runs the desktop's background sync: one pass when startup is ready, then one every [BackgroundSyncPolicy.nextEarliestSeconds],
- * all in [scope] (never on the UI thread). Passes never overlap. On the exit it stops the periodic loop and, as an exit
+ * The desktop's cloud-sync driver: the shared [SyncTriggerDriver] (#4025) for the passes while the app runs (one when
+ * startup is ready, then one every `cloud_sync_interval`, also pulling remote changes), plus the desktop's own exit pass.
+ * Everything runs in [scope] (never on the UI thread). Passes never overlap. On the exit it stops the timer and, as an exit
  * task, waits for the pass that is not yet completed (or runs [closePass], retrying the lock 3 times over 2 s) for at
  * most [closeWaitMs]; the default 30 s fits inside the exit-task runner's 31 s budget.
  *
- * Every failure (offline, sign-in, exceptions) is logged and swallowed: the app stays usable and the loop continues. When the
- * wait runs out the pass is NOT cancelled (database work cannot always be cancelled cleanly); the process exits and the
+ * Window focus is not "leaving the app" on the desktop: [DesktopLifecycleEvent.Background] is emitted only on exit, and
+ * the exit pass here is the leave-the-app trigger (it pushes only unsent changes, so a quick quit stays quick).
+ *
+ * Every failure (offline, sign-in, exceptions) is logged and swallowed: the app stays usable and the timer continues. When
+ * the wait runs out the pass is NOT cancelled (database work cannot always be cancelled cleanly); the process exits and the
  * hoisted CloudSync recovers an interrupted merge on the next start.
  *
- * Constructing the driver starts it (it registers its exit task and lifecycle observer and launches the loop), so bind it
- * as an eager Koin single. Nothing here touches a database until [awaitReady] returns.
+ * Constructing the driver starts it (it registers its exit task and lifecycle observer and launches the start-up wait), so
+ * bind it as an eager Koin single. Nothing here touches a database until [awaitReady] returns.
  *
  * @param closePass the on-close work (push local changes when signed in); null result means "nothing to do".
  * @param databasesReady false when the databases are closed or being replaced; the exit task then returns at once.
@@ -52,7 +57,7 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
  *   running; the exit task waits for it within the same bound.
  */
 class DesktopSyncDriver(
-    private val policy: BackgroundSyncPolicy,
+    policy: BackgroundSyncPolicy,
     private val closePass: suspend (onVisibleWork: () -> Unit) -> Boolean?,
     exitTasks: DesktopExitTasks,
     events: DesktopLifecycleEvents,
@@ -65,69 +70,48 @@ class DesktopSyncDriver(
     /** Held for the whole of a pass: a second pass (periodic or on-close) waits for it instead of overlapping. */
     internal val passLock = Mutex()
     @Volatile private var stopped = false
-    /** A periodic pass: its job and whether it actually ran (a pass that found `stopped` set never did). */
-    private class Pass { lateinit var job: Job; val ran = AtomicBoolean(false) }
 
-    /** The latest periodic pass; the exit task joins it instead of starting a second pass. */
-    @Volatile private var current: Pass? = null
+    /** The shared trigger logic; each of its passes runs under [passLock] and is skipped once the exit has begun. */
+    private val triggers = SyncTriggerDriver(policy, scope, passWrapper = { _, run ->
+        passLock.withLock { if (!stopped) run() }
+    })
+
     @Volatile private var closeJob: Job? = null
     private val closeBegan = AtomicBoolean(false)
-    private val loop: Job
+    private val startup: Job
 
-    /** Test seam: runs between publishing [current] and starting its job, the window where the pass is still New. */
-    internal var beforePassStart: () -> Unit = {}
-    /** Test seam: the job of the latest periodic pass. */
+    /** Test seam: runs between publishing a pass and starting its job, the window where the pass is still New. */
+    internal var beforePassStart: () -> Unit
+        get() = triggers.beforePassStart
+        set(value) { triggers.beforePassStart = value }
+
+    /** The latest pass; the exit task joins it instead of starting a second pass. */
+    private val current: SyncTriggerDriver.Pass? get() = triggers.latestPass
+
+    /** Test seam: the job of the latest pass. */
     internal val currentPassJob: Job? get() = current?.job
 
     init {
         events.observe { if (it == DesktopLifecycleEvent.Background) stop() }
         exitTasks.register("cloud-sync") { closeSync(this) }
-        loop = scope.launch {
+        startup = scope.launch {
             try {
                 awaitReady()
-                while (!stopped) {
-                    launchPass().join()
-                    if (stopped) break
-                    delay(policy.nextEarliestSeconds() * 1000)
-                }
+                if (!stopped) triggers.onForeground()
+                if (stopped) triggers.stop() // an exit that raced the start must not leave the timer running
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                Log.e(TAG, "Sync loop failed", e)
+                Log.e(TAG, "Sync start failed", e)
             }
         }
     }
 
     private fun stop() {
         stopped = true
-        // Cancels only the wait/delay: a running pass is its own job and finishes (or is waited for on close).
-        loop.cancel()
-    }
-
-    /**
-     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts
-     * only after [current] points at it, so the exit task never misses a pass that is still Starting while it holds (or is
-     * about to take) the lock.
-     */
-    private fun launchPass(): Job {
-        val pass = Pass()
-        pass.job = scope.launch(start = CoroutineStart.LAZY) {
-            passLock.withLock {
-                if (stopped) return@launch // no new pass once the exit has begun
-                pass.ran.set(true)
-                try {
-                    if (!policy.runOnce()) Log.i(TAG, "Sync pass did not complete (sign-in or sync failed)")
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Throwable) {
-                    Log.w(TAG, "Sync pass failed: ${e.message}", e)
-                }
-            }
-        }
-        current = pass
-        beforePassStart()
-        pass.job.start()
-        return pass.job
+        // Cancels only the start-up wait and the timer: a running pass is its own job and finishes (or is waited for on close).
+        startup.cancel()
+        triggers.stop()
     }
 
     internal suspend fun closeSync(task: ExitTaskScope) {
@@ -139,7 +123,7 @@ class DesktopSyncDriver(
             if (pass != null && !pass.job.isCompleted) { // also a pass that is still Starting or being cancelled
                 task.beginVisibleWork()
                 pass.job.join()
-                if (pass.ran.get()) { externalPass()?.takeUnless { it.isCompleted }?.join(); return@withTimeoutOrNull true }
+                if (pass.ran) { externalPass()?.takeUnless { it.isCompleted }?.join(); return@withTimeoutOrNull true }
                 // It saw the stop before it began: it did nothing, so the close pass is still owed.
             }
             externalPass()?.takeUnless { it.isCompleted }?.let {
@@ -167,7 +151,7 @@ class DesktopSyncDriver(
             val pass = current
             val joined = pass != null && !pass.job.isCompleted
             if (joined) pass!!.job.join()
-            if (pass?.ran?.get() == true) return // it did the sync work; nothing more is owed
+            if (pass?.ran == true) return // it did the sync work; nothing more is owed
             if (attempt++ >= CLOSE_LOCK_TRIES) {
                 Log.w(TAG, "Close pass could not get the sync lock; leaving the push to the next start")
                 return

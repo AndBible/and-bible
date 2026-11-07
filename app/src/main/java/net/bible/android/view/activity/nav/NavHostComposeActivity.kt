@@ -126,7 +126,6 @@ import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
-import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.util.UiUtils
@@ -974,6 +973,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         bootstrapUiOwed = true
         applyBootstrapUiIfForeground()
         readingAppBootstrap.registerNetworkCallback()
+        // #4025: the open trigger. The app-wide FOREGROUND event fires before this host subscribes, so the host that owns
+        // the reading workspace reports it here. The driver is process-wide: a recreation finds it in the foreground
+        // already and adds no pass. A host bootstrapped while paused waits for the FOREGROUND event instead.
+        if (!paused) readingAppBootstrap.syncTriggers.onForeground()
     }
 
     /** [ReadingHostActivity.hostContext] -- this Activity, as the plain Context (spec §2.1). */
@@ -2579,17 +2582,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // workspace or its cloud-sync loop, so each is gated on [readingAppBootstrapped]: a host on Welcome,
         // Backup, InstallZip or any other non-reading start owns no window repository
         // ([hostWindowRepository] throws), and a bootstrapped host is the one that owns the sync loop
-        // ([ReadingAppBootstrap.startSync]) -- so the gate is exactly "the handler has something to act on".
+        // ([ReadingAppBootstrap.syncTriggers]) -- so the gate is exactly "the handler has something to act on".
         // The workspace bodies live on [ReadingCommands], next to the workspace switch they drive.
         hostSubscriptions.add(CurrentActivityHolder.appPositionChanges.subscribe { position ->
             if (!readingAppBootstrapped) return@subscribe
             if (position == AppPosition.BACKGROUND) {
                 wholeAppWasInBackground = true
-                readingAppBootstrap.stopPeriodicSync()
-                syncScope.launch { readingAppBootstrap.synchronize(true) }
+                readingAppBootstrap.syncTriggers.onBackground()
             } else {
                 onToolbarStateMayHaveChanged() // classic's updateActions()
-                syncScope.launch { readingAppBootstrap.startSync() }
+                readingAppBootstrap.syncTriggers.onForeground()
             }
         })
         hostSubscriptions.add(DatabaseContainer.workspacesSynced.subscribeOnMain { updated ->

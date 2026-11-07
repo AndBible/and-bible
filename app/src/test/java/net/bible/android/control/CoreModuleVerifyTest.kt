@@ -17,7 +17,7 @@ class CoreModuleVerifyTest {
         // Koin's verifier cannot reflect a suspend-function parameter (its classifier is null).
         // The explicitly constructed ports are exercised by the real-container resolve test.
         val module = buildCoreModule()
-        for (type in listOf("SyncNowPorts", "SyncNow")) {
+        for (type in listOf("SyncNowPorts", "SyncNow", "SyncTriggerDriver")) {
             val key = "net.bible.service.cloudsync.$type::_root_"
             val removed = module.includedModules.count { it.mappings.remove(key) != null }
             org.junit.Assert.assertEquals("exactly one explicit $type binding", 1, removed)

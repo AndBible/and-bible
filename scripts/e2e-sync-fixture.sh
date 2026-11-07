@@ -25,7 +25,8 @@ host="${MAC_HOST:-andbible-mac}"
 user=admin
 pass=andbible-test-pw
 dav="remote.php/dav/files/$user"
-folder="org.andbible.ios.dev-sync-bookmarks"
+# The iOS dev build (org.andbible.ios.dev) syncs in the shared namespace plus ".dev" (SyncNamespace).
+folder="net.bible.android.activity.dev-sync-bookmarks"
 
 pid_alive() { [ -f "$1" ] && kill -0 "$(cat "$1")" 2>/dev/null; }
 

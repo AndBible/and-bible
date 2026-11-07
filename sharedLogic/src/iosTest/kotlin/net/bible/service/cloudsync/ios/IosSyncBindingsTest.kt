@@ -109,6 +109,8 @@ class IosSyncBindingsTest {
         assertNotNull(koin.get<SyncScheduler>())
         assertNotNull(koin.get<BackupHost>())
         assertNotNull(koin.get<IosBackgroundSync>())
+        assertNotNull(koin.get<net.bible.service.cloudsync.SyncTriggerDriver>())
+        assertSame(koin.get<IosSyncTriggers>(), koin.get<IosSyncTriggers>())
         app.close()
     }
 

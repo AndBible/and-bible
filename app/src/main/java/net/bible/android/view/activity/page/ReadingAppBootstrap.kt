@@ -35,10 +35,7 @@ import android.view.WindowManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
@@ -50,6 +47,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncTriggerDriver
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
@@ -63,23 +61,11 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.system.Versifications
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.math.max
 import kotlin.system.exitProcess
-
-const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 
 // Bump this when introducing additional sync targets to re-trigger the
 // "new sync targets available" notice for users who already dismissed it.
 private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
-
-/**
- * The scope the cloud-sync calls are launched on. Process-wide and file-private-by-convention
- * (`internal`, same package as its two callers): moved here VERBATIM from `MainBibleActivity.kt`,
- * where it was a top-level `private val` in the same package, so every existing call site
- * (`syncScope.launch { ... }` in `MainBibleActivity`'s app-to-background handler (now the host's [CurrentActivityHolder.appPositionChanges] subscription)) resolves to
- * the same object it always did.
- */
-internal val syncScope = CoroutineScope(Dispatchers.IO)
 
 class SyncNetworkState {
     @Volatile var available: Boolean = false
@@ -465,15 +451,12 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             networkAvailable = true
-            if (!hostPaused) {
-                syncScope.launch { startSync() }
-            }
+            if (!hostPaused) syncTriggers.onNetworkAvailable()
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
             networkAvailable = false
-            stopPeriodicSync()
         }
     }
 
@@ -558,61 +541,15 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         }
     }
 
-    // ——— §2.3 row 8: the cloud-sync loop —————————————————————————————————————————————————————————
+    // ——— §2.3 row 8: the cloud-sync triggers ——————————————————————————————————————————————————————
 
-    private var syncJob: Job? = null
-
-    suspend fun startSync() {
-        if(CommonUtils.isCloudSyncEnabled) {
-            synchronize(true)
-            if(syncJob != null) {
-                Log.e(TAG, "syncJob already exists")
-            } else {
-                syncJob = host.lifecycleScope.launch { periodicSync() }
-            }
-        }
-    }
-
-    private suspend fun periodicSync() {
-        Log.i(TAG, "Periodic sync starting")
-        while (CommonUtils.isCloudSyncEnabled && syncJob?.isCancelled == false) {
-            delay(60*1000) // 1 minute
-            if(syncJob?.isCancelled == false) synchronize()
-        }
-    }
-
-    private val lastTouched: Long get() {
-        return lastTouchedOf(windowRepository.windowList.mapNotNull { it.androidBibleView?.lastTouched })
-    }
-
-    private val syncInterval get() =
-        CommonUtils.settings.getLong("cloud_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
-    private val lastSynchronized get() =
-        CommonUtils.settings.getLong("globalLastSynchronized", 0L)
-
-    private val now get() = System.currentTimeMillis()
-
-    suspend fun synchronize(force: Boolean = false) {
-        if (DatabaseContainer.replacing) return
-        if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
-            windowRepository.saveIntoDb(false)
-            // The save is queued; cloud sync must not apply remote rows before it has landed.
-            windowRepository.persistence.awaitPersisted()
-            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && cloudSync.hasChanges())) {
-                Log.i(TAG, "Performing periodic sync")
-                if(!cloudSync.signedIn) {
-                    cloudSync.signIn()
-                }
-                cloudSync.start()
-                cloudSync.waitUntilFinished()
-            }
-        }
-    }
-
-    fun stopPeriodicSync() {
-        syncJob?.cancel()
-        syncJob = null
-    }
+    /**
+     * The shared cloud-sync trigger logic (#4025), the same [SyncTriggerDriver] iOS and desktop use: a sync on open and on
+     * each return to the foreground, every `cloud_sync_interval` while in the foreground (pulling remote changes too, not
+     * only when there is something local to send), on leaving the app, and when the network comes back. One per process
+     * (a Koin single, `PlatformBindings`); the hosts and [networkCallback] report the events.
+     */
+    val syncTriggers: SyncTriggerDriver get() = getKoin().get()
 
     companion object {
         /**
@@ -641,9 +578,3 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  */
 internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean =
     BetaNotice.shouldShow(isBeta, discrete, dismissedVersion = 0)
-
-/**
- * Most recent touch time among the attached BibleViews. With none attached (e.g. the sync settings
- * screen is in front) nothing was touched, so 0 lets the sync interval fall back to the last sync time.
- */
-internal fun lastTouchedOf(touched: List<Long>): Long = touched.maxOrNull() ?: 0L
