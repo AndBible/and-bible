@@ -964,7 +964,7 @@ class ReadingCommands(
     fun buildOptionsMenuItems(): List<OptionsMenuItem> =
         OptionsMenuStateBuilder.build(
             syncNowAvailable = { net.bible.service.startup.ReadingAppInit.initialized && getKoin().get<net.bible.service.cloudsync.SyncNow>().available() },
-            syncNowRunning = { getKoin().get<net.bible.service.cloudsync.SyncNow>().running.value },
+            syncNowRunning = { false }, // The live flow controls this row while the popup is open.
             syncNowInActivitySection = { getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.enabled?.value == true },
         ) { resId, order -> getItemOptions(resId, order) }
 

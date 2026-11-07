@@ -12,11 +12,15 @@ import net.bible.sharedcore.log.Log
 /** Owns the service hand-off completion, shared by the engine and its Android service. */
 class AndroidSyncScheduler(private val context: Context) : SyncScheduler {
     private var pending: CompletableDeferred<Boolean>? = null
-    override fun startDatabaseSync(): Deferred<Boolean> = synchronized(this) {
+    override fun startDatabaseSync(): Deferred<Boolean> = start(false)
+    override fun startUserInitiatedDatabaseSync(): Deferred<Boolean> = start(true)
+
+    private fun start(userInitiated: Boolean): Deferred<Boolean> = synchronized(this) {
         pending?.takeUnless { it.isCompleted }?.let { return@synchronized it }
         val result = CompletableDeferred<Boolean>()
         pending = result
         val intent = Intent(context, SyncService::class.java).setAction(SyncService.START_SERVICE)
+            .putExtra(SyncService.USER_INITIATED, userInitiated)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
         } catch (e: IllegalStateException) {

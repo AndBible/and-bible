@@ -115,6 +115,45 @@ class ReadingOverflowControllerTest {
         onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsEnabled()
     }
 
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun openPopupReenablesAfterSyncFinishes() = runComposeUiTest {
+        val running = kotlinx.coroutines.flow.MutableStateFlow(true)
+        host.syncAvailable = true
+        val snapshot = menu.build()
+        setContent {
+            net.bible.sharedui.reading.ReadingOverflowMenu(
+                snapshot, expanded = true, onItemClick = {}, onDismiss = {}, syncRunning = running,
+            )
+        }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsNotEnabled()
+        runOnIdle { running.value = false }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsEnabled()
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun standalonePopupWithSyncNowDoesNotRequireKoin() = runComposeUiTest {
+        host.syncAvailable = true
+        val snapshot = menu.build()
+        setContent {
+            net.bible.sharedui.reading.ReadingOverflowMenu(snapshot, expanded = true, onItemClick = {}, onDismiss = {})
+        }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsEnabled()
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun explicitlyDisabledSyncNowStaysDisabledWhenNotRunning() = runComposeUiTest {
+        val running = kotlinx.coroutines.flow.MutableStateFlow(false)
+        host.syncAvailable = true
+        host.syncRunning = true
+        val snapshot = menu.build()
+        setContent {
+            androidx.compose.foundation.layout.Column {
+                net.bible.sharedui.reading.ReadingOverflowMenuRows(snapshot, {}, syncRunning = running)
+            }
+        }
+        onNode(androidx.compose.ui.test.hasText("Sync now")).assertIsNotEnabled()
+    }
+
     @Test fun syncNowAbsentWhenSyncNotSetUp() { assertFalse("syncNow" in ids()) }
 
     @Test fun syncNowPresentAndEnabled() {

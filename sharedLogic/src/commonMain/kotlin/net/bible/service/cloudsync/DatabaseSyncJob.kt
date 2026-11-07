@@ -57,10 +57,13 @@ suspend fun runDatabaseSyncJob(
 }
 
 /** Convenience overload wiring [runDatabaseSyncJob] to [cloudSync] and [recordSyncFinished]. */
-suspend fun runDatabaseSyncJob(cloudSync: CloudSync, settings: AppSettings, allowInteraction: Boolean = true): Boolean =
+suspend fun runDatabaseSyncJob(
+    cloudSync: CloudSync, settings: AppSettings, allowInteraction: Boolean = true,
+    backgroundErrors: Boolean = !allowInteraction, reportTransportErrors: Boolean = allowInteraction,
+): Boolean =
     runDatabaseSyncJob(
         notifyRunning = { cloudSync.notifySyncRunning(it) },
-        synchronize = { cloudSync.synchronize(allowInteraction) },
+        synchronize = { cloudSync.synchronize(allowInteraction, backgroundErrors, reportTransportErrors) },
         waitUntilFinished = { cloudSync.waitUntilFinished(true) },
         recordFinished = { recordSyncFinished(settings, cloudSync) },
     )

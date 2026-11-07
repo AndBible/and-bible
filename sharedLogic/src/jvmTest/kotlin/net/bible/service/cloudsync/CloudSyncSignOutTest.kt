@@ -68,7 +68,8 @@ class CloudSyncSignOutTest {
         var downloaded = false
         var onUpload: suspend () -> Unit = {}
         override val signedIn get() = loggedIn
-        override suspend fun signIn() = true
+        var onSignIn: suspend () -> Boolean = { true }
+        override suspend fun signIn() = onSignIn()
         override suspend fun signOut() { loggedIn = false }
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?) = emptyList<CloudFile>()
         var createdFolders = 0
@@ -257,6 +258,68 @@ class CloudSyncSignOutTest {
         assertTrue(db.dao.getLong(LAST_SYNCHRONIZED_KEY) != 12345L, "Stale watermark replaced by the fresh join")
     }
 
+    @Test fun adapterIsNotPublishedAsSignedInUntilAttemptCompletes() = withFixture { f ->
+        f.adapter.loggedIn = true
+        val release = CompletableDeferred<Unit>()
+        f.adapter.onSignIn = { release.await(); true }
+        val existing = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        assertFalse(f.cloud.signedIn)
+        release.complete(Unit)
+        assertEquals(true, existing.await())
+        assertTrue(f.cloud.signedIn)
+    }
+
+    @Test fun manualSignInWaitsForExistingSuccessfulSignInWithoutAnotherAttempt() = withFixture { f ->
+        f.adapter.loggedIn = false
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var attempts = 0
+        f.adapter.onSignIn = {
+            attempts++
+            entered.complete(Unit)
+            release.await()
+            f.adapter.loggedIn = true
+            true
+        }
+        val existing = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        entered.await()
+        val manual = async(start = CoroutineStart.UNDISPATCHED) { CloudSyncPort.of(f.cloud).signIn() }
+        assertFalse(manual.isCompleted)
+        release.complete(Unit)
+        assertEquals(true, existing.await())
+        assertEquals(true, manual.await())
+        assertEquals(1, attempts)
+    }
+
+    @Test fun manualSignInWaitsForExistingFailedSignInWithoutRetry() = withFixture { f ->
+        f.adapter.loggedIn = false
+        val release = CompletableDeferred<Unit>()
+        var attempts = 0
+        f.adapter.onSignIn = { attempts++; release.await(); false }
+        val existing = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        val manual = async(start = CoroutineStart.UNDISPATCHED) { CloudSyncPort.of(f.cloud).signIn() }
+        assertFalse(manual.isCompleted)
+        release.complete(Unit)
+        assertEquals(false, existing.await())
+        assertFalse(manual.await() == true)
+        assertEquals(1, attempts)
+    }
+
+    @Test fun cancellingManualSignInWaitDoesNotCancelExistingSignIn() = withFixture { f ->
+        f.adapter.loggedIn = false
+        val release = CompletableDeferred<Unit>()
+        var attempts = 0
+        f.adapter.onSignIn = { attempts++; release.await(); f.adapter.loggedIn = true; true }
+        val existing = async(start = CoroutineStart.UNDISPATCHED) { f.cloud.signIn(background = true) }
+        val manual = async(start = CoroutineStart.UNDISPATCHED) { CloudSyncPort.of(f.cloud).signIn() }
+        assertFalse(manual.isCompleted)
+        manual.cancel()
+        manual.join()
+        release.complete(Unit)
+        assertEquals(true, existing.await())
+        assertEquals(1, attempts)
+    }
+
     private suspend fun syncFailureMessages(f: Fixture, allowInteraction: Boolean): List<UserMessage.ErrorNotification> {
         val errors = mutableListOf<UserMessage>()
         val subscription = UserMessages.messages.subscribe { errors += it }
@@ -274,6 +337,19 @@ class CloudSyncSignOutTest {
         val errors = syncFailureMessages(f, allowInteraction = false)
         assertTrue(errors.isNotEmpty(), "The failing upload must be reported")
         assertTrue(errors.all { it.background && it.kind == net.bible.android.control.activity.ActivityKind.SYNC }, "$errors")
+    }
+
+    @Test fun interactiveAutomaticSyncReportsNonTransportErrorsAsBackground() = withFixture { f ->
+        val errors = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { errors += it }
+        try {
+            f.adapter.finishUpload.complete(Unit)
+            f.adapter.onUpload = { throw IllegalStateException("boom") }
+            f.cloud.synchronize(allowInteraction = true, backgroundErrors = true, reportTransportErrors = false)
+            val notifications = errors.filterIsInstance<UserMessage.ErrorNotification>()
+            assertTrue(notifications.isNotEmpty())
+            assertTrue(notifications.all { it.background && it.kind == net.bible.android.control.activity.ActivityKind.SYNC })
+        } finally { subscription.cancel() }
     }
 
     @Test fun failureInAnInteractiveSyncIsAForegroundSyncError() = withFixture { f ->

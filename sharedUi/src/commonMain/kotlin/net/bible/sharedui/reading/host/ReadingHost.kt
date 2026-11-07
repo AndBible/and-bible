@@ -436,6 +436,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                 ReadingViewScreen(
                     onRailLayoutChanged = deps.onRailLayoutChanged,
                     activity = activityMenu,
+                    syncRunning = deps.activity?.syncNow?.running,
                     layout = layout,
                     toolbar = toolbarState,
                     toolbarIcons = deps.toolbarIcons(),

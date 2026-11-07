@@ -24,6 +24,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.runtime.Composable
 import kotlin.test.Test
 import net.bible.sharedui.MemoryAppSettings
@@ -222,13 +223,96 @@ class ActivityHostWiringTest {
         }
         val sync = SyncNow(cloud, EventSource(), { available }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
         val seen = mutableListOf<ActivityMenuState?>()
-        host(ActivityHostWiring(f.center, f.preference, syncNow = sync, onOpenItem = {}), seen = seen)
+        host(ActivityHostWiring(f.center, f.preference, syncNow = sync, syncReady = { true }, onOpenItem = {}), seen = seen)
         waitForIdle()
         assertFalse(seen.last()!!.syncNow!!.available.value)
         available = true
         seen.last()!!.onMenuOpened()
         waitForIdle()
         assertTrue(seen.last()!!.syncNow!!.available.value)
+        sync.close()
+    }
+
+    @Test fun syncNowRemainsUnavailableUntilStartupFinishes() = runComposeUiTest {
+        val f = Fixture(default = true)
+        var ready = false
+        val cloud = object : CloudSyncPort {
+            override val signedIn = true
+            override suspend fun signIn() = true
+            override fun start() = CompletableDeferred(true)
+            override suspend fun waitUntilFinished() = Unit
+            override val runningChanged = EventSource<Boolean>()
+        }
+        val sync = SyncNow(cloud, EventSource(), { true }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(ActivityHostWiring(f.center, f.preference, syncNow = sync, syncReady = { ready }, onOpenItem = {}), seen = seen)
+        waitForIdle()
+        assertFalse(seen.last()!!.syncNow!!.available.value)
+        ready = true
+        seen.last()!!.onMenuOpened()
+        assertTrue(seen.last()!!.syncNow!!.available.value)
+        sync.close()
+    }
+
+    @Test fun programmaticOverflowOpenShowsCurrentAvailabilityOnFirstPopupFrame() = runComposeUiTest {
+        val f = Fixture(default = true)
+        var available = false
+        val expanded = androidx.compose.runtime.mutableStateOf(false)
+        val cloud = object : CloudSyncPort {
+            override val signedIn = true
+            override suspend fun signIn() = true
+            override fun start() = CompletableDeferred(true)
+            override suspend fun waitUntilFinished() = Unit
+            override val runningChanged = EventSource<Boolean>()
+        }
+        val sync = SyncNow(cloud, EventSource(), { available }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+        val firstPopupFrames = mutableListOf<Boolean>()
+        setContent {
+            AbTheme(disableAnimations = true) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    ActivityHost(ActivityHostWiring(f.center, f.preference, syncNow = sync, syncReady = { true }, onOpenItem = {})) { activity ->
+                        ReadingToolbar(toolbarState, icons, callbacks, overflowExpanded = expanded.value, activity = activity)
+                        if (expanded.value) SideEffect { firstPopupFrames += activity!!.syncNow!!.available.value }
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle { available = true; expanded.value = true }
+        waitForIdle()
+        assertTrue(firstPopupFrames.isNotEmpty())
+        assertTrue(firstPopupFrames.first(), "the first programmatically opened popup frame must use current settings")
+        sync.close()
+    }
+
+    @Test fun openingOverflowRefreshesAvailabilityBeforeHostOpensPopup() = runComposeUiTest {
+        val f = Fixture(default = true)
+        var available = false
+        val cloud = object : CloudSyncPort {
+            override val signedIn = true
+            override suspend fun signIn() = true
+            override fun start() = CompletableDeferred(true)
+            override suspend fun waitUntilFinished() = Unit
+            override val runningChanged = EventSource<Boolean>()
+        }
+        val sync = SyncNow(cloud, EventSource(), { available }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+        var availabilityAtOpen: Boolean? = null
+        val seen = mutableListOf<ActivityMenuState?>()
+        val openCallbacks = callbacks.copy(onOverflow = { availabilityAtOpen = seen.last()!!.syncNow!!.available.value })
+        setContent {
+            AbTheme(disableAnimations = true) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    ActivityHost(ActivityHostWiring(f.center, f.preference, syncNow = sync, syncReady = { true }, onOpenItem = {})) { activity ->
+                        seen += activity
+                        ReadingToolbar(toolbarState, icons, openCallbacks, activity = activity)
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        available = true
+        onNode(androidx.compose.ui.test.hasContentDescription(strings.readingToolbarOptions)).performClick()
+        assertEquals(true, availabilityAtOpen)
         sync.close()
     }
 
@@ -245,7 +329,7 @@ class ActivityHostWiringTest {
         val sync = SyncNow(cloud, EventSource(), { true }, {}, { true }, { false }, {}, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
         val counter = Counter()
         val hostCounter = Counter()
-        val wiring = ActivityHostWiring(f.center, f.preference, syncNow = sync, onOpenItem = {})
+        val wiring = ActivityHostWiring(f.center, f.preference, syncNow = sync, syncReady = { true }, onOpenItem = {})
         setContent {
             AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
                 ActivityHostImpl(wiring, onHostComposed = { hostCounter.n++ }) { activity ->

@@ -226,6 +226,16 @@ class CloudSyncWatermarkTest {
         } finally { subscription.cancel() }
     }
 
+    @Test fun interactiveAutomaticRunKeepsTransportFailureSilent() = withFixture { f ->
+        val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            f.adapter.onList = { throw IOException("connection refused") }
+            f.cloud.synchronize(allowInteraction = true, backgroundErrors = true, reportTransportErrors = false)
+            assertTrue(messages.filterIsInstance<net.bible.android.control.event.UserMessage.ErrorNotification>().isEmpty())
+        } finally { subscription.cancel() }
+    }
+
     @Test fun concurrentCategoryTransportFailuresProduceOneNotification() = withFixture { f ->
         val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
         val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }

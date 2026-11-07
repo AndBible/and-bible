@@ -131,7 +131,7 @@ class CloudSync(
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
-    val signedIn get() = _adapter?.signedIn == true
+    val signedIn get() = !signInMutex.isLocked && _adapter?.signedIn == true
 
     internal val cloudAdapter: CloudAdapter? get() = _adapter
 
@@ -145,14 +145,14 @@ class CloudSync(
     }
 
     private val signInMutex = Mutex()
-    suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}): Boolean? {
-        if(signInMutex.isLocked) {
+    suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}, waitForExisting: Boolean = false): Boolean? {
+        if (!signInMutex.tryLock()) {
             Log.i(TAG, "Already signing in!")
-            return null
+            return if (waitForExisting) signInMutex.withLock { _adapter?.signedIn == true } else null
         }
         var errorMessage: String? = null
         var cancelledByUser = false
-        val success = signInMutex.withLock {
+        val success = try {
             _adapter = if (background) adapters.createForBackground(adapterId) else adapters.create(adapterId)
             try {
                 adapter.signIn()
@@ -165,10 +165,11 @@ class CloudSync(
             } catch (e: Exception){
                 errorMessage = e.message
                 false
-            }
+            }.also { if (!it) _adapter = null }
+        } finally {
+            signInMutex.unlock()
         }
         if(!success) {
-            _adapter = null
             if (!background && !cancelledByUser) {
                 val message = strings.signInFailed + " " + (errorMessage ?: "")
                 onForegroundFailure(message)
@@ -295,12 +296,12 @@ class CloudSync(
         }
     }
 
-    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
+    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true, backgroundErrors: Boolean = !allowInteraction) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = syncFolderName(dbDef.categoryName)
         resetIfNamespaceChanged(dbDef)
 
-        recoverInterruptedMerge(dbDef, background = !allowInteraction)
+        recoverInterruptedMerge(dbDef, background = backgroundErrors)
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
@@ -383,7 +384,7 @@ class CloudSync(
                 createNewDeviceSyncFolder()
                 fetchAndRestoreInitial(dbDef)
             }
-            InitialOperation.MERGE -> mergeIntoCloudFolder(dbDef, ::createNewDeviceSyncFolder)
+            InitialOperation.MERGE -> mergeIntoCloudFolder(dbDef, ::createNewDeviceSyncFolder, backgroundErrors)
             null -> {}
         }
         // Only now, and always (a fetch swap may have dropped it): a cancelled first join leaves the key unset,
@@ -545,7 +546,7 @@ class CloudSync(
      * [CancelStartedSync]; a network failure shows the sync error and ends in [CancelStartedSync]; other
      * exceptions propagate to [synchronize]'s own handling.
      */
-    private suspend fun mergeIntoCloudFolder(dbDef: SyncableDatabaseAccessor<*>, createDeviceFolder: suspend () -> Unit) {
+    private suspend fun mergeIntoCloudFolder(dbDef: SyncableDatabaseAccessor<*>, createDeviceFolder: suspend () -> Unit, backgroundErrors: Boolean) {
         // The pristine copy is DURABLE, next to the database (the temp dir is wiped at every app start, and a process
         // death after the swap-in would otherwise lose the device's data). It is written as `.partial` and renamed
         // once complete, so `.merge-original` exists only if it is whole; see [recoverInterruptedMerge].
@@ -601,8 +602,7 @@ class CloudSync(
             throw CancelStartedSync()
         } catch (e: IOException) {
             Log.e(TAG, "Merge failed (probably network down)", e)
-            // Only reached with interaction (the user enabled the category): a foreground failure keeps its dialog.
-            UserMessages.errorNotification(strings.syncError, kind = ActivityKind.SYNC)
+            UserMessages.errorNotification(strings.syncError, background = backgroundErrors, kind = ActivityKind.SYNC)
             throw CancelStartedSync()
         } finally {
             // On success, and after every restore, the durable copy is no longer needed.
@@ -659,9 +659,9 @@ class CloudSync(
     private val syncMutex = Mutex()
     private val startLock = SynchronizedObject()
 
-    fun start(): kotlinx.coroutines.Deferred<Boolean> = synchronized(startLock) { // L1-common-ok: atomicfu lock
+    fun start(userInitiated: Boolean = false): kotlinx.coroutines.Deferred<Boolean> = synchronized(startLock) { // L1-common-ok: atomicfu lock
         syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
-        scheduler.startDatabaseSync().also { syncStarted = it }
+        (if (userInitiated) scheduler.startUserInitiatedDatabaseSync() else scheduler.startDatabaseSync()).also { syncStarted = it }
     }
 
     @kotlin.concurrent.Volatile private var syncStarted: kotlinx.coroutines.Deferred<Boolean>? = null
@@ -690,13 +690,12 @@ class CloudSync(
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false, background = background, kind = ActivityKind.SYNC)
     }
 
-    /**
-     * Runs one sync pass. With [allowInteraction] false (the periodic and close-pass syncs) every error it reports is a
-     * background error: desktop and iOS show a toast and an activity-list row instead of a dialog (#4007). With true
-     * (an interactive caller such as the "Sync now" menu item, #4008) errors are foreground: they keep their dialog and
-     * are recorded in the list as well. No other flag is needed; the caller only chooses [allowInteraction].
-     */
-    suspend fun synchronize(allowInteraction: Boolean = true) = withContext(Dispatchers.IO) {
+    /** Interaction controls initialization prompts independently of error presentation. */
+    suspend fun synchronize(
+        allowInteraction: Boolean = true,
+        backgroundErrors: Boolean = !allowInteraction,
+        reportTransportErrors: Boolean = allowInteraction,
+    ) = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
@@ -712,10 +711,10 @@ class CloudSync(
 
             val reported = atomic(false)
             val needsReconnect = atomic(false)
-            val background = !allowInteraction
+            val background = backgroundErrors
             fun reportTransportFailure() {
-                if (!background && reported.compareAndSet(false, true)) {
-                    UserMessages.errorNotification(strings.syncError, background = false, kind = ActivityKind.SYNC)
+                if (reportTransportErrors && reported.compareAndSet(false, true)) {
+                    UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
                 }
             }
             try {
@@ -724,7 +723,7 @@ class CloudSync(
                     if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
                     if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
                     try {
-                        initializeSync(dbDef, allowInteraction)
+                        initializeSync(dbDef, allowInteraction, backgroundErrors)
                     } catch (e: CancelStartedSync) {
                         Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
                         return@asyncMap

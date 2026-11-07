@@ -48,6 +48,7 @@ class SyncService: Service() {
 
     companion object {
         const val START_SERVICE="action_start_service"
+        const val USER_INITIATED = "user_initiated"
     }
     private val app get() = application
     private val powerManager get() = app.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -81,7 +82,7 @@ class SyncService: Service() {
         when(intent?.action) {
             START_SERVICE -> if (!syncing) {
                 syncing = true
-                synchronize()
+                synchronize(intent.getBooleanExtra(USER_INITIATED, false))
             }
             else -> {
                 Log.w(TAG, "Unknown command $intent ${intent?.action}")
@@ -130,7 +131,7 @@ class SyncService: Service() {
         }
     }
 
-    private fun synchronize() {
+    private fun synchronize(userInitiated: Boolean) {
         val run = ++currentRun
         syncJob = scope.launch {
             var succeeded = false
@@ -141,7 +142,7 @@ class SyncService: Service() {
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
                 wakeLock.acquire(5 * 60 * 1000)
                 jobStarted = true
-                succeeded = runDatabaseSyncJob(cloudSync, settings)
+                succeeded = runDatabaseSyncJob(cloudSync, settings, backgroundErrors = !userInitiated, reportTransportErrors = userInitiated)
                 if (succeeded) Log.i(TAG, "Synchronize finished")
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)

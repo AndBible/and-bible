@@ -310,7 +310,7 @@ internal class HostReadingToolbarHost(
     private fun syncNow(): net.bible.service.cloudsync.SyncNow = org.koin.mp.KoinPlatform.getKoin().get()
 
     override fun syncNowAvailable(): Boolean = net.bible.service.startup.ReadingAppInit.initialized && syncNow().available()
-    override fun syncNowRunning(): Boolean = syncNow().running.value
+    override fun syncNowRunning(): Boolean = false // The popup reads the live running flow.
     override fun syncNowInActivitySection(): Boolean =
         org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.enabled?.value == true
     override fun startSyncNow() { syncNow().start() }
