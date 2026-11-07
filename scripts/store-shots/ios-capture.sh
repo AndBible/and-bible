@@ -50,7 +50,7 @@ fi
 log="$work/$lang/ios-$device.log"
 mkdir -p "$work/$lang"
 set +e
-MAC_KEEP_SIM=0 "$repo/scripts/mac-remote.sh" batch "${steps[@]}" 2>&1 | tee "$log"
+MAC_KEEP_SIM=0 "$repo/scripts/mac-remote.sh" batch --keep-going "${steps[@]}" 2>&1 | tee "$log"
 rc=${PIPESTATUS[0]}
 set -e
 run_id=$(sed -n 's/^mac-remote: run \([^ ]*\) .*/\1/p' "$log" | head -1)

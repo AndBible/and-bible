@@ -111,7 +111,9 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
             guard close.exists else { return false }
             close.tap()
         }
-        return waitUntil(timeout: 20) { !current.exists && !row.exists }
+        // The sheet's own title disappears; a workspace's name can also appear in the content (a StudyPad title).
+        let sheetTitle = app.staticTexts.matching(NSPredicate(format: "label == 'Workspaces'")).firstMatch
+        return waitUntil(timeout: 20) { !sheetTitle.exists && !current.exists }
     }
 
     /// Taps the verse number of `verse` in the reading WebView (a StaticText whose label is exactly the number,
@@ -180,8 +182,8 @@ final class StoreScreenshotsUITests: RealAppUITestCase {
             guard field.waitForExistence(timeout: 20) else { return false }
             field.tap()
             field.typeText((shot.action_arg ?? "love") + "\n")
-            let create = app.buttons.matching(NSPredicate(format: "label == 'Create'")).firstMatch
-            if create.waitForExistence(timeout: 8) {
+            let create = label(app, "Create")
+            if create.waitForExistence(timeout: 20) {
                 create.tap()
                 sleep(60)
             } else {
