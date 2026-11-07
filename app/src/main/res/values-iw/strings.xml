@@ -813,8 +813,8 @@
   <string name="workspace_manage_workspaces">ניהול סביבות עבודה…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">זו גרסת בטא !</string>
-  <string name="beta_notice_github_issues">נושאי Github </string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">נושאי GitHub </string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

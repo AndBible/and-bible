@@ -796,8 +796,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="bug_report_desktop_text">Dále budete vyzváni, kam uložit soubor s hlášením o chybě. Poté dostanete pokyny, jak jej odeslat vývojářskému týmu.</string>
   <string name="bug_report_email_text">Dále prosím vyberte preferovanou mailovou aplikaci (například Gmail) pro poslání hlášení chyby vývojovému týmu.</string>
   <string name="bug_report_manual_title">Odeslat hlášení e-mailem</string>
-  <string name="bug_report_manual_text_saved">Hlášení bylo uloženo do</string>
-  <string name="bug_report_manual_text_unsaved">Hlášení bylo uloženo na místo, které jste vybrali.\n\nPošlete prosím e-mail na adresu</string>
+  <string name="bug_report_manual_text_saved">Hlášení bylo uloženo do <b>%1$s</b>.\n\nPošlete prosím e-mail na adresu <b>%2$s</b> a přiložte tento soubor; e-mailový program jej za vás přiložit nedokáže. Navrhovaný předmět: <b>%3$s</b>. Ve zprávě nám napište, co jste dělali a co se stalo.</string>
+  <string name="bug_report_manual_text_unsaved">Hlášení bylo uloženo na místo, které jste vybrali.\n\nPošlete prosím e-mail na adresu <b>%1$s</b> a přiložte uložený soubor s hlášením; e-mailový program jej za vás přiložit nedokáže. Navrhovaný předmět: <b>%2$s</b>. Ve zprávě nám napište, co jste dělali a co se stalo.</string>
   <string name="bug_report_subject_suggestion">AndBible %1$s chyba: &lt;krátký popis&gt;</string>
   <string name="bug_report_attach_line">Přiložte prosím soubor %1$s</string>
   <string name="bug_report_copy_subject">Kopírovat předmět</string>
@@ -830,8 +830,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="workspace_manage_workspaces">Spravovat pracovní plochy…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verze!</string>
-  <string name="beta_notice_github_issues">Github Issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub Issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

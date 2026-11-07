@@ -813,8 +813,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_manage_workspaces">Hallitse työtiloja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
-  <string name="beta_notice_github_issues">Github tiketit</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub tiketit</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

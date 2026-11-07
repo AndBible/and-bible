@@ -832,8 +832,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="workspace_manage_workspaces">Gestionar espacios de trabajo…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">¡Esta es la versión beta!</string>
-  <string name="beta_notice_github_issues">Github propuestas</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub propuestas</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

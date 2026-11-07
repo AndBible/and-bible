@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible inahitaji michoro ya Direct3D ili kuonyesha maandishi ya Biblia kwa WebView2. Kionyeshi cha michoro cha sasa ni %1$s. Angalia kiendeshi chako cha michoro na usaidizi wa Direct3D.\n\nMaelezo yako kwenye faili ya kumbukumbu:\n%2$s</string>
   <string name="desktop_update_setting_title">Angalia masasisho</string>
   <string name="desktop_update_setting_summary">Mara moja kwa siku, kutoka github.com</string>
+  <string name="desktop_beta_update_setting_title">Toa masasisho ya beta ya umma</string>
+  <string name="desktop_beta_update_setting_summary">Toa pia matoleo ya beta ya umma. Ikizimwa, usakinishaji wa beta hupokea matoleo ya uzalishaji pekee.</string>
   <string name="desktop_update_consent_title">Angalia masasisho?</string>
   <string name="desktop_update_consent_message">AndBible inaweza kuangalia github.com mara moja kwa siku kutafuta toleo jipya. GitHub huona anwani yako ya IP; hakuna kingine kinachotumwa. Unaweza kubadilisha hili baadaye katika Mipangilio.</string>
   <string name="desktop_update_consent_yes">Angalia masasisho</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Wezesha vipengele maalum vya e-ink (vitufe vya kusogeza kurasa, mistari ya msaada wa kusogeza)</string>
   <string name="prefs_disable_animations_title">Zima uhuishaji</string>
   <string name="prefs_disable_animations_summary">Zima uhuishaji mbalimbali kama vile kusogeza laini.</string>
+  <string name="prefs_show_activity_in_menu_title">Onyesha shughuli za usuli kwenye menyu</string>
+  <string name="prefs_show_activity_in_menu_summary">Maendeleo ya upakuaji, usawazishaji na uorodheshaji, pamoja na hitilafu, katika menyu ya ⋮</string>
+  <string name="prefs_system_notifications_title">Arifa za mfumo</string>
+  <string name="prefs_system_notifications_denied">Imezimwa katika Mipangilio ya iOS</string>
+  <string name="prefs_system_notifications_summary">Arifu kuhusu kazi za usuli zilizoshindwa, upakuaji mrefu unaokamilika AndBible ikiwa usuli, na maendeleo yake</string>
   <string name="prefs_disable_click_to_edit_title">Zima kubonyeza-ili-kuhariri kwa Daftari la Masomo</string>
   <string name="prefs_disable_click_to_edit_summary">Inahitaji kutumia kitufe cha kuhariri ili kuhariri maelezo katika Daftari la Masomo.</string>
   <string name="prefs_notes_content_type_title">Umbizo la maelezo mapya ya alamisho</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Kiotomatiki</string>
   <string name="prefs_night_mode_system">Mfumo</string>
   <string name="options_menu_night_mode">Hali ya usiku</string>
+  <string name="options_menu_sync_now">Sawazisha sasa</string>
+  <string name="exit_sync_title">Inasawazisha mabadiliko…</string>
+  <string name="exit_sync_body">Inatuma mabadiliko yako kwenye vifaa vyako vingine. Hii inaweza kuchukua sekunde chache.</string>
+  <string name="exit_sync_quit_now">Toka sasa</string>
+  <string name="exit_sync_closing">Inafunga…</string>
+  <string name="sync_now_no_network">Hakuna muunganisho wa mtandao</string>
   <string name="prefs_navigate_to_verse_title">Nenda kwenye mstari</string>
   <string name="prefs_navigate_to_verse_summary">Chagua mstari (na sura) unapochagua kifungu</string>
   <string name="prefs_open_links_in_special_window_title">Dirisha la viungo</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Lugha</string>
   <string name="one_more_back_press">Bonyeza nyuma tena ili kufunga programu</string>
   <string name="document_filter_results">Hati %d</string>
+  <string name="activity_show_all">Onyesha zote (%1$d)</string>
+  <string name="activity_failed_badge">%1$d zimeshindwa</string>
+  <string name="activity_attention_badge">%1$d zinahitaji umakini</string>
+  <string name="activity_combined_badge">%1$d zimeshindwa, %2$d zinahitaji umakini</string>
+  <string name="activity_running_description">Kazi ya usuli inaendelea</string>
+  <string name="activity_running">Inaendelea</string>
+  <string name="activity_recent">Za hivi karibuni</string>
+  <string name="activity_clear_finished">Futa zilizokamilika</string>
+  <string name="activity_title">Shughuli za usuli</string>
+  <string name="activity_empty">Hakuna kinachoendelea</string>
+  <string name="activity_failed_toast">%1$s — tazama menyu</string>
   <string name="download_question_title">Je, unataka kuendelea kupakua hati?</string>
   <string name="download_question_message">Ikiwa unaishi katika nchi inayodhulumiwa, 
 huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Badala yake, unaweza kutaka kupata faili za moduli za zipu kwa usalama zaidi na kuzisanikisha kupitia \"Pakia Hati Kutoka kwa Zipu\". Je, una uhakika unataka kuendelea kupakua? Upakuaji wote kutoka kwa seva za moduli umesimbwa (HTTPS).
@@ -615,6 +639,7 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="backup_backup_title">Hifadhi wapi?</string>
   <string name="backup_backup_message">Hifadhi kwenye simu au mahali pengine kupitia kitendakazi cha Shiriki (barua pepe, Google Drive n.k.)?</string>
   <string name="backup_phone_storage">Hifadhi ya simu</string>
+  <string name="backup_save_to_files">Hifadhi kwenye Faili</string>
   <string name="backup_and_restore">Hifadhi na Urejesho</string>
   <string name="backup_modules2">Hifadhi Hati hadi…</string>
   <string name="backup_app2">Hifadhi programu (faili la .apk) hadi …</string>
@@ -667,6 +692,9 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="module_about_repository">Seva ya usambazaji: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Folda ya kumbukumbu</string>
+  <string name="open_log_folder">Fungua folda ya kumbukumbu</string>
+  <string name="startup_report_bug">Ripoti hitilafu</string>
   <string name="send_bug_report_title">Maoni / ripoti ya hitilafu</string>
   <string name="report_bug_email_subject_3">[%1$s] Ripoti ya hitilafu kwa %2$s %3$s</string>
   <string name="report_bug_big_heading">TAFADHALI ANDIKA MAONI AU RIPOTI YAKO YA HITILAFU JUU YA MSTARI HUU</string>
@@ -734,8 +762,16 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="debug_test_error">Hitilafu ya majaribio (toleo la utatuzi)</string>
   <string name="bug_report_prepare_failed">Imeshindwa kuandaa au kushiriki ripoti. Unaweza kujaribu tena, au kutumia Hifadhi nakala na Rejesha kuhifadhi data yako.</string>
   <string name="bug_report_email_title">Tuma ripoti ya hitilafu kupitia barua pepe</string>
+  <string name="bug_report_desktop_text">Kisha, utaulizwa mahali pa kuhifadhi faili ya ripoti ya hitilafu. Baada ya hapo utapata maelekezo ya kuituma kwa timu ya wasanidi.</string>
   <string name="bug_report_email_text">Inayofuata, tafadhali chagua programu yako unayoipenda ya barua pepe (Gmail kwa mfano) kutuma ripoti kwa timu ya wasanidi.</string>
   <string name="bug_report_manual_title">Tuma ripoti kwa barua pepe</string>
+  <string name="bug_report_manual_text_saved">Ripoti imehifadhiwa kwenye <b>%1$s</b>.\n\nTafadhali tuma barua pepe kwa <b>%2$s</b> na uambatishe faili hiyo; programu ya barua pepe haiwezi kuiambatisha kwa niaba yako. Mada inayopendekezwa: <b>%3$s</b>. Kwenye ujumbe, tuambie ulichofanya na kilichotokea.</string>
+  <string name="bug_report_manual_text_unsaved">Ripoti imehifadhiwa mahali ulipochagua.\n\nTafadhali tuma barua pepe kwa <b>%1$s</b> na uambatishe faili ya ripoti iliyohifadhiwa; programu ya barua pepe haiwezi kuiambatisha kwa niaba yako. Mada inayopendekezwa: <b>%2$s</b>. Kwenye ujumbe, tuambie ulichofanya na kilichotokea.</string>
+  <string name="bug_report_subject_suggestion">Hitilafu ya AndBible %1$s: &lt;maelezo mafupi&gt;</string>
+  <string name="bug_report_attach_line">Tafadhali ambatisha faili %1$s</string>
+  <string name="bug_report_copy_subject">Nakili mada</string>
+  <string name="bug_report_copy_path">Nakili njia ya faili</string>
+  <string name="bug_report_open_folder">Fungua folda</string>
   <string name="bug_report_copy_address">Nakili anwani</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Maandishi-hadi-usemi</string>
@@ -763,9 +799,40 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="workspace_manage_workspaces">Dhibiti nafasi za kazi…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Hii ni toleo la beta!</string>
-  <string name="beta_notice_github_issues">Masuala ya Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Masuala ya GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ondoa hadi sasasho linalofuata</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">TAARIFA MAALUMU YA MSANIDI KWA WAJARIBU WA BETA (Novemba 2026)</string>
+  <string name="beta_special_intro_android">Karibu kwenye beta ya AndBible 6.0! Hii ndiyo mabadiliko makubwa zaidi katika historia ya AndBible. Programu nzima imeandikwa upya kwa zana mpya ya kiolesura cha mtumiaji, na kiolesura kimebuniwa upya kwa njia hiyo: kila skrini imepitiwa, na nyingi zimepata maboresho makubwa ya urahisi wa matumizi juu ya mwonekano mpya wa Material 3.</string>
+  <string name="beta_special_intro_ios">Karibu kwenye beta ya AndBible 6.0! Kama umetumia AndBible kwa iOS 1.0, hii ni mabadiliko makubwa: toleo la 6.0 linaibadilisha na programu ya AndBible ya pamoja, programu ile ile inayofanya kazi kwenye Android, iPhone, iPad na Mac za Apple Silicon, Windows na Linux. Imejengwa juu ya msimbo ambao umewahudumia watumiaji wa Android kwa zaidi ya miaka kumi, ukiandikwa upya kwa zana mpya ya kiolesura cha mtumiaji, na kiolesura kimebuniwa upya kwa njia hiyo: kila skrini imepitiwa, na nyingi zimepata maboresho makubwa ya urahisi wa matumizi.</string>
+  <string name="beta_special_intro_desktop">Karibu kwenye beta ya AndBible 6.0, na kwenye AndBible kwa Windows na Linux! Hili ni toleo la kwanza la AndBible kwa kompyuta za mezani: programu ile ile sasa inafanya kazi kwenye Android, iPhone, iPad na Mac za Apple Silicon, Windows na Linux. Imejengwa juu ya msimbo ambao umewahudumia watumiaji wa Android kwa zaidi ya miaka kumi, ukiandikwa upya kwa zana mpya ya kiolesura cha mtumiaji, na kiolesura kimebuniwa upya kwa njia hiyo: kila skrini imepitiwa, na nyingi zimepata maboresho makubwa ya urahisi wa matumizi.</string>
+  <string name="beta_special_redesign">Kiolesura kilichobuniwa upya: menyu, mipangilio na madirisha yaliyo wazi zaidi, urambazaji unaoendana zaidi, na maboresho mengi madogo ya mtiririko wa kazi katika programu nzima.</string>
+  <string name="beta_special_data_kept">Vipengele vyako, data na mipangilio yako yote bado vipo.</string>
+  <string name="beta_special_platforms">Programu ile ile sasa inafanya kazi kwenye Android, iPhone, iPad na Mac za Apple Silicon, Windows na Linux. Majukwaa mapya nayo yako katika majaribio.</string>
+  <string name="beta_special_additions_android">Nyongeza mbili ndogo: usawazishaji wa WebDAV (seva yako mwenyewe, NAS au huduma yoyote ya WebDAV, pamoja na Google Drive na Nextcloud), na faharasa mpya ya utafutaji inayojengwa upya mara moja, kiotomatiki, baada ya sasisho.</string>
+  <string name="beta_special_one_app">Programu moja kwenye vifaa vyako vyote: vipengele na mitiririko ile ile kwenye simu, kompyuta kibao na kompyuta yako.</string>
+  <string name="beta_special_sync_ios">Usawazishaji kati ya vifaa vyako kupitia Nextcloud, WebDAV (seva yako mwenyewe, NAS au huduma yoyote ya WebDAV) au iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Usawazishaji kati ya vifaa vyako kupitia Nextcloud au WebDAV (seva yako mwenyewe, NAS au huduma yoyote ya WebDAV).</string>
+  <string name="beta_special_feedback">Ikiwa kitu kinakosekana, kinafanya kazi tofauti na hapo awali au kimekuwa kigumu kukipata, tafadhali tuambie, hata kama huenda ni makusudi.</string>
+  <string name="beta_special_backup">Kutengeneza nakala rudufu kabla ya kujaribu ni wazo zuri (Menyu kuu → %s).</string>
+  <string name="beta_special_beta_warning">Hili ni toleo la beta: si kila kitu kimekamilika au kujaribiwa kikamilifu, na kinaweza kuwa na hitilafu. Kwa kulitumia wewe ni mjaribu wa beta, na ripoti zako za hitilafu ndizo zinazofanya toleo la mwisho kuwa bora.</string>
+  <string name="beta_special_leave_beta_android">Kama hukukusudia kujaribu, unaweza kuondoka kwenye %s na kurudi kwenye toleo thabiti.</string>
+  <string name="beta_special_report">Tafadhali ripoti hitilafu kupitia %1$s (inapendekezwa) au Menyu kuu → %2$s.</string>
+  <string name="beta_special_report_android">Tafadhali ripoti hitilafu kupitia %1$s (inapendekezwa), Google Play au Menyu kuu → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible kwenye vifaa vyako vingine</string>
+  <string name="beta_special_other_devices_intro">Beta ile ile inapatikana kwa vifaa vyako vyote:</string>
+  <string name="beta_special_other_android">Android: jiunge na %1$s, au pakua APK kutoka toleo jipya zaidi la beta kwenye %2$s.</string>
+  <string name="beta_special_play_beta_link">programu ya beta kwenye Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad na Mac ya Apple Silicon: sakinisha programu ya TestFlight ya Apple na ujiunge na %s.</string>
+  <string name="beta_special_testflight_link">beta ya umma ya AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) na Linux (.deb au AppImage): zipakue kutoka toleo jipya zaidi la beta kwenye %s.</string>
+  <string name="beta_special_installation_guide">Maelekezo hatua kwa hatua yako katika %s.</string>
+  <string name="beta_special_installation_guide_link">mwongozo wa usakinishaji</string>
+  <string name="beta_special_regards">Wasalaam, Tuomas</string>
+  <string name="beta_special_sponsor">N.B. Unaweza kusaidia ukuzaji wa AndBible kifedha kwa %s.</string>
+  <string name="beta_special_sponsor_link">kufadhili saa za usanidi</string>
   <string name="stable_notice_title">Programu imeboreshwa!</string>
   <string name="upgrade_video_message">Tafadhali tazama video inayoonyesha vipengele vipya vya toleo hili (%s).</string>
   <string name="stable_notice_par1">Toleo jipya %1$s la %2$s limesanikishwa kwa mafanikio!</string>
@@ -1128,6 +1195,7 @@ Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili z
   <string name="db_repositories">Hazina na mipangilio inayohusiana</string>
   <string name="db_bookmarks">Alamisho, Maelezo Yangu, Lebo na Daftari za Masomo</string>
   <string name="synchronizing">Inasawazisha…</string>
+  <string name="notification_finished">Imekamilika</string>
   <string name="overrideBackup">
 Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika Wingu. Hifadhidata ina %s. Unataka kufanya nini?</string>
   <string name="reading_plans_content">Mipango ya kusoma na hali zao</string>
@@ -1708,6 +1776,12 @@ Usionyeshe ujumbe huu tena</string>
   <string name="agent_log_response_received">Jibu limepokelewa</string>
   <string name="agent_log_saved">Imehifadhiwa: %s</string>
   <string name="agent_log_done">Imekamilika: %s</string>
+  <string name="agent_activity_title">Wakala wa AI</string>
+  <string name="agent_activity_title_in">Wakala wa AI: %s</string>
+  <string name="agent_activity_waiting">Inasubiri ruhusa yako</string>
+  <string name="agent_activity_waiting_for">Inasubiri ruhusa yako: %s</string>
+  <string name="agent_activity_failed">Wakala wa AI ameshindwa</string>
+  <string name="agent_activity_attention_needed">Wakala wa AI anahitaji umakini wako</string>
   <string name="agent_log_cancelled">Imeghairiwa</string>
   <string name="agent_already_running">Wakala wa AI tayari anaendesha. Tafadhali subiri au umsimamishe kwanza.</string>
   <!--AI Agent Notifications-->

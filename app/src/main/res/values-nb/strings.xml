@@ -805,8 +805,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="workspace_manage_workspaces">Administrer arbeidsområder …</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en prøveutgave (beta)</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Fjern melding inntil neste versjon</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

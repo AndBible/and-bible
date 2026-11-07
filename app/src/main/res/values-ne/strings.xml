@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">कार्यक्षेत्रहरू व्यवस्थापन गर्नुहोस्…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">यो बिटा संस्करण हो!</string>
-  <string name="beta_notice_github_issues">Github समस्याहरू</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub समस्याहरू</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">अर्को अपडेटसम्म खारेज गर्नुहोस्</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

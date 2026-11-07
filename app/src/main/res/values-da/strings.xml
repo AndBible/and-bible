@@ -735,8 +735,8 @@
   <string name="bug_report_desktop_text">Dernæst bliver du spurgt, hvor fejlrapportfilen skal gemmes. Derefter får du instruktioner til at sende den til udviklerholdet.</string>
   <string name="bug_report_email_text">Vælg venligst dit foretrukne e-mailprogram (f.eks. Gmail) for at sende rapporten til udviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten med e-mail</string>
-  <string name="bug_report_manual_text_saved">Rapporten blev gemt i</string>
-  <string name="bug_report_manual_text_unsaved">Rapporten blev gemt på det sted, du valgte.\n\nSend en e-mail til</string>
+  <string name="bug_report_manual_text_saved">Rapporten blev gemt i <b>%1$s</b>.\n\nSend en e-mail til <b>%2$s</b>, og vedhæft den fil; et e-mailprogram kan ikke vedhæfte den for dig. Foreslået emne: <b>%3$s</b>. Skriv i beskeden, hvad du gjorde, og hvad der skete.</string>
+  <string name="bug_report_manual_text_unsaved">Rapporten blev gemt på det sted, du valgte.\n\nSend en e-mail til <b>%1$s</b>, og vedhæft den gemte rapportfil; et e-mailprogram kan ikke vedhæfte den for dig. Foreslået emne: <b>%2$s</b>. Skriv i beskeden, hvad du gjorde, og hvad der skete.</string>
   <string name="bug_report_subject_suggestion">AndBible %1$s-fejl: &lt;kort beskrivelse&gt;</string>
   <string name="bug_report_attach_line">Vedhæft filen %1$s</string>
   <string name="bug_report_copy_subject">Kopiér emne</string>
@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">Administrer arbejdsområder…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en betaversion!</string>
-  <string name="beta_notice_github_issues">Github-problemer</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub-problemer</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Luk indtil næste opdatering</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

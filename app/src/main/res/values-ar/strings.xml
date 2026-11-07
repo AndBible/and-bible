@@ -785,8 +785,8 @@
   <string name="bug_report_desktop_text">بعد ذلك، سيُطلب منك تحديد مكان حفظ ملف تقرير الخطأ. ثم ستحصل على تعليمات لإرساله إلى فريق المطورين.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
   <string name="bug_report_manual_title">إرسال التقرير بالبريد الإلكتروني</string>
-  <string name="bug_report_manual_text_saved">تم حفظ التقرير في</string>
-  <string name="bug_report_manual_text_unsaved">تم حفظ التقرير في المكان الذي اخترته.\n\nيرجى إرسال رسالة بريد إلكتروني إلى</string>
+  <string name="bug_report_manual_text_saved">تم حفظ التقرير في <b>%1$s</b>.\n\nيرجى إرسال رسالة بريد إلكتروني إلى <b>%2$s</b> وإرفاق هذا الملف؛ فبرنامج البريد الإلكتروني لا يستطيع إرفاقه نيابةً عنك. الموضوع المقترح: <b>%3$s</b>. في الرسالة، أخبرنا بما فعلته وبما حدث.</string>
+  <string name="bug_report_manual_text_unsaved">تم حفظ التقرير في المكان الذي اخترته.\n\nيرجى إرسال رسالة بريد إلكتروني إلى <b>%1$s</b> وإرفاق ملف التقرير المحفوظ؛ فبرنامج البريد الإلكتروني لا يستطيع إرفاقه نيابةً عنك. الموضوع المقترح: <b>%2$s</b>. في الرسالة، أخبرنا بما فعلته وبما حدث.</string>
   <string name="bug_report_subject_suggestion">خطأ في AndBible %1$s: &lt;وصف مختصر&gt;</string>
   <string name="bug_report_attach_line">يرجى إرفاق الملف %1$s</string>
   <string name="bug_report_copy_subject">انسخ الموضوع</string>
@@ -819,8 +819,8 @@
   <string name="workspace_manage_workspaces">إدارة مساحات العمل…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
-  <string name="beta_notice_github_issues">مشاكل Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">مشاكل GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

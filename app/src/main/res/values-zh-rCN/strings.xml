@@ -798,8 +798,8 @@ http://www.heartlight.org 准予使用
   <string name="bug_report_desktop_text">接下来，系统会询问您将错误报告文件保存在哪里。然后您会看到将其发送给开发团队的说明。</string>
   <string name="bug_report_email_text">请在下一步选择您想要的电子邮件应用（例如 Gmail）来将报告发送给开发者团队。</string>
   <string name="bug_report_manual_title">通过电子邮件发送报告</string>
-  <string name="bug_report_manual_text_saved">报告已保存到</string>
-  <string name="bug_report_manual_text_unsaved">报告已保存到您选择的位置。\n\n请发送电子邮件至</string>
+  <string name="bug_report_manual_text_saved">报告已保存到 <b>%1$s</b>。\n\n请发送电子邮件至 <b>%2$s</b> 并附上该文件；电子邮件程序无法替您添加附件。建议的主题：<b>%3$s</b>。请在邮件中告诉我们您做了什么以及发生了什么。</string>
+  <string name="bug_report_manual_text_unsaved">报告已保存到您选择的位置。\n\n请发送电子邮件至 <b>%1$s</b> 并附上已保存的报告文件；电子邮件程序无法替您添加附件。建议的主题：<b>%2$s</b>。请在邮件中告诉我们您做了什么以及发生了什么。</string>
   <string name="bug_report_subject_suggestion">AndBible %1$s 错误：&lt;简短描述&gt;</string>
   <string name="bug_report_attach_line">请附上文件 %1$s</string>
   <string name="bug_report_copy_subject">复制主题</string>
@@ -832,8 +832,8 @@ http://www.heartlight.org 准予使用
   <string name="workspace_manage_workspaces">管理工作区…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">这是beta版本！</string>
-  <string name="beta_notice_github_issues">Github问题</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub问题</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

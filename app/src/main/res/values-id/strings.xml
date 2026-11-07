@@ -668,8 +668,8 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="workspace_listing_with_current">%s (saat ini)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_notice_github_issues">Masalah-masalah Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Masalah-masalah GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>
   <string name="stable_notice_title">Aplikasi telah diperbarui!</string>
   <string name="upgrade_video_message">Silakan lihat video yang menampilkan fitur-fitur baru dari rilis ini (%s).</string>

@@ -593,8 +593,8 @@ http://www.heartlight.org 准予使用
   <string name="workspace_listing_with_current">%s(現時)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">這是beta版本！</string>
-  <string name="beta_notice_github_issues">Github問題</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub問題</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
   <string name="stable_notice_title">程式已更新！</string>
   <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>

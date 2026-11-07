@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">Urus ruang kerja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_notice_github_issues">Isu Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Isu GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Tutup sehingga kemas kini berikutnya</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

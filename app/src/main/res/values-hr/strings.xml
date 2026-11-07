@@ -790,8 +790,8 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="bug_report_desktop_text">Zatim ćete biti upitani gdje spremiti datoteku s prijavom greške. Nakon toga dobit ćete upute za slanje razvojnom timu.</string>
   <string name="bug_report_email_text">Sljedeće, molimo Vas da odaberete Vašu željenu aplikaciju e-pošte (primjerice Gmail) kako biste poslali izvješće programerskom timu.</string>
   <string name="bug_report_manual_title">Pošaljite izvješće e-poštom</string>
-  <string name="bug_report_manual_text_saved">Prijava je spremljena u</string>
-  <string name="bug_report_manual_text_unsaved">Prijava je spremljena na mjesto koje ste odabrali.\n\nPošaljite e-poruku na</string>
+  <string name="bug_report_manual_text_saved">Prijava je spremljena u <b>%1$s</b>.\n\nPošaljite e-poruku na <b>%2$s</b> i priložite tu datoteku; program za e-poštu ne može je priložiti umjesto vas. Predloženi predmet: <b>%3$s</b>. U poruci nam napišite što ste radili i što se dogodilo.</string>
+  <string name="bug_report_manual_text_unsaved">Prijava je spremljena na mjesto koje ste odabrali.\n\nPošaljite e-poruku na <b>%1$s</b> i priložite spremljenu datoteku prijave; program za e-poštu ne može je priložiti umjesto vas. Predloženi predmet: <b>%2$s</b>. U poruci nam napišite što ste radili i što se dogodilo.</string>
   <string name="bug_report_subject_suggestion">AndBible %1$s greška: &lt;kratak opis&gt;</string>
   <string name="bug_report_attach_line">Priložite datoteku %1$s</string>
   <string name="bug_report_copy_subject">Kopiraj predmet</string>
@@ -824,8 +824,8 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="workspace_manage_workspaces">Upravljaj radnim površinama…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ovo je beta verzija!</string>
-  <string name="beta_notice_github_issues">Github problemi</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub problemi</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Odbaci do sljedećeg ažuriranja</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

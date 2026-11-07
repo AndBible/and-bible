@@ -735,8 +735,8 @@
   <string name="bug_report_desktop_text">След това ще бъдете попитани къде да запазите файла с доклада за грешката. После ще получите указания как да го изпратите на екипа на разработчиците.</string>
   <string name="bug_report_email_text">Моля, изберете предпочитаното от вас имейл приложение (например Gmail), за да изпратите доклада до екипа на разработчиците.</string>
   <string name="bug_report_manual_title">Изпратете отчета по имейл</string>
-  <string name="bug_report_manual_text_saved">Докладът беше запазен в</string>
-  <string name="bug_report_manual_text_unsaved">Докладът беше запазен на избраното от вас място.\n\nМоля, изпратете имейл до</string>
+  <string name="bug_report_manual_text_saved">Докладът беше запазен в <b>%1$s</b>.\n\nМоля, изпратете имейл до <b>%2$s</b> и прикачете този файл; имейл програмата не може да го прикачи вместо вас. Предложена тема: <b>%3$s</b>. В съобщението ни кажете какво сте направили и какво се е случило.</string>
+  <string name="bug_report_manual_text_unsaved">Докладът беше запазен на избраното от вас място.\n\nМоля, изпратете имейл до <b>%1$s</b> и прикачете запазения файл с доклада; имейл програмата не може да го прикачи вместо вас. Предложена тема: <b>%2$s</b>. В съобщението ни кажете какво сте направили и какво се е случило.</string>
   <string name="bug_report_subject_suggestion">AndBible %1$s грешка: &lt;кратко описание&gt;</string>
   <string name="bug_report_attach_line">Моля, прикачете файла %1$s</string>
   <string name="bug_report_copy_subject">Копиране на темата</string>
@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">Управление на работните пространства…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Това е бета версия!</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Затвори до следващата актуализация</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

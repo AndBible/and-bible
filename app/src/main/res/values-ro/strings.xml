@@ -838,8 +838,8 @@
   <string name="workspace_manage_workspaces">Administrează spațiile de studiu…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
-  <string name="beta_notice_github_issues">Mesaje de eroare pe Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Mesaje de eroare pe GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

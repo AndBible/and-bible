@@ -735,8 +735,8 @@
   <string name="bug_report_desktop_text">A continuació se us demanarà on desar el fitxer de l\'informe d\'error. Després rebreu instruccions per enviar-lo a l\'equip de desenvolupament.</string>
   <string name="bug_report_email_text">A continuació, selecciona la teva aplicació de correu electrònic preferida (per exemple, Gmail) per enviar l\'informe a l\'equip de desenvolupadors.</string>
   <string name="bug_report_manual_title">Envia l\'informe per correu electrònic</string>
-  <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a</string>
-  <string name="bug_report_manual_text_unsaved">L\'informe s\'ha desat al lloc que heu triat.\n\nEnvieu un correu electrònic a</string>
+  <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a <b>%1$s</b>.\n\nEnvieu un correu electrònic a <b>%2$s</b> i adjunteu-hi aquest fitxer; un programa de correu no el pot adjuntar per vosaltres. Assumpte suggerit: <b>%3$s</b>. Al missatge, expliqueu-nos què heu fet i què ha passat.</string>
+  <string name="bug_report_manual_text_unsaved">L\'informe s\'ha desat al lloc que heu triat.\n\nEnvieu un correu electrònic a <b>%1$s</b> i adjunteu-hi el fitxer de l\'informe desat; un programa de correu no el pot adjuntar per vosaltres. Assumpte suggerit: <b>%2$s</b>. Al missatge, expliqueu-nos què heu fet i què ha passat.</string>
   <string name="bug_report_subject_suggestion">Error d\'AndBible %1$s: &lt;descripció breu&gt;</string>
   <string name="bug_report_attach_line">Adjunteu el fitxer %1$s</string>
   <string name="bug_report_copy_subject">Copia l\'assumpte</string>
@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">Gestiona els espais de treball…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aquesta és la versió beta!</string>
-  <string name="beta_notice_github_issues">Problemes de Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Problemes de GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Descarta fins a la pròxima actualització</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

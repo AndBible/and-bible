@@ -820,8 +820,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="workspace_manage_workspaces">Bestuur werkspasies…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
-  <string name="beta_notice_github_issues">Github kwessies</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub kwessies</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

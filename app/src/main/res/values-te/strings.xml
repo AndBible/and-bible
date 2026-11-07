@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">WebView2తో బైబిల్ వచనాన్ని చూపించడానికి AndBibleకు Direct3D గ్రాఫిక్స్ అవసరం. ప్రస్తుత గ్రాఫిక్స్ రెండరర్ %1$s. మీ గ్రాఫిక్స్ డ్రైవర్‌ను మరియు Direct3D మద్దతును తనిఖీ చేయండి.\n\nవివరాలు లాగ్ ఫైల్‌లో ఉన్నాయి:\n%2$s</string>
   <string name="desktop_update_setting_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
   <string name="desktop_update_setting_summary">రోజుకు ఒకసారి, github.com నుండి</string>
+  <string name="desktop_beta_update_setting_title">పబ్లిక్ బీటా అప్‌డేట్‌లను అందించు</string>
+  <string name="desktop_beta_update_setting_summary">పబ్లిక్ బీటా వెర్షన్‌లను కూడా అందించు. ఆఫ్‌లో ఉంటే, బీటా ఇన్‌స్టాల్‌కు ప్రొడక్షన్ విడుదలలు మాత్రమే వస్తాయి.</string>
   <string name="desktop_update_consent_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయాలా?</string>
   <string name="desktop_update_consent_message">AndBible కొత్త వెర్షన్ కోసం రోజుకు ఒకసారి github.comను తనిఖీ చేయగలదు. GitHubకు మీ IP చిరునామా కనిపిస్తుంది; ఇంకేమీ పంపబడదు. మీరు దీన్ని తర్వాత సెట్టింగ్‌లలో మార్చవచ్చు.</string>
   <string name="desktop_update_consent_yes">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">ఇ-ఇంక్ నిర్దిష్ట సౌలభ్యాలను ప్రారంభించండి (పేజీ స్క్రోల్ బటన్లు, స్క్రోల్ సహాయ రేఖలు)</string>
   <string name="prefs_disable_animations_title">యానిమేషన్‌లను నిలిపివేయండి</string>
   <string name="prefs_disable_animations_summary">మృదువైన స్క్రోలింగ్ వంటి వివిధ యానిమేషన్‌లను నిలిపివేయండి.</string>
+  <string name="prefs_show_activity_in_menu_title">మెనూలో నేపథ్య కార్యకలాపాన్ని చూపు</string>
+  <string name="prefs_show_activity_in_menu_summary">డౌన్‌లోడ్‌లు, సింక్ మరియు ఇండెక్సింగ్ పురోగతి, వైఫల్యాలు ⋮ మెనూలో</string>
+  <string name="prefs_system_notifications_title">సిస్టమ్ నోటిఫికేషన్‌లు</string>
+  <string name="prefs_system_notifications_denied">iOS సెట్టింగ్‌లలో ఆఫ్ చేయబడింది</string>
+  <string name="prefs_system_notifications_summary">విఫలమైన నేపథ్య పని, AndBible నేపథ్యంలో ఉండగా పూర్తయ్యే పెద్ద డౌన్‌లోడ్‌లు మరియు వాటి పురోగతి గురించి తెలియజేయి</string>
   <string name="prefs_disable_click_to_edit_title">స్టడీ ప్యాడ్ క్లిక్-టు-ఎడిట్‌ని నిలిపివేయండి</string>
   <string name="prefs_disable_click_to_edit_summary">స్టడీ ప్యాడ్‌లో నోట్స్ సవరించడానికి ఎడిట్ బటన్ ఉపయోగించడం అవసరం.</string>
   <string name="prefs_notes_content_type_title">కొత్త బుక్‌మార్క్ నోట్స్ ఆకృతి</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">అటోమెటిక్</string>
   <string name="prefs_night_mode_system">సిస్టం</string>
   <string name="options_menu_night_mode">నైట్ మోడ్</string>
+  <string name="options_menu_sync_now">ఇప్పుడే సింక్ చేయి</string>
+  <string name="exit_sync_title">మార్పులను సింక్రనైజ్ చేస్తోంది…</string>
+  <string name="exit_sync_body">మీ మార్పులను మీ ఇతర పరికరాలకు పంపుతోంది. దీనికి కొన్ని సెకన్లు పట్టవచ్చు.</string>
+  <string name="exit_sync_quit_now">ఇప్పుడే నిష్క్రమించు</string>
+  <string name="exit_sync_closing">మూసివేస్తోంది…</string>
+  <string name="sync_now_no_network">నెట్‌వర్క్ కనెక్షన్ లేదు</string>
   <string name="prefs_navigate_to_verse_title">వచనాల్లోకి తిరిగి వెళ్లడం</string>
   <string name="prefs_navigate_to_verse_summary">వాక్యభాగము ఎంపిక చేసేటప్పుడు వచనాలను (మరియు అధ్యాయాలను) ఎన్నుకోవడం</string>
   <string name="prefs_open_links_in_special_window_title">లింక్స్ విండో</string>
@@ -357,6 +370,17 @@
   <string name="chooce_language_hint">భాష</string>
   <string name="one_more_back_press">యాప్‌ను మూసివేయడానికి మళ్లీ \"బ్యాక్\" వెనుకకు నొక్కండి</string>
   <string name="document_filter_results">%d పత్రాలు</string>
+  <string name="activity_show_all">అన్నీ చూపు (%1$d)</string>
+  <string name="activity_failed_badge">%1$d విఫలమయ్యాయి</string>
+  <string name="activity_attention_badge">%1$dకి శ్రద్ధ అవసరం</string>
+  <string name="activity_combined_badge">%1$d విఫలమయ్యాయి, %2$dకి శ్రద్ధ అవసరం</string>
+  <string name="activity_running_description">నేపథ్య పని నడుస్తోంది</string>
+  <string name="activity_running">నడుస్తోంది</string>
+  <string name="activity_recent">ఇటీవలివి</string>
+  <string name="activity_clear_finished">పూర్తయినవాటిని తొలగించు</string>
+  <string name="activity_title">నేపథ్య కార్యకలాపం</string>
+  <string name="activity_empty">ఏదీ నడవడం లేదు</string>
+  <string name="activity_failed_toast">%1$s — మెనూ చూడండి</string>
   <string name="download_question_title">మీరు పత్రాలను డౌన్‌లోడ్ చేయడానికి కొనసాగాలనుకుంటున్నారా?</string>
   <string name="download_question_message">మీరు హింసించబడే దేశంలో నివసిస్తున్నట్లయితే,
 మీరు ఇంటర్నెట్ ద్వారా క్రైస్తవ మెటీరియల్‌ని డౌన్‌లోడ్ చేయడంలో జాగ్రత్తగా ఉండవలసి ఉంటుంది.
@@ -640,6 +664,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="backup_backup_title">ఎక్కడికి బ్యాకప్ చేయాలి?</string>
   <string name="backup_backup_message">షేర్ ఫంక్షన్ ద్వారా ఫోన్‌కి లేదా మరెక్కడైనా బ్యాకప్ చేయాలా? (ఇమెయిల్, గూగుల్ డ్రైవ్ మొదలైనవి) </string>
   <string name="backup_phone_storage">ఫోన్ నిల్వ</string>
+  <string name="backup_save_to_files">ఫైల్స్‌లో సేవ్ చేయి</string>
   <string name="backup_and_restore">బ్యాకప్ &amp; పునరుద్ధరించు</string>
   <string name="backup_modules2">ఇక్కడికి పత్రాలను బ్యాకప్ చేయండి…</string>
   <string name="backup_app2">ఇక్కడికి బ్యాకప్ యాప్ (.apk ఫైల్)…</string>
@@ -692,6 +717,9 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="module_about_repository">పంపిణీ సర్వర్: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">లాగ్ ఫోల్డర్</string>
+  <string name="open_log_folder">లాగ్ ఫోల్డర్‌ను తెరువు</string>
+  <string name="startup_report_bug">బగ్‌ను నివేదించు</string>
   <string name="send_bug_report_title">అభిప్రాయం / తప్పుల నివేదిక</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s కోసం బగ్ నివేదిక</string>
   <string name="report_bug_big_heading">దయచేసి ఈ లైన్ పైన మీ అభిప్రాయాన్ని లేదా బగ్ రిపోర్ట్‌ను వ్రాయండి</string>
@@ -759,8 +787,16 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="debug_test_error">పరీక్ష లోపం (డీబగ్ బిల్డ్)</string>
   <string name="bug_report_prepare_failed">నివేదికను సిద్ధం చేయడం లేదా షేర్ చేయడం సాధ్యం కాలేదు. మీరు మళ్లీ ప్రయత్నించవచ్చు, లేదా మీ డేటాను సేవ్ చేయడానికి బ్యాకప్ మరియు పునరుద్ధరణను ఉపయోగించండి.</string>
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
+  <string name="bug_report_desktop_text">తర్వాత, బగ్ నివేదిక ఫైల్‌ను ఎక్కడ సేవ్ చేయాలో అడుగుతారు. ఆపై దానిని డెవలపర్ బృందానికి పంపే సూచనలు లభిస్తాయి.</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>
   <string name="bug_report_manual_title">నివేదికను ఇమెయిల్ ద్వారా పంపండి</string>
+  <string name="bug_report_manual_text_saved">నివేదిక <b>%1$s</b> వద్ద సేవ్ చేయబడింది.\n\nదయచేసి <b>%2$s</b>కు ఇమెయిల్ పంపి ఆ ఫైల్‌ను జతచేయండి; ఇమెయిల్ ప్రోగ్రామ్ దానిని మీ కోసం జతచేయలేదు. సూచించిన సబ్జెక్ట్: <b>%3$s</b>. సందేశంలో మీరు ఏమి చేశారో, ఏమి జరిగిందో చెప్పండి.</string>
+  <string name="bug_report_manual_text_unsaved">నివేదిక మీరు ఎంచుకున్న చోట సేవ్ చేయబడింది.\n\nదయచేసి <b>%1$s</b>కు ఇమెయిల్ పంపి సేవ్ చేసిన నివేదిక ఫైల్‌ను జతచేయండి; ఇమెయిల్ ప్రోగ్రామ్ దానిని మీ కోసం జతచేయలేదు. సూచించిన సబ్జెక్ట్: <b>%2$s</b>. సందేశంలో మీరు ఏమి చేశారో, ఏమి జరిగిందో చెప్పండి.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s బగ్: &lt;చిన్న వివరణ&gt;</string>
+  <string name="bug_report_attach_line">దయచేసి %1$s ఫైల్‌ను జతచేయండి</string>
+  <string name="bug_report_copy_subject">సబ్జెక్ట్‌ను కాపీ చేయి</string>
+  <string name="bug_report_copy_path">ఫైల్ పాత్‌ను కాపీ చేయి</string>
+  <string name="bug_report_open_folder">ఫోల్డర్‌ను తెరువు</string>
   <string name="bug_report_copy_address">చిరునామాను కాపీ చేయండి</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">వచనం నుండి బిగ్గరగా చదువు</string>
@@ -788,9 +824,40 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="workspace_manage_workspaces">కార్యస్థలాలను నిర్వహించండి…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">ఇది బీటా వెర్షన్!</string>
-  <string name="beta_notice_github_issues">Github సమస్యలు</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub సమస్యలు</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">తదుపరి నవీకరణ వరకు తీసివేయండి</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">బీటా టెస్టర్ల కోసం డెవలపర్ ప్రత్యేక ప్రకటన (నవంబర్ 2026)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 బీటాకు స్వాగతం! ఇది AndBible చరిత్రలోనే అతి పెద్ద మార్పు. యాప్ మొత్తాన్ని కొత్త యూజర్ ఇంటర్‌ఫేస్ టూల్‌కిట్‌తో తిరిగి రాశాము, ఈ క్రమంలో ఇంటర్‌ఫేస్‌ను కూడా పునఃరూపకల్పన చేశాము: ప్రతి స్క్రీన్‌ను సమీక్షించాము, మరియు వాటిలో చాలావాటికి కొత్త Material 3 రూపంతో పాటు గణనీయమైన వినియోగ మెరుగుదలలు లభించాయి.</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 బీటాకు స్వాగతం! మీరు iOS కోసం AndBible 1.0 వాడి ఉంటే, ఇది పెద్ద మార్పు: వెర్షన్ 6.0 దానిని షేర్డ్ AndBible యాప్‌తో భర్తీ చేస్తుంది, ఇదే యాప్ Android, iPhone, iPad మరియు Apple Silicon Mac‌లు, Windows మరియు Linuxలో నడుస్తుంది. ఇది ఒక దశాబ్దానికి పైగా Android వినియోగదారులకు సేవ చేసిన కోడ్‌పై నిర్మించబడింది, కొత్త యూజర్ ఇంటర్‌ఫేస్ టూల్‌కిట్‌తో తిరిగి రాయబడింది, ఈ క్రమంలో ఇంటర్‌ఫేస్ పునఃరూపకల్పన చేయబడింది: ప్రతి స్క్రీన్‌ను సమీక్షించాము, మరియు వాటిలో చాలావాటికి గణనీయమైన వినియోగ మెరుగుదలలు లభించాయి.</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 బీటాకు, మరియు Windows మరియు Linuxలో AndBibleకు స్వాగతం! ఇది AndBible యొక్క మొదటి డెస్క్‌టాప్ వెర్షన్: ఇదే యాప్ ఇప్పుడు Android, iPhone, iPad మరియు Apple Silicon Mac‌లు, Windows మరియు Linuxలో నడుస్తుంది. ఇది ఒక దశాబ్దానికి పైగా Android వినియోగదారులకు సేవ చేసిన కోడ్‌పై నిర్మించబడింది, కొత్త యూజర్ ఇంటర్‌ఫేస్ టూల్‌కిట్‌తో తిరిగి రాయబడింది, ఈ క్రమంలో ఇంటర్‌ఫేస్ పునఃరూపకల్పన చేయబడింది: ప్రతి స్క్రీన్‌ను సమీక్షించాము, మరియు వాటిలో చాలావాటికి గణనీయమైన వినియోగ మెరుగుదలలు లభించాయి.</string>
+  <string name="beta_special_redesign">పునఃరూపకల్పన చేసిన ఇంటర్‌ఫేస్: స్పష్టమైన మెనూలు, సెట్టింగ్‌లు మరియు డైలాగ్‌లు, మరింత స్థిరమైన నావిగేషన్, యాప్ అంతటా అనేక చిన్న వర్క్‌ఫ్లో మెరుగుదలలు.</string>
+  <string name="beta_special_data_kept">మీ ఫీచర్‌లు, డేటా మరియు సెట్టింగ్‌లు అన్నీ అలాగే ఉన్నాయి.</string>
+  <string name="beta_special_platforms">ఇదే యాప్ ఇప్పుడు Android, iPhone, iPad మరియు Apple Silicon Mac‌లు, Windows మరియు Linuxలో నడుస్తుంది. కొత్త ప్లాట్‌ఫామ్‌లు కూడా పరీక్షలో ఉన్నాయి.</string>
+  <string name="beta_special_additions_android">రెండు చిన్న చేర్పులు: WebDAV సింక్రనైజేషన్ (Google Drive మరియు Nextcloudతో పాటు, మీ సొంత సర్వర్, NAS లేదా ఏదైనా WebDAV సేవ), మరియు అప్‌డేట్ తర్వాత ఒకసారి ఆటోమేటిక్‌గా పునర్నిర్మించబడే కొత్త శోధన ఇండెక్స్.</string>
+  <string name="beta_special_one_app">మీ అన్ని పరికరాలలో ఒకే యాప్: మీ ఫోన్, టాబ్లెట్ మరియు కంప్యూటర్‌లో అవే ఫీచర్‌లు మరియు వర్క్‌ఫ్లోలు.</string>
+  <string name="beta_special_sync_ios">Nextcloud, WebDAV (మీ సొంత సర్వర్, NAS లేదా ఏదైనా WebDAV సేవ) లేదా iCloud Drive ద్వారా మీ పరికరాల మధ్య సింక్రనైజేషన్.</string>
+  <string name="beta_special_sync_desktop">Nextcloud లేదా WebDAV (మీ సొంత సర్వర్, NAS లేదా ఏదైనా WebDAV సేవ) ద్వారా మీ పరికరాల మధ్య సింక్రనైజేషన్.</string>
+  <string name="beta_special_feedback">ఏదైనా లేకపోయినా, ముందుకన్నా భిన్నంగా పనిచేసినా లేదా కనుగొనడం కష్టమైనా, అది ఉద్దేశపూర్వకమే అయినా కూడా దయచేసి మాకు చెప్పండి.</string>
+  <string name="beta_special_backup">పరీక్షించే ముందు బ్యాకప్ తీసుకోవడం మంచిది (ప్రధాన మెనూ → %s).</string>
+  <string name="beta_special_beta_warning">ఇది బీటా వెర్షన్: అన్నీ పూర్తి కాలేదు లేదా పూర్తిగా పరీక్షించబడలేదు, మరియు ఇందులో బగ్‌లు ఉండవచ్చు. దీనిని వాడటం ద్వారా మీరు బీటా టెస్టర్ అవుతారు, మరియు మీ బగ్ నివేదికలే తుది విడుదలను మంచిగా చేస్తాయి.</string>
+  <string name="beta_special_leave_beta_android">మీరు పరీక్షించాలని అనుకోకపోతే, %s నుండి వైదొలగి స్థిరమైన వెర్షన్‌కు తిరిగి వెళ్లవచ్చు.</string>
+  <string name="beta_special_report">దయచేసి బగ్‌లను %1$s ద్వారా (ప్రాధాన్యత) లేదా ప్రధాన మెనూ → %2$s ద్వారా నివేదించండి.</string>
+  <string name="beta_special_report_android">దయచేసి బగ్‌లను %1$s ద్వారా (ప్రాధాన్యత), Google Play ద్వారా లేదా ప్రధాన మెనూ → %2$s ద్వారా నివేదించండి.</string>
+  <string name="beta_special_other_devices_title">మీ ఇతర పరికరాలలో AndBible</string>
+  <string name="beta_special_other_devices_intro">అదే బీటా మీ అన్ని పరికరాలకు అందుబాటులో ఉంది:</string>
+  <string name="beta_special_other_android">Android: %1$sలో చేరండి, లేదా %2$sలో తాజా బీటా విడుదల నుండి APKను డౌన్‌లోడ్ చేయండి.</string>
+  <string name="beta_special_play_beta_link">Google Playలో బీటా ప్రోగ్రామ్</string>
+  <string name="beta_special_other_apple">iPhone, iPad మరియు Apple Silicon Mac: Apple యొక్క TestFlight యాప్‌ను ఇన్‌స్టాల్ చేసి %sలో చేరండి.</string>
+  <string name="beta_special_testflight_link">AndBible పబ్లిక్ బీటా</string>
+  <string name="beta_special_other_desktop">Windows (.msi) మరియు Linux (.deb లేదా AppImage): వాటిని %sలో తాజా బీటా విడుదల నుండి డౌన్‌లోడ్ చేయండి.</string>
+  <string name="beta_special_installation_guide">దశలవారీ సూచనలు %sలో ఉన్నాయి.</string>
+  <string name="beta_special_installation_guide_link">ఇన్‌స్టాలేషన్ గైడ్</string>
+  <string name="beta_special_regards">శుభాకాంక్షలతో, Tuomas</string>
+  <string name="beta_special_sponsor">పి.ఎస్. మీరు %s ద్వారా AndBible అభివృద్ధికి ఆర్థికంగా మద్దతు ఇవ్వవచ్చు.</string>
+  <string name="beta_special_sponsor_link">అభివృద్ధి గంటలను స్పాన్సర్ చేయడం</string>
   <string name="stable_notice_title">అప్లికేషన్ అప్‌గ్రేడ్ చేయబడింది!</string>
   <string name="upgrade_video_message">దయచేసి ఈ విడుదల (%s) యొక్క కొత్త ఫీచర్‌లను కలిగి ఉన్న వీడియోను చూడండి.</string>
   <string name="stable_notice_par1">%2$s యొక్క కొత్త వెర్షన్ %1$s విజయవంతంగా ఇన్‌స్టాల్ చేయబడింది!</string>
@@ -1190,6 +1257,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="db_repositories">రిపోజిటరీలు మరియు సంబంధిత సెట్టింగ్‌లు</string>
   <string name="db_bookmarks">బుక్‌మార్క్‌లు, నా నోట్స్, లేబుల్‌లు మరియు స్టడీ ప్యాడ్‌లు</string>
   <string name="synchronizing">సమకాలీకరించడం...</string>
+  <string name="notification_finished">పూర్తయింది</string>
   <string name="overrideBackup">
 ఈ పరికరం సమకాలీకరించబడని ప్రస్తుత డేటాబేస్ క్లౌడ్‌లో కనుగొనబడింది.
 %s డేటాబేస్ కలిగి ఉంది. మీరు ఏమి చేయాలనుకుంటున్నారు?
@@ -1773,6 +1841,12 @@ Don\'t show this message again
   <string name="agent_log_response_received">రెస్పాన్స్ అందుకున్నాం</string>
   <string name="agent_log_saved">సేవ్ చేయబడింది: %s</string>
   <string name="agent_log_done">పూర్తయింది: %s</string>
+  <string name="agent_activity_title">AI ఏజెంట్</string>
+  <string name="agent_activity_title_in">AI ఏజెంట్: %s</string>
+  <string name="agent_activity_waiting">మీ అనుమతి కోసం వేచి ఉంది</string>
+  <string name="agent_activity_waiting_for">మీ అనుమతి కోసం వేచి ఉంది: %s</string>
+  <string name="agent_activity_failed">AI ఏజెంట్ విఫలమైంది</string>
+  <string name="agent_activity_attention_needed">AI ఏజెంట్‌కు మీ శ్రద్ధ అవసరం</string>
   <string name="agent_log_cancelled">రద్దు చేయబడింది</string>
   <string name="agent_already_running">AI ఏజెంట్ ఇప్పటికే నడుస్తోంది. దయచేసి వేచి ఉండండి లేదా ముందు ఆపండి.</string>
   <!--AI Agent Notifications-->

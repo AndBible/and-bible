@@ -824,8 +824,8 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="workspace_manage_workspaces">Halda tööalasid…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
-  <string name="beta_notice_github_issues">Githubi probleemid</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHubi probleemid</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Unusta kuni uue versioonini</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

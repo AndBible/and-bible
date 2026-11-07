@@ -838,8 +838,8 @@
   <string name="workspace_manage_workspaces">Çalışma alanlarını yönet…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
-  <string name="beta_notice_github_issues">Github sorun listesi</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub sorun listesi</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

@@ -769,8 +769,8 @@
   <string name="workspace_manage_workspaces">จัดการพื้นที่ทำงาน…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

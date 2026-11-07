@@ -802,8 +802,8 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="workspace_manage_workspaces">Gestisci spazi di lavoro…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
-  <string name="beta_notice_github_issues">Problemi Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Problemi GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ignora fino al prossimo aggiornamento</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->

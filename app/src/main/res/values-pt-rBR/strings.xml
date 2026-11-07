@@ -822,8 +822,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="workspace_manage_workspaces">Gerenciar áreas de trabalho…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
-  <string name="beta_notice_github_issues">Problemas relativos a Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Problemas relativos a GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Dispensado até a próxima atualização</string>
   <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
          paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
