@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible krever Direct3D-grafikk for å vise bibeltekst med WebView2. Den gjeldende grafikkgjengiveren er %1$s. Kontroller grafikkdriveren og Direct3D-støtten.\n\nDetaljer finnes i loggfilen:\n%2$s</string>
   <string name="desktop_update_setting_title">Se etter oppdateringer</string>
   <string name="desktop_update_setting_summary">Én gang om dagen, fra github.com</string>
+  <string name="desktop_beta_update_setting_title">Tilby offentlige betaoppdateringer</string>
+  <string name="desktop_beta_update_setting_summary">Tilby også offentlige betaversjoner. Når dette er av, får en betainstallasjon bare produksjonsutgivelser.</string>
   <string name="desktop_update_consent_title">Se etter oppdateringer?</string>
   <string name="desktop_update_consent_message">AndBible kan se på github.com én gang om dagen om det finnes en nyere versjon. GitHub ser IP-adressen din; ingenting annet sendes. Du kan endre dette senere i Innstillinger.</string>
   <string name="desktop_update_consent_yes">Se etter oppdateringer</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Aktiver e-ink-spesifikke funksjoner (siderulleknapper, rullehjelplinjer)</string>
   <string name="prefs_disable_animations_title">Slå av animasjoner</string>
   <string name="prefs_disable_animations_summary">Slå av animasjoner, som tekstrulling osv.</string>
+  <string name="prefs_show_activity_in_menu_title">Vis bakgrunnsaktivitet i menyen</string>
+  <string name="prefs_show_activity_in_menu_summary">Nedlastinger, synkronisering og indeksering, med fremdrift og feil, i ⋮-menyen</string>
+  <string name="prefs_system_notifications_title">Systemvarsler</string>
+  <string name="prefs_system_notifications_denied">Slått av i iOS-innstillinger</string>
+  <string name="prefs_system_notifications_summary">Varsle om mislykket bakgrunnsarbeid, lange nedlastinger som fullføres mens AndBible er i bakgrunnen, og fremdriften deres</string>
   <string name="prefs_disable_click_to_edit_title">Deaktiver klikk-for-å-redigere i studiebrett</string>
   <string name="prefs_disable_click_to_edit_summary">Krever bruk av redigeringsknappen for å redigere notater i studiebrettet.</string>
   <string name="prefs_notes_content_type_title">Format for nye bokmerkenotater</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatisk</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nattmodus</string>
+  <string name="options_menu_sync_now">Synkroniser nå</string>
+  <string name="exit_sync_title">Synkroniserer endringer…</string>
+  <string name="exit_sync_body">Sender endringene dine til de andre enhetene dine. Dette kan ta noen sekunder.</string>
+  <string name="exit_sync_quit_now">Avslutt nå</string>
+  <string name="exit_sync_closing">Lukker…</string>
+  <string name="sync_now_no_network">Ingen nettverksforbindelse</string>
   <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
   <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
   <string name="prefs_open_links_in_special_window_title">Lenkevindu</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Språk</string>
   <string name="one_more_back_press">Trykk tilbake igjen for å lukke applikasjonen</string>
   <string name="document_filter_results">%d moduler</string>
+  <string name="activity_show_all">Vis alle (%1$d)</string>
+  <string name="activity_failed_badge">%1$d mislyktes</string>
+  <string name="activity_attention_badge">%1$d trenger oppmerksomhet</string>
+  <string name="activity_combined_badge">%1$d mislyktes, %2$d trenger oppmerksomhet</string>
+  <string name="activity_running_description">Bakgrunnsarbeid pågår</string>
+  <string name="activity_running">Pågår</string>
+  <string name="activity_recent">Nylig</string>
+  <string name="activity_clear_finished">Fjern fullførte</string>
+  <string name="activity_title">Bakgrunnsaktivitet</string>
+  <string name="activity_empty">Ingenting pågår</string>
+  <string name="activity_failed_toast">%1$s — se menyen</string>
   <string name="download_question_title">Ønsker du å fortsette å laste ned moduler?</string>
   <string name="download_question_message">Dersom du bor i et land med forfølgelse
         bør du være forsiktig med å laste ned kristent materiell fra internett.
@@ -620,6 +644,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="backup_backup_title">Sikkerhetskopier til hvor?</string>
   <string name="backup_backup_message">Sikkerhetskopier til telefon eller andre steder via delefunksjonen (e-post, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefonlager</string>
+  <string name="backup_save_to_files">Lagre i Filer</string>
   <string name="backup_and_restore">Sikkerhetskopiering</string>
   <string name="backup_modules2">Sikkerhetskopier dokumenter til…</string>
   <string name="backup_app2">Sikkerhetskopier app (.apk fil) til…</string>
@@ -672,6 +697,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="module_about_repository">Distribusjonsserver: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Loggmappe</string>
+  <string name="open_log_folder">Åpne loggmappen</string>
+  <string name="startup_report_bug">Rapporter en feil</string>
   <string name="send_bug_report_title">Tilbakemelding/feilrapport</string>
   <string name="report_bug_email_subject_3">[%1$s] Feilrapport for %2$s %3$s</string>
   <string name="report_bug_big_heading">VENNLIGST SKRIV DIN TILBAKEMELDING ELLER FEILRAPPORT OVER DENNE LINJEN</string>
@@ -740,8 +768,16 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="debug_test_error">Testfeil (feilsøkingsbygg)</string>
   <string name="bug_report_prepare_failed">Kunne ikke forberede eller dele rapporten. Du kan prøve på nytt, eller bruke Sikkerhetskopiering og gjenoppretting for å lagre dataene dine.</string>
   <string name="bug_report_email_title">Send feilrapport via e-post</string>
+  <string name="bug_report_desktop_text">Deretter blir du spurt om hvor feilrapportfilen skal lagres. Så får du instruksjoner for å sende den til utviklerteamet.</string>
   <string name="bug_report_email_text">Vennligst velg din foretrukne e-post app for å sende rapporten til utviklerteamet.</string>
   <string name="bug_report_manual_title">Send rapporten på e-post</string>
+  <string name="bug_report_manual_text_saved">Rapporten ble lagret i <b>%1$s</b>.\n\nSend en e-post til <b>%2$s</b> og legg ved filen; et e-postprogram kan ikke legge den ved for deg. Foreslått emne: <b>%3$s</b>. Fortell i meldingen hva du gjorde og hva som skjedde.</string>
+  <string name="bug_report_manual_text_unsaved">Rapporten ble lagret på stedet du valgte.\n\nSend en e-post til <b>%1$s</b> og legg ved den lagrede rapportfilen; et e-postprogram kan ikke legge den ved for deg. Foreslått emne: <b>%2$s</b>. Fortell i meldingen hva du gjorde og hva som skjedde.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s feil: &lt;kort beskrivelse&gt;</string>
+  <string name="bug_report_attach_line">Legg ved filen %1$s</string>
+  <string name="bug_report_copy_subject">Kopier emne</string>
+  <string name="bug_report_copy_path">Kopier filbane</string>
+  <string name="bug_report_open_folder">Åpne mappe</string>
   <string name="bug_report_copy_address">Kopier adressen</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst til tale</string>
@@ -769,9 +805,40 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="workspace_manage_workspaces">Administrer arbeidsområder …</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en prøveutgave (beta)</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Fjern melding inntil neste versjon</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">UTVIKLERENS SPESIELLE MERKNAD TIL BETATESTERE (november 2026)</string>
+  <string name="beta_special_intro_android">Velkommen til AndBible 6.0 beta! Dette er den største endringen i AndBibles historie. Hele appen er skrevet om med et nytt verktøysett for brukergrensesnitt, og grensesnittet er redesignet underveis: hver skjerm ble gjennomgått, og de fleste fikk betydelige brukervennlighetsforbedringer på toppen av det oppfriskede Material 3-utseendet.</string>
+  <string name="beta_special_intro_ios">Velkommen til AndBible 6.0 beta! Hvis du har brukt AndBible for iOS 1.0, er dette en stor endring: versjon 6.0 erstatter den med den felles AndBible-appen, den samme appen som kjører på Android, iPhone, iPad og Apple Silicon-Mac-er, Windows og Linux. Den bygger på koden som har tjent Android-brukere i over ti år, skrevet om med et nytt verktøysett for brukergrensesnitt, og grensesnittet er redesignet underveis: hver skjerm ble gjennomgått, og de fleste fikk betydelige brukervennlighetsforbedringer.</string>
+  <string name="beta_special_intro_desktop">Velkommen til AndBible 6.0 beta, og til AndBible på Windows og Linux! Dette er den første skrivebordsversjonen av AndBible: den samme appen kjører nå på Android, iPhone, iPad og Apple Silicon-Mac-er, Windows og Linux. Den bygger på koden som har tjent Android-brukere i over ti år, skrevet om med et nytt verktøysett for brukergrensesnitt, og grensesnittet er redesignet underveis: hver skjerm ble gjennomgått, og de fleste fikk betydelige brukervennlighetsforbedringer.</string>
+  <string name="beta_special_redesign">Et redesignet grensesnitt: tydeligere menyer, innstillinger og dialoger, mer konsekvent navigasjon og mange små forbedringer i arbeidsflyten i hele appen.</string>
+  <string name="beta_special_data_kept">Funksjonene, dataene og innstillingene dine er alle fortsatt der.</string>
+  <string name="beta_special_platforms">Den samme appen kjører nå på Android, iPhone, iPad og Apple Silicon-Mac-er, Windows og Linux. De nye plattformene er også under testing.</string>
+  <string name="beta_special_additions_android">To mindre tillegg: WebDAV-synkronisering (din egen server, en NAS eller en hvilken som helst WebDAV-tjeneste, i tillegg til Google Drive og Nextcloud), og en ny søkeindeks som bygges på nytt én gang, automatisk, etter oppdateringen.</string>
+  <string name="beta_special_one_app">Én app på alle enhetene dine: de samme funksjonene og arbeidsflytene på telefonen, nettbrettet og datamaskinen.</string>
+  <string name="beta_special_sync_ios">Synkronisering mellom enhetene dine via Nextcloud, WebDAV (din egen server, en NAS eller en hvilken som helst WebDAV-tjeneste) eller iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synkronisering mellom enhetene dine via Nextcloud eller WebDAV (din egen server, en NAS eller en hvilken som helst WebDAV-tjeneste).</string>
+  <string name="beta_special_feedback">Hvis noe mangler, fungerer annerledes enn før eller ble vanskeligere å finne, si fra til oss, selv om det kan være med vilje.</string>
+  <string name="beta_special_backup">Det er lurt å ta en sikkerhetskopi før du tester (Hovedmeny → %s).</string>
+  <string name="beta_special_beta_warning">Dette er en betaversjon: ikke alt er ferdig eller fullstendig testet, og den kan inneholde feil. Ved å bruke den er du betatester, og feilrapportene dine er det som gjør den endelige utgivelsen god.</string>
+  <string name="beta_special_leave_beta_android">Hvis du ikke mente å teste, kan du forlate %s og gå tilbake til den stabile versjonen.</string>
+  <string name="beta_special_report">Rapporter feil via %1$s (foretrukket) eller Hovedmeny → %2$s.</string>
+  <string name="beta_special_report_android">Rapporter feil via %1$s (foretrukket), Google Play eller Hovedmeny → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible på de andre enhetene dine</string>
+  <string name="beta_special_other_devices_intro">Den samme betaen er tilgjengelig for alle enhetene dine:</string>
+  <string name="beta_special_other_android">Android: bli med i %1$s, eller last ned APK-filen fra den nyeste betautgivelsen på %2$s.</string>
+  <string name="beta_special_play_beta_link">betaprogrammet på Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad og Apple Silicon-Mac: installer Apples TestFlight-app og bli med i %s.</string>
+  <string name="beta_special_testflight_link">AndBible public beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) og Linux (.deb eller AppImage): last dem ned fra den nyeste betautgivelsen på %s.</string>
+  <string name="beta_special_installation_guide">Trinnvise instruksjoner finnes i %s.</string>
+  <string name="beta_special_installation_guide_link">installasjonsveiledningen</string>
+  <string name="beta_special_regards">Vennlig hilsen Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Du kan støtte utviklingen av AndBible økonomisk ved å %s.</string>
+  <string name="beta_special_sponsor_link">sponse utviklingstimer</string>
   <string name="stable_notice_title">Applikasjonen har blitt oppgradert!</string>
   <string name="upgrade_video_message">Vennligst se video over nye funksjoner i denne utgaven (%s).</string>
   <string name="stable_notice_par1">Ny versjon %1$s av %2$s er installert!</string>
@@ -1131,6 +1198,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="db_repositories">Arkiver og relaterte innstillinger</string>
   <string name="db_bookmarks">Bokmerker, mine notater, grupper og studiebrett</string>
   <string name="synchronizing">Synkroniserer…</string>
+  <string name="notification_finished">Fullført</string>
   <string name="overrideBackup">Eksisterende database som denne enheten ikke er synkronisert til, er funnet i skyen. Databasen inneholder %s. Hva vil du gjøre?</string>
   <string name="reading_plans_content">Leseplaner og deres statuser</string>
   <string name="bookmarks_contents">Bokmerker, grupper og studiebrett</string>
@@ -1709,6 +1777,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="agent_log_response_received">Svar mottatt</string>
   <string name="agent_log_saved">Lagret: %s</string>
   <string name="agent_log_done">Ferdig: %s</string>
+  <string name="agent_activity_title">AI-agent</string>
+  <string name="agent_activity_title_in">AI-agent: %s</string>
+  <string name="agent_activity_waiting">Venter på tillatelsen din</string>
+  <string name="agent_activity_waiting_for">Venter på tillatelsen din: %s</string>
+  <string name="agent_activity_failed">AI-agenten mislyktes</string>
+  <string name="agent_activity_attention_needed">AI-agenten trenger oppmerksomheten din</string>
   <string name="agent_log_cancelled">Avbrutt</string>
   <string name="agent_already_running">En KI-agent kjører allerede. Vent eller stopp den først.</string>
   <!--AI Agent Notifications-->

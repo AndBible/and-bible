@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">يتطلب AndBible رسومات Direct3D لعرض نص الكتاب المقدس باستخدام WebView2. مُصيّر الرسومات الحالي هو %1$s. تحقق من برنامج تشغيل الرسومات ودعم Direct3D.\n\nالتفاصيل في ملف السجل:\n%2$s</string>
   <string name="desktop_update_setting_title">التحقق من التحديثات</string>
   <string name="desktop_update_setting_summary">مرة واحدة يوميًا، من github.com</string>
+  <string name="desktop_beta_update_setting_title">عرض تحديثات النسخة التجريبية العامة</string>
+  <string name="desktop_beta_update_setting_summary">عرض إصدارات النسخة التجريبية العامة أيضًا. عند الإيقاف، لا يتلقى تثبيت النسخة التجريبية سوى الإصدارات الرسمية.</string>
   <string name="desktop_update_consent_title">التحقق من التحديثات؟</string>
   <string name="desktop_update_consent_message">يمكن لـ AndBible التحقق من github.com مرة واحدة يوميًا بحثًا عن إصدار أحدث. يرى GitHub عنوان IP الخاص بك ولا يُرسَل أي شيء آخر. يمكنك تغيير ذلك لاحقًا في الإعدادات.</string>
   <string name="desktop_update_consent_yes">التحقق من التحديثات</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">تفعيل الميزات الخاصة بشاشات الحبر الإلكتروني (أزرار تمرير الصفحة، وخطوط مساعدة التمرير)</string>
   <string name="prefs_disable_animations_title">تعطيل الرسوم المتحركة</string>
   <string name="prefs_disable_animations_summary">تعطيل الرسوم المتحركة المختلفة مثل التمرير السلس.</string>
+  <string name="prefs_show_activity_in_menu_title">عرض النشاط في الخلفية في القائمة</string>
+  <string name="prefs_show_activity_in_menu_summary">تقدم التنزيلات والمزامنة والفهرسة، وحالات الفشل، في القائمة ⋮</string>
+  <string name="prefs_system_notifications_title">إشعارات النظام</string>
+  <string name="prefs_system_notifications_denied">معطّلة في إعدادات iOS</string>
+  <string name="prefs_system_notifications_summary">الإشعار عند فشل العمل في الخلفية، وعند انتهاء التنزيلات الطويلة أثناء وجود AndBible في الخلفية، وبتقدمها</string>
   <string name="prefs_disable_click_to_edit_title">تعطيل النقر للتحرير في لوحة الدراسة</string>
   <string name="prefs_disable_click_to_edit_summary">يتطلب استخدام زر التحرير لتعديل الملاحظات في لوحة الدراسة.</string>
   <string name="prefs_notes_content_type_title">تنسيق ملاحظات الإشارات المرجعية الجديدة</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">اوتوماتيك</string>
   <string name="prefs_night_mode_system">نظام</string>
   <string name="options_menu_night_mode">الوضع الليلي</string>
+  <string name="options_menu_sync_now">زامن الآن</string>
+  <string name="exit_sync_title">جارٍ مزامنة التغييرات…</string>
+  <string name="exit_sync_body">جارٍ إرسال تغييراتك إلى أجهزتك الأخرى. قد يستغرق ذلك بضع ثوانٍ.</string>
+  <string name="exit_sync_quit_now">أغلق الآن</string>
+  <string name="exit_sync_closing">جارٍ الإغلاق…</string>
+  <string name="sync_now_no_network">لا يوجد اتصال بالشبكة</string>
   <string name="prefs_navigate_to_verse_title">الذهاب الى الآية</string>
   <string name="prefs_navigate_to_verse_summary">اختار الآية ( او الاصحاح) للاختيار</string>
   <string name="prefs_open_links_in_special_window_title">نافذة الروابط</string>
@@ -357,6 +370,17 @@
   <string name="chooce_language_hint">اللغة</string>
   <string name="one_more_back_press">اضغط رجوع مرة أخرى لإغلاق التطبيق</string>
   <string name="document_filter_results">%d وثائق</string>
+  <string name="activity_show_all">عرض الكل (%1$d)</string>
+  <string name="activity_failed_badge">%1$d فشلت</string>
+  <string name="activity_attention_badge">%1$d تحتاج إلى انتباه</string>
+  <string name="activity_combined_badge">%1$d فشلت، %2$d تحتاج إلى انتباه</string>
+  <string name="activity_running_description">عمل قيد التنفيذ في الخلفية</string>
+  <string name="activity_running">قيد التشغيل</string>
+  <string name="activity_recent">الأحدث</string>
+  <string name="activity_clear_finished">مسح المنتهية</string>
+  <string name="activity_title">النشاط في الخلفية</string>
+  <string name="activity_empty">لا شيء قيد التشغيل</string>
+  <string name="activity_failed_toast">%1$s — انظر القائمة</string>
   <string name="download_question_title">هل تريد المتابعة لتنزيل المستندات؟</string>
   <string name="download_question_message">إذا كنت تعيش في بلد مضطهد،
 قد تحتاج إلى توخي الحذر عند تنزيل المواد المسيحية عبر الإنترنت.
@@ -634,6 +658,7 @@
   <string name="backup_backup_title">النسخ الاحتياطي إلى أين؟</string>
   <string name="backup_backup_message">نسخ احتياطي إلى الهاتف أو مكان آخر عبر وظيفة المشاركة (البريد الإلكتروني، Google Drive، إلخ)؟</string>
   <string name="backup_phone_storage">ذاكرة الهاتف</string>
+  <string name="backup_save_to_files">احفظ في الملفات</string>
   <string name="backup_and_restore">النسخ الاحتياطي و الاستعادة</string>
   <string name="backup_modules2">نسخ المستندات احتياطياً إلى...</string>
   <string name="backup_app2">قم بنسخ احتياطي للتطبيق (ملف .apk) إلى...</string>
@@ -686,6 +711,9 @@
   <string name="module_about_repository">خادم التوزيعة: %s</string>
   <string name="module_about_osisId">معرّف OSIS: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">مجلد السجل</string>
+  <string name="open_log_folder">افتح مجلد السجل</string>
+  <string name="startup_report_bug">أبلغ عن خطأ</string>
   <string name="send_bug_report_title">تقرير التعليقات / الأخطاء</string>
   <string name="report_bug_email_subject_3">[%1$s] تقرير خطأ لـ %2$s %3$s</string>
   <string name="report_bug_big_heading">يرجى كتابة ملاحظاتك أو تقرير الخطأ فوق هذا السطر</string>
@@ -754,8 +782,16 @@
   <string name="debug_test_error">خطأ تجريبي (إصدار تصحيح)</string>
   <string name="bug_report_prepare_failed">تعذّر إعداد التقرير أو مشاركته. يمكنك إعادة المحاولة، أو استخدام النسخ الاحتياطي والاستعادة لحفظ بياناتك.</string>
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
+  <string name="bug_report_desktop_text">بعد ذلك، سيُطلب منك تحديد مكان حفظ ملف تقرير الخطأ. ثم ستحصل على تعليمات لإرساله إلى فريق المطورين.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
   <string name="bug_report_manual_title">إرسال التقرير بالبريد الإلكتروني</string>
+  <string name="bug_report_manual_text_saved">تم حفظ التقرير في <b>%1$s</b>.\n\nيرجى إرسال رسالة بريد إلكتروني إلى <b>%2$s</b> وإرفاق هذا الملف؛ فبرنامج البريد الإلكتروني لا يستطيع إرفاقه نيابةً عنك. الموضوع المقترح: <b>%3$s</b>. في الرسالة، أخبرنا بما فعلته وبما حدث.</string>
+  <string name="bug_report_manual_text_unsaved">تم حفظ التقرير في المكان الذي اخترته.\n\nيرجى إرسال رسالة بريد إلكتروني إلى <b>%1$s</b> وإرفاق ملف التقرير المحفوظ؛ فبرنامج البريد الإلكتروني لا يستطيع إرفاقه نيابةً عنك. الموضوع المقترح: <b>%2$s</b>. في الرسالة، أخبرنا بما فعلته وبما حدث.</string>
+  <string name="bug_report_subject_suggestion">خطأ في AndBible %1$s: &lt;وصف مختصر&gt;</string>
+  <string name="bug_report_attach_line">يرجى إرفاق الملف %1$s</string>
+  <string name="bug_report_copy_subject">انسخ الموضوع</string>
+  <string name="bug_report_copy_path">انسخ مسار الملف</string>
+  <string name="bug_report_open_folder">افتح المجلد</string>
   <string name="bug_report_copy_address">نسخ العنوان</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">النص إلى الكلام</string>
@@ -783,9 +819,40 @@
   <string name="workspace_manage_workspaces">إدارة مساحات العمل…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
-  <string name="beta_notice_github_issues">مشاكل Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">مشاكل GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">إشعار خاص من المطوّر لمختبري النسخة التجريبية (نوفمبر 2026)</string>
+  <string name="beta_special_intro_android">مرحبًا بك في النسخة التجريبية من AndBible 6.0! هذا أكبر تغيير في تاريخ AndBible. أُعيدت كتابة التطبيق بالكامل بأداة جديدة لواجهة المستخدم، وأُعيد تصميم الواجهة في أثناء ذلك: روجعت كل شاشة، وحصل معظمها على تحسينات كبيرة في سهولة الاستخدام فوق مظهر Material 3 المحدّث.</string>
+  <string name="beta_special_intro_ios">مرحبًا بك في النسخة التجريبية من AndBible 6.0! إذا كنت قد استخدمت AndBible لنظام iOS 1.0، فهذا تغيير كبير: يحل الإصدار 6.0 محله بتطبيق AndBible المشترك، وهو التطبيق نفسه الذي يعمل على Android وiPhone وiPad وأجهزة Mac بمعالج Apple Silicon وWindows وLinux. وهو مبني على الشيفرة التي خدمت مستخدمي Android لأكثر من عقد، وأُعيدت كتابتها بأداة جديدة لواجهة المستخدم، وأُعيد تصميم الواجهة في أثناء ذلك: روجعت كل شاشة، وحصل معظمها على تحسينات كبيرة في سهولة الاستخدام.</string>
+  <string name="beta_special_intro_desktop">مرحبًا بك في النسخة التجريبية من AndBible 6.0، وفي AndBible على Windows وLinux! هذا هو أول إصدار لسطح المكتب من AndBible: التطبيق نفسه يعمل الآن على Android وiPhone وiPad وأجهزة Mac بمعالج Apple Silicon وWindows وLinux. وهو مبني على الشيفرة التي خدمت مستخدمي Android لأكثر من عقد، وأُعيدت كتابتها بأداة جديدة لواجهة المستخدم، وأُعيد تصميم الواجهة في أثناء ذلك: روجعت كل شاشة، وحصل معظمها على تحسينات كبيرة في سهولة الاستخدام.</string>
+  <string name="beta_special_redesign">واجهة أُعيد تصميمها: قوائم وإعدادات وحوارات أوضح، وتنقل أكثر اتساقًا، وتحسينات صغيرة كثيرة في سير العمل في أنحاء التطبيق.</string>
+  <string name="beta_special_data_kept">ميزاتك وبياناتك وإعداداتك كلها ما زالت موجودة.</string>
+  <string name="beta_special_platforms">التطبيق نفسه يعمل الآن على Android وiPhone وiPad وأجهزة Mac بمعالج Apple Silicon وWindows وLinux. المنصات الجديدة قيد الاختبار أيضًا.</string>
+  <string name="beta_special_additions_android">إضافتان أصغر: المزامنة عبر WebDAV (خادمك الخاص أو جهاز NAS أو أي خدمة WebDAV، إضافة إلى Google Drive وNextcloud)، وفهرس بحث جديد يُعاد بناؤه مرة واحدة تلقائيًا بعد التحديث.</string>
+  <string name="beta_special_one_app">تطبيق واحد على كل أجهزتك: الميزات وسير العمل نفسها على هاتفك وجهازك اللوحي وحاسوبك.</string>
+  <string name="beta_special_sync_ios">المزامنة بين أجهزتك عبر Nextcloud أو WebDAV (خادمك الخاص أو جهاز NAS أو أي خدمة WebDAV) أو iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">المزامنة بين أجهزتك عبر Nextcloud أو WebDAV (خادمك الخاص أو جهاز NAS أو أي خدمة WebDAV).</string>
+  <string name="beta_special_feedback">إذا كان شيء مفقودًا، أو يعمل بشكل مختلف عن السابق، أو أصبح من الأصعب العثور عليه، فيرجى إخبارنا بذلك، حتى لو كان مقصودًا.</string>
+  <string name="beta_special_backup">من الجيد إنشاء نسخة احتياطية قبل الاختبار (القائمة الرئيسية → %s).</string>
+  <string name="beta_special_beta_warning">هذه نسخة تجريبية: ليس كل شيء فيها مكتملًا أو مختبرًا بالكامل، وقد تحتوي على أخطاء. باستخدامك لها تصبح مختبِرًا للنسخة التجريبية، وتقارير الأخطاء التي ترسلها هي ما يجعل الإصدار النهائي جيدًا.</string>
+  <string name="beta_special_leave_beta_android">إذا لم تكن تقصد الاختبار، يمكنك مغادرة %s والعودة إلى النسخة المستقرة.</string>
+  <string name="beta_special_report">يرجى الإبلاغ عن الأخطاء عبر %1$s (مفضّل) أو القائمة الرئيسية → %2$s.</string>
+  <string name="beta_special_report_android">يرجى الإبلاغ عن الأخطاء عبر %1$s (مفضّل) أو Google Play أو القائمة الرئيسية → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible على أجهزتك الأخرى</string>
+  <string name="beta_special_other_devices_intro">النسخة التجريبية نفسها متاحة لجميع أجهزتك:</string>
+  <string name="beta_special_other_android">Android: انضم إلى %1$s، أو نزّل ملف APK من أحدث إصدار تجريبي على %2$s.</string>
+  <string name="beta_special_play_beta_link">البرنامج التجريبي على Google Play</string>
+  <string name="beta_special_other_apple">iPhone وiPad وMac بمعالج Apple Silicon: ثبّت تطبيق TestFlight من Apple وانضم إلى %s.</string>
+  <string name="beta_special_testflight_link">النسخة التجريبية العامة من AndBible</string>
+  <string name="beta_special_other_desktop">Windows (‏.msi) وLinux (‏.deb أو AppImage): نزّلها من أحدث إصدار تجريبي على %s.</string>
+  <string name="beta_special_installation_guide">التعليمات خطوة بخطوة موجودة في %s.</string>
+  <string name="beta_special_installation_guide_link">دليل التثبيت</string>
+  <string name="beta_special_regards">مع أطيب التحيات، Tuomas</string>
+  <string name="beta_special_sponsor">ملاحظة: يمكنك دعم تطوير AndBible ماليًا عبر %s.</string>
+  <string name="beta_special_sponsor_link">رعاية ساعات التطوير</string>
   <string name="stable_notice_title">لقد تم ترقية التطبيق!</string>
   <string name="upgrade_video_message">يرجى مشاهدة مقطع الفيديو الذي يعرض الميزات الجديدة لهذا الإصدار (%s).</string>
   <string name="stable_notice_par1">النسخة الجديدة %1$s من %2$s تم تثبيتها بنجاح!</string>
@@ -1149,6 +1216,7 @@
   <string name="db_repositories">المستودعات والإعدادات ذات الصلة</string>
   <string name="db_bookmarks">الإشارات المرجعية وملاحظاتي والتسميات ولوحات الدراسة</string>
   <string name="synchronizing">مزامنة...</string>
+  <string name="notification_finished">اكتمل</string>
   <string name="overrideBackup">
         يوجد قاعدة بيانات لم تتم مزامنة هذا الجهاز معها في السحابة.
         قاعدة البيانات تحوي %s. ماذا تريد ان تفعل؟
@@ -1730,6 +1798,12 @@
   <string name="agent_log_response_received">تم استلام الرد</string>
   <string name="agent_log_saved">تم الحفظ: %s</string>
   <string name="agent_log_done">تم: %s</string>
+  <string name="agent_activity_title">وكيل الذكاء الاصطناعي</string>
+  <string name="agent_activity_title_in">وكيل الذكاء الاصطناعي: %s</string>
+  <string name="agent_activity_waiting">في انتظار إذنك</string>
+  <string name="agent_activity_waiting_for">في انتظار إذنك: %s</string>
+  <string name="agent_activity_failed">فشل وكيل الذكاء الاصطناعي</string>
+  <string name="agent_activity_attention_needed">وكيل الذكاء الاصطناعي يحتاج إلى انتباهك</string>
   <string name="agent_log_cancelled">تم الإلغاء</string>
   <string name="agent_already_running">وكيل الذكاء الاصطناعي يعمل بالفعل. يرجى الانتظار أو إيقافه أولاً.</string>
   <!--AI Agent Notifications-->

@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible heeft Direct3D-graphics nodig om bijbeltekst met WebView2 weer te geven. De huidige grafische renderer is %1$s. Controleer uw grafische stuurprogramma en Direct3D-ondersteuning.\n\nDetails staan in het logbestand:\n%2$s</string>
   <string name="desktop_update_setting_title">Controleren op updates</string>
   <string name="desktop_update_setting_summary">Eén keer per dag, via github.com</string>
+  <string name="desktop_beta_update_setting_title">Openbare bètaversies aanbieden</string>
+  <string name="desktop_beta_update_setting_summary">Bied ook openbare bètaversies aan. Als dit uit staat, krijgt een bètainstallatie alleen productieversies.</string>
   <string name="desktop_update_consent_title">Controleren op updates?</string>
   <string name="desktop_update_consent_message">AndBible kan één keer per dag github.com controleren op een nieuwere versie. GitHub ziet uw IP-adres; er wordt verder niets verzonden. U kunt dit later wijzigen in Instellingen.</string>
   <string name="desktop_update_consent_yes">Controleren op updates</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Schakel e-ink specifieke functies in (paginascrolknoppen, scrolhulplijnen)</string>
   <string name="prefs_disable_animations_title">Schakel animaties uit</string>
   <string name="prefs_disable_animations_summary">Schakel diverse animaties uit, zoals gelijkmatig scrollen.</string>
+  <string name="prefs_show_activity_in_menu_title">Achtergrondactiviteit tonen in het menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Downloads, synchronisatie, voortgang van indexering en fouten, in het ⋮-menu</string>
+  <string name="prefs_system_notifications_title">Systeemmeldingen</string>
+  <string name="prefs_system_notifications_denied">Uitgeschakeld in de iOS-instellingen</string>
+  <string name="prefs_system_notifications_summary">Meld mislukt achtergrondwerk, lange downloads die klaar zijn terwijl AndBible op de achtergrond draait, en de voortgang ervan</string>
   <string name="prefs_disable_click_to_edit_title">Klik-om-te-bewerken uitschakelen in studiepad</string>
   <string name="prefs_disable_click_to_edit_summary">Vereist de bewerkknop om notities in het studiepad te bewerken.</string>
   <string name="prefs_notes_content_type_title">Formaat voor nieuwe bladwijzernotities</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">Systeem</string>
   <string name="options_menu_night_mode">Nachtweergave</string>
+  <string name="options_menu_sync_now">Nu synchroniseren</string>
+  <string name="exit_sync_title">Wijzigingen synchroniseren…</string>
+  <string name="exit_sync_body">Je wijzigingen worden naar je andere apparaten gestuurd. Dit kan een paar seconden duren.</string>
+  <string name="exit_sync_quit_now">Nu afsluiten</string>
+  <string name="exit_sync_closing">Afsluiten…</string>
+  <string name="sync_now_no_network">Geen netwerkverbinding</string>
   <string name="prefs_navigate_to_verse_title">Navigeer naar vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies een vers (en hoofdstuk) bij het selecteren van een passage</string>
   <string name="prefs_open_links_in_special_window_title">Koppelingenscherm</string>
@@ -357,6 +370,17 @@
   <string name="chooce_language_hint">Taal</string>
   <string name="one_more_back_press">Druk opnieuw  op \'terug\' om de app te sluiten</string>
   <string name="document_filter_results">%d documenten</string>
+  <string name="activity_show_all">Alles tonen (%1$d)</string>
+  <string name="activity_failed_badge">%1$d mislukt</string>
+  <string name="activity_attention_badge">%1$d vragen aandacht</string>
+  <string name="activity_combined_badge">%1$d mislukt, %2$d vragen aandacht</string>
+  <string name="activity_running_description">Achtergrondwerk actief</string>
+  <string name="activity_running">Actief</string>
+  <string name="activity_recent">Recent</string>
+  <string name="activity_clear_finished">Voltooide wissen</string>
+  <string name="activity_title">Achtergrondactiviteit</string>
+  <string name="activity_empty">Niets actief</string>
+  <string name="activity_failed_toast">%1$s — zie menu</string>
   <string name="download_question_title">Wilt u verder gaan met documenten downloaden?</string>
   <string name="download_question_message">Als u in een land woont waar vervolging is, zult u mogelijk voorzichtig moeten zijn met het downloaden van Christelijke materialen via internet. 
 Het is mogelijk veiliger om modules in zip-bestanden te verkrijgen en te installeren via \"Documenten laden vanuit Zip\". Weet u zeker dat u door wilt gaan met downloaden?
@@ -637,6 +661,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_backup_title">Waar backup opslaan?</string>
   <string name="backup_backup_message">Back-up naar telefoon of elders via Deel functie (email, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefoonopslag</string>
+  <string name="backup_save_to_files">Opslaan in Bestanden</string>
   <string name="backup_and_restore">Back-up en herstel</string>
   <string name="backup_modules2">Back-up Documenten naar...</string>
   <string name="backup_app2">Back-up app (.apk file) naar ...</string>
@@ -689,6 +714,9 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="module_about_repository">Distributie server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Logmap</string>
+  <string name="open_log_folder">Logmap openen</string>
+  <string name="startup_report_bug">Een bug melden</string>
   <string name="send_bug_report_title">Terugkoppeling / foutrapportage</string>
   <string name="report_bug_email_subject_3">[%1$s] Bug-melding voor %2$s %3$s</string>
   <string name="report_bug_big_heading">SCHRIJF ALSTUBLIEFT UW TERUGKOPPELING OF FOUT RAPPORTAGE BOVEN DEZE LIJN</string>
@@ -756,8 +784,16 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="debug_test_error">Testfout (debugbuild)</string>
   <string name="bug_report_prepare_failed">Het rapport kon niet worden voorbereid of gedeeld. U kunt het opnieuw proberen, of Back-up en herstel gebruiken om uw gegevens op te slaan.</string>
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
+  <string name="bug_report_desktop_text">Straks wordt gevraagd waar het bugrapport moet worden opgeslagen. Daarna krijg je instructies om het naar het ontwikkelteam te sturen.</string>
   <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
   <string name="bug_report_manual_title">Rapport per e-mail verzenden</string>
+  <string name="bug_report_manual_text_saved">Het rapport is opgeslagen in <b>%1$s</b>.\n\nStuur een e-mail naar <b>%2$s</b> en voeg dat bestand als bijlage toe; een e-mailprogramma kan het niet voor je bijvoegen. Voorgesteld onderwerp: <b>%3$s</b>. Vertel in het bericht wat je hebt gedaan en wat er gebeurde.</string>
+  <string name="bug_report_manual_text_unsaved">Het rapport is opgeslagen op de plek die je koos.\n\nStuur een e-mail naar <b>%1$s</b> en voeg het opgeslagen rapportbestand als bijlage toe; een e-mailprogramma kan het niet voor je bijvoegen. Voorgesteld onderwerp: <b>%2$s</b>. Vertel in het bericht wat je hebt gedaan en wat er gebeurde.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s bug: &lt;korte beschrijving&gt;</string>
+  <string name="bug_report_attach_line">Voeg het bestand %1$s als bijlage toe</string>
+  <string name="bug_report_copy_subject">Onderwerp kopiëren</string>
+  <string name="bug_report_copy_path">Bestandspad kopiëren</string>
+  <string name="bug_report_open_folder">Map openen</string>
   <string name="bug_report_copy_address">Adres kopiëren</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
@@ -785,9 +821,40 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="workspace_manage_workspaces">Werkbladen beheren…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is een bètaversie!</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">SPECIALE MEDEDELING VAN DE ONTWIKKELAAR VOOR BÈTATESTERS (november 2026)</string>
+  <string name="beta_special_intro_android">Welkom bij de AndBible 6.0-bèta! Dit is de grootste verandering in de geschiedenis van AndBible. De hele app is herschreven met een nieuwe toolkit voor de gebruikersinterface, en de interface is onderweg opnieuw ontworpen: elk scherm is bekeken en de meeste kregen aanzienlijke gebruiksverbeteringen bovenop de vernieuwde Material 3-look.</string>
+  <string name="beta_special_intro_ios">Welkom bij de AndBible 6.0-bèta! Als je AndBible voor iOS 1.0 hebt gebruikt, is dit een grote verandering: versie 6.0 vervangt die door de gedeelde AndBible-app, dezelfde app die draait op Android, iPhone, iPad en Apple Silicon Macs, Windows en Linux. De app is gebouwd op de code die Android-gebruikers al meer dan tien jaar bedient, herschreven met een nieuwe toolkit voor de gebruikersinterface, en de interface is onderweg opnieuw ontworpen: elk scherm is bekeken en de meeste kregen aanzienlijke gebruiksverbeteringen.</string>
+  <string name="beta_special_intro_desktop">Welkom bij de AndBible 6.0-bèta, en bij AndBible op Windows en Linux! Dit is de eerste desktopversie van AndBible: dezelfde app draait nu op Android, iPhone, iPad en Apple Silicon Macs, Windows en Linux. De app is gebouwd op de code die Android-gebruikers al meer dan tien jaar bedient, herschreven met een nieuwe toolkit voor de gebruikersinterface, en de interface is onderweg opnieuw ontworpen: elk scherm is bekeken en de meeste kregen aanzienlijke gebruiksverbeteringen.</string>
+  <string name="beta_special_redesign">Een opnieuw ontworpen interface: duidelijkere menu\'s, instellingen en dialogen, consistentere navigatie en veel kleine verbeteringen in de werkwijze door de hele app.</string>
+  <string name="beta_special_data_kept">Je functies, gegevens en instellingen zijn er allemaal nog.</string>
+  <string name="beta_special_platforms">Dezelfde app draait nu op Android, iPhone, iPad en Apple Silicon Macs, Windows en Linux. De nieuwe platforms worden ook getest.</string>
+  <string name="beta_special_additions_android">Twee kleinere toevoegingen: WebDAV-synchronisatie (je eigen server, een NAS of een andere WebDAV-dienst, naast Google Drive en Nextcloud), en een nieuwe zoekindex die na de update eenmalig en automatisch wordt opgebouwd.</string>
+  <string name="beta_special_one_app">Eén app op al je apparaten: dezelfde functies en werkwijzen op je telefoon, tablet en computer.</string>
+  <string name="beta_special_sync_ios">Synchronisatie tussen je apparaten via Nextcloud, WebDAV (je eigen server, een NAS of een andere WebDAV-dienst) of iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronisatie tussen je apparaten via Nextcloud of WebDAV (je eigen server, een NAS of een andere WebDAV-dienst).</string>
+  <string name="beta_special_feedback">Als er iets ontbreekt, anders werkt dan voorheen of moeilijker te vinden is geworden, laat het ons dan weten, ook als het misschien opzettelijk is.</string>
+  <string name="beta_special_backup">Het is verstandig om een back-up te maken voordat je gaat testen (Hoofdmenu → %s).</string>
+  <string name="beta_special_beta_warning">Dit is een bètaversie: niet alles is af of volledig getest, en er kunnen bugs in zitten. Door de app te gebruiken ben je bètatester, en jouw bugrapporten maken de definitieve versie goed.</string>
+  <string name="beta_special_leave_beta_android">Als je niet wilde testen, kun je het %s verlaten en terugkeren naar de stabiele versie.</string>
+  <string name="beta_special_report">Meld bugs via %1$s (bij voorkeur) of Hoofdmenu → %2$s.</string>
+  <string name="beta_special_report_android">Meld bugs via %1$s (bij voorkeur), Google Play of Hoofdmenu → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible op je andere apparaten</string>
+  <string name="beta_special_other_devices_intro">Dezelfde bèta is beschikbaar voor al je apparaten:</string>
+  <string name="beta_special_other_android">Android: neem deel aan het %1$s, of download de APK van de nieuwste bètaversie op %2$s.</string>
+  <string name="beta_special_play_beta_link">bètaprogramma op Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad en Apple Silicon Mac: installeer Apples TestFlight-app en neem deel aan de %s.</string>
+  <string name="beta_special_testflight_link">openbare AndBible-bèta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) en Linux (.deb of AppImage): download ze van de nieuwste bètaversie op %s.</string>
+  <string name="beta_special_installation_guide">Stap-voor-stapinstructies staan in de %s.</string>
+  <string name="beta_special_installation_guide_link">installatiegids</string>
+  <string name="beta_special_regards">Met vriendelijke groet, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Je kunt de ontwikkeling van AndBible financieel steunen door %s.</string>
+  <string name="beta_special_sponsor_link">ontwikkeluren te sponsoren</string>
   <string name="stable_notice_title">Applicatie is vernieuwd!</string>
   <string name="upgrade_video_message">Video met uitleg over nieuwe functies van deze versie (%s).</string>
   <string name="stable_notice_par1">Nieuwe versie %1$s van %2$s is succesvol geïnstalleerd!</string>
@@ -1180,6 +1247,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="db_repositories">Documentopslagplaatsen en bijbehorende instellingen</string>
   <string name="db_bookmarks">Bladwijzers, Mijn notities, Labels en Studiepaden</string>
   <string name="synchronizing">Synchroniseren…</string>
+  <string name="notification_finished">Voltooid</string>
   <string name="overrideBackup">
         Er is een bestaande database in Cloud waarmee dit apparaat niet is gesynchroniseerd.
         De database bevat %s. Wat wilt u doen? </string>
@@ -1762,6 +1830,12 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="agent_log_response_received">Respons ontvangen</string>
   <string name="agent_log_saved">Opgeslagen: %s</string>
   <string name="agent_log_done">Klaar: %s</string>
+  <string name="agent_activity_title">AI-agent</string>
+  <string name="agent_activity_title_in">AI-agent: %s</string>
+  <string name="agent_activity_waiting">Wacht op je toestemming</string>
+  <string name="agent_activity_waiting_for">Wacht op je toestemming: %s</string>
+  <string name="agent_activity_failed">AI-agent mislukt</string>
+  <string name="agent_activity_attention_needed">AI-agent heeft je aandacht nodig</string>
   <string name="agent_log_cancelled">Geannuleerd</string>
   <string name="agent_already_running">Er wordt al een AI-agent uitgevoerd. Wacht of stop deze eerst.</string>
   <!--AI Agent Notifications-->

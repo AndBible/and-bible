@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible vajab piiblitekstide kuvamiseks WebView2-ga Direct3D graafikat. Praegune graafikarenderdaja on %1$s. Kontrolli graafikadraiverit ja Direct3D tuge.\n\nÜksikasjad on logifailis:\n%2$s</string>
   <string name="desktop_update_setting_title">Otsi uuendusi</string>
   <string name="desktop_update_setting_summary">Kord päevas, saidilt github.com</string>
+  <string name="desktop_beta_update_setting_title">Paku avalikke beetauuendusi</string>
+  <string name="desktop_beta_update_setting_summary">Paku ka avalikke beetaversioone. Kui see on väljas, saab beetainstall ainult tootmisversioone.</string>
   <string name="desktop_update_consent_title">Kas otsida uuendusi?</string>
   <string name="desktop_update_consent_message">AndBible saab kord päevas saidilt github.com uuemat versiooni otsida. GitHub näeb sinu IP-aadressi; midagi muud ei saadeta. Seda saad hiljem seadetes muuta.</string>
   <string name="desktop_update_consent_yes">Otsi uuendusi</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Luba e-tindile omased funktsioonid (lehekülje kerimise nupud, kerimise abijooned)</string>
   <string name="prefs_disable_animations_title">Keela animatsioonid</string>
   <string name="prefs_disable_animations_summary">Keela erinevad animatsioonid, näiteks sujuv kerimine.</string>
+  <string name="prefs_show_activity_in_menu_title">Näita taustategevust menüüs</string>
+  <string name="prefs_show_activity_in_menu_summary">Allalaadimiste, sünkroonimise ja indekseerimise edenemine ning tõrked ⋮ menüüs</string>
+  <string name="prefs_system_notifications_title">Süsteemi teavitused</string>
+  <string name="prefs_system_notifications_denied">Välja lülitatud iOS-i seadetes</string>
+  <string name="prefs_system_notifications_summary">Teavita ebaõnnestunud taustatööst, pikkadest allalaadimistest, mis lõpevad siis, kui AndBible on taustal, ning nende edenemisest</string>
   <string name="prefs_disable_click_to_edit_title">Keela uurimismärkmiku klõpsuga muutmine</string>
   <string name="prefs_disable_click_to_edit_summary">Märkmiku muutmiseks uurimismärkmikus on vaja kasutada muutmisnuppu.</string>
   <string name="prefs_notes_content_type_title">Uute järjehoidja märkmete vorming</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automaatne</string>
   <string name="prefs_night_mode_system">Süsteem</string>
   <string name="options_menu_night_mode">Öörežiim</string>
+  <string name="options_menu_sync_now">Sünkrooni kohe</string>
+  <string name="exit_sync_title">Muudatuste sünkroonimine…</string>
+  <string name="exit_sync_body">Muudatuste saatmine teistesse seadmetesse. See võib võtta mõne sekundi.</string>
+  <string name="exit_sync_quit_now">Välju kohe</string>
+  <string name="exit_sync_closing">Sulgemine…</string>
+  <string name="sync_now_no_network">Võrguühendus puudub</string>
   <string name="prefs_navigate_to_verse_title">Salmi juurde liikumine</string>
   <string name="prefs_navigate_to_verse_summary">Tekstiosa valides vali salm (ja peatükk)</string>
   <string name="prefs_open_links_in_special_window_title">Linkide aken</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Keel</string>
   <string name="one_more_back_press">Vajuta veel tagasi et rakendus sulgeda</string>
   <string name="document_filter_results">%d dokumenti</string>
+  <string name="activity_show_all">Näita kõiki (%1$d)</string>
+  <string name="activity_failed_badge">%1$d ebaõnnestus</string>
+  <string name="activity_attention_badge">%1$d vajab tähelepanu</string>
+  <string name="activity_combined_badge">%1$d ebaõnnestus, %2$d vajab tähelepanu</string>
+  <string name="activity_running_description">Taustatöö käib</string>
+  <string name="activity_running">Käimas</string>
+  <string name="activity_recent">Hiljutised</string>
+  <string name="activity_clear_finished">Tühjenda lõpetatud</string>
+  <string name="activity_title">Taustategevus</string>
+  <string name="activity_empty">Midagi ei ole käimas</string>
+  <string name="activity_failed_toast">%1$s — vaata menüüd</string>
   <string name="download_question_title">Kas soovid jätkata dokumentide allalaadimisega?</string>
   <string name="download_question_message">Kui sa elad riigis, kus kiusatakse kristlasi taga,
 peaksid olema ettevaatlik internetist kristliku materjali alla laadides.
@@ -640,6 +664,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="backup_backup_title">Kuhu varundada?</string>
   <string name="backup_backup_message">Kas soovid salvestada varukoopia telefoni või jagada (e-post, Google Drive jne)?</string>
   <string name="backup_phone_storage">Telefoni mälu</string>
+  <string name="backup_save_to_files">Salvesta rakendusse Failid</string>
   <string name="backup_and_restore">Varundamine ja taastamine</string>
   <string name="backup_modules2">Varunda dokumendid kohta...</string>
   <string name="backup_app2">Varunda rakendus (.apk fail) kohta...</string>
@@ -692,6 +717,9 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="module_about_repository">Jaotusserver: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Logikaust</string>
+  <string name="open_log_folder">Ava logikaust</string>
+  <string name="startup_report_bug">Teata veast</string>
   <string name="send_bug_report_title">Tagasiside / teata veast</string>
   <string name="report_bug_email_subject_3">[%1$s] Veateade rakendusele %2$s %3$s</string>
   <string name="report_bug_big_heading">PALUN KIRJUTAGE OMA TAGASISIDE VÕI VEAKIRJELDUS SIIT ÜLES POOLE</string>
@@ -759,8 +787,16 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="debug_test_error">Testviga (silumisversioon)</string>
   <string name="bug_report_prepare_failed">Aruannet ei õnnestunud ette valmistada ega jagada. Võid uuesti proovida või kasutada andmete salvestamiseks varundust ja taastamist.</string>
   <string name="bug_report_email_title">Saada vearaport e-postiga</string>
+  <string name="bug_report_desktop_text">Järgmiseks küsitakse, kuhu veateate fail salvestada. Seejärel saad juhised, kuidas see arendusmeeskonnale saata.</string>
   <string name="bug_report_email_text">Järgmise sammuna vali oma eelistatud emaili rakendus (näiteks Gmail), et saata arendustiimile teade.</string>
   <string name="bug_report_manual_title">Saada aruanne e-postiga</string>
+  <string name="bug_report_manual_text_saved">Aruanne salvestati asukohta <b>%1$s</b>.\n\nPalun saada e-kiri aadressile <b>%2$s</b> ja lisa see fail manusena; e-posti programm ei saa seda sinu eest lisada. Soovituslik teema: <b>%3$s</b>. Kirjuta sõnumis, mida tegid ja mis juhtus.</string>
+  <string name="bug_report_manual_text_unsaved">Aruanne salvestati sinu valitud kohta.\n\nPalun saada e-kiri aadressile <b>%1$s</b> ja lisa salvestatud aruande fail manusena; e-posti programm ei saa seda sinu eest lisada. Soovituslik teema: <b>%2$s</b>. Kirjuta sõnumis, mida tegid ja mis juhtus.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s viga: &lt;lühikirjeldus&gt;</string>
+  <string name="bug_report_attach_line">Palun lisa fail %1$s</string>
+  <string name="bug_report_copy_subject">Kopeeri teema</string>
+  <string name="bug_report_copy_path">Kopeeri faili tee</string>
+  <string name="bug_report_open_folder">Ava kaust</string>
   <string name="bug_report_copy_address">Kopeeri aadress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst kõneks</string>
@@ -788,9 +824,40 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="workspace_manage_workspaces">Halda tööalasid…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
-  <string name="beta_notice_github_issues">Githubi probleemid</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHubi probleemid</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Unusta kuni uue versioonini</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ARENDAJA ERITEADE BEETATESTIJATELE (november 2026)</string>
+  <string name="beta_special_intro_android">Tere tulemast AndBible 6.0 beetasse! See on AndBible\'i ajaloo suurim muutus. Kogu rakendus on uuesti kirjutatud uue kasutajaliidese tööriistakomplektiga ja liides on selle käigus ümber kujundatud: iga ekraan vaadati üle ja enamik neist sai värskendatud Material 3 ilme kõrvale märkimisväärseid kasutatavuse parandusi.</string>
+  <string name="beta_special_intro_ios">Tere tulemast AndBible 6.0 beetasse! Kui oled kasutanud AndBible\'i iOS-i versiooni 1.0, on see suur muutus: versioon 6.0 asendab selle ühise AndBible rakendusega, mis töötab Androidis, iPhone\'is, iPadis ja Apple Silicon Macides, Windowsis ja Linuxis. See põhineb koodil, mis on teeninud Androidi kasutajaid üle kümne aasta, on uuesti kirjutatud uue kasutajaliidese tööriistakomplektiga ja liides on selle käigus ümber kujundatud: iga ekraan vaadati üle ja enamik neist sai märkimisväärseid kasutatavuse parandusi.</string>
+  <string name="beta_special_intro_desktop">Tere tulemast AndBible 6.0 beetasse ja AndBible\'i Windowsis ja Linuxis! See on AndBible\'i esimene töölauaversioon: sama rakendus töötab nüüd Androidis, iPhone\'is, iPadis ja Apple Silicon Macides, Windowsis ja Linuxis. See põhineb koodil, mis on teeninud Androidi kasutajaid üle kümne aasta, on uuesti kirjutatud uue kasutajaliidese tööriistakomplektiga ja liides on selle käigus ümber kujundatud: iga ekraan vaadati üle ja enamik neist sai märkimisväärseid kasutatavuse parandusi.</string>
+  <string name="beta_special_redesign">Ümberkujundatud liides: selgemad menüüd, seaded ja dialoogid, järjepidevam navigeerimine ning palju väikeseid töövoo parandusi kogu rakenduses.</string>
+  <string name="beta_special_data_kept">Sinu funktsioonid, andmed ja seaded on kõik alles.</string>
+  <string name="beta_special_platforms">Sama rakendus töötab nüüd Androidis, iPhone\'is, iPadis ja Apple Silicon Macides, Windowsis ja Linuxis. Ka uusi platvorme testitakse.</string>
+  <string name="beta_special_additions_android">Kaks väiksemat täiendust: WebDAV-i sünkroonimine (sinu oma server, NAS või mis tahes WebDAV-teenus, lisaks Google Drive\'ile ja Nextcloudile) ning uus otsinguindeks, mis ehitatakse pärast uuendust üks kord automaatselt uuesti üles.</string>
+  <string name="beta_special_one_app">Üks rakendus kõigis sinu seadmetes: samad funktsioonid ja töövood telefonis, tahvelarvutis ja arvutis.</string>
+  <string name="beta_special_sync_ios">Seadmete vaheline sünkroonimine Nextcloudi, WebDAV-i (sinu oma server, NAS või mis tahes WebDAV-teenus) või iCloud Drive\'i kaudu.</string>
+  <string name="beta_special_sync_desktop">Seadmete vaheline sünkroonimine Nextcloudi või WebDAV-i (sinu oma server, NAS või mis tahes WebDAV-teenus) kaudu.</string>
+  <string name="beta_special_feedback">Kui midagi puudub, töötab varasemast erinevalt või on muutunud raskemini leitavaks, anna meile palun teada, isegi kui see võib olla tahtlik.</string>
+  <string name="beta_special_backup">Enne testimist on hea mõte teha varukoopia (Peamenüü → %s).</string>
+  <string name="beta_special_beta_warning">See on beetaversioon: kõik ei ole valmis ega täielikult testitud ning selles võib olla vigu. Kasutades seda oled beetatestija ja sinu veateated teevad lõppversiooni heaks.</string>
+  <string name="beta_special_leave_beta_android">Kui sa ei soovinud testida, võid lahkuda: %s ja naasta stabiilse versiooni juurde.</string>
+  <string name="beta_special_report">Palun teata vigadest: %1$s (eelistatud) või Peamenüü → %2$s.</string>
+  <string name="beta_special_report_android">Palun teata vigadest: %1$s (eelistatud), Google Play või Peamenüü → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible sinu teistes seadmetes</string>
+  <string name="beta_special_other_devices_intro">Sama beeta on saadaval kõigile sinu seadmetele:</string>
+  <string name="beta_special_other_android">Android: liitu: %1$s, või laadi APK alla uusimast beetaväljalaskest: %2$s.</string>
+  <string name="beta_special_play_beta_link">Google Play beetaprogramm</string>
+  <string name="beta_special_other_apple">iPhone, iPad ja Apple Silicon Mac: paigalda Apple\'i TestFlighti rakendus ja liitu: %s.</string>
+  <string name="beta_special_testflight_link">AndBible avalik beeta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) ja Linux (.deb või AppImage): laadi need alla uusimast beetaväljalaskest: %s.</string>
+  <string name="beta_special_installation_guide">Samm-sammulised juhised on siin: %s.</string>
+  <string name="beta_special_installation_guide_link">paigaldusjuhend</string>
+  <string name="beta_special_regards">Parimate soovidega, Tuomas</string>
+  <string name="beta_special_sponsor">PS. Sa saad AndBible\'i arendust rahaliselt toetada: %s.</string>
+  <string name="beta_special_sponsor_link">toetades arendustunde</string>
   <string name="stable_notice_title">Rakendus on uuendatud!</string>
   <string name="upgrade_video_message">Vaata videot uutest võimalustest selles versioonis (%s).</string>
   <string name="stable_notice_par1">%2$s uus versioon %1$s on edukalt paigaldatud!</string>
@@ -1149,6 +1216,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="db_repositories">Hoidlatega seotud seaded</string>
   <string name="db_bookmarks">Järjehoidjad, minu märkmed, sildid ja õppemärkmikud</string>
   <string name="synchronizing">Sünkroonimine...</string>
+  <string name="notification_finished">Lõpetatud</string>
   <string name="overrideBackup">Pilves on leitud andmebaas, millega see seade pole sünkroonitud. Andmebaas sisaldab %s. Mida soovid teha?</string>
   <string name="reading_plans_content">Lugemiskavad ja nende olekud</string>
   <string name="bookmarks_contents">Järjehoidjad, sildid ja õppemärkmikud</string>
@@ -1729,6 +1797,12 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="agent_log_response_received">Vastus saadud</string>
   <string name="agent_log_saved">Salvestatud: %s</string>
   <string name="agent_log_done">Valmis: %s</string>
+  <string name="agent_activity_title">AI-agent</string>
+  <string name="agent_activity_title_in">AI-agent: %s</string>
+  <string name="agent_activity_waiting">Ootab sinu luba</string>
+  <string name="agent_activity_waiting_for">Ootab sinu luba: %s</string>
+  <string name="agent_activity_failed">AI-agent ebaõnnestus</string>
+  <string name="agent_activity_attention_needed">AI-agent vajab sinu tähelepanu</string>
   <string name="agent_log_cancelled">Tühistatud</string>
   <string name="agent_already_running">AI agent on juba töötamas. Palun oota või peata see esmalt.</string>
   <!--AI Agent Notifications-->

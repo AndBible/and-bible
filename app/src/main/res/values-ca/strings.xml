@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">L\'AndBible requereix gràfics Direct3D per mostrar el text bíblic amb WebView2. El renderitzador gràfic actual és %1$s. Comprova el controlador gràfic i la compatibilitat amb Direct3D.\n\nEls detalls són al fitxer de registre:\n%2$s</string>
   <string name="desktop_update_setting_title">Cerca actualitzacions</string>
   <string name="desktop_update_setting_summary">Un cop al dia, des de github.com</string>
+  <string name="desktop_beta_update_setting_title">Ofereix actualitzacions beta públiques</string>
+  <string name="desktop_beta_update_setting_summary">Ofereix també versions beta públiques. Si està desactivat, una instal·lació beta només rep les versions de producció.</string>
   <string name="desktop_update_consent_title">Vols cercar actualitzacions?</string>
   <string name="desktop_update_consent_message">L\'AndBible pot consultar github.com un cop al dia per veure si hi ha una versió més nova. GitHub veu la teva adreça IP; no s\'envia res més. Pots canviar-ho més endavant a la configuració.</string>
   <string name="desktop_update_consent_yes">Cerca actualitzacions</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Activa les funcions específiques de tinta electrònica (botons de desplaçament de pàgina, línies d\'ajuda de desplaçament)</string>
   <string name="prefs_disable_animations_title">Desactiva les animacions</string>
   <string name="prefs_disable_animations_summary">Desactiva diverses animacions com ara el desplaçament suau.</string>
+  <string name="prefs_show_activity_in_menu_title">Mostra l\'activitat en segon pla al menú</string>
+  <string name="prefs_show_activity_in_menu_summary">Progrés de les baixades, la sincronització i la indexació, i els errors, al menú ⋮</string>
+  <string name="prefs_system_notifications_title">Notificacions del sistema</string>
+  <string name="prefs_system_notifications_denied">Desactivades a la configuració d\'iOS</string>
+  <string name="prefs_system_notifications_summary">Notifica els errors de la feina en segon pla, les baixades llargues que acaben mentre AndBible és en segon pla i el seu progrés</string>
   <string name="prefs_disable_click_to_edit_title">Desactiva el clic per editar al Bloc d\'estudi</string>
   <string name="prefs_disable_click_to_edit_summary">Cal usar el botó d\'edició per editar notes al Bloc d\'estudi.</string>
   <string name="prefs_notes_content_type_title">Format per a les notes de marcador noves</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automàtic</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Mode nocturn</string>
+  <string name="options_menu_sync_now">Sincronitza ara</string>
+  <string name="exit_sync_title">S\'estan sincronitzant els canvis…</string>
+  <string name="exit_sync_body">S\'estan enviant els canvis als altres dispositius. Això pot trigar uns segons.</string>
+  <string name="exit_sync_quit_now">Surt ara</string>
+  <string name="exit_sync_closing">S\'està tancant…</string>
+  <string name="sync_now_no_network">No hi ha connexió a la xarxa</string>
   <string name="prefs_navigate_to_verse_title">Navega al verset</string>
   <string name="prefs_navigate_to_verse_summary">Tria el verset (i el capítol) quan selecciones un passatge</string>
   <string name="prefs_open_links_in_special_window_title">Finestra d\'enllaços</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Idioma</string>
   <string name="one_more_back_press">Premeu Enrere de nou per tancar l\'aplicació</string>
   <string name="document_filter_results">%d documents</string>
+  <string name="activity_show_all">Mostra-ho tot (%1$d)</string>
+  <string name="activity_failed_badge">%1$d han fallat</string>
+  <string name="activity_attention_badge">%1$d necessiten atenció</string>
+  <string name="activity_combined_badge">%1$d han fallat, %2$d necessiten atenció</string>
+  <string name="activity_running_description">Feina en segon pla en execució</string>
+  <string name="activity_running">En execució</string>
+  <string name="activity_recent">Recents</string>
+  <string name="activity_clear_finished">Esborra les acabades</string>
+  <string name="activity_title">Activitat en segon pla</string>
+  <string name="activity_empty">No hi ha res en execució</string>
+  <string name="activity_failed_toast">%1$s — vegeu el menú</string>
   <string name="download_question_title">Voleu continuar per baixar documents?</string>
   <string name="download_question_message">Si viviu en un país on hi ha persecució religiosa, pot ser que hàgiu d\'anar amb compte en baixar material cristià per Internet. En lloc d\'això, podeu obtenir els fitxers zip de mòduls de manera més segura i instal·lar-los mitjançant \"Carrega documents des d\'un fitxer zip\". Esteu segur que voleu continuar amb la baixada? Totes les baixades des de servidors de mòduls estan xifrades (HTTPS).</string>
   <string name="do_not_ask_again">Sí, no tornis a preguntar</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">On vols fer la còpia de seguretat?</string>
   <string name="backup_backup_message">Vols fer la còpia de seguretat al telèfon o a un altre lloc mitjançant la funció de compartir (correu electrònic, Google Drive, etc.)?</string>
   <string name="backup_phone_storage">Emmagatzematge del telèfon</string>
+  <string name="backup_save_to_files">Desa a Fitxers</string>
   <string name="backup_and_restore">Còpia de seguretat i restauració</string>
   <string name="backup_modules2">Còpia de seguretat dels documents a…</string>
   <string name="backup_app2">Còpia de seguretat de l\'aplicació (fitxer .apk) a…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">Servidor de distribució: %s</string>
   <string name="module_about_osisId">ID OSIS: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Carpeta de registres</string>
+  <string name="open_log_folder">Obre la carpeta de registres</string>
+  <string name="startup_report_bug">Informa d\'un error</string>
   <string name="send_bug_report_title">Comentaris / informe d\'error</string>
   <string name="report_bug_email_subject_3">[%1$s] Informe d\'error per a %2$s %3$s</string>
   <string name="report_bug_big_heading">ESCRIU ELS TEUS COMENTARIS O L\'INFORME D\'ERROR SOBRE AQUESTA LÍNIA</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">Error de prova (compilació de depuració)</string>
   <string name="bug_report_prepare_failed">No s\'ha pogut preparar ni compartir l\'informe. Pots tornar-ho a provar, o utilitzar Còpia de seguretat i restauració per desar les teves dades.</string>
   <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
+  <string name="bug_report_desktop_text">A continuació se us demanarà on desar el fitxer de l\'informe d\'error. Després rebreu instruccions per enviar-lo a l\'equip de desenvolupament.</string>
   <string name="bug_report_email_text">A continuació, selecciona la teva aplicació de correu electrònic preferida (per exemple, Gmail) per enviar l\'informe a l\'equip de desenvolupadors.</string>
   <string name="bug_report_manual_title">Envia l\'informe per correu electrònic</string>
+  <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a <b>%1$s</b>.\n\nEnvieu un correu electrònic a <b>%2$s</b> i adjunteu-hi aquest fitxer; un programa de correu no el pot adjuntar per vosaltres. Assumpte suggerit: <b>%3$s</b>. Al missatge, expliqueu-nos què heu fet i què ha passat.</string>
+  <string name="bug_report_manual_text_unsaved">L\'informe s\'ha desat al lloc que heu triat.\n\nEnvieu un correu electrònic a <b>%1$s</b> i adjunteu-hi el fitxer de l\'informe desat; un programa de correu no el pot adjuntar per vosaltres. Assumpte suggerit: <b>%2$s</b>. Al missatge, expliqueu-nos què heu fet i què ha passat.</string>
+  <string name="bug_report_subject_suggestion">Error d\'AndBible %1$s: &lt;descripció breu&gt;</string>
+  <string name="bug_report_attach_line">Adjunteu el fitxer %1$s</string>
+  <string name="bug_report_copy_subject">Copia l\'assumpte</string>
+  <string name="bug_report_copy_path">Copia la ruta del fitxer</string>
+  <string name="bug_report_open_folder">Obre la carpeta</string>
   <string name="bug_report_copy_address">Copia l\'adreça</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text a veu</string>
@@ -733,9 +769,40 @@
   <string name="workspace_manage_workspaces">Gestiona els espais de treball…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aquesta és la versió beta!</string>
-  <string name="beta_notice_github_issues">Problemes de Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Problemes de GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Descarta fins a la pròxima actualització</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">AVÍS ESPECIAL DEL DESENVOLUPADOR PER ALS PROVADORS BETA (novembre de 2026)</string>
+  <string name="beta_special_intro_android">Us donem la benvinguda a la beta d\'AndBible 6.0! Aquest és el canvi més gran de la història d\'AndBible. Tota l\'aplicació s\'ha reescrit amb un nou conjunt d\'eines d\'interfície d\'usuari, i la interfície s\'ha redissenyat pel camí: s\'ha revisat cada pantalla, i la majoria han rebut millores d\'usabilitat significatives, a més de l\'aspecte renovat de Material 3.</string>
+  <string name="beta_special_intro_ios">Us donem la benvinguda a la beta d\'AndBible 6.0! Si heu fet servir AndBible per a iOS 1.0, això és un gran canvi: la versió 6.0 el substitueix per l\'aplicació AndBible compartida, la mateixa aplicació que funciona a Android, iPhone, iPad i Mac amb Apple Silicon, Windows i Linux. Es basa en el codi que ha servit els usuaris d\'Android durant més d\'una dècada, reescrit amb un nou conjunt d\'eines d\'interfície d\'usuari, i la interfície s\'ha redissenyat pel camí: s\'ha revisat cada pantalla, i la majoria han rebut millores d\'usabilitat significatives.</string>
+  <string name="beta_special_intro_desktop">Us donem la benvinguda a la beta d\'AndBible 6.0, i a AndBible a Windows i Linux! Aquesta és la primera versió d\'escriptori d\'AndBible: la mateixa aplicació funciona ara a Android, iPhone, iPad i Mac amb Apple Silicon, Windows i Linux. Es basa en el codi que ha servit els usuaris d\'Android durant més d\'una dècada, reescrit amb un nou conjunt d\'eines d\'interfície d\'usuari, i la interfície s\'ha redissenyat pel camí: s\'ha revisat cada pantalla, i la majoria han rebut millores d\'usabilitat significatives.</string>
+  <string name="beta_special_redesign">Una interfície redissenyada: menús, configuració i diàlegs més clars, una navegació més coherent i moltes petites millores del flux de treball a tota l\'aplicació.</string>
+  <string name="beta_special_data_kept">Les funcions, les dades i la configuració continuen tots allà.</string>
+  <string name="beta_special_platforms">La mateixa aplicació funciona ara a Android, iPhone, iPad i Mac amb Apple Silicon, Windows i Linux. Les plataformes noves també es troben en fase de prova.</string>
+  <string name="beta_special_additions_android">Dues addicions menors: la sincronització per WebDAV (el vostre propi servidor, un NAS o qualsevol servei WebDAV, a més de Google Drive i Nextcloud) i un índex de cerca nou que es reconstrueix una vegada, automàticament, després de l\'actualització.</string>
+  <string name="beta_special_one_app">Una sola aplicació a tots els vostres dispositius: les mateixes funcions i fluxos de treball al telèfon, a la tauleta i a l\'ordinador.</string>
+  <string name="beta_special_sync_ios">Sincronització entre els vostres dispositius mitjançant Nextcloud, WebDAV (el vostre propi servidor, un NAS o qualsevol servei WebDAV) o iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Sincronització entre els vostres dispositius mitjançant Nextcloud o WebDAV (el vostre propi servidor, un NAS o qualsevol servei WebDAV).</string>
+  <string name="beta_special_feedback">Si falta alguna cosa, funciona de manera diferent que abans o s\'ha fet més difícil de trobar, feu-nos-ho saber, encara que potser sigui intencionat.</string>
+  <string name="beta_special_backup">Convé fer una còpia de seguretat abans de provar-ho (Menú principal → %s).</string>
+  <string name="beta_special_beta_warning">Aquesta és una versió beta: no tot està acabat ni completament provat, i pot contenir errors. En fer-la servir sou un provador beta, i els vostres informes d\'errors són el que fa bona la versió final.</string>
+  <string name="beta_special_leave_beta_android">Si no teníeu intenció de provar-ho, podeu abandonar el %s i tornar a la versió estable.</string>
+  <string name="beta_special_report">Informeu dels errors mitjançant %1$s (preferit) o Menú principal → %2$s.</string>
+  <string name="beta_special_report_android">Informeu dels errors mitjançant %1$s (preferit), Google Play o Menú principal → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible als vostres altres dispositius</string>
+  <string name="beta_special_other_devices_intro">La mateixa beta està disponible per a tots els vostres dispositius:</string>
+  <string name="beta_special_other_android">Android: uniu-vos al %1$s o baixeu l\'APK de la versió beta més recent a %2$s.</string>
+  <string name="beta_special_play_beta_link">programa beta de Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad i Mac amb Apple Silicon: instal·leu l\'aplicació TestFlight d\'Apple i uniu-vos a la %s.</string>
+  <string name="beta_special_testflight_link">beta pública d\'AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) i Linux (.deb o AppImage): baixeu-los de la versió beta més recent a %s.</string>
+  <string name="beta_special_installation_guide">Les instruccions pas a pas són a la %s.</string>
+  <string name="beta_special_installation_guide_link">guia d\'instal·lació</string>
+  <string name="beta_special_regards">Salutacions cordials, Tuomas</string>
+  <string name="beta_special_sponsor">P. D. Podeu donar suport econòmicament al desenvolupament d\'AndBible %s.</string>
+  <string name="beta_special_sponsor_link">patrocinant hores de desenvolupament</string>
   <string name="stable_notice_title">L\'aplicació s\'ha actualitzat!</string>
   <string name="upgrade_video_message">Mira el vídeo amb les noves funcions d\'aquesta versió (%s).</string>
   <string name="stable_notice_par1">La versió nova %1$s de %2$s s\'ha instal·lat correctament!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">Repositoris i configuració relacionada</string>
   <string name="db_bookmarks">Marcadors, Les meves notes, Etiquetes i Blocs d\'estudi</string>
   <string name="synchronizing">Sincronitzant…</string>
+  <string name="notification_finished">Acabat</string>
   <string name="overrideBackup">S\'ha trobat al núvol una base de dades existent amb la qual aquest dispositiu no està sincronitzat. La base de dades conté %s. Què vols fer?</string>
   <string name="reading_plans_content">Plans de lectura i els seus estats</string>
   <string name="bookmarks_contents">Marcadors, Etiquetes i Blocs d\'estudi</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">Resposta rebuda</string>
   <string name="agent_log_saved">Desat: %s</string>
   <string name="agent_log_done">Fet: %s</string>
+  <string name="agent_activity_title">Agent d\'IA</string>
+  <string name="agent_activity_title_in">Agent d\'IA: %s</string>
+  <string name="agent_activity_waiting">S\'està esperant el vostre permís</string>
+  <string name="agent_activity_waiting_for">S\'està esperant el vostre permís: %s</string>
+  <string name="agent_activity_failed">L\'agent d\'IA ha fallat</string>
+  <string name="agent_activity_attention_needed">L\'agent d\'IA necessita la vostra atenció</string>
   <string name="agent_log_cancelled">Cancel·lat</string>
   <string name="agent_already_running">Ja hi ha un agent de IA en execució. Espera o atura\'l primer.</string>
   <!--AI Agent Notifications-->

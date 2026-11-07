@@ -61,7 +61,7 @@ def main():
     for e in base_tree.getroot():
         if e.tag == 'string':
             name = e.get('name')
-            text = e.text or ''
+            text = (e.text or '') + ''.join(ET.tostring(c, encoding='unicode') for c in e)
             base_strings[name] = text
             base_order.append(name)
 

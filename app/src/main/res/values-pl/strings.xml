@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible wymaga grafiki Direct3D do wyświetlania tekstu Biblii z użyciem WebView2. Bieżący moduł renderujący grafikę to %1$s. Sprawdź sterownik grafiki i obsługę Direct3D.\n\nSzczegóły znajdziesz w pliku dziennika:\n%2$s</string>
   <string name="desktop_update_setting_title">Sprawdzaj aktualizacje</string>
   <string name="desktop_update_setting_summary">Raz dziennie, z github.com</string>
+  <string name="desktop_beta_update_setting_title">Oferuj publiczne aktualizacje beta</string>
+  <string name="desktop_beta_update_setting_summary">Oferuj także publiczne wersje beta. Gdy opcja jest wyłączona, instalacja beta otrzymuje tylko wydania produkcyjne.</string>
   <string name="desktop_update_consent_title">Sprawdzać aktualizacje?</string>
   <string name="desktop_update_consent_message">AndBible może raz dziennie sprawdzać na github.com, czy jest nowsza wersja. GitHub widzi Twój adres IP; nic więcej nie jest wysyłane. Możesz to później zmienić w ustawieniach.</string>
   <string name="desktop_update_consent_yes">Sprawdzaj aktualizacje</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Włącz funkcje specyficzne dla e-ink (przyciski przewijania strony, linie pomocnicze przewijania)</string>
   <string name="prefs_disable_animations_title">Wyłącz animacje</string>
   <string name="prefs_disable_animations_summary">Wyłącz różne animacje takie jak płynne przewijanie.</string>
+  <string name="prefs_show_activity_in_menu_title">Pokazuj aktywność w tle w menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Postęp pobierania, synchronizacji i indeksowania oraz błędy, w menu ⋮</string>
+  <string name="prefs_system_notifications_title">Powiadomienia systemowe</string>
+  <string name="prefs_system_notifications_denied">Wyłączone w Ustawieniach iOS</string>
+  <string name="prefs_system_notifications_summary">Powiadamiaj o nieudanych zadaniach w tle, długich pobieraniach zakończonych, gdy AndBible działa w tle, oraz o ich postępie</string>
   <string name="prefs_disable_click_to_edit_title">Wyłącz edycję kliknięciem w Bloczku notatek</string>
   <string name="prefs_disable_click_to_edit_summary">Wymaga użycia przycisku edycji do edytowania notatek w Bloczku notatek.</string>
   <string name="prefs_notes_content_type_title">Format nowych notatek do zakładek</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>
   <string name="options_menu_night_mode">Tryb nocny</string>
+  <string name="options_menu_sync_now">Synchronizuj teraz</string>
+  <string name="exit_sync_title">Synchronizowanie zmian…</string>
+  <string name="exit_sync_body">Wysyłanie zmian na Twoje pozostałe urządzenia. Może to potrwać kilka sekund.</string>
+  <string name="exit_sync_quit_now">Zakończ teraz</string>
+  <string name="exit_sync_closing">Zamykanie…</string>
+  <string name="sync_now_no_network">Brak połączenia z siecią</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_open_links_in_special_window_title">Okno odsyłaczy</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Język</string>
   <string name="one_more_back_press">Stuknij ponownie przycisk wstecz, aby zamknąć aplikację</string>
   <string name="document_filter_results">%d dokumentów</string>
+  <string name="activity_show_all">Pokaż wszystkie (%1$d)</string>
+  <string name="activity_failed_badge">Nieudane: %1$d</string>
+  <string name="activity_attention_badge">Wymagają uwagi: %1$d</string>
+  <string name="activity_combined_badge">Nieudane: %1$d, wymagają uwagi: %2$d</string>
+  <string name="activity_running_description">Trwa praca w tle</string>
+  <string name="activity_running">W toku</string>
+  <string name="activity_recent">Ostatnie</string>
+  <string name="activity_clear_finished">Wyczyść zakończone</string>
+  <string name="activity_title">Aktywność w tle</string>
+  <string name="activity_empty">Nic nie jest uruchomione</string>
+  <string name="activity_failed_toast">%1$s — zobacz menu</string>
   <string name="download_question_title">Czy na prawdę chcesz pobrać dokumenty?</string>
   <string name="download_question_message">Jeżeli mieszkasz w opresyjnym państwie, powinieneś być ostrożny podczas pobierania chrześcijańskich materiałów z Internetu. Zamiast tego, możesz pobrać moduł zip w bardziej bezpieczny sposób, a następnie zainstalować go poprzez funkcję „załaduj dokument z pliku zip”. Czy chcesz kontynuować pobieranie? Wszystkie pobierania z serwerów są szyfrowane (HTTPS)?</string>
   <string name="do_not_ask_again">Tak, nie pytaj ponownie</string>
@@ -614,6 +638,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_backup_title">Dokąd?</string>
   <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
   <string name="backup_phone_storage">Pamięć wewnętrzna</string>
+  <string name="backup_save_to_files">Zapisz w Plikach</string>
   <string name="backup_and_restore">Kopia zapasowa</string>
   <string name="backup_modules2">Utwórz kopię zapasową dokumentów…</string>
   <string name="backup_app2">Utwórz kopię zapasową aplikacji (plik .apk)…</string>
@@ -666,6 +691,9 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_repository">Repozytorium: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Folder dziennika</string>
+  <string name="open_log_folder">Otwórz folder dziennika</string>
+  <string name="startup_report_bug">Zgłoś błąd</string>
   <string name="send_bug_report_title">Zgłoś błąd / wyślij opinię</string>
   <string name="report_bug_email_subject_3">[%1$s] Zgłoszenie błędu aplikacji %2$s %3$s</string>
   <string name="report_bug_big_heading">NAPISZ OPINIĘ LUB ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ</string>
@@ -733,8 +761,16 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="debug_test_error">Błąd testowy (wersja debugowa)</string>
   <string name="bug_report_prepare_failed">Nie udało się przygotować lub udostępnić raportu. Możesz spróbować ponownie lub użyć opcji Kopia zapasowa i przywracanie, aby zapisać swoje dane.</string>
   <string name="bug_report_email_title">Wyślij raport o błędach e-pocztą</string>
+  <string name="bug_report_desktop_text">Teraz zostaniesz zapytany, gdzie zapisać plik zgłoszenia błędu. Następnie otrzymasz instrukcje wysłania go zespołowi programistów.</string>
   <string name="bug_report_email_text">W następnym kroku wybierz preferowaną aplikację pocztową (np. Gmail), aby wysłać zgłoszenie do zespołu programistów.</string>
   <string name="bug_report_manual_title">Wyślij raport e-mailem</string>
+  <string name="bug_report_manual_text_saved">Zgłoszenie zapisano w: <b>%1$s</b>.\n\nWyślij wiadomość e-mail na adres <b>%2$s</b> i dołącz ten plik; program pocztowy nie może go dołączyć za Ciebie. Sugerowany temat: <b>%3$s</b>. W wiadomości napisz, co zrobiłeś i co się stało.</string>
+  <string name="bug_report_manual_text_unsaved">Zgłoszenie zapisano w wybranym miejscu.\n\nWyślij wiadomość e-mail na adres <b>%1$s</b> i dołącz zapisany plik zgłoszenia; program pocztowy nie może go dołączyć za Ciebie. Sugerowany temat: <b>%2$s</b>. W wiadomości napisz, co zrobiłeś i co się stało.</string>
+  <string name="bug_report_subject_suggestion">Błąd AndBible %1$s: &lt;krótki opis&gt;</string>
+  <string name="bug_report_attach_line">Dołącz plik %1$s</string>
+  <string name="bug_report_copy_subject">Kopiuj temat</string>
+  <string name="bug_report_copy_path">Kopiuj ścieżkę pliku</string>
+  <string name="bug_report_open_folder">Otwórz folder</string>
   <string name="bug_report_copy_address">Kopiuj adres</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Syntezator mowy</string>
@@ -765,6 +801,37 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="beta_notice_github_issues">system śledzenia błędów na GitHubie</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">SPECJALNE OGŁOSZENIE DEWELOPERA DLA BETATESTERÓW (listopad 2026)</string>
+  <string name="beta_special_intro_android">Witamy w wersji beta AndBible 6.0! To największa zmiana w historii AndBible. Cała aplikacja została napisana od nowa przy użyciu nowego zestawu narzędzi interfejsu użytkownika, a przy okazji przeprojektowano interfejs: każdy ekran został przejrzany, a większość z nich zyskała znaczące usprawnienia użyteczności oprócz odświeżonego wyglądu Material 3.</string>
+  <string name="beta_special_intro_ios">Witamy w wersji beta AndBible 6.0! Jeśli używałeś AndBible na iOS 1.0, to duża zmiana: wersja 6.0 zastępuje ją wspólną aplikacją AndBible, tą samą, która działa na Androidzie, iPhonie, iPadzie i komputerach Mac z procesorami Apple Silicon, Windows oraz Linux. Opiera się na kodzie, który od ponad dekady służy użytkownikom Androida, został napisany od nowa przy użyciu nowego zestawu narzędzi interfejsu użytkownika, a przy okazji przeprojektowano interfejs: każdy ekran został przejrzany, a większość z nich zyskała znaczące usprawnienia użyteczności.</string>
+  <string name="beta_special_intro_desktop">Witamy w wersji beta AndBible 6.0 oraz w AndBible na Windows i Linux! To pierwsza wersja AndBible na komputery: ta sama aplikacja działa teraz na Androidzie, iPhonie, iPadzie i komputerach Mac z procesorami Apple Silicon, Windows oraz Linux. Opiera się na kodzie, który od ponad dekady służy użytkownikom Androida, został napisany od nowa przy użyciu nowego zestawu narzędzi interfejsu użytkownika, a przy okazji przeprojektowano interfejs: każdy ekran został przejrzany, a większość z nich zyskała znaczące usprawnienia użyteczności.</string>
+  <string name="beta_special_redesign">Przeprojektowany interfejs: bardziej przejrzyste menu, ustawienia i okna dialogowe, spójniejsza nawigacja i wiele drobnych usprawnień pracy w całej aplikacji.</string>
+  <string name="beta_special_data_kept">Wszystkie Twoje funkcje, dane i ustawienia nadal są na miejscu.</string>
+  <string name="beta_special_platforms">Ta sama aplikacja działa teraz na Androidzie, iPhonie, iPadzie i komputerach Mac z procesorami Apple Silicon, Windows oraz Linux. Nowe platformy również są w fazie testów.</string>
+  <string name="beta_special_additions_android">Dwa mniejsze dodatki: synchronizacja WebDAV (własny serwer, NAS lub dowolna usługa WebDAV, obok Google Drive i Nextcloud) oraz nowy indeks wyszukiwania, który po aktualizacji zostanie jednorazowo przebudowany automatycznie.</string>
+  <string name="beta_special_one_app">Jedna aplikacja na wszystkich Twoich urządzeniach: te same funkcje i sposób pracy na telefonie, tablecie i komputerze.</string>
+  <string name="beta_special_sync_ios">Synchronizacja między Twoimi urządzeniami przez Nextcloud, WebDAV (własny serwer, NAS lub dowolna usługa WebDAV) albo iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronizacja między Twoimi urządzeniami przez Nextcloud lub WebDAV (własny serwer, NAS lub dowolna usługa WebDAV).</string>
+  <string name="beta_special_feedback">Jeśli czegoś brakuje, działa inaczej niż wcześniej lub trudniej to znaleźć, daj nam znać, nawet jeśli może to być zamierzone.</string>
+  <string name="beta_special_backup">Warto wykonać kopię zapasową przed testowaniem (Menu główne → %s).</string>
+  <string name="beta_special_beta_warning">To wersja beta: nie wszystko jest ukończone ani w pełni przetestowane i mogą występować błędy. Korzystając z niej, zostajesz betatesterem, a Twoje zgłoszenia błędów sprawią, że wydanie końcowe będzie dobre.</string>
+  <string name="beta_special_leave_beta_android">Jeśli nie chciałeś testować, możesz opuścić %s i wrócić do wersji stabilnej.</string>
+  <string name="beta_special_report">Zgłaszaj błędy przez %1$s (preferowane) lub Menu główne → %2$s.</string>
+  <string name="beta_special_report_android">Zgłaszaj błędy przez %1$s (preferowane), Google Play lub Menu główne → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible na Twoich pozostałych urządzeniach</string>
+  <string name="beta_special_other_devices_intro">Ta sama wersja beta jest dostępna na wszystkie Twoje urządzenia:</string>
+  <string name="beta_special_other_android">Android: dołącz do %1$s lub pobierz plik APK z najnowszego wydania beta na %2$s.</string>
+  <string name="beta_special_play_beta_link">programu beta w Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad i Mac z procesorem Apple Silicon: zainstaluj aplikację Apple TestFlight i dołącz do %s.</string>
+  <string name="beta_special_testflight_link">publicznej bety AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) i Linux (.deb lub AppImage): pobierz je z najnowszego wydania beta na %s.</string>
+  <string name="beta_special_installation_guide">Instrukcje krok po kroku znajdziesz w %s.</string>
+  <string name="beta_special_installation_guide_link">przewodniku instalacji</string>
+  <string name="beta_special_regards">Pozdrawiam, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Możesz wesprzeć rozwój AndBible finansowo, %s.</string>
+  <string name="beta_special_sponsor_link">sponsorując godziny pracy nad rozwojem</string>
   <string name="stable_notice_title">Nowa wersja aplikacji!</string>
   <string name="upgrade_video_message">Prosimy obejrzeć filmik prezentujący nowe funkcje w tej wersji (%s) aplikacji.</string>
   <string name="stable_notice_par1">Pomyślnie zainstalowano nową wersję (%1$s) aplikacji %2$s!</string>
@@ -1133,6 +1200,7 @@ Podczas korzystania z Dysku Google, aplikacja %s otrzymuje uprawnienie na dostę
   <string name="db_repositories">Repozytoria i powiązane ustawienia</string>
   <string name="db_bookmarks">Zakładki, moje notatki, etykiety i bloczki notatek</string>
   <string name="synchronizing">Synchronizacja…</string>
+  <string name="notification_finished">Zakończono</string>
   <string name="overrideBackup">
 W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urządzeniem. Baza danych zawiera %s. Co chcesz zrobić?</string>
   <string name="reading_plans_content">plany czytania wraz z postępami</string>
@@ -1713,6 +1781,12 @@ Nie wyświetlaj tego ponownie</string>
   <string name="agent_log_response_received">Otrzymano odpowiedź</string>
   <string name="agent_log_saved">Zapisano: %s</string>
   <string name="agent_log_done">Gotowe: %s</string>
+  <string name="agent_activity_title">Agent AI</string>
+  <string name="agent_activity_title_in">Agent AI: %s</string>
+  <string name="agent_activity_waiting">Oczekiwanie na Twoją zgodę</string>
+  <string name="agent_activity_waiting_for">Oczekiwanie na Twoją zgodę: %s</string>
+  <string name="agent_activity_failed">Agent AI zakończył się błędem</string>
+  <string name="agent_activity_attention_needed">Agent AI wymaga Twojej uwagi</string>
   <string name="agent_log_cancelled">Anulowano</string>
   <string name="agent_already_running">Agent AI jest już uruchomiony. Poczekaj lub najpierw go zatrzymaj.</string>
   <!--AI Agent Notifications-->

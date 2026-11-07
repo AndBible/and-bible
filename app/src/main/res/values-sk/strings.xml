@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible vyžaduje grafiku Direct3D na zobrazenie textu Biblie pomocou WebView2. Aktuálny grafický renderer je %1$s. Skontrolujte svoj grafický ovládač a podporu Direct3D.\n\nPodrobnosti sú v súbore denníka:\n%2$s</string>
   <string name="desktop_update_setting_title">Kontrolovať aktualizácie</string>
   <string name="desktop_update_setting_summary">Raz denne z github.com</string>
+  <string name="desktop_beta_update_setting_title">Ponúkať verejné beta aktualizácie</string>
+  <string name="desktop_beta_update_setting_summary">Ponúkať aj verejné beta verzie. Keď je vypnuté, beta inštalácia dostane iba produkčné vydania.</string>
   <string name="desktop_update_consent_title">Kontrolovať aktualizácie?</string>
   <string name="desktop_update_consent_message">AndBible môže raz denne skontrolovať na github.com, či je dostupná novšia verzia. GitHub uvidí vašu IP adresu; nič iné sa neodosiela. Neskôr to môžete zmeniť v Nastaveniach.</string>
   <string name="desktop_update_consent_yes">Kontrolovať aktualizácie</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Povoliť funkcie pre e-ink (tlačidlá posúvania stránok, pomocné čiary)</string>
   <string name="prefs_disable_animations_title">Vypnúť animácie</string>
   <string name="prefs_disable_animations_summary">Zakázať rôzne animácie, ako napríklad plynulé posúvanie. </string>
+  <string name="prefs_show_activity_in_menu_title">Zobraziť aktivitu na pozadí v ponuke</string>
+  <string name="prefs_show_activity_in_menu_summary">Priebeh sťahovania, synchronizácie a indexovania a chyby v ponuke ⋮</string>
+  <string name="prefs_system_notifications_title">Systémové upozornenia</string>
+  <string name="prefs_system_notifications_denied">Vypnuté v nastaveniach iOS</string>
+  <string name="prefs_system_notifications_summary">Upozorňovať na zlyhania práce na pozadí, dlhé sťahovania dokončené počas behu AndBible na pozadí a ich priebeh</string>
   <string name="prefs_disable_click_to_edit_title">Zakázať úpravu kliknutím v študijnej zložke</string>
   <string name="prefs_disable_click_to_edit_summary">Na úpravu poznámok v študijnej zložke je potrebné použiť tlačidlo úpravy.</string>
   <string name="prefs_notes_content_type_title">Formát nových poznámok záložiek</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_night_mode_system">Podľa systému</string>
   <string name="options_menu_night_mode">Nočný režim</string>
+  <string name="options_menu_sync_now">Synchronizovať teraz</string>
+  <string name="exit_sync_title">Synchronizujú sa zmeny…</string>
+  <string name="exit_sync_body">Odosielajú sa vaše zmeny do ostatných zariadení. Môže to trvať niekoľko sekúnd.</string>
+  <string name="exit_sync_quit_now">Ukončiť teraz</string>
+  <string name="exit_sync_closing">Zatvára sa…</string>
+  <string name="sync_now_no_network">Žiadne sieťové pripojenie</string>
   <string name="prefs_navigate_to_verse_title">Prejsť na verš</string>
   <string name="prefs_navigate_to_verse_summary">Pri výbere knihy/kapitoly zadávať aj verš</string>
   <string name="prefs_open_links_in_special_window_title">Okno odkazov</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">Jazyk</string>
   <string name="one_more_back_press">Opätovným stlačením spať sa aplikácia zatvorí</string>
   <string name="document_filter_results">%d dokumentov</string>
+  <string name="activity_show_all">Zobraziť všetko (%1$d)</string>
+  <string name="activity_failed_badge">%1$d zlyhalo</string>
+  <string name="activity_attention_badge">%1$d vyžaduje pozornosť</string>
+  <string name="activity_combined_badge">%1$d zlyhalo, %2$d vyžaduje pozornosť</string>
+  <string name="activity_running_description">Beží práca na pozadí</string>
+  <string name="activity_running">Beží</string>
+  <string name="activity_recent">Nedávne</string>
+  <string name="activity_clear_finished">Vymazať dokončené</string>
+  <string name="activity_title">Aktivita na pozadí</string>
+  <string name="activity_empty">Nič nebeží</string>
+  <string name="activity_failed_toast">%1$s — pozri ponuku</string>
   <string name="download_question_title">Chcete pokračovať v sťahovaní dokumentov? </string>
   <string name="download_question_message">Ak žijete v krajine, kde je prenasledovanie,
     možno budete musieť dávať pozor na sťahovanie kresťanského materiálu cez internet. 
@@ -649,6 +673,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_backup_title">Kam zálohovať?</string>
   <string name="backup_backup_message">Zálohovať do telefónu alebo inam cez funkciu Zdielať (e-mail, Google Drive apod.)?</string>
   <string name="backup_phone_storage">Úložisko telefónu</string>
+  <string name="backup_save_to_files">Uložiť do Súborov</string>
   <string name="backup_and_restore">Záloha a obnovenie</string>
   <string name="backup_modules2">Zálohovať dokument do…</string>
   <string name="backup_app2">Zálohovať apl. (.apk súbor) do…</string>
@@ -701,6 +726,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="module_about_repository">Distribučný server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Priečinok so záznamami</string>
+  <string name="open_log_folder">Otvoriť priečinok so záznamami</string>
+  <string name="startup_report_bug">Nahlásiť chybu</string>
   <string name="send_bug_report_title">Spätná väzba / nahlásenie chyby</string>
   <string name="report_bug_email_subject_3">[%1$s] Hlásenie chyby pre %2$s %3$s</string>
   <string name="report_bug_big_heading">PROSÍM NAPÍŠTE SVOJU REAKCIU ALEBO CHYBOVÉ HLÁSENIA NAD TÝMTO RIADKOM</string>
@@ -769,8 +797,16 @@ Režim opakovania bol vypnutý, pretože
   <string name="debug_test_error">Testovacia chyba (ladiaca zostava)</string>
   <string name="bug_report_prepare_failed">Správu sa nepodarilo pripraviť alebo zdieľať. Môžete to skúsiť znova alebo použiť Zálohovanie a obnovenie na uloženie svojich údajov.</string>
   <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
+  <string name="bug_report_desktop_text">Ďalej sa zobrazí výzva, kam uložiť súbor s hlásením o chybe. Potom dostanete pokyny na jeho odoslanie vývojárskemu tímu.</string>
   <string name="bug_report_email_text">Potom vyberte preferovanú e-mailovú aplikáciu (napríklad Gmail), aby ste správu odoslali tímu vývojárov.</string>
   <string name="bug_report_manual_title">Odoslať správu e-mailom</string>
+  <string name="bug_report_manual_text_saved">Hlásenie bolo uložené do <b>%1$s</b>.\n\nPošlite e-mail na adresu <b>%2$s</b> a pripojte k nemu tento súbor; e-mailový program ho za vás pripojiť nedokáže. Navrhovaný predmet: <b>%3$s</b>. V správe nám napíšte, čo ste robili a čo sa stalo.</string>
+  <string name="bug_report_manual_text_unsaved">Hlásenie bolo uložené na vami zvolené miesto.\n\nPošlite e-mail na adresu <b>%1$s</b> a pripojte k nemu uložený súbor s hlásením; e-mailový program ho za vás pripojiť nedokáže. Navrhovaný predmet: <b>%2$s</b>. V správe nám napíšte, čo ste robili a čo sa stalo.</string>
+  <string name="bug_report_subject_suggestion">Chyba AndBible %1$s: &lt;stručný popis&gt;</string>
+  <string name="bug_report_attach_line">Pripojte súbor %1$s</string>
+  <string name="bug_report_copy_subject">Kopírovať predmet</string>
+  <string name="bug_report_copy_path">Kopírovať cestu k súboru</string>
+  <string name="bug_report_open_folder">Otvoriť priečinok</string>
   <string name="bug_report_copy_address">Kopírovať adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
@@ -798,9 +834,40 @@ Režim opakovania bol vypnutý, pretože
   <string name="workspace_manage_workspaces">Spravovať pracovné plochy…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verzia</string>
-  <string name="beta_notice_github_issues">Github hlásenia chýb</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub hlásenia chýb</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Odmietnuť do ďalšej aktualizácie </string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">OSOBITNÉ OZNÁMENIE VÝVOJÁRA PRE BETA TESTEROV (november 2026)</string>
+  <string name="beta_special_intro_android">Vitajte v beta verzii AndBible 6.0! Je to najväčšia zmena v histórii AndBible. Celá aplikácia bola prepísaná pomocou novej knižnice používateľského rozhrania a rozhranie bolo medzitým prepracované: každá obrazovka bola prehodnotená a väčšina z nich získala výrazné zlepšenia použiteľnosti popri obnovenom vzhľade Material 3.</string>
+  <string name="beta_special_intro_ios">Vitajte v beta verzii AndBible 6.0! Ak ste používali AndBible pre iOS 1.0, ide o veľkú zmenu: verzia 6.0 ju nahrádza spoločnou aplikáciou AndBible, ktorá beží na Androide, iPhone, iPade, Macoch s Apple Silicon, Windows a Linuxe. Je postavená na kóde, ktorý slúži používateľom Androidu už vyše desať rokov, prepísanom pomocou novej knižnice používateľského rozhrania, a rozhranie bolo medzitým prepracované: každá obrazovka bola prehodnotená a väčšina z nich získala výrazné zlepšenia použiteľnosti.</string>
+  <string name="beta_special_intro_desktop">Vitajte v beta verzii AndBible 6.0 a v AndBible pre Windows a Linux! Je to prvá desktopová verzia AndBible: tá istá aplikácia teraz beží na Androide, iPhone, iPade, Macoch s Apple Silicon, Windows a Linuxe. Je postavená na kóde, ktorý slúži používateľom Androidu už vyše desať rokov, prepísanom pomocou novej knižnice používateľského rozhrania, a rozhranie bolo medzitým prepracované: každá obrazovka bola prehodnotená a väčšina z nich získala výrazné zlepšenia použiteľnosti.</string>
+  <string name="beta_special_redesign">Prepracované rozhranie: prehľadnejšie ponuky, nastavenia a dialógy, jednotnejšia navigácia a mnoho drobných zlepšení postupov v celej aplikácii.</string>
+  <string name="beta_special_data_kept">Všetky vaše funkcie, údaje a nastavenia sú stále tu.</string>
+  <string name="beta_special_platforms">Tá istá aplikácia teraz beží na Androide, iPhone, iPade, Macoch s Apple Silicon, Windows a Linuxe. Nové platformy sa tiež testujú.</string>
+  <string name="beta_special_additions_android">Dva menšie prírastky: synchronizácia cez WebDAV (váš vlastný server, NAS alebo akákoľvek služba WebDAV, popri Google Drive a Nextcloud) a nový vyhľadávací index, ktorý sa po aktualizácii raz automaticky obnoví.</string>
+  <string name="beta_special_one_app">Jedna aplikácia na všetkých vašich zariadeniach: rovnaké funkcie a postupy v telefóne, tablete aj počítači.</string>
+  <string name="beta_special_sync_ios">Synchronizácia medzi vašimi zariadeniami cez Nextcloud, WebDAV (váš vlastný server, NAS alebo akákoľvek služba WebDAV) alebo iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronizácia medzi vašimi zariadeniami cez Nextcloud alebo WebDAV (váš vlastný server, NAS alebo akákoľvek služba WebDAV).</string>
+  <string name="beta_special_feedback">Ak niečo chýba, funguje inak ako predtým alebo sa to ťažšie hľadá, dajte nám vedieť, aj keď to môže byť zámer.</string>
+  <string name="beta_special_backup">Pred testovaním je dobré urobiť zálohu (Hlavná ponuka → %s).</string>
+  <string name="beta_special_beta_warning">Toto je beta verzia: nie všetko je dokončené ani plne otestované a môže obsahovať chyby. Používaním sa stávate beta testerom a vaše hlásenia o chybách robia finálne vydanie kvalitným.</string>
+  <string name="beta_special_leave_beta_android">Ak ste testovať nechceli, môžete opustiť %s a vrátiť sa k stabilnej verzii.</string>
+  <string name="beta_special_report">Chyby nahlasujte cez %1$s (uprednostňované) alebo Hlavná ponuka → %2$s.</string>
+  <string name="beta_special_report_android">Chyby nahlasujte cez %1$s (uprednostňované), Google Play alebo Hlavná ponuka → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible na vašich ostatných zariadeniach</string>
+  <string name="beta_special_other_devices_intro">Rovnaká beta verzia je k dispozícii pre všetky vaše zariadenia:</string>
+  <string name="beta_special_other_android">Android: pripojte sa k %1$s alebo si stiahnite APK z najnovšieho beta vydania na %2$s.</string>
+  <string name="beta_special_play_beta_link">beta programu v Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad a Mac s Apple Silicon: nainštalujte si aplikáciu Apple TestFlight a pripojte sa k %s.</string>
+  <string name="beta_special_testflight_link">verejnej beta verzii AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) a Linux (.deb alebo AppImage): stiahnite si ich z najnovšieho beta vydania na %s.</string>
+  <string name="beta_special_installation_guide">Podrobný postup nájdete v %s.</string>
+  <string name="beta_special_installation_guide_link">inštalačnej príručke</string>
+  <string name="beta_special_regards">S pozdravom Tuomas</string>
+  <string name="beta_special_sponsor">P. S. Vývoj AndBible môžete finančne podporiť %s.</string>
+  <string name="beta_special_sponsor_link">sponzorovaním vývojárskych hodín</string>
   <string name="stable_notice_title">Aplikácia bola aktualizovaná!</string>
   <string name="upgrade_video_message">Pozrite si video s novými funkciami tohto vydania (%s).</string>
   <string name="stable_notice_par1">Nová verzia %1$s %2$s bola nainštalovaná úspešne!</string>
@@ -1216,6 +1283,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="db_repositories">Repozitáre a súvisiace nastavenia</string>
   <string name="db_bookmarks">Záložky, Moje poznámky, Štítky a Študijné zložky</string>
   <string name="synchronizing">Synchronizujem…</string>
+  <string name="notification_finished">Dokončené</string>
   <string name="overrideBackup">
         Existujúca databáza, s ktorou toto zariadenie nie je synchronizované, sa nachádza v cloude.
         Databáza obsahuje %s. Čo chcete urobiť?
@@ -1799,6 +1867,12 @@ Režim opakovania bol vypnutý, pretože
   <string name="agent_log_response_received">Odpoveď prijatá</string>
   <string name="agent_log_saved">Uložené: %s</string>
   <string name="agent_log_done">Hotovo: %s</string>
+  <string name="agent_activity_title">AI agent</string>
+  <string name="agent_activity_title_in">AI agent: %s</string>
+  <string name="agent_activity_waiting">Čaká sa na vaše povolenie</string>
+  <string name="agent_activity_waiting_for">Čaká sa na vaše povolenie: %s</string>
+  <string name="agent_activity_failed">AI agent zlyhal</string>
+  <string name="agent_activity_attention_needed">AI agent vyžaduje vašu pozornosť</string>
   <string name="agent_log_cancelled">Zrušené</string>
   <string name="agent_already_running">AI agent už beží. Počkajte prosím alebo ho najprv zastavte.</string>
   <!--AI Agent Notifications-->

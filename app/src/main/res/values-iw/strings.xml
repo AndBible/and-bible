@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible דורש גרפיקת Direct3D כדי להציג את טקסט המקרא עם WebView2. מעבד הגרפיקה הנוכחי הוא %1$s. בדקו את מנהל ההתקן של הגרפיקה ואת התמיכה ב-Direct3D.\n\nפרטים נמצאים בקובץ היומן:\n%2$s</string>
   <string name="desktop_update_setting_title">בדיקת עדכונים</string>
   <string name="desktop_update_setting_summary">פעם ביום, מ-github.com</string>
+  <string name="desktop_beta_update_setting_title">להציע עדכוני בטא ציבוריים</string>
+  <string name="desktop_beta_update_setting_summary">להציע גם גרסאות בטא ציבוריות. כשההגדרה כבויה, התקנת בטא תקבל רק גרסאות יציבות.</string>
   <string name="desktop_update_consent_title">לבדוק אם יש עדכונים?</string>
   <string name="desktop_update_consent_message">AndBible יכול לבדוק ב-github.com פעם ביום אם קיימת גרסה חדשה יותר. GitHub רואה את כתובת ה-IP שלכם; שום דבר אחר אינו נשלח. אפשר לשנות זאת מאוחר יותר בהגדרות.</string>
   <string name="desktop_update_consent_yes">בדיקת עדכונים</string>
@@ -149,6 +151,11 @@
   <string name="prefs_eink_display_summary">הפעל תכונות ייחודיות ל-E-ink (כפתורי גלילת עמוד, קווי עזר לגלילה)</string>
   <string name="prefs_disable_animations_title">אל תציג הנפשות</string>
   <string name="prefs_disable_animations_summary">אל תציג הנפשות מסויימות, כגון גלילה חלקה.</string>
+  <string name="prefs_show_activity_in_menu_title">הצגת פעילות רקע בתפריט</string>
+  <string name="prefs_show_activity_in_menu_summary">התקדמות הורדות, סנכרון ואינדוקס, וכשלים, בתפריט ⋮</string>
+  <string name="prefs_system_notifications_title">התראות מערכת</string>
+  <string name="prefs_system_notifications_denied">כבוי בהגדרות iOS</string>
+  <string name="prefs_system_notifications_summary">להתריע על עבודת רקע שנכשלה, על הורדות ארוכות שהסתיימו בזמן ש-AndBible ברקע, ועל התקדמותן</string>
   <string name="prefs_disable_click_to_edit_title">השבת עריכה בהקשה בפנקס לימוד</string>
   <string name="prefs_disable_click_to_edit_summary">נדרש שימוש בכפתור העריכה לעריכת הערות בפנקס הלימוד.</string>
   <string name="prefs_notes_content_type_title">פורמט להערות סימניה חדשות</string>
@@ -213,6 +220,12 @@
   <string name="prefs_night_mode_automatic">אוטומטי</string>
   <string name="prefs_night_mode_system">מערכת</string>
   <string name="options_menu_night_mode">מצב לילה</string>
+  <string name="options_menu_sync_now">סנכרן עכשיו</string>
+  <string name="exit_sync_title">מסנכרן שינויים…</string>
+  <string name="exit_sync_body">שולח את השינויים שלך להתקנים האחרים שלך. זה עשוי לקחת מספר שניות.</string>
+  <string name="exit_sync_quit_now">צא עכשיו</string>
+  <string name="exit_sync_closing">סוגר…</string>
+  <string name="sync_now_no_network">אין חיבור לרשת</string>
   <string name="prefs_navigate_to_verse_title">עבור לפסוק</string>
   <string name="prefs_navigate_to_verse_summary">אפשר בחירת פסוק בעת מעבר</string>
   <string name="prefs_open_links_in_special_window_title">חלון קישורים</string>
@@ -360,6 +373,17 @@
   <string name="chooce_language_hint">שפה</string>
   <string name="one_more_back_press">לחץ שנית על \"אחורה\" כדי לצאת מהאפליקציה</string>
   <string name="document_filter_results">%d מסמכים</string>
+  <string name="activity_show_all">הצג הכול (%1$d)</string>
+  <string name="activity_failed_badge">%1$d נכשלו</string>
+  <string name="activity_attention_badge">%1$d דורשים תשומת לב</string>
+  <string name="activity_combined_badge">%1$d נכשלו, %2$d דורשים תשומת לב</string>
+  <string name="activity_running_description">עבודת רקע פועלת</string>
+  <string name="activity_running">פועל</string>
+  <string name="activity_recent">לאחרונה</string>
+  <string name="activity_clear_finished">נקה שהסתיימו</string>
+  <string name="activity_title">פעילות רקע</string>
+  <string name="activity_empty">שום דבר לא פועל</string>
+  <string name="activity_failed_toast">%1$s — ראו בתפריט</string>
   <string name="download_question_title">האם להמשיך בהורדה?</string>
   <string name="download_question_message">אם אתה חי במדינה שיש בה רדיפה, ייתכן שיהיה עליך להיזהר בהורדת חומר נוצרי דרך האינטרנט. במקום זאת, ייתכן שתרצה להשיג מודולים - בצורת קובצי ZIP - בצורה מאובטחת יותר, ולהתקין אותם דרך \"טען מסמך מקובץ ZIP\". האם אתה בטוח שברצונך להמשיך בהורדה? כל ההורדות משרתי המודולים מוצפנות (HTTPS).</string>
   <string name="do_not_ask_again">כן, אל תשאל שוב</string>
@@ -629,6 +653,7 @@
   <string name="backup_backup_title">היכן לגבות?</string>
   <string name="backup_backup_message">גיבוי לזכרון המכשיר או באמצעות שיתוף (אימייל, Google Drive ועוד) ?</string>
   <string name="backup_phone_storage">אחסון המכשיר</string>
+  <string name="backup_save_to_files">שמירה ב-Files</string>
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
   <string name="backup_app2">שמירת האפליקציה (קובץ apk) אל...</string>
@@ -681,6 +706,9 @@
   <string name="module_about_repository">שרת הפצה: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">תיקיית יומנים</string>
+  <string name="open_log_folder">פתח את תיקיית היומנים</string>
+  <string name="startup_report_bug">דווח על באג</string>
   <string name="send_bug_report_title">משוב / דווח שגיאה</string>
   <string name="report_bug_email_subject_3">[%1$s] דווח תקלה אודות %2$s %3$s</string>
   <string name="report_bug_big_heading">נא לכתוב את המשוב או דוח התקלה מעל שורה זו</string>
@@ -748,8 +776,16 @@
   <string name="debug_test_error">שגיאת בדיקה (גרסת ניפוי שגיאות)</string>
   <string name="bug_report_prepare_failed">לא ניתן היה להכין או לשתף את הדוח. אפשר לנסות שוב, או להשתמש בגיבוי ושחזור כדי לשמור את הנתונים.</string>
   <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
+  <string name="bug_report_desktop_text">לאחר מכן תתבקשו לבחור היכן לשמור את קובץ דוח הבאג. לאחר מכן תקבלו הוראות לשליחתו לצוות המפתחים.</string>
   <string name="bug_report_email_text">לאחר מכן, אנא בחר את אפליקציית הדוא\"ל המועדפת עליך (Gmail למשל) לשליחת הדוח לצוות המפתחים.</string>
   <string name="bug_report_manual_title">שליחת הדוח בדוא\"ל</string>
+  <string name="bug_report_manual_text_saved">הדוח נשמר ב-<b>%1$s</b>.\n\nאנא שלחו הודעת דוא\"ל אל <b>%2$s</b> וצרפו אליה את הקובץ; תוכנת דוא\"ל אינה יכולה לצרף אותו עבורכם. נושא מוצע: <b>%3$s</b>. בהודעה, ספרו לנו מה עשיתם ומה קרה.</string>
+  <string name="bug_report_manual_text_unsaved">הדוח נשמר במקום שבחרתם.\n\nאנא שלחו הודעת דוא\"ל אל <b>%1$s</b> וצרפו אליה את קובץ הדוח השמור; תוכנת דוא\"ל אינה יכולה לצרף אותו עבורכם. נושא מוצע: <b>%2$s</b>. בהודעה, ספרו לנו מה עשיתם ומה קרה.</string>
+  <string name="bug_report_subject_suggestion">באג ב-AndBible %1$s: &lt;תיאור קצר&gt;</string>
+  <string name="bug_report_attach_line">אנא צרפו את הקובץ %1$s</string>
+  <string name="bug_report_copy_subject">העתק נושא</string>
+  <string name="bug_report_copy_path">העתק נתיב קובץ</string>
+  <string name="bug_report_open_folder">פתח תיקייה</string>
   <string name="bug_report_copy_address">העתקת הכתובת</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">הקראת טקסט</string>
@@ -777,9 +813,40 @@
   <string name="workspace_manage_workspaces">ניהול סביבות עבודה…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">זו גרסת בטא !</string>
-  <string name="beta_notice_github_issues">נושאי Github </string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">נושאי GitHub </string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">הודעה מיוחדת של המפתח למשתתפי הבטא (נובמבר 2026)</string>
+  <string name="beta_special_intro_android">ברוכים הבאים לגרסת הבטא של AndBible 6.0! זהו השינוי הגדול ביותר בתולדות AndBible. האפליקציה כולה נכתבה מחדש בערכת רכיבי ממשק חדשה, והממשק עוצב מחדש בדרך: כל מסך נבחן, ורובם קיבלו שיפורי שימושיות משמעותיים נוספים על המראה המחודש של Material 3.</string>
+  <string name="beta_special_intro_ios">ברוכים הבאים לגרסת הבטא של AndBible 6.0! אם השתמשתם ב-AndBible ל-iOS 1.0, זהו שינוי גדול: גרסה 6.0 מחליפה אותה באפליקציית AndBible המשותפת, אותה אפליקציה הפועלת באנדרואיד, באייפון, באייפד, ב-Mac עם Apple Silicon, ב-Windows וב-Linux. היא בנויה על הקוד ששירת משתמשי אנדרואיד במשך יותר מעשור, נכתבה מחדש בערכת רכיבי ממשק חדשה, והממשק עוצב מחדש בדרך: כל מסך נבחן, ורובם קיבלו שיפורי שימושיות משמעותיים.</string>
+  <string name="beta_special_intro_desktop">ברוכים הבאים לגרסת הבטא של AndBible 6.0, ול-AndBible ב-Windows וב-Linux! זוהי גרסת שולחן העבודה הראשונה של AndBible: אותה אפליקציה פועלת כעת באנדרואיד, באייפון, באייפד, ב-Mac עם Apple Silicon, ב-Windows וב-Linux. היא בנויה על הקוד ששירת משתמשי אנדרואיד במשך יותר מעשור, נכתבה מחדש בערכת רכיבי ממשק חדשה, והממשק עוצב מחדש בדרך: כל מסך נבחן, ורובם קיבלו שיפורי שימושיות משמעותיים.</string>
+  <string name="beta_special_redesign">ממשק מעוצב מחדש: תפריטים, הגדרות ודיאלוגים ברורים יותר, ניווט עקבי יותר, והרבה שיפורים קטנים בזרימת העבודה בכל האפליקציה.</string>
+  <string name="beta_special_data_kept">התכונות, הנתונים וההגדרות שלכם כולם עדיין כאן.</string>
+  <string name="beta_special_platforms">אותה אפליקציה פועלת כעת באנדרואיד, באייפון, באייפד, ב-Mac עם Apple Silicon, ב-Windows וב-Linux. גם הפלטפורמות החדשות נמצאות בבדיקה.</string>
+  <string name="beta_special_additions_android">שתי תוספות קטנות יותר: סנכרון WebDAV (השרת שלכם, NAS או כל שירות WebDAV, בנוסף ל-Google Drive ול-Nextcloud), ואינדקס חיפוש חדש שנבנה מחדש פעם אחת, אוטומטית, לאחר העדכון.</string>
+  <string name="beta_special_one_app">אפליקציה אחת בכל ההתקנים שלכם: אותן תכונות ואותן זרימות עבודה בטלפון, בטאבלט ובמחשב.</string>
+  <string name="beta_special_sync_ios">סנכרון בין ההתקנים שלכם באמצעות Nextcloud, WebDAV (השרת שלכם, NAS או כל שירות WebDAV) או iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">סנכרון בין ההתקנים שלכם באמצעות Nextcloud או WebDAV (השרת שלכם, NAS או כל שירות WebDAV).</string>
+  <string name="beta_special_feedback">אם משהו חסר, פועל אחרת מבעבר או נעשה קשה יותר למציאה, אנא ספרו לנו, גם אם ייתכן שזה בכוונה.</string>
+  <string name="beta_special_backup">מומלץ לגבות לפני הבדיקה (תפריט ראשי → %s).</string>
+  <string name="beta_special_beta_warning">זוהי גרסת בטא: לא הכול הושלם או נבדק במלואו, והיא עלולה להכיל באגים. בשימוש בה אתם משתתפי בטא, ודוחות הבאגים שלכם הם שהופכים את הגרסה הסופית לטובה.</string>
+  <string name="beta_special_leave_beta_android">אם לא התכוונתם לבדוק, אפשר לעזוב את ה%s ולחזור לגרסה היציבה.</string>
+  <string name="beta_special_report">אנא דווחו על באגים דרך %1$s (מועדף) או תפריט ראשי → %2$s.</string>
+  <string name="beta_special_report_android">אנא דווחו על באגים דרך %1$s (מועדף), Google Play או תפריט ראשי → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible בהתקנים האחרים שלכם</string>
+  <string name="beta_special_other_devices_intro">אותה גרסת בטא זמינה לכל ההתקנים שלכם:</string>
+  <string name="beta_special_other_android">אנדרואיד: הצטרפו ל%1$s, או הורידו את ה-APK מגרסת הבטא החדשה ביותר ב-%2$s.</string>
+  <string name="beta_special_play_beta_link">תוכנית הבטא ב-Google Play</string>
+  <string name="beta_special_other_apple">אייפון, אייפד ו-Mac עם Apple Silicon: התקינו את אפליקציית TestFlight של Apple והצטרפו ל-%s.</string>
+  <string name="beta_special_testflight_link">בטא ציבורית של AndBible</string>
+  <string name="beta_special_other_desktop">Windows (‏.msi) ו-Linux (‏.deb או AppImage): הורידו אותם מגרסת הבטא החדשה ביותר ב-%s.</string>
+  <string name="beta_special_installation_guide">הוראות שלב אחר שלב נמצאות ב%s.</string>
+  <string name="beta_special_installation_guide_link">מדריך ההתקנה</string>
+  <string name="beta_special_regards">בברכה, טואומס</string>
+  <string name="beta_special_sponsor">נ.ב. אפשר לתמוך כלכלית בפיתוח AndBible על ידי %s.</string>
+  <string name="beta_special_sponsor_link">חסות על שעות פיתוח</string>
   <string name="stable_notice_title">האפליקציה עברה שדרוג!</string>
   <string name="upgrade_video_message">אנא צפו בסרטון המדגים יכולות חדשות בגירסה זו (%s).</string>
   <string name="stable_notice_par1">גרסה חדשה %1$s של %2$s הותקנה בהצלחה!</string>
@@ -1140,6 +1207,7 @@
   <string name="db_repositories">הגדרות לגבי מאגרים</string>
   <string name="db_bookmarks">סימניות, הערות אישיות, תוויות ופנקסי לימוד</string>
   <string name="synchronizing">מסנכרן...</string>
+  <string name="notification_finished">הסתיים</string>
   <string name="overrideBackup">נמצא מסד נתונים בענן שמכשיר זה אינו מסונכרן אליו. מסד הנתונים מכיל %s. מה ברצונך לעשות?</string>
   <string name="reading_plans_content">תוכניות קריאה וסטטוסיהן</string>
   <string name="bookmarks_contents">סימניות, תוויות ופנקסי לימוד</string>
@@ -1720,6 +1788,12 @@
   <string name="agent_log_response_received">התגובה התקבלה</string>
   <string name="agent_log_saved">נשמר: %s</string>
   <string name="agent_log_done">סיים: %s</string>
+  <string name="agent_activity_title">סוכן בינה מלאכותית</string>
+  <string name="agent_activity_title_in">סוכן בינה מלאכותית: %s</string>
+  <string name="agent_activity_waiting">ממתין לאישורכם</string>
+  <string name="agent_activity_waiting_for">ממתין לאישורכם: %s</string>
+  <string name="agent_activity_failed">סוכן הבינה המלאכותית נכשל</string>
+  <string name="agent_activity_attention_needed">סוכן הבינה המלאכותית דורש את תשומת לבכם</string>
   <string name="agent_log_cancelled">בוטל</string>
   <string name="agent_already_running">סוכן בינה מלאכותית כבר פועל. אנא המתן או עצור אותו תחילה.</string>
   <!--AI Agent Notifications-->

@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible cần đồ họa Direct3D để hiển thị văn bản Kinh Thánh bằng WebView2. Trình kết xuất đồ họa hiện tại là %1$s. Hãy kiểm tra trình điều khiển đồ họa và khả năng hỗ trợ Direct3D.\n\nChi tiết có trong tệp nhật ký:\n%2$s</string>
   <string name="desktop_update_setting_title">Kiểm tra bản cập nhật</string>
   <string name="desktop_update_setting_summary">Mỗi ngày một lần, từ github.com</string>
+  <string name="desktop_beta_update_setting_title">Đề xuất bản cập nhật beta công khai</string>
+  <string name="desktop_beta_update_setting_summary">Đề xuất cả các phiên bản beta công khai. Khi tắt, bản cài beta chỉ nhận các bản phát hành chính thức.</string>
   <string name="desktop_update_consent_title">Kiểm tra bản cập nhật?</string>
   <string name="desktop_update_consent_message">AndBible có thể kiểm tra github.com mỗi ngày một lần để tìm phiên bản mới hơn. GitHub sẽ thấy địa chỉ IP của bạn; không có gì khác được gửi đi. Bạn có thể thay đổi điều này sau trong Cài đặt.</string>
   <string name="desktop_update_consent_yes">Kiểm tra bản cập nhật</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Bật các tính năng dành riêng cho E-ink (nút cuộn trang, đường kẻ hỗ trợ cuộn)</string>
   <string name="prefs_disable_animations_title">Tắt hoạt ảnh</string>
   <string name="prefs_disable_animations_summary">Tắt các hoạt ảnh như cuộn mượt.</string>
+  <string name="prefs_show_activity_in_menu_title">Hiện hoạt động nền trong menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Tiến trình tải xuống, đồng bộ và lập chỉ mục, cùng các lỗi, trong menu ⋮</string>
+  <string name="prefs_system_notifications_title">Thông báo hệ thống</string>
+  <string name="prefs_system_notifications_denied">Đã tắt trong Cài đặt iOS</string>
+  <string name="prefs_system_notifications_summary">Thông báo về tác vụ nền bị lỗi, các lượt tải xuống lâu hoàn tất khi AndBible chạy nền, và tiến trình của chúng</string>
   <string name="prefs_disable_click_to_edit_title">Tắt chỉnh sửa bằng cách nhấn trong Sổ tay nghiên cứu</string>
   <string name="prefs_disable_click_to_edit_summary">Yêu cầu sử dụng nút chỉnh sửa để chỉnh sửa ghi chú trong Sổ tay nghiên cứu.</string>
   <string name="prefs_notes_content_type_title">Định dạng cho ghi chú đánh dấu mới</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Tự động</string>
   <string name="prefs_night_mode_system">Hệ thống</string>
   <string name="options_menu_night_mode">Chế độ ban đêm</string>
+  <string name="options_menu_sync_now">Đồng bộ ngay</string>
+  <string name="exit_sync_title">Đang đồng bộ các thay đổi…</string>
+  <string name="exit_sync_body">Đang gửi các thay đổi của bạn tới các thiết bị khác. Việc này có thể mất vài giây.</string>
+  <string name="exit_sync_quit_now">Thoát ngay</string>
+  <string name="exit_sync_closing">Đang đóng…</string>
+  <string name="sync_now_no_network">Không có kết nối mạng</string>
   <string name="prefs_navigate_to_verse_title">Điều hướng đến câu</string>
   <string name="prefs_navigate_to_verse_summary">Chọn câu (và chương) khi chọn một đoạn văn</string>
   <string name="prefs_open_links_in_special_window_title">Cửa sổ liên kết</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Ngôn ngữ</string>
   <string name="one_more_back_press">Nhấn Quay lại thêm một lần để đóng ứng dụng</string>
   <string name="document_filter_results">%d tài liệu</string>
+  <string name="activity_show_all">Hiện tất cả (%1$d)</string>
+  <string name="activity_failed_badge">%1$d lỗi</string>
+  <string name="activity_attention_badge">%1$d cần chú ý</string>
+  <string name="activity_combined_badge">%1$d lỗi, %2$d cần chú ý</string>
+  <string name="activity_running_description">Tác vụ nền đang chạy</string>
+  <string name="activity_running">Đang chạy</string>
+  <string name="activity_recent">Gần đây</string>
+  <string name="activity_clear_finished">Xóa mục đã xong</string>
+  <string name="activity_title">Hoạt động nền</string>
+  <string name="activity_empty">Không có gì đang chạy</string>
+  <string name="activity_failed_toast">%1$s — xem menu</string>
   <string name="download_question_title">Bạn có muốn tiến hành tải tài liệu không?</string>
   <string name="download_question_message">Nếu bạn sống ở một quốc gia bị ngăn cấm, bạn có thể cần thận trọng khi tải tài liệu Kitô giáo qua Internet. Thay vào đó, bạn nên lấy các tệp zip mô-đun một cách an toàn hơn và cài đặt chúng qua \"Tải Tài Liệu Từ Tệp Zip\". Bạn có chắc muốn tiếp tục tải xuống không? Tất cả các tải xuống từ máy chủ mô-đun đều được mã hóa (HTTPS).</string>
   <string name="do_not_ask_again">Có, đừng hỏi thêm nữa</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">Sao lưu đến đâu?</string>
   <string name="backup_backup_message">Sao lưu vào điện thoại hay nơi khác qua chức năng Chia sẻ (email, Google Drive, v.v.)?</string>
   <string name="backup_phone_storage">Bộ nhớ điện thoại</string>
+  <string name="backup_save_to_files">Lưu vào Tệp</string>
   <string name="backup_and_restore">Sao lưu &amp; Khôi phục</string>
   <string name="backup_modules2">Sao lưu tài liệu vào…</string>
   <string name="backup_app2">Sao lưu ứng dụng (tệp .apk) vào…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">Máy chủ phân phối: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Thư mục nhật ký</string>
+  <string name="open_log_folder">Mở thư mục nhật ký</string>
+  <string name="startup_report_bug">Báo lỗi</string>
   <string name="send_bug_report_title">Phản hồi / báo cáo lỗi</string>
   <string name="report_bug_email_subject_3">[%1$s] Báo cáo lỗi cho %2$s %3$s</string>
   <string name="report_bug_big_heading">VUI LÒNG VIẾT PHẢN HỒI HOẶC BÁO CÁO LỖI Ở TRÊN DÒNG NÀY</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">Lỗi thử nghiệm (bản gỡ lỗi)</string>
   <string name="bug_report_prepare_failed">Không thể chuẩn bị hoặc chia sẻ báo cáo. Bạn có thể thử lại, hoặc dùng Sao lưu &amp; Khôi phục để lưu dữ liệu của mình.</string>
   <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
+  <string name="bug_report_desktop_text">Tiếp theo, bạn sẽ được hỏi nơi lưu tệp báo lỗi. Sau đó bạn sẽ nhận được hướng dẫn gửi tệp đó cho nhóm phát triển.</string>
   <string name="bug_report_email_text">Tiếp theo, vui lòng chọn ứng dụng email ưa thích của bạn (ví dụ: Gmail) để gửi báo cáo đến nhóm phát triển.</string>
   <string name="bug_report_manual_title">Gửi báo cáo qua email</string>
+  <string name="bug_report_manual_text_saved">Báo cáo đã được lưu tại <b>%1$s</b>.\n\nVui lòng gửi email tới <b>%2$s</b> và đính kèm tệp đó; chương trình email không thể tự đính kèm giúp bạn. Tiêu đề gợi ý: <b>%3$s</b>. Trong nội dung thư, hãy cho chúng tôi biết bạn đã làm gì và điều gì đã xảy ra.</string>
+  <string name="bug_report_manual_text_unsaved">Báo cáo đã được lưu tại nơi bạn đã chọn.\n\nVui lòng gửi email tới <b>%1$s</b> và đính kèm tệp báo cáo đã lưu; chương trình email không thể tự đính kèm giúp bạn. Tiêu đề gợi ý: <b>%2$s</b>. Trong nội dung thư, hãy cho chúng tôi biết bạn đã làm gì và điều gì đã xảy ra.</string>
+  <string name="bug_report_subject_suggestion">Lỗi AndBible %1$s: &lt;mô tả ngắn&gt;</string>
+  <string name="bug_report_attach_line">Vui lòng đính kèm tệp %1$s</string>
+  <string name="bug_report_copy_subject">Sao chép tiêu đề</string>
+  <string name="bug_report_copy_path">Sao chép đường dẫn tệp</string>
+  <string name="bug_report_open_folder">Mở thư mục</string>
   <string name="bug_report_copy_address">Sao chép địa chỉ</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Đọc văn bản</string>
@@ -733,9 +769,40 @@
   <string name="workspace_manage_workspaces">Quản lý không gian làm việc…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Đây là phiên bản beta!</string>
-  <string name="beta_notice_github_issues">Vấn đề trên Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Vấn đề trên GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Bỏ qua cho đến lần cập nhật tiếp theo</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">THÔNG BÁO ĐẶC BIỆT CỦA NHÀ PHÁT TRIỂN DÀNH CHO NGƯỜI THỬ NGHIỆM BETA (Tháng 11 năm 2026)</string>
+  <string name="beta_special_intro_android">Chào mừng bạn đến với bản beta AndBible 6.0! Đây là thay đổi lớn nhất trong lịch sử AndBible. Toàn bộ ứng dụng đã được viết lại bằng một bộ công cụ giao diện người dùng mới, và giao diện cũng được thiết kế lại: mọi màn hình đều được rà soát, và phần lớn đã được cải thiện đáng kể về tính dễ dùng, bên cạnh diện mạo Material 3 mới mẻ.</string>
+  <string name="beta_special_intro_ios">Chào mừng bạn đến với bản beta AndBible 6.0! Nếu bạn từng dùng AndBible cho iOS 1.0, đây là một thay đổi lớn: phiên bản 6.0 thay thế nó bằng ứng dụng AndBible dùng chung, cùng một ứng dụng chạy trên Android, iPhone, iPad và máy Mac Apple Silicon, Windows và Linux. Nó được xây dựng trên mã nguồn đã phục vụ người dùng Android hơn một thập kỷ, được viết lại bằng bộ công cụ giao diện người dùng mới, và giao diện cũng được thiết kế lại: mọi màn hình đều được rà soát, và phần lớn đã được cải thiện đáng kể về tính dễ dùng.</string>
+  <string name="beta_special_intro_desktop">Chào mừng bạn đến với bản beta AndBible 6.0, và đến với AndBible trên Windows và Linux! Đây là phiên bản máy tính để bàn đầu tiên của AndBible: cùng một ứng dụng nay chạy trên Android, iPhone, iPad và máy Mac Apple Silicon, Windows và Linux. Nó được xây dựng trên mã nguồn đã phục vụ người dùng Android hơn một thập kỷ, được viết lại bằng bộ công cụ giao diện người dùng mới, và giao diện cũng được thiết kế lại: mọi màn hình đều được rà soát, và phần lớn đã được cải thiện đáng kể về tính dễ dùng.</string>
+  <string name="beta_special_redesign">Giao diện được thiết kế lại: menu, cài đặt và hộp thoại rõ ràng hơn, điều hướng nhất quán hơn, cùng nhiều cải tiến nhỏ về quy trình sử dụng trên toàn ứng dụng.</string>
+  <string name="beta_special_data_kept">Các tính năng, dữ liệu và cài đặt của bạn vẫn còn nguyên.</string>
+  <string name="beta_special_platforms">Cùng một ứng dụng nay chạy trên Android, iPhone, iPad và máy Mac Apple Silicon, Windows và Linux. Các nền tảng mới cũng đang được thử nghiệm.</string>
+  <string name="beta_special_additions_android">Hai bổ sung nhỏ hơn: đồng bộ WebDAV (máy chủ riêng của bạn, NAS hoặc bất kỳ dịch vụ WebDAV nào, bên cạnh Google Drive và Nextcloud), và một chỉ mục tìm kiếm mới sẽ được tự động xây dựng lại một lần sau khi cập nhật.</string>
+  <string name="beta_special_one_app">Một ứng dụng trên mọi thiết bị của bạn: cùng các tính năng và quy trình trên điện thoại, máy tính bảng và máy tính.</string>
+  <string name="beta_special_sync_ios">Đồng bộ giữa các thiết bị của bạn qua Nextcloud, WebDAV (máy chủ riêng của bạn, NAS hoặc bất kỳ dịch vụ WebDAV nào) hoặc iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Đồng bộ giữa các thiết bị của bạn qua Nextcloud hoặc WebDAV (máy chủ riêng của bạn, NAS hoặc bất kỳ dịch vụ WebDAV nào).</string>
+  <string name="beta_special_feedback">Nếu thiếu điều gì, điều gì hoạt động khác trước hoặc khó tìm hơn, xin hãy cho chúng tôi biết, kể cả khi đó có thể là chủ ý.</string>
+  <string name="beta_special_backup">Nên sao lưu trước khi thử nghiệm (Menu chính → %s).</string>
+  <string name="beta_special_beta_warning">Đây là phiên bản beta: không phải mọi thứ đều đã hoàn thiện hoặc được kiểm thử đầy đủ, và có thể có lỗi. Khi dùng nó, bạn là người thử nghiệm beta, và các báo cáo lỗi của bạn là điều làm nên bản phát hành cuối cùng tốt đẹp.</string>
+  <string name="beta_special_leave_beta_android">Nếu bạn không có ý định thử nghiệm, bạn có thể rời khỏi %s và quay lại phiên bản ổn định.</string>
+  <string name="beta_special_report">Vui lòng báo lỗi qua %1$s (ưu tiên) hoặc Menu chính → %2$s.</string>
+  <string name="beta_special_report_android">Vui lòng báo lỗi qua %1$s (ưu tiên), Google Play hoặc Menu chính → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible trên các thiết bị khác của bạn</string>
+  <string name="beta_special_other_devices_intro">Cùng bản beta này có sẵn cho mọi thiết bị của bạn:</string>
+  <string name="beta_special_other_android">Android: tham gia %1$s, hoặc tải APK từ bản phát hành beta mới nhất trên %2$s.</string>
+  <string name="beta_special_play_beta_link">chương trình beta trên Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad và máy Mac Apple Silicon: cài đặt ứng dụng TestFlight của Apple và tham gia %s.</string>
+  <string name="beta_special_testflight_link">AndBible beta công khai</string>
+  <string name="beta_special_other_desktop">Windows (.msi) và Linux (.deb hoặc AppImage): tải về từ bản phát hành beta mới nhất trên %s.</string>
+  <string name="beta_special_installation_guide">Hướng dẫn từng bước có trong %s.</string>
+  <string name="beta_special_installation_guide_link">hướng dẫn cài đặt</string>
+  <string name="beta_special_regards">Trân trọng, Tuomas</string>
+  <string name="beta_special_sponsor">T.B. Bạn có thể hỗ trợ tài chính cho việc phát triển AndBible bằng cách %s.</string>
+  <string name="beta_special_sponsor_link">tài trợ giờ phát triển</string>
   <string name="stable_notice_title">Ứng dụng đã được nâng cấp!</string>
   <string name="upgrade_video_message">Vui lòng xem video giới thiệu các tính năng mới của phiên bản này (%s).</string>
   <string name="stable_notice_par1">Phiên bản mới %1$s của %2$s đã được cài đặt thành công!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">Kho lưu trữ và các cài đặt liên quan</string>
   <string name="db_bookmarks">Đánh dấu, Ghi chú của tôi, Nhãn và Sổ tay nghiên cứu</string>
   <string name="synchronizing">Đang đồng bộ hóa…</string>
+  <string name="notification_finished">Đã hoàn tất</string>
   <string name="overrideBackup">Cơ sở dữ liệu hiện có mà thiết bị này chưa đồng bộ hóa được tìm thấy trên Cloud. Cơ sở dữ liệu chứa %s. Bạn muốn làm gì?</string>
   <string name="reading_plans_content">Kế hoạch đọc và trạng thái của chúng</string>
   <string name="bookmarks_contents">Đánh dấu, Nhãn và Sổ tay nghiên cứu</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">Đã nhận phản hồi</string>
   <string name="agent_log_saved">Đã lưu: %s</string>
   <string name="agent_log_done">Xong: %s</string>
+  <string name="agent_activity_title">Tác nhân AI</string>
+  <string name="agent_activity_title_in">Tác nhân AI: %s</string>
+  <string name="agent_activity_waiting">Đang chờ quyền của bạn</string>
+  <string name="agent_activity_waiting_for">Đang chờ quyền của bạn: %s</string>
+  <string name="agent_activity_failed">Tác nhân AI bị lỗi</string>
+  <string name="agent_activity_attention_needed">Tác nhân AI cần bạn chú ý</string>
   <string name="agent_log_cancelled">Đã hủy</string>
   <string name="agent_already_running">Một trợ lý AI đang chạy. Vui lòng chờ hoặc dừng nó trước.</string>
   <!--AI Agent Notifications-->

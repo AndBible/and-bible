@@ -527,8 +527,8 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="workspace_listing_with_current">%s (လက်ရှိ)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">beta ဗားရှင်းဖြစ်သည်။ </string>
-  <string name="beta_notice_github_issues">Github ပြဿနာများ</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub ပြဿနာများ</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>
   <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
   <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>

@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible tarvitsee Direct3D-grafiikkaa näyttääkseen Raamatun tekstin WebView2:n avulla. Nykyinen grafiikkarenderöijä on %1$s. Tarkista grafiikkaohjain ja Direct3D-tuki.\n\nLisätiedot ovat lokitiedostossa:\n%2$s</string>
   <string name="desktop_update_setting_title">Tarkista päivitykset</string>
   <string name="desktop_update_setting_summary">Kerran päivässä, osoitteesta github.com</string>
+  <string name="desktop_beta_update_setting_title">Tarjoa julkisia beta-päivityksiä</string>
+  <string name="desktop_beta_update_setting_summary">Tarjoa myös julkisia beta-versioita. Kun asetus on pois päältä, beta-asennus saa vain tuotantoversiot.</string>
   <string name="desktop_update_consent_title">Tarkistetaanko päivitykset?</string>
   <string name="desktop_update_consent_message">AndBible voi tarkistaa github.comista kerran päivässä, onko uudempaa versiota saatavilla. GitHub näkee IP-osoitteesi, mutta mitään muuta ei lähetetä. Voit muuttaa tätä myöhemmin asetuksissa.</string>
   <string name="desktop_update_consent_yes">Tarkista päivitykset</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Ota käyttöön e-ink-erityisominaisuudet (sivunvaihtopainikkeet, vierityksen apuviivat)</string>
   <string name="prefs_disable_animations_title">Kytke animaatiot pois</string>
   <string name="prefs_disable_animations_summary">Kytke erilaiset animaatio pois, kuten pehmeä tekstin vieritys</string>
+  <string name="prefs_show_activity_in_menu_title">Näytä taustatoiminta valikossa</string>
+  <string name="prefs_show_activity_in_menu_summary">Lataukset, synkronoinnin ja indeksoinnin eteneminen sekä virheet ⋮-valikossa</string>
+  <string name="prefs_system_notifications_title">Järjestelmäilmoitukset</string>
+  <string name="prefs_system_notifications_denied">Poistettu käytöstä iOS:n asetuksissa</string>
+  <string name="prefs_system_notifications_summary">Ilmoita epäonnistuneesta taustatyöstä, taustalla valmistuvista pitkistä latauksista, kun AndBible on taustalla, sekä niiden etenemisestä</string>
   <string name="prefs_disable_click_to_edit_title">Poista opintoalustan napsautusmuokkaus käytöstä</string>
   <string name="prefs_disable_click_to_edit_summary">Edellyttää muokkauspainikkeen käyttöä muistiinpanojen muokkaamiseen opintoalustassa.</string>
   <string name="prefs_notes_content_type_title">Uusien kirjanmerkkimerkintöjen muoto</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automaattinen</string>
   <string name="prefs_night_mode_system">Järjestelmä</string>
   <string name="options_menu_night_mode">Yötila</string>
+  <string name="options_menu_sync_now">Synkronoi nyt</string>
+  <string name="exit_sync_title">Synkronoidaan muutoksia…</string>
+  <string name="exit_sync_body">Muutoksiasi lähetetään muille laitteillesi. Tämä voi kestää muutaman sekunnin.</string>
+  <string name="exit_sync_quit_now">Lopeta nyt</string>
+  <string name="exit_sync_closing">Suljetaan…</string>
+  <string name="sync_now_no_network">Ei verkkoyhteyttä</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_open_links_in_special_window_title">Linkki-ikkuna</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Kieli</string>
   <string name="one_more_back_press">Paina uudestaan taakse-painiketta sulkeaksesi sovelluksen</string>
   <string name="document_filter_results">%d teosta</string>
+  <string name="activity_show_all">Näytä kaikki (%1$d)</string>
+  <string name="activity_failed_badge">%1$d epäonnistui</string>
+  <string name="activity_attention_badge">%1$d vaatii huomiota</string>
+  <string name="activity_combined_badge">%1$d epäonnistui, %2$d vaatii huomiota</string>
+  <string name="activity_running_description">Taustatyö käynnissä</string>
+  <string name="activity_running">Käynnissä</string>
+  <string name="activity_recent">Viimeaikaiset</string>
+  <string name="activity_clear_finished">Tyhjennä valmistuneet</string>
+  <string name="activity_title">Taustatoiminta</string>
+  <string name="activity_empty">Ei käynnissä olevia toimintoja</string>
+  <string name="activity_failed_toast">%1$s — katso valikko</string>
   <string name="download_question_title">Haluatko jatkaa dokumenttien lataukseen?</string>
   <string name="download_question_message">Jos elät vainotussa valtiossa, sinun voi olla syytä olla varovainen kristillisen materiaalin lataamisessa Internetistä. Sen sijaan saattaa olla viisasta siirtää moduulien zip-tiedostot turvallisemmin ja asentaa ne \"Asenna dokumentteja Zip-tiedostosta\"-toimintoa käyttäen. Oletko varma että haluat jatkaa lataamaan? Kaikki dokumenttien lataukset palvelimilta on salattuja (HTTPS).</string>
   <string name="do_not_ask_again">Kyllä, äläkä kysy enää uudestaan</string>
@@ -629,6 +653,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
   <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
   <string name="backup_phone_storage">Puhelimen muisti</string>
+  <string name="backup_save_to_files">Tallenna Tiedostoihin</string>
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup_modules2">Varmuuskopioi dokumentit…</string>
   <string name="backup_app2">Varmuuskopioi sovellus (.apk -tiedosto) …</string>
@@ -681,6 +706,9 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="module_about_repository">Jakelupalvelin: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Lokikansio</string>
+  <string name="open_log_folder">Avaa lokikansio</string>
+  <string name="startup_report_bug">Ilmoita virheestä</string>
   <string name="send_bug_report_title">Palaute / bugiraportti</string>
   <string name="report_bug_email_subject_3">[%1$s] Bugiraportti sovellukselle %2$s %3$s </string>
   <string name="report_bug_big_heading">KIRJOITA PALAUTE TAI BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE</string>
@@ -748,8 +776,16 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="debug_test_error">Testivirhe (debug-versio)</string>
   <string name="bug_report_prepare_failed">Raporttia ei voitu valmistella tai jakaa. Voit yrittää uudelleen tai tallentaa tietosi Varmuuskopioinnin ja palautuksen avulla.</string>
   <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
+  <string name="bug_report_desktop_text">Seuraavaksi sinulta kysytään, minne virheraporttitiedosto tallennetaan. Sen jälkeen saat ohjeet sen lähettämiseen kehittäjätiimille.</string>
   <string name="bug_report_email_text">Valitse seuraavaksi haluamasi sähköpostisovellus (GMail esimerkiksi) lähettääksi raportin kehittäjätiimille.</string>
   <string name="bug_report_manual_title">Lähetä raportti sähköpostilla</string>
+  <string name="bug_report_manual_text_saved">Raportti tallennettiin kohteeseen <b>%1$s</b>.\n\nLähetä sähköpostia osoitteeseen <b>%2$s</b> ja liitä siihen kyseinen tiedosto; sähköpostiohjelma ei voi liittää sitä puolestasi. Ehdotettu aihe: <b>%3$s</b>. Kerro viestissä, mitä teit ja mitä tapahtui.</string>
+  <string name="bug_report_manual_text_unsaved">Raportti tallennettiin valitsemaasi paikkaan.\n\nLähetä sähköpostia osoitteeseen <b>%1$s</b> ja liitä siihen tallennettu raporttitiedosto; sähköpostiohjelma ei voi liittää sitä puolestasi. Ehdotettu aihe: <b>%2$s</b>. Kerro viestissä, mitä teit ja mitä tapahtui.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s -virhe: &lt;lyhyt kuvaus&gt;</string>
+  <string name="bug_report_attach_line">Liitä tiedosto %1$s</string>
+  <string name="bug_report_copy_subject">Kopioi aihe</string>
+  <string name="bug_report_copy_path">Kopioi tiedostopolku</string>
+  <string name="bug_report_open_folder">Avaa kansio</string>
   <string name="bug_report_copy_address">Kopioi osoite</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
@@ -777,9 +813,40 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_manage_workspaces">Hallitse työtiloja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
-  <string name="beta_notice_github_issues">Github tiketit</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub tiketit</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">KEHITTÄJÄN ERITYISILMOITUS BETATESTAAJILLE (marraskuu 2026)</string>
+  <string name="beta_special_intro_android">Tervetuloa AndBiblen 6.0-betaan! Tämä on AndBiblen historian suurin muutos. Koko sovellus on kirjoitettu uudelleen uudella käyttöliittymätyökalupakilla, ja käyttöliittymä on suunniteltu uudelleen samalla: jokainen näkymä on käyty läpi, ja useimpiin tuli merkittäviä käytettävyysparannuksia uudistetun Material 3 -ulkoasun lisäksi.</string>
+  <string name="beta_special_intro_ios">Tervetuloa AndBiblen 6.0-betaan! Jos olet käyttänyt AndBible for iOS 1.0:aa, tämä on suuri muutos: versio 6.0 korvaa sen yhteisellä AndBible-sovelluksella, joka toimii Androidilla, iPhonella, iPadilla ja Apple Silicon -Maceilla, Windowsissa ja Linuxissa. Se perustuu koodiin, joka on palvellut Android-käyttäjiä yli vuosikymmenen, kirjoitettuna uudelleen uudella käyttöliittymätyökalupakilla, ja käyttöliittymä on suunniteltu uudelleen samalla: jokainen näkymä on käyty läpi, ja useimpiin tuli merkittäviä käytettävyysparannuksia.</string>
+  <string name="beta_special_intro_desktop">Tervetuloa AndBiblen 6.0-betaan ja AndBibleen Windowsissa ja Linuxissa! Tämä on AndBiblen ensimmäinen työpöytäversio: sama sovellus toimii nyt Androidilla, iPhonella, iPadilla ja Apple Silicon -Maceilla, Windowsissa ja Linuxissa. Se perustuu koodiin, joka on palvellut Android-käyttäjiä yli vuosikymmenen, kirjoitettuna uudelleen uudella käyttöliittymätyökalupakilla, ja käyttöliittymä on suunniteltu uudelleen samalla: jokainen näkymä on käyty läpi, ja useimpiin tuli merkittäviä käytettävyysparannuksia.</string>
+  <string name="beta_special_redesign">Uudistettu käyttöliittymä: selkeämmät valikot, asetukset ja valintaikkunat, yhtenäisempi navigointi ja monia pieniä työnkulun parannuksia kaikkialla sovelluksessa.</string>
+  <string name="beta_special_data_kept">Toiminnot, tiedot ja asetukset ovat edelleen tallessa.</string>
+  <string name="beta_special_platforms">Sama sovellus toimii nyt Androidilla, iPhonella, iPadilla ja Apple Silicon -Maceilla, Windowsissa ja Linuxissa. Uudet alustat ovat myös testauksessa.</string>
+  <string name="beta_special_additions_android">Kaksi pienempää uudistusta: WebDAV-synkronointi (oma palvelin, NAS tai mikä tahansa WebDAV-palvelu Google Driven ja Nextcloudin lisäksi) sekä uusi hakuindeksi, joka rakennetaan kerran automaattisesti päivityksen jälkeen.</string>
+  <string name="beta_special_one_app">Yksi sovellus kaikilla laitteillasi: samat toiminnot ja työnkulut puhelimessa, tabletissa ja tietokoneessa.</string>
+  <string name="beta_special_sync_ios">Laitteidesi välinen synkronointi Nextcloudin, WebDAVin (oma palvelin, NAS tai mikä tahansa WebDAV-palvelu) tai iCloud Driven kautta.</string>
+  <string name="beta_special_sync_desktop">Laitteidesi välinen synkronointi Nextcloudin tai WebDAVin (oma palvelin, NAS tai mikä tahansa WebDAV-palvelu) kautta.</string>
+  <string name="beta_special_feedback">Jos jotain puuttuu, toimii eri tavalla kuin ennen tai on vaikeampi löytää, kerro meille, vaikka se olisikin tarkoituksellista.</string>
+  <string name="beta_special_backup">Varmuuskopion tekeminen ennen testaamista on hyvä idea (päävalikko → %s).</string>
+  <string name="beta_special_beta_warning">Tämä on beta-versio: kaikki ei ole valmista tai täysin testattua, ja siinä voi olla virheitä. Käyttämällä sitä olet betatestaaja, ja virheilmoituksesi tekevät lopullisesta julkaisusta hyvän.</string>
+  <string name="beta_special_leave_beta_android">Jos et tarkoittanut testata, voit poistua kohteesta %s ja palata vakaaseen versioon.</string>
+  <string name="beta_special_report">Ilmoita virheistä kohteessa %1$s (suositeltu) tai päävalikossa → %2$s.</string>
+  <string name="beta_special_report_android">Ilmoita virheistä kohteessa %1$s (suositeltu), Google Playssa tai päävalikossa → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible muilla laitteillasi</string>
+  <string name="beta_special_other_devices_intro">Sama beta on saatavilla kaikille laitteillesi:</string>
+  <string name="beta_special_other_android">Android: liity kohteeseen %1$s tai lataa APK uusimmasta beta-julkaisusta kohteessa %2$s.</string>
+  <string name="beta_special_play_beta_link">Google Playn beta-ohjelma</string>
+  <string name="beta_special_other_apple">iPhone, iPad ja Apple Silicon -Mac: asenna Applen TestFlight-sovellus ja liity kohteeseen %s.</string>
+  <string name="beta_special_testflight_link">AndBible julkinen beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) ja Linux (.deb tai AppImage): lataa ne uusimmasta beta-julkaisusta kohteessa %s.</string>
+  <string name="beta_special_installation_guide">Vaiheittaiset ohjeet löytyvät kohteesta %s.</string>
+  <string name="beta_special_installation_guide_link">asennusopas</string>
+  <string name="beta_special_regards">Terveisin, Tuomas</string>
+  <string name="beta_special_sponsor">PS. Voit tukea AndBiblen kehitystä rahallisesti: %s.</string>
+  <string name="beta_special_sponsor_link">sponsoroimalla kehitystunteja</string>
   <string name="stable_notice_title">Sovellus on päivitetty!</string>
   <string name="upgrade_video_message">Katso video jolla esitellään tämän julkaisun uudet ominaisuudet (%s).</string>
   <string name="stable_notice_par1">Uusi versio %1$s sovelluksesta %2$s on asennettu onnistuneesti!</string>
@@ -1125,6 +1192,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="db_repositories">Dokumenttirepositoriot ja liitännäiset asetukset</string>
   <string name="db_bookmarks">Kirjanmerkit, omat merkinnät, kirjanmerkkiryhmät ja opintoalustat</string>
   <string name="synchronizing">Synkronoidaan…</string>
+  <string name="notification_finished">Valmis</string>
   <string name="overrideBackup">Aikaisempi tietokanta johon tätä laitetta ei ole synkronoitu löytyi pilvipalvelusta. Tietokanta sisältää: %s. Mitä haluat tehdä?</string>
   <string name="reading_plans_content">Lukusuunnitelmat ja niiden tila</string>
   <string name="bookmarks_contents">Kirjanmerkit, kirjanmerkkiryhmät ja opintoalustat</string>
@@ -1703,6 +1771,12 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="agent_log_response_received">Vastaus vastaanotettu</string>
   <string name="agent_log_saved">Tallennettu: %s</string>
   <string name="agent_log_done">Valmis: %s</string>
+  <string name="agent_activity_title">Tekoälyagentti</string>
+  <string name="agent_activity_title_in">Tekoälyagentti: %s</string>
+  <string name="agent_activity_waiting">Odottaa lupaasi</string>
+  <string name="agent_activity_waiting_for">Odottaa lupaasi: %s</string>
+  <string name="agent_activity_failed">Tekoälyagentti epäonnistui</string>
+  <string name="agent_activity_attention_needed">Tekoälyagentti tarvitsee huomiotasi</string>
   <string name="agent_log_cancelled">Peruutettu</string>
   <string name="agent_already_running">Tekoälyagentti on jo käynnissä. Odota tai pysäytä se ensin.</string>
   <!--AI Agent Notifications-->

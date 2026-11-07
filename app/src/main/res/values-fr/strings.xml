@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible nécessite les graphiques Direct3D pour afficher le texte biblique avec WebView2. Le moteur de rendu graphique actuel est %1$s. Vérifiez votre pilote graphique et la prise en charge de Direct3D.\n\nLes détails se trouvent dans le fichier journal :\n%2$s</string>
   <string name="desktop_update_setting_title">Rechercher des mises à jour</string>
   <string name="desktop_update_setting_summary">Une fois par jour, depuis github.com</string>
+  <string name="desktop_beta_update_setting_title">Proposer les mises à jour bêta publiques</string>
+  <string name="desktop_beta_update_setting_summary">Proposer aussi les versions bêta publiques. Désactivé, une installation bêta ne reçoit que les versions de production.</string>
   <string name="desktop_update_consent_title">Rechercher des mises à jour ?</string>
   <string name="desktop_update_consent_message">AndBible peut consulter github.com une fois par jour pour rechercher une version plus récente. GitHub voit votre adresse IP ; rien d\'autre n\'est envoyé. Vous pourrez modifier ce choix plus tard dans les paramètres.</string>
   <string name="desktop_update_consent_yes">Rechercher des mises à jour</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Activer les fonctionnalités spécifiques e-ink (boutons de défilement de page, lignes d’aide au défilement)</string>
   <string name="prefs_disable_animations_title">Désactiver les animations</string>
   <string name="prefs_disable_animations_summary">Désactiver diverses animations telles que le défilement fluide.</string>
+  <string name="prefs_show_activity_in_menu_title">Afficher l\'activité en arrière-plan dans le menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Progression des téléchargements, de la synchronisation et de l\'indexation, et échecs, dans le menu ⋮</string>
+  <string name="prefs_system_notifications_title">Notifications système</string>
+  <string name="prefs_system_notifications_denied">Désactivé dans les Réglages iOS</string>
+  <string name="prefs_system_notifications_summary">Notifier les échecs des tâches en arrière-plan, les longs téléchargements qui se terminent pendant qu\'AndBible est en arrière-plan, et leur progression</string>
   <string name="prefs_disable_click_to_edit_title">Désactiver la modification par clic dans le bloc-notes</string>
   <string name="prefs_disable_click_to_edit_summary">Nécessite d\'utiliser le bouton d\'édition pour modifier les notes dans le bloc-notes.</string>
   <string name="prefs_notes_content_type_title">Format des nouvelles notes de signet</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_night_mode_system">Système</string>
   <string name="options_menu_night_mode">Mode nuit</string>
+  <string name="options_menu_sync_now">Synchroniser maintenant</string>
+  <string name="exit_sync_title">Synchronisation des modifications…</string>
+  <string name="exit_sync_body">Envoi de vos modifications vers vos autres appareils. Cela peut prendre quelques secondes.</string>
+  <string name="exit_sync_quit_now">Quitter maintenant</string>
+  <string name="exit_sync_closing">Fermeture…</string>
+  <string name="sync_now_no_network">Aucune connexion réseau</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
   <string name="prefs_open_links_in_special_window_title">Fenêtres liées</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Langue</string>
   <string name="one_more_back_press">Appuyez à nouveau sur la touche retour pour fermer l’application</string>
   <string name="document_filter_results">%d documents</string>
+  <string name="activity_show_all">Tout afficher (%1$d)</string>
+  <string name="activity_failed_badge">%1$d en échec</string>
+  <string name="activity_attention_badge">%1$d nécessitent votre attention</string>
+  <string name="activity_combined_badge">%1$d en échec, %2$d nécessitent votre attention</string>
+  <string name="activity_running_description">Tâches en arrière-plan en cours</string>
+  <string name="activity_running">En cours</string>
+  <string name="activity_recent">Récentes</string>
+  <string name="activity_clear_finished">Effacer les terminées</string>
+  <string name="activity_title">Activité en arrière-plan</string>
+  <string name="activity_empty">Rien en cours</string>
+  <string name="activity_failed_toast">%1$s — voir le menu</string>
   <string name="download_question_title">Voulez-vous procéder au téléchargement des documents ?</string>
   <string name="download_question_message">Si vous vivez dans un pays de persécution,
 vous devrez faire attention au téléchargement de matériel chrétien via Internet.
@@ -628,6 +652,7 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_backup_title">Vers où sauvegarder ?</string>
   <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
   <string name="backup_phone_storage">Stockage de téléphone</string>
+  <string name="backup_save_to_files">Enregistrer dans Fichiers</string>
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup_modules2">Sauvegarde les documents vers...</string>
   <string name="backup_app2">Sauvergader l’app (fichier .apk) dans …</string>
@@ -681,6 +706,9 @@ Le fichier est peut-être invalide.</string>
   <string name="module_about_repository">Serveur de distribution : %s</string>
   <string name="module_about_osisId">OSIS ID : %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Dossier des journaux</string>
+  <string name="open_log_folder">Ouvrir le dossier des journaux</string>
+  <string name="startup_report_bug">Signaler un bogue</string>
   <string name="send_bug_report_title">Commentaire / rapport de bogue</string>
   <string name="report_bug_email_subject_3">[%1$s] Rapport de bogues pour %2$s %3$s</string>
   <string name="report_bug_big_heading">VEUILLEZ ÉCRIRE VOS COMMENTAIRES OU VOTRE RAPPORT DE BOGUE AU-DESSUS DE CETTE LIGNE.</string>
@@ -748,8 +776,16 @@ Le fichier est peut-être invalide.</string>
   <string name="debug_test_error">Erreur de test (version de débogage)</string>
   <string name="bug_report_prepare_failed">Impossible de préparer ou de partager le rapport. Vous pouvez réessayer, ou utiliser Sauvegarde et restauration pour enregistrer vos données.</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
+  <string name="bug_report_desktop_text">Ensuite, il vous sera demandé où enregistrer le fichier du rapport de bogue. Vous recevrez alors des instructions pour l\'envoyer à l\'équipe de développement.</string>
   <string name="bug_report_email_text">Ensuite, veuillez sélectionner votre application de messagerie préférée (Gmail par exemple) pour envoyer le rapport à l’équipe de développeurs.</string>
   <string name="bug_report_manual_title">Envoyer le rapport par e-mail</string>
+  <string name="bug_report_manual_text_saved">Le rapport a été enregistré dans <b>%1$s</b>.\n\nVeuillez envoyer un e-mail à <b>%2$s</b> en joignant ce fichier ; un logiciel de messagerie ne peut pas le joindre à votre place. Objet suggéré : <b>%3$s</b>. Dans le message, indiquez-nous ce que vous avez fait et ce qui s\'est passé.</string>
+  <string name="bug_report_manual_text_unsaved">Le rapport a été enregistré à l\'emplacement que vous avez choisi.\n\nVeuillez envoyer un e-mail à <b>%1$s</b> en joignant le fichier de rapport enregistré ; un logiciel de messagerie ne peut pas le joindre à votre place. Objet suggéré : <b>%2$s</b>. Dans le message, indiquez-nous ce que vous avez fait et ce qui s\'est passé.</string>
+  <string name="bug_report_subject_suggestion">Bogue AndBible %1$s : &lt;brève description&gt;</string>
+  <string name="bug_report_attach_line">Veuillez joindre le fichier %1$s</string>
+  <string name="bug_report_copy_subject">Copier l\'objet</string>
+  <string name="bug_report_copy_path">Copier le chemin du fichier</string>
+  <string name="bug_report_open_folder">Ouvrir le dossier</string>
   <string name="bug_report_copy_address">Copier l\'adresse</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>
@@ -777,9 +813,40 @@ Le fichier est peut-être invalide.</string>
   <string name="workspace_manage_workspaces">Gérer les espaces…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ceci est une version bêta!</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">AVIS SPÉCIAL DU DÉVELOPPEUR AUX TESTEURS BÊTA (novembre 2026)</string>
+  <string name="beta_special_intro_android">Bienvenue dans la bêta d\'AndBible 6.0 ! C\'est le plus grand changement de l\'histoire d\'AndBible. Toute l\'application a été réécrite avec une nouvelle boîte à outils d\'interface utilisateur, et l\'interface a été repensée au passage : chaque écran a été revu, et la plupart ont reçu d\'importantes améliorations d\'ergonomie en plus du nouveau style Material 3.</string>
+  <string name="beta_special_intro_ios">Bienvenue dans la bêta d\'AndBible 6.0 ! Si vous avez utilisé AndBible pour iOS 1.0, c\'est un grand changement : la version 6.0 la remplace par l\'application AndBible partagée, la même qui fonctionne sur Android, iPhone, iPad et Mac Apple Silicon, Windows et Linux. Elle repose sur le code qui sert les utilisateurs Android depuis plus de dix ans, réécrit avec une nouvelle boîte à outils d\'interface utilisateur, et l\'interface a été repensée au passage : chaque écran a été revu, et la plupart ont reçu d\'importantes améliorations d\'ergonomie.</string>
+  <string name="beta_special_intro_desktop">Bienvenue dans la bêta d\'AndBible 6.0, et dans AndBible sur Windows et Linux ! C\'est la première version de bureau d\'AndBible : la même application fonctionne désormais sur Android, iPhone, iPad et Mac Apple Silicon, Windows et Linux. Elle repose sur le code qui sert les utilisateurs Android depuis plus de dix ans, réécrit avec une nouvelle boîte à outils d\'interface utilisateur, et l\'interface a été repensée au passage : chaque écran a été revu, et la plupart ont reçu d\'importantes améliorations d\'ergonomie.</string>
+  <string name="beta_special_redesign">Une interface repensée : menus, réglages et boîtes de dialogue plus clairs, navigation plus cohérente, et de nombreuses petites améliorations d\'utilisation dans toute l\'application.</string>
+  <string name="beta_special_data_kept">Vos fonctionnalités, vos données et vos réglages sont tous conservés.</string>
+  <string name="beta_special_platforms">La même application fonctionne désormais sur Android, iPhone, iPad et Mac Apple Silicon, Windows et Linux. Les nouvelles plateformes sont également en phase de test.</string>
+  <string name="beta_special_additions_android">Deux ajouts plus modestes : la synchronisation WebDAV (votre propre serveur, un NAS ou tout service WebDAV, en plus de Google Drive et Nextcloud), et un nouvel index de recherche, reconstruit une seule fois, automatiquement, après la mise à jour.</string>
+  <string name="beta_special_one_app">Une seule application sur tous vos appareils : les mêmes fonctionnalités et le même fonctionnement sur votre téléphone, votre tablette et votre ordinateur.</string>
+  <string name="beta_special_sync_ios">Synchronisation entre vos appareils via Nextcloud, WebDAV (votre propre serveur, un NAS ou tout service WebDAV) ou iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synchronisation entre vos appareils via Nextcloud ou WebDAV (votre propre serveur, un NAS ou tout service WebDAV).</string>
+  <string name="beta_special_feedback">Si quelque chose manque, fonctionne autrement qu\'avant ou est devenu plus difficile à trouver, dites-le-nous, même si c\'est peut-être voulu.</string>
+  <string name="beta_special_backup">Il est conseillé de faire une sauvegarde avant de tester (Menu principal → %s).</string>
+  <string name="beta_special_beta_warning">Ceci est une version bêta : tout n\'est pas terminé ni entièrement testé, et elle peut contenir des bogues. En l\'utilisant, vous devenez testeur bêta, et vos rapports de bogue contribuent à la qualité de la version finale.</string>
+  <string name="beta_special_leave_beta_android">Si vous ne souhaitiez pas tester, vous pouvez quitter le %s et revenir à la version stable.</string>
+  <string name="beta_special_report">Veuillez signaler les bogues via %1$s (de préférence) ou Menu principal → %2$s.</string>
+  <string name="beta_special_report_android">Veuillez signaler les bogues via %1$s (de préférence), Google Play ou Menu principal → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible sur vos autres appareils</string>
+  <string name="beta_special_other_devices_intro">La même bêta est disponible pour tous vos appareils :</string>
+  <string name="beta_special_other_android">Android : rejoignez le %1$s, ou téléchargez l\'APK depuis la dernière version bêta sur %2$s.</string>
+  <string name="beta_special_play_beta_link">programme bêta sur Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad et Mac Apple Silicon : installez l\'application TestFlight d\'Apple et rejoignez la %s.</string>
+  <string name="beta_special_testflight_link">bêta publique d\'AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) et Linux (.deb ou AppImage) : téléchargez-les depuis la dernière version bêta sur %s.</string>
+  <string name="beta_special_installation_guide">Des instructions pas à pas figurent dans le %s.</string>
+  <string name="beta_special_installation_guide_link">guide d\'installation</string>
+  <string name="beta_special_regards">Cordialement, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Vous pouvez soutenir financièrement le développement d\'AndBible en %s.</string>
+  <string name="beta_special_sponsor_link">finançant des heures de développement</string>
   <string name="stable_notice_title">L’application a été mise à jour !</string>
   <string name="upgrade_video_message">Veuillez voir la vidéo présentant les nouvelles fonctionnalités de cette version (%s).</string>
   <string name="stable_notice_par1">La nouvelle version %1$s de %2$s a été installée avec succès !</string>
@@ -1187,6 +1254,7 @@ Lors de l’utilisation de Google Drive, l’accès à %s n’est accordé qu’
   <string name="db_repositories">Dépôts et paramètres connexes</string>
   <string name="db_bookmarks">Signets, notes, étiquettes et blocs-notes</string>
   <string name="synchronizing">Synchronisation…</string>
+  <string name="notification_finished">Terminé</string>
   <string name="overrideBackup">
 La base de données existante avec laquelle cet appareil n’est pas synchronisé se trouve dans le nuage.
 La base de données contient %s. Que voulez-vous faire ?
@@ -1770,6 +1838,12 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="agent_log_response_received">Réponse reçue</string>
   <string name="agent_log_saved">Enregistré : %s</string>
   <string name="agent_log_done">Terminé : %s</string>
+  <string name="agent_activity_title">Agent IA</string>
+  <string name="agent_activity_title_in">Agent IA : %s</string>
+  <string name="agent_activity_waiting">En attente de votre autorisation</string>
+  <string name="agent_activity_waiting_for">En attente de votre autorisation : %s</string>
+  <string name="agent_activity_failed">L\'agent IA a échoué</string>
+  <string name="agent_activity_attention_needed">L\'agent IA a besoin de votre attention</string>
   <string name="agent_log_cancelled">Annulé</string>
   <string name="agent_already_running">Un agent AI est déjà en cours d\'exécution. Veuillez patienter ou l\'arrêter d\'abord.</string>
   <!--AI Agent Notifications-->

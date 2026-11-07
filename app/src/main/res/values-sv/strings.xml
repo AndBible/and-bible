@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible kräver Direct3D-grafik för att visa bibeltext med WebView2. Den nuvarande grafikrenderaren är %1$s. Kontrollera din grafikdrivrutin och ditt Direct3D-stöd.\n\nDetaljer finns i loggfilen:\n%2$s</string>
   <string name="desktop_update_setting_title">Sök efter uppdateringar</string>
   <string name="desktop_update_setting_summary">En gång per dag, från github.com</string>
+  <string name="desktop_beta_update_setting_title">Erbjud offentliga betauppdateringar</string>
+  <string name="desktop_beta_update_setting_summary">Erbjud även offentliga betaversioner. När det är av får en betainstallation bara skarpa utgåvor.</string>
   <string name="desktop_update_consent_title">Söka efter uppdateringar?</string>
   <string name="desktop_update_consent_message">AndBible kan söka på github.com en gång per dag efter en nyare version. GitHub ser din IP-adress; inget annat skickas. Du kan ändra detta senare i Inställningar.</string>
   <string name="desktop_update_consent_yes">Sök efter uppdateringar</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Aktivera e-ink-specifika funktioner (skrollningsknappar, skrollningshjälplinjer)</string>
   <string name="prefs_disable_animations_title">Inaktivera animationer</string>
   <string name="prefs_disable_animations_summary">Inaktivera olika animationer såsom mjuk skrollning.</string>
+  <string name="prefs_show_activity_in_menu_title">Visa bakgrundsaktivitet i menyn</string>
+  <string name="prefs_show_activity_in_menu_summary">Nedladdningar, synkronisering och indexeringsförlopp samt fel, i ⋮-menyn</string>
+  <string name="prefs_system_notifications_title">Systemaviseringar</string>
+  <string name="prefs_system_notifications_denied">Avstängt i iOS-inställningarna</string>
+  <string name="prefs_system_notifications_summary">Avisera om misslyckat bakgrundsarbete, långa nedladdningar som slutförs medan AndBible är i bakgrunden, samt deras förlopp</string>
   <string name="prefs_disable_click_to_edit_title">Inaktivera klicka-för-att-redigera i studieblock</string>
   <string name="prefs_disable_click_to_edit_summary">Kräver att redigeringsknappen används för att redigera anteckningar i studieblocket.</string>
   <string name="prefs_notes_content_type_title">Format för nya bokmärkesanteckningar</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatiskt</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nattläge</string>
+  <string name="options_menu_sync_now">Synkronisera nu</string>
+  <string name="exit_sync_title">Synkroniserar ändringar…</string>
+  <string name="exit_sync_body">Dina ändringar skickas till dina andra enheter. Det kan ta några sekunder.</string>
+  <string name="exit_sync_quit_now">Avsluta nu</string>
+  <string name="exit_sync_closing">Stänger…</string>
+  <string name="sync_now_no_network">Ingen nätverksanslutning</string>
   <string name="prefs_navigate_to_verse_title">Navigera till vers</string>
   <string name="prefs_navigate_to_verse_summary">Välj både kapitel och vers vid val av stycke</string>
   <string name="prefs_open_links_in_special_window_title">Länkfönster</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">Språk</string>
   <string name="one_more_back_press">Tryck bak igen för att stänga appen</string>
   <string name="document_filter_results">%d dokument</string>
+  <string name="activity_show_all">Visa alla (%1$d)</string>
+  <string name="activity_failed_badge">%1$d misslyckades</string>
+  <string name="activity_attention_badge">%1$d kräver uppmärksamhet</string>
+  <string name="activity_combined_badge">%1$d misslyckades, %2$d kräver uppmärksamhet</string>
+  <string name="activity_running_description">Bakgrundsarbete pågår</string>
+  <string name="activity_running">Pågår</string>
+  <string name="activity_recent">Senaste</string>
+  <string name="activity_clear_finished">Rensa slutförda</string>
+  <string name="activity_title">Bakgrundsaktivitet</string>
+  <string name="activity_empty">Inget pågår</string>
+  <string name="activity_failed_toast">%1$s — se menyn</string>
   <string name="download_question_title">Vill du fortsätta med nedladdningen av dokument?</string>
   <string name="download_question_message">Om du bor i ett förföljt land
 kan du behöva vara försiktig med att ladda ner kristet material via internet.
@@ -651,6 +675,7 @@ i GT och NT varje dag.
   <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
   <string name="backup_backup_message">Säkerhetskopiera till telefonen eller till en annan plats via delningsfunktionen (e-post, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefonlagring</string>
+  <string name="backup_save_to_files">Spara i Filer</string>
   <string name="backup_and_restore">Säkerhetskopiera &amp; återställ</string>
   <string name="backup_modules2">Säkerhetskopiera dokument till...</string>
   <string name="backup_app2">Säkerhetskopiera app (.apk-fil) till...</string>
@@ -703,6 +728,9 @@ i GT och NT varje dag.
   <string name="module_about_repository">Distributionsserver: %s</string>
   <string name="module_about_osisId">OSIS-id: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Loggmapp</string>
+  <string name="open_log_folder">Öppna loggmapp</string>
+  <string name="startup_report_bug">Rapportera ett fel</string>
   <string name="send_bug_report_title">Feedback/buggrapportering</string>
   <string name="report_bug_email_subject_3">[%1$s] Buggrapport för %2$s %3$s</string>
   <string name="report_bug_big_heading">SKRIV DIN FEEDBACK ELLER BUGGRAPPORT OVANFÖR DENNA RAD</string>
@@ -771,8 +799,16 @@ i GT och NT varje dag.
   <string name="debug_test_error">Testfel (felsökningsbygge)</string>
   <string name="bug_report_prepare_failed">Rapporten kunde inte förberedas eller delas. Du kan försöka igen, eller använda Säkerhetskopiera och återställ för att spara dina data.</string>
   <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
+  <string name="bug_report_desktop_text">Därefter får du välja var felrapportfilen ska sparas. Sedan får du instruktioner för hur du skickar den till utvecklarteamet.</string>
   <string name="bug_report_email_text">Välj nu den e-postapp du föredrar (t.ex. Gmail) för att skicka rapporten till utvecklarna.</string>
   <string name="bug_report_manual_title">Skicka rapporten med e-post</string>
+  <string name="bug_report_manual_text_saved">Rapporten sparades i <b>%1$s</b>.\n\nSkicka ett e-postmeddelande till <b>%2$s</b> och bifoga den filen; ett e-postprogram kan inte bifoga den åt dig. Föreslaget ämne: <b>%3$s</b>. Berätta i meddelandet vad du gjorde och vad som hände.</string>
+  <string name="bug_report_manual_text_unsaved">Rapporten sparades på den plats du valde.\n\nSkicka ett e-postmeddelande till <b>%1$s</b> och bifoga den sparade rapportfilen; ett e-postprogram kan inte bifoga den åt dig. Föreslaget ämne: <b>%2$s</b>. Berätta i meddelandet vad du gjorde och vad som hände.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s-fel: &lt;kort beskrivning&gt;</string>
+  <string name="bug_report_attach_line">Bifoga filen %1$s</string>
+  <string name="bug_report_copy_subject">Kopiera ämne</string>
+  <string name="bug_report_copy_path">Kopiera filsökväg</string>
+  <string name="bug_report_open_folder">Öppna mapp</string>
   <string name="bug_report_copy_address">Kopiera adress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text till tal</string>
@@ -800,9 +836,40 @@ i GT och NT varje dag.
   <string name="workspace_manage_workspaces">Hantera arbetsytor…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Detta är en beta version!</string>
-  <string name="beta_notice_github_issues">Github-ärenden</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub-ärenden</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">UTVECKLARENS SÄRSKILDA MEDDELANDE TILL BETATESTARE (november 2026)</string>
+  <string name="beta_special_intro_android">Välkommen till AndBible 6.0 beta! Det här är den största förändringen i AndBibles historia. Hela appen har skrivits om med ett nytt verktygspaket för användargränssnitt, och gränssnittet har formgivits om på vägen: varje skärm har gåtts igenom, och de flesta har fått betydande användbarhetsförbättringar utöver det uppfräschade Material 3-utseendet.</string>
+  <string name="beta_special_intro_ios">Välkommen till AndBible 6.0 beta! Om du har använt AndBible för iOS 1.0 är det här en stor förändring: version 6.0 ersätter den med den gemensamma AndBible-appen, samma app som körs på Android, iPhone, iPad och Apple Silicon-Mac, Windows och Linux. Den bygger på koden som har tjänat Android-användare i över ett decennium, omskriven med ett nytt verktygspaket för användargränssnitt, och gränssnittet har formgivits om på vägen: varje skärm har gåtts igenom, och de flesta har fått betydande användbarhetsförbättringar.</string>
+  <string name="beta_special_intro_desktop">Välkommen till AndBible 6.0 beta, och till AndBible på Windows och Linux! Det här är den första skrivbordsversionen av AndBible: samma app körs nu på Android, iPhone, iPad och Apple Silicon-Mac, Windows och Linux. Den bygger på koden som har tjänat Android-användare i över ett decennium, omskriven med ett nytt verktygspaket för användargränssnitt, och gränssnittet har formgivits om på vägen: varje skärm har gåtts igenom, och de flesta har fått betydande användbarhetsförbättringar.</string>
+  <string name="beta_special_redesign">Ett omformgivet gränssnitt: tydligare menyer, inställningar och dialogrutor, mer konsekvent navigering och många små förbättringar av arbetsflödet i hela appen.</string>
+  <string name="beta_special_data_kept">Dina funktioner, data och inställningar finns kvar.</string>
+  <string name="beta_special_platforms">Samma app körs nu på Android, iPhone, iPad och Apple Silicon-Mac, Windows och Linux. De nya plattformarna testas också.</string>
+  <string name="beta_special_additions_android">Två mindre tillägg: WebDAV-synkronisering (din egen server, en NAS eller valfri WebDAV-tjänst, vid sidan av Google Drive och Nextcloud) och ett nytt sökindex som byggs om en gång, automatiskt, efter uppdateringen.</string>
+  <string name="beta_special_one_app">En app på alla dina enheter: samma funktioner och arbetsflöden på telefonen, surfplattan och datorn.</string>
+  <string name="beta_special_sync_ios">Synkronisering mellan dina enheter via Nextcloud, WebDAV (din egen server, en NAS eller valfri WebDAV-tjänst) eller iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Synkronisering mellan dina enheter via Nextcloud eller WebDAV (din egen server, en NAS eller valfri WebDAV-tjänst).</string>
+  <string name="beta_special_feedback">Om något saknas, fungerar annorlunda än förut eller blivit svårare att hitta, berätta det för oss, även om det kan vara avsiktligt.</string>
+  <string name="beta_special_backup">Det är bra att göra en säkerhetskopia innan du testar (Huvudmeny → %s).</string>
+  <string name="beta_special_beta_warning">Det här är en betaversion: inte allt är färdigt eller fullständigt testat, och den kan innehålla fel. Genom att använda den är du betatestare, och dina felrapporter gör den slutliga utgåvan bra.</string>
+  <string name="beta_special_leave_beta_android">Om du inte tänkte testa kan du lämna %s och gå tillbaka till den stabila versionen.</string>
+  <string name="beta_special_report">Rapportera fel via %1$s (helst) eller Huvudmeny → %2$s.</string>
+  <string name="beta_special_report_android">Rapportera fel via %1$s (helst), Google Play eller Huvudmeny → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible på dina andra enheter</string>
+  <string name="beta_special_other_devices_intro">Samma beta finns för alla dina enheter:</string>
+  <string name="beta_special_other_android">Android: gå med i %1$s eller ladda ner APK-filen från den senaste betautgåvan på %2$s.</string>
+  <string name="beta_special_play_beta_link">betaprogrammet på Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad och Apple Silicon-Mac: installera Apples TestFlight-app och gå med i %s.</string>
+  <string name="beta_special_testflight_link">AndBible public beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) och Linux (.deb eller AppImage): ladda ner dem från den senaste betautgåvan på %s.</string>
+  <string name="beta_special_installation_guide">Steg-för-steg-instruktioner finns i %s.</string>
+  <string name="beta_special_installation_guide_link">installationsguiden</string>
+  <string name="beta_special_regards">Vänliga hälsningar, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Du kan stödja utvecklingen av AndBible ekonomiskt genom att %s.</string>
+  <string name="beta_special_sponsor_link">sponsra utvecklingstimmar</string>
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
   <string name="upgrade_video_message">Se video om de nya funktionerna i denna utgåva (%s).</string>
   <string name="stable_notice_par1">Nya versionen %1$s av %2$s har installerats!</string>
@@ -1218,6 +1285,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="db_repositories">Kataloger och relaterade inställningar</string>
   <string name="db_bookmarks">Bokmärken, egna anteckningar, etiketter och studieblock.</string>
   <string name="synchronizing">Synkroniserar...</string>
+  <string name="notification_finished">Klart</string>
   <string name="overrideBackup">
         Existerande databas som den här enheten inte är synkroniserad med hittades i molnet.
         Databasen innehåller %s. Vad vill du göra?
@@ -1801,6 +1869,12 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_response_received">Svar mottaget</string>
   <string name="agent_log_saved">Sparad: %s</string>
   <string name="agent_log_done">Klar: %s</string>
+  <string name="agent_activity_title">AI-agent</string>
+  <string name="agent_activity_title_in">AI-agent: %s</string>
+  <string name="agent_activity_waiting">Väntar på ditt tillstånd</string>
+  <string name="agent_activity_waiting_for">Väntar på ditt tillstånd: %s</string>
+  <string name="agent_activity_failed">AI-agenten misslyckades</string>
+  <string name="agent_activity_attention_needed">AI-agenten behöver din uppmärksamhet</string>
   <string name="agent_log_cancelled">Avbruten</string>
   <string name="agent_already_running">En AI-assistent körs redan. Vänta eller stoppa den först.</string>
   <!--AI Agent Notifications-->

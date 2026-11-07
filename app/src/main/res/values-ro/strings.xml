@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible necesită grafică Direct3D pentru a afișa textul biblic cu WebView2. Motorul grafic curent este %1$s. Verifică driverul grafic și suportul Direct3D.\n\nDetalii se găsesc în fișierul jurnal:\n%2$s</string>
   <string name="desktop_update_setting_title">Caută actualizări</string>
   <string name="desktop_update_setting_summary">O dată pe zi, de pe github.com</string>
+  <string name="desktop_beta_update_setting_title">Oferă actualizări beta publice</string>
+  <string name="desktop_beta_update_setting_summary">Oferă și versiuni beta publice. Când este dezactivat, o instalare beta primește doar versiunile de producție.</string>
   <string name="desktop_update_consent_title">Cauți actualizări?</string>
   <string name="desktop_update_consent_message">AndBible poate verifica github.com o dată pe zi pentru o versiune mai nouă. GitHub vede adresa ta IP; nu se trimite nimic altceva. Poți schimba această opțiune ulterior în Preferințe.</string>
   <string name="desktop_update_consent_yes">Caută actualizări</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Activează caracteristici specifice e-ink (butoane de răsfoire a paginilor, linii ajutătoare de răsfoire)</string>
   <string name="prefs_disable_animations_title">Dezactivează animațiile</string>
   <string name="prefs_disable_animations_summary">Dezactivează diverse animații, cum ar fi derularea lină.</string>
+  <string name="prefs_show_activity_in_menu_title">Afișează activitatea din fundal în meniu</string>
+  <string name="prefs_show_activity_in_menu_summary">Descărcări, sincronizare, progresul indexării și eșecurile, în meniul ⋮</string>
+  <string name="prefs_system_notifications_title">Notificări de sistem</string>
+  <string name="prefs_system_notifications_denied">Dezactivate în Setările iOS</string>
+  <string name="prefs_system_notifications_summary">Notifică despre lucrările eșuate din fundal, descărcările lungi finalizate cât timp AndBible rulează în fundal și progresul lor</string>
   <string name="prefs_disable_click_to_edit_title">Dezactivează modificarea prin atingere în Notița de studiu</string>
   <string name="prefs_disable_click_to_edit_summary">Necesită folosirea butonului de modificare pentru a modifica notițele din Notița de studiu.</string>
   <string name="prefs_notes_content_type_title">Format pentru notițele noi la semne de carte</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automat</string>
   <string name="prefs_night_mode_system">Sistem</string>
   <string name="options_menu_night_mode">Aspect de noapte</string>
+  <string name="options_menu_sync_now">Sincronizează acum</string>
+  <string name="exit_sync_title">Se sincronizează modificările…</string>
+  <string name="exit_sync_body">Se trimit modificările către celelalte dispozitive ale tale. Poate dura câteva secunde.</string>
+  <string name="exit_sync_quit_now">Ieși acum</string>
+  <string name="exit_sync_closing">Se închide…</string>
+  <string name="sync_now_no_network">Nu există conexiune la rețea</string>
   <string name="prefs_navigate_to_verse_title">Du-te la verset</string>
   <string name="prefs_navigate_to_verse_summary">Alege versetul (și capitolul) cînd selecționezi un pasaj</string>
   <string name="prefs_open_links_in_special_window_title">Ferestre</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">Limba</string>
   <string name="one_more_back_press">Apasă din nou înapoi pentru a închide aplicația</string>
   <string name="document_filter_results">%d documente</string>
+  <string name="activity_show_all">Arată tot (%1$d)</string>
+  <string name="activity_failed_badge">%1$d eșuate</string>
+  <string name="activity_attention_badge">%1$d necesită atenție</string>
+  <string name="activity_combined_badge">%1$d eșuate, %2$d necesită atenție</string>
+  <string name="activity_running_description">Lucrări în fundal în desfășurare</string>
+  <string name="activity_running">În desfășurare</string>
+  <string name="activity_recent">Recente</string>
+  <string name="activity_clear_finished">Șterge cele finalizate</string>
+  <string name="activity_title">Activitate în fundal</string>
+  <string name="activity_empty">Nimic în desfășurare</string>
+  <string name="activity_failed_toast">%1$s — vezi meniul</string>
   <string name="download_question_title">Vrei să descarci documentele?</string>
   <string name="download_question_message">Dacă locuiești într-o țară cu persecuții,
         trebuie să fii atent cînd descarci materiale creștine de pe internet.
@@ -653,6 +677,7 @@
   <string name="backup_backup_title">Unde salvez copia?</string>
   <string name="backup_backup_message">Copiezi în telefon sau în altă parte (e-mail, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Memoria telefonului</string>
+  <string name="backup_save_to_files">Salvează în Fișiere</string>
   <string name="backup_and_restore">Copiere și Recuperare</string>
   <string name="backup_modules2">Copiază documente în…</string>
   <string name="backup_app2">Copiază aplicația (fișier .apk) în …</string>
@@ -705,6 +730,9 @@
   <string name="module_about_repository">Server de distribuție: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Dosar de jurnale</string>
+  <string name="open_log_folder">Deschide dosarul de jurnale</string>
+  <string name="startup_report_bug">Raportează o eroare</string>
   <string name="send_bug_report_title">Părere / Raportare erori</string>
   <string name="report_bug_email_subject_3">[%1$s] Raport de eroare pentru %2$s %3$s</string>
   <string name="report_bug_big_heading">SCRIE PĂREREA TA SAU RAPORTUL DE EROARE DEASUPRA ACESTEI LINII</string>
@@ -773,8 +801,16 @@
   <string name="debug_test_error">Eroare de test (versiune de depanare)</string>
   <string name="bug_report_prepare_failed">Raportul nu a putut fi pregătit sau trimis. Poți încerca din nou sau poți folosi Copie de siguranță și recuperare pentru a-ți salva datele.</string>
   <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
+  <string name="bug_report_desktop_text">În continuare, vi se va cere unde să salvați fișierul raportului de eroare. Apoi veți primi instrucțiuni pentru trimiterea lui către echipa de dezvoltare.</string>
   <string name="bug_report_email_text">Apoi, alege aplicația de e-mail preferată (Gmail, de exemplu) pentru a trimite raportul către echipa de programatori.</string>
   <string name="bug_report_manual_title">Trimite raportul prin e-mail</string>
+  <string name="bug_report_manual_text_saved">Raportul a fost salvat în <b>%1$s</b>.\n\nVă rugăm să trimiteți un e-mail la <b>%2$s</b> și să atașați acel fișier; un program de e-mail nu îl poate atașa pentru dumneavoastră. Subiect sugerat: <b>%3$s</b>. În mesaj, spuneți-ne ce ați făcut și ce s-a întâmplat.</string>
+  <string name="bug_report_manual_text_unsaved">Raportul a fost salvat în locul ales.\n\nVă rugăm să trimiteți un e-mail la <b>%1$s</b> și să atașați fișierul de raport salvat; un program de e-mail nu îl poate atașa pentru dumneavoastră. Subiect sugerat: <b>%2$s</b>. În mesaj, spuneți-ne ce ați făcut și ce s-a întâmplat.</string>
+  <string name="bug_report_subject_suggestion">Eroare AndBible %1$s: &lt;scurtă descriere&gt;</string>
+  <string name="bug_report_attach_line">Vă rugăm să atașați fișierul %1$s</string>
+  <string name="bug_report_copy_subject">Copiază subiectul</string>
+  <string name="bug_report_copy_path">Copiază calea fișierului</string>
+  <string name="bug_report_open_folder">Deschide dosarul</string>
   <string name="bug_report_copy_address">Copiază adresa</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Vorbitor</string>
@@ -802,9 +838,40 @@
   <string name="workspace_manage_workspaces">Administrează spațiile de studiu…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
-  <string name="beta_notice_github_issues">Mesaje de eroare pe Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Mesaje de eroare pe GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ANUNȚ SPECIAL AL DEZVOLTATORULUI PENTRU TESTERII BETA (noiembrie 2026)</string>
+  <string name="beta_special_intro_android">Bun venit la versiunea beta AndBible 6.0! Aceasta este cea mai mare schimbare din istoria AndBible. Întreaga aplicație a fost rescrisă cu un nou set de instrumente pentru interfața cu utilizatorul, iar interfața a fost reproiectată pe parcurs: fiecare ecran a fost revizuit, iar majoritatea au primit îmbunătățiri semnificative de utilizare, pe lângă aspectul înnoit Material 3.</string>
+  <string name="beta_special_intro_ios">Bun venit la versiunea beta AndBible 6.0! Dacă ați folosit AndBible pentru iOS 1.0, aceasta este o schimbare mare: versiunea 6.0 o înlocuiește cu aplicația comună AndBible, aceeași aplicație care rulează pe Android, iPhone, iPad și Mac-uri Apple Silicon, Windows și Linux. Este construită pe codul care a servit utilizatorii Android timp de peste un deceniu, rescris cu un nou set de instrumente pentru interfața cu utilizatorul, iar interfața a fost reproiectată pe parcurs: fiecare ecran a fost revizuit, iar majoritatea au primit îmbunătățiri semnificative de utilizare.</string>
+  <string name="beta_special_intro_desktop">Bun venit la versiunea beta AndBible 6.0 și la AndBible pe Windows și Linux! Aceasta este prima versiune desktop a AndBible: aceeași aplicație rulează acum pe Android, iPhone, iPad și Mac-uri Apple Silicon, Windows și Linux. Este construită pe codul care a servit utilizatorii Android timp de peste un deceniu, rescris cu un nou set de instrumente pentru interfața cu utilizatorul, iar interfața a fost reproiectată pe parcurs: fiecare ecran a fost revizuit, iar majoritatea au primit îmbunătățiri semnificative de utilizare.</string>
+  <string name="beta_special_redesign">O interfață reproiectată: meniuri, setări și dialoguri mai clare, navigare mai consecventă și multe mici îmbunătățiri ale fluxului de lucru în toată aplicația.</string>
+  <string name="beta_special_data_kept">Funcțiile, datele și setările dumneavoastră sunt toate încă acolo.</string>
+  <string name="beta_special_platforms">Aceeași aplicație rulează acum pe Android, iPhone, iPad și Mac-uri Apple Silicon, Windows și Linux. Noile platforme sunt, de asemenea, în testare.</string>
+  <string name="beta_special_additions_android">Două completări mai mici: sincronizare WebDAV (propriul server, un NAS sau orice serviciu WebDAV, pe lângă Google Drive și Nextcloud) și un nou index de căutare, reconstruit o singură dată, automat, după actualizare.</string>
+  <string name="beta_special_one_app">O singură aplicație pe toate dispozitivele dumneavoastră: aceleași funcții și fluxuri de lucru pe telefon, tabletă și computer.</string>
+  <string name="beta_special_sync_ios">Sincronizare între dispozitivele dumneavoastră prin Nextcloud, WebDAV (propriul server, un NAS sau orice serviciu WebDAV) sau iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Sincronizare între dispozitivele dumneavoastră prin Nextcloud sau WebDAV (propriul server, un NAS sau orice serviciu WebDAV).</string>
+  <string name="beta_special_feedback">Dacă ceva lipsește, funcționează diferit față de înainte sau a devenit mai greu de găsit, vă rugăm să ne spuneți, chiar dacă ar putea fi intenționat.</string>
+  <string name="beta_special_backup">Este o idee bună să faceți o copie de rezervă înainte de testare (Meniul principal → %s).</string>
+  <string name="beta_special_beta_warning">Aceasta este o versiune beta: nu totul este finalizat sau testat complet și poate conține erori. Folosind-o, deveniți tester beta, iar rapoartele dumneavoastră de erori sunt cele care fac versiunea finală bună.</string>
+  <string name="beta_special_leave_beta_android">Dacă nu ați vrut să testați, puteți părăsi %s și reveni la versiunea stabilă.</string>
+  <string name="beta_special_report">Vă rugăm să raportați erorile prin %1$s (preferat) sau Meniul principal → %2$s.</string>
+  <string name="beta_special_report_android">Vă rugăm să raportați erorile prin %1$s (preferat), Google Play sau Meniul principal → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible pe celelalte dispozitive ale dumneavoastră</string>
+  <string name="beta_special_other_devices_intro">Aceeași versiune beta este disponibilă pentru toate dispozitivele dumneavoastră:</string>
+  <string name="beta_special_other_android">Android: alăturați-vă %1$s sau descărcați APK-ul din cea mai recentă versiune beta de pe %2$s.</string>
+  <string name="beta_special_play_beta_link">programului beta de pe Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad și Mac Apple Silicon: instalați aplicația TestFlight de la Apple și alăturați-vă %s.</string>
+  <string name="beta_special_testflight_link">versiunii beta publice AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) și Linux (.deb sau AppImage): descărcați-le din cea mai recentă versiune beta de pe %s.</string>
+  <string name="beta_special_installation_guide">Instrucțiunile pas cu pas se găsesc în %s.</string>
+  <string name="beta_special_installation_guide_link">ghidul de instalare</string>
+  <string name="beta_special_regards">Cu respect, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Puteți sprijini financiar dezvoltarea AndBible prin %s.</string>
+  <string name="beta_special_sponsor_link">sponsorizarea orelor de dezvoltare</string>
   <string name="stable_notice_title">Aplicația a fost actualizată!</string>
   <string name="upgrade_video_message">Te rugăm să vezi videoclipul cu noile caracteristici ale acestei versiuni (%s).</string>
   <string name="stable_notice_par1">Versiunea %1$s a %2$s a fost instalată cu succes!</string>
@@ -1221,6 +1288,7 @@
   <string name="db_repositories">Depozite și reglări aferente</string>
   <string name="db_bookmarks">Semne de carte, Notițele mele, Etichete și Notițe de studiu</string>
   <string name="synchronizing">Se sincronizează…</string>
+  <string name="notification_finished">Finalizat</string>
   <string name="overrideBackup">
         Baza de date existentă cu care acest aparat nu este sincronizat se găsește în Cloud.
         Baza de date conține %s. Ce vrei să faci?
@@ -1804,6 +1872,12 @@
   <string name="agent_log_response_received">Răspuns primit</string>
   <string name="agent_log_saved">Salvat: %s</string>
   <string name="agent_log_done">Gata: %s</string>
+  <string name="agent_activity_title">Agent AI</string>
+  <string name="agent_activity_title_in">Agent AI: %s</string>
+  <string name="agent_activity_waiting">Se așteaptă permisiunea dumneavoastră</string>
+  <string name="agent_activity_waiting_for">Se așteaptă permisiunea dumneavoastră: %s</string>
+  <string name="agent_activity_failed">Agentul AI a eșuat</string>
+  <string name="agent_activity_attention_needed">Agentul AI necesită atenția dumneavoastră</string>
   <string name="agent_log_cancelled">Anulat</string>
   <string name="agent_already_running">Un agent AI rulează deja. Așteptați sau opriți-l mai întâi.</string>
   <!--AI Agent Notifications-->

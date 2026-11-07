@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible memerlukan grafik Direct3D untuk memaparkan teks Alkitab dengan WebView2. Pemapar grafik semasa ialah %1$s. Semak pemacu grafik dan sokongan Direct3D anda.\n\nButiran terdapat dalam fail log:\n%2$s</string>
   <string name="desktop_update_setting_title">Semak kemas kini</string>
   <string name="desktop_update_setting_summary">Sekali sehari, dari github.com</string>
+  <string name="desktop_beta_update_setting_title">Tawarkan kemas kini beta awam</string>
+  <string name="desktop_beta_update_setting_summary">Tawarkan juga versi beta awam. Apabila dimatikan, pemasangan beta hanya menerima keluaran pengeluaran.</string>
   <string name="desktop_update_consent_title">Semak kemas kini?</string>
   <string name="desktop_update_consent_message">AndBible boleh menyemak github.com sekali sehari untuk versi yang lebih baharu. GitHub melihat alamat IP anda; tiada apa-apa lagi dihantar. Anda boleh mengubahnya kemudian dalam Tetapan.</string>
   <string name="desktop_update_consent_yes">Semak kemas kini</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Aktifkan ciri khusus e-ink (butang tatal halaman, garisan pembantu tatal)</string>
   <string name="prefs_disable_animations_title">Nyahdayakan animasi</string>
   <string name="prefs_disable_animations_summary">Nyahdayakan pelbagai animasi seperti tatal lancar.</string>
+  <string name="prefs_show_activity_in_menu_title">Papar aktiviti latar belakang dalam menu</string>
+  <string name="prefs_show_activity_in_menu_summary">Kemajuan muat turun, penyegerakan dan pengindeksan, serta kegagalan, dalam menu ⋮</string>
+  <string name="prefs_system_notifications_title">Pemberitahuan sistem</string>
+  <string name="prefs_system_notifications_denied">Dimatikan dalam Tetapan iOS</string>
+  <string name="prefs_system_notifications_summary">Beritahu tentang kerja latar belakang yang gagal, muat turun panjang yang selesai semasa AndBible berada di latar belakang, dan kemajuannya</string>
   <string name="prefs_disable_click_to_edit_title">Nyahdayakan klik-untuk-edit Pad Kajian</string>
   <string name="prefs_disable_click_to_edit_summary">Memerlukan penggunaan butang edit untuk mengedit nota dalam Pad Kajian.</string>
   <string name="prefs_notes_content_type_title">Format untuk nota penanda buku baharu</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatik</string>
   <string name="prefs_night_mode_system">Sistem</string>
   <string name="options_menu_night_mode">Mod malam</string>
+  <string name="options_menu_sync_now">Segerak sekarang</string>
+  <string name="exit_sync_title">Menyegerakkan perubahan…</string>
+  <string name="exit_sync_body">Menghantar perubahan anda ke peranti anda yang lain. Ini mungkin mengambil masa beberapa saat.</string>
+  <string name="exit_sync_quit_now">Keluar sekarang</string>
+  <string name="exit_sync_closing">Menutup…</string>
+  <string name="sync_now_no_network">Tiada sambungan rangkaian</string>
   <string name="prefs_navigate_to_verse_title">Navigasi ke ayat</string>
   <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) semasa memilih petikan</string>
   <string name="prefs_open_links_in_special_window_title">Tetingkap pautan</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Bahasa</string>
   <string name="one_more_back_press">Tekan balik sekali lagi untuk menutup aplikasi</string>
   <string name="document_filter_results">%d dokumen</string>
+  <string name="activity_show_all">Papar semua (%1$d)</string>
+  <string name="activity_failed_badge">%1$d gagal</string>
+  <string name="activity_attention_badge">%1$d memerlukan perhatian</string>
+  <string name="activity_combined_badge">%1$d gagal, %2$d memerlukan perhatian</string>
+  <string name="activity_running_description">Kerja latar belakang sedang berjalan</string>
+  <string name="activity_running">Sedang berjalan</string>
+  <string name="activity_recent">Terkini</string>
+  <string name="activity_clear_finished">Kosongkan yang selesai</string>
+  <string name="activity_title">Aktiviti latar belakang</string>
+  <string name="activity_empty">Tiada yang sedang berjalan</string>
+  <string name="activity_failed_toast">%1$s — lihat menu</string>
   <string name="download_question_title">Adakah anda ingin meneruskan untuk memuat turun dokumen?</string>
   <string name="download_question_message">Jika anda tinggal di negara yang menganiaya, anda mungkin perlu berhati-hati tentang memuat turun bahan kristian melalui Internet. Sebaliknya, anda mungkin ingin mendapatkan fail zip modul dengan lebih selamat dan memasangnya melalui \"Muat Dokumen Dari Zip\". Adakah anda pasti ingin meneruskan dengan memuat turun? Semua muat turun dari pelayan modul disulitkan (HTTPS).</string>
   <string name="do_not_ask_again">Ya, jangan tanya lagi</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">Sandaran ke mana?</string>
   <string name="backup_backup_message">Sandaran ke telefon atau tempat lain melalui fungsi Kongsi (e-mel, Google Drive dll)?</string>
   <string name="backup_phone_storage">Storan telefon</string>
+  <string name="backup_save_to_files">Simpan ke Fail</string>
   <string name="backup_and_restore">Sandaran &amp; Pulih</string>
   <string name="backup_modules2">Sandaran Dokumen ke…</string>
   <string name="backup_app2">Sandaran aplikasi (fail .apk) ke …</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">Pelayan pengedaran: %s</string>
   <string name="module_about_osisId">ID OSIS: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Folder log</string>
+  <string name="open_log_folder">Buka folder log</string>
+  <string name="startup_report_bug">Laporkan pepijat</string>
   <string name="send_bug_report_title">Maklum balas / laporan pepijat</string>
   <string name="report_bug_email_subject_3">[%1$s] Laporan pepijat untuk %2$s %3$s</string>
   <string name="report_bug_big_heading">SILA TULIS MAKLUM BALAS ATAU LAPORAN PEPIJAT ANDA DI ATAS BARIS INI</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">Ralat ujian (binaan nyahpepijat)</string>
   <string name="bug_report_prepare_failed">Laporan tidak dapat disediakan atau dikongsi. Anda boleh mencuba lagi, atau gunakan Sandaran &amp; Pulih untuk menyimpan data anda.</string>
   <string name="bug_report_email_title">Hantar laporan pepijat melalui e-mel</string>
+  <string name="bug_report_desktop_text">Seterusnya, anda akan ditanya di mana hendak menyimpan fail laporan pepijat. Kemudian anda akan mendapat arahan untuk menghantarnya kepada pasukan pembangun.</string>
   <string name="bug_report_email_text">Seterusnya, sila pilih aplikasi e-mel pilihan anda (Gmail contohnya) untuk menghantar laporan kepada pasukan pembangun.</string>
   <string name="bug_report_manual_title">Hantar laporan melalui e-mel</string>
+  <string name="bug_report_manual_text_saved">Laporan telah disimpan ke <b>%1$s</b>.\n\nSila hantar e-mel kepada <b>%2$s</b> dan lampirkan fail itu; program e-mel tidak dapat melampirkannya untuk anda. Subjek yang dicadangkan: <b>%3$s</b>. Dalam mesej itu, beritahu kami apa yang anda lakukan dan apa yang berlaku.</string>
+  <string name="bug_report_manual_text_unsaved">Laporan telah disimpan ke tempat yang anda pilih.\n\nSila hantar e-mel kepada <b>%1$s</b> dan lampirkan fail laporan yang disimpan; program e-mel tidak dapat melampirkannya untuk anda. Subjek yang dicadangkan: <b>%2$s</b>. Dalam mesej itu, beritahu kami apa yang anda lakukan dan apa yang berlaku.</string>
+  <string name="bug_report_subject_suggestion">Pepijat AndBible %1$s: &lt;penerangan ringkas&gt;</string>
+  <string name="bug_report_attach_line">Sila lampirkan fail %1$s</string>
+  <string name="bug_report_copy_subject">Salin subjek</string>
+  <string name="bug_report_copy_path">Salin laluan fail</string>
+  <string name="bug_report_open_folder">Buka folder</string>
   <string name="bug_report_copy_address">Salin alamat</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks ke pertuturan</string>
@@ -733,9 +769,40 @@
   <string name="workspace_manage_workspaces">Urus ruang kerja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_notice_github_issues">Isu Github</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">Isu GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Tutup sehingga kemas kini berikutnya</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">NOTIS KHAS PEMBANGUN UNTUK PENGUJI BETA (November 2026)</string>
+  <string name="beta_special_intro_android">Selamat datang ke beta AndBible 6.0! Ini ialah perubahan terbesar dalam sejarah AndBible. Seluruh aplikasi telah ditulis semula dengan perkakasan antara muka pengguna yang baharu, dan antara muka telah direka bentuk semula: setiap skrin telah disemak, dan kebanyakannya mendapat peningkatan kebolehgunaan yang ketara di samping rupa Material 3 yang diperbaharui.</string>
+  <string name="beta_special_intro_ios">Selamat datang ke beta AndBible 6.0! Jika anda pernah menggunakan AndBible untuk iOS 1.0, ini ialah perubahan besar: versi 6.0 menggantikannya dengan aplikasi AndBible yang dikongsi, aplikasi yang sama yang berjalan pada Android, iPhone, iPad dan Mac Apple Silicon, Windows dan Linux. Ia dibina atas kod yang telah berkhidmat kepada pengguna Android selama lebih sedekad, ditulis semula dengan perkakasan antara muka pengguna yang baharu, dan antara muka telah direka bentuk semula: setiap skrin telah disemak, dan kebanyakannya mendapat peningkatan kebolehgunaan yang ketara.</string>
+  <string name="beta_special_intro_desktop">Selamat datang ke beta AndBible 6.0, dan ke AndBible pada Windows dan Linux! Ini ialah versi desktop pertama AndBible: aplikasi yang sama kini berjalan pada Android, iPhone, iPad dan Mac Apple Silicon, Windows dan Linux. Ia dibina atas kod yang telah berkhidmat kepada pengguna Android selama lebih sedekad, ditulis semula dengan perkakasan antara muka pengguna yang baharu, dan antara muka telah direka bentuk semula: setiap skrin telah disemak, dan kebanyakannya mendapat peningkatan kebolehgunaan yang ketara.</string>
+  <string name="beta_special_redesign">Antara muka yang direka bentuk semula: menu, tetapan dan dialog yang lebih jelas, navigasi yang lebih konsisten, dan banyak penambahbaikan kecil pada aliran kerja di seluruh aplikasi.</string>
+  <string name="beta_special_data_kept">Ciri, data dan tetapan anda semuanya masih ada.</string>
+  <string name="beta_special_platforms">Aplikasi yang sama kini berjalan pada Android, iPhone, iPad dan Mac Apple Silicon, Windows dan Linux. Platform baharu juga sedang diuji.</string>
+  <string name="beta_special_additions_android">Dua tambahan yang lebih kecil: penyegerakan WebDAV (pelayan anda sendiri, NAS atau mana-mana perkhidmatan WebDAV, selain Google Drive dan Nextcloud), dan indeks carian baharu yang dibina semula sekali, secara automatik, selepas kemas kini.</string>
+  <string name="beta_special_one_app">Satu aplikasi pada semua peranti anda: ciri dan aliran kerja yang sama pada telefon, tablet dan komputer anda.</string>
+  <string name="beta_special_sync_ios">Penyegerakan antara peranti anda melalui Nextcloud, WebDAV (pelayan anda sendiri, NAS atau mana-mana perkhidmatan WebDAV) atau iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Penyegerakan antara peranti anda melalui Nextcloud atau WebDAV (pelayan anda sendiri, NAS atau mana-mana perkhidmatan WebDAV).</string>
+  <string name="beta_special_feedback">Jika sesuatu tiada, berfungsi secara berbeza daripada sebelumnya atau menjadi lebih sukar dicari, sila beritahu kami, walaupun ia mungkin disengajakan.</string>
+  <string name="beta_special_backup">Membuat sandaran sebelum menguji adalah idea yang baik (Menu utama → %s).</string>
+  <string name="beta_special_beta_warning">Ini ialah versi beta: tidak semuanya siap atau diuji sepenuhnya, dan ia mungkin mengandungi pepijat. Dengan menggunakannya anda menjadi penguji beta, dan laporan pepijat andalah yang menjadikan keluaran akhir baik.</string>
+  <string name="beta_special_leave_beta_android">Jika anda tidak berniat untuk menguji, anda boleh meninggalkan %s dan kembali ke versi stabil.</string>
+  <string name="beta_special_report">Sila laporkan pepijat melalui %1$s (diutamakan) atau Menu utama → %2$s.</string>
+  <string name="beta_special_report_android">Sila laporkan pepijat melalui %1$s (diutamakan), Google Play atau Menu utama → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible pada peranti anda yang lain</string>
+  <string name="beta_special_other_devices_intro">Beta yang sama tersedia untuk semua peranti anda:</string>
+  <string name="beta_special_other_android">Android: sertai %1$s, atau muat turun APK daripada keluaran beta terbaharu di %2$s.</string>
+  <string name="beta_special_play_beta_link">program beta di Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad dan Mac Apple Silicon: pasang aplikasi TestFlight Apple dan sertai %s.</string>
+  <string name="beta_special_testflight_link">beta awam AndBible</string>
+  <string name="beta_special_other_desktop">Windows (.msi) dan Linux (.deb atau AppImage): muat turunnya daripada keluaran beta terbaharu di %s.</string>
+  <string name="beta_special_installation_guide">Arahan langkah demi langkah terdapat dalam %s.</string>
+  <string name="beta_special_installation_guide_link">panduan pemasangan</string>
+  <string name="beta_special_regards">Salam hormat, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Anda boleh menyokong pembangunan AndBible secara kewangan dengan %s.</string>
+  <string name="beta_special_sponsor_link">menaja jam pembangunan</string>
   <string name="stable_notice_title">Aplikasi telah dinaik taraf!</string>
   <string name="upgrade_video_message">Sila lihat video yang menampilkan ciri baharu keluaran ini (%s).</string>
   <string name="stable_notice_par1">Versi baharu %1$s dari %2$s telah berjaya dipasang!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">Repositori dan tetapan berkaitan</string>
   <string name="db_bookmarks">Penanda Buku, Nota Saya, Label dan Pad Kajian</string>
   <string name="synchronizing">Menyegerakkan…</string>
+  <string name="notification_finished">Selesai</string>
   <string name="overrideBackup">Pangkalan data sedia ada yang tidak disegerakkan dengan peranti ini ditemui dalam Awan. Pangkalan data mengandungi %s. Apa yang anda ingin lakukan?</string>
   <string name="reading_plans_content">Rancangan bacaan dan statusnya</string>
   <string name="bookmarks_contents">Penanda Buku, Label dan Pad Kajian</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">Respons diterima</string>
   <string name="agent_log_saved">Disimpan: %s</string>
   <string name="agent_log_done">Selesai: %s</string>
+  <string name="agent_activity_title">Ejen AI</string>
+  <string name="agent_activity_title_in">Ejen AI: %s</string>
+  <string name="agent_activity_waiting">Menunggu kebenaran anda</string>
+  <string name="agent_activity_waiting_for">Menunggu kebenaran anda: %s</string>
+  <string name="agent_activity_failed">Ejen AI gagal</string>
+  <string name="agent_activity_attention_needed">Ejen AI memerlukan perhatian anda</string>
   <string name="agent_log_cancelled">Dibatalkan</string>
   <string name="agent_already_running">Ejen AI sudah berjalan. Sila tunggu atau hentikannya dahulu.</string>
   <!--AI Agent Notifications-->

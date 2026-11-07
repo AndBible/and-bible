@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible کو WebView2 کے ساتھ بائبل کا متن دکھانے کے لیے Direct3D گرافکس درکار ہیں۔ موجودہ گرافکس رینڈرر %1$s ہے۔ اپنا گرافکس ڈرائیور اور Direct3D کی معاونت چیک کریں۔\n\nتفصیلات لاگ فائل میں ہیں:\n%2$s</string>
   <string name="desktop_update_setting_title">اپ ڈیٹس کی جانچ کریں</string>
   <string name="desktop_update_setting_summary">دن میں ایک بار، github.com سے</string>
+  <string name="desktop_beta_update_setting_title">عوامی بیٹا اپ ڈیٹس پیش کریں</string>
+  <string name="desktop_beta_update_setting_summary">عوامی بیٹا ورژن بھی پیش کریں۔ بند ہونے پر، بیٹا انسٹال کو صرف پروڈکشن ریلیز ملتی ہیں۔</string>
   <string name="desktop_update_consent_title">اپ ڈیٹس کی جانچ کریں؟</string>
   <string name="desktop_update_consent_message">AndBible دن میں ایک بار github.com پر نئے ورژن کی جانچ کر سکتی ہے۔ GitHub آپ کا IP ایڈریس دیکھ سکتا ہے؛ اس کے علاوہ کچھ نہیں بھیجا جاتا۔ آپ اسے بعد میں ترتیبات میں تبدیل کر سکتے ہیں۔</string>
   <string name="desktop_update_consent_yes">اپ ڈیٹس کی جانچ کریں</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">ای-انک مخصوص خصوصیات فعال کریں (صفحہ اسکرول بٹن، اسکرول معاون لائنیں)</string>
   <string name="prefs_disable_animations_title">اینیمیشن غیر فعال کریں</string>
   <string name="prefs_disable_animations_summary">مختلف اینیمیشن جیسے ہموار اسکرولنگ کو غیر فعال کریں۔</string>
+  <string name="prefs_show_activity_in_menu_title">مینو میں پس منظر کی سرگرمی دکھائیں</string>
+  <string name="prefs_show_activity_in_menu_summary">ڈاؤن لوڈز، سنک اور انڈیکسنگ کی پیش رفت، اور ناکامیاں، ⋮ مینو میں</string>
+  <string name="prefs_system_notifications_title">سسٹم نوٹیفکیشنز</string>
+  <string name="prefs_system_notifications_denied">iOS کی ترتیبات میں بند ہے</string>
+  <string name="prefs_system_notifications_summary">ناکام پس منظر کے کام، طویل ڈاؤن لوڈز جو AndBible کے پس منظر میں ہونے کے دوران مکمل ہوں، اور ان کی پیش رفت کے بارے میں مطلع کریں</string>
   <string name="prefs_disable_click_to_edit_title">مطالعہ پیڈ کلک-ٹو-ایڈٹ غیر فعال کریں</string>
   <string name="prefs_disable_click_to_edit_summary">مطالعہ پیڈ میں نوٹس ترمیم کرنے کے لیے ترمیم بٹن استعمال کرنا ضروری ہے۔</string>
   <string name="prefs_notes_content_type_title">نئے بک مارک نوٹس کی شکل</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">خودکار</string>
   <string name="prefs_night_mode_system">سسٹم</string>
   <string name="options_menu_night_mode">رات کا موڈ</string>
+  <string name="options_menu_sync_now">ابھی سنک کریں</string>
+  <string name="exit_sync_title">تبدیلیاں ہم آہنگ کی جا رہی ہیں…</string>
+  <string name="exit_sync_body">آپ کی تبدیلیاں آپ کے دوسرے آلات کو بھیجی جا رہی ہیں۔ اس میں چند سیکنڈ لگ سکتے ہیں۔</string>
+  <string name="exit_sync_quit_now">ابھی باہر نکلیں</string>
+  <string name="exit_sync_closing">بند ہو رہا ہے…</string>
+  <string name="sync_now_no_network">نیٹ ورک کنکشن نہیں ہے</string>
   <string name="prefs_navigate_to_verse_title">آیت پر جائیں</string>
   <string name="prefs_navigate_to_verse_summary">اقتباس منتخب کرتے وقت آیت (اور باب) منتخب کریں</string>
   <string name="prefs_open_links_in_special_window_title">لنکس ونڈو</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">زبان</string>
   <string name="one_more_back_press">ایپ بند کرنے کے لیے پھر سے واپس دبائیں</string>
   <string name="document_filter_results">%d دستاویزات</string>
+  <string name="activity_show_all">سب دکھائیں (%1$d)</string>
+  <string name="activity_failed_badge">%1$d ناکام</string>
+  <string name="activity_attention_badge">%1$d توجہ طلب</string>
+  <string name="activity_combined_badge">%1$d ناکام، %2$d توجہ طلب</string>
+  <string name="activity_running_description">پس منظر کا کام جاری ہے</string>
+  <string name="activity_running">جاری</string>
+  <string name="activity_recent">حالیہ</string>
+  <string name="activity_clear_finished">مکمل شدہ صاف کریں</string>
+  <string name="activity_title">پس منظر کی سرگرمی</string>
+  <string name="activity_empty">کچھ جاری نہیں</string>
+  <string name="activity_failed_toast">%1$s — مینو دیکھیں</string>
   <string name="download_question_title">کیا آپ دستاویزات ڈاؤنلوڈ کرنا چاہتے ہیں؟</string>
   <string name="download_question_message">اگر آپ کسی مظلوم ملک میں رہتے ہیں، تو آپ کو انٹرنیٹ کے ذریعے عیسائی مواد ڈاؤنلوڈ کرنے میں محتاط رہنا پڑ سکتا ہے۔ اس کی بجائے، آپ زیادہ محفوظ طریقے سے ماڈیول زپ فائلیں حاصل کر کے \"زپ سے دستاویزات لوڈ کریں\" کے ذریعے انسٹال کر سکتے ہیں۔ کیا آپ واقعی ڈاؤنلوڈ جاری رکھنا چاہتے ہیں؟ ماڈیول سرورز کے تمام ڈاؤنلوڈ انکرپٹڈ (HTTPS) ہیں۔</string>
   <string name="do_not_ask_again">ہاں، دوبارہ نہ پوچھیں</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">بیک اپ کہاں کریں؟</string>
   <string name="backup_backup_message">فون اسٹوریج یا شیئر فنکشن (ای میل، گوگل ڈرائیو وغیرہ) کے ذریعے کہیں اور بیک اپ کریں؟</string>
   <string name="backup_phone_storage">فون اسٹوریج</string>
+  <string name="backup_save_to_files">فائلز میں محفوظ کریں</string>
   <string name="backup_and_restore">بیک اپ اور بحالی</string>
   <string name="backup_modules2">دستاویزات کا بیک اپ کریں…</string>
   <string name="backup_app2">ایپ (.apk فائل) کا بیک اپ کریں…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">تقسیم سرور: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">لاگ فولڈر</string>
+  <string name="open_log_folder">لاگ فولڈر کھولیں</string>
+  <string name="startup_report_bug">خرابی کی اطلاع دیں</string>
   <string name="send_bug_report_title">رائے / بگ رپورٹ</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s کے لیے بگ رپورٹ</string>
   <string name="report_bug_big_heading">براہ کرم اس لائن سے اوپر اپنی رائے یا بگ رپورٹ لکھیں</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">ٹیسٹ ایرر (ڈیبگ بلڈ)</string>
   <string name="bug_report_prepare_failed">رپورٹ تیار یا شیئر نہیں ہو سکی۔ آپ دوبارہ کوشش کر سکتے ہیں، یا اپنا ڈیٹا محفوظ کرنے کے لیے بیک اپ اور بحالی استعمال کریں۔</string>
   <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
+  <string name="bug_report_desktop_text">اگلے مرحلے میں آپ سے پوچھا جائے گا کہ خرابی کی رپورٹ کی فائل کہاں محفوظ کرنی ہے۔ پھر آپ کو اسے ڈیویلپر ٹیم کو بھیجنے کی ہدایات ملیں گی۔</string>
   <string name="bug_report_email_text">اگلے، براہ کرم اپنی پسندیدہ ای میل ایپلیکیشن (مثلاً Gmail) منتخب کریں تاکہ رپورٹ ڈویلپر ٹیم کو بھیجی جا سکے۔</string>
   <string name="bug_report_manual_title">رپورٹ ای میل سے بھیجیں</string>
+  <string name="bug_report_manual_text_saved">رپورٹ <b>%1$s</b> میں محفوظ کر دی گئی۔\n\nبراہ کرم <b>%2$s</b> کو ای میل بھیجیں اور وہ فائل منسلک کریں؛ ای میل پروگرام اسے آپ کے لیے منسلک نہیں کر سکتا۔ تجویز کردہ موضوع: <b>%3$s</b>۔ پیغام میں بتائیں کہ آپ نے کیا کیا اور کیا ہوا۔</string>
+  <string name="bug_report_manual_text_unsaved">رپورٹ آپ کے منتخب کردہ مقام پر محفوظ کر دی گئی۔\n\nبراہ کرم <b>%1$s</b> کو ای میل بھیجیں اور محفوظ کردہ رپورٹ فائل منسلک کریں؛ ای میل پروگرام اسے آپ کے لیے منسلک نہیں کر سکتا۔ تجویز کردہ موضوع: <b>%2$s</b>۔ پیغام میں بتائیں کہ آپ نے کیا کیا اور کیا ہوا۔</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s خرابی: &lt;مختصر وضاحت&gt;</string>
+  <string name="bug_report_attach_line">براہ کرم فائل %1$s منسلک کریں</string>
+  <string name="bug_report_copy_subject">موضوع کاپی کریں</string>
+  <string name="bug_report_copy_path">فائل کا راستہ کاپی کریں</string>
+  <string name="bug_report_open_folder">فولڈر کھولیں</string>
   <string name="bug_report_copy_address">پتہ کاپی کریں</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">متن سے تقریر</string>
@@ -733,9 +769,40 @@
   <string name="workspace_manage_workspaces">ورک اسپیسز کا انتظام…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">یہ بیٹا ورژن ہے!</string>
-  <string name="beta_notice_github_issues">Github مسائل</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub مسائل</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">اگلی اپ ڈیٹ تک مسترد کریں</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">بیٹا ٹیسٹرز کے لیے ڈیویلپر کا خصوصی نوٹس (نومبر 2026)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 بیٹا میں خوش آمدید! یہ AndBible کی تاریخ کی سب سے بڑی تبدیلی ہے۔ پوری ایپ کو صارف انٹرفیس کے نئے ٹول کٹ کے ساتھ دوبارہ لکھا گیا ہے، اور اس دوران انٹرفیس کو نئے سرے سے ڈیزائن کیا گیا ہے: ہر اسکرین کا جائزہ لیا گیا، اور تازہ Material 3 انداز کے ساتھ ان میں سے زیادہ تر میں استعمال کی سہولت میں نمایاں بہتری آئی۔</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 بیٹا میں خوش آمدید! اگر آپ نے iOS کے لیے AndBible 1.0 استعمال کیا ہے تو یہ ایک بڑی تبدیلی ہے: ورژن 6.0 اس کی جگہ مشترکہ AndBible ایپ لے لیتا ہے، وہی ایپ جو Android، iPhone، iPad اور Apple Silicon Mac، Windows اور Linux پر چلتی ہے۔ یہ اس کوڈ پر بنی ہے جو ایک دہائی سے زیادہ عرصے سے Android صارفین کی خدمت کر رہا ہے، اسے صارف انٹرفیس کے نئے ٹول کٹ کے ساتھ دوبارہ لکھا گیا ہے، اور اس دوران انٹرفیس کو نئے سرے سے ڈیزائن کیا گیا ہے: ہر اسکرین کا جائزہ لیا گیا، اور ان میں سے زیادہ تر میں استعمال کی سہولت میں نمایاں بہتری آئی۔</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 بیٹا میں، اور Windows اور Linux پر AndBible میں خوش آمدید! یہ AndBible کا پہلا ڈیسک ٹاپ ورژن ہے: وہی ایپ اب Android، iPhone، iPad اور Apple Silicon Mac، Windows اور Linux پر چلتی ہے۔ یہ اس کوڈ پر بنی ہے جو ایک دہائی سے زیادہ عرصے سے Android صارفین کی خدمت کر رہا ہے، اسے صارف انٹرفیس کے نئے ٹول کٹ کے ساتھ دوبارہ لکھا گیا ہے، اور اس دوران انٹرفیس کو نئے سرے سے ڈیزائن کیا گیا ہے: ہر اسکرین کا جائزہ لیا گیا، اور ان میں سے زیادہ تر میں استعمال کی سہولت میں نمایاں بہتری آئی۔</string>
+  <string name="beta_special_redesign">نئے سرے سے ڈیزائن کیا گیا انٹرفیس: واضح مینو، ترتیبات اور ڈائیلاگز، زیادہ یکساں نیویگیشن، اور پوری ایپ میں کام کے طریقے میں بہت سی چھوٹی بہتریاں۔</string>
+  <string name="beta_special_data_kept">آپ کی خصوصیات، ڈیٹا اور ترتیبات سب موجود ہیں۔</string>
+  <string name="beta_special_platforms">وہی ایپ اب Android، iPhone، iPad اور Apple Silicon Mac، Windows اور Linux پر چلتی ہے۔ نئے پلیٹ فارمز بھی جانچ میں ہیں۔</string>
+  <string name="beta_special_additions_android">دو چھوٹے اضافے: WebDAV سنکرونائزیشن (آپ کا اپنا سرور، NAS یا کوئی بھی WebDAV سروس، Google Drive اور Nextcloud کے علاوہ)، اور ایک نیا سرچ انڈیکس جو اپ ڈیٹ کے بعد ایک بار خود بخود دوبارہ بنایا جاتا ہے۔</string>
+  <string name="beta_special_one_app">آپ کے تمام آلات پر ایک ایپ: آپ کے فون، ٹیبلٹ اور کمپیوٹر پر وہی خصوصیات اور کام کے طریقے۔</string>
+  <string name="beta_special_sync_ios">آپ کے آلات کے درمیان سنکرونائزیشن Nextcloud، WebDAV (آپ کا اپنا سرور، NAS یا کوئی بھی WebDAV سروس) یا iCloud Drive کے ذریعے۔</string>
+  <string name="beta_special_sync_desktop">آپ کے آلات کے درمیان سنکرونائزیشن Nextcloud یا WebDAV (آپ کا اپنا سرور، NAS یا کوئی بھی WebDAV سروس) کے ذریعے۔</string>
+  <string name="beta_special_feedback">اگر کچھ غائب ہے، پہلے سے مختلف طریقے سے کام کرتا ہے یا تلاش کرنا مشکل ہو گیا ہے، تو براہ کرم ہمیں بتائیں، چاہے یہ جان بوجھ کر کیا گیا ہو۔</string>
+  <string name="beta_special_backup">ٹیسٹنگ سے پہلے بیک اپ بنانا اچھا خیال ہے (مین مینو → %s)۔</string>
+  <string name="beta_special_beta_warning">یہ ایک بیٹا ورژن ہے: ہر چیز مکمل یا پوری طرح جانچی ہوئی نہیں ہے، اور اس میں خرابیاں ہو سکتی ہیں۔ اسے استعمال کر کے آپ بیٹا ٹیسٹر بن جاتے ہیں، اور آپ کی خرابی کی رپورٹیں ہی حتمی ریلیز کو بہتر بناتی ہیں۔</string>
+  <string name="beta_special_leave_beta_android">اگر آپ ٹیسٹ کرنے کا ارادہ نہیں رکھتے تھے، تو آپ %s چھوڑ کر مستحکم ورژن پر واپس جا سکتے ہیں۔</string>
+  <string name="beta_special_report">براہ کرم خرابیوں کی اطلاع %1$s (ترجیحی) یا مین مینو → %2$s کے ذریعے دیں۔</string>
+  <string name="beta_special_report_android">براہ کرم خرابیوں کی اطلاع %1$s (ترجیحی)، Google Play یا مین مینو → %2$s کے ذریعے دیں۔</string>
+  <string name="beta_special_other_devices_title">آپ کے دوسرے آلات پر AndBible</string>
+  <string name="beta_special_other_devices_intro">وہی بیٹا آپ کے تمام آلات کے لیے دستیاب ہے:</string>
+  <string name="beta_special_other_android">Android: %1$s میں شامل ہوں، یا %2$s پر تازہ ترین بیٹا ریلیز سے APK ڈاؤن لوڈ کریں۔</string>
+  <string name="beta_special_play_beta_link">Google Play پر بیٹا پروگرام</string>
+  <string name="beta_special_other_apple">iPhone، iPad اور Apple Silicon Mac: Apple کی TestFlight ایپ انسٹال کریں اور %s میں شامل ہوں۔</string>
+  <string name="beta_special_testflight_link">AndBible عوامی بیٹا</string>
+  <string name="beta_special_other_desktop">Windows (.msi) اور Linux (.deb یا AppImage): انہیں %s پر تازہ ترین بیٹا ریلیز سے ڈاؤن لوڈ کریں۔</string>
+  <string name="beta_special_installation_guide">مرحلہ وار ہدایات %s میں ہیں۔</string>
+  <string name="beta_special_installation_guide_link">انسٹالیشن گائیڈ</string>
+  <string name="beta_special_regards">نیک تمناؤں کے ساتھ، Tuomas</string>
+  <string name="beta_special_sponsor">پی ایس: آپ %s کے ذریعے AndBible کی ترقی کی مالی مدد کر سکتے ہیں۔</string>
+  <string name="beta_special_sponsor_link">ڈیویلپمنٹ کے اوقات کی سرپرستی</string>
   <string name="stable_notice_title">ایپلیکیشن اپ گریڈ ہو گئی!</string>
   <string name="upgrade_video_message">براہ کرم اس ریلیز کی نئی خصوصیات والی ویڈیو دیکھیں (%s)۔</string>
   <string name="stable_notice_par1">%2$s کا نیا ورژن %1$s کامیابی سے انسٹال ہو گیا!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">ذخائر اور متعلقہ ترتیبات</string>
   <string name="db_bookmarks">بک مارکس، میرے نوٹس، لیبل اور مطالعہ پیڈز</string>
   <string name="synchronizing">ہم آہنگ ہو رہا ہے…</string>
+  <string name="notification_finished">مکمل</string>
   <string name="overrideBackup">کلاؤڈ میں ایسا موجودہ ڈیٹابیس ملا جس سے یہ ڈیوائس ہم آہنگ نہیں ہے۔ ڈیٹابیس میں %s ہے۔ آپ کیا کرنا چاہتے ہیں؟</string>
   <string name="reading_plans_content">مطالعہ منصوبے اور ان کی حیثیت</string>
   <string name="bookmarks_contents">بک مارکس، لیبل اور مطالعہ پیڈز</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">جواب موصول</string>
   <string name="agent_log_saved">محفوظ: %s</string>
   <string name="agent_log_done">مکمل: %s</string>
+  <string name="agent_activity_title">AI ایجنٹ</string>
+  <string name="agent_activity_title_in">AI ایجنٹ: %s</string>
+  <string name="agent_activity_waiting">آپ کی اجازت کا انتظار ہے</string>
+  <string name="agent_activity_waiting_for">آپ کی اجازت کا انتظار ہے: %s</string>
+  <string name="agent_activity_failed">AI ایجنٹ ناکام ہو گیا</string>
+  <string name="agent_activity_attention_needed">AI ایجنٹ کو آپ کی توجہ درکار ہے</string>
   <string name="agent_log_cancelled">منسوخ</string>
   <string name="agent_already_running">ایک AI ایجنٹ پہلے سے چل رہا ہے۔ براہ کرم انتظار کریں یا پہلے روکیں۔</string>
   <!--AI Agent Notifications-->

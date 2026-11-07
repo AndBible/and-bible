@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible\'ın WebView2 ile Kutsal Kitap metnini görüntülemesi için Direct3D grafikleri gerekir. Geçerli grafik oluşturucu: %1$s. Grafik sürücünüzü ve Direct3D desteğini kontrol edin.\n\nAyrıntılar günlük dosyasındadır:\n%2$s</string>
   <string name="desktop_update_setting_title">Güncellemeleri denetle</string>
   <string name="desktop_update_setting_summary">Günde bir kez, github.com üzerinden</string>
+  <string name="desktop_beta_update_setting_title">Herkese açık beta güncellemelerini sun</string>
+  <string name="desktop_beta_update_setting_summary">Herkese açık beta sürümlerini de sun. Kapalıyken beta kurulumu yalnızca kararlı sürümleri alır.</string>
   <string name="desktop_update_consent_title">Güncellemeler denetlensin mi?</string>
   <string name="desktop_update_consent_message">AndBible, daha yeni bir sürüm için günde bir kez github.com\'u denetleyebilir. GitHub IP adresinizi görür; başka hiçbir şey gönderilmez. Bunu daha sonra Ayarlar\'dan değiştirebilirsiniz.</string>
   <string name="desktop_update_consent_yes">Güncellemeleri denetle</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">E-ink özelliklerini etkinleştir (sayfa kaydırma düğmeleri, kaydırma yardımcı çizgileri)</string>
   <string name="prefs_disable_animations_title">Animasyonları kapat</string>
   <string name="prefs_disable_animations_summary">Pürüzsüz kaydırma vs. animasyonları kapat.</string>
+  <string name="prefs_show_activity_in_menu_title">Arka plan etkinliğini menüde göster</string>
+  <string name="prefs_show_activity_in_menu_summary">İndirmeler, eşitleme ve dizinleme ilerlemesi ile hatalar, ⋮ menüsünde</string>
+  <string name="prefs_system_notifications_title">Sistem bildirimleri</string>
+  <string name="prefs_system_notifications_denied">iOS Ayarlarında kapatılmış</string>
+  <string name="prefs_system_notifications_summary">AndBible arka plandayken başarısız olan arka plan işleri, biten uzun indirmeler ve bunların ilerlemesi hakkında bildirim gönder</string>
   <string name="prefs_disable_click_to_edit_title">Çalışma Defteri tıklayarak düzenlemeyi devre dışı bırak</string>
   <string name="prefs_disable_click_to_edit_summary">Çalışma Defteri\'ndeki notları düzenlemek için düzenleme düğmesinin kullanılmasını gerektirir.</string>
   <string name="prefs_notes_content_type_title">Yeni yer imi notları için biçim</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Otomatik</string>
   <string name="prefs_night_mode_system">Sistem</string>
   <string name="options_menu_night_mode">Gece modu</string>
+  <string name="options_menu_sync_now">Şimdi eşitle</string>
+  <string name="exit_sync_title">Değişiklikler eşitleniyor…</string>
+  <string name="exit_sync_body">Değişiklikleriniz diğer cihazlarınıza gönderiliyor. Bu birkaç saniye sürebilir.</string>
+  <string name="exit_sync_quit_now">Şimdi çık</string>
+  <string name="exit_sync_closing">Kapatılıyor…</string>
+  <string name="sync_now_no_network">Ağ bağlantısı yok</string>
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
   <string name="prefs_open_links_in_special_window_title">Bağlantılar penceresi</string>
@@ -358,6 +371,17 @@
   <string name="chooce_language_hint">Dil</string>
   <string name="one_more_back_press">Uygulamayı kapatmak için tekrar geriye basın</string>
   <string name="document_filter_results">%d belge</string>
+  <string name="activity_show_all">Tümünü göster (%1$d)</string>
+  <string name="activity_failed_badge">%1$d başarısız</string>
+  <string name="activity_attention_badge">%1$d dikkat gerektiriyor</string>
+  <string name="activity_combined_badge">%1$d başarısız, %2$d dikkat gerektiriyor</string>
+  <string name="activity_running_description">Arka plan işi çalışıyor</string>
+  <string name="activity_running">Çalışıyor</string>
+  <string name="activity_recent">Son</string>
+  <string name="activity_clear_finished">Bitenleri temizle</string>
+  <string name="activity_title">Arka plan etkinliği</string>
+  <string name="activity_empty">Çalışan bir şey yok</string>
+  <string name="activity_failed_toast">%1$s — menüye bakın</string>
   <string name="download_question_title">Belgeleri indirmeye devam etmek istiyor musunuz?</string>
   <string name="download_question_message">Zulme uğradığınız bir ülkede yaşıyorsanız,
     Hristiyan materyallerini İnternet üzerinden indirirken dikkatli olmanız gerekebilir.
@@ -653,6 +677,7 @@
   <string name="backup_backup_title">Nereye yedeklensin?</string>
   <string name="backup_backup_message">Telefona ya da Paylaş fonksiyonuyla  (email, Google Drive vb.) başka yere yedekle?</string>
   <string name="backup_phone_storage">Telefon hafıza</string>
+  <string name="backup_save_to_files">Dosyalar\'a kaydet</string>
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
   <string name="backup_app2">Yedekleme uygulaması (.apk file) to …</string>
@@ -705,6 +730,9 @@
   <string name="module_about_repository">Dağıtım sunucusu: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Günlük klasörü</string>
+  <string name="open_log_folder">Günlük klasörünü aç</string>
+  <string name="startup_report_bug">Hata bildir</string>
   <string name="send_bug_report_title">Geri bildirim / hata raporu</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s için hata raporu</string>
   <string name="report_bug_big_heading">LÜTFEN BU SATIRIN ÜZERİNE GERİ BİLDİRİMİNİZİ VEYA HATA RAPORUNU YAZINIZ</string>
@@ -773,8 +801,16 @@
   <string name="debug_test_error">Test hatası (hata ayıklama sürümü)</string>
   <string name="bug_report_prepare_failed">Rapor hazırlanamadı veya paylaşılamadı. Yeniden deneyebilir veya verilerinizi kaydetmek için Yedekle ve Geri Yükle\'yi kullanabilirsiniz.</string>
   <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
+  <string name="bug_report_desktop_text">Şimdi hata raporu dosyasının nereye kaydedileceği sorulacak. Ardından raporu geliştirici ekibine göndermek için talimatları alacaksınız.</string>
   <string name="bug_report_email_text">Ardından, raporu geliştirici ekibine göndermek için lütfen tercih ettiğiniz e-posta uygulamasını (örneğin Gmail) seçin.</string>
   <string name="bug_report_manual_title">Raporu e-postayla gönderin</string>
+  <string name="bug_report_manual_text_saved">Rapor <b>%1$s</b> konumuna kaydedildi.\n\nLütfen <b>%2$s</b> adresine bir e-posta gönderin ve bu dosyayı ekleyin; bir e-posta programı bunu sizin için ekleyemez. Önerilen konu: <b>%3$s</b>. İletide ne yaptığınızı ve ne olduğunu anlatın.</string>
+  <string name="bug_report_manual_text_unsaved">Rapor seçtiğiniz yere kaydedildi.\n\nLütfen <b>%1$s</b> adresine bir e-posta gönderin ve kaydedilen rapor dosyasını ekleyin; bir e-posta programı bunu sizin için ekleyemez. Önerilen konu: <b>%2$s</b>. İletide ne yaptığınızı ve ne olduğunu anlatın.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s hatası: &lt;kısa açıklama&gt;</string>
+  <string name="bug_report_attach_line">Lütfen %1$s dosyasını ekleyin</string>
+  <string name="bug_report_copy_subject">Konuyu kopyala</string>
+  <string name="bug_report_copy_path">Dosya yolunu kopyala</string>
+  <string name="bug_report_open_folder">Klasörü aç</string>
   <string name="bug_report_copy_address">Adresi kopyala</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Metin seslendirmesi</string>
@@ -802,9 +838,40 @@
   <string name="workspace_manage_workspaces">Çalışma alanlarını yönet…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
-  <string name="beta_notice_github_issues">Github sorun listesi</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub sorun listesi</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">GELİŞTİRİCİDEN BETA TEST KULLANICILARINA ÖZEL DUYURU (Kasım 2026)</string>
+  <string name="beta_special_intro_android">AndBible 6.0 betasına hoş geldiniz! Bu, AndBible tarihindeki en büyük değişikliktir. Uygulamanın tamamı yeni bir kullanıcı arayüzü araç setiyle yeniden yazıldı ve arayüz bu sırada yeniden tasarlandı: her ekran gözden geçirildi ve çoğu, yenilenen Material 3 görünümünün üzerine önemli kullanılabilirlik iyileştirmeleri aldı.</string>
+  <string name="beta_special_intro_ios">AndBible 6.0 betasına hoş geldiniz! AndBible for iOS 1.0\'ı kullandıysanız bu büyük bir değişikliktir: 6.0 sürümü onun yerini ortak AndBible uygulamasıyla alır; bu uygulama Android, iPhone, iPad ve Apple Silicon Mac\'lerde, Windows ve Linux\'ta çalışan aynı uygulamadır. On yılı aşkın süredir Android kullanıcılarına hizmet eden kod üzerine kuruludur, yeni bir kullanıcı arayüzü araç setiyle yeniden yazılmıştır ve arayüz bu sırada yeniden tasarlanmıştır: her ekran gözden geçirildi ve çoğu önemli kullanılabilirlik iyileştirmeleri aldı.</string>
+  <string name="beta_special_intro_desktop">AndBible 6.0 betasına ve Windows ile Linux için AndBible\'a hoş geldiniz! Bu, AndBible\'ın ilk masaüstü sürümüdür: aynı uygulama artık Android, iPhone, iPad ve Apple Silicon Mac\'lerde, Windows ve Linux\'ta çalışıyor. On yılı aşkın süredir Android kullanıcılarına hizmet eden kod üzerine kuruludur, yeni bir kullanıcı arayüzü araç setiyle yeniden yazılmıştır ve arayüz bu sırada yeniden tasarlanmıştır: her ekran gözden geçirildi ve çoğu önemli kullanılabilirlik iyileştirmeleri aldı.</string>
+  <string name="beta_special_redesign">Yeniden tasarlanmış arayüz: daha net menüler, ayarlar ve iletişim kutuları, daha tutarlı gezinme ve uygulama genelinde birçok küçük iş akışı iyileştirmesi.</string>
+  <string name="beta_special_data_kept">Özellikleriniz, verileriniz ve ayarlarınız olduğu gibi duruyor.</string>
+  <string name="beta_special_platforms">Aynı uygulama artık Android, iPhone, iPad ve Apple Silicon Mac\'lerde, Windows ve Linux\'ta çalışıyor. Yeni platformlar da test aşamasında.</string>
+  <string name="beta_special_additions_android">İki küçük ekleme: WebDAV eşitleme (Google Drive ve Nextcloud\'a ek olarak kendi sunucunuz, bir NAS veya herhangi bir WebDAV hizmeti) ve güncellemeden sonra otomatik olarak bir kez yeniden oluşturulan yeni bir arama dizini.</string>
+  <string name="beta_special_one_app">Tüm cihazlarınızda tek uygulama: telefonunuzda, tabletinizde ve bilgisayarınızda aynı özellikler ve iş akışları.</string>
+  <string name="beta_special_sync_ios">Cihazlarınız arasında Nextcloud, WebDAV (kendi sunucunuz, bir NAS veya herhangi bir WebDAV hizmeti) veya iCloud Drive ile eşitleme.</string>
+  <string name="beta_special_sync_desktop">Cihazlarınız arasında Nextcloud veya WebDAV (kendi sunucunuz, bir NAS veya herhangi bir WebDAV hizmeti) ile eşitleme.</string>
+  <string name="beta_special_feedback">Bir şey eksikse, eskisinden farklı çalışıyorsa veya bulması zorlaştıysa, kasıtlı olsa bile lütfen bize bildirin.</string>
+  <string name="beta_special_backup">Test etmeden önce yedek almak iyi bir fikirdir (Ana menü → %s).</string>
+  <string name="beta_special_beta_warning">Bu bir beta sürümüdür: her şey tamamlanmış veya tam olarak test edilmiş değildir ve hatalar içerebilir. Kullanarak beta test kullanıcısı olursunuz; nihai sürümü iyi yapan şey hata raporlarınızdır.</string>
+  <string name="beta_special_leave_beta_android">Test etmek istemediyseniz %s programından ayrılıp kararlı sürüme dönebilirsiniz.</string>
+  <string name="beta_special_report">Lütfen hataları %1$s üzerinden (tercih edilen) veya Ana menü → %2$s ile bildirin.</string>
+  <string name="beta_special_report_android">Lütfen hataları %1$s üzerinden (tercih edilen), Google Play veya Ana menü → %2$s ile bildirin.</string>
+  <string name="beta_special_other_devices_title">Diğer cihazlarınızda AndBible</string>
+  <string name="beta_special_other_devices_intro">Aynı beta tüm cihazlarınız için mevcut:</string>
+  <string name="beta_special_other_android">Android: %1$s katılın veya APK\'yı %2$s üzerindeki en yeni beta sürümünden indirin.</string>
+  <string name="beta_special_play_beta_link">Google Play beta programına</string>
+  <string name="beta_special_other_apple">iPhone, iPad ve Apple Silicon Mac: Apple\'ın TestFlight uygulamasını kurun ve %s katılın.</string>
+  <string name="beta_special_testflight_link">AndBible herkese açık betasına</string>
+  <string name="beta_special_other_desktop">Windows (.msi) ve Linux (.deb veya AppImage): %s üzerindeki en yeni beta sürümünden indirin.</string>
+  <string name="beta_special_installation_guide">Adım adım talimatlar %s bölümünde.</string>
+  <string name="beta_special_installation_guide_link">kurulum kılavuzu</string>
+  <string name="beta_special_regards">Saygılarımla, Tuomas</string>
+  <string name="beta_special_sponsor">Not: AndBible geliştirmesini %s ile maddi olarak destekleyebilirsiniz.</string>
+  <string name="beta_special_sponsor_link">geliştirme saatlerine sponsor olarak</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
   <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
   <string name="stable_notice_par1">%2$s’nin yeni %1$s sürümü başarıyla yüklendi!</string>
@@ -1221,6 +1288,7 @@
   <string name="db_repositories">Depolar ve ilgili ayarlar</string>
   <string name="db_bookmarks">Yer İmleri, Notlarım, Etiketler ve Çalışma Pedleri</string>
   <string name="synchronizing">Senkronizasyon…</string>
+  <string name="notification_finished">Tamamlandı</string>
   <string name="overrideBackup">
     Bu cihazın senkronize edilmediği mevcut veritabanı Bulut’ta bulunur.
     Veritabanı %s içeriyor. Ne yapmak istiyorsunuz?
@@ -1804,6 +1872,12 @@
   <string name="agent_log_response_received">Yanıt alındı</string>
   <string name="agent_log_saved">Kaydedildi: %s</string>
   <string name="agent_log_done">Bitti: %s</string>
+  <string name="agent_activity_title">Yapay zeka ajanı</string>
+  <string name="agent_activity_title_in">Yapay zeka ajanı: %s</string>
+  <string name="agent_activity_waiting">İzniniz bekleniyor</string>
+  <string name="agent_activity_waiting_for">İzniniz bekleniyor: %s</string>
+  <string name="agent_activity_failed">Yapay zeka ajanı başarısız oldu</string>
+  <string name="agent_activity_attention_needed">Yapay zeka ajanı dikkatinizi gerektiriyor</string>
   <string name="agent_log_cancelled">İptal edildi</string>
   <string name="agent_already_running">Bir yapay zeka etmeni zaten çalışıyor. Lütfen bekleyin veya önce durdurun.</string>
   <!--AI Agent Notifications-->

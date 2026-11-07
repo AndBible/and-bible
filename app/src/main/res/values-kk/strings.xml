@@ -573,8 +573,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="workspace_listing_with_current">%s (қазіргі)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Бұл бета версиясы!</string>
-  <string name="beta_notice_github_issues">Github мәселелері</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub мәселелері</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>
   <string name="stable_notice_title">Қолданба жаңартылды!</string>
   <string name="upgrade_video_message">Өтінеміз, Осы шығарылымның жаңа мүмкіндіктері бар бейнені қараңыз(%s).</string>

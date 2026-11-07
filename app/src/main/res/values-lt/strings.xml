@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible reikia „Direct3D“ grafikos, kad galėtų rodyti Biblijos tekstą naudodama „WebView2“. Dabartinė grafikos vaizdavimo priemonė yra %1$s. Patikrinkite grafikos tvarkyklę ir „Direct3D“ palaikymą.\n\nIšsamesnė informacija žurnalo faile:\n%2$s</string>
   <string name="desktop_update_setting_title">Tikrinti, ar yra naujinimų</string>
   <string name="desktop_update_setting_summary">Kartą per dieną iš github.com</string>
+  <string name="desktop_beta_update_setting_title">Siūlyti viešų beta versijų naujinimus</string>
+  <string name="desktop_beta_update_setting_summary">Siūlyti ir viešas beta versijas. Kai išjungta, beta versija gauna tik gamybines laidas.</string>
   <string name="desktop_update_consent_title">Tikrinti, ar yra naujinimų?</string>
   <string name="desktop_update_consent_message">AndBible kartą per dieną gali patikrinti github.com, ar yra naujesnė versija. „GitHub“ mato jūsų IP adresą; daugiau nieko nesiunčiama. Vėliau tai galite pakeisti nustatymuose.</string>
   <string name="desktop_update_consent_yes">Tikrinti, ar yra naujinimų</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">Įjungti el. rašalui skirtas funkcijas (puslapio slinkimo mygtukai, slinkimo pagalbinės linijos)</string>
   <string name="prefs_disable_animations_title">Išjungti animacijas</string>
   <string name="prefs_disable_animations_summary">Išjungti įvairias animacijas, tokias kaip, glotnus slinkimas.</string>
+  <string name="prefs_show_activity_in_menu_title">Rodyti foninę veiklą meniu</string>
+  <string name="prefs_show_activity_in_menu_summary">Atsisiuntimų, sinchronizavimo ir indeksavimo eiga bei nesėkmės meniu ⋮</string>
+  <string name="prefs_system_notifications_title">Sistemos pranešimai</string>
+  <string name="prefs_system_notifications_denied">Išjungta iOS nustatymuose</string>
+  <string name="prefs_system_notifications_summary">Pranešti apie nepavykusius foninius darbus, ilgus atsisiuntimus, pasibaigusius, kai AndBible veikia fone, ir jų eigą</string>
   <string name="prefs_disable_click_to_edit_title">Išjungti spustelėjimą redaguoti užrašų knygelėje</string>
   <string name="prefs_disable_click_to_edit_summary">Norint redaguoti pastabas užrašų knygelėje, reikia naudoti redagavimo mygtuką.</string>
   <string name="prefs_notes_content_type_title">Naujų žymių pastabų formatas</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Nakties režimas</string>
+  <string name="options_menu_sync_now">Sinchronizuoti dabar</string>
+  <string name="exit_sync_title">Sinchronizuojami pakeitimai…</string>
+  <string name="exit_sync_body">Siunčiami jūsų pakeitimai į kitus įrenginius. Tai gali užtrukti kelias sekundes.</string>
+  <string name="exit_sync_quit_now">Išeiti dabar</string>
+  <string name="exit_sync_closing">Užveriama…</string>
+  <string name="sync_now_no_network">Nėra tinklo ryšio</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Nuorodų langas</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">Kalba</string>
   <string name="one_more_back_press">Norėdami užverti programėlę, dar kartą paspauskite atgal</string>
   <string name="document_filter_results">%d dokumentai</string>
+  <string name="activity_show_all">Rodyti viską (%1$d)</string>
+  <string name="activity_failed_badge">%1$d nepavyko</string>
+  <string name="activity_attention_badge">%1$d reikia dėmesio</string>
+  <string name="activity_combined_badge">%1$d nepavyko, %2$d reikia dėmesio</string>
+  <string name="activity_running_description">Veikia foninis darbas</string>
+  <string name="activity_running">Vykdoma</string>
+  <string name="activity_recent">Naujausia</string>
+  <string name="activity_clear_finished">Išvalyti baigtus</string>
+  <string name="activity_title">Foninė veikla</string>
+  <string name="activity_empty">Nieko nevykdoma</string>
+  <string name="activity_failed_toast">%1$s — žr. meniu</string>
   <string name="download_question_title">Ar norite tęsti dokumentų atsisiuntimą?</string>
   <string name="download_question_message">Jei gyvenate šalyje, kurioje persekioja už tikėjimą,
      jums reikėtų gerai pagalvoti prieš bandant atsisiųsti krikščionišką medžiagą per internetą.
@@ -644,6 +668,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
   <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštas, „Google“ Diskas ir kt.)?</string>
   <string name="backup_phone_storage">Telefono saugykla</string>
+  <string name="backup_save_to_files">Išsaugoti į Failus</string>
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup_modules2">Saugoti dokumentų atsargines kopijas į...</string>
   <string name="backup_app2">Saugoti apl. (.apk failą) į …</string>
@@ -696,6 +721,9 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="module_about_repository">Platinimo serveris: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">Žurnalo aplankas</string>
+  <string name="open_log_folder">Atverti žurnalo aplanką</string>
+  <string name="startup_report_bug">Pranešti apie klaidą</string>
   <string name="send_bug_report_title">Atsiliepimas / pranešimas apie klaidą</string>
   <string name="report_bug_email_subject_3">[%1$s] Pranešimas apie klaidą %2$s %3$s</string>
   <string name="report_bug_big_heading">RAŠYKITE ATSILIEPIMĄ AR PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS</string>
@@ -764,8 +792,16 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="debug_test_error">Bandomoji klaida (derinimo versija)</string>
   <string name="bug_report_prepare_failed">Nepavyko parengti ar bendrinti ataskaitos. Galite bandyti dar kartą arba naudoti Atsarginės kopijos kūrimą ir atkūrimą, kad išsaugotumėte duomenis.</string>
   <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
+  <string name="bug_report_desktop_text">Toliau būsite paklausti, kur išsaugoti pranešimo apie klaidą failą. Tada gausite nurodymus, kaip jį išsiųsti kūrėjų komandai.</string>
   <string name="bug_report_email_text">Toliau, pasirinkite pageidaujamą el. pašto kliento programėlę (pvz., Gmail), kad išsiųstumėte plėtotojų komandai pranešimą apie klaidą.</string>
   <string name="bug_report_manual_title">Siųsti ataskaitą el. paštu</string>
+  <string name="bug_report_manual_text_saved">Pranešimas buvo išsaugotas čia: <b>%1$s</b>.\n\nSiųskite el. laišką adresu <b>%2$s</b> ir pridėkite tą failą; el. pašto programa negali jo pridėti už jus. Siūloma tema: <b>%3$s</b>. Laiške papasakokite, ką darėte ir kas įvyko.</string>
+  <string name="bug_report_manual_text_unsaved">Pranešimas buvo išsaugotas jūsų pasirinktoje vietoje.\n\nSiųskite el. laišką adresu <b>%1$s</b> ir pridėkite išsaugotą pranešimo failą; el. pašto programa negali jo pridėti už jus. Siūloma tema: <b>%2$s</b>. Laiške papasakokite, ką darėte ir kas įvyko.</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s klaida: &lt;trumpas aprašas&gt;</string>
+  <string name="bug_report_attach_line">Pridėkite failą %1$s</string>
+  <string name="bug_report_copy_subject">Kopijuoti temą</string>
+  <string name="bug_report_copy_path">Kopijuoti failo kelią</string>
+  <string name="bug_report_open_folder">Atverti aplanką</string>
   <string name="bug_report_copy_address">Kopijuoti adresą</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
@@ -793,9 +829,40 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="workspace_manage_workspaces">Tvarkyti darbo sritis…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
-  <string name="beta_notice_github_issues">Github klaidų pranešimus</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub klaidų pranešimus</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">YPATINGAS KŪRĖJO PRANEŠIMAS BETA BANDYTOJAMS (2026 m. lapkritis)</string>
+  <string name="beta_special_intro_android">Sveiki atvykę į AndBible 6.0 beta! Tai didžiausias pokytis AndBible istorijoje. Visa programa perrašyta naudojant naują sąsajos įrankių rinkinį, o sąsaja pakeista: peržiūrėtas kiekvienas ekranas, o daugelis jų, be atnaujinto Material 3 stiliaus, gerokai patogesni naudoti.</string>
+  <string name="beta_special_intro_ios">Sveiki atvykę į AndBible 6.0 beta! Jei naudojote AndBible iOS 1.0, tai didelis pokytis: 6.0 versija ją pakeičia bendra AndBible programa, ta pačia, kuri veikia Android, iPhone, iPad ir Apple Silicon Mac kompiuteriuose, Windows ir Linux. Ji sukurta ant kodo, daugiau nei dešimtmetį tarnavusio Android naudotojams, perrašyto naudojant naują sąsajos įrankių rinkinį, o sąsaja pakeista: peržiūrėtas kiekvienas ekranas, o daugelis jų gerokai patogesni naudoti.</string>
+  <string name="beta_special_intro_desktop">Sveiki atvykę į AndBible 6.0 beta ir į AndBible sistemose Windows ir Linux! Tai pirmoji AndBible darbalaukio versija: ta pati programa dabar veikia Android, iPhone, iPad ir Apple Silicon Mac kompiuteriuose, Windows ir Linux. Ji sukurta ant kodo, daugiau nei dešimtmetį tarnavusio Android naudotojams, perrašyto naudojant naują sąsajos įrankių rinkinį, o sąsaja pakeista: peržiūrėtas kiekvienas ekranas, o daugelis jų gerokai patogesni naudoti.</string>
+  <string name="beta_special_redesign">Pertvarkyta sąsaja: aiškesni meniu, nustatymai ir dialogai, nuoseklesnė naršymo tvarka ir daug smulkių darbo eigos patobulinimų visoje programoje.</string>
+  <string name="beta_special_data_kept">Visos jūsų funkcijos, duomenys ir nustatymai išlieka.</string>
+  <string name="beta_special_platforms">Ta pati programa dabar veikia Android, iPhone, iPad ir Apple Silicon Mac kompiuteriuose, Windows ir Linux. Naujosios platformos taip pat yra bandomos.</string>
+  <string name="beta_special_additions_android">Du smulkesni papildymai: WebDAV sinchronizavimas (jūsų pačių serveris, NAS ar bet kuri WebDAV paslauga, be Google Drive ir Nextcloud) ir nauja paieškos rodyklė, kuri po naujinimo vieną kartą bus automatiškai perkurta.</string>
+  <string name="beta_special_one_app">Viena programa visuose jūsų įrenginiuose: tos pačios funkcijos ir darbo eiga telefone, planšetėje ir kompiuteryje.</string>
+  <string name="beta_special_sync_ios">Sinchronizavimas tarp jūsų įrenginių per Nextcloud, WebDAV (jūsų pačių serveris, NAS ar bet kuri WebDAV paslauga) arba iCloud Drive.</string>
+  <string name="beta_special_sync_desktop">Sinchronizavimas tarp jūsų įrenginių per Nextcloud arba WebDAV (jūsų pačių serveris, NAS ar bet kuri WebDAV paslauga).</string>
+  <string name="beta_special_feedback">Jei kažko trūksta, veikia kitaip nei anksčiau ar tapo sunkiau randama, pasakykite mums, net jei tai gali būti sąmoninga.</string>
+  <string name="beta_special_backup">Prieš bandant verta pasidaryti atsarginę kopiją (Pagrindinis meniu → %s).</string>
+  <string name="beta_special_beta_warning">Tai beta versija: ne viskas baigta ar visiškai ištirta, joje gali būti klaidų. Ją naudodami tampate beta bandytoju, o jūsų pranešimai apie klaidas padeda padaryti galutinę laidą gerą.</string>
+  <string name="beta_special_leave_beta_android">Jei nenorėjote bandyti, galite palikti %s ir grįžti į stabilią versiją.</string>
+  <string name="beta_special_report">Apie klaidas praneškite per %1$s (pageidautina) arba Pagrindinis meniu → %2$s.</string>
+  <string name="beta_special_report_android">Apie klaidas praneškite per %1$s (pageidautina), Google Play arba Pagrindinis meniu → %2$s.</string>
+  <string name="beta_special_other_devices_title">AndBible kituose jūsų įrenginiuose</string>
+  <string name="beta_special_other_devices_intro">Ta pati beta prieinama visiems jūsų įrenginiams:</string>
+  <string name="beta_special_other_android">Android: prisijunkite prie %1$s arba atsisiųskite APK iš naujausios beta laidos %2$s.</string>
+  <string name="beta_special_play_beta_link">beta programos Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad ir Apple Silicon Mac: įdiekite Apple programą TestFlight ir prisijunkite prie %s.</string>
+  <string name="beta_special_testflight_link">AndBible viešosios beta</string>
+  <string name="beta_special_other_desktop">Windows (.msi) ir Linux (.deb arba AppImage): atsisiųskite iš naujausios beta laidos %s.</string>
+  <string name="beta_special_installation_guide">Nuoseklūs nurodymai pateikti: %s.</string>
+  <string name="beta_special_installation_guide_link">diegimo vadove</string>
+  <string name="beta_special_regards">Geriausi linkėjimai, Tuomas</string>
+  <string name="beta_special_sponsor">P.S. Galite finansiškai paremti AndBible kūrimą: %s.</string>
+  <string name="beta_special_sponsor_link">remdami kūrėjo darbo valandas</string>
   <string name="stable_notice_title">Programėlė atnaujinta!</string>
   <string name="upgrade_video_message">Žiūrėkite vaizdo įrašą, kuriame demonstruojamos naujos programėlės ypatybės (%s).</string>
   <string name="stable_notice_par1">Nauja %2$s versija %1$s sėkmingai įdiegta!</string>
@@ -1208,6 +1275,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="db_repositories">Saugyklos ir susiję nustatymai</string>
   <string name="db_bookmarks">Žymės, mano pastabos, etiketės ir bloknotai</string>
   <string name="synchronizing">Sinchronizuojama…</string>
+  <string name="notification_finished">Baigta</string>
   <string name="overrideBackup">
         Debesijoje yra rasta duomenų bazė su kuria šis įrenginys nėra sinchronizuotas.
         Duomenų bazėje yra %s. Ką norėtumėte daryti?
@@ -1791,6 +1859,12 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="agent_log_response_received">Gautas atsakymas</string>
   <string name="agent_log_saved">Išsaugota: %s</string>
   <string name="agent_log_done">Atlikta: %s</string>
+  <string name="agent_activity_title">DI agentas</string>
+  <string name="agent_activity_title_in">DI agentas: %s</string>
+  <string name="agent_activity_waiting">Laukiama jūsų leidimo</string>
+  <string name="agent_activity_waiting_for">Laukiama jūsų leidimo: %s</string>
+  <string name="agent_activity_failed">DI agentas nepavyko</string>
+  <string name="agent_activity_attention_needed">DI agentui reikia jūsų dėmesio</string>
   <string name="agent_log_cancelled">Atšaukta</string>
   <string name="agent_already_running">DI agentas jau veikia. Palaukite arba pirmiausia jį sustabdykite.</string>
   <!--AI Agent Notifications-->

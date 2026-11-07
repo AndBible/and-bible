@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">AndBible ต้องใช้กราฟิก Direct3D เพื่อแสดงข้อความพระคัมภีร์ด้วย WebView2 ตัวเรนเดอร์กราฟิกปัจจุบันคือ %1$s โปรดตรวจสอบไดรเวอร์กราฟิกและการรองรับ Direct3D\n\nรายละเอียดอยู่ในไฟล์บันทึก:\n%2$s</string>
   <string name="desktop_update_setting_title">ตรวจสอบการอัปเดต</string>
   <string name="desktop_update_setting_summary">วันละครั้ง จาก github.com</string>
+  <string name="desktop_beta_update_setting_title">เสนออัปเดตเบต้าสาธารณะ</string>
+  <string name="desktop_beta_update_setting_summary">เสนอเวอร์ชันเบต้าสาธารณะด้วย เมื่อปิดอยู่ การติดตั้งเบต้าจะได้รับเฉพาะรุ่นเสถียรเท่านั้น</string>
   <string name="desktop_update_consent_title">ตรวจสอบการอัปเดตหรือไม่?</string>
   <string name="desktop_update_consent_message">AndBible สามารถตรวจสอบ github.com วันละครั้งเพื่อหาเวอร์ชันใหม่ GitHub จะเห็นที่อยู่ IP ของคุณ และจะไม่มีการส่งข้อมูลอื่นใด คุณสามารถเปลี่ยนแปลงได้ภายหลังในการตั้งค่า</string>
   <string name="desktop_update_consent_yes">ตรวจสอบการอัปเดต</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">เปิดใช้งานคุณสมบัติเฉพาะ E-ink (ปุ่มเลื่อนหน้า เส้นช่วยการเลื่อน)</string>
   <string name="prefs_disable_animations_title">ปิดการใช้งานแอนิเมชัน</string>
   <string name="prefs_disable_animations_summary">ปิดการใช้งานแอนิเมชันต่างๆ เช่น การเลื่อนแบบราบรื่น</string>
+  <string name="prefs_show_activity_in_menu_title">แสดงกิจกรรมเบื้องหลังในเมนู</string>
+  <string name="prefs_show_activity_in_menu_summary">ความคืบหน้าของการดาวน์โหลด การซิงค์ และการสร้างดัชนี รวมถึงความล้มเหลว ในเมนู ⋮</string>
+  <string name="prefs_system_notifications_title">การแจ้งเตือนของระบบ</string>
+  <string name="prefs_system_notifications_denied">ปิดอยู่ในการตั้งค่า iOS</string>
+  <string name="prefs_system_notifications_summary">แจ้งเตือนเกี่ยวกับงานเบื้องหลังที่ล้มเหลว การดาวน์โหลดที่ใช้เวลานานและเสร็จสิ้นขณะ AndBible อยู่เบื้องหลัง และความคืบหน้าของงานเหล่านั้น</string>
   <string name="prefs_disable_click_to_edit_title">ปิดการแตะเพื่อแก้ไขในแผ่นบันทึกการศึกษา</string>
   <string name="prefs_disable_click_to_edit_summary">ต้องใช้ปุ่มแก้ไขเพื่อแก้ไขบันทึกในแผ่นบันทึกการศึกษา</string>
   <string name="prefs_notes_content_type_title">รูปแบบสำหรับบันทึกที่คั่นหน้าใหม่</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">อัตโนมัติ</string>
   <string name="prefs_night_mode_system">ระบบ</string>
   <string name="options_menu_night_mode">โหมดกลางคืน</string>
+  <string name="options_menu_sync_now">ซิงค์ตอนนี้</string>
+  <string name="exit_sync_title">กำลังซิงโครไนซ์การเปลี่ยนแปลง…</string>
+  <string name="exit_sync_body">กำลังส่งการเปลี่ยนแปลงของคุณไปยังอุปกรณ์เครื่องอื่น อาจใช้เวลาสักครู่</string>
+  <string name="exit_sync_quit_now">ออกตอนนี้</string>
+  <string name="exit_sync_closing">กำลังปิด…</string>
+  <string name="sync_now_no_network">ไม่มีการเชื่อมต่อเครือข่าย</string>
   <string name="prefs_navigate_to_verse_title">นำทางไปยังข้อ</string>
   <string name="prefs_navigate_to_verse_summary">เลือกข้อ (และบท) เมื่อเลือกตอน</string>
   <string name="prefs_open_links_in_special_window_title">หน้าต่างลิงก์</string>
@@ -356,6 +369,17 @@
   <string name="chooce_language_hint">ภาษา</string>
   <string name="one_more_back_press">กดย้อนกลับอีกครั้งเพื่อปิดแอป</string>
   <string name="document_filter_results">%d เอกสาร</string>
+  <string name="activity_show_all">แสดงทั้งหมด (%1$d)</string>
+  <string name="activity_failed_badge">ล้มเหลว %1$d</string>
+  <string name="activity_attention_badge">ต้องการความสนใจ %1$d</string>
+  <string name="activity_combined_badge">ล้มเหลว %1$d, ต้องการความสนใจ %2$d</string>
+  <string name="activity_running_description">งานเบื้องหลังกำลังทำงาน</string>
+  <string name="activity_running">กำลังทำงาน</string>
+  <string name="activity_recent">ล่าสุด</string>
+  <string name="activity_clear_finished">ล้างรายการที่เสร็จสิ้น</string>
+  <string name="activity_title">กิจกรรมเบื้องหลัง</string>
+  <string name="activity_empty">ไม่มีงานที่กำลังทำงาน</string>
+  <string name="activity_failed_toast">%1$s — ดูในเมนู</string>
   <string name="download_question_title">ต้องการดาวน์โหลดเอกสารหรือไม่?</string>
   <string name="download_question_message">หากคุณอาศัยอยู่ในประเทศที่มีการข่มเหงทางศาสนา คุณอาจต้องระมัดระวังในการดาวน์โหลดสื่อคริสเตียนผ่านอินเทอร์เน็ต แต่ควรหาไฟล์ zip ของโมดูลในวิธีที่ปลอดภัยกว่าแล้วติดตั้งผ่าน \"โหลดเอกสารจาก Zip\" คุณแน่ใจว่าต้องการดาวน์โหลดหรือไม่? การดาวน์โหลดทั้งหมดจากเซิร์ฟเวอร์โมดูลนั้นเข้ารหัส (HTTPS)</string>
   <string name="do_not_ask_again">ใช่ ไม่ต้องถามอีก</string>
@@ -585,6 +609,7 @@
   <string name="backup_backup_title">สำรองข้อมูลไปที่ไหน?</string>
   <string name="backup_backup_message">สำรองข้อมูลไปยังโทรศัพท์หรือที่อื่นผ่านฟังก์ชันแชร์ (อีเมล, Google Drive เป็นต้น)?</string>
   <string name="backup_phone_storage">ที่เก็บข้อมูลโทรศัพท์</string>
+  <string name="backup_save_to_files">บันทึกลงในไฟล์</string>
   <string name="backup_and_restore">สำรองและกู้คืน</string>
   <string name="backup_modules2">สำรองเอกสารไปยัง…</string>
   <string name="backup_app2">สำรองแอป (ไฟล์ .apk) ไปยัง…</string>
@@ -637,6 +662,9 @@
   <string name="module_about_repository">เซิร์ฟเวอร์จัดจำหน่าย: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">โฟลเดอร์บันทึก</string>
+  <string name="open_log_folder">เปิดโฟลเดอร์บันทึก</string>
+  <string name="startup_report_bug">รายงานข้อบกพร่อง</string>
   <string name="send_bug_report_title">ข้อเสนอแนะ / รายงานข้อผิดพลาด</string>
   <string name="report_bug_email_subject_3">[%1$s] รายงานข้อผิดพลาดสำหรับ %2$s %3$s</string>
   <string name="report_bug_big_heading">กรุณาเขียนข้อเสนอแนะหรือรายงานข้อผิดพลาดเหนือบรรทัดนี้</string>
@@ -704,8 +732,16 @@
   <string name="debug_test_error">ข้อผิดพลาดทดสอบ (บิลด์ดีบัก)</string>
   <string name="bug_report_prepare_failed">ไม่สามารถเตรียมหรือแชร์รายงานได้ คุณสามารถลองอีกครั้ง หรือใช้การสำรองและกู้คืนเพื่อบันทึกข้อมูลของคุณ</string>
   <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
+  <string name="bug_report_desktop_text">ถัดไป ระบบจะถามว่าจะบันทึกไฟล์รายงานข้อบกพร่องไว้ที่ใด จากนั้นคุณจะได้รับคำแนะนำในการส่งไฟล์ให้ทีมนักพัฒนา</string>
   <string name="bug_report_email_text">ถัดไป กรุณาเลือกแอปอีเมลที่คุณต้องการ (เช่น Gmail) เพื่อส่งรายงานให้ทีมนักพัฒนา</string>
   <string name="bug_report_manual_title">ส่งรายงานทางอีเมล</string>
+  <string name="bug_report_manual_text_saved">บันทึกรายงานไว้ที่ <b>%1$s</b> แล้ว\n\nโปรดส่งอีเมลถึง <b>%2$s</b> และแนบไฟล์นั้นมาด้วย โปรแกรมอีเมลไม่สามารถแนบไฟล์ให้คุณได้ หัวข้อที่แนะนำ: <b>%3$s</b> ในข้อความ โปรดบอกเราว่าคุณทำอะไรและเกิดอะไรขึ้น</string>
+  <string name="bug_report_manual_text_unsaved">บันทึกรายงานไว้ที่ตำแหน่งที่คุณเลือกแล้ว\n\nโปรดส่งอีเมลถึง <b>%1$s</b> และแนบไฟล์รายงานที่บันทึกไว้มาด้วย โปรแกรมอีเมลไม่สามารถแนบไฟล์ให้คุณได้ หัวข้อที่แนะนำ: <b>%2$s</b> ในข้อความ โปรดบอกเราว่าคุณทำอะไรและเกิดอะไรขึ้น</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s ข้อบกพร่อง: &lt;คำอธิบายสั้น ๆ&gt;</string>
+  <string name="bug_report_attach_line">โปรดแนบไฟล์ %1$s</string>
+  <string name="bug_report_copy_subject">คัดลอกหัวข้อ</string>
+  <string name="bug_report_copy_path">คัดลอกเส้นทางไฟล์</string>
+  <string name="bug_report_open_folder">เปิดโฟลเดอร์</string>
   <string name="bug_report_copy_address">คัดลอกที่อยู่</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">การอ่านข้อความเป็นเสียง</string>
@@ -733,9 +769,40 @@
   <string name="workspace_manage_workspaces">จัดการพื้นที่ทำงาน…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
-  <string name="beta_notice_github_issues">Github issues</string>
-  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_github_issues">GitHub issues</string>
+  <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">ประกาศพิเศษจากนักพัฒนาสำหรับผู้ทดสอบเบต้า (พฤศจิกายน 2026)</string>
+  <string name="beta_special_intro_android">ยินดีต้อนรับสู่ AndBible 6.0 เบต้า! นี่คือการเปลี่ยนแปลงครั้งใหญ่ที่สุดในประวัติศาสตร์ของ AndBible แอปทั้งหมดถูกเขียนขึ้นใหม่ด้วยชุดเครื่องมือส่วนติดต่อผู้ใช้แบบใหม่ และส่วนติดต่อผู้ใช้ก็ได้รับการออกแบบใหม่ไปพร้อมกัน: ทุกหน้าจอได้รับการตรวจสอบ และส่วนใหญ่ได้รับการปรับปรุงด้านการใช้งานอย่างมาก นอกเหนือจากรูปลักษณ์ Material 3 แบบใหม่</string>
+  <string name="beta_special_intro_ios">ยินดีต้อนรับสู่ AndBible 6.0 เบต้า! หากคุณเคยใช้ AndBible สำหรับ iOS 1.0 นี่คือการเปลี่ยนแปลงครั้งใหญ่: เวอร์ชัน 6.0 มาแทนที่แอปเดิมด้วยแอป AndBible ที่ใช้ร่วมกัน ซึ่งเป็นแอปเดียวกับที่ทำงานบน Android, iPhone, iPad และ Mac แบบ Apple Silicon, Windows และ Linux สร้างขึ้นบนโค้ดที่รับใช้ผู้ใช้ Android มากว่าสิบปี เขียนขึ้นใหม่ด้วยชุดเครื่องมือส่วนติดต่อผู้ใช้แบบใหม่ และส่วนติดต่อผู้ใช้ก็ได้รับการออกแบบใหม่ไปพร้อมกัน: ทุกหน้าจอได้รับการตรวจสอบ และส่วนใหญ่ได้รับการปรับปรุงด้านการใช้งานอย่างมาก</string>
+  <string name="beta_special_intro_desktop">ยินดีต้อนรับสู่ AndBible 6.0 เบต้า และสู่ AndBible บน Windows และ Linux! นี่คือ AndBible เวอร์ชันเดสก์ท็อปแรก: แอปเดียวกันนี้ทำงานบน Android, iPhone, iPad และ Mac แบบ Apple Silicon, Windows และ Linux สร้างขึ้นบนโค้ดที่รับใช้ผู้ใช้ Android มากว่าสิบปี เขียนขึ้นใหม่ด้วยชุดเครื่องมือส่วนติดต่อผู้ใช้แบบใหม่ และส่วนติดต่อผู้ใช้ก็ได้รับการออกแบบใหม่ไปพร้อมกัน: ทุกหน้าจอได้รับการตรวจสอบ และส่วนใหญ่ได้รับการปรับปรุงด้านการใช้งานอย่างมาก</string>
+  <string name="beta_special_redesign">ส่วนติดต่อผู้ใช้ที่ออกแบบใหม่: เมนู การตั้งค่า และกล่องโต้ตอบที่ชัดเจนขึ้น การนำทางที่สอดคล้องกันมากขึ้น และการปรับปรุงขั้นตอนการใช้งานเล็ก ๆ น้อย ๆ มากมายทั่วทั้งแอป</string>
+  <string name="beta_special_data_kept">ฟีเจอร์ ข้อมูล และการตั้งค่าของคุณยังอยู่ครบถ้วน</string>
+  <string name="beta_special_platforms">แอปเดียวกันนี้ทำงานบน Android, iPhone, iPad และ Mac แบบ Apple Silicon, Windows และ Linux แพลตฟอร์มใหม่เหล่านี้อยู่ระหว่างการทดสอบเช่นกัน</string>
+  <string name="beta_special_additions_android">ส่วนเพิ่มเติมเล็ก ๆ สองอย่าง: การซิงโครไนซ์ WebDAV (เซิร์ฟเวอร์ของคุณเอง NAS หรือบริการ WebDAV ใด ๆ นอกจาก Google Drive และ Nextcloud) และดัชนีการค้นหาใหม่ที่จะถูกสร้างขึ้นใหม่หนึ่งครั้งโดยอัตโนมัติหลังการอัปเดต</string>
+  <string name="beta_special_one_app">แอปเดียวบนอุปกรณ์ทุกเครื่องของคุณ: ฟีเจอร์และขั้นตอนการใช้งานเหมือนกันบนโทรศัพท์ แท็บเล็ต และคอมพิวเตอร์</string>
+  <string name="beta_special_sync_ios">การซิงโครไนซ์ระหว่างอุปกรณ์ของคุณผ่าน Nextcloud, WebDAV (เซิร์ฟเวอร์ของคุณเอง NAS หรือบริการ WebDAV ใด ๆ) หรือ iCloud Drive</string>
+  <string name="beta_special_sync_desktop">การซิงโครไนซ์ระหว่างอุปกรณ์ของคุณผ่าน Nextcloud หรือ WebDAV (เซิร์ฟเวอร์ของคุณเอง NAS หรือบริการ WebDAV ใด ๆ)</string>
+  <string name="beta_special_feedback">หากมีสิ่งใดขาดหายไป ทำงานต่างจากเดิม หรือหายากขึ้น โปรดแจ้งให้เราทราบ แม้ว่าอาจเป็นการเปลี่ยนแปลงที่ตั้งใจก็ตาม</string>
+  <string name="beta_special_backup">ควรสำรองข้อมูลก่อนทดสอบ (เมนูหลัก → %s)</string>
+  <string name="beta_special_beta_warning">นี่คือเวอร์ชันเบต้า: ยังไม่ได้ทำเสร็จหรือทดสอบอย่างสมบูรณ์ทั้งหมด และอาจมีข้อบกพร่อง การใช้งานเวอร์ชันนี้ทำให้คุณเป็นผู้ทดสอบเบต้า และรายงานข้อบกพร่องของคุณคือสิ่งที่ทำให้รุ่นสุดท้ายดี</string>
+  <string name="beta_special_leave_beta_android">หากคุณไม่ได้ตั้งใจจะทดสอบ คุณสามารถออกจาก%sและกลับไปใช้เวอร์ชันเสถียรได้</string>
+  <string name="beta_special_report">โปรดรายงานข้อบกพร่องผ่าน %1$s (แนะนำ) หรือเมนูหลัก → %2$s</string>
+  <string name="beta_special_report_android">โปรดรายงานข้อบกพร่องผ่าน %1$s (แนะนำ), Google Play หรือเมนูหลัก → %2$s</string>
+  <string name="beta_special_other_devices_title">AndBible บนอุปกรณ์เครื่องอื่นของคุณ</string>
+  <string name="beta_special_other_devices_intro">เบต้าเดียวกันนี้มีให้ใช้งานสำหรับอุปกรณ์ทุกเครื่องของคุณ:</string>
+  <string name="beta_special_other_android">Android: เข้าร่วม%1$s หรือดาวน์โหลด APK จากรุ่นเบต้าล่าสุดบน %2$s</string>
+  <string name="beta_special_play_beta_link">โปรแกรมเบต้าบน Google Play</string>
+  <string name="beta_special_other_apple">iPhone, iPad และ Mac แบบ Apple Silicon: ติดตั้งแอป TestFlight ของ Apple แล้วเข้าร่วม%s</string>
+  <string name="beta_special_testflight_link">AndBible เบต้าสาธารณะ</string>
+  <string name="beta_special_other_desktop">Windows (.msi) และ Linux (.deb หรือ AppImage): ดาวน์โหลดได้จากรุ่นเบต้าล่าสุดบน %s</string>
+  <string name="beta_special_installation_guide">คำแนะนำทีละขั้นตอนอยู่ใน%s</string>
+  <string name="beta_special_installation_guide_link">คู่มือการติดตั้ง</string>
+  <string name="beta_special_regards">ด้วยความปรารถนาดี Tuomas</string>
+  <string name="beta_special_sponsor">ป.ล. คุณสามารถสนับสนุนการพัฒนา AndBible ทางการเงินได้โดย%s</string>
+  <string name="beta_special_sponsor_link">สนับสนุนชั่วโมงการพัฒนา</string>
   <string name="stable_notice_title">แอปพลิเคชันได้รับการอัปเกรดแล้ว!</string>
   <string name="upgrade_video_message">กรุณาดูวิดีโอแนะนำฟีเจอร์ใหม่ของเวอร์ชันนี้ (%s)</string>
   <string name="stable_notice_par1">ติดตั้งเวอร์ชันใหม่ %1$s ของ %2$s สำเร็จแล้ว!</string>
@@ -1074,6 +1141,7 @@
   <string name="db_repositories">ที่เก็บข้อมูลและการตั้งค่าที่เกี่ยวข้อง</string>
   <string name="db_bookmarks">ที่คั่นหน้า บันทึกของฉัน ป้ายกำกับ และแผ่นบันทึกการศึกษา</string>
   <string name="synchronizing">กำลังซิงโครไนซ์…</string>
+  <string name="notification_finished">เสร็จสิ้น</string>
   <string name="overrideBackup">พบฐานข้อมูลที่อุปกรณ์นี้ยังไม่ได้ซิงโครไนซ์อยู่ในคลาวด์ ฐานข้อมูลมี %s คุณต้องการทำอะไร?</string>
   <string name="reading_plans_content">แผนการอ่านและสถานะของแผน</string>
   <string name="bookmarks_contents">ที่คั่นหน้า ป้ายกำกับ และแผ่นบันทึกการศึกษา</string>
@@ -1652,6 +1720,12 @@
   <string name="agent_log_response_received">ได้รับการตอบสนองแล้ว</string>
   <string name="agent_log_saved">บันทึกแล้ว: %s</string>
   <string name="agent_log_done">เสร็จ: %s</string>
+  <string name="agent_activity_title">เอเจนต์ AI</string>
+  <string name="agent_activity_title_in">เอเจนต์ AI: %s</string>
+  <string name="agent_activity_waiting">กำลังรอสิทธิ์จากคุณ</string>
+  <string name="agent_activity_waiting_for">กำลังรอสิทธิ์จากคุณ: %s</string>
+  <string name="agent_activity_failed">เอเจนต์ AI ล้มเหลว</string>
+  <string name="agent_activity_attention_needed">เอเจนต์ AI ต้องการความสนใจจากคุณ</string>
   <string name="agent_log_cancelled">ยกเลิกแล้ว</string>
   <string name="agent_already_running">AI agent กำลังทำงานอยู่แล้ว กรุณารอหรือหยุดก่อน</string>
   <!--AI Agent Notifications-->

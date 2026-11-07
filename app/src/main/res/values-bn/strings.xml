@@ -4,6 +4,8 @@
   <string name="desktop_webview2_graphics_error">WebView2 দিয়ে বাইবেলের পাঠ প্রদর্শনের জন্য অ্যান্ডবাইবেলের Direct3D গ্রাফিক্স প্রয়োজন। বর্তমান গ্রাফিক্স রেন্ডারার হলো %1$s। আপনার গ্রাফিক্স ড্রাইভার ও Direct3D সমর্থন পরীক্ষা করুন।\n\nবিস্তারিত লগ ফাইলে আছে:\n%2$s</string>
   <string name="desktop_update_setting_title">আপডেট পরীক্ষা করুন</string>
   <string name="desktop_update_setting_summary">দিনে একবার, github.com থেকে</string>
+  <string name="desktop_beta_update_setting_title">পাবলিক বিটা আপডেট অফার করুন</string>
+  <string name="desktop_beta_update_setting_summary">পাবলিক বিটা সংস্করণও অফার করুন। বন্ধ থাকলে বিটা ইনস্টলেশন শুধু প্রোডাকশন রিলিজ পাবে।</string>
   <string name="desktop_update_consent_title">আপডেট পরীক্ষা করবেন?</string>
   <string name="desktop_update_consent_message">অ্যান্ডবাইবেল দিনে একবার github.com-এ নতুন সংস্করণ আছে কি না দেখতে পারে। GitHub আপনার IP ঠিকানা দেখতে পায়; আর কিছু পাঠানো হয় না। আপনি পরে সেটিংসে এটি পরিবর্তন করতে পারবেন।</string>
   <string name="desktop_update_consent_yes">আপডেট পরীক্ষা করুন</string>
@@ -147,6 +149,11 @@
   <string name="prefs_eink_display_summary">ই-ইঙ্ক নির্দিষ্ট বৈশিষ্ট্য সক্ষম করুন (পৃষ্ঠা স্ক্রোল বোতাম, স্ক্রোল সহায়ক রেখা)</string>
   <string name="prefs_disable_animations_title">অ্যানিমেশন অক্ষম করুন</string>
   <string name="prefs_disable_animations_summary">বিভিন্ন অ্যানিমেশন যেমন মসৃণ স্ক্রোলিং অক্ষম করুন।</string>
+  <string name="prefs_show_activity_in_menu_title">মেনুতে ব্যাকগ্রাউন্ড কার্যকলাপ দেখান</string>
+  <string name="prefs_show_activity_in_menu_summary">ডাউনলোড, সিঙ্ক ও ইনডেক্সিংয়ের অগ্রগতি এবং ব্যর্থতা, ⋮ মেনুতে</string>
+  <string name="prefs_system_notifications_title">সিস্টেম বিজ্ঞপ্তি</string>
+  <string name="prefs_system_notifications_denied">iOS সেটিংসে বন্ধ করা আছে</string>
+  <string name="prefs_system_notifications_summary">ব্যর্থ ব্যাকগ্রাউন্ড কাজ, AndBible ব্যাকগ্রাউন্ডে থাকাকালীন শেষ হওয়া দীর্ঘ ডাউনলোড এবং তাদের অগ্রগতি সম্পর্কে জানান</string>
   <string name="prefs_disable_click_to_edit_title">স্টাডি প্যাড ক্লিক-টু-এডিট অক্ষম করুন</string>
   <string name="prefs_disable_click_to_edit_summary">স্টাডি প্যাডে নোট সম্পাদনা করতে এডিট বোতাম ব্যবহার করা প্রয়োজন।</string>
   <string name="prefs_notes_content_type_title">নতুন বুকমার্ক নোটের ফরম্যাট</string>
@@ -211,6 +218,12 @@
   <string name="prefs_night_mode_automatic">স্বয়ংক্রিয়</string>
   <string name="prefs_night_mode_system">পদ্ধতি </string>
   <string name="options_menu_night_mode">নাইট মোড </string>
+  <string name="options_menu_sync_now">এখনই সিঙ্ক করুন</string>
+  <string name="exit_sync_title">পরিবর্তনগুলি সিঙ্ক্রোনাইজ হচ্ছে…</string>
+  <string name="exit_sync_body">আপনার অন্যান্য ডিভাইসে আপনার পরিবর্তনগুলি পাঠানো হচ্ছে। এতে কয়েক সেকেন্ড লাগতে পারে।</string>
+  <string name="exit_sync_quit_now">এখনই বের হন</string>
+  <string name="exit_sync_closing">বন্ধ হচ্ছে…</string>
+  <string name="sync_now_no_network">নেটওয়ার্ক সংযোগ নেই</string>
   <string name="prefs_navigate_to_verse_title">পদে পৌছান</string>
   <string name="prefs_navigate_to_verse_summary">একটি গ্রন্থাংশ নির্বাচন করার সময় পদ ( এবং অধ্যায়) চয়ণ করুন। </string>
   <string name="prefs_open_links_in_special_window_title">লিঙ্ক উইন্ডো</string>
@@ -361,6 +374,17 @@
   <string name="chooce_language_hint">ভাষা </string>
   <string name="one_more_back_press">ব্যাক বোতামটির আরও একটি টিপলে অ্যাপ বন্ধ হয়ে যাবে</string>
   <string name="document_filter_results">%d ডকুমেন্টস </string>
+  <string name="activity_show_all">সব দেখান (%1$d)</string>
+  <string name="activity_failed_badge">%1$d ব্যর্থ</string>
+  <string name="activity_attention_badge">%1$d মনোযোগ প্রয়োজন</string>
+  <string name="activity_combined_badge">%1$d ব্যর্থ, %2$d মনোযোগ প্রয়োজন</string>
+  <string name="activity_running_description">ব্যাকগ্রাউন্ড কাজ চলছে</string>
+  <string name="activity_running">চলছে</string>
+  <string name="activity_recent">সাম্প্রতিক</string>
+  <string name="activity_clear_finished">সমাপ্তগুলি মুছুন</string>
+  <string name="activity_title">ব্যাকগ্রাউন্ড কার্যকলাপ</string>
+  <string name="activity_empty">কিছুই চলছে না</string>
+  <string name="activity_failed_toast">%1$s — মেনু দেখুন</string>
   <string name="download_question_title">আপনি কি ডকুমেন্টস  ডাউনলোড করার জন্য এগিয়ে যেতে চান?</string>
   <string name="download_question_message">আপনি যদি নিপীড়িত দেশে বাস করেন, ইন্টারনেটের মাধ্যমে খ্রিস্টিয়ান উপাদান ডাউনলোড করার ক্ষেত্রে আপনার সাবধান হওয়া দরকার। পরিবর্তে, আপনি মডিউল জিপ ফাইলগুলি আরও সুরক্ষিতভাবে পেতে এবং সেগুলি ইনস্টল করতে চাইতে পারেন \"জিপ থেকে লোড ডকুমেন্টস\" এর মাধ্যমে। আপনি কি ডাউনলোডের সাথে এগিয়ে যাওয়ার বিষয়ে নিশ্চিত? মডিউল সংগ্রহশালা থেকে সমস্ত ডাউনলোড এনক্রিপ্ট করা হয় (এইচটিটিপিএস)।</string>
   <string name="do_not_ask_again">হ্যাঁ, আর জিজ্ঞাসা করবেন না</string>
@@ -639,6 +663,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="backup_backup_title">কোথায় ব্যাকআপ?</string>
   <string name="backup_backup_message">শেয়ার ফাংশন (ইমেল, গুগল ড্রাইভ ইত্যাদি) এর মাধ্যমে ফোনে বা অন্য কোথাও ব্যাকআপ নেবেন?</string>
   <string name="backup_phone_storage">ফোন স্টোরেজ </string>
+  <string name="backup_save_to_files">ফাইলসে সংরক্ষণ করুন</string>
   <string name="backup_and_restore">ব্যাকআপ &amp; প্রত্যর্পণ করা</string>
   <string name="backup_modules2">ডকুমেন্টস ব্যাকআপ করুন......</string>
   <string name="backup_app2">ব্যাকআপ অ্যাপ (.apk ফাইল) থেকে…</string>
@@ -691,6 +716,9 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="module_about_repository">বিতরণ সার্ভার:%s</string>
   <string name="module_about_osisId">OSIS ID: %s </string>
   <!--Bug reporting-->
+  <string name="startup_log_folder">লগ ফোল্ডার</string>
+  <string name="open_log_folder">লগ ফোল্ডার খুলুন</string>
+  <string name="startup_report_bug">বাগ রিপোর্ট করুন</string>
   <string name="send_bug_report_title">প্রতিক্রিয়া / বাগ রিপোর্ট</string>
   <string name="report_bug_email_subject_3">[%1$s] এর জন্য বাগ রিপোর্ট %2$s %3$s</string>
   <string name="report_bug_big_heading">অনুগ্রহ করে এই লাইনের উপরে আপনার প্রতিক্রিয়া বা বাগ রিপোর্ট লিখুন</string>
@@ -758,8 +786,16 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="debug_test_error">পরীক্ষামূলক ত্রুটি (ডিবাগ বিল্ড)</string>
   <string name="bug_report_prepare_failed">রিপোর্ট তৈরি বা শেয়ার করা যায়নি। আপনি আবার চেষ্টা করতে পারেন, অথবা আপনার তথ্য সংরক্ষণ করতে ব্যাকআপ ও পুনরুদ্ধার ব্যবহার করুন।</string>
   <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
+  <string name="bug_report_desktop_text">এরপর আপনাকে জিজ্ঞাসা করা হবে বাগ রিপোর্ট ফাইলটি কোথায় সংরক্ষণ করবেন। তারপর ডেভেলপার দলকে পাঠানোর নির্দেশনা পাবেন।</string>
   <string name="bug_report_email_text">এরপর, ডেভেলপার দলের কাছে রিপোর্ট পাঠাতে অনুগ্রহ করে আপনার পছন্দের ইমেল অ্যাপ্লিকেশন (উদাহরণস্বরূপ Gmail) নির্বাচন করুন।</string>
   <string name="bug_report_manual_title">রিপোর্ট ইমেইলে পাঠান</string>
+  <string name="bug_report_manual_text_saved">রিপোর্টটি <b>%1$s</b> এ সংরক্ষণ করা হয়েছে।\n\nঅনুগ্রহ করে <b>%2$s</b> ঠিকানায় একটি ইমেইল পাঠান এবং সেই ফাইলটি সংযুক্ত করুন; ইমেইল প্রোগ্রাম আপনার জন্য এটি সংযুক্ত করতে পারে না। প্রস্তাবিত বিষয়: <b>%3$s</b>। বার্তায় জানান আপনি কী করেছিলেন এবং কী ঘটেছিল।</string>
+  <string name="bug_report_manual_text_unsaved">রিপোর্টটি আপনার বেছে নেওয়া স্থানে সংরক্ষণ করা হয়েছে।\n\nঅনুগ্রহ করে <b>%1$s</b> ঠিকানায় একটি ইমেইল পাঠান এবং সংরক্ষিত রিপোর্ট ফাইলটি সংযুক্ত করুন; ইমেইল প্রোগ্রাম আপনার জন্য এটি সংযুক্ত করতে পারে না। প্রস্তাবিত বিষয়: <b>%2$s</b>। বার্তায় জানান আপনি কী করেছিলেন এবং কী ঘটেছিল।</string>
+  <string name="bug_report_subject_suggestion">AndBible %1$s বাগ: &lt;সংক্ষিপ্ত বিবরণ&gt;</string>
+  <string name="bug_report_attach_line">অনুগ্রহ করে ফাইলটি সংযুক্ত করুন %1$s</string>
+  <string name="bug_report_copy_subject">বিষয় কপি করুন</string>
+  <string name="bug_report_copy_path">ফাইলের পাথ কপি করুন</string>
+  <string name="bug_report_open_folder">ফোল্ডার খুলুন</string>
   <string name="bug_report_copy_address">ঠিকানা কপি করুন</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">পাঠ্যাংশ থেকে বাক্য</string>
@@ -790,6 +826,37 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="beta_notice_github_issues">গিথুব ইস্যু</string>
   <string name="beta_notice_github">গিথুব </string>
   <string name="beta_notice_dismiss_until_update">পরবর্তী আপডেট হওয়া পর্যন্ত খারিজ করুন</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
+  <string name="beta_special_heading">বিটা টেস্টারদের জন্য ডেভেলপারের বিশেষ বিজ্ঞপ্তি (নভেম্বর ২০২৬)</string>
+  <string name="beta_special_intro_android">AndBible ৬.০ বিটাতে স্বাগতম! এটি AndBible-এর ইতিহাসের সবচেয়ে বড় পরিবর্তন। পুরো অ্যাপটি একটি নতুন ইউজার ইন্টারফেস টুলকিট দিয়ে নতুন করে লেখা হয়েছে এবং ইন্টারফেসও নতুন করে ডিজাইন করা হয়েছে: প্রতিটি স্ক্রিন পর্যালোচনা করা হয়েছে, এবং নতুন Material 3 রূপের পাশাপাশি বেশিরভাগ স্ক্রিনে ব্যবহারযোগ্যতার উল্লেখযোগ্য উন্নতি হয়েছে।</string>
+  <string name="beta_special_intro_ios">AndBible ৬.০ বিটাতে স্বাগতম! আপনি যদি iOS-এর জন্য AndBible ১.০ ব্যবহার করে থাকেন, তবে এটি একটি বড় পরিবর্তন: ৬.০ সংস্করণ এটিকে প্রতিস্থাপন করে যৌথ AndBible অ্যাপ দিয়ে, যে অ্যাপটি Android, iPhone, iPad ও Apple Silicon Mac, Windows এবং Linux-এ চলে। এটি সেই কোডের উপর নির্মিত যা এক দশকেরও বেশি সময় ধরে Android ব্যবহারকারীদের সেবা দিয়ে আসছে, একটি নতুন ইউজার ইন্টারফেস টুলকিট দিয়ে নতুন করে লেখা, এবং ইন্টারফেসও নতুন করে ডিজাইন করা হয়েছে: প্রতিটি স্ক্রিন পর্যালোচনা করা হয়েছে, এবং বেশিরভাগ স্ক্রিনে ব্যবহারযোগ্যতার উল্লেখযোগ্য উন্নতি হয়েছে।</string>
+  <string name="beta_special_intro_desktop">AndBible ৬.০ বিটাতে এবং Windows ও Linux-এ AndBible-এ স্বাগতম! এটি AndBible-এর প্রথম ডেস্কটপ সংস্করণ: একই অ্যাপ এখন Android, iPhone, iPad ও Apple Silicon Mac, Windows এবং Linux-এ চলে। এটি সেই কোডের উপর নির্মিত যা এক দশকেরও বেশি সময় ধরে Android ব্যবহারকারীদের সেবা দিয়ে আসছে, একটি নতুন ইউজার ইন্টারফেস টুলকিট দিয়ে নতুন করে লেখা, এবং ইন্টারফেসও নতুন করে ডিজাইন করা হয়েছে: প্রতিটি স্ক্রিন পর্যালোচনা করা হয়েছে, এবং বেশিরভাগ স্ক্রিনে ব্যবহারযোগ্যতার উল্লেখযোগ্য উন্নতি হয়েছে।</string>
+  <string name="beta_special_redesign">নতুন করে ডিজাইন করা ইন্টারফেস: আরও স্পষ্ট মেনু, সেটিংস ও ডায়ালগ, আরও সামঞ্জস্যপূর্ণ নেভিগেশন, এবং পুরো অ্যাপ জুড়ে কাজের ধারায় অনেক ছোট উন্নতি।</string>
+  <string name="beta_special_data_kept">আপনার ফিচার, ডেটা ও সেটিংস সবই আগের মতো আছে।</string>
+  <string name="beta_special_platforms">একই অ্যাপ এখন Android, iPhone, iPad ও Apple Silicon Mac, Windows এবং Linux-এ চলে। নতুন প্ল্যাটফর্মগুলিও পরীক্ষাধীন।</string>
+  <string name="beta_special_additions_android">দুটি ছোট সংযোজন: WebDAV সিঙ্ক্রোনাইজেশন (আপনার নিজের সার্ভার, NAS বা যেকোনো WebDAV সেবা, Google Drive ও Nextcloud ছাড়াও), এবং একটি নতুন সার্চ ইনডেক্স যা আপডেটের পর একবার স্বয়ংক্রিয়ভাবে পুনর্নির্মিত হবে।</string>
+  <string name="beta_special_one_app">আপনার সব ডিভাইসে একটি অ্যাপ: ফোন, ট্যাবলেট ও কম্পিউটারে একই ফিচার ও কাজের ধারা।</string>
+  <string name="beta_special_sync_ios">Nextcloud, WebDAV (আপনার নিজের সার্ভার, NAS বা যেকোনো WebDAV সেবা) অথবা iCloud Drive-এর মাধ্যমে আপনার ডিভাইসগুলির মধ্যে সিঙ্ক্রোনাইজেশন।</string>
+  <string name="beta_special_sync_desktop">Nextcloud বা WebDAV (আপনার নিজের সার্ভার, NAS বা যেকোনো WebDAV সেবা)-এর মাধ্যমে আপনার ডিভাইসগুলির মধ্যে সিঙ্ক্রোনাইজেশন।</string>
+  <string name="beta_special_feedback">কিছু অনুপস্থিত থাকলে, আগের চেয়ে ভিন্নভাবে কাজ করলে বা খুঁজে পাওয়া কঠিন হয়ে গেলে, অনুগ্রহ করে আমাদের জানান, এমনকি তা ইচ্ছাকৃত হলেও।</string>
+  <string name="beta_special_backup">পরীক্ষার আগে ব্যাকআপ নেওয়া ভালো ধারণা (প্রধান মেনু → %s)।</string>
+  <string name="beta_special_beta_warning">এটি একটি বিটা সংস্করণ: সবকিছু সম্পূর্ণ বা পুরোপুরি পরীক্ষিত নয়, এবং এতে বাগ থাকতে পারে। এটি ব্যবহার করে আপনি একজন বিটা টেস্টার, এবং আপনার বাগ রিপোর্টই চূড়ান্ত রিলিজকে ভালো করে তোলে।</string>
+  <string name="beta_special_leave_beta_android">আপনি যদি পরীক্ষা করতে না চেয়ে থাকেন, তাহলে %s ছেড়ে স্থিতিশীল সংস্করণে ফিরে যেতে পারেন।</string>
+  <string name="beta_special_report">অনুগ্রহ করে %1$s (পছন্দনীয়) অথবা প্রধান মেনু → %2$s এর মাধ্যমে বাগ রিপোর্ট করুন।</string>
+  <string name="beta_special_report_android">অনুগ্রহ করে %1$s (পছন্দনীয়), Google Play অথবা প্রধান মেনু → %2$s এর মাধ্যমে বাগ রিপোর্ট করুন।</string>
+  <string name="beta_special_other_devices_title">আপনার অন্যান্য ডিভাইসে AndBible</string>
+  <string name="beta_special_other_devices_intro">একই বিটা আপনার সব ডিভাইসের জন্য পাওয়া যায়:</string>
+  <string name="beta_special_other_android">Android: %1$s এ যোগ দিন, অথবা %2$s এ সর্বশেষ বিটা রিলিজ থেকে APK ডাউনলোড করুন।</string>
+  <string name="beta_special_play_beta_link">Google Play-তে বিটা প্রোগ্রাম</string>
+  <string name="beta_special_other_apple">iPhone, iPad ও Apple Silicon Mac: Apple-এর TestFlight অ্যাপ ইনস্টল করুন এবং %s এ যোগ দিন।</string>
+  <string name="beta_special_testflight_link">AndBible পাবলিক বিটা</string>
+  <string name="beta_special_other_desktop">Windows (.msi) ও Linux (.deb বা AppImage): %s এ সর্বশেষ বিটা রিলিজ থেকে ডাউনলোড করুন।</string>
+  <string name="beta_special_installation_guide">ধাপে ধাপে নির্দেশনা %s এ আছে।</string>
+  <string name="beta_special_installation_guide_link">ইনস্টলেশন গাইড</string>
+  <string name="beta_special_regards">শুভেচ্ছান্তে, Tuomas</string>
+  <string name="beta_special_sponsor">পুনশ্চ: আপনি %s করে AndBible-এর উন্নয়নে আর্থিকভাবে সহায়তা করতে পারেন।</string>
+  <string name="beta_special_sponsor_link">ডেভেলপমেন্টের ঘণ্টা স্পনসর</string>
   <string name="stable_notice_title">আবেদন আপগ্রেড করা হয়েছে!</string>
   <string name="upgrade_video_message">এই রিলিজ (%s) এর নতুন বৈশিষ্ট্য সমন্বিত ভিডিও দেখুন.</string>
   <string name="stable_notice_par1">%2$sএর নতুন সংস্করণ %1$s সফলভাবে ইনস্টল করা হয়েছে!</string>
@@ -1175,6 +1242,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="db_repositories">সংগ্রহস্থল এবং সম্পর্কিত সেটিংস</string>
   <string name="db_bookmarks">বুকমার্ক, আমার নোট, লেবেল এবং স্টাডি প্যাড</string>
   <string name="synchronizing">সিঙ্ক্রোনাইজ হচ্ছে...</string>
+  <string name="notification_finished">সমাপ্ত</string>
   <string name="overrideBackup">
 এই ডিভাইসটি সিঙ্ক্রোনাইজ করা নেই এমন বিদ্যমান ডাটাবেসটি ক্লাউডে পাওয়া যায়।
 ডাটাবেস ধারণ %sকরে। আপনি কি করতে চান?</string>
@@ -1756,6 +1824,12 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="agent_log_response_received">প্রতিক্রিয়া পাওয়া গেছে</string>
   <string name="agent_log_saved">সংরক্ষিত: %s</string>
   <string name="agent_log_done">সম্পন্ন: %s</string>
+  <string name="agent_activity_title">AI এজেন্ট</string>
+  <string name="agent_activity_title_in">AI এজেন্ট: %s</string>
+  <string name="agent_activity_waiting">আপনার অনুমতির অপেক্ষায়</string>
+  <string name="agent_activity_waiting_for">আপনার অনুমতির অপেক্ষায়: %s</string>
+  <string name="agent_activity_failed">AI এজেন্ট ব্যর্থ হয়েছে</string>
+  <string name="agent_activity_attention_needed">AI এজেন্টের আপনার মনোযোগ প্রয়োজন</string>
   <string name="agent_log_cancelled">বাতিল হয়েছে</string>
   <string name="agent_already_running">একটি AI এজেন্ট ইতিমধ্যে চলছে। অনুগ্রহ করে অপেক্ষা করুন বা প্রথমে থামান।</string>
   <!--AI Agent Notifications-->
