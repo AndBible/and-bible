@@ -255,12 +255,34 @@ class WorkspaceSwitchContentTest {
     private fun verseOf(window: Window) = window.pageManager.currentBible.currentBibleVerse.verse
 
     /** Shows [chapter]:1 of John in [window] and waits until its view has admitted that document. */
-    private fun admitJohn(window: Window, chapter: Int, verse: Int = 1): org.crosswire.jsword.passage.Verse {
+    private fun admitJohn(
+        window: Window,
+        chapter: Int,
+        verse: Int = 1,
+        afterRequest: () -> Unit = {},
+    ): org.crosswire.jsword.passage.Verse {
+        // Bridge admission tests own this window's location. A late read from the other fixture
+        // Bible emits VerseChanged and can otherwise synchronise it away from the requested John.
+        window.isSynchronised = false
         val view = window.bibleView as BibleView
         val v11n = verseOf(window).versification
         val target = org.crosswire.jsword.passage.Verse(v11n, org.crosswire.jsword.versification.BibleBook.JOHN, chapter, verse)
         window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), target)
-        awaitHostUntil("John $chapter must be admitted to ${window.displayId}'s view") {
+        afterRequest()
+        val ownerJob = window.windowRepository.scope.coroutineContext[kotlinx.coroutines.Job]
+        net.bible.test.awaitHostCondition(
+            "John $chapter must be admitted to ${window.displayId}'s view",
+            describe = {
+                "Admission state: target=$target, current=${verseOf(window)}, visible=${window.isVisible}, " +
+                    "windowGeneration=${window.contentLoadGeneration}, loaderGeneration=${view.documentLoader.loadGeneration}, " +
+                    "initialKey=${view.session.initialKey}, documentGeneration=${view.session.documentGeneration}, " +
+                    "viewStillOwned=${window.bibleView === view}, disposed=${view.session.isDisposed}, " +
+                    "repoActive=${ownerJob?.isActive}, repoChildren=${ownerJob?.children?.count()}\n" +
+                    org.robolectric.shadows.ShadowLog.getLogs().filter {
+                        it.tag?.contains(window.displayId) == true || it.type >= android.util.Log.ERROR
+                    }.takeLast(60).joinToString("\n") { "${it.tag}: ${it.msg}" }
+            },
+        ) {
             (view.session.initialKey as? org.crosswire.jsword.passage.Verse)?.let { it.book == target.book && it.chapter == chapter } == true &&
                 view.session.documentGeneration != net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
         }
@@ -291,9 +313,16 @@ class WorkspaceSwitchContentTest {
      * between the dispatch and the run drops it.
      */
     @Test fun aCallFromTheBridgeThreadActsOnTheMainThreadOnlyIfItsDocumentIsStillAdmittedThere() {
-        val window = workspaceA().oldWindows[0]
+        val a = workspaceA()
+        val window = a.oldWindows[0]
         val view = window.bibleView as BibleView
-        val start = admitJohn(window, 6)
+        val start = admitJohn(window, 6) {
+            // Exercise a late completion from the other fixture Bible at the hostile ordering:
+            // its real synchronisation must not replace the bridge test's owned location.
+            val other = a.oldWindows[1]
+            net.bible.android.control.PassageChangeMediator.onCurrentVerseChanged(other)
+            a.repo.windowSync.synchronizeWindows(other, noDelay = true)
+        }
         val generation = view.session.documentGeneration
 
         kotlin.concurrent.thread { staleReport(view, "John.6", john(window, 6, 20).ordinal, generation) }.join()
