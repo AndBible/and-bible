@@ -19,7 +19,7 @@ from typing import Any
 
 import zensical
 
-from sitegen import github, home, paths
+from sitegen import channel, github, home, paths
 from sitegen.home import asset_hashes
 from sitegen.render import thumbnail_path
 from sitegen.i18n import languages, prefix, resolve, strings
@@ -46,8 +46,11 @@ def published_pages(config: Path) -> list[str]:
 
 
 def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
-          related: dict[str, list[tuple[str, str]]], media_dir: Path = paths.MEDIA) -> None:
+          related: dict[str, list[tuple[str, str]]], media_dir: Path = paths.MEDIA,
+          release: channel.Release = channel.Release()) -> None:
     """Stage `pages` for Zensical; a video id (embedded or related) without a local thumbnail raises ValueError.
+
+    Each page's release-channel blocks and link placeholders are resolved for `release` first.
 
     Zensical's strict mode does not check raw `<img>` tags, so the check lives here (spec section 8).
     """
@@ -55,7 +58,8 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
         shutil.rmtree(stage_dir)
     stage_dir.mkdir(parents=True)
     for page in pages:
-        text, embedded = expand_lines(resolve(content, lang, f"docs/{page}").read_text(encoding="utf-8"))
+        source = resolve(content, lang, f"docs/{page}")
+        text, embedded = expand_lines(channel.apply(source.read_text(encoding="utf-8"), release, str(source)))
         videos = [(vid, title) for vid, title in related.get(Path(page).with_suffix("").as_posix(), [])
                   if vid not in embedded]  # never repeat a video the page already embeds
         for vid in [*embedded, *(vid for vid, _ in videos)]:
@@ -153,17 +157,23 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
     return "\n".join(lines) + "\n"
 
 
-def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]]]) -> list[str]:
+def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]]],
+               release: dict[str, Any] | None = None) -> list[str]:
+    """Build every language's docs; `release` (tests) replaces site.yaml's `release:` section."""
     base = paths.WEBSITE / "zensical.toml"
     pages = published_pages(base)
     sitemap: list[str] = []
     for lang in languages(content):
         stage_dir = paths.BUILD / lang / "docs"
-        stage(content, lang, stage_dir, pages, related)
+        site = strings(content, lang)
+        if release is not None:
+            site = site | {"release": release}
+        stage(content, lang, stage_dir, pages, related,
+              release=channel.settings(site, f"content/{lang}/site.yaml"))
         # Build inside the config's directory, then copy to the real destination.
         built = paths.BUILD / lang / "site"
         config = paths.BUILD / lang / "zensical.toml"
-        config.write_text(_language_config(base.read_text(), lang, stage_dir, built, strings(content, lang)))
+        config.write_text(_language_config(base.read_text(), lang, stage_dir, built, site))
         # Run through this interpreter so the venv's zensical is used, not PATH's.
         subprocess.run([sys.executable, "-m", "zensical", "build", "--clean", "--strict",
                         "-f", str(config)], check=True, cwd=paths.WEBSITE)

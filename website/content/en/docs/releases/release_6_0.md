@@ -1,20 +1,46 @@
+<!-- if beta -->
+# Release 6.0 (beta) {#release-6-0}
+
+Public beta since **7 November 2026**. Release date of the final version: **to be announced**.
+
+!!! note "Public beta"
+    AndBible 6.0 is in public beta: it is ready for everyday use, but expect some rough edges.
+    Please report what you find, as described in [Support](../support.md#reporting-issues).
+<!-- else -->
 # Release 6.0 {#release-6-0}
 
 Release Date: **to be announced**
+<!-- end -->
 
 AndBible 6.0 is one app for six kinds of device: Android phones and tablets, iPhone, iPad, Mac,
 Windows and Linux. It has a new interface, written once and shared by all of them. Your Bible
 text, bookmarks, notes and StudyPads work the same way everywhere.
 
+<!-- if stable -->
 *This page is a draft and is not final.*
+<!-- end -->
 
 ## Where to get it
 
+<!-- if beta -->
+- **Android:** the [beta programme on Google Play]({{ play_beta }}), or the APK from the newest
+    pre-release on the [GitHub releases page]({{ beta_release }}). See [Android](../getting_started.md#android).
+<!-- if testflight -->
+- **iPhone and iPad:** the [TestFlight public beta]({{ testflight }}). See [iPhone and iPad](../getting_started.md#iphone-and-ipad).
+- **Mac:** the same TestFlight beta, on a Mac with Apple Silicon. See [Mac](../getting_started.md#mac).
+<!-- else -->
+- **iPhone, iPad and Mac:** coming soon as a TestFlight public beta. Until then the App Store has
+    the current version. See [iPhone and iPad](../getting_started.md#iphone-and-ipad) and [Mac](../getting_started.md#mac).
+<!-- end -->
+- **Windows:** an installer from the newest pre-release on the [GitHub releases page]({{ beta_release }}). See [Windows](../getting_started.md#windows).
+- **Linux:** a `.deb` package or an AppImage from the newest pre-release on the [GitHub releases page]({{ beta_release }}). See [Linux](../getting_started.md#linux).
+<!-- else -->
 - **Android:** Google Play, F-Droid, Amazon or Obtainium. See [Android](../getting_started.md#android).
 - **iPhone and iPad:** the App Store. See [iPhone and iPad](../getting_started.md#iphone-and-ipad).
 - **Mac:** the same App Store listing, on a Mac with Apple Silicon. See [Mac](../getting_started.md#mac).
 - **Windows:** an installer from the GitHub releases page. See [Windows](../getting_started.md#windows).
 - **Linux:** a `.deb` package or an AppImage from the GitHub releases page. See [Linux](../getting_started.md#linux).
+<!-- end -->
 
 Some features depend on the platform, for example which sync services are available.
 See [Platform differences](../platform_differences.md).

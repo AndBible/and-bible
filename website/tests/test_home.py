@@ -14,7 +14,10 @@ SITE_YAML = Path(__file__).resolve().parents[1] / "content" / "en" / "site.yaml"
 def content(tmp_path):
     en = tmp_path / "content" / "en"
     en.mkdir(parents=True)
-    en.joinpath("site.yaml").write_text(SITE_YAML.read_text())
+    # The stable channel: the landing as #4022 left it. The beta entries are tested in test_channel.py.
+    text, switched = re.subn(r"(?m)^  channel: \w+$", "  channel: stable", SITE_YAML.read_text())
+    assert switched == 1, "site.yaml release.channel not found"
+    en.joinpath("site.yaml").write_text(text)
     return tmp_path / "content"
 
 

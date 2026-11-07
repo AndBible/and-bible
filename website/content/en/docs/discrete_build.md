@@ -35,6 +35,10 @@ not system notifications.
 
 The discrete build is available from the
 [GitHub releases page](https://github.com/AndBible/and-bible/releases/latest).
+<!-- if beta -->
+The discrete build of the AndBible 6.0 beta is in the newest pre-release on the
+[GitHub releases page]({{ beta_release }}).
+<!-- end -->
 
 Click the “Assets” drop-down and download the file named
 `calculator-production-###.apk` (where `###` is the version number).
