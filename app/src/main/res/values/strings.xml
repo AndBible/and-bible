@@ -956,6 +956,39 @@
     <string name="beta_notice_github_issues">Github issues</string>
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
+    <!-- The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names. -->
+    <string name="beta_special_heading">DEVELOPER\'S SPECIAL NOTICE FOR BETA TESTERS (November 2026)</string>
+    <string name="beta_special_intro_android">Welcome to the AndBible 6.0 beta! This is the biggest change in AndBible\'s history. The whole app has been rewritten with a new user interface toolkit (Jetpack Compose), and the interface has been redesigned along the way: every screen was reviewed, and most of them got significant usability improvements on top of the refreshed Material 3 look.</string>
+    <string name="beta_special_intro_ios">Welcome to the AndBible 6.0 beta! If you have used AndBible for iOS 1.0, this is a big change: version 6.0 replaces it with the shared AndBible app, the same app that runs on Android, iPhone, iPad and Apple Silicon Macs, Windows and Linux. It is built on the code that has served Android users for over a decade, rewritten with a new user interface toolkit (Compose Multiplatform), and the interface has been redesigned along the way: every screen was reviewed, and most of them got significant usability improvements.</string>
+    <string name="beta_special_intro_desktop">Welcome to the AndBible 6.0 beta, and to AndBible on Windows and Linux! This is the first desktop version of AndBible: the same app now runs on Android, iPhone, iPad and Apple Silicon Macs, Windows and Linux. It is built on the code that has served Android users for over a decade, rewritten with a new user interface toolkit (Compose Multiplatform), and the interface has been redesigned along the way: every screen was reviewed, and most of them got significant usability improvements.</string>
+    <string name="beta_special_redesign">A redesigned interface: clearer menus, settings and dialogs, more consistent navigation, and many small workflow improvements throughout the app.</string>
+    <string name="beta_special_data_kept">Your features, data and settings are all still there.</string>
+    <string name="beta_special_platforms">The same app now runs on Android, iPhone, iPad and Apple Silicon Macs, Windows and Linux. The new platforms are in testing too.</string>
+    <string name="beta_special_additions_android">Two smaller additions: WebDAV synchronisation (your own server, a NAS or any WebDAV service, besides Google Drive and Nextcloud), and a new search index that is rebuilt once, automatically, after the update.</string>
+    <string name="beta_special_one_app">One app on all your devices: the same features and workflows on your phone, tablet and computer.</string>
+    <string name="beta_special_sync_ios">Synchronisation between your devices via Nextcloud, WebDAV (your own server, a NAS or any WebDAV service) or iCloud Drive.</string>
+    <string name="beta_special_sync_desktop">Synchronisation between your devices via Nextcloud or WebDAV (your own server, a NAS or any WebDAV service).</string>
+    <string name="beta_special_lookout_android">Because so much has changed, please be on the lookout for anything that behaves differently from 5.x: missing options, screens that look wrong in dark, light or monochrome mode, or data that does not look right after the update.</string>
+    <string name="beta_special_lookout_ios">Because so much has changed, please be on the lookout for anything that behaves differently from AndBible for iOS 1.0: missing options, screens that look wrong in dark, light or monochrome mode, or data that does not look right after the update.</string>
+    <string name="beta_special_lookout_desktop">Because the desktop version is new, please be on the lookout for anything that does not work well on a computer: mouse and keyboard use, window sizes, fonts and high-resolution displays, screens that look wrong in dark, light or monochrome mode, or data that does not look right after a sync.</string>
+    <string name="beta_special_feedback">Feedback on the new design is just as welcome as bug reports: if something got harder to find or use, please tell us.</string>
+    <string name="beta_special_backup">Making a backup before testing is a good idea (Main menu → %s).</string>
+    <string name="beta_special_report">Please report bugs via %1$s or Main menu → %2$s.</string>
+    <string name="beta_special_report_ios">Please report bugs via %1$s or Main menu → %2$s (the same action is also in Settings).</string>
+    <string name="beta_special_report_desktop">Please report bugs via %1$s or Main menu → %2$s (the same action is also in the toolbar of the application preferences).</string>
+    <string name="beta_special_other_devices_title">AndBible on your other devices</string>
+    <string name="beta_special_other_devices_intro">The same beta is available for all your devices:</string>
+    <string name="beta_special_other_android">Android: join the %1$s, or download the APK from the newest beta release on %2$s.</string>
+    <string name="beta_special_play_beta_link">beta programme on Google Play</string>
+    <string name="beta_special_other_apple">iPhone, iPad and Apple Silicon Mac: install Apple\'s TestFlight app and join the AndBible public beta (the TestFlight link is in the installation guide).</string>
+    <string name="beta_special_other_desktop">Windows (.msi) and Linux (.deb or AppImage): download them from the newest beta release on %s.</string>
+    <string name="beta_special_installation_guide">Step-by-step instructions are in the %s.</string>
+    <string name="beta_special_installation_guide_link">installation guide</string>
+    <string name="beta_special_regards">Best regards, Tuomas</string>
+    <string name="beta_special_sponsor">P.S. You can support AndBible development financially by %s.</string>
+    <string name="beta_special_sponsor_link">sponsoring development hours</string>
+    <string name="beta_special_standard_below">(Standard beta notice below)</string>
 
     <string name="stable_notice_title">Application has been upgraded!</string>
     <string name="upgrade_video_message">Please see video featuring new features of this release (%s).</string>

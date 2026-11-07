@@ -551,6 +551,28 @@ private fun HostAppContent(
             )
         },
     )
+    // The beta notice (Android: ReadingAppBootstrap.showBetaNotice), once reading is shown: a fresh install reaches
+    // reading only after Welcome. Shown by hosts that name a notice platform, when the environment says beta.
+    val betaNoticePlatform = platform.betaNoticePlatform
+    if (nightObserver != null && betaNoticePlatform != null) LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.first { it.destination.route?.substringBefore('?') == NavRoutes.READING }
+        try {
+            val environment = koin.get<net.bible.sharedcore.platform.AppEnvironment>()
+            net.bible.sharedui.app.notice.BetaNotice.showIfNeeded(
+                platform = betaNoticePlatform,
+                isBeta = environment.isBeta,
+                discrete = environment.isDiscrete,
+                settings = koin.get<AppSettings>(),
+                strings = strings,
+                version = platform.readingHost.versionName(),
+                ask = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()::await,
+            )
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("HostApp: beta notice failed: ${e.stackTraceToString()}")
+        }
+    }
     // #3973: a repository install an earlier run could not finish (suspended or terminated mid-transfer) is reported
     // with a retry instead of the module silently missing. Main app only, once per composition of the app root.
     if (nightObserver != null) LaunchedEffect(navController) {
