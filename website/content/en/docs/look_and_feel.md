@@ -67,7 +67,7 @@ select it.
     sizes use the selected language's decimal separator and digits (for example,
     `1,5 MB` in Finnish). The file-installation instructions and supported-format
     list also follow language changes without restarting the app.
-- **Keep screen on:** Prevent the screen from sleeping while using the app.
+- **Keep screen on:** Prevent the screen from sleeping while using the app. Not available on Windows and Linux; see [Platform differences](platform_differences.md).
     Changes take effect when you return from settings to the reader; no app
     restart is needed.
 - **Night mode:** Control when the dark theme is used:
@@ -76,7 +76,7 @@ select it.
     - *Automatic* – on Android devices with a light sensor, switch based on
       ambient light. Enabling this mode starts monitoring immediately; no app
       restart is needed.
-    - *System* – follow the Android system dark mode setting (Android 10+).
+    - *System* – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
 - **Theme style:** Choose how the app's colors are derived from the
     workspace color. *Tonal spot (soft, keeps grey)* (default) gives soft
     tones and keeps grey and black workspace colors grey; *Tonal spot
@@ -200,10 +200,8 @@ remain reachable on a phone.
     repeated occurrences update the same notification. A running job also shows a progress
     notification while AndBible is in the background: Windows updates a toast
     progress bar in place, KDE Plasma and several other Linux desktops show a
-    progress bar, GNOME shows the percentage as text, and the Flatpak build and
-    iOS show no progress notifications. On Windows, use the MSI installation with its
-    Start-menu shortcut, or the MSIX package; notifications from the portable zip
-    are not guaranteed without an installed app identity. Clicking a notification
+    progress bar, GNOME shows the percentage as text, and iOS shows no progress
+    notifications. On Windows, use the MSI installation with its Start-menu shortcut. Clicking a notification
     brings AndBible to the front, and opens the activity list when "Show
     background activity in the menu" is on. On Windows, clicking a retained notification
     also starts AndBible if it has exited (MSI or MSIX installation). The activity list

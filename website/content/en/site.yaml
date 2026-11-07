@@ -13,8 +13,8 @@ meta:
   title: "AndBible: Free & open source Bible study"
   description: >-
     Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
-    bookmarks and notes that sync across your devices. Android and iOS, no ads,
-    no tracking.
+    bookmarks and notes that sync across your devices. On Android, iPhone, iPad,
+    Mac, Windows and Linux, with no ads and no tracking.
   image_alt: >-
     AndBible logo and the headline "Powerful Bible study, free for everyone." beside two
     phones showing the app: a Bible with Strong's numbers and cross-references, and a map.
@@ -23,7 +23,8 @@ hero:
   headline: "Powerful Bible study, *free* for everyone."
   lead: >-
     Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
-    bookmarks and notes that sync across your devices. Android and iOS.
+    bookmarks and notes that sync across your devices. On Android, iPhone, iPad,
+    Mac, Windows and Linux.
   docs_button: Read the docs
   videos_button: Tutorial videos
 getapp:
@@ -33,7 +34,9 @@ getapp:
   stores:
     - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity"}
     - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/"}
-    - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"}
+    - {name: App Store, note: "iPhone, iPad & Mac", url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"}
+    - {name: Windows, note: MSI, url: "https://github.com/AndBible/and-bible/releases/latest"}
+    - {name: Linux, note: ".deb, AppImage", url: "https://github.com/AndBible/and-bible/releases/latest"}
   others:
     - {name: GitHub, url: "https://github.com/AndBible/and-bible/releases/latest"}
     - {name: Amazon, url: "https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK"}
@@ -43,7 +46,7 @@ getapp:
 features:
   - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}
   - {title: StudyPads, text: Notes and bookmarks woven into the Bible text, organised by labels.}
-  - {title: Sync, text: Bookmarks and workspaces synced through Google Drive or NextCloud.}
+  - {title: Sync, text: "Bookmarks and workspaces synced through Google Drive, Nextcloud, WebDAV or iCloud Drive."}
   - {title: Workspaces, text: Split windows with synchronised scrolling and pinned documents.}
 sections:
   news: Latest

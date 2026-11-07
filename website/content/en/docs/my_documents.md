@@ -53,4 +53,4 @@ To open a document in a window:
 ## Cloud Sync
 
 My Documents can be synchronized across devices using [cloud sync](cloud_sync.md). Enable the **My Documents** toggle in the cloud sync settings;
-your documents and their contents are then kept in sync between devices.
+your documents and their contents are then kept in sync between devices. The available sync backends differ by platform; see [Platform differences](platform_differences.md).

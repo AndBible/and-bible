@@ -174,6 +174,8 @@ To load a document from your device’s filesystem:
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
+On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
+
 Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or
 document sync makes the new text available for subsequent reads without restarting
 the app. The old search index is removed; rebuild the index to search the new version.

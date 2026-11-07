@@ -1,6 +1,8 @@
-# AndBible on Linux and Windows (beta)
+# AndBible on Windows and Linux
 
-AndBible for Linux and Windows is in beta. Download desktop packages from [GitHub Releases](https://github.com/AndBible/and-bible/releases). On Linux x86-64, use the `.deb` package or make the AppImage executable and run it. On Windows x64, the MSI installer is available. Flatpak distribution through Flathub is planned, but is not yet available there.
+AndBible runs on Windows and Linux as well as on Android, iPhone, iPad and Mac. It is the same app; see [Platform differences](platform_differences.md) for what differs. Download the Windows MSI and the Linux `.deb` and AppImage from [GitHub Releases](https://github.com/AndBible/and-bible/releases/latest) only. For step-by-step installation see [Getting started](getting_started.md).
+
+On a Mac there is no separate desktop build. Install the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527) on an Apple Silicon Mac; Intel Macs are not supported.
 
 ## Windows reading engine
 
@@ -18,7 +20,7 @@ The regular `andbible` `.deb` includes Chromium (KCEF). It remains the default L
 
 The optional `andbible-webkitgtk` `.deb` uses the system's **WebKitGTK 6.0 (GTK4)** instead. It does not include Chromium's native libraries, so the download is smaller and WebKit security updates come from your Linux distribution. It requires Linux x86-64 and a distribution that provides `libwebkitgtk-6.0-4`; install the `.deb` with your package manager so that dependency is installed too. This variant needs X11, or Xwayland in a Wayland desktop session. It is not published with the current releases while it is being improved; it can be built from source with `./gradlew :desktopWebkitGtk:packageDeb`.
 
-The two `.deb` packages have separate launchers but share the same AndBible data and settings. Only one can use that data at a time. The WebKitGTK variant is a beta alternative; keep the regular Chromium package available if you encounter rendering or input problems.
+The two `.deb` packages have separate launchers but share the same AndBible data and settings. Only one can use that data at a time. The WebKitGTK variant is an alternative; keep the regular Chromium package available if you encounter rendering or input problems.
 
 ## Display scaling on Linux
 
@@ -30,19 +32,17 @@ If the size is still wrong, set it yourself with the `ANDBIBLE_UI_SCALE` environ
 ANDBIBLE_UI_SCALE=1.5 andbible
 ```
 
-For the Flatpak use `flatpak override --user --env=ANDBIBLE_UI_SCALE=1.5 org.andbible.AndBible`.
-
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
 - The WebKitGTK variant rounds a fractional scale to a whole number for the menus and toolbars (125 % shows them at 100 %, 150 % at 200 %); its Bible text still gets the desktop's size. The Chromium variant started with `-Dandbible.kcef.rendering=windowed` rounds the Bible text too.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
-The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`, or for the Flatpak `~/.var/app/org.andbible.AndBible/data/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.
+The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.
 
 ## Update checks
 
-Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. Flatpak and MSIX use their distribution channels instead and do not offer this check.
+Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself.
 
 ## If AndBible cannot start
 
@@ -52,8 +52,20 @@ A module that fails during discovery is logged and skipped so the remaining docu
 
 ## Where your data lives
 
-On Linux, AndBible stores data in `$XDG_DATA_HOME/andbible` (normally `~/.local/share/andbible`), configuration in `$XDG_CONFIG_HOME/andbible` (normally `~/.config/andbible`), and cache in `$XDG_CACHE_HOME/andbible` (normally `~/.cache/andbible`). Flatpak uses its own XDG directories under `~/.var/app/org.andbible.AndBible/`, with `andbible` appended under `data`, `config`, and `cache`.
+On Linux, AndBible stores data in `$XDG_DATA_HOME/andbible` (normally `~/.local/share/andbible`), configuration in `$XDG_CONFIG_HOME/andbible` (normally `~/.config/andbible`), and cache in `$XDG_CACHE_HOME/andbible` (normally `~/.cache/andbible`).
 
 On Windows, data is in `%APPDATA%\AndBible`, configuration in its `config` subdirectory, and cache in `%LOCALAPPDATA%\AndBible\cache`. Bible documents are stored in the `sword` directory under the data directory.
 
-For what the beta does not do yet, see [Desktop beta: known limitations](desktop-beta.md).
+## Known limitations {#known-limitations}
+
+- Printing is not available.
+- There is no find in the current page. Use the search in the app to search in a Bible instead.
+- Your reading position is saved when you close the window. A forced kill (SIGKILL or *End process*) or a power cut can lose changes since the previous save.
+
+See also [Platform differences](platform_differences.md).
+
+## Reporting a bug {#reporting-a-bug}
+
+In the app open the navigation menu, then *Help & tips*, then *Feedback / bug report*. The same item is also in the toolbar of the *Application preferences* screen. Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
+
+The app first asks you where to save the report file, then tries to open your email program with a prepared message. If no email program can be opened (common on Linux), a dialog shows where the file was saved, the address to send it to (`errors.andbible@gmail.com`, with a *Copy address* button) and the subject to use. Send the saved file to that address as an email attachment.

@@ -34,6 +34,8 @@ counted as another failed startup if the system closes the app while it is shown
 
 ## How to backup your data
 
+Opening and sharing files differs between platforms; see [Files and sharing](platform_differences.md#files-and-sharing).
+
 1. From the main menu tap *Backup & Restore*.
 2. Under *Backup* select the radio option for the type of data you would like
     to backup:

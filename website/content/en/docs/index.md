@@ -1,6 +1,6 @@
 # AndBible documentation {#welcome-to-the-andbible-bible-study-s-documentation}
 
-**AndBible: Bible Study** is a free, open-source Android app for studying the Bible: several
+**AndBible: Bible Study** is a free, open-source app for studying the Bible on Android, iPhone, iPad, Mac, Windows and Linux: several
 Bibles, commentaries and dictionaries side by side, bookmarks, notes and study pads, all offline.
 
 New here? [Getting Started](getting_started.md) covers installation, and [Navigation](navigation.md)
@@ -36,7 +36,7 @@ shows how to find your way around the app.
 
 | Doc | What's inside |
 |---|---|
-| [Getting Started](getting_started.md) | Installing the app, Linux and Windows 11 setup, and running it on any computer |
+| [Getting Started](getting_started.md) | Installing the app on Android, iPhone, iPad, Mac, Windows and Linux |
 | [Navigation](navigation.md) | Opening Bible references, moving between documents and workspaces, gestures and shortcuts |
 | [Usage](usage.md) | Suggested setups for Bible study, topical and word study, devotions, sermon notes and original languages |
 
@@ -79,15 +79,14 @@ shows how to find your way around the app.
 | Doc | What's inside |
 |---|---|
 | [Backup and Restore](backup_restore.md) | Exporting your data and restoring it on another device |
-| [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive or Nextcloud |
+| [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive, iCloud Drive, Nextcloud or WebDAV |
 | [Document Sync](document_sync.md) | Syncing your installed Bibles and other documents across devices |
 
 ### Desktop
 
 | Doc | What's inside |
 |---|---|
-| [AndBible on Linux and Windows](desktop.md) | Installation, update checks and data locations on Linux and Windows |
-| [Desktop beta](desktop-beta.md) | Known limitations of the desktop beta, untested setups and how to report a bug |
+| [AndBible on Windows and Linux](desktop.md) | Installation, update checks, data locations, known limitations and how to report a bug |
 
 ### Customisation & Advanced
 
@@ -101,7 +100,8 @@ shows how to find your way around the app.
 | Doc | What's inside |
 |---|---|
 | [FAQ](faq.md) | Answers to common questions, such as missing modules and older phones |
+| [Platform differences](platform_differences.md) | What works differently on Android, iPhone, iPad, Mac, Windows and Linux |
 | [Support](support.md) | Where to ask questions, report bugs and suggest features |
-| [Releases](releases/index.md) | What changed in releases 5.0, 4.1 and 4.0 |
+| [Releases](releases/index.md) | What changed in releases 6.0, 5.0, 4.1 and 4.0 |
 
 </div>

@@ -10,7 +10,7 @@
 - [How do I change the voice of the speech synthesis?](#how-do-i-change-the-voice-of-the-speech-synthesis)
 - [Is there a version for iOS (iPhone / iPad)?](#is-there-a-version-for-ios-iphone-ipad)
 - [How do I download more Bibles, commentaries, etc.?](#how-do-i-download-more-bibles-commentaries-etc)
-- [How do I copy my notes and bookmarks to a new phone?](#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone)
+- [How do I copy my notes and bookmarks to a new device?](#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone)
 - [Where do the Bible translations come from?](#where-do-the-bible-translations-come-from)
 - [How do I downgrade from 5.0 to 4.0 (or 4.0 to 3.3)?](#how-do-i-downgrade-from-5-0-to-4-0-or-4-0-to-3-3)
 - [How to get the paid NET module working?](#how-to-get-the-paid-net-module-working)
@@ -65,7 +65,9 @@ list. If you have an issue we encourage you to contact them directly.
 ## I have an older phone. Can I use AndBible?
 
 The current version of *AndBible* requires Android 6.0 (Marshmallow) or newer.
-If you have an older device, you can download older versions:
+On other platforms it needs iOS or iPadOS 16 or newer (on a Mac, Apple Silicon), 64-bit Windows (x64)
+or 64-bit Linux (x86_64).
+If you have an older Android device, you can download older versions:
 
 | Android Version | AndBible Version | Download |
 | --- | --- | --- |
@@ -95,18 +97,15 @@ See also the [Speak](speak.md) page for more about the Text-to-Speech feature.
 
 ## Is there a version for iOS (iPhone / iPad)?
 
-Yes! *AndBible* is now available on the
+Yes! *AndBible* is in the
 [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527)
-for iPhone, iPad, Apple Silicon Macs and Apple Vision Pro. It is close to
-feature-complete, though the Android and iOS versions are currently built on
-separate codebases, so some differences remain while the two are unified.
+for iPhone, iPad and Apple Silicon Macs. See [Platform differences](platform_differences.md)
+for what works differently from Android.
 
 If you’re still on an older Android device and prefer not to switch:
 
 - Consider buying an inexpensive Android tablet to use *AndBible*.
-- You can [run the app on Linux using Waydroid](getting_started.md#linux-setup).
-- You can use Android emulators like [BlueStacks](https://www.bluestacks.com/)
-    on Windows or macOS.
+- You can install the [desktop app](getting_started.md#windows) on Windows or Linux.
 
 ## How do I download more Bibles, commentaries, etc.?
 
@@ -115,7 +114,7 @@ See [Documents](documents.md) for instructions on downloading and managing docum
 In short: from the top left main menu (☰), tap *Download documents*,
 then search for and install the documents you need.
 
-## How do I copy my notes and bookmarks to a new phone?
+## How do I copy my notes and bookmarks to a new device? {#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone}
 
 Back up on one device and restore on the other. See [Backup and Restore](backup_restore.md)
 for detailed instructions.

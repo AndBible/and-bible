@@ -9,6 +9,8 @@ be superior to the default voices.
 
 The way in which you change the voice differs between devices. Try searching in Settings for `Text-to-Speech > Preferred engine > Install voice data`.
 
+Speak is available on Android, iPhone, iPad and Mac, but not on Windows and Linux; see [Platform differences](platform_differences.md).
+
 ## No sound when speaking
 
 If *AndBible* says that text-to-speech is not working, or that the language is not available,

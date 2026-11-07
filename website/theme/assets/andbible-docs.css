@@ -93,7 +93,7 @@
    hidden in between). The block below re-applies, for 60em..76.234em, what the theme's 76.25em rules do to the
    primary sidebar, nav tree and header button; the theme is not forked. */
 .md-content { display: flex; justify-content: center; }
-.md-content__inner { width: 100%; max-width: 31rem; }
+.md-content__inner { flex: 0 1 31rem; min-width: 0; max-width: 31rem; } /* shrinks with its margins; width:100% overflowed by the margins and pushed table scroll wrappers past the viewport */
 @media screen and (min-width: 60em) and (max-width: 76.234375em) {
   .md-header__button[for=__drawer], .md-overlay, .md-sidebar--secondary, .md-sidebar--secondary:not([hidden]) { display: none; }
   .md-main__inner { padding-left: .8rem; }
