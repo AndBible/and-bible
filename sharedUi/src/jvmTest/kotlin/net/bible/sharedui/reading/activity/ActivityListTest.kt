@@ -23,6 +23,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -58,7 +61,7 @@ class ActivityListTest {
         items: List<ActivityItem>,
         onDismiss: (String) -> Unit = {}, onClear: () -> Unit = {}, onOpen: (ActivityItem) -> Unit = {},
     ) = setContent {
-        AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+        AbTheme { CompositionLocalProvider(LocalStrings provides strings, LocalAgentStatusIcon provides { ColorPainter(Color.Gray) }) {
             ActivityListContent(items, onDismissItem = onDismiss, onClearFinished = onClear, onOpenItem = onOpen)
         } }
     }

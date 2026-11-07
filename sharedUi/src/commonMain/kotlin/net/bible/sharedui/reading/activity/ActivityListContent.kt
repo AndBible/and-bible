@@ -32,9 +32,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import org.jetbrains.compose.resources.painterResource
-import net.bible.sharedui.generated.resources.Res
-import net.bible.sharedui.generated.resources.icon_robot
 import net.bible.android.control.activity.ActivityKind
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +47,7 @@ import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.theme.isPureMonochrome
 
 /** Test tags of the full activity list. */
@@ -124,7 +122,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (item.kind == ActivityKind.AI_AGENT) {
-            Icon(painterResource(Res.drawable.icon_robot), contentDescription = null, modifier = Modifier.size(24.dp))
+            Icon(LocalAgentStatusIcon.current(), contentDescription = null, modifier = Modifier.size(24.dp))
             androidx.compose.foundation.layout.Spacer(Modifier.width(12.dp))
         }
         Column(Modifier.weight(1f)) {

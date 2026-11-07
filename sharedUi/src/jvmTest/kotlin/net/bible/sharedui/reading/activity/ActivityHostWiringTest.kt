@@ -43,6 +43,7 @@ import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedcore.platform.ActivityMenuDefault
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -81,7 +82,7 @@ class ActivityHostWiringTest {
         syncRunning: Boolean = false,
     ) = setContent {
         AbTheme(disableAnimations = true) {
-            CompositionLocalProvider(LocalStrings provides strings) {
+            CompositionLocalProvider(LocalStrings provides strings, LocalAgentStatusIcon provides { painter }) {
                 ActivityHost(wiring) { activity ->
                     seen += activity
                     ReadingToolbar(toolbarState.copy(syncRunning = syncRunning), icons, callbacks, overflowExpanded = expanded, activity = activity)
