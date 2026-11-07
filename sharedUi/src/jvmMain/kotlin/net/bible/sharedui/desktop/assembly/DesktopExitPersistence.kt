@@ -16,7 +16,10 @@ class DesktopExitPersistence(
     private val persist: () -> Unit = { DesktopAppStartup.persistBeforeExit() },
     private val afterShutdown: () -> Unit = {},
     private val shutdownTimeoutMs: Long = 5_000,
+    private val exitDeadlineMs: Long = EXIT_DEADLINE_MS,
 ) {
+    companion object { const val EXIT_DEADLINE_MS = 45_000L }
+
     private val lock = Any()
     private var pending: FutureTask<Unit>? = null
 
@@ -31,9 +34,9 @@ class DesktopExitPersistence(
     }
 
     /** Normal close keeps the existing workspace/sync/settings timeouts; a later hook joins this same pass. */
-    fun persistOnce(): Boolean = awaitPersistence(null)
+    fun persistOnce(): Boolean = awaitPersistence(exitDeadlineMs)
 
-    private fun awaitPersistence(timeoutMs: Long?): Boolean {
+    private fun awaitPersistence(timeoutMs: Long): Boolean {
         val task = synchronized(lock) {
             pending ?: FutureTask<Unit> { persist() }.also {
                 pending = it
@@ -41,7 +44,7 @@ class DesktopExitPersistence(
             }
         }
         return try {
-            if (timeoutMs == null) task.get() else task.get(timeoutMs, TimeUnit.MILLISECONDS)
+            task.get(timeoutMs, TimeUnit.MILLISECONDS)
             true
         } catch (e: TimeoutException) {
             Log.w("DesktopExitPersistence", "Shutdown persistence did not finish within $timeoutMs ms")

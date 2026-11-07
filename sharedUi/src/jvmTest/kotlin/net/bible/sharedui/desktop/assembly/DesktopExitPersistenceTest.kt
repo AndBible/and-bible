@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class DesktopExitPersistenceTest {
     @Test fun hookAfterNormalCloseDoesNotPersistAgain() {
@@ -65,6 +66,46 @@ class DesktopExitPersistenceTest {
         } finally {
             release.countDown()
             shutdown.join(2_000)
+        }
+    }
+
+    @Test fun persistOnceReturnsFalseAtTheDeadlineWhenThePassHangs() {
+        val release = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        val persistence = DesktopExitPersistence(registerHook = {}, exitDeadlineMs = 200, persist = {
+            try { release.await() } finally { finished.countDown() }
+        })
+        try {
+            val start = System.nanoTime()
+            assertFalse(persistence.persistOnce())
+            assertTrue(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 1_500)
+        } finally {
+            release.countDown()
+            assertTrue(finished.await(2, TimeUnit.SECONDS))
+        }
+    }
+
+    @Test fun shutdownHookStillWaitsFiveSeconds() {
+        var hook: Thread? = null
+        val release = CountDownLatch(1)
+        val entered = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        DesktopExitPersistence(registerHook = { hook = it }, persist = {
+            entered.countDown()
+            try { release.await() } finally { finished.countDown() }
+        })
+        val thread = Thread { hook!!.run() }
+        try {
+            thread.start()
+            assertTrue(entered.await(2, TimeUnit.SECONDS))
+            thread.join(1_000)
+            assertTrue(thread.isAlive)
+            thread.join(5_500)
+            assertFalse(thread.isAlive)
+        } finally {
+            release.countDown()
+            thread.join(2_000)
+            assertTrue(finished.await(2, TimeUnit.SECONDS))
         }
     }
 

@@ -209,7 +209,7 @@ object DesktopAppStartup {
      */
     fun persistBeforeExit(
         timeoutMs: Long = 5_000,
-        exitTasksTimeoutMs: Long = 10_000,
+        exitTasksTimeoutMs: Long = 31_000,
         saveWorkspace: suspend (Koin) -> Unit = { HostWorkspaceSaver.saveNow(it) },
     ) {
         val koin = koinApp?.koin ?: return
@@ -219,6 +219,11 @@ object DesktopAppStartup {
             if (saved == null) Log.w(TAG, "Workspace save did not finish within $timeoutMs ms before exit")
         } catch (e: Throwable) {
             Log.e(TAG, "Workspace save before exit failed", e)
+        }
+        try {
+            koin.getOrNull<DesktopPreExitSteps>()?.runAll()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Pre-exit steps failed", e)
         }
         try {
             koin.getOrNull<DesktopExitTasks>()?.let { tasks -> runBlocking { tasks.runAll(exitTasksTimeoutMs) } }
