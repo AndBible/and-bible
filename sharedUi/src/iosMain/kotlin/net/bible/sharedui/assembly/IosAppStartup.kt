@@ -230,6 +230,7 @@ object IosAppStartup {
                     runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
                     val koin = org.koin.mp.KoinPlatform.getKoin()
                     if (IosDebugLaunchArgs.hasLaunchFlag("-notificationReset")) {
+                        notificationResetReceipt.value = null
                         try {
                             val enabled = !IosDebugLaunchArgs.hasLaunchFlag("-notificationSettingOff")
                             koin.get<net.bible.sharedcore.platform.AppSettings>().setBoolean("notification_permission_asked", false)
@@ -243,17 +244,17 @@ object IosAppStartup {
                             center.removeAllDeliveredNotifications()
                             center.removeAllPendingNotificationRequests()
                             val cleaned = withTimeoutOrNull(10_000) {
-                                val delivered = kotlinx.coroutines.suspendCancellableCoroutine<List<*>> { continuation ->
+                                val delivered = kotlinx.coroutines.suspendCancellableCoroutine<List<*>?> { continuation ->
                                     center.getDeliveredNotificationsWithCompletionHandler { result ->
                                         if (continuation.isActive) continuation.resumeWith(Result.success(result))
                                     }
                                 }
-                                val pending = kotlinx.coroutines.suspendCancellableCoroutine<List<*>> { continuation ->
+                                val pending = kotlinx.coroutines.suspendCancellableCoroutine<List<*>?> { continuation ->
                                     center.getPendingNotificationRequestsWithCompletionHandler { result ->
                                         if (continuation.isActive) continuation.resumeWith(Result.success(result))
                                     }
                                 }
-                                delivered.isEmpty() && pending.isEmpty()
+                                delivered != null && pending != null && delivered.isEmpty() && pending.isEmpty()
                             }
                             check(cleaned == true) { "Notification center did not clear in time" }
                             notificationResetReceipt.value = "success"
@@ -342,6 +343,7 @@ object IosAppStartup {
         withContext(Dispatchers.Main.immediate) { owner = null; parts = null }
         selectedParts = null
         opened = false
+        notificationResetReceipt.value = null
         errorHookCalls = 0
         errorLock.lock()
         try { shownErrors.clear() } finally { errorLock.unlock() }
