@@ -144,14 +144,16 @@ class CloudSync(
     internal suspend fun signedInAdapter(): CloudAdapter? {
         while (signInMutex.isLocked) {
             val running = signInDone
-            // The holder assigns its deferred right after taking the lock: yield across that gap instead of returning early.
-            if (running != null && !running.isCompleted) running.await() else kotlinx.coroutines.yield()
+            // No running deferred: the holder has not assigned it yet (a gap of one statement), or a `waitForExisting`
+            // caller holds the lock for a single read. Poll briefly instead of returning early or spinning hot.
+            if (running != null && !running.isCompleted) running.await() else kotlinx.coroutines.delay(1)
         }
         return _adapter?.takeIf { it.signedIn }
     }
 
     val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
 
+    /** Test helper over the current adapter, signed in or not; document sync uses [signedInAdapter] (#4031). */
     suspend fun documentsSyncFolderId(): String? = documentsSyncFolderId(_adapter ?: return null)
 
     internal suspend fun documentsSyncFolderId(adapter: CloudAdapter): String? {
