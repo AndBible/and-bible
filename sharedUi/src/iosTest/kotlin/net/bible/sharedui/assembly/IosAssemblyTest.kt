@@ -518,8 +518,28 @@ class IosAssemblyTest {
         val router = net.bible.android.control.activity.BackgroundErrorRouter::class
         assertTrue(router in bound, "iOS background error router must be bound by the platform module")
         koin.get<net.bible.android.control.activity.BackgroundErrorRouter>()
+        assertTrue(net.bible.android.control.activity.NativeNotificationPolicy::class in bound)
+        assertTrue(net.bible.android.control.activity.SystemNotificationsPreference::class in bound)
+        assertTrue(net.bible.sharedcore.platform.NativeNotifier::class in bound)
         val undeclared = bound - IOS_BOUND_PORT_TYPES.toSet() - IOS_CONCRETE_BINDINGS
         assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
+    }
+
+    @Test
+    fun notificationPolicyAndPreferenceResolveFromTheIosGraph() {
+        startApp()
+        openDatabasesDiagnosing()
+        val koin = KoinPlatform.getKoin()
+        koin.get<net.bible.android.control.activity.NativeNotificationPolicy>()
+        val preference = koin.get<net.bible.android.control.activity.SystemNotificationsPreference>()
+        assertTrue(preference.enabled.value, "system notifications default to enabled on iOS")
+        koin.get<net.bible.sharedcore.platform.NotificationPermission>()
+        koin.get<net.bible.sharedcore.platform.NativeNotifier>()
+        val settings = koin.get<net.bible.sharedcore.settings.AppSettingsService>()
+        settings.refresh()
+        assertTrue(settings.snapshot.value.systemNotificationsVisible)
+        settings.setBool(net.bible.android.control.activity.SystemNotificationsPreference.KEY, false)
+        assertFalse(preference.enabled.value)
     }
 
     @Test
@@ -582,6 +602,10 @@ class IosAssemblyTest {
             net.bible.android.control.download.DownloadKeepAlive::class,
             // iOS presentation helper, not an Android platform port; resolved explicitly by the graph test above.
             net.bible.android.control.activity.BackgroundErrorRouter::class,
+            net.bible.sharedcore.platform.NativeNotifier::class,
+            net.bible.android.control.activity.SystemNotificationsPreference::class,
+            net.bible.android.control.activity.NativeNotificationPolicy::class,
+            IosNotificationRuntime::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */

@@ -12,6 +12,7 @@ struct iOSApp: App {
         // macOS 26 shows an iOS app's NSLog text as <private>; log the app's own lines publicly instead
         // (Console.app / `log show --predicate 'subsystem == "org.andbible.ios"'`).
         IosPlatformBootstrap.shared.installLogSink { appLog($0) }
+        IosPlatformBootstrap.shared.installNotificationDelegate()
         IosPlatformBootstrap.shared.registerBackgroundTasks()
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()

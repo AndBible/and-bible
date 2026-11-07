@@ -123,6 +123,7 @@ import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.Books
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 import net.bible.sharedui.host.ports.HostHelpDialogs
 import net.bible.sharedui.host.ports.HostReadingExtrasImpl
 
@@ -191,8 +192,17 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         // #3973: a repository transfer runs inside a UIKit background task, so a short app switch does not stop it.
         single<net.bible.android.control.download.DownloadKeepAlive> { IosDownloadKeepAlive }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { IosAppStartup.databasesOpen }) }
-        // No system notifications for background work here, so the activity menu entry is on by default (#4007).
         single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
+        single { net.bible.android.control.activity.SystemNotificationsPreference(get(), defaultEnabled = true) }
+        single<net.bible.sharedcore.platform.NotificationPermission> { iosNotificationPermission(get(), get()) }
+        single<net.bible.sharedcore.platform.NativeNotifier> { IosNativeNotifier() }
+        single {
+            val koin = getKoin()
+            IosNotificationRuntime(get(), get(), get(), get()) {
+                koin.get<CoreStrings>().notificationFinished
+            }
+        } onClose { it?.close() }
+        single { get<IosNotificationRuntime>().policy }
         single {
             val preference = get<net.bible.android.control.activity.ActivityMenuPreference>()
             net.bible.android.control.activity.BackgroundErrorRouter(
