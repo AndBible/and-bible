@@ -23,6 +23,11 @@ import net.bible.desktop.BibleViewBundle
 import net.bible.desktop.DesktopAppFocusTracker
 import net.bible.desktop.DesktopAppRoot
 import net.bible.desktop.DesktopStartupState
+import net.bible.desktop.ExitSyncWindow
+import net.bible.desktop.ScaledDensity
+import net.bible.desktop.DesktopDisplayScale
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
+import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
@@ -83,10 +88,14 @@ fun appMain() {
 
     application(exitProcessOnExit = false) {
         var closing by remember { mutableStateOf(false) }
+        var skipRequested by remember { mutableStateOf(false) }
         val requestClose: () -> Unit = {
             if (!closing) {
                 lifecycle.onExit()
                 closing = true
+            } else if (!skipRequested) {
+                skipRequested = true
+                KoinPlatform.getKoinOrNull()?.getOrNull<DesktopExitTasks>()?.skipRemaining()
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
@@ -124,7 +133,9 @@ fun appMain() {
                 if (awtWindow.isActive) tracker.activated(awtWindow)
                 onDispose { uninstall() }
             }
-            if (!closing) DesktopAppRoot(state)
+            ScaledDensity(DesktopDisplayScale.composeFactor) {
+                ExitSyncWindow(closing, state.language, skipRequested, requestClose) { DesktopAppRoot(state) }
+            }
         }
     }
     exitProcess(0)

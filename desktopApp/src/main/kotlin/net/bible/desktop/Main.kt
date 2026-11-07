@@ -267,6 +267,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     // exitProcessOnExit = false: the exit below runs only after the windows are gone and the AWT thread is idle.
     application(exitProcessOnExit = false) {
         var closing by remember { mutableStateOf(false) }
+        var skipRequested by remember { mutableStateOf(false) }
         val requestClose: () -> Unit = {
             if (!closing) {
                 // Stop acknowledging hand-offs: the sync push below can take seconds, and a file acked now would be dropped.
@@ -274,6 +275,9 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
                 // ResignActive and Background reach every observer (the workspace save) before the content goes away.
                 lifecycle.onExit()
                 closing = true
+            } else if (!skipRequested) {
+                skipRequested = true
+                org.koin.mp.KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.desktop.DesktopExitTasks>()?.skipRemaining()
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
@@ -319,16 +323,18 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             // Closing is two-phase: the content (and with it the CEF panes' SwingPanels) leaves the composition first;
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
             // SkiaLayer ("SkiaLayer is disposed" crash, process left hanging).
-            if (!closing) DesktopEngineReadyGate(
-                awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },
-                onFailure = { e ->
-                    Log.e(TAG, "desktop engine window readiness failed", e)
-                    exitStatus = 1
-                    requestClose()
-                },
-                onCancelled = closeCoordinator::readinessCancelled,
-            ) {
-                ScaledDensity(scaleFactor) { DesktopAppRoot(state) }
+            ScaledDensity(scaleFactor) {
+                ExitSyncWindow(closing, state.language, skipRequested, requestClose) {
+                    DesktopEngineReadyGate(
+                        awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },
+                        onFailure = { e ->
+                            Log.e(TAG, "desktop engine window readiness failed", e)
+                            exitStatus = 1
+                            requestClose()
+                        },
+                        onCancelled = closeCoordinator::readinessCancelled,
+                    ) { DesktopAppRoot(state) }
+                }
             }
         }
     }
