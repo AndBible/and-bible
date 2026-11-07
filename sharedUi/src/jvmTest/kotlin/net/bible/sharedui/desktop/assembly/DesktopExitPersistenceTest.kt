@@ -96,12 +96,13 @@ class DesktopExitPersistenceTest {
         })
         val thread = Thread { hook!!.run() }
         try {
+            val start = System.nanoTime()
             thread.start()
             assertTrue(entered.await(2, TimeUnit.SECONDS))
-            thread.join(1_000)
-            assertTrue(thread.isAlive)
-            thread.join(5_500)
+            thread.join(6_500)
             assertFalse(thread.isAlive)
+            val elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)
+            assertTrue(elapsedMs >= 4_500, "hook returned after $elapsedMs ms, before its five-second budget")
         } finally {
             release.countDown()
             thread.join(2_000)
