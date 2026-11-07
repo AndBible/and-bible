@@ -235,6 +235,17 @@ object IosAppStartup {
                             val enabled = !IosDebugLaunchArgs.hasLaunchFlag("-notificationSettingOff")
                             koin.get<net.bible.sharedcore.platform.AppSettings>().setBoolean("notification_permission_asked", false)
                             koin.get<net.bible.android.control.activity.SystemNotificationsPreference>().set(enabled)
+                            if (IosDebugLaunchArgs.hasLaunchFlag("-notificationSyncNowFixture")) {
+                                // Seed setup only; XCUITest must invoke the real global reading-menu action.
+                                val settings = koin.get<net.bible.sharedcore.platform.AppSettings>()
+                                net.bible.service.cloudsync.SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(settings, true)
+                                // Missing Nextcloud credentials fail locally instead of waiting for iCloud availability.
+                                settings.setString("sync_adapter", "NEXT_CLOUD")
+                            } else if (IosDebugLaunchArgs.hasLaunchFlag("-notificationClearSyncNowFixture")) {
+                                val settings = koin.get<net.bible.sharedcore.platform.AppSettings>()
+                                net.bible.service.cloudsync.SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(settings, false)
+                                settings.removeString("sync_adapter")
+                            }
                             val db = DatabaseContainer.instance
                             db.settingsStore.flush()
                             val dao = db.settingsDb.booleanSettingDao()

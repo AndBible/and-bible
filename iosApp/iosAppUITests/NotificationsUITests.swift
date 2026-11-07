@@ -25,7 +25,8 @@ final class NotificationsUITests: RealAppUITestCase {
     override func tearDown() {
         XCUIApplication().terminate()
         // Restore the app preference and asked flag for subsequent suites, without requesting permission.
-        let cleanup = launch(["-standardTestFixture", "-notificationReset", "-notificationDebugControls"] + english)
+        let cleanup = launch(["-standardTestFixture", "-notificationReset", "-notificationDebugControls",
+                              "-notificationClearSyncNowFixture"] + english)
         XCTAssertTrue(element(cleanup, "notification-debug-reset-success").waitForExistence(timeout: 60),
                       "Notification reset must complete successfully before cleanup exits")
         cleanup.terminate()
@@ -51,6 +52,31 @@ final class NotificationsUITests: RealAppUITestCase {
         XCTAssertTrue(permission.waitForExistence(timeout: 30), "A confirmed user-started installation requests permission")
         shot(springboard, "notification-permission")
         permission.buttons["Allow"].tap()
+    }
+
+    /// Run on a fresh installation. Only saved sync setup is seeded; the real reading-menu action starts SyncNow.
+    func test03GlobalSyncNowRequestsPermissionOnce() {
+        let app = launch(["-standardTestFixture", "-notificationReset", "-notificationSyncNowFixture"] + english)
+        let more = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "More options")).firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 60))
+        XCTAssertFalse(permission.exists, "Launch must not ask for permission")
+        more.tap()
+        let sync = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Sync now")).firstMatch
+        XCTAssertTrue(sync.waitForExistence(timeout: 15), "Configured sync exposes the global Sync now action")
+        sync.tap()
+        XCTAssertTrue(permission.waitForExistence(timeout: 30), "Global Sync now requests notification authorization")
+        shot(springboard, "sync-now-notification-permission")
+        permission.buttons["Allow"].tap()
+        // With no configured server the real sign-in is refused and the running guard clears.
+        let ok = app.buttons["OK"].firstMatch
+        if ok.waitForExistence(timeout: 5) { ok.tap() }
+        XCTAssertTrue(more.waitForExistence(timeout: 30))
+        more.tap()
+        XCTAssertTrue(sync.waitForExistence(timeout: 15))
+        XCTAssertTrue(waitUntil(timeout: 30) { sync.isEnabled })
+        sync.tap()
+        XCTAssertFalse(permission.waitForExistence(timeout: 5), "A later global Sync now must not prompt again")
+        shot(app, "sync-now-no-second-permission")
     }
 
     func test01SettingOffBeforeFirstInstallDoesNotRequestPermission() {
