@@ -24,7 +24,7 @@ internal class IosNotificationRuntime(
     notifier: NativeNotifier,
     requests: ActivityListRequests,
     preference: SystemNotificationsPreference,
-    observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory(::IosNotificationForegroundObserver),
+    observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) },
     finishedText: () -> String,
 ) {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)

@@ -196,7 +196,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single { net.bible.android.control.activity.SystemNotificationsPreference(get(), defaultEnabled = true) }
         single<net.bible.sharedcore.platform.NotificationPermission> { iosNotificationPermission(get(), get()) }
         single<net.bible.sharedcore.platform.NativeNotifier> { IosNativeNotifier() }
-        single<IosForegroundObserverFactory> { IosForegroundObserverFactory(::IosNotificationForegroundObserver) }
+        single<IosForegroundObserverFactory> { IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) } }
         single {
             val koin = getKoin()
             IosNotificationRuntime(get(), get(), get(), get(), get()) {

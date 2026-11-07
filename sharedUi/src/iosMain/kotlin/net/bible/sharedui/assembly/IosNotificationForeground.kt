@@ -39,8 +39,15 @@ internal fun interface IosForegroundObserverFactory {
     fun observe(onChanged: () -> Unit): AutoCloseable
 }
 
-internal class IosNotificationForegroundObserver(onChanged: () -> Unit) : AutoCloseable {
-    private val center = NSNotificationCenter.defaultCenter
+internal class IosNotificationForegroundObserver(
+    register: (String?, () -> Unit) -> platform.darwin.NSObjectProtocol = { name, callback ->
+        NSNotificationCenter.defaultCenter.addObserverForName(name, null, NSOperationQueue.mainQueue) { callback() }
+    },
+    private val remove: (platform.darwin.NSObjectProtocol) -> Unit = {
+        NSNotificationCenter.defaultCenter.removeObserver(it)
+    },
+    onChanged: () -> Unit,
+) : AutoCloseable {
     private val closed = atomic(false)
     private val observers = listOf(
         UIApplicationDidBecomeActiveNotification,
@@ -51,14 +58,14 @@ internal class IosNotificationForegroundObserver(onChanged: () -> Unit) : AutoCl
         UISceneDidEnterBackgroundNotification,
         UIWindowDidBecomeKeyNotification,
         UIWindowDidResignKeyNotification,
-    ).map { name -> center.addObserverForName(name, null, NSOperationQueue.mainQueue) {
+    ).map { name -> register(name) {
         if (!closed.value) onChanged()
         // Will-deactivate notifications can precede UIKit's state update.
         dispatch_async(dispatch_get_main_queue()) { if (!closed.value) onChanged() }
     } }
 
     override fun close() {
-        closed.value = true
-        observers.forEach { center.removeObserver(it) }
+        if (!closed.compareAndSet(false, true)) return
+        observers.forEach(remove)
     }
 }

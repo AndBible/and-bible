@@ -114,6 +114,22 @@ class IosNativeNotifierTest {
     }
 
     @Test
+    fun closingForegroundObserverRemovesEveryRegisteredTokenOnlyOnce() {
+        val registered = mutableListOf<platform.darwin.NSObjectProtocol>()
+        val removed = mutableListOf<platform.darwin.NSObjectProtocol>()
+        val observer = IosNotificationForegroundObserver(
+            register = { _, _ -> platform.darwin.NSObject().also { registered += it } },
+            remove = { removed += it },
+            onChanged = {},
+        )
+        assertEquals(8, registered.size)
+        observer.close()
+        assertEquals(registered, removed)
+        observer.close()
+        assertEquals(registered, removed)
+    }
+
+    @Test
     fun closingRuntimeDetachesActivationAndStopsPolicy() = awaitStartupOnMain {
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
         val activations = IosNotificationBootstrap.activations
