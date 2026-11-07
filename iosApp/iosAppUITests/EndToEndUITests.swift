@@ -93,6 +93,33 @@ final class EndToEndUITests: RealAppUITestCase {
         app.terminate()
     }
 
+    /// #4025: the shared sync triggers on iOS. After the Bookmarks category is set up, the app stays open on the sync
+    /// screen: leaving and returning syncs (app log, `DeviceSync`), and the interval timer (default 5 min) runs another
+    /// pass while the app is open, which moves the Bookmarks row's "Last updated:" time without any user action.
+    /// Needs the same fixture as the chain (`scripts/e2e-sync-fixture.sh run ... -only-testing:...testSyncRunsWhileOpen`).
+    func testSyncRunsWhileOpen() throws {
+        guard ProcessInfo.processInfo.environment["E2E_SYNC_FIXTURE_JSON"]?.isEmpty == false else {
+            XCTFail("E2E sync fixture missing: pass TEST_RUNNER_E2E_SYNC_FIXTURE_JSON='{\"url\":...,\"user\":...,\"password\":...}'")
+            return
+        }
+        guard let fixture = syncFixture() else { return }
+        let app = installAndRead()
+        syncBookmarksOverWebDav(app, fixture)
+        let row = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Bookmarks'")).firstMatch
+        // Leave and return: a leave pass (inside a UIKit background task) and an open pass; the app log shows both.
+        sendToBackground(app)
+        sleep(15)
+        app.activate()
+        harnessRequire(row.waitForExistence(timeout: 30), app, "the sync screen is back after returning to the app")
+        sleep(20) // the open pass ends; its time is the baseline
+        let first = row.label
+        // The timer: no input for longer than the 5 min interval; the row's time must move on its own.
+        let moved = waitUntil(timeout: 420) { row.exists && row.label != first }
+        harnessRequire(moved, app, "the Bookmarks row's 'Last updated:' changed while the app stayed open (was '\(first)', now '\(row.label)')")
+        sendToBackground(app)
+        app.terminate()
+    }
+
     /// Stage 1. Fresh install, real Welcome -> Easy start download (KJV), reading John 3.
     private func installAndRead() -> XCUIApplication {
         let app = freshReading()      // -resetData, Welcome, welcome-easy-start, download consent, enabled OK
