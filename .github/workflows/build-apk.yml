@@ -55,6 +55,13 @@ jobs:
         echo "VERSION_SUFFIX=-alpha" >> $GITHUB_ENV
         echo "GRADLE_VERSION_ARGS=-PversionNameSuffix=-alpha" >> $GITHUB_ENV
 
+    # Test builds (developer-only) say -test, not the file's -beta, so they cannot be mistaken for a beta.
+    - name: Set test version suffix
+      if: contains(github.ref, 'refs/tags/test-')
+      run: |
+        echo "VERSION_SUFFIX=-test" >> $GITHUB_ENV
+        echo "GRADLE_VERSION_ARGS=-PversionNameSuffix=-test" >> $GITHUB_ENV
+
 #    - name: Check/set beta version suffix
 #      if: contains(github.ref, 'refs/tags/beta-')
 #      run: |

@@ -122,7 +122,17 @@ fi
 NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + STEP))
 NEW_VERSION_NAME="$(version_major_minor).${NEW_VERSION_CODE}$(_version_get versionNameSuffix)"
 
-echo "New version: $NEW_VERSION_NAME (code: $NEW_VERSION_CODE)"
+# The numeric version (no suffix): the desktop AppStream release and the .deb need it.
+NEW_VERSION_NUMERIC="$(version_major_minor).${NEW_VERSION_CODE}"
+# A test build (test-X tag) is labelled -test: CI builds it with -PversionNameSuffix=-test
+# (build-apk.yml), whatever versionNameSuffix the file has.
+if [[ "$BUILD_MODE" == true ]]; then
+    RELEASE_NAME="${NEW_VERSION_NUMERIC}-test"
+else
+    RELEASE_NAME="$NEW_VERSION_NAME"
+fi
+
+echo "New version: $RELEASE_NAME (code: $NEW_VERSION_CODE)"
 
 # Changelog filenames use the versionCode (fastlane/F-Droid convention),
 # e.g. 1099.txt, not the versionName 5.1.1099.txt.
@@ -148,8 +158,8 @@ fi
 
 echo -e "${GREEN}✓ $VERSION_FILE_REL updated successfully${NC}"
 
-sed -i -E "s|<release version=\"[^\"]*\" date=\"[^\"]*\"|<release version=\"$NEW_VERSION_NAME\" date=\"$(date +%F)\"|" "$METAINFO_REL"
-grep -q "<release version=\"$NEW_VERSION_NAME\"" "$METAINFO_REL" || { echo -e "${RED}Error: release update failed in $METAINFO_REL${NC}"; exit 1; }
+sed -i -E "s|<release version=\"[^\"]*\" date=\"[^\"]*\"|<release version=\"$NEW_VERSION_NUMERIC\" date=\"$(date +%F)\"|" "$METAINFO_REL"
+grep -q "<release version=\"$NEW_VERSION_NUMERIC\"" "$METAINFO_REL" || { echo -e "${RED}Error: release update failed in $METAINFO_REL${NC}"; exit 1; }
 
 # Generate changelog with auto-summarized release notes
 # For production builds, diff against the latest production-* tag
@@ -250,14 +260,14 @@ echo "Adding files to git..."
 git add "$VERSION_FILE_REL" "$METAINFO_REL" "$NEW_CHANGELOG"
 
 # Commit changes
-COMMIT_MESSAGE="Increment version to $NEW_VERSION_NAME"
+COMMIT_MESSAGE="Increment version to $RELEASE_NAME"
 echo "Creating commit: $COMMIT_MESSAGE"
 git commit -m "$COMMIT_MESSAGE"
 
 # Create tag
 if [[ "$BUILD_MODE" == true ]]; then
     TAG_NAME="test-$NEW_VERSION_CODE"
-    TAG_MESSAGE="Test release $NEW_VERSION_NAME"
+    TAG_MESSAGE="Test release $RELEASE_NAME"
 elif [[ "$BETA_MODE" == true ]]; then
     TAG_NAME="beta-$NEW_VERSION_CODE"
     TAG_MESSAGE="Beta release $NEW_VERSION_NAME"
@@ -361,7 +371,7 @@ fi
 echo ""
 echo -e "${GREEN}Version increment completed successfully!${NC}"
 echo "Summary:"
-echo "- Version updated from $CURRENT_VERSION_NAME to $NEW_VERSION_NAME"
+echo "- Version updated from $CURRENT_VERSION_NAME to $RELEASE_NAME"
 echo "- Changelog generated at $NEW_CHANGELOG"
 echo "- Commit created: $COMMIT_MESSAGE"
 echo "- Tag created: $TAG_NAME"
