@@ -204,9 +204,11 @@ remain reachable on a phone.
     brings AndBible to the front, and opens the activity list when "Show
     background activity in the menu" is on. This separate setting is on by default.
     On iOS, AndBible asks for permission when you first start background work,
-    such as installing a document or enabling sync, not at launch. If permission
-    is denied, use the link in this setting to open the system settings and allow
-    notifications; AndBible will not repeatedly ask. Your operating system's
+    such as installing a document, enabling sync, or choosing **Sync now**, not at
+    launch. The permission prompt does not delay synchronization, and turning this
+    setting off prevents the prompt. If permission is denied, use **Open settings**
+    in this setting to open the notification settings (the app's settings on older
+    iOS versions) and allow notifications; AndBible will not repeatedly ask. Your operating system's
     notification settings apply on top. See
     [Background activity](navigation.md#background-activity).
 

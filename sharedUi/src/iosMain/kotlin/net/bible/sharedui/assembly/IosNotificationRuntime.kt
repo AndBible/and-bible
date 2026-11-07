@@ -16,7 +16,7 @@ import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.NativeNotifier
 import platform.Foundation.NSThread
 import platform.darwin.dispatch_get_main_queue
-import platform.darwin.dispatch_sync
+import platform.darwin.dispatch_async
 
 /** Owns the policy and UIKit observers for exactly one Koin graph. */
 internal class IosNotificationRuntime(
@@ -25,6 +25,7 @@ internal class IosNotificationRuntime(
     requests: ActivityListRequests,
     preference: SystemNotificationsPreference,
     observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) },
+    private val foregroundQuery: () -> Boolean = ::isIosNotificationForeground,
     finishedText: () -> String,
 ) {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -39,34 +40,39 @@ internal class IosNotificationRuntime(
         scope = scope,
         finishedText = finishedText,
     )
-    private val observer: AutoCloseable
+    private var observer: AutoCloseable? = null
+    private val activationHandler: (String) -> Unit = { if (!closed.value) requests.request() }
 
     init {
-        notifier.setOnActivated { if (!closed.value) requests.request() }
-        var installed: AutoCloseable? = null
-        onMainSync {
-            active.value = isIosNotificationForeground()
-            installed = observerFactory.observe {
-                if (!closed.value) {
-                    active.value = isIosNotificationForeground()
-                    policy.onForegroundChanged(active.value)
+        onMain {
+            if (!closed.value) {
+                notifier.setOnActivated(activationHandler)
+                active.value = foregroundQuery()
+                policy.onForegroundChanged(active.value)
+                observer = observerFactory.observe {
+                    if (!closed.value) {
+                        active.value = foregroundQuery()
+                        policy.onForegroundChanged(active.value)
+                    }
                 }
             }
         }
-        observer = checkNotNull(installed)
     }
 
     fun close() {
         if (!closed.compareAndSet(false, true)) return
         policy.close()
         scope.cancel()
-        onMainSync {
-            observer.close()
-            IosNotificationBootstrap.activations.detach()
+        onMain {
+            observer?.close()
+            observer = null
+            if (IosNotificationBootstrap.activations.handler === activationHandler) {
+                IosNotificationBootstrap.activations.detach()
+            }
         }
     }
 }
 
-private fun onMainSync(block: () -> Unit) {
-    if (NSThread.isMainThread) block() else dispatch_sync(dispatch_get_main_queue()) { block() }
+private fun onMain(block: () -> Unit) {
+    if (NSThread.isMainThread) block() else dispatch_async(dispatch_get_main_queue()) { block() }
 }

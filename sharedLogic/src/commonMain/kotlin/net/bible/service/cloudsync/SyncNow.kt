@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collect
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.NotificationPermission
 
 interface CloudSyncPort {
     val signedIn: Boolean
@@ -54,6 +55,7 @@ class SyncNow(
     private val scope: CoroutineScope,
     private val cloudRunningState: StateFlow<Boolean>? = null,
     private val documentRunningState: StateFlow<Boolean>? = null,
+    private val notificationPermission: NotificationPermission? = null,
 ) {
     private val lock = SynchronizedObject()
     private val subscriptions = Subscriptions()
@@ -91,6 +93,16 @@ class SyncNow(
             if (!networkAvailable()) { noNetwork(); return }
             starting = true
             updateRunning()
+        }
+        // Authorization is independent work: an unanswered prompt must never hold up synchronization.
+        scope.launch {
+            try {
+                notificationPermission?.ensureAsked()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("SyncNow", "Notification permission request failed", e)
+            }
         }
         val job = scope.launch {
             try {
