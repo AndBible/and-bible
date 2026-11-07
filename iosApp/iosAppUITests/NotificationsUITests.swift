@@ -95,8 +95,14 @@ final class NotificationsUITests: RealAppUITestCase {
         XCTAssertTrue(progress.waitForExistence(timeout: 60), "The real SWORD install reached commit")
         shot(app, "long-install-in-progress")
         XCUIDevice.shared.press(.home)
-        let finished = springboard.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'Finished'")).firstMatch
-        XCTAssertTrue(finished.waitForExistence(timeout: 60), "The long background installation posts a completion notification")
+        // The adapter uses the incoming archive's display name as the notification title.
+        // Require title and body within one SpringBoard element, never a generic Finished elsewhere.
+        let finished = springboard.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", "f-rawtext.zip", "Finished")
+        ).firstMatch
+        let delivered = finished.waitForExistence(timeout: 60)
+        if !delivered { attachTree(springboard, "long-install-notification-missing") }
+        XCTAssertTrue(delivered, "The f-rawtext.zip installation posts its Finished notification")
         shot(springboard, "long-install-finished-notification")
     }
 
