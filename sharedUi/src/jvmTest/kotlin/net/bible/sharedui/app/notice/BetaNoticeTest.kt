@@ -48,7 +48,7 @@ class BetaNoticeTest {
                 "DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS",
                 "Android, iPhone, iPad and Apple Silicon Macs, Windows and Linux",
                 "<b>AndBible on your other devices</b>",
-                "href=\"https://andbible.org/docs/getting_started/#installation\"",
+                "href=\"${BetaNotice.INSTALLATION_GUIDE_LINK}\"",
                 "href=\"${BetaNotice.PLAY_BETA_LINK}\"",
                 "href=\"${BetaNotice.RELEASES_LINK}\"",
                 "TestFlight",
@@ -66,6 +66,11 @@ class BetaNoticeTest {
             assertFalse(html.contains("macOS"), "$platform: Mac is the iPad app, not a desktop build")
             assertFalse(html.contains("Report a bug"), "$platform: the menu row is 'Feedback / bug report'")
         }
+    }
+
+    @Test
+    fun installationGuideLinkPointsAtTheInstallationHeading() {
+        assertTrue(BetaNotice.INSTALLATION_GUIDE_LINK.endsWith("/getting_started/#installation"))
     }
 
     @Test
