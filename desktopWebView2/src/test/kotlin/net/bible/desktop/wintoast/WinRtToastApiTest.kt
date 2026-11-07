@@ -39,6 +39,22 @@ class WinRtToastApiTest {
     }
 
     @Test
+    fun installingNotifierActivationRegistersHistoryCallbackBeforeAnyNewToast() {
+        val runtime = RecordingWinRt()
+        val api = WinRtToastApi(ANDBIBLE_AUMID) { runtime }
+        val notifier = WindowsToastNotifier({ api }, { it.run() })
+        val clicked = mutableListOf<String>()
+        try {
+            notifier.setOnActivated { clicked += it }
+            assertTrue(runtime.events.contains("register"), "history activator absent until a new notification")
+            assertFalse(runtime.events.contains("Show"))
+            runtime.activate()
+            assertEquals(listOf("job"), clicked)
+        } finally { notifier.close() }
+        runtime.assertReleased()
+    }
+
+    @Test
     fun updateChecksResultAndRemoveUsesExplicitOrPackageIdentity() {
         for (aumid in listOf("org.andbible.AndBible", null)) {
             val runtime = RecordingWinRt()

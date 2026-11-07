@@ -130,7 +130,10 @@ class WindowsToastNotifier(
         dismissed.remove(tag)
     }
 
-    override fun setOnActivated(handler: (id: String) -> Unit) { activated = handler }
+    override fun setOnActivated(handler: (id: String) -> Unit) {
+        activated = handler
+        enqueue { getApi() }
+    }
 
     override fun close() {
         synchronized(dispatchLock) {

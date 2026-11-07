@@ -200,6 +200,8 @@ class WinRtToastApi internal constructor(
     override fun onActivated(handler: (tag: String) -> Unit) {
         checkOwner()
         this.handler = handler
+        // Existing Action Center history must activate after a normal restart, before any new Show.
+        getState()
     }
 
     override fun show(xml: String, tag: String, group: String, data: Map<String, String>): Int = operation { s ->
