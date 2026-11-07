@@ -8,6 +8,8 @@ fun aumidRegistryPlan(packaged: Boolean, iconPath: String, executable: String? =
     return listOf(
         RegistryValue(key, "DisplayName", "AndBible"),
         RegistryValue(key, "IconUri", iconPath),
+        // Registry-based identity takes its Shell activation route here, not from the installed shortcut alone.
+        RegistryValue(key, "CustomActivator", "{$TOAST_ACTIVATOR_CLSID}"),
     ) + if (executable == null) emptyList() else listOf(
         RegistryValue("HKCU\\Software\\Classes\\CLSID\\{$TOAST_ACTIVATOR_CLSID}\\LocalServer32", "", "\"$executable\" -ToastActivated"),
     )

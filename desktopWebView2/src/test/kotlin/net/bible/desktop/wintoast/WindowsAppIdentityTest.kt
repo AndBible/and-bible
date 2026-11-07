@@ -23,7 +23,7 @@ class WindowsAppIdentityTest {
         val result = applyWindowsIdentity(dir, { false }, { calls.add("${it.name}=${it.value}") }, { calls.add("process=$it") }, {})
         assertTrue(result.available)
         assertEquals(ANDBIBLE_AUMID, result.aumid)
-        assertEquals(listOf("DisplayName=AndBible", "IconUri=${dir.resolve("app/resources/andbible.ico")}", "=\"${dir.resolve("AndBible.exe")}\" -ToastActivated", "process=$ANDBIBLE_AUMID"), calls)
+        assertEquals(listOf("DisplayName=AndBible", "IconUri=${dir.resolve("app/resources/andbible.ico")}", "CustomActivator={C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}", "=\"${dir.resolve("AndBible.exe")}\" -ToastActivated", "process=$ANDBIBLE_AUMID"), calls)
     }
 
     @Test fun identityFailureIsLoggedAndUnavailable() {
