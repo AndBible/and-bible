@@ -6,7 +6,8 @@ across multiple devices using Google Drive, Nextcloud or your own WebDAV server.
 Sync is automatic — once set up, changes are synchronized in the background
 while the app is open, as well as when opening or exiting the app.
 
-On desktop, if syncing takes longer when you close AndBible, a status screen appears.
+On desktop, the sync when you close AndBible sends only your database changes (bookmarks, workspaces and so on);
+documents are synchronized while the app is open. If syncing takes longer when you close AndBible, a status screen appears.
 Choose **Quit now** to stop waiting and close; changes not yet sent will need to sync later.
 
 To start a sync yourself, open the top-right three-dot menu and choose **Sync now**.
