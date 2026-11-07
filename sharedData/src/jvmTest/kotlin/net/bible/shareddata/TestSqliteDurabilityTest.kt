@@ -108,6 +108,41 @@ class TestSqliteDurabilityTest {
         }
     }
 
+    /**
+     * `PRAGMA synchronous=OFF` reads the schema, so it needs a SHARED lock. Another connection's commit holds
+     * EXCLUSIVE for an instant (in the app suite: Room's invalidation tracker refresh, see BookmarkControlTest);
+     * a decorated open must wait for it like any later statement on a busy-timeout connection, not fail at once
+     * with "database is locked" before the caller could set its own busy timeout.
+     */
+    @Test fun decoratedOpenWaitsForAnotherConnectionsShortExclusiveLock() {
+        val path = "${testDatabaseDir()}/busy.sqlite3"
+        openSqlite(path).use { writer ->
+            writer.execSQL("CREATE TABLE t(value)")
+            writer.execSQL("BEGIN EXCLUSIVE")
+            val release = Thread {
+                Thread.sleep(300)
+                writer.execSQL("COMMIT")
+            }.apply { start() }
+            try {
+                openSqlite(path).use { assertEquals(0L, it.queryLong("PRAGMA synchronous")) }
+            } finally {
+                release.join()
+            }
+        }
+    }
+
+    /** The wait above is the decoration's own: the caller still gets the driver's busy timeout (production behavior). */
+    @Test fun decoratedOpenKeepsTheDriversBusyTimeout() {
+        val dir = testDatabaseDir()
+        val production = Files.createTempDirectory("production-busy-").toFile()
+        try {
+            val expected = openSqlite("$production/plain.sqlite3").use { it.queryLong("PRAGMA busy_timeout") }
+            openSqlite("$dir/decorated.sqlite3").use { assertEquals(expected, it.queryLong("PRAGMA busy_timeout")) }
+        } finally {
+            production.deleteRecursively()
+        }
+    }
+
     @Test fun uninstalledSeamReturnsTheProductionBundledDriver() {
         val previous = sqliteConnectionDecoratorForTest
         try {
