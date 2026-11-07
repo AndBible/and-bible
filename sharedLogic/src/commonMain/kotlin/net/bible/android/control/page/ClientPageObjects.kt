@@ -216,6 +216,13 @@ open class OsisDocument(
 suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
     ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
 
+/**
+ * The name of [book] a Bible document sends to BibleView (the verse menu's title), in JSword's user locale: the app
+ * language on every platform (#4028), where the platform default is the system language on the desktop and iOS.
+ */
+internal fun bibleBookName(v11n: Versification, book: BibleBook): String? =
+    v11n.getPreferredNameInLocale(book, KswordLocale.current())
+
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
     val verseRange: VerseRange,
@@ -241,7 +248,7 @@ class BibleDocument(
         return super.contentMap().toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
-            put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, KswordLocale.default())))
+            put("bibleBookName", wrapString(bibleBookName(swordBook.versification, verseRange.start.book)))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
             put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString()
                 .lowercase() == "gbf" || !osisFragment.hasChapter))
