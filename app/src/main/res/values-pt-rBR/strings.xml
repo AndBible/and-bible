@@ -786,15 +786,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="workspace_manage_workspaces">Gerenciar áreas de trabalho…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
-  <string name="beta_notice_content_1">
-Na versão beta, há novos recursos que ainda não foram testados corretamente,
-e, portanto, usar uma versão beta pode introduzir um comportamento inesperado, ou seja, erros.
-Recomenda-se que os leitores comuns da Bíblia usem a versão estável.</string>
-  <string name="beta_notice_content_2">
-Os utilizadores de versões beta são incentivados a relatar bugs via Google Play ou
-(preferencialmente) via%s</string>
-  <string name="beta_notice_content_3">Se você é programador, considere contribuir para a  correção de erros
-através de %s você mesmo. :-)</string>
   <string name="beta_notice_github_issues">Problemas relativos a Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Dispensado até a próxima atualização</string>

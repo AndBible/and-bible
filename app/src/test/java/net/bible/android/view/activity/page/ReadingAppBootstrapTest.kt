@@ -849,7 +849,7 @@ class ReadingAppBootstrapTest {
             assertTrue("carries the installation guide", body.contains(BetaNotice.INSTALLATION_GUIDE_LINK))
             assertTrue("carries the version", body.contains(CommonUtils.applicationVersionName))
             assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
-            assertEquals(activity.getString(R.string.dismiss), request.neutralText)
+            assertEquals(activity.getString(R.string.close), request.neutralText)
             assertNull(request.dismissText)
 
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Ok)

@@ -796,16 +796,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="workspace_manage_workspaces">Gestionar espacios de trabajo…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">¡Esta es la versión beta!</string>
-  <string name="beta_notice_content_1">
-En la versión beta, hay nuevas características que aún no se han probado adecuadamente
-y, por lo tanto, el uso de beta podría introducir un comportamiento inesperado, es decir, errores.
-Se recomienda que los lectores comunes de la Biblia usen una versión estable en su lugar.
-</string>
-  <string name="beta_notice_content_2">
-Se alienta a los usuarios beta a informar errores a través de Google Play o (preferiblemente) a %s.
-</string>
-  <string name="beta_notice_content_3">Si es programador, considere contribuir a solucionar los errores
-a través de %s usted mismo. :-)</string>
   <string name="beta_notice_github_issues">Github propuestas</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>

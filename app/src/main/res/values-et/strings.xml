@@ -788,13 +788,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="workspace_manage_workspaces">Halda tööalasid…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
-  <string name="beta_notice_content_1">
-Beta versioonis on mõned uued funktsioonid, mida ei ole veel põhjalikult testitud,
-mistõttu võib beta rakenduse kasutamisel esineda ootamatut käitumist, näiteks tarkvaravigu.
-Tavalistel piiblilugejatel on selle asemel soovitatav kasutada stabiilset versiooni.</string>
-  <string name="beta_notice_content_2">
-Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelistatult) kasutades veebilehte %s.</string>
-  <string name="beta_notice_content_3">Kui sa oled programmeerija, siis kaalu kaasa aidata parandades tarkvaravigu ise läbi veebilehe %s. :-)</string>
   <string name="beta_notice_github_issues">Githubi probleemid</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Unusta kuni uue versioonini</string>

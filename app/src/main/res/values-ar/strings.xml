@@ -783,16 +783,6 @@
   <string name="workspace_manage_workspaces">إدارة مساحات العمل…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
-  <string name="beta_notice_content_1">
-        في النسخة التجريبية، يوجد ميّزات لم يتم اختبارها جيداً بعد.
-        و بالتالي استخدام النسخة التجريبية قد يقدم سلوك غير متوقع، كالاخطاء مثلاً.
-        من المستحسن أن يستخدم قراء الكتاب المقدس العاديون نسخة مستقرة بدلاً من ذلك
-    </string>
-  <string name="beta_notice_content_2">
-        نشجع مستخدمي النسخة التجريبية على التبليغ عن الأخطاء عبر Google Play أو (تفضيلاً) عبر %s.
-    </string>
-  <string name="beta_notice_content_3">إذا كنت مبرمجاّ، نرجوا ان تاخذ بعين الاعتبار المساهمة في اصلاح 
-        الخطأ عبر %s بنفسك :-)</string>
   <string name="beta_notice_github_issues">مشاكل Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>

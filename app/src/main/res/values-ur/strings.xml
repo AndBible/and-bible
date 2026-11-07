@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">ورک اسپیسز کا انتظام…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">یہ بیٹا ورژن ہے!</string>
-  <string name="beta_notice_content_1">بیٹا ورژن میں نئی خصوصیات ہیں جو ابھی ٹھیک سے جانچی نہیں گئیں، اس لیے بیٹا استعمال کرنے سے غیر متوقع رویہ (یعنی بگز) ہو سکتا ہے۔ عام بائبل قارئین کے لیے مستحکم ورژن استعمال کرنا تجویز کیا جاتا ہے۔</string>
-  <string name="beta_notice_content_2">بیٹا صارفین کو گوگل پلے یا (ترجیحاً) %s کے ذریعے بگز رپورٹ کرنے کی ترغیب دی جاتی ہے۔</string>
-  <string name="beta_notice_content_3">اگر آپ پروگرامر ہیں تو براہ کرم %s کے ذریعے خود بگ فکس میں حصہ ڈالنے پر غور کریں۔ :-)</string>
   <string name="beta_notice_github_issues">Github مسائل</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">اگلی اپ ڈیٹ تک مسترد کریں</string>

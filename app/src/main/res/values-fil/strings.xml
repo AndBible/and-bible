@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">Pamahalaan ang mga workspace…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ito ay beta version!</string>
-  <string name="beta_notice_content_1">Sa beta version, may mga bagong feature na hindi pa maayos na nasubok, at kaya ang paggamit ng beta ay maaaring magdulot ng hindi inaasahang gawi, i.e. mga bug. Inirerekomenda na ang mga ordinaryong mambabasa ng Bibliya ay gumamit ng stable version sa halip.</string>
-  <string name="beta_notice_content_2">Ang mga beta user ay hinihikayat na mag-ulat ng mga bug sa pamamagitan ng Google Play o (mas mabuti pa) sa pamamagitan ng %s.</string>
-  <string name="beta_notice_content_3">Kung ikaw ay programmer, pakiisaalang-alang ang pag-aambag ng mga pag-aayos ng bug sa pamamagitan ng %s mismo. :-)</string>
   <string name="beta_notice_github_issues">Mga Github issue</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Isara hanggang sa susunod na update</string>

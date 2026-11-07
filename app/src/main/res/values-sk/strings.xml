@@ -798,17 +798,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="workspace_manage_workspaces">Spravovať pracovné plochy…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verzia</string>
-  <string name="beta_notice_content_1">
-        V beta verzii sú k dispozícii nové funkcie, ktoré ešte nemusia byť dobre otestované,
-        a preto jej používanie môže viesť neočakávaným chybám.
-        Bežným čitateľom Biblie sa odporúča používať stabilnú verziu.
-   </string>
-  <string name="beta_notice_content_2">
-        Používateľom beta verzie sa odporúča nahlásiť chyby prostredníctvom služby Google Play alebo
-        (prednostne) cez%s.
-    </string>
-  <string name="beta_notice_content_3">Ak ste programátor, zvážte zaslanie opravy
-        k chybe prostredníctvom %s . :-)</string>
   <string name="beta_notice_github_issues">Github hlásenia chýb</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Odmietnuť do ďalšej aktualizácie </string>

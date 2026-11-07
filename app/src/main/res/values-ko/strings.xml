@@ -799,17 +799,6 @@
   <string name="workspace_manage_workspaces">워크스페이스 관리…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">이것은 베타 버전입니다!</string>
-  <string name="beta_notice_content_1">
-        베타 버전에는 아직 충분히 테스트되지 않은 새로운 기능들이 있어,
-        예상치 못한 동작, 즉 버그가 발생할 수 있습니다.
-        일반 성경 독자들은 안정 버전을 사용하시기 바랍니다.
-    </string>
-  <string name="beta_notice_content_2">
-        베타 사용자들은 Google Play 또는
-        (가능하면) %s를 통해 버그를 보고해 주시기 바랍니다.
-    </string>
-  <string name="beta_notice_content_3">혹시 프로그래밍을 하신다면, %s(으)로 버그 수정에 참여해 주실 것을
-        적극 추천합니다 :-)</string>
   <string name="beta_notice_github_issues">깃허브 이슈</string>
   <string name="beta_notice_github">깃허브</string>
   <string name="beta_notice_dismiss_until_update">다음 업데이트 때까지 끄기</string>

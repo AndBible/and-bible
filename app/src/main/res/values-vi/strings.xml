@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">Quản lý không gian làm việc…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Đây là phiên bản beta!</string>
-  <string name="beta_notice_content_1">Trong phiên bản beta, có các tính năng mới chưa được kiểm tra đầy đủ, do đó việc sử dụng beta có thể gây ra các hành vi không mong muốn, tức là lỗi. Khuyến nghị những người dùng Kinh Thánh thông thường nên sử dụng phiên bản ổn định.</string>
-  <string name="beta_notice_content_2">Người dùng beta được khuyến khích báo cáo lỗi qua Google Play hoặc (ưu tiên) qua %s.</string>
-  <string name="beta_notice_content_3">Nếu bạn là lập trình viên, hãy cân nhắc đóng góp bản sửa lỗi qua %s. :-)</string>
   <string name="beta_notice_github_issues">Vấn đề trên Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Bỏ qua cho đến lần cập nhật tiếp theo</string>

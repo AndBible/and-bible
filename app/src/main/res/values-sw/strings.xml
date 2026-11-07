@@ -763,11 +763,6 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="workspace_manage_workspaces">Dhibiti nafasi za kazi…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Hii ni toleo la beta!</string>
-  <string name="beta_notice_content_1">
-Katika toleo la beta, kuna vipengele vipya ambavyo bado havijapimwa vizuri, na kwa hivyo kutumia beta kunaweza kuleta tabia isiyotarajiwa, yaani hitilafu. Inashauriwa kwamba wasomaji wa kawaida wa Biblia watumie toleo thabiti badala yake.</string>
-  <string name="beta_notice_content_2">
-Watumiaji wa beta wanahimizwa kuripoti hitilafu kupitia Google Play au (kwa hiari) kupitia %s.</string>
-  <string name="beta_notice_content_3">Ikiwa wewe ni mprogramu, tafadhali fikiria kuchangia marekebisho ya hitilafu kupitia %s mwenyewe. :-)</string>
   <string name="beta_notice_github_issues">Masuala ya Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ondoa hadi sasasho linalofuata</string>

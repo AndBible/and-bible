@@ -777,13 +777,6 @@ Le fichier est peut-être invalide.</string>
   <string name="workspace_manage_workspaces">Gérer les espaces…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ceci est une version bêta!</string>
-  <string name="beta_notice_content_1">
-Dans une version bêta, les nouvelles fonctionnalités n\'ont pas encore été toutes entièrement testées,
-une bêta peut donc produire des bogues qui sont encore en cours d\'analyse et de correction.
-Il est recommandé d\'utiliser la version stable. </string>
-  <string name="beta_notice_content_2">
-Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via (de préférence) %s.</string>
-  <string name="beta_notice_content_3">Si vous êtes développeur, merci d\'envisager de contribuer vous-mêmes aux corrections de bogues sur %s :)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>

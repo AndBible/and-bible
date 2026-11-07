@@ -1224,10 +1224,6 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Beta notice (BetaNotice)
     override val betaNoticeTitle: String get() = context.getString(R.string.beta_notice_title)
-    override val betaNoticeContent1: String get() = context.getString(R.string.beta_notice_content_1)
-    override fun betaNoticeContent2(link: String): String = context.getString(R.string.beta_notice_content_2, link)
-    override fun betaNoticeContent2App(link: String): String = context.getString(R.string.beta_notice_content_2_app, link)
-    override fun betaNoticeContent3(link: String): String = context.getString(R.string.beta_notice_content_3, link)
     override val betaNoticeGithubIssues: String get() = context.getString(R.string.beta_notice_github_issues)
     override val betaNoticeGithub: String get() = context.getString(R.string.beta_notice_github)
     override val betaNoticeDismissUntilUpdate: String get() = context.getString(R.string.beta_notice_dismiss_until_update)
@@ -1249,7 +1245,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val betaSpecialLookoutDesktop: String get() = context.getString(R.string.beta_special_lookout_desktop)
     override val betaSpecialFeedback: String get() = context.getString(R.string.beta_special_feedback)
     override fun betaSpecialBackup(menuItem: String): String = context.getString(R.string.beta_special_backup, menuItem)
+    override val betaSpecialBetaWarning: String get() = context.getString(R.string.beta_special_beta_warning)
     override fun betaSpecialReport(githubLink: String, menuItem: String): String = context.getString(R.string.beta_special_report, githubLink, menuItem)
+    override fun betaSpecialReportAndroid(githubLink: String, menuItem: String): String = context.getString(R.string.beta_special_report_android, githubLink, menuItem)
+    override fun betaSpecialContribute(githubLink: String): String = context.getString(R.string.beta_special_contribute, githubLink)
     override val betaSpecialOtherDevicesTitle: String get() = context.getString(R.string.beta_special_other_devices_title)
     override val betaSpecialOtherDevicesIntro: String get() = context.getString(R.string.beta_special_other_devices_intro)
     override fun betaSpecialOtherAndroid(playBetaLink: String, releasesLink: String): String = context.getString(R.string.beta_special_other_android, playBetaLink, releasesLink)
@@ -1262,5 +1261,4 @@ class AndroidStrings(private val context: Context) : Strings {
     override val betaSpecialRegards: String get() = context.getString(R.string.beta_special_regards)
     override fun betaSpecialSponsor(sponsorLink: String): String = context.getString(R.string.beta_special_sponsor, sponsorLink)
     override val betaSpecialSponsorLink: String get() = context.getString(R.string.beta_special_sponsor_link)
-    override val betaSpecialStandardBelow: String get() = context.getString(R.string.beta_special_standard_below)
 }

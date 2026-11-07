@@ -785,12 +785,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="workspace_manage_workspaces">Werkbladen beheren…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is een bètaversie!</string>
-  <string name="beta_notice_content_1">
-In de beta-versie zitten nieuwe functies die nog niet volledig zijn getest. Gebruik van beta versies kan onverwacht gedrag opleveren, ofwel bugs.
-Voor dagelijkse Bijbelstudie wordt aangeraden de stabiele versie te gebruiken.</string>
-  <string name="beta_notice_content_2">
-Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play of (bij voorkeur) via %s.</string>
-  <string name="beta_notice_content_3">Als je een programmeur bent, overweeg dan alsjeblieft om zelf foutoplossingen bij te dragen via %s. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>

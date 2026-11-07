@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">Administrer arbejdsområder…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dette er en betaversion!</string>
-  <string name="beta_notice_content_1">I betaversionen er der nye funktioner, der endnu ikke er ordentligt testet, og brug af beta kan derfor medføre uventet adfærd, dvs. fejl. Det anbefales, at almindelige Bibellæsere bruger den stabile version i stedet.</string>
-  <string name="beta_notice_content_2">Betabrugere opfordres til at rapportere fejl via Google Play eller (foretrukket) via %s.</string>
-  <string name="beta_notice_content_3">Hvis du er programmør, overvej venligst at bidrage med fejlrettelser via %s selv. :-)</string>
   <string name="beta_notice_github_issues">Github-problemer</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Luk indtil næste opdatering</string>

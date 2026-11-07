@@ -42,7 +42,7 @@ class BetaNoticeTest {
             assertEquals(strings.betaNoticeTitle, request.title, "$platform")
             assertTrue(request.showTitleLogo)
             assertEquals(strings.betaNoticeDismissUntilUpdate, request.confirmText)
-            assertEquals(strings.dismiss, request.neutralText)
+            assertEquals(strings.settingsEditorClose, request.neutralText)
             assertEquals(null, request.dismissText)
             listOf(
                 "DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS",
@@ -58,8 +58,9 @@ class BetaNoticeTest {
                 "Main menu → Backup &amp; Restore",
                 "Best regards, Tuomas",
                 "sponsoring development hours",
-                strings.betaNoticeContent1,
+                strings.betaSpecialBetaWarning,
                 strings.betaNoticeGithubIssues,
+                "href=\"${BetaNotice.GITHUB_LINK}\"",
                 strings.versionText(version),
             ).forEach { assertTrue(html.contains(it), "$platform notice lacks '$it'") }
             // The two statements the November 2026 text corrected.
@@ -69,13 +70,22 @@ class BetaNoticeTest {
     }
 
     @Test
-    fun googlePlayIsNamedOnlyOnAndroid() {
-        assertTrue(body(BetaNoticePlatform.ANDROID).contains("report bugs via Google Play"))
+    fun googlePlayIsNamedOnlyInTheAndroidBugReportLine() {
+        assertTrue(body(BetaNoticePlatform.ANDROID).contains("(preferred), Google Play or Main menu"))
         listOf(BetaNoticePlatform.IOS, BetaNoticePlatform.DESKTOP).forEach {
             val html = body(it)
-            assertFalse(html.contains("report bugs via Google Play"), "$it")
-            assertTrue(html.contains("via the app (Main menu → Feedback / bug report)"), "$it")
-            assertTrue(html.contains("href=\"${BetaNotice.ISSUES_LINK}\""), "$it")
+            assertFalse(html.contains("(preferred), Google Play"), "$it")
+            assertTrue(html.contains("(preferred) or Main menu → Feedback / bug report"), "$it")
+        }
+    }
+
+    @Test
+    fun theStandardNoticeBlockIsGone() {
+        BetaNoticePlatform.entries.forEach {
+            val html = body(it)
+            assertFalse(html.contains("Standard beta notice below"), "$it")
+            assertFalse(html.contains("Beta users are encouraged"), "$it")
+            assertTrue(html.contains("contributing bug fixes on"), "$it")
         }
     }
 
@@ -141,13 +151,13 @@ class BetaNoticeTest {
         // A translation replaces the text: nothing of the special notice is hard-coded English.
         val translated = object : net.bible.sharedui.strings.Strings by strings {
             override val betaSpecialHeading = "OTSIKKO"
-            override fun betaSpecialReport(githubLink: String, menuItem: String) = "RAPORTOI $githubLink $menuItem"
+            override fun betaSpecialReportAndroid(githubLink: String, menuItem: String) = "RAPORTOI $githubLink $menuItem"
             override val reportGeneralBugLabel = "Palaute & vikailmoitus"
             override val betaSpecialPlayBetaLink = "beetaohjelma"
         }
         val html = BetaNotice.specialNoticeHtml(BetaNoticePlatform.ANDROID, translated)
         assertTrue(html.contains("<b>OTSIKKO</b>"))
-        assertTrue(html.contains("RAPORTOI <a href=\"${BetaNotice.NEW_ISSUE_LINK}\">GitHub</a> Palaute &amp; vikailmoitus"))
+        assertTrue(html.contains("RAPORTOI <a href=\"${BetaNotice.NEW_ISSUE_LINK}\">${strings.betaNoticeGithubIssues}</a> Palaute &amp; vikailmoitus"))
         assertTrue(html.contains("<a href=\"${BetaNotice.PLAY_BETA_LINK}\">beetaohjelma</a>"))
         assertFalse(html.contains("DEVELOPER'S SPECIAL NOTICE"))
         assertFalse(html.contains("Please report bugs"))

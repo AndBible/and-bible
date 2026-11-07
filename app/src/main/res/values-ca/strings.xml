@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">Gestiona els espais de treball…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aquesta és la versió beta!</string>
-  <string name="beta_notice_content_1">En la versió beta hi ha noves funcions que encara no s\'han provat correctament, per la qual cosa usar la beta pot introduir comportaments inesperats, és a dir, errors. Es recomana que els lectors de la Bíblia habituals usin la versió estable.</string>
-  <string name="beta_notice_content_2">S\'anima els usuaris de la beta a notificar errors a través de Google Play o (preferiblement) a través de %s.</string>
-  <string name="beta_notice_content_3">Si ets programador, considera contribuir amb correccions d\'errors a través de %s tu mateix. :-)</string>
   <string name="beta_notice_github_issues">Problemes de Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Descarta fins a la pròxima actualització</string>

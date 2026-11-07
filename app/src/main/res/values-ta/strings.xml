@@ -799,17 +799,6 @@
   <string name="workspace_manage_workspaces">பணியிடங்களை நிர்வகி…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">இது பீட்டா பதிப்பு!</string>
-  <string name="beta_notice_content_1">
-         பீட்டா பதிப்புகளில் சரியாக சோதிக்கப்படாத புதிய அம்சங்கள் இருக்கலாம்
-        ஆகவே பீட்டா பதிப்புகளை பயன்படுத்துவது எதிர்பாராத விளைவுகளை ஏற்படுத்த கூடும், அதாவது பிழைகள்.
-        ஆகவே பொது விதியிலிய வாசகர்கள் நிலையான பதிப்பை பயன்படுத்த பரிந்துரைக்கப்படுகிறார்கள்.
-    </string>
-  <string name="beta_notice_content_2">
-        பீட்டா பயனர்கள் பிழைகளை Google Play அல்லது
-        (முன்னுரிமை) %s வழியாக அளிக்கவும்.
-    </string>
-  <string name="beta_notice_content_3">நீங்கள் நிரலராக இருந்தால், 
-        %s வழியாக பிழைகளை திருத்த உதவலாம். :-)</string>
   <string name="beta_notice_github_issues">கிட்ஹப் சிக்கல்கள்</string>
   <string name="beta_notice_github">கிட்ஹப்</string>
   <string name="beta_notice_dismiss_until_update">அடுத்த புதுப்பிப்பு வரை நிராகரிக்கவும்</string>

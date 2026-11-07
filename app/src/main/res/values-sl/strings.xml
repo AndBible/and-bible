@@ -795,16 +795,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="workspace_manage_workspaces">Upravljaj delovne prostore…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To je beta različica!</string>
-  <string name="beta_notice_content_1">
-        V beta različici so na voljo nove funkcije, ki še niso pravilno preizkušene
-        in tako lahko uporaba beta različice privede do nepričakovanega obnašanja, to je napake.
-        Priporočljivo je, da običajni bralci biblije, namesto beta različice, uporabljajo stabilno različico.</string>
-  <string name="beta_notice_content_2">
-        Beta uporabnike spodbujamo, da napake prijavljajo prek Google Play ali
-        (še raje) prek%s.
-    </string>
-  <string name="beta_notice_content_3">Če ste programer, razmislite, da bi popravke napak sami prispevali
-        preko %s-a.  :-)</string>
   <string name="beta_notice_github_issues">Github izdaje</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>

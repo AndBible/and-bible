@@ -1303,10 +1303,6 @@ interface Strings {
 
     // Beta notice (BetaNotice)
     val betaNoticeTitle: String                    // R.string.beta_notice_title
-    val betaNoticeContent1: String                 // R.string.beta_notice_content_1
-    fun betaNoticeContent2(link: String): String   // R.string.beta_notice_content_2
-    fun betaNoticeContent2App(link: String): String // R.string.beta_notice_content_2_app (iOS, desktop)
-    fun betaNoticeContent3(link: String): String   // R.string.beta_notice_content_3
     val betaNoticeGithubIssues: String             // R.string.beta_notice_github_issues
     val betaNoticeGithub: String                   // R.string.beta_notice_github
     val betaNoticeDismissUntilUpdate: String       // R.string.beta_notice_dismiss_until_update
@@ -1328,7 +1324,10 @@ interface Strings {
     val betaSpecialLookoutDesktop: String // R.string.beta_special_lookout_desktop
     val betaSpecialFeedback: String // R.string.beta_special_feedback
     fun betaSpecialBackup(menuItem: String): String // R.string.beta_special_backup
+    val betaSpecialBetaWarning: String // R.string.beta_special_beta_warning
     fun betaSpecialReport(githubLink: String, menuItem: String): String // R.string.beta_special_report
+    fun betaSpecialReportAndroid(githubLink: String, menuItem: String): String // R.string.beta_special_report_android
+    fun betaSpecialContribute(githubLink: String): String // R.string.beta_special_contribute
     val betaSpecialOtherDevicesTitle: String // R.string.beta_special_other_devices_title
     val betaSpecialOtherDevicesIntro: String // R.string.beta_special_other_devices_intro
     fun betaSpecialOtherAndroid(playBetaLink: String, releasesLink: String): String // R.string.beta_special_other_android
@@ -1341,7 +1340,6 @@ interface Strings {
     val betaSpecialRegards: String // R.string.beta_special_regards
     fun betaSpecialSponsor(sponsorLink: String): String // R.string.beta_special_sponsor
     val betaSpecialSponsorLink: String // R.string.beta_special_sponsor_link
-    val betaSpecialStandardBelow: String // R.string.beta_special_standard_below
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

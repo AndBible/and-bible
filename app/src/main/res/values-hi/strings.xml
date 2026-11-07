@@ -793,17 +793,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="workspace_manage_workspaces">कार्यक्षेत्र प्रबंधित करें…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">यह बीटा संस्करण है!</string>
-  <string name="beta_notice_content_1">
-बीटा संस्करण में, नई विशेषताएं हैं जो अभी तक ठीक से परीक्षण नहीं की गई हैं,
-और इस प्रकार बीटा का उपयोग अप्रत्याशित व्यवहार, यानी बग का परिचय दे सकता है।
-हमारी सलाह यह है कि सामान्य बाइबिल पाठक इसके बजाय स्थिर संस्करण का उपयोग करें।
-</string>
-  <string name="beta_notice_content_2">
- बीटा उपयोगकर्ताओं को गूगल प्ले या %s (बेहतर होगा) के माध्यम से बग रिपोर्ट करने के लिए
- प्रोत्साहित किया जाता है
-</string>
-  <string name="beta_notice_content_3">यदि आप एक प्रोग्रामर हैं, तो कृपया अपने आप %s के माध्यम से बग
- फिक्स में योगदान देने पर विचार करें। :-)</string>
   <string name="beta_notice_github_issues">गिटहब के मुद्दे</string>
   <string name="beta_notice_github"> गिटहब</string>
   <string name="beta_notice_dismiss_until_update">अगले अद्यतन तक खारिज करे</string>

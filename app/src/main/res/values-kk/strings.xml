@@ -573,12 +573,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="workspace_listing_with_current">%s (қазіргі)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Бұл бета версиясы!</string>
-  <string name="beta_notice_content_1">
-Бета версиясындағы жаңа мүмкіндіктерді әлі де дұрыс тексермеген, сондықтан, бета қолдануы күтпеген әрекеттерді енгізу мүмкін, яғни қателерді тудырады.
-Киелі Кітап оқырмандарына оның орнына тұрақты версия пайдалануға ұсынылады.</string>
-  <string name="beta_notice_content_2">
-Бета қолданушыларына қателер туралы Google Play арқылы хабарлау ұсынылады немесе (қалап) %s арқылы.</string>
-  <string name="beta_notice_content_3">Егер сіз программист болсаңыз, қателерді түзетуге көмектесуді %s өзіңіз арқылы қарастырыңыз. :-)</string>
   <string name="beta_notice_github_issues">Github мәселелері</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>

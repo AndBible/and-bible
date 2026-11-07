@@ -802,17 +802,6 @@
   <string name="workspace_manage_workspaces">Administrează spațiile de studiu…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
-  <string name="beta_notice_content_1">
-        În versiunea beta, există caracteristici noi care n-au fost încă testate corespunzător,
-        deci utilizarea versiunii beta ar putea introduce un comportament neașteptat, adică erori.
-        Se recomandă ca cititorii obișnuiți ai Bibliei să folosească versiunea stabilă.
-    </string>
-  <string name="beta_notice_content_2">
-        Utilizatorii Beta sînt încurajați să raporteze erorile prin intermediul Google Play sau
-        (de preferință) prin %s.
-    </string>
-  <string name="beta_notice_content_3">Dacă ești programator, te rugăm să contribui cu corectări
-        de erori prin intermediul %s. :-)</string>
   <string name="beta_notice_github_issues">Mesaje de eroare pe Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>

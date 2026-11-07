@@ -733,9 +733,6 @@
   <string name="workspace_manage_workspaces">कार्यक्षेत्रहरू व्यवस्थापन गर्नुहोस्…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">यो बिटा संस्करण हो!</string>
-  <string name="beta_notice_content_1">बिटा संस्करणमा नयाँ सुविधाहरू छन् जुन अझै राम्रोसँग परीक्षण गरिएको छैन, र त्यसैले बिटा प्रयोग गर्दा अप्रत्याशित व्यवहार, अर्थात् बगहरू आउन सक्छन्। सामान्य बाइबल पाठकहरूलाई यसको सट्टा स्थिर संस्करण प्रयोग गर्न सिफारिस गरिन्छ।</string>
-  <string name="beta_notice_content_2">बिटा प्रयोगकर्ताहरूलाई Google Play वा (अधिमानतः) %s मार्फत बगहरू रिपोर्ट गर्न प्रोत्साहित गरिन्छ।</string>
-  <string name="beta_notice_content_3">यदि तपाईं प्रोग्रामर हुनुहुन्छ भने, कृपया %s मार्फत आफैं बग सुधार गर्न सोच्नुहोस्। :-)</string>
   <string name="beta_notice_github_issues">Github समस्याहरू</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">अर्को अपडेटसम्म खारेज गर्नुहोस्</string>

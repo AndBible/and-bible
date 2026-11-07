@@ -948,23 +948,7 @@
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
-    <string name="beta_notice_content_1">
-        In beta version, there are new features that are not yet properly tested,
-        and thus using beta might introduce unexpected behavior, i.e. bugs.
-        It is recommended that ordinary Bible readers use stable version instead.
-    </string>
 
-    <string name="beta_notice_content_2">
-        Beta users are encouraged to report bugs via Google Play or
-        (preferably) via %s.
-    </string>
-    <!-- iOS and desktop variant of beta_notice_content_2 (no Google Play there). -->
-    <string name="beta_notice_content_2_app">
-        Beta users are encouraged to report bugs via the app (Main menu → Feedback / bug report) or
-        (preferably) via %s.
-    </string>
-    <string name="beta_notice_content_3">If you are programmer, please consider contributing bug
-        fixes via %s yourself. :-)</string>
     <string name="beta_notice_github_issues">Github issues</string>
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
@@ -986,7 +970,10 @@
     <string name="beta_special_lookout_desktop">Because the desktop version is new, please be on the lookout for anything that does not work well on a computer: mouse and keyboard use, window sizes, fonts and high-resolution displays, screens that look wrong in dark, light or monochrome mode, or data that does not look right after a sync.</string>
     <string name="beta_special_feedback">Feedback on the new design is just as welcome as bug reports: if something got harder to find or use, please tell us.</string>
     <string name="beta_special_backup">Making a backup before testing is a good idea (Main menu → %s).</string>
-    <string name="beta_special_report">Please report bugs via %1$s or Main menu → %2$s.</string>
+    <string name="beta_special_beta_warning">This is a beta version: new features are not yet fully tested and may contain bugs, so ordinary Bible readers are better off with the stable version.</string>
+    <string name="beta_special_report">Please report bugs via %1$s (preferred) or Main menu → %2$s.</string>
+    <string name="beta_special_report_android">Please report bugs via %1$s (preferred), Google Play or Main menu → %2$s.</string>
+    <string name="beta_special_contribute">If you are a programmer, please consider contributing bug fixes on %s yourself. :-)</string>
     <string name="beta_special_other_devices_title">AndBible on your other devices</string>
     <string name="beta_special_other_devices_intro">The same beta is available for all your devices:</string>
     <string name="beta_special_other_android">Android: join the %1$s, or download the APK from the newest beta release on %2$s.</string>
@@ -999,7 +986,6 @@
     <string name="beta_special_regards">Best regards, Tuomas</string>
     <string name="beta_special_sponsor">P.S. You can support AndBible development financially by %s.</string>
     <string name="beta_special_sponsor_link">sponsoring development hours</string>
-    <string name="beta_special_standard_below">(Standard beta notice below)</string>
 
     <string name="stable_notice_title">Application has been upgraded!</string>
     <string name="upgrade_video_message">Please see video featuring new features of this release (%s).</string>

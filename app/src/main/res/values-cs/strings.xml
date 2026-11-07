@@ -794,17 +794,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="workspace_manage_workspaces">Spravovat pracovní plochy…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verze!</string>
-  <string name="beta_notice_content_1">
-        Beta verze obsahuje nové funkce, které ještě nejsou dobře otestovány.
-        Používání beta verze může zapříčinit neočekávané chování, např. chyby.
-        Běžným čtenářům Bible doporučujeme používat jen stabilní verzi.
-    </string>
-  <string name="beta_notice_content_2">
-        Prosíme, aby beta uživatelé hlásili chyby přes Google Play nebo
-        (preferováno) přes %s.
-    </string>
-  <string name="beta_notice_content_3">Pokud jste programátor, můžete sami přispět opravou chyby
-        přes %s. :-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>

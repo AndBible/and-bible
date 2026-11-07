@@ -119,11 +119,6 @@ Other labels: all other labels.</string>
   <string name="give_name_workspace">New workspace name</string>
   <!--Beta notice-->
   <string name="beta_notice_title">This is the beta version!</string>
-  <string name="beta_notice_content_1">
-        In the beta version, there are new features that are not yet properly tested,
-        and thus using the beta version might result in unexpected behavior, i.e. bugs.
-        It is recommended that ordinary Bible readers use stable versions instead.
-    </string>
   <string name="upgrade_video_message">Please see the video highlighting new features of this release (%s).</string>
   <!--History-->
   <!--Help-->

@@ -788,15 +788,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="workspace_manage_workspaces">Upravljaj radnim površinama…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ovo je beta verzija!</string>
-  <string name="beta_notice_content_1">
-        U beta izdanju, postoje nove mogućnosti koje nisu temeljito testirane,
-        i stoga upotreba beta izdanja može uvesti neočekivano ponašanje, tj. pogreške.
-        Preporučeno je da prosječni čitatelji Biblije koriste stabilnu verziju.</string>
-  <string name="beta_notice_content_2">
-        Korisnici beta verzije se ohrabruju da prijave pogreške putem Google Play ili
-        (preferirano) putem %s.</string>
-  <string name="beta_notice_content_3">Ako ste programer, molimo da razmotrite da i sami doprinesete
-        razriješavanju pogrešaka putem %s . :-)</string>
   <string name="beta_notice_github_issues">Github problemi</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Odbaci do sljedećeg ažuriranja</string>
