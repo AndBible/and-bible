@@ -26,6 +26,114 @@ class WindowsAppIdentityTest {
         assertEquals(listOf("DisplayName=AndBible", "IconUri=${dir.resolve("app/resources/andbible.ico")}", "CustomActivator={C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}", "=\"${dir.resolve("AndBible.exe")}\" -ToastActivated", "process=$ANDBIBLE_AUMID"), calls)
     }
 
+    @Test fun missingJpackagePathSkipsRegistryButKeepsProcessIdentity() {
+        val calls = mutableListOf<String>()
+        val result = applyWindowsIdentity(null, { false }, { calls.add("registry") }, { calls.add("process=$it") }, {})
+
+        assertTrue(result.available)
+        assertEquals(ANDBIBLE_AUMID, result.aumid)
+        assertEquals(listOf("process=$ANDBIBLE_AUMID"), calls)
+    }
+
+    @Test fun zipStartPreservesExistingMsiIdentityWhenItsTargetsStillExist() {
+        val registeredValues = mapOf(
+            "DisplayName" to "AndBible",
+            "IconUri" to "C:/Program Files/AndBible/app/resources/andbible.ico",
+            "CustomActivator" to "{C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}",
+            "" to "\"C:/Program Files/AndBible/AndBible.exe\" -ToastActivated",
+        )
+        val writes = mutableListOf<RegistryValue>()
+        val processIds = mutableListOf<String>()
+        val result = applyWindowsIdentity(
+            Paths.get("C:/Users/test/Downloads/AndBible"),
+            { false },
+            { writes += it },
+            { processIds += it },
+            {},
+            read = { value -> registeredValues[value.name] },
+            exists = { path -> path.startsWith("C:/Program Files/AndBible/") },
+        )
+
+        assertTrue(result.available)
+        assertEquals(ANDBIBLE_AUMID, result.aumid)
+        assertEquals(emptyList(), writes)
+        assertEquals(listOf(ANDBIBLE_AUMID), processIds)
+    }
+
+    @Test fun missingRegistrationAllowsZipInstallToRegisterIdentity() {
+        val writes = mutableListOf<RegistryValue>()
+        val result = applyWindowsIdentity(dir, { false }, writes::add, {}, {}, exists = { true })
+
+        assertTrue(result.available)
+        assertEquals(4, writes.size)
+        assertEquals(dir.resolve("app/resources/andbible.ico").toString(), writes.single { it.name == "IconUri" }.value)
+    }
+
+    @Test fun staleRegistrationAllowsZipInstallToReplaceIdentity() {
+        val values = mapOf(
+            "IconUri" to "C:/Old/AndBible/app/resources/andbible.ico",
+            "" to "\"C:/Old/AndBible/AndBible.exe\" -ToastActivated",
+        )
+        val writes = mutableListOf<RegistryValue>()
+        val result = applyWindowsIdentity(
+            dir,
+            { false },
+            writes::add,
+            {},
+            {},
+            read = { values[it.name] },
+            exists = { it.startsWith(dir.toString()) },
+        )
+
+        assertTrue(result.available)
+        assertEquals(4, writes.size)
+        assertEquals(dir.resolve("app/resources/andbible.ico").toString(), writes.single { it.name == "IconUri" }.value)
+    }
+
+    @Test fun sameInstallRefreshesItsRegistration() {
+        val values = mapOf(
+            "IconUri" to dir.resolve("app/resources/andbible.ico").toString(),
+            "" to "\"${dir.resolve("AndBible.exe")}\" -ToastActivated",
+        )
+        val writes = mutableListOf<RegistryValue>()
+        applyWindowsIdentity(dir, { false }, writes::add, {}, {}, read = { values[it.name] }, exists = { true })
+
+        assertEquals(4, writes.size)
+    }
+
+    @Test fun validMsiTargetsWithWrongActivatorRepairMetadataWithoutReplacingTargets() {
+        val icon = "C:/Program Files/AndBible/app/resources/andbible.ico"
+        val executable = "C:/Program Files/AndBible/AndBible.exe"
+        val values = mapOf("IconUri" to icon, "" to "\"$executable\" -ToastActivated", "CustomActivator" to "{wrong-clsid}")
+        val writes = mutableListOf<RegistryValue>()
+
+        applyWindowsIdentity(
+            Paths.get("C:/Users/test/Downloads/AndBible"),
+            { false },
+            writes::add,
+            {},
+            {},
+            read = { values[it.name] },
+            exists = { true },
+        )
+
+        assertEquals(listOf("DisplayName", "CustomActivator"), writes.map { it.name })
+        assertEquals("{C8B03B6B-3F3A-4F8E-9A57-24A610C03A13}", writes.single { it.name == "CustomActivator" }.value)
+    }
+
+    @Test fun sameWindowsInstallPathWithDifferentCaseRefreshesRegistration() {
+        val icon = dir.resolve("app/resources/andbible.ico").toString().replace("AndBible", "ANDBIBLE")
+        val executable = dir.resolve("AndBible.exe").toString().replace("AndBible", "ANDBIBLE")
+        val values = mapOf("IconUri" to icon, "" to "\"$executable\" -ToastActivated")
+        val writes = mutableListOf<RegistryValue>()
+
+        applyWindowsIdentity(dir, { false }, writes::add, {}, {}, read = { values[it.name] }, exists = { true })
+
+        assertEquals(4, writes.size)
+        assertEquals(dir.resolve("app/resources/andbible.ico").toString(), writes.single { it.name == "IconUri" }.value)
+        assertEquals("\"${dir.resolve("AndBible.exe")}\" -ToastActivated", writes.single { it.name == "" }.value)
+    }
+
     @Test fun identityFailureIsLoggedAndUnavailable() {
         val errors = mutableListOf<String>()
         val result = applyWindowsIdentity(dir, { false }, { error("registry failed") }, {}, { errors.add(it) })

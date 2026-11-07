@@ -142,6 +142,63 @@ class WindowsToastNotifierTest {
     }
 
     @Test
+    fun failedInitializationIsThrottledThenRetriedAndReused() {
+        val api = FakeApi()
+        var attempts = 0
+        var now = 0L
+        val notifier = WindowsToastNotifier({
+            attempts++
+            if (attempts == 1) error("unavailable")
+            api
+        }, { it.run() }, log = {}, clockNanos = { now })
+        try {
+            repeat(3) { notifier.show(notification()) }
+            now = 4_999_999_999L
+            notifier.show(notification())
+            assertEquals(1, attempts)
+            now = 5_000_000_000L
+            notifier.show(notification())
+            notifier.show(notification(progress = 2))
+            assertEquals(2, attempts)
+            assertEquals(listOf("show:job:andbible", "update:job:andbible"), api.calls)
+        } finally { notifier.close() }
+    }
+
+    @Test
+    fun closeClearsRemovedStateOnQueuedOwnerCleanup() {
+        val queued = mutableListOf<Runnable>()
+        val notifier = WindowsToastNotifier({ FakeApi() }, { it.run() }, cleanupThread = { queued += it })
+        notifier.remove("job")
+        val removed = WindowsToastNotifier::class.java.getDeclaredField("removed").apply { isAccessible = true }
+            .get(notifier) as Set<*>
+        assertEquals(setOf("job"), removed)
+        notifier.close()
+        assertEquals(setOf("job"), removed, "caller cleared owner state before cleanup")
+        queued.single().run()
+        assertTrue(removed.isEmpty())
+    }
+
+    @Test
+    fun callsAfterPumpErrorThrowFreshWrappersWithOriginalCause() {
+        val failure = AssertionError("pump failed")
+        val reported = CountDownLatch(1)
+        val pump = object : MessagePump {
+            override fun run(drain: () -> Unit) { throw failure }
+            override fun wake() = Unit
+            override fun quit() = Unit
+        }
+        val sta = StaThread("failed-pump-wrapper", pump, onFailure = { reported.countDown() })
+        try {
+            assertTrue(reported.await(1, TimeUnit.SECONDS))
+            val first = kotlin.test.assertFailsWith<IllegalStateException> { sta.call { Unit } }
+            val second = kotlin.test.assertFailsWith<IllegalStateException> { sta.call { Unit } }
+            kotlin.test.assertSame(failure, first.cause)
+            kotlin.test.assertSame(failure, second.cause)
+            kotlin.test.assertNotSame(first, second)
+        } finally { sta.closeAndJoin(500) }
+    }
+
+    @Test
     fun dismissedProgressIsNotResurrectedByFurtherProgress() {
         val api = FakeApi()
         val notifier = WindowsToastNotifier({ api }, { it.run() })
@@ -281,7 +338,8 @@ class WindowsToastNotifierTest {
                 assertTrue(callerDone.await(1, TimeUnit.SECONDS), "queued call was stranded by dead pump")
                 repeat(100) { assertFalse(sta.post { ran = true }, "dead owner accepted work") }
                 assertFalse(ran)
-                assertTrue(callFailure != null)
+                assertTrue(callFailure is IllegalStateException)
+                kotlin.test.assertSame(reports.single(), callFailure?.cause)
                 assertEquals(listOf("pump failed"), reports.map { it.message })
                 assertFalse(sta.awaitStarted(50) && !afterStart)
             } finally { release.countDown(); sta.closeAndJoin(500); caller.join(500) }

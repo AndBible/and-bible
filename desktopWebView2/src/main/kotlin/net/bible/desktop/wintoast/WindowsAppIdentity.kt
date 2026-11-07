@@ -9,20 +9,41 @@ import com.sun.jna.win32.StdCallLibrary
 import com.sun.jna.win32.W32APIOptions
 import net.bible.sharedcore.log.Log
 import net.bible.sharedui.desktop.assembly.DesktopNotifierSource
+import java.nio.file.Files
 import java.nio.file.Path
 
 data class WindowsIdentityResult(val available: Boolean, val aumid: String?)
 
+private fun serverExecutable(command: String): String? =
+    Regex("^\\\"([^\\\"]+)\\\"\\s+-ToastActivated$").matchEntire(command)?.groupValues?.get(1)
+
 internal fun applyWindowsIdentity(
-    installDir: Path,
+    installDir: Path?,
     packaged: () -> Boolean,
     write: (RegistryValue) -> Unit,
     setProcessId: (String) -> Unit,
     log: (String) -> Unit,
+    read: (RegistryValue) -> String? = { null },
+    exists: (String) -> Boolean = { false },
 ): WindowsIdentityResult = try {
     if (packaged()) WindowsIdentityResult(true, null)
     else {
-        aumidRegistryPlan(false, installDir.resolve("app/resources/andbible.ico").toString(), installDir.resolve("AndBible.exe").toString()).forEach(write)
+        if (installDir != null) {
+            val iconPath = installDir.resolve("app/resources/andbible.ico").toString()
+            val executable = installDir.resolve("AndBible.exe").toString()
+            val plan = aumidRegistryPlan(false, iconPath, executable)
+            val existingIcon = read(plan.first { it.name == "IconUri" })
+            val server = plan.last()
+            val existingServer = read(server)
+            val existingExecutable = existingServer?.let(::serverExecutable)
+            val registeredTargetsExist = existingIcon != null && existingExecutable != null &&
+                exists(existingIcon) && exists(existingExecutable)
+            when {
+                !registeredTargetsExist -> plan.forEach(write)
+                existingExecutable.equals(executable, ignoreCase = true) -> plan.forEach(write)
+                else -> plan.take(3).filter { it.name != "IconUri" && read(it) != it.value }.forEach(write)
+            }
+        }
         setProcessId(ANDBIBLE_AUMID)
         WindowsIdentityResult(true, ANDBIBLE_AUMID)
     }
@@ -52,7 +73,7 @@ object WindowsAppIdentity {
         }
     }
 
-    fun resolve(installDir: Path): WindowsIdentityResult = applyWindowsIdentity(
+    fun resolve(installDir: Path?): WindowsIdentityResult = applyWindowsIdentity(
         installDir, ::isPackaged,
         { value ->
             val key = value.key.removePrefix("HKCU\\")
@@ -65,6 +86,13 @@ object WindowsAppIdentity {
             check(hr >= 0) { "SetCurrentProcessExplicitAppUserModelID failed: $hr" }
         },
         { Log.w("WindowsToast", it) },
+        read = { value ->
+            val key = value.key.removePrefix("HKCU\\")
+            if (Advapi32Util.registryValueExists(WinReg.HKEY_CURRENT_USER, key, value.name)) {
+                Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER, key, value.name)
+            } else null
+        },
+        exists = { Files.exists(Path.of(it)) },
     )
 
     fun apply(installDir: Path): String? = resolve(installDir).aumid

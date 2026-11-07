@@ -58,8 +58,12 @@ class StaThread(
                 failure = error
                 terminated = true
                 queue.clear()
-                val cause = error ?: IllegalStateException("StaThread stopped")
-                pending.forEach { it.completeExceptionally(cause) }
+                pending.forEach {
+                    it.completeExceptionally(
+                        if (error != null) IllegalStateException("COM message pump failed", error)
+                        else IllegalStateException("StaThread stopped")
+                    )
+                }
                 pending.clear()
                 started.countDown()
             }
@@ -87,7 +91,7 @@ class StaThread(
         if (isCurrent) return task()
         val result = CompletableFuture<T>()
         synchronized(lifecycleLock) {
-            failure?.let { throw it }
+            failure?.let { throw IllegalStateException("COM message pump failed", it) }
             check(!closed && !terminated) { "StaThread is stopped" }
             pending += result
             queue.add(Runnable {
