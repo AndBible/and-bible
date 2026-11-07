@@ -19,6 +19,7 @@ package net.bible.android.view.activity.page
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -191,20 +192,69 @@ class OptionsMenuStateBuilderTest {
         } finally { state.available = false }
     }
 
-    @Test fun realSyncNowDispatchReportsOfflineWithoutStarting() {
-        val network = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
-        network.available = false
-        val sync = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNow>()
-        val messages = mutableListOf<net.bible.android.control.event.UserMessage>()
-        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+    @Test fun networkCallbackCanChangeTheManualSyncNetworkDecision() {
+        val koin = org.koin.mp.KoinPlatform.getKoin()
+        val networkState = koin.get<SyncNetworkState>()
+        val ports = koin.get<net.bible.service.cloudsync.SyncNowPorts>()
+        val bootstrap = activity.readingAppBootstrap
+        val previousNetwork = networkState.available
+        val previousPaused = bootstrap.hostPaused
+        val network = org.mockito.Mockito.mock(android.net.Network::class.java)
         try {
+            bootstrap.hostPaused = true
+            networkState.available = false
+            assertFalse(ports.networkAvailable())
+            bootstrap.networkCallback.onAvailable(network)
+            assertTrue(ports.networkAvailable(), "callback can invalidate an earlier offline snapshot")
+            bootstrap.networkCallback.onLost(network)
+            assertFalse(ports.networkAvailable())
+        } finally {
+            bootstrap.hostPaused = previousPaused
+            networkState.available = previousNetwork
+        }
+    }
+
+    @Test fun realSyncNowDispatchReportsOfflineWithoutStarting() = kotlinx.coroutines.test.runTest {
+        val operations = mutableListOf<String>()
+        val messages = mutableListOf<net.bible.android.control.event.UserMessage>()
+        val cloud = object : net.bible.service.cloudsync.CloudSyncPort {
+            override val signedIn = false
+            override val runningChanged = net.bible.sharedcore.event.EventSource<Boolean>()
+            override suspend fun signIn(): Boolean { operations.add("signIn"); return true }
+            override fun start(): kotlinx.coroutines.Deferred<Boolean> {
+                operations.add("start")
+                return kotlinx.coroutines.CompletableDeferred(true)
+            }
+            override suspend fun waitUntilFinished() { operations.add("wait") }
+        }
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        val realPorts = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNowPorts>()
+        val ports = net.bible.service.cloudsync.SyncNowPorts(
+            saveWorkspace = { operations.add("save") },
+            networkAvailable = { false },
+            noNetwork = realPorts.noNetwork,
+        )
+        val sync = net.bible.service.cloudsync.SyncNow(
+            cloud, net.bible.sharedcore.event.EventSource(), { true }, ports.saveWorkspace,
+            ports.networkAvailable, { false }, ports.noNetwork, this,
+            cloudRunningState = kotlinx.coroutines.flow.MutableStateFlow(false),
+            documentRunningState = kotlinx.coroutines.flow.MutableStateFlow(false),
+        )
+        try {
+            assertFalse(sync.running.value)
+            var dispatchCalls = 0
             val stayOpen = OptionsMenuStateBuilder.dispatch(
                 activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",
+                startSyncNow = { dispatchCalls++; sync.start() },
             )
+            runCurrent()
             assertFalse(stayOpen)
+            assertEquals(1, dispatchCalls)
             assertFalse(sync.running.value)
-            assertEquals(net.bible.android.control.event.UserMessage.Toast("No network connection", null, false), messages.last())
+            assertEquals(emptyList(), operations)
+            assertEquals(listOf<net.bible.android.control.event.UserMessage>(net.bible.android.control.event.UserMessage.Toast("No network connection", null, false)), messages)
         } finally {
+            sync.close()
             subscription.cancel()
         }
     }
