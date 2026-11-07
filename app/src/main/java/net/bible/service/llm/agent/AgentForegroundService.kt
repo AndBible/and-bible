@@ -167,7 +167,8 @@ class AgentForegroundService : Service(), KoinComponent {
                 // another workspace), and stopping runs onDestroy -> scope.cancel(). Only LiveRuns (a run's
                 // finally) and an explicit cancel stop the service. A stop() cancels the winning run's job, whose
                 // finally then stops the service once no run is left.
-                is AgentSessionChange.StatusChanged -> Unit
+                is AgentSessionChange.StatusChanged, is AgentSessionChange.UserDecisionPending,
+                is AgentSessionChange.SessionCleared -> Unit
             }
         })
     }

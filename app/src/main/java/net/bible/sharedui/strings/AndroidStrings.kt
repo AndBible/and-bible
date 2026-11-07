@@ -452,6 +452,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun docFilterResults(count: Int): String = context.getString(R.string.document_filter_results, count)
     override fun activityShowAll(count: Int): String = context.getString(R.string.activity_show_all, count)
     override fun activityFailedBadge(count: Int): String = context.getString(R.string.activity_failed_badge, count)
+    override fun activityAttentionBadge(count: Int): String = context.getString(R.string.activity_attention_badge, count)
+    override fun activityCombinedBadge(failed: Int, attention: Int): String = context.getString(R.string.activity_combined_badge, failed, attention)
     override val activityRunningDescription: String get() = context.getString(R.string.activity_running_description)
     override val activityRunning: String get() = context.getString(R.string.activity_running)
     override val activityRecent: String get() = context.getString(R.string.activity_recent)

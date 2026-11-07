@@ -4,6 +4,7 @@ net.bible.android.control.activity.ActivityCenter::_root_
 net.bible.android.control.activity.ActivityListRequests::_root_
 net.bible.android.control.activity.ActivityMenuPreference::_root_
 net.bible.android.control.activity.ActivityReporter::_root_
+net.bible.android.control.activity.AgentActivitySource::_root_
 net.bible.android.control.activity.DownloadActivitySource::_root_
 net.bible.android.control.activity.JobActivitySource::_root_
 net.bible.android.control.activity.SyncActivitySource::_root_

@@ -22,6 +22,18 @@ class ActivityCenterTest {
     }
 
     @Test
+    fun attentionCountsUntilClearedEvenWhenMarkedRead() = runTest {
+        val c = center()
+        c.start("agent", ActivityKind.AI_AGENT, "Agent")
+        c.setAttention("agent", true)
+        assertEquals(1, c.unreadFailures.value)
+        c.markAllRead()
+        assertEquals(1, c.unreadFailures.value)
+        c.setAttention("agent", false)
+        assertEquals(0, c.unreadFailures.value)
+    }
+
+    @Test
     fun runningItemHiddenForFirstSecond() = runTest {
         val c = center()
         c.start("a", ActivityKind.DOWNLOAD, "A")

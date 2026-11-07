@@ -792,6 +792,13 @@ class HostReadingHost(
             center, preference,
             syncNow = koin.get(),
             reporter = koin.getOrNull(),
+            onOpenAgent = { id -> scope.launch {
+                if (currentWorkspaceId() != id) quickActions.switchToWorkspace(id.toString())
+                if (currentWorkspaceId() == id) {
+                    agentSessionService.refresh()
+                    if (currentWorkspaceId() == id) agentLog.show()
+                }
+            } },
             onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
             listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
         )

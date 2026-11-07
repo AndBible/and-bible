@@ -50,9 +50,14 @@ class NativeNotificationPolicy(
     private val enabled: StateFlow<Boolean>,
     private val clock: () -> Long,
     private val scope: CoroutineScope,
+    private val attentionText: (() -> String)?,
     private val finishedText: () -> String,
 ) {
-    private enum class Shown { PROGRESS, FINAL }
+    constructor(items: StateFlow<List<ActivityItem>>, notifier: NativeNotifier, foreground: AppForeground,
+                enabled: StateFlow<Boolean>, clock: () -> Long, scope: CoroutineScope, finishedText: () -> String) :
+        this(items, notifier, foreground, enabled, clock, scope, null, finishedText)
+
+    private enum class Shown { PROGRESS, ATTENTION, FINAL }
 
     private class ProgressShown(val progress: Int?, val message: String?, val at: Long)
 
@@ -61,7 +66,7 @@ class NativeNotificationPolicy(
     private val closed = MutableStateFlow(false)
     @Volatile private var job: Job? = null
 
-    /** Ids currently shown as PROGRESS: an immutable snapshot published by the collector so [close] can read it on any thread. */
+    /** Transient notification ids, published so [close] can remove them on any thread. */
     @Volatile private var progressIds: Set<String> = emptySet()
     @Volatile private var isClosed = false
 
@@ -79,6 +84,7 @@ class NativeNotificationPolicy(
     private val firstSeenRunningAt = mutableMapOf<String, Long>()
     private var wasEnabled = true
     private var needBaseline = false
+    private var previousForeground = false
     @Volatile private var wakeJob: Job? = null
     private val loggedFailures = mutableSetOf<String>()
 
@@ -98,7 +104,7 @@ class NativeNotificationPolicy(
     fun onForegroundChanged(foreground: Boolean) { inForeground.value = foreground }
 
     /**
-     * Stops collecting and removes the progress notifications shown so far, synchronously on the calling thread, so it is
+     * Stops collecting and removes progress and attention notifications synchronously on the calling thread, so it is
      * reliable when the scope is cancelled or the JVM exits right after. Notifier calls are non-blocking by the port
      * contract, but do not call this on the AWT/Compose thread. Idempotent.
      */
@@ -126,6 +132,8 @@ class NativeNotificationPolicy(
         if (isClosed || input.closed) return false
         wakeJob?.cancel()
         wakeJob = null
+        val backgroundTransition = previousForeground && !input.fg
+        previousForeground = input.fg
         if (!input.on) {
             if (wasEnabled) {
                 removeWhere { true }
@@ -159,24 +167,33 @@ class NativeNotificationPolicy(
             val prev = lastSeen[item.id]
             lastSeen[item.id] = item
             if (item.state == ActivityState.RUNNING) firstSeenRunningAt.getOrPut(item.id) { now }
+            if (item.state == ActivityState.RUNNING && !item.attention && shown[item.id] == Shown.ATTENTION) {
+                dropShown(item.id)
+                firstSeenRunningAt[item.id] = now
+            }
             when (item.state) {
                 ActivityState.FAILED -> if (prev?.state != ActivityState.FAILED || prev.finishedAt != item.finishedAt || prev.failureOccurrence != item.failureOccurrence || (prev.read && !item.read)) {
                     if (!input.fg || item.backgroundFailure) {
                         val body = item.message?.let { if (it == item.title) "" else it.removePrefix("${item.title}: ") } ?: ""
                         showNotification(item, body, null, urgent = true, Shown.FINAL)
-                    }
+                    } else if (shown[item.id] == Shown.ATTENTION) dropShown(item.id)
                 }
                 ActivityState.SUCCEEDED -> if (prev?.state != ActivityState.SUCCEEDED) {
                     val finishedAt = item.finishedAt
                     val long = finishedAt != null && finishedAt - item.startedAt >= LONG_JOB_MS
                     if (item.kind != ActivityKind.SYNC && long && !input.fg) {
                         showNotification(item, finishedText(), null, urgent = false, Shown.FINAL)
-                    } else if (shown[item.id] == Shown.PROGRESS) {
+                    } else if (shown[item.id] == Shown.PROGRESS || shown[item.id] == Shown.ATTENTION) {
                         dropShown(item.id)
                     }
                 }
                 ActivityState.CANCELLED -> if (shown.containsKey(item.id)) dropShown(item.id)
-                ActivityState.RUNNING -> if (notifier.supportsProgress && !input.fg) {
+                ActivityState.RUNNING -> if (item.attention) {
+                    if (input.fg && shown[item.id] == Shown.PROGRESS) dropShown(item.id)
+                    if (!input.fg && (prev?.attention != true || prev.state != ActivityState.RUNNING || backgroundTransition) && shown[item.id] != Shown.ATTENTION) {
+                        showNotification(item, item.message ?: "", null, urgent = true, Shown.ATTENTION)
+                    }
+                } else if (notifier.supportsProgress && !input.fg) {
                     val due = firstSeenRunningAt.getValue(item.id) + LONG_JOB_MS
                     val last = progressShown[item.id]
                     when {
@@ -221,10 +238,11 @@ class NativeNotificationPolicy(
         synchronized(closeLock) { // L1-common-ok: atomicfu lock
             if (isClosed) return
             shown[item.id] = kind
-            if (kind == Shown.FINAL) progressShown.remove(item.id)
+            if (kind != Shown.PROGRESS) progressShown.remove(item.id)
             publishProgressIds()
             guarded("show") {
-                notifier.show(NativeNotification(ID_PREFIX + item.id, item.title, body, progress, progress == null && kind == Shown.PROGRESS, urgent))
+                val title = if (kind == Shown.ATTENTION) attentionText?.invoke() ?: item.title else item.title
+                notifier.show(NativeNotification(ID_PREFIX + item.id, title, body, progress, progress == null && kind == Shown.PROGRESS, urgent))
             }
         }
     }
@@ -236,7 +254,7 @@ class NativeNotificationPolicy(
         removeNotification(id)
     }
 
-    private fun publishProgressIds() { progressIds = shown.filterValues { it == Shown.PROGRESS }.keys.toSet() }
+    private fun publishProgressIds() { progressIds = shown.filterValues { it == Shown.PROGRESS || it == Shown.ATTENTION }.keys.toSet() }
 
     private fun removeWhere(predicate: (Shown) -> Boolean) {
         shown.filterValues(predicate).keys.forEach { dropShown(it) }

@@ -462,6 +462,8 @@ interface Strings {
     fun docFilterResults(count: Int): String
     fun activityShowAll(count: Int): String       // R.string.activity_show_all
     fun activityFailedBadge(count: Int): String   // R.string.activity_failed_badge
+    fun activityAttentionBadge(count: Int): String // R.string.activity_attention_badge
+    fun activityCombinedBadge(failed: Int, attention: Int): String // R.string.activity_combined_badge
     val activityRunningDescription: String        // R.string.activity_running_description
     val activityRunning: String                   // R.string.activity_running
     val activityRecent: String                    // R.string.activity_recent

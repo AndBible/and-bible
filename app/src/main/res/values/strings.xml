@@ -435,6 +435,8 @@
     <string name="document_filter_results">%d documents</string>
     <string name="activity_show_all">Show all (%1$d)</string>
     <string name="activity_failed_badge">%1$d failed</string>
+    <string name="activity_attention_badge">%1$d need attention</string>
+    <string name="activity_combined_badge">%1$d failed, %2$d need attention</string>
     <string name="activity_running_description">Background work running</string>
     <string name="activity_running">Running</string>
     <string name="activity_recent">Recent</string>
@@ -2001,6 +2003,12 @@
     <string name="agent_log_response_received">Response received</string>
     <string name="agent_log_saved">Saved: %s</string>
     <string name="agent_log_done">Done: %s</string>
+    <string name="agent_activity_title">AI agent</string>
+    <string name="agent_activity_title_in">AI agent: %s</string>
+    <string name="agent_activity_waiting">Waiting for your permission</string>
+    <string name="agent_activity_waiting_for">Waiting for your permission: %s</string>
+    <string name="agent_activity_failed">AI agent failed</string>
+    <string name="agent_activity_permission_needed">AI agent needs your permission</string>
     <string name="agent_log_cancelled">Cancelled</string>
     <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
 

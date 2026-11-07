@@ -47,7 +47,8 @@ class NativeNotificationPolicyTest {
         val foreground = MutableStateFlow(fg)
         val enabled = MutableStateFlow(on)
         val policy = NativeNotificationPolicy(
-            items, notifier, { foreground.value }, enabled, { scope.currentTime }, scope.backgroundScope, { "Finished" },
+            items, notifier, { foreground.value }, enabled, { scope.currentTime }, scope.backgroundScope,
+            { "Localized permission" }, { "Finished" },
         ).also { it.start() }
 
         fun setForeground(v: Boolean) { foreground.value = v; policy.onForegroundChanged(v) }
@@ -63,6 +64,87 @@ class NativeNotificationPolicyTest {
         id: String = "a", state: ActivityState = ActivityState.RUNNING, kind: ActivityKind = ActivityKind.DOWNLOAD,
         progress: Int? = null, started: Long = 0, finished: Long? = null, message: String? = null,
     ) = ActivityItem(id, kind, "T-$id", state, progress, message, null, started, finished, true)
+
+    @Test
+    fun attentionInBackgroundNotifiesOnceAndClears() = runTest {
+        val f = fixture()
+        val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow tool?").copy(attention = true)
+        f.set(waiting); runCurrent()
+        assertEquals(1, f.notifier.shows.size)
+        f.notifier.shows.single().let { assertTrue(it.urgent); assertEquals("Localized permission", it.title); assertEquals("Allow tool?", it.body) }
+        advance(20_000)
+        assertEquals(1, f.notifier.shows.size)
+        f.set(waiting.copy(attention = false)); runCurrent()
+        assertEquals("remove:andbible-a", f.notifier.calls.last())
+        f.set(waiting); runCurrent()
+        assertEquals(2, f.notifier.shows.size)
+    }
+
+    @Test
+    fun progressIsReplacedByAttentionAndResumesAfterResolution() = runTest {
+        val f = fixture()
+        val running = item(kind = ActivityKind.AI_AGENT, progress = 25, message = "Working")
+        f.set(running); runCurrent()
+        advance(10_000)
+        f.notifier.shows.single().let { assertEquals(25, it.progress); assertTrue(!it.urgent) }
+
+        f.set(running.copy(attention = true, message = "Allow tool?")); runCurrent()
+        assertEquals(listOf("show:andbible-a", "show:andbible-a"), f.notifier.calls)
+        f.notifier.shows.last().let {
+            assertEquals("andbible-a", it.id); assertTrue(it.urgent)
+            assertNull(it.progress); assertEquals("Allow tool?", it.body)
+        }
+        advance(70_000)
+        assertEquals(2, f.notifier.shows.size)
+
+        f.set(running.copy(progress = 50)); runCurrent()
+        assertEquals("remove:andbible-a", f.notifier.calls.last())
+        advance(9_999)
+        assertEquals(2, f.notifier.shows.size)
+        advance(1)
+        f.notifier.shows.last().let { assertEquals(50, it.progress); assertTrue(!it.urgent) }
+        assertEquals(3, f.notifier.shows.size)
+    }
+
+    @Test
+    fun pendingAttentionNotifiesOnBackgroundAndIsRemovedOnClose() = runTest {
+        val f = fixture(fg = true)
+        f.set(item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)); runCurrent()
+        assertTrue(f.notifier.shows.isEmpty())
+        f.setForeground(false); runCurrent()
+        assertEquals(1, f.notifier.shows.size)
+        f.policy.close()
+        assertEquals("remove:andbible-a", f.notifier.calls.last())
+    }
+
+    @Test
+    fun attentionFailureReplacesItAndPreferenceDoesNotReplay() = runTest {
+        val f = fixture()
+        val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)
+        f.set(waiting); runCurrent()
+        f.set(waiting.copy(state = ActivityState.FAILED, attention = false, message = "failed")); runCurrent()
+        assertEquals(listOf("show:andbible-a", "show:andbible-a"), f.notifier.calls)
+        f.policy.close()
+        assertEquals(2, f.notifier.calls.size)
+
+        val g = fixture()
+        g.set(waiting); runCurrent()
+        g.enabled.value = false; runCurrent()
+        g.enabled.value = true; runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), g.notifier.calls)
+    }
+
+    @Test
+    fun attentionDisappearsOnCancellationOrShortSuccess() = runTest {
+        val f = fixture()
+        val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)
+        f.set(waiting); runCurrent()
+        f.set(waiting.copy(state = ActivityState.CANCELLED)); runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
+        f.set(waiting); runCurrent()
+        f.set(waiting.copy(state = ActivityState.SUCCEEDED, finishedAt = 100)); runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a", "show:andbible-a", "remove:andbible-a"), f.notifier.calls)
+    }
 
     @Test
     fun failureNotifiesUrgentEvenInForeground() = runTest {

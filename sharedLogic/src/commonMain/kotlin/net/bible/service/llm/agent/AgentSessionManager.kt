@@ -95,6 +95,15 @@ sealed interface AgentSessionChange {
         val stopReason: AgentStopReason? = null,
     ) : AgentSessionChange
 
+    /** An unresolved dialog, identified independently of background notification state. */
+    data class UserDecisionPending(
+        override val workspaceId: IdType,
+        val waiting: Boolean,
+        val toolName: String? = null,
+        val decisionId: IdType? = null,
+    ) : AgentSessionChange
+    data class SessionCleared(override val workspaceId: IdType) : AgentSessionChange
+
     /** The agent waits for an Activity to ask the user, or stopped waiting. */
     data class PermissionWaiting(
         override val workspaceId: IdType,
@@ -133,10 +142,15 @@ class AgentSession(
     var rawLlmLog: RawLlmLog? = null
         private set
 
-    private val running = atomic(false)
+    private enum class Lifecycle { IDLE, STARTING, RUNNING, STOPPING }
+    private val lifecycleLock = kotlinx.atomicfu.locks.SynchronizedObject()
+    private var lifecycle = Lifecycle.IDLE
+    private var pendingStop: Pair<String?, AgentStopReason>? = null
 
-    /** True between a successful [tryStart] and [stop]. */
-    val isRunning: Boolean get() = running.value
+    /** False as soon as stopping begins; the start gate remains closed through terminal delivery. */
+    val isRunning: Boolean get() = kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+        (lifecycle == Lifecycle.STARTING && pendingStop == null) || lifecycle == Lifecycle.RUNNING
+    }
 
     /** Cumulative session cost in USD, updated on each API call. */
     @Volatile
@@ -160,29 +174,59 @@ class AgentSession(
      * start is announced, so a losing call can never replace it and [stop] always reaches the run that won.
      */
     fun tryStart(context: AgentContext, job: Job? = null): Boolean {
-        if (!running.compareAndSet(false, true)) return false
-        this.job = job
-        this.context = context
-        this.sessionCostUsd = 0.0
-        _logEntries.clear()
-        rawLlmLog = RawLlmLog()
-        addLogEntry(AgentLogEntry.info("Agent started"))
-        emit(AgentSessionChange.StatusChanged(workspaceId, true))
+        kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+            if (lifecycle != Lifecycle.IDLE) return false
+            lifecycle = Lifecycle.STARTING
+            this.job = job
+            this.context = context
+            this.sessionCostUsd = 0.0
+            _logEntries.clear()
+            rawLlmLog = RawLlmLog()
+        }
+        try {
+            emit(AgentSessionChange.StatusChanged(workspaceId, true))
+            addLogEntry(AgentLogEntry.info("Agent started"))
+        } finally {
+            val stop = kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+                val request = pendingStop
+                pendingStop = null
+                lifecycle = if (request == null) Lifecycle.RUNNING else Lifecycle.STOPPING
+                request
+            }
+            if (stop != null) finishStop(stop.first, stop.second)
+        }
         return true
     }
 
-    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
-        if (message != null) {
-            val hasRawLog = rawLlmLog?.isEmpty() == false
-            addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
+    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED, owner: Job? = null) {
+        kotlinx.atomicfu.locks.synchronized(lifecycleLock) {
+            if (owner != null && job !== owner) return
+            when (lifecycle) {
+                Lifecycle.STARTING -> {
+                    if (pendingStop == null) pendingStop = message to reason
+                    return
+                }
+                Lifecycle.RUNNING -> lifecycle = Lifecycle.STOPPING
+                else -> return
+            }
         }
-        // F134: unbind and cancel the job before releasing `running`. Once it is false a new winner can bind its
-        // own job in tryStart; nulling afterwards would unbind that one.
-        val stopped = this.job
-        this.job = null
-        stopped?.cancel()
-        running.value = false
-        emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
+        finishStop(message, reason)
+    }
+
+    private fun finishStop(message: String?, reason: AgentStopReason) {
+        try {
+            if (message != null) {
+                val hasRawLog = rawLlmLog?.isEmpty() == false
+                addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
+            }
+            // Reentrant starts and duplicate stops cannot publish before terminal delivery finishes.
+            val stopped = this.job
+            this.job = null
+            stopped?.cancel()
+            emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
+        } finally {
+            kotlinx.atomicfu.locks.synchronized(lifecycleLock) { lifecycle = Lifecycle.IDLE }
+        }
     }
 
     fun addLogEntry(entry: AgentLogEntry) {
@@ -251,6 +295,21 @@ object AgentSessionManager : AgentSessionManagerBase() {
     fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
         emitChange(AgentSessionChange.PermissionWaiting(workspaceId, waiting, toolName))
 
+    /** Announces an unresolved decision across both foreground acquisition and dialog interaction. */
+    suspend fun <T> withPendingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
+        if (workspaceId == null) return block()
+        val decisionId = IdType()
+        emitChange(AgentSessionChange.UserDecisionPending(workspaceId, true, toolName, decisionId))
+        try {
+            return block()
+        } finally {
+            emitChange(AgentSessionChange.UserDecisionPending(workspaceId, false, decisionId = decisionId))
+        }
+    }
+
+    suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T =
+        withPendingUserDecision(workspaceId, toolName) { awaitDecisionDialog(workspaceId, toolName, block) }
+
     /**
      * Runs [block], a user dialog the agent is blocked on, and mirrors the app leaving and returning
      * into [AgentSessionChange.PermissionWaiting]. Why: `AgentExecutor.awaitActivity` only announces a
@@ -270,7 +329,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * State is a CAS tri-state (IDLE / ANNOUNCED / CLOSED), so no thread assumption is needed and a
      * handler running after close can never emit.
      */
-    suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
+    suspend fun <T> awaitDecisionDialog(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
         val state = atomic(DECISION_IDLE)
         fun close(emitFalse: Boolean) {
@@ -289,20 +348,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
             state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) {
             notifyPermissionWaiting(workspaceId, true, toolName)
         }
-        val result = try {
-            block()
+        var cancelled = false
+        try {
+            return block()
         } catch (e: CancellationException) {
-            subscription.cancel()
-            state.value = DECISION_CLOSED
+            cancelled = true
             throw e
-        } catch (e: Throwable) {
+        } finally {
             subscription.cancel()
-            close(emitFalse = true)
-            throw e
+            close(emitFalse = !cancelled)
         }
-        subscription.cancel()
-        close(emitFalse = true)
-        return result
     }
 
     private const val DECISION_IDLE = 0
@@ -358,6 +413,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.clearLog()
             }
             activeSessions.remove(workspaceId)
+            emitChange(AgentSessionChange.SessionCleared(workspaceId))
         }
     }
 
@@ -408,7 +464,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
         // Start session (prevent concurrent runs; F122: atomically)
         val session = getOrCreateSession(workspaceId)
-        if (!session.tryStart(context, currentCoroutineContext()[Job])) {
+        val runJob = currentCoroutineContext()[Job]
+        if (!session.tryStart(context, runJob)) {
             withContext(Dispatchers.Main) {
                 platform.showShortMessage(strings.agentAlreadyRunning)
             }
@@ -418,7 +475,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             onStarted()
         } catch (e: Exception) {
             // The session is already marked running; without a stop() every later run reports "already running".
-            session.stop()
+            session.stop(owner = runJob)
             throw e
         }
 
@@ -435,11 +492,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         } catch (e: CancellationException) {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
             // Ensure the session is properly stopped so the UI reflects cancellation.
-            if (session.isRunning) {
-
-                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled))
-                session.stop()
-            }
+            session.stop(strings.agentLogCancelled, owner = runJob)
             throw e
         }
         return true

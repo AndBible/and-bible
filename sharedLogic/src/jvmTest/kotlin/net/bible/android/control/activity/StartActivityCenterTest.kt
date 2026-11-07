@@ -61,6 +61,12 @@ class StartActivityCenterTest {
                 single<HtmlToPlainText> { HtmlToPlainText { it } }
                 single<ContentSource> { stub() }
                 single<CoreStrings> { strings() }
+                single<net.bible.service.llm.LlmStrings> {
+                    Proxy.newProxyInstance(net.bible.service.llm.LlmStrings::class.java.classLoader,
+                        arrayOf(net.bible.service.llm.LlmStrings::class.java)) { _, m, _ ->
+                        if (m.returnType == String::class.java) m.name else error("unexpected call: ${m.name}")
+                    } as net.bible.service.llm.LlmStrings
+                }
                 single<AppEnvironment> { stub() }
                 single<ReadingPlanSource> { stub() }
                 single<net.bible.sharedlogic.platform.LocalCalendar> { stub() }
@@ -93,6 +99,12 @@ class StartActivityCenterTest {
             } finally { job.done() }
             assertFalse(center.isRunning("job:test-start-1"))
             assertNotNull(koin.getOrNull<DownloadActivitySource>())
+            val workspace = net.bible.android.database.IdType()
+            net.bible.service.llm.agent.AgentSessionManager.emitChange(
+                net.bible.service.llm.agent.AgentSessionChange.StatusChanged(workspace, true),
+            )
+            assertTrue(center.isRunning(agentActivityId(workspace)))
+            assertNotNull(koin.getOrNull<AgentActivitySource>())
         } finally {
             koin.close()
         }

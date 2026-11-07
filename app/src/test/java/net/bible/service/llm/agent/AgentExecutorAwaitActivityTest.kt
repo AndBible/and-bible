@@ -60,6 +60,21 @@ class AgentExecutorAwaitActivityTest {
         org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AgentPlatform> { original } })
     }
 
+    @Test fun backgroundContinueDialogNeedsAttentionBeforeActivity() = runTest {
+        val decisions = mutableListOf<AgentSessionChange.UserDecisionPending>()
+        val subscription = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.UserDecisionPending) decisions += it }
+        val fn = AgentExecutor::class.declaredFunctions.first { it.name == "showContinueDialog" }.apply { isAccessible = true }
+        val waiter = launch { fn.callSuspend(AgentExecutor(), 5, 5, ws) }
+        try {
+            runCurrent()
+            assertEquals(listOf(true), decisions.map { it.waiting })
+            assertEquals(listOf(AgentSessionChange.PermissionWaiting(ws, true, null)), seen.toList())
+            waiter.cancelAndJoin()
+            assertEquals(listOf(true, false), decisions.map { it.waiting })
+            assertEquals(listOf(true, false), seen.map { it.waiting })
+        } finally { waiter.cancelAndJoin(); subscription.cancel() }
+    }
+
     @Test fun cancellingTheWaitAnnouncesItsEnd() = runTest {
         val fn = AgentExecutor::class.declaredFunctions.first { it.name == "awaitActivity" }.apply { isAccessible = true }
         val waiter = launch { fn.callSuspend(AgentExecutor(), ws, "Tool") }

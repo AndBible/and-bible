@@ -123,6 +123,18 @@ class AgentLogControllerTest {
         assertEquals(0, h.toast)
     }
 
+    @Test fun manuallyOpeningCompletedWorkspaceSurvivesPendingSnapshot() = runTest {
+        val f = Fake(autoHide = true)
+        val c = AgentLogController(f, backgroundScope, onCompletedToast = {}, onOpenRawLog = {})
+        testScheduler.runCurrent()
+        val target = AgentLogSnapshot(lastStopReason = AgentStopReasonVd.COMPLETED, statusText = "Target workspace")
+        f.snap.value = target
+        c.show()
+        testScheduler.runCurrent()
+        assertTrue(c.state.value.visible)
+        assertEquals("Target workspace", c.state.value.snapshot.statusText)
+    }
+
     @Test fun snapshot_isReflectedInState() = runTest {
         val f = Fake(); val c = controller(f)
         val entries = listOf(AgentLogEntryVd("e1", LogEntryKind.INFO, LogEntryStatus.COMPLETED, "hi"))

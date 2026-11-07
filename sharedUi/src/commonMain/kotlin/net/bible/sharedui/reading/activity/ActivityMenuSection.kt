@@ -20,6 +20,7 @@
 
 package net.bible.sharedui.reading.activity
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,14 +59,14 @@ fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? 
     val all = activity.items.value.filter { it.state != ActivityState.CANCELLED }
     val shown = all
         .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
-        .sortedBy { it.state.menuRank() }
+        .sortedWith(compareBy<ActivityItem> { if (it.attention) 0 else 1 }.thenBy { it.state.menuRank() })
     val sync = activity.syncNow?.takeIf { it.available.value }
     if (shown.isEmpty() && sync == null) return
     val strings = LocalStrings.current
     Column(Modifier.testTag(ACTIVITY_SECTION_TAG)) {
         if (sync != null) SyncNowRow(sync, onSyncClick ?: sync.onClick)
         val rows = shown.take(MENU_ACTIVITY_ROWS)
-        rows.forEach { ActivityRow(it) }
+        rows.forEach { ActivityRow(it) { activity.onOpenItem(it) } }
         // Whenever the list holds more than these rows (finished successes, overflow) or anything failed.
         if (shown.isNotEmpty() && (all.size > rows.size || shown.any { it.state == ActivityState.FAILED })) {
             AbMenuItem(text = strings.activityShowAll(all.size), onClick = activity.onShowAll)
@@ -80,16 +81,19 @@ private fun ActivityState.menuRank(): Int = when (this) {
 }
 
 @Composable
-private fun ActivityRow(item: ActivityItem) {
+private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
     val mono = isPureMonochrome()
     val progress = item.progress
     val message = item.message
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).testTag(ACTIVITY_ROW_TAG),
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp).testTag(ACTIVITY_ROW_TAG),
     ) {
         Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         when {
             item.state == ActivityState.RUNNING -> {
+                if (message != null && item.kind == net.bible.android.control.activity.ActivityKind.AI_AGENT) {
+                    Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
                 val barColor = LocalContentColor.current
                 val trackColor = barColor.copy(alpha = 0.2f)
                 val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)

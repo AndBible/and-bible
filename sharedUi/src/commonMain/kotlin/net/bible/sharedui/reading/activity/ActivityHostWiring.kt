@@ -20,6 +20,8 @@ import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.ActivityReporter
 import net.bible.android.control.activity.ActivityState
+import net.bible.android.control.activity.workspaceIdOfAgentItem
+import net.bible.android.database.IdType
 import net.bible.sharedcore.nav.NavRoutes
 
 /**
@@ -37,9 +39,15 @@ class ActivityHostWiring(
     val listRequests: Flow<Unit>? = null,
     val syncNow: SyncNow? = null,
     val syncReady: () -> Boolean = { net.bible.service.startup.ReadingAppInit.initialized },
+    val onOpenAgent: ((IdType) -> Unit)? = null,
     val reporter: ActivityReporter? = null,
     val onOpenItem: (ActivityItem) -> Unit,
-)
+) {
+    fun open(item: ActivityItem) {
+        val workspace = workspaceIdOfAgentItem(item)
+        if (workspace != null && onOpenAgent != null) onOpenAgent.invoke(workspace) else onOpenItem(item)
+    }
+}
 
 /**
  * Collects the activity flows into an [ActivityMenuState] for [content] (`null` while the preference is off or
@@ -73,6 +81,7 @@ internal fun ActivityHostImpl(
     // every progress event. The readers (button, menu section, list layer) read them where they draw.
     val items = wiring.center.items.collectAsState()
     val unread = wiring.center.unreadFailures.collectAsState()
+    val badge = wiring.center.badge.collectAsState()
     var listVisible by remember { mutableStateOf(false) }
     val onShowAll = remember { { listVisible = true } }
     val sync = wiring.syncNow
@@ -96,15 +105,15 @@ internal fun ActivityHostImpl(
     val enabledNow by rememberUpdatedState(enabled)
     LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
-    val state = remember(enabled, items, unread, onShowAll, onMenuOpened, syncState) {
-        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState) else null
+    val state = remember(enabled, items, unread, badge, onShowAll, onMenuOpened, syncState, wiring) {
+        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState, wiring::open, badge) else null
     }
     content(state)
     if (enabled && listVisible) {
         ActivityListLayer(
             items = items,
             wiring = wiring,
-            onOpenItem = { item -> listVisible = false; wiring.onOpenItem(item) },
+            onOpenItem = { item -> listVisible = false; wiring.open(item) },
             onClose = { listVisible = false },
         )
     }
