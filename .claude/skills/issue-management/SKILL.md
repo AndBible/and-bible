@@ -11,9 +11,10 @@ description: Use for AndBible issue and project-board work — creating, comment
   while working, an osTicket report), commenting, editing a title or body, adding or removing labels,
   closing or reopening: stage it with the `jailbee issue create|comment|edit|labels|assign|state`
   commands (skill `jailbee-issue-management`; `--batch NAME` + `jailbee outbox submit NAME --kind issue`
-  for several related actions). Never write `~/.jailbee/issue-outbox/` files by hand. The maintainer
-  publishes on the host with `jb issue apply` (or an orchestrator with `publish.issues` rights uses
-  `jailbee inbox send publish --issue ...`).
+  for several related actions). Never write `~/.jailbee/issue-outbox/` files by hand. Staging does
+  not publish. If `jailbee inbox grant` shows `publish issues` covering the actions, publish them
+  yourself right after staging, as `jailbee-issue-management` ("Orchestrator publication") says;
+  otherwise the maintainer runs `jb issue apply` on the host.
   No submodule commit is involved. This is the default for everything in day-to-day work.
 - **Large triage runs → the triage batch toolchain** (`docs/superpowers/tools/triage/`,
   `triage/batches/`, `apply.py`, below). It exists for whole-area or whole-tracker passes that also

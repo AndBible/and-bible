@@ -161,8 +161,8 @@ fix (nothing merged, or not reproducible) is not. Keep body files outside the wo
 the tree stays clean for fork spawns.
 
 When the round is done, `jailbee outbox submit fix-comments-<date> --kind issue`. If `jailbee inbox grant`
-shows `publish issues` covering the actions, publish with `jailbee inbox send publish --issue <file> --wait`
-and read the final status; otherwise tell the user to run `jb issue apply <container>` (or
+shows `publish issues` covering the actions, publish it as `jailbee-orchestration` ("Publishing your own
+staged manifests") says; otherwise tell the user to run `jb issue apply <container>` (or
 `jb outbox <container>` to inspect) on the host. Relay a child's GitHub requests as **jailbee-orchestration** says.
 
 ## 6. Final gate and report
