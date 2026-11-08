@@ -46,6 +46,20 @@ find andbible -type f \( -name '*.so*' -o -perm -u+x \) -print0 | xargs -0 -n50 
 Drop the libraries the tarball ships itself (`libjvm.so`, `libjawt.so`, `libcef.so`, ...), then `pacman -Qo` the
 rest. `namcap <package>.pkg.tar.zst` reports the same from a built package.
 
+Notes on the current list (checked against beta-1258):
+
+- `libgcc` and `libstdc++`, not `gcc-libs`: on current Arch `gcc-libs` is a meta-package that also pulls in libasan,
+  libgfortran and others the app never loads.
+- No libraries loaded with `dlopen` appear in `NEEDED`. `gtk3` is confirmed (`libawt_xawt.so` and `libcef.so` name
+  `libgtk-3.so.0`); other libraries Chromium may load at run time (Vulkan, VA-API) are not checked.
+- No `libnotify`: desktop notifications go to `org.freedesktop.Notifications` over D-Bus directly
+  (`DesktopNotificationBindings.kt`). `xdg-utils` is an optional dependency because the app runs `xdg-open`.
+
+**The dependency list is checked by hand only.** CI runs `namcap -i PKGBUILD`, which lints the recipe but never sees
+the binaries; only `namcap` on a built package compares `depends` with the ELF files. Before every AUR push, build
+the package and run namcap on it (see "Build and install locally to test" below), and recheck the list as above
+whenever the JBR or JCEF version changes.
+
 ## Updating the package to a new release
 
 ```bash
@@ -90,7 +104,8 @@ of them can be installed). Test releases (`test-*`) are developer builds and do 
 
 The AUR has no CI: every push is published as is. The `arch-pkgbuild` job in `.github/workflows/desktop.yml`
 checks this directory on every PR instead (`.SRCINFO` in sync with `PKGBUILD`, `namcap` on the `PKGBUILD`, the
-offline tests), so what is copied to the AUR has passed that.
+offline tests), so what is copied to the AUR has passed that. It does not build the package, so the `makepkg` +
+`namcap <package>.pkg.tar.zst` run before a push stays a manual step.
 
 ## Alternatives considered
 

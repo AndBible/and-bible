@@ -25,14 +25,15 @@ depends=(
   'expat'
   'fontconfig'
   'freetype2'
-  'gcc-libs'
   'glib2'
   'glibc'
   'gtk3'
   'hicolor-icon-theme'
   'libcups'
   'libdrm'
+  'libgcc'
   'libglvnd'
+  'libstdc++'
   'libx11'
   'libxcb'
   'libxcomposite'
@@ -53,7 +54,6 @@ depends=(
   'zlib'
 )
 optdepends=(
-  'libnotify: desktop notifications'
   'xdg-utils: open links and files with the default applications'
 )
 provides=('andbible')
