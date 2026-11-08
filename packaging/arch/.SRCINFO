@@ -1,6 +1,6 @@
 pkgbase = andbible-bin
 	pkgdesc = Offline Bible study app: translations, commentaries, dictionaries, bookmarks and notes (desktop release)
-	pkgver = 6.0.1254
+	pkgver = 6.0.1258
 	pkgrel = 1
 	url = https://andbible.org
 	arch = x86_64
@@ -44,11 +44,11 @@ pkgbase = andbible-bin
 	conflicts = andbible
 	options = !strip
 	options = !debug
-	source = andbible-desktop-test-1254-linux-x64.tar.gz::https://github.com/AndBible/and-bible/releases/download/test-1254/andbible-desktop-test-1254-linux-x64.tar.gz
-	source = org.andbible.AndBible-test-1254.desktop::https://raw.githubusercontent.com/AndBible/and-bible/test-1254/desktopApp/packaging/linux/org.andbible.AndBible.desktop
-	source = org.andbible.AndBible-test-1254.metainfo.xml::https://raw.githubusercontent.com/AndBible/and-bible/test-1254/desktopApp/packaging/linux/org.andbible.AndBible.metainfo.xml
-	sha256sums = cca6002e854bf246ba74d62b147629b7aa84a4166634e0a84ee375566451086c
+	source = andbible-desktop-beta-1258-linux-x64.tar.gz::https://github.com/AndBible/and-bible/releases/download/beta-1258/andbible-desktop-beta-1258-linux-x64.tar.gz
+	source = org.andbible.AndBible-beta-1258.desktop::https://raw.githubusercontent.com/AndBible/and-bible/beta-1258/desktopApp/packaging/linux/org.andbible.AndBible.desktop
+	source = org.andbible.AndBible-beta-1258.metainfo.xml::https://raw.githubusercontent.com/AndBible/and-bible/beta-1258/desktopApp/packaging/linux/org.andbible.AndBible.metainfo.xml
+	sha256sums = 6ca3efc20ba0147a6a5f0c3bc776f2a8a8abf3dba4126eb480e8afdffaae981d
 	sha256sums = 4a6fc2de6d5376669ef39212ae048d93e32910ff69d2bbc51a99ccd6e1fe4067
-	sha256sums = 35b3b4672d7d1a48c0c73c82cd6137d24211fcf0a70cd211740a4ca6d1644bd4
+	sha256sums = d7b471eb19f7422f7765cfbb08c68520768c6169012d75ad3e1ee37687a7101c
 
 pkgname = andbible-bin
