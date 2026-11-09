@@ -17,12 +17,16 @@ import net.bible.sharedcore.event.Subscription
 class DocumentSyncProgressTracker {
     private class Observer(val callback: (DocumentSyncProgress) -> Unit) {
         val pending = ArrayDeque<DocumentSyncProgress>()
-        var draining = true // registration owns replay until its baseline has been delivered
+        var replayRequested = false
+        var draining = false
         var cancelled = false
     }
 
     private val lock = SynchronizedObject()
-    private val mutableState = MutableStateFlow(DocumentSyncProgress())
+    private var accepted = DocumentSyncProgress()
+    private val mutableState = MutableStateFlow(accepted)
+    private var publishedRevision = 0L
+    internal val snapshot: DocumentSyncProgress get() = synchronized(lock) { accepted }
     private val source = EventSource<DocumentSyncProgress>()
     private val observers = mutableListOf<Observer>()
     private val emissions = ArrayDeque<() -> Unit>()
@@ -60,23 +64,36 @@ class DocumentSyncProgressTracker {
     internal fun register(observer: (DocumentSyncProgress) -> Unit): Observation {
         val entry = Observer(observer)
         synchronized(lock) {
-            entry.pending.addLast(mutableState.value)
+            entry.pending.addLast(accepted)
             observers.add(entry)
         }
-        var replayed = false
         return Observation({
-            val first = synchronized(lock) { if (replayed) false else { replayed = true; true } }
-            if (first) drainObserver(entry)
+            val start = synchronized(lock) {
+                entry.replayRequested = true
+                claimObserver(entry)
+            }
+            if (start) drainObserver(entry)
         }, {
             synchronized(lock) { entry.cancelled = true; observers.remove(entry); entry.pending.clear() }
         })
     }
 
+    // Only revisions whose publication effect has run may cross this boundary. Otherwise a slow
+    // observer could leap over queued side effects (notably closing #4031's error streak).
+    private fun claimObserver(entry: Observer): Boolean {
+        if (entry.cancelled || !entry.replayRequested || entry.draining ||
+            entry.pending.firstOrNull()?.let { it.revision <= publishedRevision } != true) return false
+        entry.draining = true
+        return true
+    }
+
     private fun drainObserver(entry: Observer) {
         while (true) {
             val item = synchronized(lock) {
-                if (entry.cancelled || entry.pending.isEmpty()) { entry.draining = false; null }
-                else entry.pending.removeFirst()
+                if (entry.cancelled || entry.pending.firstOrNull()?.let { it.revision <= publishedRevision } != true) {
+                    entry.draining = false
+                    null
+                } else entry.pending.removeFirst()
             } ?: return
             invokeSafely { entry.callback(item) }
         }
@@ -100,16 +117,18 @@ class DocumentSyncProgressTracker {
     }
 
     private fun update(transform: (DocumentSyncProgress) -> DocumentSyncProgress?) = accepting {
-        val previous = mutableState.value
+        val previous = accepted
         val next = transform(previous)?.copy(revision = previous.revision + 1)
         if (next != null) {
-            mutableState.value = next
+            accepted = next
             observers.forEach { it.pending.addLast(next) }
             emissions.addLast {
+                // StateFlow may synchronously resume Unconfined/immediate consumers: never set it
+                // inside acceptance. Keep a separate accepted snapshot for queue decisions/replay.
+                synchronized(lock) { publishedRevision = next.revision }
+                mutableState.value = next
                 source.emit(next)
-                val ready = synchronized(lock) {
-                    observers.filter { !it.draining && it.pending.isNotEmpty() }.onEach { it.draining = true }
-                }
+                val ready = synchronized(lock) { observers.filter(::claimObserver) }
                 ready.forEach(::drainObserver)
             }
         }

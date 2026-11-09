@@ -174,7 +174,7 @@ class HostDocumentSyncStarter private constructor(
     }
 
     private fun log(session: Session, event: String, reason: DocumentSyncInterruptionReason? = null) {
-        val p = tracker.state.value
+        val p = tracker.snapshot
         val text = "Queue $event session=${session.id} processed=${p.processed} total=${p.total} failed=${p.failed} deferred=${p.deferred} status=${p.status} reason=$reason"
         tracker.afterAcceptance { Log.i(TAG, text) }
     }
@@ -288,9 +288,9 @@ class HostDocumentSyncStarter private constructor(
             }
         } finally {
             tracker.accepting {
-                if (!sentStopped && active == null && tracker.state.value.sessionId == session.id) d?.let { services ->
+                if (!sentStopped && active == null && tracker.snapshot.sessionId == session.id) d?.let { services ->
                     tracker.afterAcceptance {
-                        if (tracker.accepting { active == null && tracker.state.value.sessionId == session.id }) {
+                        if (tracker.accepting { active == null && tracker.snapshot.sessionId == session.id }) {
                             services.notifyRunning(false)
                         }
                     }

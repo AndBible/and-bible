@@ -2,6 +2,12 @@ package net.bible.service.cloudsync.host
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -313,6 +319,97 @@ class HostDocumentSyncStarterProgressTest {
         assertEquals(DocumentSyncInterruptionReason.SCOPE_CANCELLED, f.current.interruptionReason)
         assertEquals(listOf(1uL), f.ends)
         f.assertTerminal(DocumentSyncProgressStatus.INTERRUPTED, 0, 1)
+    }
+
+    @Test fun unconfinedStateCollectorCanUseAnotherProducerThreadAndRestart() = runTest {
+        val f = Fixture(backgroundScope)
+        val gate = CompletableDeferred<Unit>()
+        f.driver.action = { _, _ -> gate.await() }
+        var producerWasAvailable = false
+        var restarted = false
+        var worker: Thread? = null
+        val collector = backgroundScope.launch(Dispatchers.Unconfined) {
+            f.tracker.state.collect { progress ->
+                if (!restarted && progress.status == DocumentSyncProgressStatus.RUNNING && progress.total == 2) {
+                    restarted = true
+                    val accepted = CountDownLatch(1)
+                    worker = thread(name = "state-collector-producer") {
+                        f.tracker.nextSessionId()
+                        accepted.countDown()
+                    }
+                    producerWasAvailable = accepted.await(2, TimeUnit.SECONDS)
+                    f.starter.stop()
+                    f.starter.start(listOf("new"), emptyList())
+                }
+            }
+        }
+        try {
+            f.starter.start(listOf("A"), emptyList())
+            runCurrent()
+            f.starter.start(listOf("B"), emptyList())
+            worker!!.join(5_000)
+            assertTrue(producerWasAvailable, "StateFlow collector resumed with producer lock held")
+            assertTrue(restarted)
+            assertEquals(1, f.current.total)
+        } finally {
+            collector.cancel()
+            gate.complete(Unit)
+            f.starter.stop()
+            f.starter.awaitIdle()
+            worker?.join(5_000)
+            f.subscription.cancel()
+        }
+    }
+
+    @Test fun blockedObserverCannotDeliverFailedBeforeErrorStreakIsClosed() = runTest {
+        val tracker = DocumentSyncProgressTracker()
+        val driver = Driver()
+        val gate = CompletableDeferred<Unit>()
+        driver.action = { initials, _ ->
+            if (initials == "A") gate.await()
+            error("operation failed")
+        }
+        val parent = SupervisorJob()
+        val owner = CoroutineScope(parent + Dispatchers.Unconfined)
+        val s = HostDocumentSyncStarter.forDriver(owner, driver, { "generic" }, { 1uL }, {}, tracker = tracker)
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val blocked = java.util.concurrent.atomic.AtomicBoolean()
+        val startedNext = java.util.concurrent.atomic.AtomicBoolean()
+        val errors = java.util.Collections.synchronizedList(mutableListOf<UserMessage.ErrorNotification>())
+        val messages = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        val observation = tracker.observe {
+            if (it.status == DocumentSyncProgressStatus.RUNNING && it.total == 2 && it.processed == 0 && blocked.compareAndSet(false, true)) {
+                entered.countDown()
+                check(release.await(5, TimeUnit.SECONDS)) { "observer release timed out" }
+            }
+            if (it.status == DocumentSyncProgressStatus.FAILED && startedNext.compareAndSet(false, true)) {
+                s.start(listOf("C"), emptyList())
+            }
+        }
+        var publisher: Thread? = null
+        try {
+            s.start(listOf("A"), emptyList())
+            publisher = thread(name = "blocked-progress-observer") { s.start(listOf("B"), emptyList()) }
+            assertTrue(entered.await(5, TimeUnit.SECONDS), "late-enqueue observer did not enter")
+            // This thread finishes both failed operations while the publication thread is blocked.
+            gate.complete(Unit)
+            release.countDown()
+            publisher.join(5_000)
+            assertTrue(!publisher.isAlive, "publication did not finish")
+            s.awaitIdle()
+            assertEquals(2, errors.size)
+            assertEquals(listOf(false, true), errors.map { it.repeated }, "second failing drain must be a quiet repeat")
+            assertEquals(listOf(false, true), errors.map { it.background })
+        } finally {
+            release.countDown()
+            gate.complete(Unit)
+            publisher?.join(5_000)
+            observation.cancel()
+            messages.cancel()
+            s.stop()
+            owner.cancel()
+        }
     }
 
     @Test fun recreatedStarterUsesAppScopedSessionIds() = runTest {
