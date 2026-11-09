@@ -211,6 +211,7 @@ fun buildSharedBindings() = module {
     }
     single<CloudSyncProvider> { CloudSyncProvider { get() } }
     single<DocumentSyncProvider> { DocumentSyncProvider { get() } }
+    single { net.bible.service.cloudsync.documents.DocumentSyncProgressTracker() }
     single {
         DocumentSyncSettings(
             { DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao() },

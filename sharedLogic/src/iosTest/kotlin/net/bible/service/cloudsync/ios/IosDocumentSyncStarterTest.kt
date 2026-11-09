@@ -19,6 +19,7 @@ import net.bible.service.cloudsync.host.DocumentSyncDriver
 import net.bible.service.cloudsync.host.HostDocumentSyncStarter
 
 class IosDocumentSyncStarterTest {
+    private val tracker = net.bible.service.cloudsync.documents.DocumentSyncProgressTracker()
     private val events = mutableListOf<String>()
     private val errors = mutableListOf<String>()
     private var drops = 0
@@ -65,7 +66,7 @@ class IosDocumentSyncStarterTest {
     private fun kotlinx.coroutines.test.TestScope.starter() = HostDocumentSyncStarter.forDriver(
         backgroundScope, driver, { "generic" },
         begin = { handler -> begins++; expire = handler; 7uL },
-        end = { ends += it },
+        end = { ends += it }, tracker = tracker,
     )
 
     @Test fun drainsOpsInOrderBetweenRunningEdges() = runTest {
@@ -194,9 +195,31 @@ class IosDocumentSyncStarterTest {
         // Ended inside the handler, while the drain is still stuck in the op.
         assertEquals(listOf(7uL), ends)
         assertTrue("running=false" !in events)
+        assertEquals(net.bible.sharedcore.cloud.DocumentSyncProgressStatus.INTERRUPTED, tracker.state.value.status)
+        assertEquals(net.bible.sharedcore.cloud.DocumentSyncInterruptionReason.BACKGROUND_EXPIRED,
+            tracker.state.value.interruptionReason)
         gate!!.complete(Unit)
         s.awaitIdle()
         assertEquals(listOf(7uL), ends)   // finally did not end it a second time
+    }
+
+    @Test fun expirationBeforeBeginReturnsEndsOnAttachExactlyOnce() = runTest {
+        val s = HostDocumentSyncStarter.forDriver(
+            backgroundScope, driver, { "generic" },
+            begin = { handler ->
+                handler()
+                assertTrue(ends.isEmpty(), "id is unavailable until begin returns")
+                assertEquals(net.bible.sharedcore.cloud.DocumentSyncProgressStatus.INTERRUPTED, tracker.state.value.status)
+                7uL
+            },
+            end = { ends += it }, tracker = tracker,
+        )
+        s.start(listOf("A"), emptyList())
+        s.awaitIdle()
+        assertEquals(listOf(7uL), ends)
+        assertTrue(events.none { it == "push A" })
+        assertEquals(net.bible.sharedcore.cloud.DocumentSyncInterruptionReason.BACKGROUND_EXPIRED,
+            tracker.state.value.interruptionReason)
     }
 
     @Test fun expiryAfterNormalEndDoesNotEndTwice() = runTest {
@@ -216,8 +239,11 @@ class IosDocumentSyncStarterTest {
         s.stop()
         s.start(push = listOf("C"), download = listOf("D"))
         runCurrent()
+        val before = tracker.state.value
         gate!!.complete(Unit)   // the old op now unwinds with a user-facing failure
         runCurrent()
+        assertEquals(before, tracker.state.value)
+        assertTrue(errors.isEmpty(), "stale session must not surface an obsolete error")
         assertEquals(0, drops)
         gate2!!.complete(Unit)
         s.awaitIdle()

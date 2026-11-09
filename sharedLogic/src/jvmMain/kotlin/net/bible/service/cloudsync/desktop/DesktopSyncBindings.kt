@@ -162,6 +162,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
             begin = { 0uL },
             end = {},
             invalidTask = ULong.MAX_VALUE,
+            tracker = get(),
         )
     }
     single<SyncScheduler> {
