@@ -77,11 +77,22 @@ class NextCloudListingWatermarkTest {
         }
     }
 
-    private fun fileResponse(path: String, modified: String, folder: Boolean = false): String = """
+    @Test
+    fun mismatchedMimeWithRequestedNameDoesNotFailMetadataListing() {
+        withListingServer(
+            fileResponse("bad/meta.json", "", mimeType = "text/plain") +
+                fileResponse("good/meta.json", "Tue, 02 Jan 2024 03:04:05 GMT")
+        ) { adapter ->
+            val files = awaitOperation { adapter.listFiles(listOf("/sync-documents"), "meta.json", "application/json", 0L) }
+            assertEquals("/sync-documents/good/meta.json", files.single().id)
+        }
+    }
+
+    private fun fileResponse(path: String, modified: String, folder: Boolean = false, mimeType: String = "application/json"): String = """
         <d:response><d:href>/remote.php/dav/files/me/sync-documents/$path</d:href>
           <d:propstat><d:prop><oc:fileid>42</oc:fileid>
             <d:displayname>${path.trimEnd('/').substringAfterLast('/')}</d:displayname>
-            <d:getcontenttype>${if (folder) "httpd/unix-directory" else "application/json"}</d:getcontenttype>
+            <d:getcontenttype>${if (folder) "httpd/unix-directory" else mimeType}</d:getcontenttype>
             <d:resourcetype>${if (folder) "<d:collection/>" else ""}</d:resourcetype>
             ${if (modified.isEmpty()) "" else "<d:getlastmodified>$modified</d:getlastmodified>"}
             <nc:creation_time>1577836800</nc:creation_time>
