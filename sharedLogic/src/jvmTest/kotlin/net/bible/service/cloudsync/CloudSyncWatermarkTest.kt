@@ -13,6 +13,8 @@ import net.bible.service.cloudsync.ios.StubCoreStrings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.FakeDatabaseHost
 import net.bible.service.db.newTestDir
+import net.bible.service.db.exec
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -58,6 +60,7 @@ class CloudSyncWatermarkTest {
         var folders = listOf(CloudFile("remote-folder", "remote-device", 0L, 1L, "sync-folder"))
         var files = emptyList<CloudFile>()
         var patch: Path? = null
+        val patches = mutableMapOf<String, Path>()
         var failDownload = false
         var corruptPatch = false
         var onList: () -> Unit = {}
@@ -76,7 +79,7 @@ class CloudSyncWatermarkTest {
             sink.buffer().use { output ->
                 if (failDownload) throw IOException("Interrupted download")
                 if (corruptPatch) output.writeUtf8("not a gzip patch")
-                else FileSystem.SYSTEM.source(checkNotNull(patch)).use { output.writeAll(it) }
+                else FileSystem.SYSTEM.source(checkNotNull(patches[id] ?: patch)).use { output.writeAll(it) }
             }
         }
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = error("already initialized")
@@ -94,6 +97,7 @@ class CloudSyncWatermarkTest {
         val db: SyncableDatabaseAccessor<*>,
         val container: DatabaseContainer,
         val documentSyncCalls: java.util.concurrent.atomic.AtomicInteger,
+        val env: AppEnvironment,
     )
 
     // Reuse the real-container setup and exact global restoration from CloudSyncSignOutTest.
@@ -150,7 +154,7 @@ class CloudSyncWatermarkTest {
             container.bookmarkDb.bookmarkDao().delete(label)
             db.dao.clearLog()
             adapter.files = listOf(CloudFile("pending", "1.${db.version()}.sqlite3.gz", 1L, 200L, "remote-folder"))
-            block(Fixture(cloud, adapter, db, container, documentSyncCalls))
+            block(Fixture(cloud, adapter, db, container, documentSyncCalls, env))
         } finally {
             try {
                 DatabaseContainer.detachInstanceForTest()
@@ -213,6 +217,29 @@ class CloudSyncWatermarkTest {
         f.db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 100L)
         f.cloud.synchronize()
         assertEquals(listOf("pending", "pending"), f.adapter.downloads)
+    }
+
+    @Test fun distinctPatchesApplyInModificationOrderAndRecordTheirTimestamps() = withFixture { f ->
+        val dao = f.container.bookmarkDb.bookmarkDao()
+        val label = BookmarkEntities.Label(name = "first")
+        f.db.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        dao.insert(label)
+        f.db.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = 1000") }
+        f.adapter.patches["first"] = checkNotNull(createPatchForDatabase(f.db, f.env, false))
+        dao.update(label.copy(name = "second"))
+        f.db.localDb.useWriterConnectionMarked { it.exec("UPDATE LogEntry SET lastUpdated = 1000") }
+        f.adapter.patches["second"] = checkNotNull(createPatchForDatabase(f.db, f.env, false))
+        dao.delete(label)
+        f.db.dao.clearLog()
+        val version = f.db.version()
+        f.adapter.files = listOf(
+            CloudFile("second", "2.$version.sqlite3.gz", 1L, 300L, "remote-folder"),
+            CloudFile("first", "1.$version.sqlite3.gz", 1L, 200L, "remote-folder"),
+        )
+        f.cloud.synchronize()
+        assertEquals(listOf("first"), dao.allLabelsSortedByName().map { it.name })
+        assertEquals(200L, f.db.dao.syncStatus("remote-device", 1L)?.appliedDate)
+        assertEquals(300L, f.db.dao.syncStatus("remote-device", 2L)?.appliedDate)
     }
 
     @Test fun foregroundTransportFailureReportsOneSyncError() = withFixture { f ->

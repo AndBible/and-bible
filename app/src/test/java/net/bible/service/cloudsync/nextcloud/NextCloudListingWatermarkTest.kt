@@ -45,6 +45,19 @@ class NextCloudListingWatermarkTest {
     }
 
     @Test
+    fun patchSearchReturnsModificationTimesInsteadOfReversedCreationTimes() {
+        val responses = fileResponse("device/2.1.sqlite3.gz", "Wed, 03 Jan 2024 03:04:05 GMT", creation = "1577836800") +
+            fileResponse("device/1.1.sqlite3.gz", "Tue, 02 Jan 2024 03:04:05 GMT", creation = "1609459200")
+        withListingServer(responses) { adapter ->
+            val files = awaitOperation { adapter.listFiles(listOf("/sync-documents"), null, null, 0L) }
+            assertEquals(
+                mapOf("1.1.sqlite3.gz" to 1_704_164_645_000L, "2.1.sqlite3.gz" to 1_704_251_045_000L),
+                files.associate { it.name to it.createdTime },
+            )
+        }
+    }
+
+    @Test
     fun incrementalListingRejectsUnknownModificationTime() {
         val failures = mutableListOf<String>()
         for (modified in listOf("", "not-a-date", "Thu, 01 Jan 1970 00:00:00 GMT")) {
@@ -88,14 +101,14 @@ class NextCloudListingWatermarkTest {
         }
     }
 
-    private fun fileResponse(path: String, modified: String, folder: Boolean = false, mimeType: String = "application/json"): String = """
+    private fun fileResponse(path: String, modified: String, folder: Boolean = false, mimeType: String = "application/json", creation: String = "1577836800"): String = """
         <d:response><d:href>/remote.php/dav/files/me/sync-documents/$path</d:href>
           <d:propstat><d:prop><oc:fileid>42</oc:fileid>
             <d:displayname>${path.trimEnd('/').substringAfterLast('/')}</d:displayname>
             <d:getcontenttype>${if (folder) "httpd/unix-directory" else mimeType}</d:getcontenttype>
             <d:resourcetype>${if (folder) "<d:collection/>" else ""}</d:resourcetype>
             ${if (modified.isEmpty()) "" else "<d:getlastmodified>$modified</d:getlastmodified>"}
-            <nc:creation_time>1577836800</nc:creation_time>
+            <nc:creation_time>$creation</nc:creation_time>
           </d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat>
         </d:response>
     """

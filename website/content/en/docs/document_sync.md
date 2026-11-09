@@ -28,6 +28,10 @@ the same cloud account and runs on the same background sync cycle, but it moves
 whole document files rather than small database changes, and it offers more
 per-device control (see below).
 
+Routine checks use an incremental cache of document metadata. The newest metadata
+may be checked again for safety; this does not mean all document archives are
+downloaded again.
+
 ## Requirements
 
 - A cloud account already set up — see [Cloud Sync](cloud_sync.md) for how to sign in to
