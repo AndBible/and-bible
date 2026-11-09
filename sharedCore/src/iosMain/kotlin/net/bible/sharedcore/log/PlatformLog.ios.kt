@@ -11,14 +11,30 @@ fun iosRecentLogSnapshot(): String = recentIosLog.snapshot()
 /** Bounded process-local diagnostics. No disk work occurs on logging threads. */
 internal class RecentIosLog(private val limit: Int = 256 * 1024) {
     private val lock = NSLock()
-    private var text = ""
+    private val entries = ArrayDeque<String>()
+    private var length = 0
+
     fun append(line: String) {
         lock.lock()
-        try { text = (text + line + "\n").takeLast(limit) } finally { lock.unlock() }
+        try {
+            val entry = if (line.length >= limit) {
+                "[oversized log entry omitted]\n".takeIf { it.length <= limit } ?: return
+            } else {
+                "$line\n"
+            }
+            while (length > limit - entry.length) {
+                length -= entries.removeFirst().length
+            }
+            entries.addLast(entry)
+            length += entry.length
+        } finally {
+            lock.unlock()
+        }
     }
+
     fun snapshot(): String {
         lock.lock()
-        return try { text } finally { lock.unlock() }
+        return try { entries.joinToString("") } finally { lock.unlock() }
     }
 }
 
