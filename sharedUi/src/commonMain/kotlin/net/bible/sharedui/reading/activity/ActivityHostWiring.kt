@@ -147,6 +147,7 @@ private fun ActivityListLayer(
 @kotlin.native.HiddenFromObjC
 fun activityItemRoute(item: ActivityItem): String? = when {
     item.kind == ActivityKind.DOWNLOAD -> NavRoutes.download()
+    item.kind == ActivityKind.DOCUMENT_SYNC -> NavRoutes.cloudDocuments()
     item.kind == ActivityKind.SYNC && item.state == ActivityState.FAILED -> NavRoutes.SYNC_SETTINGS
     else -> null
 }

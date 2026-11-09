@@ -75,6 +75,78 @@ class HostDocumentSyncStarterProgressTest {
         }
     }
 
+    private inline fun <reified T : Any> inert(): T = java.lang.reflect.Proxy.newProxyInstance(
+            T::class.java.classLoader, arrayOf(T::class.java),
+        ) { _, method, args ->
+            when (method.returnType) {
+                java.lang.Boolean.TYPE -> args?.lastOrNull() as? Boolean ?: false
+                java.lang.Integer.TYPE -> 0
+                java.lang.Long.TYPE -> 0L
+                String::class.java -> ""
+                else -> null
+            }
+        } as T
+
+    @Test fun enableDocumentsStartsVisibleQueueBeforeCompletion() = runTest {
+        val f = Fixture(backgroundScope)
+        val gate = CompletableDeferred<Unit>()
+        f.driver.action = { _, progress -> progress(25, 100); gate.await() }
+        val settings = inert<net.bible.sharedcore.platform.AppSettings>()
+        val env = inert<net.bible.sharedcore.platform.AppEnvironment>()
+        val strings = net.bible.android.control.activity.ActivityTestStrings()
+        val documents = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { inert<net.bible.android.database.DocumentSyncPreferencesDao>() }, { error("unused") }, { error("unused") },
+            net.bible.sharedcore.platform.OrderedLauncher(backgroundScope), env,
+        )
+        val adapters = object : net.bible.service.cloudsync.CloudAdapterFactory {
+            override val available = listOf("NEXT_CLOUD")
+            override fun displayName(id: String) = id
+            override fun create(id: String): net.bible.service.cloudsync.CloudAdapter = error("unused")
+        }
+        val provider = net.bible.service.cloudsync.DocumentSyncProvider { error("scan is supplied by the fixture") }
+        val cloud = net.bible.service.cloudsync.CloudSync(
+            net.bible.sharedcore.ui.dialog.AppDialogController(), strings, env, settings, adapters,
+            net.bible.sharedcore.platform.sync.SyncScheduler { CompletableDeferred(true) }, f.starter, provider, documents,
+        )
+        val service = net.bible.android.view.activity.settings.SyncSettingsServiceImpl(
+            backgroundScope, backgroundScope, documents, cloud, adapters,
+            net.bible.service.cloudsync.SyncSettingsCategories(settings), provider, f.starter,
+            inert<net.bible.service.cloudsync.SyncSettingsPlatform>(), strings, env, {}, progressTracker = f.tracker,
+        )
+        val summary = net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), listOf("KJV"), 0, 100)
+        val scanBoundary = object : net.bible.sharedcore.settings.SyncSettingsService by service {
+            override suspend fun signIn() = true
+            override suspend fun scanDocuments() = summary
+        }
+        val center = net.bible.android.control.activity.ActivityCenter(backgroundScope) { testScheduler.currentTime }
+        val source = net.bible.android.control.activity.DocumentSyncActivitySource(center, f.tracker) { strings }
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(
+            scanBoundary, backgroundScope, net.bible.sharedcore.settings.SyncSettingsLabels.forTest(), {},
+        )
+        runCurrent()
+        controller.onSwitch("sync_enable_documents", true)
+        runCurrent()
+        assertTrue(controller.state.value.dialog is net.bible.sharedcore.settings.SyncDialog.EnableDocuments)
+        controller.confirmEnableDocuments()
+        runCurrent()
+        assertTrue(documents.enabled)
+        assertTrue(service.snapshot.value.documentsEnabled)
+        assertEquals(DocumentSyncProgressStatus.RUNNING, f.current.status)
+        assertEquals(1, f.current.total)
+        assertEquals(25L, f.current.bytesTransferred)
+        assertTrue(service.snapshot.value.documentTransferSummary!!.contains("25"))
+        testScheduler.advanceTimeBy(1000)
+        runCurrent()
+        assertEquals(25, center.items.value.single().progress)
+        gate.complete(Unit)
+        f.starter.awaitIdle()
+        runCurrent()
+        assertEquals(DocumentSyncProgressStatus.FINISHED, f.current.status)
+        assertEquals(net.bible.android.control.activity.ActivityState.SUCCEEDED, center.items.value.single().state)
+        source.close()
+        f.subscription.cancel()
+    }
+
     @Test fun downloadProgressIsVisibleBeforeConsumerCompletes() = runTest {
         val f = Fixture(backgroundScope)
         val release = CompletableDeferred<Unit>()

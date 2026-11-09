@@ -5,6 +5,7 @@ interface CoreStrings {
     val documentSyncActivityTitle: String
     val documentSyncEnabled: String
     val documentSyncDisabled: String
+    val documentSyncTransferRunning: String
     fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?): String
     fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress): String
 

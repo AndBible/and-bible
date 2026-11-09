@@ -122,6 +122,15 @@ class ActivityMenuTest {
         assertTrue(samePixels(baseline, render(menu(emptyList()), syncRunning = true)), "preference on hides the glyph")
     }
 
+    @Test fun documentSyncShowsTransferDetailsAndInterruptedRow() = runComposeUiTest {
+        val running = item("documents", message = "Downloading KJV · 2/5 · 12 KB").copy(kind = ActivityKind.DOCUMENT_SYNC)
+        val interrupted = item("interrupted", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC)
+        toolbar(menu(listOf(running, interrupted)), noAnim = true, expanded = true)
+        onNodeWithText("Downloading KJV · 2/5 · 12 KB").assertExists()
+        onNodeWithText("Open AndBible and run sync again").assertExists()
+    }
+
     @Test fun ringShownWhileRunning() = runComposeUiTest {
         toolbar(menu(listOf(item("a"))))
         ring(this).assertExists()

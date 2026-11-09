@@ -2288,6 +2288,9 @@
     <string name="document_sync_activity_title">Document synchronization</string>
     <string name="document_sync_enabled">Document synchronization enabled</string>
     <string name="document_sync_disabled">Document synchronization disabled</string>
+    <string name="document_sync_no_transfer">no document transfer running</string>
+    <string name="document_sync_settings_summary">%1$s; %2$s</string>
+    <string name="document_sync_transfer_running">Document transfer running</string>
     <string name="document_sync_counts">%1$d / %2$d operations</string>
     <string name="document_sync_idle">Document sync idle: %1$s</string>
     <string name="document_sync_running">Document synchronization running: %1$s</string>

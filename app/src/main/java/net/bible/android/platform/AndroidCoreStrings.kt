@@ -9,6 +9,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val documentSyncActivityTitle get() = context.getString(R.string.document_sync_activity_title)
     override val documentSyncEnabled get() = context.getString(R.string.document_sync_enabled)
     override val documentSyncDisabled get() = context.getString(R.string.document_sync_disabled)
+    override val documentSyncTransferRunning get() = context.getString(R.string.document_sync_transfer_running)
     private fun syncText(key: String, args: List<Any>): String {
         val id = when (key) {
             "document_sync_counts" -> R.string.document_sync_counts

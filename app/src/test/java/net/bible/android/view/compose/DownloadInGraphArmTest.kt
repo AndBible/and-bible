@@ -181,6 +181,7 @@ class DownloadInGraphArmTest {
             openOrGate = { error("not exercised here") },
             seedItems = { error("not exercised here") },
             refreshFromNetwork = { error("not exercised here") },
+            transferRunningProvider = { error("not exercised here") },
             subscribeProgress = { error("not exercised here") },
             statusFilterLabels = { error("not exercised here") },
             categoryFilterLabels = { error("not exercised here") },

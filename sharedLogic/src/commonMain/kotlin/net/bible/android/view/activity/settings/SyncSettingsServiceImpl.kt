@@ -64,6 +64,8 @@ class SyncSettingsServiceImpl(
     private val environment: AppEnvironment,
     private val notifyDatabaseRestored: () -> Unit,
     private val notificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
+    private val progressTracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
+    private val runningState: (() -> StateFlow<Boolean>)? = null,
 ) : SyncSettingsService {
     private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
         adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
@@ -75,7 +77,25 @@ class SyncSettingsServiceImpl(
     ))
     override val snapshot: StateFlow<SyncSettingsSnapshot> = _snapshot.asStateFlow()
 
-    init { refresh() }
+    private fun transferSummary(): String? {
+        val progress = progressTracker?.state?.value
+        return when {
+            progress != null && progress.status != net.bible.sharedcore.cloud.DocumentSyncProgressStatus.IDLE ->
+                strings.documentSyncStatus(progress, progress.initials)
+            runningState?.invoke()?.value == true -> strings.documentSyncTransferRunning
+            else -> null
+        }
+    }
+
+    init {
+        refresh()
+        progressTracker?.let { tracker ->
+            scope.launch { tracker.state.collect { _snapshot.value = _snapshot.value.copy(documentTransferSummary = transferSummary()) } }
+        }
+        runningState?.let { state ->
+            scope.launch { state().collect { _snapshot.value = _snapshot.value.copy(documentTransferSummary = transferSummary()) } }
+        }
+    }
 
     private val isWebDav get() = cloudSync.adapterId == "WEBDAV"
     private val webDavState get() = platform.webDavState
@@ -128,6 +148,7 @@ class SyncSettingsServiceImpl(
                 categorySummary(cat, lastSynchronized[cat])
             },
             documentsEnabled = documentsEnabled,
+            documentTransferSummary = transferSummary(),
             documentCategoryVisible = signedIn,
             autoDownload = documentSettings.autoDownload,
             autoUpload = documentSettings.autoUpload,

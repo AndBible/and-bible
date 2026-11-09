@@ -28,6 +28,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val documentSyncActivityTitle get() = t.text("document_sync_activity_title")
     override val documentSyncEnabled get() = t.text("document_sync_enabled")
     override val documentSyncDisabled get() = t.text("document_sync_disabled")
+    override val documentSyncTransferRunning get() = t.text("document_sync_transfer_running")
     private fun syncText(key: String, args: List<Any>) = t.fmt(key, *args.toTypedArray())
     override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) =
         net.bible.sharedcore.cloud.documentSyncText(progress, documentLabel, ::syncText)

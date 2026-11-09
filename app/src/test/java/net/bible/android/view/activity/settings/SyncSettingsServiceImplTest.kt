@@ -88,18 +88,52 @@ class SyncSettingsServiceImplTest {
         categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
         writeScope: CoroutineScope = scope,
         platform: net.bible.service.cloudsync.SyncSettingsPlatform = org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java),
+        starter: net.bible.sharedcore.cloud.DocumentSyncStarter? = null,
+        tracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
+        permission: net.bible.sharedcore.platform.NotificationPermission? = null,
+        running: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
             scope, writeScope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
             get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
             get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
-            get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            starter ?: get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             platform, net.bible.test.testCoreStrings(),
             get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
+            notificationPermission = permission, progressTracker = tracker, runningState = running?.let { state -> { state } },
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
+    }
+
+    @Test fun manualTransferWhileDisabledIsVisibleFromExistingRunningState() = kotlinx.coroutines.runBlocking {
+        val running = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val service = impl(running = running)
+        assertFalse(service.snapshot.value.documentsEnabled)
+        running.value = true
+        assertFalse(service.snapshot.value.documentsEnabled)
+        assertEquals("Document transfer running", service.snapshot.value.documentTransferSummary)
+        running.value = false
+        assertNull(service.snapshot.value.documentTransferSummary)
+    }
+
+    @Test fun deniedPermissionDoesNotPreventEnablingDocuments() = kotlinx.coroutines.runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined).also { scopes.add(it) }
+        var permissionRequests = 0
+        var starts = 0
+        val starter = object : net.bible.sharedcore.cloud.DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) = Unit
+            override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) { starts++ }
+            override fun stop() = Unit
+        }
+        val service = impl(scope, starter = starter,
+            permission = net.bible.sharedcore.platform.NotificationPermission { permissionRequests++; throw IllegalStateException("denied") })
+        service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), listOf("KJV"), 0, 100))
+        assertTrue(settings.enabled)
+        assertTrue(service.snapshot.value.documentsEnabled)
+        assertEquals(1, permissionRequests)
+        assertEquals(1, starts)
     }
 
     @Test fun controllerToggleRefreshSeesLoadedMutationBeforeWorkerRuns() = kotlinx.coroutines.runBlocking {

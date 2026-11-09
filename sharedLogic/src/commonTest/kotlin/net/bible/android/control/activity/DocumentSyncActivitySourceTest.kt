@@ -38,6 +38,19 @@ class DocumentSyncActivitySourceTest {
         assertTrue(center.isRunning("document-sync:1"))
     }
 
+    @Test fun unknownDownloadTotalDoesNotProducePercentage() = runTest {
+        val tracker = DocumentSyncProgressTracker()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        DocumentSyncActivitySource(center, tracker, ::strings)
+        tracker.begin(1, 1)
+        tracker.operation(1, 1, DocumentSyncOperation.DOWNLOAD, "KJV")
+        advanceTimeBy(1000); runCurrent()
+        tracker.bytes(1, 1, 25, 0)
+        val item = center.items.value.single()
+        assertEquals(null, item.progress)
+        assertTrue(item.message!!.contains("25"))
+    }
+
     @Test fun shortFinishedThenNewRunRetainsSuccess() = runTest {
         val tracker = DocumentSyncProgressTracker()
         val center = ActivityCenter(backgroundScope) { currentTime }

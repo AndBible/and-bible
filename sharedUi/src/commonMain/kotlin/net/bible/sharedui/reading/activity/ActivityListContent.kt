@@ -130,7 +130,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
             Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             when {
                 item.state == ActivityState.RUNNING -> {
-                    if (message != null && item.kind == ActivityKind.AI_AGENT) Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    if (message != null && item.kind in setOf(ActivityKind.AI_AGENT, ActivityKind.DOCUMENT_SYNC)) Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     val barColor = LocalContentColor.current
                     val trackColor = barColor.copy(alpha = 0.2f)
                     val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)

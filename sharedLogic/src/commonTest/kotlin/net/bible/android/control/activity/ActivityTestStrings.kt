@@ -12,6 +12,7 @@ internal class ActivityTestStrings : CoreStrings {
     override val documentSyncActivityTitle = "Document sync"
     override val documentSyncEnabled = "Enabled"
     override val documentSyncDisabled = "Disabled"
+    override val documentSyncTransferRunning = "Document transfer running"
     override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) = "${progress.status}:$documentLabel:${progress.bytesTransferred}"
     override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) = "count:${progress.processed}"
 

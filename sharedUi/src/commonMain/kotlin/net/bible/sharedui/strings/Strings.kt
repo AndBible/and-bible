@@ -162,6 +162,10 @@ interface Strings {
     val documentSyncAutoDownloadTitle: String
     val documentSyncAutoDownloadSummary: String
     val documentSyncContents: String
+    val documentSyncEnabled: String
+    val documentSyncDisabled: String
+    val documentSyncNoTransfer: String
+    fun documentSyncSettingsSummary(enabled: String, status: String): String
     val documentSyncAutoDeleteSummary: String
     val documentSyncAutoUploadSummary: String
     val documentSyncEnableDialogTitle: String

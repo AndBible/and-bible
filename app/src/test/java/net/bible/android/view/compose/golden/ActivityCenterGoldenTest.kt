@@ -169,5 +169,19 @@ class ActivityCenterGoldenTest {
     )
 
     @Test
+    fun document_sync_states() = list(listOf(
+        item("Document synchronization", progress = 45, message = "2 / 5 operations: Download KJV, 45 / 100 bytes")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", message = "1 / 3 operations: Download ESV, 42 bytes")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", ActivityState.SUCCEEDED, message = "Document sync queue finished: 3 / 3 operations")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+    )).let { content ->
+        (modes + GoldenMode.MONO_DARK).forEach { captureGolden("ActivityCenter", "document_sync_states", it, content = content) }
+    }
+
+    @Test
     fun list_empty() = capture("list_empty", list(emptyList()))
 }

@@ -128,6 +128,16 @@ class ActivityListTest {
         onAllNodesWithTag(ACTIVITY_LIST_ROW_TAG).assertCountEquals(1)
     }
 
+    @Test fun documentSyncShowsTransferDetailsAndInterruptedRow() = runComposeUiTest {
+        val running = item("documents", message = "Downloading KJV · 2/5 · 12 KB").copy(kind = ActivityKind.DOCUMENT_SYNC)
+        val interrupted = item("interrupted", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC)
+        content(listOf(running, interrupted))
+        onNodeWithText("Downloading KJV · 2/5 · 12 KB").assertExists()
+        onNodeWithText("Open AndBible and run sync again").assertExists()
+        onAllNodesWithTag(ACTIVITY_LIST_ROW_TAG).assertCountEquals(2)
+    }
+
     @Test fun sectionsRunningAndRecent() = runComposeUiTest {
         content(listOf(item("r"), item("ok", ActivityState.SUCCEEDED), item("bad", ActivityState.FAILED, message = "boom")))
         onNodeWithText("Running").assertExists()

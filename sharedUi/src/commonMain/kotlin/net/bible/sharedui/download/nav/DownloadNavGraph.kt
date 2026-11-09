@@ -398,11 +398,14 @@ class CloudDocumentsDeps(
     val openOrGate: suspend () -> Boolean,
     val seedItems: suspend () -> List<CloudDocItem>,
     val refreshFromNetwork: suspend () -> Unit,
+    private val transferRunningProvider: () -> kotlinx.coroutines.flow.StateFlow<Boolean>,
     val subscribeProgress: (onRunning: (Boolean) -> Unit) -> () -> Unit,
     val statusFilterLabels: (showRemoved: Boolean) -> List<String>,
     val categoryFilterLabels: () -> List<String>,
     val countLabel: (count: Int, bytes: Long?) -> String,
-)
+) {
+    val transferRunning: kotlinx.coroutines.flow.StateFlow<Boolean> get() = transferRunningProvider()
+}
 
 /**
  * Platform-supplied slots the Documents/downloads cluster's destinations need but `commonMain`
@@ -1022,11 +1025,11 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // :111-116): deps.subscribeProgress owns the `DocumentSync.runningChanged` subscription
         // lifetime and reports every transition; the arm's job is exactly the collector's old body.
         DisposableEffect(Unit) {
+            var active = true
             val stop = d.subscribeProgress { running ->
-                controller.setTransferRunning(running)
-                if (!running) scope.launch { d.refreshFromNetwork() }
+                if (active && !running) scope.launch { d.refreshFromNetwork() }
             }
-            onDispose { stop() }
+            onDispose { active = false; stop() }
         }
 
         val grouped by controller.grouped.collectAsState()
@@ -1037,7 +1040,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val selectionMode by controller.selectionMode.collectAsState()
         val selectedIds by controller.selectedIds.collectAsState()
         val busy by controller.busy.collectAsState()
-        val transferRunning by controller.transferRunning.collectAsState()
+        val transferRunning by d.transferRunning.collectAsState()
         val showRemoved by controller.showRemoved.collectAsState()
         val dialog by controller.dialog.collectAsState()
         val arrangement by controller.arrangement.collectAsState()
