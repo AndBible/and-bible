@@ -1,7 +1,5 @@
 package net.bible.service.cloudsync.nextcloud
 
-import android.os.Looper
-import kotlinx.coroutines.runBlocking
 import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -18,7 +16,6 @@ import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent.get
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import java.io.IOException
@@ -26,10 +23,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import javax.xml.parsers.DocumentBuilderFactory
 
 @RunWith(RobolectricTestRunner::class)
@@ -101,7 +94,7 @@ class NextCloudDocumentWatermarkTest {
 
     // Test-local save boundary mirrors refreshCache's list-then-merge order, not database persistence.
     private fun refresh(store: DocumentStore, saved: MergeResult): MergeResult {
-        val listing = await { store.listChangedDocuments(saved.watermark) }
+        val listing = awaitOperation { store.listChangedDocuments(saved.watermark) }
         return mergeCloudListing(saved.cache, listing.changedMetas, listing.currentInitials, saved.watermark, listing.matchedCreatedTimes, listing.failedCreatedTimes)
     }
 
@@ -146,21 +139,9 @@ class NextCloudDocumentWatermarkTest {
             MockWebServer().use { server ->
                 val dav = Dav(); server.dispatcher = dav; server.start()
                 val adapter = NextCloudAdapter(server.url("/").toString(), "me", "pw", httpsOnly = false)
-                assertTrue(await { adapter.signIn() })
+                assertTrue(awaitOperation { adapter.signIn() })
                 block(dav, DocumentStore(adapter, "/sync-documents", get(AppEnvironment::class.java)))
             }
         } finally { host.pause().stop().destroy() }
-    }
-    private fun <T> await(block: suspend () -> T): T {
-        val executor = Executors.newSingleThreadExecutor()
-        try {
-            val future = executor.submit<T> { runBlocking { block() } }
-            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
-            while (!future.isDone && System.nanoTime() < deadline) {
-                shadowOf(Looper.getMainLooper()).idle()
-                try { future.get(10, TimeUnit.MILLISECONDS) } catch (_: TimeoutException) { }
-            }
-            return future.get(1, TimeUnit.SECONDS)
-        } catch (e: ExecutionException) { throw e.cause ?: e } finally { executor.shutdownNow() }
     }
 }

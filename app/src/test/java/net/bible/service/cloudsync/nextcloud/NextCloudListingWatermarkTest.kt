@@ -1,7 +1,5 @@
 package net.bible.service.cloudsync.nextcloud
 
-import android.os.Looper
-import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import net.bible.android.TestBibleApplication
@@ -16,14 +14,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import java.io.IOException
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
@@ -199,25 +193,4 @@ class NextCloudListingWatermarkTest {
             </d:multistatus>
         """.trimIndent()).build()
 
-    private fun <T> awaitOperation(block: suspend () -> T): T {
-        val executor = Executors.newSingleThreadExecutor()
-        try {
-            // OwnCloud posts completion on main; keep that looper running while HTTP works off-main.
-            val operation = executor.submit<T> { runBlocking { block() } }
-            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
-            while (!operation.isDone && System.nanoTime() < deadline) {
-                shadowOf(Looper.getMainLooper()).idle()
-                try {
-                    operation.get(10, TimeUnit.MILLISECONDS)
-                } catch (_: TimeoutException) {
-                    // Service the next main callback after the bounded HTTP wait.
-                }
-            }
-            return operation.get(1, TimeUnit.SECONDS)
-        } catch (e: ExecutionException) {
-            throw e.cause ?: e
-        } finally {
-            executor.shutdownNow()
-        }
-    }
 }
