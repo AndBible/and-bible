@@ -224,6 +224,10 @@ class NextCloudAdapter(
         if (mimeType != null) {
             filtered = filtered.filter { it.mimeType == mimeType }
         }
+        // The legacy createdTime is a change watermark; creation time cannot safely replace an unknown modification time.
+        if (createdTimeAtLeast != null && filtered.any { it.modifiedTimestamp <= 0 }) {
+            throw IOException("Nextcloud incremental listing contains an invalid modification time")
+        }
         return filtered.map { it.toSyncFile() }
     }
 
@@ -347,7 +351,7 @@ private fun RemoteFile.toSyncFile(): CloudFile {
         id = "$parent/$name",
         name = name,
         size = length,
-        createdTime = creationTimestamp,
+        createdTime = modifiedTimestamp,
         parentId = parent
     )
 }
