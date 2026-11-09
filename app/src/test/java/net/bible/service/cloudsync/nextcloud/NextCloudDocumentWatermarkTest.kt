@@ -88,8 +88,11 @@ class NextCloudDocumentWatermarkTest {
         dav.items["A"] = fixture("A", a)
         var saved = refresh(store, MergeResult(emptyList(), 0))
         val before = saved
-        dav.items["B"] = fixture("B", b).copy(invalid = true); dav.items["C"] = fixture("C", c)
+        dav.items["B"] = fixture("B", b).copy(invalid = true)
+        dav.items["B/nested"] = fixture("C", c)
+        dav.searchResults.clear()
         assertThrows(IOException::class.java) { saved = refresh(store, saved) }
+        assertTrue(dav.searchResults.contains(setOf("B", "B/nested")))
         assertEquals(before, saved)
         dav.items["B"] = fixture("B", b)
         saved = refresh(store, saved)
@@ -106,22 +109,25 @@ class NextCloudDocumentWatermarkTest {
         val items = java.util.concurrent.ConcurrentHashMap<String, Fixture>()
         val gets = CopyOnWriteArrayList<String>()
         val bounds = CopyOnWriteArrayList<Long>()
+        val searchResults = CopyOnWriteArrayList<Set<String>>()
         override fun dispatch(request: RecordedRequest): MockResponse {
             val path = request.url.encodedPath
             return when (request.method) {
                 "PROPFIND" -> {
-                    val folders = if (path.contains("sync-documents")) items.keys.sorted().joinToString("") { response("$it/", null, true) } else ""
+                    val folders = if (path.contains("sync-documents")) items.keys.map { it.substringBefore('/') }.distinct().sorted().joinToString("") { response("$it/", null, true) } else ""
                     multistatus(response("", null, true) + folders)
                 }
                 "SEARCH" -> {
                     val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder().parse(request.body!!.utf8().byteInputStream())
                     val bound = Instant.parse(doc.getElementsByTagNameNS("DAV:", "literal").item(0).textContent).toEpochMilli()
                     bounds.add(bound)
-                    val scope = doc.getElementsByTagNameNS("DAV:", "href").item(0).textContent.trimEnd('/').substringAfterLast('/')
-                    multistatus(items.entries.filter { it.key == scope && it.value.modified > bound }.joinToString("") { response("${it.key}/meta.json", it.value, false) })
+                    val scope = doc.getElementsByTagNameNS("DAV:", "href").item(0).textContent.trimEnd('/').substringAfter("/sync-documents/")
+                    val matched = items.entries.filter { (it.key == scope || it.key.startsWith("$scope/")) && it.value.modified > bound }
+                    searchResults.add(matched.map { it.key }.toSet())
+                    multistatus(matched.joinToString("") { response("${it.key}/meta.json", it.value, false) })
                 }
                 "GET" -> {
-                    val id = path.substringBeforeLast('/').substringAfterLast('/'); gets.add(path)
+                    val id = path.substringAfter("/sync-documents/").substringBeforeLast('/'); gets.add(path)
                     MockResponse.Builder().code(200).body(items[id]?.let { if (it.brokenJson) "{" else it.meta.toJson() } ?: "{}").build()
                 }
                 else -> MockResponse.Builder().code(404).build()
