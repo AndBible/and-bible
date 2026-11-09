@@ -256,6 +256,7 @@ fun buildSharedBindings() = module {
             stopMonitoring = downloads::stopMonitoringDownloads,
         )
     }.onClose { it?.close() }
+    single { net.bible.android.control.activity.DocumentSyncActivitySource(get(), get()) { get() } }.onClose { it?.close() }
     single { JobActivitySource(get()).also { it.attach() } }.onClose { it?.detach() }
     single {
         SyncActivitySource(get(), get<CloudSync>().runningChanged) { get<net.bible.sharedcore.platform.CoreStrings>().synchronizing }

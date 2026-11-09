@@ -103,6 +103,24 @@ class ActivitySourcesTest {
     }
 
     @Test
+    fun documentQueueDoesNotChangeDatabaseSyncSuppression() = runTest {
+        val c = center()
+        val events = EventSource<Boolean>()
+        val database = SyncActivitySource(c, events) { "Database sync" }
+        val tracker = net.bible.service.cloudsync.documents.DocumentSyncProgressTracker()
+        val documents = DocumentSyncActivitySource(c, tracker) { ActivityTestStrings() }
+        events.emit(true)
+        tracker.begin(1, 1)
+        advance(1000)
+        events.emit(false)
+        tracker.finish(1)
+        assertEquals(listOf(ActivityKind.DOCUMENT_SYNC), c.items.value.map { it.kind })
+        assertEquals(ActivityState.SUCCEEDED, c.items.value.single().state)
+        database.close()
+        documents.close()
+    }
+
+    @Test
     fun cancelledDownloadIsDropped() = runTest {
         val c = center()
         val events = EventSource<DocumentStatus>()

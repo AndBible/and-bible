@@ -134,6 +134,7 @@ object SharedAppStartup {
         if (koin.getOrNull<ActivityCenter>() == null) return // module without the activity center (minimal test graphs)
         start("DownloadActivitySource") { koin.get<DownloadActivitySource>() }
         start("JobActivitySource") { koin.get<JobActivitySource>() }
+        start("DocumentSyncActivitySource") { koin.get<net.bible.android.control.activity.DocumentSyncActivitySource>() }
         start("SyncActivitySource") { koin.get<SyncActivitySource>() }
         start("AgentActivitySource") { koin.get<net.bible.android.control.activity.AgentActivitySource>() }
         // Native system notifications (#4012): bound only on platforms that have a native notifier (desktop).

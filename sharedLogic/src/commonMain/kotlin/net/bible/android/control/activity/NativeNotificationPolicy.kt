@@ -164,6 +164,8 @@ class NativeNotificationPolicy(
             if (kind != null && (last?.state == ActivityState.RUNNING || last?.state == ActivityState.FAILED)) removeNotification(id)
         }
         for (item in input.list) {
+            // Document queues use a separate lifecycle policy; never leak their detailed in-app message here.
+            if (item.kind == ActivityKind.DOCUMENT_SYNC) continue
             val prev = lastSeen[item.id]
             lastSeen[item.id] = item
             if (item.state == ActivityState.RUNNING) firstSeenRunningAt.getOrPut(item.id) { now }
@@ -187,7 +189,7 @@ class NativeNotificationPolicy(
                         dropShown(item.id)
                     }
                 }
-                ActivityState.CANCELLED -> if (shown.containsKey(item.id)) dropShown(item.id)
+                ActivityState.CANCELLED, ActivityState.INTERRUPTED -> if (shown.containsKey(item.id)) dropShown(item.id)
                 ActivityState.RUNNING -> if (item.attention) {
                     if (input.fg && shown[item.id] == Shown.PROGRESS) dropShown(item.id)
                     if (!input.fg && (prev?.attention != true || prev.state != ActivityState.RUNNING || backgroundTransition) && shown[item.id] != Shown.ATTENTION) {

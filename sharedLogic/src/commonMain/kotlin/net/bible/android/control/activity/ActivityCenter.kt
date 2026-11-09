@@ -134,7 +134,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     fun succeed(id: String) = change { recs ->
         val rec = recs[id] ?: return@change recs
         val now = clock()
-        if (rec.item.kind == ActivityKind.SYNC || now - rec.item.startedAt < DEBOUNCE_MS) {
+        if (rec.item.kind == ActivityKind.SYNC || (rec.item.kind != ActivityKind.DOCUMENT_SYNC && now - rec.item.startedAt < DEBOUNCE_MS)) {
             recs - id // never shown, or not worth keeping
         } else {
             recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.SUCCEEDED, progress = 100, finishedAt = now, cancel = null, attention = false)))
@@ -143,6 +143,15 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 
     fun fail(id: String, message: String, reportable: Boolean = false, cause: Throwable? = null) = modify(id) {
         it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false, reportable = reportable, cause = cause, attention = false)
+    }
+
+    fun setNotificationMessage(id: String, message: String?) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(notificationMessage = message) else it
+    }
+
+    fun interrupt(id: String, message: String, notify: Boolean) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(state = ActivityState.INTERRUPTED, message = message,
+            finishedAt = clock(), cancel = null, attention = false, notifyInterruption = notify) else it
     }
 
     fun cancelled(id: String) = change { it - id }

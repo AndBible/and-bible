@@ -66,6 +66,16 @@ class NativeNotificationPolicyTest {
     ) = ActivityItem(id, kind, "T-$id", state, progress, message, null, started, finished, true)
 
     @Test
+    fun documentQueueDoesNotLeakDetailedTextIntoLegacyNotifications() = runTest {
+        val f = fixture()
+        val running = item(kind = ActivityKind.DOCUMENT_SYNC, message = "PRIVATE")
+        f.set(running); runCurrent()
+        advance(30_000)
+        f.set(running.copy(state = ActivityState.SUCCEEDED, finishedAt = currentTime)); runCurrent()
+        assertTrue(f.notifier.shows.isEmpty())
+    }
+
+    @Test
     fun attentionInBackgroundNotifiesOnceAndClears() = runTest {
         val f = fixture()
         val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow tool?").copy(attention = true)

@@ -9,6 +9,12 @@ import net.bible.sharedcore.platform.CoreStrings
  * member of [CoreStrings] needs a line here.
  */
 internal class StubCoreStrings : CoreStrings {
+    override val documentSyncActivityTitle = "Document sync"
+    override val documentSyncEnabled = "Enabled"
+    override val documentSyncDisabled = "Disabled"
+    override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) = progress.status.name
+    override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) = progress.status.name
+
     override val errorReport = "errorReport"
     override val errorBackup = "errorBackup"
     override val errorSkip = "errorSkip"

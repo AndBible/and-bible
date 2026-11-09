@@ -1,10 +1,10 @@
 package net.bible.android.control.activity
 
 /** What kind of background work an [ActivityItem] represents. */
-enum class ActivityKind { DOWNLOAD, INSTALL, INDEX, SYNC, OTHER, AI_AGENT }
+enum class ActivityKind { DOWNLOAD, INSTALL, INDEX, SYNC, DOCUMENT_SYNC, OTHER, AI_AGENT }
 
 /** Lifecycle state of an [ActivityItem]. [CANCELLED] items are never shown; they are dropped at once. */
-enum class ActivityState { RUNNING, SUCCEEDED, FAILED, CANCELLED }
+enum class ActivityState { RUNNING, SUCCEEDED, FAILED, CANCELLED, INTERRUPTED }
 
 /**
  * One row of the activity center.
@@ -31,4 +31,6 @@ data class ActivityItem(
     val reportable: Boolean = false,
     val cause: Throwable? = null,
     val attention: Boolean = false,
+    val notifyInterruption: Boolean = false,
+    val notificationMessage: String? = null,
 )
