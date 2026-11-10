@@ -1,0 +1,16 @@
+- Added iOS document-sync visibility and notifications (e93b2db)
+- Improved iOS log export with headers and complete-entry retention (7982219)
+- Fixed Nextcloud document listing so changes are detected by modification time (#4032)
+
+AndBible 6.0 public beta!
+
+One app for Android, iPhone, iPad, Mac, Windows and Linux.
+- The whole app rebuilt, with a redesigned interface
+- Sync between all your devices: Nextcloud, WebDAV, Google Drive (Android) and iCloud Drive (Apple)
+- Background activity list with notifications
+- Reading plans in sync
+- New search index, rebuilt once after the update
+
+This is a beta: please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
