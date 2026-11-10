@@ -92,7 +92,8 @@ class CloudSync(
     private val syncNamespace: String? = null,
 ) {
     var adapterId: String
-        get() = settings.getString("sync_adapter") ?: adapters.available.first()
+        // Preserve an unavailable saved id so it can be used again on a platform that supports it.
+        get() = settings.getString("sync_adapter")?.takeIf { it in adapters.available } ?: adapters.available.first()
         set(value) = settings.setString("sync_adapter", value)
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 

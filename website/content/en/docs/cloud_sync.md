@@ -39,6 +39,8 @@ Errors raised during startup remain queued until the app can display them.
 3. Choose your sync adapter: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. Windows and Linux offer Nextcloud and WebDAV.
 4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
 
+If a saved backend is unavailable on this platform, the settings show the first available backend instead. Choose and configure a backend supported by this device.
+
 When enabling sync for the first time:
 
 - If **no sync data exists** in the cloud yet, your local data will be uploaded
