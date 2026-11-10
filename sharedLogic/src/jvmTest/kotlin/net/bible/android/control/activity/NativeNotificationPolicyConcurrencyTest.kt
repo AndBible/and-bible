@@ -45,6 +45,64 @@ class NativeNotificationPolicyConcurrencyTest {
         override fun setOnActivated(handler: (id: String) -> Unit) {}
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun concurrentPreferenceDrainerCannotLetOffTerminalOvertakePreference() = runTest {
+        concurrentPreferenceDrainerScenario(terminal = true)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun concurrentPreferenceDrainerCannotHideRapidOffOnFromPendingTimer() = runTest {
+        concurrentPreferenceDrainerScenario(terminal = false)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun kotlinx.coroutines.test.TestScope.concurrentPreferenceDrainerScenario(terminal: Boolean) {
+        var stored = true
+        val settings = object : net.bible.sharedcore.platform.AppSettings by
+            net.bible.sharedlogic.settings.DatabaseAppSettings({ error("unused settings") }, { false }) {
+            override fun getBoolean(key: String, default: Boolean) = stored
+            override fun setBoolean(key: String, value: Boolean?) { stored = value ?: true }
+        }
+        val preference = SystemNotificationsPreference(settings, true)
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        // Registered before the policy: pause the shared drainer before it delivers the policy edge.
+        val blocker = preference.observe { if (!it) { entered.countDown(); release.await(5, TimeUnit.SECONDS) } }
+        val calls = mutableListOf<String>()
+        val notifier = object : NativeNotifier {
+            override val supportsProgress = false
+            override fun show(n: NativeNotification) { calls += "show:${n.id}" }
+            override fun remove(id: String) { calls += "remove:$id" }
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+        }
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(DocumentSyncProgress(1, 1, DocumentSyncProgressStatus.RUNNING, total = 3))
+        runCurrent(); advanceTimeBy(if (terminal) 10_000 else 9_000); runCurrent()
+        val drainer = Thread { preference.set(false) }.also { it.start() }
+        try {
+            assertTrue(entered.await(2, TimeUnit.SECONDS), "Preference drainer did not pause")
+            // These setters return on this thread while another thread owns the blocked drainer.
+            if (!terminal) preference.set(true) else preference.set(false)
+            if (terminal) {
+                policy.onDocumentSyncProgress(DocumentSyncProgress(1, 2, DocumentSyncProgressStatus.FINISHED, total = 3))
+                runCurrent()
+                assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), calls)
+            } else {
+                advanceTimeBy(1_000); runCurrent()
+                assertTrue(calls.isEmpty(), "Pending timer ignored accepted rapid off/on while callbacks paused")
+            }
+        } finally {
+            release.countDown(); drainer.join(2_000)
+            assertTrue(!drainer.isAlive)
+            blocker.cancel(); policy.close()
+        }
+    }
+
     @OptIn(kotlinx.coroutines.InternalCoroutinesApi::class)
     @Test
     fun documentByteListsDoNotAccumulateWhilePolicyConsumerIsBlocked() {

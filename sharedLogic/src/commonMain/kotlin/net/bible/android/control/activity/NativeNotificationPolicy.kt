@@ -101,7 +101,8 @@ class NativeNotificationPolicy(
     private sealed interface LifecycleInput {
         data class Queue(val progress: DocumentSyncProgress, val at: Long) : LifecycleInput
         data class Focus(val foreground: Boolean, val at: Long) : LifecycleInput
-        data class Preference(val enabled: Boolean, val at: Long) : LifecycleInput
+        data class Preference(val enabled: Boolean, val at: Long,
+            val snapshot: SystemNotificationsPreference.Snapshot? = null) : LifecycleInput
         data class ListChanged(val items: List<ActivityItem>) : LifecycleInput
         data class Expired(val generation: Long) : LifecycleInput
         data object Refresh : LifecycleInput
@@ -122,6 +123,27 @@ class NativeNotificationPolicy(
     /** Separate classification: lifecycle starts are neither persistent progress nor attention. */
     @Volatile private var lifecycleStartId: String? = null
     @Volatile private var preferenceSubscription: Subscription? = null
+    private var preferenceRevision = -1L
+    private var preferenceOffRevision = 0L
+
+    private fun acceptPreference(snapshot: SystemNotificationsPreference.Snapshot, at: Long) {
+        if (snapshot.revision <= preferenceRevision) return
+        val crossedOff = snapshot.lastOffRevision > preferenceOffRevision
+        preferenceRevision = snapshot.revision
+        preferenceOffRevision = snapshot.lastOffRevision
+        val changed = lifecycleEnabled != snapshot.enabled
+        lifecycleEnabled = snapshot.enabled
+        if (crossedOff || changed) {
+            resetLifecycleTimer(at)
+            if (crossedOff || !snapshot.enabled) removeLifecycleStart()
+        }
+    }
+
+    // Observer callbacks can be queued behind another observer on a different thread. Fence each
+    // consumer turn against accepted state, retaining off epochs even if off/on already completed.
+    private fun reconcilePreference() {
+        notificationPreference?.snapshot()?.let { acceptPreference(it, clock()) }
+    }
 
     private fun acceptQueue(progress: DocumentSyncProgress, at: Long) {
         val previous = queue
@@ -196,8 +218,8 @@ class NativeNotificationPolicy(
         if (documentSyncLifecycleNotices) {
             lifecycleForeground = inForeground.value
             lifecycleEnabled = enabled.value
-            val subscription = notificationPreference?.observe {
-                lifecycleInputs.trySend(LifecycleInput.Preference(it, clock()))
+            val subscription = notificationPreference?.observeSnapshot {
+                lifecycleInputs.trySend(LifecycleInput.Preference(it.enabled, clock(), it))
             }
             synchronized(closeLock) { // L1-common-ok: atomicfu lock
                 if (isClosed) { subscription?.cancel(); return }
@@ -217,6 +239,7 @@ class NativeNotificationPolicy(
                 var list = items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }
                 for (input in lifecycleInputs) {
                     if (isClosed) break
+                    reconcilePreference()
                     when (input) {
                         is LifecycleInput.ListChanged -> list = input.items
                         is LifecycleInput.Queue -> acceptQueue(input.progress, input.at)
@@ -226,7 +249,8 @@ class NativeNotificationPolicy(
                             if (input.foreground) removeLifecycleStart()
                         }
                         is LifecycleInput.Preference -> {
-                            if (lifecycleEnabled != input.enabled) {
+                            if (input.snapshot != null) acceptPreference(input.snapshot, input.at)
+                            else if (lifecycleEnabled != input.enabled) {
                                 lifecycleEnabled = input.enabled
                                 resetLifecycleTimer(input.at)
                                 if (!input.enabled) removeLifecycleStart()

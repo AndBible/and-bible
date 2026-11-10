@@ -27,18 +27,25 @@ class SystemNotificationsPreference(
     /** Current value; emits when [set] or [refresh] changes it. */
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
-    private class Observer(val callback: (Boolean) -> Unit) { var cancelled = false }
+    private class Observer(val callback: (Snapshot) -> Unit) { var cancelled = false }
     private val lock = SynchronizedObject()
     private val observers = mutableListOf<Observer>()
     private val pending = ArrayDeque<() -> Unit>()
     private var draining = false
 
+    /** Accepted state, independent of a delayed observer drainer. Off revision preserves rapid off/on. */
+    internal data class Snapshot(val enabled: Boolean, val revision: Long, val lastOffRevision: Long)
+    private var accepted = Snapshot(_enabled.value, 0, 0)
+    internal fun snapshot(): Snapshot = synchronized(lock) { accepted } // L1-common-ok: atomicfu lock
+
     /** Replays the current value before ordered changes, without StateFlow conflation. Cancel on owner close. */
-    fun observe(callback: (Boolean) -> Unit): Subscription {
+    fun observe(callback: (Boolean) -> Unit): Subscription = observeSnapshot { callback(it.enabled) }
+
+    internal fun observeSnapshot(callback: (Snapshot) -> Unit): Subscription {
         val observer = Observer(callback)
         synchronized(lock) { // L1-common-ok: atomicfu lock
             observers += observer
-            enqueue(observer, _enabled.value)
+            enqueue(observer, accepted)
         }
         drain()
         return Subscription {
@@ -63,11 +70,13 @@ class SystemNotificationsPreference(
 
     private fun publish(value: Boolean) {
         if (_enabled.value == value) return
-        observers.forEach { enqueue(it, value) }
+        val revision = accepted.revision + 1
+        accepted = Snapshot(value, revision, if (value) accepted.lastOffRevision else revision)
+        observers.forEach { enqueue(it, accepted) }
         _enabled.value = value
     }
 
-    private fun enqueue(observer: Observer, value: Boolean) {
+    private fun enqueue(observer: Observer, value: Snapshot) {
         pending.addLast {
             val active = synchronized(lock) { !observer.cancelled } // L1-common-ok: atomicfu lock
             if (active) observer.callback(value)
