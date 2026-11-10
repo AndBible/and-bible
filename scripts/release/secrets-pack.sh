@@ -66,7 +66,7 @@ RECIP=${RECIP%!}
 echo "pack: recipient $RECIP" >&2
 
 # Single-instance with release runs: the stale-dir sweep of a release run must never meet this script's RAM dir.
-exec 9> "${XDG_RUNTIME_DIR:-/tmp}/andbible-release.lock"
+exec 9> "${RELEASE_LOCK_FILE:-/tmp/andbible-release-$(id -u).lock}"
 flock -n 9 || die "a release run is active in this container"
 
 trap 'secrets_close' EXIT
@@ -161,7 +161,7 @@ python3 -I -c 'import json,sys; j=json.load(open(sys.argv[1])); sys.exit(0 if j.
     "$D/play-service-account.json" 2>/dev/null || die "the Play JSON is not a service account key"
 
 { echo format=1; for m in "${SECRETS_BUNDLE_MEMBERS[@]}"; do echo "member=$m"; done; } > "$D/MANIFEST"
-have=$(ls -A "$D" | sort | tr '\n' ' ')
+have=$(ls -A "$D" | grep -vx .owner | sort | tr '\n' ' ')
 want=$(printf '%s\n' MANIFEST "${SECRETS_BUNDLE_MEMBERS[@]}" | sort | tr '\n' ' ')
 [ "$have" = "$want" ] || die "unexpected files in the RAM dir: $have"
 

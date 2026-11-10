@@ -12,7 +12,7 @@
 # both -> wipe the RAM dir -> summary (.local/release/<versionCode>/summary.txt). On INT/TERM/HUP both branches get TERM
 # (KILL after RELEASE_KILL_WAIT s), a killed iOS branch's Mac key volume is detached, and the RAM dir is wiped.
 # Exit 0 iff every requested branch passed.
-# Env (tests): REPO_ROOT, ANDROID_SH, IOS_BUILD, MAC_REMOTE, CURL, FASTLANE, JAILBEE_ETC (/etc/jailbee),
+# Env (tests): RELEASE_LOCK_FILE (/tmp/andbible-release-<uid>.lock), REPO_ROOT, ANDROID_SH, IOS_BUILD, MAC_REMOTE, CURL, FASTLANE, JAILBEE_ETC (/etc/jailbee),
 #      MAC_SSH_CONFIG (~/.ssh-mac/config), RELEASE_SECRETS_SRC (~/.release-secrets), RELEASE_KILL_WAIT (120),
 #      RELEASE_RAMDIR_MOUNT=none (tests only).
 set -uo pipefail
@@ -62,7 +62,9 @@ container_name() {
 CONTAINER=$(container_name)
 
 # 1. One release run per container: the stale-dir sweep below must never meet a live run's RAM dir.
-exec 9> "${XDG_RUNTIME_DIR:-/tmp}/andbible-release.lock"
+# A fixed path: XDG_RUNTIME_DIR differs between a `jailbee shell` and an agent's shell, and two lock files would let a
+# second run sweep the first run's RAM dir.
+exec 9> "${RELEASE_LOCK_FILE:-/tmp/andbible-release-$(id -u).lock}"
 flock -n 9 || die "another release run is active in this container (or secrets-pack.sh is running)"
 
 VC=$(version_code) || die "no versionCode in version.properties"
@@ -127,6 +129,10 @@ android_branch() {
     local rc
     say() { echo "[android] $*" >&3; }
     if [ "$A_REUSE" = 1 ]; then
+        if [ "$DEST" != upload ]; then
+            say "reusing the AAB of this commit; export only: verifying, not uploading"
+            "$ANDROID_SH" verify ${DRYARG:+"$DRYARG"}; return
+        fi
         say "reusing the AAB of this commit; uploading to Play internal"
         "$ANDROID_SH" upload ${DRYARG:+"$DRYARG"}; return
     fi
@@ -164,13 +170,25 @@ run_branch() {
 
 # alive <pid>: is anything left in that branch's process group (a child can outlive the branch's own shell)?
 alive() { [ -n "$1" ] && kill -0 -- -"$1" 2>/dev/null; }
+# descendants <pid...>: every descendant, also those in another process group or session (GNU timeout, used by
+# mac-remote.sh around rsync/ssh, puts itself in its own group, so a group kill misses it).
+descendants() {
+    local p c
+    for p in "$@"; do
+        for c in $(pgrep -P "$p" 2>/dev/null); do echo "$c"; descendants "$c"; done
+    done
+}
+any_alive() { local p; for p in "$@"; do kill -0 "$p" 2>/dev/null && return 0; done; return 1; }
 # stop_branches: TERM both process groups, wait up to KILL_WAIT s, then KILL; detach the Mac volume of a killed iOS run.
 stop_branches() {
-    local i ios_killed=0
+    local i ios_killed=0 kids p
+    kids=$(descendants $APID $IPID)
     for p in $APID $IPID; do kill -TERM -- -"$p" 2>/dev/null; done
-    for ((i = 0; i < KILL_WAIT * 10; i++)); do alive "$APID" || alive "$IPID" || break; sleep 0.1; done
+    for p in $kids; do kill -TERM "$p" 2>/dev/null; done
+    for ((i = 0; i < KILL_WAIT * 10; i++)); do alive "$APID" || alive "$IPID" || any_alive $kids || break; sleep 0.1; done
     if alive "$APID"; then kill -KILL -- -"$APID" 2>/dev/null; fi
     if alive "$IPID"; then kill -KILL -- -"$IPID" 2>/dev/null; ios_killed=1; fi
+    for p in $kids; do kill -KILL "$p" 2>/dev/null; done
     wait 2>/dev/null
     if [ "$ios_killed" = 1 ] && [ -s "$VOLF" ]; then
         echo "release: the iOS branch had to be killed; detaching its Mac key volume" >&2
@@ -206,8 +224,9 @@ fi
 # 5. Both branches in parallel, each in its own process group.
 T0=$(date +%s)
 set -m
-[ "$WANT_A" = 0 ] || { run_branch android android_branch & APID=$!; }
-[ "$WANT_I" = 0 ] || { run_branch ios ios_branch & IPID=$!; }
+# stdin /dev/null: a background job of a job-control shell that reads the terminal is stopped (SIGTTIN) for good.
+[ "$WANT_A" = 0 ] || { run_branch android android_branch < /dev/null & APID=$!; }
+[ "$WANT_I" = 0 ] || { run_branch ios ios_branch < /dev/null & IPID=$!; }
 set +m
 [ -z "$APID" ] || wait "$APID"
 [ -z "$IPID" ] || wait "$IPID"

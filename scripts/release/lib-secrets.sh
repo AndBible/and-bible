@@ -9,8 +9,8 @@
 #                                      Default bundle: $RELEASE_SECRETS_SRC/andbible-release-secrets.tar.gpg. On failure
 #                                      the RAM dir is closed and the message names the step, never the content.
 #   secrets_member <name>              print $RELEASE_SECRETS_DIR/<name>; nonzero if not open or missing
-#   secrets_sweep_stale                shred/unmount/remove leftover release-secrets.* dirs of a killed run (only while
-#                                      holding the release lock, see release-internal.sh)
+#   secrets_sweep_stale                shred/unmount/remove leftover release-secrets.* dirs of a killed run: only dirs
+#                                      whose .owner pid is gone (and only while holding the release lock)
 #
 # Bundle format 1 (spec docs/superpowers/specs/2026-11-10-release-internal-one-touch-design.md §5.1): MANIFEST
 # (`format=1`, then one `member=<name>` line per member) and the members in SECRETS_BUNDLE_MEMBERS, all regular files.
@@ -39,6 +39,8 @@ secrets_open() {
         SECRETS_DIR=""
         return 1
     fi
+    # .owner: the pid of the run that holds this dir; secrets_sweep_stale never touches a dir whose owner is alive.
+    ( umask 077; echo "$$" > "$SECRETS_DIR/.owner" ) || { secrets_close; return 1; }
     export SECRETS_DIR SECRETS_FS
     echo "secrets: $SECRETS_FS RAM dir ready" >&2
 }
@@ -109,10 +111,12 @@ secrets_member() {
 }
 
 secrets_sweep_stale() {
-    local d n=0
+    local d n=0 owner
     for d in "${TMPDIR:-/tmp}"/release-secrets.*; do
         [ -d "$d" ] && [ -O "$d" ] || continue
         [ "$d" != "${SECRETS_DIR:-}" ] || continue
+        owner=$(cat "$d/.owner" 2>/dev/null)
+        if [[ "$owner" =~ ^[0-9]+$ ]] && [ -d "/proc/$owner" ]; then continue; fi    # a live run's dir
         find "$d" -type f -exec shred -u {} + 2>/dev/null
         if mountpoint -q "$d" 2>/dev/null; then sudo -n umount "$d" 2>/dev/null || echo "secrets: WARNING: cannot unmount stale $d" >&2; fi
         rm -rf "$d" 2>/dev/null && n=$((n + 1))

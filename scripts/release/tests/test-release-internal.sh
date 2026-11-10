@@ -48,6 +48,7 @@ echo "android $* sess=${RELEASE_SECRETS_DIR:+set} start=$(now)" >> "$STUB_DIR/ca
 case "$1" in reusable) exit "${STUB_A_REUSABLE:-1}" ;; esac
 [ -z "${RELEASE_SECRETS_DIR:-}" ] || [ "${2:-}" = --dry-run ] || grep -q SENTINEL "$RELEASE_SECRETS_DIR/keystore.properties" || exit 9
 echo $$ >> "$STUB_DIR/pids"
+[ -z "${STUB_A_READ_STDIN:-}" ] || { read -r -t 5 _x; echo "android read rc=$?" >> "$STUB_DIR/calls"; }
 [ -z "${STUB_A_SLEEP:-}" ] || { sleep "$STUB_A_SLEEP" & echo $! >> "$STUB_DIR/sleeppids"; wait $!; }
 echo "android: did $1"
 echo "android $1 end=$(now)" >> "$STUB_DIR/calls"
@@ -61,6 +62,7 @@ echo "ios $* sess=${RELEASE_SECRETS_DIR:+set} start=$(now)" >> "$STUB_DIR/calls"
 [ -z "${RELEASE_SECRETS_DIR:-}" ] || [[ " $* " == *" --dry-run "* ]] || grep -q SENTINEL "$RELEASE_SECRETS_DIR/AuthKey.p8" || exit 9
 echo $$ >> "$STUB_DIR/pids"
 [ -z "${IOS_VOL_FILE:-}" ] || echo "asckey-$$" > "$IOS_VOL_FILE"
+[ -z "${STUB_I_ESCAPE:-}" ] || { setsid sleep 60 & echo $! >> "$STUB_DIR/escaped"; }
 if [ -n "${STUB_I_IGNORE_TERM:-}" ]; then trap '' TERM; else trap 'echo "ios-term-detach" >> "$STUB_DIR/calls"; exit 143' TERM; fi
 [ -z "${STUB_I_SLEEP:-}" ] || { sleep "$STUB_I_SLEEP" & echo $! >> "$STUB_DIR/sleeppids"; wait $!; }
 echo "build 2026.1110.120000"
@@ -89,7 +91,7 @@ mk_repo() {
 }
 envs() {
     env PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" REPO_ROOT="$R" HOME="$T/home" TMPDIR="$T/tmp" XDG_RUNTIME_DIR="$T/xdg" \
-        RELEASE_RAMDIR_MOUNT=none RELEASE_SECRETS_SRC="${SRC_DIR-$T/src}" JAILBEE_ETC="${JB_ETC-$T/etc-jailbee}" \
+        RELEASE_LOCK_FILE="${LOCKF-$T/xdg/release.lock}" RELEASE_RAMDIR_MOUNT=none RELEASE_SECRETS_SRC="${SRC_DIR-$T/src}" JAILBEE_ETC="${JB_ETC-$T/etc-jailbee}" \
         ANDROID_SH="$T/android" IOS_BUILD="$T/ios" MAC_REMOTE="$T/mac-remote" CURL="$T/curl" \
         FASTLANE="${FASTLANE_CMD-fastlane}" RELEASE_KILL_WAIT="${RELEASE_KILL_WAIT:-10}" "$@"
 }
@@ -186,9 +188,41 @@ test_second_run_refused_and_live_dir_untouched() {
     envs bash "$SCRIPT" > "$T/out2" 2>&1; local rc2=$?
     [ "$rc2" != 0 ] && grep -q 'another release run is active' "$T/out2" || return "$(fail "second run rc=$rc2: $(cat "$T/out2")")"
     [ "$(count "$STUB_DIR/decrypts")" = 1 ] || return "$(fail "second run decrypted")"
-    [ -n "$live" ] && [ "$(ls "$live" | wc -l)" = 6 ] || return "$(fail "live dir damaged")"
+    [ -n "$live" ] && [ "$(ls -A "$live" | wc -l)" = 7 ] || return "$(fail "live dir damaged")"
     wait "$BGJOB"; RC=$?
     [ "$RC" = 0 ] || return "$(fail "first run rc=$RC: $(cat "$T/out")")"
+}
+test_export_with_reusable_aab_uploads_nothing() {
+    mk_repo; STUB_A_REUSABLE=0 run --export-only
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    grep -q '^android upload' "$STUB_DIR/calls" && return "$(fail "uploaded in export mode: $(cat "$STUB_DIR/calls")")"
+    grep -q '^android verify sess=set' "$STUB_DIR/calls" || return "$(fail "reused AAB not verified: $(cat "$STUB_DIR/calls")")"
+}
+test_branches_do_not_read_the_terminal() {
+    mk_repo
+    STUB_A_READ_STDIN=1 envs timeout 30 script -qec "bash $SCRIPT --platform android" /dev/null > "$T/out" 2>&1; RC=$?
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC (124 = hung on a terminal read): $(tail -5 "$T/out")")"
+    grep -q 'android read rc=1' "$STUB_DIR/calls" || return "$(fail "stdin not /dev/null: $(cat "$STUB_DIR/calls")")"
+}
+test_int_kills_escaped_helpers() {
+    mk_repo; export STUB_A_SLEEP=30 STUB_I_SLEEP=30 STUB_I_ESCAPE=1
+    start_bg || { unset STUB_A_SLEEP STUB_I_SLEEP STUB_I_ESCAPE; kill -9 -- -"$BG"; return "$(fail "no start")"; }
+    unset STUB_A_SLEEP STUB_I_SLEEP STUB_I_ESCAPE
+    local i; for i in $(seq 50); do [ -s "$STUB_DIR/escaped" ] && break; sleep 0.1; done
+    kill -INT -- -"$BG"; wait "$BGJOB"; RC=$?
+    sleep 0.3
+    local p; p=$(cat "$STUB_DIR/escaped")
+    kill -0 "$p" 2>/dev/null && { kill "$p"; return "$(fail "helper in its own session survived")"; }
+    [ "$RC" = 130 ] || return "$(fail "rc=$RC")"
+}
+test_lock_does_not_depend_on_xdg_runtime_dir() {
+    mk_repo; export STUB_A_SLEEP=4 STUB_I_SLEEP=4 LOCKF=""
+    start_bg || { unset STUB_A_SLEEP STUB_I_SLEEP LOCKF; kill -9 -- -"$BG"; return "$(fail "no start")"; }
+    unset STUB_A_SLEEP STUB_I_SLEEP
+    mkdir -p "$T/xdg2"; envs env XDG_RUNTIME_DIR="$T/xdg2" bash "$SCRIPT" > "$T/out2" 2>&1; local rc2=$?
+    unset LOCKF
+    wait "$BGJOB"
+    [ "$rc2" != 0 ] && grep -q 'another release run is active' "$T/out2" || return "$(fail "second run with another XDG_RUNTIME_DIR: rc=$rc2 $(cat "$T/out2")")"
 }
 test_stale_dir_swept() {
     mk_repo; mkdir -m 700 "$T/tmp/release-secrets.OLD1"; echo "$SENTINEL" > "$T/tmp/release-secrets.OLD1/k"

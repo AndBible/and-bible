@@ -140,6 +140,25 @@ test_sweep_removes_stale_keeps_current() {
     grep -qx 6 "$T/out" || return "$(fail "current dir damaged: $(cat "$T/out")")"
 }
 
+test_sweep_keeps_dir_of_live_owner() {
+    fresh
+    sleep 30 & local live=$!
+    mkdir -m 700 "$T/tmp/release-secrets.LIVE" "$T/tmp/release-secrets.DEAD"
+    echo "$live" > "$T/tmp/release-secrets.LIVE/.owner"; echo x > "$T/tmp/release-secrets.LIVE/k"
+    echo 999999 > "$T/tmp/release-secrets.DEAD/.owner"
+    lib 'secrets_sweep_stale'
+    kill "$live" 2>/dev/null
+    [ -f "$T/tmp/release-secrets.LIVE/k" ] || return "$(fail "live run's dir wiped")"
+    [ ! -e "$T/tmp/release-secrets.DEAD" ] || return "$(fail "dead run's dir kept")"
+}
+test_open_records_owner() {
+    fresh; mk_bundle "$T/src/andbible-release-secrets.tar.gpg"
+    lib 'secrets_open_bundle || exit 9; cat "$RELEASE_SECRETS_DIR/.owner"; echo "me=$$"; secrets_close'
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    local o m; o=$(grep -x '[0-9]*' "$T/out" | head -1); m=$(sed -n 's/^me=//p' "$T/out")
+    [ -n "$o" ] && [ "$o" = "$m" ] || return "$(fail "owner '$o' vs '$m'")"
+}
+
 # --- secrets-pack.sh ---
 mk_pack_inputs() {   # throwaway inputs in the layout the maintainer has: repo root + mount
     rm -rf "$T/packrepo" "$T/pk"; mkdir -p "$T/packrepo" "$T/pk"
@@ -161,7 +180,7 @@ mk_pack_inputs() {   # throwaway inputs in the layout the maintainer has: repo r
 }
 pack() {
     PATH="$T/bin:$PATH" TMPDIR="$T/tmp" HOME="$T/home" RELEASE_RAMDIR_MOUNT=none RELEASE_SECRETS_SRC="$T/src" \
-        XDG_RUNTIME_DIR="$T" REPO_ROOT="$T/packrepo" PACK_PAUSE=0 PACK_EXPECT_CERT_PREFIX="${FP:0:11}" PACK_EXPECT_CERT_SUFFIX="${FP: -11}" \
+        RELEASE_LOCK_FILE="$T/release.lock" REPO_ROOT="$T/packrepo" PACK_PAUSE=0 PACK_EXPECT_CERT_PREFIX="${FP:0:11}" PACK_EXPECT_CERT_SUFFIX="${FP: -11}" \
         bash "$PACK" "$@" > "$T/out" 2>&1
     RC=$?
 }
