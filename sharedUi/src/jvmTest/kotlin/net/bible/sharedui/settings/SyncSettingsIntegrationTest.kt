@@ -33,6 +33,11 @@ import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsCategories
 import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.desktop.DesktopCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
+import net.bible.service.cloudsync.webdav.WebDavSignInUi
+import okio.Path.Companion.toPath
+import net.bible.sharedui.assembly.hostSyncStrings
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
@@ -63,6 +68,42 @@ class SyncSettingsIntegrationTest {
             else -> null
         }
     } as T
+
+    @Test fun unavailableStoredAdapterDoesNotCrashSettings() {
+        val values = mutableMapOf<String, Any?>("sync_adapter" to "GOOGLE_DRIVE")
+        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, a ->
+            val args = a ?: emptyArray()
+            when {
+                m.name.startsWith("set") -> { values[args[0] as String] = args[1]; null }
+                m.name.startsWith("get") -> values[args[0] as String] ?: args.getOrNull(1)
+                else -> null
+            }
+        } as AppSettings
+        val scope = CoroutineScope(SupervisorJob() + kotlinx.coroutines.Dispatchers.Unconfined)
+        val env = inert<AppEnvironment>()
+        val strings = KeyedCoreStrings(hostStringTable("en"))
+        val platform = inert<SyncSettingsPlatform>()
+        val adapters = DesktopCloudAdapterFactory(HostCloudAdapterFactory(
+            platform, "device", hostSyncStrings(hostStringTable("en")).adapterDisplayName,
+            { error("unused") }, inert<WebDavSignInUi>(), "/tmp".toPath(), { _, _ -> error("unused") },
+        ))
+        val documents = DocumentSyncSettings({ inert<DocumentSyncPreferencesDao>() }, { error("unused") }, { error("unused") }, OrderedLauncher(scope), env)
+        val starter = inert<DocumentSyncStarter>()
+        val provider = DocumentSyncProvider { error("unused") }
+        val cloud = CloudSync(AppDialogController(), strings, env, settings, adapters, inert<SyncScheduler>(), starter, provider, documents)
+        try {
+            val service = SyncSettingsServiceImpl(scope, scope, documents, cloud, adapters, SyncSettingsCategories(settings) { inert<net.bible.android.database.SyncDao>() }, provider, starter, platform, strings, env, {})
+            assertEquals("NEXT_CLOUD", service.snapshot.value.adapter)
+            assertEquals("GOOGLE_DRIVE", values["sync_adapter"])
+            values["sync_adapter"] = "UNRECOGNIZED"
+            service.refresh()
+            assertEquals("NEXT_CLOUD", service.snapshot.value.adapter)
+            values["sync_adapter"] = "WEBDAV"
+            assertEquals("WEBDAV", cloud.adapterId)
+            values["sync_adapter"] = null
+            assertEquals("NEXT_CLOUD", cloud.adapterId)
+        } finally { scope.coroutineContext[Job]?.cancel() }
+    }
 
     @Test fun nextcloudPolicyAndSavedSettingsReachComposeAfterRecreation() = runComposeUiTest {
         val values = mutableMapOf<String, Any?>("sync_adapter" to "GOOGLE_DRIVE", "sync_enable_bookmarks" to true)
