@@ -41,6 +41,10 @@ read-only freely, every write confirmed, all replies of a session in one `batch`
 - Reply in the reporter's language (the ticket's own language).
 - Link the GitHub issue that tracks or fixed the report; say "fixed on our development branch, will
   be in an upcoming version" for fixes that are not released yet.
+- **A new bug reported in a ticket gets its GitHub issue first**, then the reply links it ("which you
+  can follow here: <url>"), so the reporter can follow the real bug ticket (maintainer, 2026-11-10).
+  Publish the issue before showing the batch for approval (it needs the number); do not reply "we
+  have logged this as a bug" without the link.
 - An old app version: name the version and ask the user to update.
 - Never suggest clearing app data or reinstalling without warning that it deletes personal data.
 
