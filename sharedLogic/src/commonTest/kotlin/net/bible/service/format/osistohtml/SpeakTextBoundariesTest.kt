@@ -119,6 +119,22 @@ class SpeakTextBoundariesTest {
     }
 
     @Test
+    fun delimiterAfterSeparatorKeepsLegacyJoinRule() {
+        assertEquals(listOf("word, next"), texts("word<note type='crossReference'>x</note>, next"))
+        assertEquals(listOf("Éternel, et"), texts("Éternel<note type='crossReference'>x</note>, et"))
+        val verses = parse("<div><verse>foo</verse><verse>, bar</verse></div>").filterIsInstance<TextCommand>()
+        assertEquals(listOf("foo, bar"), verses.map { it.text })
+        assertEquals(listOf("foo bar"), texts("foo<note>x</note> bar"))
+    }
+
+    @Test
+    fun milestonesAndLineGroupsSeparateText() {
+        for (xml in listOf("foo<milestone type='line'/>bar", "foo<milestone type='x-p'/>bar", "foo<lg/>bar")) {
+            assertEquals("foo bar", parse("<verse>$xml</verse>").filterIsInstance<TextCommand>().joinToString(" ") { it.text }, xml)
+        }
+    }
+
+    @Test
     fun legacyTypographicPossessiveIsUnchanged() {
         val handler = OsisToSpeakTextSaxHandler(false, SaxTextPolicy.MODERN)
         XmlEventParser().parse("<div><divineName>Lord</divineName>’s house</div>", handler)

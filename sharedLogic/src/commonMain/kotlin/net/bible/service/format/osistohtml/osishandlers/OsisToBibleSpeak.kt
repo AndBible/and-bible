@@ -43,16 +43,19 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     private var titleLevel = 0
     private var divineNameLevel = 0
     private var anyTextWritten = false
-    private var previousRawTextEndsWithoutWhitespace = false
+    /** What the previous visible raw text chunk left at the boundary to the next one. */
+    private enum class RawEnd { NO_WHITESPACE, WHITESPACE, CROSSED_SEPARATOR }
+    private var previousRawEnd = RawEnd.CROSSED_SEPARATOR
 
     private fun separatesText(name: String): Boolean = when (name) {
         OSISUtil.OSIS_ELEMENT_VERSE, OSISUtil.OSIS_ELEMENT_NOTE, OSISUtil.OSIS_ELEMENT_TITLE,
-        OSISUtil.OSIS_ELEMENT_DIV, OSISUtil.OSIS_ELEMENT_L, OSISUtil.OSIS_ELEMENT_LB, OSISUtil.OSIS_ELEMENT_P -> true
+        OSISUtil.OSIS_ELEMENT_DIV, OSISUtil.OSIS_ELEMENT_L, OSISUtil.OSIS_ELEMENT_LB, OSISUtil.OSIS_ELEMENT_P,
+        OSISUtil.OSIS_ELEMENT_LG, "milestone" -> true
         else -> false
     }
 
     private fun addCommand(command: SpeakCommand) {
-        previousRawTextEndsWithoutWhitespace = false
+        previousRawEnd = RawEnd.CROSSED_SEPARATOR
         speakCommands.add(command)
     }
 
@@ -77,7 +80,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                               qName: String, // qualified name
                               attrs: Attributes) {
         val name = getName(sName, qName) // element name
-        if (separatesText(name)) previousRawTextEndsWithoutWhitespace = false
+        if (separatesText(name)) previousRawEnd = RawEnd.CROSSED_SEPARATOR
 
         val peekVisible = elementStack.last().visible
 
@@ -130,7 +133,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                             simplifiedName: String,
                             qualifiedName: String
     ) {
-        if (separatesText(getName(simplifiedName, qualifiedName))) previousRawTextEndsWithoutWhitespace = false
+        if (separatesText(getName(simplifiedName, qualifiedName))) previousRawEnd = RawEnd.CROSSED_SEPARATOR
         val state = elementStack.removeAt(elementStack.lastIndex)
 
         if(state.tagType == TagType.PARAGRAPH) {
@@ -166,8 +169,15 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
         if (!currentState.visible || (titleLevel > 0 && !speakSettings.playbackSettings.speakTitles) || text.isEmpty()) return
 
         // Record RAW SAX boundaries before TextCommand trims them. Even whitespace-only callbacks separate words.
-        val joinToPrevious = previousRawTextEndsWithoutWhitespace && !text.first().isWhitespace()
-        previousRawTextEndsWithoutWhitespace = !text.last().isWhitespace()
+        // true: no whitespace at the boundary; false: whitespace in the source; null: a separator was crossed and the
+        // legacy delimiter rule decides.
+        val joinToPrevious: Boolean? = when {
+            text.first().isWhitespace() -> false
+            previousRawEnd == RawEnd.NO_WHITESPACE -> true
+            previousRawEnd == RawEnd.WHITESPACE -> false
+            else -> null
+        }
+        previousRawEnd = if (text.last().isWhitespace()) RawEnd.WHITESPACE else RawEnd.NO_WHITESPACE
         var s = text
         s = s.replace("”", "\"")
         s = s.replace("“", "\"")
