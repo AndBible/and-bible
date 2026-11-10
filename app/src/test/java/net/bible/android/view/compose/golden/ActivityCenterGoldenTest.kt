@@ -169,16 +169,17 @@ class ActivityCenterGoldenTest {
     )
 
     @Test
-    fun document_sync_overflow_details() {
+    fun document_sync_overflow_summary() {
         val content: @Composable () -> Unit = {
             Column(Modifier.width(240.dp)) {
                 ActivityMenuSection(activity(listOf(
                     item("Document synchronization", progress = 12,
                         message = "12 / 123 operations — Download VERYLONGDOCUMENTINITIALS: 123456789 / 987654321 bytes received")
-                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC, notificationMessage = "Document synchronization running: 12 / 123 operations"),
                     item("Document synchronization",
                         message = "13 / 123 operations — Download ANOTHERLONGDOCUMENT: 123456789 bytes received")
-                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC,
+                            notificationMessage = "Synchronisierung von Dokumenten: 123456 / 987654 Vorgange"),
                 )))
             }
         }
