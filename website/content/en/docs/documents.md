@@ -21,6 +21,11 @@ The *Document Library* can be accessed in a few different ways:
 Bibles modules can be installed in different languages, translations, and formats.
 Many Bible modules contain Strong’s numbers, footnotes, cross-references, and study notes.
 
+With **Footnotes** enabled in the text options, tap a note marker to read its
+contents. Notes at the end of a chapter or book work the same way as other notes;
+they are not part of the Bible text. Enable **Footnotes inline** only if you
+want the note contents displayed directly in the text.
+
 Error messages that AndBible shows inline in place of missing content (for
 example in a view with several references) use the message's own text direction
 rather than the module's direction. This keeps messages readable when the
