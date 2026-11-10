@@ -291,7 +291,8 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
             let activityTitle = app.staticTexts["Background activity"].firstMatch
             guard activityTitle.waitForExistence(timeout: 15) else { XCTFail("Show all did not open the full activity view"); return }
             let fullDetails = app.descendants(matching: .any).matching(NSPredicate(
-                format: "label CONTAINS %@ AND label CONTAINS %@", fixture.expectedDocumentName, "bytes received")).firstMatch
+                format: "label CONTAINS %@ AND label CONTAINS %@ AND label CONTAINS %@",
+                "operations", "Downloading", "bytes received")).firstMatch
             guard fullDetails.waitForExistence(timeout: 15) else { XCTFail("Full activity view lost document/byte details"); return }
             XCTAssertNotEqual(fullDetails.label, oldDetails, "Fixture must produce real changing transfer progress")
             ui.shot(app, "compact-sync-full-details")
