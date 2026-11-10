@@ -28,6 +28,8 @@ interface Strings {
     val authUsername: String
     val autoFullscreen: String
     val autoFullscreenSummary: String
+    val desktopFullscreenHint: String
+    val desktopExitFullscreen: String
     val calculatorPar1: String
     val calculatorPar2: String
     val calculatorPar3: String

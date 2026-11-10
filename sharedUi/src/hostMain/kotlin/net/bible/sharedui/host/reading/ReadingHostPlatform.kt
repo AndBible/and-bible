@@ -43,6 +43,12 @@ interface ReadingHostPlatform {
     /** Hides or shows the system status bar (full screen hides it). */
     fun setStatusBarHidden(hidden: Boolean)
 
+    /** Optional platform-specific hint when fullscreen is entered. */
+    fun showFullScreenHint(message: String) = Unit
+
+    /** Whether fullscreen needs a persistent mouse-accessible exit control. */
+    val showFullScreenExit: Boolean get() = false
+
     /** True when the screen is at least as tall as it is wide; read per call. */
     fun isPortrait(): Boolean
 
