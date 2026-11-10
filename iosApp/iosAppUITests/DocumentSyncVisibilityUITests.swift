@@ -278,10 +278,17 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
                 XCTFail("Single compact sync has no path to full details"); return
             }
             let initialShowAll = showAll.frame
-            let initialProgress = ring.value as? String
+            // The modal popup hides the toolbar ring from AX; observe the real menu bar instead.
+            let menuProgress = app.otherElements.matching(NSPredicate { candidate, _ in
+                guard let element = candidate as? XCUIElement, element.exists,
+                      let value = element.value as? String else { return false }
+                return value.hasSuffix("%") && element.frame.intersects(initial)
+            }).firstMatch
+            guard menuProgress.exists else { XCTFail("Compact menu progress semantics missing"); return }
+            let initialProgress = menuProgress.value as? String
             ui.shot(app, "compact-sync-menu-before-update")
             let changed = NSPredicate { _, _ in
-                ring.exists && (ring.value as? String) != initialProgress && summary.exists
+                menuProgress.exists && (menuProgress.value as? String) != initialProgress && summary.exists
             }
             XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: changed, object: app)], timeout: 30), .completed,
                            "Real transfer progress must change while the menu is open")
