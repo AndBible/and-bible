@@ -149,6 +149,10 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         if (it.state == ActivityState.RUNNING) it.copy(notificationMessage = message) else it
     }
 
+    fun setCompactMessage(id: String, message: String?) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(compactMessage = message) else it
+    }
+
     fun interrupt(id: String, message: String, notify: Boolean) = modify(id) {
         if (it.state == ActivityState.RUNNING) it.copy(state = ActivityState.INTERRUPTED, message = message,
             finishedAt = clock(), cancel = null, attention = false, notifyInterruption = notify) else it

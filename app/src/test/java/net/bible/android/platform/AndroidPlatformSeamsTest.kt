@@ -108,6 +108,17 @@ class AndroidPlatformSeamsTest {
         assertEquals(ctx.getString(R.string.cloud_doc_wifi_waiting), strings.documentSyncWifiWaiting)
     }
 
+    @Test fun compactDocumentSyncCountsDoNotIncludeNotificationPrefixOrDocumentDetails() {
+        val strings = AndroidCoreStrings(ApplicationProvider.getApplicationContext())
+        val progress = net.bible.sharedcore.cloud.DocumentSyncProgress(
+            status = net.bible.sharedcore.cloud.DocumentSyncProgressStatus.RUNNING,
+            currentOperation = net.bible.sharedcore.cloud.DocumentSyncOperation.DOWNLOAD,
+            processed = 12, total = 123, initials = "PRIVATE_LONG_DOCUMENT", bytesTransferred = 987654,
+        )
+        assertEquals("12 / 123 operations", strings.documentSyncCompactStatus(progress))
+        assertEquals("13 / 123 operations", strings.documentSyncCompactStatus(progress.copy(processed = 13)))
+    }
+
     @Test fun infoMessagesKeepTheirTextAndDuration() {
         val messages = mutableListOf<UserMessage>()
         val subscription = UserMessages.messages.subscribe { messages += it }

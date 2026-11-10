@@ -79,8 +79,11 @@ does not by itself make it a newer document.
 
 The Documents switch shows whether automatic document sync is enabled, separately
 from whether a transfer is running. Manual transfers can run while it is disabled.
-Open the activity list from the reading screen's overflow menu to see the current
-operation, queue operation counts and, when available, the current download's bytes.
+The reading screen's overflow menu shows a compact, single-line sync summary and
+progress indicator. Long summaries are shortened with an ellipsis so transfer
+updates do not resize the menu. Tap the sync entry to manage synced documents,
+or choose **Show all** to open the full activity list for the current operation, queue operation counts
+and, when available, the current download's bytes.
 A finished queue means its operations finished; it does not guarantee that every
 document is installed or up to date.
 

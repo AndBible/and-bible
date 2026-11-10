@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
@@ -33,9 +34,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.android.control.activity.ActivityItem
+import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbMenuItem
@@ -48,7 +52,8 @@ internal const val MENU_ACTIVITY_ROWS = 3
 /**
  * The activity section at the top of the overflow menu (#4007): up to [MENU_ACTIVITY_ROWS] rows (running first,
  * then failures; newest first within each; finished successes only appear in the full list), each a title with a slim progress bar or the
- * failure message, then "Show all (N)" (N = what the full list shows) when the list holds more than the rows shown or any failure exists, then a divider.
+ * failure message, then "Show all (N)" (N = what the full list shows) when the list holds more than the rows shown,
+ * any failure exists, or a compact document-sync summary hides transfer details, then a divider.
  * Renders nothing when there is nothing to show, so the menu is then exactly the normal one.
  */
 @kotlin.native.HiddenFromObjC
@@ -67,8 +72,10 @@ fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? 
         if (sync != null) SyncNowRow(sync, onSyncClick ?: sync.onClick)
         val rows = shown.take(MENU_ACTIVITY_ROWS)
         rows.forEach { ActivityRow(it) { activity.onOpenItem(it) } }
-        // Whenever the list holds more than these rows (finished successes, overflow) or anything failed.
-        if (shown.isNotEmpty() && (all.size > rows.size || shown.any { it.state == ActivityState.FAILED })) {
+        // Compact sync rows omit transfer details even when there is only one activity.
+        if (shown.isNotEmpty() && (all.size > rows.size || shown.any {
+            it.state == ActivityState.FAILED || it.kind == ActivityKind.DOCUMENT_SYNC
+        })) {
             AbMenuItem(text = strings.activityShowAll(all.size), onClick = activity.onShowAll)
         }
         HorizontalDivider()
@@ -85,16 +92,25 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
     val mono = isPureMonochrome()
     val progress = item.progress
     val message = item.message
+    val documentSync = item.kind == ActivityKind.DOCUMENT_SYNC
+    // Dropdowns measure intrinsic width: maxLines alone still lets changing text widen the popup.
+    // A preferred width also supplies a stable intrinsic width, but yields to narrow parent constraints.
+    val rowWidth = if (documentSync) Modifier.width(280.dp) else Modifier.fillMaxWidth()
     Column(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp).testTag(ACTIVITY_ROW_TAG),
+        rowWidth.clickable(onClick = onClick)
+            .then(if (documentSync) Modifier.semantics { contentDescription = item.title } else Modifier)
+            .padding(horizontal = 16.dp, vertical = 8.dp).testTag(ACTIVITY_ROW_TAG),
     ) {
-        Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        val summary = if (documentSync) item.compactMessage
+            ?: message?.takeIf { item.state != ActivityState.RUNNING } ?: item.title else item.title
+        Text(summary, style = MaterialTheme.typography.bodyMedium,
+            color = if (documentSync && item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
+                else LocalContentColor.current,
+            maxLines = 1, overflow = TextOverflow.Ellipsis)
         when {
             item.state == ActivityState.RUNNING -> {
-                if (message != null && item.kind in setOf(net.bible.android.control.activity.ActivityKind.AI_AGENT, net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC)) {
-                    Text(message, style = MaterialTheme.typography.bodySmall,
-                        maxLines = if (item.kind == net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC) Int.MAX_VALUE else 1,
-                        overflow = TextOverflow.Ellipsis)
+                if (message != null && item.kind == ActivityKind.AI_AGENT) {
+                    Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 val barColor = LocalContentColor.current
                 val trackColor = barColor.copy(alpha = 0.2f)
@@ -108,7 +124,7 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
                     AbLoadingIndicator(modifier = barModifier, color = barColor, trackColor = trackColor)
                 }
             }
-            message != null -> Text(
+            message != null && !documentSync -> Text(
                 message,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error

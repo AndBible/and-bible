@@ -33,4 +33,6 @@ data class ActivityItem(
     val attention: Boolean = false,
     val notifyInterruption: Boolean = false,
     val notificationMessage: String? = null,
+    /** Localized menu summary, separate from full transfer details and system notifications. */
+    val compactMessage: String? = null,
 )

@@ -8,6 +8,8 @@ interface CoreStrings {
     val documentSyncTransferRunning: String
     fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?): String
     fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress): String
+    /** Counts first while running; terminal states retain their localized status for the compact menu. */
+    fun documentSyncCompactStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress): String
 
     val errorReport: String // R.string.report_error
     val errorBackup: String // R.string.backup_and_restore
