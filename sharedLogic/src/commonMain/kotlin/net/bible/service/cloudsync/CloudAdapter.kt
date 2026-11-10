@@ -18,9 +18,23 @@
 package net.bible.service.cloudsync
 
 import net.bible.android.database.SyncConfiguration
+import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.CloudFileStore
 
 interface CloudAdapter : CloudFileStore {
+    /**
+     * Lists changed named files directly inside [folderIds], all immediate folders of [rootFolderId].
+     * Providers may query the root once, but must return a complete result with exact parent matching.
+     * The default retains the provider's existing per-folder listing behavior.
+     */
+    suspend fun listChangedFilesInFolders(
+        rootFolderId: String,
+        folderIds: List<String>,
+        name: String,
+        createdTimeAtLeast: Long,
+    ): List<CloudFile> =
+        listFiles(parentsIds = folderIds, name = name, createdTimeAtLeast = createdTimeAtLeast)
+
     suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean
     suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String)
     suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration>

@@ -92,8 +92,9 @@ class DocumentStore(
     suspend fun listChangedDocuments(watermark: Long): ChangedListing {
         val folders = adapter.getFolders(rootFolderId)
         val since = maxOf(0L, watermark - LISTING_MARGIN_MS)
-        val metaFiles = adapter.listFiles(
-            parentsIds = folders.map { it.id },
+        val metaFiles = adapter.listChangedFilesInFolders(
+            rootFolderId = rootFolderId,
+            folderIds = folders.map { it.id },
             name = DOCUMENT_META_FILENAME,
             createdTimeAtLeast = since,
         )

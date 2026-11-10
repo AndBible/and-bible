@@ -33,6 +33,8 @@ class NextCloudSearchMethod(
     client: OwnCloudClient,
     val folder: String,
     val lastModifiedAtLeast: Long,
+    private val fileName: String? = null,
+    private val resultLimit: Int? = null,
 ) : SearchMethod(
     client.davUri.toString(),
     SearchInfo(
@@ -42,6 +44,12 @@ class NextCloudSearchMethod(
     )
 
     ) {
+    private var listingDocument: Document? = null
+
+    // Jackrabbit parses the body during executeMethod but does not retain the original XML.
+    override fun getResponseBodyAsDocument(): Document? = listingDocument
+        ?: super.getResponseBodyAsDocument()?.also { listingDocument = it }
+
     val userId = client.userIdPlain
     init {
         setRequestHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE)
@@ -95,6 +103,25 @@ class NextCloudSearchMethod(
             builder.parse(template.byteInputStream()).apply {
                 // Account and folder names are XML text, never markup in the query template.
                 getElementsByTagNameNS(DAV_NAMESPACE, "href").item(0).textContent = "/files/$userId/$folder"
+                fileName?.let { name ->
+                    val where = getElementsByTagNameNS(DAV_NAMESPACE, "where").item(0)
+                    val gt = getElementsByTagNameNS(DAV_NAMESPACE, "gt").item(0)
+                    val and = createElementNS(DAV_NAMESPACE, "d:and")
+                    where.replaceChild(and, gt)
+                    and.appendChild(gt)
+                    val eq = createElementNS(DAV_NAMESPACE, "d:eq")
+                    val prop = createElementNS(DAV_NAMESPACE, "d:prop")
+                    prop.appendChild(createElementNS(DAV_NAMESPACE, "d:displayname"))
+                    eq.appendChild(prop)
+                    eq.appendChild(createElementNS(DAV_NAMESPACE, "d:literal").apply { textContent = name })
+                    and.appendChild(eq)
+                }
+                resultLimit?.let { limit ->
+                    // Nextcloud versions may silently default an omitted limit to 100 results.
+                    val element = createElementNS(DAV_NAMESPACE, "d:limit")
+                    element.appendChild(createElementNS(DAV_NAMESPACE, "d:nresults").apply { textContent = limit.toString() })
+                    getElementsByTagNameNS(DAV_NAMESPACE, "basicsearch").item(0).appendChild(element)
+                }
             }
         } catch (parserError: ParserConfigurationException) {
             System.err.println("ParserConfigurationException: " + parserError.getLocalizedMessage())
