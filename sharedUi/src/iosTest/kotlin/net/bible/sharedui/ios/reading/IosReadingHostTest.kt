@@ -204,7 +204,9 @@ class IosReadingHostTest {
         // - generation, imeBottomPaddingPx: Android bumps/feeds them from activity events; iOS never rebuilds the pane subtree
         //   and Compose handles the keyboard inset itself.
         // - onDrawerInMotion, onDrawerIdleClosed: Android shows/hides the system bars around the drawer; iOS has no such chrome.
+        // - onExitFullScreen: the persistent exit button is desktop-only.
         val inert: Map<String, Boolean> = mapOf(
+            "onExitFullScreen" to (deps.onExitFullScreen == null),
             "generation" to (deps.generation.value == 0),
             "imeBottomPaddingPx" to (deps.imeBottomPaddingPx.value == 0),
             "onDrawerInMotion" to (deps.onDrawerInMotion === d1.onDrawerInMotion),
