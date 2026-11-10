@@ -653,6 +653,41 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
+    fun deliveredForegroundChangeOverridesAQueuedBackgroundSnapshot() {
+        val pending = mutableListOf<Runnable>()
+        val dispatcher = object : kotlinx.coroutines.CoroutineDispatcher() {
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { pending += block }
+        }
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + dispatcher)
+        fun drain() {
+            var turns = 0
+            while (pending.isNotEmpty()) {
+                check(turns++ < 100) { "notification collector did not settle" }
+                pending.removeAt(0).run()
+            }
+        }
+        val items = MutableStateFlow<List<ActivityItem>>(emptyList())
+        val notifier = FakeNotifier()
+        val policy = NativeNotificationPolicy(items, notifier, { false }, MutableStateFlow(true), { 0L }, scope, { "Finished" })
+        try {
+            policy.start()
+            drain()
+            // Both inputs have arrived, but independent combine collectors may resume in either order.
+            items.value = listOf(item(state = ActivityState.SUCCEEDED, started = 0, finished = 60_000))
+            policy.onForegroundChanged(true)
+            check(pending.size == 2)
+            pending.removeAt(0).run() // items collector queues evaluation with the older foreground snapshot
+            pending.removeAt(1).run() // evaluate before the foreground collector resumes
+            drain()
+            assertTrue(notifier.calls.isEmpty(), "a delivered Active event must silence a foreground completion")
+        } finally {
+            policy.close()
+            scope.cancel()
+            drain()
+        }
+    }
+
+    @Test
     fun syncSuccessIsSilentAndRemovesProgress() = runTest {
         val f = fixture()
         f.set(item(kind = ActivityKind.SYNC, progress = 10))
