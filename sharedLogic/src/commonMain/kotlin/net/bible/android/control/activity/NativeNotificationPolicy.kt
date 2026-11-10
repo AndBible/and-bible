@@ -277,7 +277,11 @@ class NativeNotificationPolicy(
                 launch { notifier.progressCapabilityChanges.collect { tick.update { it + 1 } } }
                 combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, closeRequested ->
                     Input(list, on, fg, closeRequested)
-                }.takeWhile { evaluate(it) }.collect { }
+                }.takeWhile {
+                    // combine's independent collectors can pair new items with an older focus snapshot.
+                    // A focus edge already delivered to the policy must govern this evaluation.
+                    evaluate(Input(it.list, it.on, inForeground.value, it.closed))
+                }.collect { }
             }
         }
     }
