@@ -26,9 +26,9 @@ final class FontSizeMultiplierUITests: RealAppUITestCase {
         preferences.tap()
         harnessRequire(waitForSettingsRoot(app), app, "Application preferences screen")
 
-        let row = revealSettingsRow(app, "font_size_multiplier")
-        // Compose exposes this slider as an Other with a numeric value, not an XCUI slider.
-        let slider = row.descendants(matching: .any).matching(NSPredicate(format: "value MATCHES '[0-9]+(\\.[0-9]+)?'")).firstMatch
+        _ = revealSettingsRow(app, "font_size_multiplier")
+        // Compose exposes the slider as a sibling of the tagged row, with a numeric value, not an XCUI slider.
+        let slider = app.descendants(matching: .other).matching(NSPredicate(format: "value MATCHES '[0-9]+(\\.[0-9]+)?'")).firstMatch
         harnessRequire(slider.waitForExistence(timeout: 10), app, "Font multiplier slider")
         let initial = (slider.value as? Double) ?? (slider.value as? String).flatMap(Double.init)
         harnessRequire(initial == 100, app, "Font multiplier starts at 100")
