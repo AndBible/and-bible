@@ -85,7 +85,14 @@ class AndroidTextDisplayPrefItems : TextDisplayPrefItems {
         ).toList()
 
     override val fonts: List<SettingsItem.Choice>
-        get() = availableFonts.map { SettingsItem.Choice(it.realFontFamily, it.name) }
+        get() = availableFonts.map {
+            SettingsItem.Choice(
+                it.realFontFamily,
+                it.name,
+                it.providedFont?.let { font -> SettingsItem.ChoiceFont.File(font.file.path) }
+                    ?: SettingsItem.ChoiceFont.Family(it.realFontFamily),
+            )
+        }
 
     override fun displaySettingChanged(type: TextDisplaySettings.Types) = CommonUtils.displaySettingChanged(type)
 

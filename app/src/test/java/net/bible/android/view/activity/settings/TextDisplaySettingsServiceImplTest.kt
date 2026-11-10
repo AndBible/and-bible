@@ -72,7 +72,12 @@ class TextDisplaySettingsServiceImplTest {
         assertEquals(30, ms.leftMax); assertEquals(30, ms.rightMax); assertEquals(500, ms.maxWidthMax)
         // FONTFAMILY entries come from availableFonts
         val ff = snap.rows[TextSettingType.FONTFAMILY]!!.value as TextSettingRowValue.Choice
-        assertTrue(ff.entries.any { it.value == "sans-serif" })
+        for (family in listOf("sans-serif", "serif", "monospace", "sans-serif-thin", "casual")) {
+            assertEquals(
+                net.bible.sharedcore.settings.SettingsItem.ChoiceFont.Family(family),
+                ff.entries.single { it.value == family }.font,
+            )
+        }
     }
 
     @Test fun setBoolAtWorkspace_writesEntityAndMarksInherited() {

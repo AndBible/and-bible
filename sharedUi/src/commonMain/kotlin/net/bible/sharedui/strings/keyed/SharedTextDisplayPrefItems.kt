@@ -45,7 +45,9 @@ import org.crosswire.jsword.book.FeatureType
  */
 @kotlin.native.HiddenFromObjC
 fun genericFontChoice(family: String): SettingsItem.Choice =
-    SettingsItem.Choice(family, family.replace("-", " ").replaceFirstChar { it.uppercase() })
+    SettingsItem.Choice(
+        family, family.replace("-", " ").replaceFirstChar { it.uppercase() }, SettingsItem.ChoiceFont.Family(family),
+    )
 
 /**
  * The real [TextDisplayPrefItems] for platforms without Android's `OptionsMenuItems` (iOS): the same value, inheritance,
@@ -88,7 +90,9 @@ class SharedTextDisplayPrefItems(
     ),
 ) : TextDisplayPrefItems {
     override val fonts: List<SettingsItem.Choice>
-        get() = installedFonts().map { SettingsItem.Choice(it.name, it.name) } + baseFonts
+        get() = installedFonts().map {
+            SettingsItem.Choice(it.name, it.name, it.filePath?.let(SettingsItem.ChoiceFont::File))
+        } + baseFonts
 
     /** The recently used types, shared with the menus that offer them as shortcuts. */
     val recent: RecentDisplaySettings by lazy { RecentDisplaySettings(settings()) }

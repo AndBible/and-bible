@@ -121,12 +121,12 @@ class SharedAddonScannerTest {
         val b = FakeAddonBook(FakeAddonMetaData("B", "/mods/b", mapOf("AndBibleProvidesFont" to listOf("Study;two.ttf")), emptyMap()))
         var installed = listOf(a)
         val scanner = SharedAddonScanner({ installed }, fs)
-        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf")), scanner.fonts())
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf", "/mods/a/one.ttf")), scanner.fonts())
         installed = listOf(a, b)
         scanner.clearCaches()
-        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("B", "Study", "two.ttf")), scanner.fonts())
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("B", "Study", "two.ttf", "/mods/b/two.ttf")), scanner.fonts())
         fs.delete("/mods/b/two.ttf".toPath())
-        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf")), scanner.fonts())
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf", "/mods/a/one.ttf")), scanner.fonts())
     }
 
     @Test fun promptPackSourceReadsTheScannerLive() {

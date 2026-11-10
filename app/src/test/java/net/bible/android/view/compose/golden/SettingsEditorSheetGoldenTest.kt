@@ -38,9 +38,9 @@ import org.robolectric.annotation.GraphicsMode
 class SettingsEditorSheetGoldenTest {
 
     private val choices = listOf(
-        SettingsItem.Choice("sans", "Sans serif"),
-        SettingsItem.Choice("serif", "Serif"),
-        SettingsItem.Choice("mono", "Monospace"),
+        net.bible.sharedui.strings.keyed.genericFontChoice("sans-serif"),
+        net.bible.sharedui.strings.keyed.genericFontChoice("serif"),
+        net.bible.sharedui.strings.keyed.genericFontChoice("monospace"),
     )
 
     @Test fun listChoice_matrix() =
