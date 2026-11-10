@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.webview
 
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.platform.testTag
 import net.bible.sharedcore.bibleview.BibleBridge
@@ -26,8 +27,9 @@ import net.bible.sharedui.reading.session.BibleWindowSession
 
 /**
  * Desktop [ReadingPaneFactory] (counterpart of `iosReadingPaneFactory`; its gestures and selection menu come through
- * [input], the D3a [DesktopReadingInput], handed to the engine with the window's wiring): at composition of an open window it wires the pane once through [DesktopReadingPaneEngine.attach] (asking
- * [sessionFor] and [bridgeFor] then) and shows the engine's current pane. [nightMode] only feeds the initial `night`
+ * [input], the D3a [DesktopReadingInput], handed to the engine with the window's wiring): after an open window's
+ * composition commits it wires the pane through [DesktopReadingPaneEngine.attach] (asking [sessionFor] and
+ * [bridgeFor] then). Composition only reads the engine's current pane. [nightMode] only feeds the initial `night`
  * URL parameter. [openLink] opens the links the window's page navigates to (`HostReadingWindows.openLink`). A closed
  * window gets no session and no pane, whatever the recomposition order.
  */
@@ -41,21 +43,25 @@ fun desktopReadingPaneFactory(
     openLink: (windowId: String, url: String) -> Boolean = { _, _ -> false },
 ): ReadingPaneFactory = { windowId, modifier ->
     if (isOpen(windowId)) {
-        if (!engine.hasFailed(windowId)) {
-            try {
-                val session = sessionFor(windowId)
-                val bridge = bridgeFor?.invoke(windowId) ?: ReadingBridge(session)
-                engine.attach(
-                    windowId,
-                    nightMode(),
-                    bridge,
-                    respondNull = { callId -> session.emit(BibleViewEvents.response(callId, null)) },
-                    onAttached = { session.jsChannel.flush() },
-                    input = input(),
-                    openLink = { url -> openLink(windowId, url) },
-                )
-            } catch (t: Throwable) {
-                engine.markFailed(windowId, t)
+        // Attaching writes engine/session snapshot state shared with the other movable panes.
+        // Do not invalidate those scopes while Compose is inserting a pane's temporary slot table.
+        SideEffect {
+            if (isOpen(windowId) && !engine.hasFailed(windowId)) {
+                try {
+                    val session = sessionFor(windowId)
+                    val bridge = bridgeFor?.invoke(windowId) ?: ReadingBridge(session)
+                    engine.attach(
+                        windowId,
+                        nightMode(),
+                        bridge,
+                        respondNull = { callId -> session.emit(BibleViewEvents.response(callId, null)) },
+                        onAttached = { session.jsChannel.flush() },
+                        input = input(),
+                        openLink = { url -> openLink(windowId, url) },
+                    )
+                } catch (t: Throwable) {
+                    engine.markFailed(windowId, t)
+                }
             }
         }
         // key(pane): SwingPanel's holder captures its factory once, so a recreated pane needs a fresh slot.

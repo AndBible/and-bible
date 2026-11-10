@@ -265,6 +265,14 @@ class WorkspaceSwitchContentTest {
                 }
                 onNode(hasText("Change to normal window")).performClick()
                 waitForIdle()
+                val convertedId = runBlocking { withContext(main) {
+                    control.windowRepository.windowList.single {
+                        it.pageManager.currentPage.currentDocument == koin.get<net.bible.service.download.FakeBookFactory>().multiDocument
+                    }.id.toString()
+                } }
+                assertFalse(engine.hasFailed(convertedId), "the replacement pane must attach successfully")
+                assertNotNull(engine.paneFor(convertedId))
+                onNode(androidx.compose.ui.test.hasTestTag("pane-$convertedId")).assertIsDisplayed()
             }
             runBlocking { withContext(main) {
                 val converted = control.windowRepository.windowList.single { it.pageManager.currentPage.currentDocument == koin.get<net.bible.service.download.FakeBookFactory>().multiDocument }
