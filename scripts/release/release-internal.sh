@@ -242,7 +242,7 @@ status_of() {   # status_of <name> <wanted>: PASS|FAIL|SKIPPED and seconds
 }
 read -r A_ST A_S <<<"$(status_of android "$WANT_A")"
 read -r I_ST I_S <<<"$(status_of ios "$WANT_I")"
-I_BUILD=$(sed -n 's/^build //p' "$RUN_DIR/ios/branch.log" 2>/dev/null | tail -n 1)
+I_BUILD=$(sed -n 's/^build \([0-9][0-9.]*\)$/\1/p' "$RUN_DIR/ios/branch.log" 2>/dev/null | tail -n 1)
 {
     echo "release-internal $(date -u +%Y-%m-%dT%H:%M:%SZ) commit $COMMIT versionCode $VC destination $DEST$([ "$DRY" = 1 ] && echo ' (dry run)') total $(( $(date +%s) - T0 ))s"
     echo "android: $A_ST $VN_A ${A_S}s$([ "$A_REUSE" = 1 ] && echo ' reused')  $RUN_DIR/android/ (andbible-$VN_A.aab, branch.log)"

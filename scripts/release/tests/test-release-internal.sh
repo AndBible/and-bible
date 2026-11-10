@@ -66,6 +66,7 @@ echo $$ >> "$STUB_DIR/pids"
 if [ -n "${STUB_I_IGNORE_TERM:-}" ]; then trap '' TERM; else trap 'echo "ios-term-detach" >> "$STUB_DIR/calls"; exit 143' TERM; fi
 [ -z "${STUB_I_SLEEP:-}" ] || { sleep "$STUB_I_SLEEP" & echo $! >> "$STUB_DIR/sleeppids"; wait $!; }
 echo "build 2026.1110.120000"
+echo "build number 2026.1110.120000, version 6.0.1262, commit abc, destination upload"
 echo "ios end=$(now)" >> "$STUB_DIR/calls"
 case " $* " in *" --reuse "*) exit "${STUB_I_RC_REUSE:-0}" ;; esac
 exit "${STUB_I_RC:-0}"
@@ -324,7 +325,7 @@ test_summary_fields() {
     mk_repo; run
     local s; s=$(cat "$(SUMF)")
     grep -q "commit $(git rev-parse --short=10 HEAD)" <<<"$s" && grep -q 'versionCode 1261' <<<"$s" && grep -q '6.0.1261-beta' <<<"$s" \
-        && grep -q 'build 2026.1110.120000' <<<"$s" && grep -q 'jailbee unmount release-secrets pub' <<<"$s" \
+        && grep -q 'build 2026.1110.120000 ' <<<"$s" && grep -q 'testflight/2026.1110.120000/$' <<<"$s" && grep -q 'jailbee unmount release-secrets pub' <<<"$s" \
         || return "$(fail "summary: $s")"
 }
 test_make_testflight_maps_to_ios() {
