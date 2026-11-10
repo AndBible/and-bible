@@ -11,6 +11,10 @@ interface CloudAdapterFactory {
     fun createForBackground(id: String): CloudAdapter = create(id)
 }
 
+/** Availability without constructing the sync engine (startup and shutdown policy checks use this). */
+fun CloudAdapterFactory.isAvailable(settings: net.bible.sharedcore.platform.AppSettings): Boolean =
+    (settings.getString("sync_adapter") ?: available.firstOrNull()) in available
+
 /** Optional isolated host/test namespace; ordinary installations remain package-derived. */
 data class CloudSyncNamespace(val value: String)
 

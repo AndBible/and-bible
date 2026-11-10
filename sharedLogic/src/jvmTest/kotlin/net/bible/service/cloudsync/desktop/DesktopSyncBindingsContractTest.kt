@@ -259,7 +259,7 @@ class DesktopSyncBindingsContractTest {
     private fun recordingSettings(reads: MutableList<String>) =
         Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, args ->
             reads += m.name + (args?.firstOrNull() ?: "")
-            when (m.returnType) { java.lang.Boolean.TYPE -> false; java.lang.Long.TYPE -> 0L; java.lang.Integer.TYPE -> 0; String::class.java -> ""; else -> null }
+            when (m.returnType) { java.lang.Boolean.TYPE -> false; java.lang.Long.TYPE -> 0L; java.lang.Integer.TYPE -> 0; String::class.java -> if (args?.firstOrNull() == "sync_adapter") "NEXT_CLOUD" else ""; else -> null }
         } as AppSettings
 
     private fun environment(initialized: java.util.concurrent.atomic.AtomicBoolean) =

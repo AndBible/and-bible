@@ -89,6 +89,24 @@ class UnavailableSyncAdapterTest {
         }
     }
 
+    @Test fun supportedAndUnsetAdaptersKeepNormalSignInAndScheduling() = runBlocking {
+        for (id in listOf("NEXT_CLOUD", "WEBDAV")) Fixture(id).use { f ->
+            assertEquals(true, f.cloud.signIn())
+            assertEquals(true, f.cloud.signIn(background = true))
+            assertEquals(1, f.creates)
+            assertEquals(1, f.backgroundCreates)
+            assertTrue(f.cloud.syncEnabled)
+            assertEquals(true, f.cloud.start().await())
+            assertEquals(1, f.scheduled)
+        }
+        Fixture().use { f ->
+            f.values.remove("sync_adapter")
+            assertEquals(true, f.cloud.signIn(background = true))
+            assertEquals(1, f.backgroundCreates)
+            assertNull(f.values["sync_adapter"], "Reading the default must not persist it")
+        }
+    }
+
     @Test fun unavailableAdapterDoesNotScheduleSyncOrTransferDocuments() = runBlocking {
         Fixture().use { f ->
             f.cloud.start(userInitiated = true).await()

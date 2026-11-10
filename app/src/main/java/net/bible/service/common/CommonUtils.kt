@@ -116,6 +116,8 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.koin.java.KoinJavaComponent
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.isAvailable
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
@@ -1287,7 +1289,8 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else KoinJavaComponent.get<CloudSync>(CloudSync::class.java).syncEnabled
+        else KoinJavaComponent.get<net.bible.service.cloudsync.CloudAdapterFactory>(net.bible.service.cloudsync.CloudAdapterFactory::class.java)
+            .isAvailable(settings) && SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 

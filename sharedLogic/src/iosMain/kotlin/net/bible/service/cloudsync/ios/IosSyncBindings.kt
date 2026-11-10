@@ -5,6 +5,8 @@ import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.BackgroundSyncPolicy
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.isAvailable
 import net.bible.service.cloudsync.CloudSyncProvider
 import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
@@ -124,7 +126,10 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
 
 /** The sync policy of every iOS pass (the BGTask refresh and the [SyncTriggerDriver]): non-interactive, never prompts. */
 private fun Scope.iosSyncPolicy() = BackgroundSyncPolicy(
-    syncEnabled = { get<CloudSync>().syncEnabled },
+    syncEnabled = {
+        get<CloudAdapterFactory>().isAvailable(get<AppSettings>()) &&
+            SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
+    },
     replacing = { DatabaseContainer.replacing },
     intervalSeconds = { get<AppSettings>().getLong("cloud_sync_interval", DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS) },
     lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },

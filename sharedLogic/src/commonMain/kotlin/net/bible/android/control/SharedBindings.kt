@@ -291,9 +291,9 @@ fun buildSharedBindings() = module {
                 failures.reportFailure(net.bible.android.control.activity.ActivityKind.SYNC, message)
             }, get<DocumentSync>().runningChanged,
             syncSetUp = {
-                net.bible.service.cloudsync.SyncableDatabaseDefinition.ALL.any {
-                    it.isSyncEnabled(get<net.bible.sharedcore.platform.AppSettings>())
-                } || get<DocumentSyncSettings>().enabled
+                get<CloudSync>().adapterAvailable && (
+                    get<CloudSync>().syncEnabled || get<DocumentSyncSettings>().enabled
+                )
             },
             saveWorkspace = ports.saveWorkspace, networkAvailable = ports.networkAvailable,
             replacing = { DatabaseContainer.replacing }, noNetwork = ports.noNetwork, scope = get<AppCoroutineScope>(),

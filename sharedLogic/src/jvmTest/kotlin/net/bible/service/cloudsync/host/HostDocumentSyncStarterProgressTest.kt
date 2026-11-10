@@ -91,7 +91,10 @@ class HostDocumentSyncStarterProgressTest {
         val f = Fixture(backgroundScope)
         val gate = CompletableDeferred<Unit>()
         f.driver.action = { _, progress -> progress(25, 100); gate.await() }
-        val settings = inert<net.bible.sharedcore.platform.AppSettings>()
+        val settings = object : net.bible.sharedcore.platform.AppSettings by inert<net.bible.sharedcore.platform.AppSettings>() {
+            override fun getString(key: String, default: String?) =
+                if (key == "sync_adapter") "NEXT_CLOUD" else default
+        }
         val env = inert<net.bible.sharedcore.platform.AppEnvironment>()
         val strings = net.bible.android.control.activity.ActivityTestStrings()
         val dao = object : net.bible.android.database.DocumentSyncPreferencesDao {

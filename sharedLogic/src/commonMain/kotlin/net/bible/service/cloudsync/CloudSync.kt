@@ -98,7 +98,7 @@ class CloudSync(
             if (value != adapterId) _adapter = null
             settings.setString("sync_adapter", value)
         }
-    val adapterAvailable: Boolean get() = adapterId in adapters.available
+    val adapterAvailable: Boolean get() = adapters.isAvailable(settings)
     val syncEnabled: Boolean get() = adapterAvailable && SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) }
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 
