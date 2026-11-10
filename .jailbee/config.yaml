@@ -97,9 +97,10 @@ optional_mounts:
     description: "SSH key + config for the iOS build Mac (ssh -F ~/.ssh-mac/config andbible-mac)"
 
   # Release secrets for a release container only (spec specs/2026-10-24-i4-release-design.md §5.3):
-  # the GPG-encrypted App Store Connect API key and Play service-account JSON, asc-api.env (key id,
-  # issuer id), the Android keystore (.p12; its passwords stay in the repo's keystore.properties.gpg)
-  # and review_information.local.yml. Decrypted material lives only in RAM inside the container. Attach for the release, detach after:
+  # one GPG bundle, andbible-release-secrets.tar.gpg (andbible keystore + passwords, Play service-account
+  # JSON, App Store Connect API key, asc-api.env), decrypted once per `make release-internal` run into RAM
+  # inside the container (docs/release-secrets.md); it replaces the separate .gpg files that used to live
+  # here. Play egress is granted per container, never in this file. Attach for the release, detach after:
   #   jailbee mount release-secrets <container> --for 2h
   #   jailbee unmount release-secrets <container>
   release-secrets:
