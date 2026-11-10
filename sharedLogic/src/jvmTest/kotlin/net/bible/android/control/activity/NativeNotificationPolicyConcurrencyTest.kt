@@ -1,5 +1,6 @@
 package net.bible.android.control.activity
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,13 +14,17 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import net.bible.sharedcore.cloud.DocumentSyncProgress
 import net.bible.sharedcore.cloud.DocumentSyncProgressStatus
 import net.bible.sharedcore.platform.NativeNotification
 import net.bible.sharedcore.platform.NativeNotifier
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.Test
@@ -32,8 +37,10 @@ class NativeNotificationPolicyConcurrencyTest {
         val currentlyShown: MutableSet<String> = ConcurrentHashMap.newKeySet()
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
+        val events = CopyOnWriteArrayList<String>()
         @Volatile var firstCall = true
         override fun show(n: NativeNotification) {
+            events += "show:${n.body}"
             if (firstCall) {
                 firstCall = false
                 entered.countDown()
@@ -41,7 +48,7 @@ class NativeNotificationPolicyConcurrencyTest {
             }
             currentlyShown += n.id
         }
-        override fun remove(id: String) { currentlyShown -= id }
+        override fun remove(id: String) { events += "remove:$id"; currentlyShown -= id }
         override fun setOnActivated(handler: (id: String) -> Unit) {}
     }
 
@@ -164,37 +171,81 @@ class NativeNotificationPolicyConcurrencyTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun closeRacingWithLifecycleStartCannotLeaveOrResurrectNotification() = runTest {
+    fun closeRacingWithLifecycleStartCannotLeaveOrResurrectNotification() {
+        repeat(200) { iteration ->
+            try {
+                lifecycleCloseScenario()
+            } catch (failure: AssertionError) {
+                throw AssertionError("Lifecycle close stress iteration ${iteration + 1}/200", failure)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun lifecycleCloseScenario() {
+        // No runTest work runner drives this scheduler concurrently. Hand it to the show thread
+        // only while this thread is waiting, then join before reusing it.
+        val scheduler = TestCoroutineScheduler()
+        val failures = CopyOnWriteArrayList<Throwable>()
+        val scope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(scheduler) +
+            CoroutineExceptionHandler { _, failure -> failures += failure })
         val notifier = TrackingNotifier(supportsProgress = false)
+        val resumeConsumer = CountDownLatch(1)
+        val pauseAfterShow = AtomicBoolean()
+        val testThread = Thread.currentThread()
         val policy = NativeNotificationPolicy(
             items = MutableStateFlow(emptyList()), notifier = notifier, foreground = { false },
-            enabled = MutableStateFlow(true), clock = { currentTime }, scope = backgroundScope,
+            enabled = MutableStateFlow(true), clock = {
+                if (Thread.currentThread() !== testThread && pauseAfterShow.compareAndSet(true, false)) {
+                    check(resumeConsumer.await(10, TimeUnit.SECONDS)) { "Consumer was not released" }
+                }
+                scheduler.currentTime
+            }, scope = scope,
             attentionText = null, finishedText = { "Finished" }, documentSyncLifecycleNotices = true,
             documentSyncNoticeText = { "Queue ${it.status}: ${it.processed}/${it.total}" },
         )
-        policy.start(); runCurrent()
+        policy.start(); scheduler.runCurrent()
         policy.onDocumentSyncProgress(DocumentSyncProgress(1, 1, DocumentSyncProgressStatus.RUNNING, total = 3))
-        runCurrent(); advanceTimeBy(10_000)
-        val scheduler = Thread { runCurrent() }.also { it.start() }
+        scheduler.runCurrent(); scheduler.advanceTimeBy(10_000)
+        val showThread = Thread { scheduler.runCurrent() }.apply {
+            uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, failure -> failures += failure }
+            start()
+        }
         var closer: Thread? = null
         try {
             assertTrue(notifier.entered.await(2, TimeUnit.SECONDS), "lifecycle start never reached show()")
-            closer = Thread { policy.close() }.also { it.start() }
-            // Queue inputs while both show and close are in flight; none may land after close returns.
+            pauseAfterShow.set(true)
+            closer = Thread { policy.close() }.apply {
+                uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, failure -> failures += failure }
+                start()
+            }
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2)
+            while (closer.state != Thread.State.BLOCKED && closer.isAlive && System.nanoTime() < deadline) Thread.yield()
+            assertEquals(Thread.State.BLOCKED, closer.state, "close must wait for the in-flight show")
+            // Hold the consumer at its next clock read, after show releases closeLock. Otherwise a
+            // terminal can legitimately win the lock and become a persistent final before close.
             policy.onDocumentSyncProgress(DocumentSyncProgress(1, 2, DocumentSyncProgressStatus.INTERRUPTED, total = 3))
             policy.onDocumentSyncProgress(DocumentSyncProgress(2, 3, DocumentSyncProgressStatus.RUNNING, total = 3))
             notifier.release.countDown()
-            scheduler.join(2_000)
             closer.join(2_000)
-            assertTrue(!scheduler.isAlive && !closer.isAlive, "close/show did not complete")
-            assertEquals(emptySet(), notifier.currentlyShown)
-            runCurrent(); advanceTimeBy(60_000); runCurrent()
+            assertTrue(!closer.isAlive, "close did not complete")
+            assertEquals(emptySet(), notifier.currentlyShown, "Events: ${notifier.events}")
+            resumeConsumer.countDown()
+            showThread.join(2_000)
+            assertTrue(!showThread.isAlive, "show consumer did not complete")
+            policy.onDocumentSyncProgress(DocumentSyncProgress(3, 4, DocumentSyncProgressStatus.RUNNING, total = 3))
+            scheduler.runCurrent(); scheduler.advanceTimeBy(60_000); scheduler.runCurrent()
+            failures.firstOrNull()?.let { throw AssertionError("Policy worker failed", it) }
+            assertEquals(listOf("show:Queue RUNNING: 0/3", "remove:andbible-document-sync:1"), notifier.events)
             assertEquals(emptySet(), notifier.currentlyShown)
         } finally {
             notifier.release.countDown()
-            scheduler.join(2_000)
+            resumeConsumer.countDown()
+            showThread.join(2_000)
             closer?.join(2_000)
             policy.close()
+            scope.cancel()
+            if (!showThread.isAlive && closer?.isAlive != true) scheduler.runCurrent()
         }
     }
 
