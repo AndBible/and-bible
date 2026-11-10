@@ -112,7 +112,7 @@ fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 private fun parseMyBibleBoolean(value: String?): Boolean =
     value.equals("true", ignoreCase = true) || value == "1"
 
-class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
+class SqliteVerseBackendState(private val sqliteFile: Path, private val allowVersificationDetection: Boolean = true): OpenFileState {
     constructor(sqliteFile: Path, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
@@ -203,7 +203,7 @@ class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
                 hasStrongs = hasStrongs,
                 hasWordsOfChrist = hasWordsOfChrist,
                 moduleFileName = dbPath,
-                versification = if (isBible) MyBibleVersificationStore.resolve(sqliteFile) { detectVersification().name } else "KJVA",
+                versification = if (isBible) MyBibleVersificationStore.resolve(sqliteFile, allowVersificationDetection) { detectVersification().name } else "KJVA",
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
@@ -502,14 +502,18 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     }
 }
 
-fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
+fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false, allowVersificationDetection: Boolean = true) {
     if(!KFiles.isFile(file)) return
-    val state = SqliteVerseBackendState(file)
+    val state = SqliteVerseBackendState(file, allowVersificationDetection)
     val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
+        state.close()
         return
     }
-    if(Books.installed().getBook(metadata.initials) != null) return
+    if(Books.installed().getBook(metadata.initials) != null) {
+        state.close()
+        return
+    }
     val backend = SqliteBackend(state, metadata)
     val book =
         if (metadata.bookCategory == BookCategory.DICTIONARY)
@@ -530,15 +534,26 @@ fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
 /** The `mybible` module folder, resolved through the [AppDirectories] port at call time. */
 @VisibleForTesting fun myBibleModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mybible"
 
-fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
+private fun installedMyBibleFiles(): List<Path>? = try {
     val dir = myBibleModulesDir()
-    // Do not finish migration on an unreadable folder: retry on the next startup instead.
-    if (KFiles.isDirectory(dir) && KFiles.listOrNull(dir) == null) return
-    val files = if (KFiles.isDirectory(dir)) FileSystem.SYSTEM.listRecursively(dir)
+    // Do not finish migration on an unreadable folder: retry on the next scan instead.
+    if (KFiles.isDirectory(dir) && KFiles.listOrNull(dir) == null) null
+    else if (KFiles.isDirectory(dir)) FileSystem.SYSTEM.listRecursively(dir)
         .filter { KFiles.isFile(it) && it.name.endsWith(".sqlite3", ignoreCase = true) }.toList()
-        else emptyList()
-    if (startupDiscovery) MyBibleVersificationStore.migrateLegacyModules(files)
-    for (file in files) addMyBibleBook(file, startupDiscovery)
+    else emptyList()
+} catch (e: IOException) {
+    Log.e(TAG, "Could not scan MyBible modules; retrying on the next scan", e)
+    null
+}
+
+/** Imports migrate the old tree before publishing new files, without opening/registering old books. */
+internal fun migrateLegacyMyBibleModules(): Boolean =
+    installedMyBibleFiles()?.let { MyBibleVersificationStore.migrateLegacyModules(it) } ?: false
+
+fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
+    val files = installedMyBibleFiles() ?: return
+    val migrated = MyBibleVersificationStore.migrateLegacyModules(files)
+    for (file in files) addMyBibleBook(file, startupDiscovery, allowVersificationDetection = migrated)
 }
 
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null

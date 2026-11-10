@@ -135,6 +135,10 @@ class DefaultInstallCommitter(
     }
 
     override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {
+        if (type == SqliteBookType.MYBIBLE) {
+            // A direct import can precede cold-start discovery; pin only the pre-existing tree.
+            net.bible.service.sword.mybible.migrateLegacyMyBibleModules()
+        }
         val outDir = modulesDir / type.name.lowercase()
         fileSystem.createDirectories(outDir)
         val outFile = outDir / displayName.trimStart('/')

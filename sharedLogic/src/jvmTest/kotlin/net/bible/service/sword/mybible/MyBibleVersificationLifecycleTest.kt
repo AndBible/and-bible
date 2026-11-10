@@ -155,8 +155,21 @@ class MyBibleVersificationLifecycleTest {
         root.resolve("internal/mybible-versifications").apply { parentFile.mkdirs(); writeText("blocks directory") }
         addManuallyInstalledMyBibleBooks(startupDiscovery = true)
         assertEquals("KJVA", installed().versification.name)
+        kotlin.test.assertFalse(root.resolve("internal/mybible-versification-v2").exists())
         restart()
         root.resolve("internal/mybible-versifications").delete()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+    }
+
+    @Test
+    fun markerWriteFailureDoesNotPreventLegacyRegistration() = withModules { root ->
+        fixture(root)
+        root.resolve("internal/mybible-versification-v2").apply { parentFile.mkdirs(); writeText("blocks markers") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+        restart()
+        root.resolve("internal/mybible-versification-v2").delete()
         addManuallyInstalledMyBibleBooks(startupDiscovery = true)
         assertEquals("KJVA", installed().versification.name)
     }
@@ -168,15 +181,18 @@ class MyBibleVersificationLifecycleTest {
         val file = fixture(root)
         addMyBibleBook(file.path.toPath())
         assertEquals("KJVA", installed().versification.name)
+        kotlin.test.assertTrue(root.resolve("internal/mybible-versification-v2").listFiles().orEmpty().isEmpty())
+        // A subsequent scan must pin this now-existing installation, not redetect it as German.
         restart()
         root.resolve("internal/mybible-versifications").delete()
-        addMyBibleBook(file.path.toPath())
-        assertEquals("German", installed().versification.name)
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
     }
 
     private fun fixture(root: File, german: Boolean = true): File {
         val file = root.resolve("modules/mybible/Lifecycle.SQLite3").apply { parentFile.mkdirs() }
         openSqlite(file.path).use { db ->
+            db.exec("BEGIN TRANSACTION")
             db.exec("CREATE TABLE info (name TEXT, value TEXT)")
             db.exec("INSERT INTO info VALUES ('language', 'de')")
             db.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
@@ -194,6 +210,7 @@ class MyBibleVersificationLifecycleTest {
                     db.exec("INSERT INTO verses VALUES (460, ${chapter + 1}, $verse, 'Chapter end')")
                 }
             }
+            db.exec("COMMIT")
         }
         return file
     }

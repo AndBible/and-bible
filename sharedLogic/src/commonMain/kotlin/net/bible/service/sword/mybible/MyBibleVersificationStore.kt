@@ -1,13 +1,18 @@
 package net.bible.service.sword.mybible
 
 import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.log.Log
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.ByteString.Companion.encodeUtf8
 import org.crosswire.common.util.KFiles
+import org.crosswire.jsword.versification.system.Versifications
 import org.koin.mp.KoinPlatform
+
+internal const val MYBIBLE_VERSIFICATION_SUFFIX = ".andbible-versification"
 
 /**
  * Numbering belongs to an installation, not to today's detection heuristic. App-private records use the module's
@@ -26,21 +31,52 @@ internal object MyBibleVersificationStore {
         return dirs.internalFilesDir / "mybible-versifications" / identity.encodeUtf8().sha256().hex()
     }
 
-    fun resolve(file: Path, detect: () -> String): String = synchronized(lock) {
-        val saved = record(file)
-        if (fs.exists(saved)) return@synchronized fs.read(saved) { readUtf8() }.trim()
-        detect().also { write(saved, it) }
+    private fun marker(): Path {
+        val dirs = KoinPlatform.getKoin().get<AppDirectories>()
+        // A temporary Android fallback root must not complete migration for the later external root.
+        val root = dirs.modulesDir.normalized().toString().encodeUtf8().sha256().hex()
+        return dirs.internalFilesDir / "mybible-versification-v2" / root
     }
 
-    /** Pin *all* existing files before any metadata/detection is read, including currently unreadable databases. */
-    fun migrateLegacyModules(files: List<Path>) = synchronized(lock) {
-        val marker = KoinPlatform.getKoin().get<AppDirectories>().internalFilesDir / "mybible-versification-v1"
-        if (fs.exists(marker)) return@synchronized
-        files.forEach { file ->
-            // Preserve a decision made by an import before the first startup scan.
-            if (!fs.exists(record(file))) write(record(file), "KJVA")
+    fun resolve(file: Path, allowDetection: Boolean = true, detect: () -> String): String = synchronized(lock) {
+        try {
+            val saved = record(file)
+            if (fs.exists(saved)) return@synchronized fs.read(saved) { readUtf8() }.trim()
+            if (!allowDetection) return@synchronized "KJVA"
+            detect().also { write(saved, it) }
+        } catch (e: IOException) {
+            // A decision that was not saved must not reinterpret legacy coordinates or prevent startup.
+            Log.e(TAG, "Could not persist MyBible numbering for $file; using KJVA", e)
+            // Do not let a later successful scan reinterpret an installation first opened with KJVA.
+            try { fs.delete(marker(), mustExist = false) } catch (failure: IOException) {
+                Log.e(TAG, "Could not reset MyBible migration marker", failure)
+            }
+            "KJVA"
         }
-        write(marker, "complete")
+    }
+
+    /** Pin all existing files before metadata is read. A changed storage root needs its own legacy scan. */
+    fun migrateLegacyModules(files: List<Path>): Boolean = synchronized(lock) {
+        try {
+            val marker = marker()
+            if (fs.exists(marker)) return@synchronized true
+            files.forEach { file ->
+                if (!fs.exists(record(file))) write(record(file), "KJVA")
+            }
+            write(marker, "complete")
+            true
+        } catch (e: IOException) {
+            Log.e(TAG, "Could not migrate MyBible numbering; retrying on the next scan", e)
+            false
+        }
+    }
+
+    /** Archive metadata is authoritative; old archives explicitly restore KJVA before registration. */
+    fun restore(file: Path, versification: String) = synchronized(lock) {
+        if (Versifications.instance().getVersification(versification) == null) {
+            throw IOException("Unknown MyBible versification: $versification")
+        }
+        write(record(file), versification)
     }
 
     fun remove(file: Path) = synchronized(lock) {

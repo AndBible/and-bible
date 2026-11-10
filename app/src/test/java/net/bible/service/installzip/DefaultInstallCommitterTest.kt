@@ -160,6 +160,8 @@ class DefaultInstallCommitterTest {
                 }
             }
             legacy.writeBytes(source.readBytes())
+            // Model an upgrade before the empty-root scan TestBibleApplication already performed.
+            File(SharedConstants.internalFilesDir, "mybible-versification-v2").deleteRecursively()
             committer.commitSqlite(source.toOkioPath(), SqliteBookType.MYBIBLE, "FreshDirect.SQLite3")
             net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks(startupDiscovery = true)
             assertEquals("KJVA", (Books.installed().getBook("MyBible-LegacyBeforeDirect") as org.crosswire.jsword.book.sword.SwordBook).versification.name)

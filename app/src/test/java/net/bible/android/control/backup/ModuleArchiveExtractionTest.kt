@@ -237,6 +237,84 @@ class ModuleArchiveExtractionTest {
         assertEquals("German", installedVersification("RestoredNumbering"))
     }
 
+    @Test
+    fun oldArchiveReplacesRegisteredGermanWithKjva() = runBlocking {
+        val module = File(downloadDir, "mybible/ReplaceGerman.SQLite3")
+        module.parentFile!!.mkdirs()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        module.writeBytes(germanMyBibleBytes())
+        addMyBibleBook(module.toOkioPath())
+        assertEquals("German", installedVersification("ReplaceGerman"))
+
+        val zip = buildZip("replace-german.zip", listOf("mybible/ReplaceGerman.SQLite3" to germanMyBibleBytes()))
+        org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+            .extractAndRegisterModuleArchive({ zip.source() })
+        assertEquals("KJVA", installedVersification("ReplaceGerman"))
+    }
+
+    @Test
+    fun explicitGermanArchiveReplacesRegisteredKjva() = runBlocking {
+        val module = File(downloadDir, "mybible/ReplaceKjva.SQLite3")
+        module.parentFile!!.mkdirs()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        module.writeBytes(myBibleBytes())
+        addMyBibleBook(module.toOkioPath())
+        assertEquals("KJVA", installedVersification("ReplaceKjva"))
+
+        val zip = buildZip("replace-kjva.zip", listOf(
+            "mybible/ReplaceKjva.SQLite3.andbible-versification" to "German".toByteArray(),
+            "mybible/ReplaceKjva.SQLite3" to myBibleBytes(),
+        ))
+        org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+            .extractAndRegisterModuleArchive({ zip.source() })
+        assertEquals("German", installedVersification("ReplaceKjva"))
+    }
+
+    @Test
+    fun decisionWriteFailureRollsBackModuleBeforeRegistration() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val records = File(SharedConstants.internalFilesDir, "mybible-versifications")
+        val saved = File(SharedConstants.internalFilesDir, "mybible-versifications-test-aside")
+        check(!saved.exists())
+        val hadRecords = records.exists()
+        if (hadRecords) check(records.renameTo(saved))
+        try {
+            records.writeText("block directory creation")
+            val zip = buildZip("numbering-write-failure.zip", listOf(
+                "mybible/WriteFailure.SQLite3" to myBibleBytes(),
+                "mybible/WriteFailure.SQLite3.andbible-versification" to "German".toByteArray(),
+            ))
+            val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+            try {
+                backup.extractAndRegisterModuleArchive({ zip.source() })
+                org.junit.Assert.fail("Failed decision write must reject restore")
+            } catch (expected: java.io.IOException) {
+                assertFalse(File(downloadDir, "mybible/WriteFailure.SQLite3").exists())
+                assertTrue(Books.installed().getBook("MyBible-WriteFailure") == null)
+            }
+        } finally {
+            records.delete()
+            if (hadRecords) check(saved.renameTo(records))
+        }
+    }
+
+    @Test
+    fun invalidMyBibleVersificationRejectsArchiveBeforeRegistration() = runBlocking {
+        val zip = buildZip("invalid-numbering.zip", listOf(
+            "mybible/InvalidNumbering.SQLite3" to myBibleBytes(),
+            "mybible/InvalidNumbering.SQLite3.andbible-versification" to "not-a-versification".toByteArray(),
+        ))
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        try {
+            backup.extractAndRegisterModuleArchive({ zip.source() })
+            org.junit.Assert.fail("Invalid versification must reject the archive")
+        } catch (expected: java.io.IOException) {
+            assertFalse(File(downloadDir, "mybible/InvalidNumbering.SQLite3").exists())
+            assertTrue(Books.installed().getBook("MyBible-InvalidNumbering") == null)
+        }
+    }
+
     private fun installedVersification(name: String): String =
         (Books.installed().getBook("MyBible-$name") as SwordBook).versification.name
 

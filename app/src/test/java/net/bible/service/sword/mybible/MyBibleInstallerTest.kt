@@ -84,7 +84,11 @@ class MyBibleInstallerTest {
     }
 
     @After fun tearDown() {
-        Books.installed().getBooks().filter { it !in previousBooks }.forEach { Books.installed().removeBook(it) }
+        Books.installed().getBooks().filter { it !in previousBooks }.forEach { book ->
+            org.crosswire.common.activate.Activator.deactivate(book)
+            ((book as? org.crosswire.jsword.book.sword.SwordBook)?.backend as? SqliteBackend)?.state?.close()
+            Books.installed().removeBook(book)
+        }
         WebResource.transport = previousTransport
         listOf("manifest", "module").forEach { settings.removeLong("last-downloaded-$base/$it") }
         root.listFiles()?.filter { it.name.contains(id) }?.forEach { it.deleteRecursively() }
@@ -183,6 +187,8 @@ class MyBibleInstallerTest {
             }
         }
         File(root, "$id.legacy.SQLite3").writeBytes(source.readBytes())
+        // TestBibleApplication already scanned its empty root: model an upgrade before that first scan.
+        File(SharedConstants.internalFilesDir, "mybible-versification-v2").deleteRecursively()
         val (installer, book) = installer("$id.fresh.SQLite3", source.readBytes())
         installer.install(book)
         assertEquals("KJVA", (Books.installed().getBook("MyBible-${id}_legacy") as org.crosswire.jsword.book.sword.SwordBook).versification.name)

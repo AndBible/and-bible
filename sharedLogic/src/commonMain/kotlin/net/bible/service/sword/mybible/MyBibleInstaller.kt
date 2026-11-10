@@ -200,6 +200,8 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                 }
                 // Validate the complete payload before exposing any files to the installed-book scan.
                 currentCoroutineContext().ensureActive()
+                // Migrate the old tree before exposing this genuinely new download to discovery.
+                migrateLegacyMyBibleModules()
                 val dir = myBibleDir.child(book.initials)
                 KFiles.createDirectories(dir)
                 modules.forEach { file ->

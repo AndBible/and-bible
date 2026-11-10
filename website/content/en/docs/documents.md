@@ -141,6 +141,12 @@ existing module, remove it from *AndBible* and import it again after updating.
 Re-importing can change how previously saved locations refer to that document;
 keep a backup before doing so, and be careful when syncing with older app versions.
 
+Module backups made with this version preserve the selected MyBible numbering when
+restored on another device. Older module backups do not contain that information
+and restore with the historical KJVA numbering. Syncing bookmarks alone does not
+transfer a module's numbering choice: use the same module backup on both devices
+rather than importing the module independently when retaining saved locations.
+
 Bible verse links in MyBible commentaries work like other Scripture references.
 When an entry contains two or more references, **Open all** opens them together.
 Web links and Strong's dictionary links remain separate from this reference collection.
