@@ -224,6 +224,13 @@ test_lock_does_not_depend_on_xdg_runtime_dir() {
     wait "$BGJOB"
     [ "$rc2" != 0 ] && grep -q 'another release run is active' "$T/out2" || return "$(fail "second run with another XDG_RUNTIME_DIR: rc=$rc2 $(cat "$T/out2")")"
 }
+test_export_needs_no_play_egress() {
+    mk_repo; FASTLANE_CMD=/nonexistent/fastlane STUB_BLOCKED="androidpublisher.googleapis.com oauth2.googleapis.com www.googleapis.com" run --export-only
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    grep -q '^android build sess=set' "$STUB_DIR/calls" || return "$(fail "android not built")"
+    grep -q 'egress rm' "$(SUMF)" && return "$(fail "egress reminder for an export run")"
+    true
+}
 test_stale_dir_swept() {
     mk_repo; mkdir -m 700 "$T/tmp/release-secrets.OLD1"; echo "$SENTINEL" > "$T/tmp/release-secrets.OLD1/k"
     run

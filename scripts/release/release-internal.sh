@@ -86,7 +86,7 @@ if [ ! -d "$SRC" ]; then
 elif [ ! -f "$SRC/$SECRETS_BUNDLE_NAME" ]; then
     miss "no secrets bundle $SRC/$SECRETS_BUNDLE_NAME; pack it once: scripts/release/secrets-pack.sh"
 fi
-if [ "$WANT_A" = 1 ]; then
+if [ "$WANT_A" = 1 ] && [ "$DEST" = upload ]; then    # export: Play is never contacted
     command -v "$FASTLANE" >/dev/null 2>&1 || miss "fastlane is not on PATH (it comes with the JailBee image)"
     for h in "${PLAY_HOSTS[@]}"; do
         code=$("$CURL" -sS -m 10 -o /dev/null -w '%{http_code}' "https://$h/" 2>/dev/null)
@@ -250,7 +250,7 @@ I_BUILD=$(sed -n 's/^build //p' "$RUN_DIR/ios/branch.log" 2>/dev/null | tail -n 
     [ "$A_ST" != FAIL ] || echo "retry: make release-internal PLATFORM=android$([ "$DEST" = export ] && echo ' DEST=export')"
     [ "$I_ST" != FAIL ] || echo "retry: make release-internal PLATFORM=ios$([ "$DEST" = export ] && echo ' DEST=export')"
     echo "host: jailbee unmount release-secrets $CONTAINER"
-    if [ "$WANT_A" = 1 ]; then for h in "${PLAY_HOSTS[@]}"; do echo "host: jailbee net egress rm $h $CONTAINER"; done; fi
+    if [ "$WANT_A" = 1 ] && [ "$DEST" = upload ]; then for h in "${PLAY_HOSTS[@]}"; do echo "host: jailbee net egress rm $h $CONTAINER"; done; fi
 } > "$SUMMARY"
 cat "$SUMMARY"
 [ "$A_ST" != FAIL ] && [ "$I_ST" != FAIL ]
