@@ -14,10 +14,83 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
     private var ui: SyncHarness { SyncHarness(test: self) }
 
+    private func privateRow(_ app: XCUIApplication, _ title: String, toggle: Bool = false) -> XCUIElement? {
+        let predicate = NSPredicate(format: "label BEGINSWITH %@", title)
+        let row = toggle ? app.switches.matching(predicate).firstMatch : app.buttons.matching(predicate).firstMatch
+        for _ in 0..<10 {
+            if row.exists && row.isHittable {
+                var stableFrame: CGRect?
+                var stableSince: TimeInterval?
+                let stable = NSPredicate { _, _ in
+                    guard row.exists && row.isHittable else {
+                        stableFrame = nil; stableSince = nil
+                        return false
+                    }
+                    let frame = row.frame
+                    let now = ProcessInfo.processInfo.systemUptime
+                    if let previous = stableFrame, let since = stableSince,
+                       abs(frame.minX - previous.minX) <= 0.5, abs(frame.minY - previous.minY) <= 0.5,
+                       abs(frame.width - previous.width) <= 0.5, abs(frame.height - previous.height) <= 0.5 {
+                        return now - since >= 1
+                    }
+                    stableFrame = frame; stableSince = now
+                    return false
+                }
+                guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: stable, object: app)], timeout: 15) == .completed else {
+                    XCTFail("Synchronization setting did not become stable: \(title)")
+                    return nil
+                }
+                return row
+            }
+            app.swipeUp()
+        }
+        XCTFail("Required synchronization setting unavailable: \(title)")
+        return nil
+    }
+
+    private func editPrivateRow(_ app: XCUIApplication, _ title: String, _ value: String) -> Bool {
+        guard let row = privateRow(app, title) else { return false }
+        row.tap()
+        let field = app.textViews.firstMatch
+        guard field.waitForExistence(timeout: 10), field.isHittable, app.textViews.count == 1 else {
+            XCTFail("Synchronization editor unavailable: \(title)")
+            return false
+        }
+        field.tap()
+        guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "hasKeyboardFocus == true"), object: field)], timeout: 10) == .completed else {
+            XCTFail("Synchronization editor did not receive focus: \(title)")
+            return false
+        }
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
+        for _ in 0..<4 where field.value != nil && (field.value as? String) != "" {
+            let length = (field.value as? String)?.count ?? 0
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: max(length, 1) + 4))
+        }
+        guard field.value == nil || (field.value as? String) == "" else {
+            XCTFail("Synchronization editor could not be cleared: \(title)")
+            return false
+        }
+        if !value.isEmpty { field.typeText(value) }
+        let apply = app.buttons["Apply"].firstMatch
+        guard apply.waitForExistence(timeout: 5) && apply.isHittable else {
+            XCTFail("Synchronization editor Apply unavailable: \(title)")
+            return false
+        }
+        apply.tap()
+        guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in !field.exists }, object: app)], timeout: 10) == .completed else {
+            XCTFail("Synchronization editor did not close: \(title)")
+            return false
+        }
+        return true
+    }
+
     func testRealDocumentDownloadProgressInSettings() throws {
         let env = ProcessInfo.processInfo.environment
         guard let json = env["DOCUMENT_SYNC_VISIBILITY_FIXTURE_JSON"] else {
             throw XCTSkip("Controller-only document-sync fixture not supplied")
+        }
+        guard env["DOCUMENT_SYNC_VISIBILITY_PROFILE_DISPOSABLE"] == "1" else {
+            throw XCTSkip("Explicit disposable-profile opt-in is required before resetting app databases")
         }
         guard let data = json.data(using: .utf8),
               let fixture = try? JSONDecoder().decode(Fixture.self, from: data),
@@ -43,20 +116,21 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-resetDatabases", "-task5Settings", "-task7AndroidDebugSyncNamespace",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
-        guard ui.openDeviceSynchronization(app, "Synchronization settings unavailable") else { return }
-        let existingDocuments = ui.reveal(app, "Documents", toggle: true)
+        guard let syncSettings = privateRow(app, "Device synchronization") else { return }
+        syncSettings.tap()
+        guard let existingDocuments = privateRow(app, "Documents", toggle: true) else { return }
         if existingDocuments.isSelected {
             guard env["DOCUMENT_SYNC_VISIBILITY_RESET_DISPOSABLE"] == "1" else {
                 XCTFail("Enabled Documents requires explicit disposable-profile reset opt-in")
                 return
             }
             app.swipeDown(); app.swipeDown(); app.swipeDown()
-            let server = ui.reveal(app, "Server URL")
+            guard let server = privateRow(app, "Server URL") else { return }
             guard server.label == "Server URL, \(fixture.serverURL)" else {
                 XCTFail("Refusing to reset a profile with a different saved server")
                 return
             }
-            let signOut = ui.reveal(app, "Sign Out")
+            guard let signOut = privateRow(app, "Sign Out") else { return }
             guard signOut.isEnabled && signOut.isHittable else { XCTFail("Disposable Sign Out unavailable"); return }
             signOut.tap()
             let confirmation = app.staticTexts["Are you sure that you want to sign out and reset synchronization?"].firstMatch
@@ -87,17 +161,18 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         let webdav = ui.label(app, "WebDAV")
         guard webdav.waitForExistence(timeout: 10) else { XCTFail("WebDAV choice missing"); return }
         webdav.tap()
-        let documents = ui.reveal(app, "Documents", toggle: true)
+        guard let documents = privateRow(app, "Documents", toggle: true) else { return }
         guard documents.isEnabled && !documents.isSelected else {
             XCTFail("Fresh disposable profile must have Documents disabled")
             return
         }
         app.swipeDown(); app.swipeDown(); app.swipeDown()
-        ui.edit(app, "Server URL", fixture.serverURL)
-        ui.edit(app, "User name", fixture.username, sensitive: true)
-        ui.edit(app, "Password", fixture.password, sensitive: true)
-        ui.edit(app, "Sync folder path", fixture.folderPath)
-        ui.reveal(app, "Documents", toggle: true).tap()
+        guard editPrivateRow(app, "Server URL", fixture.serverURL),
+              editPrivateRow(app, "User name", fixture.username),
+              editPrivateRow(app, "Password", fixture.password),
+              editPrivateRow(app, "Sync folder path", fixture.folderPath),
+              let documentsToEnable = privateRow(app, "Documents", toggle: true) else { return }
+        documentsToEnable.tap()
         let start = ui.label(app, "Start syncing documents?")
         let certificate = ui.label(app, "Untrusted server certificate")
         let decision = NSPredicate { _, _ in start.exists || certificate.exists }
@@ -156,7 +231,8 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         // Settings also shows credential rows; never attach a screenshot of this screen.
 
         // Enter the cloud screen after the transfer has already started.
-        ui.reveal(app, "Synced documents").tap()
+        guard let syncedDocuments = privateRow(app, "Synced documents") else { return }
+        syncedDocuments.tap()
         let cloudTitle = ui.label(app, "Synced documents")
         guard cloudTitle.waitForExistence(timeout: 30) else { XCTFail("Synced documents screen missing"); return }
         let find = app.buttons["Find"].firstMatch
