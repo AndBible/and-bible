@@ -85,6 +85,14 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
     }
 
     func testRealDocumentDownloadProgressInSettings() throws {
+        try exerciseDocumentSync(compactMenu: false)
+    }
+
+    func testRealDocumentSyncKeepsOverflowMenuCompact() throws {
+        try exerciseDocumentSync(compactMenu: true)
+    }
+
+    private func exerciseDocumentSync(compactMenu: Bool) throws {
         let env = ProcessInfo.processInfo.environment
         guard let json = env["DOCUMENT_SYNC_VISIBILITY_FIXTURE_JSON"] else {
             throw XCTSkip("Controller-only document-sync fixture not supplied")
@@ -116,6 +124,14 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-resetDatabases", "-task5Settings", "-task7AndroidDebugSyncNamespace",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
+        if compactMenu {
+            guard let activityToggle = privateRow(app, "Show background activity in the menu", toggle: true) else { return }
+            if !activityToggle.isSelected { activityToggle.tap() }
+            for _ in 0..<10 {
+                if ui.rowButton(app, "Device synchronization").exists { break }
+                app.swipeDown()
+            }
+        }
         guard let syncSettings = privateRow(app, "Device synchronization") else { return }
         syncSettings.tap()
         guard let existingDocuments = privateRow(app, "Documents", toggle: true) else { return }
@@ -229,6 +245,55 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         XCTAssertTrue(progress.label.range(of: #"[0-9]+(?: / [0-9]+)? bytes received"#, options: .regularExpression) != nil,
                       "Download progress must include byte counts")
         // Settings also shows credential rows; never attach a screenshot of this screen.
+
+        if compactMenu {
+            let oldDetails = progress.label
+            // Return through real navigation rather than injecting activity rows into a test host.
+            let back = app.buttons["Back"].firstMatch
+            guard back.exists && back.isHittable else { XCTFail("Sync settings Back missing"); return }
+            back.tap()
+            let settingsBack = app.buttons["Back"].firstMatch
+            guard settingsBack.waitForExistence(timeout: 10) && settingsBack.isHittable else {
+                XCTFail("Application settings Back missing"); return
+            }
+            settingsBack.tap()
+            let overflow = app.buttons["More options"].firstMatch
+            guard overflow.waitForExistence(timeout: 30) && overflow.isHittable else {
+                XCTFail("Reading overflow button missing"); return
+            }
+            overflow.tap()
+            let summary = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                "Document synchronization", "operations")).firstMatch
+            guard summary.waitForExistence(timeout: 30) else { XCTFail("Compact document sync summary missing"); return }
+            let initial = summary.frame
+            XCTAssertLessThanOrEqual(initial.width, 281)
+            XCTAssertLessThan(initial.height, 80, "Compact sync row must contain one text line and its progress bar")
+            XCTAssertFalse(summary.label.contains(fixture.expectedDocumentName))
+            XCTAssertFalse(summary.label.contains("bytes received"))
+            let showAll = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Show all (")).firstMatch
+            guard showAll.waitForExistence(timeout: 5) && showAll.isHittable else {
+                XCTFail("Single compact sync has no path to full details"); return
+            }
+            let initialShowAll = showAll.frame
+            ui.shot(app, "compact-sync-menu-before-update")
+            let changed = NSPredicate { _, _ in
+                summary.exists && summary.isHittable && summary.frame == initial
+            }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: changed, object: app)], timeout: 10), .completed)
+            Thread.sleep(forTimeInterval: 8)
+            XCTAssertEqual(summary.frame, initial, "Live transfer updates must not resize the compact row")
+            XCTAssertEqual(showAll.frame, initialShowAll, "Live updates must not move later menu rows")
+            ui.shot(app, "compact-sync-menu-after-update")
+            showAll.tap()
+            let activityTitle = app.staticTexts["Background activity"].firstMatch
+            guard activityTitle.waitForExistence(timeout: 15) else { XCTFail("Show all did not open the full activity view"); return }
+            let fullDetails = app.descendants(matching: .any).matching(NSPredicate(
+                format: "label CONTAINS %@ AND label CONTAINS %@", fixture.expectedDocumentName, "bytes received")).firstMatch
+            guard fullDetails.waitForExistence(timeout: 15) else { XCTFail("Full activity view lost document/byte details"); return }
+            XCTAssertNotEqual(fullDetails.label, oldDetails, "Fixture must produce real changing transfer progress")
+            ui.shot(app, "compact-sync-full-details")
+            return
+        }
 
         // Enter the cloud screen after the transfer has already started.
         guard let syncedDocuments = privateRow(app, "Synced documents") else { return }
