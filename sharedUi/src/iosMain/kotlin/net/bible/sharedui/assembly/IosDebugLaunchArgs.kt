@@ -150,6 +150,8 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
         runCatching {
             FileSystem.SYSTEM.deleteRecursively(dirs.internalFilesDir)
             FileSystem.SYSTEM.deleteRecursively(dirs.modulesDir)
+            // Build 1261 let JSword migrate app-owned modules here; a fresh fixture must clear both stores.
+            FileSystem.SYSTEM.deleteRecursively(platform.Foundation.NSHomeDirectory().toPath() / ".sword")
             deleteDatabases(support)
             // The requested-install record describes the modules just deleted (#3973).
             net.bible.sharedcore.platform.IosDeviceSettings().remove(net.bible.android.control.download.PendingRepoInstalls.KEY)

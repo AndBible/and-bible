@@ -60,12 +60,12 @@ object HostSwordEnvironment {
             CWProject.instance().setFrontendName("and-bible")
             CWProject.setHome("jsword.home", modulesDir.toString(), null)
             Log.d(TAG, "Main JSword path: ${CWProject.instance().writableProjectDir}")
-            // JSword reads the `jsword.home` SYSTEM PROPERTY to find its home; iOS has no such property (its
-            // `systemProperty` answers only user.home/os.name), so CWProject.setHome above does not make the module
-            // folder known. Without the two lines below the book scan looks in `~/.sword` and finds no module at all,
-            // and every installed Bible (hence the first window's document) is missing.
-            SwordBookPath.setAugmentPath(arrayOf(modulesDir))
+            // This host owns its module store. Default discovery also migrates the CWProject home to ~/.sword,
+            // moving installed modules out of Documents/sword (and outside the fresh-install reset).
+            // Set the download path before registration: setAugmentPath immediately scans the driver.
+            SwordBookPath.scanDefaultLocations = false
             SwordBookPath.setDownloadDir(modulesDir)
+            SwordBookPath.setAugmentPath(arrayOf(modulesDir))
             WebResource.setTimeout(5000)
             loaded = true
         } catch (e: Exception) {
