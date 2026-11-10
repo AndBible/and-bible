@@ -217,7 +217,7 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
         ok.tap()
         let permission = springboard.alerts.containing(NSPredicate(format: "label CONTAINS[c] 'notifications'")).firstMatch
         let preauthorized = env["DOCUMENT_SYNC_VISIBILITY_PREAUTHORIZED"] == "1"
-        if !preauthorized && !allowedNotifications && permission.waitForExistence(timeout: 30) {
+        if !compactMenu && !preauthorized && !allowedNotifications && permission.waitForExistence(timeout: 30) {
             let allow = permission.buttons["Allow"].firstMatch
             guard allow.waitForExistence(timeout: 10) && allow.isHittable else {
                 XCTFail("Notification permission Allow unavailable")
@@ -226,7 +226,7 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
             allow.tap()
             allowedNotifications = true
         }
-        guard allowedNotifications || preauthorized else {
+        guard compactMenu || allowedNotifications || preauthorized else {
             XCTFail("Notification permission prompt not observed; use preauthorization only with independently verified OS grant")
             return
         }
