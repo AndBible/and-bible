@@ -1,6 +1,13 @@
 package net.bible.sharedui.host.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.Text
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import net.bible.sharedui.components.AbNavHost
+import net.bible.sharedui.theme.AbTheme
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -183,6 +190,44 @@ class HostActivityNotificationRoutingTest {
         runOnIdle { preference.set(false) }
         waitForIdle()
         assertLists(0)
+    }
+
+    @Test fun repeatedOpenReadingForAgentRowsDoesNotDuplicateCurrentReadingEntry() = runComposeUiTest {
+        lateinit var nav: NavHostController
+        lateinit var shell: HostNavShell
+        setContent {
+            AbTheme(disableAnimations = true) {
+                nav = rememberNavController()
+                val scope = rememberCoroutineScope()
+                shell = androidx.compose.runtime.remember { HostNavShell(scope, NavControllerNavigator { nav }) }
+                DisposableEffect(nav) {
+                    val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
+                        shell.routeChanged(destination.route)
+                    }
+                    nav.addOnDestinationChangedListener(listener)
+                    onDispose { nav.removeOnDestinationChangedListener(listener) }
+                }
+                AbNavHost(navController = nav, startDestination = NavRoutes.READING) {
+                    composable(NavRoutes.READING) { Text("reading") }
+                    composable(NavRoutes.SETTINGS) { Text("preferences") }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle {
+            assertEquals(1, nav.currentBackStack.value.count { it.destination.route == NavRoutes.READING })
+            // The persistent root's agent-row path calls this before delegating to the reading host.
+            repeat(3) { shell.openReading() }
+            assertEquals(1, nav.currentBackStack.value.count { it.destination.route == NavRoutes.READING })
+        }
+        runOnIdle { nav.navigate(NavRoutes.SETTINGS) }
+        waitForIdle()
+        runOnIdle { shell.openReading() }
+        waitForIdle()
+        runOnIdle {
+            assertEquals(NavRoutes.READING, nav.currentDestination!!.route)
+            assertEquals(1, nav.currentBackStack.value.count { it.destination.route == NavRoutes.READING })
+        }
     }
 
     /** Preserve JSword's process-wide home, as the other real desktop startup fixtures do. */

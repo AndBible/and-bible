@@ -101,6 +101,7 @@ class HostNavShell(
      * `popBackStack(READING)`), so the Welcome return gate can call this unconditionally without a second READING.
      */
     override fun openReading() {
+        if (currentRoute.value?.substringBefore('?') == NavRoutes.READING) return
         // Like Android's CLEAR_TOP | SINGLE_TOP: reuse a reading entry that is already on the stack (Search paths).
         if (navigator.popBackStackTo(NavRoutes.READING, inclusive = false)) return
         // First-run flow: Download sits above Welcome, so pop it first; either may be absent.
