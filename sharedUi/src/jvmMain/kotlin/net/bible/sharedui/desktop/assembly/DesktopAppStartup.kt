@@ -363,10 +363,8 @@ internal object DesktopSwordFolders {
         // The download dir first: initialiseJSwordFolders sets the augment path, which re-registers the Sword driver at
         // once; without an explicit download dir that scan would fall back to JSword's default one, ~/.sword.
         SwordBookPath.setDownloadDir(modules)
-        // JSword's project home (netcache, the front-end dir). `CWProject.setHome("jsword.home", <dir>, null)` in
-        // initialiseJSwordFolders takes <dir> as a directory NAME under user.home unless the `jsword.home` system
-        // property names the home: without it the JVM gets `~/<absolute module path>`. CWProject keeps the first home
-        // it establishes for the process.
+        // Set JSword's project home (netcache, the front-end dir) explicitly before it is established.
+        // CWProject keeps the first home it establishes for the process.
         System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
         HostSwordEnvironment.initialiseJSwordFolders(modules, rethrowFailures = true)
         if (current == dir) return
