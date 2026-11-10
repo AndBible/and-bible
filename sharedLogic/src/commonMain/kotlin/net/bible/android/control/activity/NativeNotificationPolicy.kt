@@ -7,6 +7,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import net.bible.sharedcore.event.Subscription
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -58,6 +61,7 @@ class NativeNotificationPolicy(
     private val documentSyncLifecycleNotices: Boolean = false,
     private val documentSyncNoticeText: ((DocumentSyncProgress) -> String)? = null,
     private val documentSyncNoticeTitle: (() -> String)? = null,
+    private val notificationPreference: SystemNotificationsPreference? = null,
 ) {
     constructor(items: StateFlow<List<ActivityItem>>, notifier: NativeNotifier, foreground: AppForeground,
                 enabled: StateFlow<Boolean>, clock: () -> Long, scope: CoroutineScope, finishedText: () -> String) :
@@ -117,6 +121,7 @@ class NativeNotificationPolicy(
     @Volatile private var lifecycleTimer: Job? = null
     /** Separate classification: lifecycle starts are neither persistent progress nor attention. */
     @Volatile private var lifecycleStartId: String? = null
+    @Volatile private var preferenceSubscription: Subscription? = null
 
     private fun acceptQueue(progress: DocumentSyncProgress, at: Long) {
         val previous = queue
@@ -191,12 +196,25 @@ class NativeNotificationPolicy(
         if (documentSyncLifecycleNotices) {
             lifecycleForeground = inForeground.value
             lifecycleEnabled = enabled.value
+            val subscription = notificationPreference?.observe {
+                lifecycleInputs.trySend(LifecycleInput.Preference(it, clock()))
+            }
+            synchronized(closeLock) { // L1-common-ok: atomicfu lock
+                if (isClosed) { subscription?.cancel(); return }
+                preferenceSubscription = subscription
+            }
             job = scope.launch {
-                launch { items.collect { lifecycleInputs.send(LifecycleInput.ListChanged(it)) } }
-                launch { enabled.collect { lifecycleInputs.send(LifecycleInput.Preference(it, clock())) } }
+                launch {
+                    items.map { list -> list.filter { it.kind != ActivityKind.DOCUMENT_SYNC } }
+                        .distinctUntilChanged()
+                        .collect { lifecycleInputs.send(LifecycleInput.ListChanged(it)) }
+                }
+                if (notificationPreference == null) launch {
+                    enabled.collect { lifecycleInputs.send(LifecycleInput.Preference(it, clock())) }
+                }
                 launch { notifier.progressCapabilityChanges.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
                 launch { tick.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
-                var list = items.value
+                var list = items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }
                 for (input in lifecycleInputs) {
                     if (isClosed) break
                     when (input) {
@@ -263,6 +281,8 @@ class NativeNotificationPolicy(
             job?.cancel()
             wakeJob?.cancel()
             lifecycleTimer?.cancel()
+            preferenceSubscription?.cancel()
+            preferenceSubscription = null
             lifecycleInputs.cancel()
             removeLifecycleStart()
             val ids = progressIds

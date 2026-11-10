@@ -256,6 +256,50 @@ class NativeNotificationPolicyTest {
         assertTrue("remove:andbible-document-sync:1" in f.notifier.calls)
     }
 
+    private fun memoryNotificationPreference(): SystemNotificationsPreference {
+        var stored: Boolean? = null
+        val settings = object : net.bible.sharedcore.platform.AppSettings by
+            net.bible.sharedlogic.settings.DatabaseAppSettings({ error("unused non-boolean settings") }, { false }) {
+            override fun getBoolean(key: String, default: Boolean) = stored ?: default
+            override fun setBoolean(key: String, value: Boolean?) { stored = value }
+        }
+        return SystemNotificationsPreference(settings, true)
+    }
+
+    @Test
+    fun preferenceOffBeforeTerminalWithoutConsumerTurnCannotLeaveFinalNotice() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue()); runCurrent(); advance(10_000)
+        preference.set(false)
+        policy.onDocumentSyncProgress(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED))
+        runCurrent()
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), notifier.calls)
+    }
+
+    @Test
+    fun rapidPreferenceOffOnRemovesStartAndResetsPendingThreshold() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue()); runCurrent(); advance(9_000)
+        preference.set(false); preference.set(true)
+        runCurrent(); advance(9_999)
+        assertTrue(notifier.calls.isEmpty(), "Conflating off/on would retain the old timer")
+        advance(1)
+        assertEquals(1, notifier.shows.size)
+        preference.set(false); preference.set(true)
+        runCurrent(); advance(60_000)
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), notifier.calls)
+    }
+
     @Test
     fun preferenceOffRemovesStartAndReenableDoesNotReplayPastTerminal() = runTest {
         val f = fixture(supportsProgress = false, documentNotices = true)

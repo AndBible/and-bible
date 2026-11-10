@@ -51,6 +51,7 @@ internal class IosNotificationRuntime(
         documentSyncLifecycleNotices = true,
         documentSyncNoticeText = documentSyncNoticeText,
         documentSyncNoticeTitle = documentSyncNoticeTitle,
+        notificationPreference = preference,
     )
     private val progressSubscription = tracker?.observe(policy::onDocumentSyncProgress)
     private var observer: AutoCloseable? = null

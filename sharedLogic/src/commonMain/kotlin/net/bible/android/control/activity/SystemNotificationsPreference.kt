@@ -1,6 +1,9 @@
 package net.bible.android.control.activity
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.bible.sharedcore.event.Subscription
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.sharedcore.platform.AppSettings
@@ -24,13 +27,65 @@ class SystemNotificationsPreference(
     /** Current value; emits when [set] or [refresh] changes it. */
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
-    /** Re-reads the store; call once the settings database is ready. */
-    fun refresh() { _enabled.value = read() }
+    private class Observer(val callback: (Boolean) -> Unit) { var cancelled = false }
+    private val lock = SynchronizedObject()
+    private val observers = mutableListOf<Observer>()
+    private val pending = ArrayDeque<() -> Unit>()
+    private var draining = false
 
-    /** Stores [enabled] explicitly (it then wins over the default) and publishes it. */
+    /** Replays the current value before ordered changes, without StateFlow conflation. Cancel on owner close. */
+    fun observe(callback: (Boolean) -> Unit): Subscription {
+        val observer = Observer(callback)
+        synchronized(lock) { // L1-common-ok: atomicfu lock
+            observers += observer
+            enqueue(observer, _enabled.value)
+        }
+        drain()
+        return Subscription {
+            synchronized(lock) { observer.cancelled = true; observers.remove(observer) } // L1-common-ok: atomicfu lock
+        }
+    }
+
+    /** Re-reads the store; call once the settings database is ready. */
+    fun refresh() {
+        synchronized(lock) { publish(read()) } // L1-common-ok: atomicfu lock
+        drain()
+    }
+
+    /** Stores [enabled] explicitly (it then wins over the default) and publishes every changed edge. */
     fun set(enabled: Boolean) {
-        settings.setBoolean(KEY, enabled)
-        _enabled.value = enabled
+        synchronized(lock) { // L1-common-ok: atomicfu lock
+            settings.setBoolean(KEY, enabled)
+            publish(enabled)
+        }
+        drain()
+    }
+
+    private fun publish(value: Boolean) {
+        if (_enabled.value == value) return
+        observers.forEach { enqueue(it, value) }
+        _enabled.value = value
+    }
+
+    private fun enqueue(observer: Observer, value: Boolean) {
+        pending.addLast {
+            val active = synchronized(lock) { !observer.cancelled } // L1-common-ok: atomicfu lock
+            if (active) observer.callback(value)
+        }
+    }
+
+    // One drainer invokes callbacks outside the lock, including changes accepted reentrantly.
+    private fun drain() {
+        synchronized(lock) { // L1-common-ok: atomicfu lock
+            if (draining) return
+            draining = true
+        }
+        while (true) {
+            val next = synchronized(lock) { // L1-common-ok: atomicfu lock
+                if (pending.isEmpty()) { draining = false; null } else pending.removeFirst()
+            } ?: return
+            try { next() } catch (e: Exception) { e.printStackTrace() }
+        }
     }
 
     private fun read(): Boolean = settings.getBoolean(KEY, defaultEnabled)

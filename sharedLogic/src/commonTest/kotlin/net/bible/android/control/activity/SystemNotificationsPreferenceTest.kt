@@ -60,5 +60,32 @@ class SystemNotificationsPreferenceTest {
         assertTrue(SystemNotificationsPreference(s, true).enabled.value)
     }
 
+    @Test fun observerReplaysAndDeliversRapidChangesSynchronouslyUntilCancelled() {
+        val p = SystemNotificationsPreference(MemorySettings(), true)
+        val seen = mutableListOf<Boolean>()
+        val subscription = p.observe { seen += it }
+        assertEquals(listOf(true), seen)
+        p.set(false); p.set(true); p.set(true)
+        assertEquals(listOf(true, false, true), seen)
+        subscription.cancel(); subscription.cancel()
+        p.set(false)
+        assertEquals(listOf(true, false, true), seen)
+    }
+
+    @Test fun observerReentrantChangePreservesOrderForOtherObserversAndRefresh() {
+        val settings = MemorySettings()
+        val p = SystemNotificationsPreference(settings, true)
+        val first = mutableListOf<Boolean>()
+        val second = mutableListOf<Boolean>()
+        val a = p.observe { first += it; if (!it) p.set(true) }
+        val b = p.observe { second += it }
+        settings.setBoolean(SystemNotificationsPreference.KEY, false)
+        p.refresh()
+        assertEquals(listOf(true, false, true), first)
+        assertEquals(listOf(true, false, true), second)
+        assertTrue(p.enabled.value)
+        a.cancel(); b.cancel()
+    }
+
     @Test fun keyIsStable() = assertEquals("system_notifications", SystemNotificationsPreference.KEY)
 }

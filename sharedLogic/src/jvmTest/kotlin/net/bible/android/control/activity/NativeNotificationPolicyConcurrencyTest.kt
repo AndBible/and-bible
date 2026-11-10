@@ -5,6 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.FlowCollector
+import java.util.concurrent.Semaphore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
@@ -18,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,6 +43,65 @@ class NativeNotificationPolicyConcurrencyTest {
         }
         override fun remove(id: String) { currentlyShown -= id }
         override fun setOnActivated(handler: (id: String) -> Unit) {}
+    }
+
+    @OptIn(kotlinx.coroutines.InternalCoroutinesApi::class)
+    @Test
+    fun documentByteListsDoNotAccumulateWhilePolicyConsumerIsBlocked() {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val observed = Semaphore(0)
+        val clockReads = AtomicInteger()
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val drained = CountDownLatch(1)
+        val centerClock = AtomicLong()
+        val center = ActivityCenter(scope) { centerClock.get() }
+        val lists = object : StateFlow<List<ActivityItem>> by center.items {
+            override suspend fun collect(collector: FlowCollector<List<ActivityItem>>): Nothing =
+                center.items.collect { collector.emit(it); observed.release() }
+        }
+        val notifier = object : NativeNotifier {
+            override val supportsProgress = false
+            override fun show(n: NativeNotification) {
+                if (n.id == "andbible-block") { entered.countDown(); release.await(5, TimeUnit.SECONDS) }
+                if (n.id == "andbible-after") drained.countDown()
+            }
+            override fun remove(id: String) = Unit
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+        }
+        val policy = NativeNotificationPolicy(lists, notifier, { false }, MutableStateFlow(true),
+            { clockReads.incrementAndGet(); 0L }, scope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue" })
+        try {
+            policy.start()
+            assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS))
+            center.startOrFail("block", ActivityKind.DOWNLOAD, "Block", "Error")
+            assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS))
+            assertTrue(entered.await(2, TimeUnit.SECONDS))
+            // ActivityCenter is the real source route used by DocumentSyncActivitySource. Its list
+            // collector keeps running independently while the notification consumer cannot drain.
+            center.start("document-sync:1", ActivityKind.DOCUMENT_SYNC, "Documents")
+            // RUNNING rows share the real center's 1 s visibility debounce. Advance its clock,
+            // then mutate once to publish the visible row without sleeping or bypassing the source.
+            centerClock.set(2_000)
+            center.setMessage("document-sync:1", "Visible")
+            assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS), "Document row did not pass visibility debounce")
+            repeat(200) {
+                center.setMessage("document-sync:1", "Bytes $it /private/document")
+                assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS))
+                center.update("document-sync:1", it % 100)
+                assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS))
+            }
+            center.startOrFail("after", ActivityKind.DOWNLOAD, "After", "Error")
+            assertTrue(observed.tryAcquire(2, TimeUnit.SECONDS))
+            release.countDown()
+            assertTrue(drained.await(2, TimeUnit.SECONDS))
+            assertTrue(clockReads.get() < 20, "Document byte lists entered lifecycle backlog: ${clockReads.get()} evaluations")
+        } finally {
+            release.countDown()
+            policy.close()
+            scope.cancel()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
