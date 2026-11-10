@@ -125,6 +125,7 @@ class NativeNotificationPolicy(
     @Volatile private var preferenceSubscription: Subscription? = null
     private var preferenceRevision = -1L
     private var preferenceOffRevision = 0L
+    private var preferenceBoundary = Long.MIN_VALUE
 
     private fun acceptPreference(snapshot: SystemNotificationsPreference.Snapshot, at: Long) {
         if (snapshot.revision <= preferenceRevision) return
@@ -134,8 +135,18 @@ class NativeNotificationPolicy(
         val changed = lifecycleEnabled != snapshot.enabled
         lifecycleEnabled = snapshot.enabled
         if (crossedOff || changed) {
+            // Accepted preferences may overtake older queued focus/queue inputs. None may backdate
+            // the next enabled-background interval past this conservative reconciliation boundary.
+            preferenceBoundary = maxOf(preferenceBoundary, at)
             resetLifecycleTimer(at)
             if (crossedOff || !snapshot.enabled) removeLifecycleStart()
+            if (crossedOff) {
+                evaluate(Input(emptyList(), false, lifecycleForeground, false))
+                // Baseline is the current list, not an older ListChanged still waiting in the channel.
+                lastSeen.clear()
+                items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }.forEach { lastSeen[it.id] = it }
+                needBaseline = false
+            }
         }
     }
 
@@ -171,7 +182,7 @@ class NativeNotificationPolicy(
         lifecycleTimer?.cancel()
         lifecycleTimer = null
         val generation = ++lifecycleGeneration
-        backgroundSince = at.takeIf { !lifecycleForeground && lifecycleEnabled &&
+        backgroundSince = maxOf(at, preferenceBoundary).takeIf { !lifecycleForeground && lifecycleEnabled &&
             queue?.status == DocumentSyncProgressStatus.RUNNING && !queueStartIssued && !queueTerminal }
         val since = backgroundSince ?: return
         lifecycleTimer = scope.launch {
@@ -236,12 +247,14 @@ class NativeNotificationPolicy(
                 }
                 launch { notifier.progressCapabilityChanges.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
                 launch { tick.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
-                var list = items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }
                 for (input in lifecycleInputs) {
                     if (isClosed) break
+                    // Generic activity remains state-driven: queued wake-ups must not replay old
+                    // lists over a newer preference baseline after an off epoch overtakes them.
+                    val list = items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }
                     reconcilePreference()
                     when (input) {
-                        is LifecycleInput.ListChanged -> list = input.items
+                        is LifecycleInput.ListChanged -> Unit
                         is LifecycleInput.Queue -> acceptQueue(input.progress, input.at)
                         is LifecycleInput.Focus -> if (lifecycleForeground != input.foreground) {
                             lifecycleForeground = input.foreground

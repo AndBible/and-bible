@@ -267,6 +267,62 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
+    fun oldQueuedRunningCannotBackdateTimerAcrossAcceptedOffOn() = runTest {
+        pausedOldInputCannotBackdatePreferenceBoundary(focus = false)
+    }
+
+    @Test
+    fun oldQueuedFocusCannotBackdateTimerAcrossAcceptedOffOn() = runTest {
+        pausedOldInputCannotBackdatePreferenceBoundary(focus = true)
+    }
+
+    private fun TestScope.pausedOldInputCannotBackdatePreferenceBoundary(focus: Boolean) {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        var now = 0L
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { now }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue())
+        if (focus) {
+            runCurrent()
+            policy.onForegroundChanged(true)
+            policy.onForegroundChanged(false)
+        }
+        // Only advance the injected clock: consumer has not processed the old Queue/Focus inputs.
+        now = 9_000
+        preference.set(false); preference.set(true)
+        now = 10_000
+        runCurrent()
+        assertTrue(notifier.calls.isEmpty(), "Old input backdated the post-preference timer")
+        now = 19_999; advanceTimeBy(9_999); runCurrent()
+        assertTrue(notifier.calls.isEmpty())
+        now = 20_000; advanceTimeBy(1); runCurrent()
+        assertEquals(1, notifier.shows.size)
+    }
+
+    @Test
+    fun rapidActualPreferenceOffOnRemovesGenericAttentionAndBaselinesFailures() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)
+        val items = MutableStateFlow(listOf(waiting))
+        val policy = NativeNotificationPolicy(items, notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, { "Permission" }, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        assertEquals(listOf("show:andbible-a"), notifier.calls)
+        preference.set(false)
+        items.value = listOf(waiting, item(id = "past", state = ActivityState.FAILED))
+        preference.set(true)
+        runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), notifier.calls)
+        advance(20_000)
+        assertEquals(2, notifier.calls.size, "Off/on must not replay baseline attention/failures")
+    }
+
+    @Test
     fun preferenceOffBeforeTerminalWithoutConsumerTurnCannotLeaveFinalNotice() = runTest {
         val preference = memoryNotificationPreference()
         val notifier = FakeNotifier(false)
