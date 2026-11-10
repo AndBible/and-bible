@@ -35,8 +35,11 @@ class ReadingHostDepsWiringGuardTest {
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
 
-    /** Parameter name -> why the Android host leaves it at the default. Empty: every member is wired. */
-    private val deliberatelyUnwired = emptyMap<String, String>()
+    /** Parameter name -> why the Android host leaves it at the default. */
+    private val deliberatelyUnwired = mapOf(
+        "onExitFullScreen" to "desktop-only on-screen exit button (#4034); Android leaves fullscreen with the " +
+            "double-tap gesture and system back, so the button stays hidden",
+    )
 
     /** The names declared by `class ReadingHostDeps(...)`: its 4-space-indented `val name:` lines. */
     private fun declaredParams(source: String): List<String> {
