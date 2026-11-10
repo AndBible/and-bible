@@ -40,12 +40,14 @@ class UnavailableSyncAdapterTest {
 
     private inner class Fixture(val saved: String = "GOOGLE_DRIVE") : AutoCloseable {
         val values = mutableMapOf<String, Any?>("sync_adapter" to saved, "sync_enable_bookmarks" to true)
-        val settings = stub<AppSettings> { name, args ->
+        val settings = object : AppSettings by stub<AppSettings>({ name, args ->
             when {
                 name.startsWith("get") -> values[args[0]] ?: args.getOrNull(1)
                 name.startsWith("set") -> { values[args[0] as String] = args[1]; null }
                 else -> null
             }
+        }) {
+            override fun getString(key: String, default: String?) = values[key] as? String ?: default
         }
         val escaped = mutableListOf<Throwable>()
         val scope = CoroutineScope(Job() + Dispatchers.Unconfined + CoroutineExceptionHandler { _, e -> escaped += e })
