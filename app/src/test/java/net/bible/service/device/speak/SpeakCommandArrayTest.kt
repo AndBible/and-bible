@@ -44,6 +44,25 @@ class SpeakCommandArrayTest {
     }
 
     @Test
+    fun sourceJoinRespectsLengthAndPreservesTitleType() {
+        val a = SpeakCommandArray(4)
+        a.add(TextCommand("L", TextCommand.TextType.TITLE))
+        a.add(TextCommand("ORD", joinToPrevious = true))
+        assertEquals(listOf("T:LORD"), a.describe())
+        assertEquals(TextCommand.TextType.TITLE, (a.single() as TextCommand).type)
+        a.add(TextCommand("x", joinToPrevious = true))
+        assertEquals(listOf("T:LORD", "T:x"), a.describe())
+    }
+
+    @Test
+    fun explicitSpaceIsNotRemovedBeforeAPossessive() {
+        val a = array()
+        a.add(TextCommand("in"))
+        a.add(TextCommand("'s", joinToPrevious = false))
+        assertEquals(listOf("T:in 's"), a.describe())
+    }
+
+    @Test
     fun secondConsecutiveSilenceIsDropped() {
         val a = array()
         assertTrue(a.add(SilenceCommand()))

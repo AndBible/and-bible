@@ -32,16 +32,26 @@ class SpeakTextBoundariesTest {
     private fun texts(xml: String) = parse("<verse>$xml</verse>").filterIsInstance<TextCommand>().map { it.text }
 
     @Test
-    fun inlineMarkupDoesNotSplitWords() {
-        for ((xml, expected) in listOf(
-            "l’<w>Éternel</w>" to "l'Éternel",
-            "lʼ<w>Éternel</w>" to "l'Éternel",
-            "l'<w>Éternel</w>" to "l'Éternel",
-            "L<hi type='small-caps'>ORD</hi>" to "LORD",
-            "L<divineName>ORD</divineName>" to "LORD",
-            "<w>foo</w><w>bar</w>" to "foobar",
-            "<w>Jesus</w>’s," to "Jesus's,",
-        )) assertEquals(listOf(expected), texts(xml), xml)
+    fun frenchElisionsKeepTheirWordAcrossMarkup() {
+        for (apostrophe in listOf("’", "ʼ", "'")) {
+            assertEquals(listOf("l'Éternel"), texts("l${apostrophe}<w>Éternel</w>"), apostrophe)
+        }
+    }
+
+    @Test
+    fun smallCapsDoNotSplitAWord() {
+        assertEquals(listOf("LORD"), texts("L<hi type='small-caps'>ORD</hi>"))
+        assertEquals(listOf("LORD"), texts("L<divineName>ORD</divineName>"))
+    }
+
+    @Test
+    fun adjacentWordElementsWithoutWhitespaceStayJoined() {
+        assertEquals(listOf("foobar"), texts("<w>foo</w><w>bar</w>"))
+    }
+
+    @Test
+    fun possessiveAfterWordMarkupStaysJoined() {
+        assertEquals(listOf("Jesus's,"), texts("<w>Jesus</w>’s,"))
     }
 
     @Test
@@ -112,6 +122,6 @@ class SpeakTextBoundariesTest {
     fun legacyTypographicPossessiveIsUnchanged() {
         val handler = OsisToSpeakTextSaxHandler(false, SaxTextPolicy.MODERN)
         XmlEventParser().parse("<div><divineName>Lord</divineName>’s house</div>", handler)
-        assertEquals("Lord's house", handler.toString().trim())
+        assertEquals("Lord’s house", handler.toString().trim())
     }
 }
