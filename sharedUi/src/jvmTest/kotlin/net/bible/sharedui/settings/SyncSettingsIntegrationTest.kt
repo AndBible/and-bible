@@ -156,6 +156,8 @@ class SyncSettingsIntegrationTest {
             }
             onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-sync_adapter"))
             onNodeWithTag("settings-row-sync_adapter").performClick()
+            onNodeWithText("WEBDAV").performClick()
+            onNodeWithTag("settings-row-sync_adapter").performClick()
             onNodeWithText("NEXT_CLOUD").performClick()
             fun enterUrl(url: String) {
                 onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-cloud_sync_server_url"))
