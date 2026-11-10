@@ -98,6 +98,7 @@ class DesktopSyncBindingsContractTest {
                     single<FileDelivery> { inert() }
                     single { AppDialogController() }
                     single { scope }
+                    single { net.bible.service.cloudsync.documents.DocumentSyncProgressTracker() }
                     single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> { net.bible.service.cloudsync.SyncNowWorkspaceSaver {} }
                     single { DesktopExitTasks() }
                     single { DesktopLifecycleEvents() }
