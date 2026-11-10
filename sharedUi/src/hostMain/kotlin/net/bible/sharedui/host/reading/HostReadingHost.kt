@@ -18,7 +18,6 @@
 
 package net.bible.sharedui.host.reading
 
-import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedui.reading.activity.ActivityHostWiring
@@ -814,6 +813,11 @@ class HostReadingHost(
         activity = activityWiring(),
     )
 
+    /** Shared with the persistent root; resolving reading-dependent row actions still happens only on use. */
+    internal fun openActivityItem(item: net.bible.android.control.activity.ActivityItem) {
+        activityWiring()?.open(item)
+    }
+
     /** Background activity (#4007); `null` in a graph without the activity center (minimal test graphs). */
     private fun activityWiring(): ActivityHostWiring? {
         val center = koin.getOrNull<ActivityCenter>() ?: return null
@@ -830,7 +834,6 @@ class HostReadingHost(
                 }
             } },
             onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
-            listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
         )
     }
 

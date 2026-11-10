@@ -2,6 +2,12 @@ package net.bible.sharedui.reading.activity
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import kotlinx.coroutines.flow.flow
+import kotlin.test.assertEquals
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -40,6 +46,79 @@ class ActivityHostListRequestTest {
                 CompositionLocalProvider(LocalStrings provides strings) { ActivityHost(wiring) { Text("content") } }
             }
         }
+    }
+
+    @Test fun rootOwnsOneCollectorAcrossReadingRouteChangesAndToolbarUsesSameList() = runComposeUiTest {
+        val requests = ActivityListRequests()
+        val preference = ActivityMenuPreference(MemoryAppSettings(), ActivityMenuDefault { true })
+        val center = ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { 0L }
+        val reading = mutableStateOf(true)
+        val rootPresent = mutableStateOf(true)
+        var starts = 0
+        var stops = 0
+        val tracked = flow {
+            starts++
+            try { requests.requests.collect { emit(it) } } finally { stops++ }
+        }
+        val wiring = ActivityHostWiring(center, preference, listRequests = tracked, onOpenItem = {})
+        setContent {
+            AbTheme(disableAnimations = true) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    if (rootPresent.value) ActivityRootHost(wiring) {
+                        if (reading.value) ActivityHost(wiring) { menu ->
+                            TextButton(onClick = { menu?.onShowAll?.invoke() }) { Text("Open activity") }
+                        } else Text("non-reading")
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        assertEquals(1, starts, "reading must not create a second notification collector")
+        requests.request()
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
+        onNodeWithText("Close").performClick()
+        runOnIdle { reading.value = false }
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
+        assertEquals(1, starts)
+        assertEquals(0, stops, "the root collector outlives the reading route")
+        runOnIdle { reading.value = true }
+        waitForIdle()
+        assertEquals(1, starts)
+        onNodeWithText("Open activity").performClick()
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
+        onNodeWithText("Close").performClick()
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
+        runOnIdle { rootPresent.value = false }
+        waitForIdle()
+        assertEquals(1, stops, "disposing the app root cancels its one collector")
+    }
+
+    @Test fun disabledRootDoesNotInstallAReadingFallbackCollector() = runComposeUiTest {
+        val requests = ActivityListRequests()
+        val preference = ActivityMenuPreference(MemoryAppSettings(), ActivityMenuDefault { false })
+        val center = ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { 0L }
+        var collectors = 0
+        val tracked = flow { collectors++; requests.requests.collect { emit(it) } }
+        val wiring = ActivityHostWiring(center, preference, listRequests = tracked, onOpenItem = {})
+        setContent {
+            AbTheme(disableAnimations = true) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    ActivityRootHost(wiring) { ActivityHost(wiring) { Text("reading") } }
+                }
+            }
+        }
+        waitForIdle()
+        assertEquals(1, collectors)
+        runOnIdle { requests.request() }
+        waitForIdle()
+        runOnIdle { preference.set(true) }
+        waitForIdle()
+        assertEquals(1, collectors)
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test fun listRequestOpensListWhenEnabled() = runComposeUiTest {
