@@ -102,7 +102,7 @@ class SettingsEditorSheetGoldenTest {
             Column {
                 AbMultiSelectContent(
                     options = choices,
-                    selectedIds = listOf("sans", "mono"),
+                    selectedIds = listOf("sans-serif", "monospace"),
                     idOf = { it.value },
                     labelOf = { it.label },
                     onCheckedChange = {},
