@@ -106,7 +106,7 @@ class SyncSettingsIntegrationTest {
     }
 
     @Test fun nextcloudPolicyAndSavedSettingsReachComposeAfterRecreation() = runComposeUiTest {
-        val values = mutableMapOf<String, Any?>("sync_adapter" to "GOOGLE_DRIVE", "sync_enable_bookmarks" to true)
+        val values = mutableMapOf<String, Any?>("sync_adapter" to "WEBDAV", "sync_enable_bookmarks" to true)
         val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, a ->
             val args = a ?: emptyArray()
             when {
@@ -155,8 +155,6 @@ class SyncSettingsIntegrationTest {
                 }
             }
             onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-sync_adapter"))
-            onNodeWithTag("settings-row-sync_adapter").performClick()
-            onNodeWithText("WEBDAV").performClick()
             onNodeWithTag("settings-row-sync_adapter").performClick()
             onNodeWithText("NEXT_CLOUD").performClick()
             fun enterUrl(url: String) {
