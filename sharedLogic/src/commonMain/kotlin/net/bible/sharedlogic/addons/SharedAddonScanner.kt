@@ -76,7 +76,7 @@ class SharedAddonScanner(
                 if (real.root != realBase.root || real.segments.size <= realBase.segments.size ||
                     real.segments.take(realBase.segments.size) != realBase.segments ||
                     files.metadataOrNull(real)?.isRegularFile != true) continue
-                byName[parts[0]] = net.bible.sharedlogic.platform.AddonFont(book.initials, parts[0], parts[1])
+                byName[parts[0]] = net.bible.sharedlogic.platform.AddonFont(book.initials, parts[0], parts[1], real.toString())
             }
         }
         return byName.values.toList()

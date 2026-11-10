@@ -286,6 +286,73 @@ class WorkspaceSwitchContentTest {
         }
     }
 
+    @Test fun appSettingsWritesUpdateEveryOpenPaneWithoutReloading() = runBlocking {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
+        HostReadingReady.ensure(HostStartup.stringTable)
+        val koin = KoinPlatform.getKoin()
+        val scope = HostReadingReady.scope
+        val control = koin.get<WindowControl>()
+        val fake = FakeWebEngine()
+        val engine = DesktopReadingPaneEngine(fake, {}, koin = { koin })
+        withContext(main) {
+            val host = HostReadingHost(scope, HostNavShell(scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+            try {
+                HostReadingWindows.bind(host, scope, koin, Day, engine)
+                val first = control.activeWindow
+                val windows = listOf(first, control.addNewWindow(first))
+                val sessions = windows.map { window ->
+                    val id = window.id.toString()
+                    HostReadingWindows.sessionFor(id).also { session ->
+                        engine.attach(id, false, HostReadingWindows.bridgeFor(id), {}, { session.jsChannel.flush() })
+                        session.jsChannel.markClientReady()
+                    }
+                }
+                val settings = koin.get<net.bible.sharedcore.settings.AppSettingsService>()
+                fun assertWrite(fragment: String, write: () -> Unit) {
+                    fake.panes.forEach { it.evaluated.clear() }
+                    val generations = sessions.map { it.documentGeneration }
+                    write()
+                    fake.panes.forEach { pane ->
+                        assertTrue(pane.evaluated.any { "set_config" in it && fragment in it },
+                            "settings write must send $fragment to pane ${pane.id}: ${pane.evaluated}")
+                    }
+                    assertEquals(generations, sessions.map { it.documentGeneration }, "do not reload the chapter")
+                    assertEquals(2, fake.panes.size, "do not recreate the native panes")
+                }
+                assertWrite("fontSizeMultiplier: 1.5") { settings.setInt("font_size_multiplier", 150) }
+                assertWrite("einkMode: true") { settings.setBool("eink_mode", true) }
+                assertWrite("disableClickToEdit:  true") { settings.setBool("disable_click_to_edit", true) }
+                assertWrite("notesContentType: \"MARKDOWN\"") { settings.setString("notes_content_type", "MARKDOWN") }
+                assertWrite("enabledExperimentalFeatures: [\"test-feature\"]") { settings.setStringSet("experimental_features", setOf("test-feature")) }
+                // The service accepts enabled buttons, but the config receives the inverse disabled set.
+                assertWrite("disableBibleModalButtons:") { settings.setStringSet("disable_bible_bookmark_modal_buttons", emptySet()) }
+                assertWrite("disableGenericModalButtons:") { settings.setStringSet("disable_gen_bookmark_modal_buttons", emptySet()) }
+                assertWrite("hasActiveIndicator: false") { settings.setBool("show_active_window_indicator", false) }
+                // errorBox remains false in the non-beta fixture, but its write must still resend the config.
+                assertWrite("errorBox: false") { settings.setBool("show_errorbox", true) }
+                assertWrite("disableAnimations: true") { settings.setBool("disable_animations", true) }
+                assertWrite("pureMonochromeMode: true") { settings.setString("display_color_mode", "monochrome") }
+                assertWrite("themeColors:") { settings.setString("theme_palette_style", "fidelity") }
+                fake.panes.forEach { it.evaluated.clear() }
+                settings.setBool("volume_keys_scroll", false)
+                assertTrue(fake.panes.all { pane -> pane.evaluated.none { "set_config" in it } }, "unrelated settings need no config")
+            } finally { host.dispose() }
+        }
+    }
+
     @Test fun workspaceSwitchReusesOnePaneAndDisposesTheSpares() = runBlocking {
         val paths = DesktopPaths(
             { name -> when (name) {

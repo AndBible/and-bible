@@ -164,7 +164,8 @@ remain reachable on a phone.
     document text. Useful when you synchronize workspaces across devices with
     different screen sizes – the workspace font size is synced, but the
     multiplier is per-device. For example, setting 150% on a small phone while
-    leaving 100% on a tablet keeps text proportional.
+    leaving 100% on a tablet keeps text proportional. Changes apply immediately to
+    open reading windows, including on iOS and desktop, without reloading the chapter.
 
 ### Fullscreen and Window Display
 
@@ -312,8 +313,10 @@ including after restoring a database backup.
     mode. Imported images remain available after restarting the app; you do not need
     to import them again.
 - **Font size:** Set the base text size in points.
-- **Font family:** Change the typeface. Additional fonts can be installed via
-    font add-on modules. With the default `sans-serif` setting, a font add-on
+- **Font family:** Change the typeface. Each name in the chooser is displayed
+    in its own font so you can preview it before selecting it. If a font file
+    cannot be loaded, its name uses the normal interface font instead.
+    Additional fonts can be installed via font add-on modules. With the default `sans-serif` setting, a font add-on
     such as FontPack may provide language-specific defaults for Greek or Hebrew.
     Choosing another font overrides those defaults for every language, but a
     module's own font (set in its custom CSS for that module) still applies to

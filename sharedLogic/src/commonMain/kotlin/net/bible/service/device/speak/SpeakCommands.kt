@@ -29,7 +29,8 @@ interface SpeakCommand {
     fun speak(engine: SpeakEngine, utteranceId: String)
 }
 
-class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCommand {
+/** [joinToPrevious] preserves an explicit source boundary; null uses the legacy delimiter rule. */
+class TextCommand(text: String, val type: TextType = TextType.NORMAL, val joinToPrevious: Boolean? = null) : SpeakCommand {
     enum class TextType {NORMAL, TITLE}
     val text: String = text.trim()
 
@@ -148,14 +149,14 @@ class SpeakCommandArray(private val maxLength: Int): AbstractMutableList<SpeakCo
             if(element.text.isEmpty())
                 return false
             return if(lastCommand is TextCommand) {
-                val newText = if(startsWithDelimiter.matches(element.text))
+                val newText = if(element.joinToPrevious ?: startsWithDelimiter.matches(element.text))
                     "${lastCommand.text}${element.text}"
                 else
                     "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
                     rawAdd(size, element).let { true }
                 else {
-                    this[this.size-1] = TextCommand(newText, lastCommand.type)
+                    this[this.size-1] = TextCommand(newText, lastCommand.type, lastCommand.joinToPrevious)
                     true
                 }
             } else {
@@ -196,8 +197,8 @@ class SpeakCommandArray(private val maxLength: Int): AbstractMutableList<SpeakCo
                 val match = splitIntoTwoSentences.matchEntire(text)
                 if(match != null && endsWithSentenceBreak.matchEntire(text) == null ) {
                     val (part1, delimiters, part2) = match.destructured
-                    this.add(TextCommand("$part1$delimiters"))
-                    rest.add(TextCommand(part2))
+                    this.add(TextCommand("$part1$delimiters", cmd.type, cmd.joinToPrevious))
+                    rest.add(TextCommand(part2, cmd.type, joinToPrevious = false))
                     sentenceBreakFound = true
                 }
                 else {

@@ -7,6 +7,10 @@ to speak the text of the Bible, commentaries and books. The quality and listenab
 Most devices allow you to choose a different voice and modify pitch and speed. You can also install 3rd party Text-to-Speech engines which may
 be superior to the default voices.
 
+Bible speech preserves words split by formatting or word markup, including in spoken titles.
+For example, `LORD` and French `l'Éternel` are passed to the speech engine without extra spaces
+inside the word. Spaces present in the source text are kept.
+
 The way in which you change the voice differs between devices. Try searching in Settings for `Text-to-Speech > Preferred engine > Install voice data`.
 
 Speak is available on Android, iPhone, iPad and Mac, but not on Windows and Linux; see [Platform differences](platform_differences.md).

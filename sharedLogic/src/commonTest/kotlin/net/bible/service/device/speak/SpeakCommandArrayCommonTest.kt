@@ -40,6 +40,31 @@ class SpeakCommandArrayCommonTest {
     }
 
     @Test
+    fun explicitNoSpaceJoinFitsAtMaxLengthAndKeepsThePreviousType() {
+        val a = array(maxLength = 3)
+        a.add(TextCommand("f", TextCommand.TextType.TITLE))
+        a.add(TextCommand("oo", joinToPrevious = true))
+        assertEquals(listOf("T:foo"), a.describe())
+        assertEquals(TextCommand.TextType.TITLE, (a.single() as TextCommand).type)
+    }
+
+    @Test
+    fun explicitNoSpaceJoinStillRespectsMaxLength() {
+        val a = array(maxLength = 3)
+        a.add(TextCommand("foo"))
+        a.add(TextCommand("bar", joinToPrevious = true))
+        assertEquals(listOf("T:foo", "T:bar"), a.describe())
+    }
+
+    @Test
+    fun explicitWhitespaceOverridesTheLegacyDelimiterRule() {
+        val a = array()
+        a.add(TextCommand("in"))
+        a.add(TextCommand("'s", joinToPrevious = false))
+        assertEquals(listOf("T:in 's"), a.describe())
+    }
+
+    @Test
     fun secondConsecutiveSilenceIsDropped() {
         val a = array()
         assertTrue(a.add(SilenceCommand()))
@@ -54,6 +79,17 @@ class SpeakCommandArrayCommonTest {
         a.addUntilSentenceBreak(arrayListOf<SpeakCommand>(TextCommand("One. Two")), rest)
         assertEquals(listOf("T:One."), a.describe())
         assertEquals(listOf("T:Two"), rest.describe())
+    }
+
+    @Test
+    fun splittingASentencePreservesItsExplicitSourceBoundary() {
+        val a = array(maxLength = 100)
+        a.add(TextCommand("f"))
+        val rest = ArrayList<SpeakCommand>()
+        a.addUntilSentenceBreak(listOf(TextCommand("oo. Next", TextCommand.TextType.TITLE, joinToPrevious = true)), rest)
+        assertEquals(listOf("T:foo."), a.describe())
+        assertEquals(listOf("T:Next"), rest.describe())
+        assertEquals(TextCommand.TextType.TITLE, (rest.single() as TextCommand).type)
     }
 
     @Test

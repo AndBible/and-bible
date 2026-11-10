@@ -315,18 +315,21 @@ class AppSettingsServiceImpl(
         else settings.setBoolean(key, value)
         refresh()
         if (key == "hide_status_bar") platform.onSystemBarSettingChanged()
+        platform.onSettingChanged(key)
     }
 
     override fun setString(key: String, value: String) {
         if (useRealShared(key)) devicePrefs.setString(key, value)
         else settings.setString(key, value)
         refresh()
+        platform.onSettingChanged(key)
     }
 
     override fun setInt(key: String, value: Int) {
         // PreferenceStore.putInt never checks useRealShared - always settings.
         settings.setInt(key, value)
         refresh()
+        platform.onSettingChanged(key)
     }
 
     override fun setStringSet(key: String, value: Set<String>) {
@@ -340,6 +343,7 @@ class AppSettingsServiceImpl(
             else -> settings.setStringSet(key, value)
         }
         refresh()
+        platform.onSettingChanged(key)
     }
 
     override fun refresh() {

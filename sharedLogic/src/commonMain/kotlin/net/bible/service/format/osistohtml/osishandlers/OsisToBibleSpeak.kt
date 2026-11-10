@@ -43,6 +43,21 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     private var titleLevel = 0
     private var divineNameLevel = 0
     private var anyTextWritten = false
+    /** What the previous visible raw text chunk left at the boundary to the next one. */
+    private enum class RawEnd { NO_WHITESPACE, WHITESPACE, CROSSED_SEPARATOR }
+    private var previousRawEnd = RawEnd.CROSSED_SEPARATOR
+
+    private fun separatesText(name: String): Boolean = when (name) {
+        OSISUtil.OSIS_ELEMENT_VERSE, OSISUtil.OSIS_ELEMENT_NOTE, OSISUtil.OSIS_ELEMENT_TITLE,
+        OSISUtil.OSIS_ELEMENT_DIV, OSISUtil.OSIS_ELEMENT_L, OSISUtil.OSIS_ELEMENT_LB, OSISUtil.OSIS_ELEMENT_P,
+        OSISUtil.OSIS_ELEMENT_LG, "milestone" -> true
+        else -> false
+    }
+
+    private fun addCommand(command: SpeakCommand) {
+        previousRawEnd = RawEnd.CROSSED_SEPARATOR
+        speakCommands.add(command)
+    }
 
     override fun startDocument() {
         elementStack.add(StackEntry(true))
@@ -65,6 +80,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                               qName: String, // qualified name
                               attrs: Attributes) {
         val name = getName(sName, qName) // element name
+        if (separatesText(name)) previousRawEnd = RawEnd.CROSSED_SEPARATOR
 
         val peekVisible = elementStack.last().visible
 
@@ -73,7 +89,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             elementStack.add(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             if((attrs.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
-                speakCommands.add(PreFootnoteCommand(speakSettings))
+                addCommand(PreFootnoteCommand(speakSettings))
                 elementStack.add(StackEntry(true, TagType.FOOTNOTE))
             }
             else {
@@ -88,14 +104,14 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             divineNameLevel ++
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.add(StackEntry(peekVisible, TagType.TITLE))
-            speakCommands.add(PreTitleCommand(speakSettings))
+            addCommand(PreTitleCommand(speakSettings))
             titleLevel++
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs.getValue("type") ?: ""
             val isVerseBeginning = attrs.getValue("sID") != null
             val isParagraphType = PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
-                speakCommands.add(ParagraphChangeCommand())
+                addCommand(ParagraphChangeCommand())
                 elementStack.add(StackEntry(peekVisible, TagType.PARAGRAPH))
             }
             else {
@@ -105,7 +121,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
             if(anyTextWritten) {
-                speakCommands.add(ParagraphChangeCommand())
+                addCommand(ParagraphChangeCommand())
             }
             elementStack.add(StackEntry(peekVisible, TagType.PARAGRAPH))
         } else {
@@ -117,6 +133,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                             simplifiedName: String,
                             qualifiedName: String
     ) {
+        if (separatesText(getName(simplifiedName, qualifiedName))) previousRawEnd = RawEnd.CROSSED_SEPARATOR
         val state = elementStack.removeAt(elementStack.lastIndex)
 
         if(state.tagType == TagType.PARAGRAPH) {
@@ -126,7 +143,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
         }
         else if(state.tagType == TagType.TITLE) {
             if (speakSettings.playbackSettings.speakTitles) {
-                speakCommands.add(SilenceCommand())
+                addCommand(SilenceCommand())
             }
             titleLevel--
         }
@@ -135,7 +152,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
         }
         else if(state.tagType == TagType.FOOTNOTE) {
             if(speakSettings.playbackSettings.speakFootnotes) {
-                speakCommands.add(PostFootnoteCommand(speakSettings))
+                addCommand(PostFootnoteCommand(speakSettings))
             }
         }
     }
@@ -149,33 +166,36 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
 
     private fun addText(text: String) {
         val currentState = elementStack.last()
+        if (!currentState.visible || (titleLevel > 0 && !speakSettings.playbackSettings.speakTitles) || text.isEmpty()) return
+
+        // Record RAW SAX boundaries before TextCommand trims them. Even whitespace-only callbacks separate words.
+        // true: no whitespace at the boundary; false: whitespace in the source; null: a separator was crossed and the
+        // legacy delimiter rule decides.
+        val joinToPrevious: Boolean? = when {
+            text.first().isWhitespace() -> false
+            previousRawEnd == RawEnd.NO_WHITESPACE -> true
+            previousRawEnd == RawEnd.WHITESPACE -> false
+            else -> null
+        }
+        previousRawEnd = if (text.last().isWhitespace()) RawEnd.WHITESPACE else RawEnd.NO_WHITESPACE
         var s = text
         s = s.replace("”", "\"")
         s = s.replace("“", "\"")
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
+        s = s.replace("ʼ", "'")
         s = textPolicy.speech(s)
 
-        if(currentState.visible) {
-            if(divineNameLevel > 0) {
-                if(advancedSpeakSettings.replaceDivineName) {
-                    for(i in 0 until divineNameOriginal.size) {
-                        if(divineNameOriginal[i].isNotEmpty()) {
-                            s = s.replace(divineNameOriginal[i], divineNameReplace[i], false)
-                        }
-                    }
+        if(divineNameLevel > 0 && advancedSpeakSettings.replaceDivineName) {
+            for(i in 0 until divineNameOriginal.size) {
+                if(divineNameOriginal[i].isNotEmpty()) {
+                    s = s.replace(divineNameOriginal[i], divineNameReplace[i], false)
                 }
-            }
-            if(titleLevel > 0) {
-                if(speakSettings.playbackSettings.speakTitles) {
-                    speakCommands.add(TextCommand(s, TextCommand.TextType.TITLE))
-                }
-            }
-            else {
-                speakCommands.add(TextCommand(s))
             }
         }
+        val type = if (titleLevel > 0) TextCommand.TextType.TITLE else TextCommand.TextType.NORMAL
+        speakCommands.add(TextCommand(s, type, joinToPrevious))
     }
 }
 
