@@ -36,6 +36,7 @@ class IosSettingsPlatformTest {
             )
             val controller = AppSettingsController(service, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
             fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" } as SettingsItem.SwitchRow
+            kotlin.test.assertTrue(row().visible)
             assertEquals(!NSProcessInfo.processInfo.isiOSAppOnMac(), row().checked)
             for (stored in listOf(true, false)) {
                 service.setBool("double_tap_to_fullscreen", stored)

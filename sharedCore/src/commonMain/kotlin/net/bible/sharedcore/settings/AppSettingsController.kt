@@ -184,6 +184,7 @@ class AppSettingsController(
                 title = labels.doubleTapToFullscreenTitle,
                 summary = labels.doubleTapToFullscreenSummary,
                 checked = s.doubleTapToFullscreen,
+                visible = s.doubleTapFullscreenAvailable,
                 iconKey = "double_tap_to_fullscreen",
             ),
             SettingsItem.SwitchRow(

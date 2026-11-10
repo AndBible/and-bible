@@ -219,17 +219,17 @@ left/right gesture`:
 
 ### Double-Tap to Fullscreen
 
-Double-tap the Bible text to enter fullscreen mode, which hides the toolbar and
-status bar for distraction-free reading. Double-tap again to exit fullscreen.
+On Android, iPhone, and iPad, double-tap the Bible text to enter fullscreen mode,
+which hides the toolbar and status bar for distraction-free reading. Double-tap
+again to exit fullscreen. Entering fullscreen this way is enabled by default on
+mobile, but disabled by default when running the iPad app on a Mac. Change it in
+`Settings` > `Application behavior` > `Double-tap to fullscreen`. Your saved
+choice is kept. Double-tapping still exits fullscreen when the setting is off.
 
-This feature is enabled by default on Android, iPhone, and iPad. It is disabled
-by default in the desktop app and when running the iPad app on a Mac. You can
-change it in `Settings` > `Application behavior` > `Double-tap to fullscreen`.
-Your saved choice is kept.
-
-On desktop, choose **Fullscreen** in the main menu or press **F11** to enter
-fullscreen. Click the exit-fullscreen button at the upper right, or press **Esc**
-or **F11**, to exit it independently of the double-tap setting. When a dialog or page editor is open, close it first.
+In the desktop app, double-click does not toggle fullscreen and the double-tap
+setting is not shown. Choose **Fullscreen** in the main menu or press **F11**
+to toggle fullscreen. To exit, you can also click the exit-fullscreen button at
+the upper right or press **Esc**. When a dialog or page editor is open, close it first.
 
 ### Fullscreen by Scrolling
 
