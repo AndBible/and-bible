@@ -14,6 +14,8 @@ import platform.Foundation.*
 import platform.UIKit.*
 import kotlin.test.*
 import net.bible.sharedui.host.report.Attachment
+import net.bible.sharedui.host.report.ReportDevice
+import net.bible.sharedcore.log.Log
 
 class IosReportLifecycleTest {
     private fun awaitOnMain(block: suspend CoroutineScope.() -> Unit) {
@@ -33,7 +35,7 @@ class IosReportLifecycleTest {
         val problem = IllegalStateException("staging unavailable")
         val errors = mutableListOf<Exception>()
         var attempts = 0
-        val report = IosBugReport(hostStringTable("en"), confirm = { true }, send = { _, _, _, _ ->
+        val report = IosBugReport(hostStringTable("en"), logSnapshot = { "" }, confirm = { true }, send = { _, _, _, _ ->
             if (attempts++ == 0) throw problem
         }, failure = { errors += it })
         report.report()
@@ -54,6 +56,99 @@ class IosReportLifecycleTest {
 
     private fun gunzip(bytes: ByteArray) = GzipSource(Buffer().write(bytes)).buffer().readUtf8()
 
+    @Test fun exportedLogIncludesFreshFactsAfterRealHistoryOverflow() = awaitOnMain {
+        val originalSink = Log.sinkOverride
+        try {
+            Log.sinkOverride = null
+            val marker = NSUUID().UUIDString
+            Log.i("ReportOverflow", "$marker early")
+            repeat(300) { Log.i("ReportOverflow", "$marker filler $it ${"x".repeat(1024)}") }
+            Log.i("ReportOverflow", "$marker latest")
+            val device = ReportDevice("synthetic.app", "1.2.3", "iOS 18.0", "test model",
+                listOf("Build" to "456", "Commit" to "abc123", "Platform" to "iOS app on Mac", "Locale" to "en"))
+            val extra = Attachment("extra.txt", "text/plain", "extra".encodeToByteArray())
+            var sent = false
+            IosBugReport(hostStringTable("en"), confirm = { assertFalse(it); true },
+                reportDevice = { device }, crashDiagnostic = { null }, failure = { throw it },
+                send = { to, subject, body, attachments ->
+                    sent = true
+                    assertEquals("errors.andbible@gmail.com", to)
+                    assertEquals("Bug Report v1.2.3", subject)
+                    assertTrue("App id: synthetic.app" in body)
+                    assertTrue("Version: 1.2.3" in body)
+                    assertTrue("OS version: iOS 18.0" in body)
+                    assertTrue("Locale: en" in body)
+                    assertEquals(extra, attachments[1])
+                    val attachment = attachments.first()
+                    assertEquals("app_log.txt.gz", attachment.name)
+                    assertEquals("application/gzip", attachment.mime)
+                    val text = gunzip(attachment.bytes)
+                    assertTrue(text.startsWith("AndBible diagnostic log\nVersion: 1.2.3\nBuild: 456\nCommit: abc123\nOS: iOS 18.0\nPlatform: iOS app on Mac\n\nRecent log history (bounded):\n"))
+                    assertFalse("$marker early" in text)
+                    assertTrue("$marker latest" in text)
+                }).report(extraAttachments = listOf(extra))
+            assertTrue(sent)
+        } finally { Log.sinkOverride = originalSink }
+    }
+
+    @Test fun emptySnapshotUsesUnknownForBlankAndMissingFacts() = awaitOnMain {
+        var text: String? = null
+        IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
+            crashDiagnostic = { null }, logSnapshot = { "" },
+            reportDevice = { ReportDevice("", "  ", "", "", listOf("Build" to " ", "Platform" to "")) },
+            send = { _, _, _, attachments -> text = gunzip(attachments.single().bytes) }).report()
+        assertEquals("AndBible diagnostic log\nVersion: unknown\nBuild: unknown\nCommit: unknown\nOS: unknown\nPlatform: unknown\n\nRecent log history (bounded):\n", text)
+    }
+
+    @Test fun absentPlatformDefaultsToIosAndReportReadsProvidersForEachExport() = awaitOnMain {
+        var snapshot = "first history\n"
+        var device = ReportDevice("app", "one", "iOS one", "model", listOf("Build" to "11", "Commit" to "aaa"))
+        val exports = mutableListOf<String>()
+        val bodies = mutableListOf<String>()
+        val reporter = IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
+            crashDiagnostic = { null }, logSnapshot = { snapshot }, reportDevice = { device },
+            send = { _, _, body, attachments -> bodies += body; exports += gunzip(attachments.single().bytes) })
+        reporter.report()
+        snapshot = "second history\n"
+        device = ReportDevice("app", "two", "iOS two", "model", listOf("Build" to "22", "Commit" to "bbb"))
+        reporter.report()
+        assertEquals(listOf(
+            "AndBible diagnostic log\nVersion: one\nBuild: 11\nCommit: aaa\nOS: iOS one\nPlatform: iOS\n\nRecent log history (bounded):\nfirst history\n",
+            "AndBible diagnostic log\nVersion: two\nBuild: 22\nCommit: bbb\nOS: iOS two\nPlatform: iOS\n\nRecent log history (bounded):\nsecond history\n"
+        ), exports)
+        assertTrue("Version: one" in bodies[0])
+        assertTrue("Version: two" in bodies[1])
+    }
+
+    @Test fun eachReportReadsDeviceOnceOnMainAndUsesSameSnapshot() = awaitOnMain {
+        var calls = 0
+        val mainThreadCalls = mutableListOf<Boolean>()
+        val messages = mutableListOf<Triple<String, String, String>>()
+        val reporter = IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
+            crashDiagnostic = { null }, logSnapshot = { "" },
+            reportDevice = {
+                mainThreadCalls += NSThread.isMainThread
+                val version = "snapshot-${++calls}"
+                ReportDevice("app", version, "iOS", "model", emptyList())
+            },
+            send = { _, subject, body, attachments ->
+                messages += Triple(subject, body, gunzip(attachments.single().bytes))
+            })
+
+        reporter.report()
+        assertEquals(1, calls)
+        reporter.report()
+        assertEquals(2, calls)
+        assertEquals(listOf(true, true), mainThreadCalls)
+        assertEquals(2, messages.size)
+        messages.forEachIndexed { index, (subject, body, heading) ->
+            val version = "snapshot-${index + 1}"
+            assertEquals("Bug Report v$version", subject)
+            assertTrue("Version: $version" in body)
+            assertTrue(heading.startsWith("AndBible diagnostic log\nVersion: $version\n"))
+        }
+    }
+
     @Test fun envelopeWrittenBySwiftEncoderIsAttachedGzipped() = awaitOnMain {
         // The fixture comes from the real JSONEncoder: base64 with '/' (escaped as \/), '+' and '='.
         val path = (NSTemporaryDirectory() + NSUUID().UUIDString).toPath()
@@ -73,7 +168,7 @@ class IosReportLifecycleTest {
         suspend fun report(envelope: String, confirmed: Boolean = true): List<Attachment>? {
             fs.write(path) { writeUtf8(envelope) }
             var sent: List<Attachment>? = null
-            IosBugReport(hostStringTable("en"), confirm = { confirmed },
+            IosBugReport(hostStringTable("en"), logSnapshot = { "" }, confirm = { confirmed },
                 send = { _, _, _, attachments -> sent = attachments },
                 failure = { throw it }, crashDiagnostic = { readCrashDiagnostic(path, now) }).report()
             return sent

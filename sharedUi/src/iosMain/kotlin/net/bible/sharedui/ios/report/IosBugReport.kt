@@ -46,18 +46,21 @@ internal class IosBugReport(
     private val send: suspend (String, String, String, List<Attachment>) -> Unit = IosMailOrShare()::send,
     private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
     private val crashDiagnostic: () -> Attachment? = ::recentCrashDiagnostic,
+    private val logSnapshot: () -> String = ::iosRecentLogSnapshot,
+    private val reportDevice: () -> ReportDevice = ::device,
 ) {
     /** [extraAttachments] are sent after the app log, e.g. the legacy migration report. */
     suspend fun report(cause: Throwable? = null, extraAttachments: List<Attachment> = emptyList()) = reportSafely(failure) {
         if (!confirm(false)) return@reportSafely
+        val device = withContext(Dispatchers.Main) { reportDevice() }
         val (body, attachments) = withContext(Dispatchers.Default) {
-            val details = details(cause)
-            val log = iosRecentLogSnapshot()
+            val details = details(cause, device)
+            val log = diagnosticLog(device, logSnapshot())
             val crash = crashDiagnostic()
             (table.text("report_bug_line_1") + "\n\n" + details) to reportAttachments(
                 RawLlmLog.gzipCompress(log), extraAttachments + listOfNotNull(crash))
         }
-        send(RECIPIENT, "Bug Report v${device().version}", body, attachments)
+        send(RECIPIENT, "Bug Report v${device.version}", body, attachments)
     }
 
     suspend fun ai(model: String, summary: String, log: ByteArray, supported: Boolean) = reportSafely(failure) {
@@ -65,11 +68,11 @@ internal class IosBugReport(
         val body = withContext(Dispatchers.Default) {
             table.text("report_bug_line_1") + "\n\n" + summary + "\n\n" + details(null)
         }
-        send(RECIPIENT, "AI Bug Report v${device().version}: $model", body,
+        send(RECIPIENT, "AI Bug Report v${reportDevice().version}: $model", body,
             listOf(Attachment("ai_raw_log.txt.gz", "application/gzip", log)))
     }
 
-    private fun details(cause: Throwable?): String {
+    private fun details(cause: Throwable?, device: ReportDevice = reportDevice()): String {
         val path = IosCrashTracker.crashFile.toPath()
         val stack = runCatching {
             if (FileSystem.SYSTEM.exists(path)) FileSystem.SYSTEM.read(path) { readUtf8() } else ""
@@ -78,10 +81,25 @@ internal class IosBugReport(
         val savedTime = IosDeviceSettings().getLong("app-crashed-time", 0L)
         val fileTime = (NSFileManager.defaultManager.attributesOfItemAtPath(path.toString(), null)
             ?.get(NSFileModificationDate) as? NSDate)?.timeIntervalSince1970?.times(1000)?.toLong() ?: 0L
-        return reportDetails(device(), savedTime.takeIf { it > 0 } ?: fileTime, stack, cause)
+        return reportDetails(device, savedTime.takeIf { it > 0 } ?: fileTime, stack, cause)
     }
 
     companion object { const val RECIPIENT = net.bible.sharedui.host.report.BUG_REPORT_EMAIL }
+}
+
+private fun diagnosticLog(device: ReportDevice, history: String): String {
+    fun value(text: String?) = text?.takeIf { it.isNotBlank() } ?: "unknown"
+    fun extra(key: String) = device.extras.firstOrNull { it.first == key }?.second
+    return buildString {
+        append("AndBible diagnostic log\n")
+        append("Version: ${value(device.version)}\n")
+        append("Build: ${value(extra("Build"))}\n")
+        append("Commit: ${value(extra("Commit"))}\n")
+        append("OS: ${value(device.os)}\n")
+        append("Platform: ${value(extra("Platform") ?: "iOS")}\n")
+        append("\nRecent log history (bounded):\n")
+        append(history)
+    }
 }
 
 /** File name of the attached MetricKit crash diagnostic (gzipped like the app log). */

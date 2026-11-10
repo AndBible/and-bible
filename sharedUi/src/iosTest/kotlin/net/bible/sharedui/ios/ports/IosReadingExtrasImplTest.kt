@@ -3,6 +3,10 @@
 package net.bible.sharedui.ios.ports
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import net.bible.sharedui.assembly.awaitStartupOnMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedui.app.ports.HelpDialogs
@@ -93,7 +97,7 @@ class IosReadingExtrasImplTest {
         assertTrue(boundary.causes.isEmpty())
     }
 
-    @Test fun javascriptReportUsesRealConsentAndIncludesCauseAndLogInOutgoingPayload() = runTest {
+    @Test fun javascriptReportUsesRealConsentAndIncludesCauseAndLogInOutgoingPayload() = awaitStartupOnMain { coroutineScope {
         val boundary = Boundary()
         var consent = false
         val confirmations = mutableListOf<Boolean>()
@@ -115,19 +119,17 @@ class IosReadingExtrasImplTest {
         )
         val extras = boundary.extras(this, report = { cause -> report.report(cause) })
         extras.reportJsError()
-        runCurrent()
+        coroutineContext[Job]!!.children.toList().joinAll()
         assertEquals(listOf(false), confirmations)
         assertTrue(bodies.isEmpty(), "Declined consent must not send a report")
         consent = true
         extras.reportJsError()
-        // report() performs actual background preparation; let structured child completion join it.
-        testScheduler.advanceUntilIdle()
-        // Default-dispatcher work may suspend the child beyond simulated scheduler progress.
-        coroutineContext[kotlinx.coroutines.Job]!!.children.toList().forEach { it.join() }
+        // Pump real Main outside this scope while report preparation returns from Default.
+        coroutineContext[Job]!!.children.toList().joinAll()
         assertEquals(listOf(false, false), confirmations)
         assertEquals(listOf("errors.andbible@gmail.com"), recipients)
         assertContains(bodies.single(), "Error in webview-js")
         assertContains(bodies.single(), "webview")
         assertEquals(listOf(listOf("app_log.txt.gz")), attachmentNames)
-    }
+    } }
 }
