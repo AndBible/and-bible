@@ -24,8 +24,13 @@ import com.owncloud.android.lib.resources.files.model.RemoteFile
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.jackrabbit.webdav.client.methods.DavMethod
 
+/** A capped or partial DAV listing is not safe input for a change watermark. */
+internal class IncompleteNextCloudListingException : java.io.IOException("Nextcloud listing is incomplete")
+
 class GenericRemoteOperation(
-    val davMethod: DavMethod
+    val davMethod: DavMethod,
+    private val requireCompleteResponse: Boolean = false,
+    private val resultLimit: Int? = null,
 ) : RemoteOperation<List<RemoteFile>>() {
 
     override fun run(client: OwnCloudClient): RemoteOperationResult<List<RemoteFile>> {
@@ -37,6 +42,24 @@ class GenericRemoteOperation(
 
             if (isSuccess) {
                 val dataInServer = davMethod.responseBodyAsMultiStatus
+                if (requireCompleteResponse) {
+                    // The library otherwise drops response-level errors (including DAV search limits).
+                    val responses = dataInServer.responses
+                    if (resultLimit != null && responses.size >= resultLimit) {
+                        throw IncompleteNextCloudListingException()
+                    }
+                    val xml = davMethod.responseBodyAsDocument
+                    if (xml?.getElementsByTagNameNS("DAV:", "error")?.length?.let { it > 0 } == true ||
+                        xml?.getElementsByTagNameNS("DAV:", "number-of-matches-within-limits")?.length?.let { it > 0 } == true
+                    ) {
+                        throw IncompleteNextCloudListingException()
+                    }
+                    // Optional property 404 propstats are normal. A resource with no successful
+                    // property set (including a response-level error) must never become a file.
+                    if (responses.any { it.getProperties(HttpStatus.SC_OK).isEmpty }) {
+                        throw IncompleteNextCloudListingException()
+                    }
+                }
                 val webDavFileUtils = WebDavFileUtils()
                 val mFolderAndFiles = webDavFileUtils.readData(
                     dataInServer,

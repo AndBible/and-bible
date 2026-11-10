@@ -30,7 +30,11 @@ per-device control (see below).
 
 Routine checks use an incremental cache of document metadata. The newest metadata
 may be checked again for safety; this does not mean all document archives are
-downloaded again.
+downloaded again. On Android, Nextcloud checks changed metadata in a single
+bounded search across the document library when the server supports it. If the
+server refuses the search or reports too many results, AndBible uses per-folder
+WebDAV listings instead. Sync duration still depends on the server, network and
+device background restrictions.
 
 ## Requirements
 

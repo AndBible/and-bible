@@ -60,6 +60,8 @@ const val FOLDER_MIMETYPE = "DIR"
 const val NEXTCLOUD_SECRET_FILE_NAME_KEY = "nextCloudSecretFile"
 
 private const val HTTP_NOT_FOUND = 404
+private const val DOCUMENT_SEARCH_LIMIT = 512
+private val DOCUMENT_SEARCH_REFUSALS = setOf(400, 403, 405, 413, 422, 501, 507)
 
 class NextCloudAdapter(
     private val serverUrl: String?,
@@ -137,6 +139,7 @@ class NextCloudAdapter(
     }
 
     override suspend fun signOut() {
+        documentSearchRefused = false
         _client = null
     }
 
@@ -229,6 +232,69 @@ class NextCloudAdapter(
             throw IOException("Nextcloud incremental listing contains an invalid modification time")
         }
         return filtered.map { it.toSyncFile() }
+    }
+
+    private var documentSearchRefused = false
+
+    override suspend fun listChangedFilesInFolders(
+        rootFolderId: String,
+        folderIds: List<String>,
+        name: String,
+        createdTimeAtLeast: Long,
+    ): List<CloudFile> {
+        if (folderIds.isEmpty()) return emptyList()
+        val root = rootFolderId.trimEnd('/')
+        val parents = folderIds.map { it.trimEnd('/') }.toSet()
+        if (parents.any { it.substringBeforeLast('/') != root }) {
+            throw IOException("Nextcloud document folders must be immediate children of their root")
+        }
+        if (!documentSearchRefused) {
+            try {
+                val result = GenericRemoteOperation(
+                    NextCloudSearchMethod(client, rootFolderId, createdTimeAtLeast, name, DOCUMENT_SEARCH_LIMIT),
+                    requireCompleteResponse = true,
+                    resultLimit = DOCUMENT_SEARCH_LIMIT,
+                ).execute()
+                if (result.isSuccess) {
+                    return filterChangedDocumentFiles(result.data as List<RemoteFile>, parents, name, createdTimeAtLeast)
+                }
+                if (result.httpCode !in DOCUMENT_SEARCH_REFUSALS) throw result.asIOException()
+                documentSearchRefused = true
+            } catch (_: IncompleteNextCloudListingException) {
+                // A full/partial page is never safe input for a saved change watermark.
+            }
+        }
+        val results = parents.toList().asyncMap(6) { parent ->
+            val operation = GenericRemoteOperation(
+                object : org.apache.jackrabbit.webdav.client.methods.PropFindMethod(
+                    client.getFilesDavUri(parent),
+                    com.owncloud.android.lib.common.network.WebdavUtils.getAllPropSet(),
+                    1,
+                ) {
+                    private var listingDocument: org.w3c.dom.Document? = null
+                    override fun getResponseBodyAsDocument(): org.w3c.dom.Document? = listingDocument
+                        ?: super.getResponseBodyAsDocument()?.also { listingDocument = it }
+                },
+                requireCompleteResponse = true,
+            )
+            operation.executeForData().data as List<RemoteFile>
+        }.flatten()
+        return filterChangedDocumentFiles(results, parents, name, createdTimeAtLeast)
+    }
+
+    private fun filterChangedDocumentFiles(
+        files: List<RemoteFile>,
+        parents: Set<String>,
+        name: String,
+        since: Long,
+    ): List<CloudFile> {
+        val matching = files.filter { it.remotePath != null && it.parent in parents && it.name == name && it.mimeType != FOLDER_MIMETYPE }
+        if (matching.any { it.modifiedTimestamp <= 0 }) {
+            throw IOException("Nextcloud incremental listing contains an invalid modification time")
+        }
+        // Match the SEARCH query's one-second date resolution on the PROPFIND fallback too.
+        val bound = since / 1_000 * 1_000
+        return matching.filter { it.modifiedTimestamp > bound }.distinctBy { it.remotePath }.map { it.toSyncFile() }
     }
 
     override suspend fun getFolders(parentId: String): List<CloudFile> =

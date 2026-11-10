@@ -40,6 +40,21 @@ class NextCloudDocumentWatermarkTest {
     private val b = 1_704_164_645_000L
     private val c = 1_704_164_660_000L
 
+    @Test fun manyDocumentListingUsesOneSearchPerPass() = withServer { dav, store ->
+        repeat(96) { index -> dav.items["DOC$index"] = fixture("DOC$index", a + index * 1_000L) }
+        val started = System.nanoTime()
+        val saved = refresh(store, MergeResult(emptyList(), 0))
+        assertEquals(96, saved.cache.size)
+        assertEquals("Cold document listing SEARCH count", 1, dav.bounds.size)
+        assertEquals(96, dav.gets.size)
+        dav.bounds.clear(); dav.gets.clear()
+        val repeated = refresh(store, saved)
+        assertEquals(saved, repeated)
+        assertEquals("Unchanged document listing SEARCH count", 1, dav.bounds.size)
+        assertEquals(5, dav.gets.size)
+        println("96-document fixture cold + unchanged elapsed ms: ${(System.nanoTime() - started) / 1_000_000}")
+    }
+
     @Test fun olderMetadataDropsOutOfOverlapAndSamePathEditIsDiscovered() = withServer { dav, store ->
         dav.items["A"] = fixture("A", a); dav.items["B"] = fixture("B", b)
         var saved = refresh(store, MergeResult(emptyList(), 0))
@@ -85,11 +100,11 @@ class NextCloudDocumentWatermarkTest {
         dav.items["B/nested"] = fixture("C", c)
         dav.searchResults.clear()
         assertThrows(IOException::class.java) { saved = refresh(store, saved) }
-        assertTrue(dav.searchResults.contains(setOf("B", "B/nested")))
+        assertTrue(dav.searchResults.any { it.containsAll(setOf("B", "B/nested")) })
         assertEquals(before, saved)
         dav.items["B"] = fixture("B", b)
         saved = refresh(store, saved)
-        assertEquals(setOf("A", "B", "C"), saved.cache.map { it.initials }.toSet()); assertEquals(c, saved.watermark)
+        assertEquals(setOf("A", "B"), saved.cache.map { it.initials }.toSet()); assertEquals(b, saved.watermark)
     }
 
     // Test-local save boundary mirrors refreshCache's list-then-merge order, not database persistence.
@@ -114,8 +129,9 @@ class NextCloudDocumentWatermarkTest {
                     val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder().parse(request.body!!.utf8().byteInputStream())
                     val bound = Instant.parse(doc.getElementsByTagNameNS("DAV:", "literal").item(0).textContent).toEpochMilli()
                     bounds.add(bound)
-                    val scope = doc.getElementsByTagNameNS("DAV:", "href").item(0).textContent.trimEnd('/').substringAfter("/sync-documents/")
-                    val matched = items.entries.filter { (it.key == scope || it.key.startsWith("$scope/")) && it.value.modified > bound }
+                    val href = doc.getElementsByTagNameNS("DAV:", "href").item(0).textContent.trimEnd('/')
+                    val scope = if (href.endsWith("/sync-documents")) "" else href.substringAfter("/sync-documents/")
+                    val matched = items.entries.filter { (scope.isEmpty() || it.key == scope || it.key.startsWith("$scope/")) && it.value.modified > bound }
                     searchResults.add(matched.map { it.key }.toSet())
                     multistatus(matched.joinToString("") { response("${it.key}/meta.json", it.value, false) })
                 }
