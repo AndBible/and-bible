@@ -15,6 +15,21 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], application = net.bible.android.TestBibleApplication::class)
 class BibleSpeakPhrasesTest {
+    @Test fun androidSpeechKeepsInlineWordsAndSourceSpacesInTitlesAndVerses() {
+        val handler = OsisToBibleSpeak(
+            SpeakSettings(), SpeakPhrases("1", "2", "3", "4", "5", "book", "chapter"),
+            AdvancedSpeakSettings(testAppSettings()), 4000,
+            net.bible.android.platform.androidSaxTextPolicy(),
+        )
+        fi.sykero.kdom.input.XmlEventParser().parse(
+            "<verse><title>l’<w>Éternel</w></title>L<hi>ORD</hi> <w>in</w> <w>'s</w></verse>",
+            handler,
+        )
+        val text = handler.speakCommands.filterIsInstance<TextCommand>()
+        assertEquals(listOf("l'Éternel", "LORD in 's"), text.map { it.text })
+        assertEquals(TextCommand.TextType.TITLE, text.first().type)
+    }
+
     @Test fun suppliedDivineNamesAndAdvancedSettingControlReplacement() {
         val advanced = AdvancedSpeakSettings(testAppSettings())
         val original = advanced.replaceDivineName
