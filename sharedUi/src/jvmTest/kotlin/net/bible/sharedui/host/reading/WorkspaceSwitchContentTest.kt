@@ -205,6 +205,79 @@ class WorkspaceSwitchContentTest {
         }
     }
 
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun searchLinksWindowCanBeConvertedWhileTheSplitIsComposed() {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        runBlocking {
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
+            HostReadingReady.ensure(HostStartup.stringTable)
+        }
+        val koin = KoinPlatform.getKoin()
+        val control = koin.get<WindowControl>()
+        val host = runBlocking { withContext(main) {
+            HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+        } }
+        val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+        val deps = runBlocking { withContext(main) {
+            val book = assertNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+            val list = net.bible.service.sword.BookAndKeyList().apply {
+                addAll(net.bible.service.sword.BookAndKey(book.getKey("Gen.1.2"), book))
+            }
+            control.showLink(koin.get<net.bible.service.download.FakeBookFactory>().multiDocument, list)
+            host.deps(net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter))
+        } }
+        val fake = FakeWebEngine()
+        val engine = DesktopReadingPaneEngine(fake, {}, koin = { koin })
+        runBlocking { withContext(main) { HostReadingWindows.bind(host, HostReadingReady.scope, koin, Day, engine) } }
+        val paneFactory = net.bible.sharedui.desktop.webview.desktopReadingPaneFactory(
+            engine, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, isOpen = HostReadingWindows::isOpen,
+        )
+        val links = control.windowRepository.visibleWindows.single { it.isLinksWindow }
+        val keyBefore = links.pageManager.currentPage.key?.getOsisRef()
+        try {
+            runComposeUiTest {
+                setContent {
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en"),
+                        net.bible.sharedui.reading.host.LocalReadingPane provides paneFactory,
+                        net.bible.sharedui.reading.LocalPinIcon provides { painter },
+                    ) {
+                        net.bible.sharedui.theme.AbTheme(darkTheme = false) {
+                            net.bible.sharedui.reading.host.ReadingHost(deps)
+                        }
+                    }
+                }
+                runOnIdle {
+                    deps.controller.onWindowActivated(links.id.toString())
+                    deps.state.openPaneMenu(links.id.toString(), net.bible.android.view.activity.page.screen.PaneMenuAnchor.Pane)
+                }
+                onNode(hasText("Change to normal window")).performClick()
+                waitForIdle()
+            }
+            runBlocking { withContext(main) {
+                val converted = control.windowRepository.windowList.single { it.pageManager.currentPage.currentDocument == koin.get<net.bible.service.download.FakeBookFactory>().multiDocument }
+                assertFalse(converted.isLinksWindow)
+                assertEquals(keyBefore, converted.pageManager.currentPage.key?.getOsisRef())
+                assertNull(control.windowRepository.getWindow(links.id))
+                assertTrue(deps.controller.layout.value.windows.single { it.id == converted.id.toString() }.isVisible)
+            } }
+        } finally {
+            runBlocking { withContext(main) { host.dispose() } }
+        }
+    }
+
     @Test fun workspaceSwitchReusesOnePaneAndDisposesTheSpares() = runBlocking {
         val paths = DesktopPaths(
             { name -> when (name) {
