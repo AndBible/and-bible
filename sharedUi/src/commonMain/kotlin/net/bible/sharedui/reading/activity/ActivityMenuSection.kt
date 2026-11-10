@@ -92,7 +92,9 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
         when {
             item.state == ActivityState.RUNNING -> {
                 if (message != null && item.kind in setOf(net.bible.android.control.activity.ActivityKind.AI_AGENT, net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC)) {
-                    Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(message, style = MaterialTheme.typography.bodySmall,
+                        maxLines = if (item.kind == net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis)
                 }
                 val barColor = LocalContentColor.current
                 val trackColor = barColor.copy(alpha = 0.2f)

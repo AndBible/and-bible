@@ -94,8 +94,14 @@ class HostDocumentSyncStarterProgressTest {
         val settings = inert<net.bible.sharedcore.platform.AppSettings>()
         val env = inert<net.bible.sharedcore.platform.AppEnvironment>()
         val strings = net.bible.android.control.activity.ActivityTestStrings()
+        val dao = object : net.bible.android.database.DocumentSyncPreferencesDao {
+            var stored: net.bible.android.database.DocumentSyncPreferences? = null
+            override suspend fun get() = stored
+            override suspend fun set(prefs: net.bible.android.database.DocumentSyncPreferences) { stored = prefs }
+            override suspend fun clear() { stored = null }
+        }
         val documents = net.bible.service.cloudsync.documents.DocumentSyncSettings(
-            { inert<net.bible.android.database.DocumentSyncPreferencesDao>() }, { error("unused") }, { error("unused") },
+            { dao }, { error("unused") }, { error("unused") },
             net.bible.sharedcore.platform.OrderedLauncher(backgroundScope), env,
         )
         val adapters = object : net.bible.service.cloudsync.CloudAdapterFactory {
@@ -131,6 +137,12 @@ class HostDocumentSyncStarterProgressTest {
         runCurrent()
         assertTrue(documents.enabled)
         assertTrue(service.snapshot.value.documentsEnabled)
+        val reopened = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { dao }, { error("unused") }, { error("unused") },
+            net.bible.sharedcore.platform.OrderedLauncher(backgroundScope), env,
+        )
+        reopened.ensureLoaded()
+        assertTrue(reopened.enabled, "enabled preference must survive a fresh settings instance")
         assertEquals(DocumentSyncProgressStatus.RUNNING, f.current.status)
         assertEquals(1, f.current.total)
         assertEquals(25L, f.current.bytesTransferred)
