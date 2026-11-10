@@ -166,6 +166,27 @@ class AppSettingsServiceImplTest {
         assertTrue(service().snapshot.value.enableBluetooth)
     }
 
+    @Test fun everySettingsWriteNotifiesTheHostAfterPersisting() {
+        val s = service()
+        flags.onWrite = { key ->
+            when (key) {
+                "font_size_multiplier" -> assertEquals(150, db.getInt(key, 100))
+                "eink_mode" -> assertTrue(db.getBoolean(key, false))
+                "notes_content_type" -> assertEquals("MARKDOWN", db.getString(key))
+                "disable_bible_bookmark_modal_buttons" -> assertEquals(setOf("B"), db.getStringSet(key))
+                "night_mode_pref3" -> assertEquals("manual", local.getString(key, null))
+                else -> fail("unexpected setting: $key")
+            }
+        }
+        s.setInt("font_size_multiplier", 150)
+        s.setBool("eink_mode", true)
+        s.setString("notes_content_type", "MARKDOWN")
+        s.setStringSet("disable_bible_bookmark_modal_buttons", setOf("A"))
+        s.setString("night_mode_pref3", "manual")
+        assertEquals(listOf("font_size_multiplier", "eink_mode", "notes_content_type",
+            "disable_bible_bookmark_modal_buttons", "night_mode_pref3"), flags.writes)
+    }
+
     @Test fun deviceLocalRoutingAndDefaults() {
         val s = service()
         assertEquals("system", s.snapshot.value.nightMode)
@@ -265,6 +286,9 @@ class AppSettingsServiceImplTest {
         override var isOnyx = false
         override var legacyImportVisible = false
         var notifications = 0
+        val writes = mutableListOf<String>()
+        var onWrite: (String) -> Unit = {}
+        fun onSettingChanged(key: String) { writes += key; onWrite(key) }
         override fun onSystemBarSettingChanged() { notifications++ }
     }
     private class MemoryLocal : DeviceLocalPrefs {
