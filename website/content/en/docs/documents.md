@@ -129,6 +129,11 @@ outside the app, such as web or email links, are labeled **Open external link**.
 There is also experimental support for MyBible and MySword format modules, which can
 be loaded from your device’s filesystem.
 
+For MyBible Bibles, *AndBible* selects the closest supported chapter and verse
+numbering from the module's contents, rather than assuming English KJV numbering.
+For example, German Bibles with Malachi 3:1–24 keep all 24 verses in chapter 3
+and do not show a separate chapter 4.
+
 Bible verse links in MyBible commentaries work like other Scripture references.
 When an entry contains two or more references, **Open all** opens them together.
 Web links and Strong's dictionary links remain separate from this reference collection.
