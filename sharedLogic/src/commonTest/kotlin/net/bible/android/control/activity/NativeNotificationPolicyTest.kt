@@ -323,6 +323,55 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
+    fun dismissDuringPreferenceRemovalCannotReplayHistoricalFailure() = runTest {
+        val preference = memoryNotificationPreference()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val calls = mutableListOf<String>()
+        var idsAtRemoval = emptySet<String>()
+        val notifier = object : NativeNotifier {
+            override val supportsProgress = false
+            override fun show(n: NativeNotification) { calls += "show:${n.id}" }
+            override fun remove(id: String) {
+                calls += "remove:$id"
+                if (id == "andbible-a") {
+                    idsAtRemoval = center.items.value.map { it.id }.toSet()
+                    // Model a source mutation interleaved at the external, non-blocking boundary.
+                    center.dismiss("past")
+                }
+            }
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+        }
+        val policy = NativeNotificationPolicy(center.items, notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, { "Permission" }, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        try {
+            center.start("a", ActivityKind.AI_AGENT, "Waiting")
+            center.setAttention("a", true)
+            advance(1_000)
+            assertEquals(listOf("show:andbible-a"), calls)
+
+            // All three changes are accepted before the policy consumer resumes.
+            preference.set(false)
+            center.startOrFail("past", ActivityKind.SYNC, "Historical failure", "Reconnect")
+            preference.set(true)
+            runCurrent()
+
+            assertEquals(setOf("a", "past"), idsAtRemoval)
+            assertEquals(listOf("a"), center.items.value.map { it.id })
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a"), calls,
+                "A failure accepted while disabled and dismissed during removal must not replay")
+
+            center.startOrFail("new", ActivityKind.SYNC, "New failure", "Reconnect")
+            runCurrent()
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a", "show:andbible-new"), calls,
+                "A later failure must still notify after the coherent preference baseline")
+        } finally {
+            policy.close()
+        }
+    }
+
+    @Test
     fun preferenceOffBeforeTerminalWithoutConsumerTurnCannotLeaveFinalNotice() = runTest {
         val preference = memoryNotificationPreference()
         val notifier = FakeNotifier(false)

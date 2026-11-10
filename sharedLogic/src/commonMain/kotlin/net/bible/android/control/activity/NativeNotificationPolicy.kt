@@ -141,11 +141,8 @@ class NativeNotificationPolicy(
             resetLifecycleTimer(at)
             if (crossedOff || !snapshot.enabled) removeLifecycleStart()
             if (crossedOff) {
+                // Leave needBaseline set so the next evaluation baselines and evaluates one list snapshot.
                 evaluate(Input(emptyList(), false, lifecycleForeground, false))
-                // Baseline is the current list, not an older ListChanged still waiting in the channel.
-                lastSeen.clear()
-                items.value.filter { it.kind != ActivityKind.DOCUMENT_SYNC }.forEach { lastSeen[it.id] = it }
-                needBaseline = false
             }
         }
     }
