@@ -122,6 +122,7 @@ class SyncSettingsIntegrationTest {
                 "credential" -> credentials[args[0]] ?: ""
                 "setCredential" -> { credentials[args[0] as String] = args[1] as String; null }
                 "isValidUrl" -> runCatching { URI(args[0] as String).host != null }.getOrDefault(false)
+                "getWebDavState" -> inert<net.bible.service.cloudsync.webdav.WebDavStateStore>()
                 else -> ""
             }
         } as SyncSettingsPlatform
