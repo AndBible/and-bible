@@ -45,8 +45,20 @@ val wantsReleaseSigning: Boolean = gradle.startParameter.taskNames.any { name ->
     n.contains("release") && !n.contains("unittest") && !n.contains("fdroid")
 }
 
+// A release run (`scripts/release/release-internal.sh`) decrypts all release secrets once, into a RAM dir, and points
+// ANDBIBLE_SIGNING_PROPERTIES at the plaintext keystore.properties there: Gradle then loads that file and never runs gpg,
+// so the run needs one YubiKey touch in total (spec docs/superpowers/specs/2026-11-10-release-internal-one-touch-design.md
+// §5.1). The variable holds a path, not a secret, and wins over ANDBIBLE_RELEASE_KEYSTORE and keystore.properties.gpg.
+val signingPropertiesFile: File? = System.getenv("ANDBIBLE_SIGNING_PROPERTIES")?.takeIf { it.isNotBlank() }?.let { File(it) }
+
 val keystoreProperties: Properties = Properties().apply {
-    if (wantsReleaseSigning && keystoreGpgFile.exists()) {
+    val sessionProperties = signingPropertiesFile
+    if (sessionProperties != null) {
+        if (!sessionProperties.isFile || !sessionProperties.canRead()) {
+            throw GradleException("ANDBIBLE_SIGNING_PROPERTIES points to a missing or unreadable file")
+        }
+        sessionProperties.inputStream().use { load(it) }
+    } else if (wantsReleaseSigning && keystoreGpgFile.exists()) {
         val process = ProcessBuilder(
             "gpg", "--decrypt", "--quiet", keystoreGpgFile.absolutePath
         ).redirectErrorStream(false).start()
@@ -72,9 +84,15 @@ fun expandUserHome(path: String): String =
 /**
  * The release keystore: `ANDBIBLE_RELEASE_KEYSTORE` if set; else the `storeFile` path from keystore.properties.gpg
  * (a host path); else, when that is missing, the same file name in `~/.release-secrets/` (the JailBee
- * `release-secrets` mount), so a container can sign with the mounted key.
+ * `release-secrets` mount), so a container can sign with the mounted key. With ANDBIBLE_SIGNING_PROPERTIES set, only
+ * that file's directory is used (see above).
  */
 fun releaseKeystorePath(storeFilePath: String): String {
+    // ANDBIBLE_SIGNING_PROPERTIES: a relative storeFile sits next to that properties file (the RAM dir).
+    signingPropertiesFile?.let { props ->
+        val f = File(expandUserHome(storeFilePath))
+        return (if (f.isAbsolute) f else File(props.absoluteFile.parentFile, storeFilePath)).path
+    }
     System.getenv("ANDBIBLE_RELEASE_KEYSTORE")?.takeIf { it.isNotBlank() }?.let { return expandUserHome(it) }
     val configured = expandUserHome(storeFilePath)
     if (File(configured).exists()) return configured
