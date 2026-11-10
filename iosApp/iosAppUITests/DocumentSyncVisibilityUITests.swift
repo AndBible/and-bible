@@ -257,11 +257,14 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
                 XCTFail("Application settings Back missing"); return
             }
             settingsBack.tap()
-            let overflow = app.buttons["More options"].firstMatch
-            guard overflow.waitForExistence(timeout: 30) && overflow.isHittable else {
-                XCTFail("Reading overflow button missing"); return
+            let reading = app.otherElements["reading-host"].firstMatch
+            let ring = app.otherElements["activityRing"].firstMatch
+            guard reading.waitForExistence(timeout: 30), ring.waitForExistence(timeout: 10) else {
+                ui.tree(app, "compact-menu-missing-reading-ring")
+                XCTFail("Reading host and live activity ring missing"); return
             }
-            overflow.tap()
+            // The active ring replaces the iOS overflow AX label; tap its measured toolbar frame.
+            ring.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             let summary = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
                 "Document synchronization", "operations")).firstMatch
             guard summary.waitForExistence(timeout: 30) else { XCTFail("Compact document sync summary missing"); return }
