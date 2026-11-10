@@ -98,6 +98,19 @@ class DesktopPortContractTest {
         if (failures.isNotEmpty()) fail("Unresolvable port types:\n" + failures.joinToString("\n"))
     }
 
+    @Test fun desktopSettingsHideDoubleTapFullscreen() = withKoin { koin, _ ->
+        val service = koin.get<net.bible.sharedcore.settings.AppSettingsService>()
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined)
+        try {
+            val controller = net.bible.sharedcore.settings.AppSettingsController(
+                service, scope, net.bible.sharedcore.settings.AppSettingsLabels.forTest(), {},
+            )
+            kotlin.test.assertTrue(controller.state.value.visibleItems.none { it.key == "double_tap_to_fullscreen" })
+        } finally {
+            scope.coroutineContext[Job]?.cancel()
+        }
+    }
+
     @Test fun agentUsesInitialWindowFocus() {
         val window = object : DesktopWindowHandle {
             override val sizeDp = IntSize(1200, 800)

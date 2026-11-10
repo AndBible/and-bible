@@ -346,7 +346,11 @@ fun desktopPlatformModule(
         single {
             val scope = this
             // LegacyDataImport is never bound on desktop: the legacy-import row stays hidden.
-            HostSettingsPlatform(get<CoreStrings>(), get(), get(), legacyImport = { scope.getOrNull<LegacyDataImport>() })
+            HostSettingsPlatform(
+                get<CoreStrings>(), get(), get(),
+                legacyImport = { scope.getOrNull<LegacyDataImport>() },
+                doubleTapFullscreenAvailable = false,
+            )
         }
         single<SettingsPlatform> { get<HostSettingsPlatform>() }
         single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }

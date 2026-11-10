@@ -34,6 +34,7 @@ class HostSettingsPlatform(
     private val settings: AppSettings,
     private val devicePrefs: DeviceLocalPrefs,
     private val legacyImport: () -> LegacyDataImport? = { KoinPlatform.getKoin().getOrNull<LegacyDataImport>() },
+    override val doubleTapFullscreenAvailable: Boolean = true,
 ) : SettingsPlatform, SettingsPlatformFlags {
     override fun resetAllSettings() = SettingsReset.performReset(settings, devicePrefs)
     override val sdcardPermissionVisible = false

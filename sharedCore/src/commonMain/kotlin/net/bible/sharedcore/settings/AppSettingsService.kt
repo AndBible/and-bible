@@ -22,6 +22,7 @@ data class AppSettingsSnapshot(
     val openLinksInSpecialWindow: Boolean,
     val screenKeepOn: Boolean,
     val doubleTapToFullscreen: Boolean,
+    val doubleTapFullscreenAvailable: Boolean = true,
     val autoFullscreen: Boolean,
     val toolbarButtonActions: String,
     val bibleViewSwipeMode: String,

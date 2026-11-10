@@ -234,6 +234,7 @@ class AppSettingsServiceImpl(
             openLinksInSpecialWindow = readBool("open_links_in_special_window_pref", true),
             screenKeepOn = readBool("screen_keep_on_pref", false),
             doubleTapToFullscreen = settings.doubleTapToFullscreen(),
+            doubleTapFullscreenAvailable = platform.doubleTapFullscreenAvailable,
             autoFullscreen = readBool("auto_fullscreen_pref", false),
             toolbarButtonActions = readString("toolbar_button_actions", "default").ifBlank { "default" },
             bibleViewSwipeMode = readString("bible_view_swipe_mode", "CHAPTER"),

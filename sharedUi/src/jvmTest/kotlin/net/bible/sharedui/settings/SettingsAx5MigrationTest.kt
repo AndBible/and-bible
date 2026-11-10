@@ -26,11 +26,27 @@ class SettingsAx5MigrationTest {
     private inline fun <reified T> defaults(): T = java.lang.reflect.Proxy.newProxyInstance(
         T::class.java.classLoader, arrayOf(T::class.java),
     ) { _, method, args -> when {
+        method.name == "getDoubleTapFullscreenAvailable" -> true
         method.returnType == List::class.java -> emptyList<Any>()
         args != null && args.size >= 2 -> args[1]
         method.returnType == Boolean::class.javaPrimitiveType -> false
         else -> null
     } } as T
+
+    @Test fun desktopDoesNotShowDoubleTapFullscreen() {
+        val strings = KeyedCoreStrings(hostStringTable("en"))
+        val settings = defaults<AppSettings>()
+        val prefs = defaults<DeviceLocalPrefs>()
+        val flags = net.bible.sharedui.host.ports.HostSettingsPlatform(
+            strings, settings, prefs, legacyImport = { null }, doubleTapFullscreenAvailable = false,
+        )
+        val service = AppSettingsServiceImpl(defaults<DictionaryOptionsProvider>(), settings, prefs, strings, flags)
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Unconfined)
+        try {
+            val controller = AppSettingsController(service, scope, iosStrings("en").appSettingsLabels(), {})
+            kotlin.test.assertFalse(controller.state.value.items.single { it.key == "double_tap_to_fullscreen" }.visible)
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+    }
 
     @Test fun allPreviouslyWalkedApplicationSettingsAreReachableAtAx5() = runComposeUiTest {
         val strings = iosStrings("en")

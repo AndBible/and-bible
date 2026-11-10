@@ -55,6 +55,7 @@ class AppSettingsServiceImplTest {
             fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" }
                 as net.bible.sharedcore.settings.SettingsItem.SwitchRow
             assertTrue(CommonUtils.settings.doubleTapToFullscreen())
+            assertTrue(row().visible)
             assertTrue(row().checked)
             for (stored in listOf(false, true)) {
                 service.setBool("double_tap_to_fullscreen", stored)
