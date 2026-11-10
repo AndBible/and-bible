@@ -82,6 +82,17 @@ class SpeakCommandArrayCommonTest {
     }
 
     @Test
+    fun splittingASentencePreservesItsExplicitSourceBoundary() {
+        val a = array(maxLength = 100)
+        a.add(TextCommand("f"))
+        val rest = ArrayList<SpeakCommand>()
+        a.addUntilSentenceBreak(listOf(TextCommand("oo. Next", TextCommand.TextType.TITLE, joinToPrevious = true)), rest)
+        assertEquals(listOf("T:foo."), a.describe())
+        assertEquals(listOf("T:Next"), rest.describe())
+        assertEquals(TextCommand.TextType.TITLE, (rest.single() as TextCommand).type)
+    }
+
+    @Test
     fun addUntilSentenceBreakSplitsAfterTheIdeographicFullStop() {
         val a = array()
         val rest = ArrayList<SpeakCommand>()

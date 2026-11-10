@@ -197,8 +197,8 @@ class SpeakCommandArray(private val maxLength: Int): AbstractMutableList<SpeakCo
                 val match = splitIntoTwoSentences.matchEntire(text)
                 if(match != null && endsWithSentenceBreak.matchEntire(text) == null ) {
                     val (part1, delimiters, part2) = match.destructured
-                    this.add(TextCommand("$part1$delimiters"))
-                    rest.add(TextCommand(part2))
+                    this.add(TextCommand("$part1$delimiters", cmd.type, cmd.joinToPrevious))
+                    rest.add(TextCommand(part2, cmd.type, joinToPrevious = false))
                     sentenceBreakFound = true
                 }
                 else {
