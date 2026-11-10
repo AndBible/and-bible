@@ -540,33 +540,35 @@ class IosAssemblyTest {
     }
 
     @Test
-    fun agentAttentionNotificationUsesLocalizedPermissionTitle() = awaitStartupOnMain {
+    fun agentAttentionNotificationUsesLocalizedPermissionTitle() {
         val notifier = RecordingNotifier()
         startApp(extra = listOf(module { single<net.bible.sharedcore.platform.NativeNotifier> { notifier } }))
-        val koin = KoinPlatform.getKoin()
-        val runtime = koin.get<IosNotificationRuntime>()
-        val activities = koin.get<net.bible.android.control.activity.ActivityCenter>()
-        runtime.policy.start()
-        runtime.policy.onForegroundChanged(false)
-        val id = "agent:00000000-0000-0000-0000-000000000001"
-        activities.start(id, net.bible.android.control.activity.ActivityKind.AI_AGENT, "Agent name")
-        activities.setMessage(id, "Waiting for permission")
-        activities.setAttention(id, true)
+        awaitStartupOnMain {
+            val koin = KoinPlatform.getKoin()
+            val runtime = koin.get<IosNotificationRuntime>()
+            val activities = koin.get<net.bible.android.control.activity.ActivityCenter>()
+            runtime.policy.start()
+            runtime.policy.onForegroundChanged(false)
+            val id = "agent:00000000-0000-0000-0000-000000000001"
+            activities.start(id, net.bible.android.control.activity.ActivityKind.AI_AGENT, "Agent name")
+            activities.setMessage(id, "Waiting for permission")
+            activities.setAttention(id, true)
 
-        val notification = kotlinx.coroutines.withTimeout(5_000) {
-            while (notifier.notifications.isEmpty()) delay(10)
-            notifier.notifications.last()
-        }
-        assertEquals("AI agent needs your attention", notification.title)
-        assertEquals("Waiting for permission", notification.body)
-        assertEquals(null, notification.progress)
-        assertTrue(notification.urgent)
+            val notification = kotlinx.coroutines.withTimeout(5_000) {
+                while (notifier.notifications.isEmpty()) delay(10)
+                notifier.notifications.last()
+            }
+            assertEquals("AI agent needs your attention", notification.title)
+            assertEquals("Waiting for permission", notification.body)
+            assertEquals(null, notification.progress)
+            assertTrue(notification.urgent)
 
-        activities.setAttention(id, false)
-        kotlinx.coroutines.withTimeout(1_000) {
-            while (notifier.removed.isEmpty()) delay(10)
+            activities.setAttention(id, false)
+            kotlinx.coroutines.withTimeout(1_000) {
+                while (notifier.removed.isEmpty()) delay(10)
+            }
+            assertEquals(listOf("andbible-$id"), notifier.removed)
         }
-        assertEquals(listOf("andbible-$id"), notifier.removed)
     }
 
     private class RecordingNotifier : net.bible.sharedcore.platform.NativeNotifier {

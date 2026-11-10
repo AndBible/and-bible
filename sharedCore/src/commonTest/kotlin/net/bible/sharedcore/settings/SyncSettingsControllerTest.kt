@@ -76,6 +76,27 @@ class SyncSettingsControllerTest {
     private fun controller(svc: SyncSettingsService, onOpen: () -> Unit = {}) =
         SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), onOpen)
 
+    @Test fun documentsSummarySeparatesEnabledStateFromTransferStatus() {
+        fun summary(enabled: Boolean): String? {
+            val row = controller(FakeSyncSettingsService(syncSnap(documentsEnabled = enabled)))
+                .state.value.screen.items.single { it.key == "sync_enable_documents" }
+            return (row as SettingsItem.SwitchRow).summary
+        }
+
+        assertEquals("Enabled; no document transfer running", summary(true))
+        assertEquals("Disabled; no document transfer running", summary(false))
+    }
+
+    @Test fun disabledDocumentsStillShowManualTransferAndTerminalStatus() {
+        val service = FakeSyncSettingsService(syncSnap(documentsEnabled = false))
+        val controller = controller(service)
+        fun summary() = (controller.state.value.screen.items.single { it.key == "sync_enable_documents" } as SettingsItem.SwitchRow).summary
+        service._snap.value = service._snap.value.copy(documentTransferSummary = "Download KJV: 1 / 2 operations, 42 bytes")
+        assertEquals("Disabled; Download KJV: 1 / 2 operations, 42 bytes", summary())
+        service._snap.value = service._snap.value.copy(documentTransferSummary = "Document sync queue finished: 2 / 2 operations")
+        assertEquals("Disabled; Document sync queue finished: 2 / 2 operations", summary())
+    }
+
     @Test fun retainedResetDialogRelocalizesWithoutClosing() {
         val c = controller(FakeSyncSettingsService(syncSnap()))
         c.onNavigate("cloud_sync_reset")

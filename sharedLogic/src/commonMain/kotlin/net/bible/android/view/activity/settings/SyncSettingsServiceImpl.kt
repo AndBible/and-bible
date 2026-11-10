@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.cloudsync.CloudSync
@@ -64,7 +65,10 @@ class SyncSettingsServiceImpl(
     private val environment: AppEnvironment,
     private val notifyDatabaseRestored: () -> Unit,
     private val notificationPermission: net.bible.sharedcore.platform.NotificationPermission? = null,
+    private val progressTracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
+    private val runningState: (() -> StateFlow<Boolean>)? = null,
 ) : SyncSettingsService {
+    private val documentMutationMutex = Mutex()
     private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
         adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
         cloudInfoSummary = null, serverUrl = "", username = "", password = "", folderPath = "",
@@ -75,7 +79,25 @@ class SyncSettingsServiceImpl(
     ))
     override val snapshot: StateFlow<SyncSettingsSnapshot> = _snapshot.asStateFlow()
 
-    init { refresh() }
+    private fun transferSummary(): String? {
+        val progress = progressTracker?.state?.value
+        return when {
+            progress != null && progress.status != net.bible.sharedcore.cloud.DocumentSyncProgressStatus.IDLE ->
+                strings.documentSyncStatus(progress, progress.initials)
+            runningState?.invoke()?.value == true -> strings.documentSyncTransferRunning
+            else -> null
+        }
+    }
+
+    init {
+        refresh()
+        progressTracker?.let { tracker ->
+            scope.launch { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
+        }
+        runningState?.let { state ->
+            scope.launch { state().collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
+        }
+    }
 
     private val isWebDav get() = cloudSync.adapterId == "WEBDAV"
     private val webDavState get() = platform.webDavState
@@ -128,6 +150,7 @@ class SyncSettingsServiceImpl(
                 categorySummary(cat, lastSynchronized[cat])
             },
             documentsEnabled = documentsEnabled,
+            documentTransferSummary = transferSummary(),
             documentCategoryVisible = signedIn,
             autoDownload = documentSettings.autoDownload,
             autoUpload = documentSettings.autoUpload,
@@ -143,15 +166,37 @@ class SyncSettingsServiceImpl(
         )
     }
 
+    private fun SyncSettingsSnapshot.withCurrentDocumentSettings(): SyncSettingsSnapshot {
+        val enabled = documentSettings.enabled
+        return copy(
+            documentsEnabled = enabled,
+            autoDownload = documentSettings.autoDownload,
+            autoUpload = documentSettings.autoUpload,
+            autoDelete = documentSettings.autoDelete,
+            wifiOnly = documentSettings.wifiOnly,
+            autoTogglesVisible = enabled,
+            wifiOnlyVisible = enabled,
+            documentTransferSummary = transferSummary(),
+        )
+    }
+
+    private suspend fun publishRefresh(refreshed: SyncSettingsSnapshot) {
+        // Category reads may have suspended before a document mutation. Project at publication,
+        // under the mutation lock, rather than restoring the document fields captured by build().
+        documentMutationMutex.withLock {
+            _snapshot.update { refreshed.withCurrentDocumentSettings() }
+        }
+    }
+
     override fun refresh() {
         scope.launch {
             documentSettings.ensureLoaded()
-            _snapshot.value = build()
+            publishRefresh(build())
             if (categories.syncEnabled && cloudSync.signedIn) {
                 val mb = cloudSync.bytesUsed() / (1024.0 * 1024)
-                _snapshot.value = build(
+                publishRefresh(build(
                     cloudInfoSummary = strings.syncCloudInfo(platform.formatDecimal2(mb)),
-                )
+                ))
             }
         }
     }
@@ -190,15 +235,14 @@ class SyncSettingsServiceImpl(
         }
     }
 
-    private val documentMutationMutex = Mutex()
-
     /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
     private fun mutateDocuments(mutation: () -> Unit) {
         writeScope.launch(start = CoroutineStart.UNDISPATCHED) {
             documentMutationMutex.withLock {
                 documentSettings.ensureLoaded()
                 mutation()
-                // A cold load may have let the caller's refresh publish before this mutation.
+                // Loaded mutations are visible even while unrelated category metadata is pending.
+                _snapshot.update { it.withCurrentDocumentSettings() }
                 refresh()
             }
         }

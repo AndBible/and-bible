@@ -91,6 +91,16 @@ class ActivityHostWiringTest {
         }
     }
 
+    @Test fun documentSyncRoutesToCloudDocumentsAndFailedSyncToSettings() {
+        val item = net.bible.android.control.activity.ActivityItem(
+            id = "sync", kind = ActivityKind.DOCUMENT_SYNC, title = "Sync", state = net.bible.android.control.activity.ActivityState.RUNNING,
+            progress = null, message = null, cancel = null, startedAt = 0L, finishedAt = null, read = true,
+        )
+        assertEquals(net.bible.sharedcore.nav.NavRoutes.CLOUD_DOCUMENTS_PATTERN, activityItemRoute(item))
+        assertEquals(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS,
+            activityItemRoute(item.copy(kind = ActivityKind.SYNC, state = net.bible.android.control.activity.ActivityState.FAILED)))
+    }
+
     @Test fun togglingPreferenceShowsCurrentWork() = runComposeUiTest {
         val f = Fixture(default = false)
         f.runningItem()

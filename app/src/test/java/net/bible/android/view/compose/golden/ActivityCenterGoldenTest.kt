@@ -169,5 +169,53 @@ class ActivityCenterGoldenTest {
     )
 
     @Test
+    fun document_sync_overflow_details() {
+        val content: @Composable () -> Unit = {
+            Column(Modifier.width(240.dp)) {
+                ActivityMenuSection(activity(listOf(
+                    item("Document synchronization", progress = 12,
+                        message = "12 / 123 operations — Download VERYLONGDOCUMENTINITIALS: 123456789 / 987654321 bytes received")
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                    item("Document synchronization",
+                        message = "13 / 123 operations — Download ANOTHERLONGDOCUMENT: 123456789 bytes received")
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                )))
+            }
+        }
+        (modes + GoldenMode.MONO_DARK).forEach { captureGolden("ActivityCenter", "document_sync_overflow", it, content = content) }
+    }
+
+    @Test
+    fun document_sync_states() = list(listOf(
+        item("Document synchronization", progress = 45, message = "2 / 5 operations: Download KJV, 45 / 100 bytes")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", message = "1 / 3 operations: Download ESV, 42 bytes")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", ActivityState.SUCCEEDED, message = "Document sync queue finished: 3 / 3 operations")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+        item("Document synchronization", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC),
+    )).let { content ->
+        (modes + GoldenMode.MONO_DARK).forEach { captureGolden("ActivityCenter", "document_sync_states", it, content = content) }
+    }
+
+    @Test
+    fun document_sync_list_long_details() {
+        val content: @Composable () -> Unit = {
+            Column(Modifier.width(320.dp)) {
+                ActivityListContent(listOf(
+                    item("Document synchronization", progress = 12,
+                        message = "Downloading FinRK2024StudyEditionWithStrongNumbers · 1234/5678 · 123456789/987654321 bytes")
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                    item("Document synchronization", ActivityState.INTERRUPTED,
+                        message = "Document sync queue incomplete: 1234/5678 operations. Open AndBible and run sync again")
+                        .copy(kind = ActivityKind.DOCUMENT_SYNC),
+                ), onDismissItem = {}, onClearFinished = {}, onOpenItem = {})
+            }
+        }
+        (modes + GoldenMode.MONO_DARK).forEach { captureGolden("ActivityCenter", "document_sync_list_long_details", it, content = content) }
+    }
+
+    @Test
     fun list_empty() = capture("list_empty", list(emptyList()))
 }

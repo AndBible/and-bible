@@ -54,6 +54,7 @@ data class SyncSettingsSnapshot(
     val certificateVisible: Boolean = false,   // a TOFU certificate pin exists
     val certificateEnabled: Boolean = true,    // !signedIn
     val certificateSummary: String = "",       // shortened pinned fingerprint
+    val documentTransferSummary: String? = null,
 )
 
 /** The 6 syncable-category keys shown, in classic `sync_settings.xml` order. Documents is a separate row
@@ -129,6 +130,10 @@ data class SyncSettingsLabels(
     val progressTitle: String,
     val documentsTitle: String,
     val documentsSummary: String,
+    val documentsEnabled: String,
+    val documentsDisabled: String,
+    val documentsIdle: String,
+    val formatDocumentsSummary: (String, String) -> String,
     // document-sync sub-rows
     val autoDownloadTitle: String,
     val autoDownloadSummary: String,
@@ -158,7 +163,8 @@ data class SyncSettingsLabels(
             passwordTitle = "Password", folderPathTitle = "Folder path", folderPathSummary = "Remote folder",
             bookmarksTitle = "Bookmarks", workspacesTitle = "Workspaces", readingPlansTitle = "Reading plans", myDocumentsTitle = "My documents",
             aiSettingsTitle = "AI settings", progressTitle = "Progress", documentsTitle = "Documents",
-            documentsSummary = "Sync installed documents",
+            documentsSummary = "Sync installed documents", documentsEnabled = "Enabled", documentsDisabled = "Disabled",
+            documentsIdle = "no document transfer running", formatDocumentsSummary = { enabled, status -> "$enabled; $status" },
             autoDownloadTitle = "Auto download", autoDownloadSummary = "Download automatically",
             autoUploadTitle = "Auto upload", autoUploadSummary = "Upload automatically",
             autoDeleteTitle = "Auto delete", autoDeleteSummary = "Delete automatically",

@@ -2285,4 +2285,28 @@
     <!-- I2c-B -->
     <string name="custom_repository_https_required">Custom repositories must use a secure https:// address.</string>
     <string name="custom_repository_https_required_refresh">%1$s uses an http:// address. Only https:// repositories can be used.</string>
+    <string name="document_sync_activity_title">Document synchronization</string>
+    <string name="document_sync_enabled">Document synchronization enabled</string>
+    <string name="document_sync_disabled">Document synchronization disabled</string>
+    <string name="document_sync_no_transfer">no document transfer running</string>
+    <string name="document_sync_settings_summary">%1$s; %2$s</string>
+    <string name="document_sync_transfer_running">Document transfer running</string>
+    <string name="document_sync_counts">%1$d / %2$d operations</string>
+    <string name="document_sync_idle">Document sync idle: %1$s</string>
+    <string name="document_sync_running">Document synchronization running: %1$s</string>
+    <string name="document_sync_finished">Document sync queue finished: %1$s</string>
+    <string name="document_sync_failed">Document sync queue failed: %1$s</string>
+    <string name="document_sync_incomplete">Document sync incomplete: %1$s. Open AndBible and run sync again.</string>
+    <string name="document_sync_cancelled">Document sync cancelled: %1$s</string>
+    <string name="document_sync_interrupted">Document sync interrupted: %1$s. Open AndBible and run sync again.</string>
+    <string name="document_sync_operation_push">Uploading</string>
+    <string name="document_sync_operation_download">Downloading</string>
+    <string name="document_sync_operation_remove">Removing</string>
+    <string name="document_sync_operation_purge">Purging</string>
+    <string name="document_sync_operation_uninstall">Uninstalling</string>
+    <string name="document_sync_operation_label">%1$s %2$s</string>
+    <string name="document_sync_running_detail">%1$s — %2$s</string>
+    <string name="document_sync_running_bytes">%1$s — %2$s: %3$d bytes received</string>
+    <string name="document_sync_running_bytes_total">%1$s — %2$s: %3$d / %4$d bytes received</string>
+    <string name="document_sync_finishing">%1$s — %2$s: finishing operation</string>
 </resources>

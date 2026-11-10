@@ -88,6 +88,7 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
             begin = UiKitBackgroundTask.begin("document-sync"),
             end = UiKitBackgroundTask.end,
             invalidTask = UiKitBackgroundTask.invalid,
+            tracker = get(),
         )
     }
     single<SyncScheduler> {

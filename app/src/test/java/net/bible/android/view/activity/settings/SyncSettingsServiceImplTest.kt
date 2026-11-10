@@ -88,18 +88,139 @@ class SyncSettingsServiceImplTest {
         categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
         writeScope: CoroutineScope = scope,
         platform: net.bible.service.cloudsync.SyncSettingsPlatform = org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java),
+        starter: net.bible.sharedcore.cloud.DocumentSyncStarter? = null,
+        tracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
+        permission: net.bible.sharedcore.platform.NotificationPermission? = null,
+        running: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
             scope, writeScope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
             get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
             get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
-            get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            starter ?: get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             platform, net.bible.test.testCoreStrings(),
             get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
+            notificationPermission = permission, progressTracker = tracker, runningState = running?.let { state -> { state } },
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
+    }
+
+    @Test fun manualTransferWhileDisabledIsVisibleFromExistingRunningState() = kotlinx.coroutines.runBlocking {
+        val running = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val service = impl(running = running)
+        assertFalse(service.snapshot.value.documentsEnabled)
+        running.value = true
+        assertFalse(service.snapshot.value.documentsEnabled)
+        assertEquals("Document transfer running", service.snapshot.value.documentTransferSummary)
+        running.value = false
+        assertNull(service.snapshot.value.documentTransferSummary)
+    }
+
+    @Test fun deniedPermissionDoesNotPreventEnablingDocuments() = kotlinx.coroutines.runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined).also { scopes.add(it) }
+        var permissionRequests = 0
+        var starts = 0
+        val starter = object : net.bible.sharedcore.cloud.DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) = Unit
+            override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) { starts++ }
+            override fun stop() = Unit
+        }
+        val service = impl(scope, starter = starter,
+            permission = net.bible.sharedcore.platform.NotificationPermission { permissionRequests++; throw IllegalStateException("denied") })
+        service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), listOf("KJV"), 0, 100))
+        assertTrue(settings.enabled)
+        assertTrue(service.snapshot.value.documentsEnabled)
+        assertEquals(1, permissionRequests)
+        assertEquals(1, starts)
+    }
+
+    @Test fun loadedDocumentMutationPublishesWhileCategoryReadIsSuspended() = runBlocking {
+        settings.ensureLoaded()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val dao = object : net.bible.android.database.SyncDao by com.nhaarman.mockitokotlin2.mock() {
+            override suspend fun getLong(keyName: String): Long? {
+                assertEquals(net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY, keyName)
+                entered.complete(Unit)
+                release.await()
+                return null
+            }
+        }
+        val categorySettings = object : net.bible.sharedcore.platform.AppSettings by CommonUtils.settings {
+            override fun getBoolean(key: String, default: Boolean) = key == "sync_enable_bookmarks"
+        }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined).also { scopes.add(it) }
+        try {
+            val service = impl(scope,
+                categories = net.bible.service.cloudsync.SyncSettingsCategories(categorySettings) { dao },
+                starter = com.nhaarman.mockitokotlin2.mock())
+            withTimeout(5000) { entered.await() }
+            service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), emptyList(), 0, 0))
+            assertTrue(settings.enabled)
+            assertTrue("loaded enable must publish without waiting for unrelated category metadata",
+                service.snapshot.value.documentsEnabled)
+            assertTrue(service.snapshot.value.autoTogglesVisible)
+            assertTrue(service.snapshot.value.wifiOnlyVisible)
+            service.setDocumentSyncToggle("sync_documents_auto_download", false)
+            assertFalse(service.snapshot.value.autoDownload)
+            service.setDocumentSyncToggle("sync_documents_auto_upload", false)
+            assertFalse(service.snapshot.value.autoUpload)
+            service.setDocumentSyncToggle("sync_documents_auto_delete", false)
+            assertFalse(service.snapshot.value.autoDelete)
+            service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+            assertFalse(service.snapshot.value.wifiOnly)
+            service.disableDocuments()
+            assertFalse(service.snapshot.value.documentsEnabled)
+            assertFalse(service.snapshot.value.autoTogglesVisible)
+            assertFalse(service.snapshot.value.wifiOnlyVisible)
+        } finally {
+            scope.cancel()
+            release.complete(Unit)
+            withTimeout(5000) { scope.coroutineContext[Job]!!.join() }
+        }
+    }
+
+    @Test fun olderCategoryRefreshCannotOverwriteNewerDocumentMutation() = runBlocking {
+        settings.ensureLoaded()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var reads = 0
+        val dao = object : net.bible.android.database.SyncDao by com.nhaarman.mockitokotlin2.mock() {
+            override suspend fun getLong(keyName: String): Long? {
+                assertEquals(net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY, keyName)
+                if (++reads == 1) {
+                    entered.complete(Unit)
+                    release.await()
+                }
+                return null
+            }
+        }
+        val categorySettings = object : net.bible.sharedcore.platform.AppSettings by CommonUtils.settings {
+            override fun getBoolean(key: String, default: Boolean) = key == "sync_enable_bookmarks"
+        }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined).also { scopes.add(it) }
+        try {
+            val service = impl(scope,
+                categories = net.bible.service.cloudsync.SyncSettingsCategories(categorySettings) { dao },
+                starter = com.nhaarman.mockitokotlin2.mock())
+            withTimeout(5000) { entered.await() }
+            val olderRefreshes = scope.coroutineContext[Job]!!.children.toList()
+            service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), emptyList(), 0, 0))
+            assertTrue("newer refresh publishes the enabled state", service.snapshot.value.documentsEnabled)
+            release.complete(Unit)
+            withTimeout(5000) { olderRefreshes.forEach { it.join() } }
+            assertTrue(settings.enabled)
+            assertTrue("an older suspended refresh must not restore the pre-enable state",
+                service.snapshot.value.documentsEnabled)
+            assertTrue(service.snapshot.value.autoTogglesVisible)
+            assertTrue(service.snapshot.value.wifiOnlyVisible)
+        } finally {
+            scope.cancel()
+            release.complete(Unit)
+            withTimeout(5000) { scope.coroutineContext[Job]!!.join() }
+        }
     }
 
     @Test fun controllerToggleRefreshSeesLoadedMutationBeforeWorkerRuns() = kotlinx.coroutines.runBlocking {

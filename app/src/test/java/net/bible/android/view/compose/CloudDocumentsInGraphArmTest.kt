@@ -84,6 +84,7 @@ class CloudDocumentsInGraphArmTest {
 
     private var progressOnRunning: ((Boolean) -> Unit)? = null
     private var progressStops = 0
+    private val running = MutableStateFlow(false)
 
     private fun cloudDocumentsDeps() = CloudDocumentsDeps(
         controllerFor = {
@@ -109,6 +110,7 @@ class CloudDocumentsInGraphArmTest {
         // silently passing.
         seedItems = { error("seedItems is not exercised by the arm directly") },
         refreshFromNetwork = { calls.add("refresh") },
+        transferRunningProvider = { running },
         subscribeProgress = { onRunning ->
             calls.add("progress+")
             progressOnRunning = onRunning
@@ -198,6 +200,32 @@ class CloudDocumentsInGraphArmTest {
         assertEquals(1, exitHostCalls)
     }
 
+    @Test
+    fun openCloudDocumentsMidTransferShowsRunningImmediately() {
+        running.value = true
+        setGraph(NavRoutes.cloudDocuments())
+        compose.onNode(androidx.compose.ui.test.SemanticsMatcher.keyIsDefined(
+            androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo,
+        )).assertExists()
+        assertFalse("refresh" in calls)
+    }
+
+    @Test
+    fun disposedEntryCannotRescanAfterReopen() {
+        setGraph(NavRoutes.cloudDocuments())
+        val old = assertNotNull(progressOnRunning)
+        compose.runOnIdle {
+            navController.navigate(NavRoutes.progressStatus()) { popUpTo(NavRoutes.cloudDocuments()) { inclusive = true } }
+        }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.navigate(NavRoutes.cloudDocuments()) }
+        compose.waitForIdle()
+        calls.clear()
+        compose.runOnIdle { old(false) }
+        compose.waitForIdle()
+        assertFalse("refresh" in calls)
+    }
+
     /** The happy path's mirror: an accepted gate does not leave, and the destination composes. */
     @Test
     fun anAcceptedGateComposesAndLeavesNothingPending() {
@@ -239,21 +267,15 @@ class CloudDocumentsInGraphArmTest {
      * that would refetch on every progress tick, not just on completion.
      */
     @Test
-    fun theProgressCallbackFlipsTransferRunningAndRefreshesOnlyOnTheFalseEdge() {
+    fun theProgressCallbackRefreshesOnlyOnTheFalseEdge() {
         setGraph(NavRoutes.cloudDocuments())
-        val c = assertNotNull(controller)
         val onRunning = assertNotNull(progressOnRunning)
-        assertFalse(c.transferRunning.value)
-
         compose.runOnIdle { onRunning(true) }
         compose.waitForIdle()
-        assertTrue(c.transferRunning.value, "the true edge must flip transferRunning")
-        assertFalse("refresh" in calls, "the true (still-running) edge must never refresh")
-
+        assertFalse("refresh" in calls)
         compose.runOnIdle { onRunning(false) }
         compose.waitForIdle()
-        assertFalse(c.transferRunning.value, "the false edge must flip transferRunning back")
-        assertTrue("refresh" in calls, "the false (finished) edge must trigger a network refresh")
+        assertTrue("refresh" in calls)
     }
 
     /**

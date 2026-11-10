@@ -44,6 +44,27 @@ class ActivityCenterTest {
     }
 
     @Test
+    fun documentSyncShortSuccessIsRetainedAndExpires() = runTest {
+        val c = center()
+        c.start("document-sync:1", ActivityKind.DOCUMENT_SYNC, "Sync")
+        advance(100)
+        c.succeed("document-sync:1")
+        assertEquals(ActivityState.SUCCEEDED, c.items.value.single().state)
+        advance(60_000)
+        assertTrue(c.items.value.isEmpty())
+    }
+
+    @Test
+    fun interruptedIsNeutralAndRetained() = runTest {
+        val c = center()
+        c.start("sync", ActivityKind.DOCUMENT_SYNC, "Sync")
+        c.interrupt("sync", "Interrupted", true)
+        assertEquals(ActivityState.INTERRUPTED, c.items.value.single().state)
+        assertTrue(c.items.value.single().notifyInterruption)
+        assertEquals(0, c.unreadFailures.value)
+    }
+
+    @Test
     fun subSecondJobNeverShown() = runTest {
         val c = center()
         c.start("a", ActivityKind.DOWNLOAD, "A")

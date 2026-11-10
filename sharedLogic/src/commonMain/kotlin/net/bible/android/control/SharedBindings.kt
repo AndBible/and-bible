@@ -206,11 +206,14 @@ fun buildSharedBindings() = module {
         SyncSettingsServiceImpl(
             scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
             { DatabaseContainer.notifyDatabaseRestored() },
+            progressTracker = get(),
+            runningState = { get<DocumentSync>().runningState },
             notificationPermission = getOrNull<net.bible.sharedcore.platform.NotificationPermission>(),
         )
     }
     single<CloudSyncProvider> { CloudSyncProvider { get() } }
     single<DocumentSyncProvider> { DocumentSyncProvider { get() } }
+    single { net.bible.service.cloudsync.documents.DocumentSyncProgressTracker() }
     single {
         DocumentSyncSettings(
             { DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao() },
@@ -255,6 +258,7 @@ fun buildSharedBindings() = module {
             stopMonitoring = downloads::stopMonitoringDownloads,
         )
     }.onClose { it?.close() }
+    single { net.bible.android.control.activity.DocumentSyncActivitySource(get(), get()) { get() } }.onClose { it?.close() }
     single { JobActivitySource(get()).also { it.attach() } }.onClose { it?.detach() }
     single {
         SyncActivitySource(get(), get<CloudSync>().runningChanged) { get<net.bible.sharedcore.platform.CoreStrings>().synchronizing }

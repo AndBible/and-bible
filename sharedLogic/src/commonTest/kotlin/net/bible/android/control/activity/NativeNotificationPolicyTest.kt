@@ -9,6 +9,11 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.cloud.DocumentSyncInterruptionReason
+import net.bible.sharedcore.cloud.DocumentSyncOperation
+import net.bible.sharedcore.cloud.DocumentSyncProgress
+import net.bible.sharedcore.cloud.DocumentSyncProgressStatus
+import net.bible.sharedcore.cloud.documentSyncNotificationText
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.log.LogLevel
@@ -41,7 +46,10 @@ class NativeNotificationPolicyTest {
         override fun setOnActivated(handler: (id: String) -> Unit) {}
     }
 
-    private class Fixture(val scope: TestScope, supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true) {
+    private class Fixture(
+        val scope: TestScope, supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true,
+        documentNotices: Boolean = false,
+    ) {
         val items = MutableStateFlow<List<ActivityItem>>(emptyList())
         val notifier = FakeNotifier(supportsProgress)
         val foreground = MutableStateFlow(fg)
@@ -49,14 +57,45 @@ class NativeNotificationPolicyTest {
         val policy = NativeNotificationPolicy(
             items, notifier, { foreground.value }, enabled, { scope.currentTime }, scope.backgroundScope,
             { "Localized permission" }, { "Finished" },
+            documentSyncLifecycleNotices = documentNotices,
+            documentSyncNoticeText = { p -> documentSyncNotificationText(p) { key, args ->
+                when (key) {
+                    "document_sync_counts" -> "${args[0]} of ${args[1]} operations processed"
+                    "document_sync_running" -> "Document synchronization is running: ${args[0]}"
+                    "document_sync_finished" -> "Document sync queue finished: ${args[0]}"
+                    "document_sync_incomplete", "document_sync_interrupted" ->
+                        "Document sync interrupted: ${args[0]}. Open AndBible and run sync again"
+                    else -> error("Unexpected notice resource: $key")
+                }
+            } },
         ).also { it.start() }
 
         fun setForeground(v: Boolean) { foreground.value = v; policy.onForegroundChanged(v) }
         fun set(vararg i: ActivityItem) { items.value = i.toList() }
     }
 
-    private fun TestScope.fixture(supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true) =
-        Fixture(this, supportsProgress, fg, on).also { runCurrent() }
+    private fun TestScope.fixture(
+        supportsProgress: Boolean = true, fg: Boolean = false, on: Boolean = true, documentNotices: Boolean = false,
+    ) = Fixture(this, supportsProgress, fg, on, documentNotices).also { runCurrent() }
+
+    private fun queue(
+        session: Long = 1, revision: Long = 1, status: DocumentSyncProgressStatus = DocumentSyncProgressStatus.RUNNING,
+        processed: Int = 0, reason: DocumentSyncInterruptionReason? = null,
+    ) = DocumentSyncProgress(sessionId = session, revision = revision, status = status,
+        currentOperation = DocumentSyncOperation.DOWNLOAD,
+        initials = "PRIVATE_INITIALS https://user:secret@host/private/title /private/path PRIVATE_TITLE",
+        processed = processed, total = 3, interruptionReason = reason)
+
+    private fun Fixture.sendQueue(progress: DocumentSyncProgress = queue()) = policy.onDocumentSyncProgress(progress)
+
+    private fun NativeNotification.assertSilentDocumentNotice() {
+        assertTrue(!urgent)
+        assertNull(progress)
+        assertTrue(!indeterminate)
+        listOf("PRIVATE_INITIALS", "https://", "secret", "host", "/private", "PRIVATE_TITLE").forEach {
+            assertTrue(it !in title && it !in body, "Private queue detail leaked: $it")
+        }
+    }
 
     private fun TestScope.advance(ms: Long) { advanceTimeBy(ms); runCurrent() }
 
@@ -64,6 +103,399 @@ class NativeNotificationPolicyTest {
         id: String = "a", state: ActivityState = ActivityState.RUNNING, kind: ActivityKind = ActivityKind.DOWNLOAD,
         progress: Int? = null, started: Long = 0, finished: Long? = null, message: String? = null,
     ) = ActivityItem(id, kind, "T-$id", state, progress, message, null, started, finished, true)
+
+    @Test
+    fun documentQueueDoesNotLeakDetailedTextIntoLegacyNotifications() = runTest {
+        val f = fixture()
+        val running = item(kind = ActivityKind.DOCUMENT_SYNC, message = "PRIVATE")
+        f.set(running); runCurrent()
+        advance(30_000)
+        f.set(running.copy(state = ActivityState.SUCCEEDED, finishedAt = currentTime)); runCurrent()
+        assertTrue(f.notifier.shows.isEmpty())
+    }
+
+    @Test
+    fun iosWithoutProgressGetsOneQueueStartAfter10Seconds() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.set(item(id = "document-sync:1", kind = ActivityKind.DOCUMENT_SYNC,
+            message = "https://user:secret@host/private").copy(title = "PRIVATE_TITLE"))
+        f.sendQueue(); runCurrent()
+        advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1)
+        val start = f.notifier.shows.single()
+        assertEquals("andbible-document-sync:1", start.id)
+        assertEquals("Document synchronization is running: 0 of 3 operations processed", start.body)
+        start.assertSilentDocumentNotice()
+        f.sendQueue(queue(revision = 2).copy(bytesTransferred = 500, totalBytes = 1000)); runCurrent()
+        f.sendQueue(queue(revision = 3, processed = 1)); runCurrent()
+        advance(120_000)
+        f.setForeground(true); runCurrent()
+        assertEquals("remove:${start.id}", f.notifier.calls.last())
+        f.setForeground(false); runCurrent()
+        advance(120_000)
+        assertEquals(1, f.notifier.shows.size, "No refresh or second start across app switches")
+    }
+
+    @Test
+    fun documentLifecycleIsOptInAndDatabaseSyncStillHasNoLifecycleSuccess() = runTest {
+        val f = fixture(supportsProgress = false)
+        f.sendQueue(); runCurrent(); advance(20_000)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        val g = fixture(supportsProgress = false, documentNotices = true)
+        g.set(item(kind = ActivityKind.SYNC)); runCurrent(); advance(20_000)
+        g.set(item(kind = ActivityKind.SYNC, state = ActivityState.SUCCEEDED, finished = currentTime)); runCurrent()
+        assertTrue(f.notifier.calls.isEmpty())
+        assertTrue(g.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun longForegroundQueueCannotShortcutBackgroundThresholdOnFinish() = runTest {
+        val f = fixture(supportsProgress = false, fg = true, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(120_000)
+        assertTrue(f.notifier.calls.isEmpty())
+        f.setForeground(false); runCurrent(); advance(9_999)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED, processed = 3)); runCurrent()
+        advance(60_000)
+        assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun foregroundReentryResetsConsecutiveBackgroundTimeEvenBetweenConsumerTurns() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(9_000)
+        // Neither focus edge may disappear merely because the consumer is paused.
+        f.setForeground(true)
+        f.setForeground(false)
+        runCurrent(); advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1)
+        assertEquals(1, f.notifier.shows.size)
+    }
+
+    @Test
+    fun cleanBackgroundTerminalReplacesIssuedStartOnceWithSameId() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        val terminal = queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED, processed = 3)
+        f.sendQueue(terminal)
+        f.sendQueue(terminal)
+        f.sendQueue(terminal.copy(revision = 3))
+        runCurrent(); advance(120_000)
+        assertEquals(listOf("show:andbible-document-sync:1", "show:andbible-document-sync:1"), f.notifier.calls)
+        assertEquals("Document sync queue finished: 3 of 3 operations processed", f.notifier.shows.last().body)
+        f.notifier.shows.forEach { it.assertSilentDocumentNotice() }
+        f.policy.close()
+        assertEquals(2, f.notifier.calls.size, "A final notice is not transient progress")
+    }
+
+    @Test
+    fun foregroundFinishRemovesStartWithoutFinalBanner() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        f.setForeground(true)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), f.notifier.calls)
+    }
+
+    @Test
+    fun shortQueueAndHistoricalTerminalNeverNotify() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(9_999)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        advance(60_000)
+        val restarted = fixture(supportsProgress = false, documentNotices = true)
+        restarted.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        advance(60_000)
+        assertTrue(f.notifier.calls.isEmpty())
+        assertTrue(restarted.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun expirationScopeLossAndDeferredWorkOnlyNotifyAfterIssuedStart() = runTest {
+        val terminals = listOf(
+            queue(revision = 2, status = DocumentSyncProgressStatus.INTERRUPTED, reason = DocumentSyncInterruptionReason.BACKGROUND_EXPIRED),
+            queue(revision = 2, status = DocumentSyncProgressStatus.INTERRUPTED, reason = DocumentSyncInterruptionReason.SCOPE_CANCELLED),
+            queue(revision = 2, status = DocumentSyncProgressStatus.INCOMPLETE).copy(deferred = 1),
+        )
+        for (terminal in terminals) {
+            val f = fixture(supportsProgress = false, documentNotices = true)
+            f.sendQueue(); runCurrent(); advance(10_000)
+            f.sendQueue(terminal); f.sendQueue(terminal.copy(revision = 3)); runCurrent()
+            assertEquals(2, f.notifier.shows.size)
+            assertEquals("andbible-document-sync:1", f.notifier.shows.last().id)
+            assertEquals("Document sync interrupted: 0 of 3 operations processed. Open AndBible and run sync again", f.notifier.shows.last().body)
+            f.notifier.shows.last().assertSilentDocumentNotice()
+            val short = fixture(supportsProgress = false, documentNotices = true)
+            short.sendQueue(); runCurrent(); advance(9_999)
+            short.sendQueue(terminal); runCurrent(); advance(20_000)
+            assertTrue(short.notifier.calls.isEmpty())
+        }
+    }
+
+    @Test
+    fun intentionalStopOrSignOutRemovesStartWithoutCancellationBanner() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.CANCELLED, reason = DocumentSyncInterruptionReason.USER_STOP))
+        runCurrent(); advance(60_000)
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), f.notifier.calls)
+    }
+
+    @Test
+    fun explicitAndMixedRefreshFailureOnlyUseExistingCoalescedErrorRoute() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        // A mixed operation/refresh failure is still FAILED; never reinterpret it as interruption.
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FAILED).copy(failed = 1))
+        f.set(item(id = "coalesced", kind = ActivityKind.SYNC, state = ActivityState.FAILED, message = "Reconnect"))
+        runCurrent()
+        assertEquals(2, f.notifier.shows.size)
+        assertEquals(1, f.notifier.shows.count { it.id == "andbible-document-sync:1" })
+        assertEquals(1, f.notifier.shows.count { it.id == "andbible-coalesced" && it.urgent })
+        assertTrue("remove:andbible-document-sync:1" in f.notifier.calls)
+    }
+
+    private fun memoryNotificationPreference(): SystemNotificationsPreference {
+        var stored: Boolean? = null
+        val settings = object : net.bible.sharedcore.platform.AppSettings by
+            net.bible.sharedlogic.settings.DatabaseAppSettings({ error("unused non-boolean settings") }, { false }) {
+            override fun getBoolean(key: String, default: Boolean) = stored ?: default
+            override fun setBoolean(key: String, value: Boolean?) { stored = value }
+        }
+        return SystemNotificationsPreference(settings, true)
+    }
+
+    @Test
+    fun oldQueuedRunningCannotBackdateTimerAcrossAcceptedOffOn() = runTest {
+        pausedOldInputCannotBackdatePreferenceBoundary(focus = false)
+    }
+
+    @Test
+    fun oldQueuedFocusCannotBackdateTimerAcrossAcceptedOffOn() = runTest {
+        pausedOldInputCannotBackdatePreferenceBoundary(focus = true)
+    }
+
+    private fun TestScope.pausedOldInputCannotBackdatePreferenceBoundary(focus: Boolean) {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        var now = 0L
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { now }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue())
+        if (focus) {
+            runCurrent()
+            policy.onForegroundChanged(true)
+            policy.onForegroundChanged(false)
+        }
+        // Only advance the injected clock: consumer has not processed the old Queue/Focus inputs.
+        now = 9_000
+        preference.set(false); preference.set(true)
+        now = 10_000
+        runCurrent()
+        assertTrue(notifier.calls.isEmpty(), "Old input backdated the post-preference timer")
+        now = 19_999; advanceTimeBy(9_999); runCurrent()
+        assertTrue(notifier.calls.isEmpty())
+        now = 20_000; advanceTimeBy(1); runCurrent()
+        assertEquals(1, notifier.shows.size)
+    }
+
+    @Test
+    fun rapidActualPreferenceOffOnRemovesGenericAttentionAndBaselinesFailures() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val waiting = item(kind = ActivityKind.AI_AGENT, message = "Allow?").copy(attention = true)
+        val items = MutableStateFlow(listOf(waiting))
+        val policy = NativeNotificationPolicy(items, notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, { "Permission" }, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        assertEquals(listOf("show:andbible-a"), notifier.calls)
+        preference.set(false)
+        items.value = listOf(waiting, item(id = "past", state = ActivityState.FAILED))
+        preference.set(true)
+        runCurrent()
+        assertEquals(listOf("show:andbible-a", "remove:andbible-a"), notifier.calls)
+        advance(20_000)
+        assertEquals(2, notifier.calls.size, "Off/on must not replay baseline attention/failures")
+    }
+
+    @Test
+    fun dismissDuringPreferenceRemovalCannotReplayHistoricalFailure() = runTest {
+        val preference = memoryNotificationPreference()
+        val center = ActivityCenter(backgroundScope) { currentTime }
+        val calls = mutableListOf<String>()
+        var idsAtRemoval = emptySet<String>()
+        val notifier = object : NativeNotifier {
+            override val supportsProgress = false
+            override fun show(n: NativeNotification) { calls += "show:${n.id}" }
+            override fun remove(id: String) {
+                calls += "remove:$id"
+                if (id == "andbible-a") {
+                    idsAtRemoval = center.items.value.map { it.id }.toSet()
+                    // Model a source mutation interleaved at the external, non-blocking boundary.
+                    center.dismiss("past")
+                }
+            }
+            override fun setOnActivated(handler: (String) -> Unit) = Unit
+        }
+        val policy = NativeNotificationPolicy(center.items, notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, { "Permission" }, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        try {
+            center.start("a", ActivityKind.AI_AGENT, "Waiting")
+            center.setAttention("a", true)
+            advance(1_000)
+            assertEquals(listOf("show:andbible-a"), calls)
+
+            // All three changes are accepted before the policy consumer resumes.
+            preference.set(false)
+            center.startOrFail("past", ActivityKind.SYNC, "Historical failure", "Reconnect")
+            preference.set(true)
+            runCurrent()
+
+            assertEquals(setOf("a", "past"), idsAtRemoval)
+            assertEquals(listOf("a"), center.items.value.map { it.id })
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a"), calls,
+                "A failure accepted while disabled and dismissed during removal must not replay")
+
+            center.startOrFail("new", ActivityKind.SYNC, "New failure", "Reconnect")
+            runCurrent()
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a", "show:andbible-new"), calls,
+                "A later failure must still notify after the coherent preference baseline")
+        } finally {
+            policy.close()
+        }
+    }
+
+    @Test
+    fun preferenceOffBeforeTerminalWithoutConsumerTurnCannotLeaveFinalNotice() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue()); runCurrent(); advance(10_000)
+        preference.set(false)
+        policy.onDocumentSyncProgress(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED))
+        runCurrent()
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), notifier.calls)
+    }
+
+    @Test
+    fun rapidPreferenceOffOnRemovesStartAndResetsPendingThreshold() = runTest {
+        val preference = memoryNotificationPreference()
+        val notifier = FakeNotifier(false)
+        val policy = NativeNotificationPolicy(MutableStateFlow(emptyList()), notifier, { false }, preference.enabled,
+            { currentTime }, backgroundScope, null, { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}" }, notificationPreference = preference)
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(queue()); runCurrent(); advance(9_000)
+        preference.set(false); preference.set(true)
+        runCurrent(); advance(9_999)
+        assertTrue(notifier.calls.isEmpty(), "Conflating off/on would retain the old timer")
+        advance(1)
+        assertEquals(1, notifier.shows.size)
+        preference.set(false); preference.set(true)
+        runCurrent(); advance(60_000)
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), notifier.calls)
+    }
+
+    @Test
+    fun preferenceOffRemovesStartAndReenableDoesNotReplayPastTerminal() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        f.enabled.value = false; runCurrent()
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        f.enabled.value = true; runCurrent(); advance(60_000)
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), f.notifier.calls)
+        f.sendQueue(queue(session = 2, revision = 3)); runCurrent(); advance(10_000)
+        assertEquals("andbible-document-sync:2", f.notifier.shows.last().id)
+    }
+
+    @Test
+    fun preferenceReenableDuringSameQueueCannotIssueSecondStart() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        f.enabled.value = false; runCurrent()
+        f.enabled.value = true; runCurrent(); advance(20_000)
+        assertEquals(1, f.notifier.shows.size)
+    }
+
+    @Test
+    fun disabledQueueStillAcceptsLifecycleWithoutReplayingCompletion() = runTest {
+        val f = fixture(supportsProgress = false, on = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(20_000)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.FINISHED)); runCurrent()
+        f.enabled.value = true; runCurrent(); advance(20_000)
+        assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun pausedConsumerKeepsInterruptedThenNewRunningAndRejectsStaleOldEdges() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        val interrupted = queue(revision = 2, status = DocumentSyncProgressStatus.INTERRUPTED,
+            reason = DocumentSyncInterruptionReason.BACKGROUND_EXPIRED)
+        f.sendQueue(interrupted)
+        f.sendQueue(queue(session = 2, revision = 3))
+        // The old terminal was queued before the new running state, not overwritten by it.
+        runCurrent()
+        assertEquals(2, f.notifier.shows.size)
+        assertEquals("andbible-document-sync:1", f.notifier.shows.last().id)
+        assertTrue("run sync again" in f.notifier.shows.last().body)
+        advance(10_000)
+        assertEquals("andbible-document-sync:2", f.notifier.shows.last().id)
+        f.sendQueue(interrupted)
+        f.sendQueue(interrupted.copy(revision = 100)) // old generation cannot terminate the current queue
+        runCurrent(); advance(60_000)
+        assertEquals(3, f.notifier.shows.size)
+        f.sendQueue(queue(session = 2, revision = 101, status = DocumentSyncProgressStatus.FINISHED, processed = 3)); runCurrent()
+        assertEquals(4, f.notifier.shows.size)
+        assertEquals("andbible-document-sync:2", f.notifier.shows.last().id)
+    }
+
+    @Test
+    fun byteFloodCannotReplaceTerminalOrResurrectOldSession() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        repeat(1000) { f.sendQueue(queue(revision = it + 2L).copy(bytesTransferred = it.toLong())) }
+        f.sendQueue(queue(revision = 1002, status = DocumentSyncProgressStatus.FINISHED, processed = 3))
+        f.sendQueue(queue(session = 2, revision = 1003))
+        f.sendQueue(queue(revision = 1004))
+        runCurrent(); advance(10_000)
+        assertEquals(listOf("andbible-document-sync:1", "andbible-document-sync:1", "andbible-document-sync:2"), f.notifier.shows.map { it.id })
+    }
+
+    @Test
+    fun closeRemovesLifecycleStartSynchronouslyAndIgnoresPendingInputs() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(10_000)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.INTERRUPTED,
+            reason = DocumentSyncInterruptionReason.BACKGROUND_EXPIRED))
+        f.sendQueue(queue(session = 2, revision = 3))
+        f.policy.close()
+        assertEquals(listOf("show:andbible-document-sync:1", "remove:andbible-document-sync:1"), f.notifier.calls)
+        f.policy.close(); runCurrent(); advance(60_000)
+        f.sendQueue(queue(session = 3, revision = 4)); runCurrent(); advance(60_000)
+        assertEquals(2, f.notifier.calls.size)
+    }
+
+    @Test
+    fun cancelledOldTimerCannotStartNewSessionBeforeItsOwnThreshold() = runTest {
+        val f = fixture(supportsProgress = false, documentNotices = true)
+        f.sendQueue(); runCurrent(); advance(9_000)
+        f.sendQueue(queue(revision = 2, status = DocumentSyncProgressStatus.CANCELLED))
+        f.sendQueue(queue(session = 2, revision = 3)); runCurrent()
+        advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1)
+        assertEquals(listOf("andbible-document-sync:2"), f.notifier.shows.map { it.id })
+    }
 
     @Test
     fun attentionInBackgroundNotifiesOnceAndClears() = runTest {

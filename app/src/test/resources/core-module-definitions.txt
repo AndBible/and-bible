@@ -5,6 +5,7 @@ net.bible.android.control.activity.ActivityListRequests::_root_
 net.bible.android.control.activity.ActivityMenuPreference::_root_
 net.bible.android.control.activity.ActivityReporter::_root_
 net.bible.android.control.activity.AgentActivitySource::_root_
+net.bible.android.control.activity.DocumentSyncActivitySource::_root_
 net.bible.android.control.activity.DownloadActivitySource::_root_
 net.bible.android.control.activity.JobActivitySource::_root_
 net.bible.android.control.activity.SyncActivitySource::_root_
@@ -76,6 +77,7 @@ net.bible.service.cloudsync.SyncSettingsCategories::_root_
 net.bible.service.cloudsync.SyncSettingsPlatform::_root_
 net.bible.service.cloudsync.SyncTriggerDriver::_root_
 net.bible.service.cloudsync.documents.DocumentSync::_root_
+net.bible.service.cloudsync.documents.DocumentSyncProgressTracker::_root_
 net.bible.service.cloudsync.documents.DocumentSyncSettings::_root_
 net.bible.service.common.GlobalTextDisplaySettingsStore::_root_
 net.bible.service.common.ReadingProgressSettingsStore::_root_

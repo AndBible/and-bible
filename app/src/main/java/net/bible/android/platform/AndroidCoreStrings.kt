@@ -6,6 +6,39 @@ import net.bible.sharedcore.platform.CoreStrings
 
 /** Reads the resource on every access so locale changes take effect. */
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
+    override val documentSyncActivityTitle get() = context.getString(R.string.document_sync_activity_title)
+    override val documentSyncEnabled get() = context.getString(R.string.document_sync_enabled)
+    override val documentSyncDisabled get() = context.getString(R.string.document_sync_disabled)
+    override val documentSyncTransferRunning get() = context.getString(R.string.document_sync_transfer_running)
+    private fun syncText(key: String, args: List<Any>): String {
+        val id = when (key) {
+            "document_sync_counts" -> R.string.document_sync_counts
+            "document_sync_idle" -> R.string.document_sync_idle
+            "document_sync_running" -> R.string.document_sync_running
+            "document_sync_finished" -> R.string.document_sync_finished
+            "document_sync_failed" -> R.string.document_sync_failed
+            "document_sync_incomplete" -> R.string.document_sync_incomplete
+            "document_sync_cancelled" -> R.string.document_sync_cancelled
+            "document_sync_interrupted" -> R.string.document_sync_interrupted
+            "document_sync_operation_push" -> R.string.document_sync_operation_push
+            "document_sync_operation_download" -> R.string.document_sync_operation_download
+            "document_sync_operation_remove" -> R.string.document_sync_operation_remove
+            "document_sync_operation_purge" -> R.string.document_sync_operation_purge
+            "document_sync_operation_uninstall" -> R.string.document_sync_operation_uninstall
+            "document_sync_operation_label" -> R.string.document_sync_operation_label
+            "document_sync_running_detail" -> R.string.document_sync_running_detail
+            "document_sync_running_bytes" -> R.string.document_sync_running_bytes
+            "document_sync_running_bytes_total" -> R.string.document_sync_running_bytes_total
+            "document_sync_finishing" -> R.string.document_sync_finishing
+            else -> error("Unknown document sync string key: $key")
+        }
+        return context.getString(id, *args.toTypedArray())
+    }
+    override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) =
+        net.bible.sharedcore.cloud.documentSyncText(progress, documentLabel, ::syncText)
+    override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) =
+        net.bible.sharedcore.cloud.documentSyncNotificationText(progress, ::syncText)
+
     override val errorReport: String get() = context.getString(R.string.report_error)
     override val errorBackup: String get() = context.getString(R.string.backup_and_restore)
     override val errorSkip: String get() = context.getString(R.string.error_skip)

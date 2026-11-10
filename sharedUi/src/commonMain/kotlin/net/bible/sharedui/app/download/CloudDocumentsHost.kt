@@ -96,6 +96,7 @@ class CloudDocumentsHost(
         openOrGate = { cloudDocumentsOpenOrGate() },
         seedItems = { cloudDocumentsSeedItems() },
         refreshFromNetwork = { cloudDocumentsRefreshFromNetwork() },
+        transferRunningProvider = { documentSync.runningState },
         subscribeProgress = { onRunning -> cloudDocumentsSubscribeProgress(onRunning) },
         statusFilterLabels = { showRemoved -> statusFilterLabels(showRemoved) },
         categoryFilterLabels = { categoryFilterLabels() },

@@ -18,6 +18,13 @@
 
 package net.bible.sharedui.host.app
 
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ActivityListRequests
+import net.bible.android.control.activity.ActivityMenuPreference
+import net.bible.android.control.activity.workspaceIdOfAgentItem
+import net.bible.sharedui.reading.activity.ActivityHostWiring
+import net.bible.sharedui.reading.activity.ActivityRootHost
+import net.bible.sharedui.reading.activity.activityItemRoute
 import net.bible.sharedui.components.fullScreenReadingTopInsets
 import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
@@ -510,6 +517,28 @@ private fun HostAppContent(
             HostRootLinks.setReadingNavigator(null)
         }
     }
+    val activityWiring = remember(shell, readingHostHolder, nightObserver) {
+        // Recovery must remain databases-uninitialised; ordinary startup taps stay buffered until this root exists.
+        if (nightObserver == null) null else {
+            val center = koin.getOrNull<ActivityCenter>()
+            val preference = koin.getOrNull<ActivityMenuPreference>()
+            if (center == null || preference == null) null else ActivityHostWiring(
+                center, preference,
+                listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
+                syncNow = koin.getOrNull(),
+                reporter = koin.getOrNull(),
+                onOpenItem = { item ->
+                    if (workspaceIdOfAgentItem(item) != null) scope.launch {
+                        // Agent rows need the reading host; notification taps and ordinary rows do not.
+                        HostReadingReady.ensure(table)
+                        shell.openReading()
+                        readingHostHolder.get(platform, shell, koin, nightObserver, strings).openActivityItem(item)
+                    } else activityItemRoute(item)?.let(shell::navigate)
+                },
+            )
+        }
+    }
+    ActivityRootHost(activityWiring) {
     AppRoot(
         navController = navController,
         startRoute = route,
@@ -549,6 +578,7 @@ private fun HostAppContent(
             )
         },
     )
+    }
     // The beta notice (Android: ReadingAppBootstrap.showBetaNotice), once reading is shown: a fresh install reaches
     // reading only after Welcome. Shown by hosts that name a notice platform, when the environment says beta.
     val betaNoticePlatform = platform.betaNoticePlatform

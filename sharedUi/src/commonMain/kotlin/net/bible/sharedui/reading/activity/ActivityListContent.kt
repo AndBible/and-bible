@@ -117,6 +117,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
     val message = item.message
     val progress = item.progress
     val cancel = item.cancel
+    val messageMaxLines = if (item.kind == ActivityKind.DOCUMENT_SYNC) Int.MAX_VALUE else 2
     Row(
         Modifier.fillMaxWidth().testTag(ACTIVITY_LIST_ROW_TAG).clickable { onOpen(item) }
             .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
@@ -130,7 +131,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
             Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             when {
                 item.state == ActivityState.RUNNING -> {
-                    if (message != null && item.kind == ActivityKind.AI_AGENT) Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    if (message != null && item.kind in setOf(ActivityKind.AI_AGENT, ActivityKind.DOCUMENT_SYNC)) Text(message, style = MaterialTheme.typography.bodySmall, maxLines = messageMaxLines, overflow = TextOverflow.Ellipsis)
                     val barColor = LocalContentColor.current
                     val trackColor = barColor.copy(alpha = 0.2f)
                     val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)
@@ -147,7 +148,7 @@ private fun ListRow(item: ActivityItem, onOpen: (ActivityItem) -> Unit, onDismis
                     message, style = MaterialTheme.typography.bodySmall,
                     color = if (item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis,
+                    maxLines = messageMaxLines, overflow = TextOverflow.Ellipsis,
                 )
             }
         }

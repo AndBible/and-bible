@@ -63,6 +63,19 @@ documents will still sync automatically from then on.
     Once enabled, document sync is **automatic**. There is no separate “automatic”
     switch — the per-device toggles below shape *how much* it does automatically.
 
+## Transfer Status
+
+The Documents switch shows whether automatic document sync is enabled, separately
+from whether a transfer is running. Manual transfers can run while it is disabled.
+Open the activity list from the reading screen's overflow menu to see the current
+operation, queue operation counts and, when available, the current download's bytes.
+A finished queue means its operations finished; it does not guarantee that every
+document is installed or up to date.
+
+Transfer status remains visible in the app even if notifications are denied. On
+iOS, the system may suspend or stop background work and a final notification is not
+guaranteed. If a transfer is interrupted, open AndBible and run sync again.
+
 ## Per-Device Settings
 
 While document sync is enabled, a **Document sync** section appears in Sync

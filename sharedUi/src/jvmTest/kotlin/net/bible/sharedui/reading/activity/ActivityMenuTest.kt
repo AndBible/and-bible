@@ -1,6 +1,8 @@
 package net.bible.sharedui.reading.activity
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -120,6 +122,33 @@ class ActivityMenuTest {
         val baseline = render(null, syncRunning = false)
         assertFalse(samePixels(baseline, render(null, syncRunning = true)), "preference off keeps the sync glyph")
         assertTrue(samePixels(baseline, render(menu(emptyList()), syncRunning = true)), "preference on hides the glyph")
+    }
+
+    @Test fun documentSyncDetailsAreNotEllipsizedInPhoneWidthMenu() = runComposeUiTest {
+        val message = "12 / 123 operations — Download VERYLONGDOCUMENTINITIALS: 123456789 / 987654321 bytes received"
+        setContent {
+            AbTheme(disableAnimations = true) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    Column(androidx.compose.ui.Modifier.width(240.dp)) {
+                        ActivityMenuSection(menu(listOf(item("documents", message = message).copy(kind = ActivityKind.DOCUMENT_SYNC))))
+                    }
+                }
+            }
+        }
+        val node = onNodeWithText(message, useUnmergedTree = true).fetchSemanticsNode()
+        val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+        node.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+        assertTrue(layouts.isNotEmpty())
+        assertFalse(layouts.single().hasVisualOverflow, "document bytes must remain visible")
+    }
+
+    @Test fun documentSyncShowsTransferDetailsAndInterruptedRow() = runComposeUiTest {
+        val running = item("documents", message = "Downloading KJV · 2/5 · 12 KB").copy(kind = ActivityKind.DOCUMENT_SYNC)
+        val interrupted = item("interrupted", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
+            .copy(kind = ActivityKind.DOCUMENT_SYNC)
+        toolbar(menu(listOf(running, interrupted)), noAnim = true, expanded = true)
+        onNodeWithText("Downloading KJV · 2/5 · 12 KB").assertExists()
+        onNodeWithText("Open AndBible and run sync again").assertExists()
     }
 
     @Test fun ringShownWhileRunning() = runComposeUiTest {

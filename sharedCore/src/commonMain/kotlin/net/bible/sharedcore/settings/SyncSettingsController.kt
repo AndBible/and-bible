@@ -107,7 +107,8 @@ class SyncSettingsController(
                 ))
             }
             add(SettingsItem.SwitchRow(
-                key = "sync_enable_documents", title = labels.documentsTitle, summary = labels.documentsSummary,
+                key = "sync_enable_documents", title = labels.documentsTitle,
+                summary = labels.formatDocumentsSummary(if (s.documentsEnabled) labels.documentsEnabled else labels.documentsDisabled, s.documentTransferSummary ?: labels.documentsIdle),
                 checked = s.documentsEnabled, iconKey = "sync_enable_documents",
             ))
             // ---- Document sync ----

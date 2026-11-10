@@ -58,7 +58,7 @@ fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? 
     // Same filter as the full list (ActivityListContent): cancelled items are never shown anywhere.
     val all = activity.items.value.filter { it.state != ActivityState.CANCELLED }
     val shown = all
-        .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
+        .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED || it.state == ActivityState.INTERRUPTED }
         .sortedWith(compareBy<ActivityItem> { if (it.attention) 0 else 1 }.thenBy { it.state.menuRank() })
     val sync = activity.syncNow?.takeIf { it.available.value }
     if (shown.isEmpty() && sync == null) return
@@ -91,8 +91,10 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
         Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         when {
             item.state == ActivityState.RUNNING -> {
-                if (message != null && item.kind == net.bible.android.control.activity.ActivityKind.AI_AGENT) {
-                    Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (message != null && item.kind in setOf(net.bible.android.control.activity.ActivityKind.AI_AGENT, net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC)) {
+                    Text(message, style = MaterialTheme.typography.bodySmall,
+                        maxLines = if (item.kind == net.bible.android.control.activity.ActivityKind.DOCUMENT_SYNC) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis)
                 }
                 val barColor = LocalContentColor.current
                 val trackColor = barColor.copy(alpha = 0.2f)

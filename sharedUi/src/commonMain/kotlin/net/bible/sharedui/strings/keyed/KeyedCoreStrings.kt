@@ -25,6 +25,15 @@ import net.bible.sharedcore.platform.CoreStrings
  */
 class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     constructor(table: StringTable) : this({ table })
+    override val documentSyncActivityTitle get() = t.text("document_sync_activity_title")
+    override val documentSyncEnabled get() = t.text("document_sync_enabled")
+    override val documentSyncDisabled get() = t.text("document_sync_disabled")
+    override val documentSyncTransferRunning get() = t.text("document_sync_transfer_running")
+    private fun syncText(key: String, args: List<Any>) = t.fmt(key, *args.toTypedArray())
+    override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) =
+        net.bible.sharedcore.cloud.documentSyncText(progress, documentLabel, ::syncText)
+    override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) =
+        net.bible.sharedcore.cloud.documentSyncNotificationText(progress, ::syncText)
 
     private val t: StringTable get() = table()
 

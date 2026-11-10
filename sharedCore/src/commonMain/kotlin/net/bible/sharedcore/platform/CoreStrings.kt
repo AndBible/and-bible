@@ -2,6 +2,13 @@ package net.bible.sharedcore.platform
 
 /** Strings domain code needs. One member per resource; grows per batch (spec L1a section 3). */
 interface CoreStrings {
+    val documentSyncActivityTitle: String
+    val documentSyncEnabled: String
+    val documentSyncDisabled: String
+    val documentSyncTransferRunning: String
+    fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?): String
+    fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress): String
+
     val errorReport: String // R.string.report_error
     val errorBackup: String // R.string.backup_and_restore
     val errorSkip: String // R.string.error_skip

@@ -68,12 +68,21 @@ class SyncErrorReporter(private val emit: (UserMessage.ErrorNotification) -> Uni
          * ends it. Only the first call counts.
          */
         fun end(completed: Boolean = true) {
-            if (!ended.compareAndSet(false, true)) return
+            prepareEnd(completed)?.invoke()
+        }
+
+        /**
+         * Closes the streak without invoking consumers, so a queue can accept its next run atomically.
+         * The returned delivery belongs outside the producer lock, before terminal observers.
+         */
+        internal fun prepareEnd(completed: Boolean = true): (() -> Unit)? {
+            if (!ended.compareAndSet(false, true)) return null
             val shown = specific.value ?: generic.value
-            shown?.let(emit)
-            if (!completed) return
-            if (shown != null) previousRunFailed.value = true
-            else if (!silentFailure.value) previousRunFailed.value = false
+            if (completed) {
+                if (shown != null) previousRunFailed.value = true
+                else if (!silentFailure.value) previousRunFailed.value = false
+            }
+            return shown?.let { message -> { emit(message) } }
         }
     }
 }

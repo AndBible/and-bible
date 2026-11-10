@@ -86,6 +86,7 @@ class IosSyncBindingsTest {
         single<net.bible.sharedcore.platform.CoreStrings> { StubCoreStrings() }
         single { AppDialogController() }
         single { AppCoroutineScope() }
+        single { net.bible.service.cloudsync.documents.DocumentSyncProgressTracker() }
     }
 
     private val strings = HostSyncStrings(

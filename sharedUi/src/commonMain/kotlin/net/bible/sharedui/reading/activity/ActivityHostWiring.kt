@@ -3,6 +3,8 @@
 package net.bible.sharedui.reading.activity
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
@@ -49,6 +51,21 @@ class ActivityHostWiring(
     }
 }
 
+/** A root owner remains present even while the preference is off and its menu state is null. */
+private class ActivityRootOwner(val menu: ActivityMenuState?)
+private val LocalActivityRootOwner = staticCompositionLocalOf<ActivityRootOwner?> { null }
+
+/** Owns notification requests and the list across destinations; reading reuses this owner's menu state. */
+@kotlin.native.HiddenFromObjC
+@Composable
+fun ActivityRootHost(wiring: ActivityHostWiring?, content: @Composable () -> Unit) {
+    ActivityHostImpl(wiring, onHostComposed = null) { menu ->
+        CompositionLocalProvider(LocalActivityRootOwner provides remember(menu) { ActivityRootOwner(menu) }) {
+            content()
+        }
+    }
+}
+
 /**
  * Collects the activity flows into an [ActivityMenuState] for [content] (`null` while the preference is off or
  * [wiring] is `null`, so the toolbar renders as before) and owns the full list's visibility.
@@ -58,8 +75,11 @@ class ActivityHostWiring(
  */
 @kotlin.native.HiddenFromObjC
 @Composable
-fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) =
-    ActivityHostImpl(wiring, onHostComposed = null, content = content)
+fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) {
+    val root = LocalActivityRootOwner.current
+    if (root != null) content(root.menu)
+    else ActivityHostImpl(wiring, onHostComposed = null, content = content)
+}
 
 /**
  * [ActivityHost]'s body. [onHostComposed] is a test probe, called after each composition of this function itself
@@ -147,6 +167,7 @@ private fun ActivityListLayer(
 @kotlin.native.HiddenFromObjC
 fun activityItemRoute(item: ActivityItem): String? = when {
     item.kind == ActivityKind.DOWNLOAD -> NavRoutes.download()
+    item.kind == ActivityKind.DOCUMENT_SYNC -> NavRoutes.cloudDocuments()
     item.kind == ActivityKind.SYNC && item.state == ActivityState.FAILED -> NavRoutes.SYNC_SETTINGS
     else -> null
 }

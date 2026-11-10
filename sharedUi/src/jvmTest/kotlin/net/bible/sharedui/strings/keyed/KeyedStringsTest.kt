@@ -77,6 +77,29 @@ class KeyedStringsTest {
     }
 
     @Test
+    fun documentSyncFormattingCoversQueueStatesAndHidesNamesFromNotifications() {
+        val strings = KeyedCoreStrings(table)
+        val base = net.bible.sharedcore.cloud.DocumentSyncProgress(
+            status = net.bible.sharedcore.cloud.DocumentSyncProgressStatus.RUNNING,
+            currentOperation = net.bible.sharedcore.cloud.DocumentSyncOperation.DOWNLOAD,
+            initials = "PRIVATE", processed = 1, total = 3, bytesTransferred = 50, totalBytes = 100,
+        )
+        val detailed = strings.documentSyncStatus(base, base.initials)
+        assertTrue(detailed.contains("PRIVATE"))
+        assertTrue(detailed.contains("50"))
+        assertFalse(strings.documentSyncNotificationStatus(base).contains("PRIVATE"))
+        for (status in net.bible.sharedcore.cloud.DocumentSyncProgressStatus.entries) {
+            assertText(status.name, strings.documentSyncStatus(base.copy(status = status), null))
+            assertText(status.name, strings.documentSyncNotificationStatus(base.copy(status = status)))
+        }
+        for (operation in net.bible.sharedcore.cloud.DocumentSyncOperation.entries) {
+            assertText(operation.name, strings.documentSyncStatus(base.copy(currentOperation = operation), "Name"))
+        }
+        assertText("unknown total", strings.documentSyncStatus(base.copy(totalBytes = null), null))
+        assertText("finishing", strings.documentSyncStatus(base.copy(bytesTransferred = 100), null))
+    }
+
+    @Test
     fun pluralFormattingRetainsAdditionalArguments() {
         assertEquals("2 documents (5 MB)", tableFor("en").pluralFormat("cloud_doc_sync_now_count_size", 2, 2, "5 MB"))
     }

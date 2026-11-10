@@ -115,6 +115,19 @@ class SyncSettingsGoldenTest {
     }
 
     // heightDp=2400: the full sync list is longer than the default viewport.
+    @Test fun documentTransferStates() {
+        listOf(
+            "2 / 5 operations: Download KJV, 45 / 100 bytes",
+            "1 / 3 operations: Download ESV, 42 bytes",
+            "Document sync queue finished: 3 / 3 operations",
+            "Document sync interrupted: Open AndBible and run sync again",
+        ).forEachIndexed { index, summary ->
+            val content = screen(uiStateFor(snap(signedIn = true, documentsEnabled = true).copy(documentTransferSummary = summary)))
+            captureMatrix("SyncSettings", "document_transfer_$index", heightDp = 2400, content = content)
+            MONO_MODES.forEach { captureGolden("SyncSettings", "document_transfer_$index", it, heightDp = 2400, content = content) }
+        }
+    }
+
     @Test fun signedout_matrix() =
         captureMatrix("SyncSettings", "signedout", heightDp = 2400, content = screen(uiStateFor(snap(signedIn = false))))
 

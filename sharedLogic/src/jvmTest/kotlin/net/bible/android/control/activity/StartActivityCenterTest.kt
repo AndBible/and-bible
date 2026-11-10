@@ -87,6 +87,9 @@ class StartActivityCenterTest {
         try {
             SharedAppStartup.startActivityCenter(koin)
             val center = koin.get<ActivityCenter>()
+            val tracker = koin.get<net.bible.service.cloudsync.documents.DocumentSyncProgressTracker>()
+            tracker.begin(1, 1)
+            assertTrue(center.isRunning("document-sync:1"), "document sync must be observed at startup without opening a screen")
             koin.get<CloudSync>().notifySyncRunning(true)
             assertTrue(center.isRunning("sync"))
             koin.get<CloudSync>().notifySyncRunning(false)
