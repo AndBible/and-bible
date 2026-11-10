@@ -12,6 +12,8 @@ import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.NativeNotificationPolicy
 import net.bible.android.control.activity.SystemNotificationsPreference
 import net.bible.android.control.activity.monotonicActivityClock
+import net.bible.service.cloudsync.documents.DocumentSyncProgressTracker
+import net.bible.sharedcore.cloud.DocumentSyncProgress
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.NativeNotifier
 import platform.Foundation.NSThread
@@ -27,9 +29,14 @@ internal class IosNotificationRuntime(
     observerFactory: IosForegroundObserverFactory = IosForegroundObserverFactory { IosNotificationForegroundObserver(onChanged = it) },
     private val foregroundQuery: () -> Boolean = ::isIosNotificationForeground,
     attentionText: (() -> String)? = null,
+    tracker: DocumentSyncProgressTracker? = null,
+    documentSyncNoticeText: ((DocumentSyncProgress) -> String)? = null,
+    documentSyncNoticeTitle: (() -> String)? = null,
+    policyScope: CoroutineScope? = null,
+    clock: () -> Long = monotonicActivityClock(),
     finishedText: () -> String,
 ) {
-    internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    internal val scope = policyScope ?: CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val active = atomic(false)
     private val closed = atomic(false)
     val policy = NativeNotificationPolicy(
@@ -37,11 +44,15 @@ internal class IosNotificationRuntime(
         notifier = notifier,
         foreground = AppForeground { active.value },
         enabled = preference.enabled,
-        clock = monotonicActivityClock(),
+        clock = clock,
         scope = scope,
         attentionText = attentionText,
         finishedText = finishedText,
+        documentSyncLifecycleNotices = true,
+        documentSyncNoticeText = documentSyncNoticeText,
+        documentSyncNoticeTitle = documentSyncNoticeTitle,
     )
+    private val progressSubscription = tracker?.observe(policy::onDocumentSyncProgress)
     private var observer: AutoCloseable? = null
     private val activationHandler: (String) -> Unit = { if (!closed.value) requests.request() }
 
@@ -63,6 +74,7 @@ internal class IosNotificationRuntime(
 
     fun close() {
         if (!closed.compareAndSet(false, true)) return
+        progressSubscription?.cancel()
         policy.close()
         scope.cancel()
         onMain {

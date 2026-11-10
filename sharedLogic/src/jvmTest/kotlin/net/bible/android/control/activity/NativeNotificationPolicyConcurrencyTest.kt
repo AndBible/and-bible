@@ -5,6 +5,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.cloud.DocumentSyncProgress
+import net.bible.sharedcore.cloud.DocumentSyncProgressStatus
 import net.bible.sharedcore.platform.NativeNotification
 import net.bible.sharedcore.platform.NativeNotifier
 import java.util.concurrent.ConcurrentHashMap
@@ -17,8 +24,7 @@ import kotlin.test.assertTrue
 
 class NativeNotificationPolicyConcurrencyTest {
 
-    private class TrackingNotifier : NativeNotifier {
-        override val supportsProgress = true
+    private class TrackingNotifier(override val supportsProgress: Boolean = true) : NativeNotifier {
         val currentlyShown: MutableSet<String> = ConcurrentHashMap.newKeySet()
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
@@ -33,6 +39,42 @@ class NativeNotificationPolicyConcurrencyTest {
         }
         override fun remove(id: String) { currentlyShown -= id }
         override fun setOnActivated(handler: (id: String) -> Unit) {}
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun closeRacingWithLifecycleStartCannotLeaveOrResurrectNotification() = runTest {
+        val notifier = TrackingNotifier(supportsProgress = false)
+        val policy = NativeNotificationPolicy(
+            items = MutableStateFlow(emptyList()), notifier = notifier, foreground = { false },
+            enabled = MutableStateFlow(true), clock = { currentTime }, scope = backgroundScope,
+            attentionText = null, finishedText = { "Finished" }, documentSyncLifecycleNotices = true,
+            documentSyncNoticeText = { "Queue ${it.status}: ${it.processed}/${it.total}" },
+        )
+        policy.start(); runCurrent()
+        policy.onDocumentSyncProgress(DocumentSyncProgress(1, 1, DocumentSyncProgressStatus.RUNNING, total = 3))
+        runCurrent(); advanceTimeBy(10_000)
+        val scheduler = Thread { runCurrent() }.also { it.start() }
+        var closer: Thread? = null
+        try {
+            assertTrue(notifier.entered.await(2, TimeUnit.SECONDS), "lifecycle start never reached show()")
+            closer = Thread { policy.close() }.also { it.start() }
+            // Queue inputs while both show and close are in flight; none may land after close returns.
+            policy.onDocumentSyncProgress(DocumentSyncProgress(1, 2, DocumentSyncProgressStatus.INTERRUPTED, total = 3))
+            policy.onDocumentSyncProgress(DocumentSyncProgress(2, 3, DocumentSyncProgressStatus.RUNNING, total = 3))
+            notifier.release.countDown()
+            scheduler.join(2_000)
+            closer.join(2_000)
+            assertTrue(!scheduler.isAlive && !closer.isAlive, "close/show did not complete")
+            assertEquals(emptySet(), notifier.currentlyShown)
+            runCurrent(); advanceTimeBy(60_000); runCurrent()
+            assertEquals(emptySet(), notifier.currentlyShown)
+        } finally {
+            notifier.release.countDown()
+            scheduler.join(2_000)
+            closer?.join(2_000)
+            policy.close()
+        }
     }
 
     @Test

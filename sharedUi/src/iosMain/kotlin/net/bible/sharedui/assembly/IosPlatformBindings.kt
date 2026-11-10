@@ -204,6 +204,9 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
             IosNotificationRuntime(
                 center = get(), notifier = get(), requests = get(), preference = get(), observerFactory = get(),
                 attentionText = { koin.get<LlmStrings>().agentActivityAttentionNeeded },
+                tracker = get(),
+                documentSyncNoticeText = { koin.get<CoreStrings>().documentSyncNotificationStatus(it) },
+                documentSyncNoticeTitle = { koin.get<CoreStrings>().documentSyncActivityTitle },
                 finishedText = { koin.get<CoreStrings>().notificationFinished },
             )
         } onClose { it?.close() }

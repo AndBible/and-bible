@@ -1,6 +1,7 @@
 package net.bible.android.control.activity
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,8 @@ import kotlinx.coroutines.launch
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlin.concurrent.Volatile
+import net.bible.sharedcore.cloud.DocumentSyncProgress
+import net.bible.sharedcore.cloud.DocumentSyncProgressStatus
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.NativeNotification
@@ -28,9 +31,9 @@ import net.bible.sharedcore.platform.NativeNotifier
  * A vanished or CANCELLED item that had a notification (and was RUNNING or FAILED) removes it; a vanished SUCCEEDED
  * item leaves it to the OS.
  *
- * Policy state is confined to one collector coroutine in [scope]; every input (items, preference, foreground, a time
- * wake-up, close) is a flow combined into it, and notifier calls run in that coroutine. The only lock is [closeLock],
- * which serialises those calls with [close].
+ * Policy state is confined to one collector coroutine in [scope]. The default policy combines state flows. The iOS
+ * document-lifecycle opt-in instead serializes queue revisions, focus edges, preference changes and timer wake-ups
+ * through a loss-free channel; byte-only updates are filtered at ingress. [closeLock] serializes delivery with [close].
  * Time-based triggers (10 s reached, throttle window elapsed) are covered by a single one-shot wake-up job that is
  * scheduled after each evaluation only when something is pending, so an idle policy has no timer, it works with
  * virtual time and it dies with [close] or the scope.
@@ -52,6 +55,9 @@ class NativeNotificationPolicy(
     private val scope: CoroutineScope,
     private val attentionText: (() -> String)?,
     private val finishedText: () -> String,
+    private val documentSyncLifecycleNotices: Boolean = false,
+    private val documentSyncNoticeText: ((DocumentSyncProgress) -> String)? = null,
+    private val documentSyncNoticeTitle: (() -> String)? = null,
 ) {
     constructor(items: StateFlow<List<ActivityItem>>, notifier: NativeNotifier, foreground: AppForeground,
                 enabled: StateFlow<Boolean>, clock: () -> Long, scope: CoroutineScope, finishedText: () -> String) :
@@ -88,20 +94,161 @@ class NativeNotificationPolicy(
     @Volatile private var wakeJob: Job? = null
     private val loggedFailures = mutableSetOf<String>()
 
-    /** Starts collecting. Idempotent, but call it from one thread (it is not an atomic check-and-set). */
-    fun start() {
-        if (job != null) return
-        inForeground.value = foreground.isForeground()
-        job = scope.launch {
-            launch { notifier.progressCapabilityChanges.collect { tick.update { it + 1 } } }
-            combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, closeRequested ->
-                Input(list, on, fg, closeRequested)
-            }.takeWhile { evaluate(it) }.collect { }
+    private sealed interface LifecycleInput {
+        data class Queue(val progress: DocumentSyncProgress, val at: Long) : LifecycleInput
+        data class Focus(val foreground: Boolean, val at: Long) : LifecycleInput
+        data class Preference(val enabled: Boolean, val at: Long) : LifecycleInput
+        data class ListChanged(val items: List<ActivityItem>) : LifecycleInput
+        data class Expired(val generation: Long) : LifecycleInput
+        data object Refresh : LifecycleInput
+    }
+
+    private val lifecycleInputs = Channel<LifecycleInput>(Channel.UNLIMITED)
+    // Ingress filtering is independent of notifier/close locking: a producer never waits on delivery.
+    private val inputLock = SynchronizedObject()
+    private var acceptedQueue: DocumentSyncProgress? = null
+    private var queue: DocumentSyncProgress? = null
+    private var queueTerminal = false
+    private var queueStartIssued = false
+    private var lifecycleForeground = false
+    private var lifecycleEnabled = true
+    private var backgroundSince: Long? = null
+    private var lifecycleGeneration = 0L
+    @Volatile private var lifecycleTimer: Job? = null
+    /** Separate classification: lifecycle starts are neither persistent progress nor attention. */
+    @Volatile private var lifecycleStartId: String? = null
+
+    private fun acceptQueue(progress: DocumentSyncProgress, at: Long) {
+        val previous = queue
+        if (previous != null && (progress.sessionId < previous.sessionId || progress.revision <= previous.revision)) return
+        val newSession = previous?.sessionId != progress.sessionId
+        if (newSession) {
+            removeLifecycleStart()
+            queueStartIssued = false
+            queueTerminal = false
+        } else if (queueTerminal) return
+        queue = progress
+        if (progress.status == DocumentSyncProgressStatus.RUNNING) {
+            if (newSession) resetLifecycleTimer(at)
+            return
+        }
+        queueTerminal = true
+        resetLifecycleTimer(at)
+        val notifyTerminal = queueStartIssued && lifecycleEnabled && !lifecycleForeground &&
+            progress.status in setOf(DocumentSyncProgressStatus.FINISHED,
+                DocumentSyncProgressStatus.INTERRUPTED, DocumentSyncProgressStatus.INCOMPLETE)
+        if (notifyTerminal) showLifecycle(progress, terminal = true) else removeLifecycleStart()
+    }
+
+    private fun resetLifecycleTimer(at: Long) {
+        lifecycleTimer?.cancel()
+        lifecycleTimer = null
+        val generation = ++lifecycleGeneration
+        backgroundSince = at.takeIf { !lifecycleForeground && lifecycleEnabled &&
+            queue?.status == DocumentSyncProgressStatus.RUNNING && !queueStartIssued && !queueTerminal }
+        val since = backgroundSince ?: return
+        lifecycleTimer = scope.launch {
+            delay((since + LONG_JOB_MS - clock()).coerceAtLeast(0))
+            lifecycleInputs.send(LifecycleInput.Expired(generation))
         }
     }
 
-    /** Reports an app focus change; entering the foreground removes shown progress notifications. */
-    fun onForegroundChanged(foreground: Boolean) { inForeground.value = foreground }
+    private fun showLifecycleStart() {
+        val progress = queue ?: return
+        val since = backgroundSince ?: return
+        if (documentSyncNoticeText == null || queueTerminal || queueStartIssued || !lifecycleEnabled || lifecycleForeground ||
+            progress.status != DocumentSyncProgressStatus.RUNNING || clock() - since < LONG_JOB_MS) return
+        queueStartIssued = true
+        showLifecycle(progress, terminal = false)
+    }
+
+    private fun showLifecycle(progress: DocumentSyncProgress, terminal: Boolean) {
+        val text = documentSyncNoticeText ?: return
+        val id = "document-sync:${progress.sessionId}"
+        synchronized(closeLock) { // L1-common-ok: atomicfu lock
+            if (isClosed) return
+            lifecycleStartId = if (terminal) null else id
+            guarded("show") {
+                notifier.show(NativeNotification(ID_PREFIX + id, documentSyncNoticeTitle?.invoke() ?: "",
+                    text(progress), null, false, false))
+            }
+        }
+    }
+
+    private fun removeLifecycleStart() {
+        synchronized(closeLock) { // L1-common-ok: atomicfu lock
+            val id = lifecycleStartId ?: return
+            lifecycleStartId = null
+            removeNotification(id)
+        }
+    }
+
+    /** Starts collecting. Idempotent, but call it from one thread (it is not an atomic check-and-set). */
+    fun start() {
+        if (job != null) return
+        if (isClosed) return
+        inForeground.value = foreground.isForeground()
+        if (documentSyncLifecycleNotices) {
+            lifecycleForeground = inForeground.value
+            lifecycleEnabled = enabled.value
+            job = scope.launch {
+                launch { items.collect { lifecycleInputs.send(LifecycleInput.ListChanged(it)) } }
+                launch { enabled.collect { lifecycleInputs.send(LifecycleInput.Preference(it, clock())) } }
+                launch { notifier.progressCapabilityChanges.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
+                launch { tick.collect { lifecycleInputs.send(LifecycleInput.Refresh) } }
+                var list = items.value
+                for (input in lifecycleInputs) {
+                    if (isClosed) break
+                    when (input) {
+                        is LifecycleInput.ListChanged -> list = input.items
+                        is LifecycleInput.Queue -> acceptQueue(input.progress, input.at)
+                        is LifecycleInput.Focus -> if (lifecycleForeground != input.foreground) {
+                            lifecycleForeground = input.foreground
+                            resetLifecycleTimer(input.at)
+                            if (input.foreground) removeLifecycleStart()
+                        }
+                        is LifecycleInput.Preference -> {
+                            if (lifecycleEnabled != input.enabled) {
+                                lifecycleEnabled = input.enabled
+                                resetLifecycleTimer(input.at)
+                                if (!input.enabled) removeLifecycleStart()
+                            }
+                        }
+                        is LifecycleInput.Expired -> if (input.generation == lifecycleGeneration) showLifecycleStart()
+                        LifecycleInput.Refresh -> Unit
+                    }
+                    evaluate(Input(list, lifecycleEnabled, lifecycleForeground, false))
+                }
+            }
+        } else {
+            job = scope.launch {
+                launch { notifier.progressCapabilityChanges.collect { tick.update { it + 1 } } }
+                combine(items, enabled, inForeground, tick, closed) { list, on, fg, _, closeRequested ->
+                    Input(list, on, fg, closeRequested)
+                }.takeWhile { evaluate(it) }.collect { }
+            }
+        }
+    }
+
+    /** Queues lifecycle revisions losslessly; byte-only ticks never enter the notification channel. */
+    fun onDocumentSyncProgress(progress: DocumentSyncProgress) {
+        if (!documentSyncLifecycleNotices || isClosed) return
+        synchronized(inputLock) { // L1-common-ok: atomicfu lock
+            if (isClosed) return
+            val previous = acceptedQueue
+            if (previous != null && (progress.revision <= previous.revision || progress.sessionId < previous.sessionId)) return
+            val sanitized = progress.copy(currentOperation = null, initials = null, bytesTransferred = null, totalBytes = null)
+            acceptedQueue = sanitized
+            if (previous?.copy(revision = sanitized.revision) == sanitized) return
+            lifecycleInputs.trySend(LifecycleInput.Queue(sanitized, clock()))
+        }
+    }
+
+    /** Reports every app focus edge; consecutive background time resets even between consumer turns. */
+    fun onForegroundChanged(foreground: Boolean) {
+        inForeground.value = foreground
+        if (documentSyncLifecycleNotices && !isClosed) lifecycleInputs.trySend(LifecycleInput.Focus(foreground, clock()))
+    }
 
     /**
      * Stops collecting and removes progress and attention notifications synchronously on the calling thread, so it is
@@ -115,6 +262,9 @@ class NativeNotificationPolicy(
             closed.value = true
             job?.cancel()
             wakeJob?.cancel()
+            lifecycleTimer?.cancel()
+            lifecycleInputs.cancel()
+            removeLifecycleStart()
             val ids = progressIds
             progressIds = emptySet()
             ids.forEach { removeNotification(it) }
