@@ -100,6 +100,16 @@ class SpeakTextBoundariesTest {
     }
 
     @Test
+    fun spokenReferenceExpansionIsSeparatedFromTheSourceWordsAroundIt() {
+        // ISV places cross references right after the word or punctuation, with no source whitespace. The expansion is
+        // synthetic text, so it must not glue to its neighbours ("spirit,Psalms", "thronesPsalms").
+        assertEquals(listOf("in spirit, Psalms 51:17; next"),
+            texts("in spirit,<reference osisRef='Ps.51.17'>x</reference>; next"))
+        assertEquals(listOf("their thrones Psalms 51:17 and"),
+            texts("their thrones<reference osisRef='Ps.51.17'>x</reference> and"))
+    }
+
+    @Test
     fun saxChunkingDoesNotInventWordBoundariesButWhitespaceOnlyChunksDo() {
         val handler = handler()
         handler.startDocument()
