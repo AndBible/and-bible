@@ -496,6 +496,153 @@ class HostDocumentSyncStarterProgressTest {
         }
     }
 
+    @Test fun externalStartAfterAcceptedTerminalPreservesQuietErrorStreak() = runTest {
+        val tracker = DocumentSyncProgressTracker()
+        val driver = Driver()
+        val gate = CompletableDeferred<Unit>()
+        driver.action = { initials, _ ->
+            if (initials == "A") gate.await()
+            error("operation failed")
+        }
+        val owner = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val starter = HostDocumentSyncStarter.forDriver(owner, driver, { "generic" }, { 1uL }, {}, tracker = tracker)
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val blocked = java.util.concurrent.atomic.AtomicBoolean()
+        val errors = java.util.Collections.synchronizedList(mutableListOf<UserMessage.ErrorNotification>())
+        val messages = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        val observation = tracker.observe {
+            if (it.status == DocumentSyncProgressStatus.RUNNING && it.total == 2 && it.processed == 0 && blocked.compareAndSet(false, true)) {
+                entered.countDown()
+                check(release.await(10, TimeUnit.SECONDS)) { "observer release timed out" }
+            }
+        }
+        var publisher: Thread? = null
+        try {
+            starter.start(listOf("A"), emptyList())
+            publisher = thread(name = "external-start-blocker") { starter.start(listOf("B"), emptyList()) }
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            gate.complete(Unit)
+            // Await acceptance, not delivery: the observer still owns the emission drain.
+            assertEquals(DocumentSyncProgressStatus.FAILED, tracker.snapshot.status)
+            assertTrue(errors.isEmpty(), "error delivery must stay in the ordered effect queue")
+            starter.start(listOf("C"), emptyList())
+            assertEquals(2L, tracker.snapshot.sessionId)
+            release.countDown()
+            publisher.join(5_000)
+            assertTrue(!publisher.isAlive)
+            starter.awaitIdle()
+            assertEquals(listOf(false, true), errors.map { it.repeated })
+            assertEquals(listOf(false, true), errors.map { it.background })
+        } finally {
+            release.countDown()
+            gate.complete(Unit)
+            publisher?.join(5_000)
+            observation.cancel()
+            messages.cancel()
+            starter.stop()
+            owner.cancel()
+        }
+    }
+
+    @Test fun refreshOnlyFailurePreservesQuietStreakWithoutAnotherError() = runTest {
+        val f = Fixture(backgroundScope)
+        val errors = mutableListOf<UserMessage.ErrorNotification>()
+        val messages = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        try {
+            f.driver.action = { _, _ -> error("operation failed") }
+            f.starter.start(listOf("A"), emptyList())
+            f.starter.awaitIdle()
+            assertEquals(DocumentSyncProgressStatus.FAILED, f.current.status)
+            f.driver.action = { _, _ -> }
+            f.driver.refresh = { error("refresh failed") }
+            f.starter.start(listOf("B"), emptyList())
+            f.starter.awaitIdle()
+            assertEquals(DocumentSyncProgressStatus.INCOMPLETE, f.current.status)
+            assertEquals(1, errors.size, "refresh-only failure must not emit an explicit error")
+            f.driver.action = { _, _ -> error("operation failed again") }
+            f.driver.refresh = {}
+            f.starter.start(listOf("C"), emptyList())
+            f.starter.awaitIdle()
+            assertEquals(listOf(false, true), errors.map { it.repeated })
+            assertEquals(listOf(false, true), errors.map { it.background })
+        } finally { messages.cancel(); f.subscription.cancel() }
+    }
+
+    @Test fun stopPublishesPublicCancellationWhileObserverIsBlocked() = runTest {
+        assertPublicStateWhileBlocked("stop")
+    }
+
+    @Test fun startPublishesPublicNewSessionWhileObserverIsBlocked() = runTest {
+        assertPublicStateWhileBlocked("start")
+    }
+
+    @Test fun expirationPublishesPublicInterruptionAndEndsTaskWhileObserverIsBlocked() = runTest {
+        assertPublicStateWhileBlocked("expire")
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.assertPublicStateWhileBlocked(action: String) {
+        for (blockChanges in listOf(false, true)) {
+            val f = Fixture(backgroundScope)
+            val gate = CompletableDeferred<Unit>()
+            f.driver.action = { _, _ -> gate.await() }
+            val entered = CountDownLatch(1)
+            val release = CountDownLatch(1)
+            val revisions = java.util.Collections.synchronizedList(mutableListOf<Long>())
+            val block: (DocumentSyncProgress) -> Unit = {
+                revisions += it.revision
+                if (it.status == DocumentSyncProgressStatus.RUNNING && it.total == 2 && it.processed == 0) {
+                    entered.countDown()
+                    check(release.await(10, TimeUnit.SECONDS)) { "publication release timed out" }
+                }
+            }
+            val observation = if (blockChanges) f.tracker.changes.subscribe(block) else f.tracker.observe(block)
+            var publisher: Thread? = null
+            try {
+                f.starter.start(listOf("A"), emptyList())
+                runCurrent()
+                val oldSession = f.current.sessionId
+                publisher = thread(name = "public-state-blocker") { f.starter.start(listOf("B"), emptyList()) }
+                assertTrue(entered.await(5, TimeUnit.SECONDS))
+                when (action) {
+                    "stop" -> {
+                        f.starter.stop()
+                        assertEquals(DocumentSyncProgressStatus.CANCELLED, f.current.status, "stop returned stale public state")
+                        assertEquals(DocumentSyncInterruptionReason.USER_STOP, f.current.interruptionReason)
+                    }
+                    "start" -> {
+                        f.starter.stop()
+                        f.starter.start(listOf("C"), emptyList())
+                        assertEquals(oldSession + 1, f.current.sessionId, "start returned the old public session")
+                        assertEquals(DocumentSyncProgressStatus.RUNNING, f.current.status)
+                        assertEquals(1, f.current.total)
+                    }
+                    "expire" -> {
+                        f.expiration.single()()
+                        assertEquals(DocumentSyncProgressStatus.INTERRUPTED, f.current.status, "expiration returned stale public state")
+                        assertEquals(DocumentSyncInterruptionReason.BACKGROUND_EXPIRED, f.current.interruptionReason)
+                        assertEquals(listOf(1uL), f.ends, "attached UIKit task must end before expiration returns")
+                    }
+                }
+                val accepted = f.current
+                release.countDown()
+                publisher.join(5_000)
+                assertTrue(!publisher.isAlive)
+                assertEquals(accepted, f.current, "old publication must never regress public state")
+                assertEquals((revisions.first()..accepted.revision).toList(), revisions.toList(),
+                    "callback revisions must stay ordered and loss-free")
+            } finally {
+                release.countDown()
+                publisher?.join(5_000)
+                observation.cancel()
+                gate.complete(Unit)
+                f.starter.stop()
+                f.starter.awaitIdle()
+                f.subscription.cancel()
+            }
+        }
+    }
+
     @Test fun recreatedStarterUsesAppScopedSessionIds() = runTest {
         val tracker = DocumentSyncProgressTracker()
         repeat(2) {

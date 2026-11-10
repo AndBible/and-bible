@@ -138,6 +138,27 @@ class ActivityListTest {
         onAllNodesWithTag(ACTIVITY_LIST_ROW_TAG).assertCountEquals(2)
     }
 
+    @Test fun documentSyncLongTransferDetailsDoNotOverflowAtPhoneWidth() = runComposeUiTest {
+        val message = "Downloading FinRK2024StudyEditionWithStrongNumbers · 1234/5678 · 123456789/987654321 bytes"
+        val running = item("documents", message = message).copy(kind = ActivityKind.DOCUMENT_SYNC)
+        val retained = item("retained", ActivityState.INTERRUPTED, message = message)
+            .copy(kind = ActivityKind.DOCUMENT_SYNC)
+        setContent {
+            AbTheme(disableAnimations = true) { CompositionLocalProvider(LocalStrings provides strings) {
+                Box(Modifier.width(320.dp)) { ActivityListContent(listOf(running, retained), {}, {}, {}) }
+            } }
+        }
+        val nodes = onAllNodesWithText(message, useUnmergedTree = true).fetchSemanticsNodes()
+        assertEquals(2, nodes.size)
+        nodes.forEach { node ->
+            val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+            node.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+            assertEquals(1, layouts.size)
+            kotlin.test.assertFalse(layouts.single().hasVisualOverflow, "document initials, counts and bytes must remain visible")
+            kotlin.test.assertTrue(layouts.single().lineCount > 2, "fixture must exercise wrapping beyond the old two-line limit")
+        }
+    }
+
     @Test fun sectionsRunningAndRecent() = runComposeUiTest {
         content(listOf(item("r"), item("ok", ActivityState.SUCCEEDED), item("bad", ActivityState.FAILED, message = "boom")))
         onNodeWithText("Running").assertExists()

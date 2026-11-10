@@ -165,8 +165,9 @@ class HostDocumentSyncStarter private constructor(
     /** Called only inside acceptance. The terminal and error effects are queued before a new start. */
     private fun close(session: Session, reason: DocumentSyncInterruptionReason? = null) {
         if (active !== session) return
-        // Finish the coalesced error run before terminal observers can synchronously start a new run.
-        tracker.afterAcceptance { session.run.end(completed = reason == null) }
+        // Close the streak before releasing active; external producers may start while delivery is
+        // blocked. Only the error consumer call is deferred, before ordered terminal observations.
+        session.run.prepareEnd(completed = reason == null)?.let { tracker.afterAcceptance(it) }
         if (reason == null) tracker.finish(session.id) else tracker.interrupt(session.id, reason)
         queue.clear()
         active = null
@@ -224,6 +225,7 @@ class HostDocumentSyncStarter private constructor(
                         tracker.accepting {
                             if (active === session) {
                                 tracker.refreshFailure(session.id)
+                                session.run.noteSilentFailure()
                                 tracker.afterAcceptance { Log.w(TAG, "Cache refresh failed session=${session.id}") }
                             }
                         }

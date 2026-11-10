@@ -48,7 +48,21 @@ class DocumentSyncProgressTracker {
                 acceptanceDepth++
                 try { block() } finally { acceptanceDepth-- }
             }
-        } finally { drainEmissions() }
+        } finally {
+            publishAcceptedState()
+            drainEmissions()
+        }
+    }
+
+    private fun publishAcceptedState() {
+        val latest = synchronized(lock) { if (acceptanceDepth == 0) accepted else null } ?: return
+        while (true) {
+            val current = mutableState.value
+            if (current.revision >= latest.revision) return
+            // CAS can resume immediate collectors. Stay outside acceptance, and never let a delayed
+            // producer overwrite a newer revision published by another thread or a reentrant collector.
+            if (mutableState.compareAndSet(current, latest)) return
+        }
     }
 
     internal fun afterAcceptance(action: () -> Unit) = accepting { emissions.addLast(action) }
@@ -123,10 +137,9 @@ class DocumentSyncProgressTracker {
             accepted = next
             observers.forEach { it.pending.addLast(next) }
             emissions.addLast {
-                // StateFlow may synchronously resume Unconfined/immediate consumers: never set it
-                // inside acceptance. Keep a separate accepted snapshot for queue decisions/replay.
+                // Public state is already independent of this potentially slow callback FIFO.
+                // Atomic observations still wait for all earlier effects before delivering a revision.
                 synchronized(lock) { publishedRevision = next.revision }
-                mutableState.value = next
                 source.emit(next)
                 val ready = synchronized(lock) { observers.filter(::claimObserver) }
                 ready.forEach(::drainObserver)

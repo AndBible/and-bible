@@ -51,6 +51,20 @@ class SyncErrorReporterTest {
         assertTrue(shown[1].background, "A repeated error is never a foreground dialog")
     }
 
+    @Test fun anErrorConsumerStartingTheNextRunSeesTheClosedStreak() {
+        val messages = mutableListOf<UserMessage.ErrorNotification>()
+        lateinit var reentrant: SyncErrorReporter
+        reentrant = SyncErrorReporter { message ->
+            messages += message
+            if (messages.size == 1) reentrant.beginRun().apply {
+                report("second", background = false)
+                end()
+            }
+        }
+        reentrant.beginRun().apply { report("first", background = false); end() }
+        assertEquals(listOf(false, true), messages.map { it.repeated })
+    }
+
     @Test fun anInteractiveRunKeepsItsDialogEvenInAStreak() {
         failingRun()
         failingRun(quietRepeats = false)
