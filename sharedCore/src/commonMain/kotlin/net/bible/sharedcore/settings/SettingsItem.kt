@@ -112,7 +112,13 @@ sealed interface SettingsItem {
         override val visible: Boolean = true,
     ) : SettingsItem
 
-    data class Choice(val value: String, val label: String)
+    data class Choice(val value: String, val label: String, val font: ChoiceFont? = null)
+
+    /** Optional typeface preview; kept platform-neutral so ordinary choices need no UI dependency. */
+    sealed interface ChoiceFont {
+        data class Family(val name: String) : ChoiceFont
+        data class File(val path: String) : ChoiceFont
+    }
 }
 
 /** What the framework composable renders. Dialog state is screen-local, not here. */

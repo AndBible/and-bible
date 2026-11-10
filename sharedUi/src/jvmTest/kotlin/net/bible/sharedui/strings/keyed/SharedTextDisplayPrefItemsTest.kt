@@ -24,6 +24,7 @@ import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedlogic.settings.TextDisplayArray
 import net.bible.sharedlogic.settings.TextDisplayString
 import net.bible.sharedui.strings.lookup
@@ -282,7 +283,11 @@ AndBibleProvidesFont=Study Font;Study Font.ttf
             assertFalse(items.fonts.any { it.value == "Study Font" })
             installed = listOf(book); scanner.clearCaches()
             try {
-                assertTrue(items.fonts.any { it.value == "Study Font" }, "installed font must be offered, not only CSS generics")
+                assertEquals(
+                    SettingsItem.ChoiceFont.File(fs.canonicalize(file).toString()),
+                    items.fonts.single { it.value == "Study Font" }.font,
+                    "the native preview must use the same installed file as the module font",
+                )
                 items.item(bundle, Types.FONTFAMILY).value = "Study Font"
                 val restored = SettingsBundle.fromJson(bundle.toJson())
                 assertEquals("Study Font", items.item(restored, Types.FONTFAMILY).value)
