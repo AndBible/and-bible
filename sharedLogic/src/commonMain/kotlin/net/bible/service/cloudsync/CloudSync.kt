@@ -136,7 +136,9 @@ class CloudSync(
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
-    val signedIn get() = adapterAvailable && !signInMutex.isLocked && _adapter?.signedIn == true
+    // adapterAvailable reads settings, so it goes last: callers such as BackupControl.beforeRestore ask while the
+    // databases are being replaced, and an adapter that never signed in must answer without touching them.
+    val signedIn get() = !signInMutex.isLocked && _adapter?.signedIn == true && adapterAvailable
 
     /**
      * The adapter document sync may use: waits out a sign-in that is running, then returns the adapter only when it is
@@ -154,7 +156,7 @@ class CloudSync(
             // caller holds the lock for a single read. Poll briefly instead of returning early or spinning hot.
             if (running != null && !running.isCompleted) running.await() else kotlinx.coroutines.delay(1)
         }
-        return _adapter?.takeIf { adapterAvailable && it.signedIn }
+        return _adapter?.takeIf { it.signedIn && adapterAvailable }
     }
 
     val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
