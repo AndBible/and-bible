@@ -81,7 +81,7 @@ class UnavailableSyncAdapterTest {
     }
 
     @Test fun unavailableOrUnknownStoredAdapterDoesNotCreateForegroundOrBackgroundAdapter() = runBlocking {
-        for (id in listOf("GOOGLE_DRIVE", "UNKNOWN", "")) Fixture(id).use { f ->
+        for (id in listOf("GOOGLE_DRIVE", "UNKNOWN")) Fixture(id).use { f ->
             assertEquals(false, f.cloud.signIn())
             assertEquals(false, f.cloud.signIn(background = true))
             assertEquals(0, f.creates)
@@ -106,6 +106,14 @@ class UnavailableSyncAdapterTest {
             assertEquals(true, f.cloud.signIn(background = true))
             assertEquals(1, f.backgroundCreates)
             assertNull(f.values["sync_adapter"], "Reading the default must not persist it")
+        }
+        // An empty stored id (legacy imports, old backups) is "never chosen", not an unsupported backend.
+        Fixture("").use { f ->
+            assertTrue(f.factory.isAvailable(f.settings))
+            assertEquals("NEXT_CLOUD", f.cloud.adapterId)
+            assertEquals(true, f.cloud.signIn(background = true))
+            assertEquals(1, f.backgroundCreates)
+            assertEquals("", f.values["sync_adapter"], "Reading the default must not persist it")
         }
     }
 

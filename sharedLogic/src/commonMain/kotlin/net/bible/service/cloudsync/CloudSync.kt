@@ -93,7 +93,7 @@ class CloudSync(
 ) {
     var adapterId: String
         // An unavailable saved backend is disabled, never replaced by a different account/backend.
-        get() = settings.getString("sync_adapter") ?: adapters.available.firstOrNull().orEmpty()
+        get() = settings.getString("sync_adapter")?.takeIf { it.isNotEmpty() } ?: adapters.available.firstOrNull().orEmpty()
         set(value) {
             if (value != adapterId) _adapter = null
             settings.setString("sync_adapter", value)
