@@ -54,6 +54,15 @@ class MyBibleCompareDocumentTest {
         val factory = FakeBookFactory(strings)
         Dispatchers.setMain(Dispatchers.Unconfined)
         startKoin { modules(module {
+            single<net.bible.sharedcore.platform.AppDirectories> {
+                object : net.bible.sharedcore.platform.AppDirectories {
+                    override val internalFilesDir = root.resolve("internal").path.toPath()
+                    override val modulesDir = root.path.toPath()
+                    override val manualInstallDir = modulesDir
+                    override val manualInstallDir2 = modulesDir
+                    override val manualReadingPlanDir = modulesDir
+                }
+            }
             single<CoreStrings> { strings }
             single { factory }
             single<ReadOnlyModuleDbOpener> { HostReadOnlyModuleDbOpener() }
