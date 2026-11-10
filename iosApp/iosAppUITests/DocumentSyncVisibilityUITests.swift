@@ -278,12 +278,13 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
                 XCTFail("Single compact sync has no path to full details"); return
             }
             let initialShowAll = showAll.frame
+            let initialProgress = ring.value as? String
             ui.shot(app, "compact-sync-menu-before-update")
             let changed = NSPredicate { _, _ in
-                summary.exists && summary.isHittable && summary.frame == initial
+                ring.exists && (ring.value as? String) != initialProgress && summary.exists
             }
-            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: changed, object: app)], timeout: 10), .completed)
-            Thread.sleep(forTimeInterval: 8)
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: changed, object: app)], timeout: 30), .completed,
+                           "Real transfer progress must change while the menu is open")
             XCTAssertEqual(summary.frame, initial, "Live transfer updates must not resize the compact row")
             XCTAssertEqual(showAll.frame, initialShowAll, "Live updates must not move later menu rows")
             ui.shot(app, "compact-sync-menu-after-update")
@@ -294,7 +295,21 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
                 format: "label CONTAINS %@ AND label CONTAINS %@ AND label CONTAINS %@",
                 "operations", "Downloading", "bytes received")).firstMatch
             guard fullDetails.waitForExistence(timeout: 15) else { XCTFail("Full activity view lost document/byte details"); return }
-            XCTAssertNotEqual(fullDetails.label, oldDetails, "Fixture must produce real changing transfer progress")
+            let detailPattern = #"Downloading ([^:]+): ([0-9]+)(?: / [0-9]+)? bytes received"#
+            let regex = try NSRegularExpression(pattern: detailPattern)
+            func detail(_ value: String) -> (String, Int64)? {
+                let range = NSRange(value.startIndex..., in: value)
+                guard let match = regex.firstMatch(in: value, range: range),
+                      let nameRange = Range(match.range(at: 1), in: value),
+                      let bytesRange = Range(match.range(at: 2), in: value),
+                      let bytes = Int64(value[bytesRange]) else { return nil }
+                return (String(value[nameRange]), bytes)
+            }
+            guard let before = detail(oldDetails), let after = detail(fullDetails.label) else {
+                XCTFail("Full details must retain the active document name and numeric byte counts"); return
+            }
+            XCTAssertFalse(after.0.isEmpty)
+            XCTAssertTrue(after.0 != before.0 || after.1 > before.1, "Actual document or numeric byte progress must advance")
             ui.shot(app, "compact-sync-full-details")
             return
         }
