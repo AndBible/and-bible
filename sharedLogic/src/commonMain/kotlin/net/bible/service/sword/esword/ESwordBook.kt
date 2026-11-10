@@ -258,7 +258,7 @@ val eSwordBible = object : BookType("ESwordBible", BookCategory.BIBLE, KeyType.V
     }
 }
 
-fun addESwordBook(file: Path) {
+fun addESwordBook(file: Path, startupDiscovery: Boolean = false) {
     if (!KFiles.isFile(file)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try {
@@ -278,13 +278,13 @@ fun addESwordBook(file: Path) {
         metadata.indexStatus = IndexStatus.UNDONE
     }
 
-    Books.installed().addBook(book)
+    net.bible.service.sword.registerBook(book, startupDiscovery)
 }
 
 /** The `esword` module folder, resolved through the [AppDirectories] port at call time. */
 internal fun eSwordModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "esword"
 
-fun addManuallyInstalledESwordBooks() {
+fun addManuallyInstalledESwordBooks(startupDiscovery: Boolean = false) {
     val dir = eSwordModulesDir()
     if (!KFiles.isDirectory(dir)) return
 
@@ -294,7 +294,7 @@ fun addManuallyInstalledESwordBooks() {
         if (KFiles.isFile(f)) {
             val lower = f.name.lowercase()
             if (lower.endsWith(".bblx") || lower.endsWith(".bbli")) {
-                addESwordBook(f)
+                addESwordBook(f, startupDiscovery)
             }
         }
     }

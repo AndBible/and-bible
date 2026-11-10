@@ -474,7 +474,7 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     }
 }
 
-fun addMyBibleBook(file: Path) {
+fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
     if(!KFiles.isFile(file)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
@@ -496,13 +496,13 @@ fun addMyBibleBook(file: Path) {
         metadata.indexStatus = IndexStatus.UNDONE
     }
 
-    Books.installed().addBook(book)
+    net.bible.service.sword.registerBook(book, startupDiscovery)
 }
 
 /** The `mybible` module folder, resolved through the [AppDirectories] port at call time. */
 @VisibleForTesting fun myBibleModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mybible"
 
-fun addManuallyInstalledMyBibleBooks() {
+fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
     val dir = myBibleModulesDir()
     if(!KFiles.isDirectory(dir)) return
     // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
@@ -510,7 +510,7 @@ fun addManuallyInstalledMyBibleBooks() {
 
     for(f in FileSystem.SYSTEM.listRecursively(dir)) {
         if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".sqlite3")) {
-            addMyBibleBook(f)
+            addMyBibleBook(f, startupDiscovery)
         }
     }
 }

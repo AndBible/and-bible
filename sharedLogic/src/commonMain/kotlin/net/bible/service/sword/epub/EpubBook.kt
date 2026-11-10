@@ -247,12 +247,12 @@ internal fun retireOwnedEpubModule(epubDir: Path) {
     deleteAppDatabase(appDbFilename)
 }
 
-fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment) {
+fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment, startupDiscovery: Boolean = false) {
     val owner = moduleOwner(epubDir)
     if (!owner.tryLock()) return // Discovery must not reopen a retiring or partially extracted module.
     try {
         try {
-            addOwnedEpubBook(epubDir, strings, environment)
+            addOwnedEpubBook(epubDir, strings, environment, startupDiscovery)
         } catch (e: Exception) {
             deleteOwnedEpubModule(epubDir)
             throw e
@@ -262,7 +262,7 @@ fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment
     }
 }
 
-internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment) {
+internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment, startupDiscovery: Boolean = false) {
     if(!KFiles.isDirectory(epubDir)) return
 
     val optimizeLockFile = epubDir / "optimize.lock"
@@ -294,13 +294,13 @@ internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: 
     // real, still-OPEN defect (initialization ORDER, not this hunk); fixing it means reordering that
     // constructor, which is its own round — see `docs/superpowers/status/compose-port-status.md`.
 
-    Books.installed().addBook(book)
+    net.bible.service.sword.registerBook(book, startupDiscovery)
 }
 
 /** The `epub` module folder, resolved through the [AppDirectories] port at call time. */
 @VisibleForTesting fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub"
 
-fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
+fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment, startupDiscovery: Boolean = false): Boolean {
     val dir = epubModulesDir()
     // Put back an old module that an interrupted replacement left set aside, before the scan registers what is there.
     sweepStaleEpubStagingDirs(dir.parent!!)
@@ -310,7 +310,7 @@ fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironm
 
     for(f in KFiles.list(dir).map { dir / it }) {
         try {
-            addEpubBook(f, strings, environment)
+            addEpubBook(f, strings, environment, startupDiscovery)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
             ok = false

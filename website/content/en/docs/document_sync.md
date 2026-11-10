@@ -58,6 +58,14 @@ transfers then run in the background.
 If there is nothing to transfer yet, the dialog says so — newly installed
 documents will still sync automatically from then on.
 
+Reopening the app discovers the documents already installed on the device; this
+is not a new installation and does not queue a separate upload check for each
+MyBible or EPUB document. The normal sync scan still finds local-only documents,
+newer document versions and documents available to download from the cloud.
+Unfinished transfers remain eligible for a later sync. Updates are compared using
+the document's version metadata; changing content without changing its version
+does not by itself make it a newer document.
+
 !!! note
 
     Once enabled, document sync is **automatic**. There is no separate “automatic”

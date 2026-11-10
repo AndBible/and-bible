@@ -70,6 +70,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseHost
 import net.bible.service.db.FakeDatabaseHost
 import net.bible.service.db.newTestDir
+import net.bible.service.db.exec
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
@@ -258,6 +259,60 @@ class ReadingAppInitTest {
         assertEquals(1, installs[0], "book installers ran once")
         assertEquals(1, platform.starts, "platform start ran once")
         assertEquals(1, platform.sweeps, "index sweep ran once")
+    }
+
+    @Test
+    fun startupDiscoversMyBibleWithoutAnInstallEvent() = runTest(timeout = 10.minutes) {
+        val root = Files.createTempDirectory("startup-document-discovery").toFile()
+        val dirs = object : AppDirectories {
+            override val internalFilesDir = root.resolve("internal").path.toPath()
+            override val modulesDir = root.resolve("modules").path.toPath()
+            override val manualInstallDir = root.resolve("manual").path.toPath()
+            override val manualInstallDir2 = root.resolve("manual2").path.toPath()
+            override val manualReadingPlanDir = root.resolve("plans").path.toPath()
+        }
+        KoinPlatform.getKoin().loadModules(listOf(module {
+            single<AppDirectories> { dirs }
+            single<CoreStrings> { unused() }
+            single<AppEnvironment> { unused() }
+        }))
+        KoinPlatform.getKoin().loadModules(listOf(module {
+            single<net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener> {
+                net.bible.sharedlogic.platform.host.HostReadOnlyModuleDbOpener()
+            }
+        }))
+        val file = root.resolve("modules/mybible/Discovery4036.SQLite3").apply { parentFile.mkdirs() }
+        net.bible.service.db.openSqlite(file.path).use { db ->
+            db.exec("CREATE TABLE info (name TEXT, value TEXT)")
+            db.exec("INSERT INTO info VALUES ('description', 'Startup discovery fixture')")
+            db.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+        }
+        ReadingAppInit.loadStores = { }
+        ReadingAppInit.loadDocumentSyncSettings = { }
+        ReadingAppInit.hasInstalledBible = { false }
+        val events = mutableListOf<org.crosswire.jsword.book.BooksEvent>()
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {
+                if (ev.book?.initials?.contains("Discovery4036") == true) events += ev
+            }
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) = Unit
+        }
+        Books.installed().addBooksListener(listener)
+        try {
+            repeat(2) {
+                ReadingAppInit.reset()
+                ReadingAppInit.initialise(platform)
+                assertEquals(true, events.last().startupDiscovery, "cold startup must not look like installation")
+                Books.installed().getBook(events.last().book!!.initials)?.let { Books.installed().removeBook(it) }
+            }
+            net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks()
+            assertEquals(listOf(true, true, false), events.map { it.startupDiscovery },
+                "installer/restore scans must retain installation semantics by default")
+        } finally {
+            Books.installed().removeBooksListener(listener)
+            events.lastOrNull()?.book?.initials?.let { Books.installed().getBook(it) }?.let { Books.installed().removeBook(it) }
+            root.deleteRecursively()
+        }
     }
 
     @Test

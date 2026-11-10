@@ -269,10 +269,10 @@ object ReadingAppInit {
 
     private fun installManualBooksFromKoin() {
         val koin = KoinPlatform.getKoin()
-        addManuallyInstalledMyBibleBooks()
-        addManuallyInstalledMySwordBooks()
-        addManuallyInstalledESwordBooks()
-        addManuallyInstalledEpubBooks(koin.get<CoreStrings>(), koin.get<AppEnvironment>())
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        addManuallyInstalledMySwordBooks(startupDiscovery = true)
+        addManuallyInstalledESwordBooks(startupDiscovery = true)
+        addManuallyInstalledEpubBooks(koin.get<CoreStrings>(), koin.get<AppEnvironment>(), startupDiscovery = true)
         addManuallyInstalledTtfBooks()
         addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()

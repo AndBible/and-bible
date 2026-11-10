@@ -140,6 +140,48 @@ class BookInstallWatcherTest {
     }
 
     @Test
+    fun `startup discovery queues no pushes and a subsequent real install still does`() = runBlocking {
+        val scope = AppCoroutineScope()
+        val launcher = OrderedLauncher(scope)
+        val settings = KoinJavaComponent.get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
+        settings.ensureLoaded()
+        settings.enabled = true
+        settings.wifiOnly = false
+        settings.autoUpload = true
+        val pushed = java.util.Collections.synchronizedList(mutableListOf<String>())
+        val recordingStarter = object : DocumentSyncStarter by starter {
+            override fun pushDocuments(initials: List<String>) { pushed.addAll(initials) }
+        }
+        val watcher = BookInstallWatcher(launcher, recordingStarter,
+            KoinJavaComponent.get(DocumentSyncProvider::class.java), settings, catalog)
+        val book = Books.installed().getBooks().first { it.isSyncableDocument }
+        val release = CompletableDeferred<Unit>()
+        val discoveryListener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: BooksEvent) {
+                if (ev.book === book) watcher.listener.bookAdded(ev)
+            }
+            override fun bookRemoved(ev: BooksEvent) = Unit
+        }
+        Books.installed().addBooksListener(discoveryListener)
+        try {
+            launcher.launch("book-install-auto-upload") { release.await() }
+            repeat(2) { net.bible.service.sword.registerBook(book, startupDiscovery = true) }
+            // Origin must be captured before the registration scope ends, not read by the deferred job.
+            release.complete(Unit)
+            withTimeout(30_000) { launcher.join("book-install-auto-upload"); watcher.awaitPendingInstalls() }
+            assertEquals("startup discovery must not enqueue remote checks", emptyList<String>(), pushed)
+            assertNotNull("discovery must still update the backup database", docDao.getBook(book.initials))
+            net.bible.service.sword.registerBook(book)
+            withTimeout(30_000) { launcher.join("book-install-auto-upload"); watcher.awaitPendingInstalls() }
+            assertEquals("a real reinstall of the same version must still enqueue", listOf(book.initials), pushed)
+        } finally {
+            release.complete(Unit)
+            Books.installed().removeBooksListener(discoveryListener)
+            scope.coroutineContext[Job]!!.cancel()
+        }
+    }
+
+    @Test
     fun `deferred auto upload keeps sync install echo suppressed`() = runBlocking {
         val scope = AppCoroutineScope()
         val launcher = OrderedLauncher(scope)

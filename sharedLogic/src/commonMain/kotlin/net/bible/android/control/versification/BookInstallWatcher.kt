@@ -95,10 +95,13 @@ class BookInstallWatcher(
             // Capture the install origin while JSword is still inside the sync install callback;
             // the guard may be removed before the deferred preferences load completes.
             val installedFromSync = book.isSyncableDocument && documentSync.get().isInstallingFromSync(book.initials)
+            // Capture the event's origin now: deferred work must not mistake startup discovery for an install.
+            val startupDiscovery = ev.startupDiscovery
             launcher.launch("book-install-auto-upload") {
                 DatabaseContainer.writeGate.pass {
                     documentSettings.ensureLoaded()
                     if (book.isSyncableDocument
+                        && !startupDiscovery
                         && !installedFromSync
                         && shouldAutoUpload(
                             documentSettings.enabled,

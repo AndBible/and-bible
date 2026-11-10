@@ -141,6 +141,37 @@ class EpubBackendStateTest {
         return epubDir
     }
 
+    @Test
+    fun startupDiscoveryRetainsEpubFilesWithoutReportingANewInstall() {
+        val dir = buildEpub("issue-4036-startup.epub")
+        val books = org.crosswire.jsword.book.Books.installed()
+        val initials = epubInitials(dir.name)
+        val origins = mutableListOf<Boolean>()
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {
+                if (ev.book?.initials == initials) origins += ev.startupDiscovery
+            }
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) = Unit
+        }
+        books.addBooksListener(listener)
+        fun unregister() {
+            books.getBook(initials)?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+        }
+        try {
+            repeat(2) {
+                addManuallyInstalledEpubBooks(testCoreStrings(), AndroidAppEnvironment(application), startupDiscovery = true)
+                val book = books.getBook(initials)!!
+                assertTrue(book.getRawText(book.epubBackend!!.state.keys.first()).contains("first chapter"))
+                unregister()
+            }
+            addManuallyInstalledEpubBooks(testCoreStrings(), AndroidAppEnvironment(application))
+            assertEquals("only startup discovery skips install semantics", listOf(true, true, false), origins)
+        } finally {
+            books.removeBooksListener(listener)
+            unregister()
+        }
+    }
+
     private fun newState(dir: File) = openState(dir)
 
     /** Opens a state on a fixture-built EPUB directory; [tearDown] retires it before deleting its files. */
