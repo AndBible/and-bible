@@ -223,6 +223,45 @@ test_bad_destination_refuses() {
     called xcodebuild && return "$(fail "xcodebuild ran")"
     return 0
 }
+mk_archive() {   # mk_archive <build> <version>: a previous run's archive on the Mac
+    local app="$W/build/release/AndBible-$1.xcarchive/Products/Applications/AndBible.app"
+    mkdir -p "$app"; printf 'CFBundleVersion=%s\nCFBundleShortVersionString=%s\n' "$1" "$2" > "$app/Info.plist"
+}
+test_reuse_skips_archive_steps() {
+    mk_tree; mk_archive "$BUILD" "$VERSION"; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out.txt")")"
+    grep -q ' archive' "$STUB_DIR/xcodebuild.argv" && grep -v exportArchive "$STUB_DIR/xcodebuild.argv" | grep -q . \
+        && return "$(fail "archive ran: $(cat "$STUB_DIR/xcodebuild.argv")")"
+    called npm && return "$(fail "bibleview built")"
+    called xcodegen && return "$(fail "xcodegen ran")"
+    grep -q -- '--entitlements' "$STUB_DIR/calls" && grep -q 'codesign --force' "$STUB_DIR/calls" && return "$(fail "re-signed")"
+    [ -e "$STUB_DIR/upload-called" ] || return "$(fail "no upload")"
+    grep -q 'exportPath [^ ]*export' "$STUB_DIR/xcodebuild.argv" || return "$(fail "no fresh export")"
+    [ "$(tail -1 "$(SUM)")" = "result=PASS upload" ] || return "$(fail "summary: $(cat "$(SUM)")")"
+}
+test_reuse_missing_archive_exits_3() {
+    mk_tree; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
+    [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3: $(cat "$T/out.txt")")"
+    called xcodebuild && return "$(fail "xcodebuild ran")"
+    grep -q 'detach\|eject' "$STUB_DIR/detach.calls" || return "$(fail "volume not detached")"
+}
+test_reuse_version_mismatch_exits_3() {
+    mk_tree; mk_archive "$BUILD" 6.0.1249; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
+    [ "$RC" = 3 ] || return "$(fail "version mismatch: rc=$RC")"
+    mk_tree; mk_archive 2026.1105.999999 "$VERSION"
+    mkdir -p "$W/build/release/AndBible-$BUILD.xcarchive/Products/Applications/AndBible.app"
+    printf 'CFBundleVersion=1\nCFBundleShortVersionString=%s\n' "$VERSION" > "$W/build/release/AndBible-$BUILD.xcarchive/Products/Applications/AndBible.app/Info.plist"
+    run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload reuse
+    [ "$RC" = 3 ] || return "$(fail "build mismatch: rc=$RC")"
+    called xcodebuild && return "$(fail "xcodebuild ran")"
+    return 0
+}
+test_bad_ninth_argument_refuses() {
+    mk_tree; run_args "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" upload bogus
+    [ "$RC" = 2 ] || return "$(fail "rc=$RC")"
+    called xcodebuild && return "$(fail "xcodebuild ran")"
+    return 0
+}
 
 for t in $(declare -F | awk '{print $3}' | grep '^test_'); do
     [ -z "$FILTER" ] || [[ "$t" == *"$FILTER"* ]] || continue

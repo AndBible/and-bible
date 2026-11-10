@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Tests for scripts/release/ios-build.sh and lib-secrets.sh without a Mac, key or YubiKey: ssh, gpg and mac-remote.sh
-# are stubs on PATH / via MAC_REMOTE, the repo is a temp git repo with real (local) submodules.
+# Tests for scripts/release/ios-build.sh without a Mac, key or YubiKey: ssh, gpg and mac-remote.sh are stubs on PATH /
+# via MAC_REMOTE, the repo is a temp git repo with real (local) submodules, and the caller's opened secrets bundle is a
+# prepared directory (RELEASE_SECRETS_DIR) that ios-build.sh must read but never close.
 # Run: bash scripts/release/tests/test-ios-build.sh [name-filter]
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -42,7 +43,7 @@ check) cat "$STUB_DIR/check.out" ;;
 run) b=$(echo "$2" | awk '{print $7}')
     if [ "${STUB_CAPTURE:-1}" = 1 ] && [ -z "${STUB_RUN_SLEEP:-}" ]; then
         d="$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-$b"; mkdir -p "$d/export" "$d/ipa" "$d/upload"
-        echo "build log" > "$d/archive.log"; echo "result=PASS upload" > "$d/summary.txt"; echo ents > "$d/release.entitlements"
+        echo "build log" > "$d/archive.log"; echo "${STUB_SUMMARY:-result=PASS upload}" > "$d/summary.txt"; echo ents > "$d/release.entitlements"
         echo ipaents > "$d/ipa-entitlements.txt"; echo big > "$d/export/AndBible.ipa"; echo big > "$d/ipa/x"; echo big > "$d/upload/y"
         mkdir -p "$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-OTHER"; echo other > "$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-OTHER/summary.txt"
     fi
@@ -51,8 +52,12 @@ fetch) exit "${STUB_FETCH_RC:-0}" ;;
 esac
 EOS
 chmod +x "$T/bin/"*  "$T/mac-remote"
-printf 'ASC_KEY_ID=KEYID12345\nASC_ISSUER_ID=issuer-0000\n' > "$T/secrets/asc-api.env"
-: > "$T/secrets/AuthKey_KEYID12345.p8.gpg"
+mk_sess() {   # the caller's opened bundle (only the members ios-build.sh reads)
+    rm -rf "$T/sess"; mkdir -m 700 "$T/sess"
+    printf 'ASC_KEY_ID=KEYID12345\nASC_ISSUER_ID=issuer-0000\nASC_TEAM_ID=X6A6CDK8T7\n' > "$T/sess/asc-api.env"
+    echo "$SENTINEL" > "$T/sess/AuthKey.p8"
+}
+sess_intact() { [ "$(cat "$T/sess/AuthKey.p8" 2>/dev/null)" = "$SENTINEL" ] && [ -s "$T/sess/asc-api.env" ]; }
 
 mk_repo() {   # fresh temp repo with jsword, kdom, docs/superpowers submodules
     R="$T/repo"; rm -rf "$R" "$T/sub" "$STUB_DIR" "$T/maclocal"; mkdir -p "$STUB_DIR" "$T/sub"
@@ -71,27 +76,29 @@ mk_repo() {   # fresh temp repo with jsword, kdom, docs/superpowers submodules
     git -c protocol.file.allow=always submodule add -q "$T/sub/superpowers" app/src/test/roborazzi
     git add -A; git commit -q -m init
     echo "build lock: free" > "$STUB_DIR/check.out"
+    mk_sess
 }
 build() {   # build [args]: run ios-build with the stubs; output in $T/out, status in $RC
     PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
-        MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac bash "$SCRIPT" "$@" > "$T/out" 2>&1
+        RELEASE_SECRETS_DIR="${SESS-$T/sess}" MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac bash "$SCRIPT" "$@" > "$T/out" 2>&1
     RC=$?
 }
 ramdirs() { find "$T/tmp" -mindepth 1 -maxdepth 1 | wc -l; }
 count() { [ -f "$1" ] && wc -l < "$1" || echo 0; }
 
 test_dry_run_order() {
-    mk_repo; build --dry-run || true
+    mk_repo; SESS="" build --dry-run || true
     [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
     local o; o=$(grep -n '' "$T/out")
     local a b c d e f
-    a=$(grep -n '^build ' "$T/out" | cut -d: -f1); b=$(grep -n 'gpg --decrypt' "$T/out" | cut -d: -f1)
+    a=$(grep -n '^build ' "$T/out" | cut -d: -f1)
     c=$(grep -n 'ram://40960' "$T/out" | cut -d: -f1); d=$(grep -n 'archive.sh' "$T/out" | cut -d: -f1)
     e=$(grep -n ' fetch ' "$T/out" | cut -d: -f1); f=$(grep -n 'EXIT trap' "$T/out" | cut -d: -f1)
-    [ -n "$a" ] && [ "$a" -lt "$b" ] && [ "$b" -lt "$c" ] && [ "$c" -lt "$d" ] && [ "$d" -lt "$e" ] && [ "$e" -lt "$f" ] \
+    [ -n "$a" ] && [ "$a" -lt "$c" ] && [ "$c" -lt "$d" ] && [ "$d" -lt "$e" ] && [ "$e" -lt "$f" ] \
         || return "$(fail "order wrong: $o")"
-    grep -q '<ramdir>/key.p8' "$T/out" || return "$(fail "no <ramdir>/key.p8")"
+    grep -q '< <session>/AuthKey.p8' "$T/out" || return "$(fail "no <session>/AuthKey.p8")"
+    grep -q 'gpg' "$T/out" && return "$(fail "dry run mentions gpg")"
     grep -q '^version 6.0.1250$' "$T/out" && grep -q "^commit $(git rev-parse --short=10 HEAD)$" "$T/out" || return "$(fail "version/commit lines: $(cat "$T/out")")"
     grep -q 'X6A6CDK8T7 .* 6.0.1250 .* upload"' "$T/out" || return "$(fail "archive argv: $(grep archive.sh "$T/out")")"
     [ "$(count "$STUB_DIR/mrcalls")" = 1 ] && [ "$(cat "$STUB_DIR/mrcalls")" = check ] || return "$(fail "mac-remote calls: $(cat "$STUB_DIR/mrcalls")")"
@@ -131,19 +138,13 @@ test_fetch_fallback_when_capture_missing() {
     export STUB_CAPTURE=0 STUB_FETCH_RC=1 STUB_RUN_RC=4; build; unset STUB_CAPTURE STUB_FETCH_RC STUB_RUN_RC
     [ "$RC" = 4 ] || return "$(fail "run rc lost: $RC")"
 }
-test_tree_edited_during_decrypt_refuses() {
-    mk_repo; export STUB_GPG_DIRTY=1; build; unset STUB_GPG_DIRTY
-    [ "$RC" != 0 ] && grep -q 'not clean' "$T/out" || return "$(fail "rc=$RC $(cat "$T/out")")"
-    ! grep -qx run "$STUB_DIR/mrcalls" || return "$(fail "run called on an edited tree")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
-}
 test_detach_ssh_is_bounded() {
     mk_repo; export STUB_DETACH_SLEEP=30 STUB_DETACH_EXEC=1 MAC_DETACH_TIMEOUT=1 MAC_DETACH_KILL_AFTER=1
     local t0=$SECONDS; build; unset STUB_DETACH_SLEEP STUB_DETACH_EXEC MAC_DETACH_TIMEOUT MAC_DETACH_KILL_AFTER
     [ $((SECONDS - t0)) -lt 15 ] || return "$(fail "stalled detach not bounded: $((SECONDS - t0))s")"
     grep -q 'WARNING: could not detach' "$T/out" || return "$(fail "no warning: $(cat "$T/out")")"
     grep -q 'ServerAliveInterval=10' "$STUB_DIR/argv" && grep -q 'ServerAliveCountMax=3' "$STUB_DIR/argv" || return "$(fail "no keepalive options")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+    sess_intact || return "$(fail "caller secrets dir touched")"
 }
 test_dirty_parent_refuses() {
     mk_repo; echo x > untracked.txt; build
@@ -184,7 +185,7 @@ test_detach_on_run_failure() {
     [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3")"
     grep -q 'hdiutil detach' "$STUB_DIR/argv" || return "$(fail "no detach")"
     grep -q 'testflight rc=3' "$T/out" || return "$(fail "final line")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+    sess_intact || return "$(fail "caller secrets dir touched")"
     # stream failure: detach too
     mk_repo; export STUB_SSH_RC=1; build; unset STUB_SSH_RC
     [ "$RC" != 0 ] && [ "$(grep -c 'hdiutil detach' "$STUB_DIR/argv")" -ge 1 ] || return "$(fail "no detach after stream failure rc=$RC")"
@@ -194,7 +195,7 @@ test_detach_on_interrupt() {
     mk_repo; export STUB_RUN_SLEEP=20 STUB_RUN_MARK="$T/runmark"; rm -f "$T/runmark"
     PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
-        MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
+        RELEASE_SECRETS_DIR="$T/sess" MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
         perl -e '$SIG{INT}="DEFAULT"; setpgrp(0,0); exec @ARGV' bash "$SCRIPT" > "$T/out" 2>&1 &
     local pid=$! i
     unset STUB_RUN_SLEEP STUB_RUN_MARK
@@ -204,13 +205,13 @@ test_detach_on_interrupt() {
     wait "$pid"; RC=$?
     [ "$RC" = 130 ] || return "$(fail "rc=$RC, want 130: $(cat "$T/out")")"
     grep -q 'hdiutil detach' "$STUB_DIR/argv" || return "$(fail "no detach after SIGINT")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+    sess_intact || return "$(fail "caller secrets dir touched")"
 }
 test_second_interrupt_during_detach() {
     mk_repo; export STUB_RUN_SLEEP=20 STUB_RUN_MARK="$T/runmark" STUB_DETACH_SLEEP=2; rm -f "$T/runmark"
     PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
-        MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
+        RELEASE_SECRETS_DIR="$T/sess" MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
         perl -e '$SIG{INT}="DEFAULT"; setpgrp(0,0); exec @ARGV' bash "$SCRIPT" > "$T/out" 2>&1 &
     local pid=$! i
     unset STUB_RUN_SLEEP STUB_RUN_MARK STUB_DETACH_SLEEP
@@ -223,7 +224,7 @@ test_second_interrupt_during_detach() {
     wait "$pid"; RC=$?
     [ -e "$STUB_DIR/detach-done" ] || return "$(fail "detach interrupted by the second SIGINT")"
     [ "$RC" = 130 ] || return "$(fail "rc=$RC, want 130")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+    sess_intact || return "$(fail "caller secrets dir touched")"
 }
 test_failed_detach_warns() {
     mk_repo
@@ -235,15 +236,52 @@ test_failed_detach_warns() {
     grep -q 'WARNING: could not detach /Volumes/asckey-' "$T/out" || return "$(fail "no warning on failed detach: $(cat "$T/out")")"
     grep -q '! -e /Volumes/asckey-' "$STUB_DIR/argv" || return "$(fail "remote command does not verify the volume is gone")"
 }
-test_ramdir_gone_after_success() {
+test_no_gpg_called_by_ios_build() {
     mk_repo; build
-    [ "$RC" = 0 ] && [ "$(ramdirs)" = 0 ] || return "$(fail "rc=$RC ramdirs=$(ramdirs)")"
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    [ "$(count "$STUB_DIR/gpgcalls")" = 0 ] || return "$(fail "gpg ran")"
 }
-test_ramdir_gone_after_failed_decrypt() {
-    mk_repo; export STUB_GPG_RC=2; build; unset STUB_GPG_RC
-    [ "$RC" != 0 ] || return "$(fail "success despite failed decrypt")"
-    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left: $(ls "$T/tmp")")"
-    [ ! -e "$STUB_DIR/calls" ] || return "$(fail "ssh ran after failed decrypt")"
+test_refuses_without_secrets_dir() {
+    mk_repo; SESS="" build
+    [ "$RC" != 0 ] && grep -q 'secrets bundle' "$T/out" || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    [ ! -e "$STUB_DIR/calls" ] || return "$(fail "ssh ran")"
+    ! grep -qx run "$STUB_DIR/mrcalls" 2>/dev/null || return "$(fail "mac-remote run called")"
+}
+test_does_not_close_caller_dir() {
+    mk_repo; build
+    [ "$RC" = 0 ] && sess_intact || return "$(fail "after success: rc=$RC, $(ls -la "$T/sess" 2>&1)")"
+    export STUB_RUN_RC=1; build; unset STUB_RUN_RC
+    [ "$RC" = 1 ] && sess_intact || return "$(fail "after failure: rc=$RC, $(ls -la "$T/sess" 2>&1)")"
+    export STUB_SSH_RC=1; build; unset STUB_SSH_RC
+    [ "$RC" != 0 ] && sess_intact || return "$(fail "after a stream failure")"
+}
+test_reuse_passes_build_and_flag() {
+    mk_repo; build --reuse 2026.1110.101010
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    grep -q "^mac-remote run .* 2026.1110.101010 6.0.1250 $(git rev-parse --short=10 HEAD) upload reuse\$" "$STUB_DIR/argv" \
+        || return "$(fail "argv: $(grep 'mac-remote run' "$STUB_DIR/argv")")"
+    grep -qx 'build 2026.1110.101010' "$T/out" || return "$(fail "build line: $(grep '^build' "$T/out")")"
+    build --reuse 'bad;rm' ; [ "$RC" = 2 ] || return "$(fail "malformed reuse build accepted: rc=$RC")"
+}
+test_reuse_exit3_passed_through() {
+    mk_repo; export STUB_RUN_RC=3; build --reuse 2026.1110.101010; unset STUB_RUN_RC
+    [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3")"
+}
+iosenv() { echo "$R/.local/release/1250/ios/artifact.env"; }
+test_artifact_env_written_after_archive() {
+    mk_repo; export STUB_SUMMARY="result=PASS export"; build --export-only; unset STUB_SUMMARY
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    local b; b=$(sed -n 's/^build //p' "$T/out")
+    grep -qx "COMMIT=$(git rev-parse --short=10 HEAD)" "$(iosenv)" && grep -qx VERSION_CODE=1250 "$(iosenv)" \
+        && grep -qx VERSION_NAME=6.0.1250 "$(iosenv)" && grep -qx "BUILD=$b" "$(iosenv)" && grep -qx UPLOADED=0 "$(iosenv)" \
+        || return "$(fail "artifact.env: $(cat "$(iosenv)" 2>&1)")"
+    # an archive that failed leaves no artifact.env; a failed upload after a good archive keeps one
+    mk_repo; export STUB_RUN_RC=1 STUB_SUMMARY="result=FAIL archive"; build; unset STUB_RUN_RC STUB_SUMMARY
+    [ ! -e "$(iosenv)" ] || return "$(fail "artifact.env after a failed archive")"
+    mk_repo; export STUB_RUN_RC=1 STUB_SUMMARY="result=FAIL upload"; build; unset STUB_RUN_RC STUB_SUMMARY
+    grep -qx UPLOADED=0 "$(iosenv)" 2>/dev/null || return "$(fail "no artifact.env after a failed upload")"
+    mk_repo; build
+    grep -qx UPLOADED=1 "$(iosenv)" 2>/dev/null || return "$(fail "UPLOADED not 1 after an upload")"
 }
 test_build_number_utc_format() {
     mk_repo; build --dry-run

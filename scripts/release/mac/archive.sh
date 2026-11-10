@@ -2,15 +2,18 @@
 # Runs ON THE MAC from the synced tree root (scripts/mac-remote.sh run cds there), under macOS bash and BSD tools.
 # Archives the Release configuration of iosApp, re-signs with the Release entitlements, exports an app-store-connect IPA,
 # checks it, and (destination upload) uploads the same archive to App Store Connect / TestFlight.
-# Usage: scripts/release/mac/archive.sh <ramdisk-volume> <key-id> <issuer-id> <team-id> <build> <version> <commit> [upload|export]
+# Usage: scripts/release/mac/archive.sh <ramdisk-volume> <key-id> <issuer-id> <team-id> <build> <version> <commit> [upload|export] [reuse]
+#   reuse: skip the bibleview build, xcodegen, archive and re-sign, and export (and upload) the existing
+#   build/release/AndBible-<build>.xcarchive of an earlier run; exit 3 before using the key when that archive is missing or
+#   its app's CFBundleVersion/CFBundleShortVersionString are not <build>/<version> (the caller then archives afresh).
 #   <version>/<commit> (name, 10-char short hash) are computed in the container and compared with the synced
 #   iosApp/Config/Version.xcconfig before anything is built, so a stale sync cannot ship under the wrong name.
 # Output: build/release/testflight-<build>/{bibleview,archive,export,upload}.log + summary.txt (last line result=...);
 #   the archive in build/release/AndBible-<build>.xcarchive. The key is read from <volume>/AuthKey_<key-id>.p8 only.
 set -uo pipefail
-[ $# -ge 7 ] || { echo "usage: $0 <volume> <key-id> <issuer-id> <team-id> <build> <version> <commit> [upload|export]" >&2; exit 2; }
+[ $# -ge 7 ] || { echo "usage: $0 <volume> <key-id> <issuer-id> <team-id> <build> <version> <commit> [upload|export] [reuse]" >&2; exit 2; }
 for a in "$1" "$2" "$3" "$4" "$5" "$6" "$7"; do [ -n "$a" ] || { echo "empty argument (volume, key-id, issuer, team, build, version and commit are all required)" >&2; exit 2; }; done
-VOL="$1" KEY_ID="$2" ISSUER="$3" TEAM="$4" BUILD="$5" VERSION="$6" COMMIT="$7" DEST="${8:-upload}"
+VOL="$1" KEY_ID="$2" ISSUER="$3" TEAM="$4" BUILD="$5" VERSION="$6" COMMIT="$7" DEST="${8:-upload}" MODE="${9:-}"
 KEY="$VOL/AuthKey_${KEY_ID}.p8"
 BUNDLE_ID=org.andbible.ios ICLOUD=iCloud.org.andbible.ios
 # xcodebuild -exportArchive must not see Homebrew tools (rsync). ANDBIBLE_TEST_EXPORT_PATH is a test-only seam.
@@ -41,6 +44,7 @@ trap 'exit 130' INT
 die() { echo "$1" >&2; exit "${2:-1}"; }
 
 case "$DEST" in upload|export) ;; *) STEP=args; die "bad destination '$DEST' (upload|export)" 2 ;; esac
+case "$MODE" in ''|reuse) ;; *) STEP=args; die "bad 9th argument '$MODE' (reuse or nothing)" 2 ;; esac
 STEP=key
 [ -f "$KEY" ] || die "no key at $KEY" 2
 
@@ -53,8 +57,19 @@ XC_VERSION=$(xc_get MARKETING_VERSION); XC_COMMIT=$(xc_get AND_BIBLE_COMMIT_HASH
 [ "$XC_VERSION" = "$VERSION" ] || die "$XC MARKETING_VERSION '$XC_VERSION' != '$VERSION'" 2
 [ -n "$XC_COMMIT" ] && [ "${XC_COMMIT#"$COMMIT"}" != "$XC_COMMIT" ] || die "$XC AND_BIBLE_COMMIT_HASH '$XC_COMMIT' does not start with '$COMMIT'" 2
 CHECKS="xcconfig"
-echo "build number $BUILD, version $VERSION, commit $COMMIT, destination $DEST"
+echo "build number $BUILD, version $VERSION, commit $COMMIT, destination $DEST${MODE:+, reusing the archive}"
+APP="$ARCH/Products/Applications/AndBible.app"
 
+if [ "$MODE" = reuse ]; then
+	STEP=reuse
+	[ -f "$APP/Info.plist" ] || die "no archive to reuse at $ARCH" 3
+	A_BUILD=$(plutil -extract CFBundleVersion raw -o - "$APP/Info.plist" 2>/dev/null)
+	A_VERSION=$(plutil -extract CFBundleShortVersionString raw -o - "$APP/Info.plist" 2>/dev/null)
+	[ "$A_BUILD" = "$BUILD" ] && [ "$A_VERSION" = "$VERSION" ] \
+		|| die "archive $ARCH is $A_VERSION ($A_BUILD), not $VERSION ($BUILD)" 3
+	CHECKS="$CHECKS reuse"
+	echo "reusing $ARCH"
+else
 STEP=bibleview
 ( cd app/bibleview-js
   stamp=node_modules/.mac-remote-lock-sha; sha=$(shasum package-lock.json | cut -d' ' -f1)
@@ -73,13 +88,13 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Releas
 rc=$?; ARCHIVE_S=$(( $(date +%s)-t0 )); echo "archive rc=$rc in ${ARCHIVE_S}s"
 [ $rc = 0 ] || { grep -E "error:|OutOfMemory|FAILED" "$OUT/archive.log" | sort -u | head -20; exit 1; }
 
-APP="$ARCH/Products/Applications/AndBible.app"
 plutil -p "$APP/Info.plist" | grep -E '"CFBundle(Identifier|ShortVersionString|Version|DisplayName)"|CFBundleTypeName'
 # The unsigned archive carries no entitlements: ad hoc re-sign with the Release-expanded entitlements.
 STEP=resign
 sed "s/\\\$(ICLOUD_CONTAINER)/$ICLOUD/g" iosApp/iosApp/iosApp.entitlements > "$OUT/release.entitlements"
 grep -q '\$(' "$OUT/release.entitlements" && die "unexpanded variable in entitlements"
 codesign --force --sign - --entitlements "$OUT/release.entitlements" --timestamp=none "$APP" || exit 1
+fi
 
 cat > "$OUT/ExportOptions.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

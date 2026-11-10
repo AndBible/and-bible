@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Container side of the TestFlight internal build: decrypt the ASC API key (one YubiKey touch), stream it onto a
+# iOS branch of the internal release (TestFlight): stream the ASC API key from the caller's opened secrets bundle onto a
 # RAM disk on the build Mac, run scripts/release/mac/archive.sh there under the mac-remote lock, detach the RAM disk,
-# take the evidence from the run capture, and detach the Mac RAM disk whatever happens (EXIT trap).
+# take the evidence from the run capture, and detach the Mac RAM disk whatever happens (EXIT trap). It never decrypts
+# and never closes the caller's RAM dir: release-internal.sh opens the bundle (one touch) and wipes it.
 #
-# Usage: scripts/release/ios-build.sh [--export-only] [--dry-run]
-#   --export-only   archive and export the IPA but do not upload it
-#   --dry-run       print the steps (the key as <ramdir>/key.p8); run no ssh, gpg or mac-remote except `check`
-# Refuses a dirty tree (parent status incl. jsword/kdom gitlinks; docs/superpowers and app/src/test/roborazzi ignored).
-# Env: REPO_ROOT, MAC_REMOTE (default scripts/mac-remote.sh), MAC_SSH_CONFIG (~/.ssh-mac/config), MAC_HOST
-#      (andbible-mac), MAC_TIMEOUT (5400), MAC_LOCAL_DIR (mac-remote's local dir), MAC_DETACH_TIMEOUT (60), MAC_DETACH_KILL_AFTER (5), RELEASE_SECRETS_SRC (~/.release-secrets, holds asc-api.env and
-#      AuthKey_<id>.p8.gpg), RELEASE_RAMDIR_MOUNT=none (tests only).
+# Usage: scripts/release/ios-build.sh [--export-only] [--dry-run] [--reuse <build>]
+#   --export-only    archive and export the IPA but do not upload it
+#   --dry-run        print the steps (the key as <session>/AuthKey.p8); run no ssh or mac-remote except `check`
+#   --reuse <build>  export/upload the Mac's existing archive of <build> (archive.sh `reuse`); exit 3 = no such archive
+# Writes .local/release/<versionCode>/ios/artifact.env (COMMIT, VERSION_CODE, VERSION_NAME, BUILD, UPLOADED) once the
+# archive exists. Refuses a dirty tree (parent status incl. jsword/kdom gitlinks; docs/superpowers and
+# app/src/test/roborazzi ignored).
+# Env: RELEASE_SECRETS_DIR (required except --dry-run; members asc-api.env and AuthKey.p8), REPO_ROOT, MAC_REMOTE
+#      (default scripts/mac-remote.sh), MAC_SSH_CONFIG (~/.ssh-mac/config), MAC_HOST (andbible-mac), MAC_TIMEOUT (5400),
+#      MAC_LOCAL_DIR (mac-remote's local dir), MAC_DETACH_TIMEOUT (60), MAC_DETACH_KILL_AFTER (5).
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,11 +22,15 @@ MAC_REMOTE="${MAC_REMOTE:-$REPO/scripts/mac-remote.sh}"
 TEAM=X6A6CDK8T7
 DEST=upload
 DRY=0
-for a in "$@"; do
-    case "$a" in
-    --export-only) DEST=export ;;
-    --dry-run) DRY=1 ;;
-    *) echo "usage: ios-build.sh [--export-only] [--dry-run]" >&2; exit 2 ;;
+REUSE=""
+usage() { echo "usage: ios-build.sh [--export-only] [--dry-run] [--reuse <build>]" >&2; exit 2; }
+while [ $# -gt 0 ]; do
+    case "$1" in
+    --export-only) DEST=export; shift ;;
+    --dry-run) DRY=1; shift ;;
+    --reuse) [ $# -ge 2 ] || usage; REUSE="$2"; shift 2
+        [[ "$REUSE" =~ ^20[0-9]{2}\.[0-9]{4}\.[0-9]{6}$ ]] || { echo "ios-build: bad --reuse build '$REUSE'" >&2; exit 2; } ;;
+    *) usage ;;
     esac
 done
 die() { echo "ios-build: $*" >&2; exit 1; }
@@ -42,7 +50,8 @@ check_clean() {
 check_clean
 COMMIT=$(git -C "$REPO" rev-parse --short=10 HEAD) || die "no HEAD"
 VERSION=$(version_name "") || die "no version name"
-BUILD=$(date -u +%Y.%m%d.%H%M%S)
+VCODE=$(version_code) || die "no version code"
+BUILD=${REUSE:-$(date -u +%Y.%m%d.%H%M%S)}
 echo "build $BUILD"
 echo "version $VERSION"
 echo "commit $COMMIT"
@@ -57,34 +66,35 @@ if holder=$(printf '%s\n' "$check_out" | grep -m1 '^BUILD LOCK held by:'); then
 fi
 
 SSH=(ssh -F "${MAC_SSH_CONFIG:-$HOME/.ssh-mac/config}" "${MAC_HOST:-andbible-mac}")
-ENV_FILE="${RELEASE_SECRETS_SRC:-$HOME/.release-secrets}/asc-api.env"
-if [ -f "$ENV_FILE" ]; then
-    set -a; . "$ENV_FILE"; set +a
+if ENV_FILE=$(secrets_member asc-api.env 2>/dev/null) && KEY_FILE=$(secrets_member AuthKey.p8 2>/dev/null); then
+    ASC_KEY_ID=$(sed -n 's/^ASC_KEY_ID=//p' "$ENV_FILE" | head -n 1)
+    ASC_ISSUER_ID=$(sed -n 's/^ASC_ISSUER_ID=//p' "$ENV_FILE" | head -n 1)
+    [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] || die "asc-api.env in the secrets bundle lacks ASC_KEY_ID or ASC_ISSUER_ID"
 elif [ "$DRY" = 1 ]; then
-    ASC_KEY_ID=${ASC_KEY_ID:-"<key-id>"}; ASC_ISSUER_ID=${ASC_ISSUER_ID:-"<issuer-id>"}
+    ASC_KEY_ID="<key-id>"; ASC_ISSUER_ID="<issuer-id>"; KEY_FILE="<session>/AuthKey.p8"
 else
-    die "missing $ENV_FILE (is the release-secrets mount attached?)"
+    die "no open secrets bundle (RELEASE_SECRETS_DIR); run it through scripts/release/release-internal.sh"
 fi
 VOL="asckey-$$"
 FILE="/Volumes/$VOL/AuthKey_${ASC_KEY_ID}.p8"
-ARCHIVE_CMD="bash scripts/release/mac/archive.sh /Volumes/$VOL $ASC_KEY_ID $ASC_ISSUER_ID $TEAM $BUILD $VERSION $COMMIT $DEST"
+ARCHIVE_CMD="bash scripts/release/mac/archive.sh /Volumes/$VOL $ASC_KEY_ID $ASC_ISSUER_ID $TEAM $BUILD $VERSION $COMMIT $DEST${REUSE:+ reuse}"
 EVID_REMOTE="build/release/testflight-$BUILD/"
 EVID_LOCAL="$REPO/.local/release/testflight/$BUILD/"
+IOS_ENV="$REPO/.local/release/$VCODE/ios/artifact.env"
 ATTACH_CMD="set -e; dev=\$(hdiutil attach -nomount ram://40960 | tr -d '[:space:]'); diskutil erasevolume HFS+ $VOL \$dev >/dev/null; f=$FILE; touch \$f; chmod 600 \$f; cat > \$f; ls -l \$f | awk '{print \$1, \$5}'"
 
 if [ "$DRY" = 1 ]; then
-    echo "[dry-run] gpg --decrypt AuthKey_${ASC_KEY_ID}.p8.gpg > <ramdir>/key.p8"
-    echo "[dry-run] ${SSH[*]} '$ATTACH_CMD' < <ramdir>/key.p8"
-    echo "[dry-run] secrets_close"
+    echo "[dry-run] ${SSH[*]} '$ATTACH_CMD' < $KEY_FILE"
     echo "[dry-run] MAC_TIMEOUT=${MAC_TIMEOUT:-5400} $MAC_REMOTE run \"$ARCHIVE_CMD\""
     echo "[dry-run] detach /Volumes/$VOL over ssh (right after run)"
     echo "[dry-run] copy logs/summary/entitlements from the run capture under .local/mac/<container>/runs/*/run/step*/release/testflight-$BUILD/ to $EVID_LOCAL; only if missing: $MAC_REMOTE fetch $EVID_REMOTE $EVID_LOCAL"
-    echo "[dry-run] EXIT trap: detach /Volumes/$VOL over ssh, secrets_close"
+    echo "[dry-run] write $IOS_ENV once the archive exists"
+    echo "[dry-run] EXIT trap: detach /Volumes/$VOL over ssh"
     exit 0
 fi
 
-# 3. Everything below is covered by the EXIT trap: the Mac volume is detached (if it was ever attached) and the
-#    container RAM dir closed after success, failure or a signal.
+# 3. Everything below is covered by the EXIT trap: the Mac volume is detached (if it was ever attached) after success,
+#    failure or a signal. The caller's RAM dir is the caller's to close.
 # detach_mac: detach /Volumes/$VOL on the Mac, bounded (ssh inherits the ignored INT/TERM/HUP, so only timeout can end a
 # stalled connection). The remote command fails when the volume is still mounted afterwards. Never exits.
 detach_mac() {
@@ -101,10 +111,9 @@ detach_mac() {
 }
 mac_detach() {
     local rc=$?
-    trap '' INT TERM HUP    # a second Ctrl-C must not interrupt the detach or the RAM dir cleanup
+    trap '' INT TERM HUP    # a second Ctrl-C must not interrupt the detach
     trap - EXIT
     detach_mac
-    secrets_close
     exit "$rc"
 }
 VOL=""
@@ -112,13 +121,10 @@ trap mac_detach EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM HUP
 
-secrets_open || exit 1
-secrets_decrypt "AuthKey_${ASC_KEY_ID}.p8.gpg" key.p8 || exit 1
-[ -s "$SECRETS_DIR/key.p8" ] || die "decrypted key is empty"
-check_clean    # edits made during the YubiKey wait would be synced into the build
+[ -s "$KEY_FILE" ] || die "AuthKey.p8 in the secrets bundle is empty"
+check_clean    # edits made since the start would be synced into the build
 VOL="asckey-$$"    # set before the stream: a half-done attach is detached too
-"${SSH[@]}" "$ATTACH_CMD" < "$SECRETS_DIR/key.p8" || die "streaming the key to the Mac failed"
-secrets_close
+"${SSH[@]}" "$ATTACH_CMD" < "$KEY_FILE" || die "streaming the key to the Mac failed"
 
 t0=$(date +%s)
 MAC_TIMEOUT="${MAC_TIMEOUT:-5400}" "$MAC_REMOTE" run "$ARCHIVE_CMD"
@@ -141,6 +147,17 @@ if [ "$have_ev" = 0 ]; then
 fi
 if [ "$have_ev" = 0 ]; then
     echo "ios-build: WARNING: no evidence for build $BUILD (run capture missing, fetch failed); run rc=$rc stands" >&2
+fi
+# artifact.env once the archive exists (a failure after the archive step can be retried with --reuse).
+result=$(sed -n 's/^result=//p' "$EVID_LOCAL/summary.txt" 2>/dev/null | tail -n 1)
+case "$result" in
+"PASS upload") uploaded=1 ;;
+"PASS export"|"FAIL resign"|"FAIL export"|"FAIL ipa-checks"|"FAIL upload") uploaded=0 ;;
+*) uploaded="" ;;
+esac
+if [ -n "$uploaded" ]; then
+    mkdir -p "$(dirname "$IOS_ENV")"
+    { echo "COMMIT=$COMMIT"; echo "VERSION_CODE=$VCODE"; echo "VERSION_NAME=$VERSION"; echo "BUILD=$BUILD"; echo "UPLOADED=$uploaded"; } > "$IOS_ENV"
 fi
 echo "testflight rc=$rc in $(( $(date +%s) - t0 ))s (destination $DEST)"
 exit "$rc"
