@@ -326,14 +326,12 @@ object HostReadingWindows {
         return w != null && w.windowState != WindowLayout.WindowState.CLOSED
     }
 
-    /**
-     * Night mode, colour mode or the animation setting changed: re-send `set_config` to every window through its
-     * relay platform. The page is not reloaded (no flash, scroll position kept) and nothing is loaded again; the
-     * offsets are untouched (they travel in their own `set_offsets`).
-     */
-    fun nightModeChanged() {
+    /** Re-sends the current config without reloading the page or changing its scroll position or offsets. */
+    fun readingConfigChanged() {
         for (a in assemblies.values) a.relayPlatform.updateConfig()
     }
+
+    fun nightModeChanged() = readingConfigChanged()
 
     private fun assembly(windowId: String): Assembly = assemblies.getOrPut(windowId) {
         val oldId = if (spares.containsKey(windowId)) windowId else spares.keys.firstOrNull()

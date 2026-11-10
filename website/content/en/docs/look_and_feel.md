@@ -164,7 +164,8 @@ remain reachable on a phone.
     document text. Useful when you synchronize workspaces across devices with
     different screen sizes – the workspace font size is synced, but the
     multiplier is per-device. For example, setting 150% on a small phone while
-    leaving 100% on a tablet keeps text proportional.
+    leaving 100% on a tablet keeps text proportional. Changes apply immediately to
+    open reading windows, including on iOS and desktop, without reloading the chapter.
 
 ### Fullscreen and Window Display
 

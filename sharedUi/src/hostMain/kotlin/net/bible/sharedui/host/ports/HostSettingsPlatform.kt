@@ -25,6 +25,8 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedui.app.settings.LegacyDataImport
+import net.bible.sharedui.host.reading.HostDocumentLoaderPlatform
+import net.bible.sharedui.host.reading.HostReadingWindows
 import org.koin.mp.KoinPlatform
 
 /** Uses the shared reset contract, including the original device-local exclusions. */
@@ -43,6 +45,11 @@ class HostSettingsPlatform(
     override val legacyImportVisible: Boolean get() = legacyImport()?.available() == true
     override val autoNightModeAvailable = false
     override val isOnyx = false
+    override fun onSettingChanged(key: String) {
+        if (key in HostDocumentLoaderPlatform.CONFIG_SETTING_KEYS) {
+            HostReadingWindows.readingConfigChanged()
+        }
+    }
     override fun onSystemBarSettingChanged() = Unit
     override val isDiscreteBuild: Boolean = false
     override val confirmText: String get() = strings.okay

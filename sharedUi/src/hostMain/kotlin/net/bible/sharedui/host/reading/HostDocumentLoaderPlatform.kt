@@ -144,6 +144,16 @@ class HostDocumentLoaderPlatform(
         )
     }
 
+    companion object {
+        /** App settings read by this config builder (including the active-window indicator). */
+        internal val CONFIG_SETTING_KEYS = setOf(
+            "show_active_window_indicator", "show_errorbox", "disable_bible_bookmark_modal_buttons",
+            "disable_gen_bookmark_modal_buttons", "display_color_mode", "eink_mode", "disable_animations",
+            "font_size_multiplier", "experimental_features", THEME_PALETTE_STYLE_KEY,
+            "disable_click_to_edit", "notes_content_type",
+        )
+    }
+
     // Pending: always true; sessions are not rebound when a Window object is re-created from the database.
     override fun isCurrentView(): Boolean = true
 
