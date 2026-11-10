@@ -51,6 +51,14 @@ class FontChoiceAndroidTest {
         } finally { file.delete() }
     }
 
+    @Test
+    @Config(sdk = [23])
+    fun unreadableFontOnApi23KeepsTheNormalRowFont() = unreadableFontKeepsTheNormalRowFont()
+
+    @Test
+    @Config(sdk = [23])
+    fun installedFontOnApi23UsesItsNativeTypeface() = installedFontUsesItsNativeTypeface()
+
     @Test fun installedFontUsesItsNativeTypeface() {
         val file = File("../iosApp/test-fixtures/fonts/StudyMono.ttf")
         org.junit.Assert.assertTrue("real font fixture must exist", file.isFile)
