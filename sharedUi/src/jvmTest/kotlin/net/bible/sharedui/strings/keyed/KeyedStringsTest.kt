@@ -88,9 +88,12 @@ class KeyedStringsTest {
         assertTrue(detailed.contains("PRIVATE"))
         assertTrue(detailed.contains("50"))
         assertFalse(strings.documentSyncNotificationStatus(base).contains("PRIVATE"))
+        assertEquals("1 / 3 operations", strings.documentSyncCompactStatus(base))
+        assertEquals("2 / 3 operations", strings.documentSyncCompactStatus(base.copy(processed = 2, initials = "A".repeat(300), bytesTransferred = 99)))
         for (status in net.bible.sharedcore.cloud.DocumentSyncProgressStatus.entries) {
             assertText(status.name, strings.documentSyncStatus(base.copy(status = status), null))
             assertText(status.name, strings.documentSyncNotificationStatus(base.copy(status = status)))
+            assertText(status.name, strings.documentSyncCompactStatus(base.copy(status = status)))
         }
         for (operation in net.bible.sharedcore.cloud.DocumentSyncOperation.entries) {
             assertText(operation.name, strings.documentSyncStatus(base.copy(currentOperation = operation), "Name"))

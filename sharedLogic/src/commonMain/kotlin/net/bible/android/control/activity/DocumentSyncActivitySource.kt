@@ -24,6 +24,7 @@ class DocumentSyncActivitySource(
         center.setTitle(id, text.documentSyncActivityTitle)
         center.setMessage(id, text.documentSyncStatus(progress, progress.initials))
         center.setNotificationMessage(id, text.documentSyncNotificationStatus(progress))
+        center.setCompactMessage(id, text.documentSyncCompactStatus(progress))
         val bytes = progress.bytesTransferred
         val total = progress.totalBytes
         val percent = if (bytes != null && total != null && total > 0) {

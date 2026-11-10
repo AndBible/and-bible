@@ -34,6 +34,10 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
         net.bible.sharedcore.cloud.documentSyncText(progress, documentLabel, ::syncText)
     override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) =
         net.bible.sharedcore.cloud.documentSyncNotificationText(progress, ::syncText)
+    override fun documentSyncCompactStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) =
+        if (progress.status == net.bible.sharedcore.cloud.DocumentSyncProgressStatus.RUNNING)
+            syncText("document_sync_counts", listOf(progress.processed, progress.total))
+        else documentSyncNotificationStatus(progress)
 
     private val t: StringTable get() = table()
 

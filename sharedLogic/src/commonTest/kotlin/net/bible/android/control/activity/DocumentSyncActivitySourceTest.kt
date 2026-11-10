@@ -32,6 +32,7 @@ class DocumentSyncActivitySourceTest {
         assertEquals(50, item.progress)
         assertTrue(item.message!!.contains("PRIVATE"))
         assertFalse(item.notificationMessage!!.contains("PRIVATE"))
+        assertEquals("0 / 1 operations", item.compactMessage, "menu summary must not inherit the notification prefix or transfer details")
         assertEquals(0, center.unreadFailures.value)
         source.close()
         tracker.finish(1)

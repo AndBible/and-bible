@@ -15,6 +15,7 @@ internal class StubCoreStrings : CoreStrings {
     override val documentSyncTransferRunning = "Document transfer running"
     override fun documentSyncStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress, documentLabel: String?) = progress.status.name
     override fun documentSyncNotificationStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) = progress.status.name
+    override fun documentSyncCompactStatus(progress: net.bible.sharedcore.cloud.DocumentSyncProgress) = progress.status.name
 
     override val errorReport = "errorReport"
     override val errorBackup = "errorBackup"

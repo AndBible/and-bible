@@ -129,7 +129,8 @@ class ActivityMenuTest {
         val detail = "Download VERYLONGDOCUMENTINITIALS: 123456789 / 987654321 bytes received"
         var opened: ActivityItem? = null
         val sync = item("documents", progress = 42, message = detail).copy(
-            kind = ActivityKind.DOCUMENT_SYNC, notificationMessage = summary,
+            kind = ActivityKind.DOCUMENT_SYNC, compactMessage = summary,
+            notificationMessage = "Document synchronization running: 123456 / 987654 operations",
         )
         setContent {
             AbTheme(disableAnimations = true) {
@@ -148,6 +149,7 @@ class ActivityMenuTest {
         assertTrue(layouts.single().hasVisualOverflow, "long summary must actually be truncated")
         assertEquals(androidx.compose.ui.text.style.TextOverflow.Ellipsis, layouts.single().layoutInput.overflow)
         val row = onNodeWithTag(ACTIVITY_ROW_TAG)
+        assertEquals(listOf(sync.title), row.fetchSemanticsNode().config.getOrNull(SemanticsProperties.ContentDescription))
         assertTrue(row.fetchSemanticsNode().boundsInRoot.width <= with(density) { 240.dp.toPx() })
         assertEquals(0.42f, rangeOf(onNode(androidx.compose.ui.test.hasProgressBarRangeInfo(
             ProgressBarRangeInfo(0.42f, 0f..1f)
@@ -167,7 +169,9 @@ class ActivityMenuTest {
                 colorMode = if (monoDark) net.bible.service.common.DisplayColorMode.MONOCHROME else net.bible.service.common.DisplayColorMode.NORMAL) {
                 CompositionLocalProvider(LocalStrings provides strings) {
                     net.bible.sharedui.reading.ReadingOverflowMenu(
-                        items = emptyList(), expanded = true, onItemClick = {}, onDismiss = {},
+                        items = listOf(net.bible.sharedcore.reading.OptionsMenuItem("help", "Help", false, false, true, false)),
+                        expanded = true, onItemClick = {}, onDismiss = {},
+                        modifier = if (monoDark) androidx.compose.ui.Modifier.width(240.dp) else androidx.compose.ui.Modifier,
                         header = { ActivityMenuSection(menu(listOf(sync))) },
                     )
                 }
@@ -183,7 +187,7 @@ class ActivityMenuTest {
         )
         updates.forEachIndexed { index, summary ->
             runOnIdle { sync = sync.copy(title = "TITLE".repeat(80), message = "DETAIL".repeat(100),
-                notificationMessage = summary, progress = 30 + index) }
+                compactMessage = summary, progress = 30 + index) }
             val bounds = onNodeWithTag(ACTIVITY_SECTION_TAG).fetchSemanticsNode().boundsInRoot
             assertEquals(initial.size, bounds.size, "live text changes must not resize the real dropdown")
             val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
@@ -191,18 +195,37 @@ class ActivityMenuTest {
                 androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult
             ].action!!.invoke(layouts)
             assertEquals(1, layouts.single().lineCount)
+            if (index == 0) {
+                assertTrue(layouts.single().getLineRight(0) <= layouts.single().layoutInput.constraints.maxWidth,
+                    "short queue counts must fit the text width")
+                assertEquals(summary.length, layouts.single().getLineEnd(0, visibleEnd = true), "queue counts must remain visible")
+            }
         }
+    }
+
+    @Test fun documentSyncIndeterminateProgressKeepsAccessibleContext() = runComposeUiTest {
+        setContent { Section(menu(listOf(item("sync").copy(kind = ActivityKind.DOCUMENT_SYNC, compactMessage = "1 / 3 operations")))) }
+        val row = onNodeWithTag(ACTIVITY_ROW_TAG)
+        assertEquals(listOf("Item sync"), row.fetchSemanticsNode().config.getOrNull(SemanticsProperties.ContentDescription))
+        onNode(androidx.compose.ui.test.hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()
     }
 
     @Test fun documentSyncShowsTransferDetailsAndInterruptedRow() = runComposeUiTest {
         val running = item("documents", message = "Downloading KJV · 2/5 · 12 KB").copy(
-            kind = ActivityKind.DOCUMENT_SYNC, notificationMessage = "2 / 5 operations",
+            kind = ActivityKind.DOCUMENT_SYNC, compactMessage = "2 / 5 operations",
         )
         val interrupted = item("interrupted", ActivityState.INTERRUPTED, message = "Open AndBible and run sync again")
-            .copy(kind = ActivityKind.DOCUMENT_SYNC)
+            .copy(kind = ActivityKind.DOCUMENT_SYNC, compactMessage = "Document sync interrupted: 1 / 3 operations")
         toolbar(menu(listOf(running, interrupted)), noAnim = true, expanded = true)
         onNodeWithText("2 / 5 operations").assertExists()
-        onNodeWithText("Open AndBible and run sync again").assertExists()
+        onNodeWithText("Document sync interrupted: 1 / 3 operations").assertExists()
+    }
+
+    @Test fun singleDocumentSyncExposesFullDetailsThroughShowAll() = runComposeUiTest {
+        var shown = 0
+        setContent { Section(menu(listOf(item("sync").copy(kind = ActivityKind.DOCUMENT_SYNC)), onShowAll = { shown++ })) }
+        onNodeWithText("Show all (1)").performClick()
+        assertEquals(1, shown)
     }
 
     @Test fun ringShownWhileRunning() = runComposeUiTest {
