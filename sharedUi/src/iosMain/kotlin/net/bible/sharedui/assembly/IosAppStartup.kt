@@ -204,7 +204,18 @@ object IosAppStartup {
                     val localeProvider = IosLocaleProvider(localeTag = p::jswordLocaleTag)
                     SharedAppStartup.installEnvironment(p.repositories(), localeProvider)
                     SharedAppStartup.start(StartupHooks(
-                        initialiseJSwordFolders = { HostSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
+                        initialiseJSwordFolders = {
+                            // Build 1261's default JSword scan relocated installed modules outside Documents/sword.
+                            // Canonicalize the trusted sandbox prefix (/var is a system symlink on iOS), not user files.
+                            val home = FileSystem.SYSTEM.canonicalize(p.config.root ?: platform.Foundation.NSHomeDirectory().toPath())
+                            val modules = p.directories.modulesDir
+                            val destination = home / IosAppConfig.DOCUMENTS_DIR / "sword"
+                            net.bible.sharedlogic.platform.host.recoverRelocatedSwordModules(
+                                home / ".sword", destination,
+                                log = { Log.i(TAG, it) },
+                            )
+                            HostSwordEnvironment.initialiseJSwordFolders(modules)
+                        },
                         koinModules = {
                             val sync = buildIosSyncBindings(hostSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
                             val namespace = org.koin.dsl.module {
