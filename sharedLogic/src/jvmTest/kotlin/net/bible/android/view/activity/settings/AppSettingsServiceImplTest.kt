@@ -288,7 +288,7 @@ class AppSettingsServiceImplTest {
         var notifications = 0
         val writes = mutableListOf<String>()
         var onWrite: (String) -> Unit = {}
-        fun onSettingChanged(key: String) { writes += key; onWrite(key) }
+        override fun onSettingChanged(key: String) { writes += key; onWrite(key) }
         override fun onSystemBarSettingChanged() { notifications++ }
     }
     private class MemoryLocal : DeviceLocalPrefs {

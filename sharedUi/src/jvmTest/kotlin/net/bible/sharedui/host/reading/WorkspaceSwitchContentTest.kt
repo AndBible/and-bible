@@ -339,6 +339,13 @@ class WorkspaceSwitchContentTest {
                 assertWrite("enabledExperimentalFeatures: [\"test-feature\"]") { settings.setStringSet("experimental_features", setOf("test-feature")) }
                 // The service accepts enabled buttons, but the config receives the inverse disabled set.
                 assertWrite("disableBibleModalButtons:") { settings.setStringSet("disable_bible_bookmark_modal_buttons", emptySet()) }
+                assertWrite("disableGenericModalButtons:") { settings.setStringSet("disable_gen_bookmark_modal_buttons", emptySet()) }
+                assertWrite("hasActiveIndicator: false") { settings.setBool("show_active_window_indicator", false) }
+                // errorBox remains false in the non-beta fixture, but its write must still resend the config.
+                assertWrite("errorBox: false") { settings.setBool("show_errorbox", true) }
+                assertWrite("disableAnimations: true") { settings.setBool("disable_animations", true) }
+                assertWrite("pureMonochromeMode: true") { settings.setString("display_color_mode", "monochrome") }
+                assertWrite("themeColors:") { settings.setString("theme_palette_style", "fidelity") }
                 fake.panes.forEach { it.evaluated.clear() }
                 settings.setBool("volume_keys_scroll", false)
                 assertTrue(fake.panes.all { pane -> pane.evaluated.none { "set_config" in it } }, "unrelated settings need no config")
