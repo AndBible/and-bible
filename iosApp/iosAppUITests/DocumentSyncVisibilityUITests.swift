@@ -279,12 +279,11 @@ final class DocumentSyncVisibilityUITests: XCTestCase {
             }
             let initialShowAll = showAll.frame
             // The modal popup hides the toolbar ring from AX; observe the real menu bar instead.
-            let menuProgress = app.otherElements.matching(NSPredicate { candidate, _ in
-                guard let element = candidate as? XCUIElement, element.exists,
-                      let value = element.value as? String else { return false }
-                return value.hasSuffix("%") && element.frame.intersects(initial)
-            }).firstMatch
-            guard menuProgress.exists else { XCTFail("Compact menu progress semantics missing"); return }
+            let menuProgress = app.descendants(matching: .any).matching(NSPredicate(format: "value MATCHES %@", "[0-9]+%" )).firstMatch
+            guard menuProgress.waitForExistence(timeout: 10), menuProgress.frame.intersects(initial) else {
+                ui.tree(app, "compact-menu-progress-missing")
+                XCTFail("Compact menu progress semantics missing"); return
+            }
             let initialProgress = menuProgress.value as? String
             ui.shot(app, "compact-sync-menu-before-update")
             let changed = NSPredicate { _, _ in
