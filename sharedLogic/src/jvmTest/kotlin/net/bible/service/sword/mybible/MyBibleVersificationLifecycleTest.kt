@@ -189,6 +189,19 @@ class MyBibleVersificationLifecycleTest {
         assertEquals("KJVA", installed().versification.name)
     }
 
+    @Test
+    fun invalidStoredDecisionFallsBackToKjvaWithoutRedetection() = withModules { root ->
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val file = fixture(root)
+        MyBibleVersificationStore.restore(file.path.toPath(), "German")
+        root.resolve("internal/mybible-versifications").listFiles()!!.single().writeText("future-versification")
+        addMyBibleBook(file.path.toPath())
+        assertEquals("KJVA", installed().versification.name)
+        assertEquals("KJVA", MyBibleVersificationStore.resolve(file.path.toPath()) {
+            error("An invalid saved decision must not redetect existing coordinates")
+        })
+    }
+
     private fun fixture(root: File, german: Boolean = true): File {
         val file = root.resolve("modules/mybible/Lifecycle.SQLite3").apply { parentFile.mkdirs() }
         openSqlite(file.path).use { db ->

@@ -300,19 +300,87 @@ class ModuleArchiveExtractionTest {
     }
 
     @Test
-    fun invalidMyBibleVersificationRejectsArchiveBeforeRegistration() = runBlocking {
-        val zip = buildZip("invalid-numbering.zip", listOf(
-            "mybible/InvalidNumbering.SQLite3" to myBibleBytes(),
-            "mybible/InvalidNumbering.SQLite3.andbible-versification" to "not-a-versification".toByteArray(),
+    fun unknownMyBibleVersificationRestoresWithLegacyNumbering() = runBlocking {
+        val zip = buildZip("unknown-numbering.zip", listOf(
+            "mybible/UnknownNumbering.SQLite3" to germanMyBibleBytes(),
+            "mybible/UnknownNumbering.SQLite3.andbible-versification" to "future-versification".toByteArray(),
         ))
-        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
-        try {
-            backup.extractAndRegisterModuleArchive({ zip.source() })
-            org.junit.Assert.fail("Invalid versification must reject the archive")
-        } catch (expected: java.io.IOException) {
-            assertFalse(File(downloadDir, "mybible/InvalidNumbering.SQLite3").exists())
-            assertTrue(Books.installed().getBook("MyBible-InvalidNumbering") == null)
+        org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+            .extractAndRegisterModuleArchive({ zip.source() })
+        assertEquals("KJVA", installedVersification("UnknownNumbering"))
+    }
+
+    @Test
+    fun failedReplacementRestoresLegacyDecisionAfterAnEarlierDecisionWrite() = failedRegisteredReplacement { module, oldBytes ->
+        assertArrayEquals(oldBytes, module.readBytes())
+        assertEquals("KJVA", decisionRecord(module.name).readText())
+        assertFalse("Successful rollback must clean its private copies", File(SharedConstants.internalFilesDir, "backup")
+            .listFiles().orEmpty().any { it.name.startsWith(".sword-install-") })
+        // Even a fresh scan with a completed migration must retain the legacy pin.
+        (Books.installed().getBook("MyBible-RollbackLegacy") as? SwordBook)?.let {
+            closeMyBible(it)
+            Books.installed().removeBook(it)
         }
+        addManuallyInstalledMyBibleBooks()
+        assertEquals("KJVA", installedVersification("RollbackLegacy"))
+    }
+
+    @Test
+    fun failedReplacementLeavesRegisteredModuleImmediatelyUsable() = failedRegisteredReplacement { module, oldBytes ->
+        assertArrayEquals(oldBytes, module.readBytes())
+        val book = Books.installed().getBook("MyBible-RollbackLegacy") as? SwordBook
+        assertTrue("Rollback must restore registration without another scan or restart", book != null)
+        assertEquals("KJVA", book!!.versification.name)
+        assertEquals("Chapter end", book.getRawText(book.getKey("Mal.1.14")))
+    }
+
+    @Test
+    fun failureBeforeFirstPublishKeepsOldModuleRegisteredAndUsable() = failedRegisteredReplacement(failBeforePublish = true) { module, oldBytes ->
+        assertArrayEquals(oldBytes, module.readBytes())
+        val book = Books.installed().getBook("MyBible-RollbackLegacy") as SwordBook
+        assertEquals("KJVA", book.versification.name)
+        assertEquals("Chapter end", book.getRawText(book.getKey("Mal.1.14")))
+    }
+
+    private fun failedRegisteredReplacement(failBeforePublish: Boolean = false, checkResult: (File, ByteArray) -> Unit) = runBlocking {
+        val module = File(downloadDir, "mybible/RollbackLegacy.SQLite3")
+        module.parentFile!!.mkdirs()
+        val oldBytes = germanMyBibleBytes()
+        module.writeBytes(oldBytes)
+        decisionRecord(module.name).apply { parentFile!!.mkdirs(); writeText("KJVA") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installedVersification("RollbackLegacy"))
+        val book = Books.installed().getBook("MyBible-RollbackLegacy") as SwordBook
+        assertEquals("Chapter end", book.getRawText(book.getKey("Mal.1.14")))
+        val blocked = File(decisionRecord("RollbackSecond.SQLite3").path + ".tmp")
+        blocked.mkdirs()
+        File(blocked, "block-write").writeText("force second decision write to fail")
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        if (failBeforePublish) backup.onPublishStep = { throw java.io.IOException("before first publish") }
+        try {
+            val zip = buildZip("registered-rollback.zip", listOf(
+                "mybible/RollbackLegacy.SQLite3" to myBibleBytes(),
+                "mybible/RollbackLegacy.SQLite3.andbible-versification" to "German".toByteArray(),
+                "mybible/RollbackSecond.SQLite3" to myBibleBytes(),
+            ))
+            try {
+                backup.extractAndRegisterModuleArchive({ zip.source() })
+                org.junit.Assert.fail("Injected publish/decision failure must reject restore")
+            } catch (expected: java.io.IOException) {
+                assertFalse(File(downloadDir, "mybible/RollbackSecond.SQLite3").exists())
+            }
+            checkResult(module, oldBytes)
+        } finally {
+            backup.onPublishStep = {}
+            blocked.deleteRecursively()
+        }
+    }
+
+    private fun decisionRecord(moduleName: String): File {
+        val identity = "modules/mybible/$moduleName"
+        val hash = java.security.MessageDigest.getInstance("SHA-256").digest(identity.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+        return File(SharedConstants.internalFilesDir, "mybible-versifications/$hash")
     }
 
     private fun installedVersification(name: String): String =

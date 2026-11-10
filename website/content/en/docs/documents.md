@@ -137,13 +137,16 @@ separate chapter 4.
 MyBible modules already installed before this update keep their previous KJVA
 numbering so that saved bookmarks, highlights, notes, reading positions, and
 reading-plan locations are not reinterpreted. To use detected numbering for an
-existing module, remove it from *AndBible* and import it again after updating.
-Re-importing can change how previously saved locations refer to that document;
-keep a backup before doing so, and be careful when syncing with older app versions.
+existing module, delete the module from *AndBible* and import it again after updating;
+restarting or restoring the same module does not re-detect its numbering.
+Bookmarks made under the old numbering may shift after re-importing, as may other
+previously saved locations. Keep a backup before doing so, and be careful when
+syncing with older app versions.
 
 Module backups made with this version preserve the selected MyBible numbering when
 restored on another device. Older module backups do not contain that information
-and restore with the historical KJVA numbering. Syncing bookmarks alone does not
+and restore with the historical KJVA numbering. A backup that names a numbering
+system this app version does not recognize also restores with KJVA. Syncing bookmarks alone does not
 transfer a module's numbering choice: use the same module backup on both devices
 rather than importing the module independently when retaining saved locations.
 

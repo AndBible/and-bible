@@ -1,5 +1,6 @@
 package net.bible.service.sword.mybible
 
+import androidx.sqlite.SQLiteConnection
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import net.bible.android.SharedConstants
@@ -14,6 +15,11 @@ import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
+import net.bible.test.KoinFactorySnapshot
+import okio.Path
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 import org.crosswire.common.util.HttpBody
 import org.crosswire.common.util.HttpHead
 import org.crosswire.common.util.HttpTransport
@@ -193,6 +199,43 @@ class MyBibleInstallerTest {
         installer.install(book)
         assertEquals("KJVA", (Books.installed().getBook("MyBible-${id}_legacy") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
         assertEquals("German", (Books.installed().getBook("MyBible-${id}_fresh") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
+    }
+
+    @Test fun validationCleanupFailureDoesNotMaskUnsupportedModuleError() = runBlocking {
+        val (installer, book) = installer("$id.invalid.SQLite3", sqlite(supported = false))
+        val original = get<ReadOnlyModuleDbOpener>(ReadOnlyModuleDbOpener::class.java)
+        val snapshot = KoinFactorySnapshot.of<ReadOnlyModuleDbOpener>()
+        var blocked: File? = null
+        // The staging name is generated during install: inject the I/O failure when the real database opens.
+        loadKoinModules(module {
+            single<ReadOnlyModuleDbOpener> {
+                object : ReadOnlyModuleDbOpener {
+                    override fun open(path: Path): SQLiteConnection {
+                        val connection = original.open(path)
+                        val identity = "external/${path.normalized()}"
+                        val hash = java.security.MessageDigest.getInstance("SHA-256").digest(identity.toByteArray())
+                            .joinToString("") { "%02x".format(it) }
+                        blocked = File(SharedConstants.internalFilesDir, "mybible-versifications/$hash").apply {
+                            mkdirs()
+                            File(this, "block-delete").writeText("nonempty directory cannot be removed")
+                        }
+                        return connection
+                    }
+                }
+            }
+        })
+        try {
+            try {
+                installer.install(book)
+                fail("Unsupported module must fail validation")
+            } catch (expected: InstallException) {
+                assertEquals("Unsupported MyBible module", expected.message)
+            }
+            assertNull(Books.installed().getBook("MyBible-${id}_invalid"))
+        } finally {
+            snapshot.restore()
+            blocked?.deleteRecursively()
+        }
     }
 
     @Test fun rawSqliteDownloadRegistersReadableDictionary() = runBlocking {

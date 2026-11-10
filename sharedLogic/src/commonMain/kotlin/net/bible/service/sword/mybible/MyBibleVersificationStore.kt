@@ -41,7 +41,7 @@ internal object MyBibleVersificationStore {
     fun resolve(file: Path, allowDetection: Boolean = true, detect: () -> String): String = synchronized(lock) {
         try {
             val saved = record(file)
-            if (fs.exists(saved)) return@synchronized fs.read(saved) { readUtf8() }.trim()
+            readSaved(file)?.let { return@synchronized it }
             if (!allowDetection) return@synchronized "KJVA"
             detect().also { write(saved, it) }
         } catch (e: IOException) {
@@ -68,6 +68,17 @@ internal object MyBibleVersificationStore {
         } catch (e: IOException) {
             Log.e(TAG, "Could not migrate MyBible numbering; retrying on the next scan", e)
             false
+        }
+    }
+
+    /** Read without creating a decision, so restore can snapshot an installation before replacing it. */
+    fun readSaved(file: Path): String? = synchronized(lock) {
+        val saved = record(file)
+        if (!fs.exists(saved)) return@synchronized null
+        val value = fs.read(saved) { readUtf8() }.trim()
+        if (Versifications.instance().getVersification(value) != null) value else {
+            Log.w(TAG, "Unknown saved MyBible numbering '$value' for $file; using KJVA")
+            "KJVA"
         }
     }
 

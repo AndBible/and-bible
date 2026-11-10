@@ -195,7 +195,11 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                     } finally {
                         state.close()
                         // Validation uses a temporary path, not the installed module's identity.
-                        MyBibleVersificationStore.remove(file)
+                        try {
+                            MyBibleVersificationStore.remove(file)
+                        } catch (e: IOException) {
+                            Log.w(TAG, "Could not remove temporary MyBible versification state for $file", e)
+                        }
                     }
                 }
                 // Validate the complete payload before exposing any files to the installed-book scan.
