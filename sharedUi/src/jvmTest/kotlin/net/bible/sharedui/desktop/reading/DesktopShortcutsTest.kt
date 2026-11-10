@@ -27,6 +27,7 @@ class DesktopShortcutsTest {
         val log = mutableListOf<String>()
         var reading = true
         var escapeAllowed = true
+        var fullScreen = false
         override fun isOnReadingScreen() = reading
         override fun activeWindowId() = "active"
         override fun search(windowId: String) { log += "search:$windowId" }
@@ -37,7 +38,12 @@ class DesktopShortcutsTest {
         override fun changeFontSize(change: FontSizeChange, steps: Int) { log += if (steps == 1) "font:$change" else "font:$change*$steps" }
         override fun focusNextWindow() { log += "next" }
         override fun focusPreviousWindow() { log += "previous" }
-        override fun toggleFullScreen() { log += "fullscreen" }
+        override fun toggleFullScreen() { fullScreen = !fullScreen; log += "fullscreen" }
+        override fun leaveFullScreen(): Boolean {
+            if (!fullScreen) return false
+            fullScreen = false
+            return true
+        }
         override fun openSettings() { log += "settings" }
         override fun escapeAllowed(windowId: String) = escapeAllowed
         var modalOpen = false
@@ -90,10 +96,24 @@ class DesktopShortcutsTest {
         assertEquals(listOf("back:false"), actions.log)
     }
 
+    @Test fun escExitsFullScreenFromCompose() {
+        actions.fullScreen = true
+        assertTrue(shortcuts.onChord(Chord("Escape"), null))
+        assertFalse(actions.fullScreen)
+    }
+
+    @Test fun escExitsFullScreenFromPane() {
+        actions.fullScreen = true
+        assertTrue(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
+        assertFalse(actions.fullScreen)
+    }
+
     @Test fun escClosesAnOpenPageModalInsteadOfGoingBack() {
+        actions.fullScreen = true
         actions.modalOpen = true
         assertTrue(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
         assertEquals(listOf("closeModals:w1"), actions.log)
+        assertTrue(actions.fullScreen)
     }
 
     @Test fun backNavigationGoesThroughNavigateBack() {

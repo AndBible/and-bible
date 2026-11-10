@@ -78,6 +78,7 @@ interface DesktopShortcutActions {
     fun focusNextWindow()
     fun focusPreviousWindow()
     fun toggleFullScreen()
+    fun leaveFullScreen(): Boolean = false
     fun openSettings()
 
     /** Whether an Esc from [windowId]'s page may be taken: false while the page edits text (its editors handle Escape). */
@@ -96,8 +97,8 @@ interface DesktopShortcutActions {
  *
  * Rules: nothing is acted on during IME composition; a text field in the page keeps plain keys, Esc and Ctrl+C/V/X/A/Z;
  * the reading shortcuts need the reading screen, back and Ctrl+, do not; chords the page handles itself (Ctrl+F, Ctrl+C,
- * a Ctrl+B without selection) are left to it when they come from the pane; Esc is only taken from the pane, Compose
- * delivers its own Esc to its back handlers.
+ * a Ctrl+B without selection) are left to it when they come from the pane. Esc closes page modals before leaving
+ * fullscreen; outside fullscreen Compose delivers its own Esc to back handlers.
  *
  * @param isRtl the layout direction, which swaps Alt+Left and Alt+Right
  */
@@ -135,9 +136,12 @@ class DesktopShortcuts(
         }
         if (!chord.ctrl) return when (key) {
             "Escape" -> {
+                if (!chord.fromPane) return actions.isOnReadingScreen() && actions.leaveFullScreen()
                 val id = windowId
-                if (!chord.fromPane || chord.editable || id == null || !actions.escapeAllowed(id)) return false
-                if (!actions.closePageModals(id)) actions.back(historyFallback = false)
+                if (chord.editable || id == null || !actions.escapeAllowed(id)) return false
+                if (!actions.closePageModals(id) && !(actions.isOnReadingScreen() && actions.leaveFullScreen())) {
+                    actions.back(historyFallback = false)
+                }
                 true
             }
             "F11" -> reading { actions.toggleFullScreen() }

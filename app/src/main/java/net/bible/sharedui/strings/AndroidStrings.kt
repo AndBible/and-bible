@@ -23,6 +23,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val authUsername: String get() = context.getString(R.string.auth_username)
     override val autoFullscreen: String get() = context.getString(R.string.auto_fullscreen)
     override val autoFullscreenSummary: String get() = context.getString(R.string.auto_fullscreen_summary)
+    override val desktopFullscreenHint: String get() = context.getString(R.string.desktop_fullscreen_hint)
+    override val desktopExitFullscreen: String get() = context.getString(R.string.desktop_exit_fullscreen)
     override val calculatorPar1: String get() = context.getString(R.string.calculator_par1)
     override val calculatorPar2: String get() = context.getString(R.string.calculator_par2)
     override val calculatorPar3: String get() = context.getString(R.string.calculator_par3)

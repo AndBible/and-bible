@@ -33,6 +33,7 @@ object ReadingHostDepsFields {
         "monochrome",
         "generation",
         "fullScreen",
+        "onExitFullScreen",
         "overlayText",
         "activeIsBibleShown",
         "imeBottomPaddingPx",

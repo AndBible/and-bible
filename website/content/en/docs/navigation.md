@@ -199,8 +199,8 @@ desktop app, **Esc** works like the Back button. Each press closes the topmost
 open thing first: a dialog, popup or sheet, then the main menu, then the search
 results and finally **Find** (the search field in the toolbar). On a screen
 opened over the Bible text, such as the settings or the Bible chooser, Esc
-returns to the previous screen. On the Bible text with nothing open, Esc does
-nothing.
+returns to the previous screen. On the desktop reading screen, Esc also exits
+fullscreen; otherwise, with nothing open, it does nothing.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
 first Esc only leaves the field (and hides the on-screen keyboard); press Esc
@@ -226,6 +226,10 @@ This feature is enabled by default on Android, iPhone, and iPad. It is disabled
 by default in the desktop app and when running the iPad app on a Mac. You can
 change it in `Settings` > `Application behavior` > `Double-tap to fullscreen`.
 Your saved choice is kept.
+
+On desktop, choose **Fullscreen** in the main menu or press **F11** to enter
+fullscreen. Click the exit-fullscreen button at the upper right, or press **Esc**
+or **F11**, to exit it independently of the double-tap setting. When a dialog or page editor is open, close it first.
 
 ### Fullscreen by Scrolling
 

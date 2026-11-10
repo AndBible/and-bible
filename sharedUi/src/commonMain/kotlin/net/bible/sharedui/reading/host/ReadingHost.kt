@@ -144,6 +144,7 @@ class ReadingHostDeps(
     /** Bumped by the host to dispose and recreate the whole pane subtree. */
     val generation: State<Int> = mutableIntStateOf(0),
     val fullScreen: State<Boolean> = mutableStateOf(false),
+    val onExitFullScreen: (() -> Unit)? = null,
     val overlayText: State<String> = mutableStateOf(""),
     val activeIsBibleShown: State<Boolean> = mutableStateOf(false),
     /** The keyboard shrink in px (see `ReadingViewScreen.imeBottomPadding`). */
@@ -442,6 +443,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                     toolbarIcons = deps.toolbarIcons(),
                     toolbarCallbacks = deps.toolbarCallbacks,
                     fullScreen = fullScreen,
+                    onExitFullScreen = deps.onExitFullScreen,
                     // The keyboard shrink the host computed, applied as a plain bottom padding on the
                     // reading column.
                     imeBottomPadding = with(LocalDensity.current) { imeBottomPaddingPx.toDp() },

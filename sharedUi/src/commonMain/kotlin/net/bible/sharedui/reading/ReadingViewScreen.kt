@@ -20,6 +20,12 @@ package net.bible.sharedui.reading
 import net.bible.sharedui.reading.activity.ActivityMenuState
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloseFullscreen
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -117,6 +123,7 @@ fun ReadingViewScreen(
     toolbarIcons: ReadingToolbarIcons,
     toolbarCallbacks: ReadingToolbarCallbacks,
     fullScreen: Boolean,
+    onExitFullScreen: (() -> Unit)? = null,
     /**
      * The keyboard shrink, supplied by the host (F59). Applied as a plain bottom padding on the
      * reading column -- never `Modifier.imePadding()`: that would lift the column a second time on
@@ -279,6 +286,13 @@ fun ReadingViewScreen(
                 // this line becomes wrong while still compiling: go through the shared predicate then,
                 // as the agent-log call site three lines down already does.
                 speakBar?.invoke(speakBarVisible && !columnPadsIme)
+            }
+        }
+        if (fullScreen && onExitFullScreen != null) {
+            Surface(Modifier.align(Alignment.TopEnd), color = MaterialTheme.colorScheme.surface) {
+                IconButton(onClick = onExitFullScreen) {
+                    Icon(Icons.Filled.CloseFullscreen, contentDescription = LocalStrings.current.desktopExitFullscreen)
+                }
             }
         }
         if (agentLog != null && agentLogVisible) {

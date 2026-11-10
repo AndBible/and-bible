@@ -274,6 +274,19 @@ object HostReadingWindows {
         for (id in assemblies.keys.toList()) rebuild(id)
     }
 
+    /** Toggles reading fullscreen independently of the double-tap preference. */
+    fun toggleFullScreen() {
+        binding?.host?.let { it.setFullScreen(!it.fullScreen.state.value) }
+    }
+
+    /** Leaves fullscreen if it is active. */
+    fun leaveFullScreen(): Boolean {
+        val host = binding?.host ?: return false
+        if (!host.fullScreen.state.value) return false
+        host.setFullScreen(false)
+        return true
+    }
+
     /** The reading gestures of the bound host, for the pane factory; null while no host is bound. */
     fun gesturesFor(@Suppress("UNUSED_PARAMETER") windowId: String): HostReadingGestures? = binding?.host?.gestures
 

@@ -201,8 +201,10 @@ class HostReadingHost(
      * `fullScreen.state` in common code; the status bar is a platform matter, see [ReadingHostPlatform.setStatusBarHidden].
      */
     internal fun setFullScreen(value: Boolean, byDoubleTap: Boolean = false) {
+        val entering = value && !fullScreen.state.value
         fullScreen.set(value, byDoubleTap)
         statusBarHidden(fullScreen.state.value)
+        if (entering) platform.showFullScreenHint(strings().desktopFullscreenHint)
     }
 
     /**
@@ -744,6 +746,7 @@ class HostReadingHost(
         controller = readingViewController,
         toolbar = koin.get<ToolbarStateService>().toolbar,
         fullScreen = fullScreen.state,
+        onExitFullScreen = if (platform.showFullScreenExit) ({ setFullScreen(false) }) else null,
         overlayText = overlayText,
         activeIsBibleShown = activeIsBibleShown,
         toolbarCallbacks = callbacks(),

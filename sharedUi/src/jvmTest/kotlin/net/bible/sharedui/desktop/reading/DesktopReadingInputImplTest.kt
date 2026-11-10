@@ -32,6 +32,7 @@ class DesktopReadingInputImplTest {
     private class Rec : DesktopShortcutActions {
         val log = mutableListOf<String>()
         val modalChecks = mutableListOf<String?>()
+        var fullScreen = false
         override fun isOnReadingScreen() = true
         override fun activeWindowId() = "active"
         override fun search(windowId: String) { log += "search:$windowId" }
@@ -43,6 +44,11 @@ class DesktopReadingInputImplTest {
         override fun focusNextWindow() { log += "next" }
         override fun focusPreviousWindow() { log += "prev" }
         override fun toggleFullScreen() { log += "fs" }
+        override fun leaveFullScreen(): Boolean {
+            if (!fullScreen) return false
+            fullScreen = false
+            return true
+        }
         override fun openSettings() { log += "settings" }
         override fun escapeAllowed(windowId: String) = true
         override fun closePageModals(windowId: String?): Boolean { modalChecks += windowId; return false }
@@ -266,6 +272,12 @@ class DesktopReadingInputImplTest {
         assertFalse(input.onPreviewKeyEvent(ev(Key.C, ctrl = true)))
         assertFalse(input.onKeyEvent(ev(Key.Escape)))
         assertEquals(listOf("next", "back:true"), rec.log)
+    }
+
+    @Test fun composeEscapeExitsFullScreen() {
+        rec.fullScreen = true
+        assertTrue(input.onKeyEvent(ev(Key.Escape)))
+        assertFalse(rec.fullScreen)
     }
 
     @Test fun backFallsBackToHistoryOnlyWhenAsked() {

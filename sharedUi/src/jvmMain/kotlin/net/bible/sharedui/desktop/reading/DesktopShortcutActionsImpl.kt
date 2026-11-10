@@ -87,10 +87,9 @@ class DesktopShortcutActionsImpl(
 
     override fun focusPreviousWindow() = koin().get<WindowControl>().focusPreviousWindow()
 
-    override fun toggleFullScreen() {
-        val id = activeWindowId() ?: return
-        HostReadingWindows.gesturesFor(id)?.onDoubleTap()
-    }
+    override fun toggleFullScreen() = HostReadingWindows.toggleFullScreen()
+
+    override fun leaveFullScreen(): Boolean = HostReadingWindows.leaveFullScreen()
 
     override fun openSettings() = HostRootLinks.openRoute(NavRoutes.SETTINGS)
 

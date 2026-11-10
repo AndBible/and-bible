@@ -166,7 +166,8 @@ class DesktopReadingInputImpl(
     override fun onKeyEvent(event: KeyEvent): Boolean {
         if (event.type != KeyEventType.KeyDown) return false
         val chord = composeChord(event) ?: return false
-        if (!(chord.alt || chord.key == "F11") || chord.ctrl) return false
+        if (chord.key == "Escape" && net.bible.sharedui.components.OverlayPresence.count > 0) return false
+        if (!(chord.alt || chord.key == "F11" || chord.key == "Escape") || chord.ctrl) return false
         return shortcuts.onChord(chord, null)
     }
 
@@ -207,6 +208,7 @@ class DesktopReadingInputImpl(
                 Key.Comma -> ","
                 Key.Tab -> "Tab"
                 Key.F11 -> "F11"
+                Key.Escape -> "Escape"
                 Key.DirectionLeft -> "ArrowLeft"
                 Key.DirectionRight -> "ArrowRight"
                 else -> return null
