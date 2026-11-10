@@ -1466,6 +1466,7 @@
     <string name="cloud_info_summary">Data in cloud storage: %s Mb</string>
     <string name="sync_adapter">Synchronization Backend</string>
     <string name="sync_adapter_summary">Current: %s</string>
+    <string name="sync_adapter_unavailable">Synchronization is disabled because the saved backend is not available on this device. Choose a supported backend to set up synchronization.</string>
     <string name="adapters_google_drive">Google Drive</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="adapters_webdav">WebDAV</string>

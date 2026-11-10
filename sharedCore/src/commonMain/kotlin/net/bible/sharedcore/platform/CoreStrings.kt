@@ -21,6 +21,7 @@ interface CoreStrings {
     /** Resolves the stable sync category name; rejects unknown categories. */
     fun syncCategoryContents(category: String): String
     val syncIntroduction: String
+    val syncAdapterUnavailable: String
     fun syncDriveIntroduction(discrete: Boolean): String
     fun syncAdapterSummary(adapter: String): String
     fun syncLastUpdated(time: String): String

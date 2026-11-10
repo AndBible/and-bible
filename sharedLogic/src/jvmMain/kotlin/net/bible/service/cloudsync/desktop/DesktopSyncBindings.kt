@@ -20,13 +20,14 @@ import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.BackgroundSyncPolicy
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.isAvailable
 import net.bible.service.cloudsync.CloudSyncNamespace
 import net.bible.service.cloudsync.CloudSyncProvider
 import net.bible.service.cloudsync.SyncNamespace
 import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
-import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.HostDocumentSyncStarter
@@ -179,7 +180,8 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
         fun appReady() = DatabaseContainer.ready && get<AppEnvironment>().isInitialized
         // The close path also stays away while a backup restore swaps the databases.
         fun closeReady() = appReady() && !DatabaseContainer.replacing
-        fun syncEnabled() = SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
+        fun syncEnabled() = get<CloudAdapterFactory>().isAvailable(get<AppSettings>()) &&
+            SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
         DesktopSyncDriver(
             policy = BackgroundSyncPolicy(
                 syncEnabled = ::syncEnabled,

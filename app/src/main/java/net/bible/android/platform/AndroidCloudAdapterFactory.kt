@@ -18,12 +18,15 @@ import org.koin.java.KoinJavaComponent
 
 class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFactory {
     override val available: List<String> get() = if (BuildVariant.DistributionChannel.isFdroid) listOf("NEXT_CLOUD", "WEBDAV") else listOf("GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV")
-    override fun displayName(id: String): String = context.getString(when (id) {
-        "GOOGLE_DRIVE" -> R.string.adapters_google_drive
-        "NEXT_CLOUD" -> R.string.adapters_next_cloud
-        "WEBDAV" -> R.string.adapters_webdav
-        else -> error("Unknown cloud adapter: $id")
-    })
+    override fun displayName(id: String): String {
+        val resource = when (id) {
+            "GOOGLE_DRIVE" -> R.string.adapters_google_drive
+            "NEXT_CLOUD" -> R.string.adapters_next_cloud
+            "WEBDAV" -> R.string.adapters_webdav
+            else -> return id
+        }
+        return context.getString(resource)
+    }
     override fun create(id: String): CloudAdapter = when (id) {
         "GOOGLE_DRIVE" -> Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter").getDeclaredConstructor().newInstance() as CloudAdapter
         "NEXT_CLOUD" -> CommonUtils.realSharedPreferences.let { prefs ->

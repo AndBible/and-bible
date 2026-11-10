@@ -27,10 +27,11 @@ import net.bible.sharedui.strings.keyed.StringTable
 internal fun hostSyncStrings(strings: StringTable): HostSyncStrings = HostSyncStrings(
     adapterDisplayName = { id ->
         when (id) {
+            "GOOGLE_DRIVE" -> strings.text("adapters_google_drive")
             "ICLOUD_DRIVE" -> strings.text("adapters_icloud_drive")
             "NEXT_CLOUD" -> strings.text("adapters_next_cloud")
             "WEBDAV" -> strings.text("adapters_webdav")
-            else -> error("Unknown cloud adapter: $id")
+            else -> id
         }
     },
     webDavServerUrlHint = { strings.text("webdav_server_url_hint") },

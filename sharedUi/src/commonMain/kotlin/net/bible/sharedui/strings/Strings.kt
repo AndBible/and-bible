@@ -152,6 +152,7 @@ interface Strings {
     val exitSyncQuitNow: String
     val exitSyncClosing: String
     val syncAdapter: String
+    val syncAdapterUnavailable: String
     val syncGeneralSettings: String
     val syncSettingsShortcutSummary: String
     val synchronizationCategories: String

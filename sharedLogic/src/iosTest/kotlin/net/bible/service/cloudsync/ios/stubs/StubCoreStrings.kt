@@ -26,6 +26,7 @@ internal class StubCoreStrings : CoreStrings {
     override fun creatingIndexFor(name: String): String = "creatingIndexFor ${name}"
     override fun syncCategoryContents(category: String): String = category
     override val syncIntroduction = "syncIntroduction"
+    override val syncAdapterUnavailable = "syncAdapterUnavailable"
     override fun syncDriveIntroduction(discrete: Boolean): String = "syncDriveIntroduction ${discrete}"
     override fun syncAdapterSummary(adapter: String): String = "syncAdapterSummary ${adapter}"
     override fun syncLastUpdated(time: String): String = "syncLastUpdated ${time}"

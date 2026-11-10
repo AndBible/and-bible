@@ -68,7 +68,7 @@ class NotificationPermissionCallTest {
         service.setCategoryEnabled("sync_enable_bookmarks", true)
         runCurrent()
         assertEquals(1, starts)
-        assertEquals(1, failures.size)
+        assertEquals(0, failures.size, "Settings failures must be contained before reaching the host handler")
         writeScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
     }
 
@@ -130,7 +130,10 @@ class NotificationPermissionCallTest {
     }
 
     private fun service(scope: CoroutineScope, permission: NotificationPermission, writeScope: CoroutineScope = scope, onDocumentStart: () -> Unit = {}, onStart: () -> Unit = {}): SyncSettingsServiceImpl {
-        val settings = inert<AppSettings>()
+        val settings = object : AppSettings by inert<AppSettings>() {
+            override fun getString(key: String, default: String?) =
+                if (key == "sync_adapter") "NEXT_CLOUD" else default
+        }
         val env = inert<AppEnvironment>()
         val strings = inert<CoreStrings>()
         val adapters = object : CloudAdapterFactory {
