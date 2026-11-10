@@ -203,7 +203,7 @@ class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
                 hasStrongs = hasStrongs,
                 hasWordsOfChrist = hasWordsOfChrist,
                 moduleFileName = dbPath,
-                versification = if (isBible) detectVersification().name else "KJVA",
+                versification = if (isBible) MyBibleVersificationStore.resolve(sqliteFile) { detectVersification().name } else "KJVA",
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
@@ -532,15 +532,13 @@ fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
 
 fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
     val dir = myBibleModulesDir()
-    if(!KFiles.isDirectory(dir)) return
-    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
-    if (KFiles.listOrNull(dir) == null) return
-
-    for(f in FileSystem.SYSTEM.listRecursively(dir)) {
-        if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".sqlite3")) {
-            addMyBibleBook(f, startupDiscovery)
-        }
-    }
+    // Do not finish migration on an unreadable folder: retry on the next startup instead.
+    if (KFiles.isDirectory(dir) && KFiles.listOrNull(dir) == null) return
+    val files = if (KFiles.isDirectory(dir)) FileSystem.SYSTEM.listRecursively(dir)
+        .filter { KFiles.isFile(it) && it.name.endsWith(".sqlite3", ignoreCase = true) }.toList()
+        else emptyList()
+    if (startupDiscovery) MyBibleVersificationStore.migrateLegacyModules(files)
+    for (file in files) addMyBibleBook(file, startupDiscovery)
 }
 
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null

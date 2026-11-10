@@ -76,6 +76,40 @@ class MyBibleVersificationLifecycleTest {
         assertEquals("German", installed().versification.name)
     }
 
+    @Test
+    fun installedModuleDecisionSurvivesSandboxRelocation() = withModules { original ->
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val file = fixture(original)
+        addMyBibleBook(file.path.toPath())
+        assertEquals("German", installed().versification.name)
+        close(installed())
+        Books.installed().removeBook(installed())
+        stopKoin()
+        val moved = Files.createTempDirectory("mybible-relocated").toFile()
+        try {
+            original.copyRecursively(moved, overwrite = true)
+            root = moved
+            start()
+            assertEquals("German", MyBibleVersificationStore.resolve(moved.resolve("modules/mybible/Lifecycle.SQLite3").path.toPath()) {
+                error("Stored installation must not be detected again after sandbox relocation")
+            })
+        } finally {
+            stopKoin()
+            moved.deleteRecursively()
+            root = original
+            start()
+        }
+    }
+
+    @Test
+    fun sameFilenameInDifferentDirectoriesHasIndependentDecisions() = withModules { original ->
+        val first = original.resolve("modules/mybible/one/Bible.SQLite3").path.toPath()
+        val second = original.resolve("modules/mybible/two/Bible.SQLite3").path.toPath()
+        assertEquals("German", MyBibleVersificationStore.resolve(first) { "German" })
+        assertEquals("KJVA", MyBibleVersificationStore.resolve(second) { "KJVA" })
+        assertEquals("German", MyBibleVersificationStore.resolve(first) { error("must not detect twice") })
+    }
+
     private fun fixture(root: File, german: Boolean = true): File {
         val file = root.resolve("modules/mybible/Lifecycle.SQLite3").apply { parentFile.mkdirs() }
         openSqlite(file.path).use { db ->

@@ -63,6 +63,9 @@ class SqliteSwordDriver: AbstractBookDriver() {
 
     override fun delete(book: Book) {
         KFiles.delete(book.dbPath)
+        if (!KFiles.isFile(book.dbPath) && book.getProperty("AndBibleMyBibleModule") != null) {
+            net.bible.service.sword.mybible.MyBibleVersificationStore.remove(book.dbPath)
+        }
         Books.installed().removeBook(book)
     }
 }

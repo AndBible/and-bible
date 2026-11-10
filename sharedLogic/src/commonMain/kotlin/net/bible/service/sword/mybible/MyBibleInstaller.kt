@@ -194,6 +194,8 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                         throw InstallException("Invalid MyBible module", e)
                     } finally {
                         state.close()
+                        // Validation uses a temporary path, not the installed module's identity.
+                        MyBibleVersificationStore.remove(file)
                     }
                 }
                 // Validate the complete payload before exposing any files to the installed-book scan.

@@ -5,6 +5,7 @@ import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
 import net.bible.sharedlogic.platform.host.HostReadOnlyModuleDbOpener
 import okio.Path.Companion.toPath
@@ -74,7 +75,17 @@ class MyBibleVersificationTest {
     private fun withBible(germanLayout: Boolean, reporterBounds: Boolean = false, check: (SwordBook) -> Unit) {
         val root = Files.createTempDirectory("mybible-versification").toFile()
         var book: SwordBook? = null
-        startKoin { modules(module { single<ReadOnlyModuleDbOpener> { HostReadOnlyModuleDbOpener() } }) }
+        val dirs = object : AppDirectories {
+            override val internalFilesDir = root.resolve("internal").path.toPath()
+            override val modulesDir = root.path.toPath()
+            override val manualInstallDir = modulesDir
+            override val manualInstallDir2 = modulesDir
+            override val manualReadingPlanDir = modulesDir
+        }
+        startKoin { modules(module {
+            single<AppDirectories> { dirs }
+            single<ReadOnlyModuleDbOpener> { HostReadOnlyModuleDbOpener() }
+        }) }
         try {
             val file = root.resolve("VersificationFixture.SQLite3")
             openSqlite(file.path).use { db ->
