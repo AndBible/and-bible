@@ -13,7 +13,9 @@
 # app/src/test/roborazzi ignored).
 # Env: RELEASE_SECRETS_DIR (required except --dry-run; members asc-api.env and AuthKey.p8), REPO_ROOT, MAC_REMOTE
 #      (default scripts/mac-remote.sh), MAC_SSH_CONFIG (~/.ssh-mac/config), MAC_HOST (andbible-mac), MAC_TIMEOUT (5400),
-#      MAC_LOCAL_DIR (mac-remote's local dir), MAC_DETACH_TIMEOUT (60), MAC_DETACH_KILL_AFTER (5).
+#      MAC_LOCAL_DIR (mac-remote's local dir), MAC_DETACH_TIMEOUT (60), MAC_DETACH_KILL_AFTER (5), IOS_VOL_FILE (written
+#      with the Mac volume name before the key is streamed).
+# ios-build.sh --detach asckey-<n>: only detach that Mac volume (bounded), for a caller that had to kill a run.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,13 +25,16 @@ TEAM=X6A6CDK8T7
 DEST=upload
 DRY=0
 REUSE=""
-usage() { echo "usage: ios-build.sh [--export-only] [--dry-run] [--reuse <build>]" >&2; exit 2; }
+DETACH_ONLY=""
+usage() { echo "usage: ios-build.sh [--export-only] [--dry-run] [--reuse <build>] | --detach <asckey-volume>" >&2; exit 2; }
 while [ $# -gt 0 ]; do
     case "$1" in
     --export-only) DEST=export; shift ;;
     --dry-run) DRY=1; shift ;;
     --reuse) [ $# -ge 2 ] || usage; REUSE="$2"; shift 2
         [[ "$REUSE" =~ ^20[0-9]{2}\.[0-9]{4}\.[0-9]{6}$ ]] || { echo "ios-build: bad --reuse build '$REUSE'" >&2; exit 2; } ;;
+    --detach) [ $# -ge 2 ] || usage; DETACH_ONLY="$2"; shift 2
+        [[ "$DETACH_ONLY" =~ ^asckey-[0-9]+$ ]] || { echo "ios-build: bad volume '$DETACH_ONLY'" >&2; exit 2; } ;;
     *) usage ;;
     esac
 done
@@ -39,6 +44,28 @@ die() { echo "ios-build: $*" >&2; exit 1; }
 . "$HERE/lib-secrets.sh"
 # shellcheck source=../lib-version.sh
 . "$REPO/scripts/lib-version.sh"
+
+SSH=(ssh -F "${MAC_SSH_CONFIG:-$HOME/.ssh-mac/config}" "${MAC_HOST:-andbible-mac}")
+# detach_mac: detach /Volumes/$VOL on the Mac, bounded (ssh inherits the ignored INT/TERM/HUP, so only timeout can end a
+# stalled connection). The remote command fails when the volume is still mounted afterwards. Never exits.
+detach_mac() {
+    local out
+    [ -n "$VOL" ] || return 0
+    if out=$(timeout -k "${MAC_DETACH_KILL_AFTER:-5}" "${MAC_DETACH_TIMEOUT:-60}" "${SSH[@]:0:3}" -o ConnectTimeout=20 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 "${SSH[@]:3}" \
+        "d=\$(df /Volumes/$VOL 2>/dev/null | awk 'NR==2{print \$1}'); [ -n \"\$d\" ] && hdiutil detach \$d >/dev/null; echo \$(hdiutil info | grep -c asckey || true); [ ! -e /Volumes/$VOL ]" 2>&1 </dev/null); then
+        echo "mac asckey volumes after detach: $out"
+        VOL=""
+    else
+        echo "ios-build: WARNING: could not detach /Volumes/$VOL on the Mac; the API key may still be there (asckey volumes: ${out:-unknown}). Detach by hand from the container: scripts/mac-remote.sh ssh 'hdiutil detach -force /Volumes/$VOL'" >&2
+    fi
+    return 0
+}
+# --detach <volume>: only detach a key volume left by an ios-build.sh that was killed (release-internal.sh calls this).
+if [ -n "$DETACH_ONLY" ]; then
+    VOL="$DETACH_ONLY"
+    detach_mac
+    [ -z "$VOL" ]; exit
+fi
 
 # 1. Clean tree (checked again after the decrypt wait, before anything is synced).
 check_clean() {
@@ -65,7 +92,6 @@ if holder=$(printf '%s\n' "$check_out" | grep -m1 '^BUILD LOCK held by:'); then
     fi
 fi
 
-SSH=(ssh -F "${MAC_SSH_CONFIG:-$HOME/.ssh-mac/config}" "${MAC_HOST:-andbible-mac}")
 if ENV_FILE=$(secrets_member asc-api.env 2>/dev/null) && KEY_FILE=$(secrets_member AuthKey.p8 2>/dev/null); then
     ASC_KEY_ID=$(sed -n 's/^ASC_KEY_ID=//p' "$ENV_FILE" | head -n 1)
     ASC_ISSUER_ID=$(sed -n 's/^ASC_ISSUER_ID=//p' "$ENV_FILE" | head -n 1)
@@ -95,20 +121,6 @@ fi
 
 # 3. Everything below is covered by the EXIT trap: the Mac volume is detached (if it was ever attached) after success,
 #    failure or a signal. The caller's RAM dir is the caller's to close.
-# detach_mac: detach /Volumes/$VOL on the Mac, bounded (ssh inherits the ignored INT/TERM/HUP, so only timeout can end a
-# stalled connection). The remote command fails when the volume is still mounted afterwards. Never exits.
-detach_mac() {
-    local out
-    [ -n "$VOL" ] || return 0
-    if out=$(timeout -k "${MAC_DETACH_KILL_AFTER:-5}" "${MAC_DETACH_TIMEOUT:-60}" "${SSH[@]:0:3}" -o ConnectTimeout=20 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 "${SSH[@]:3}" \
-        "d=\$(df /Volumes/$VOL 2>/dev/null | awk 'NR==2{print \$1}'); [ -n \"\$d\" ] && hdiutil detach \$d >/dev/null; echo \$(hdiutil info | grep -c asckey || true); [ ! -e /Volumes/$VOL ]" 2>&1 </dev/null); then
-        echo "mac asckey volumes after detach: $out"
-        VOL=""
-    else
-        echo "ios-build: WARNING: could not detach /Volumes/$VOL on the Mac; the API key may still be there (asckey volumes: ${out:-unknown}). Detach by hand from the container: scripts/mac-remote.sh ssh 'hdiutil detach -force /Volumes/$VOL'" >&2
-    fi
-    return 0
-}
 mac_detach() {
     local rc=$?
     trap '' INT TERM HUP    # a second Ctrl-C must not interrupt the detach
@@ -124,6 +136,7 @@ trap 'exit 143' TERM HUP
 [ -s "$KEY_FILE" ] || die "AuthKey.p8 in the secrets bundle is empty"
 check_clean    # edits made since the start would be synced into the build
 VOL="asckey-$$"    # set before the stream: a half-done attach is detached too
+[ -z "${IOS_VOL_FILE:-}" ] || echo "$VOL" > "$IOS_VOL_FILE"    # release-internal.sh detaches it if it must kill this run
 "${SSH[@]}" "$ATTACH_CMD" < "$KEY_FILE" || die "streaming the key to the Mac failed"
 
 t0=$(date +%s)

@@ -133,10 +133,17 @@ push:
 	git push --recurse-submodules=check -u origin "$$branch"
 
 # Release pipeline (I4c-1)
-# TestFlight internal build of the clean HEAD (one YubiKey touch): make testflight [DEST=export]
-# DEST=export builds and checks the IPA but does not upload it.
+# One-touch internal release of the clean HEAD: Google Play internal + TestFlight internal in parallel, one YubiKey touch
+# (scripts/release/release-internal.sh, skill .claude/skills/release).
+#   make release-internal [PLATFORM=android|ios|both] [DEST=upload|export] [DRY_RUN=1]
+# DEST=export builds and checks both artifacts but uploads nothing. make testflight = PLATFORM=ios.
+release-internal:
+	@case "$(PLATFORM)" in ""|android|ios|both) ;; *) echo "release-internal: PLATFORM must be android, ios or both (got '$(PLATFORM)')" >&2; exit 1;; esac
+	@case "$(DEST)" in ""|upload|export) ;; *) echo "release-internal: DEST must be empty, upload or export (got '$(DEST)')" >&2; exit 1;; esac
+	@scripts/release/release-internal.sh --platform $(or $(PLATFORM),both) $(if $(filter export,$(DEST)),--export-only,) $(if $(DRY_RUN),--dry-run,)
+
 testflight:
 	@case "$(DEST)" in ""|upload|export) ;; *) echo "testflight: DEST must be empty, upload or export (got '$(DEST)')" >&2; exit 1;; esac
-	@scripts/release/ios-build.sh $(if $(filter export,$(DEST)),--export-only,)
+	@scripts/release/release-internal.sh --platform ios $(if $(filter export,$(DEST)),--export-only,) $(if $(DRY_RUN),--dry-run,)
 
-.PHONY: increment-version increment-beta-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight
+.PHONY: increment-version increment-beta-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight release-internal

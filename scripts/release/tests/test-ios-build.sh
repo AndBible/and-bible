@@ -267,6 +267,16 @@ test_reuse_exit3_passed_through() {
     mk_repo; export STUB_RUN_RC=3; build --reuse 2026.1110.101010; unset STUB_RUN_RC
     [ "$RC" = 3 ] || return "$(fail "rc=$RC, want 3")"
 }
+test_vol_file_and_detach_mode() {
+    mk_repo; IOS_VOL_FILE="$T/vol" build --export-only
+    [ "$RC" = 0 ] && grep -qx 'asckey-[0-9]*' "$T/vol" || return "$(fail "vol file: $(cat "$T/vol" 2>&1)")"
+    local v; v=$(cat "$T/vol"); rm -rf "$STUB_DIR"; mkdir -p "$STUB_DIR"
+    SESS="" build --detach "$v"
+    [ "$RC" = 0 ] || return "$(fail "detach rc=$RC: $(cat "$T/out")")"
+    grep -q "hdiutil detach" "$STUB_DIR/argv" && grep -q "/Volumes/$v" "$STUB_DIR/argv" || return "$(fail "argv: $(cat "$STUB_DIR/argv" 2>&1)")"
+    ! grep -q '^mac-remote' "$STUB_DIR/argv" || return "$(fail "mac-remote ran in detach mode")"
+    SESS="" build --detach 'x;rm -rf /'; [ "$RC" = 2 ] || return "$(fail "bad volume accepted")"
+}
 iosenv() { echo "$R/.local/release/1250/ios/artifact.env"; }
 test_artifact_env_written_after_archive() {
     mk_repo; export STUB_SUMMARY="result=PASS export"; build --export-only; unset STUB_SUMMARY
