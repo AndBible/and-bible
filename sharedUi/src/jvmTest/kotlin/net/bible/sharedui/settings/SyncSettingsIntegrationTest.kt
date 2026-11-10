@@ -69,8 +69,8 @@ class SyncSettingsIntegrationTest {
         }
     } as T
 
-    @Test fun unavailableStoredAdapterDoesNotCrashSettings() {
-        val values = mutableMapOf<String, Any?>("sync_adapter" to "GOOGLE_DRIVE")
+    @Test fun unavailableStoredAdapterDisablesSettingsUntilUserChoosesSupportedBackend() {
+        val values = mutableMapOf<String, Any?>("sync_adapter" to "GOOGLE_DRIVE", "sync_enable_bookmarks" to true)
         val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, a ->
             val args = a ?: emptyArray()
             when {
@@ -93,13 +93,23 @@ class SyncSettingsIntegrationTest {
         val cloud = CloudSync(AppDialogController(), strings, env, settings, adapters, inert<SyncScheduler>(), starter, provider, documents)
         try {
             val service = SyncSettingsServiceImpl(scope, scope, documents, cloud, adapters, SyncSettingsCategories(settings) { inert<net.bible.android.database.SyncDao>() }, provider, starter, platform, strings, env, {})
-            assertEquals("NEXT_CLOUD", service.snapshot.value.adapter)
+            assertEquals("GOOGLE_DRIVE", service.snapshot.value.adapter)
             assertEquals("GOOGLE_DRIVE", values["sync_adapter"])
+            assertFalse(service.snapshot.value.categoryEnabled.getValue("sync_enable_bookmarks"))
+            assertFalse(service.snapshot.value.documentsEnabled)
+            assertFalse(service.snapshot.value.credsVisible)
+            kotlin.test.assertTrue(service.snapshot.value.adapterEnabled)
+            kotlin.test.assertTrue(service.snapshot.value.adapterSummary.contains("disabled", ignoreCase = true))
             values["sync_adapter"] = "UNRECOGNIZED"
             service.refresh()
-            assertEquals("NEXT_CLOUD", service.snapshot.value.adapter)
-            values["sync_adapter"] = "WEBDAV"
-            assertEquals("WEBDAV", cloud.adapterId)
+            assertEquals("UNRECOGNIZED", service.snapshot.value.adapter)
+            assertEquals("UNRECOGNIZED", adapters.displayName("UNRECOGNIZED"))
+            assertFalse(service.snapshot.value.categoryEnabled.getValue("sync_enable_bookmarks"))
+            service.setAdapter("WEBDAV")
+            service.refresh()
+            assertEquals("WEBDAV", values["sync_adapter"])
+            assertEquals("WEBDAV", service.snapshot.value.adapter)
+            kotlin.test.assertTrue(service.snapshot.value.categoryEnabled.getValue("sync_enable_bookmarks"))
             values["sync_adapter"] = null
             assertEquals("NEXT_CLOUD", cloud.adapterId)
         } finally { scope.coroutineContext[Job]?.cancel() }
