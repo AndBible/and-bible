@@ -30,8 +30,8 @@ A powerful, yet easy to use, offline Bible study application.
 > [beta announcement](https://andbible.org/2026/11/07/andbible-6-0-public-beta/).
 
 - **Android:** the badges above (Google Play, F-Droid, Accrescent, Obtainium, Amazon Appstore) have the stable version. To try 6.0, join the [beta programme on Google Play](https://play.google.com/apps/testing/net.bible.android.activity) or download the APK from the newest *Beta release* on the [releases page](https://github.com/AndBible/and-bible/releases).
-- **iPhone and iPad:** [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527). The 6.0 beta is coming soon through TestFlight.
-- **Mac:** there is no separate macOS build. Apple Silicon Macs run the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527); Intel Macs are not supported.
+- **iPhone and iPad:** [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527) has the stable version. To try 6.0, install Apple's TestFlight app and join the [TestFlight public beta](https://testflight.apple.com/join/sB7guYsk).
+- **Mac:** there is no separate macOS build. Apple Silicon Macs run the iPad app from the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527), and the 6.0 beta through the same [TestFlight beta](https://testflight.apple.com/join/sB7guYsk); Intel Macs are not supported.
 - **Windows (beta):** MSI installer from the newest *Beta release* on the [releases page](https://github.com/AndBible/and-bible/releases).
 - **Linux (beta):** `.deb` package and AppImage from the newest *Beta release* on the [releases page](https://github.com/AndBible/and-bible/releases).
 

@@ -12,7 +12,7 @@ site_name: AndBible
 release:
   channel: beta
   ios_beta_link: "https://testflight.apple.com/join/sB7guYsk"
-  ios_beta_enabled: false
+  ios_beta_enabled: true
   beta_release_link: ""
 nav:
   blog: Blog
