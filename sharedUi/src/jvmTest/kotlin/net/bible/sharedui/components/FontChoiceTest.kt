@@ -3,6 +3,9 @@ package net.bible.sharedui.components
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.performClick
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import net.bible.service.common.DisplayColorMode
 import androidx.compose.ui.semantics.SemanticsActions
@@ -82,13 +85,15 @@ class FontChoiceTest {
                     val selected = mutableStateOf("sans-serif")
                     setContent {
                         AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
-                            AbChoiceSheetContent(
-                                title = "Fonts",
-                                choices = listOf(genericFontChoice("sans-serif"), genericFontChoice("serif")),
-                                selectedValue = selected.value,
-                                onSelect = { selected.value = it },
-                                onClose = {},
-                            )
+                            CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                                AbChoiceSheetContent(
+                                    title = "Fonts",
+                                    choices = listOf(genericFontChoice("sans-serif"), genericFontChoice("serif")),
+                                    selectedValue = selected.value,
+                                    onSelect = { selected.value = it },
+                                    onClose = {},
+                                )
+                            }
                         }
                     }
                     onNodeWithText("Serif").performClick()
