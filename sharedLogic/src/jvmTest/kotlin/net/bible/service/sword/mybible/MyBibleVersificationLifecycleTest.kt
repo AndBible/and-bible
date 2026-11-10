@@ -110,6 +110,70 @@ class MyBibleVersificationLifecycleTest {
         assertEquals("German", MyBibleVersificationStore.resolve(first) { error("must not detect twice") })
     }
 
+    @Test
+    fun installerScanBeforeStartupPinsExistingModule() = withModules { root ->
+        fixture(root)
+        addManuallyInstalledMyBibleBooks()
+        assertEquals("KJVA", installed().versification.name)
+    }
+
+    @Test
+    fun emptyFallbackRootDoesNotMarkExternalRootAsMigrated() = withModules { root ->
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        // The same private app data, but Android now returns its real external modules directory.
+        stopKoin()
+        modulesFolder = "external-modules"
+        start()
+        fixture(root).let { file ->
+            val external = root.resolve("external-modules/mybible/Lifecycle.SQLite3")
+            external.parentFile.mkdirs()
+            file.renameTo(external)
+        }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+    }
+
+    @Test
+    fun emptyFallbackRootWithExistingUserDataDoesNotMarkExternalRootAsMigrated() = withModules { root ->
+        root.resolve("internal/bookmarks.sqlite3").apply { parentFile.mkdirs(); writeText("existing user data") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        stopKoin()
+        modulesFolder = "external-modules"
+        start()
+        fixture(root).let { file ->
+            val external = root.resolve("external-modules/mybible/Lifecycle.SQLite3")
+            external.parentFile.mkdirs()
+            file.renameTo(external)
+        }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+    }
+
+    @Test
+    fun migrationWriteFailureKeepsStartupAliveAndRetriesWithoutDetection() = withModules { root ->
+        fixture(root)
+        root.resolve("internal/mybible-versifications").apply { parentFile.mkdirs(); writeText("blocks directory") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+        restart()
+        root.resolve("internal/mybible-versifications").delete()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installed().versification.name)
+    }
+
+    @Test
+    fun newImportRecordWriteFailureUsesKjvaAndDoesNotSaveDetectedNumbering() = withModules { root ->
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        root.resolve("internal/mybible-versifications").apply { parentFile.mkdirs(); writeText("blocks directory") }
+        val file = fixture(root)
+        addMyBibleBook(file.path.toPath())
+        assertEquals("KJVA", installed().versification.name)
+        restart()
+        root.resolve("internal/mybible-versifications").delete()
+        addMyBibleBook(file.path.toPath())
+        assertEquals("German", installed().versification.name)
+    }
+
     private fun fixture(root: File, german: Boolean = true): File {
         val file = root.resolve("modules/mybible/Lifecycle.SQLite3").apply { parentFile.mkdirs() }
         openSqlite(file.path).use { db ->
@@ -151,10 +215,11 @@ class MyBibleVersificationLifecycleTest {
     }
 
     private lateinit var root: File
+    private var modulesFolder = "modules"
     private fun start() {
         val dirs = object : AppDirectories {
             override val internalFilesDir = root.resolve("internal").path.toPath()
-            override val modulesDir = root.resolve("modules").path.toPath()
+            override val modulesDir = root.resolve(modulesFolder).path.toPath()
             override val manualInstallDir = root.resolve("manual").path.toPath()
             override val manualInstallDir2 = root.resolve("manual2").path.toPath()
             override val manualReadingPlanDir = root.resolve("plans").path.toPath()
@@ -167,6 +232,7 @@ class MyBibleVersificationLifecycleTest {
 
     private fun withModules(check: (File) -> Unit) {
         root = Files.createTempDirectory("mybible-lifecycle").toFile()
+        modulesFolder = "modules"
         start()
         try { check(root) } finally {
             (Books.installed().getBook("MyBible-Lifecycle") as? SwordBook)?.let {

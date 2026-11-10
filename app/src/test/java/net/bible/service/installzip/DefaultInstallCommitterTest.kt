@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exec
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.common.activate.Activator
@@ -143,6 +144,37 @@ class DefaultInstallCommitterTest {
             "registered module should be readable",
             book!!.getRawText(book.getKey("strong")).contains("The test definition body.")
         )
+    }
+
+    @Test
+    fun rawMyBibleImportBeforeStartupPreservesLegacyModule() = runBlocking {
+        val root = File(SharedConstants.modulesDir, "mybible").apply { mkdirs() }
+        val legacy = File(root, "LegacyBeforeDirect.SQLite3")
+        val source = File(CommonUtils.tmpDir, "new-direct.SQLite3")
+        try {
+            net.bible.service.db.openSqlite(source.path).use { db ->
+                db.exec("CREATE TABLE info (name TEXT, value TEXT)")
+                db.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+                listOf(14, 17, 24).forEachIndexed { chapter, verse ->
+                    db.exec("INSERT INTO verses VALUES (460, ${chapter + 1}, $verse, 'Chapter end')")
+                }
+            }
+            legacy.writeBytes(source.readBytes())
+            committer.commitSqlite(source.toOkioPath(), SqliteBookType.MYBIBLE, "FreshDirect.SQLite3")
+            net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+            assertEquals("KJVA", (Books.installed().getBook("MyBible-LegacyBeforeDirect") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
+            assertEquals("German", (Books.installed().getBook("MyBible-FreshDirect") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
+        } finally {
+            listOf("LegacyBeforeDirect", "FreshDirect").forEach { name ->
+                Books.installed().getBook("MyBible-$name")?.let { book ->
+                    Activator.deactivate(book)
+                    ((book as org.crosswire.jsword.book.sword.SwordBook).backend as net.bible.service.sword.mybible.SqliteBackend).state.close()
+                    Books.installed().removeBook(book)
+                }
+                File(root, "$name.SQLite3").delete()
+            }
+            source.delete()
+        }
     }
 
     @Test

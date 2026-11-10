@@ -24,6 +24,16 @@ import net.bible.android.DurableTestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.installzip.myBibleBytes
+import net.bible.service.db.exec
+import net.bible.service.db.openSqlite
+import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mybible.addMyBibleBook
+import net.bible.service.sword.mybible.SqliteBackend
+import okio.Path.Companion.toOkioPath
+import org.crosswire.common.activate.Activator
+import org.crosswire.jsword.book.sword.SwordBook
+import org.junit.Assert.assertEquals
+import java.util.zip.ZipFile
 import org.crosswire.jsword.book.Books
 import okio.source
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
@@ -57,7 +67,10 @@ class ModuleArchiveExtractionTest {
     /** Books registered by a test (MyBible modules are auto-registered on extraction) must not leak into the one-JVM suite. */
     @After
     fun tearDown() {
-        Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
+        Books.installed().getBooks().filter { it !in booksBefore }.forEach {
+            if (it is SwordBook && it.backend is SqliteBackend) closeMyBible(it)
+            Books.installed().removeBook(it)
+        }
         File(downloadDir, "mybible").deleteRecursively()
     }
 
@@ -174,6 +187,79 @@ class ModuleArchiveExtractionTest {
         org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
 
         assertArrayEquals(bytes, File(downloadDir, "mybible/KJV2.SQLite3").readBytes())
+    }
+
+    @Test
+    fun oldMyBibleArchiveAfterEmptyStartupKeepsLegacyNumbering() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val bytes = germanMyBibleBytes()
+        val zip = buildZip("legacy-numbering.zip", listOf("LegacyNumbering.SQLite3" to bytes))
+
+        org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+            .extractAndRegisterModuleArchive({ zip.source() })
+
+        assertEquals("KJVA", installedVersification("LegacyNumbering"))
+    }
+
+    @Test
+    fun myBibleBackupRestoresGermanDecisionEvenWhenContentsDetectKjva() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val module = File(downloadDir, "mybible/BackupNumbering.SQLite3")
+        module.parentFile!!.mkdirs()
+        module.writeBytes(germanMyBibleBytes())
+        addMyBibleBook(module.toOkioPath())
+        assertEquals("German", installedVersification("BackupNumbering"))
+        val book = Books.installed().getBook("MyBible-BackupNumbering") as SwordBook
+
+        // The installation's decision must survive a subsequent change in detectable content.
+        closeMyBible(book)
+        module.writeBytes(myBibleBytes())
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val archive = File(CommonUtils.tmpDir, "mybible-numbering.abmd.zip")
+        backup.createSingleModuleZip(book, archive.toOkioPath())
+        ZipFile(archive).use { zip ->
+            val sidecar = zip.getEntry("mybible/BackupNumbering.SQLite3.andbible-versification")
+            assertTrue("Backup must contain the numbering decision", sidecar != null)
+            assertEquals("German", zip.getInputStream(sidecar).bufferedReader().readText().trim())
+        }
+        Books.installed().removeBook(book)
+        module.delete()
+        // A distinct target name has no previously saved decision and detects KJVA for empty verses.
+        val entries = ZipFile(archive).use { zip ->
+            zip.entries().toList().filterNot { it.isDirectory }.map { entry ->
+                entry.name.replace("BackupNumbering", "RestoredNumbering") to zip.getInputStream(entry).readBytes()
+            }
+        }
+        val renamedArchive = buildZip("mybible-renamed.abmd.zip", entries)
+        backup.extractAndRegisterModuleArchive({ renamedArchive.source() })
+        assertEquals("German", installedVersification("RestoredNumbering"))
+    }
+
+    private fun installedVersification(name: String): String =
+        (Books.installed().getBook("MyBible-$name") as SwordBook).versification.name
+
+    private fun closeMyBible(book: SwordBook) {
+        Activator.deactivate(book)
+        (book.backend as SqliteBackend).state.close()
+    }
+
+    private fun germanMyBibleBytes(): ByteArray {
+        val file = File.createTempFile("backup-german", ".SQLite3")
+        try {
+            openSqlite(file.path).use { db ->
+                db.exec("CREATE TABLE info (name TEXT, value TEXT)")
+                db.exec("INSERT INTO info VALUES ('language', 'de')")
+                db.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+                listOf(14, 17, 24).forEachIndexed { chapter, verse ->
+                    db.exec("INSERT INTO verses VALUES (460, ${chapter + 1}, $verse, 'Chapter end')")
+                }
+            }
+            return file.readBytes()
+        } finally {
+            file.delete()
+        }
     }
 
     /** Zip-slip: an entry escaping the module directory fails the whole archive and writes nothing outside it. */

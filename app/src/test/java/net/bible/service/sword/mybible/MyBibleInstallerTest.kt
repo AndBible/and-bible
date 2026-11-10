@@ -172,6 +172,23 @@ class MyBibleInstallerTest {
         assertEquals("first definition", book!!.getRawText(DefaultLeafKeyList("alpha")))
     }
 
+    @Test fun installerBeforeStartupPinsLegacyBibleButDetectsNewImport() = runBlocking {
+        val source = File(temp, "german.SQLite3")
+        openSqlite(source.path).use { db ->
+            db.exec("CREATE TABLE info (name TEXT, value TEXT)")
+            db.exec("INSERT INTO info VALUES ('language', 'de')")
+            db.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+            listOf(14, 17, 24).forEachIndexed { chapter, verse ->
+                db.exec("INSERT INTO verses VALUES (460, ${chapter + 1}, $verse, 'Chapter end')")
+            }
+        }
+        File(root, "$id.legacy.SQLite3").writeBytes(source.readBytes())
+        val (installer, book) = installer("$id.fresh.SQLite3", source.readBytes())
+        installer.install(book)
+        assertEquals("KJVA", (Books.installed().getBook("MyBible-${id}_legacy") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
+        assertEquals("German", (Books.installed().getBook("MyBible-${id}_fresh") as org.crosswire.jsword.book.sword.SwordBook).versification.name)
+    }
+
     @Test fun rawSqliteDownloadRegistersReadableDictionary() = runBlocking {
         val (installer, book) = installer("$id.dictionary.SQLite3", sqlite())
         installer.install(book)
