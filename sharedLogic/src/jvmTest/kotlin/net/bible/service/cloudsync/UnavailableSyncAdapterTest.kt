@@ -119,7 +119,7 @@ class UnavailableSyncAdapterTest {
         Fixture().use { f ->
             var starts = 0
             val policy = BackgroundSyncPolicy(
-                { true }, { false }, { 300 }, { 0 }, { 1_000_000 },
+                { f.cloud.syncEnabled }, { false }, { 300 }, { 0 }, { 1_000_000 },
                 { f.cloud.signedIn }, { f.cloud.signIn(background = true) },
                 { starts++; CompletableDeferred(true) },
             )

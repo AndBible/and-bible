@@ -119,7 +119,6 @@ import org.koin.java.KoinJavaComponent
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
@@ -1288,7 +1287,7 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(CommonUtils.settings) }
+        else KoinJavaComponent.get<CloudSync>(CloudSync::class.java).syncEnabled
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 

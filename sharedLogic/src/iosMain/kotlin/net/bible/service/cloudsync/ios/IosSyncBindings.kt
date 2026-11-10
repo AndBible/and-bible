@@ -13,7 +13,6 @@ import net.bible.service.cloudsync.NetworkRestoreEdge
 import net.bible.service.cloudsync.SyncNowWorkspaceSaver
 import net.bible.service.cloudsync.SyncTriggerDriver
 import org.koin.core.scope.Scope
-import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.runDatabaseSyncJob
 import net.bible.service.cloudsync.webdav.WebDavMessage
 import net.bible.service.db.DatabaseContainer
@@ -125,7 +124,7 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
 
 /** The sync policy of every iOS pass (the BGTask refresh and the [SyncTriggerDriver]): non-interactive, never prompts. */
 private fun Scope.iosSyncPolicy() = BackgroundSyncPolicy(
-    syncEnabled = { SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) } },
+    syncEnabled = { get<CloudSync>().syncEnabled },
     replacing = { DatabaseContainer.replacing },
     intervalSeconds = { get<AppSettings>().getLong("cloud_sync_interval", DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS) },
     lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },

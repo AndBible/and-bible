@@ -59,6 +59,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     })
 
     override val syncIntroduction: String get() = t.text("prefs_sync_introduction_summary1")
+    override val syncAdapterUnavailable: String get() = t.text("sync_adapter_unavailable")
     override fun syncDriveIntroduction(discrete: Boolean): String =
         t.fmt("prefs_sync_introduction_summary2", t.text(if (discrete) "app_name_calculator" else "app_name_medium"))
     override fun syncAdapterSummary(adapter: String): String = t.fmt("sync_adapter_summary", adapter)

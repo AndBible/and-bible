@@ -147,6 +147,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val exitSyncQuitNow: String get() = context.getString(R.string.exit_sync_quit_now)
     override val exitSyncClosing: String get() = context.getString(R.string.exit_sync_closing)
     override val syncAdapter: String get() = context.getString(R.string.sync_adapter)
+    override val syncAdapterUnavailable: String get() = context.getString(R.string.sync_adapter_unavailable)
     override val syncGeneralSettings: String get() = context.getString(R.string.sync_general_settings)
     override val syncSettingsShortcutSummary: String get() = context.getString(R.string.sync_settings_shortcut_summary)
     override val synchronizationCategories: String get() = context.getString(R.string.synchronization_categories)

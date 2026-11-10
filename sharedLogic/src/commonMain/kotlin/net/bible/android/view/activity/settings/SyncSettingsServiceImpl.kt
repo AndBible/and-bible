@@ -68,6 +68,20 @@ class SyncSettingsServiceImpl(
     private val progressTracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
     private val runningState: (() -> StateFlow<Boolean>)? = null,
 ) : SyncSettingsService {
+    /** Handle failures inside each child so neither UI nor durable-write scopes are cancelled. */
+    private fun CoroutineScope.launchSettings(
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        action: suspend () -> Unit,
+    ) = launch(start = start) {
+        try {
+            action()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            net.bible.sharedcore.log.Log.e("SyncSettingsService", "Unable to update sync settings", e)
+        }
+    }
+
     private val documentMutationMutex = Mutex()
     private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
         adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
@@ -92,10 +106,10 @@ class SyncSettingsServiceImpl(
     init {
         refresh()
         progressTracker?.let { tracker ->
-            scope.launch { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
+            scope.launchSettings { tracker.state.collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
         }
         runningState?.let { state ->
-            scope.launch { state().collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
+            scope.launchSettings { state().collect { _snapshot.update { it.copy(documentTransferSummary = transferSummary()) } } }
         }
     }
 
@@ -108,6 +122,7 @@ class SyncSettingsServiceImpl(
 
     private fun adapterSummary(): String {
         val current = cloudSync.adapterId
+        if (!cloudSync.adapterAvailable) return strings.syncAdapterUnavailable
         var result = strings.syncIntroduction
         if (current == "GOOGLE_DRIVE") result += " " + strings.syncDriveIntroduction(environment.isDiscrete)
         return result + " " + strings.syncAdapterSummary(adapters.displayName(current))
@@ -122,11 +137,12 @@ class SyncSettingsServiceImpl(
 
     private suspend fun build(cloudInfoSummary: String? = null): SyncSettingsSnapshot {
         val signedIn = cloudSync.signedIn
-        val isCloudSyncEnabled = categories.syncEnabled
+        val available = cloudSync.adapterAvailable
+        val isCloudSyncEnabled = available && categories.syncEnabled
         val isGoogleDrive = cloudSync.adapterId == "GOOGLE_DRIVE"
-        val documentsEnabled = documentSettings.enabled
+        val documentsEnabled = available && documentSettings.enabled
         val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
-        val lastSynchronized = displayed.associateWith { categories.lastSynchronized(it) }
+        val lastSynchronized = displayed.associateWith { if (available) categories.lastSynchronized(it) else null }
         val certPin = if (isWebDav) webDavState.certPin else null
         return SyncSettingsSnapshot(
             adapter = cloudSync.adapterId,
@@ -138,12 +154,12 @@ class SyncSettingsServiceImpl(
             username = platform.credential(storageKey("cloud_sync_username")),
             password = platform.credential(storageKey("cloud_sync_password")),
             folderPath = platform.credential(storageKey("cloud_sync_folder_path")),
-            credsVisible = !isGoogleDrive,
+            credsVisible = available && !isGoogleDrive,
             credsEnabled = !signedIn,
             resetVisible = isCloudSyncEnabled && signedIn,
             cloudInfoVisible = isCloudSyncEnabled && signedIn,
             categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { key ->
-                categories.enabled(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!)
+                available && categories.enabled(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!)
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
                 val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
@@ -167,7 +183,7 @@ class SyncSettingsServiceImpl(
     }
 
     private fun SyncSettingsSnapshot.withCurrentDocumentSettings(): SyncSettingsSnapshot {
-        val enabled = documentSettings.enabled
+        val enabled = cloudSync.adapterAvailable && documentSettings.enabled
         return copy(
             documentsEnabled = enabled,
             autoDownload = documentSettings.autoDownload,
@@ -189,7 +205,7 @@ class SyncSettingsServiceImpl(
     }
 
     override fun refresh() {
-        scope.launch {
+        scope.launchSettings {
             documentSettings.ensureLoaded()
             publishRefresh(build())
             if (categories.syncEnabled && cloudSync.signedIn) {
@@ -219,13 +235,14 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setCategoryEnabled(key: String, enabled: Boolean) {
+        if (enabled && !cloudSync.adapterAvailable) return
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
         categories.setEnabled(cat, enabled)
         if (enabled) {
-            notificationPermission?.let { permission -> writeScope.launch { permission.ensureAsked() } }
+            notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }
             // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
-            writeScope.launch {
+            writeScope.launchSettings {
                 cloudSync.waitUntilFinished()
                 cloudSync.start()
                 cloudSync.waitUntilFinished()
@@ -237,7 +254,7 @@ class SyncSettingsServiceImpl(
 
     /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
     private fun mutateDocuments(mutation: () -> Unit) {
-        writeScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        writeScope.launchSettings(start = CoroutineStart.UNDISPATCHED) {
             documentMutationMutex.withLock {
                 documentSettings.ensureLoaded()
                 mutation()
@@ -249,8 +266,9 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
+        if (!cloudSync.adapterAvailable) return
         notificationPermission?.let { permission ->
-            writeScope.launch {
+            writeScope.launchSettings {
                 try {
                     permission.ensureAsked()
                 } catch (e: kotlinx.coroutines.CancellationException) {
@@ -316,6 +334,7 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setAdapter(value: String) {
+        if (value !in adapters.available) return
         cloudSync.adapterId = value
     }
 

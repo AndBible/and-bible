@@ -26,7 +26,6 @@ import net.bible.service.cloudsync.SyncNamespace
 import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
-import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.HostDocumentSyncStarter
@@ -179,7 +178,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
         fun appReady() = DatabaseContainer.ready && get<AppEnvironment>().isInitialized
         // The close path also stays away while a backup restore swaps the databases.
         fun closeReady() = appReady() && !DatabaseContainer.replacing
-        fun syncEnabled() = SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
+        fun syncEnabled() = get<CloudSync>().syncEnabled
         DesktopSyncDriver(
             policy = BackgroundSyncPolicy(
                 syncEnabled = ::syncEnabled,

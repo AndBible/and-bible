@@ -61,6 +61,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     })
 
     override val syncIntroduction: String get() = context.getString(R.string.prefs_sync_introduction_summary1)
+    override val syncAdapterUnavailable: String get() = context.getString(R.string.sync_adapter_unavailable)
     override fun syncDriveIntroduction(discrete: Boolean): String =
         context.getString(R.string.prefs_sync_introduction_summary2, context.getString(syncSummaryAppName(discrete)))
     override fun syncAdapterSummary(adapter: String): String = context.getString(R.string.sync_adapter_summary, adapter)

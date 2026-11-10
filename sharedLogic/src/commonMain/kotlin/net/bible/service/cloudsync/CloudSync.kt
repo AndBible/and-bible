@@ -92,9 +92,14 @@ class CloudSync(
     private val syncNamespace: String? = null,
 ) {
     var adapterId: String
-        // Preserve an unavailable saved id so it can be used again on a platform that supports it.
-        get() = settings.getString("sync_adapter")?.takeIf { it in adapters.available } ?: adapters.available.first()
-        set(value) = settings.setString("sync_adapter", value)
+        // An unavailable saved backend is disabled, never replaced by a different account/backend.
+        get() = settings.getString("sync_adapter") ?: adapters.available.firstOrNull().orEmpty()
+        set(value) {
+            if (value != adapterId) _adapter = null
+            settings.setString("sync_adapter", value)
+        }
+    val adapterAvailable: Boolean get() = adapterId in adapters.available
+    val syncEnabled: Boolean get() = adapterAvailable && SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) }
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 
     private var runningSource = EventSource<Boolean>()
@@ -131,7 +136,7 @@ class CloudSync(
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
-    val signedIn get() = !signInMutex.isLocked && _adapter?.signedIn == true
+    val signedIn get() = adapterAvailable && !signInMutex.isLocked && _adapter?.signedIn == true
 
     /**
      * The adapter document sync may use: waits out a sign-in that is running, then returns the adapter only when it is
@@ -149,7 +154,7 @@ class CloudSync(
             // caller holds the lock for a single read. Poll briefly instead of returning early or spinning hot.
             if (running != null && !running.isCompleted) running.await() else kotlinx.coroutines.delay(1)
         }
-        return _adapter?.takeIf { it.signedIn }
+        return _adapter?.takeIf { adapterAvailable && it.signedIn }
     }
 
     val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
@@ -167,6 +172,7 @@ class CloudSync(
     /** Completed when the sign-in holding [signInMutex] ends; [signedInAdapter] waits on it without taking the lock. */
     @kotlin.concurrent.Volatile private var signInDone: kotlinx.coroutines.CompletableDeferred<Unit>? = null
     suspend fun signIn(background: Boolean = false, onForegroundFailure: (String) -> Unit = {}, waitForExisting: Boolean = false): Boolean? {
+        if (!adapterAvailable) return false
         if (!signInMutex.tryLock()) {
             Log.i(TAG, "Already signing in!")
             return if (waitForExisting) signInMutex.withLock { _adapter?.signedIn == true } else null
@@ -686,6 +692,7 @@ class CloudSync(
     private val startLock = SynchronizedObject()
 
     fun start(userInitiated: Boolean = false): kotlinx.coroutines.Deferred<Boolean> = synchronized(startLock) { // L1-common-ok: atomicfu lock
+        if (!adapterAvailable) return@synchronized kotlinx.coroutines.CompletableDeferred(false)
         syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
         (if (userInitiated) scheduler.startUserInitiatedDatabaseSync() else scheduler.startDatabaseSync()).also { syncStarted = it }
     }
@@ -733,6 +740,7 @@ class CloudSync(
         reportTransportErrors: Boolean = allowInteraction,
         includeDocuments: Boolean = true,
     ) = withContext(Dispatchers.IO) {
+        if (!adapterAvailable) return@withContext
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
