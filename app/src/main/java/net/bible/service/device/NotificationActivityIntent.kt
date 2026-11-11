@@ -3,20 +3,20 @@ package net.bible.service.device
 import android.content.Context
 import android.content.Intent
 import net.bible.android.activity.StartupActivity
-import net.bible.service.common.BuildVariant
+import net.bible.service.common.CommonUtils
+
+internal const val EXTRA_FROM_NOTIFICATION = "net.bible.android.fromNotification"
 
 /**
- * Notifications outlive both activities and the process. Never capture an unlocked state when
- * posting one: the startup gate must ask for the PIN again when the user actually taps it.
- * A fresh reading host cannot rely on ActivityBase's wasPaused guard, which starts false.
+ * Calculator notifications behave like the launcher: retain a live task (including editors and
+ * pending activity results), and use Startup's PIN gate only on a cold start. ActivityBase's resume
+ * guard locks a backgrounded task. Mark the unlocked destination too: a frozen PendingIntent may be
+ * tapped after the calculator is enabled, when a fresh host must start locked.
  */
 internal fun notificationActivityIntent(context: Context, destination: Intent): Intent =
-    if (BuildVariant.Appearance.isDiscrete) {
-        // Startup owns the calculator result and only opens reading after RESULT_OK. Clear the old
-        // task so cancelling cannot uncover reading (or another calculator) underneath this gate.
-        Intent(context, StartupActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+    if (CommonUtils.showCalculator) {
+        context.packageManager.getLaunchIntentForPackage(context.packageName)
+            ?: Intent.makeMainActivity(android.content.ComponentName(context, StartupActivity::class.java))
     } else {
-        destination
+        destination.putExtra(EXTRA_FROM_NOTIFICATION, true)
     }

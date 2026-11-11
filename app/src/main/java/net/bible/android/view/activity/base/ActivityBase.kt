@@ -58,6 +58,7 @@ import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.VolumeButtonScroll
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.EXTRA_FROM_NOTIFICATION
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
@@ -123,6 +124,12 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             doNotMarkPaused = savedInstanceState.getBoolean("doNotMarkPaused", false)
             wasPaused = savedInstanceState.getBoolean("wasPaused", false)
             returningFromCalculator = savedInstanceState.getBoolean("returningFromCalculator", false)
+        }
+        if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false) && CommonUtils.showCalculator) {
+            wasPaused = true
+            returningFromCalculator = false
+            // Consume the frozen PendingIntent marker so a later configuration recreation stays unlocked.
+            intent.removeExtra(EXTRA_FROM_NOTIFICATION)
         }
         fixNightMode()
     }

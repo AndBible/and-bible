@@ -32,8 +32,7 @@ import org.robolectric.annotation.Config
 class NotificationLockRoutingTest {
     private val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
 
-    @Test fun lockedNotificationEntryPointsUseStartupInsteadOfReading() = withCalculator(true) {
-        org.junit.Assume.assumeTrue(BuildVariant.Appearance.isDiscrete)
+    @Test fun calculatorNotificationsUseLauncherWithoutClearingLiveTask() = withCalculator(true) {
         val intents = notificationContentIntents()
         val registered = app.packageManager.getPackageInfo(app.packageName,
             android.content.pm.PackageManager.GET_ACTIVITIES).activities.orEmpty().map { it.name }
@@ -41,17 +40,18 @@ class NotificationLockRoutingTest {
             org.junit.Assert.assertTrue("$source must target a manifest-registered activity: $registered",
                 intent.component?.className in registered)
         }
-        assertEquals(
-            intents.map { (source, _) -> source to StartupActivity::class.java.name },
-            intents.map { (source, intent) -> source to intent.component?.className },
-        )
+        val launcher = app.packageManager.getLaunchIntentForPackage(app.packageName)!!
         intents.forEach { (source, intent) ->
-            // Reusing a StartupActivity already awaiting a calculator result would skip a fresh check.
-            assertEquals(source, 0, intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            assertEquals(source, Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
-                intent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            assertEquals(source, launcher.component, intent.component)
+            assertEquals(source, Intent.ACTION_MAIN, intent.action)
+            org.junit.Assert.assertTrue(source, intent.hasCategory(Intent.CATEGORY_LAUNCHER))
+            assertEquals(source, Intent.FLAG_ACTIVITY_NEW_TASK, intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK)
+            assertEquals(source, 0, intent.flags and (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))
             assertFalse(source, intent.hasExtra(NavHostComposeActivity.EXTRA_ROUTE))
         }
+        val launchInfo = app.packageManager.resolveActivity(launcher, 0)!!.activityInfo
+        val target = launchInfo.targetActivity ?: launchInfo.name
+        org.junit.Assert.assertTrue(StartupActivity::class.java.isAssignableFrom(Class.forName(target)))
     }
 
     @Test fun standardNotificationEntryPointsKeepTheirDestinations() = withCalculator(false) {
@@ -59,9 +59,16 @@ class NotificationLockRoutingTest {
         assertStandardDestinations()
     }
 
-    @Test fun standardNotificationDestinationsStayUnchangedWithCalculatorEnabled() = withCalculator(true) {
+    @Test fun standardNotificationsCarryColdEntryGuardEvenWhileCalculatorIsOff() = withCalculator(false) {
         org.junit.Assume.assumeFalse(BuildVariant.Appearance.isDiscrete)
-        assertStandardDestinations()
+        notificationContentIntents().forEach { (source, intent) ->
+            org.junit.Assert.assertTrue(source, intent.getBooleanExtra("net.bible.android.fromNotification", false))
+        }
+    }
+
+    @Test fun calculatorNotificationNeverClearsTheLiveTask() = withCalculator(true) {
+        val intent = notificationActivityIntent(app, NavHostComposeActivity.intentFor(app, NavRoutes.READING))
+        assertEquals(0, intent.flags and (Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))
     }
 
     private fun assertStandardDestinations() {

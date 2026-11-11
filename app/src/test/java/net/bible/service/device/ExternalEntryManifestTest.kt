@@ -9,7 +9,6 @@ import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.service.common.BuildVariant
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,11 +31,11 @@ class ExternalEntryManifestTest {
     }
 
     @Test fun standardShareToInstallRemainsResolvable() {
-        if (BuildVariant.Appearance.isDiscrete) return
         val matches = app.packageManager.queryIntentActivities(
             Intent(Intent.ACTION_SEND).setType("application/zip").addCategory(Intent.CATEGORY_DEFAULT),
             PackageManager.MATCH_DEFAULT_ONLY,
         )
-        assertTrue(matches.any { it.activityInfo.name == InstallZipComposeActivity::class.java.name && it.activityInfo.exported })
+        assertEquals(!BuildVariant.Appearance.isDiscrete,
+            matches.any { it.activityInfo.name == InstallZipComposeActivity::class.java.name && it.activityInfo.exported })
     }
 }
