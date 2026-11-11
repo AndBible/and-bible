@@ -32,7 +32,6 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -661,72 +660,90 @@ class ReadingAppBootstrapTest {
         }
     }
 
-    @Test
-    fun showStableNoticeRaisesTodaysBlocksAndPersistsOnDismissUntilUpdate() = runTest(timeout = 30.seconds) {
+    private suspend fun kotlinx.coroutines.test.TestScope.runStableNotice(
+        upgrade: Boolean,
+        discretePref: Boolean = false,
+        block: suspend (NavHostComposeActivity, kotlinx.coroutines.Deferred<Boolean>) -> Unit,
+    ) {
         withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
+            if (discretePref) CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
             val controller = navHostOnReading()
             try {
                 val activity = controller.create().get()
+                activity.readingAppBootstrap.upgradeInstallProvider = { upgrade }
                 val done = async { activity.readingAppBootstrap.showStableNotice() }
                 advanceUntilIdle()
-
-                val request = appDialogs.pending.value!!.request as AppDialogRequest.Notice
-                assertEquals(activity.getString(R.string.stable_notice_title), request.title)
-                assertTrue("the title-bar logo (setIcon today) stays on", request.showTitleLogo)
-                assertEquals(
-                    "par1, Logo (not discrete), the video link, and the sponsor IconLine, in that order",
-                    listOf(
-                        AppDialogRequest.NoticeBlock.Html::class,
-                        AppDialogRequest.NoticeBlock.Logo::class,
-                        AppDialogRequest.NoticeBlock.Html::class,
-                        AppDialogRequest.NoticeBlock.IconLine::class,
-                    ),
-                    request.blocks.map { it::class },
-                )
-                val par1 = request.blocks[0] as AppDialogRequest.NoticeBlock.Html
-                assertTrue(par1.html.contains(activity.getString(R.string.app_name_long)))
-                val videoBlock = request.blocks[2] as AppDialogRequest.NoticeBlock.Html
-                assertTrue(videoBlock.html.contains(newFeaturesIntroVideo))
-                val iconLine = request.blocks[3] as AppDialogRequest.NoticeBlock.IconLine
-                assertEquals(AppDialogRequest.NoticeIcon.Money, iconLine.icon)
-                assertTrue(iconLine.html.contains(buyDevelopmentLink))
-                assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
-                assertEquals(activity.getString(R.string.dismiss), request.neutralText)
-                assertNull("no third/dismiss button today", request.dismissText)
-
-                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Ok)
-                advanceUntilIdle()
-
-                assertTrue(done.isCompleted)
-                assertTrue("dismiss-until-update returns true, as today", done.await())
-                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+                block(activity, done)
             } finally {
                 controller.close()
+                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
                 CommonUtils.settings.removeString("stable-notice-displayed")
             }
         }
     }
 
     @Test
-    fun showStableNoticeNeutralDismissReturnsFalseAndDoesNotPersist() = runTest(timeout = 30.seconds) {
-        withNonBetaBuild {
-            CommonUtils.settings.removeString("stable-notice-displayed")
-            val controller = navHostOnReading()
-            try {
-                val activity = controller.create().get()
-                val done = async { activity.readingAppBootstrap.showStableNotice() }
-                advanceUntilIdle()
-                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
-                advanceUntilIdle()
+    fun stableNoticeNotShownOnFreshInstall() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = false) { _, done ->
+            assertTrue(done.isCompleted)
+            assertFalse(done.await())
+            assertNull(appDialogs.pending.value)
+            assertEquals(
+                "a fresh install marks the version silently",
+                CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""),
+            )
+        }
+    }
 
-                assertTrue(done.isCompleted)
-                assertFalse("plain dismiss returns false, as today", done.await())
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
-            } finally {
-                controller.close()
-                CommonUtils.settings.removeString("stable-notice-displayed")
-            }
+    @Test
+    fun stableNoticeShownToUpgrader() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = true) { _, done ->
+            val request = appDialogs.pending.value!!.request as AppDialogRequest.ReleaseNotice
+            assertEquals(CommonUtils.mainVersion, request.version)
+            assertTrue(request.sponsorAllowed)
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = true))
+            advanceUntilIdle()
+            assertTrue("don't show again returns true", done.await())
+            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+        }
+    }
+
+    @Test
+    fun stableNoticeCloseWithoutCheckboxDoesNotPersist() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = true) { _, done ->
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = false))
+            advanceUntilIdle()
+            assertFalse(done.await())
+            assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+        }
+    }
+
+    @Test
+    fun stableNoticeNotShownInDiscrete() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = true, discretePref = true) { _, done ->
+            assertTrue(done.isCompleted)
+            assertFalse(done.await())
+            assertNull(appDialogs.pending.value)
+        }
+    }
+
+    @Test
+    fun shareActionOpensRecommendChooser() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = true) { _, done ->
+            appDialogs.respond(
+                appDialogs.pending.value!!.id,
+                AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = false),
+            )
+            advanceUntilIdle()
+            val chooser = appDialogs.pending.value!!.request as AppDialogRequest.Options
+            assertEquals(
+                listOf(net.bible.sharedui.app.recommend.RecommendApp.SHARE_LINK, net.bible.sharedui.app.recommend.RecommendApp.SHOW_QR),
+                chooser.options.map { it.value },
+            )
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
+            advanceUntilIdle()
+            done.await()
         }
     }
 
@@ -740,38 +757,6 @@ class ReadingAppBootstrapTest {
                 assertNull(appDialogs.pending.value)
             } finally {
                 controller.close()
-            }
-        }
-    }
-
-    /** Fix batch 6 A6 (surfaces 1, 3): discrete by PREFERENCE only (standard flavor) -- no real name, no body logo. */
-    @Test
-    fun showStableNoticeFollowsTheDiscretePreferenceNotTheFlavor() = runTest(timeout = 30.seconds) {
-        withNonBetaBuild {
-            CommonUtils.settings.removeString("stable-notice-displayed")
-            CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
-            val controller = navHostOnReading()
-            try {
-                val activity = controller.create().get()
-                val done = async { activity.readingAppBootstrap.showStableNotice() }
-                advanceUntilIdle()
-
-                val request = appDialogs.pending.value!!.request as AppDialogRequest.Notice
-                assertFalse(
-                    "the body logo is the real logo: hidden when discrete",
-                    request.blocks.any { it is AppDialogRequest.NoticeBlock.Logo },
-                )
-                val par1 = request.blocks[0] as AppDialogRequest.NoticeBlock.Html
-                assertTrue(par1.html, par1.html.contains(activity.getString(R.string.app_name_calculator)))
-                assertFalse(par1.html, par1.html.contains("AndBible"))
-
-                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
-                advanceUntilIdle()
-                done.await()
-            } finally {
-                controller.close()
-                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
-                CommonUtils.settings.removeString("stable-notice-displayed")
             }
         }
     }

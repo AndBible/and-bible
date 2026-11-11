@@ -49,7 +49,10 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncTriggerDriver
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.newFeaturesIntroVideo
+import net.bible.sharedcore.docs.SiteLinks
+import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
+import net.bible.sharedui.app.notice.ReleaseNotice
+import net.bible.sharedui.app.notice.ReleaseNoticePlatform
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -327,53 +330,40 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     /**
-     * Ported from a `suspendCoroutine`-wrapped `AlertDialog.Builder` to [AppDialogController.await]
-     * (Task 28) -- same resume values (`true` only on "dismiss until update", which also persists
-     * `ver`; `false` on plain dismiss/back) and the same texts/links, now structured as
-     * [AppDialogRequest.Notice] blocks instead of one hand-assembled `Spanned` string. The big
-     * centred logo (`imageStr`/`biggerLogoDrawable`) is [AppDialogRequest.NoticeBlock.Logo], hidden
-     * in discrete mode. Fix batch 6 A6: that now follows [CommonUtils.isDiscrete] (flavor OR the
-     * `discrete_mode` preference), the body names the calculator ([stableNoticeAppName]), and the
-     * SEPARATE title-bar logo is the calculator's ([noticeLogoRes], resolved in `AppDialogOverlay`).
+     * Whether this launch follows an update rather than a fresh install: Android's `firstInstallTime`
+     * differs from `lastUpdateTime` only after an update. A fresh install therefore marks the notice's
+     * version silently (see [ReleaseNotice.showIfNeeded]). Overridable for tests.
+     */
+    internal var upgradeInstallProvider: () -> Boolean = {
+        val info = host.packageManager.getPackageInfo(host.packageName, 0)
+        info.firstInstallTime != info.lastUpdateTime
+    }
+
+    internal fun isUpgradeInstall(): Boolean = upgradeInstallProvider()
+
+    /**
+     * The 6.0 release notice for upgraders, built and gated by the shared [ReleaseNotice] (the same source as
+     * iOS). Its action buttons open the what's-new video, the computer-version page, the sponsor page, or the
+     * same recommend flow as the menu. Returns true only when "don't show again" was stored.
      */
     internal suspend fun showStableNotice(): Boolean {
-        if (CommonUtils.isBeta) return false
-
-        val ver = CommonUtils.mainVersion
-        val displayedVer = preferences.getString("stable-notice-displayed", "")
-        Log.i(TAG, "showStableNotice: $displayedVer $ver")
-        if (displayedVer == ver) return false
-
-        val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-        val appName = host.getString(stableNoticeAppName(CommonUtils.isDiscrete))
-        val par1 = host.getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
-        val buy = host.getString(R.string.buy_development)
-        val support = host.getString(R.string.buy_development2)
-
-        val result = appDialogs.await(
-            AppDialogRequest.Notice(
-                title = host.getString(R.string.stable_notice_title),
-                showTitleLogo = true,
-                blocks = listOfNotNull(
-                    AppDialogRequest.NoticeBlock.Html(par1),
-                    if (CommonUtils.isDiscrete) null else AppDialogRequest.NoticeBlock.Logo,
-                    AppDialogRequest.NoticeBlock.Html("<big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
-                    AppDialogRequest.NoticeBlock.IconLine(
-                        AppDialogRequest.NoticeIcon.Money,
-                        "&nbsp;<small><a href=\"$buyDevelopmentLink\">$support ($buy)</a></small>",
-                    ),
-                ),
-                confirmText = host.getString(R.string.beta_notice_dismiss_until_update),
-                neutralText = host.getString(R.string.dismiss),
-            ),
+        return ReleaseNotice.showIfNeeded(
+            platform = ReleaseNoticePlatform.ANDROID,
+            isBeta = CommonUtils.isBeta,
+            discrete = CommonUtils.isDiscrete,
+            isUpgrade = isUpgradeInstall(),
+            mainVersion = CommonUtils.mainVersion,
+            settings = preferences,
+            ask = appDialogs::await,
+            onAction = { action ->
+                when (action) {
+                    ReleaseNoticeAction.VIDEO -> CommonUtils.openLink(SiteLinks.WHATS_NEW_VIDEO_URL)
+                    ReleaseNoticeAction.COMPUTER, ReleaseNoticeAction.WEBSITE -> CommonUtils.openLink(SiteLinks.HOME_URL)
+                    ReleaseNoticeAction.SPONSOR -> CommonUtils.openLink(buyDevelopmentLink)
+                    ReleaseNoticeAction.SHARE -> recommendToFriend(host, appDialogs::await)
+                }
+            },
         )
-        return if (result == AppDialogResult.Ok) {
-            Log.i(TAG, "showStableNotice: saving $ver")
-            preferences.setString("stable-notice-displayed", ver)
-            true
-        } else {
-            false
-        }
     }
 
     /**

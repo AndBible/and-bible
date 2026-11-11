@@ -50,6 +50,8 @@ import net.bible.service.common.BuildVariant
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedui.app.recommend.RecommendApp
+import net.bible.sharedui.strings.AndroidStrings
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -62,6 +64,23 @@ const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
 // Other distributions and debug/discrete packages do not have their own Play listing.
 private const val playStoreApplicationId = "net.bible.android.activity"
+
+/**
+ * The "Recommend to a friend" flow shared by the menu and the release notice: the shared [RecommendApp] chooser
+ * (link or QR code); a link goes to the system share sheet.
+ */
+internal suspend fun recommendToFriend(
+    activity: ActivityBase,
+    ask: suspend (AppDialogRequest) -> AppDialogResult,
+) {
+    RecommendApp.run(AndroidStrings(activity), ask) { text, title ->
+        val send = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+        activity.startActivityForResult(Intent.createChooser(send, title), STD_REQUEST_CODE)
+    }
+}
 
 /** Handle requests from the main menu
  *
@@ -298,36 +317,7 @@ class MenuCommandHandler(
                 }
                 R.id.tellFriend -> {
                     if (CommonUtils.isDiscrete) return true
-                    val homepage = Uri.parse(homepageLink)
-                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=$playStoreApplicationId")
-
-                    val appName = hostActivity.getString(R.string.app_name_long)
-                    val message1 = hostActivity.getString(R.string.tell_friend_message1, appName)
-                    val message2 = hostActivity.getString(R.string.tell_friend_message2)
-                    val playStoreLink = hostActivity.getString(R.string.tell_friend_message3, playstore)
-                    val message4 = hostActivity.getString(R.string.tell_friend_message4, homepage)
-
-                    val message = if(isSamsung)
-                        """
-                        $message1 $message2 
-                        
-                        $message4
-                    """.trimIndent()
-                    else """
-                        $message1 $message2 
-                        
-                        $playStoreLink 
-                        
-                        $message4
-                    """.trimIndent()
-
-
-                    val emailIntent = Intent(Intent.ACTION_SEND).apply {
-                        putExtra(Intent.EXTRA_TEXT, message)
-                        type = "text/plain"
-                    }
-                    val chooserIntent = Intent.createChooser(emailIntent, hostActivity.getString(R.string.tell_friend_title))
-                    hostActivity.startActivityForResult(chooserIntent, STD_REQUEST_CODE)
+                    hostActivity.lifecycleScope.launch { recommendToFriend(hostActivity, appDialogs::await) }
                     isHandled = true
                 }
                 R.id.howToContribute -> {
