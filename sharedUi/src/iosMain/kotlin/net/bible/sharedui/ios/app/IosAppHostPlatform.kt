@@ -81,6 +81,8 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIBackgroundTaskInvalid
 import net.bible.sharedui.host.app.AppDialogHost
+import net.bible.service.legacymigration.LegacyMigrator
+import net.bible.service.legacymigration.migratedFromLegacyApp
 import net.bible.sharedui.host.app.AppHostPlatform
 
 /**
@@ -96,6 +98,16 @@ object IosAppHostPlatform : AppHostPlatform {
     override val displayModeSignals: DisplayModeSignals get() = IosDisplayModeSignals
     override val dialogHost: AppDialogHost get() = IosAppDialogHost
     override val betaNoticePlatform get() = net.bible.sharedui.app.notice.BetaNoticePlatform.IOS
+    override val releaseNoticePlatform get() = net.bible.sharedui.app.notice.ReleaseNoticePlatform.IOS
+
+    /** An upgrade is an install whose legacy (Swift app) migration carried data over; a fresh install is not. */
+    override suspend fun isUpgradeInstall(): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+        val platform = net.bible.service.legacymigration.IosLegacyPlatform(net.bible.sharedcore.platform.secrets.IosKeychainSecretStore())
+        LegacyMigrator.migratedFromLegacyApp(
+            platform.fileSystem,
+            net.bible.sharedui.ios.startup.legacy.legacyMigrationControl(platform).dir,
+        )
+    }
 
     override fun deviceUiLanguage(koin: Koin): String =
         resolveDeviceUiLanguage(koin.get<IosDeviceSettings>(), ::iosPreferredLanguages)
