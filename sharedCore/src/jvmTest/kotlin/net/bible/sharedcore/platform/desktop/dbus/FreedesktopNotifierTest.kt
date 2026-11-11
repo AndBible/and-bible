@@ -276,7 +276,9 @@ class FreedesktopNotifierTest {
             if (level == LogLevel.WARN && tag == "FreedesktopNotifier") {
                 warnings.add(msg)
                 failureEntered.countDown()
-                check(releaseFailure.await(5, TimeUnit.SECONDS)) { "failure handling was not released" }
+                // Only the test thread releases this gate (also in finally). A watchdog here would silently
+                // unblock the dispatcher if restarting the service were slow, since Log swallows sink failures.
+                releaseFailure.await()
             }
         }
         try {
