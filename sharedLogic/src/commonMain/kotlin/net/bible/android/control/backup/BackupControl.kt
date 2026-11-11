@@ -1196,18 +1196,23 @@ class BackupControl(
         var dataReplaced = false
         // Staging trees of a crashed earlier install are never reused: sweep them (not those of running installs).
         sweepStaleEpubStagingDirs(targetDirectory)
-        // Use the on-disk spelling only when this filesystem actually aliases the archive path.
-        // Blind lowercasing would merge distinct modules on case-sensitive Linux/iOS storage.
-        val installedMyBiblePaths = Books.installed().getBooks().filter { it.isManuallyInstalledMyBibleBook }
-            .map { it.dbPath.normalized() }
-        fun myBibleTarget(name: String): Path {
-            val target = targetDirectory / moduleArchiveTargetName(name)
-            if (!fileSystem.exists(target)) return target
-            val canonical = fileSystem.canonicalize(target)
-            return installedMyBiblePaths.firstOrNull {
-                fileSystem.exists(it) && fileSystem.canonicalize(it) == canonical
-            } ?: (targetDirectory / canonical.relativeTo(fileSystem.canonicalize(targetDirectory)))
+        /**
+         * The on-disk spelling of [path] when this filesystem aliases it case-insensitively, else [path].
+         * Resolved by listing the parent: realpath() does not correct case on Linux/Android case-insensitive
+         * storage (FUSE external storage). A path that does not exist is a new file under its given spelling;
+         * blind lowercasing would merge distinct modules on case-sensitive Linux/iOS storage.
+         */
+        fun onDiskSpelling(path: Path): Path {
+            if (!fileSystem.exists(path)) return path
+            val siblings = fileSystem.listOrNull(path.parent!!).orEmpty()
+            if (path in siblings) return path
+            val aliases = siblings.filter { it.name.equals(path.name, ignoreCase = true) }
+            // Several case variants side by side prove a case-sensitive directory, where `exists` cannot alias.
+            // Choosing one would replace or pin the wrong module, so refuse rather than guess.
+            if (aliases.size > 1) throw IOException("Ambiguous MyBible module name ${path.name}: ${aliases.joinToString { it.name }}")
+            return aliases.singleOrNull() ?: path
         }
+        fun myBibleTarget(name: String): Path = onDiskSpelling(targetDirectory / moduleArchiveTargetName(name))
         try {
             ZipReader(newSource()).use { zip ->
                 var entryNum = 0
@@ -1286,8 +1291,9 @@ class BackupControl(
             // which has the same filesystem case semantics, regardless of ZIP entry ordering.
             for (file in myBibleDecisions.keys.toList().filter { it !in incomingMyBibleFiles }) {
                 val candidate = transaction.stage(file)
-                val match = if (fileSystem.exists(candidate)) incomingMyBibleFiles.firstOrNull {
-                    fileSystem.canonicalize(staged.getValue(it)) == fileSystem.canonicalize(candidate)
+                val match = if (fileSystem.exists(candidate)) {
+                    val staging = onDiskSpelling(candidate)
+                    incomingMyBibleFiles.firstOrNull { staged.getValue(it) == staging }
                 } else null
                 if (match == null) throw IOException("MyBible versification entry has no matching module")
                 val decision = myBibleDecisions.remove(file)!!

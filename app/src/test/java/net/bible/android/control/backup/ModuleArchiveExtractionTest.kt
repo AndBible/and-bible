@@ -503,6 +503,81 @@ class ModuleArchiveExtractionTest {
         }
     }
 
+    /**
+     * Android external storage is case-insensitive FUSE, but realpath() there does not correct the case:
+     * this fake is case-insensitive and case-preserving for the mybible directory while [canonicalize]
+     * returns its input spelling unchanged. Creating a file that does not exist yet uses the given spelling.
+     */
+    private fun caseInsensitiveFuse(): okio.FileSystem {
+        val myBibleDir = File(downloadDir, "mybible").toOkioPath()
+        return object : okio.ForwardingFileSystem(okio.FileSystem.SYSTEM) {
+            override fun onPathParameter(path: okio.Path, functionName: String, parameterName: String): okio.Path {
+                if (path.parent != myBibleDir) return path
+                val onDisk = delegate.listOrNull(myBibleDir).orEmpty().filter { it.name.equals(path.name, ignoreCase = true) }
+                return if (path in onDisk) path else onDisk.singleOrNull() ?: path
+            }
+            override fun canonicalize(path: okio.Path): okio.Path {
+                if (!exists(path)) throw java.io.FileNotFoundException(path.toString())
+                return path
+            }
+        }
+    }
+
+    private fun caseFuseRestore(failPublish: Boolean, check: (module: File, original: ByteArray, thrown: Throwable?) -> Unit) = runBlocking {
+        val module = File(downloadDir, "mybible/CaseFuse.SQLite3")
+        module.parentFile!!.mkdirs()
+        val original = germanMyBibleBytes()
+        module.writeBytes(original)
+        val records = listOf(decisionRecord(module.name), decisionRecord("casefuse.sqlite3"))
+        records.forEach { it.delete() }
+        decisionRecord(module.name).apply { parentFile!!.mkdirs(); writeText("KJVA") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        assertEquals("KJVA", installedVersification("CaseFuse"))
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val field = BackupControl::class.java.getDeclaredField("fileSystem").apply { isAccessible = true }
+        val previousFiles = field.get(backup)
+        field.set(backup, caseInsensitiveFuse())
+        backup.onPublishStep = {
+            assertFalse("The installed on-disk file must have been moved aside", module.exists())
+            assertTrue("The installed book must be deactivated before publication",
+                Books.installed().getBook("MyBible-CaseFuse") == null)
+            if (failPublish) throw java.io.IOException("stop fuse publish")
+        }
+        try {
+            val zip = buildZip("case-fuse-$failPublish.zip", listOf(
+                "mybible/casefuse.sqlite3" to myBibleBytes(),
+                "mybible/casefuse.sqlite3.andbible-versification" to "German".toByteArray(),
+            ))
+            val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+            assertEquals("Only the on-disk spelling may exist", listOf(module.name),
+                module.parentFile!!.list().orEmpty().filter { it.equals(module.name, ignoreCase = true) })
+            assertFalse("No record may be keyed by the archive spelling", decisionRecord("casefuse.sqlite3").exists())
+            check(module, original, thrown)
+        } finally {
+            field.set(backup, previousFiles)
+            backup.onPublishStep = {}
+            records.forEach { it.delete() }
+        }
+    }
+
+    @Test
+    fun caseInsensitiveStorageWithoutCanonicalCaseRollsBackUnderOnDiskName() = caseFuseRestore(failPublish = true) { module, original, thrown ->
+        assertEquals("stop fuse publish", thrown?.message)
+        assertArrayEquals(original, module.readBytes())
+        assertEquals("KJVA", decisionRecord(module.name).readText())
+        val book = Books.installed().getBook("MyBible-CaseFuse") as SwordBook
+        assertEquals("KJVA", book.versification.name)
+        assertEquals("Chapter end", book.getRawText(book.getKey("Mal.1.14")))
+    }
+
+    @Test
+    fun caseInsensitiveStorageWithoutCanonicalCaseRestoresUnderOnDiskName() = caseFuseRestore(failPublish = false) { module, original, thrown ->
+        assertEquals(null, thrown)
+        assertFalse("The restored bytes replace the original", module.readBytes().contentEquals(original))
+        assertEquals("German", decisionRecord(module.name).readText())
+        assertEquals("German", installedVersification("CaseFuse"))
+    }
+
     @Test
     fun newCaseInsensitiveImportMatchesSidecarInEitherArchiveOrder() = runBlocking {
         val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
