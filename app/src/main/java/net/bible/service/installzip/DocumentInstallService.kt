@@ -44,6 +44,7 @@ import net.bible.android.control.activity.ZipInstallActivityAdapter
 import net.bible.android.control.event.UserMessages
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.service.device.notificationActivityIntent
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.fromUri
@@ -287,11 +288,10 @@ class DocumentInstallService : Service() {
         if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
 
     private fun buildMainActivityIntent(): PendingIntent {
-        // reading-host re-typing T8b: same flags, same PendingIntent, the reading host instead of
-        // the classic Activity.
-        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val intent = notificationActivityIntent(this,
+            NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            })
         return PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

@@ -124,7 +124,7 @@ class ProgressNotificationManager {
     private fun buildNotification(prog: Progress) {
         Log.i(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
         val app = BibleApplication.application
-        val intent = ScreenLauncher.intentFor(app, Screen.ProgressStatus)
+        val intent = notificationActivityIntent(app, ScreenLauncher.intentFor(app, Screen.ProgressStatus))
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else PROGRESS_NOTIFICATION_CHANNEL)
 

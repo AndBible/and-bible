@@ -78,6 +78,27 @@ class SpeakComponentsTest : SpeakIntegrationTestBase() {
         }
     }
 
+    @Test
+    fun speechNotificationContentUsesTheLauncherStartupGate() {
+        val nm = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        try {
+            SpeakChanges.notifyState(SpeakPlaybackState.PAUSED)
+            idle()
+            val notification = shadowOf(nm).allNotifications.single { it.contentIntent != null }
+            val intent = shadowOf(notification.contentIntent).savedIntent
+            val resolved = app.packageManager.getActivityInfo(intent.component!!, 0)
+            val target = Class.forName(resolved.targetActivity ?: resolved.name)
+            assertEquals(true, net.bible.android.view.activity.StartupActivity::class.java.isAssignableFrom(target))
+            // Playback actions remain broadcasts, not reading-screen entry points.
+            notification.actions.forEach { action ->
+                assertEquals(true, shadowOf(action.actionIntent).isBroadcastIntent)
+            }
+        } finally {
+            SpeakChanges.notifyState(SpeakPlaybackState.SILENT)
+            idle()
+        }
+    }
+
     /** F130: a dead manager must not keep posting notifications. */
     @Test
     fun aDestroyedNotificationManagerPostsNothing() {

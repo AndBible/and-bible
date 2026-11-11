@@ -27,6 +27,19 @@ Use the main menu to check ongoing activity while notifications are hidden. You
 can turn this preference off in Application Preferences. Leaving the app still
 locks it behind the calculator as usual.
 
+If notifications are visible, tapping a download, installation, search-indexing or
+AI activity notification brings the app back like tapping its launcher icon.
+Returning from the background or starting after Android has killed the app asks
+for the calculator PIN. An already open, unlocked app stays on its current screen;
+notification taps do not close editors or interrupt file pickers and ongoing work.
+In calculator mode these notifications return to the current screen (or the reading
+screen on a fresh start), rather than opening the separate progress screen.
+The same PIN protection applies when the calculator is enabled in the standard
+Android build, including notifications posted before it was enabled.
+
+The discrete build does not accept module files shared or opened from other apps.
+To install a module file, unlock the app and use its internal installation command.
+
 ## iOS
 
 On iOS, discrete mode uses a calculator icon for the app. iOS shows a system
