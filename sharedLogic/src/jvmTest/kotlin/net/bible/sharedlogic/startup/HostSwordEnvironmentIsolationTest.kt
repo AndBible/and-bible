@@ -11,6 +11,30 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class HostSwordEnvironmentIsolationTest {
+    @Test fun folderStartupRestoresOriginalModuleAndNumberingBeforeKoin() {
+        val root = Files.createTempDirectory("host-sword-recovery").toFile()
+        try {
+            val modules = root.resolve("sword").toOkioPath()
+            val internal = root.resolve("internal").toOkioPath()
+            val fs = okio.FileSystem.SYSTEM
+            val live = modules / "mybible/original.sqlite3"
+            fs.createDirectories(live.parent!!)
+            fs.write(live) { writeUtf8("original") }
+            val transaction = net.bible.service.installzip.SwordInstallTransaction(modules, internal)
+            transaction.beginPublish(listOf(live), mapOf(live to "KJVA"))
+            fs.write(live) { writeUtf8("replacement") }
+            // No installer finally: the next platform startup receives both trusted directories directly.
+            HostSwordEnvironment.createModuleFolders(modules, internal)
+            assertEquals("original", fs.read(live) { readUtf8() })
+            val records = fs.list(internal / "mybible-versifications")
+            assertEquals(1, records.size)
+            assertEquals("KJVA", fs.read(records.single()) { readUtf8() })
+            assertFalse(fs.list(modules).any { it.name.startsWith(".sword-") })
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
     @Test fun ownedModuleFilesStayInPlaceAndResetDoesNotRediscoverThem() {
         val root = Files.createTempDirectory("host-sword-isolation")
         val modules = root.resolve("Documents/sword")

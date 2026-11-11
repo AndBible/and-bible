@@ -40,9 +40,9 @@ object HostSwordEnvironment {
     val isLoaded: Boolean get() = loaded
 
     /** Creates the module folder and its `mods.d`, `modules` and `search` subfolders (idempotent); no JSword state is touched. */
-    fun createModuleFolders(modulesDir: Path) {
+    fun createModuleFolders(modulesDir: Path, internalFilesDir: Path? = null) {
         val files = FileSystem.SYSTEM
-        net.bible.service.installzip.recoverInterruptedSwordInstalls(modulesDir)
+        net.bible.service.installzip.recoverInterruptedSwordInstalls(modulesDir, internalFilesDir)
         listOf(modulesDir, modulesDir / SwordConstants.DIR_CONF, modulesDir / SwordConstants.DIR_DATA, modulesDir / SearchFields.DIR_SEARCH)
             .forEach { files.createDirectories(it) }
     }
@@ -51,10 +51,10 @@ object HostSwordEnvironment {
      * Sets JSword up. A failure is logged and startup goes on without books (the iOS behaviour) unless
      * [rethrowFailures] is true (desktop, which shows a startup failure screen instead).
      */
-    fun initialiseJSwordFolders(modulesDir: Path, rethrowFailures: Boolean = false) {
+    fun initialiseJSwordFolders(modulesDir: Path, rethrowFailures: Boolean = false, internalFilesDir: Path? = null) {
         if (loaded) return
         try {
-            createModuleFolders(modulesDir)
+            createModuleFolders(modulesDir, internalFilesDir)
             // Optimize for less memory
             PassageKeyFactory.setDefaultType(PassageType.MIX)
             CWProject.instance().setFrontendName("and-bible")

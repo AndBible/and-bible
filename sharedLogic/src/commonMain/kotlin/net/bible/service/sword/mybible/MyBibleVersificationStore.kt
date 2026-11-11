@@ -24,11 +24,15 @@ internal object MyBibleVersificationStore {
     private val lock = SynchronizedObject()
     private fun record(file: Path): Path {
         val dirs = KoinPlatform.getKoin().get<AppDirectories>()
+        return record(file, dirs.modulesDir, dirs.internalFilesDir)
+    }
+
+    private fun record(file: Path, modulesDir: Path, internalFilesDir: Path): Path {
         val path = file.normalized()
-        val root = dirs.modulesDir.normalized()
+        val root = modulesDir.normalized()
         val insideModules = path.root == root.root && path.segments.take(root.segments.size) == root.segments
         val identity = if (insideModules) "modules/${path.relativeTo(root)}" else "external/$path"
-        return dirs.internalFilesDir / "mybible-versifications" / identity.encodeUtf8().sha256().hex()
+        return internalFilesDir / "mybible-versifications" / identity.encodeUtf8().sha256().hex()
     }
 
     private fun marker(): Path {
@@ -92,6 +96,18 @@ internal object MyBibleVersificationStore {
 
     fun remove(file: Path) = synchronized(lock) {
         fs.delete(record(file), mustExist = false)
+    }
+
+    /** Interrupted install recovery runs before Koin; derive only this installation's trusted record path. */
+    fun restorePrevious(file: Path, previous: String?, modulesDir: Path, internalFilesDir: Path) = synchronized(lock) {
+        val saved = record(file, modulesDir, internalFilesDir)
+        if (previous == null) fs.delete(saved, mustExist = false)
+        else {
+            if (Versifications.instance().getVersification(previous) == null) {
+                throw IOException("Unknown MyBible versification: $previous")
+            }
+            write(saved, previous)
+        }
     }
 
     private fun write(path: Path, value: String) {

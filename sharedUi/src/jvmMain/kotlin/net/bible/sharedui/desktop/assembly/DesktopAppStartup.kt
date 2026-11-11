@@ -153,7 +153,7 @@ object DesktopAppStartup {
         SharedAppStartup.installEnvironment(repositories(), DesktopLocaleProvider {
             DesktopUiLanguage.jswordLocale(KoinPlatform.getKoinOrNull()?.getOrNull<DesktopDeviceSettings>())
         })
-        DesktopSwordFolders.initialise(paths.sword) // also turns JSword's default-location scan (~/.sword etc.) off
+        DesktopSwordFolders.initialise(paths.sword, paths.data) // also turns JSword's default-location scan (~/.sword etc.) off
         check(KoinPlatform.getKoinOrNull() == null) { "a Koin context is already running; the desktop startup owns it" }
         val app = KoinApplication.init()
         try {
@@ -171,7 +171,7 @@ object DesktopAppStartup {
         }
         try {
             SharedAppStartup.start(StartupHooks(
-                initialiseJSwordFolders = { DesktopSwordFolders.initialise(paths.sword) },
+                initialiseJSwordFolders = { DesktopSwordFolders.initialise(paths.sword, paths.data) },
                 koinModules = { error("Koin is started by DesktopAppStartup") },
                 reportJSwordError = ::reportJSwordError,
                 isSwordLoaded = { DesktopSwordFolders.isLoaded },
@@ -350,7 +350,7 @@ internal object DesktopSwordFolders {
      * modules and never migrates `~/.jsword`. Throws when the folders cannot be created or JSword was not set up.
      */
     @Synchronized
-    fun initialise(dir: Path) {
+    fun initialise(dir: Path, internalFilesDir: Path? = null) {
         if (previous == null) {
             previous = Previous(
                 SwordBookPath.scanDefaultLocations, SwordBookPath.getDownloadDir(), SwordBookPath.getAugmentPath(),
@@ -359,14 +359,14 @@ internal object DesktopSwordFolders {
         }
         SwordBookPath.scanDefaultLocations = false
         val modules = dir.toOkioPath()
-        HostSwordEnvironment.createModuleFolders(modules) // throws: a module folder that cannot be created fails startup
+        HostSwordEnvironment.createModuleFolders(modules, internalFilesDir?.toOkioPath()) // recovery precedes every scan
         // The download dir first: initialiseJSwordFolders sets the augment path, which re-registers the Sword driver at
         // once; without an explicit download dir that scan would fall back to JSword's default one, ~/.sword.
         SwordBookPath.setDownloadDir(modules)
         // Set JSword's project home (netcache, the front-end dir) explicitly before it is established.
         // CWProject keeps the first home it establishes for the process.
         System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
-        HostSwordEnvironment.initialiseJSwordFolders(modules, rethrowFailures = true)
+        HostSwordEnvironment.initialiseJSwordFolders(modules, rethrowFailures = true, internalFilesDir = internalFilesDir?.toOkioPath())
         if (current == dir) return
         // Always re-register here (setDownloadDir alone does not): the book list is exactly this folder's, whatever an
         // earlier start or the first registration saw.

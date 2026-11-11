@@ -376,6 +376,180 @@ class ModuleArchiveExtractionTest {
         }
     }
 
+    @Test
+    fun replacementMovesOriginalOutsideScansWithoutAnInternalCopy() = runBlocking {
+        val module = File(downloadDir, "mybible/MoveAside.SQLite3")
+        module.parentFile!!.mkdirs()
+        val original = germanMyBibleBytes()
+        module.writeBytes(original)
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val failure = java.io.IOException("stop before publish")
+        backup.onPublishStep = {
+            assertFalse("Original must be moved, not copied", module.exists())
+            assertTrue("Original remains on the module filesystem", downloadDir.listFiles().orEmpty()
+                .filter { it.name.startsWith(".sword-install-") }
+                .flatMap { it.walkTopDown().filter(File::isFile).toList() }
+                .any { it.readBytes().contentEquals(original) })
+            assertFalse("No full module copies in private storage", File(SharedConstants.internalFilesDir, "backup")
+                .listFiles().orEmpty().any { it.name.startsWith(".sword-install-") })
+            throw failure
+        }
+        try {
+            val zip = buildZip("move-aside.zip", listOf("mybible/MoveAside.SQLite3" to myBibleBytes()))
+            val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+            assertEquals(failure.message, thrown?.message)
+            assertArrayEquals(original, module.readBytes())
+            assertFalse("Rollback removes its transaction directory", downloadDir.listFiles().orEmpty()
+                .any { it.name.startsWith(".sword-install-") })
+        } finally {
+            backup.onPublishStep = {}
+        }
+    }
+
+    @Test
+    fun rollbackFailureKeepsPublishFailureAndCanRecoverOnStartup() = failedFilesystemRollback(failMoveBack = false)
+
+    @Test
+    fun moveBackFailureKeepsPublishFailureAndCanRecoverOnStartup() = failedFilesystemRollback(failMoveBack = true)
+
+    private fun failedFilesystemRollback(failMoveBack: Boolean) = runBlocking {
+        val module = File(downloadDir, "mybible/RecoverOriginal.SQLite3")
+        module.parentFile!!.mkdirs()
+        val original = germanMyBibleBytes()
+        module.writeBytes(original)
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val publishFailure = java.io.IOException("injected publish failure")
+        val rollbackFailure = okio.IOException("injected rollback failure")
+        val failingFiles = object : okio.ForwardingFileSystem(okio.FileSystem.SYSTEM) {
+            override fun delete(path: okio.Path, mustExist: Boolean) {
+                if (!failMoveBack && path == module.toOkioPath()) throw rollbackFailure
+                super.delete(path, mustExist)
+            }
+            override fun atomicMove(source: okio.Path, target: okio.Path) {
+                if (failMoveBack && target == module.toOkioPath() && source.segments.contains("originals")) {
+                    throw rollbackFailure
+                }
+                super.atomicMove(source, target)
+            }
+        }
+        val field = BackupControl::class.java.getDeclaredField("fileSystem").apply { isAccessible = true }
+        val previousFiles = field.get(backup)
+        field.set(backup, failingFiles)
+        backup.onPublishStep = { step -> if (step == 1) throw publishFailure }
+        try {
+            val zip = buildZip("rollback-io-failure.zip", listOf(
+                "mybible/RecoverOriginal.SQLite3" to myBibleBytes(),
+                "mybible/RecoverNew.SQLite3" to myBibleBytes(),
+            ))
+            val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+            assertEquals("Publish cause must not be replaced by cleanup", publishFailure.message, thrown?.message)
+            // Coroutine stack-trace recovery may copy the IOException around its original cause.
+            val causes = generateSequence(thrown) { it.cause }.toList()
+            assertTrue("Rollback IO failure must remain attached", causes.any { cause ->
+                cause.suppressed.any { it.message == rollbackFailure.message }
+            })
+            net.bible.service.installzip.recoverInterruptedSwordInstalls(
+                downloadDir.toOkioPath(), SharedConstants.internalFilesDir.toOkioPath(),
+            )
+            assertArrayEquals(original, module.readBytes())
+            assertFalse(File(downloadDir, "mybible/RecoverNew.SQLite3").exists())
+            assertFalse("Recovery cleans all retained originals and journals", downloadDir.listFiles().orEmpty()
+                .any { it.name.startsWith(".sword-install-") })
+        } finally {
+            field.set(backup, previousFiles)
+            backup.onPublishStep = {}
+            net.bible.service.installzip.recoverInterruptedSwordInstalls(
+                downloadDir.toOkioPath(), SharedConstants.internalFilesDir.toOkioPath(),
+            )
+        }
+    }
+
+    @Test
+    fun differentlyCasedArchivePathClosesAndRestoresTheRegisteredAlias() = runBlocking {
+        val module = File(downloadDir, "mybible/CaseAlias.SQLite3")
+        module.parentFile!!.mkdirs()
+        val original = germanMyBibleBytes()
+        module.writeBytes(original)
+        decisionRecord(module.name).apply { parentFile!!.mkdirs(); writeText("KJVA") }
+        addManuallyInstalledMyBibleBooks(startupDiscovery = true)
+        val book = Books.installed().getBook("MyBible-CaseAlias") as SwordBook
+        assertEquals("Chapter end", book.getRawText(book.getKey("Mal.1.14")))
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val field = BackupControl::class.java.getDeclaredField("fileSystem").apply { isAccessible = true }
+        val previousFiles = field.get(backup)
+        // Model a case-insensitive filesystem with actual file operations, even on Linux CI.
+        field.set(backup, object : okio.ForwardingFileSystem(okio.FileSystem.SYSTEM) {
+            override fun onPathParameter(path: okio.Path, functionName: String, parameterName: String): okio.Path =
+                if (path.name.equals(module.name, ignoreCase = true)) path.parent!! / module.name else path
+        })
+        backup.onPublishStep = {
+            assertFalse("The registered module's actual path must have been moved", module.exists())
+            throw java.io.IOException("stop alias publish")
+        }
+        try {
+            val zip = buildZip("case-alias.zip", listOf(
+                "mybible/casealias.sqlite3" to myBibleBytes(),
+                "mybible/CASEALIAS.SQLITE3.andbible-versification" to "German".toByteArray(),
+            ))
+            val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+            assertEquals("stop alias publish", thrown?.message)
+            assertArrayEquals(original, module.readBytes())
+            assertEquals("KJVA", decisionRecord(module.name).readText())
+            assertEquals("Chapter end", (Books.installed().getBook("MyBible-CaseAlias") as SwordBook)
+                .getRawText(book.getKey("Mal.1.14")))
+        } finally {
+            field.set(backup, previousFiles)
+            backup.onPublishStep = {}
+        }
+    }
+
+    @Test
+    fun newCaseInsensitiveImportMatchesSidecarInEitherArchiveOrder() = runBlocking {
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val field = BackupControl::class.java.getDeclaredField("fileSystem").apply { isAccessible = true }
+        val previousFiles = field.get(backup)
+        field.set(backup, object : okio.ForwardingFileSystem(okio.FileSystem.SYSTEM) {
+            override fun onPathParameter(path: okio.Path, functionName: String, parameterName: String): okio.Path =
+                if (path.name.equals("NewCase.SQLite3", ignoreCase = true)) path.parent!! / "NewCase.SQLite3" else path
+        })
+        try {
+            for (sidecarFirst in listOf(false, true)) {
+                val entries = listOf(
+                    "mybible/NewCase.SQLite3" to germanMyBibleBytes(),
+                    "mybible/newcase.sqlite3.andbible-versification" to "German".toByteArray(),
+                ).let { if (sidecarFirst) it.reversed() else it }
+                val zip = buildZip("new-case-$sidecarFirst.zip", entries)
+                backup.extractAndRegisterModuleArchive({ zip.source() })
+                assertEquals("German", installedVersification("NewCase"))
+                val book = Books.installed().getBook("MyBible-NewCase") as SwordBook
+                closeMyBible(book)
+                Books.installed().removeBook(book)
+                File(downloadDir, "mybible/NewCase.SQLite3").delete()
+            }
+        } finally {
+            field.set(backup, previousFiles)
+        }
+    }
+
+    @Test
+    fun newCaseSensitiveImportDoesNotMergeDifferentlyCasedSidecar() = runBlocking {
+        val probe = File(downloadDir, "mybible/CaseSensitiveProbe.SQLite3")
+        probe.parentFile!!.mkdirs()
+        probe.writeText("probe")
+        val caseSensitive = !File(probe.parentFile, "casesensitiveprobe.sqlite3").exists()
+        probe.delete()
+        org.junit.Assume.assumeTrue("Requires case-sensitive storage", caseSensitive)
+        val zip = buildZip("new-case-sensitive.zip", listOf(
+            "mybible/DistinctCase.SQLite3" to germanMyBibleBytes(),
+            "mybible/distinctcase.sqlite3.andbible-versification" to "German".toByteArray(),
+        ))
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+        assertTrue(thrown is java.io.IOException)
+        assertFalse(File(downloadDir, "mybible/DistinctCase.SQLite3").exists())
+        assertFalse(File(downloadDir, "mybible/distinctcase.sqlite3").exists())
+    }
+
     private fun decisionRecord(moduleName: String): File {
         val identity = "modules/mybible/$moduleName"
         val hash = java.security.MessageDigest.getInstance("SHA-256").digest(identity.toByteArray())
