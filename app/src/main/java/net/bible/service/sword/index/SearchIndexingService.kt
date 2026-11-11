@@ -36,6 +36,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.service.device.notificationActivityIntent
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -187,9 +188,10 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
     private fun notification(book: Book?, percent: Int?): Notification {
         val discrete = CommonUtils.isDiscrete
         val app = BibleApplication.application // Resources follow `locale_pref` live (F114); the Service's own do not
-        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val intent = notificationActivityIntent(this,
+            NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            })
         return NotificationCompat.Builder(
             this,
             if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL

@@ -27,6 +27,11 @@ Use the main menu to check ongoing activity while notifications are hidden. You
 can turn this preference off in Application Preferences. Leaving the app still
 locks it behind the calculator as usual.
 
+If notifications are visible, tapping a download, installation, search-indexing or
+AI activity notification asks for the calculator PIN before opening the reading
+screen. This also applies when the app is already open or Android has killed its
+background process.
+
 ## iOS
 
 On iOS, discrete mode uses a calculator icon for the app. iOS shows a system
