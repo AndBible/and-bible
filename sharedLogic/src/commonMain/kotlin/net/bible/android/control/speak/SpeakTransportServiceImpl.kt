@@ -116,6 +116,15 @@ class SpeakTransportServiceImpl(
         }
     }
 
+    /**
+     * Suspends until the newest bookmark-visibility refresh (the one [init] starts, or a later one) has finished.
+     * For tests that must not let that background database read run past a point they control.
+     */
+    @VisibleForTesting
+    suspend fun awaitBookmarkVisibilityRefresh() {
+        visibilityJob?.join()
+    }
+
     /** Sets the transport visibility; the host's `transportBarVisible` setter forwards here and its getter reads [state]. */
     fun setTransportVisible(visible: Boolean) {
         _state.value = build(visible = visible)
