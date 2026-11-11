@@ -248,16 +248,17 @@ private fun coarseGroup(ordinal: Int): Int = when (categoryIndex(ordinal)) {
     else -> categoryIndex(ordinal)
 }
 
-/** Reorder a flat list so a row-major LazyVerticalGrid renders it column-major (portrait, LTR off). */
-private fun columnMajor(items: List<GridButton>, columns: Int): List<GridButton> {
+/**
+ * Reorder cells for a row-major LazyVerticalGrid to render column-major (portrait, LTR off).
+ * Empty slots must remain in the last columns, or subsequent rows shift left.
+ */
+@kotlin.native.HiddenFromObjC
+fun columnMajor(items: List<GridButton>, columns: Int): List<GridButton?> {
     if (columns <= 1 || items.isEmpty()) return items
     val rows = ceil(items.size.toDouble() / columns).toInt()
-    val out = ArrayList<GridButton>(items.size)
-    for (r in 0 until rows) for (c in 0 until columns) {
-        val idx = c * rows + r
-        if (idx < items.size) out.add(items[idx])
+    return List(rows * columns) { index ->
+        items.getOrNull((index % columns) * rows + index / columns)
     }
-    return out
 }
 
 /** Column AND row count reproducing LayoutDesigner's intent (66-book special case + MIN_COLS). */
@@ -301,7 +302,7 @@ fun assembleGridUi(
     showLongNames: Boolean,
     showProgress: Boolean,
     showDeutToggle: Boolean,
-    buttons: List<GridButton>,
+    buttons: List<GridButton?>,
     sections: List<List<GridButton>>? = null,
 ): GridUi = GridUi(
     step, title, layout.columns,

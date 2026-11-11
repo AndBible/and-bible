@@ -28,7 +28,11 @@ of the *Book Chooser* screen:
 > - **Alphabetical Order:** Enabling this option will display the books in
 >     alphabetical order. (Starting with numbers - i.e. 1 Chronicles)
 > - **Order books horizontally:** Enabling this option will list the books from
->     left to right then from top to bottom.
+>     left to right then from top to bottom. When disabled in portrait orientation,
+>     ungrouped book, chapter and verse grids fill each column from top to bottom
+>     before moving to the next column. An incomplete final column leaves empty
+>     cells below its last item; for example, John's 21 chapters place 1-5 in the
+>     first column and 21 at the top of the fifth column.
 > - **Group books by category:** Enabling this option will automatically enable
 >     the *Order books horizontally* setting but will additionally group books by
 >     their category (i.e. Law, History, Poetry, Prophets, etc.)

@@ -43,7 +43,8 @@ data class GridUi(
     val showLongNames: Boolean,
     val showProgress: Boolean,
     val showDeutToggle: Boolean,
-    val buttons: List<GridButton>,
+    /** Row-major cells; null reserves an empty slot in a column-ordered grid. */
+    val buttons: List<GridButton?>,
     val sections: List<List<GridButton>>? = null,
     /**
      * Floor for the row count the screen sizes its cells against — classic's fixed `LayoutDesigner`

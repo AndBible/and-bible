@@ -204,8 +204,14 @@ fun GridChoosePassageContent(
                     }
                 }
             } else {
-                items(ui.buttons.size, key = { ui.buttons[it].id }) { idx ->
-                    GridCell(ui.buttons[idx], ui, cellHeight, onPick)
+                items(ui.buttons.size, key = { ui.buttons[it]?.id ?: "empty-$it" }) { idx ->
+                    val button = ui.buttons[idx]
+                    if (button == null) {
+                        // Reserve the grid slot without painting or exposing a focus/click target.
+                        Box(Modifier.padding(2.dp).fillMaxWidth().height(cellHeight))
+                    } else {
+                        GridCell(button, ui, cellHeight, onPick)
+                    }
                 }
             }
         }

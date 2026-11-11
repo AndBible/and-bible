@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.Modifier
 import net.bible.android.TEST_SDK
+import net.bible.android.view.activity.navigation.columnMajor
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
@@ -104,6 +105,19 @@ class GridChoosePassageGoldenTest {
         }
         captureGolden("GridChoosePassage", "book_long_overflow_fi", EDGE_MODE) {
             GridChoosePassageScreen(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true), {}, {}, {})
+        }
+    }
+
+    @Test fun grid_chapter_column_order_incomplete() {
+        val chapters = (1..21).map { GridButton(it, it.toString(), colorGroup = 5, isCurrent = it == 3) }
+        captureMatrix("GridChoosePassage", "chapter_column_order_incomplete") {
+            GridChoosePassageScreen(
+                GridUi(
+                    GridStep.CHAPTER, "John", 5, showLongNames = false, showProgress = false,
+                    showDeutToggle = false, buttons = columnMajor(chapters, 5), minRows = 10,
+                ),
+                opts.copy(ltr = false, showProgress = false), {}, {}, {},
+            )
         }
     }
 
