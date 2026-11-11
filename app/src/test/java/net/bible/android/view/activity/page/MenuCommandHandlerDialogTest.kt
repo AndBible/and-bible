@@ -40,6 +40,8 @@ import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Rule
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import net.bible.sharedui.app.recommend.RecommendApp
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -139,35 +141,31 @@ class MenuCommandHandlerDialogTest {
         }
     }
 
-    private fun assertRecommendationUsesPublishedPlayListing(packageName: String) = withPackageName(packageName) {
+    @Test fun tellFriendShowsChooser() {
         handler.handleMenuRequest(R.id.tellFriend)
+        idle()
+        val request = dialogs.pending.value!!.request as AppDialogRequest.Options
+        assertEquals(RuntimeEnvironment.getApplication().getString(R.string.tell_friend_title), request.title)
+        assertEquals(
+            listOf(RecommendApp.SHARE_LINK, RecommendApp.SHOW_QR),
+            request.options.map { it.value },
+        )
+        assertNull("nothing is shared before a choice", shadowOf(activity).nextStartedActivityForResult)
+    }
+
+    @Test fun tellFriendShareLinkSendsTextWithoutPlayStore() {
+        handler.handleMenuRequest(R.id.tellFriend)
+        idle()
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(RecommendApp.SHARE_LINK))
+        idle()
         val chooser = shadowOf(activity).nextStartedActivityForResult.intent
         val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
         val message = send.getStringExtra(Intent.EXTRA_TEXT)!!
         assertEquals(Intent.ACTION_SEND, send.action)
         assertTrue(message, message.contains("https://andbible.org"))
-        val playLinks = Regex("https://play\\.google\\.com/store/apps/details\\?id=\\S+")
-            .findAll(message).map { it.value }.toList()
-        assertEquals(listOf("https://play.google.com/store/apps/details?id=net.bible.android.activity"), playLinks)
+        assertFalse(message, message.contains("Play Store", ignoreCase = true))
+        assertFalse(message, message.contains("play.google.com"))
     }
-
-    @Test fun standardPlayRecommendationUsesPublishedListing() =
-        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity")
-
-    @Test fun githubRecommendationUsesPublishedListing() =
-        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity.debug")
-
-    @Test fun fdroidRecommendationUsesPublishedListing() =
-        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity")
-
-    @Test fun accrescentRecommendationUsesPublishedListing() =
-        assertRecommendationUsesPublishedPlayListing("org.andbible.andbible")
-
-    @Test fun discretePackageIsNeverUsedAsAPlayListing() =
-        assertRecommendationUsesPublishedPlayListing("com.app.calculator")
-
-    @Test fun discreteDebugPackageIsNeverUsedAsAPlayListing() =
-        assertRecommendationUsesPublishedPlayListing("com.app.calculator.debug")
 
     @Test fun ratingNeverUsesTheRunningPackageAsThePlayListing() = withPackageName("org.andbible.andbible.debug") {
         handler.handleMenuRequest(R.id.rateButton)
@@ -192,18 +190,6 @@ class MenuCommandHandlerDialogTest {
             assertEquals(fallback.dataString, shadowOf(activity).nextStartedActivityForResult.intent.dataString)
         } finally {
             shadowOf(application).checkActivities(false)
-        }
-    }
-
-    @Test fun samsungRecommendationKeepsOmittingThePlayStoreLink() {
-        org.junit.Assume.assumeTrue(BuildVariant.DistributionChannel.isSamsung)
-        withPackageName("net.bible.android.activity.debug") {
-            handler.handleMenuRequest(R.id.tellFriend)
-            val chooser = shadowOf(activity).nextStartedActivityForResult.intent
-            val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
-            val message = send.getStringExtra(Intent.EXTRA_TEXT)!!
-            assertTrue(message, message.contains("https://andbible.org"))
-            org.junit.Assert.assertFalse(message, message.contains("play.google.com"))
         }
     }
 

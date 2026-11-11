@@ -136,10 +136,22 @@ sealed interface AppDialogRequest {
         val neutralText: String? = null,
     ) : AppDialogRequest
 
+    /**
+     * The 6.0 stable release notice (`ReleaseNotice`): its content is drawn by the host from string
+     * resources, so only the facts it depends on travel here. [sponsorAllowed] is false where the sponsor
+     * action must not be offered (iOS). Answered [AppDialogResult.ReleaseNoticeAnswer] (back/scrim: Cancel).
+     */
+    data class ReleaseNotice(val version: String, val sponsorAllowed: Boolean) : AppDialogRequest {
+        override val title: String? = null
+    }
+
     sealed interface NoticeBlock {
         data class Html(val html: String) : NoticeBlock
         /** The app logo centred at 2× size — hidden by the CALLER in discrete mode, as today. */
         data object Logo : NoticeBlock
+
+        /** The AndBible homepage QR code, black on a white rounded box in every theme (so it stays scannable). */
+        data object QrCode : NoticeBlock
         /** One HTML line led by an inline icon (the `$` sponsor icon). */
         data class IconLine(val icon: NoticeIcon, val html: String) : NoticeBlock
     }
@@ -154,7 +166,12 @@ sealed interface AppDialogResult {
     data class Text(val value: String) : AppDialogResult
     data class Selected(val value: String) : AppDialogResult
     data class SelectedMany(val ids: List<String>) : AppDialogResult
+    /** The [AppDialogRequest.ReleaseNotice] answer: the chosen [action] (null = Close) and the checkbox state. */
+    data class ReleaseNoticeAnswer(val action: ReleaseNoticeAction?, val dontShowAgain: Boolean) : AppDialogResult
 }
+
+/** The action buttons of the 6.0 release notice. */
+enum class ReleaseNoticeAction { VIDEO, COMPUTER, SHARE, SPONSOR, WEBSITE }
 
 /** The queue head as the host sees it: [id] is what the host passes back to `respond`. */
 data class ShownDialog(val id: Long, val request: AppDialogRequest)

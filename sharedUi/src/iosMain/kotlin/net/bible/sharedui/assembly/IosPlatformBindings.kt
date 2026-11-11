@@ -335,6 +335,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 text = { parts.strings.text(it) },
             )
         }
+        single<net.bible.sharedui.app.ports.TextShare> { net.bible.sharedui.ios.ports.IosTextShare() }
         single<HostReadingExtras> {
             val holder = get<HostStringTableHolder>()
             val currentTable = { holder.current }
@@ -343,9 +344,10 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                     get<AppDialogController>(), currentTable,
                     { net.bible.sharedui.ios.ports.iosBundledHtml(it) }, { net.bible.sharedui.ios.ports.iosBundleVersionName() },
                 ),
-                table = currentTable,
+                strings = { net.bible.sharedui.strings.iosStrings { holder.current.tag } },
+                ask = get<AppDialogController>()::await,
                 scope = get<AppCoroutineScope>(),
-                textShare = net.bible.sharedui.ios.ports.IosTextShare(),
+                textShare = get<net.bible.sharedui.app.ports.TextShare>(),
                 report = { cause -> net.bible.sharedui.ios.report.IosBugReport(currentTable()).report(cause) },
             )
         }

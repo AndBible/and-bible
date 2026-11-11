@@ -322,7 +322,8 @@ fun desktopPlatformModule(
             val bugReport = get<DesktopBugReport>()
             HostReadingExtrasImpl(
                 helpDialogs = HostHelpDialogs(get<AppDialogController>(), currentTable, ::classpathBundledHtml, { get<DesktopAppEnvironment>().versionName }),
-                table = currentTable,
+                strings = { net.bible.sharedui.strings.iosStrings { holder.current.tag } },
+                ask = get<AppDialogController>()::await,
                 scope = get<AppCoroutineScope>(),
                 textShare = get<TextShare>(),
                 report = { cause -> bugReport.report(cause) },

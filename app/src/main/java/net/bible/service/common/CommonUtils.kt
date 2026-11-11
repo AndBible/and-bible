@@ -221,7 +221,6 @@ const val windowPinningVideo = windowsAndWorkspacesPlaylist
 const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
-const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new in 5.1
 
 const val speakHelpVideo = net.bible.sharedcore.docs.HelpVideos.SPEAK
 const val automaticSpeakBookmarkingVideo = net.bible.sharedcore.docs.HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING

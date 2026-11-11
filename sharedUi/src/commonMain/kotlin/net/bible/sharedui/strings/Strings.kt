@@ -1342,6 +1342,31 @@ interface Strings {
     val betaSpecialRegards: String // R.string.beta_special_regards
     fun betaSpecialSponsor(sponsorLink: String): String // R.string.beta_special_sponsor
     val betaSpecialSponsorLink: String // R.string.beta_special_sponsor_link
+
+    // 6.0 release notice (AbReleaseNoticeCard)
+    fun releaseNoticeKicker(version: String): String // R.string.release_notice_kicker
+    val releaseNoticeHeadlineStart: String // R.string.release_notice_headline_start
+    val releaseNoticeHeadlineAccent: String // R.string.release_notice_headline_accent
+    val releaseNoticePlatformIphoneIpad: String // R.string.release_notice_platform_iphone_ipad
+    fun releaseNoticeVideoTitle(version: String): String // R.string.release_notice_video_title
+    val releaseNoticeVideoSubtitle: String // R.string.release_notice_video_subtitle
+    val releaseNoticeComputerTitle: String // R.string.release_notice_computer_title
+    val releaseNoticeComputerSubtitle: String // R.string.release_notice_computer_subtitle
+    val releaseNoticeShareTitle: String // R.string.release_notice_share_title
+    val releaseNoticeShareSubtitle: String // R.string.release_notice_share_subtitle
+    val releaseNoticeSponsor: String // R.string.release_notice_sponsor
+    val releaseNoticeWebsite: String // R.string.release_notice_website
+    val releaseNoticeFreeNoAds: String // R.string.release_notice_free_no_ads
+    val releaseNoticeDontShowAgain: String // R.string.release_notice_dont_show_again
+
+    // Recommend to a friend (RecommendApp)
+    val tellFriendTitle: String // R.string.tell_friend_title
+    val recommendIntro: String // R.string.recommend_intro
+    val recommendBody: String // R.string.recommend_body
+    fun recommendGetIt(link: String): String // R.string.recommend_get_it
+    val recommendShareLink: String // R.string.recommend_share_link
+    val recommendShowQr: String // R.string.recommend_show_qr
+    val recommendQrCaption: String // R.string.recommend_qr_caption
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

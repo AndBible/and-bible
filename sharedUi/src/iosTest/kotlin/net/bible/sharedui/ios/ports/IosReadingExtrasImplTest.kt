@@ -9,7 +9,11 @@ import kotlinx.coroutines.joinAll
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.HelpDialogs
+import net.bible.sharedui.app.recommend.RecommendApp
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.ios.report.IosBugReport
@@ -21,14 +25,17 @@ class IosReadingExtrasImplTest {
         val help = mutableListOf<HelpTopic>()
         val shared = mutableListOf<Pair<String, String>>()
         val causes = mutableListOf<Throwable?>()
-        var currentTable = task4Table()
+        val asked = mutableListOf<AppDialogRequest>()
+        var answer: AppDialogResult = AppDialogResult.Selected(RecommendApp.SHARE_LINK)
+        var language = "en"
         fun extras(scope: CoroutineScope, report: suspend (Throwable?) -> Unit = { causes += it }) =
             HostReadingExtrasImpl(
                 helpDialogs = object : HelpDialogs { override fun show(topic: HelpTopic) { help += topic } },
                 textShare = object : TextShare {
                     override fun shareText(text: String, chooserTitle: String) { shared += text to chooserTitle }
                 },
-                table = { currentTable },
+                strings = { iosStrings(language) },
+                ask = { request -> asked += request; answer },
                 scope = scope,
                 report = report,
             )
@@ -49,24 +56,32 @@ class IosReadingExtrasImplTest {
         assertTrue(boundary.causes.isEmpty())
     }
 
-    @Test fun tellFriendSharesHomepageMessageAndCurrentLocalizedChooserTitle() = runTest {
+    @Test fun tellFriendShowsChooser() = runTest {
+        val boundary = Boundary()
+        boundary.answer = AppDialogResult.Selected(RecommendApp.SHOW_QR)
+        boundary.extras(this).runRow("tellFriend")
+        runCurrent()
+        val chooser = assertIs<AppDialogRequest.Options>(boundary.asked.first())
+        assertEquals(listOf(RecommendApp.SHARE_LINK, RecommendApp.SHOW_QR), chooser.options.map { it.value })
+        assertIs<AppDialogRequest.Notice>(boundary.asked[1])
+        assertTrue(boundary.shared.isEmpty(), "A QR code shares no text")
+    }
+
+    @Test fun tellFriendSharesNeutralHomepageMessageInCurrentLanguage() = runTest {
         val boundary = Boundary()
         val extras = boundary.extras(this)
         extras.runRow("tellFriend")
         runCurrent()
         val (text, title) = boundary.shared.single()
-        assertEquals("en:tell_friend_title", title)
-        assertContains(text, "en:tell_friend_message1(en:app_name_long)")
-        assertContains(text, "en:tell_friend_message2_device")
-        assertContains(text, "en:tell_friend_message4(https://andbible.org)")
+        assertEquals(iosStrings("en").tellFriendTitle, title)
+        assertContains(text, "https://andbible.org")
         assertFalse(text.contains("play.google.com"))
         assertFalse(text.contains("apps.apple.com"))
-        boundary.currentTable = task4Table("fi")
+        assertFalse(text.contains("Android", ignoreCase = true))
+        boundary.language = "fi"
         extras.runRow("tellFriend")
         runCurrent()
-        assertEquals(2, boundary.shared.size)
-        assertEquals("fi:tell_friend_title", boundary.shared.last().second)
-        assertContains(boundary.shared.last().first, "fi:tell_friend_message2_device")
+        assertEquals(iosStrings("fi").tellFriendTitle, boundary.shared.last().second)
         assertTrue(boundary.help.isEmpty())
         assertTrue(boundary.causes.isEmpty())
     }

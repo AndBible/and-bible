@@ -582,9 +582,40 @@ private fun HostAppContent(
     // The beta notice (Android: ReadingAppBootstrap.showBetaNotice), once reading is shown: a fresh install reaches
     // reading only after Welcome. Shown by hosts that name a notice platform, when the environment says beta.
     val betaNoticePlatform = platform.betaNoticePlatform
-    if (nightObserver != null && betaNoticePlatform != null) LaunchedEffect(navController) {
+    val releaseNoticePlatform = platform.releaseNoticePlatform
+    if (nightObserver != null && (betaNoticePlatform != null || releaseNoticePlatform != null)) LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.first { it.destination.route?.substringBefore('?') == NavRoutes.READING }
-        try {
+        if (releaseNoticePlatform != null) try {
+            val environment = koin.get<net.bible.sharedcore.platform.AppEnvironment>()
+            val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+            val links = koin.get<ExternalLinks>()
+            val textShare = koin.get<net.bible.sharedui.app.ports.TextShare>()
+            // The 6.0 notice for upgraders (Android: ReadingAppBootstrap.showStableNotice); it names no sponsor on iOS.
+            net.bible.sharedui.app.notice.ReleaseNotice.showIfNeeded(
+                platform = releaseNoticePlatform,
+                isBeta = environment.isBeta,
+                discrete = environment.isDiscrete,
+                isUpgrade = platform.isUpgradeInstall(),
+                mainVersion = platform.readingHost.versionName().split('.').take(2).joinToString("."),
+                settings = koin.get<AppSettings>(),
+                ask = dialogs::await,
+                onAction = { action ->
+                    when (action) {
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.VIDEO -> links.open(net.bible.sharedcore.docs.SiteLinks.WHATS_NEW_VIDEO_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.COMPUTER,
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE,
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE ->
+                            net.bible.sharedui.app.recommend.RecommendApp.run(strings, dialogs::await, textShare::shareText)
+                    }
+                },
+            )
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("HostApp: release notice failed: ${e.stackTraceToString()}")
+        }
+        if (betaNoticePlatform != null) try {
             val environment = koin.get<net.bible.sharedcore.platform.AppEnvironment>()
             net.bible.sharedui.app.notice.BetaNotice.showIfNeeded(
                 platform = betaNoticePlatform,

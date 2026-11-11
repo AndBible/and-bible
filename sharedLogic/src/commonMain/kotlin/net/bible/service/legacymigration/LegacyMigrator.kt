@@ -173,7 +173,7 @@ class LegacyMigrator(
     private val workDir = dir / "work"
     private val stagingDir = dir / "staging"
     private val replacedDir = dir / "replaced"
-    private val doneFile = dir / "done.json"
+    private val doneFile = dir / DONE_FILE
     private val reportFile = dir / "report.json"
     private val states = MigrationStateStore(fs, dir, platform::syncFile)
     private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states, platform.secrets)
@@ -566,11 +566,32 @@ class LegacyMigrator(
         else fs.deleteRecursively(replacedDir, mustExist = false)
     }
 
-    private companion object {
+    companion object {
         /** An attempt count at which no further automatic attempt is made. */
-        const val MAX_ATTEMPTS = 2
+        private const val MAX_ATTEMPTS = 2
 
         /** File inside `replaced/` that says its content belongs to a user-requested import and must be kept. */
-        const val IMPORT_MARKER = ".import"
+        private const val IMPORT_MARKER = ".import"
+
+        /** The marker file inside the `LegacyMigration` directory that records a committed migration. */
+        internal const val DONE_FILE = "done.json"
+    }
+}
+
+/**
+ * True when the `done.json` in the migration directory [dir] records a migration that carried data over from the old
+ * native app, i.e. this install is an upgrade: the file exists and its `nothingToMigrate` is not `true` (a marker from an
+ * earlier run without the flag counts as migrated). A missing or unreadable marker is false (a fresh install).
+ */
+fun LegacyMigrator.Companion.migratedFromLegacyApp(fileSystem: FileSystem, dir: Path): Boolean {
+    val file = dir / LegacyMigrator.DONE_FILE
+    return try {
+        if (!fileSystem.exists(file)) return false
+        val marker = Json.parseToJsonElement(fileSystem.read(file) { readUtf8() }).jsonObject
+        (marker["nothingToMigrate"] as? JsonPrimitive)?.content != "true"
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
     }
 }
