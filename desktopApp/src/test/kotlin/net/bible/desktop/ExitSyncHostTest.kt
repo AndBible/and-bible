@@ -15,7 +15,6 @@ import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedui.theme.abColorScheme
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -79,7 +78,7 @@ class ExitSyncHostTest {
                 CompositionLocalProvider(LocalStrings provides iosStrings(if (changed) "fi" else "en")) {
                     AbTheme(seedArgb = if (changed) seed else null, darkTheme = changed,
                         colorMode = if (changed) DisplayColorMode.MONOCHROME else DisplayColorMode.NORMAL,
-                        disableAnimations = changed, paletteStyle = ThemePaletteStyle.DEFAULT) {
+                        disableAnimations = changed) {
                         LocalHostAppearanceCapture.current()
                     }
                 }
@@ -88,7 +87,7 @@ class ExitSyncHostTest {
                 assertTrue(LocalIsDarkTheme.current)
                 assertTrue(LocalDisableAnimations.current)
                 assertEquals(DisplayColorMode.MONOCHROME, LocalDisplayColorMode.current)
-                assertEquals(abColorScheme(seed, true, DisplayColorMode.MONOCHROME, ThemePaletteStyle.DEFAULT).primary, MaterialTheme.colorScheme.primary)
+                assertEquals(abColorScheme(seed, true, DisplayColorMode.MONOCHROME).primary, MaterialTheme.colorScheme.primary)
                 Text(LocalStrings.current.exitSyncTitle)
             }
         }
@@ -115,7 +114,7 @@ class ExitSyncHostTest {
                 }
             }
             if (closing) appearance.Content {
-                assertEquals(abColorScheme(0xFFB34819.toInt(), false, DisplayColorMode.NORMAL, ThemePaletteStyle.DEFAULT).primary, MaterialTheme.colorScheme.primary)
+                assertEquals(abColorScheme(0xFFB34819.toInt(), false, DisplayColorMode.NORMAL).primary, MaterialTheme.colorScheme.primary)
                 Text("retained workspace palette")
             }
         }

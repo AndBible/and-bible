@@ -53,6 +53,8 @@ class DefaultColorSchemeTest {
         val brown = 0xFF8B5A2B.toInt()
         val fixed = abColorScheme(brown, false, DisplayColorMode.NORMAL)
         assertNotEquals(0xFF87521B.toInt(), fixed.primary.toArgb(), "do not force plain TonalSpot's orange primary")
+        val drift = hueDistance(fixed.primary.toArgb(), brown)
+        assertTrue(drift < 10f, "a capped low-chroma seed keeps its hue (drift $drift)")
     }
 
     @Test
@@ -89,4 +91,23 @@ class DefaultColorSchemeTest {
             }
         }
     }
+}
+
+private fun hueDistance(a: Int, b: Int): Float {
+    val d = kotlin.math.abs(hueOf(a) - hueOf(b))
+    return if (d > 180f) 360f - d else d
+}
+
+private fun hueOf(argb: Int): Float {
+    val r = ((argb shr 16) and 0xFF) / 255f
+    val g = ((argb shr 8) and 0xFF) / 255f
+    val b = (argb and 0xFF) / 255f
+    val max = maxOf(r, g, b); val min = minOf(r, g, b); val c = max - min
+    if (c == 0f) return 0f
+    val h = when (max) {
+        r -> ((g - b) / c) % 6f
+        g -> ((b - r) / c) + 2f
+        else -> ((r - g) / c) + 4f
+    } * 60f
+    return if (h < 0f) h + 360f else h
 }
