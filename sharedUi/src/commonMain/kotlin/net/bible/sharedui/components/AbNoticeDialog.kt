@@ -18,6 +18,13 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.Color
+import org.jetbrains.compose.resources.painterResource
+import net.bible.sharedui.generated.resources.Res
+import net.bible.sharedui.generated.resources.andbible_qr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -104,6 +111,15 @@ fun AbNoticeDialog(
                                     colorFilter = logoFilter,
                                 )
                             }
+                        AppDialogRequest.NoticeBlock.QrCode ->
+                            // Fixed black on white, whatever the theme: a themed or tinted code would not scan.
+                            Image(
+                                painterResource(Res.drawable.andbible_qr), contentDescription = null,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    .size(220.dp)
+                                    .background(Color.White, RoundedCornerShape(12.dp))
+                                    .padding(16.dp),
+                            )
                         is AppDialogRequest.NoticeBlock.IconLine -> {
                             val iconPainter = when (block.icon) {
                                 AppDialogRequest.NoticeIcon.Money -> moneyPainter

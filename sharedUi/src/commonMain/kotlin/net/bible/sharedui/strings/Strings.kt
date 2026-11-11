@@ -1358,6 +1358,15 @@ interface Strings {
     val releaseNoticeWebsite: String // R.string.release_notice_website
     val releaseNoticeFreeNoAds: String // R.string.release_notice_free_no_ads
     val releaseNoticeDontShowAgain: String // R.string.release_notice_dont_show_again
+
+    // Recommend to a friend (RecommendApp)
+    val tellFriendTitle: String // R.string.tell_friend_title
+    val recommendIntro: String // R.string.recommend_intro
+    val recommendBody: String // R.string.recommend_body
+    fun recommendGetIt(link: String): String // R.string.recommend_get_it
+    val recommendShareLink: String // R.string.recommend_share_link
+    val recommendShowQr: String // R.string.recommend_show_qr
+    val recommendQrCaption: String // R.string.recommend_qr_caption
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

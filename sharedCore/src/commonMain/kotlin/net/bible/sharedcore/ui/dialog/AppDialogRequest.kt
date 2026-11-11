@@ -149,6 +149,9 @@ sealed interface AppDialogRequest {
         data class Html(val html: String) : NoticeBlock
         /** The app logo centred at 2× size — hidden by the CALLER in discrete mode, as today. */
         data object Logo : NoticeBlock
+
+        /** The AndBible homepage QR code, black on a white rounded box in every theme (so it stays scannable). */
+        data object QrCode : NoticeBlock
         /** One HTML line led by an inline icon (the `$` sponsor icon). */
         data class IconLine(val icon: NoticeIcon, val html: String) : NoticeBlock
     }
