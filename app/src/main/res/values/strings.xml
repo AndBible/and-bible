@@ -2300,4 +2300,18 @@
     <string name="document_sync_running_bytes">%1$s — %2$s: %3$d bytes received</string>
     <string name="document_sync_running_bytes_total">%1$s — %2$s: %3$d / %4$d bytes received</string>
     <string name="document_sync_finishing">%1$s — %2$s: finishing operation</string>
+    <string name="release_notice_kicker">AndBible %s</string>
+    <string name="release_notice_headline_start">Your Bible,</string>
+    <string name="release_notice_headline_accent">now on every device</string>
+    <string name="release_notice_platform_iphone_ipad">iPhone &amp; iPad</string>
+    <string name="release_notice_video_title">See what\'s new in %s</string>
+    <string name="release_notice_video_subtitle">Video tour on YouTube</string>
+    <string name="release_notice_computer_title">Get AndBible on your computer</string>
+    <string name="release_notice_computer_subtitle">Windows, Mac and Linux</string>
+    <string name="release_notice_share_title">Share AndBible with a friend</string>
+    <string name="release_notice_share_subtitle">Link or QR code · also in the menu</string>
+    <string name="release_notice_sponsor">Sponsor development</string>
+    <string name="release_notice_website">Visit andbible.org</string>
+    <string name="release_notice_free_no_ads">AndBible is free and has no ads</string>
+    <string name="release_notice_dont_show_again">Don\'t show again</string>
 </resources>
