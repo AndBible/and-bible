@@ -654,9 +654,9 @@ class NativeNotificationPolicyTest {
 
     @Test
     fun deliveredForegroundChangeOverridesAQueuedBackgroundSnapshot() {
-        val pending = mutableListOf<Runnable>()
+        val pending = mutableListOf<kotlinx.coroutines.Runnable>()
         val dispatcher = object : kotlinx.coroutines.CoroutineDispatcher() {
-            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { pending += block }
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: kotlinx.coroutines.Runnable) { pending += block }
         }
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + dispatcher)
         fun drain() {
