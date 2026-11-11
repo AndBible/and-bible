@@ -75,6 +75,9 @@ class UriAnalyzer {
             protocol = uriTokens[0]
             uriTokens[1]
         }
+        if (ref.isEmpty()) {
+            return false
+        }
         docType = when (protocol) {
             SWORD_PROTOCOL -> DocType.SPECIFIC_DOC
             OSIS_PROTOCOL -> DocType.BIBLE
@@ -104,7 +107,13 @@ class UriAnalyzer {
         ref = ref.trim('/')
         if (!ref.contains("/")) {
             try {
-                val (bookCandidateStr, refCandidateStr) = ref.split(".", limit = 2)
+                val parts = ref.split(".", limit = 2)
+                val bookCandidateStr = parts[0]
+                val refCandidateStr = parts.getOrNull(1)
+                if (refCandidateStr == null) {
+                    key = decodeUrl(ref)
+                    return true
+                }
                 val decodedBook = decodeUrl(bookCandidateStr)
                 val bookCandidate = try {Books.installed().getBook(decodedBook)} catch (e: Exception) {null}
                 if (bookCandidate?.bookCategory != null && bookCandidate.bookCategory != BookCategory.BIBLE) {
