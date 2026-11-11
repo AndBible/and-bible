@@ -130,6 +130,16 @@ class DiscreteSpeakRegressionTest {
         assertEquals(CalculatorComposeActivity::class.java.name, shadowOf(activity).nextStartedActivityForResult?.intent?.component?.className)
     }
 
+    @Test fun internalStartActivityLeavesNoPauseExemptionSoHomeStillLocks() {
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
+        val controller = host()
+        val activity = controller.get()
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        assertNull("in-graph navigation must not launch a platform activity", shadowOf(activity).nextStartedActivityForResult)
+        controller.pause().stop().start().resume()
+        assertEquals(CalculatorComposeActivity::class.java.name, shadowOf(activity).nextStartedActivityForResult?.intent?.component?.className)
+    }
+
     @Test fun stoppingTwiceHidesAndBothEntryPointsReopenAndNotifyInsets() {
         val activity = host().get()
         val service = get<SpeakTransportServiceImpl>(SpeakTransportServiceImpl::class.java)
