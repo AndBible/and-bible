@@ -53,6 +53,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -66,6 +67,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -80,6 +82,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
 
@@ -89,12 +92,16 @@ private class NoticePalette(
     val accent: Color, val accentInk: Color, val highlight: Color, val buttonBg: Color, val buttonInk: Color,
 )
 
+/** Pure monochrome and BW are both greyscale modes: no hues and no gradient on the card. */
+@Composable
+private fun isGreyMode(): Boolean = LocalDisplayColorMode.current.isGreyBase
+
 @Composable
 private fun noticePalette(): NoticePalette {
     val dark = LocalIsDarkTheme.current
     val scheme = MaterialTheme.colorScheme
     return when {
-        isPureMonochrome() -> NoticePalette(
+        isGreyMode() -> NoticePalette(
             panel = Brush.verticalGradient(listOf(scheme.surface, scheme.surface)), ink = scheme.onSurface,
             muted = scheme.onSurface, border = Color.Gray, tile = scheme.surface, accent = scheme.onSurface,
             accentInk = scheme.onSurface, highlight = scheme.surface, buttonBg = scheme.onSurface, buttonInk = scheme.surface,
@@ -130,15 +137,18 @@ fun AbReleaseNoticeCard(
 ) {
     TrackOverlay()
     val strings = LocalStrings.current
-    val mono = isPureMonochrome()
+    val mono = isGreyMode()
     val palette = noticePalette()
+    // A Dialog window re-provides LocalDensity from its own owner; carry the host's density (font scale) in.
+    val density = LocalDensity.current
     var dontShowAgain by rememberSaveable { mutableStateOf(false) }
     val shape = RoundedCornerShape(22.dp)
     Dialog(
         onDismissRequest = { onAnswer(null, dontShowAgain) },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        if (mono) NoDialogDim()
+        if (isPureMonochrome()) NoDialogDim()
+        CompositionLocalProvider(LocalDensity provides density) {
         Column(
             modifier = Modifier.padding(16.dp).widthIn(max = 400.dp).fillMaxWidth()
                 .clip(shape).background(palette.panel).border(1.dp, if (mono) palette.ink else palette.border, shape),
@@ -236,6 +246,7 @@ fun AbReleaseNoticeCard(
                 ) { Text(strings.settingsEditorClose, fontWeight = FontWeight.Bold) }
             }
         }
+        }
     }
 }
 
@@ -253,7 +264,7 @@ private fun ActionRow(
     highlighted: Boolean = false, onClick: () -> Unit,
 ) {
     val shape: Shape = RoundedCornerShape(12.dp)
-    val mono = isPureMonochrome()
+    val mono = isGreyMode()
     val border = if (highlighted && !mono) BorderStroke(1.dp, palette.accent) else BorderStroke(1.dp, palette.border)
     Row(
         modifier = Modifier.fillMaxWidth().clip(shape)
