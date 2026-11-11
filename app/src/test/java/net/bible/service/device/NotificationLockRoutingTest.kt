@@ -9,6 +9,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.BuildVariant
 import net.bible.service.installzip.DocumentInstallService
 import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.index.SearchIndexingService
@@ -32,6 +33,7 @@ class NotificationLockRoutingTest {
     private val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
 
     @Test fun lockedNotificationEntryPointsUseStartupInsteadOfReading() = withCalculator(true) {
+        org.junit.Assume.assumeTrue(BuildVariant.Appearance.isDiscrete)
         val intents = notificationContentIntents()
         assertEquals(
             intents.map { (source, _) -> source to StartupActivity::class.java.name },
@@ -40,11 +42,23 @@ class NotificationLockRoutingTest {
         intents.forEach { (source, intent) ->
             // Reusing a StartupActivity already awaiting a calculator result would skip a fresh check.
             assertEquals(source, 0, intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            assertEquals(source, Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
+                intent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
             assertFalse(source, intent.hasExtra(NavHostComposeActivity.EXTRA_ROUTE))
         }
     }
 
     @Test fun standardNotificationEntryPointsKeepTheirDestinations() = withCalculator(false) {
+        org.junit.Assume.assumeFalse(BuildVariant.Appearance.isDiscrete)
+        assertStandardDestinations()
+    }
+
+    @Test fun standardNotificationDestinationsStayUnchangedWithCalculatorEnabled() = withCalculator(true) {
+        org.junit.Assume.assumeFalse(BuildVariant.Appearance.isDiscrete)
+        assertStandardDestinations()
+    }
+
+    private fun assertStandardDestinations() {
         notificationContentIntents().forEach { (source, intent) ->
             assertEquals(source, NavHostComposeActivity::class.java.name, intent.component?.className)
             assertEquals(source, if (source == "progress") NavRoutes.PROGRESS_STATUS_PATTERN else NavRoutes.READING,
