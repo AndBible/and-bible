@@ -110,6 +110,28 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun swordFolderStartupRecoversMyBibleBeforeStartingKoin() {
+        val paths = paths()
+        val staging = paths.sword.resolve(".sword-install-killed")
+        val live = paths.sword.resolve("mybible/original.sqlite3")
+        Files.createDirectories(live.parent)
+        Files.createDirectories(staging.resolve("originals/mybible"))
+        Files.writeString(live, "replacement")
+        Files.writeString(staging.resolve("originals/mybible/original.sqlite3"), "original")
+        Files.writeString(staging.resolve("originals.json"), "{\"mybible/original.sqlite3\":\"KJVA\"}")
+        Files.writeString(staging.resolve("existing.json"), "[\"mybible/original.sqlite3\"]")
+        Files.writeString(staging.resolve("publishing"), "[\"mybible/original.sqlite3\"]")
+
+        DesktopSwordFolders.initialise(paths.sword, paths.data)
+
+        assertNull(KoinPlatform.getKoinOrNull())
+        assertEquals("original", Files.readString(live))
+        val decisions = paths.data.resolve("mybible-versifications").toFile().listFiles().orEmpty()
+        assertEquals(1, decisions.size)
+        assertEquals("KJVA", decisions.single().readText())
+        assertFalse(Files.exists(staging))
+    }
+
     @Test fun startupUsesInjectedNotifierSource() {
         val notifier = object : net.bible.sharedcore.platform.NativeNotifier {
             override val supportsProgress = false

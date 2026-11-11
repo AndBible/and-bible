@@ -358,12 +358,14 @@ class ModuleArchiveInterruptionTest {
     }
 
     @Test fun archiveCannotForgeRecoveryJournal() {
-        val entries = generation(1) + (".sword-install-forged/publishing" to
-            "[\"mods.d/keep.conf\",\"modules/keep/data\"]".encodeToByteArray())
-        val archive = zip(entries, "forged.zip")
-        val result = runCatching { runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) } }
-        assertTrue(result.isFailure, "ZIP entries must not claim the private transaction namespace")
-        assertTrue(!File(dest, ".sword-install-forged").exists())
+        for (namespace in listOf(".sword-install-forged", ".sword-committed-forged")) {
+            val entries = generation(1) + ("$namespace/publishing" to
+                "[\"mods.d/keep.conf\",\"modules/keep/data\"]".encodeToByteArray())
+            val archive = zip(entries, "forged.zip")
+            val result = runCatching { runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) } }
+            assertTrue(result.isFailure, "ZIP entries must not claim the private transaction namespace")
+            assertTrue(!File(dest, namespace).exists())
+        }
     }
 
     @Test fun replacingSharedDataWithoutAllOwnersIsRejectedBeforePublication() {

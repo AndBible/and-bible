@@ -214,7 +214,7 @@ object IosAppStartup {
                                 home / ".sword", destination,
                                 log = { Log.i(TAG, it) },
                             )
-                            HostSwordEnvironment.initialiseJSwordFolders(modules)
+                            HostSwordEnvironment.initialiseJSwordFolders(modules, internalFilesDir = p.directories.internalFilesDir)
                         },
                         koinModules = {
                             val sync = buildIosSyncBindings(hostSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)

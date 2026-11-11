@@ -1179,15 +1179,12 @@ class BackupControl(
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
         // Stage outside the live tree. A durable publish journal lets cold startup remove an interrupted generation.
-        val transaction = net.bible.service.installzip.SwordInstallTransaction(targetDirectory)
+        val transaction = net.bible.service.installzip.SwordInstallTransaction(targetDirectory, dirs.internalFilesDir, fileSystem)
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val myBibleDecisions = LinkedHashMap<Path, String>()
-        val writtenMyBibleDecisions = mutableListOf<Path>()
         val previousMyBibleDecisions = LinkedHashMap<Path, String?>()
-        val previousMyBibleFiles = LinkedHashMap<Path, Path>()
-        val myBibleRollbackDir = dirs.internalFilesDir / "backup" / transaction.staging.name
-        var preserveMyBibleRollback = false
+        var extractionFailure: Throwable? = null
         val removedMyBibleBooks = mutableListOf<Book>()
         var modulePublishComplete = false
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
@@ -1199,6 +1196,18 @@ class BackupControl(
         var dataReplaced = false
         // Staging trees of a crashed earlier install are never reused: sweep them (not those of running installs).
         sweepStaleEpubStagingDirs(targetDirectory)
+        // Use the on-disk spelling only when this filesystem actually aliases the archive path.
+        // Blind lowercasing would merge distinct modules on case-sensitive Linux/iOS storage.
+        val installedMyBiblePaths = Books.installed().getBooks().filter { it.isManuallyInstalledMyBibleBook }
+            .map { it.dbPath.normalized() }
+        fun myBibleTarget(name: String): Path {
+            val target = targetDirectory / moduleArchiveTargetName(name)
+            if (!fileSystem.exists(target)) return target
+            val canonical = fileSystem.canonicalize(target)
+            return installedMyBiblePaths.firstOrNull {
+                fileSystem.exists(it) && fileSystem.canonicalize(it) == canonical
+            } ?: (targetDirectory / canonical.relativeTo(fileSystem.canonicalize(targetDirectory)))
+        }
         try {
             ZipReader(newSource()).use { zip ->
                 var entryNum = 0
@@ -1218,13 +1227,14 @@ class BackupControl(
                             Log.w(TAG, "Unsupported MyBible versification '$requested'; restoring with KJVA")
                             "KJVA"
                         }
-                        val previous = myBibleDecisions.put(targetDirectory / moduleName, decision)
+                        val previous = myBibleDecisions.put(myBibleTarget(moduleName), decision)
                         if (previous != null) throw IOException("Duplicate MyBible versification entry: $moduleName")
                         continue
                     }
                     val segments = name.split('/')
                     // Archives must not be able to plant a journal that cold startup treats as trusted ownership.
-                    if (segments.first().startsWith(".sword-install-", ignoreCase = true)) {
+                    if (segments.first().startsWith(".sword-install-", ignoreCase = true) ||
+                        segments.first().startsWith(".sword-committed-", ignoreCase = true)) {
                         throw IOException("ZIP entry uses the private install transaction namespace")
                     }
                     // "epub/<name>/..." is an EPUB entry, and so is the bare directory entry "epub/<name>/".
@@ -1234,7 +1244,10 @@ class BackupControl(
                         if (segments.size == 2) continue // nothing to stage; never create the live folder
                     }
                     // Never overwrite files used by an open EPUB owner while reading the archive.
-                    val file = (if (isEpubEntry) epubStaging else targetDirectory) / moduleArchiveTargetName(name)
+                    val targetName = moduleArchiveTargetName(name)
+                    val file = if (!isEpubEntry && targetName.startsWith("mybible/") &&
+                        targetName.endsWith(".sqlite3", ignoreCase = true)) myBibleTarget(targetName)
+                    else (if (isEpubEntry) epubStaging else targetDirectory) / targetName
                     val isConf = name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF)
                     if (isConf) confFiles.add(file)
 
@@ -1346,27 +1359,19 @@ class BackupControl(
                     if (!isPublished(oldConf) && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
                 }
             }
-            // Handled MyBible failures must restore both the old SQLite bytes and their numbering.
-            // Keep these copies outside the journal-owned paths that rollback deliberately deletes.
             for (file in incomingMyBibleFiles) {
                 previousMyBibleDecisions[file] = MyBibleVersificationStore.readSaved(file)
-                if (fileSystem.exists(file)) {
-                    val copy = myBibleRollbackDir / file.relativeTo(targetDirectory)
-                    fileSystem.createDirectories(copy.parent!!)
-                    fileSystem.copy(file, copy)
-                    previousMyBibleFiles[file] = copy
-                }
             }
-            transaction.beginPublish(staged.keys + bufferedConfs.keys + obsoleteFiles + bufferedConfs.keys.flatMap {
-                listOf(it.parent!! / (it.name + ".old"), it.parent!! / (it.name + ".tmp"))
-            })
-            // Release live SQLite handles before replacing their files; the final scan registers the new decisions.
+            // Release live SQLite handles before the transaction moves originals out of the scanned tree.
             for (book in installed.filter { it.isManuallyInstalledMyBibleBook && it.dbPath.normalized() in incomingMyBibleFiles }) {
                 Activator.deactivate(book)
                 ((book as? SwordBook)?.backend as? MyBibleSqliteBackend)?.state?.close()
                 Books.installed().removeBook(book)
                 removedMyBibleBooks.add(book)
             }
+            transaction.beginPublish(staged.keys + bufferedConfs.keys + obsoleteFiles + bufferedConfs.keys.flatMap {
+                listOf(it.parent!! / (it.name + ".old"), it.parent!! / (it.name + ".tmp"))
+            }, previousMyBibleDecisions)
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
             // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
             // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
@@ -1389,6 +1394,7 @@ class BackupControl(
             epubStaged.clear()
             for ((file, bytes) in bufferedConfs) {
                 onPublishStep(publishStep++)
+                dataReplaced = true
                 val tmp = file.parent!! / (file.name + ".tmp")
                 fileSystem.write(tmp) { write(bytes) }
                 fileSystem.atomicMove(tmp, file)
@@ -1396,7 +1402,6 @@ class BackupControl(
             // A failed decision write aborts the transaction before any new module is registered.
             for (file in incomingMyBibleFiles) {
                 MyBibleVersificationStore.restore(file, myBibleDecisions[file] ?: "KJVA")
-                writtenMyBibleDecisions.add(file)
             }
             // A failed staging/publish must never remove old files. Only prune after all new confs landed.
             for (obsolete in obsoleteFiles) runCatching { fileSystem.delete(obsolete, mustExist = false) }
@@ -1418,53 +1423,31 @@ class BackupControl(
                     epubFailures.add("$name: ${e.message ?: e::class.simpleName}")
                 }
             }
+        } catch (failure: Throwable) {
+            extractionFailure = failure
+            throw failure
         } finally {
             try {
-                if (!modulePublishComplete) {
-                    for (file in writtenMyBibleDecisions) {
-                        runCatching {
-                            val previous = previousMyBibleDecisions[file]
-                            if (previous == null) MyBibleVersificationStore.remove(file)
-                            else MyBibleVersificationStore.restore(file, previous)
-                        }.onFailure { Log.e(TAG, "Could not restore rolled-back MyBible decision for $file", it) }
-                    }
-                }
                 for (part in staged.values) runCatching { fileSystem.delete(part) }
                 for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
                 // SWORD still uses absence rather than mixed old/new files after a failed publish.
                 for ((file, old) in asides) runCatching {
                     if (!dataReplaced && !fileSystem.exists(file)) fileSystem.atomicMove(old, file) else fileSystem.delete(old)
                 }
-                if (fileSystem.exists(transaction.staging)) {
-                    try {
-                        if (dataReplaced) transaction.rollback() else transaction.complete()
-                    } catch (e: IOException) {
-                        // A retained journal may delete live files on restart; keep the old private copies too.
-                        preserveMyBibleRollback = true
-                        Log.e(TAG, "Could not roll back module archive; MyBible copies remain in $myBibleRollbackDir", e)
-                        throw e
-                    }
+                if (!modulePublishComplete && fileSystem.exists(transaction.staging)) {
+                    transaction.rollback(removePublished = dataReplaced)
                 }
                 if (!modulePublishComplete) {
-                    val restoredFiles = mutableSetOf<Path>()
-                    for ((file, copy) in previousMyBibleFiles) {
-                        // Private app data and external modules can be on different filesystems.
-                        runCatching { if (dataReplaced) fileSystem.copy(copy, file) }
-                            .onSuccess { restoredFiles.add(file) }
-                            .onFailure {
-                                preserveMyBibleRollback = true
-                                Log.e(TAG, "Could not restore MyBible module $file; copy remains at $copy", it)
-                            }
-                    }
-                    // Reuse the old metadata/numbering; the closed backend lazily reopens the restored file.
+                    // Reuse old metadata only after both bytes and numbering were restored successfully.
                     for (book in removedMyBibleBooks) {
-                        if (book.dbPath.normalized() in restoredFiles) Books.installed().addBook(book)
+                        if (fileSystem.exists(book.dbPath)) Books.installed().addBook(book)
                     }
                 }
+            } catch (rollbackFailure: IOException) {
+                Log.e(TAG, "Could not roll back module archive; journal retained at ${transaction.staging}", rollbackFailure)
+                val original = extractionFailure
+                if (original != null) original.addSuppressed(rollbackFailure) else throw rollbackFailure
             } finally {
-                if (!preserveMyBibleRollback) runCatching {
-                    fileSystem.deleteRecursively(myBibleRollbackDir, mustExist = false)
-                }.onFailure { Log.w(TAG, "Could not remove MyBible rollback copies at $myBibleRollbackDir", it) }
                 releaseEpubStagingDir(epubStaging)
             }
         }

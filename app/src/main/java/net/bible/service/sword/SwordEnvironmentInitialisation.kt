@@ -66,7 +66,9 @@ object SwordEnvironmentInitialisation {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
 				// This folder we can always access freely without any extra permissions.
                 val moduleDir = SharedConstants.modulesDir
-                net.bible.service.installzip.recoverInterruptedSwordInstalls(moduleDir.toOkioPath())
+                net.bible.service.installzip.recoverInterruptedSwordInstalls(
+                    moduleDir.toOkioPath(), SharedConstants.internalFilesDir.toOkioPath(),
+                )
 
                 // main module dir
                 ensureDirExists(moduleDir)
