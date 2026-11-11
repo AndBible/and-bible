@@ -194,10 +194,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         if (createIfMissing && !staleAfterRestore && settings.getString("current_workspace_id") != id.toString()) {
             settings.setString("current_workspace_id", id.toString())
         }
-        val firstTime = settings.getBoolean("first-time", true)
-        if(firstTime) {
+        // Read from the store, not through AppSettings.getBoolean: that answers its default until app
+        // initialisation has finished, and a cold start loads the workspace before that (an early reader
+        // such as the TTS service manager reads activeWindow from platformStart()). Through it every cold
+        // start looked like the first one and reset the active window to the first Bible (#4056).
+        val store = DatabaseContainer.instance.settingsStore
+        if(store.getBoolean("first-time", true)) {
             activeWindow.pageManager.setFirstUseDefaultVerse()
-            settings.setBoolean("first-time", false)
+            store.setBoolean("first-time", false)
         }
     }
 
