@@ -224,7 +224,7 @@ results into `.local/mac/<container>/`; the agent-facing guide is the `ios-mac` 
 scripts/mac-remote.sh check                  # this container's runs, then connection, toolchain, simulators, lock
 scripts/mac-remote.sh cancel                 # stop this container's own running runs, release their Mac lock
 scripts/mac-remote.sh native-tests           # the CI jsword-ios-tests job (--force: delete old results first)
-scripts/mac-remote.sh xcode-test iphone --smoke   # the UI smoke set (iosApp/iosAppUITests/smoke-tests.txt), as CI runs it
+scripts/mac-remote.sh xcode-test iphone --smoke   # the UI smoke set (iosApp/iosAppUITests/smoke-tests.txt); not in CI, run it here
 MAC_TIMEOUT=5400 scripts/mac-remote.sh xcode-test iphone --parallel 2   # the full UI suite in 2 simulator clones (batch ends)
 scripts/mac-remote.sh batch link native-tests "xcode-test iphone" "xcode-test ipad"   # one lock, one sync, stop at first red
 scripts/mac-remote.sh batch --keep-going "xcode-test iphone -only-testing:iosAppUITests/AppUITests" "xcode-test iphone -only-testing:iosAppUITests/PocUITests"   # every step runs; exit = first red

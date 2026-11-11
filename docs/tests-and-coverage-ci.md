@@ -79,6 +79,8 @@ to generate these reports.
 ## Native PR validation
 
 For relevant pull requests, `ios.yml` runs only its Kotlin simulator-test job
-(`jsword-ios-tests`). Full app builds, iPhone UI tests, and the WebKit shim job
-remain push/manual-only to bound macOS usage. This catches Native-specific
-failures without adding the complete iOS UI pipeline to every shared-code PR.
+(`jsword-ios-tests`); the WebKit shim job is push/manual-only to bound macOS usage.
+The iOS app build and its XCUITest suites are not in CI (removed 2026-11-11: the
+hosted runner made the UI smoke set fail intermittently on almost every run). Run
+them on the remote Mac (`scripts/mac-remote.sh xcode-test iphone --smoke`, see
+`docs/ios-remote-mac.md`) whenever a change touches the iOS app or shared UI.

@@ -78,9 +78,6 @@ class ReleaseConfigTest(unittest.TestCase):
 
     def test_release_requires_generated_version(self):
         self.assertIn('[ "$CONFIGURATION" = "Release" ] && [ "$MARKETING_VERSION" = "0.0.0" ]', project)
-        workflow = (root / '.github/workflows/ios.yml').read_text()
-        gen = workflow.index('scripts/ios-version-xcconfig.sh')
-        self.assertLess(gen, workflow.index('xcodegen generate'))
 
     def run_script(self, props):
         with tempfile.TemporaryDirectory() as tmp:
