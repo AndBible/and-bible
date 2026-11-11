@@ -9,8 +9,6 @@ import android.media.AudioManager
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
@@ -73,7 +71,7 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
     override fun startPhoneCallMonitoring(onCallStateChanged: (Boolean) -> Unit) =
         PhoneCallMonitor.ensureMonitoringStarted(onCallStateChanged)
     override fun onPrepareForSpeaking() {
-        if (CommonUtils.isDiscrete) GlobalScope.launch { CommonUtils.requestNotificationPermission() }
+        // Discrete speech must not open system permission UI; playback works without notifications.
         CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
         CurrentActivityHolder.currentActivity?.volumeControlStream = AudioManager.STREAM_MUSIC
     }
@@ -84,9 +82,17 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
     }
     override fun detachMediaControls() = MediaButtonHandler.release()
     override fun bringReadingToFront() {
-        context.startActivity(NavHostComposeActivity.intentFor(context, NavRoutes.READING).apply {
+        val activity = CurrentActivityHolder.currentActivity
+        val intent = NavHostComposeActivity.intentFor(activity ?: context, NavRoutes.READING).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        })
+        }
+        if (activity != null) {
+            // -1 is a plain launch. Enter the host's graph interception before ActivityBase marks
+            // an expected pause: in-graph navigation never pauses, so that mark would outlive it.
+            activity.startActivityForResult(intent, -1)
+        } else {
+            context.startActivity(intent)
+        }
     }
     override fun phrasesFor(languageCode: String): SpeakPhrases =
         BibleApplication.application.getLocalizedResources(languageCode).let { resources ->

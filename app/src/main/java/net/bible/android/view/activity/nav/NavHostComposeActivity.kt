@@ -62,6 +62,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
@@ -1321,20 +1323,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  which `refreshIfNightModeChange()` compares. Captured in `onCreate` for the same reason. */
     private var currentNightMode: Boolean = false
 
-    /**
-     * Classic's `transportBarVisible`. The classic setter's first act is `binding.speakButton.alpha`
-     * -- chrome this host does not have -- but its second is the transport visibility update
-     * that the COMPOSE side treats as the single source of truth, which is why
-     * [ReadingCommandsHostCallbacks.transportBarVisible] is not one of the honest no-ops. This host
-     * keeps the flag and tells the transport service and the inset ledger.
-     */
-    private var transportBarVisible = false
-        get() = if (fullScreen) false else field
+    /** The transport owns visibility, including hiding itself on Stop while already stopped. */
+    private var transportBarVisible: Boolean
+        get() = !fullScreen && speakTransportServiceImpl.state.value.visible
         set(value) {
-            if (field == value) return
-            field = value
             speakTransportServiceImpl.setTransportVisible(value)
-            readingInsets.onTransportVisibilityChanged()
         }
 
     // R6d fix round 1 (review Important): this host's own 11-line copy of classic's `pageTitleText`
@@ -2557,6 +2550,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * the one the user is looking at.
      */
     private fun subscribeReadingHost() {
+        lifecycleScope.launch {
+            speakTransportServiceImpl.state.map { it.visible }.distinctUntilChanged().collect {
+                readingInsets.onTransportVisibilityChanged()
+            }
+        }
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
         // `DocumentChanges.installedChanged` from six of its own destinations and, until T8a,
         // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an
