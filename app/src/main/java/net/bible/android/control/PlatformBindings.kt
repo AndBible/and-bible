@@ -52,8 +52,8 @@ fun buildPlatformBindings() = module {
 
     single<net.bible.sharedcore.platform.NotificationPermission> { net.bible.sharedcore.platform.NoNotificationPermission }
     single<AppSettings> { CommonUtils.settings }
-    // Android has system notifications for background work: the activity menu entry is opt-in here (#4007).
-    single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { false } }
+    // Discrete users need in-app activity status when system notifications are hidden; explicit choices still win.
+    single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { CommonUtils.isDiscrete } }
     single<MarkdownRenderer> { MarkdownToXhtml }
     single<net.bible.sharedcore.platform.secrets.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }
