@@ -71,6 +71,13 @@ jobs:
     - name: Build with Gradle and run unit tests
       run: ./gradlew --console plain testStandardGoogleplayDebugUnitTest
 
+    # Discrete-only assertions (calculator lock, disguise) are skipped in the standard variant.
+    - name: Run discrete-flavour lock and disguise tests
+      run: >-
+        ./gradlew --console plain testDiscreteGithubDebugUnitTest
+        --tests "*Discrete*" --tests "*Calculator*" --tests "*NotificationLockRoutingTest"
+        --tests "*NotificationInitialCalculatorLockTest" --tests "*ExternalEntryManifestTest"
+
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: ${{ always() }}

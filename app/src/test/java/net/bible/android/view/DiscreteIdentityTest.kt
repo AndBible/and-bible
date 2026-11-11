@@ -101,6 +101,7 @@ class DiscreteIdentityTest {
     }
 
     @Test fun drawerShowsTellAFriendOtherwise() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         assertTrue(drawerIds().contains("tellFriend"))
     }
 
@@ -112,6 +113,7 @@ class DiscreteIdentityTest {
     }
 
     @Test fun theShareTextKeepsTheAdvertOtherwise() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         assertTrue(selectionText().contains("andbible.github.io"))
         assertTrue(buildTextWithAdvert().contains("andbible.github.io"))
     }
@@ -127,6 +129,7 @@ class DiscreteIdentityTest {
     }
 
     @Test fun theOldWebViewTextKeepsTheRealNameOtherwise() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         val msg = webViewTooOldRequest(
             context, "com.google.android.webview", "${MINIMUM_WEBVIEW_MAJOR_VERSION - 1}.0.1.0",
         )!!.message!!
@@ -140,6 +143,7 @@ class DiscreteIdentityTest {
     }
 
     @Test fun theWelcomeStateShowsBothHomepageButtonsOtherwise() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         assertTrue(welcomeState().homepageButtonsVisible)
     }
 
@@ -192,7 +196,7 @@ class DiscreteIdentityTest {
 
     /** Review Focus 5: standard flavor (the test build), discrete by preference only. */
     @Test fun prefOnlyDiscreteHidesTheSameSurfaces() {
-        assertFalse("sanity: the flavor is not discrete", net.bible.service.common.BuildVariant.Appearance.isDiscrete)
+        org.junit.Assume.assumeFalse("preference-only test needs the standard flavor", net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         discrete(true)
         assertTrue(CommonUtils.isDiscrete)
         // 5

@@ -54,6 +54,7 @@ class StartupWelcomeDiscreteChromeTest {
 
     @Test
     fun discreteModeOffUsesTheRealAppNameAndLogo() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", false).apply()
 
         assertEquals(R.string.app_name_long, startupWelcomeAppNameRes())
@@ -90,6 +91,7 @@ class StartupWelcomeDiscreteChromeTest {
      */
     @Test
     fun discreteModeOffZipFormatLineNamesTheRealApp() {
+        org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
         CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", false).apply()
 
         val zip = context.getString(R.string.format_zip, context.getString(startupWelcomeShortAppNameRes()))

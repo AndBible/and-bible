@@ -168,12 +168,14 @@ class DiscreteSpeakRegressionTest {
             settings.removeBoolean(ActivityMenuPreference.KEY)
             val preference = ActivityMenuPreference(settings, default)
             val service = AppSettingsServiceImpl(activityMenu = preference)
-            assertEquals(discreteMode, preference.enabled.value)
-            assertEquals(discreteMode, service.snapshot.value.showActivityInMenu)
-            service.setBool(ActivityMenuPreference.KEY, !discreteMode)
-            assertEquals(!discreteMode, preference.enabled.value)
-            assertEquals(!discreteMode, service.snapshot.value.showActivityInMenu)
-            assertEquals(!discreteMode, ActivityMenuPreference(settings, default).enabled.value)
+            // The discrete flavor is discrete regardless of the preference, so its default is always true.
+            val expectedDefault = discreteMode || net.bible.service.common.BuildVariant.Appearance.isDiscrete
+            assertEquals(expectedDefault, preference.enabled.value)
+            assertEquals(expectedDefault, service.snapshot.value.showActivityInMenu)
+            service.setBool(ActivityMenuPreference.KEY, !expectedDefault)
+            assertEquals(!expectedDefault, preference.enabled.value)
+            assertEquals(!expectedDefault, service.snapshot.value.showActivityInMenu)
+            assertEquals(!expectedDefault, ActivityMenuPreference(settings, default).enabled.value)
         }
     }
 }
