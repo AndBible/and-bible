@@ -1175,28 +1175,40 @@ final class ReadingUITests: RealAppUITestCase {
 
         // Since #2848 (1bb9e2fbfe) only SCROLLING reveals the overlay (taps keep the separate window-button timer), and it
         // hides 2 s after the last scroll (`ReadingChromeHideDelayMillis`). So: a short drag on the pane, then a tight poll of
-        // one element query with 0.1 s sleeps for at most 1.8 s; a miss drags again, three tries in all.
+        // snapshots with 0.1 s sleeps for at most 1.8 s; a miss drags again, three tries in all.
         // The overlay shows the CURRENT verse (it follows the scroll position, as on Android), so any verse of John 3.
         let overlay = labelStarting(app, "KJV:Joh 3:")
-        var overlayShown = false
-        for attempt in 0..<3 where !overlayShown {
+        // Capture existence and text in ONE immutable snapshot. `exists`, screenshot, then `label` races the
+        // two-second hide timer: XCTest re-resolves the label query after the overlay has disappeared.
+        func referenceLabel(in node: XCUIElementSnapshot) -> String? {
+            if node.label.hasPrefix("KJV:Joh 3:") { return node.label }
+            for child in node.children {
+                if let label = referenceLabel(in: child) { return label }
+            }
+            return nil
+        }
+        var overlayLabel: String?
+        for attempt in 0..<3 where overlayLabel == nil {
             let from = firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: attempt % 2 == 0 ? 0.6 : 0.45))
             let to = firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: attempt % 2 == 0 ? 0.45 : 0.6))
             from.press(forDuration: 0.05, thenDragTo: to)
             let deadline = Date().addingTimeInterval(1.8)
             while Date() < deadline {
-                if overlay.exists { overlayShown = true; break }
+                if let snapshot = try? app.snapshot(), let label = referenceLabel(in: snapshot) {
+                    overlayLabel = label
+                    break
+                }
                 usleep(100_000)
             }
         }
         shot(app, "fullscreen-overlay")
-        if !overlayShown { attachTree(app, "fullscreen-no-overlay") }
-        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:<verse>' is not shown right after a scroll in full screen")
-        if overlayShown {
-            XCTAssertNotNil(overlay.label.range(of: "^KJV:Joh 3:[0-9]+$", options: .regularExpression),
-                            "the overlay text '\(overlay.label)' is not of the form 'KJV:Joh 3:<verse>'")
+        guard let overlayLabel else {
+            attachTree(app, "fullscreen-no-overlay")
+            XCTFail("the Bible reference overlay 'KJV:Joh 3:<verse>' is not shown right after a scroll in full screen")
+            return
         }
-        if !overlayShown { return }
+        XCTAssertNotNil(overlayLabel.range(of: "^KJV:Joh 3:[0-9]+$", options: .regularExpression),
+                        "the overlay text '\(overlayLabel)' is not of the form 'KJV:Joh 3:<verse>'")
 
         // Full-screen content stays below the top safe area: a tap shows the window buttons, and the pane's
         // window-menu button starts at least 40 pt down on an iPhone (status bar / Dynamic Island inset 47-59 pt).
