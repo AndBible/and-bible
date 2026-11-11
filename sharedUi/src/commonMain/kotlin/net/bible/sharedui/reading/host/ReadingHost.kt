@@ -634,9 +634,10 @@ private val PaneButtonDragThresholdDp = 28.dp
  * stays hidden with the session believing otherwise. Bounded retries close that window; the 1.dp
  * floor on the sheet content makes it a narrow one.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DriveSearchSheet(
+internal fun DriveSearchSheet(
     scaffoldState: BottomSheetScaffoldState,
     visible: Boolean,
     onDismissedByUser: () -> Unit,
@@ -657,12 +658,12 @@ private fun DriveSearchSheet(
             }
         }
     }
-    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true, the effect
-    // above never re-fires, and the next `open()` for the same query looks dead. Anything other than
-    // `Expanded` is invisible here, so it all counts as dismissed; the initial `Hidden` emission is
-    // harmless (`closeSheet()` returns false when nothing is open).
+    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true and the
+    // next open for the same query looks dead. Observe transitions, not the initial Hidden value:
+    // a search handoff can already be accepted while this collector is starting, before expand runs.
+    // Reporting that initial value would cancel the new request before its sheet can appear.
     LaunchedEffect(sheet) {
-        snapshotFlow { sheet.currentValue }.collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+        snapshotFlow { sheet.currentValue }.drop(1).collect { if (it != SheetValue.Expanded) onDismissedByUser() }
     }
 }
 

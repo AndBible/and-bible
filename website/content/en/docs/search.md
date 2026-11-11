@@ -149,7 +149,8 @@ Use `strong:` followed by a Strong's number to find verses where that number app
 You can also choose **Find all occurrences** from a Strong's definition or dictionary link.
 The results open in the same reading-view search sheet, even if the active window displays a
 dictionary, an EPUB, or a different Bible. The search uses the selected Strong's-enabled Bible
-translations, not the document you happen to be reading.
+translations, not the document you happen to be reading. The sheet opens automatically with the
+matching verses; you do not need to submit the query again in the toolbar.
 
 If a selected translation needs a usable Strong's search index, the sheet asks to index that
 translation by name and shows its progress. With several selected translations, it asks for
