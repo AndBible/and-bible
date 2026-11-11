@@ -200,6 +200,37 @@ class SwordInstallTransactionTest {
         assertFalse(files.list(root).any { it.name.startsWith(".sword-committed-") })
     }
 
+    @Test fun interruptedOriginalsManifestPreparationKeepsUnmovedModule() = fixture { root ->
+        val live = root / "mybible/a.sqlite3"
+        val internal = root / "internal"
+        val record = internal / "mybible-versifications" / "modules/mybible/a.sqlite3".encodeUtf8().sha256().hex()
+        write(live, "original")
+        write(record, "KJVA")
+        val transaction = SwordInstallTransaction(root)
+        write(transaction.staging / "existing.json", "[\"mybible/a.sqlite3\"]")
+        write(transaction.staging / "originals.json.tmp", "{\"mybible/a.sqlite3\":null}")
+        SwordInstallTransaction.recoverInterrupted(root, internal)
+        assertEquals("original", files.read(live) { readUtf8() })
+        assertEquals("KJVA", files.read(record) { readUtf8() })
+        assertFalse(files.exists(transaction.staging))
+    }
+
+    @Test fun interruptedDecisionWriteRestoresOriginalBytesAndNumbering() = fixture { root ->
+        val internal = root / "internal"
+        val live = root / "mybible/a.sqlite3"
+        val record = internal / "mybible-versifications" / "modules/mybible/a.sqlite3".encodeUtf8().sha256().hex()
+        write(live, "original")
+        write(record, "KJVA")
+        val transaction = SwordInstallTransaction(root, internal)
+        transaction.beginPublish(listOf(live), mapOf(live to "KJVA"))
+        write(live, "replacement")
+        write(record, "German")
+        SwordInstallTransaction.recoverInterrupted(root, internal)
+        assertEquals("original", files.read(live) { readUtf8() })
+        assertEquals("KJVA", files.read(record) { readUtf8() })
+        assertFalse(files.exists(transaction.staging))
+    }
+
     @Test fun incompleteJournalCannotClaimLiveFiles() = fixture { root ->
         val live = root / "modules/old/a"
         write(live)

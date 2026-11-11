@@ -119,7 +119,9 @@ internal class SwordInstallTransaction(
                 if (files.exists(manifest)) Json.decodeFromString<Map<String, String?>>(files.read(manifest) { readUtf8() }) else emptyMap()
             } catch (e: Exception) { throw IOException("Invalid module transaction originals", e) }
             val existing = try {
-                if (files.exists(staging / EXISTING)) Json.decodeFromString<List<String>>(files.read(staging / EXISTING) { readUtf8() }).toSet()
+                // No move can start until the originals manifest is published atomically.
+                if (!files.exists(manifest)) emptySet()
+                else if (files.exists(staging / EXISTING)) Json.decodeFromString<List<String>>(files.read(staging / EXISTING) { readUtf8() }).toSet()
                 else originals.keys
             } catch (e: Exception) { throw IOException("Invalid module transaction existing paths", e) }
             validatePaths(root, staging, names + originals.keys + existing, files)
