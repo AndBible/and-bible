@@ -141,6 +141,27 @@ class NotificationInitialCalculatorLockTest {
     }
 
     @Test
+    fun oldMarkedIntentToBackgroundedHostAfterLeavingViaStartedActivityLaunchesCalculator() = withCalculator(false) {
+        val controller = Robolectric.buildActivity(ProbeActivity::class.java).setup()
+        try {
+            val activity = controller.get()
+            // Leaving through an activity the host started sets doNotMarkPaused, so wasPaused stays false.
+            activity.startActivity(Intent())
+            controller.pause().stop()
+            setCalculator(true)
+            controller.newIntent(notificationIntent())
+            controller.start().resume()
+
+            assertEquals(
+                CalculatorComposeActivity::class.java.name,
+                shadowOf(activity).nextStartedActivityForResult?.intent?.component?.className,
+            )
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    @Test
     fun markedActivityDoesNotLaunchCalculatorWhenLockIsOff() = withCalculator(false) {
         org.junit.Assume.assumeFalse(BuildVariant.Appearance.isDiscrete)
         val controller = Robolectric.buildActivity(ProbeActivity::class.java, notificationIntent()).setup()

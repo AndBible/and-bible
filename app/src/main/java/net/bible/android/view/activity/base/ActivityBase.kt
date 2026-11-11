@@ -412,6 +412,13 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.i(TAG, "onNewIntent $this ${intent.action}")
+        if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false) && CommonUtils.showCalculator) {
+            // An old notification (posted while the calculator was off) reached a live host. wasPaused can be
+            // false after leaving via a host-started activity, so force the resume guard to ask the PIN.
+            wasPaused = true
+            returningFromCalculator = false
+            intent.removeExtra(EXTRA_FROM_NOTIFICATION)
+        }
     }
 
     override fun onStop() {

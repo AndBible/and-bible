@@ -29,8 +29,9 @@ locks it behind the calculator as usual.
 
 If notifications are visible, tapping a download, installation, search-indexing or
 AI activity notification brings the app back like tapping its launcher icon.
-Returning from the background or starting after Android has killed the app asks
-for the calculator PIN. An already open, unlocked app stays on its current screen;
+Returning from the background (for example from the home screen) or starting after
+Android has killed the app asks for the calculator PIN; leaving through another app
+opened from AndBible, such as a browser link, may not. An already open, unlocked app stays on its current screen;
 notification taps do not close editors or interrupt file pickers and ongoing work.
 In calculator mode these notifications return to the current screen (or the reading
 screen on a fresh start), rather than opening the separate progress screen.
