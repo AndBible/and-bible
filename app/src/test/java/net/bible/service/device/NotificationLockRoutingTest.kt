@@ -6,7 +6,7 @@ import android.app.Service
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.StartupActivity
+import net.bible.android.activity.StartupActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
@@ -35,6 +35,12 @@ class NotificationLockRoutingTest {
     @Test fun lockedNotificationEntryPointsUseStartupInsteadOfReading() = withCalculator(true) {
         org.junit.Assume.assumeTrue(BuildVariant.Appearance.isDiscrete)
         val intents = notificationContentIntents()
+        val registered = app.packageManager.getPackageInfo(app.packageName,
+            android.content.pm.PackageManager.GET_ACTIVITIES).activities.orEmpty().map { it.name }
+        intents.forEach { (source, intent) ->
+            org.junit.Assert.assertTrue("$source must target a manifest-registered activity: $registered",
+                intent.component?.className in registered)
+        }
         assertEquals(
             intents.map { (source, _) -> source to StartupActivity::class.java.name },
             intents.map { (source, intent) -> source to intent.component?.className },

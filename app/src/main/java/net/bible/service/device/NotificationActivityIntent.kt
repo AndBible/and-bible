@@ -2,7 +2,7 @@ package net.bible.service.device
 
 import android.content.Context
 import android.content.Intent
-import net.bible.android.view.activity.StartupActivity
+import net.bible.android.activity.StartupActivity
 import net.bible.service.common.BuildVariant
 
 /**
