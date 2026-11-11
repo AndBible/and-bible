@@ -73,6 +73,14 @@ internal class SwordInstallTransaction(
         private fun finish(root: Path, staging: Path, files: FileSystem) {
             val committed = root / "$COMMITTED_PREFIX${staging.name.removePrefix(PREFIX)}"
             files.atomicMove(staging, committed)
+            deleteCommitted(committed, files)
+        }
+
+        /**
+         * A committed directory holds nothing recovery needs, so a failed delete (a Windows file
+         * lock, antivirus) is left for a later startup instead of aborting initialisation.
+         */
+        private fun deleteCommitted(committed: Path, files: FileSystem) {
             try {
                 files.deleteRecursively(committed)
             } catch (e: IOException) {
@@ -83,7 +91,7 @@ internal class SwordInstallTransaction(
         fun recoverInterrupted(root: Path, internalFilesDir: Path? = null, files: FileSystem = FileSystem.SYSTEM) {
             for (dir in files.listOrNull(root).orEmpty()) {
                 if (files.metadataOrNull(dir)?.isDirectory != true || files.metadataOrNull(dir)?.symlinkTarget != null) continue
-                if (dir.name.startsWith(COMMITTED_PREFIX)) files.deleteRecursively(dir)
+                if (dir.name.startsWith(COMMITTED_PREFIX)) deleteCommitted(dir, files)
                 else if (dir.name.startsWith(PREFIX)) recover(root, dir, internalFilesDir, files)
             }
         }

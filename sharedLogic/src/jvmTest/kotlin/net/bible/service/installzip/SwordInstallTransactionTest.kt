@@ -200,6 +200,28 @@ class SwordInstallTransactionTest {
         assertFalse(files.list(root).any { it.name.startsWith(".sword-committed-") })
     }
 
+    @Test fun startupSweepOfLockedCommittedDirectoryDoesNotAbortRecovery() = fixture { root ->
+        val committed = root / ".sword-committed-locked"
+        write(committed / "files/locked.sqlite3", "locked")
+        val live = root / "mybible/old.sqlite3"
+        val interrupted = SwordInstallTransaction(root)
+        write(interrupted.staging / "originals.json", "{\"mybible/old.sqlite3\":null}")
+        write(interrupted.staging / "originals/mybible/old.sqlite3", "original")
+        val locking = object : ForwardingFileSystem(files) {
+            override fun delete(path: Path, mustExist: Boolean) {
+                if (path.toString().contains(".sword-committed-locked")) throw IOException("injected file lock")
+                super.delete(path, mustExist)
+            }
+        }
+        SwordInstallTransaction.recoverInterrupted(root, root / "internal", locking)
+        assertEquals("original", files.read(live) { readUtf8() })
+        assertFalse(files.exists(interrupted.staging))
+        // The locked leftover stays for a later startup to retry.
+        assertTrue(files.exists(committed))
+        SwordInstallTransaction.recoverInterrupted(root, root / "internal")
+        assertFalse(files.exists(committed))
+    }
+
     @Test fun interruptedOriginalsManifestPreparationKeepsUnmovedModule() = fixture { root ->
         val live = root / "mybible/a.sqlite3"
         val internal = root / "internal"
