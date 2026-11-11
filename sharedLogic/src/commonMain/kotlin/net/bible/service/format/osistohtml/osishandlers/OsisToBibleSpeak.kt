@@ -97,7 +97,14 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             }
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             val expanded = referenceText.expand(attrs.getValue(OSISUtil.OSIS_ATTR_REF))
-            if (peekVisible && expanded != null) addText(expanded)
+            if (peekVisible && expanded != null) {
+                // The expansion is synthetic text, not source text: the source's (missing) whitespace around the
+                // reference says nothing about it. Treat it like a separator on both sides, so the legacy delimiter
+                // rule decides ("spirit, Psalms 51:17;" not "spirit,Psalms 51:17;").
+                previousRawEnd = RawEnd.CROSSED_SEPARATOR
+                addText(expanded)
+                previousRawEnd = RawEnd.CROSSED_SEPARATOR
+            }
             elementStack.add(StackEntry(peekVisible && expanded == null))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.add(StackEntry(peekVisible, TagType.DIVINE_NAME))

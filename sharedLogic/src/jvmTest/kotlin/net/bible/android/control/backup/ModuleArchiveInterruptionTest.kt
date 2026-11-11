@@ -347,8 +347,14 @@ class ModuleArchiveInterruptionTest {
         val control = backupControl()
         control.onPublishStep = { if (it == 1) throw IOException("injected publish interruption") }
         assertTrue(runCatching { runBlocking { control.extractAndRegisterModuleArchive({ archive.source() }) } }.isFailure)
-        assertEquals(emptyList(), realStore.walkTopDown().filter { it.isFile }.toList(),
+        // This fixture nests app-private storage under the module root; discovery may keep migration markers.
+        val moduleFiles = listOf("mods.d", "modules").flatMap { name ->
+            File(realStore, name).walkTopDown().filter { it.isFile }.toList()
+        }
+        assertEquals(emptyList(), moduleFiles,
             "root alias must not prevent removing the old generation after publication starts")
+        assertTrue(realStore.listFiles().orEmpty().none { it.name.startsWith(".sword-install-") },
+            "interrupted publication must remove its transaction staging tree")
     }
 
     @Test fun archiveCannotForgeRecoveryJournal() {

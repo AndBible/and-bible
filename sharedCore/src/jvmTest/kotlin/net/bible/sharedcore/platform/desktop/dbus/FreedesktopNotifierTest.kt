@@ -1,6 +1,8 @@
 package net.bible.sharedcore.platform.desktop.dbus
 
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -72,7 +74,12 @@ class FreedesktopNotifierTest {
         service = FakeService(bus!!, "org.freedesktop.Notifications", "/org/freedesktop/Notifications", fake)
     }
 
-    private fun flushed() = assertTrue(notifier!!.flush(), "notifier queue did not drain")
+    private fun flushed(onTimeout: () -> Unit = {}) {
+        // flush() defaults to the app-exit budget, not an integration-test completion deadline.
+        assertTrue(waitUntil {
+            notifier!!.flush().also { drained -> if (!drained) onTimeout() }
+        }, "notifier queue did not drain")
+    }
 
     @Test
     fun notifyMapsFieldsAndHints() {
@@ -257,6 +264,41 @@ class FreedesktopNotifierTest {
         assertEquals("final", fake.notifies.single().body)
         assertEquals(0L, fake.notifies.single().replacesId)
         assertEquals(1, warnings.size)
+    }
+
+    @Test
+    fun daemonRestartReplayWaitsForFailureHandlingBeyondExitFlushBudget() {
+        notifier!!.show(note)
+        flushed()
+        val failureEntered = CountDownLatch(1)
+        val releaseFailure = CountDownLatch(1)
+        Log.sinkOverride = { level, tag, msg, _ ->
+            if (level == LogLevel.WARN && tag == "FreedesktopNotifier") {
+                warnings.add(msg)
+                failureEntered.countDown()
+                check(releaseFailure.await(5, TimeUnit.SECONDS)) { "failure handling was not released" }
+            }
+        }
+        try {
+            bus!!.kill()
+            notifier!!.show(note.copy(body = "final"))
+            assertTrue(failureEntered.await(5, TimeUnit.SECONDS), "failed show was not handled")
+            // Restore the service before releasing failure handling, so the retry budget cannot expire first.
+            bus!!.restart()
+            startService()
+            var observedTimeout = false
+            flushed {
+                observedTimeout = true
+                releaseFailure.countDown()
+            }
+            assertTrue(observedTimeout, "failure handling must outlast at least one bounded flush")
+            assertTrue(waitUntil { fake.notifies.isNotEmpty() })
+            assertEquals("final", fake.notifies.single().body)
+            assertEquals(0L, fake.notifies.single().replacesId)
+            assertEquals(1, warnings.size)
+        } finally {
+            releaseFailure.countDown()
+        }
     }
 
     @Test

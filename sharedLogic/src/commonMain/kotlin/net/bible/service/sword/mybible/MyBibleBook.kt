@@ -28,11 +28,12 @@ import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
-import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import net.bible.service.sword.isRtlLanguage
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
@@ -70,6 +71,7 @@ fun getConfig(
     hasWordsOfChrist: Boolean = false,
     moduleFileName: String,
     downloadUrl: String = "",
+    versification: String = "KJVA",
 ): String {
     var conf = """
 [$initials]
@@ -86,7 +88,7 @@ LCSH=Bible
 SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
-Versification=KJVA"""
+Versification=$versification"""
     if(isRtlLanguage(language)) {
         conf += "\nDirection=RtoL"
     }
@@ -110,7 +112,7 @@ fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 private fun parseMyBibleBoolean(value: String?): Boolean =
     value.equals("true", ignoreCase = true) || value == "1"
 
-class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
+class SqliteVerseBackendState(private val sqliteFile: Path, private val allowVersificationDetection: Boolean = true): OpenFileState {
     constructor(sqliteFile: Path, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
@@ -201,6 +203,7 @@ class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
                 hasStrongs = hasStrongs,
                 hasWordsOfChrist = hasWordsOfChrist,
                 moduleFileName = dbPath,
+                versification = if (isBible) MyBibleVersificationStore.resolve(sqliteFile, allowVersificationDetection) { detectVersification().name } else "KJVA",
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
@@ -209,6 +212,30 @@ class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
             this.metadata = metadata
             return@withMonitor metadata
         }
+    }
+
+    /**
+     * MyBible stores native chapter/verse coordinates, but does not declare a SWORD versification.
+     * Match the observed chapter bounds to a known system so its existing reference mappings work
+     * too. Missing verses (often combined into the preceding verse) count as small discrepancies;
+     * missing books are ignored. Keep KJVA on ties, including empty or inconclusive modules.
+     */
+    private fun detectVersification(): Versification {
+        val chapters = rows(
+            "select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter"
+        ) { Triple(myBibleIntToBibleBook[it.getInt(0)], it.getInt(1), it.getInt(2)) }
+            .mapNotNull { (book, chapter, verse) -> book?.let { Triple(it, chapter, verse) } }
+        val lastChapters = chapters.groupBy { it.first }.mapValues { (_, rows) -> rows.maxOf { it.second } }
+        fun discrepancy(v11n: Versification): Long =
+            lastChapters.entries.sumOf { (book, chapter) -> kotlin.math.abs(v11n.getLastChapter(book) - chapter).toLong() } +
+                chapters.sumOf { (book, chapter, verse) -> kotlin.math.abs(v11n.getLastVerse(book, chapter) - verse).toLong() }
+
+        val registry = Versifications.instance()
+        // Prefer the historical default and German on equal scores, not registry HashSet order.
+        val candidates = listOf("KJVA", "German") + registry.iterator().asSequence().toList().sorted()
+        return candidates.distinct().mapNotNull { registry.getVersification(it) }
+            .filter { v11n -> lastChapters.keys.all { v11n.containsBook(it) } }
+            .minByOrNull { discrepancy(it) } ?: registry.getVersification("KJVA")!!
     }
 
     override fun releaseResources() {
@@ -408,7 +435,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val link = bibleLinkRe.matchEntire(href) ?: return anchor.value
         val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return anchor.value
         val osisRef = try {
-            PassageKeyFactory.instance().getKey(KJVA, "${book.osis} ${link.groupValues[2]}").getOsisRef()
+            val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
+            PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${link.groupValues[2]}").getOsisRef()
         } catch (_: NoSuchKeyException) {
             return anchor.value
         }
@@ -474,14 +502,18 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     }
 }
 
-fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
+fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false, allowVersificationDetection: Boolean = true) {
     if(!KFiles.isFile(file)) return
-    val state = SqliteVerseBackendState(file)
+    val state = SqliteVerseBackendState(file, allowVersificationDetection)
     val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
+        state.close()
         return
     }
-    if(Books.installed().getBook(metadata.initials) != null) return
+    if(Books.installed().getBook(metadata.initials) != null) {
+        state.close()
+        return
+    }
     val backend = SqliteBackend(state, metadata)
     val book =
         if (metadata.bookCategory == BookCategory.DICTIONARY)
@@ -502,17 +534,26 @@ fun addMyBibleBook(file: Path, startupDiscovery: Boolean = false) {
 /** The `mybible` module folder, resolved through the [AppDirectories] port at call time. */
 @VisibleForTesting fun myBibleModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mybible"
 
-fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
+private fun installedMyBibleFiles(): List<Path>? = try {
     val dir = myBibleModulesDir()
-    if(!KFiles.isDirectory(dir)) return
-    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
-    if (KFiles.listOrNull(dir) == null) return
+    // Do not finish migration on an unreadable folder: retry on the next scan instead.
+    if (KFiles.isDirectory(dir) && KFiles.listOrNull(dir) == null) null
+    else if (KFiles.isDirectory(dir)) FileSystem.SYSTEM.listRecursively(dir)
+        .filter { KFiles.isFile(it) && it.name.endsWith(".sqlite3", ignoreCase = true) }.toList()
+    else emptyList()
+} catch (e: IOException) {
+    Log.e(TAG, "Could not scan MyBible modules; retrying on the next scan", e)
+    null
+}
 
-    for(f in FileSystem.SYSTEM.listRecursively(dir)) {
-        if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".sqlite3")) {
-            addMyBibleBook(f, startupDiscovery)
-        }
-    }
+/** Imports migrate the old tree before publishing new files, without opening/registering old books. */
+internal fun migrateLegacyMyBibleModules(): Boolean =
+    installedMyBibleFiles()?.let { MyBibleVersificationStore.migrateLegacyModules(it) } ?: false
+
+fun addManuallyInstalledMyBibleBooks(startupDiscovery: Boolean = false) {
+    val files = installedMyBibleFiles() ?: return
+    val migrated = MyBibleVersificationStore.migrateLegacyModules(files)
+    for (file in files) addMyBibleBook(file, startupDiscovery, allowVersificationDetection = migrated)
 }
 
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null

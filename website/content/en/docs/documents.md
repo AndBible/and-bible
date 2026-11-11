@@ -129,6 +129,27 @@ outside the app, such as web or email links, are labeled **Open external link**.
 There is also experimental support for MyBible and MySword format modules, which can
 be loaded from your device’s filesystem.
 
+For newly imported MyBible Bibles, *AndBible* selects the closest supported chapter
+and verse numbering from the module's contents and remembers that choice. For example,
+German Bibles with Malachi 3:1–24 keep all 24 verses in chapter 3 and do not show a
+separate chapter 4.
+
+MyBible modules already installed before this update keep their previous KJVA
+numbering so that saved bookmarks, highlights, notes, reading positions, and
+reading-plan locations are not reinterpreted. To use detected numbering for an
+existing module, delete the module from *AndBible* and import it again after updating;
+restarting or restoring the same module does not re-detect its numbering.
+Bookmarks made under the old numbering may shift after re-importing, as may other
+previously saved locations. Keep a backup before doing so, and be careful when
+syncing with older app versions.
+
+Module backups made with this version preserve the selected MyBible numbering when
+restored on another device. Older module backups do not contain that information
+and restore with the historical KJVA numbering. A backup that names a numbering
+system this app version does not recognize also restores with KJVA. Syncing bookmarks alone does not
+transfer a module's numbering choice: use the same module backup on both devices
+rather than importing the module independently when retaining saved locations.
+
 Bible verse links in MyBible commentaries work like other Scripture references.
 When an entry contains two or more references, **Open all** opens them together.
 Web links and Strong's dictionary links remain separate from this reference collection.

@@ -194,10 +194,18 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                         throw InstallException("Invalid MyBible module", e)
                     } finally {
                         state.close()
+                        // Validation uses a temporary path, not the installed module's identity.
+                        try {
+                            MyBibleVersificationStore.remove(file)
+                        } catch (e: IOException) {
+                            Log.w(TAG, "Could not remove temporary MyBible versification state for $file", e)
+                        }
                     }
                 }
                 // Validate the complete payload before exposing any files to the installed-book scan.
                 currentCoroutineContext().ensureActive()
+                // Migrate the old tree before exposing this genuinely new download to discovery.
+                migrateLegacyMyBibleModules()
                 val dir = myBibleDir.child(book.initials)
                 KFiles.createDirectories(dir)
                 modules.forEach { file ->

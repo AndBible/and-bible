@@ -19,10 +19,9 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.Executors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -42,6 +41,7 @@ import net.bible.sharedui.desktop.assembly.DesktopAppStartup
 import net.bible.sharedui.desktop.assembly.DesktopReadingHostPlatform
 import net.bible.sharedui.desktop.assembly.DesktopWindowHandle
 import net.bible.sharedui.desktop.webengine.FakeWebEngine
+import net.bible.sharedui.desktop.webengine.kcef.SwingMainDispatcher
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import net.bible.sharedui.host.app.HostNavShell
 import net.bible.sharedui.host.app.HostNavigator
@@ -77,7 +77,9 @@ class WorkspaceSwitchContentTest {
         override val nightMode = false
     }
 
-    private val main = Executors.newSingleThreadExecutor { Thread(it, "workspace-switch-main").apply { isDaemon = true } }.asCoroutineDispatcher()
+    // Pane SideEffects run on Swing's EDT, as does Dispatchers.Main in the desktop app.
+    // A separate executor would race HostReadingWindows assembly changes against offsets/config updates.
+    private val main = SwingMainDispatcher
     private lateinit var root: Path
     private var previousHost: DatabaseHost? = null
     private var restoreCwProject: () -> Unit = {}
@@ -101,7 +103,6 @@ class WorkspaceSwitchContentTest {
             restoreCwProject()
             root.toFile().deleteRecursively()
             Dispatchers.resetMain()
-            main.close()
         }
     }
 
@@ -206,7 +207,21 @@ class WorkspaceSwitchContentTest {
     }
 
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
-    @Test fun searchLinksWindowCanBeConvertedWhileTheSplitIsComposed() {
+    @Test fun hostMainDispatcherIsTheCompositionThread() {
+        val hostThread = runBlocking { withContext(main) { Thread.currentThread() } }
+        runComposeUiTest {
+            runOnIdle {
+                assertSame(hostThread, Thread.currentThread(),
+                    "host Main (${hostThread.name}) must be the Compose UI thread (${Thread.currentThread().name})")
+            }
+        }
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun searchLinksWindowCanBeConvertedWhileTheSplitIsComposed() = convertSearchLinksWindow()
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    internal fun convertSearchLinksWindow(stressOffsets: Boolean = false) {
         val paths = DesktopPaths(
             { name -> when (name) {
                 "XDG_DATA_HOME" -> root.resolve("data").toString()
@@ -246,6 +261,21 @@ class WorkspaceSwitchContentTest {
         )
         val links = control.windowRepository.visibleWindows.single { it.isLinksWindow }
         val keyBefore = links.pageManager.currentPage.key?.getOsisRef()
+        // Amplify the original offsets/pane overlap without changing production collections or dispatchers.
+        val stressFailure = java.util.concurrent.atomic.AtomicReference<Throwable>()
+        val refreshedPane = java.util.concurrent.atomic.AtomicReference<String>()
+        val lastRefreshedPane = java.util.concurrent.atomic.AtomicReference<String>()
+        val offsetStress = if (stressOffsets) kotlinx.coroutines.CoroutineScope(main).launch(
+            kotlinx.coroutines.CoroutineExceptionHandler { _, failure -> stressFailure.set(failure) },
+        ) {
+            while (true) {
+                host.offsets.refresh()
+                refreshedPane.get()?.let { id ->
+                    if (HostReadingWindows.hasAssembly(id)) lastRefreshedPane.set(id)
+                }
+                yield()
+            }
+        } else null
         try {
             runComposeUiTest {
                 setContent {
@@ -258,6 +288,12 @@ class WorkspaceSwitchContentTest {
                             net.bible.sharedui.reading.host.ReadingHost(deps)
                         }
                     }
+                }
+                if (stressOffsets) {
+                    refreshedPane.set(links.id.toString())
+                    waitUntil(timeoutMillis = 5_000) { lastRefreshedPane.get() == links.id.toString() || stressFailure.get() != null }
+                    stressFailure.get()?.let { throw it }
+                    assertEquals(links.id.toString(), lastRefreshedPane.get(), "offset stress must refresh an assembled links pane")
                 }
                 runOnIdle {
                     deps.controller.onWindowActivated(links.id.toString())
@@ -273,6 +309,12 @@ class WorkspaceSwitchContentTest {
                 assertFalse(engine.hasFailed(convertedId), "the replacement pane must attach successfully")
                 assertNotNull(engine.paneFor(convertedId))
                 onNode(androidx.compose.ui.test.hasTestTag("pane-$convertedId")).assertIsDisplayed()
+                if (stressOffsets) {
+                    refreshedPane.set(convertedId)
+                    waitUntil(timeoutMillis = 5_000) { lastRefreshedPane.get() == convertedId || stressFailure.get() != null }
+                    stressFailure.get()?.let { throw it }
+                    assertEquals(convertedId, lastRefreshedPane.get(), "offset stress must refresh the assembled replacement pane")
+                }
             }
             runBlocking { withContext(main) {
                 val converted = control.windowRepository.windowList.single { it.pageManager.currentPage.currentDocument == koin.get<net.bible.service.download.FakeBookFactory>().multiDocument }
@@ -282,8 +324,13 @@ class WorkspaceSwitchContentTest {
                 assertTrue(deps.controller.layout.value.windows.single { it.id == converted.id.toString() }.isVisible)
             } }
         } finally {
-            runBlocking { withContext(main) { host.dispose() } }
+            runBlocking {
+                offsetStress?.cancel()
+                offsetStress?.join()
+                withContext(main) { host.dispose() }
+            }
         }
+        stressFailure.get()?.let { throw it }
     }
 
     @Test fun appSettingsWritesUpdateEveryOpenPaneWithoutReloading() = runBlocking {
