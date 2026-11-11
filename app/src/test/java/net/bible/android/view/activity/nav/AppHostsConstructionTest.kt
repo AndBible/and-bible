@@ -5,6 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.speak.SpeakTransportServiceImpl
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withTimeout
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.AppHosts
@@ -41,19 +46,43 @@ class AppHostsConstructionTest {
      * not build it (`instance` opens lazily under test even when not `ready`, hence the detach seam).
      */
     @Test
-    fun noDatabaseTouchOnConstruction() {
+    fun noDatabaseTouchOnConstruction() = checkConstructionDoesNotTouchDatabase(holdSpecialLabelLock = false)
+
+    /**
+     * The host's start also constructs [SpeakTransportServiceImpl], whose init launches a bookmark-visibility
+     * refresh on the application scope (`Dispatchers.Default`): special-label and bookmark reads. In a loaded
+     * full-suite run that refresh could still be going when the container was detached, and its next read built
+     * a new one, failing the check above although [AppHosts] touched nothing. Holding the special-label lock
+     * through the activity start forces that ordering: the refresh is still pending when the start returns.
+     */
+    @Test
+    fun startupSpeakRefreshStillPendingAtDetachIsNotBlamedOnTheHosts() =
+        checkConstructionDoesNotTouchDatabase(holdSpecialLabelLock = true)
+
+    private fun checkConstructionDoesNotTouchDatabase(holdSpecialLabelLock: Boolean) {
         resetComposeUiDispatcher()
         DatabaseContainer.ready = false
         val original = DatabaseContainer.containerFactory
         val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
-        val controller = Robolectric.buildActivity(
-            NavHostComposeActivity::class.java,
-            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
-        ).create()
+        val specialLabelLock = BookmarkControl::class.java.getDeclaredField("SPECIAL_LABEL_LOCK")
+            .apply { isAccessible = true }.get(null) as Mutex
+        if (holdSpecialLabelLock) runBlocking { specialLabelLock.lock() }
+        val controller = try {
+            Robolectric.buildActivity(
+                NavHostComposeActivity::class.java,
+                NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
+            ).create()
+        } finally {
+            if (holdSpecialLabelLock) specialLabelLock.unlock()
+        }
+        val speakTransport = getKoin().get<SpeakTransportServiceImpl>()
         try {
             val activity = controller.get()
             assertNotNull(activity.appHosts)
             assertEquals(AppHostsState(), activity.appHosts.saveState())
+            // The host's start legitimately reads the database in the background (the speak transport's visibility
+            // refresh). That is not what this test measures: let it finish against the live container first.
+            runBlocking { withTimeout(10_000) { speakTransport.awaitBookmarkVisibilityRefresh() } }
             DatabaseContainer.detachInstanceForTest()
             // Witness: record who builds a container from here on, so a failure names the builder
             // (this test was red once in a full run and green alone, so the builder was a background thread).
@@ -71,6 +100,8 @@ class AppHostsConstructionTest {
                 graphs.myDocuments, graphs.chooser, graphs.workspace, graphs.backup, graphs.installZip, graphs.welcome,
             ).forEach { assertNotNull(it) }
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
+            // Let the known startup work finish, so a read it makes after the detach is caught here, not left to luck.
+            runBlocking { withTimeout(10_000) { speakTransport.awaitBookmarkVisibilityRefresh() } }
             val leaked = DatabaseContainer.detachInstanceForTest()
             if (leaked != null) {
                 fail(
