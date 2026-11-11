@@ -1345,7 +1345,6 @@ class BibleView(
             seedArgb = currentWorkspaceThemeSeedArgb(),
             dark = nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
-            style = CommonUtils.settings.themePaletteStyle,
         ),
         disableClickToEdit = CommonUtils.settings.disableClickToEdit,
         llmConfigured = CommonUtils.settings.llmConfigured,

@@ -59,6 +59,12 @@ class SettingsResetTest {
         assertTrue(SettingsReset.RESET_KEYS.size > 10)
     }
 
+    @Test fun resetAlsoCleansTheRetiredPaletteStyle() {
+        CommonUtils.settings.setString("theme_palette_style", "fidelity")
+        SettingsReset.performReset()
+        assertEquals(null, CommonUtils.settings.getString("theme_palette_style", null))
+    }
+
     @Test fun resetReturnsTheReaderToSystemNightMode() {
         val prefs = CommonUtils.realSharedPreferences
         prefs.edit().putString("night_mode_pref3", "manual").putBoolean("night_mode_pref", true).commit()

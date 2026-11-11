@@ -27,6 +27,16 @@ class AppSettingsServiceImplTest {
     } as CoreStrings
     private fun service() = AppSettingsServiceImpl(dictionaries, db, local, strings, flags)
 
+    @Test fun restoredPaletteStyleDoesNotReturnToTheSettingsScreen() = kotlinx.coroutines.test.runTest {
+        db.setString("theme_palette_style", "fidelity")
+        val s = service()
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        assertFalse(controller.state.value.items.any { it.key == "theme_palette_style" })
+        s.setString("theme_palette_style", "monochrome")
+        testScheduler.runCurrent()
+        assertFalse(controller.state.value.items.any { it.key == "theme_palette_style" })
+    }
+
     @Test fun doubleTapSettingsRowDefaultsOffOnDesktopButKeepsStoredChoices() = kotlinx.coroutines.test.runTest {
         val s = service()
         val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})

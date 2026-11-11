@@ -55,8 +55,6 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     volumeKeysScrollSummary = prefsVolumeKeysScrollSummary,
     nightModeTitle = prefsNightModeTitle,
     nightModeSummary = prefsNightModeSummary,
-    themePaletteStyleTitle = prefsThemePaletteStyleTitle,
-    themePaletteStyleSummary = prefsThemePaletteStyleSummary,
 
     localeTitle = prefsInterfaceLocaleTitle,
     localeSummary = prefsInterfaceLocaleSummary,

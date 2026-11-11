@@ -19,7 +19,6 @@ package net.bible.sharedui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 
 private fun Color.toCssHex(): String = "#" + (0xFFFFFF and toArgb()).toString(16).uppercase().padStart(6, '0')
@@ -42,14 +41,13 @@ fun themeColorsJson(
     seedArgb: Int?,
     dark: Boolean,
     colorMode: DisplayColorMode,
-    style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
 ): String {
     // Grey-base modes ignore the seed, so Vue's own monochrome rules apply; COLOR_EINK ships only a
     // set colour (unchanged). NORMAL always ships, including the stock default palette, to keep
     // the Vue chrome and Compose on the same colours.
     if (colorMode.isGreyBase) return "null"
     if (colorMode == DisplayColorMode.COLOR_EINK && !isWorkspaceColorSet(seedArgb)) return "null"
-    val s = abColorScheme(seedArgb, dark, colorMode, style)
+    val s = abColorScheme(seedArgb, dark, colorMode)
     return """{"primary":"${s.primary.toCssHex()}",""" +
         """"onPrimary":"${s.onPrimary.toCssHex()}",""" +
         """"primaryContainer":"${s.primaryContainer.toCssHex()}",""" +

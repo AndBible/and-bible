@@ -1,6 +1,5 @@
 package net.bible.sharedui.host.reading
 
-import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +16,6 @@ class ConfigSettingKeysGuardTest {
         val builder = source.substringBefore("companion object")
         val read = Regex("""\b(?:s|settings\(\))\.get\w+\(\s*"([a-z0-9_]+)"""").findAll(builder).map { it.groupValues[1] }.toSet()
         assertTrue(read.isNotEmpty(), "the scan must find the config builder's settings reads")
-        val viaConstant = if ("THEME_PALETTE_STYLE_KEY" in builder) setOf(THEME_PALETTE_STYLE_KEY) else emptySet()
-        assertEquals(read + viaConstant, HostDocumentLoaderPlatform.CONFIG_SETTING_KEYS)
+        assertEquals(read, HostDocumentLoaderPlatform.CONFIG_SETTING_KEYS)
     }
 }

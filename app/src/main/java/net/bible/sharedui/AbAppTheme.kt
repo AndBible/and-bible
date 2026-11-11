@@ -49,7 +49,7 @@ fun workspaceThemeSeedArgb(workspaceColorArgb: Int?): Int? = workspaceColorArgb
 /**
  * The one place `:app` reads the app-global theme inputs.
  *
- * The app-global inputs are night mode, colour mode, animations, palette style.
+ * The app-global inputs are night mode, colour mode and animations.
  * Every Compose host used to repeat the same reads (night mode, colour mode, animations) plus
  * `ProvideAppLocals`; none of them is a per-host decision, and A/B batch 4b added a fourth input
  * (the workspace-colour seed) that would have had to be pasted into 47 more places. `AbTheme`

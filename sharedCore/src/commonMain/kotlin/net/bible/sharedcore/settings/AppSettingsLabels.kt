@@ -53,8 +53,6 @@ data class AppSettingsLabels(
     val volumeKeysScrollSummary: String,
     val nightModeTitle: String,
     val nightModeSummary: String,
-    val themePaletteStyleTitle: String,
-    val themePaletteStyleSummary: String,
 
     // Display
     val localeTitle: String,
@@ -177,8 +175,6 @@ data class AppSettingsLabels(
             volumeKeysScrollSummary = "Use volume keys to scroll the text",
             nightModeTitle = "Night mode",
             nightModeSummary = "Choose when the dark theme is used",
-            themePaletteStyleTitle = "Theme style",
-            themePaletteStyleSummary = "How the app's colors are derived from the workspace color. Applies only when Color mode is Normal.",
 
             localeTitle = "Language",
             localeSummary = "App display language",

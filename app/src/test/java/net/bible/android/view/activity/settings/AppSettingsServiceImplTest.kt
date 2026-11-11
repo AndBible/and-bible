@@ -43,6 +43,22 @@ private class FakeDictionaryOptionsProvider(
 class AppSettingsServiceImplTest {
     @After fun tearDown() = DatabaseResetter.resetDatabase()
 
+    @Test fun legacyPaletteStyleDoesNotAffectTheRealAndroidHost() {
+        CommonUtils.settings.setString("theme_palette_style", "fidelity")
+        val service = AppSettingsServiceImpl(FakeDictionaryOptionsProvider())
+        val job = kotlinx.coroutines.Job()
+        try {
+            val controller = net.bible.sharedcore.settings.AppSettingsController(
+                service, kotlinx.coroutines.CoroutineScope(job + kotlinx.coroutines.Dispatchers.Unconfined),
+                net.bible.sharedcore.settings.AppSettingsLabels.forTest(), onNavigate = {},
+            )
+            assertFalse(controller.state.value.items.any { it.key == "theme_palette_style" })
+        } finally {
+            job.cancel()
+            CommonUtils.settings.removeString("theme_palette_style")
+        }
+    }
+
     @Test fun doubleTapDefaultStaysOnForAndroidAndStoredChoicesWin() {
         CommonUtils.settings.removeBoolean("double_tap_to_fullscreen")
         val service = AppSettingsServiceImpl(FakeDictionaryOptionsProvider())

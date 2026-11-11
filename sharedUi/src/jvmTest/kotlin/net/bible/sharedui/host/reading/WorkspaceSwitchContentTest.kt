@@ -392,10 +392,11 @@ class WorkspaceSwitchContentTest {
                 assertWrite("errorBox: false") { settings.setBool("show_errorbox", true) }
                 assertWrite("disableAnimations: true") { settings.setBool("disable_animations", true) }
                 assertWrite("pureMonochromeMode: true") { settings.setString("display_color_mode", "monochrome") }
-                assertWrite("themeColors:") { settings.setString("theme_palette_style", "fidelity") }
                 fake.panes.forEach { it.evaluated.clear() }
                 settings.setBool("volume_keys_scroll", false)
-                assertTrue(fake.panes.all { pane -> pane.evaluated.none { "set_config" in it } }, "unrelated settings need no config")
+                settings.setString("theme_palette_style", "fidelity")
+                assertTrue(fake.panes.all { pane -> pane.evaluated.none { "set_config" in it } },
+                    "unrelated and retired palette settings need no config")
             } finally { host.dispose() }
         }
     }

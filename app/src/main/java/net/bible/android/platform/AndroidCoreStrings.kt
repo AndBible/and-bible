@@ -234,8 +234,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val prefsToolbarButtonActionValues: List<String> get() = context.resources.getStringArray(R.array.prefs_toolbar_button_action_values).toList()
     override val prefsBibleViewSwipeModeDescriptions: List<String> get() = context.resources.getStringArray(R.array.prefs_bible_view_swipe_mode_descriptions).toList()
     override val prefsBibleViewSwipeModeValues: List<String> get() = context.resources.getStringArray(R.array.prefs_bible_view_swipe_mode_values).toList()
-    override val prefsThemePaletteStyleNames: List<String> get() = context.resources.getStringArray(R.array.prefs_theme_palette_style_names).toList()
-    override val prefsThemePaletteStyleValues: List<String> get() = context.resources.getStringArray(R.array.prefs_theme_palette_style_values).toList()
     override val prefsInterfaceLocaleDescriptions: List<String> get() = context.resources.getStringArray(R.array.prefs_interface_locale_descriptions).toList()
     override val prefsInterfaceLocaleValues: List<String> get() = context.resources.getStringArray(R.array.prefs_interface_locale_values).toList()
     override val prefsNotesContentTypeEntries: List<String> get() = context.resources.getStringArray(R.array.prefs_notes_content_type_entries).toList()

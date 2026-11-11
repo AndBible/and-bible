@@ -110,7 +110,6 @@ import net.bible.sharedcore.platform.getEnumSet
 import net.bible.sharedcore.platform.setEnumSet
 import net.bible.sharedcore.platform.resolveDisableAnimations
 import net.bible.sharedcore.platform.resolveDisplayColorMode
-import net.bible.sharedcore.platform.resolveThemePaletteStyle
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -397,8 +396,6 @@ object CommonUtils : CommonUtilsBase() {
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
         val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
-        /** Resolved in common code: [net.bible.sharedcore.platform.resolveThemePaletteStyle]. */
-        val themePaletteStyle: ThemePaletteStyle get() = resolveThemePaletteStyle()
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisableAnimations]. */
         val disableAnimations: Boolean get() = resolveDisableAnimations(isOnyxDevice)

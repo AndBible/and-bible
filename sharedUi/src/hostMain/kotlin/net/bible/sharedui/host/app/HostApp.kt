@@ -360,7 +360,7 @@ private fun hostWorkspaceSeed(koin: Koin): Int? {
 }
 
 /**
- * The common host theme ([AbHostTheme]: colour mode, animations, palette style from the app settings, the workspace
+ * The common host theme ([AbHostTheme]: colour mode and animations from the app settings, the workspace
  * colour as seed) around the whole app, as Android's `AbAppTheme` does. The seed follows workspace switches and colour
  * edits ([WorkspaceChanges]) and is read once more when reading becomes ready (the first load emits no change that
  * this subscription could have seen).

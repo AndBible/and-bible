@@ -135,8 +135,6 @@ interface Strings {
     val prefsShowCalculator: String
     val prefsShowErrorBoxSummary: String
     val prefsShowErrorBoxTitle: String
-    val prefsThemePaletteStyleSummary: String
-    val prefsThemePaletteStyleTitle: String
     val prefsToolbarButtonActionSummary: String
     val prefsToolbarButtonActionTitle: String
     val prefsVolumeKeysScrollSummary: String
