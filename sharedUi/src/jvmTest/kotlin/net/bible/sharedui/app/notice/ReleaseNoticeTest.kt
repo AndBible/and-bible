@@ -67,6 +67,26 @@ class ReleaseNoticeTest {
     }
 
     @Test
+    fun betaAndDiscreteNeverAskButFreshInstallStoresVersion() = runTest {
+        for ((beta, discrete) in listOf(true to false, false to true)) {
+            val fresh = MemoryAppSettings()
+            assertFalse(show(fresh, isUpgrade = false, isBeta = beta, discrete = discrete, answer = ::noAsk))
+            assertEquals("6.0", fresh.getString(key, ""))
+            val upgrader = MemoryAppSettings()
+            assertFalse(show(upgrader, isUpgrade = true, isBeta = beta, discrete = discrete, answer = ::noAsk))
+            assertEquals("", upgrader.getString(key, ""))
+        }
+    }
+
+    @Test
+    fun nonUpgradeWithStoredVersionDoesNotAskOrStore() = runTest {
+        val settings = MemoryAppSettings()
+        settings.setString(key, "6.0")
+        assertFalse(show(settings, mainVersion = "6.1", isUpgrade = false, answer = ::noAsk))
+        assertEquals("6.0", settings.getString(key, ""))
+    }
+
+    @Test
     fun closeWithoutCheckboxShowsAgain() = runTest {
         val settings = MemoryAppSettings()
         assertFalse(show(settings) { AppDialogResult.ReleaseNoticeAnswer(null, false) })

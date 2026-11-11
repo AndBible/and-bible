@@ -45,7 +45,7 @@ object ReleaseNotice {
 
     /**
      * Shows the notice through [ask] when needed. A fresh install (not [isUpgrade], nothing stored) silently stores
-     * [mainVersion] so a later patch update stays quiet. Returns true only when the user's "don't show again" stored it.
+     * [mainVersion], also in beta and discrete builds (which never ask), so a later patch update stays quiet. Returns true only when the user's "don't show again" stored it.
      * A chosen action runs through [onAction] after the dialog has closed.
      */
     suspend fun showIfNeeded(
@@ -59,11 +59,11 @@ object ReleaseNotice {
         onAction: suspend (ReleaseNoticeAction) -> Unit,
     ): Boolean {
         val displayed = settings.getString(DISPLAYED_KEY, "") ?: ""
-        if (isBeta || discrete) return false
         if (!isUpgrade && displayed.isEmpty()) {
             settings.setString(DISPLAYED_KEY, mainVersion)
             return false
         }
+        if (isBeta || discrete) return false
         if (!shouldShow(isBeta, discrete, isUpgrade, mainVersion, displayed)) return false
         val answer = ask(AppDialogRequest.ReleaseNotice(mainVersion, sponsorAllowed = platform == ReleaseNoticePlatform.ANDROID))
             as? AppDialogResult.ReleaseNoticeAnswer ?: return false

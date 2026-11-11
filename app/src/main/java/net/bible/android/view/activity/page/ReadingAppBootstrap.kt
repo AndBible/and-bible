@@ -331,12 +331,12 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
     /**
      * Whether this launch follows an update rather than a fresh install: Android's `firstInstallTime`
-     * differs from `lastUpdateTime` only after an update. A fresh install therefore marks the notice's
+     * is well before `lastUpdateTime` only after an update (see [isUpgradeInstallTimes]). A fresh install therefore marks the notice's
      * version silently (see [ReleaseNotice.showIfNeeded]). Overridable for tests.
      */
     internal var upgradeInstallProvider: () -> Boolean = {
         val info = host.packageManager.getPackageInfo(host.packageName, 0)
-        info.firstInstallTime != info.lastUpdateTime
+        isUpgradeInstallTimes(info.firstInstallTime, info.lastUpdateTime)
     }
 
     internal fun isUpgradeInstall(): Boolean = upgradeInstallProvider()
@@ -568,3 +568,11 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  */
 internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean =
     BetaNotice.shouldShow(isBeta, discrete, dismissedVersion = 0)
+
+/**
+ * Whether the package times describe an update rather than a fresh install. Some Play / split-APK fresh installs
+ * set `lastUpdateTime` a few milliseconds after `firstInstallTime`, so equality is too strict; an update is
+ * taken to be more than a minute after the first install.
+ */
+internal fun isUpgradeInstallTimes(firstInstallTime: Long, lastUpdateTime: Long): Boolean =
+    lastUpdateTime - firstInstallTime > 60_000
