@@ -52,8 +52,9 @@ import org.robolectric.annotation.Config
 /**
  * Verifies [SyncSettingsServiceImpl]'s per-key routing to the correct backing store. The
  * OAuth and remote scans are not exercised here. Store routing runs unconfined; the suspended
- * category read uses a dedicated serial UI dispatcher. All scopes are cancelled after each test,
- * and document preference writes are drained before DB reset.
+ * category read uses a dedicated serial UI dispatcher. Unconfined refreshes can resume on DAO
+ * threads, so routing assertions await publication rather than assuming a setter cannot suspend.
+ * All scopes are cancelled after each test, and document preference writes are drained before DB reset.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
@@ -92,6 +93,7 @@ class SyncSettingsServiceImplTest {
         tracker: net.bible.service.cloudsync.documents.DocumentSyncProgressTracker? = null,
         permission: net.bible.sharedcore.platform.NotificationPermission? = null,
         running: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
+        runningState: (() -> kotlinx.coroutines.flow.StateFlow<Boolean>)? = running?.let { state -> { state } },
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
@@ -101,7 +103,7 @@ class SyncSettingsServiceImplTest {
             starter ?: get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             platform, net.bible.test.testCoreStrings(),
             get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
-            notificationPermission = permission, progressTracker = tracker, runningState = running?.let { state -> { state } },
+            notificationPermission = permission, progressTracker = tracker, runningState = runningState,
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
@@ -130,6 +132,7 @@ class SyncSettingsServiceImplTest {
         val service = impl(scope, starter = starter,
             permission = net.bible.sharedcore.platform.NotificationPermission { permissionRequests++; throw IllegalStateException("denied") })
         service.setDocumentsEnabled(net.bible.sharedcore.settings.DocSyncSummaryData(emptyList(), listOf("KJV"), 0, 100))
+        withTimeout(5000) { service.snapshot.first { it.documentsEnabled } }
         assertTrue(settings.enabled)
         assertTrue(service.snapshot.value.documentsEnabled)
         assertEquals(1, permissionRequests)
@@ -541,12 +544,69 @@ class SyncSettingsServiceImplTest {
         assertEquals("alice", CommonUtils.realSharedPreferences.getString("cloud_sync_username", null))
     }
 
-    @Test fun documentToggle_persistsToDocumentSyncSettings() {
+    @Test fun documentToggle_persistsToDocumentSyncSettings() = runBlocking {
         val service = impl()
         service.setDocumentSyncToggle("sync_documents_auto_download", false)
+        withTimeout(5000) { service.snapshot.first { !it.autoDownload } }
         assertFalse(settings.autoDownload)
         service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+        withTimeout(5000) { service.snapshot.first { !it.wifiOnly } }
         assertFalse(settings.wifiOnly)
+        settings.awaitFixtureWrites()
+        val persisted = net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!
+        assertFalse(persisted.autoDownload)
+        assertFalse(persisted.wifiOnly)
+    }
+
+    @Test fun documentToggle_waitsForInFlightRefreshPublication() = runBlocking {
+        settings.ensureLoaded()
+        val categoryRead = CompletableDeferred<Unit>()
+        val publish = CompletableDeferred<Unit>()
+        val publicationEntered = java.util.concurrent.CountDownLatch(1)
+        val finishPublication = java.util.concurrent.CountDownLatch(1)
+        val dao = object : net.bible.android.database.SyncDao by com.nhaarman.mockitokotlin2.mock() {
+            override suspend fun getLong(keyName: String): Long? {
+                categoryRead.complete(Unit)
+                publish.await()
+                return null
+            }
+        }
+        val categorySettings = object : net.bible.sharedcore.platform.AppSettings by CommonUtils.settings {
+            override fun getBoolean(key: String, default: Boolean) = key == "sync_enable_bookmarks"
+        }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined).also { scopes.add(it) }
+        val publisher = CoroutineScope(SupervisorJob() + Dispatchers.Default).also { scopes.add(it) }
+        var reads = 0
+        val running = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val service = impl(scope,
+            categories = net.bible.service.cloudsync.SyncSettingsCategories(categorySettings) { dao },
+            runningState = {
+                // The observer reads twice, then build() reads once. The fourth read
+                // projects document fields while publishRefresh holds its mutation lock.
+                if (++reads == 4) {
+                    publicationEntered.countDown()
+                    check(finishPublication.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                }
+                running
+            })
+        var publication: Job? = null
+        try {
+            withTimeout(5000) { categoryRead.await() }
+            // Complete the DAO read on a worker, where the unconfined refresh resumes.
+            publication = publisher.launch { publish.complete(Unit) }
+            assertTrue("initial refresh reached publication", publicationEntered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            service.setDocumentSyncToggle("sync_documents_auto_download", false)
+            assertTrue("toggle is queued behind the in-flight refresh, not lost", settings.autoDownload)
+            finishPublication.countDown()
+            withTimeout(5000) { service.snapshot.first { !it.autoDownload } }
+            assertFalse(settings.autoDownload)
+            settings.awaitFixtureWrites()
+            assertFalse(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.autoDownload)
+        } finally {
+            finishPublication.countDown()
+            publish.complete(Unit)
+            publication?.join()
+        }
     }
 
     @Test fun categoryEnabled_persistsToSyncableDatabaseDefinition() {
