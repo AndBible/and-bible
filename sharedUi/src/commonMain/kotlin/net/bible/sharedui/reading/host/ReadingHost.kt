@@ -72,6 +72,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.dropWhile
 import net.bible.android.view.activity.page.screen.PaneMenuAnchor
 import net.bible.android.view.activity.page.screen.menuWindowIdFor
 import net.bible.android.view.activity.page.screen.searchSheetShadowElevation
@@ -634,9 +635,10 @@ private val PaneButtonDragThresholdDp = 28.dp
  * stays hidden with the session believing otherwise. Bounded retries close that window; the 1.dp
  * floor on the sheet content makes it a narrow one.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DriveSearchSheet(
+internal fun DriveSearchSheet(
     scaffoldState: BottomSheetScaffoldState,
     visible: Boolean,
     onDismissedByUser: () -> Unit,
@@ -657,12 +659,15 @@ private fun DriveSearchSheet(
             }
         }
     }
-    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true, the effect
-    // above never re-fires, and the next `open()` for the same query looks dead. Anything other than
-    // `Expanded` is invisible here, so it all counts as dismissed; the initial `Hidden` emission is
-    // harmless (`closeSheet()` returns false when nothing is open).
-    LaunchedEffect(sheet) {
-        snapshotFlow { sheet.currentValue }.collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+    // Observe dismissals only after THIS opening reaches Expanded. Initial Hidden and the tail of
+    // a previous hide are not user dismissals of a new handoff. Restarting with visibility also
+    // disarms the observer before a programmatic hide changes the measured content/anchors.
+    LaunchedEffect(sheet, visible) {
+        if (visible) {
+            snapshotFlow { sheet.currentValue }
+                .dropWhile { it != SheetValue.Expanded }
+                .collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+        }
     }
 }
 
