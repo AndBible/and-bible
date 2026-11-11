@@ -122,4 +122,49 @@ class ReadingSearchSheetTest {
             }
         }
     }
+
+    @Test
+    fun dragAwayDuringExpandAnimationStillCountsAsDismissal() {
+        val visibility = MutableStateFlow(false)
+        var dismissals = 0
+        lateinit var scaffold: BottomSheetScaffoldState
+        lateinit var scope: CoroutineScope
+        runComposeUiTest {
+            mainClock.autoAdvance = false
+            setContent {
+                AbTheme(darkTheme = false, disableAnimations = false) {
+                    scaffold = rememberBottomSheetScaffoldState(
+                        bottomSheetState = rememberStandardBottomSheetState(
+                            initialValue = SheetValue.Hidden, skipHiddenState = false,
+                        ),
+                    )
+                    scope = rememberCoroutineScope()
+                    val visible by visibility.collectAsState()
+                    DriveSearchSheet(scaffold, visible) {
+                        dismissals++
+                        visibility.value = false
+                    }
+                    BottomSheetScaffold(
+                        scaffoldState = scaffold,
+                        sheetPeekHeight = 0.dp,
+                        sheetContent = { Text("Occurrence results", Modifier.height(200.dp)) },
+                    ) { Box(Modifier.fillMaxSize()) }
+                }
+            }
+            mainClock.advanceTimeBy(500)
+            runOnIdle { visibility.value = true }
+            // A few frames into the expand animation: the sheet has not settled at Expanded yet.
+            repeat(3) { mainClock.advanceTimeByFrame() }
+            runOnIdle {
+                assertTrue(scaffold.bottomSheetState.currentValue != SheetValue.Expanded, "still animating")
+                scope.launch { scaffold.bottomSheetState.hide() }
+            }
+            mainClock.advanceTimeBy(3_000)
+            runOnIdle {
+                assertTrue(scaffold.bottomSheetState.currentValue != SheetValue.Expanded)
+                assertEquals(1, dismissals)
+                assertEquals(false, visibility.value)
+            }
+        }
+    }
 }

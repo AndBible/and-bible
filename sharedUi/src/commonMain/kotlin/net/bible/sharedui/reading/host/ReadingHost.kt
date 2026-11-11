@@ -72,7 +72,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.dropWhile
 import net.bible.android.view.activity.page.screen.PaneMenuAnchor
 import net.bible.android.view.activity.page.screen.menuWindowIdFor
 import net.bible.android.view.activity.page.screen.searchSheetShadowElevation
@@ -634,6 +633,15 @@ private val PaneButtonDragThresholdDp = 28.dp
  * this effect can run before that layout pass, in which case the animation is a no-op and the sheet
  * stays hidden with the session believing otherwise. Bounded retries close that window; the 1.dp
  * floor on the sheet content makes it a narrow one.
+ *
+ * **Dismissal arming.** A user swipe is reported through `onDismissedByUser`, but only once THIS
+ * opening is armed: its `targetValue` is `Expanded` (the expand animation is under way) or its
+ * `currentValue` is `Expanded`. After arming, a dismissal is reported when the sheet settles
+ * (`currentValue == targetValue`) at a non-`Expanded` value. `currentValue` alone is not enough,
+ * because a drag away during the expand animation settles at `Hidden` without it ever having been
+ * `Expanded`. The initial `Hidden` and the tail of a previous programmatic hide are never armed, so
+ * they do not count as a user dismissal of a new handoff; `visible` changing restarts (disarms) the
+ * observer.
  */
 @kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalMaterial3Api::class)
@@ -659,14 +667,16 @@ internal fun DriveSearchSheet(
             }
         }
     }
-    // Observe dismissals only after THIS opening reaches Expanded. Initial Hidden and the tail of
-    // a previous hide are not user dismissals of a new handoff. Restarting with visibility also
-    // disarms the observer before a programmatic hide changes the measured content/anchors.
+    // See the arming rule in the KDoc. Restarting with visibility disarms the observer before a
+    // programmatic hide changes the measured content/anchors.
     LaunchedEffect(sheet, visible) {
         if (visible) {
-            snapshotFlow { sheet.currentValue }
-                .dropWhile { it != SheetValue.Expanded }
-                .collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+            var armed = false
+            snapshotFlow { sheet.currentValue to sheet.targetValue }
+                .collect { (current, target) ->
+                    if (current == SheetValue.Expanded || target == SheetValue.Expanded) armed = true
+                    if (armed && current == target && current != SheetValue.Expanded) onDismissedByUser()
+                }
         }
     }
 }
