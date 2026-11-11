@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -113,6 +114,9 @@ class AbReleaseNoticeCardTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp")
     fun footerVisibleAtLargeFont() {
         show(fontScale = 1.5f)
+        // The body overflows and is clipped: its last item is off screen until scrolled to ...
+        compose.onNodeWithText("Sponsor development").assertIsNotDisplayed()
+        // ... while the footer sits outside the scroll column and stays visible.
         compose.onNodeWithText("Close").assertIsDisplayed()
         compose.onNodeWithText("Don't show again").assertIsDisplayed()
     }
