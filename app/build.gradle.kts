@@ -230,6 +230,13 @@ val jsTests by tasks.registering(Exec::class) {
 
 tasks.named("check").configure { dependsOn(jsTests) }
 
+// The unit-test resources include :sharedUi's assembled compose resources (see the test source set
+// below). AGP drops the FileCollection's builtBy when it converts the srcDir, so declare the producer
+// explicitly; without it Gradle refuses the build whenever :sharedUi:assembleJvmMainResources also runs.
+tasks.matching { it.name.startsWith("process") && it.name.endsWith("UnitTestJavaRes") }.configureEach {
+    dependsOn(":sharedUi:assembleJvmMainResources")
+}
+
 android {
     sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     sourceSets.getByName("test").kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
