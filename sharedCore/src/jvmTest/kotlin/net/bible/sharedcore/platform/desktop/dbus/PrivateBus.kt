@@ -60,10 +60,13 @@ class PrivateBus private constructor(private val daemon: String, private val dir
         override fun connect(): DBusConnection = newConnection()
     }
 
-    /** Kills the daemon, which breaks every connection made so far. */
+    /** Kills the daemon and waits until the clients have observed the broken connection. */
     fun kill() {
-        process?.destroyForcibly()?.waitFor(5, TimeUnit.SECONDS)
+        check(process?.destroyForcibly()?.waitFor(5, TimeUnit.SECONDS) != false) { "dbus-daemon did not exit" }
         process = null
+        // Process exit alone does not mean dbus-java's reader has observed EOF. A call queued in that gap can
+        // miss disconnect's pending-call sweep and wait for its full reply timeout instead of failing promptly.
+        check(waitUntil { connections.none { it.isConnected } }) { "D-Bus clients did not observe daemon exit" }
     }
 
     /** Starts a new daemon on the same address after [kill]. */
