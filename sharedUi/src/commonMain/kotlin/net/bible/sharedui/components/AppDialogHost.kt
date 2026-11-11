@@ -171,6 +171,9 @@ fun AppDialogHost(
                         logoPainter = icons?.logo, moneyPainter = icons?.money,
                     )
                 }
+                is AppDialogRequest.ReleaseNotice -> LaunchedEffect(id) { // replaced in Task 2
+                    onRespond(id, AppDialogResult.Cancel)
+                }
                 // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
                 // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
                 // above. Kept as a defensive render (never as Unit) so a caller that builds a `shown`
