@@ -19,7 +19,6 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsController
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedcore.settings.SyncSettingsService
-import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
@@ -45,7 +44,6 @@ internal val RECREATE_ON_CHANGE_KEYS = setOf(
     "locale_pref",
     "night_mode_pref3",
     "display_color_mode",
-    THEME_PALETTE_STYLE_KEY,
     "discrete_mode",
 )
 

@@ -6,10 +6,9 @@ import androidx.compose.runtime.Composable
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.resolveDisableAnimations
 import net.bible.sharedcore.platform.resolveDisplayColorMode
-import net.bible.sharedcore.platform.resolveThemePaletteStyle
 
 /**
- * The common host theme: reads the app-global theme inputs (colour mode, animations, palette style)
+ * The common host theme: reads the app-global theme inputs (colour mode and animations)
  * from [settings] and wraps [content] in [AbTheme]. This and `AbAppTheme` (`:app`, which also
  * provides the Android locals) are the only two `AbTheme(` call sites (`AbThemeHostGuardTest`).
  *
@@ -35,7 +34,6 @@ fun AbHostTheme(
         darkTheme = darkTheme,
         colorMode = settings.resolveDisplayColorMode(isOnyx),
         disableAnimations = settings.resolveDisableAnimations(isOnyx),
-        paletteStyle = settings.resolveThemePaletteStyle(),
         content = content,
     )
 }

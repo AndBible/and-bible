@@ -130,8 +130,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val prefsShowCalculator: String get() = context.getString(R.string.prefs_show_calculator)
     override val prefsShowErrorBoxSummary: String get() = context.getString(R.string.prefs_show_error_box_summary)
     override val prefsShowErrorBoxTitle: String get() = context.getString(R.string.prefs_show_error_box_title)
-    override val prefsThemePaletteStyleSummary: String get() = context.getString(R.string.prefs_theme_palette_style_summary)
-    override val prefsThemePaletteStyleTitle: String get() = context.getString(R.string.prefs_theme_palette_style_title)
     override val prefsToolbarButtonActionSummary: String get() = context.getString(R.string.prefs_toolbar_button_action_summary)
     override val prefsToolbarButtonActionTitle: String get() = context.getString(R.string.prefs_toolbar_button_action_title)
     override val prefsVolumeKeysScrollSummary: String get() = context.getString(R.string.prefs_volume_keys_scroll_summary)

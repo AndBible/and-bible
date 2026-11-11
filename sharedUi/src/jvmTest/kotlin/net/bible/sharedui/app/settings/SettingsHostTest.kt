@@ -141,8 +141,9 @@ class SettingsHostTest {
         }
         val before = recreates
         host.maybeRecreateForSettingsKey("some_other_key")
+        host.maybeRecreateForSettingsKey("theme_palette_style")
         assertEquals(before, recreates)
-        assertEquals(setOf("locale_pref", "night_mode_pref3", "display_color_mode", "theme_palette_style", "discrete_mode"), RECREATE_ON_CHANGE_KEYS)
+        assertEquals(setOf("locale_pref", "night_mode_pref3", "display_color_mode", "discrete_mode"), RECREATE_ON_CHANGE_KEYS)
     }
 
     @Test

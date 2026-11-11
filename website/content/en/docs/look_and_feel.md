@@ -77,15 +77,13 @@ select it.
       ambient light. Enabling this mode starts monitoring immediately; no app
       restart is needed.
     - *System* – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
-- **Theme style:** Choose how the app's colors are derived from the
-    workspace color. *Tonal spot (soft, keeps grey)* (default) gives soft
-    tones and keeps grey and black workspace colors grey; *Tonal spot
-    (original)* is the unmodified Material version; *Fidelity* uses the
-    chosen color as is; *Neutral* and *Monochrome* are muted or grey; the
-    other styles are more playful. Applies only when **Color mode** is
-    *Normal* and you have chosen a workspace color. Without a workspace color
-    (or after resetting it to default), the app uses the standard Material 3
-    violet theme in both light and dark mode, regardless of **Theme style**.
+- **Workspace theme:** In *Normal* color mode, the app automatically derives
+    soft tones from your workspace color, keeping grey and black colors grey
+    and muted colors muted. Without a workspace color (or after resetting it
+    to default), the app uses the standard Material 3 violet theme in both
+    light and dark mode. There is no separate palette-style selector.
+    If you previously chose another Theme style, upgrading switches to this
+    fixed soft palette; restoring an old backup does not restore that style.
     Reading-view controls also follow the workspace theme,
     including bookmark editing buttons, note separators, editor selections,
     study-pad drag highlights, and page and reading-progress badges. The active
@@ -144,9 +142,10 @@ memorization level (for example, `3/4`) before you tap to open the chapter.
 Select a calendar day to see its activity count below the heatmap, including
 zero for a day with no activity; days with activity also open the day's history.
 
-In the *Black & white*, *Color e-ink* and *Monochrome* color modes the
-**Theme style** setting is not used: the interface stays grey (or black and
-white) so that contrast is the same for every workspace color.
+In the *Black & white*, *Color e-ink* and *Monochrome* color modes, the
+base interface stays grey (or black and white) for readable contrast.
+*Color e-ink* still derives grey tones from a chosen workspace color and
+keeps the deliberate color accents described above.
 
 Color mode and Disable animations can be used together for an e-ink reading
 experience.

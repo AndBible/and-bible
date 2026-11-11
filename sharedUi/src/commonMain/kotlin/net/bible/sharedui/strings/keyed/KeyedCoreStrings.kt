@@ -230,8 +230,6 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val prefsToolbarButtonActionValues: List<String> get() = t.array("prefs_toolbar_button_action_values")
     override val prefsBibleViewSwipeModeDescriptions: List<String> get() = t.array("prefs_bible_view_swipe_mode_descriptions")
     override val prefsBibleViewSwipeModeValues: List<String> get() = t.array("prefs_bible_view_swipe_mode_values")
-    override val prefsThemePaletteStyleNames: List<String> get() = t.array("prefs_theme_palette_style_names")
-    override val prefsThemePaletteStyleValues: List<String> get() = t.array("prefs_theme_palette_style_values")
     override val prefsInterfaceLocaleDescriptions: List<String> get() = t.array("prefs_interface_locale_descriptions")
     override val prefsInterfaceLocaleValues: List<String> get() = t.array("prefs_interface_locale_values")
     override val prefsNotesContentTypeEntries: List<String> get() = t.array("prefs_notes_content_type_entries")

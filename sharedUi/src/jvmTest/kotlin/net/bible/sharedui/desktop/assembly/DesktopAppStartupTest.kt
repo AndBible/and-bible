@@ -407,6 +407,12 @@ class DesktopAppStartupTest {
                     isPortrait = { true }, isBeta = { false },
                 )
                 val json = kotlinx.coroutines.withContext(mainThread) { platform.configInputs(emptyList()).themeColors }
+                for (legacyStyle in listOf("fidelity", "monochrome", "unknown")) {
+                    settings.setString("theme_palette_style", legacyStyle)
+                    assertEquals(json, kotlinx.coroutines.withContext(mainThread) { platform.configInputs(emptyList()).themeColors },
+                        "legacy style must not alter BibleView: seed=$seed dark=$dark mode=$mode style=$legacyStyle")
+                }
+                settings.setString("theme_palette_style", null)
                 val chosen = seed == 0xFFFF8000.toInt()
                 if (mode == net.bible.service.common.DisplayColorMode.NORMAL && !chosen) {
                     assertTrue(json.contains(if (dark) "\"primary\":\"#D0BCFF\"" else "\"primary\":\"#6750A4\""), json)

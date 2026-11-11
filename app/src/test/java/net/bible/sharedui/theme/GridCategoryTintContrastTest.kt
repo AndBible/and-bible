@@ -2,7 +2,6 @@ package net.bible.sharedui.theme
 
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.theme.categoryBaseArgb
 import net.bible.sharedcore.theme.categoryChipArgb
@@ -19,7 +18,7 @@ import org.junit.Test
  * That is what makes readability *plausible* for any seed, but it is not a contrast figure, and A/B
  * batch 4b made the M3 scheme seed-derived — `surfaceVariant`/`onSurfaceVariant` depend on the
  * workspace colour, so no fixed fixture covers the space. This test measures the real thing instead:
- * the default scheme and every style over the hue/saturation wheel.
+ * the default scheme over the hue/saturation wheel.
  *
  * This is also the test that killed the design's first mechanism. A fixed blend towards the *raw*
  * palette was specified at 25%; measured here it needed to come down to **0.06** to clear AA
@@ -44,16 +43,15 @@ private fun chipArgb(surfaceVariantArgb: Int, group: Int, mode: DisplayColorMode
 
 private fun assertAllCategoriesReadable(
     what: String, seed: Int?, dark: Boolean, mode: DisplayColorMode,
-    style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
 ) {
-    val scheme = abColorScheme(seed, dark, mode, style)
+    val scheme = abColorScheme(seed, dark, mode)
     val surfaceVariant = scheme.surfaceVariant.toArgb()
     val onSurfaceVariant = scheme.onSurfaceVariant.toArgb()
     for (group in GROUPS) {
         val chip = chipArgb(surfaceVariant, group, mode)
         val ratio = contrastRatio(onSurfaceVariant, chip)
         assertTrue(
-            "$what, $style, category $group: text #${hexOf(onSurfaceVariant)} on chip #${hexOf(chip)} " +
+            "$what, category $group: text #${hexOf(onSurfaceVariant)} on chip #${hexOf(chip)} " +
                 "(from surfaceVariant #${hexOf(surfaceVariant)}) is only " +
                 "${(ratio * 100).toInt() / 100.0}:1, under $AA_NORMAL:1",
             ratio >= AA_NORMAL,
@@ -71,19 +69,19 @@ class GridCategoryTintContrastTest {
     /**
      * The case a fixed fixture cannot cover: a user-chosen workspace colour reshapes the whole
      * scheme, `surfaceVariant` included. Sweeping the wheel at two saturations and two values is not
-     * exhaustive over 2^24 seeds, but it is 192 real MaterialKolor schemes per style rather than an assumption,
+     * exhaustive over 2^24 seeds, but it is 192 real MaterialKolor schemes rather than an assumption,
      * and `surfaceVariant` is a low-chroma neutral role so it moves little across seeds.
      */
     @Test
     fun `a seeded scheme keeps every category readable, across the hue wheel`() {
-        for (style in ThemePaletteStyle.entries) for (hue in 0 until 360 step 15) {
+        for (hue in 0 until 360 step 15) {
             for (sat in listOf(0.4f, 1.0f)) {
                 for (value in listOf(0.5f, 1.0f)) {
                     val seed = hsvToArgb(hue.toFloat(), sat, value)
                     for (dark in listOf(false, true)) {
                         assertAllCategoriesReadable(
                             "seed #${hexOf(seed)} ${if (dark) "dark" else "light"}",
-                            seed, dark, DisplayColorMode.NORMAL, style,
+                            seed, dark, DisplayColorMode.NORMAL,
                         )
                     }
                 }
@@ -92,10 +90,10 @@ class GridCategoryTintContrastTest {
     }
 
     @Test
-    fun `achromatic seeds keep every category readable under every style`() {
-        for (style in ThemePaletteStyle.entries) for (seed in listOf(0xFF000000.toInt(), 0xFF444444.toInt(), 0xFFAAAAAA.toInt(), 0xFFFFFFFF.toInt()))
+    fun `achromatic seeds keep every category readable under the fixed palette`() {
+        for (seed in listOf(0xFF000000.toInt(), 0xFF444444.toInt(), 0xFFAAAAAA.toInt(), 0xFFFFFFFF.toInt()))
             for (dark in listOf(false, true))
-                assertAllCategoriesReadable("$style seed #${hexOf(seed)} ${if (dark) "dark" else "light"}", seed, dark, DisplayColorMode.NORMAL, style)
+                assertAllCategoriesReadable("seed #${hexOf(seed)} ${if (dark) "dark" else "light"}", seed, dark, DisplayColorMode.NORMAL)
     }
 
     @Test

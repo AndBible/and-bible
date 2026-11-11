@@ -40,8 +40,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.THEME_PALETTE_STYLE_KEY
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.settings.AppSettingsSnapshot
 import net.bible.sharedcore.settings.Choice2
@@ -241,7 +239,6 @@ class AppSettingsServiceImpl(
             disableTwoStepBookmarking = readBool("disable_two_step_bookmarking", false),
             volumeKeysScroll = readBool("volume_keys_scroll", true),
             nightMode = readString("night_mode_pref3", "system"),
-            themePaletteStyle = readString(THEME_PALETTE_STYLE_KEY, ThemePaletteStyle.DEFAULT.value),
             // Display
             locale = readString("locale_pref", ""),
             disableClickToEdit = readBool("disable_click_to_edit", false),
@@ -289,7 +286,6 @@ class AppSettingsServiceImpl(
                 strings.prefsBibleViewSwipeModeDescriptions, strings.prefsBibleViewSwipeModeValues
             ),
             nightModeChoices = nightModeChoices(),
-            themePaletteStyleChoices = choicesFrom(strings.prefsThemePaletteStyleNames, strings.prefsThemePaletteStyleValues),
             localeChoices = choicesFrom(strings.prefsInterfaceLocaleDescriptions, strings.prefsInterfaceLocaleValues),
             notesContentTypeChoices = choicesFrom(strings.prefsNotesContentTypeEntries, strings.prefsNotesContentTypeValues),
             displayColorModeChoices = choicesFrom(strings.prefsDisplayColorModeNames, strings.prefsDisplayColorModeValues),

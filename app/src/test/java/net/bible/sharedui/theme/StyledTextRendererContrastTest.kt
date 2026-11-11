@@ -12,7 +12,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.theme.contrastRatio
@@ -34,7 +33,7 @@ class StyledTextRendererContrastTest {
     @get:Rule val compose = createComposeRule()
 
     private data class Case(
-        val seed: Int?, val dark: Boolean, val style: ThemePaletteStyle,
+        val seed: Int?, val dark: Boolean,
         val mode: DisplayColorMode = DisplayColorMode.NORMAL,
     )
 
@@ -42,7 +41,7 @@ class StyledTextRendererContrastTest {
         val current = mutableStateOf(cases.first())
         compose.setContent {
             val case = current.value
-            MaterialTheme(colorScheme = abColorScheme(case.seed, case.dark, case.mode, case.style)) {
+            MaterialTheme(colorScheme = abColorScheme(case.seed, case.dark, case.mode)) {
                 Text(styledTextToAnnotatedString(StyledText(listOf(
                     StyledRun("plain "), StyledRun("match", highlight = true), StyledRun(" bold", bold = true),
                 ))))
@@ -68,23 +67,21 @@ class StyledTextRendererContrastTest {
     }
 
     @Test fun defaultStyleHighlightIsReadableInLightAndDark() = assertReadable(
-        listOf(false, true).map { Case(null, it, ThemePaletteStyle.DEFAULT) },
+        listOf(false, true).map { Case(null, it) },
     )
 
     @Test fun monochromeHighlightsRemainReadableInLightAndDark() = assertReadable(
         listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK).flatMap { mode ->
             listOf(null, 0xFF795548.toInt()).flatMap { seed ->
-                listOf(false, true).map { dark -> Case(seed, dark, ThemePaletteStyle.DEFAULT, mode) }
+                listOf(false, true).map { dark -> Case(seed, dark, mode) }
             }
         },
     )
 
-    @Test fun renderedHighlightsAreReadableAcrossStylesSeedsAndLightDark() = assertReadable(
-        ThemePaletteStyle.entries.flatMap { style ->
-            listOf(null, 0xFF444444.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(),
-                0xFF795548.toInt(), 0xFFFF0000.toInt(), 0xFF0066FF.toInt()).flatMap { seed ->
-                listOf(false, true).map { dark -> Case(seed, dark, style) }
-            }
+    @Test fun renderedHighlightsAreReadableAcrossSeedsAndLightDark() = assertReadable(
+        listOf(null, 0xFF444444.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(),
+            0xFF795548.toInt(), 0xFFFF0000.toInt(), 0xFF0066FF.toInt()).flatMap { seed ->
+            listOf(false, true).map { dark -> Case(seed, dark) }
         },
     )
 }

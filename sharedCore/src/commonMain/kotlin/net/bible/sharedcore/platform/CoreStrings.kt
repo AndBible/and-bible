@@ -177,8 +177,6 @@ interface CoreStrings {
     val prefsToolbarButtonActionValues: List<String> // R.array.prefs_toolbar_button_action_values
     val prefsBibleViewSwipeModeDescriptions: List<String> // R.array.prefs_bible_view_swipe_mode_descriptions
     val prefsBibleViewSwipeModeValues: List<String> // R.array.prefs_bible_view_swipe_mode_values
-    val prefsThemePaletteStyleNames: List<String> // R.array.prefs_theme_palette_style_names
-    val prefsThemePaletteStyleValues: List<String> // R.array.prefs_theme_palette_style_values
     val prefsInterfaceLocaleDescriptions: List<String> // R.array.prefs_interface_locale_descriptions
     val prefsInterfaceLocaleValues: List<String> // R.array.prefs_interface_locale_values
     val prefsNotesContentTypeEntries: List<String> // R.array.prefs_notes_content_type_entries

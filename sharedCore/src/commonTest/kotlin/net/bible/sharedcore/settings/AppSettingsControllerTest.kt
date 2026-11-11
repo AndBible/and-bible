@@ -42,7 +42,6 @@ class AppSettingsControllerTest {
         navigateToVerse = false, openLinksInSpecialWindow = true, screenKeepOn = false,
         doubleTapToFullscreen = true, autoFullscreen = false, toolbarButtonActions = "",
         bibleViewSwipeMode = "CHAPTER", disableTwoStepBookmarking = false, volumeKeysScroll = true,
-        themePaletteStyle = "tonal_spot_grey",
         nightMode = "manual", locale = "", disableClickToEdit = false, notesContentType = "HTML",
         fontSizeMultiplier = 100, hideStatusBar = false, fullScreenHideButtons = true,
         hideWindowButtons = false, hideBibleReferenceOverlay = false, showActiveWindowIndicator = true,
@@ -54,11 +53,6 @@ class AppSettingsControllerTest {
         enableBluetooth = true, requestSdcardPermission = false, showErrorbox = false,
         toolbarButtonActionChoices = emptyList(), bibleViewSwipeModeChoices = emptyList(),
         nightModeChoices = emptyList(), localeChoices = emptyList(), notesContentTypeChoices = emptyList(),
-        themePaletteStyleChoices = listOf(
-            Choice2("tonal_spot_grey", "Tonal spot (soft, keeps grey)"),
-            Choice2("fidelity", "Fidelity (exact color)"),
-            Choice2("tonal_spot", "Tonal spot (original)"),
-        ),
         displayColorModeChoices = emptyList(),
         discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
@@ -92,9 +86,6 @@ class AppSettingsControllerTest {
         assertFalse(off.checked)
     }
 
-    private fun themeRow(c: AppSettingsController) =
-        c.state.value.items.single { it.key == "theme_palette_style" } as SettingsItem.ListChoiceRow
-
     @Test
     fun retainedControllerRelocalizesOpenResetWithoutChangingSelection() {
         val service = FakeAppSettingsService(snap())
@@ -103,35 +94,20 @@ class AppSettingsControllerTest {
         c.updateLabels(AppSettingsLabels.forTest().copy(
             screenTitle = "Asetukset",
             resetConfirmMessage = "Palautetaanko asetukset?",
-            themePaletteStyleTitle = "Teema",
+            nightModeTitle = "Teema",
         ))
         assertEquals("Asetukset", c.state.value.title)
-        assertEquals("Teema", themeRow(c).title)
-        assertEquals("tonal_spot_grey", themeRow(c).selectedValue)
+        assertEquals("Teema", (c.state.value.items.single { it.key == "night_mode_pref3" } as SettingsItem.ListChoiceRow).title)
+        assertEquals("manual", (c.state.value.items.single { it.key == "night_mode_pref3" } as SettingsItem.ListChoiceRow).selectedValue)
         assertEquals(AppSettingsDialog.ConfirmReset("Palautetaanko asetukset?"), c.dialog.value)
     }
 
     @Test
-    fun themeStyleRowShowsTheStoredValueAndChoices() {
-        val row = themeRow(controller(FakeAppSettingsService(snap())))
-        assertEquals("tonal_spot_grey", row.selectedValue)
-        assertEquals(listOf("tonal_spot_grey", "fidelity", "tonal_spot"), row.entries.map { it.value })
-        assertEquals("Theme style", row.title)
-        assertTrue(row.enabled)
-    }
-
-    @Test
-    fun themeStyleRowIsDisabledOutsideNormalColorMode() {
-        listOf("bw", "color_eink").forEach { mode ->
-            assertFalse(themeRow(controller(FakeAppSettingsService(snap(displayColorMode = mode)))).enabled, mode)
+    fun paletteStyleIsAbsentInEveryDisplayMode() {
+        for (mode in listOf("normal", "bw", "color_eink", "monochrome")) {
+            val c = controller(FakeAppSettingsService(snap().copy(displayColorMode = mode)))
+            assertFalse(c.state.value.items.any { it.key == "theme_palette_style" })
         }
-    }
-
-    @Test
-    fun choosingAThemeStyleWritesTheStringPreference() {
-        val service = FakeAppSettingsService(snap())
-        controller(service).onListChoice("theme_palette_style", "neutral")
-        assertEquals("theme_palette_style" to "neutral", service.lastStringWrite)
     }
 
     @Test fun dictionariesCategoryHiddenWhenNoBooks() {
@@ -251,13 +227,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortySixRowsCarryAnIconKey() {
+    @Test fun fortyFiveRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(46, items.count { it.iconKeyOrNull() != null })
+        assertEquals(45, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -288,7 +264,6 @@ class AppSettingsControllerTest {
             "disable_two_step_bookmarking",
             "volume_keys_scroll",
             "night_mode_pref3",
-            "theme_palette_style",
             "display_category",
             "global_text_display_settings",
             "locale_pref",

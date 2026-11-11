@@ -178,8 +178,6 @@ internal class StubCoreStrings : CoreStrings {
     override val prefsToolbarButtonActionValues: List<String> = listOf("prefsToolbarButtonActionValues")
     override val prefsBibleViewSwipeModeDescriptions: List<String> = listOf("prefsBibleViewSwipeModeDescriptions")
     override val prefsBibleViewSwipeModeValues: List<String> = listOf("prefsBibleViewSwipeModeValues")
-    override val prefsThemePaletteStyleNames: List<String> = listOf("prefsThemePaletteStyleNames")
-    override val prefsThemePaletteStyleValues: List<String> = listOf("prefsThemePaletteStyleValues")
     override val prefsInterfaceLocaleDescriptions: List<String> = listOf("prefsInterfaceLocaleDescriptions")
     override val prefsInterfaceLocaleValues: List<String> = listOf("prefsInterfaceLocaleValues")
     override val prefsNotesContentTypeEntries: List<String> = listOf("prefsNotesContentTypeEntries")

@@ -7,53 +7,69 @@ import androidx.compose.ui.graphics.toArgb
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.assertNotEquals
 
 class DefaultColorSchemeTest {
     @Test
-    fun unsetWorkspaceUsesEveryStockRoleRegardlessOfPaletteStyle() {
+    fun unsetWorkspaceUsesEveryStockRole() {
         for (dark in listOf(false, true)) {
             val stock = if (dark) darkColorScheme() else lightColorScheme()
             for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
-                for (style in ThemePaletteStyle.entries) {
-                    // ColorScheme has identity equality; toString enumerates all its roles.
-                    assertEquals(stock.toString(), abColorScheme(seed, dark, DisplayColorMode.NORMAL, style).toString(),
-                        "dark=$dark seed=$seed style=$style")
-                }
+                // ColorScheme has identity equality; toString enumerates all its roles.
+                assertEquals(stock.toString(), abColorScheme(seed, dark, DisplayColorMode.NORMAL).toString(),
+                    "dark=$dark seed=$seed")
             }
         }
     }
 
     @Test
-    fun chosenWorkspaceStillUsesTheSelectedPalette() {
+    fun saturatedWorkspaceKeepsEveryTonalSpotRole() {
         val seed = Color(0xFF1565C0)
-        val paletteStyles = mapOf(
-            ThemePaletteStyle.TONAL_SPOT_GREY to PaletteStyle.TonalSpot,
-            ThemePaletteStyle.FIDELITY to PaletteStyle.Fidelity,
-            ThemePaletteStyle.TONAL_SPOT to PaletteStyle.TonalSpot,
-            ThemePaletteStyle.CONTENT to PaletteStyle.Content,
-            ThemePaletteStyle.NEUTRAL to PaletteStyle.Neutral,
-            ThemePaletteStyle.MONOCHROME to PaletteStyle.Monochrome,
-            ThemePaletteStyle.VIBRANT to PaletteStyle.Vibrant,
-            ThemePaletteStyle.EXPRESSIVE to PaletteStyle.Expressive,
-            ThemePaletteStyle.RAINBOW to PaletteStyle.Rainbow,
-            ThemePaletteStyle.FRUIT_SALAD to PaletteStyle.FruitSalad,
-        )
         for (dark in listOf(false, true)) {
-            for ((style, paletteStyle) in paletteStyles) {
-                val expected = dynamicColorScheme(seedColor = seed, isDark = dark, isAmoled = false,
-                    style = paletteStyle)
-                assertEquals(expected.toString(), abColorScheme(seed.toArgb(), dark, DisplayColorMode.NORMAL, style).toString(),
-                    "dark=$dark style=$style")
+            val expected = dynamicColorScheme(seedColor = seed, isDark = dark, isAmoled = false,
+                style = PaletteStyle.TonalSpot)
+            assertEquals(expected.toString(), abColorScheme(seed.toArgb(), dark, DisplayColorMode.NORMAL).toString())
+        }
+    }
+
+    @Test
+    fun fixedPaletteKeepsMutedSeedsMutedInsteadOfUsingPlainTonalSpot() {
+        fun spread(color: Color): Int {
+            val argb = color.toArgb()
+            val channels = listOf((argb ushr 16) and 255, (argb ushr 8) and 255, argb and 255)
+            return channels.max() - channels.min()
+        }
+        for (dark in listOf(false, true)) {
+            val seed = Color(0xFF607D8B)
+            val fixed = abColorScheme(seed.toArgb(), dark, DisplayColorMode.NORMAL)
+            val plain = dynamicColorScheme(seedColor = seed, isDark = dark, isAmoled = false,
+                style = PaletteStyle.TonalSpot)
+            assertTrue(spread(fixed.primary) * 2 < spread(plain.primary), "near-grey must stay muted, dark=$dark")
+        }
+        val brown = 0xFF8B5A2B.toInt()
+        val fixed = abColorScheme(brown, false, DisplayColorMode.NORMAL)
+        assertNotEquals(0xFF87521B.toInt(), fixed.primary.toArgb(), "do not force plain TonalSpot's orange primary")
+    }
+
+    @Test
+    fun colorEinkStillUsesPlainTonalSpotThenGrayscale() {
+        for (dark in listOf(false, true)) {
+            // A low-chroma seed distinguishes the e-ink variant from the grey-safe NORMAL variant.
+            val seed = Color(0xFF607D8B)
+            val plain = dynamicColorScheme(seedColor = seed, isDark = dark, isAmoled = false,
+                style = PaletteStyle.TonalSpot)
+            val actual = abColorScheme(seed.toArgb(), dark, DisplayColorMode.COLOR_EINK)
+            for ((base, grey) in listOf(plain.primary to actual.primary, plain.primaryContainer to actual.primaryContainer,
+                plain.surface to actual.surface, plain.secondaryContainer to actual.secondaryContainer)) {
+                val argb = base.toArgb()
+                val y = (299 * ((argb ushr 16) and 255) + 587 * ((argb ushr 8) and 255) + 114 * (argb and 255)) / 1000
+                val expected = (argb and 0xFF000000.toInt()) or (y shl 16) or (y shl 8) or y
+                assertEquals(expected, grey.toArgb(), "e-ink keeps the existing TonalSpot grey role, dark=$dark")
             }
-            assertNotEquals(
-                abColorScheme(seed.toArgb(), dark, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY).toString(),
-                abColorScheme(seed.toArgb(), dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT).toString(),
-            )
         }
     }
 
@@ -61,17 +77,15 @@ class DefaultColorSchemeTest {
     fun einkDefaultsKeepTheirExistingGreyRoles() {
         for (dark in listOf(false, true)) {
             for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
-                for (style in ThemePaletteStyle.entries) {
-                    for (mode in listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
-                        val scheme = abColorScheme(seed, dark, mode, style)
-                        assertEquals(if (dark) 0xFFC9C9C9.toInt() else 0xFF606060.toInt(), scheme.primary.toArgb())
-                        assertEquals(if (dark) 0xFF131313.toInt() else 0xFFFAFAFA.toInt(), scheme.surface.toArgb())
-                    }
-                    val mono = abColorScheme(seed, dark, DisplayColorMode.MONOCHROME, style)
-                    assertEquals(if (dark) Color.White else Color.Black, mono.primary)
-                    assertEquals(if (dark) Color.Black else Color.White, mono.surface)
-                    assertEquals(Color.Transparent, mono.scrim)
+                for (mode in listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
+                    val scheme = abColorScheme(seed, dark, mode)
+                    assertEquals(if (dark) 0xFFC9C9C9.toInt() else 0xFF606060.toInt(), scheme.primary.toArgb())
+                    assertEquals(if (dark) 0xFF131313.toInt() else 0xFFFAFAFA.toInt(), scheme.surface.toArgb())
                 }
+                val mono = abColorScheme(seed, dark, DisplayColorMode.MONOCHROME)
+                assertEquals(if (dark) Color.White else Color.Black, mono.primary)
+                assertEquals(if (dark) Color.Black else Color.White, mono.surface)
+                assertEquals(Color.Transparent, mono.scrim)
             }
         }
     }

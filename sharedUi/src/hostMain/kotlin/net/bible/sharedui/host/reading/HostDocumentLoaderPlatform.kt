@@ -25,9 +25,6 @@ import net.bible.android.database.IdType
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.reading.isWorkspaceColorSet
-import net.bible.service.common.THEME_PALETTE_STYLE_KEY
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedui.theme.themeColorsJson
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.android.view.activity.page.screen.readingBackgroundArgb
@@ -45,9 +42,8 @@ import org.koin.mp.KoinPlatform
  * inset (unless a bottom bar pads it) and window-button rail (Android's `BibleView.topOffset` / `bottomOffset`; a pane that is not at the
  * top / bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
  *
- * Default NORMAL-mode BibleView chrome uses Compose's stock palette via [themeColorsJson].
- * Chosen workspace colours and e-ink retain the host's existing CSS palette until full seeded
- * theme parity is implemented. Settings are read when `set_config` is built, never at construction.
+ * BibleView chrome uses the same fixed workspace palette as Compose via [themeColorsJson].
+ * Settings are read when `set_config` is built, never at construction.
  */
 @kotlin.native.HiddenFromObjC
 class HostDocumentLoaderPlatform(
@@ -132,10 +128,9 @@ class HostDocumentLoaderPlatform(
             fontSizeMultiplier = s.getInt("font_size_multiplier", 100) / 100F,
             enabledExperimentalFeatures = s.getStringSet("experimental_features", emptySet()).toList(),
             // Same as Android's BibleView: always the derived palette (themeColorsJson itself yields "null" for the
-            // grey-base modes and for COLOR_EINK without a chosen colour), including the app-wide palette style.
+            // grey-base modes and for COLOR_EINK without a chosen colour).
             themeColors = themeColorsJson(
                 workspaceSettings.workspaceColor, night, colorMode,
-                ThemePaletteStyle.fromValue(s.getString(THEME_PALETTE_STYLE_KEY, null)) ?: ThemePaletteStyle.DEFAULT,
             ),
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
@@ -149,7 +144,7 @@ class HostDocumentLoaderPlatform(
         internal val CONFIG_SETTING_KEYS = setOf(
             "show_active_window_indicator", "show_errorbox", "disable_bible_bookmark_modal_buttons",
             "disable_gen_bookmark_modal_buttons", "display_color_mode", "eink_mode", "disable_animations",
-            "font_size_multiplier", "experimental_features", THEME_PALETTE_STYLE_KEY,
+            "font_size_multiplier", "experimental_features",
             "disable_click_to_edit", "notes_content_type",
         )
     }

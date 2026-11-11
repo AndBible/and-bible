@@ -31,7 +31,6 @@ import com.materialkolor.scheme.DynamicScheme
 import com.materialkolor.scheme.Variant
 import com.materialkolor.toColorScheme
 import net.bible.service.common.DisplayColorMode
-import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.theme.toGrayscaleArgb
 
@@ -86,20 +85,6 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
     surfaceContainerLowest = grayed(surfaceContainerLowest, mode),
 )
 
-/** materialkolor's style for each user-facing [ThemePaletteStyle]; exhaustive `when`, no else. */
-internal fun ThemePaletteStyle.toPaletteStyle(): PaletteStyle = when (this) {
-    ThemePaletteStyle.TONAL_SPOT_GREY -> PaletteStyle.TonalSpot // base variant; abColorScheme routes it to greySafeTonalSpot
-    ThemePaletteStyle.FIDELITY -> PaletteStyle.Fidelity
-    ThemePaletteStyle.TONAL_SPOT -> PaletteStyle.TonalSpot
-    ThemePaletteStyle.CONTENT -> PaletteStyle.Content
-    ThemePaletteStyle.NEUTRAL -> PaletteStyle.Neutral
-    ThemePaletteStyle.MONOCHROME -> PaletteStyle.Monochrome
-    ThemePaletteStyle.VIBRANT -> PaletteStyle.Vibrant
-    ThemePaletteStyle.EXPRESSIVE -> PaletteStyle.Expressive
-    ThemePaletteStyle.RAINBOW -> PaletteStyle.Rainbow
-    ThemePaletteStyle.FRUIT_SALAD -> PaletteStyle.FruitSalad
-}
-
 private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorScheme =
     // Named arguments only: the positional list carries six optional role overrides between
     // `isAmoled` and `style`. `isAmoled` has NO default in the real signature — pass it explicitly.
@@ -146,29 +131,26 @@ private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  * call sites must remember to write.
  *
  * - **NORMAL** -> an unset workspace colour (null or the stored `#444444` sentinel; see
- *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme, regardless of [style].
- *   A chosen colour is derived with [style]; the default [ThemePaletteStyle.TONAL_SPOT_GREY]
- *   ([greySafeTonalSpot]) keeps low-chroma seeds muted. Unseeded goldens and previews render the
- *   same stock baseline-violet theme as the app.
- * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed and style ignored.
- * - **BW** -> the seed and style are ignored: the stock scheme is greyscaled so contrast is
+ *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme.
+ *   A chosen colour always uses [greySafeTonalSpot], keeping low-chroma seeds muted.
+ *   Unseeded goldens and previews render the same stock baseline-violet theme as the app.
+ * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
+ * - **BW** -> the seed is ignored: the stock scheme is greyscaled so contrast is
  *   consistent across workspaces on black-and-white screens.
- * - **COLOR_EINK** -> a set colour (see [isWorkspaceColorSet]) seeds TonalSpot regardless of
- *   [style], then the scheme is greyscaled. An unset colour uses the stock scheme, greyscaled.
+ * - **COLOR_EINK** -> a set colour (see [isWorkspaceColorSet]) seeds TonalSpot, then the scheme
+ *   is greyscaled. An unset colour uses the stock scheme, greyscaled.
  *   This keeps equal contrast for every workspace colour on e-ink; deliberate accents stay coloured.
  */
 fun abColorScheme(
     seedArgb: Int?,
     dark: Boolean,
     colorMode: DisplayColorMode,
-    style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
 ): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
     return when (colorMode) {
         DisplayColorMode.NORMAL -> {
             if (!isWorkspaceColorSet(seedArgb)) stock
-            else if (style == ThemePaletteStyle.TONAL_SPOT_GREY) greySafeTonalSpot(seedArgb!!, dark)
-            else seeded(seedArgb!!, dark, style.toPaletteStyle())
+            else greySafeTonalSpot(seedArgb!!, dark)
         }
         DisplayColorMode.MONOCHROME -> monochromeScheme(dark)
         DisplayColorMode.BW -> stock.grayscale(colorMode)
