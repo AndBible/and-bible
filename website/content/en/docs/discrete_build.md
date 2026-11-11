@@ -27,10 +27,6 @@ Use the main menu to check ongoing activity while notifications are hidden. You
 can turn this preference off in Application Preferences. Leaving the app still
 locks it behind the calculator as usual.
 
-If the Speak controls are hidden after pressing Stop again while already stopped,
-open **Speak** from the main menu or tap the toolbar's Speak button to show them
-again.
-
 ## iOS
 
 On iOS, discrete mode uses a calculator icon for the app. iOS shows a system

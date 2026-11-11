@@ -50,8 +50,8 @@ fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (b) {
 
 /**
  * Android impl of [SpeakTransportService]. Bridges the events the classic `SpeakTransportWidget`
- * listens to, now [SpeakChanges] and [SpeakSettingsChanges], plus the visibility SSOT set from
- * [NavHostComposeActivity] into a [StateFlow], and reproduces the widget's button dispatch
+ * listens to, now [SpeakChanges] and [SpeakSettingsChanges], plus the visibility, whose source of
+ * truth is this service's state (the host reads it) as a [StateFlow], and reproduces the widget's button dispatch
  * (`onButtonClick` :143-177, `onBookmarkButtonClick` :186-214). Koin single (process-lived); the
  * reading-view classic code is unchanged.
  */
@@ -116,7 +116,7 @@ class SpeakTransportServiceImpl(
         }
     }
 
-    /** The reading host calls [setTransportVisible] when its `transportBarVisible` changes. */
+    /** Sets the transport visibility; the host's `transportBarVisible` setter forwards here and its getter reads [state]. */
     fun setTransportVisible(visible: Boolean) {
         _state.value = build(visible = visible)
     }

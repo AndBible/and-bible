@@ -476,11 +476,10 @@ class ReadingCommands(
      * must never HIDE the bar (spec D3), and a user who picks it twice must not be worse off than a
      * user who picked it once.
      *
-     * Lives here rather than in `ComposeReadingViewHost` because [transportBarVisible] is this
-     * activity's private field and the single source of truth for bar visibility — the Compose side
-     * only ever OBSERVES it, through the `setTransportVisible` call made by the setter. The
-     * setter's own `if (field == value) return` is what makes this idempotent: a second call sends
-     * no notification and triggers no recomposition.
+     * The transport service owns bar visibility (including hiding itself on Stop while already
+     * stopped); the host only forwards writes to it and the Compose side observes the service
+     * state. Idempotence comes from the service's state deduplication: a second call changes no
+     * state, so it sends no notification and triggers no recomposition.
      */
     internal fun composeShowSpeakTransport() {
         hostCallbacks.setTransportBarVisible(true)

@@ -107,9 +107,8 @@ class DiscreteSpeakRegressionTest {
         try {
             val before = System.currentTimeMillis()
             AndroidSpeakPlatform(activity.applicationContext).onPrepareForSpeaking()
-            // The old implementation launched an unowned Default coroutine; give it time to reach Main.
-            val deadline = System.nanoTime() + Duration.ofSeconds(2).toNanos()
-            while (shadow.lastRequestedPermission == null && System.nanoTime() < deadline) Thread.sleep(10)
+            // Run pending main-looper work so a (regressed) permission request would surface now.
+            shadowOf(Looper.getMainLooper()).idle()
             assertNull("speech must not request notification permission", shadow.lastRequestedPermission)
             assertTrue(CommonUtils.settings.getLong("speak-last-used", 0) >= before)
             assertEquals(AudioManager.STREAM_MUSIC, activity.volumeControlStream)
@@ -118,13 +117,14 @@ class DiscreteSpeakRegressionTest {
         }
     }
 
-    @Test fun returningToReadingUsesHostLaunchAndRealBackgroundStillLocks() {
+    @Test fun returningToReadingLeavesNoPauseExemptionSoRealBackgroundLocks() {
         setDiscrete(true)
         CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
         val controller = host()
         val activity = controller.get()
         AndroidSpeakPlatform(activity.applicationContext).bringReadingToFront()
-        // The host may handle READING in-graph, without starting another Android activity.
+        // Guard: the in-graph host launch leaves no expected-pause flag (a plain activity.startActivity
+        // would), so a real background leave below still relocks behind the calculator.
         assertNull("in-graph self-launch must not trigger calculator", shadowOf(activity).nextStartedActivityForResult)
         controller.pause().stop().start().resume()
         assertEquals(CalculatorComposeActivity::class.java.name, shadowOf(activity).nextStartedActivityForResult?.intent?.component?.className)
