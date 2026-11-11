@@ -339,19 +339,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    override fun startActivity(intent: Intent?, options: Bundle?) {
-        doNotMarkPaused = true
-        super.startActivity(intent, options)
-    }
-
     override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
-        doNotMarkPaused = true
+        // A result from another app cannot tell us whether the user visited Home while away.
+        // Only transitions within our package may bypass the calculator on return.
+        doNotMarkPaused = intent.resolveActivity(packageManager)?.packageName == packageName
         super.startActivityForResult(intent, requestCode, options)
     }
 
     override fun onPause() {
         super.onPause()
-        if(!doNotMarkPaused) {
+        if(!doNotMarkPaused && !isChangingConfigurations) {
             wasPaused = true
         }
         doNotMarkPaused = false
