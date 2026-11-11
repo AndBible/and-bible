@@ -243,6 +243,19 @@ class SwordInstallTransactionTest {
         assertEquals("modules/foo/data", relative.invoke(transaction, "C:\\store\\modules\\foo\\data".toPath()))
     }
 
+    @Test fun symlinkedOriginalsDirectoryCannotRestoreExternalFiles() = fixture { root ->
+        val live = root / "mybible/a.sqlite3"
+        write(live, "live")
+        val outside = root / "outside"
+        write(outside / "mybible/a.sqlite3", "external")
+        val transaction = SwordInstallTransaction(root)
+        write(transaction.staging / "originals.json", "{\"mybible/a.sqlite3\":null}")
+        Files.createSymbolicLink((transaction.staging / "originals").toFile().toPath(), outside.toFile().toPath())
+        assertFailsWith<IOException> { SwordInstallTransaction.recoverInterrupted(root, root / "internal") }
+        assertEquals("external", files.read(outside / "mybible/a.sqlite3") { readUtf8() })
+        assertEquals("live", files.read(live) { readUtf8() })
+    }
+
     @Test fun recoveryRejectsTraversalWithoutDeletingAnyLiveFile() = fixture { root ->
         val live = root / "modules/keep/a"
         write(live)

@@ -99,7 +99,7 @@ internal class SwordInstallTransaction(
                 for (base in listOf(root, staging / "originals")) {
                     var path: Path? = base / name
                     // The trusted module root may itself be an OS/platform alias (e.g. /var on iOS).
-                    while (path != null && path != base && path != root) {
+                    while (path != null && path != root) {
                         if (files.metadataOrNull(path)?.symlinkTarget != null) throw IOException("Symlink in module transaction path")
                         path = path.parent
                     }
