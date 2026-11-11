@@ -13,6 +13,9 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -20,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
 import net.bible.sharedui.theme.AbTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,6 +30,43 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
 class ReadingSearchSheetTest {
+    @Test
+    fun newHandoffDuringPreviousSheetHideStaysOpen() {
+        for (frames in 0..4) {
+            var visible by mutableStateOf(true)
+            var hasContent by mutableStateOf(true)
+            lateinit var scaffold: BottomSheetScaffoldState
+            runComposeUiTest {
+                mainClock.autoAdvance = false
+                setContent {
+                    AbTheme(darkTheme = false, disableAnimations = true) {
+                        scaffold = rememberBottomSheetScaffoldState(
+                            bottomSheetState = rememberStandardBottomSheetState(
+                                initialValue = SheetValue.Hidden, skipHiddenState = false,
+                            ),
+                        )
+                        DriveSearchSheet(scaffold, visible) {
+                            visible = false
+                        }
+                        BottomSheetScaffold(
+                            scaffoldState = scaffold, sheetPeekHeight = 0.dp,
+                            sheetContent = { Box(Modifier.height(if (hasContent) 200.dp else 1.dp)) },
+                        ) { Box(Modifier.fillMaxSize()) }
+                    }
+                }
+                mainClock.advanceTimeBy(2_000)
+                runOnIdle { visible = false; hasContent = false }
+                repeat(frames) { mainClock.advanceTimeByFrame() }
+                runOnIdle { visible = true; hasContent = true }
+                mainClock.advanceTimeBy(2_000)
+                runOnIdle {
+                    assertTrue(visible, "new handoff during hide after $frames frames")
+                    assertEquals(SheetValue.Expanded, scaffold.bottomSheetState.currentValue)
+                }
+            }
+        }
+    }
+
     @Test
     fun searchHandoffPresentWhenHostMountsIsNotDismissedByInitialHiddenState() {
         for (disableAnimations in listOf(false, true)) {

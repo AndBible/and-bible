@@ -72,6 +72,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.dropWhile
 import net.bible.android.view.activity.page.screen.PaneMenuAnchor
 import net.bible.android.view.activity.page.screen.menuWindowIdFor
 import net.bible.android.view.activity.page.screen.searchSheetShadowElevation
@@ -658,12 +659,15 @@ internal fun DriveSearchSheet(
             }
         }
     }
-    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true and the
-    // next open for the same query looks dead. Observe transitions, not the initial Hidden value:
-    // a search handoff can already be accepted while this collector is starting, before expand runs.
-    // Reporting that initial value would cancel the new request before its sheet can appear.
-    LaunchedEffect(sheet) {
-        snapshotFlow { sheet.currentValue }.drop(1).collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+    // Observe dismissals only after THIS opening reaches Expanded. Initial Hidden and the tail of
+    // a previous hide are not user dismissals of a new handoff. Restarting with visibility also
+    // disarms the observer before a programmatic hide changes the measured content/anchors.
+    LaunchedEffect(sheet, visible) {
+        if (visible) {
+            snapshotFlow { sheet.currentValue }
+                .dropWhile { it != SheetValue.Expanded }
+                .collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+        }
     }
 }
 
