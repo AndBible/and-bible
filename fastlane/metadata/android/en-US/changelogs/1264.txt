@@ -1,0 +1,19 @@
+- Discrete mode: Speak no longer asks for notification permission, the activity menu is on by default, and Speak controls recover after repeated Stop (#4048)
+- MyBible module restore moves replaced originals into recoverable staging, with more reliable archive path handling (#4052)
+- Notification taps go through the calculator PIN when the calculator lock is on; discrete external entry points are no longer exported (#4053)
+- The calculator lock re-engages after leaving the app through an external activity it started (#4054)
+- A cold start keeps the open Bible instead of resetting to the first Bible (#4056)
+- Strong's "Find all occurrences" results sheet is no longer closed by its own dismissal observer (#4045)
+
+AndBible 6.0 public beta!
+
+One app for Android, iPhone, iPad, Mac, Windows and Linux.
+- The whole app rebuilt, with a redesigned interface
+- Sync between all your devices: Nextcloud, WebDAV, Google Drive (Android) and iCloud Drive (Apple)
+- Background activity list with notifications
+- Reading plans in sync
+- New search index, rebuilt once after the update
+
+This is a beta: please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
