@@ -1282,8 +1282,18 @@ class BackupControl(
                 val relative = it.relativeTo(targetDirectory).toString().replace('\\', '/')
                 relative.startsWith("mybible/") && relative.endsWith(".sqlite3", ignoreCase = true)
             }.toSet()
-            if (myBibleDecisions.keys.any { it !in incomingMyBibleFiles }) {
-                throw IOException("MyBible versification entry has no matching module")
+            // New live files do not exist yet. Resolve sidecar aliases against the staged tree,
+            // which has the same filesystem case semantics, regardless of ZIP entry ordering.
+            for (file in myBibleDecisions.keys.toList().filter { it !in incomingMyBibleFiles }) {
+                val candidate = transaction.stage(file)
+                val match = if (fileSystem.exists(candidate)) incomingMyBibleFiles.firstOrNull {
+                    fileSystem.canonicalize(staged.getValue(it)) == fileSystem.canonicalize(candidate)
+                } else null
+                if (match == null) throw IOException("MyBible versification entry has no matching module")
+                val decision = myBibleDecisions.remove(file)!!
+                if (myBibleDecisions.put(match, decision) != null) {
+                    throw IOException("Duplicate MyBible versification entry: $match")
+                }
             }
             // Finish migration of existing installations before any incoming files become discoverable.
             if (incomingMyBibleFiles.isNotEmpty() && !migrateLegacyMyBibleModules()) {

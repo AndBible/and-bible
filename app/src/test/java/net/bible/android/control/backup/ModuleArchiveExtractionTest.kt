@@ -503,6 +503,53 @@ class ModuleArchiveExtractionTest {
         }
     }
 
+    @Test
+    fun newCaseInsensitiveImportMatchesSidecarInEitherArchiveOrder() = runBlocking {
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val field = BackupControl::class.java.getDeclaredField("fileSystem").apply { isAccessible = true }
+        val previousFiles = field.get(backup)
+        field.set(backup, object : okio.ForwardingFileSystem(okio.FileSystem.SYSTEM) {
+            override fun onPathParameter(path: okio.Path, functionName: String, parameterName: String): okio.Path =
+                if (path.name.equals("NewCase.SQLite3", ignoreCase = true)) path.parent!! / "NewCase.SQLite3" else path
+        })
+        try {
+            for (sidecarFirst in listOf(false, true)) {
+                val entries = listOf(
+                    "mybible/NewCase.SQLite3" to germanMyBibleBytes(),
+                    "mybible/newcase.sqlite3.andbible-versification" to "German".toByteArray(),
+                ).let { if (sidecarFirst) it.reversed() else it }
+                val zip = buildZip("new-case-$sidecarFirst.zip", entries)
+                backup.extractAndRegisterModuleArchive({ zip.source() })
+                assertEquals("German", installedVersification("NewCase"))
+                val book = Books.installed().getBook("MyBible-NewCase") as SwordBook
+                closeMyBible(book)
+                Books.installed().removeBook(book)
+                File(downloadDir, "mybible/NewCase.SQLite3").delete()
+            }
+        } finally {
+            field.set(backup, previousFiles)
+        }
+    }
+
+    @Test
+    fun newCaseSensitiveImportDoesNotMergeDifferentlyCasedSidecar() = runBlocking {
+        val probe = File(downloadDir, "mybible/CaseSensitiveProbe.SQLite3")
+        probe.parentFile!!.mkdirs()
+        probe.writeText("probe")
+        val caseSensitive = !File(probe.parentFile, "casesensitiveprobe.sqlite3").exists()
+        probe.delete()
+        org.junit.Assume.assumeTrue("Requires case-sensitive storage", caseSensitive)
+        val zip = buildZip("new-case-sensitive.zip", listOf(
+            "mybible/DistinctCase.SQLite3" to germanMyBibleBytes(),
+            "mybible/distinctcase.sqlite3.andbible-versification" to "German".toByteArray(),
+        ))
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val thrown = runCatching { backup.extractAndRegisterModuleArchive({ zip.source() }) }.exceptionOrNull()
+        assertTrue(thrown is java.io.IOException)
+        assertFalse(File(downloadDir, "mybible/DistinctCase.SQLite3").exists())
+        assertFalse(File(downloadDir, "mybible/distinctcase.sqlite3").exists())
+    }
+
     private fun decisionRecord(moduleName: String): File {
         val identity = "modules/mybible/$moduleName"
         val hash = java.security.MessageDigest.getInstance("SHA-256").digest(identity.toByteArray())
