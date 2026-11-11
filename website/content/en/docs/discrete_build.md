@@ -30,9 +30,13 @@ locks it behind the calculator as usual.
 If notifications are visible, tapping a download, installation, search-indexing or
 AI activity notification brings the app back like tapping its launcher icon.
 Returning from the background (for example from the home screen) or starting after
-Android has killed the app asks for the calculator PIN; leaving through another app
-opened from AndBible, such as a browser link, may not. An already open, unlocked app stays on its current screen;
-notification taps do not close editors or interrupt file pickers and ongoing work.
+Android has killed the app asks for the calculator PIN. Returning from another app
+opened by AndBible, such as a browser, share sheet or system file picker, also asks
+for the PIN, even when a file selection returns normally. This fail-safe rule protects
+content if you visit the home screen while the other app is open. Navigation within
+AndBible and screen rotation do not require another PIN. An already open, unlocked
+app stays on its current screen; notification taps do not close editors or interrupt
+file pickers and ongoing work.
 In calculator mode these notifications return to the current screen (or the reading
 screen on a fresh start), rather than opening the separate progress screen.
 The same PIN protection applies when the calculator is enabled in the standard
