@@ -227,13 +227,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortySixRowsCarryAnIconKey() {
+    @Test fun fortyFiveRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(46, items.count { it.iconKeyOrNull() != null })
+        assertEquals(45, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
