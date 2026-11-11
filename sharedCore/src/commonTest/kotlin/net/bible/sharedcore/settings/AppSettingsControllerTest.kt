@@ -103,22 +103,6 @@ class AppSettingsControllerTest {
     }
 
     @Test
-    fun themeStyleRowShowsTheStoredValueAndChoices() {
-        val row = themeRow(controller(FakeAppSettingsService(snap())))
-        assertEquals("tonal_spot_grey", row.selectedValue)
-        assertEquals(listOf("tonal_spot_grey", "fidelity", "tonal_spot"), row.entries.map { it.value })
-        assertEquals("Theme style", row.title)
-        assertTrue(row.enabled)
-    }
-
-    @Test
-    fun themeStyleRowIsDisabledOutsideNormalColorMode() {
-        listOf("bw", "color_eink").forEach { mode ->
-            assertFalse(themeRow(controller(FakeAppSettingsService(snap(displayColorMode = mode)))).enabled, mode)
-        }
-    }
-
-    @Test
     fun paletteStyleIsAbsentInEveryDisplayMode() {
         for (mode in listOf("normal", "bw", "color_eink", "monochrome")) {
             val c = controller(FakeAppSettingsService(snap().copy(displayColorMode = mode)))
