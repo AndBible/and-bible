@@ -138,6 +138,9 @@ class ToolbarStateServiceImpl(
             // is why the rule lives outside it). Re-read fresh on every snapshot for the same reason
             // as workspaceColorArgb above.
             deriveToolbarFromTheme = deriveToolbarFromTheme(settings.getStringSet("experimental_features", emptySet())),
+            // Issue #4041: Greek Strong's glyph in the NT, Hebrew in the OT (classic updateStrongsButton).
+            // Re-read on every snapshot, so a VerseChanged (navigation) moves it.
+            isNewTestament = documentControl.isNewTestament,
         )
     }
 

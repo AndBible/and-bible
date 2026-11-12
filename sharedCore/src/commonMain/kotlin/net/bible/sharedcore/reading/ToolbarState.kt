@@ -31,6 +31,12 @@ data class ToolbarState(
      * field rather than a second condition of its own to drift out of step.
      */
     val deriveToolbarFromTheme: Boolean = false,
+    /**
+     * Whether the active window's current Bible verse is in the New Testament. Selects the Strong's
+     * button glyph: Greek in the New Testament, Hebrew in the Old (port of the classic
+     * `MainBibleActivity.updateStrongsButton` swap, issue #4041).
+     */
+    val isNewTestament: Boolean = false,
 ) {
     companion object {
         val EMPTY = ToolbarState("", "", false, false, false, false, 0, false, false, true, null, false)

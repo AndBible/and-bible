@@ -28,6 +28,7 @@ import net.bible.sharedui.generated.resources.ic_menu
 import net.bible.sharedui.generated.resources.ic_more_vert_black_24dp
 import net.bible.sharedui.generated.resources.ic_save_24dp
 import net.bible.sharedui.generated.resources.ic_search_24dp
+import net.bible.sharedui.generated.resources.ic_strongs_greek
 import net.bible.sharedui.generated.resources.ic_strongs_hebrew
 import net.bible.sharedui.generated.resources.ic_sync_white_24dp
 import net.bible.sharedui.generated.resources.ic_syncdb_24dp
@@ -149,6 +150,7 @@ object AbIcons {
         "ic_search_24dp" to Res.drawable.ic_search_24dp,
         "ic_baseline_headphones_24" to Res.drawable.ic_baseline_headphones_24,
         "ic_strongs_hebrew" to Res.drawable.ic_strongs_hebrew,
+        "ic_strongs_greek" to Res.drawable.ic_strongs_greek,
         "ic_bible_24dp" to Res.drawable.ic_bible_24dp,
         "ic_baseline_menu_book_24" to Res.drawable.ic_baseline_menu_book_24,
         "ic_commentary" to Res.drawable.ic_commentary,

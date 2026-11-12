@@ -151,6 +151,7 @@ data class ReadingToolbarIcons(
     val home: Painter,
     val search: Painter,
     val speak: Painter,
+    /** Strong's button glyph for the Old Testament (Hebrew); also the fallback when [strongsGreek] is null. */
     val strongs: Painter,
     val bible: Painter,
     val commentary: Painter,
@@ -158,7 +159,16 @@ data class ReadingToolbarIcons(
     val overflow: Painter,
     /** Background (cloud) sync glyph shown beside the document title while [ToolbarState.syncRunning]. */
     val sync: Painter,
-)
+    /** Strong's button glyph for the New Testament (Greek); `null` draws [strongs] everywhere. */
+    val strongsGreek: Painter? = null,
+) {
+    /**
+     * The Strong's button glyph for the active verse's testament ([ToolbarState.isNewTestament]):
+     * Greek in the New Testament, Hebrew in the Old (issue #4041; the classic
+     * `MainBibleActivity.updateStrongsButton` swap).
+     */
+    fun strongsFor(isNewTestament: Boolean): Painter = if (isNewTestament) strongsGreek ?: strongs else strongs
+}
 
 /**
  * All the interaction callbacks [ReadingToolbar] can invoke. Mirrors the classic
@@ -673,7 +683,7 @@ private fun QuickToolbarButton(
         ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
         ToolbarButton.COMMENTARY -> ToolbarIconButton(icons.commentary, strings.docTypeCommentary, callbacks.onCommentary, callbacks.onCommentaryLong)
         ToolbarButton.STRONGS -> ToolbarIconButton(
-            icon = icons.strongs,
+            icon = icons.strongsFor(state.isNewTestament),
             contentDescription = strings.prefsShowStrongsTitle,
             onClick = callbacks.onStrongs,
             onLongClick = callbacks.onStrongsLong,
