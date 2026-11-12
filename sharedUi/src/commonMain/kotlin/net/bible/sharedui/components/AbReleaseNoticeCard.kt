@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -43,6 +42,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -154,11 +155,13 @@ fun AbReleaseNoticeCard(
                 modifier = Modifier.padding(16.dp).widthIn(max = 400.dp).fillMaxWidth()
                     .clip(shape).background(palette.panel).border(1.dp, if (mono) palette.ink else palette.border, shape),
             ) {
-                Column(
-                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
-                        .padding(start = 16.dp, end = 16.dp, top = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+                val scrollState = rememberScrollState()
+                Box(modifier = Modifier.weight(1f, fill = false)) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().verticalScroll(scrollState)
+                            .padding(start = 16.dp, end = 16.dp, top = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                     if (logoPainter != null) {
                         Image(
                             logoPainter, contentDescription = null, modifier = Modifier.size(52.dp),
@@ -224,6 +227,27 @@ fun AbReleaseNoticeCard(
                         strings.releaseNoticeFreeNoAds, color = palette.muted, fontSize = 12.sp, textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
                     )
+                    }
+                    if (scrollState.maxValue != Int.MAX_VALUE && scrollState.canScrollForward) {
+                        val edgeColor = when {
+                            mono -> palette.tile
+                            LocalIsDarkTheme.current -> Color(0xFF141414)
+                            else -> Color(0xFFF6EEDC)
+                        }
+                        Column(
+                            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                                .background(edgeColor).testTag("release-notice-scroll-cue"),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Box(Modifier.fillMaxWidth().height(1.dp).background(if (mono) palette.ink else palette.border))
+                            Icon(
+                                Icons.Filled.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = palette.muted,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
