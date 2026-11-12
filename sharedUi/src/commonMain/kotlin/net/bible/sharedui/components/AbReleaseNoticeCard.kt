@@ -127,8 +127,10 @@ private fun noticePalette(): NoticePalette {
 /**
  * The 6.0 stable release notice: a card over the current screen with a header, three action rows, a
  * sponsor (or, with [sponsorAllowed] false, a website) pill and a footer with "Don't show again" and Close.
- * Every way out calls [onAnswer] once with the chosen action (null for Close, back and scrim) and the
- * checkbox state. The footer sits outside the scrolling body so Close stays reachable at large font sizes.
+ * Every control calls [onAnswer] once with the chosen action (null for Close, back and scrim) and the
+ * checkbox state, which starts at [initialDontShowAgain]. Only a null action ends the notice: for an action the
+ * shared `ReleaseNotice` gate runs it and shows the card again with the checkbox carried over (#4063).
+ * The footer sits outside the scrolling body so Close stays reachable at large font sizes.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -137,6 +139,7 @@ fun AbReleaseNoticeCard(
     sponsorAllowed: Boolean,
     logoPainter: Painter?,
     computerAllowed: Boolean = true,
+    initialDontShowAgain: Boolean = false,
     onAnswer: (ReleaseNoticeAction?, Boolean) -> Unit,
 ) {
     TrackOverlay()
@@ -145,7 +148,7 @@ fun AbReleaseNoticeCard(
     val palette = noticePalette()
     // A Dialog window re-provides LocalDensity from its own owner; carry the host's density (font scale) in.
     val density = LocalDensity.current
-    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+    var dontShowAgain by rememberSaveable { mutableStateOf(initialDontShowAgain) }
     val shape = RoundedCornerShape(22.dp)
     Dialog(
         onDismissRequest = { onAnswer(null, dontShowAgain) },

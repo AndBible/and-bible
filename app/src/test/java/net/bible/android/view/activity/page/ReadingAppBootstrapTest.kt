@@ -895,14 +895,22 @@ class ReadingAppBootstrapTest {
         runStableNotice { _, done ->
             appDialogs.respond(
                 appDialogs.pending.value!!.id,
-                AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = false),
+                AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = true),
             )
             advanceUntilIdle()
             val dialog = appDialogs.pending.value!!.request as AppDialogRequest.Notice
             assertTrue(dialog.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
             advanceUntilIdle()
-            done.await()
+            // #4063: the notice comes back after the recommend dialog, checkbox kept, and nothing is stored yet.
+            assertFalse(done.isCompleted)
+            val again = appDialogs.pending.value!!.request as AppDialogRequest.ReleaseNotice
+            assertTrue(again.dontShowAgain)
+            assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = true))
+            advanceUntilIdle()
+            assertTrue(done.await())
+            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
         }
     }
 

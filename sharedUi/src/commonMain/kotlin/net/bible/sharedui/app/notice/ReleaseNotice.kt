@@ -54,7 +54,12 @@ object ReleaseNotice {
 
     /**
      * Returns true only when the user's "don't show again" stored the main version. Closing without the checkbox
-     * leaves the notice enabled for the next launch. A chosen action runs after the dialog closes.
+     * leaves the notice enabled for the next launch.
+     *
+     * An action button does not end the notice (#4063): [onAction] runs (a link opens, Share shows its own dialog)
+     * and the notice is asked again with the checkbox as the user left it. Only Close, back or the scrim
+     * (an answer without an action) end it, and only then is the checkbox stored. A dropped request
+     * ([AppDialogResult.Cancel]) ends it without storing.
      */
     suspend fun showIfNeeded(
         platform: ReleaseNoticePlatform,
@@ -68,14 +73,18 @@ object ReleaseNotice {
         if (isBeta || discrete) return false
         val displayed = settings.getString(DISPLAYED_KEY, "") ?: ""
         if (!shouldShow(isBeta, discrete, mainVersion, displayed)) return false
-        val answer = ask(AppDialogRequest.ReleaseNotice(
-            mainVersion, sponsorAllowed = platform != ReleaseNoticePlatform.IOS,
-            computerAllowed = platform != ReleaseNoticePlatform.DESKTOP,
-        ))
-            as? AppDialogResult.ReleaseNoticeAnswer ?: return false
-        val stored = answer.dontShowAgain
-        if (stored) settings.setString(DISPLAYED_KEY, mainVersion)
-        answer.action?.let { onAction(it) }
-        return stored
+        var dontShowAgain = false
+        while (true) {
+            val answer = ask(AppDialogRequest.ReleaseNotice(
+                mainVersion, sponsorAllowed = platform != ReleaseNoticePlatform.IOS,
+                computerAllowed = platform != ReleaseNoticePlatform.DESKTOP,
+                dontShowAgain = dontShowAgain,
+            )) as? AppDialogResult.ReleaseNoticeAnswer ?: return false
+            dontShowAgain = answer.dontShowAgain
+            val action = answer.action ?: break
+            onAction(action)
+        }
+        if (dontShowAgain) settings.setString(DISPLAYED_KEY, mainVersion)
+        return dontShowAgain
     }
 }

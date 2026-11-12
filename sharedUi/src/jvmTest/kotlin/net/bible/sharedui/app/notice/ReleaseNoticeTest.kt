@@ -146,16 +146,50 @@ class ReleaseNoticeTest {
         assertEquals("6.0", settings.getString(key, ""))
     }
 
+    /** #4063: an action runs and the notice is asked again (checkbox state kept); only Close ends it and persists. */
     @Test
-    fun actionRunsAfterCloseAndHonoursCheckbox() = runTest {
+    fun actionKeepsNoticeOpenUntilClose() = runTest {
         val settings = MemoryAppSettings()
         val actions = mutableListOf<ReleaseNoticeAction>()
-        assertFalse(show(settings, actions = actions) { AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, false) })
-        assertEquals(listOf(ReleaseNoticeAction.SHARE), actions)
-        assertEquals("", settings.getString(key, ""))
-        assertTrue(show(settings, actions = actions) { AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, true) })
-        assertEquals(listOf(ReleaseNoticeAction.SHARE, ReleaseNoticeAction.VIDEO), actions)
+        val requests = mutableListOf<AppDialogRequest.ReleaseNotice>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, true),
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, false),
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SPONSOR, true),
+            AppDialogResult.ReleaseNoticeAnswer(null, true),
+        ))
+        val stored = show(settings, actions = actions) { request ->
+            requests += assertIs<AppDialogRequest.ReleaseNotice>(request)
+            // Nothing is stored while the notice is still open, whatever the checkbox says.
+            assertEquals("", settings.getString(key, ""))
+            answers.removeFirst()
+        }
+        assertTrue(stored)
+        assertEquals(listOf(ReleaseNoticeAction.SHARE, ReleaseNoticeAction.VIDEO, ReleaseNoticeAction.SPONSOR), actions)
+        assertEquals(listOf(false, true, false, true), requests.map { it.dontShowAgain })
         assertEquals("6.0", settings.getString(key, ""))
+    }
+
+    @Test
+    fun actionThenCloseWithoutCheckboxDoesNotPersist() = runTest {
+        val settings = MemoryAppSettings()
+        val actions = mutableListOf<ReleaseNoticeAction>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, true),
+            AppDialogResult.ReleaseNoticeAnswer(null, false),
+        ))
+        assertFalse(show(settings, actions = actions) { answers.removeFirst() })
+        assertEquals(listOf(ReleaseNoticeAction.VIDEO), actions)
+        assertEquals("", settings.getString(key, ""))
+    }
+
+    /** A dropped request (AppDialogController.cancelAll) after an action ends the notice without storing. */
+    @Test
+    fun actionThenCancelDoesNotPersist() = runTest {
+        val settings = MemoryAppSettings()
+        val answers = ArrayDeque(listOf(AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, true), AppDialogResult.Cancel))
+        assertFalse(show(settings) { answers.removeFirst() })
+        assertEquals("", settings.getString(key, ""))
     }
 
     @Test

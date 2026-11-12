@@ -142,9 +142,15 @@ sealed interface AppDialogRequest {
     /**
      * The 6.0 stable release notice (`ReleaseNotice`): its content is drawn by the host from string
      * resources, so only the facts it depends on travel here. [sponsorAllowed] is false where the sponsor
-     * action must not be offered (iOS). Answered [AppDialogResult.ReleaseNoticeAnswer] (back/scrim: Cancel).
+     * action must not be offered (iOS). [dontShowAgain] is the checkbox's initial state: the notice is asked again
+     * after each action, and the box keeps what the user ticked. Answered [AppDialogResult.ReleaseNoticeAnswer].
      */
-    data class ReleaseNotice(val version: String, val sponsorAllowed: Boolean, val computerAllowed: Boolean = true) : AppDialogRequest {
+    data class ReleaseNotice(
+        val version: String,
+        val sponsorAllowed: Boolean,
+        val computerAllowed: Boolean = true,
+        val dontShowAgain: Boolean = false,
+    ) : AppDialogRequest {
         override val title: String? = null
     }
 
@@ -170,7 +176,10 @@ sealed interface AppDialogResult {
     data class Selected(val value: String) : AppDialogResult
     data class SelectedWithCheckbox(val value: String, val checked: Boolean) : AppDialogResult
     data class SelectedMany(val ids: List<String>) : AppDialogResult
-    /** The [AppDialogRequest.ReleaseNotice] answer: the chosen [action] (null = Close) and the checkbox state. */
+    /**
+     * The [AppDialogRequest.ReleaseNotice] answer: the chosen [action] (null = Close, back or scrim) and the checkbox
+     * state. An action does not end the notice: `ReleaseNotice` runs it and asks again.
+     */
     data class ReleaseNoticeAnswer(val action: ReleaseNoticeAction?, val dontShowAgain: Boolean) : AppDialogResult
 }
 

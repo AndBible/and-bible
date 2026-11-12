@@ -53,17 +53,28 @@ class AbReleaseNoticeCardTest {
 
     private val answers = mutableListOf<Pair<ReleaseNoticeAction?, Boolean>>()
 
-    private fun show(sponsorAllowed: Boolean = true, fontScale: Float = 1f, computerAllowed: Boolean = true) {
+    private fun show(
+        sponsorAllowed: Boolean = true, fontScale: Float = 1f, computerAllowed: Boolean = true, initialDontShowAgain: Boolean = false,
+    ) {
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                ProvideAppLocals { AbTheme { Card(sponsorAllowed, computerAllowed) } }
+                ProvideAppLocals { AbTheme { Card(sponsorAllowed, computerAllowed, initialDontShowAgain) } }
             }
         }
     }
 
-    @Composable private fun Card(sponsorAllowed: Boolean, computerAllowed: Boolean) =
-        AbReleaseNoticeCard("6.0", sponsorAllowed, null, computerAllowed = computerAllowed) { action, dontShowAgain -> answers += action to dontShowAgain }
+    @Composable private fun Card(sponsorAllowed: Boolean, computerAllowed: Boolean, initialDontShowAgain: Boolean) =
+        AbReleaseNoticeCard("6.0", sponsorAllowed, null, computerAllowed = computerAllowed, initialDontShowAgain = initialDontShowAgain) {
+            action, dontShowAgain -> answers += action to dontShowAgain
+        }
+
+    /** #4063: the card shown again after an action keeps the checkbox the user ticked before it. */
+    @Test fun reshownCardStartsWithCarriedCheckbox() {
+        show(initialDontShowAgain = true)
+        compose.onNodeWithText("Close").performClick()
+        assertEquals(listOf<Pair<ReleaseNoticeAction?, Boolean>>(null to true), answers)
+    }
 
     @Test fun closeWithoutCheckboxAnswersNullFalse() {
         show()
