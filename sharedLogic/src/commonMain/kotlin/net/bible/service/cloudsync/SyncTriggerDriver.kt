@@ -16,6 +16,7 @@
  */
 package net.bible.service.cloudsync
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
@@ -196,18 +197,22 @@ class SyncTriggerDriver(
     }
 
     /**
-     * [stop] that also cancels the running and queued passes and waits until the timer loop and those passes have
-     * actually finished; the driver stays usable ([onForeground] starts it again). Cancelling cannot interrupt a blocking
-     * read the timer has already started, so without the join that read can outlive the state it reads (a test's
-     * Application, a closed database). For a driver whose owner outlives the thing it reads, not for a driver being closed.
+     * Test teardown only (hence not [stop]): stops the timer, then cancels the running and queued passes and waits until
+     * the timer loop and those passes have actually finished; the driver stays usable ([onForeground] starts it again).
+     * Unlike [stop] it cancels a pass that is under way. Cancelling cannot interrupt a blocking read the timer has already
+     * started, so without the join that read can outlive the state it reads (a test's Application, a closed database).
+     * The timer is cancelled and joined first: its non-suspending trigger could otherwise still launch a pass after the
+     * passes were snapshotted.
      */
+    @VisibleForTesting
     suspend fun stopAndJoin() {
-        val jobs = synchronized(lock) {
-            val timerJob = timer
+        val timerJob = synchronized(lock) {
             foreground = false
-            timer = null
-            listOfNotNull(timerJob, running?.job, queued?.job)
+            timer.also { timer = null }
         }
+        timerJob?.cancel()
+        timerJob?.join()
+        val jobs = synchronized(lock) { listOfNotNull(running?.job, queued?.job) }
         jobs.forEach { it.cancel() }
         jobs.forEach { it.join() }
     }

@@ -199,6 +199,17 @@ open class TestBibleApplication : BibleApplication() {
         children.forEach { it.join() }
     }
 
+    /** The Koin [SyncTriggerDriver][net.bible.service.cloudsync.SyncTriggerDriver] if a test already created it; never creates it. */
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    private fun createdSyncTriggerDriver(): net.bible.service.cloudsync.SyncTriggerDriver? {
+        val type = net.bible.service.cloudsync.SyncTriggerDriver::class
+        val koin = GlobalContext.getOrNull() ?: return null
+        val factory = koin.instanceRegistry.instances.values.firstOrNull { it.beanDefinition.primaryType == type } ?: return null
+        val context = org.koin.core.instance.ResolutionContext(koin.logger, koin.scopeRegistry.rootScope, type)
+        if (!factory.isCreated(context)) return null
+        return factory.get(context) as net.bible.service.cloudsync.SyncTriggerDriver
+    }
+
     override fun onTerminate() {
         var failure: Throwable? = null
         fun cleanup(action: () -> Unit) {
@@ -301,7 +312,7 @@ open class TestBibleApplication : BibleApplication() {
         // it before CommonUtils.destroy() nulls the context it reads, else a read in flight dies with an NPE that the
         // next test's runTest reports as UncaughtExceptionsBeforeTest.
         cleanup {
-            val driver = GlobalContext.getOrNull()?.getOrNull<net.bible.service.cloudsync.SyncTriggerDriver>()
+            val driver = createdSyncTriggerDriver()
             if (driver != null) net.bible.test.DatabaseResetter.runResetBlocking { driver.stopAndJoin() }
         }
         cleanup { CommonUtils.destroy() }

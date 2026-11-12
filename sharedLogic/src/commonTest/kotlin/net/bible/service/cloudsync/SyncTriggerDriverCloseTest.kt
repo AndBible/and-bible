@@ -50,8 +50,8 @@ class SyncTriggerDriverCloseTest {
             nowMs = { 1L }, signedIn = { true }, signIn = { true },
             startSync = { error("no sync expected") },
         )
-        withContext(Dispatchers.Default) {
-            val driver = SyncTriggerDriver(policy, CoroutineScope(SupervisorJob() + Dispatchers.Default))
+        withContext(Dispatchers.IO) {
+            val driver = SyncTriggerDriver(policy, CoroutineScope(SupervisorJob() + Dispatchers.IO))
             driver.onForeground()
             entered.await()
             launch { delay(200); release.value = true }
