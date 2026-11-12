@@ -339,7 +339,14 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         isUpgradeInstallTimes(info.firstInstallTime, info.lastUpdateTime)
     }
 
-    internal fun isUpgradeInstall(): Boolean = upgradeInstallProvider()
+    /**
+     * An update, not a fresh install: the package times say so, or an earlier run left its marker. The times alone
+     * missed the beta -> stable update on a real device; the sync-targets notice marker
+     * (`new-sync-targets-notice-displayed`) is written on the first launch of every earlier version, and only
+     * after the release notice in [showFirstRunNotices], so a fresh install never has it at this point.
+     */
+    internal fun isUpgradeInstall(): Boolean =
+        upgradeInstallProvider() || preferences.getInt("new-sync-targets-notice-displayed", 0) > 0
 
     /**
      * The 6.0 release notice for upgraders, built and gated by the shared [ReleaseNotice] (the same source as
