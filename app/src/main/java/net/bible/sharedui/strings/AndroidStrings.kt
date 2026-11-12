@@ -1222,6 +1222,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun desktopUpdateAvailableMessage(available: String, current: String): String = context.getString(R.string.desktop_update_available_message, available, current)
     override val desktopUpdateDownload: String get() = context.getString(R.string.desktop_update_download)
     override val desktopUpdateLater: String get() = context.getString(R.string.desktop_update_later)
+    override val desktopUpdateDontNotify: String get() = context.getString(R.string.desktop_update_dont_notify)
+    override val desktopUpdateReenable: String get() = context.getString(R.string.desktop_update_reenable)
 
     // I2c-B
     override val customRepositoryHttpsRequired: String get() = context.getString(R.string.custom_repository_https_required)

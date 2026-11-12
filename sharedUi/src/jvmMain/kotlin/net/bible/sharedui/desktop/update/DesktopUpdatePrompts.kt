@@ -24,6 +24,7 @@ import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import net.bible.service.db.DatabaseContainer
 
 private const val RELEASES_URL = "https://api.github.com/repos/AndBible/and-bible/releases?per_page=30"
+private const val UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000L
 
 class DesktopUpdatePrompts(
     private val settings: DesktopDeviceSettings,
@@ -67,14 +68,21 @@ class DesktopUpdatePrompts(
         val result = dialogs.await(AppDialogRequest.Localized {
             val table = strings.current
             AppDialogRequest.Options(table.text("desktop_update_available_title"),
-                table.fmt("desktop_update_available_message", release.tag, version),
+                "${table.fmt("desktop_update_available_message", release.tag, version)}<br><br>${table.text("desktop_update_reenable")}",
                 listOf(SettingsItem.Choice("download", table.text("desktop_update_download")),
                     SettingsItem.Choice("later", table.text("desktop_update_later"))),
-                dismissText = null, asActionSheet = false, cancellable = false)
+                dismissText = null, asActionSheet = false, cancellable = false,
+                checkboxLabel = table.text("desktop_update_dont_notify"))
         })
-        when (result) {
-            AppDialogResult.Selected("download") -> { links.open(release.htmlUrl); true }
-            AppDialogResult.Selected("later") -> true
+        val choice = when (result) {
+            is AppDialogResult.Selected -> result.value to false
+            is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
+            else -> null
+        }
+        if (choice?.second == true) settings.putString(CONSENT_KEY, "no")
+        when (choice?.first) {
+            "download" -> { links.open(release.htmlUrl); true }
+            "later" -> false
             else -> false
         }
     })
@@ -82,7 +90,10 @@ class DesktopUpdatePrompts(
     init {
         updateScope.launch {
             while (!appReady()) delay(500)
-            checker.start()
+            while (true) {
+                checker.start()
+                delay(UPDATE_CHECK_INTERVAL_MS)
+            }
         }
     }
 

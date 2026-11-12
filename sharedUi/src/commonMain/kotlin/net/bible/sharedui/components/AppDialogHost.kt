@@ -76,7 +76,7 @@ fun AppDialogHost(
             val id = shown.id
             val request = (shown.request as? AppDialogRequest.Localized)?.resolve() ?: shown.request
             val isSheet = request is AppDialogRequest.SingleChoice || request is AppDialogRequest.MultiChoice ||
-                (request is AppDialogRequest.Options && request.asActionSheet)
+                (request is AppDialogRequest.Options && request.asActionSheet && request.checkboxLabel == null)
             if (isSheet) LaunchedEffect(id) { onSheetOpening() }
             val cancel = { onRespond(id, AppDialogResult.Cancel) }
             when (request) {
@@ -138,7 +138,7 @@ fun AppDialogHost(
                         onValueChange = { onDraftChange(id, it) },
                     )
                 }
-                is AppDialogRequest.Options -> if (request.asActionSheet) {
+                is AppDialogRequest.Options -> if (request.asActionSheet && request.checkboxLabel == null) {
                     key(id) {
                         // key(id): same reason as SingleChoice/MultiChoice above (I2).
                         // dismissText/cancellable (run 3 final-review fix wave, I2): both were
@@ -153,11 +153,15 @@ fun AppDialogHost(
                             }
                         }
                     }
-                } else {
+                } else key(id) {
                     AbOptionsDialog(
                         title = request.title, message = request.message, options = request.options,
                         onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismissRequest = cancel,
                         dismissText = request.dismissText, cancellable = request.cancellable,
+                        checkboxLabel = request.checkboxLabel,
+                        onSelectWithCheckbox = { value, checked ->
+                            onRespond(id, AppDialogResult.SelectedWithCheckbox(value, checked))
+                        },
                     )
                 }
                 is AppDialogRequest.Notice -> {

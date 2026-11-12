@@ -252,6 +252,51 @@ class AppDialogHostTest {
         compose.onNodeWithText("a\nbold").assertExists()
     }
 
+    @Test fun optionsCheckboxIsReturnedWithTheSelectedValue() {
+        show(ShownDialog(42, AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
+        )))
+        compose.onNodeWithText("Remember").performClick()
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(42L to AppDialogResult.SelectedWithCheckbox("a", true)), answers)
+    }
+
+    @Test fun optionsCheckboxStartsUnchecked() {
+        show(ShownDialog(43, AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
+        )))
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
+    }
+
+    @Test fun aNewOptionsDialogDoesNotInheritTheCheckedOptOut() {
+        val request = AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = null, asActionSheet = true, checkboxLabel = "Remember",
+        )
+        val current = mutableStateOf(ShownDialog(42, request))
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(
+                        shown = current.value, permission = null,
+                        onRespond = { id, result -> answers += id to result },
+                        onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {},
+                    )
+                }
+            }
+        }
+        compose.onNodeWithText("Remember").performClick()
+        compose.runOnIdle { current.value = ShownDialog(43, request) }
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
+    }
+
     @Test fun optionsDialogAnswersTheChosenValue() {
         show(
             ShownDialog(

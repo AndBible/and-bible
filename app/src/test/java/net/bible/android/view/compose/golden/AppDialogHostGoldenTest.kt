@@ -87,6 +87,19 @@ class AppDialogHostGoldenTest {
         ).invoke()
     }
 
+    @Test fun updateOfferWithCheckbox() = captureMatrix("AppDialogHost", "update_offer") {
+        host(
+            AppDialogRequest.Options(
+                title = "New version available",
+                message = "AndBible production-99999 is available. You have 6.0.1266.<br><br>" +
+                    "You can turn update checks back on in Settings → Check for updates.",
+                options = listOf(SettingsItem.Choice("download", "Download"), SettingsItem.Choice("later", "Later")),
+                dismissText = null, asActionSheet = false, cancellable = false,
+                checkboxLabel = "Don't notify me about updates",
+            ),
+        ).invoke()
+    }
+
     @Test fun progress() = captureMatrix("AppDialogHost", "progress") {
         progressHost(AppDialogRequest.Progress(title = null, message = "Please wait…")).invoke()
     }

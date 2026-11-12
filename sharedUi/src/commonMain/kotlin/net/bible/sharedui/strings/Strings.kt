@@ -1301,6 +1301,8 @@ interface Strings {
     fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
     val desktopUpdateDownload: String // R.string.desktop_update_download
     val desktopUpdateLater: String // R.string.desktop_update_later
+    val desktopUpdateDontNotify: String // R.string.desktop_update_dont_notify
+    val desktopUpdateReenable: String // R.string.desktop_update_reenable
 
     // I2c-B
     val customRepositoryHttpsRequired: String          // R.string.custom_repository_https_required
