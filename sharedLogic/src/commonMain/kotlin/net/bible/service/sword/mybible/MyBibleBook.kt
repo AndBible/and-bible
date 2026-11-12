@@ -214,29 +214,12 @@ class SqliteVerseBackendState(private val sqliteFile: Path, private val allowVer
         }
     }
 
-    /**
-     * MyBible stores native chapter/verse coordinates, but does not declare a SWORD versification.
-     * Match the observed chapter bounds to a known system so its existing reference mappings work
-     * too. Missing verses (often combined into the preceding verse) count as small discrepancies;
-     * missing books are ignored. Keep KJVA on ties, including empty or inconclusive modules.
-     */
-    private fun detectVersification(): Versification {
-        val chapters = rows(
-            "select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter"
-        ) { Triple(myBibleIntToBibleBook[it.getInt(0)], it.getInt(1), it.getInt(2)) }
-            .mapNotNull { (book, chapter, verse) -> book?.let { Triple(it, chapter, verse) } }
-        val lastChapters = chapters.groupBy { it.first }.mapValues { (_, rows) -> rows.maxOf { it.second } }
-        fun discrepancy(v11n: Versification): Long =
-            lastChapters.entries.sumOf { (book, chapter) -> kotlin.math.abs(v11n.getLastChapter(book) - chapter).toLong() } +
-                chapters.sumOf { (book, chapter, verse) -> kotlin.math.abs(v11n.getLastVerse(book, chapter) - verse).toLong() }
-
-        val registry = Versifications.instance()
-        // Prefer the historical default and German on equal scores, not registry HashSet order.
-        val candidates = listOf("KJVA", "German") + registry.iterator().asSequence().toList().sorted()
-        return candidates.distinct().mapNotNull { registry.getVersification(it) }
-            .filter { v11n -> lastChapters.keys.all { v11n.containsBook(it) } }
-            .minByOrNull { discrepancy(it) } ?: registry.getVersification("KJVA")!!
-    }
+    /** Picks the versification for the module's chapter bounds, see [detectMyBibleVersification]. */
+    private fun detectVersification(): Versification = detectMyBibleVersification(
+        rows("select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter") {
+            MyBibleChapterBound(it.getInt(0), it.getInt(1), it.getInt(2))
+        }
+    )
 
     override fun releaseResources() {
         close()
@@ -433,9 +416,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             ?.let { it.groups[2]?.value ?: it.groups[3]?.value ?: it.groups[4]?.value }
             ?: return anchor.value
         val link = bibleLinkRe.matchEntire(href) ?: return anchor.value
-        val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return anchor.value
+        val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
+        val book = link.groupValues[1].toIntOrNull()?.let { myBibleBook(it, v11n) } ?: return anchor.value
         val osisRef = try {
-            val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
             PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${link.groupValues[2]}").getOsisRef()
         } catch (_: NoSuchKeyException) {
             return anchor.value
