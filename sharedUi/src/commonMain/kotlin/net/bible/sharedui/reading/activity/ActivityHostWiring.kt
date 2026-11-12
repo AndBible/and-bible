@@ -126,7 +126,9 @@ internal fun ActivityHostImpl(
     LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
     val state = remember(enabled, items, unread, badge, onShowAll, onMenuOpened, syncState, wiring) {
-        if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened, syncState, wiring::open, badge) else null
+        if (enabled) ActivityMenuState(
+            items, unread, onShowAll, onMenuOpened, syncState, wiring::open, badge, wiring.center::dismissFinished,
+        ) else null
     }
     content(state)
     if (enabled && listVisible) {

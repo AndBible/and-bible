@@ -118,6 +118,18 @@ class ActivityCenterGoldenTest {
     }
 
     @Test
+    fun menu_section_dismissible_rows() = capture("menu_section_dismissible_rows") {
+        Column(Modifier.width(280.dp)) {
+            ActivityMenuSection(activity(listOf(
+                item("Download KJV", progress = 70),
+                item("Index ESV", ActivityState.FAILED, message = "Indexing failed, retry later"),
+                item("Document sync", ActivityState.INTERRUPTED, message = "Run sync again")
+                    .copy(kind = ActivityKind.DOCUMENT_SYNC, compactMessage = "Document sync interrupted"),
+            )))
+        }
+    }
+
+    @Test
     fun menu_syncNow() = capture("menu_syncNow") {
         Column(Modifier.width(280.dp)) {
             ActivityMenuSection(ActivityMenuState(
