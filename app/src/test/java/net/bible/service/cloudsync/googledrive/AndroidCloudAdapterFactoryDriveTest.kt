@@ -1,10 +1,11 @@
-package net.bible.android.platform
+package net.bible.service.cloudsync.googledrive
 
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.platform.AndroidCloudAdapterFactory
+import net.bible.android.platform.DriveImplementation
 import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
-import net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter
 import net.bible.service.common.CommonUtils
 import org.junit.Assert.assertTrue
 import org.junit.Test

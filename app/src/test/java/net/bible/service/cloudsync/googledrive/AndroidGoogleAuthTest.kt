@@ -4,6 +4,7 @@ import android.accounts.Account
 import android.app.Activity
 import android.content.Intent
 import android.os.Looper
+import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.UserRecoverableAuthException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -120,6 +121,32 @@ class AndroidGoogleAuthTest {
             auth.accessToken()
             fail("expected GoogleAuthRequiredException")
         } catch (_: GoogleAuthRequiredException) {
+        }
+    }
+
+    @Test fun otherAuthExceptionInBackgroundRequiresSignIn() = runBlocking {
+        storeAccount("stored")
+        val auth = AndroidGoogleAuth(tokenSource = { throw GoogleAuthException("account removed") }, clearToken = {})
+        try {
+            auth.accessToken()
+            fail("expected GoogleAuthRequiredException")
+        } catch (e: GoogleAuthRequiredException) {
+            // coroutine stack-trace recovery may re-wrap the cause, so check the message, not the cause chain
+            assertTrue(e.message!!.contains("account removed"))
+        }
+    }
+
+    @Test fun ioErrorInBackgroundPropagatesUnchanged() = runBlocking {
+        storeAccount("stored")
+        val io = IOException("offline")
+        val auth = AndroidGoogleAuth(tokenSource = { throw io }, clearToken = {})
+        try {
+            auth.accessToken()
+            fail("expected IOException")
+        } catch (e: IOException) {
+            // coroutine stack-trace recovery may copy the instance: check type and message, not identity
+            assertEquals(IOException::class.java, e.javaClass)
+            assertEquals("offline", e.message)
         }
     }
 

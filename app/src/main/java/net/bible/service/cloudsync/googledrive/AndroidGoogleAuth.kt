@@ -21,6 +21,7 @@ import android.accounts.Account
 import android.app.Activity
 import android.os.Parcel
 import android.util.Base64
+import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -174,6 +175,9 @@ class AndroidGoogleAuth(
                 tokenSource(current)
             } catch (e: UserRecoverableAuthException) {
                 throw GoogleAuthRequiredException("Google needs interactive consent", e)
+            } catch (e: GoogleAuthException) {
+                // Account removed, bad authentication, scope disabled: only a fresh sign-in can help.
+                throw GoogleAuthRequiredException("Google auth failed: ${e.message}", e)
             }
         }
     }
