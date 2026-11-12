@@ -33,6 +33,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.android.control.versification.wholeChapter
+import net.bible.service.common.titleName
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -146,7 +147,7 @@ class ToolbarStateServiceImpl(
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) wholeChapter(key, false).getName()
-        else key?.getName() ?: ""
+        return if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName
+        else key?.titleName ?: ""
     }
 }
