@@ -577,21 +577,3 @@ class LegacyMigrator(
         internal const val DONE_FILE = "done.json"
     }
 }
-
-/**
- * True when the `done.json` in the migration directory [dir] records a migration that carried data over from the old
- * native app, i.e. this install is an upgrade: the file exists and its `nothingToMigrate` is not `true` (a marker from an
- * earlier run without the flag counts as migrated). A missing or unreadable marker is false (a fresh install).
- */
-fun LegacyMigrator.Companion.migratedFromLegacyApp(fileSystem: FileSystem, dir: Path): Boolean {
-    val file = dir / LegacyMigrator.DONE_FILE
-    return try {
-        if (!fileSystem.exists(file)) return false
-        val marker = Json.parseToJsonElement(fileSystem.read(file) { readUtf8() }).jsonObject
-        (marker["nothingToMigrate"] as? JsonPrimitive)?.content != "true"
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        false
-    }
-}

@@ -332,7 +332,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     /**
      * The 6.0 release notice, built and gated by the shared [ReleaseNotice] (the same source as
      * iOS). Its action buttons open the what's-new video, the computer-version page, the sponsor page, or the
-     * same recommend flow as the menu. Returns true only when "don't show again" was stored.
+     * same recommend flow as the menu. Only the checked "don't show again" persists dismissal for this main version.
      */
     internal suspend fun showStableNotice(): Boolean {
         return ReleaseNotice.showIfNeeded(

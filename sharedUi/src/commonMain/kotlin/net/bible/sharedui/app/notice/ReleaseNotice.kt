@@ -32,14 +32,14 @@ enum class ReleaseNoticePlatform { ANDROID, IOS, DESKTOP }
  * [showIfNeeded]'s `ask` (dialog) and `onAction` (what each button does).
  *
  * The checkbox remembers a main version (e.g. "6.0") under [DISPLAYED_KEY]: patches stay quiet, the next minor
- * shows again. Showing Welcome silently marks that version instead. Beta and discrete builds never read or write it.
+ * shows again. Completing Welcome silently marks that version instead. Beta and discrete builds never read or write it.
  */
 @kotlin.native.HiddenFromObjC
 object ReleaseNotice {
     /** The settings key holding the main version whose notice was last seen (the name is the old Android key). */
     const val DISPLAYED_KEY = "stable-notice-displayed"
 
-    /** Welcome owns onboarding, so its users do not need the release notice, even after a later patch. */
+    /** Call on successful Welcome completion, before reading can check notices; showing Welcome alone is not enough. */
     fun dismissForWelcome(isBeta: Boolean, discrete: Boolean, mainVersion: String, settings: AppSettings) {
         if (!isBeta && !discrete) settings.setString(DISPLAYED_KEY, mainVersion)
     }

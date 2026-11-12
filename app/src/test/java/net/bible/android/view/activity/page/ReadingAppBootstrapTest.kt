@@ -111,6 +111,14 @@ class ReadingAppBootstrapTest {
      */
     @get:Rule val dialogReset = AppDialogControllerResetRule()
 
+    private var savedFirstTime = false
+
+    @org.junit.Before
+    fun saveFirstTime() { savedFirstTime = firstTime }
+
+    @org.junit.After
+    fun restoreFirstTime() { firstTime = savedFirstTime }
+
     /**
      * Every non-test Kotlin source directory of `:app`, plus the `:sharedLogic` commonMain root. `src/main/java` alone would miss
      * `src/debug/java` (`DebugApp.kt`) and any future flavour source set — a construction there is
@@ -218,13 +226,13 @@ class ReadingAppBootstrapTest {
     @Test
     fun theReadingBootstrapIsReachedFromAllThreeReadingEntryPoints() {
         val lines = codeLinesOf(navHostActivity)
-        val callLines = lines.withIndex().filter { (_, l) -> l.contains("bootstrapIfNeeded()") && !l.contains("fun ") }
+        val callLines = lines.withIndex().filter { (_, l) -> Regex("""\bbootstrapIfNeeded\s*(\(|\{)""").containsMatchIn(l) && !l.contains("fun ") }
         assertEquals(
             "exactly three call sites expected — onCreate's start-route gate, onNewIntent's and " +
                 "welcomeAfterFlow's (gate (b)); found: " + callLines.map { it.value.trim() },
             3, callLines.size,
         )
-        val decl = lines.indexOfFirst { it.contains("private fun bootstrapIfNeeded()") }
+        val decl = lines.indexOfFirst { it.contains("private fun bootstrapIfNeeded(") }
         assertTrue("bootstrapIfNeeded() is not declared in NavHostComposeActivity", decl >= 0)
         val onNewIntent = lines.indexOfFirst { it.contains("override fun onNewIntent(") }
         val onCreate = lines.indexOfFirst { it.contains("override fun onCreate(") }
@@ -258,7 +266,7 @@ class ReadingAppBootstrapTest {
     @Test
     fun theReadingBootstrapIsAOneShot() {
         val body = codeLinesOf(navHostActivity)
-            .dropWhile { !it.contains("private fun bootstrapIfNeeded()") }
+            .dropWhile { !it.contains("private fun bootstrapIfNeeded(") }
             .drop(1)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
@@ -266,11 +274,14 @@ class ReadingAppBootstrapTest {
             "bootstrapIfNeeded()'s FIRST statement must be the early return — registerNetworkCallback " +
                 "registers one callback object per bootstrap against the ONE unregister onDestroy " +
                 "makes (T8a item 4), so a second run leaves a registration behind",
-            "if (readingAppBootstrapped) return", body[0],
+            "if (readingAppBootstrapped) {", body[0],
         )
+        assertEquals("the callback must also run for an already bootstrapped host", "beforeNotices()", body[1])
+        assertEquals("the already bootstrapped path must return", "return", body[2])
+        assertEquals("}", body[3])
         assertEquals(
             "…and the flag must be set immediately after it, before anything that can throw",
-            "readingAppBootstrapped = true", body[1],
+            "readingAppBootstrapped = true", body[4],
         )
     }
 
@@ -303,13 +314,13 @@ class ReadingAppBootstrapTest {
         val end = lines.indexOfFirst { it.trim().startsWith("override val hostContext:") }
         assertTrue("the bootstrap body boundary must survive the comment filter", end >= 0)
         val body = lines.take(end)
-            .dropWhile { !it.contains("private fun bootstrapIfNeeded()") }
+            .dropWhile { !it.contains("private fun bootstrapIfNeeded(") }
         val visible = body.indexOfFirst { it.contains("ReadingViewVisibility.setActivityVisible(this, true)") }
         val presence = body.indexOfFirst { it.contains("ReadingHostPresence.setForeground(this)") }
         val dispatch = body.indexOfFirst { it.trim() == "applyBootstrapUiIfForeground()" }
         val helper = codeLinesOf(navHostActivity)
             .dropWhile { !it.contains("private fun applyBootstrapUiIfForeground()") }
-            .takeWhile { !it.contains("private fun bootstrapIfNeeded()") }
+            .takeWhile { !it.contains("private fun bootstrapIfNeeded(") }
         val deepLink = helper.indexOfFirst { it.contains("readingAppBootstrap.openDeepLink(") }
         val guard = helper.indexOfFirst {
             it.trim() == "if (!readingAppBootstrapped || paused || !ReadingHostPresence.isForeground(this)) return"
@@ -687,85 +698,155 @@ class ReadingAppBootstrapTest {
         }
     }
 
+    private fun welcomeHost(usable: Boolean = true): org.robolectric.android.controller.ActivityController<NavHostComposeActivity> {
+        net.bible.test.resetComposeUiDispatcher()
+        firstTime = false
+        return Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
+        ).also { it.get().usableBibleGate = { usable } }
+    }
+
+    private fun composeWelcome(controller: org.robolectric.android.controller.ActivityController<NavHostComposeActivity>): NavHostComposeActivity {
+        val activity = controller.create().start().resume().visible().get()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.WELCOME)
+        net.bible.test.awaitHostUntil("Welcome controller must be composed") {
+            activity.welcomeFlow.controllerIfCreated != null
+        }
+        return activity
+    }
+
+    private fun clearNoticeMarkers() {
+        CommonUtils.settings.removeString("stable-notice-displayed")
+        CommonUtils.settings.removeString("stable-notice-beta-ran")
+        CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
+    }
+
     @Test
-    fun welcomeSilentlyMarksStableNoticeBeforeReading() = runTest(timeout = 30.seconds) {
+    fun abandonedWelcomeDoesNotSuppressLaterStableNotice() = runTest(timeout = 30.seconds) {
         withNonBetaBuild {
-            CommonUtils.settings.removeString("stable-notice-displayed")
-            val controller = navHostOnReading()
+            clearNoticeMarkers()
+            val welcome = welcomeHost()
             try {
-                val activity = controller.create().get()
-                val databaseHost = net.bible.service.db.DatabaseContainer.host
-                val productionHost = object : net.bible.service.db.DatabaseHost by databaseHost {
-                    override val isRunningTests = false
-                }
-                try {
-                    net.bible.service.db.DatabaseContainer.installHost(productionHost)
-                    net.bible.service.db.DatabaseContainer.ready = false
-                    net.bible.android.view.activity.WelcomeFlow(activity).controller
-                    assertTrue("Welcome must open settings before marking the release notice", net.bible.service.db.DatabaseContainer.ready)
-                } finally {
-                    net.bible.service.db.DatabaseContainer.installHost(databaseHost)
-                    net.bible.service.db.DatabaseContainer.ready = true
-                }
-                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
-                assertFalse(activity.readingAppBootstrap.showStableNotice())
-                assertNull(appDialogs.pending.value)
+                composeWelcome(welcome)
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            } catch (failure: Throwable) {
+                clearNoticeMarkers()
+                throw failure
             } finally {
-                controller.close()
-                CommonUtils.settings.removeString("stable-notice-displayed")
+                welcome.close()
+            }
+            val reading = navHostOnReading()
+            try {
+                val activity = reading.create().get()
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                val notice = async { activity.readingAppBootstrap.showStableNotice() }
+                advanceUntilIdle()
+                assertTrue(appDialogs.pending.value?.request is AppDialogRequest.ReleaseNotice)
+                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
+                advanceUntilIdle()
+                assertFalse(notice.await())
+            } finally {
+                reading.close()
+                clearNoticeMarkers()
             }
         }
     }
 
     @Test
-    fun betaWelcomeDoesNotStoreStableOrBetaMarker() = runTest(timeout = 30.seconds) {
-        CommonUtils.settings.removeString("stable-notice-displayed")
-        CommonUtils.settings.removeString("stable-notice-beta-ran")
-        val controller = navHostOnReading()
+    fun completedWelcomeSuppressesStableNoticeForCurrentAndLaterReading() = runTest(timeout = 30.seconds) {
+        withNonBetaBuild {
+            clearNoticeMarkers()
+            val previousInitialized = ReadingAppBootstrap.initialized
+            ReadingAppBootstrap.initialized = false
+            val welcome = welcomeHost()
+            try {
+                val activity = composeWelcome(welcome)
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                // Download performs a network refresh; use the same real leave/return path with a light destination.
+                activity.welcomeFlow.leaveFor(NavRoutes.AI_TOOL_INFO)
+                net.bible.test.awaitHostRoute(activity, NavRoutes.AI_TOOL_INFO)
+                val navField = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
+                val nav = navField.get(activity) as androidx.navigation.NavHostController
+                assertTrue(nav.popBackStack())
+                net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
+                net.bible.test.awaitHostUntil("the same-launch startup notice chain must finish") {
+                    ReadingAppBootstrap.initialized
+                }
+                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertFalse(activity.readingAppBootstrap.showStableNotice())
+                assertNull(appDialogs.pending.value)
+            } catch (failure: Throwable) {
+                clearNoticeMarkers()
+                throw failure
+            } finally {
+                welcome.close()
+                ReadingAppBootstrap.initialized = previousInitialized
+            }
+            val later = navHostOnReading()
+            try {
+                val activity = later.create().get()
+                assertFalse(activity.readingAppBootstrap.showStableNotice())
+                assertNull(appDialogs.pending.value)
+            } finally {
+                later.close()
+                clearNoticeMarkers()
+            }
+        }
+    }
+
+    @Test
+    fun welcomeWithoutUsableBibleDoesNotMarkOrEnterReading() = runTest(timeout = 30.seconds) {
+        withNonBetaBuild {
+            clearNoticeMarkers()
+            val controller = welcomeHost(usable = false)
+            try {
+                val activity = composeWelcome(controller)
+                val completion = activity.welcomeAfterFlow()
+                net.bible.test.awaitHostUntil("Welcome completion must finish") { completion.isCompleted }
+                assertEquals(NavRoutes.WELCOME, activity.currentRouteForTest())
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
+            } finally {
+                controller.close()
+                clearNoticeMarkers()
+            }
+        }
+    }
+
+    @Test
+    fun betaWelcomeCompletionDoesNotStoreNoticeMarkers() = runTest(timeout = 30.seconds) {
+        assertTrue(CommonUtils.isBeta)
+        clearNoticeMarkers()
+        val controller = welcomeHost()
         try {
-            controller.create().get().welcomeFlow.controller
+            val activity = composeWelcome(controller)
+            activity.welcomeAfterFlow()
+            net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
             assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
             assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
         } finally {
             controller.close()
-            CommonUtils.settings.removeString("stable-notice-displayed")
-            CommonUtils.settings.removeString("stable-notice-beta-ran")
+            clearNoticeMarkers()
         }
     }
 
     @Test
-    fun discreteWelcomeDoesNotStoreNoticeVersion() = runTest(timeout = 30.seconds) {
+    fun discreteWelcomeCompletionDoesNotStoreNoticeMarkers() = runTest(timeout = 30.seconds) {
         withNonBetaBuild {
-            CommonUtils.settings.removeString("stable-notice-displayed")
+            clearNoticeMarkers()
             CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
-            val controller = navHostOnReading()
+            val controller = welcomeHost()
             try {
-                controller.create().get().welcomeFlow.controller
+                val activity = composeWelcome(controller)
+                activity.welcomeAfterFlow()
+                net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
                 assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
             } finally {
                 controller.close()
                 CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
-                CommonUtils.settings.removeString("stable-notice-displayed")
-            }
-        }
-    }
-
-    @Test
-    fun oldBetaMarkerDoesNotOverrideWelcomeDismissal() = runTest(timeout = 30.seconds) {
-        withNonBetaBuild {
-            CommonUtils.settings.setString("stable-notice-beta-ran", CommonUtils.mainVersion)
-            CommonUtils.settings.removeString("stable-notice-displayed")
-            val controller = navHostOnReading()
-            try {
-                val activity = controller.create().get()
-                activity.welcomeFlow.controller
-                assertFalse(activity.readingAppBootstrap.showStableNotice())
-                assertNull(appDialogs.pending.value)
-                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
-            } finally {
-                controller.close()
-                CommonUtils.settings.removeString("stable-notice-displayed")
-                CommonUtils.settings.removeString("stable-notice-beta-ran")
+                clearNoticeMarkers()
             }
         }
     }

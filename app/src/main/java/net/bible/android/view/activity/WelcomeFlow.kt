@@ -29,7 +29,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import java.util.Locale
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.restorePickedBackup
@@ -62,7 +64,8 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
                     "$zip, ${host.getString(R.string.format_mybible)}, ${host.getString(R.string.format_mysword)}, ${host.getString(R.string.format_epub)}")
             },
             language = { Locale.getDefault().language }, isDiscrete = { CommonUtils.isDiscrete },
-            knownInstalled = { docsDao.getKnownInstalled() }, megabytesFree = { CommonUtils.megabytesFree },
+            knownInstalled = { withContext(Dispatchers.IO) { docsDao.getKnownInstalled() } },
+            megabytesFree = { CommonUtils.megabytesFree },
             refuseDownload = { Dialogs.showErrorMsg(host.getString(R.string.storage_space_warning)) { host.finish() } },
             initialise = { host.initialiseLeavingWelcome() },
             ensureSyncLoaded = {
@@ -76,13 +79,6 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
     suspend fun previousInstallDetected(): Boolean = core.previousInstallDetected()
     suspend fun refreshInfo() = core.refreshInfo()
     private val controllerLazy = lazy {
-        if (!CommonUtils.isBeta && !CommonUtils.isDiscrete) {
-            // A process restored onto Welcome may not have passed StartupActivity's database open.
-            DatabaseContainer.openForUse()
-            net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
-                CommonUtils.isBeta, CommonUtils.isDiscrete, CommonUtils.mainVersion, CommonUtils.settings,
-            )
-        }
         core.controller.also {
             host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { refreshInfo() }
         }

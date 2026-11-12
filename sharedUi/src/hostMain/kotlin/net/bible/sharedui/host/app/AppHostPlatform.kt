@@ -54,7 +54,7 @@ interface AppHostPlatform {
 
     /**
      * Whose wording the 6.0 release notice uses (`ReleaseNotice`); null shows none. Shown once reading is
-     * displayed, unless Welcome or the user's checkbox has already dismissed this main version.
+     * displayed, unless completing Welcome or the user's checkbox has already dismissed this main version.
      */
     val releaseNoticePlatform: net.bible.sharedui.app.notice.ReleaseNoticePlatform? get() = null
 

@@ -147,8 +147,10 @@ On stable builds, a release card introduces the new features and platforms. Clos
 including later 6.0 patches). Without that checkbox, it appears again on the next launch;
 a new main version, such as 6.1, can show it again.
 
-If the first-run welcome screen is shown, the release card is silently dismissed for that
-main version instead. Discrete mode does not show or remember the card.
+After you complete the welcome flow by downloading, importing or restoring a Bible and enter
+reading, the release card is silently dismissed for that main version instead. Simply opening
+or leaving the welcome screen without completing it does not dismiss the card.
+Discrete mode does not show or remember the card.
 On desktop, the card omits the link to the computer version. The sponsor link is available
 on Android and desktop, but not iOS.
 
