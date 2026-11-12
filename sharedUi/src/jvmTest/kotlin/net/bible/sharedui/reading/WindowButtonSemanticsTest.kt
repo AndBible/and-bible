@@ -10,6 +10,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,6 +47,40 @@ class WindowButtonSemanticsTest {
         tab.performSemanticsAction(SemanticsActions.OnLongClick)
         assertEquals(1, clicks)
         assertEquals(1, longPresses)
+    }
+
+    @Test
+    fun secondaryClickOpensContextMenuWithoutClicking() = runComposeUiTest {
+        var clicks = 0
+        var longPresses = 0
+        setContent {
+            AbTheme {
+                WindowButton(
+                    label = "KJV", isActive = true, isMinimised = false, isPinned = false, isLinks = false, syncGroup = 0,
+                    mode = WindowButtonMode.Rail, onClick = { clicks++ }, onLongPress = { longPresses++ },
+                )
+            }
+        }
+        onNodeWithText("KJV").performMouseInput { click(button = MouseButton.Secondary) }
+        assertEquals(0, clicks)
+        assertEquals(1, longPresses)
+    }
+
+    @Test
+    fun secondaryClickOnPaneOpensMenuRatherThanDismissingWindow() = runComposeUiTest {
+        var menus = 0
+        var dismissals = 0
+        setContent {
+            AbTheme {
+                WindowButton(
+                    label = "Menu", isActive = true, isMinimised = false, isPinned = false, isLinks = false, syncGroup = 0,
+                    mode = WindowButtonMode.Pane, onClick = { menus++ }, onLongPress = { dismissals++ },
+                )
+            }
+        }
+        onNodeWithText("Menu").performMouseInput { click(button = MouseButton.Secondary) }
+        assertEquals(1, menus)
+        assertEquals(0, dismissals)
     }
 
     @Test
