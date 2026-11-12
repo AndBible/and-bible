@@ -368,9 +368,12 @@ class GoogleDriveCloudAdapter: CloudAdapter {
     }
 
     override suspend fun signOut() {
-        oneTapClient.signOut().await()
+        // Forget the account first: Play services may fail or never answer (osTicket 3515), and the stored account
+        // would otherwise sign the next sync straight back in.
         lastAccount = null
         account = null
+        _service = null
+        oneTapClient.signOut().await()
     }
 }
 
