@@ -32,21 +32,25 @@ enum class ReleaseNoticePlatform { ANDROID, IOS }
  * [showIfNeeded]'s `ask` (dialog) and `onAction` (what each button does).
  *
  * The notice is remembered per main version (e.g. "6.0") under [DISPLAYED_KEY]: a patch update does not show it
- * again, the next minor does. A fresh install never sees it.
+ * again, the next minor does. A fresh stable install does not see it, but an earlier beta run counts as an upgrade.
  */
 @kotlin.native.HiddenFromObjC
 object ReleaseNotice {
     /** The settings key holding the main version whose notice was last seen (the name is the old Android key). */
     const val DISPLAYED_KEY = "stable-notice-displayed"
 
+    /** The main version last run as a non-discrete beta. */
+    const val BETA_RAN_KEY = "stable-notice-beta-ran"
+
     /** Whether to ask: a stable, non-discrete build, an upgrade, and [mainVersion] not yet marked [displayed]. */
     fun shouldShow(isBeta: Boolean, discrete: Boolean, isUpgrade: Boolean, mainVersion: String, displayed: String): Boolean =
         !isBeta && !discrete && isUpgrade && displayed != mainVersion
 
     /**
-     * Shows the notice through [ask] when needed. A fresh install (not [isUpgrade], nothing stored) silently stores
-     * [mainVersion], also in beta and discrete builds (which never ask), so a later patch update stays quiet. Returns true only when the user's "don't show again" stored it.
-     * A chosen action runs through [onAction] after the dialog has closed.
+     * A non-discrete beta records [mainVersion] separately without touching [DISPLAYED_KEY]. A stable run of that
+     * version is treated as an upgrade, even if [isUpgrade] is false. Other fresh installs silently store the version,
+     * including discrete installs, so later patches stay quiet. Discrete builds never show the notice.
+     * Returns true only when the user's "don't show again" stored it. A chosen action runs after the dialog closes.
      */
     suspend fun showIfNeeded(
         platform: ReleaseNoticePlatform,
@@ -58,13 +62,17 @@ object ReleaseNotice {
         ask: suspend (AppDialogRequest) -> AppDialogResult,
         onAction: suspend (ReleaseNoticeAction) -> Unit,
     ): Boolean {
+        if (isBeta) {
+            if (!discrete) settings.setString(BETA_RAN_KEY, mainVersion)
+            return false
+        }
         val displayed = settings.getString(DISPLAYED_KEY, "") ?: ""
-        if (!isUpgrade && displayed.isEmpty()) {
+        val effectiveUpgrade = isUpgrade || settings.getString(BETA_RAN_KEY, "") == mainVersion
+        if (!effectiveUpgrade && displayed.isEmpty()) {
             settings.setString(DISPLAYED_KEY, mainVersion)
             return false
         }
-        if (isBeta || discrete) return false
-        if (!shouldShow(isBeta, discrete, isUpgrade, mainVersion, displayed)) return false
+        if (!shouldShow(isBeta, discrete, effectiveUpgrade, mainVersion, displayed)) return false
         val answer = ask(AppDialogRequest.ReleaseNotice(mainVersion, sponsorAllowed = platform == ReleaseNoticePlatform.ANDROID))
             as? AppDialogResult.ReleaseNoticeAnswer ?: return false
         val stored = answer.dontShowAgain

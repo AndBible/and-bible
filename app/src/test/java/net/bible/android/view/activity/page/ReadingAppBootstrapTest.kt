@@ -633,6 +633,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun showStableNoticeSkipsWithNoDialogWhenBeta() = runTest(timeout = 30.seconds) {
+        CommonUtils.settings.removeString("stable-notice-beta-ran")
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
         val controller = navHostOnReading()
         try {
@@ -641,6 +642,7 @@ class ReadingAppBootstrapTest {
             assertNull(appDialogs.pending.value)
         } finally {
             controller.close()
+            CommonUtils.settings.removeString("stable-notice-beta-ran")
         }
     }
 
@@ -668,6 +670,7 @@ class ReadingAppBootstrapTest {
     ) {
         withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
+            CommonUtils.settings.removeString("stable-notice-beta-ran")
             if (earlierRunMarker) CommonUtils.settings.setInt("new-sync-targets-notice-displayed", 1)
             if (discretePref) CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
             val controller = navHostOnReading()
@@ -713,6 +716,39 @@ class ReadingAppBootstrapTest {
                 "a fresh install marks the version silently",
                 CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""),
             )
+        }
+    }
+
+    @Test
+    fun betaRunMarkerMakesFreshLookingStableInstallAnUpgrade() = runTest(timeout = 30.seconds) {
+        val betaRanKey = "stable-notice-beta-ran"
+        CommonUtils.settings.removeString("stable-notice-displayed")
+        CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
+        CommonUtils.settings.removeString(betaRanKey)
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            activity.readingAppBootstrap.upgradeInstallProvider = { false }
+            assertFalse(activity.readingAppBootstrap.showStableNotice())
+            assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString(betaRanKey, ""))
+
+            withNonBetaBuild {
+                activity.readingAppBootstrap.upgradeInstallProvider = { false }
+                val stableNotice = async { activity.readingAppBootstrap.showStableNotice() }
+                advanceUntilIdle()
+                assertTrue(appDialogs.pending.value!!.request is AppDialogRequest.ReleaseNotice)
+                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, false))
+                advanceUntilIdle()
+                assertFalse(stableNotice.await())
+            }
+        } finally {
+            controller.close()
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
+            CommonUtils.settings.removeString(betaRanKey)
         }
     }
 
@@ -782,15 +818,20 @@ class ReadingAppBootstrapTest {
     @Test
     fun showBetaNoticeIsSkippedWhenDiscrete() = runTest(timeout = 30.seconds) {
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        val betaRanKey = "stable-notice-beta-ran"
+        CommonUtils.settings.removeString(betaRanKey)
         CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
         val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
             assertFalse(activity.readingAppBootstrap.showBetaNotice())
+            assertFalse(activity.readingAppBootstrap.showStableNotice())
             assertNull(appDialogs.pending.value)
+            assertEquals("", CommonUtils.settings.getString(betaRanKey, ""))
         } finally {
             controller.close()
             CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
+            CommonUtils.settings.removeString(betaRanKey)
         }
     }
 
