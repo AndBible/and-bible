@@ -19,13 +19,17 @@ package net.bible.android.view.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
 import androidx.test.espresso.Espresso
 import net.bible.android.TEST_SDK
@@ -130,7 +134,10 @@ class AbReleaseNoticeCardTest {
         val cue = compose.onNodeWithTag("release-notice-scroll-cue")
         cue.assertIsDisplayed()
         compose.onNodeWithText("Visit andbible.org").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("AndBible is free and has no ads").performScrollTo()
+        compose.onNode(hasScrollAction()).performSemanticsAction(SemanticsActions.ScrollBy) {
+            it(0f, Float.MAX_VALUE)
+        }
+        compose.waitForIdle()
         cue.assertDoesNotExist()
         compose.onNodeWithText("Close").assertIsDisplayed()
         compose.onNodeWithText("Don't show again").assertIsDisplayed()

@@ -163,71 +163,71 @@ fun AbReleaseNoticeCard(
                             .padding(start = 16.dp, end = 16.dp, top = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                    if (logoPainter != null) {
-                        Image(
-                            logoPainter, contentDescription = null, modifier = Modifier.size(52.dp),
-                            colorFilter = if (mono) ColorFilter.tint(palette.ink) else null,
-                        )
-                    }
-                    Text(
-                        strings.releaseNoticeKicker(version).uppercase(),
-                        color = palette.accentInk, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                    Text(
-                        buildAnnotatedString {
-                            append(strings.releaseNoticeHeadlineStart)
-                            append(" ")
-                            withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = palette.accentInk)) {
-                                append(strings.releaseNoticeHeadlineAccent)
-                            }
-                        },
-                        color = palette.ink, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 24.sp,
-                        lineHeight = 28.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
-                    )
-                    FlowRow(
-                        modifier = Modifier.padding(top = 10.dp, bottom = 14.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        listOf("Android", strings.releaseNoticePlatformIphoneIpad, "Windows", "Mac", "Linux").forEach {
-                            PlatformChip(it, palette)
-                        }
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ActionRow(
-                            Icons.Filled.PlayArrow, strings.releaseNoticeVideoTitle(version), strings.releaseNoticeVideoSubtitle,
-                            palette, highlighted = true,
-                        ) { onAnswer(ReleaseNoticeAction.VIDEO, dontShowAgain) }
-                        ActionRow(
-                            Icons.Filled.Computer, strings.releaseNoticeComputerTitle, strings.releaseNoticeComputerSubtitle, palette,
-                        ) { onAnswer(ReleaseNoticeAction.COMPUTER, dontShowAgain) }
-                        ActionRow(
-                            Icons.Filled.Share, strings.releaseNoticeShareTitle, strings.releaseNoticeShareSubtitle, palette,
-                        ) { onAnswer(ReleaseNoticeAction.SHARE, dontShowAgain) }
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.clip(CircleShape).border(1.dp, if (mono) palette.ink else palette.accent, CircleShape)
-                            .clickable(role = Role.Button) {
-                                onAnswer(if (sponsorAllowed) ReleaseNoticeAction.SPONSOR else ReleaseNoticeAction.WEBSITE, dontShowAgain)
-                            }
-                            .heightIn(min = 48.dp).padding(horizontal = 18.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        if (sponsorAllowed) {
-                            Icon(Icons.Filled.Favorite, contentDescription = null, tint = palette.accentInk, modifier = Modifier.size(16.dp))
+                        if (logoPainter != null) {
+                            Image(
+                                logoPainter, contentDescription = null, modifier = Modifier.size(52.dp),
+                                colorFilter = if (mono) ColorFilter.tint(palette.ink) else null,
+                            )
                         }
                         Text(
-                            if (sponsorAllowed) strings.releaseNoticeSponsor else strings.releaseNoticeWebsite,
-                            color = palette.accentInk, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                            strings.releaseNoticeKicker(version).uppercase(),
+                            color = palette.accentInk, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp,
+                            modifier = Modifier.padding(top = 8.dp),
                         )
-                    }
-                    Text(
-                        strings.releaseNoticeFreeNoAds, color = palette.muted, fontSize = 12.sp, textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
-                    )
+                        Text(
+                            buildAnnotatedString {
+                                append(strings.releaseNoticeHeadlineStart)
+                                append(" ")
+                                withStyle(SpanStyle(fontStyle = FontStyle.Italic, color = palette.accentInk)) {
+                                    append(strings.releaseNoticeHeadlineAccent)
+                                }
+                            },
+                            color = palette.ink, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 24.sp,
+                            lineHeight = 28.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
+                        )
+                        FlowRow(
+                            modifier = Modifier.padding(top = 10.dp, bottom = 14.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            listOf("Android", strings.releaseNoticePlatformIphoneIpad, "Windows", "Mac", "Linux").forEach {
+                                PlatformChip(it, palette)
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ActionRow(
+                                Icons.Filled.PlayArrow, strings.releaseNoticeVideoTitle(version), strings.releaseNoticeVideoSubtitle,
+                                palette, highlighted = true,
+                            ) { onAnswer(ReleaseNoticeAction.VIDEO, dontShowAgain) }
+                            ActionRow(
+                                Icons.Filled.Computer, strings.releaseNoticeComputerTitle, strings.releaseNoticeComputerSubtitle, palette,
+                            ) { onAnswer(ReleaseNoticeAction.COMPUTER, dontShowAgain) }
+                            ActionRow(
+                                Icons.Filled.Share, strings.releaseNoticeShareTitle, strings.releaseNoticeShareSubtitle, palette,
+                            ) { onAnswer(ReleaseNoticeAction.SHARE, dontShowAgain) }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.clip(CircleShape).border(1.dp, if (mono) palette.ink else palette.accent, CircleShape)
+                                .clickable(role = Role.Button) {
+                                    onAnswer(if (sponsorAllowed) ReleaseNoticeAction.SPONSOR else ReleaseNoticeAction.WEBSITE, dontShowAgain)
+                                }
+                                .heightIn(min = 48.dp).padding(horizontal = 18.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            if (sponsorAllowed) {
+                                Icon(Icons.Filled.Favorite, contentDescription = null, tint = palette.accentInk, modifier = Modifier.size(16.dp))
+                            }
+                            Text(
+                                if (sponsorAllowed) strings.releaseNoticeSponsor else strings.releaseNoticeWebsite,
+                                color = palette.accentInk, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                            )
+                        }
+                        Text(
+                            strings.releaseNoticeFreeNoAds, color = palette.muted, fontSize = 12.sp, textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                        )
                     }
                     if (scrollState.maxValue != Int.MAX_VALUE && scrollState.canScrollForward) {
                         val edgeColor = when {
