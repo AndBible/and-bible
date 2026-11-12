@@ -51,7 +51,7 @@ object IosReadingHostPlatform : ReadingHostPlatform {
 
     override fun fullScreenHint(strings: net.bible.sharedui.strings.Strings): String = strings.iosFullscreenHint
 
-    override fun showFullScreenHint(message: String) = net.bible.sharedui.components.AppToasts.show(message)
+    override fun showFullScreenHint(message: String) = net.bible.sharedui.components.AppToasts.showOwned(message)
 
     override fun isPortrait(): Boolean = iosIsPortrait()
 

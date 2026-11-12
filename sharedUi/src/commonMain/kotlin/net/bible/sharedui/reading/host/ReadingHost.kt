@@ -303,7 +303,10 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     // separately as `autoHidden` and must NOT be folded back in here. (The per-window MENU can still
     // open via the rail's unmaximise-button long-press; `PaneWindowButtonOverlay` composes
     // `WindowPaneMenu` unconditionally.)
-    val showPaneButtons = paneButtonsShown(settings = state.settings, maximised = layout.maximizedWindowId != null)
+    // iOS/desktop reserve the top-right corner for the fullscreen exit control. Android has no
+    // such control, so its floating pane buttons keep their existing fullscreen behaviour.
+    val showPaneButtons = paneButtonsShown(settings = state.settings, maximised = layout.maximizedWindowId != null) &&
+        !(fullScreen && deps.onExitFullScreen != null)
     val paneButtonsAutoHidden = !windowButtonsVisible
     // Classic `SplitBibleArea`'s fullscreen auto-hide (`full_screen_hide_buttons_pref`, default ON,
     // `SplitBibleArea.kt:166-171`/365-366): in fullscreen with the pref on, drop the rail entirely

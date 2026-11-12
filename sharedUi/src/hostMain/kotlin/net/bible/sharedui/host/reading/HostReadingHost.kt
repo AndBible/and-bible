@@ -195,6 +195,7 @@ class HostReadingHost(
      * composition is). Always change it through [setFullScreen] so the status bar follows.
      */
     internal val fullScreen = ReadingFullScreen()
+    private var fullScreenHint: net.bible.sharedui.components.AppToasts.Toast? = null
 
     /**
      * Enters or leaves full screen and hides or shows the status bar with it. The toolbar, tab bar and speak bar follow
@@ -204,7 +205,14 @@ class HostReadingHost(
         val entering = value && !fullScreen.state.value
         fullScreen.set(value, byDoubleTap)
         statusBarHidden(fullScreen.state.value)
-        if (entering) platform.showFullScreenHint(platform.fullScreenHint(strings()))
+        if (entering) {
+            val message = platform.fullScreenHint(strings())
+            fullScreenHint = platform.showFullScreenHint(message)
+        } else if (!value) {
+            // Dismiss only our hint: a newer toast may already have replaced it.
+            fullScreenHint?.let(net.bible.sharedui.components.AppToasts::dismiss)
+            fullScreenHint = null
+        }
     }
 
     /**

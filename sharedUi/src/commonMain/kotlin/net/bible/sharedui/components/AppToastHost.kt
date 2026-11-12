@@ -46,6 +46,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import net.bible.sharedui.theme.LocalDisableAnimations
 
 /**
@@ -60,8 +61,8 @@ object AppToasts {
     /** How long a long toast stays up. */
     const val LONG_MILLIS: Long = 4000L
 
-    /** A toast; [id] is unique per [show] so that the same text twice still restarts the timer. */
-    data class Toast(val id: Long, val text: String, val long: Boolean)
+    /** An owned toast token. Identity equality also prevents StateFlow CAS from matching an expired token. */
+    class Toast(val id: Long, val text: String, val long: Boolean)
 
     private val current = MutableStateFlow<Toast?>(null)
 
@@ -70,13 +71,19 @@ object AppToasts {
 
     /** Shows [text]; blank text is ignored. Safe from any thread. */
     fun show(text: String, long: Boolean = false) {
-        if (text.isBlank()) return
-        current.update { Toast(id = (it?.id ?: 0L) + 1L, text = text, long = long) }
+        showOwned(text, long)
+    }
+
+    /** Shows a toast and returns its exact instance for a caller that must dismiss only its own notice. */
+    fun showOwned(text: String, long: Boolean = false): Toast? {
+        if (text.isBlank()) return null
+        return current.updateAndGet { Toast(id = (it?.id ?: 0L) + 1L, text = text, long = long) }
     }
 
     /** Removes [toast] if it is still the one shown (the host calls this when its time is up). */
     fun dismiss(toast: Toast) {
-        current.compareAndSet(toast, null)
+        // Toast IDs restart after an empty state; an identical newer toast is still a different instance.
+        current.update { if (it === toast) null else it }
     }
 
     /** Drops any toast (tests). */
@@ -100,7 +107,7 @@ fun AppToastHost(modifier: Modifier = Modifier) {
     val visible = toast != null
     LaunchedEffect(toast) { toast?.let { shown = it } }
 
-    LaunchedEffect(toast?.id) {
+    LaunchedEffect(toast) {
         val t = toast ?: return@LaunchedEffect
         delay(if (t.long) AppToasts.LONG_MILLIS else AppToasts.SHORT_MILLIS)
         AppToasts.dismiss(t)

@@ -88,6 +88,44 @@ class AppToastHostTest {
         kotlin.test.assertEquals(null, AppToasts.state.value)
     }
 
+    @Test
+    fun dismissingAnExpiredToastDoesNotRemoveANewIdenticalToast() {
+        AppToasts.show("Fullscreen hint")
+        val expired = requireNotNull(AppToasts.state.value)
+        AppToasts.dismiss(expired)
+        AppToasts.show("Fullscreen hint")
+        AppToasts.dismiss(expired)
+        kotlin.test.assertNotNull(AppToasts.state.value, "a new toast must survive dismissal of an expired one")
+    }
+
+    @Test
+    fun replacedAfterDismissalStillGetsItsOwnFullDuration() = runComposeUiTest {
+        setContent { CompositionLocalProvider(LocalDisableAnimations provides true) { AppToastHost() } }
+        AppToasts.show("Fullscreen hint")
+        waitForIdle()
+        mainClock.advanceTimeBy(AppToasts.SHORT_MILLIS - 500)
+        val expired = requireNotNull(AppToasts.state.value)
+        AppToasts.dismiss(expired)
+        AppToasts.show("Fullscreen hint")
+        waitForIdle()
+        mainClock.advanceTimeBy(1000)
+        waitForIdle()
+        onNodeWithText("Fullscreen hint").assertExists()
+        mainClock.advanceTimeBy(AppToasts.SHORT_MILLIS)
+        waitForIdle()
+        onNodeWithText("Fullscreen hint").assertDoesNotExist()
+    }
+
+    @Test
+    fun identicalToastTokensRemainDistinctAcrossAnEmptyState() {
+        AppToasts.show("Fullscreen hint")
+        val expired = requireNotNull(AppToasts.state.value)
+        AppToasts.dismiss(expired)
+        AppToasts.show("Fullscreen hint")
+        val replacement = requireNotNull(AppToasts.state.value)
+        assertNotEquals(expired, replacement, "StateFlow CAS must not mistake a replacement for the expired token")
+    }
+
     /** With animations on, the toast still appears and is gone after its duration plus the fade. */
     @Test
     fun animatedToastShowsAndHides() = runComposeUiTest {

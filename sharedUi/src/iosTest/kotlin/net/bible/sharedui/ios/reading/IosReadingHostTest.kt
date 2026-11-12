@@ -40,6 +40,7 @@ import platform.UIKit.UIApplicationOpenSettingsURLString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import net.bible.sharedui.host.reading.IOS_OMITTED_PANE_MENU_ROWS
 import net.bible.sharedui.host.reading.HostReadingHost
@@ -251,6 +252,7 @@ class IosReadingHostTest {
             assertFalse(deps.fullScreen.value)
             assertFalse(host.fullScreen.lockedByDoubleTap)
             assertEquals(listOf(true, false), statusBar)
+            assertNull(net.bible.sharedui.components.AppToasts.state.value, "the hint must disappear on exit")
         }
     }
 

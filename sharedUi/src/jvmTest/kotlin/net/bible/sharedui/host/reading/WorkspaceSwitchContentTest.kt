@@ -11,6 +11,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollToNode
@@ -214,6 +216,133 @@ class WorkspaceSwitchContentTest {
                 assertSame(hostThread, Thread.currentThread(),
                     "host Main (${hostThread.name}) must be the Compose UI thread (${Thread.currentThread().name})")
             }
+        }
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun desktopFullscreenKeepsTheExitControlClearOfRealPaneButtons() = fullscreenPaneControls(0)
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun sharedHostFullscreenKeepsTheExitControlClearOfPaneButtonsWithIosSafeArea() = fullscreenPaneControls(48)
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun fullscreenWithoutAnExitControlKeepsTheRealPaneMenuClickable() = fullscreenPaneControls(0, exitControl = false)
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    private fun fullscreenPaneControls(topInsetDp: Int, exitControl: Boolean = true) = withFullscreenHost(exitControl) { host, koin ->
+        val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+        val deps = runBlocking { withContext(main) {
+            host.setFullScreen(true)
+            host.deps(net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter))
+        } }
+        val engine = DesktopReadingPaneEngine(FakeWebEngine(), {}, koin = { koin })
+        runBlocking { withContext(main) { HostReadingWindows.bind(host, HostReadingReady.scope, koin, Day, engine) } }
+        val paneFactory = net.bible.sharedui.desktop.webview.desktopReadingPaneFactory(
+            engine, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, isOpen = HostReadingWindows::isOpen,
+        )
+        val windowId = deps.controller.layout.value.activeWindowId!!
+        runComposeUiTest {
+            setContent {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en"),
+                    net.bible.sharedui.reading.host.LocalReadingPane provides paneFactory,
+                    net.bible.sharedui.reading.host.LocalReadingTopSafeInset provides androidx.compose.ui.unit.Dp(topInsetDp.toFloat()),
+                    net.bible.sharedui.reading.LocalPinIcon provides { painter },
+                ) {
+                    net.bible.sharedui.theme.AbTheme(darkTheme = false) {
+                        net.bible.sharedui.reading.host.ReadingHost(deps)
+                    }
+                }
+            }
+            onNode(androidx.compose.ui.test.hasTestTag("pane-$windowId")).assertIsDisplayed()
+            assertNotNull(engine.paneFor(windowId), "a real document pane must be attached, not an empty Box")
+            val menu = onNode(androidx.compose.ui.test.hasContentDescription("Window menu"))
+            val exit = onNode(androidx.compose.ui.test.hasContentDescription("Exit fullscreen"))
+            if (exitControl) {
+                exit.assertIsDisplayed()
+                menu.assertDoesNotExist()
+                // Pointer input, not semantics onClick: an overlapping surface must not steal the tap.
+                exit.performTouchInput { click() }
+                waitForIdle()
+                assertFalse(deps.fullScreen.value)
+                exit.assertDoesNotExist()
+            } else {
+                exit.assertDoesNotExist()
+                assertTrue(deps.fullScreen.value)
+            }
+            menu.assertIsDisplayed()
+            menu.performTouchInput { click() }
+            runOnIdle { assertEquals(windowId, deps.state.paneMenuWindowId.value) }
+        }
+    }
+
+    @Test fun leavingFullscreenDismissesItsHintImmediately() = withFullscreenHost { host, _ ->
+        runBlocking { withContext(main) {
+            host.setFullScreen(true, byDoubleTap = true)
+            assertNotNull(net.bible.sharedui.components.AppToasts.state.value)
+            host.setFullScreen(false)
+            assertNull(net.bible.sharedui.components.AppToasts.state.value, "the fullscreen hint must not outlive fullscreen")
+        } }
+    }
+
+    @Test fun leavingFullscreenDoesNotDismissANewerUnrelatedToast() = withFullscreenHost { host, _ ->
+        runBlocking { withContext(main) {
+            host.setFullScreen(true)
+            net.bible.sharedui.components.AppToasts.show("New unrelated notice")
+            host.setFullScreen(false)
+            assertEquals("New unrelated notice", net.bible.sharedui.components.AppToasts.state.value?.text)
+        } }
+    }
+
+    @Test fun leavingFullscreenKeepsANewIdenticalToastPostedWhileShowingTheHint() = withFullscreenHost(replaceHint = true) { host, _ ->
+        runBlocking { withContext(main) {
+            host.setFullScreen(true)
+            val replacement = assertNotNull(net.bible.sharedui.components.AppToasts.state.value)
+            host.setFullScreen(false)
+            assertSame(replacement, net.bible.sharedui.components.AppToasts.state.value)
+        } }
+    }
+
+    private fun withFullscreenHost(
+        exitControl: Boolean = true,
+        replaceHint: Boolean = false,
+        block: (HostReadingHost, org.koin.core.Koin) -> Unit,
+    ) {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        runBlocking {
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierSource = net.bible.sharedui.desktop.assembly.DesktopNotifierSource(net.bible.sharedcore.platform.desktop.dbus.DesktopDbus().supportedOs) { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
+            HostReadingReady.ensure(HostStartup.stringTable)
+        }
+        val koin = KoinPlatform.getKoin()
+        val basePlatform = DesktopReadingHostPlatform(WindowHandle)
+        val platform = object : ReadingHostPlatform by basePlatform {
+            override val showFullScreenExit = exitControl
+            override fun showFullScreenHint(message: String): net.bible.sharedui.components.AppToasts.Toast? {
+                val hint = basePlatform.showFullScreenHint(message)
+                if (replaceHint) net.bible.sharedui.components.AppToasts.show(message)
+                return hint
+            }
+        }
+        val host = runBlocking { withContext(main) {
+            HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, platform, Day)
+        } }
+        try {
+            block(host, koin)
+        } finally {
+            runBlocking { withContext(main) { host.dispose() } }
+            net.bible.sharedui.components.AppToasts.clear()
         }
     }
 
