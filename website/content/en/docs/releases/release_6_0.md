@@ -57,7 +57,10 @@ See [Platform differences](../platform_differences.md).
     activity list in the menu. See [Navigation](../navigation.md#background-activity).
 - **Notifications:** finished or failed background work is reported with a notification on iPhone,
     iPad and Mac, Windows (toast with progress) and Linux. See [Platform differences](../platform_differences.md).
-- **Search results:** *Find all occurrences* no longer opens a separate full-screen results page.
+- **Search:** start a search right from the title bar of the reading view; the results open in a
+    sheet on top of the Bible text, so you keep your place. See [Search](../search.md).
+- **Settings search:** the app settings and text display settings have a search field, so the
+    setting you want is easier to find.
 - **Links in the text:** on iOS and desktop, AndBible asks before opening an external link you tapped.
 - **Reading plans** are included in synchronization.
 - **Windows and Linux:** the desktop app uses WebView2 on Windows and Chromium (KCEF) on Linux,

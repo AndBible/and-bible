@@ -73,7 +73,10 @@ work the same way wherever you open them.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
   activity list, and finished or failed work is reported with a notification.
 - **Reading plans** are now included in synchronization.
-- **Search:** *Find all occurrences* no longer opens a separate full-screen results page.
+- **Search** starts right from the title bar of the reading view, and the results open in a sheet
+  on top of the Bible text, so you keep your place.
+- **Settings search:** the settings screens have a search field, so the setting you want is easier
+  to find.
 
 <div class="gallery gallery--narrow" markdown>
 
