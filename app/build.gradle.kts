@@ -32,18 +32,12 @@ plugins {
 
 val jsDir = "bibleview-js"
 
-// Release signing secrets live ONLY inside keystore.properties.gpg, which is committed
-// (encrypted to the developer's GPG key). We decrypt inline into an in-memory [Properties]
-// object; the plaintext never touches disk. Decryption is skipped unless a task that
-// actually needs release signing has been requested — this avoids spurious YubiKey prompts
-// on routine debug builds. F-Droid builds are also skipped because the F-Droid server
-// signs its own releases.
+// Signing is explicit: use ANDBIBLE_SIGNING_PROPERTIES from the release pipeline, or
+// -Pandbible.sign=true to decrypt the committed keystore.properties.gpg in memory.
+// Task names never trigger decryption: desktop/iOS release tasks and unsigned Android
+// release checks must not prompt for the maintainer's YubiKey.
 val keystoreGpgFile = rootProject.file("keystore.properties.gpg")
-
-val wantsReleaseSigning: Boolean = gradle.startParameter.taskNames.any { name ->
-    val n = name.lowercase()
-    n.contains("release") && !n.contains("unittest") && !n.contains("fdroid")
-}
+val wantsReleaseSigning: Boolean = providers.gradleProperty("andbible.sign").orNull == "true"
 
 // A release run (`scripts/release/release-internal.sh`) decrypts all release secrets once, into a RAM dir, and points
 // ANDBIBLE_SIGNING_PROPERTIES at the plaintext keystore.properties there: Gradle then loads that file and never runs gpg,
@@ -58,7 +52,10 @@ val keystoreProperties: Properties = Properties().apply {
             throw GradleException("ANDBIBLE_SIGNING_PROPERTIES points to a missing or unreadable file")
         }
         sessionProperties.inputStream().use { load(it) }
-    } else if (wantsReleaseSigning && keystoreGpgFile.exists()) {
+    } else if (wantsReleaseSigning) {
+        if (!keystoreGpgFile.isFile) {
+            throw GradleException("andbible.sign=true requires keystore.properties.gpg at the repository root")
+        }
         val process = ProcessBuilder(
             "gpg", "--decrypt", "--quiet", keystoreGpgFile.absolutePath
         ).redirectErrorStream(false).start()
@@ -67,10 +64,8 @@ val keystoreProperties: Properties = Properties().apply {
         if (exitCode == 0) {
             load(ByteArrayInputStream(decrypted))
         } else {
-            // GPG failure is expected on CI (no secret key available). Leave
-            // [keystoreProperties] empty so signingConfig stays unset and the
-            // build produces *-unsigned.apk to be signed externally (apksigner
-            // with GitHub Secrets in build-apk.yml).
+            // Preserve the unsigned fallback after a failed explicit decrypt.
+            // CI does not opt in and signs externally with apksigner instead.
             val stderr = process.errorStream.bufferedReader().readText()
             logger.warn("gpg --decrypt of keystore.properties.gpg failed (exit $exitCode): $stderr")
             logger.warn("Release signing will be skipped; APKs will be produced unsigned.")
@@ -674,9 +669,7 @@ bundletool {
         }
         println("✓ Accrescent signing configuration loaded from keystore.properties.gpg")
     } else if (wantsReleaseSigning) {
-        // No local keystore.properties.gpg — e.g. CI builds that sign externally
-        // (GitHub Actions uses apksigner with GitHub Secrets on *-unsigned.apk).
-        println("ℹ keystore.properties.gpg not found — release artifacts will be unsigned (expected on CI)")
+        println("ℹ Release signing credentials unavailable — release artifacts will be unsigned")
     }
 }
 
