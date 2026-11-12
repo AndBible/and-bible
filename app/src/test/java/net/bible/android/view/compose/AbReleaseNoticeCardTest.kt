@@ -19,12 +19,16 @@ package net.bible.android.view.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
 import androidx.test.espresso.Espresso
 import net.bible.android.TEST_SDK
@@ -117,6 +121,33 @@ class AbReleaseNoticeCardTest {
         // The body overflows and is clipped: its last item is off screen until scrolled to ...
         compose.onNodeWithText("Sponsor development").assertIsNotDisplayed()
         // ... while the footer sits outside the scroll column and stays visible.
+        compose.onNodeWithText("Close").assertIsDisplayed()
+        compose.onNodeWithText("Don't show again").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h568dp")
+    fun scrollCueAppearsForOverflowAndDisappearsAtBottom() {
+        show(sponsorAllowed = false, fontScale = 1.5f)
+
+        val cue = compose.onNodeWithTag("release-notice-scroll-cue")
+        cue.assertIsDisplayed()
+        compose.onNodeWithText("Visit andbible.org").performScrollTo().assertIsDisplayed()
+        compose.onNode(hasScrollAction()).performSemanticsAction(SemanticsActions.ScrollBy) {
+            it(0f, Float.MAX_VALUE)
+        }
+        compose.waitForIdle()
+        cue.assertDoesNotExist()
+        compose.onNodeWithText("Close").assertIsDisplayed()
+        compose.onNodeWithText("Don't show again").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp-h760dp")
+    fun scrollCueIsAbsentWhenContentFits() {
+        show(fontScale = 1f)
+
+        compose.onNodeWithTag("release-notice-scroll-cue").assertDoesNotExist()
         compose.onNodeWithText("Close").assertIsDisplayed()
         compose.onNodeWithText("Don't show again").assertIsDisplayed()
     }

@@ -673,6 +673,8 @@ class HostReadingHost(
 
     fun openSearchRequest(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean = searchState.openRequest(request)
 
+    fun openSearchFromShortcut() = searchState.openSearch(fromShortcut = true)
+
     /**
      * The text-selection menu's "Search": the reading view's search opens and runs [text] as a phrase search, decorated
      * exactly as Android's `BibleView` does before it hands the query to the hosted search (`preDecorated = true`).

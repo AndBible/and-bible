@@ -10,8 +10,16 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 
 /** Maps native/Compose chords to BibleView's supported commands; keep keyboard.ts in sync. */
-internal fun readingShortcut(code: String, ctrl: Boolean, alt: Boolean, meta: Boolean = false, editing: Boolean = false): String? {
-    if (meta || ctrl && alt) return null
+internal fun readingShortcut(
+    code: String, ctrl: Boolean, alt: Boolean, meta: Boolean = false, editing: Boolean = false,
+    iosCommandKeys: Boolean = false,
+): String? {
+    if (meta) {
+        if (!iosCommandKeys || ctrl || alt || code !in setOf("KeyF", "KeyB")) return null
+        if (editing && code == "KeyB") return null
+        return "Ctrl$code"
+    }
+    if (ctrl && alt) return null
     if (ctrl) {
         if (editing && code in setOf("KeyB", "KeyC")) return null
         return if (code in setOf("KeyF", "KeyB", "KeyC", "KeyW")) "Ctrl$code" else null
@@ -26,7 +34,7 @@ internal fun readingShortcut(code: String, ctrl: Boolean, alt: Boolean, meta: Bo
 internal fun readingShortcutScript(code: String, ctrl: Boolean, alt: Boolean): String =
     "window.dispatchEvent(new CustomEvent('andbible-native-reading-key', {detail:{code:'$code',ctrlKey:$ctrl,altKey:$alt}}));"
 
-internal fun readingShortcut(event: KeyEvent, editing: Boolean = false): String? {
+internal fun readingShortcut(event: KeyEvent, editing: Boolean = false, iosCommandKeys: Boolean = false): String? {
     if (event.type != KeyEventType.KeyDown) return null
     val code = when (event.key) {
         Key.F -> "KeyF"
@@ -41,5 +49,5 @@ internal fun readingShortcut(event: KeyEvent, editing: Boolean = false): String?
         Key.DirectionRight -> "ArrowRight"
         else -> return null
     }
-    return readingShortcut(code, event.isCtrlPressed, event.isAltPressed, event.isMetaPressed, editing)
+    return readingShortcut(code, event.isCtrlPressed, event.isAltPressed, event.isMetaPressed, editing, iosCommandKeys)
 }

@@ -145,31 +145,91 @@ export const init = settings => {
       setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
     }
   }
-  content.onpaste = event => {
-    const clipboardData = event.clipboardData || window.clipboardData
-    console.log("Pasting content...", event, clipboardData);
-    
-    // Get all available clipboard data types
-    const types = clipboardData.types || []
-    console.log("Available clipboard types:", types);
-    
-    // Check if we're trying to paste actual image files (not placeholders)
-    if (types.includes('Files') && clipboardData.files && clipboardData.files.length > 0) {
-      console.log("Files detected in clipboard:", clipboardData.files);
-      const hasRealImages = Array.from(clipboardData.files).some(file => {
-        // Only block real image files with content (size > 0)
-        return file.type.startsWith('image/') && file.size > 0;
-      });
-      if (hasRealImages) {
-        console.log("Real image files detected - blocking paste");
-        event.preventDefault();
-        return;
-      }
+  // Keep a lost/outside selection from inserting into another editable element.
+  const editorRange = () => {
+    const selection = window.getSelection()
+    if (!selection.rangeCount || !content.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+      const range = document.createRange()
+      range.selectNodeContents(content)
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
     }
-    
-    const images = content.querySelectorAll('img, video, audio, embed, object, iframe');
-    console.log("Removing media elements after paste:", images.length);
-    images.forEach(el => el.remove());
+    return selection.getRangeAt(0)
+  }
+
+  const insertPlainText = text => {
+    const selection = window.getSelection()
+    const range = editorRange().cloneRange()
+    content.focus()
+    selection.removeAllRanges()
+    selection.addRange(range)
+    let usedFallback = false
+    let finalBreak
+    const insert = (command, value = null) => {
+      finalBreak = null
+      // Stay on the Range path after a failure: native insertion may swallow a terminal BR.
+      if (!usedFallback && exec(command, value)) return
+      usedFallback = true
+      const range = editorRange()
+      range.deleteContents()
+      // Never parse transferred text as HTML, including when editing commands fail.
+      const node = command === 'insertText' ? document.createTextNode(value) : createElement('br')
+      range.insertNode(node)
+      range.setStartAfter(node)
+      range.collapse(true)
+      if (command === 'insertParagraph') finalBreak = node
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
+    // Match Enter (defaultParagraphSeparator), not each engine's handling of raw newlines.
+    text.split(/\r\n|\r|\n/).forEach((line, index) => {
+      if (index) insert('insertParagraph')
+      if (line) insert('insertText', line)
+    })
+    // Range.insertNode can split a text node, leaving invisible empty siblings after the BR.
+    while (finalBreak?.nextSibling?.nodeType === Node.TEXT_NODE && !finalBreak.nextSibling.length) {
+      finalBreak.nextSibling.remove()
+    }
+    // A terminal BR alone does not display the final empty line in contenteditable.
+    if (finalBreak && !finalBreak.nextSibling) finalBreak.after(createElement('br'))
+    // Range mutations do not dispatch the input event that execCommand normally sends.
+    if (usedFallback) settings.onChange(content.innerHTML)
+  }
+
+  const transferPlainText = (event, data, isDrop = false) => {
+    event.preventDefault()
+    if (!data) return
+    const files = Array.from(data.files || [])
+    // Preserve clipboard placeholder support, but never accept dropped files.
+    if (isDrop ? files.length : files.some(file => file.type.startsWith('image/') && file.size > 0)) return
+
+    // Clean unsupported media already stored in the note; transferred HTML is never inserted.
+    const media = content.querySelectorAll('img, video, audio, embed, object, iframe')
+    media.forEach(el => el.remove())
+    if (media.length) settings.onChange(content.innerHTML)
+    const text = data.getData('text/plain')
+    if (text) insertPlainText(text)
+  }
+  content.onpaste = event => transferPlainText(event, event.clipboardData || window.clipboardData)
+  content.ondragover = event => event.preventDefault()
+  content.ondrop = event => {
+    // Drops target the pointer, not the caret left behind before dragging.
+    const position = document.caretPositionFromPoint?.(event.clientX, event.clientY)
+    let range
+    if (position) {
+      range = document.createRange()
+      range.setStart(position.offsetNode, position.offset)
+      range.collapse(true)
+    } else {
+      range = document.caretRangeFromPoint?.(event.clientX, event.clientY)
+    }
+    if (range && content.contains(range.commonAncestorContainer)) {
+      const selection = window.getSelection()
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
+    transferPlainText(event, event.dataTransfer, true)
   }
   appendChild(settings.element, content)
   appendChild(settings.element, actionbar)

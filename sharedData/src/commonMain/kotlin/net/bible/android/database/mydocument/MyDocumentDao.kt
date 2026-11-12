@@ -193,6 +193,21 @@ interface MyDocumentDao {
     """)
     suspend fun aiDocMarkersForPage(bookInitials: String, bookKey: String): List<AiDocMarkerInfo>
 
+    /**
+     * AI document markers of the given pages (pages without an [AiPageCacheEntry] have none).
+     * Used after a cloud sync to tell open reading views about pages another device created or changed.
+     */
+    @Query("""
+        SELECT c.pageId, p.documentId, d.initials AS documentInitials,
+               p.title AS pageTitle, p.pageKey, c.kjvOrdinalStart, c.kjvOrdinalEnd,
+               c.sourcePromptId, c.sourceBookInitials, c.sourceBookKey
+        FROM AiPageCacheEntry c
+        INNER JOIN MyDocumentPage p ON c.pageId = p.id
+        INNER JOIN MyDocument d ON p.documentId = d.id
+        WHERE c.pageId IN (:pageIds)
+    """)
+    suspend fun aiDocMarkersForPageIds(pageIds: List<IdType>): List<AiDocMarkerInfo>
+
     // ==================== Transaction helpers ====================
 
     @Transaction

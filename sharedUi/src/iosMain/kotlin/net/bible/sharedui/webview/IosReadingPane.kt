@@ -93,17 +93,18 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 else -> return@filterNot false
             }
             val flags = key.modifierFlags
-            net.bible.sharedui.reading.readingShortcut(
+            val command = net.bible.sharedui.reading.readingShortcut(
                 code,
                 ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
                 alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
                 meta = flags and platform.UIKit.UIKeyModifierCommand != 0L,
+                iosCommandKeys = true,
             ) ?: return@filterNot false
             // Native is the sole owner of modified iOS chords. JS checks its editor synchronously;
             // its DOM listener ignores these chords even if WebKit also delivers a keydown.
             deliverReadingShortcut(code,
-                ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
-                alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+                ctrl = command.startsWith("Ctrl"),
+                alt = command.startsWith("Alt"),
             )
             swallowedPresses.add(press)
             true

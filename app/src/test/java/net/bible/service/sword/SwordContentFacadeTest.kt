@@ -83,7 +83,7 @@ class SwordContentFacadeTest {
         }
         val result = facade.buildShareVersesInput(selection)
         org.junit.Assert.assertEquals("converted:<b>note</b>", result.notesText)
-        org.junit.Assert.assertEquals("injected advert (https://andbible.github.io)", result.advertiseText)
+        org.junit.Assert.assertEquals("injected advert (https://andbible.org)", result.advertiseText)
         org.junit.Assert.assertTrue(result.hasRange)
         org.junit.Assert.assertTrue(result.verses.isEmpty())
     }

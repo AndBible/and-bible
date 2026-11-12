@@ -76,7 +76,6 @@ import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.sharedcore.reading.ShareVersesInput
-import net.bible.sharedui.reading.bridge.shareableSelectionText
 import net.bible.sharedui.reading.session.ReadingSheets
 import net.bible.service.llm.PromptContext
 import net.bible.android.control.download.DownloadControl
@@ -291,10 +290,14 @@ class BibleView(
                 return true
             }
 
-            override fun copySelection() = copySelectionToClipboard()
+            /** Ctrl+C: the shared copy path, so Android, iOS and desktop copy the same text. */
+            override fun copySelection() = readingBridge.copyCurrentSelection()
 
-            override fun searchIfHosted(): Boolean =
-                hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)
+            override fun searchIfHosted(): Boolean {
+                val readingHost = hostCallbacks.composeReadingViewHost() ?: return false
+                readingHost.openSearchFromShortcut()
+                return true
+            }
 
             override fun crashAllBibleViews() = hostCallbacks.crashAllBibleViews()
         }
@@ -700,17 +703,6 @@ class BibleView(
         }
 
         return@withContext false
-    }
-
-    /** Copies the current native text selection (Ctrl+C) through the surface's clipboard. */
-    fun copySelectionToClipboard() {
-        scope.launch {
-            currentSelection = null
-            setCurrentSelection()
-            currentSelection?.let {
-                surface.copyText(it.verseRange?.getName(), shareableSelectionText(it, swordContentFacade, CommonUtils.settings))
-            }
-        }
     }
 
     var editingTextInJs: Boolean

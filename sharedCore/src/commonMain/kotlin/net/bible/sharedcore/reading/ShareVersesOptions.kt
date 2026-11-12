@@ -57,7 +57,7 @@ data class ShareVersesInput(
      *  which is applied in [ShareVersesOptions.buildText]. */
     val notesText: String?,
     /** The localised "advertise the app" line, WITHOUT the leading blank line — e.g. "Shared from
-     *  AndBible Bible Study (https://andbible.github.io)". [ShareVersesOptions.buildText] adds the
+     *  AndBible Bible Study (https://andbible.org)". [ShareVersesOptions.buildText] adds the
      *  `"\n\n"` prefix itself when `advertiseApp` is on. Empty (discrete mode, batch 6 A6) means no
      *  advert at all, whatever `advertiseApp` says. */
     val advertiseText: String,

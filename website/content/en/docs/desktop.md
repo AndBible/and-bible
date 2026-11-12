@@ -34,11 +34,7 @@ Switching workspaces reuses the reading pages. Returning to a workspace restores
 
 ## Linux packages
 
-The regular `andbible` `.deb` includes Chromium (KCEF). It remains the default Linux package, and the AppImage also uses Chromium.
-
-The optional `andbible-webkitgtk` `.deb` uses the system's **WebKitGTK 6.0 (GTK4)** instead. It does not include Chromium's native libraries, so the download is smaller and WebKit security updates come from your Linux distribution. It requires Linux x86-64 and a distribution that provides `libwebkitgtk-6.0-4`; install the `.deb` with your package manager so that dependency is installed too. This variant needs X11, or Xwayland in a Wayland desktop session. It is not published with the current releases while it is being improved; it can be built from source with `./gradlew :desktopWebkitGtk:packageDeb`.
-
-The two `.deb` packages have separate launchers but share the same AndBible data and settings. Only one can use that data at a time. The WebKitGTK variant is an alternative; keep the regular Chromium package available if you encounter rendering or input problems.
+The `andbible` `.deb` includes Chromium (KCEF), as does the AppImage.
 
 ## Display scaling on Linux
 
@@ -53,7 +49,7 @@ ANDBIBLE_UI_SCALE=1.5 andbible
 Good to know:
 
 - The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
-- The WebKitGTK variant rounds a fractional scale to a whole number for the menus and toolbars (125 % shows them at 100 %, 150 % at 200 %); its Bible text still gets the desktop's size. The Chromium variant started with `-Dandbible.kcef.rendering=windowed` rounds the Bible text too.
+- When started with `-Dandbible.kcef.rendering=windowed`, the app rounds fractional scaling to a whole number, including for Bible text.
 - On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.

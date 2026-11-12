@@ -64,6 +64,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.first
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
+import kotlinx.coroutines.delay
+import net.bible.sharedui.components.currentRowHighlight
+import net.bible.sharedui.theme.LocalDisableAnimations
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -212,6 +220,10 @@ fun AiPromptsScreen(
     onConfirmImportMode: (ImportMode) -> Unit = {},
     onDismissImportModeChoice: () -> Unit = {},
     onDismissDialog: () -> Unit = {},
+    /** ID returned by the list's last successful Copy; waits for the refreshed groups before revealing it. */
+    copiedPromptId: String? = null,
+    onCopyRevealed: () -> Unit = {},
+    listState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
 ) {
     val strings = LocalStrings.current
 
@@ -228,6 +240,13 @@ fun AiPromptsScreen(
     var query by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf(initiallyFilter) }
     var filterSheetOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(copiedPromptId) {
+        if (copiedPromptId != null) {
+            // A built-in/add-on copy becomes a user prompt and may no longer match the type filter.
+            query = ""
+            filter = PromptListFilter()
+        }
+    }
     val visibleGroups = remember(groups, query, filter) { filterPromptGroups(groups, query, filter) }
 
     AbScaffold(
@@ -312,6 +331,9 @@ fun AiPromptsScreen(
             } else {
                 PromptGroupsList(
                     groups = visibleGroups,
+                    copiedPromptId = copiedPromptId,
+                    onCopyRevealed = onCopyRevealed,
+                    listState = listState,
                     strings = strings,
                     onOpenPrompt = onOpenPrompt,
                     onToggleFavorite = onToggleFavorite,
@@ -501,6 +523,9 @@ private fun groupKey(group: PromptGroupVd): String = when {
 @Composable
 private fun PromptGroupsList(
     groups: List<PromptGroupVd>,
+    copiedPromptId: String?,
+    onCopyRevealed: () -> Unit,
+    listState: androidx.compose.foundation.lazy.LazyListState,
     strings: Strings,
     onOpenPrompt: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
@@ -520,7 +545,42 @@ private fun PromptGroupsList(
     val collapsed = remember { mutableStateMapOf<String, Boolean>() }
     val categorized = groups.filter { it.category != null }
 
-    val listState = rememberLazyListState()
+    val disableAnimations = LocalDisableAnimations.current
+    val targetGroup = groups.firstOrNull { group -> group.prompts.any { it.id == copiedPromptId } }
+    var highlightedKey by remember {
+        mutableStateOf(targetGroup?.let { "prompt-${groupKey(it)}-$copiedPromptId" })
+    }
+    LaunchedEffect(highlightedKey) {
+        if (highlightedKey != null) {
+            delay(2500)
+            highlightedKey = null
+        }
+    }
+    LaunchedEffect(copiedPromptId, groups) {
+        val id = copiedPromptId ?: return@LaunchedEffect
+        val target = targetGroup ?: return@LaunchedEffect
+        collapsed[groupKey(target)] = false
+        // Include dividers and headers, and omit the rows of collapsed groups.
+        var targetIndex = 0
+        for ((index, group) in groups.withIndex()) {
+            if (index > 0) targetIndex++
+            targetIndex++
+            if (group == target) {
+                targetIndex += group.prompts.indexOfFirst { it.id == id }
+                break
+            }
+            if (collapsed[groupKey(group)] != true) targetIndex += group.prompts.size
+        }
+        val expectedItems = groups.sumOf { group ->
+            1 + if (collapsed[groupKey(group)] != true) group.prompts.size else 0
+        } + (groups.size - 1).coerceAtLeast(0)
+        // A collapsed group's rows do not exist in the measured list until its next layout.
+        snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it == expectedItems }
+        if (disableAnimations) listState.scrollToItem(targetIndex)
+        else listState.animateScrollToItem(targetIndex)
+        highlightedKey = "prompt-${groupKey(target)}-$id"
+        onCopyRevealed()
+    }
     LazyColumn(state = listState, modifier = modifier.volumeScrollTarget(listState)) {
         groups.forEachIndexed { index, group ->
             val key = groupKey(group)
@@ -573,6 +633,7 @@ private fun PromptGroupsList(
                     val idx = movableSiblings.indexOf(prompt)
                     PromptRow(
                         prompt = prompt,
+                        justCopied = "prompt-$key-${prompt.id}" == highlightedKey,
                         canMoveUp = !group.isFavorites && idx > 0,
                         canMoveDown = !group.isFavorites && idx in 0 until movableSiblings.size - 1,
                         strings = strings,
@@ -685,6 +746,7 @@ private fun CategoryRowOverflow(
 @Composable
 private fun PromptRow(
     prompt: PromptVd,
+    justCopied: Boolean,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     strings: Strings,
@@ -711,7 +773,10 @@ private fun PromptRow(
             .ifBlank { null }
         listOfNotNull(type, targets).joinToString(" · ")
     }
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth().currentRowHighlight(justCopied).semantics { selected = justCopied },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         IconButton(onClick = onToggleFavorite, modifier = Modifier.toggleStateSemantics(prompt.isFavorite)) {
             Icon(
                 if (prompt.isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,

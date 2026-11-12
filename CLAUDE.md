@@ -185,7 +185,7 @@ Internal releases (Google Play internal + TestFlight internal, one YubiKey touch
   `docs/windows-vm.md`), not on the maintainer's checklist. Never run the 6 GiB VM alongside
   the Android emulator. Only one container may run a Windows VM at a time: obtain the
   orchestrator's VM token before starting. Stop it and remove your own overlays/run scratch when done.
-- Linux CEF and WebKitGTK live checks use `desktop-linux-live` (`docs/desktop-linux-live.md`):
+- Linux CEF live checks use `desktop-linux-live` (`docs/desktop-linux-live.md`):
   Xvfb + openbox, genuine click/key input, screenshots, isolated profiles and bounded cleanup.
 - Use `verifying-on-a-runtime` to choose the environment and distinguish runtime evidence
   from JVM/Robolectric/Roborazzi gates and physical-hardware checks (issue #3946).

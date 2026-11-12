@@ -20,7 +20,14 @@ final class ReadingUITests: RealAppUITestCase {
         let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"] + extraArguments
         var app = launch(arguments)
         let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
-        XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
+        let arrived = waitUntil(timeout: 60) {
+            // The first stable launch can cover the reading host with the release notice.
+            if app.staticTexts["Your Bible, now on every device"].exists && app.buttons["Close"].exists {
+                app.buttons["Close"].tap()
+            }
+            return welcome.exists || host.exists
+        }
+        XCTAssertTrue(arrived, "neither Welcome nor reading shown")
         // NASB also renders John 3 with three 'Nicodemus' labels. It is not the KJV fixture: the
         // rail queries and Strong's tests below require KJV, which may not be installed after onboarding.
         if welcome.exists || !kjvJohn3Shown(app, timeout: 30) {
@@ -1481,6 +1488,46 @@ final class ReadingUITests: RealAppUITestCase {
         pane.typeKey("f", modifierFlags: [])
         if !opened { attachTree(app, "control-f-search-not-shown") }
         XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
+    }
+
+    /// Real Command events exercise UIKit -> shared mapping -> page bridge, not a synthetic JS command.
+    func testCommandFAndBUseReadingShortcuts() throws {
+        let app = try launchReading()
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15))
+        // A verse tap opens the page's selection menu, whose Ctrl+B correctly bookmarks instead of opening the chooser.
+        // Sending to the pane itself focuses it without that unrelated selection action.
+        pane.typeKey("b", modifierFlags: .command)
+        app.typeKey("b", modifierFlags: [])
+        let back = app.buttons["Back"]
+        XCTAssertTrue(back.waitForExistence(timeout: 15), "Cmd+B must open the same chooser as Ctrl+B")
+        back.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15))
+        XCTAssertFalse(back.exists, "one Cmd+B must not open two choosers")
+        firstPane(app).typeKey("f", modifierFlags: .command)
+        app.typeKey("f", modifierFlags: [])
+        // #3989: UIKit does not deliver Cmd+F to pressesBegan yet; remove this expectation when it does.
+        XCTExpectFailure("Cmd+F is not delivered natively yet (#3989)", strict: false) {
+            XCTAssertTrue(element(app, "reading-search-field").waitForExistence(timeout: 15), "Cmd+F must open Find")
+        }
+        shot(app, "command-f-search")
+    }
+
+    /// Repeating Cmd+F over results replaces the previous query, without a manual field tap or clear.
+    func testCommandFSelectsAnExistingSearchQuery() throws {
+        throw XCTSkip("Cmd+F is not delivered natively yet (#3989); the shared select-all path is covered by Compose tests")
+        let app = try launchReading()
+        firstPane(app).typeKey("f", modifierFlags: .command)
+        let field = element(app, "reading-search-field")
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        field.typeText("light\n")
+        // Search submission releases the field. Another shortcut must reacquire it and select the query.
+        app.typeKey("f", modifierFlags: .command)
+        XCTAssertTrue(waitUntil(timeout: 10) { field.debugDescription.contains("Keyboard Focused") })
+        app.typeText("hope")
+        XCTAssertTrue(waitUntil(timeout: 10) { (field.value as? String) == "hope" }, "typing must replace the selected query")
+        shot(app, "command-f-query-replaced")
+        app.typeKey("f", modifierFlags: [])
     }
 
     /// Ctrl+B must push exactly one chooser: one Back must return to reading, not uncover a second chooser.

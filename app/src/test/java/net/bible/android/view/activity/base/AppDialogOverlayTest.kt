@@ -75,10 +75,35 @@ class AppDialogOverlayTest {
     private fun calculator() =
         Robolectric.buildActivity(CalculatorComposeActivity::class.java).also { controllers += it }.setup()
 
+    /** A generic dialog host: the calculator is the PIN lock and deliberately draws no app dialogs (#4055). */
+    private fun host() =
+        Robolectric.buildActivity(DialogOverlayHostActivity::class.java).also { controllers += it }.setup()
+
+    /**
+     * #4055: the calculator is the PIN lock. A queued app dialog (Help, backup success, ...) must stay
+     * queued while it is on screen, not draw above the disguise; it appears once a real host resumes.
+     */
+    @Test
+    fun calculatorDrawsNoQueuedDialogAndDoesNotOwnRendering() {
+        dialogs.post(AppDialogRequest.Message(null, "Secret AndBible message", "OK"))
+        val calc = calculator()
+        shadowOf(Looper.getMainLooper()).idle()
+        compose.waitForIdle()
+        assertTrue(!dialogTextVisible("Secret AndBible message"))
+        assertTrue(AppDialogRendering.owner.value !== calc.get())
+        assertEquals("Secret AndBible message", (dialogs.pending.value!!.request as AppDialogRequest.Message).message)
+        // After unlock a real host shows the still-pending dialog.
+        calc.pause().stop()
+        host()
+        shadowOf(Looper.getMainLooper()).idle()
+        compose.waitForIdle()
+        assertTrue(dialogTextVisible("Secret AndBible message"))
+    }
+
     @Test
     fun theMostRecentlyResumedHostOwnsRendering() {
-        val a = calculator()
-        val b = calculator()
+        val a = host()
+        val b = host()
         assertSame(b.get(), AppDialogRendering.owner.value)
         b.pause().stop()
         a.pause().resume()
@@ -87,31 +112,31 @@ class AppDialogOverlayTest {
 
     @Test
     fun pauseAloneKeepsOwnership() { // plan correction 3
-        val a = calculator()
+        val a = host()
         a.pause()
         assertSame(a.get(), AppDialogRendering.owner.value)
     }
 
     @Test
     fun aNonOwnersStopChangesNothing() {
-        val a = calculator()
-        val b = calculator()
+        val a = host()
+        val b = host()
         a.pause().stop()
         assertSame(b.get(), AppDialogRendering.owner.value)
     }
 
     @Test
     fun theOwnerRendersTheQueueHead() {
-        calculator()
-        dialogs.post(AppDialogRequest.Message(null, "Rendered on the calculator", "OK"))
+        host()
+        dialogs.post(AppDialogRequest.Message(null, "Rendered on the host", "OK"))
         shadowOf(Looper.getMainLooper()).idle()
         compose.waitForIdle()
-        assertTrue(dialogTextVisible("Rendered on the calculator"))
+        assertTrue(dialogTextVisible("Rendered on the host"))
     }
 
     @Test
     fun recreateWithAPendingConfirmAnswersTheCallerExactlyOnce() {
-        val a = calculator()
+        val a = host()
         var answers = 0
         val result = GlobalScope.async(Dispatchers.Main, start = CoroutineStart.UNDISPATCHED) {
             dialogs.await(AppDialogRequest.Confirm("Sure?", null, "OK", "Cancel")).also { answers++ }
@@ -142,6 +167,15 @@ class AppDialogOverlayTest {
         }
     }
 
+    /** An [ActivityBase] dialog host (needed by APIs taking an ActivityBase); unlike the calculator it draws dialogs. */
+    private class BaseOverlayHostActivity : ActivityBase() {
+        override val doNotInitializeApp: Boolean = true
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            mountAppDialogOverlay()
+        }
+    }
+
     @Test
     fun mountAppDialogOverlayRendersAQueuedRequestOnAPlainActivity() {
         dialogs.post(AppDialogRequest.Message(null, "Shown via mountAppDialogOverlay", "OK"))
@@ -159,7 +193,7 @@ class AppDialogOverlayTest {
      * Task 9 step 4: `checkPoorTranslations` runs in `StartupActivity` in production (`UsableBible.kt`),
      * which Task 5 mounted the overlay on -- but `StartupActivity` cannot be built under Robolectric
      * (its boot path needs DB/Sword fixtures no test sets up). This exercises the same
-     * `AppDialogController`-through-overlay path on the calculator host already used above; the
+     * `AppDialogController`-through-overlay path on the generic host already used above; the
      * `StartupActivity`-hosted case is covered by Task 11's emulator smoke instead.
      */
     @Test
@@ -170,7 +204,7 @@ class AppDialogOverlayTest {
             androidx.preference.PreferenceManager.getDefaultSharedPreferences(
                 androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
             ).edit().putString("locale_pref", "xx").commit()
-            val activity = calculator().get()
+            val activity = Robolectric.buildActivity(BaseOverlayHostActivity::class.java).also { controllers += it }.setup().get()
             assertEquals("xx", Locale.getDefault().toLanguageTag())
             GlobalScope.async(Dispatchers.Main, start = CoroutineStart.UNDISPATCHED) {
                 CommonUtils.checkPoorTranslations(activity)

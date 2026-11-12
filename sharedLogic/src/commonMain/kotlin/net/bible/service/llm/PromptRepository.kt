@@ -165,6 +165,9 @@ object PromptRepository : KoinComponent {
             dao.shiftOrderNumbersAfter(source.orderNumber)
             dao.insert(newPrompt)
         }
+        if (isFavorite(source.id)) {
+            aiSettings.favoritePrompts = aiSettings.favoritePrompts + newPrompt.id
+        }
         return newPrompt.id
     }
 

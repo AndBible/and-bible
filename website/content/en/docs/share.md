@@ -27,6 +27,15 @@ To copy text from a footnote popup, long-press the footnote text, adjust the
 selection, and choose *Copy* from the text-selection menu. This copies the
 selected footnote text without adding the Bible verse or its reference.
 
+## Copying With A Keyboard
+
+With a hardware keyboard, select text and press *Ctrl+C*:
+
+- In a Bible, the selected verses are copied with the options from the
+    sharing dialog, such as the reference and the version.
+- In a footnote popup, a commentary or any other document, only the
+    selected text is copied.
+
 ## Sharing A Study Pad
 
 [Study Pads](study_pads.md) can be shared with other *AndBible* users, or with anyone in html

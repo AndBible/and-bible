@@ -425,7 +425,7 @@ class ReadingSearchState(
      * (the text-selection entry point) rather than a raw user query. Strong's find-all does NOT set
      * this: it goes through [openSearchStrongs], which needs its own flag.
      */
-    fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) {
+    fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false, fromShortcut: Boolean = false) {
         if (seedQuery != null || !controller.searchModeActive.value) {
             invalidateStrongsValidation()
             explicitTargetId = null
@@ -447,7 +447,7 @@ class ReadingSearchState(
             searchPreDecoratedQuery = seedQuery.trim().takeIf { preDecorated }
             searchStrongsQuery = null
         }
-        controller.open(seedQuery)
+        if (fromShortcut && seedQuery == null) controller.openFromShortcut() else controller.open(seedQuery)
     }
 
     /**

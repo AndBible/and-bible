@@ -498,6 +498,11 @@ Built-in prompts cannot be modified directly. To customize one:
 2. Use the `Copy to customize` option.
 3. Edit the copy as needed and save.
 
+You can also choose `Copy` from any prompt's menu in the prompt list. The
+copy keeps the original's favorite mark. The list scrolls to the new copy
+and briefly emphasizes its row, including when animations are disabled.
+Any active search or filters are cleared so the copy is visible.
+
 ### Prompt Template Tips
 
 - **Be specific** – Clearly describe what you want the AI to do and what

@@ -5,7 +5,7 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-projects=(. app desktopApp desktopWebkitGtk desktopWebView2 sharedUi sharedLogic sharedData sharedCore jsword strings-gen kdom)
+projects=(. app desktopApp desktopWebView2 sharedUi sharedLogic sharedData sharedCore jsword strings-gen kdom)
 outputs=()
 for project in "${projects[@]}"; do
     rm -f "$project/build/flatpak/gradle-sources.json"
