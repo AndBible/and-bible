@@ -170,6 +170,10 @@ export const init = settings => {
     const images = content.querySelectorAll('img, video, audio, embed, object, iframe');
     console.log("Removing media elements after paste:", images.length);
     images.forEach(el => el.remove());
+    if (images.length) settings.onChange(content.innerHTML);
+    event.preventDefault();
+    const text = clipboardData.getData('text/plain');
+    if (text) exec('insertText', text);
   }
   appendChild(settings.element, content)
   appendChild(settings.element, actionbar)
