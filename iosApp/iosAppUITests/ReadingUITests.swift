@@ -1515,17 +1515,16 @@ final class ReadingUITests: RealAppUITestCase {
         let app = try launchReading()
         firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         firstPane(app).typeKey("f", modifierFlags: .command)
-        app.typeKey("f", modifierFlags: [])
         let field = element(app, "reading-search-field")
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         field.typeText("light\n")
         // Search submission releases the field. Another shortcut must reacquire it and select the query.
         app.typeKey("f", modifierFlags: .command)
-        app.typeKey("f", modifierFlags: [])
         XCTAssertTrue(waitUntil(timeout: 10) { field.debugDescription.contains("Keyboard Focused") })
         app.typeText("hope")
         XCTAssertTrue(waitUntil(timeout: 10) { (field.value as? String) == "hope" }, "typing must replace the selected query")
         shot(app, "command-f-query-replaced")
+        app.typeKey("f", modifierFlags: [])
     }
 
     /// Ctrl+B must push exactly one chooser: one Back must return to reading, not uncover a second chooser.
