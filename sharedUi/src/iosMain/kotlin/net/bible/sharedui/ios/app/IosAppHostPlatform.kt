@@ -131,7 +131,7 @@ object IosAppHostPlatform : AppHostPlatform {
         val id = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
             .activeWindow.id.toString()
         if (!HostReadingWindows.hasAssembly(id) || HostReadingWindows.sessionFor(id).editingTextInJs) return false
-        val command = net.bible.sharedui.reading.readingShortcut(event) ?: return false
+        val command = net.bible.sharedui.reading.readingShortcut(event, iosCommandKeys = true) ?: return false
         // The page also checks editor state synchronously if the bridge mirror is stale.
         val ctrl = command.startsWith("Ctrl")
         val code = command.removePrefix(if (ctrl) "Ctrl" else "Alt")

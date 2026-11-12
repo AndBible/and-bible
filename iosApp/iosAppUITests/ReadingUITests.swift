@@ -1483,6 +1483,26 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
     }
 
+    /// Real Command events exercise UIKit -> shared mapping -> page bridge, not a synthetic JS command.
+    func testCommandFAndBUseReadingShortcuts() throws {
+        let app = try launchReading()
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15))
+        pane.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        pane.typeKey("b", modifierFlags: .command)
+        app.typeKey("b", modifierFlags: [])
+        let back = app.buttons["Back"]
+        XCTAssertTrue(back.waitForExistence(timeout: 15), "Cmd+B must open the same chooser as Ctrl+B")
+        back.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15))
+        XCTAssertFalse(back.exists, "one Cmd+B must not open two choosers")
+        firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        firstPane(app).typeKey("f", modifierFlags: .command)
+        app.typeKey("f", modifierFlags: [])
+        XCTAssertTrue(element(app, "reading-search-field").waitForExistence(timeout: 15), "Cmd+F must open Find")
+        shot(app, "command-f-search")
+    }
+
     /// Ctrl+B must push exactly one chooser: one Back must return to reading, not uncover a second chooser.
     func testControlBOpensExactlyOneChooser() throws {
         let app = try launchReading()
