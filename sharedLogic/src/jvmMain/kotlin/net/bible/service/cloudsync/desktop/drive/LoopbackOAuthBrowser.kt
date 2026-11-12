@@ -1,7 +1,9 @@
 package net.bible.service.cloudsync.desktop.drive
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.service.cloudsync.CloudSyncUserCancelledException
@@ -12,6 +14,7 @@ import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -19,8 +22,7 @@ import java.util.concurrent.atomic.AtomicReference
  * waits for Google to redirect the browser back to `http://127.0.0.1:<port>/`.
  *
  * The wait ends on a redirect carrying `code` or `error`, on [timeoutMs] ([CloudSyncUserCancelledException]), on
- * coroutine cancellation (the `CancellationException` propagates) or when another [authorize] call on the same
- * instance supersedes it ([CloudSyncUserCancelledException]). The socket is closed in every case.
+ * coroutine cancellation (the `CancellationException` propagates) or when another [authorize] call in this JVM supersedes it ([CloudSyncUserCancelledException]). The socket is closed in every case.
  * Requests without `code`/`error` (such as `/favicon.ico`) get a 404 and the wait continues.
  *
  * @param successPage HTML shown in the browser after a redirect was received.
@@ -30,56 +32,80 @@ class LoopbackOAuthBrowser(
     private val timeoutMs: Long = 5 * 60_000,
     private val successPage: String,
 ) : OAuthBrowser {
-    private val current = AtomicReference<ServerSocket?>(null)
+
+    /** One authorize call: its listening socket, its accepted clients and the redirect it waits for. */
+    private class Attempt(val server: ServerSocket) {
+        val result = CompletableDeferred<String>()
+        val clients: MutableSet<Socket> = ConcurrentHashMap.newKeySet()
+
+        fun supersede() {
+            result.completeExceptionally(CloudSyncUserCancelledException())
+            close()
+        }
+
+        fun close() {
+            try { server.close() } catch (_: IOException) {}
+            clients.forEach { try { it.close() } catch (_: IOException) {} }
+        }
+    }
 
     override suspend fun authorize(buildUrl: (redirectUri: String) -> String): String {
-        val server = ServerSocket(0, 1, InetAddress.getLoopbackAddress())
-        current.getAndSet(server)?.closeQuietly()
+        val attempt = Attempt(ServerSocket(0, 1, LOOPBACK))
+        current.getAndSet(attempt)?.supersede()
         try {
-            val base = "http://127.0.0.1:${server.localPort}"
+            val base = "http://127.0.0.1:${attempt.server.localPort}"
             return coroutineScope {
                 // Accepting starts before the browser is opened, so an opener that itself blocks on the
                 // redirect (or a very fast browser) is served.
-                val waiter = async(Dispatchers.IO) { awaitRedirect(server, base) }
-                // Cancellation of the caller leaves this block; the finally closes the socket, which
-                // unblocks accept() in the child so the scope can complete.
+                launch(Dispatchers.IO) { acceptLoop(attempt, base, this) }
                 try {
-                    if (!openBrowser(buildUrl("$base/"))) throw CloudSyncUserCancelledException()
-                    withTimeoutOrNull(timeoutMs) { waiter.await() }
+                    withTimeoutOrNull(timeoutMs) {
+                        if (!openBrowser(buildUrl("$base/"))) throw CloudSyncUserCancelledException()
+                        attempt.result.await()
+                    }
                 } finally {
-                    server.closeQuietly()
+                    // Unblocks accept() and any stalled handler so the scope can complete.
+                    attempt.close()
                 } ?: throw CloudSyncUserCancelledException()
             }
         } finally {
-            server.closeQuietly()
-            current.compareAndSet(server, null)
+            attempt.close()
+            current.compareAndSet(attempt, null)
         }
     }
 
-    /** Blocking accept loop; returns null when the socket was closed under it. */
-    private fun awaitRedirect(server: ServerSocket, base: String): String? {
+    /** Blocking accept loop; every connection is served on its own coroutine so a silent one blocks nobody. */
+    private fun acceptLoop(attempt: Attempt, base: String, scope: CoroutineScope) {
         while (true) {
             val socket = try {
-                server.accept()
+                attempt.server.accept()
             } catch (e: IOException) {
-                if (server.isClosed) return null
+                if (attempt.server.isClosed) return
                 throw e
             }
-            val target = socket.use { handle(it) }
-            if (target != null) return base + target
+            attempt.clients.add(socket)
+            if (attempt.server.isClosed) { socket.close(); return }
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val target = socket.use { handle(it) }
+                    if (target != null) attempt.result.complete(base + target)
+                } finally {
+                    attempt.clients.remove(socket)
+                }
+            }
         }
     }
 
-    /** Answers one request; returns the request target if it is a redirect carrying `code` or `error`. */
+    /** Answers one request within [REQUEST_DEADLINE_MS] in total; returns the target if it carries `code`/`error`. */
     private fun handle(socket: Socket): String? {
         try {
-            socket.soTimeout = 3000
+            val deadline = System.nanoTime() + REQUEST_DEADLINE_MS * 1_000_000
             val input = socket.getInputStream()
-            val requestLine = readLine(input) ?: return null
+            val requestLine = readLine(socket, input, deadline) ?: return null
             // Drain the headers (bounded) so closing does not reset the connection under the browser.
             var headerCount = 0
             while (headerCount++ < 100) {
-                val line = readLine(input) ?: break
+                val line = readLine(socket, input, deadline) ?: break
                 if (line.isEmpty()) break
             }
             val parts = requestLine.split(' ')
@@ -89,8 +115,6 @@ class LoopbackOAuthBrowser(
             if (isRedirect) respond(socket, "200 OK", "text/html; charset=utf-8", successPage)
             else respond(socket, "404 Not Found", "text/plain; charset=utf-8", "")
             return if (isRedirect) target else null
-        } catch (_: SocketTimeoutException) {
-            return null
         } catch (_: IOException) {
             return null
         }
@@ -101,10 +125,13 @@ class LoopbackOAuthBrowser(
         return query.split('&').any { it.substringBefore('=') == "code" || it.substringBefore('=') == "error" }
     }
 
-    /** Reads one CRLF/LF-terminated line (ISO-8859-1), at most 8 KiB; null at end of stream with no data. */
-    private fun readLine(input: InputStream): String? {
+    /** Reads one CRLF/LF-terminated line (ISO-8859-1), at most 8 KiB, before [deadline] (nanoTime). */
+    private fun readLine(socket: Socket, input: InputStream, deadline: Long): String? {
         val sb = StringBuilder()
         while (sb.length < 8192) {
+            val remainingMs = (deadline - System.nanoTime()) / 1_000_000
+            if (remainingMs <= 0) throw SocketTimeoutException("Request deadline exceeded")
+            socket.soTimeout = remainingMs.toInt()
             val b = input.read()
             if (b < 0) return if (sb.isEmpty()) null else sb.toString()
             if (b == '\n'.code) return sb.toString().trimEnd('\r')
@@ -124,7 +151,11 @@ class LoopbackOAuthBrowser(
         }
     }
 
-    private fun ServerSocket.closeQuietly() {
-        try { close() } catch (_: IOException) {}
+    private companion object {
+        val LOOPBACK: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+        const val REQUEST_DEADLINE_MS = 5000L
+
+        /** The attempt in flight in this JVM; a new authorize supersedes it. */
+        val current = AtomicReference<Attempt?>(null)
     }
 }
