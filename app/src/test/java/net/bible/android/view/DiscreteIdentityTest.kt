@@ -108,14 +108,14 @@ class DiscreteIdentityTest {
     // 7
     @Test fun theShareTextNeverCarriesTheAdvertWhenDiscrete() {
         discrete(true)
-        assertFalse(selectionText(), selectionText().contains("andbible.github.io"))
-        assertFalse(buildTextWithAdvert(), buildTextWithAdvert().contains("andbible.github.io"))
+        assertFalse(selectionText(), selectionText().contains("andbible.org"))
+        assertFalse(buildTextWithAdvert(), buildTextWithAdvert().contains("andbible.org"))
     }
 
     @Test fun theShareTextKeepsTheAdvertOtherwise() {
         org.junit.Assume.assumeFalse(net.bible.service.common.BuildVariant.Appearance.isDiscrete)
-        assertTrue(selectionText().contains("andbible.github.io"))
-        assertTrue(buildTextWithAdvert().contains("andbible.github.io"))
+        assertTrue(selectionText().contains("andbible.org"))
+        assertTrue(buildTextWithAdvert().contains("andbible.org"))
     }
 
     // 9
@@ -204,8 +204,8 @@ class DiscreteIdentityTest {
         // 6
         assertFalse(welcomeState().homepageButtonsVisible)
         // 7
-        assertFalse(selectionText().contains("andbible.github.io"))
-        assertFalse(buildTextWithAdvert().contains("andbible.github.io"))
+        assertFalse(selectionText().contains("andbible.org"))
+        assertFalse(buildTextWithAdvert().contains("andbible.org"))
         // 9
         val msg = webViewTooOldRequest(
             context, "com.google.android.webview", "${MINIMUM_WEBVIEW_MAJOR_VERSION - 1}.0.1.0",

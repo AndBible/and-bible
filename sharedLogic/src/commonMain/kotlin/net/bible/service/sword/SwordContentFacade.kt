@@ -649,7 +649,7 @@ class SwordContentFacade(
 
         val advertise = if (shareAdvertAllowed(advertiseApp, environment.isDiscrete)) "\n\n${
             strings.verseShareAdvertise
-        } (https://andbible.github.io)" else ""
+        } (https://andbible.org)" else ""
         val notesOrig = selection.notes
         val notes =
             if (showNotes && notesOrig != null)
@@ -753,7 +753,7 @@ class SwordContentFacade(
         // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
         val advertiseText = if (environment.isDiscrete) "" else "${
             strings.verseShareAdvertise
-        } (https://andbible.github.io)"
+        } (https://andbible.org)"
         val notesOrig = selection.notes
         val notesText = if (notesOrig != null) htmlToPlainText.convert(notesOrig) else null
 
