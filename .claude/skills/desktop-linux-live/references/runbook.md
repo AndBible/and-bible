@@ -3,31 +3,29 @@
 From repository root, read `.jailbee/AGENT-GUIDE.md`. Use the controller for builds; no
 Android emulator or Windows VM during a heavy gate. No app changes are needed for this recipe.
 
-## 1. Build the real launchers
+## 1. Build the real launcher
 
-Prerequisites: JDK 17 toolchain, Node 24/npm 11, Xvfb, openbox, xdotool, xdpyinfo, xprop, ffmpeg;
-WebKitGTK also needs GTK4 and `libwebkitgtk-6.0-4`. Check with `command -v`, `java --version`,
-`node --version` and `ldconfig -p | rg 'libwebkitgtk-6.0'`. Build in the normal HOME, **not**
+Prerequisites: JDK 17 toolchain, Node 24/npm 11, Xvfb, openbox, xdotool, xdpyinfo, xprop, ffmpeg.
+Check with `command -v`, `java --version`, and `node --version`. Build in the normal HOME, **not**
 the isolated runtime profile (otherwise Gradle/npm caches disappear).
 
 ```bash
 (cd app/bibleview-js && npm ci && npm run build-production)
-./gradlew :desktopApp:createDistributable :desktopWebkitGtk:createDistributable
+./gradlew :desktopApp:createDistributable
 ```
 
 If the trusted pinned Linux CEF archive already exists, the build can use
 `-Pandbible.kcefArchive=.local/kcef/jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz`;
 Gradle checks the pinned digest. Never bypass a checksum or fetch an unrelated binary.
 Long build: background it in the controller, wait for completion, read `BUILD SUCCESSFUL`
-and the exit status. One Gradle invocation at a time. These are the resulting real apps:
+and the exit status. One Gradle invocation at a time. The resulting real app:
 
 - CEF: `desktopApp/build/compose/binaries/main/app/andbible/bin/andbible`
-- WebKitGTK: `desktopWebkitGtk/build/compose/binaries/main/app/andbible-webkitgtk/bin/andbible-webkitgtk`
 
 Alternatively extract a matching, known-revision deb to a fresh directory with
 `dpkg-deb -x <deb> <new-dir>` and use its `opt/<package>/bin/<package>` launcher. Record its
-revision; don't test a cached older build as if it contained the change. `runPoc` is not the
-real app. A development alternative for CEF is `:desktopApp:run -Pkcef.args=--remote-debugging-port=9333`,
+revision; don't test a cached older build as if it contained the change. A development alternative
+for CEF is `:desktopApp:run -Pkcef.args=--remote-debugging-port=9333`,
 but packaged launchers make process ownership and shutdown evidence clearer.
 
 ## 2. Start an isolated X11 session
@@ -86,16 +84,14 @@ window; `xprop -root _NET_SUPPORTING_WM_CHECK` must show the WM's window ID. Pol
 input against PointerRoot. `-noreset` prevents the X server resetting when the readiness
 probe's last client disconnects; openbox then connects to the same ready server.
 
-## 3. Launch one engine (five-minute lease)
+## 3. Launch the app (five-minute lease)
 
 ```bash
-# Choose exactly one; repeat the session with a fresh profile for the other engine.
-app="$PWD/desktopWebkitGtk/build/compose/binaries/main/app/andbible-webkitgtk/bin/andbible-webkitgtk"
-# app="$PWD/desktopApp/build/compose/binaries/main/app/andbible/bin/andbible"
+app="$PWD/desktopApp/build/compose/binaries/main/app/andbible/bin/andbible"
 test -x "$app"
 python3 -I scripts/desktop-live-processes.py start "$run" app -- \
   timeout --kill-after=10s 300s env -u JDK_JAVA_OPTIONS -u _JAVA_OPTIONS \
-  DISPLAY="$DISPLAY" GDK_BACKEND=x11 \
+  DISPLAY="$DISPLAY" \
   HOME="$run/home" XDG_DATA_HOME="$run/data" XDG_CONFIG_HOME="$run/config" \
   XDG_CACHE_HOME="$run/cache" \
   JAVA_TOOL_OPTIONS="-Duser.home=$run/home -Dskiko.renderApi=SOFTWARE" \
@@ -202,10 +198,6 @@ Known libGLX `_dl_fini` -> `XESetCloseDisplay` lock deadlock prints nothing usef
 jstack/SIGQUIT; software Skia avoids loading GLX in the common Xvfb case. Do not declare a
 successful natural exit after force killing it.
 
-WebKitGTK off-thread exit can abort with status 134 even after green test assertions:
-WebKit's C exit handlers must run on the GTK thread (`WebKitGtkEngine.exitProcess`). Collect
-native backtrace/exit code, not a blind rerun; don't patch the shutdown policy just to smoke.
-
 Preserve only inspected evidence and a short status note under `docs/superpowers/status/`;
 commit the submodule, then immediately its parent gitlink. Before deleting scratch, inspect
 its path and stop **only your identity-checked process groups** (app first, then openbox, Xvfb):
@@ -240,5 +232,4 @@ owned processes remain. Keep shared cached build inputs, not temporary profiles.
   `DatabaseContainer.instance.sync()`); other getters stay readable early. A silent "nothing happened"
   in a background pass: check this first.
 - Existing evidence: `docs/superpowers/status/2026-10-30-desktop-d3a-live-checks.md`
-  (focus/input), `2026-10-29-desktop-d2b-live-checks.md` (startup/exit),
-  `2026-11-03-desktop-webkitgtk-deb.md` (real GTK launcher).
+  (focus/input), `2026-10-29-desktop-d2b-live-checks.md` (startup/exit).

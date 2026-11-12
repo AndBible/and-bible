@@ -92,7 +92,7 @@
   top: -0.3em;
 }
 
-// Desktop app only (KCEF/WebKitGTK/WebView2): thin overlay-like document scrollbar, as on Android.
+// Desktop app only: thin overlay-like document scrollbar, as on Android.
 // Grey with alpha works in day, night and monochrome (theme classes sit below <html>). Only the
 // ::-webkit-scrollbar pseudo-elements: scrollbar-width/-color would disable them in Chromium 121+.
 html.desktop-host {

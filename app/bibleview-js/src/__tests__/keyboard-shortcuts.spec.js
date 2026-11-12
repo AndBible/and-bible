@@ -133,7 +133,7 @@ describe("reading shortcut ownership", () => {
         expect(commands).toEqual(["CtrlKeyB"]);
     });
 
-    it("delivers all reading chords with a WebKitGTK bridge and no native ownership flag", () => {
+    it("delivers all reading chords with a legacy desktop bridge and no native ownership flag", () => {
         window.webkit = {messageHandlers: {bridge: {}}};
         try {
             const {commands, press} = keyboard();
