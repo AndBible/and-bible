@@ -640,6 +640,7 @@ class ReadingAppBootstrapTest {
             val activity = controller.create().get()
             assertFalse(activity.readingAppBootstrap.showStableNotice())
             assertNull(appDialogs.pending.value)
+            assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
         } finally {
             controller.close()
             CommonUtils.settings.removeString("stable-notice-beta-ran")
@@ -663,20 +664,17 @@ class ReadingAppBootstrapTest {
     }
 
     private suspend fun kotlinx.coroutines.test.TestScope.runStableNotice(
-        upgrade: Boolean,
         discretePref: Boolean = false,
-        earlierRunMarker: Boolean = false,
         block: suspend (NavHostComposeActivity, kotlinx.coroutines.Deferred<Boolean>) -> Unit,
     ) {
         withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
             CommonUtils.settings.removeString("stable-notice-beta-ran")
-            if (earlierRunMarker) CommonUtils.settings.setInt("new-sync-targets-notice-displayed", 1)
+            CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
             if (discretePref) CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
             val controller = navHostOnReading()
             try {
                 val activity = controller.create().get()
-                activity.readingAppBootstrap.upgradeInstallProvider = { upgrade }
                 val done = async { activity.readingAppBootstrap.showStableNotice() }
                 advanceUntilIdle()
                 block(activity, done)
@@ -689,72 +687,92 @@ class ReadingAppBootstrapTest {
         }
     }
 
-    /**
-     * The upgrade from the 6.0 beta to the stable build was missed on a real device: the package times alone
-     * (`lastUpdateTime - firstInstallTime`) are not a reliable "this is an update" signal (they can look fresh
-     * after a store update). Data an earlier run left behind is: the sync-targets notice marker is written on
-     * the first launch of any earlier version, after this notice, so a fresh install never has it yet.
-     */
     @Test
-    fun stableNoticeShownWhenInstallTimesLookFreshButAnEarlierRunLeftItsMarker() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = false, earlierRunMarker = true) { _, done ->
-            val request = appDialogs.pending.value!!.request as AppDialogRequest.ReleaseNotice
-            assertEquals(CommonUtils.mainVersion, request.version)
-            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = false))
-            advanceUntilIdle()
-            assertFalse(done.await())
+    fun welcomeSilentlyMarksStableNoticeBeforeReading() = runTest(timeout = 30.seconds) {
+        withNonBetaBuild {
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                val databaseHost = net.bible.service.db.DatabaseContainer.host
+                val productionHost = object : net.bible.service.db.DatabaseHost by databaseHost {
+                    override val isRunningTests = false
+                }
+                try {
+                    net.bible.service.db.DatabaseContainer.installHost(productionHost)
+                    net.bible.service.db.DatabaseContainer.ready = false
+                    net.bible.android.view.activity.WelcomeFlow(activity).controller
+                    assertTrue("Welcome must open settings before marking the release notice", net.bible.service.db.DatabaseContainer.ready)
+                } finally {
+                    net.bible.service.db.DatabaseContainer.installHost(databaseHost)
+                    net.bible.service.db.DatabaseContainer.ready = true
+                }
+                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertFalse(activity.readingAppBootstrap.showStableNotice())
+                assertNull(appDialogs.pending.value)
+            } finally {
+                controller.close()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
         }
     }
 
     @Test
-    fun stableNoticeNotShownOnFreshInstall() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = false) { _, done ->
-            assertTrue(done.isCompleted)
-            assertFalse(done.await())
-            assertNull(appDialogs.pending.value)
-            assertEquals(
-                "a fresh install marks the version silently",
-                CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""),
-            )
-        }
-    }
-
-    @Test
-    fun betaRunMarkerMakesFreshLookingStableInstallAnUpgrade() = runTest(timeout = 30.seconds) {
-        val betaRanKey = "stable-notice-beta-ran"
+    fun betaWelcomeDoesNotStoreStableOrBetaMarker() = runTest(timeout = 30.seconds) {
         CommonUtils.settings.removeString("stable-notice-displayed")
-        CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
-        CommonUtils.settings.removeString(betaRanKey)
-        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
-
+        CommonUtils.settings.removeString("stable-notice-beta-ran")
         val controller = navHostOnReading()
         try {
-            val activity = controller.create().get()
-            activity.readingAppBootstrap.upgradeInstallProvider = { false }
-            assertFalse(activity.readingAppBootstrap.showStableNotice())
+            controller.create().get().welcomeFlow.controller
             assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
-            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString(betaRanKey, ""))
-
-            withNonBetaBuild {
-                activity.readingAppBootstrap.upgradeInstallProvider = { false }
-                val stableNotice = async { activity.readingAppBootstrap.showStableNotice() }
-                advanceUntilIdle()
-                assertTrue(appDialogs.pending.value!!.request is AppDialogRequest.ReleaseNotice)
-                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, false))
-                advanceUntilIdle()
-                assertFalse(stableNotice.await())
-            }
+            assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
         } finally {
             controller.close()
             CommonUtils.settings.removeString("stable-notice-displayed")
-            CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
-            CommonUtils.settings.removeString(betaRanKey)
+            CommonUtils.settings.removeString("stable-notice-beta-ran")
         }
     }
 
     @Test
-    fun stableNoticeShownToUpgrader() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = true) { _, done ->
+    fun discreteWelcomeDoesNotStoreNoticeVersion() = runTest(timeout = 30.seconds) {
+        withNonBetaBuild {
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
+            val controller = navHostOnReading()
+            try {
+                controller.create().get().welcomeFlow.controller
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            } finally {
+                controller.close()
+                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
+        }
+    }
+
+    @Test
+    fun oldBetaMarkerDoesNotOverrideWelcomeDismissal() = runTest(timeout = 30.seconds) {
+        withNonBetaBuild {
+            CommonUtils.settings.setString("stable-notice-beta-ran", CommonUtils.mainVersion)
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                activity.welcomeFlow.controller
+                assertFalse(activity.readingAppBootstrap.showStableNotice())
+                assertNull(appDialogs.pending.value)
+                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+            } finally {
+                controller.close()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+                CommonUtils.settings.removeString("stable-notice-beta-ran")
+            }
+        }
+    }
+
+    @Test
+    fun stableNoticeShownWithoutInstallOrSyncMarkers() = runTest(timeout = 30.seconds) {
+        runStableNotice { _, done ->
             val request = appDialogs.pending.value!!.request as AppDialogRequest.ReleaseNotice
             assertEquals(CommonUtils.mainVersion, request.version)
             assertTrue(request.sponsorAllowed)
@@ -767,17 +785,23 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun stableNoticeCloseWithoutCheckboxDoesNotPersist() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = true) { _, done ->
+        runStableNotice { activity, done ->
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = false))
             advanceUntilIdle()
             assertFalse(done.await())
             assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            val nextLaunch = async { activity.readingAppBootstrap.showStableNotice() }
+            advanceUntilIdle()
+            assertTrue(appDialogs.pending.value!!.request is AppDialogRequest.ReleaseNotice)
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
+            advanceUntilIdle()
+            assertFalse(nextLaunch.await())
         }
     }
 
     @Test
     fun stableNoticeNotShownInDiscrete() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = true, discretePref = true) { _, done ->
+        runStableNotice(discretePref = true) { _, done ->
             assertTrue(done.isCompleted)
             assertFalse(done.await())
             assertNull(appDialogs.pending.value)
@@ -786,7 +810,7 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun shareActionOpensRecommendDialog() = runTest(timeout = 30.seconds) {
-        runStableNotice(upgrade = true) { _, done ->
+        runStableNotice { _, done ->
             appDialogs.respond(
                 appDialogs.pending.value!!.id,
                 AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = false),

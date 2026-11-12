@@ -590,12 +590,11 @@ private fun HostAppContent(
             val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
             val links = koin.get<ExternalLinks>()
             val textShare = koin.get<net.bible.sharedui.app.ports.TextShare>()
-            // The 6.0 notice for upgraders (Android: ReadingAppBootstrap.showStableNotice); it names no sponsor on iOS.
+            // The shared stable gate; Welcome marks the version before reading is ever reached.
             net.bible.sharedui.app.notice.ReleaseNotice.showIfNeeded(
                 platform = releaseNoticePlatform,
                 isBeta = environment.isBeta,
                 discrete = environment.isDiscrete,
-                isUpgrade = platform.isUpgradeInstall(),
                 mainVersion = platform.readingHost.versionName().split('.').take(2).joinToString("."),
                 settings = koin.get<AppSettings>(),
                 ask = dialogs::await,
@@ -603,8 +602,8 @@ private fun HostAppContent(
                     when (action) {
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.VIDEO -> links.open(net.bible.sharedcore.docs.SiteLinks.WHATS_NEW_VIDEO_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.COMPUTER,
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE,
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE ->
                             net.bible.sharedui.app.recommend.RecommendApp.run(strings, dialogs::await, textShare::shareText)
                     }

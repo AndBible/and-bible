@@ -91,6 +91,7 @@ class DesktopAppHostPlatform(
     override val displayModeSignals: DisplayModeSignals by lazy { DesktopDisplayModeSignals(koin().get<DesktopNightModeSource>()) }
     override val dialogHost: AppDialogHost by lazy { DesktopAppDialogHost(koin) }
     override val betaNoticePlatform get() = net.bible.sharedui.app.notice.BetaNoticePlatform.DESKTOP
+    override val releaseNoticePlatform get() = net.bible.sharedui.app.notice.ReleaseNoticePlatform.DESKTOP
 
     override fun deviceUiLanguage(koin: Koin): String = DesktopUiLanguage.resolve(koin.get<DesktopDeviceSettings>())
 

@@ -136,6 +136,7 @@ fun AbReleaseNoticeCard(
     version: String,
     sponsorAllowed: Boolean,
     logoPainter: Painter?,
+    computerAllowed: Boolean = true,
     onAnswer: (ReleaseNoticeAction?, Boolean) -> Unit,
 ) {
     TrackOverlay()
@@ -199,9 +200,11 @@ fun AbReleaseNoticeCard(
                                 Icons.Filled.PlayArrow, strings.releaseNoticeVideoTitle(version), strings.releaseNoticeVideoSubtitle,
                                 palette, highlighted = true,
                             ) { onAnswer(ReleaseNoticeAction.VIDEO, dontShowAgain) }
-                            ActionRow(
-                                Icons.Filled.Computer, strings.releaseNoticeComputerTitle, strings.releaseNoticeComputerSubtitle, palette,
-                            ) { onAnswer(ReleaseNoticeAction.COMPUTER, dontShowAgain) }
+                            if (computerAllowed) {
+                                ActionRow(
+                                    Icons.Filled.Computer, strings.releaseNoticeComputerTitle, strings.releaseNoticeComputerSubtitle, palette,
+                                ) { onAnswer(ReleaseNoticeAction.COMPUTER, dontShowAgain) }
+                            }
                             ActionRow(
                                 Icons.Filled.Share, strings.releaseNoticeShareTitle, strings.releaseNoticeShareSubtitle, palette,
                             ) { onAnswer(ReleaseNoticeAction.SHARE, dontShowAgain) }

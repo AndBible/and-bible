@@ -62,6 +62,10 @@ class HostWelcomeHostPlatform(
         )
     }
     private val controllerLazy = lazy {
+        net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
+            environment.isBeta, discrete, versionName().split('.').take(2).joinToString("."),
+            koin.get<net.bible.sharedcore.platform.AppSettings>(),
+        )
         core.controller.also { scope.launch { refreshInfo() } }
     }
     override val controller get() = controllerLazy.value

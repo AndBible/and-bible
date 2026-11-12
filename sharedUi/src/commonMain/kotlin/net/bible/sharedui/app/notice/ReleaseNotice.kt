@@ -25,55 +25,49 @@ import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
 
 /** The platform showing the 6.0 release notice; iOS has no sponsor action. */
 @kotlin.native.HiddenFromObjC
-enum class ReleaseNoticePlatform { ANDROID, IOS }
+enum class ReleaseNoticePlatform { ANDROID, IOS, DESKTOP }
 
 /**
- * The one-time 6.0 stable release notice for upgraders. The gate is shared by every platform; the host supplies
+ * The 6.0 stable release notice. The gate is shared by every platform; the host supplies
  * [showIfNeeded]'s `ask` (dialog) and `onAction` (what each button does).
  *
- * The notice is remembered per main version (e.g. "6.0") under [DISPLAYED_KEY]: a patch update does not show it
- * again, the next minor does. A fresh stable install does not see it, but an earlier beta run counts as an upgrade.
+ * The checkbox remembers a main version (e.g. "6.0") under [DISPLAYED_KEY]: patches stay quiet, the next minor
+ * shows again. Showing Welcome silently marks that version instead. Beta and discrete builds never read or write it.
  */
 @kotlin.native.HiddenFromObjC
 object ReleaseNotice {
     /** The settings key holding the main version whose notice was last seen (the name is the old Android key). */
     const val DISPLAYED_KEY = "stable-notice-displayed"
 
-    /** The main version last run as a non-discrete beta. */
-    const val BETA_RAN_KEY = "stable-notice-beta-ran"
+    /** Welcome owns onboarding, so its users do not need the release notice, even after a later patch. */
+    fun dismissForWelcome(isBeta: Boolean, discrete: Boolean, mainVersion: String, settings: AppSettings) {
+        if (!isBeta && !discrete) settings.setString(DISPLAYED_KEY, mainVersion)
+    }
 
-    /** Whether to ask: a stable, non-discrete build, an upgrade, and [mainVersion] not yet marked [displayed]. */
-    fun shouldShow(isBeta: Boolean, discrete: Boolean, isUpgrade: Boolean, mainVersion: String, displayed: String): Boolean =
-        !isBeta && !discrete && isUpgrade && displayed != mainVersion
+    /** Whether to ask: a stable, non-discrete build and [mainVersion] not yet marked [displayed]. */
+    fun shouldShow(isBeta: Boolean, discrete: Boolean, mainVersion: String, displayed: String): Boolean =
+        !isBeta && !discrete && displayed != mainVersion
 
     /**
-     * A non-discrete beta records [mainVersion] separately without touching [DISPLAYED_KEY]. A stable run of that
-     * version is treated as an upgrade, even if [isUpgrade] is false. Other fresh installs silently store the version,
-     * including discrete installs, so later patches stay quiet. Discrete builds never show the notice.
-     * Returns true only when the user's "don't show again" stored it. A chosen action runs after the dialog closes.
+     * Returns true only when the user's "don't show again" stored the main version. Closing without the checkbox
+     * leaves the notice enabled for the next launch. A chosen action runs after the dialog closes.
      */
     suspend fun showIfNeeded(
         platform: ReleaseNoticePlatform,
         isBeta: Boolean,
         discrete: Boolean,
-        isUpgrade: Boolean,
         mainVersion: String,
         settings: AppSettings,
         ask: suspend (AppDialogRequest) -> AppDialogResult,
         onAction: suspend (ReleaseNoticeAction) -> Unit,
     ): Boolean {
-        if (isBeta) {
-            if (!discrete) settings.setString(BETA_RAN_KEY, mainVersion)
-            return false
-        }
+        if (isBeta || discrete) return false
         val displayed = settings.getString(DISPLAYED_KEY, "") ?: ""
-        val effectiveUpgrade = isUpgrade || settings.getString(BETA_RAN_KEY, "") == mainVersion
-        if (!effectiveUpgrade && displayed.isEmpty()) {
-            settings.setString(DISPLAYED_KEY, mainVersion)
-            return false
-        }
-        if (!shouldShow(isBeta, discrete, effectiveUpgrade, mainVersion, displayed)) return false
-        val answer = ask(AppDialogRequest.ReleaseNotice(mainVersion, sponsorAllowed = platform == ReleaseNoticePlatform.ANDROID))
+        if (!shouldShow(isBeta, discrete, mainVersion, displayed)) return false
+        val answer = ask(AppDialogRequest.ReleaseNotice(
+            mainVersion, sponsorAllowed = platform != ReleaseNoticePlatform.IOS,
+            computerAllowed = platform != ReleaseNoticePlatform.DESKTOP,
+        ))
             as? AppDialogResult.ReleaseNoticeAnswer ?: return false
         val stored = answer.dontShowAgain
         if (stored) settings.setString(DISPLAYED_KEY, mainVersion)

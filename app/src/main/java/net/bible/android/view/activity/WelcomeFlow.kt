@@ -76,6 +76,13 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
     suspend fun previousInstallDetected(): Boolean = core.previousInstallDetected()
     suspend fun refreshInfo() = core.refreshInfo()
     private val controllerLazy = lazy {
+        if (!CommonUtils.isBeta && !CommonUtils.isDiscrete) {
+            // A process restored onto Welcome may not have passed StartupActivity's database open.
+            DatabaseContainer.openForUse()
+            net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
+                CommonUtils.isBeta, CommonUtils.isDiscrete, CommonUtils.mainVersion, CommonUtils.settings,
+            )
+        }
         core.controller.also {
             host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { refreshInfo() }
         }

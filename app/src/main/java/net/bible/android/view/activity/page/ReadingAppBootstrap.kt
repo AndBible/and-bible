@@ -330,26 +330,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     /**
-     * Whether this launch follows an update rather than a fresh install: Android's `firstInstallTime`
-     * is well before `lastUpdateTime` only after an update (see [isUpgradeInstallTimes]). A fresh install therefore marks the notice's
-     * version silently (see [ReleaseNotice.showIfNeeded]). Overridable for tests.
-     */
-    internal var upgradeInstallProvider: () -> Boolean = {
-        val info = host.packageManager.getPackageInfo(host.packageName, 0)
-        isUpgradeInstallTimes(info.firstInstallTime, info.lastUpdateTime)
-    }
-
-    /**
-     * An update, not a fresh install: the package times say so, or an earlier run left its marker. The times alone
-     * missed the beta -> stable update on a real device; the sync-targets notice marker
-     * (`new-sync-targets-notice-displayed`) is written on the first launch of every earlier version, and only
-     * after the release notice in [showFirstRunNotices], so a fresh install never has it at this point.
-     */
-    internal fun isUpgradeInstall(): Boolean =
-        upgradeInstallProvider() || preferences.getInt("new-sync-targets-notice-displayed", 0) > 0
-
-    /**
-     * The 6.0 release notice for upgraders, built and gated by the shared [ReleaseNotice] (the same source as
+     * The 6.0 release notice, built and gated by the shared [ReleaseNotice] (the same source as
      * iOS). Its action buttons open the what's-new video, the computer-version page, the sponsor page, or the
      * same recommend flow as the menu. Returns true only when "don't show again" was stored.
      */
@@ -358,7 +339,6 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             platform = ReleaseNoticePlatform.ANDROID,
             isBeta = CommonUtils.isBeta,
             discrete = CommonUtils.isDiscrete,
-            isUpgrade = isUpgradeInstall(),
             mainVersion = CommonUtils.mainVersion,
             settings = preferences,
             ask = appDialogs::await,
@@ -575,11 +555,3 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  */
 internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean =
     BetaNotice.shouldShow(isBeta, discrete, dismissedVersion = 0)
-
-/**
- * Whether the package times describe an update rather than a fresh install. Some Play / split-APK fresh installs
- * set `lastUpdateTime` a few milliseconds after `firstInstallTime`, so equality is too strict; an update is
- * taken to be more than a minute after the first install.
- */
-internal fun isUpgradeInstallTimes(firstInstallTime: Long, lastUpdateTime: Long): Boolean =
-    lastUpdateTime - firstInstallTime > 60_000

@@ -21,6 +21,9 @@ import net.bible.service.cloudsync.desktop.desktopSyncModule
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedui.app.notice.ReleaseNoticePlatform
+import net.bible.sharedui.desktop.webengine.FakeWebEngine
+import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import org.koin.core.Koin
 import org.koin.dsl.koinApplication
 import java.nio.file.Files
@@ -50,6 +53,13 @@ class DesktopAppHostPlatformTest {
             app.close()
             root.toFile().deleteRecursively()
         }
+    }
+
+    @Test fun desktopHostEnablesReleaseNotice() {
+        val host = DesktopAppHostPlatform(
+            DesktopHostLifecycle(), DesktopReadingPaneEngine(FakeWebEngine(), {}), FakeWindow(IntSize(1200, 800)),
+        )
+        assertEquals(ReleaseNoticePlatform.DESKTOP, host.releaseNoticePlatform)
     }
 
     @Test fun windowHandleIsNotFocusedAndVisibleByDefault() {

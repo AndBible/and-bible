@@ -176,7 +176,7 @@ fun AppDialogHost(
                     )
                 }
                 is AppDialogRequest.ReleaseNotice -> AbReleaseNoticeCard(
-                    request.version, request.sponsorAllowed, LocalNoticeIcons.current?.logo,
+                    request.version, request.sponsorAllowed, LocalNoticeIcons.current?.logo, request.computerAllowed,
                 ) { action, dontShowAgain -> onRespond(id, AppDialogResult.ReleaseNoticeAnswer(action, dontShowAgain)) }
                 // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
                 // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
