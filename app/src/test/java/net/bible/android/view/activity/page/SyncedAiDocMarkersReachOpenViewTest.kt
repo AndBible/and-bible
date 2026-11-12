@@ -253,6 +253,27 @@ class SyncedAiDocMarkersReachOpenViewTest {
         })
     }
 
+    /**
+     * A whole document deleted on another device: the sync triggers skip the cascaded `MyDocumentPage` delete
+     * (parent gone) but log the cascaded `AiPageCacheEntry` delete, so that entry alone must remove the marker.
+     */
+    @Test fun aiDocumentDeletedWithItsDocumentIsRemovedFromTheOpenView() {
+        val pageId = insertSyncedAiPage("Study in a deleted document")
+        syncApplied(upsertEntries(pageId))
+        host.js.clear()
+
+        val aiDocument = runBlocking { MyDocumentBookManager.getOrCreateAIDocument() }
+        runBlocking { dao.deleteDocumentWithPages(aiDocument) }
+        syncApplied(listOf(
+            entry("MyDocument", aiDocument.id, LogEntryTypes.DELETE),
+            entry("AiPageCacheEntry", pageId, LogEntryTypes.DELETE),
+        ))
+
+        assertTrue("JS: ${markerJs()}", markerJs().any {
+            it.contains("delete_ai_doc_markers") && it.contains(pageId.toString())
+        })
+    }
+
     @Test fun syncOfAPageWithoutAiMarkerSendsNoMarkerEvents() {
         val pageId = runBlocking {
             val doc = net.bible.android.database.mydocument.MyDocument(name = "Plain", initials = "MyDoc_Plain")
