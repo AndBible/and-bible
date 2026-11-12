@@ -60,7 +60,7 @@ install-debug:
 
 install-prod:
 	@echo "Assembling standard github release APK (signing via keystore.properties.gpg)..."
-	./gradlew assembleStandardGithubRelease
+	./gradlew -Pandbible.sign=true assembleStandardGithubRelease
 	@echo "Installing APK to connected device..."
 	adb install -r app/build/outputs/apk/standardGithub/release/app-standard-github-release.apk
 	@echo "✓ Installed"
@@ -77,19 +77,19 @@ fdroid-release:
 
 bundle:
 	@echo "Building Google Play AAB bundle (signing via keystore.properties.gpg)..."
-	./gradlew bundleStandardGoogleplayRelease
+	./gradlew -Pandbible.sign=true bundleStandardGoogleplayRelease
 	@echo "✓ AAB: app/build/outputs/bundle/standardGoogleplayRelease/app-standard-googleplay-release.aab"
 
 accrescent:
 	@echo "Building Accrescent APK set (signing via keystore.properties.gpg)..."
-	./gradlew buildApksStandardAccrescentRelease
+	./gradlew -Pandbible.sign=true buildApksStandardAccrescentRelease
 	@mkdir -p app/standardAccrescent/release
 	@cp app/build/outputs/apkset/standardAccrescentRelease/app-standardAccrescentRelease.apks app/standardAccrescent/release/
 	@echo "✓ APK set: app/standardAccrescent/release/app-standardAccrescentRelease.apks"
 
 accrescent-debug:
 	@echo "Building Accrescent Debug APK set (signing via keystore.properties.gpg)..."
-	./gradlew buildApksStandardAccrescentDebug
+	./gradlew -Pandbible.sign=true buildApksStandardAccrescentDebug
 	@mkdir -p app/standardAccrescent/debug
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"

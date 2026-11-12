@@ -54,6 +54,22 @@ then no longer read by the pipeline (`release_keys.p12.gpg` may stay for the oth
   and `scripts/mac-remote.sh cleanup` detaches stale `asckey-*` volumes on the Mac.
 - **No session.** A retry is a new run with a new touch; it reuses built artifacts, not decrypted secrets.
 
+## Explicit Gradle signing
+
+Gradle reads signing credentials only when explicitly requested:
+
+- `ANDBIBLE_SIGNING_PROPERTIES=<path>` loads that properties file and never runs GPG, even if
+  `-Pandbible.sign=true` is also passed. The internal release pipeline already uses this route.
+- Otherwise, `-Pandbible.sign=true` decrypts the repo-root `keystore.properties.gpg` in memory.
+  A missing encrypted file is a build error. The manual `make install-prod`, `make bundle`,
+  `make accrescent` and `make accrescent-debug` targets pass the flag for you.
+
+Without either opt-in, Gradle never decrypts Android signing credentials and Android release
+artifacts are unsigned. Task names containing `Release` (Android, desktop or iOS) do not enable
+Android signing; desktop and iOS signing are configured separately.
+`ANDBIBLE_RELEASE_KEYSTORE` only overrides the keystore path after credentials are loaded;
+it does not enable signing on its own.
+
 ## Host commands
 
 | When | Command |

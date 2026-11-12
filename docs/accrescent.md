@@ -61,14 +61,18 @@ make accrescent         # Release APK set
 make accrescent-debug   # Debug APK set (for testing)
 ```
 
-The Gradle build decrypts `keystore.properties.gpg` in-memory (GPG passphrase / YubiKey
-prompt will appear). The plaintext credentials never touch disk.
+These Makefile targets pass `-Pandbible.sign=true`, explicitly asking Gradle to decrypt
+`keystore.properties.gpg` in-memory (GPG passphrase / YubiKey prompt will appear). The
+plaintext credentials never touch disk. A task name containing `Release` does not opt in
+to signing: without this flag or `ANDBIBLE_SIGNING_PROPERTIES`, Gradle never runs GPG and
+Android release artifacts are unsigned. Desktop and iOS release tasks also never trigger
+this Android credentials decrypt; their own signing is configured separately.
 
 ### Direct Gradle commands
 
 ```bash
-./gradlew buildApksStandardAccrescentRelease
-./gradlew buildApksStandardAccrescentDebug
+./gradlew -Pandbible.sign=true buildApksStandardAccrescentRelease
+./gradlew -Pandbible.sign=true buildApksStandardAccrescentDebug
 ```
 
 ### Output location
@@ -107,17 +111,28 @@ bundletool install-apks --apks=app/standardAccrescent/release/app-standardAccres
 - Did you enter the correct GPG passphrase / touch the YubiKey in time?
 - Was the file encrypted to a GPG key you have access to?
 
-### "keystore.properties.gpg not found — release artifacts will be unsigned"
+### "andbible.sign=true requires keystore.properties.gpg at the repository root"
 
-This message is **expected on CI** (GitHub Actions signs APKs externally with `apksigner`).
-On a developer machine, it means the encrypted credentials file is missing — see
-[Initial Setup](#initial-setup).
+Explicit signing was requested, but the encrypted credentials file is missing. Gradle
+fails instead of silently building unsigned. See [Initial Setup](#initial-setup), or use
+`ANDBIBLE_SIGNING_PROPERTIES` with an already-decrypted properties file (see
+[Release secrets](release-secrets.md)).
+
+### "release artifacts will be unsigned"
+
+An explicitly requested GPG decrypt failed or returned no signing credentials. Check the
+preceding GPG warning and the credentials file. Do not publish the unsigned output.
+
+Without either signing opt-in, unsigned release builds are intentional and do not try GPG
+or report missing credentials. For a signed local build, use the Makefile targets or pass
+`-Pandbible.sign=true` explicitly.
 
 ## CI/CD Integration
 
 The GitHub Actions `build-apk.yml` workflow signs APKs externally via `apksigner` using
-GitHub Secrets. The Gradle build leaves APKs unsigned on CI because
-`keystore.properties.gpg` is not present there. No changes needed for CI.
+GitHub Secrets. The Gradle build leaves APKs unsigned because CI does not set
+`ANDBIBLE_SIGNING_PROPERTIES` or pass `-Pandbible.sign=true`, even if the encrypted
+properties file is present. No changes needed for CI.
 
 ## Requirements
 
