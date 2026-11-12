@@ -112,7 +112,7 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit, onDismiss: () -
     Row(
         rowWidth.clickable(onClick = onClick)
             .then(if (documentSync) Modifier.semantics { contentDescription = item.title } else Modifier)
-            .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
+            .padding(start = 16.dp, end = if (item.state == ActivityState.RUNNING) 16.dp else 8.dp, top = 8.dp, bottom = 8.dp)
             .testTag(ACTIVITY_ROW_TAG),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
