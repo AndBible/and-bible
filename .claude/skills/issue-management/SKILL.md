@@ -21,9 +21,19 @@ description: Use for AndBible issue and project-board work — creating, comment
   change the project board, the label taxonomy or many items at once. **It is currently out of
   use (maintainer, 2026-11-02):** use it only when the maintainer explicitly asks for a triage run.
   Never stage a batch for a few issue creates or comments.
-- Board fields (Status, Priority, Size) have no routine write path: the outbox cannot touch
-  GitHub Projects. Automation adds new issues as Needs triage; when a routine item needs a board
-  change, tell the maintainer instead of staging a batch.
+- **Board fields (Status, Priority, Size) → the same outbox** (since 2026-11-12). The board is org
+  project `AndBible/11` (`target_project` in `docs/superpowers/triage/board-migration.yaml`).
+  - Read: `gh project item-list 11 --owner AndBible --limit 2000 --format json` (items carry
+    `status`, `priority`, `size`, `labels`, `content.number`); field options:
+    `gh project field-list 11 --owner AndBible --format json`.
+  - Write: `jailbee issue project <n> --project AndBible/11 --set Status=Backlog --set Priority=P2
+    --set Size=S [--batch NAME]` (`--clear FIELD`, `--add`, `--remove` also exist). Values are the
+    exact option names (`Status=Next up`, `Status=In progress`, `Priority=P0 Blocker`, `Priority=Someday`).
+  - Publish like other issue actions when `jailbee inbox grant` lists `publish projects: andbible/11`.
+  - Each `--set` is one action and each stage does a host read (slow: run a long list in the
+    background). Publication is rate-limited (`publish max_actions_per_hour` in the grant, 30 on
+    2026-11-12), so a triage of many items may need two publish rounds an hour apart.
+  - Automation adds new issues as Needs triage and moves closed ones to Done; do not set Done by hand.
 
 The tracker rules apply on both routes: labels from `docs/superpowers/triage/taxonomy.yaml`, one `Type:` and
 one `Area:` label, short specific English text, no hour estimates, close an issue as soon as its fix is merged
@@ -95,6 +105,15 @@ project automation; `apply.py` treats that as a satisfied `board.add` and still 
 ## Flows
 
 ### 1. Inbox triage (new issues and PRs)
+
+**Routine inbox (default):** list board items with Status `Needs triage` (`gh project item-list`, above),
+read each with `gh issue view <n> --json ...,comments`, check the code on the current dev branch for
+"already done", show the maintainer a Finnish table (one sentence per item, verdict, Status/Priority/Size)
+and ask only the judgement calls (duplicates, wontfix, uncertain priority). Then stage the issue actions
+(comments, closes, labels) and the board fields through the outbox and publish them. Worked example:
+2026-11-12 inbox (18 items, `001-triage-nov12-issues` + `triage-nov12-board`).
+
+**Batch toolchain variant** (only when the maintainer asks for a triage run):
 1. `cd docs/superpowers/tools/triage && uv run --no-project --with pyyaml python fetch.py snapshot`; get a fresh `board.json` (see Hard rules).
 2. Items with Status Needs triage are the inbox. Read issues from `snapshot/issues/<n>.md` and
    PRs from `snapshot/prs/<n>.md`; check `closed-index.tsv` and same-area open items for
@@ -114,14 +133,17 @@ Actual) / Proposed change (code pointers, Compose vs legacy view) / Open questio
 ### 3. Pick next work
 
 From the Priorities and Quick wins views (P1–P2, Size S first, demand from `index.tsv`), propose
-2–5 items with AskUserQuestion. Move the chosen ones to Next up through a batch. Each picked item then
+2–5 items with AskUserQuestion. Move the chosen ones to Next up (`jailbee issue project <n> --set
+"Status=Next up"`), and to In progress when work starts. Each picked item then
 starts its own superpowers chain: brainstorming → spec/plan → SDD, with the issue as input.
 
 **Assign when work starts (maintainer, 2026-11-12).** The moment an issue is taken into work (a child
 spawned for it, an SDD run or your own fix started), assign it to the publishing account:
 `jailbee issue assign <n> --me` (several: `--batch NAME` + `jailbee outbox submit NAME --kind issue`), then
 publish it yourself when the grant's `publish issues` includes `assign_self`/`assign`; otherwise leave it
-for `jb issue apply`. Do it in the same turn as the spawn, not at merge time.
+for `jb issue apply`. Do it in the same turn as the spawn, not at merge time. In the same batch set the
+board Status: `jailbee issue project <n> --project AndBible/11 --set "Status=In progress"` (and
+`Status=In review` when it waits in an open PR; closing moves it to Done automatically).
 
 ### 4. Close the loop
 

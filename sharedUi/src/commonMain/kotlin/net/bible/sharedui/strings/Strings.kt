@@ -1361,6 +1361,7 @@ interface Strings {
     val releaseNoticeWebsite: String // R.string.release_notice_website
     val releaseNoticeFreeNoAds: String // R.string.release_notice_free_no_ads
     val releaseNoticeDontShowAgain: String // R.string.release_notice_dont_show_again
+    val releaseNoticePlatformInstall: String // R.string.release_notice_platform_install
 
     // Recommend to a friend (RecommendApp)
     val tellFriendTitle: String // R.string.tell_friend_title

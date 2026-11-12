@@ -18,6 +18,7 @@
 package net.bible.android.control.page.window
 
 import kotlinx.coroutines.IO
+import net.bible.service.common.titleName
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.sync.bookNameMonitor
 import net.bible.sharedlogic.sync.withMonitor
@@ -411,7 +412,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             BookName.setFullBookName(false)
             try {
                 for ((key, abbreviation) in titles) {
-                    keyTitle.add("${key?.getName()} ($abbreviation)")
+                    keyTitle.add("${key?.titleName} ($abbreviation)")
                 }
             } finally {
                 BookName.setFullBookName(prevFullBookNameValue)

@@ -35,7 +35,9 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.BibleNames
 
 suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {
     val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
@@ -172,3 +174,29 @@ val Key.shortName: String get() =
             }
         }
     else getName()
+
+
+private val singlePsalmRest = Regex("""\d+(:\d+(-\d+)?)?""")
+
+/**
+ * The name of this key for titles: [getName], except that a reference inside one psalm reads "Psalm 119"
+ * instead of "Psalms 119" (a psalm is a poem, not a chapter of a book called "Psalms"; #3430). Ranges over several
+ * psalms ("Psalms 1-2") and the whole book keep the plural. One-chapter books already read "Obadiah 7" (and
+ * just "Obadiah" for the whole chapter) in JSword's naming (#3571).
+ *
+ * JSword's book-name data has no singular form, so the singular is only applied while the active book name for
+ * Psalms is the English default "Psalms"; other languages keep their own names untouched. Display only: parsing
+ * and OSIS references are not affected.
+ */
+val Key.titleName: String get() {
+    val name = getName()
+    if (this !is VerseKey<*>) return name
+    return singularPsalmTitle(name, BibleNames.instance().getLongName(BibleBook.PS))
+}
+
+/** [titleName]'s rule on plain strings: [pluralName] is the active long name of the book of Psalms. */
+internal fun singularPsalmTitle(name: String, pluralName: String): String {
+    if (pluralName != "Psalms" || !name.startsWith("Psalms ")) return name
+    val rest = name.removePrefix("Psalms ")
+    return if (singlePsalmRest.matches(rest)) "Psalm $rest" else name
+}

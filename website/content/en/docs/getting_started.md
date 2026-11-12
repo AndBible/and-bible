@@ -142,8 +142,14 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 ## Release notice
 
-On stable builds, a release card introduces the new features and platforms. Close it with
-**Don't show again** checked to hide it for the current main version (for example, 6.0,
+On stable builds, a release card introduces the new features and platforms. Tap a platform
+(Android, iPhone & iPad, Windows, Mac or Linux) to open its installation instructions above;
+**Get AndBible on your computer** opens the start of the installation guide.
+The card's links (the platforms, the video, sharing, sponsoring or the website) keep the card open:
+when you come back from the link or close the share dialog, the card is still there, so you can
+try another one. Only **Close**, Back or tapping outside the card close it.
+
+Close it with **Don't show again** checked to hide it for the current main version (for example, 6.0,
 including later 6.0 patches). Without that checkbox, it appears again on the next launch;
 a new main version, such as 6.1, can show it again.
 

@@ -33,6 +33,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.android.control.versification.wholeChapter
+import net.bible.service.common.titleName
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -137,6 +138,9 @@ class ToolbarStateServiceImpl(
             // is why the rule lives outside it). Re-read fresh on every snapshot for the same reason
             // as workspaceColorArgb above.
             deriveToolbarFromTheme = deriveToolbarFromTheme(settings.getStringSet("experimental_features", emptySet())),
+            // Issue #4041: Greek Strong's glyph in the NT, Hebrew in the OT (classic updateStrongsButton).
+            // Re-read on every snapshot, so a VerseChanged (navigation) moves it.
+            isNewTestament = documentControl.isNewTestament,
         )
     }
 
@@ -146,7 +150,7 @@ class ToolbarStateServiceImpl(
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) wholeChapter(key, false).getName()
-        else key?.getName() ?: ""
+        return if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName
+        else key?.titleName ?: ""
     }
 }

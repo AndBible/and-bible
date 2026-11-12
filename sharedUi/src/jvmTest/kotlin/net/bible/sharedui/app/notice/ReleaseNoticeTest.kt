@@ -17,6 +17,8 @@
 package net.bible.sharedui.app.notice
 
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
@@ -25,6 +27,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -146,16 +149,50 @@ class ReleaseNoticeTest {
         assertEquals("6.0", settings.getString(key, ""))
     }
 
+    /** #4063: an action runs and the notice is asked again (checkbox state kept); only Close ends it and persists. */
     @Test
-    fun actionRunsAfterCloseAndHonoursCheckbox() = runTest {
+    fun actionKeepsNoticeOpenUntilClose() = runTest {
         val settings = MemoryAppSettings()
         val actions = mutableListOf<ReleaseNoticeAction>()
-        assertFalse(show(settings, actions = actions) { AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, false) })
-        assertEquals(listOf(ReleaseNoticeAction.SHARE), actions)
-        assertEquals("", settings.getString(key, ""))
-        assertTrue(show(settings, actions = actions) { AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, true) })
-        assertEquals(listOf(ReleaseNoticeAction.SHARE, ReleaseNoticeAction.VIDEO), actions)
+        val requests = mutableListOf<AppDialogRequest.ReleaseNotice>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, true),
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, false),
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SPONSOR, true),
+            AppDialogResult.ReleaseNoticeAnswer(null, true),
+        ))
+        val stored = show(settings, actions = actions) { request ->
+            requests += assertIs<AppDialogRequest.ReleaseNotice>(request)
+            // Nothing is stored while the notice is still open, whatever the checkbox says.
+            assertEquals("", settings.getString(key, ""))
+            answers.removeFirst()
+        }
+        assertTrue(stored)
+        assertEquals(listOf(ReleaseNoticeAction.SHARE, ReleaseNoticeAction.VIDEO, ReleaseNoticeAction.SPONSOR), actions)
+        assertEquals(listOf(false, true, false, true), requests.map { it.dontShowAgain })
         assertEquals("6.0", settings.getString(key, ""))
+    }
+
+    @Test
+    fun actionThenCloseWithoutCheckboxDoesNotPersist() = runTest {
+        val settings = MemoryAppSettings()
+        val actions = mutableListOf<ReleaseNoticeAction>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.VIDEO, true),
+            AppDialogResult.ReleaseNoticeAnswer(null, false),
+        ))
+        assertFalse(show(settings, actions = actions) { answers.removeFirst() })
+        assertEquals(listOf(ReleaseNoticeAction.VIDEO), actions)
+        assertEquals("", settings.getString(key, ""))
+    }
+
+    /** A dropped request (AppDialogController.cancelAll) after an action ends the notice without storing. */
+    @Test
+    fun actionThenCancelDoesNotPersist() = runTest {
+        val settings = MemoryAppSettings()
+        val answers = ArrayDeque(listOf(AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.SHARE, true), AppDialogResult.Cancel))
+        assertFalse(show(settings) { answers.removeFirst() })
+        assertEquals("", settings.getString(key, ""))
     }
 
     @Test
@@ -177,5 +214,39 @@ class ReleaseNoticeTest {
             assertEquals(platform != ReleaseNoticePlatform.DESKTOP, request.computerAllowed, "$platform")
             assertEquals("6.0", request.version)
         }
+    }
+
+    /** #4065: each platform pill opens that platform's section of the installation guide; the computer row its top. */
+    @Test
+    fun installLinksPointToEachPlatformSection() {
+        val expected = mapOf(
+            ReleaseNoticeAction.INSTALL_ANDROID to DocsLinks.page("getting_started", "android"),
+            ReleaseNoticeAction.INSTALL_IOS to DocsLinks.page("getting_started", "iphone-and-ipad"),
+            ReleaseNoticeAction.INSTALL_WINDOWS to DocsLinks.page("getting_started", "windows"),
+            ReleaseNoticeAction.INSTALL_MAC to DocsLinks.page("getting_started", "mac"),
+            ReleaseNoticeAction.INSTALL_LINUX to DocsLinks.page("getting_started", "linux"),
+            ReleaseNoticeAction.COMPUTER to DocsLinks.page("getting_started", "installation"),
+            ReleaseNoticeAction.VIDEO to SiteLinks.WHATS_NEW_VIDEO_URL,
+            ReleaseNoticeAction.WEBSITE to SiteLinks.HOME_URL,
+        )
+        for ((action, url) in expected) assertEquals(url, ReleaseNotice.linkFor(action), "$action")
+        // Share and Sponsor are the host's own flows (recommend dialog, platform shop link).
+        assertNull(ReleaseNotice.linkFor(ReleaseNoticeAction.SHARE))
+        assertNull(ReleaseNotice.linkFor(ReleaseNoticeAction.SPONSOR))
+    }
+
+    /** #4065: opening a pill's link does not close the notice either. */
+    @Test
+    fun pillKeepsNoticeOpen() = runTest {
+        val settings = MemoryAppSettings()
+        val actions = mutableListOf<ReleaseNoticeAction>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.INSTALL_MAC, false),
+            AppDialogResult.ReleaseNoticeAnswer(null, false),
+        ))
+        var asked = 0
+        show(settings, actions = actions) { asked++; answers.removeFirst() }
+        assertEquals(2, asked)
+        assertEquals(listOf(ReleaseNoticeAction.INSTALL_MAC), actions)
     }
 }
