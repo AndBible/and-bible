@@ -75,6 +75,34 @@ class AndroidGoogleAuthTest {
         assertTrue(auth.signedIn)
     }
 
+    @Test fun signedInIsInMemoryOnlyLikeTheOldAdapter() = runBlocking {
+        storeAccount("stored")
+        val auth = AndroidGoogleAuth(tokenSource = { "tok" }, clearToken = {})
+        assertFalse("a stored pref alone must not count as signed in (consent check must run)", auth.signedIn)
+        auth.accessToken()
+        assertTrue(auth.signedIn)
+    }
+
+    @Test fun signInWithoutActivityReturnsFalse() = runBlocking {
+        storeAccount("stored")
+        val auth = AndroidGoogleAuth(tokenSource = { "tok" }, clearToken = {})
+        assertFalse(auth.signIn())
+        assertNotNull("pref untouched", prefs.getString(key, null))
+    }
+
+    @Test fun otherThrowableDuringSignInReturnsFalseAndClearsAccount() {
+        val controller = Robolectric.buildActivity(AuthActivity::class.java).setup()
+        storeAccount("broken")
+        val auth = AndroidGoogleAuth(tokenSource = { throw IllegalStateException("boom") }, clearToken = {})
+        try {
+            assertFalse(runBlocking { auth.signIn() })
+            assertFalse(auth.signedIn)
+            assertNull(prefs.getString(key, null))
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test fun accessTokenWithoutAccountRequiresSignIn() = runBlocking {
         val auth = AndroidGoogleAuth(tokenSource = { "x" }, clearToken = {})
         try {

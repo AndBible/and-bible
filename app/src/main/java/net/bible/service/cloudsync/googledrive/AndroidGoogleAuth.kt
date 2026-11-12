@@ -71,7 +71,8 @@ class AndroidGoogleAuth(
 
     @Volatile private var account: Account? = null
 
-    override val signedIn get() = account != null || lastAccount != null
+    /** In memory only, like the old adapter: a stored pref alone must not skip [signIn]'s consent check. */
+    override val signedIn get() = account != null
 
     private val prefs get() = CommonUtils.realSharedPreferences
 
