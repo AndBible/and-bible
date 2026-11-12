@@ -153,7 +153,7 @@ When the setting is on:
     Each row has a progress bar or a message. Opening the menu marks failures as
     read, but does not clear a permission-waiting agent's attention badge; that
     badge remains until the permission request is resolved. Use the dismiss button
-    on a failed row to remove it without closing the menu.
+    on a failed or interrupted row to remove it without closing the menu.
 - *Show all (N)* opens the *Background activity* list, with a *Running* and a
     *Recent* section. Running items that can be stopped have *Cancel*, finished
     items have *Dismiss*, and *Clear
