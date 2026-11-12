@@ -34,6 +34,7 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.common.useKdomBuilder
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.reading.ShareVersesEntry
 import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.service.device.speak.SpeakCommand
@@ -649,7 +650,7 @@ class SwordContentFacade(
 
         val advertise = if (shareAdvertAllowed(advertiseApp, environment.isDiscrete)) "\n\n${
             strings.verseShareAdvertise
-        } (https://andbible.org)" else ""
+        } (${SiteLinks.HOME_URL})" else ""
         val notesOrig = selection.notes
         val notes =
             if (showNotes && notesOrig != null)
@@ -753,7 +754,7 @@ class SwordContentFacade(
         // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
         val advertiseText = if (environment.isDiscrete) "" else "${
             strings.verseShareAdvertise
-        } (https://andbible.org)"
+        } (${SiteLinks.HOME_URL})"
         val notesOrig = selection.notes
         val notesText = if (notesOrig != null) htmlToPlainText.convert(notesOrig) else null
 
