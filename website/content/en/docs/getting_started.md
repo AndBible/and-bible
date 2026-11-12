@@ -140,6 +140,13 @@ In other languages there are no tabs and the screen shows the Advanced options d
 - **Restore Database File**: restore a backup of your bookmarks, notes and settings. See
   [Backup and restore](backup_restore.md).
 
+## Release notice
+
+After an upgrade to 6.0, a release card introduces the new features and platforms.
+On a small screen or with large text, scroll inside the card to reach the remaining links.
+A downward arrow at the bottom of the content indicates that there is more below;
+**Don't show again** and **Close** stay visible while you scroll.
+
 ## Sharing on Android
 
 **Recommend to a friend** (the same on every platform) shows a QR code of

@@ -69,4 +69,9 @@ class AbReleaseNoticeCardGoldenTest {
                 AbReleaseNoticeCard("6.0", sponsorAllowed = true, logoPainter = StandInLogo) { _, _ -> }
             }
         }
+
+    @Test fun compactOverflowNotice_matrix() =
+        captureMatrix("AbReleaseNoticeCard", "compactOverflow", heightDp = 568) {
+            AbReleaseNoticeCard("6.0", sponsorAllowed = false, logoPainter = StandInLogo) { _, _ -> }
+        }
 }
