@@ -18,6 +18,8 @@
 
 package net.bible.sharedui.app.notice
 
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -43,6 +45,22 @@ object ReleaseNotice {
      */
     const val DISPLAYED_KEY = "release-notice-displayed"
 
+    /**
+     * The page an action opens, the same on every platform: the platform pills (#4065) open their section of the
+     * installation guide and the computer row its start. Null for Share and Sponsor, which the host handles itself.
+     */
+    fun linkFor(action: ReleaseNoticeAction): String? = when (action) {
+        ReleaseNoticeAction.VIDEO -> SiteLinks.WHATS_NEW_VIDEO_URL
+        ReleaseNoticeAction.WEBSITE -> SiteLinks.HOME_URL
+        ReleaseNoticeAction.COMPUTER -> DocsLinks.page("getting_started", "installation")
+        ReleaseNoticeAction.INSTALL_ANDROID -> DocsLinks.page("getting_started", "android")
+        ReleaseNoticeAction.INSTALL_IOS -> DocsLinks.page("getting_started", "iphone-and-ipad")
+        ReleaseNoticeAction.INSTALL_WINDOWS -> DocsLinks.page("getting_started", "windows")
+        ReleaseNoticeAction.INSTALL_MAC -> DocsLinks.page("getting_started", "mac")
+        ReleaseNoticeAction.INSTALL_LINUX -> DocsLinks.page("getting_started", "linux")
+        ReleaseNoticeAction.SHARE, ReleaseNoticeAction.SPONSOR -> null
+    }
+
     /** Call on successful Welcome completion, before reading can check notices; showing Welcome alone is not enough. */
     fun dismissForWelcome(isBeta: Boolean, discrete: Boolean, mainVersion: String, settings: AppSettings) {
         if (!isBeta && !discrete) settings.setString(DISPLAYED_KEY, mainVersion)
@@ -54,7 +72,12 @@ object ReleaseNotice {
 
     /**
      * Returns true only when the user's "don't show again" stored the main version. Closing without the checkbox
-     * leaves the notice enabled for the next launch. A chosen action runs after the dialog closes.
+     * leaves the notice enabled for the next launch.
+     *
+     * An action button does not end the notice (#4063): [onAction] runs (a link opens, Share shows its own dialog)
+     * and the notice is asked again with the checkbox as the user left it. Only Close, back or the scrim
+     * (an answer without an action) end it, and only then is the checkbox stored. A dropped request
+     * ([AppDialogResult.Cancel]) ends it without storing.
      */
     suspend fun showIfNeeded(
         platform: ReleaseNoticePlatform,
@@ -68,14 +91,18 @@ object ReleaseNotice {
         if (isBeta || discrete) return false
         val displayed = settings.getString(DISPLAYED_KEY, "") ?: ""
         if (!shouldShow(isBeta, discrete, mainVersion, displayed)) return false
-        val answer = ask(AppDialogRequest.ReleaseNotice(
-            mainVersion, sponsorAllowed = platform != ReleaseNoticePlatform.IOS,
-            computerAllowed = platform != ReleaseNoticePlatform.DESKTOP,
-        ))
-            as? AppDialogResult.ReleaseNoticeAnswer ?: return false
-        val stored = answer.dontShowAgain
-        if (stored) settings.setString(DISPLAYED_KEY, mainVersion)
-        answer.action?.let { onAction(it) }
-        return stored
+        var dontShowAgain = false
+        while (true) {
+            val answer = ask(AppDialogRequest.ReleaseNotice(
+                mainVersion, sponsorAllowed = platform != ReleaseNoticePlatform.IOS,
+                computerAllowed = platform != ReleaseNoticePlatform.DESKTOP,
+                dontShowAgain = dontShowAgain,
+            )) as? AppDialogResult.ReleaseNoticeAnswer ?: return false
+            dontShowAgain = answer.dontShowAgain
+            val action = answer.action ?: break
+            onAction(action)
+        }
+        if (dontShowAgain) settings.setString(DISPLAYED_KEY, mainVersion)
+        return dontShowAgain
     }
 }

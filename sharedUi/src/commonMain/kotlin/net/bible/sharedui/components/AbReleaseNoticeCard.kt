@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -49,6 +50,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -62,11 +64,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -83,52 +86,54 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
-import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
 
-/** The palette of the card: andbible.org's warm cream/amber (`website/assets/css/site.css`), or plain surface/onSurface in monochrome. */
-private class NoticePalette(
-    val panel: Brush, val ink: Color, val muted: Color, val border: Color, val tile: Color,
-    val accent: Color, val accentInk: Color, val highlight: Color, val buttonBg: Color, val buttonInk: Color,
+/** The colours of the release notice card; [glow] is the radial tint behind the panel (null: a flat panel). */
+internal class NoticePalette(
+    val panel: Color, val glow: Color?, val ink: Color, val muted: Color, val border: Color, val tile: Color,
+    val accent: Color, val accentInk: Color, val highlight: Color, val highlightInk: Color,
+    val buttonBg: Color, val buttonInk: Color,
 )
 
 /** Pure monochrome and BW are both greyscale modes: no hues and no gradient on the card. */
 @Composable
 private fun isGreyMode(): Boolean = LocalDisplayColorMode.current.isGreyBase
 
-@Composable
-private fun noticePalette(): NoticePalette {
-    val dark = LocalIsDarkTheme.current
-    val scheme = MaterialTheme.colorScheme
-    return when {
-        isGreyMode() -> NoticePalette(
-            panel = SolidColor(scheme.surface), ink = scheme.onSurface,
-            muted = scheme.onSurface, border = Color.Gray, tile = scheme.surface, accent = scheme.onSurface,
-            accentInk = scheme.onSurface, highlight = scheme.surface, buttonBg = scheme.onSurface, buttonInk = scheme.surface,
-        )
-        dark -> NoticePalette(
-            panel = Brush.linearGradient(listOf(Color(0xFF22211F), Color(0xFF1A1A19), Color(0xFF141414))),
-            ink = Color(0xFFEFE9DD), muted = Color(0xFFA59F93), border = Color(0xFF2C2A26), tile = Color(0xFF121212),
-            accent = Color(0xFFFEBA2A), accentInk = Color(0xFFFEBA2A), highlight = Color(0xFF2A2415),
-            buttonBg = Color(0xFFEFE9DD), buttonInk = Color(0xFF161616),
-        )
-        else -> NoticePalette(
-            panel = Brush.linearGradient(listOf(Color(0xFFFFFDF6), Color(0xFFFFFAF0), Color(0xFFF6EEDC))),
-            ink = Color(0xFF2A2620), muted = Color(0xFF5D5546), border = Color(0xFFE3D8C0), tile = Color(0xFFF3EAD7),
-            accent = Color(0xFFD99A2B), accentInk = Color(0xFF9A5B10), highlight = Color(0xFFFFF3D6),
-            buttonBg = Color(0xFF2A2620), buttonInk = Color(0xFFF7F1E3),
-        )
-    }
+/**
+ * The card's colours for [scheme] in [mode]: monochrome and BW are flat surface/onSurface; every other mode follows
+ * the theme, and only [DisplayColorMode.NORMAL] draws the glow (a gradient just dithers on a colour e-ink panel).
+ */
+internal fun releaseNoticePalette(scheme: ColorScheme, mode: DisplayColorMode): NoticePalette = when {
+    mode.isGreyBase -> NoticePalette(
+        panel = scheme.surface, glow = null, ink = scheme.onSurface,
+        muted = scheme.onSurface, border = Color.Gray, tile = scheme.surface, accent = scheme.onSurface,
+        accentInk = scheme.onSurface, highlight = scheme.surface, highlightInk = scheme.onSurface,
+        buttonBg = scheme.onSurface, buttonInk = scheme.surface,
+    )
+    // Light and dark: the app theme, like every other dialog (#4064); the primary glow keeps the mockup's warmth.
+    else -> NoticePalette(
+        panel = scheme.surfaceContainerHigh, glow = scheme.primary.copy(alpha = NOTICE_GLOW_ALPHA).takeIf { mode == DisplayColorMode.NORMAL },
+        ink = scheme.onSurface, muted = scheme.onSurfaceVariant, border = scheme.outlineVariant,
+        tile = scheme.surfaceContainerHighest, accent = scheme.primary, accentInk = scheme.primary,
+        highlight = scheme.primaryContainer, highlightInk = scheme.onPrimaryContainer,
+        buttonBg = scheme.primary, buttonInk = scheme.onPrimary,
+    )
 }
 
+/** The alpha of the top-right glow; the bottom-left one is fainter. */
+private const val NOTICE_GLOW_ALPHA = 0.16f
+
 /**
- * The 6.0 stable release notice: a card over the current screen with a header, three action rows, a
+ * The 6.0 stable release notice: a card over the current screen with a header, platform pills linking to their install instructions, three action rows, a
  * sponsor (or, with [sponsorAllowed] false, a website) pill and a footer with "Don't show again" and Close.
- * Every way out calls [onAnswer] once with the chosen action (null for Close, back and scrim) and the
- * checkbox state. The footer sits outside the scrolling body so Close stays reachable at large font sizes.
+ * Every control calls [onAnswer] once with the chosen action (null for Close, back and scrim) and the
+ * checkbox state, which starts at [initialDontShowAgain]. Only a null action ends the notice: for an action the
+ * shared `ReleaseNotice` gate runs it and shows the card again with the checkbox carried over (#4063).
+ * The footer sits outside the scrolling body so Close stays reachable at large font sizes.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -137,15 +142,16 @@ fun AbReleaseNoticeCard(
     sponsorAllowed: Boolean,
     logoPainter: Painter?,
     computerAllowed: Boolean = true,
+    initialDontShowAgain: Boolean = false,
     onAnswer: (ReleaseNoticeAction?, Boolean) -> Unit,
 ) {
     TrackOverlay()
     val strings = LocalStrings.current
     val mono = isGreyMode()
-    val palette = noticePalette()
+    val palette = releaseNoticePalette(MaterialTheme.colorScheme, LocalDisplayColorMode.current)
     // A Dialog window re-provides LocalDensity from its own owner; carry the host's density (font scale) in.
     val density = LocalDensity.current
-    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+    var dontShowAgain by rememberSaveable { mutableStateOf(initialDontShowAgain) }
     val shape = RoundedCornerShape(22.dp)
     Dialog(
         onDismissRequest = { onAnswer(null, dontShowAgain) },
@@ -155,7 +161,7 @@ fun AbReleaseNoticeCard(
         CompositionLocalProvider(LocalDensity provides density) {
             Column(
                 modifier = Modifier.padding(16.dp).widthIn(max = 400.dp).fillMaxWidth()
-                    .clip(shape).background(palette.panel).border(1.dp, if (mono) palette.ink else palette.border, shape),
+                    .clip(shape).background(palette.panel).noticeGlow(palette.glow).border(1.dp, if (mono) palette.ink else palette.border, shape),
             ) {
                 val scrollState = rememberScrollState()
                 Box(modifier = Modifier.weight(1f, fill = false)) {
@@ -187,12 +193,17 @@ fun AbReleaseNoticeCard(
                             lineHeight = 28.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
                         )
                         FlowRow(
-                            modifier = Modifier.padding(top = 10.dp, bottom = 14.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
                         ) {
-                            listOf("Android", strings.releaseNoticePlatformIphoneIpad, "Windows", "Mac", "Linux").forEach {
-                                PlatformChip(it, palette)
+                            listOf(
+                                "Android" to ReleaseNoticeAction.INSTALL_ANDROID,
+                                strings.releaseNoticePlatformIphoneIpad to ReleaseNoticeAction.INSTALL_IOS,
+                                "Windows" to ReleaseNoticeAction.INSTALL_WINDOWS,
+                                "Mac" to ReleaseNoticeAction.INSTALL_MAC,
+                                "Linux" to ReleaseNoticeAction.INSTALL_LINUX,
+                            ).forEach { (label, action) ->
+                                PlatformPill(label, strings.releaseNoticePlatformInstall, palette) { onAnswer(action, dontShowAgain) }
                             }
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -234,14 +245,9 @@ fun AbReleaseNoticeCard(
                     }
                     // maxValue stays Int.MAX_VALUE until the first layout; without this guard the cue flashes on short content.
                     if (scrollState.maxValue != Int.MAX_VALUE && scrollState.canScrollForward) {
-                        val edgeColor = when {
-                            mono -> palette.tile
-                            LocalIsDarkTheme.current -> Color(0xFF141414)
-                            else -> Color(0xFFF6EEDC)
-                        }
                         Column(
                             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                                .background(edgeColor).testTag("release-notice-scroll-cue"),
+                                .background(palette.panel).testTag("release-notice-scroll-cue"),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Box(Modifier.fillMaxWidth().height(1.dp).background(if (mono) palette.ink else palette.border))
@@ -280,12 +286,30 @@ fun AbReleaseNoticeCard(
     }
 }
 
+/**
+ * A platform pill (#4065): a link to that platform's install instructions. The visible pill stays small; the
+ * clickable area around it is 48 dp tall, with a pill-shaped ripple.
+ */
 @Composable
-private fun PlatformChip(label: String, palette: NoticePalette) {
-    Text(
-        label, color = palette.muted, fontSize = 11.sp,
-        modifier = Modifier.border(1.dp, palette.border, CircleShape).padding(horizontal = 10.dp, vertical = 3.dp),
-    )
+private fun PlatformPill(label: String, clickLabel: String, palette: NoticePalette, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.heightIn(min = 48.dp).clip(CircleShape)
+            .clickable(role = Role.Button, onClickLabel = clickLabel, onClick = onClick).padding(horizontal = 2.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier.border(1.dp, if (isGreyMode()) palette.ink else palette.border, CircleShape)
+                .padding(start = 10.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label, color = palette.accentInk, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Icon(
+                Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = palette.accentInk,
+                modifier = Modifier.size(12.dp),
+            )
+        }
+    }
 }
 
 @Composable
@@ -309,9 +333,27 @@ private fun ActionRow(
             contentAlignment = Alignment.Center,
         ) { Icon(icon, contentDescription = null, tint = palette.accentInk, modifier = Modifier.size(20.dp)) }
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = palette.ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-            Text(subtitle, color = palette.muted, fontSize = 12.sp)
+            Text(title, color = if (highlighted) palette.highlightInk else palette.ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text(subtitle, color = if (highlighted) palette.highlightInk else palette.muted, fontSize = 12.sp)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = palette.muted, modifier = Modifier.size(20.dp))
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null,
+            tint = if (highlighted) palette.highlightInk else palette.muted, modifier = Modifier.size(20.dp),
+        )
     }
+}
+
+/**
+ * The mockup's two corner glows (`specs/2026-11-11-stable-notice-6-0-mockup.html`): a radial tint of [glow] at the
+ * top right and a fainter one at the bottom left. Null [glow] (monochrome / e-ink) draws nothing.
+ */
+private fun Modifier.noticeGlow(glow: Color?): Modifier = if (glow == null) this else drawBehind {
+    val w = size.width
+    drawRect(Brush.radialGradient(listOf(glow, Color.Transparent), center = Offset(w * 0.9f, 0f), radius = w * 0.7f))
+    drawRect(
+        Brush.radialGradient(
+            listOf(glow.copy(alpha = glow.alpha * 0.45f), Color.Transparent),
+            center = Offset(0f, size.height), radius = w * 0.6f,
+        ),
+    )
 }
