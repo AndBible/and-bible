@@ -26,15 +26,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
  * Regression for the :app suite's sync-timer leak: the timer loop's first action is a blocking settings read on
- * `Dispatchers.IO`. `close()` only cancels, so a read already under way outlives it (and, in tests, outlives the
- * Application it reads from). [SyncTriggerDriver.closeAndJoin] must not return before such a read has finished.
+ * `Dispatchers.IO`. `stop()`/`close()` only cancel, so a read already under way outlives it (and, in tests, outlives the
+ * Application it reads from). [SyncTriggerDriver.stopAndJoin] must not return before such a read has finished.
  */
 class SyncTriggerDriverCloseTest {
-    @Test fun closeAndJoinWaitsForATimerReadThatIsAlreadyRunning() = runTest {
+    @Test fun stopAndJoinWaitsForATimerReadThatIsAlreadyRunning() = runTest {
         val entered = CompletableDeferred<Unit>()
         val release = atomic(false)
         val readFinished = atomic(false)
@@ -54,8 +55,13 @@ class SyncTriggerDriverCloseTest {
             driver.onForeground()
             entered.await()
             launch { delay(200); release.value = true }
-            driver.closeAndJoin()
-            assertTrue(readFinished.value, "close returned while the timer's settings read was still running")
+            driver.stopAndJoin()
+            assertTrue(readFinished.value, "stopAndJoin returned while the timer's settings read was still running")
+            assertFalse(driver.timerRunning)
+            release.value = true
+            driver.onForeground()
+            assertTrue(driver.timerRunning, "the driver must be reusable after stopAndJoin (Koin single outlives tests)")
+            driver.close()
         }
     }
 }

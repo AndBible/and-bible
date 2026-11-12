@@ -196,14 +196,20 @@ class SyncTriggerDriver(
     }
 
     /**
-     * [close] that also waits until every coroutine in [scope] (the timer loop and any pass) has actually finished.
-     * Cancelling cannot interrupt a blocking read the timer has already started, so without the join that read can
-     * outlive the state it reads (a test's Application, a closed database).
+     * [stop] that also cancels the running and queued passes and waits until the timer loop and those passes have
+     * actually finished; the driver stays usable ([onForeground] starts it again). Cancelling cannot interrupt a blocking
+     * read the timer has already started, so without the join that read can outlive the state it reads (a test's
+     * Application, a closed database). For a driver whose owner outlives the thing it reads, not for a driver being closed.
      */
-    suspend fun closeAndJoin() {
-        val job = scope.coroutineContext[Job]
-        close()
-        job?.join()
+    suspend fun stopAndJoin() {
+        val jobs = synchronized(lock) {
+            val timerJob = timer
+            foreground = false
+            timer = null
+            listOfNotNull(timerJob, running?.job, queued?.job)
+        }
+        jobs.forEach { it.cancel() }
+        jobs.forEach { it.join() }
     }
 
     private fun stopTimer() {
