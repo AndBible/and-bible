@@ -12,7 +12,6 @@ import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.HelpDialogs
-import net.bible.sharedui.app.recommend.RecommendApp
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.TextShare
@@ -26,7 +25,7 @@ class IosReadingExtrasImplTest {
         val shared = mutableListOf<Pair<String, String>>()
         val causes = mutableListOf<Throwable?>()
         val asked = mutableListOf<AppDialogRequest>()
-        var answer: AppDialogResult = AppDialogResult.Selected(RecommendApp.SHARE_LINK)
+        var answer: AppDialogResult = AppDialogResult.Ok
         var language = "en"
         fun extras(scope: CoroutineScope, report: suspend (Throwable?) -> Unit = { causes += it }) =
             HostReadingExtrasImpl(
@@ -56,15 +55,14 @@ class IosReadingExtrasImplTest {
         assertTrue(boundary.causes.isEmpty())
     }
 
-    @Test fun tellFriendShowsChooser() = runTest {
+    @Test fun tellFriendShowsQrDialogAndClosingSharesNothing() = runTest {
         val boundary = Boundary()
-        boundary.answer = AppDialogResult.Selected(RecommendApp.SHOW_QR)
+        boundary.answer = AppDialogResult.Cancel
         boundary.extras(this).runRow("tellFriend")
         runCurrent()
-        val chooser = assertIs<AppDialogRequest.Options>(boundary.asked.first())
-        assertEquals(listOf(RecommendApp.SHARE_LINK, RecommendApp.SHOW_QR), chooser.options.map { it.value })
-        assertIs<AppDialogRequest.Notice>(boundary.asked[1])
-        assertTrue(boundary.shared.isEmpty(), "A QR code shares no text")
+        val dialog = assertIs<AppDialogRequest.Notice>(boundary.asked.single())
+        assertTrue(dialog.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
+        assertTrue(boundary.shared.isEmpty(), "Close shares no text")
     }
 
     @Test fun tellFriendSharesNeutralHomepageMessageInCurrentLanguage() = runTest {

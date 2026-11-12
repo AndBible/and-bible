@@ -66,8 +66,8 @@ const val homepageLink = "https://andbible.org"
 private const val playStoreApplicationId = "net.bible.android.activity"
 
 /**
- * The "Recommend to a friend" flow shared by the menu and the release notice: the shared [RecommendApp] chooser
- * (link or QR code); a link goes to the system share sheet.
+ * The "Recommend to a friend" flow shared by the menu and the release notice: the shared [RecommendApp] dialog
+ * (the QR code, plus "Share a link", which goes to the system share sheet).
  */
 internal suspend fun recommendToFriend(
     activity: ActivityBase,

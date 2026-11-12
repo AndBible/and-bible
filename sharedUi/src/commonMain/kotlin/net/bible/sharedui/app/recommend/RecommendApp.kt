@@ -19,58 +19,44 @@
 package net.bible.sharedui.app.recommend
 
 import net.bible.sharedcore.docs.SiteLinks
-import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.strings.Strings
 
 /**
  * "Recommend to a friend": one platform-neutral message (it names no store and no platform, only the
- * homepage) shared as a link, or the homepage as a QR code a friend can scan from the screen.
+ * homepage). One dialog shows the homepage as a QR code a friend can scan from the screen, with a "Share a link"
+ * button that hands the message to the platform's share sheet.
  */
 @kotlin.native.HiddenFromObjC
 object RecommendApp {
-    const val SHARE_LINK = "share_link"
-    const val SHOW_QR = "show_qr"
-
     /** The text shared with a friend: intro and description on one paragraph, then the link line. */
     fun message(intro: String, body: String, getIt: String): String = "$intro $body\n\n$getIt"
 
     private fun message(strings: Strings): String =
         message(strings.recommendIntro, strings.recommendBody, strings.recommendGetIt(SiteLinks.HOME_URL))
 
-    /** The question "how to share": a link or a QR code. Cancel (back/scrim) shares nothing. */
-    fun chooserRequest(strings: Strings): AppDialogRequest.Options = AppDialogRequest.Options(
-        title = strings.tellFriendTitle,
-        message = null,
-        options = listOf(
-            SettingsItem.Choice(SHARE_LINK, strings.recommendShareLink),
-            SettingsItem.Choice(SHOW_QR, strings.recommendShowQr),
-        ),
-        dismissText = null,
-        asActionSheet = false,
-    )
-
-    /** The QR code of the homepage with its caption. */
-    fun qrRequest(strings: Strings): AppDialogRequest.Notice = AppDialogRequest.Notice(
+    /**
+     * The dialog: the QR code of the homepage with its caption; confirm ([AppDialogResult.Ok]) is "Share a link",
+     * the dismiss button closes. Back/scrim cancels and shares nothing.
+     */
+    fun request(strings: Strings): AppDialogRequest.Notice = AppDialogRequest.Notice(
         title = strings.tellFriendTitle,
         showTitleLogo = false,
         blocks = listOf(
             AppDialogRequest.NoticeBlock.QrCode,
             AppDialogRequest.NoticeBlock.Html(strings.recommendQrCaption),
         ),
-        confirmText = strings.settingsEditorClose,
+        confirmText = strings.recommendShareLink,
+        dismissText = strings.settingsEditorClose,
     )
 
-    /** Asks the chooser through [ask]; a link goes to [shareText] (text, chooser title), a QR code is shown. */
+    /** Shows the dialog through [ask]; "Share a link" goes to [shareText] (text, chooser title). */
     suspend fun run(
         strings: Strings,
         ask: suspend (AppDialogRequest) -> AppDialogResult,
         shareText: (text: String, title: String) -> Unit,
     ) {
-        when ((ask(chooserRequest(strings)) as? AppDialogResult.Selected)?.value) {
-            SHARE_LINK -> shareText(message(strings), strings.tellFriendTitle)
-            SHOW_QR -> ask(qrRequest(strings))
-        }
+        if (ask(request(strings)) == AppDialogResult.Ok) shareText(message(strings), strings.tellFriendTitle)
     }
 }

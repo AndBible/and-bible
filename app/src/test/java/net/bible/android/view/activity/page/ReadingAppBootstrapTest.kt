@@ -749,18 +749,15 @@ class ReadingAppBootstrapTest {
     }
 
     @Test
-    fun shareActionOpensRecommendChooser() = runTest(timeout = 30.seconds) {
+    fun shareActionOpensRecommendDialog() = runTest(timeout = 30.seconds) {
         runStableNotice(upgrade = true) { _, done ->
             appDialogs.respond(
                 appDialogs.pending.value!!.id,
                 AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = false),
             )
             advanceUntilIdle()
-            val chooser = appDialogs.pending.value!!.request as AppDialogRequest.Options
-            assertEquals(
-                listOf(net.bible.sharedui.app.recommend.RecommendApp.SHARE_LINK, net.bible.sharedui.app.recommend.RecommendApp.SHOW_QR),
-                chooser.options.map { it.value },
-            )
+            val dialog = appDialogs.pending.value!!.request as AppDialogRequest.Notice
+            assertTrue(dialog.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
             advanceUntilIdle()
             done.await()

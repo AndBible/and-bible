@@ -52,15 +52,18 @@ class RecommendAppTest {
     }
 
     @Test
-    fun chooserOffersShareAndQr() {
-        val request = RecommendApp.chooserRequest(strings)
-        assertEquals(listOf(RecommendApp.SHARE_LINK, RecommendApp.SHOW_QR), request.options.map { it.value })
+    fun dialogShowsQrDirectlyWithShareLinkAndClose() {
+        val request = RecommendApp.request(strings)
         assertEquals(strings.tellFriendTitle, request.title)
+        assertTrue(request.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
+        assertEquals(strings.recommendShareLink, request.confirmText)
+        assertEquals(strings.settingsEditorClose, request.dismissText)
     }
 
     @Test
-    fun shareLinkSharesMessage() = runTest {
-        run(AppDialogResult.Selected(RecommendApp.SHARE_LINK))
+    fun shareLinkSharesMessageAfterOneDialog() = runTest {
+        val asked = run(AppDialogResult.Ok)
+        assertEquals(1, asked.size)
         assertEquals(
             listOf(
                 RecommendApp.message(strings.recommendIntro, strings.recommendBody, strings.recommendGetIt(SITE)) to
@@ -71,16 +74,7 @@ class RecommendAppTest {
     }
 
     @Test
-    fun showQrAsksQrNotice() = runTest {
-        val asked = run(AppDialogResult.Selected(RecommendApp.SHOW_QR))
-        assertEquals(2, asked.size)
-        val notice = asked[1] as AppDialogRequest.Notice
-        assertTrue(notice.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
-        assertTrue(shared.isEmpty())
-    }
-
-    @Test
-    fun cancelDoesNothing() = runTest {
+    fun closeSharesNothing() = runTest {
         val asked = run(AppDialogResult.Cancel)
         assertEquals(1, asked.size)
         assertTrue(shared.isEmpty())
