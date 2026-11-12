@@ -100,7 +100,9 @@ sealed interface AppDialogRequest {
      * Class F. [asActionSheet] is spec §7's split: true = a list of actions (`AbActionSheet`),
      * false = answers to a question (`AbOptionsDialog`). Answered [AppDialogResult.Selected] with the
      * chosen [SettingsItem.Choice.value], or [AppDialogResult.Cancel]. [message] is HTML, rendered by
-     * `AbHtmlText`, like [Message.message] and [Confirm.message].
+     * `AbHtmlText`, like [Message.message] and [Confirm.message]. A non-null [checkboxLabel]
+     * shows an initially unchecked checkbox in a dialog (even when [asActionSheet] is true) and
+     * returns [AppDialogResult.SelectedWithCheckbox] instead.
      */
     data class Options(
         override val title: String?,
@@ -109,6 +111,7 @@ sealed interface AppDialogRequest {
         val dismissText: String?,
         val asActionSheet: Boolean,
         val cancellable: Boolean = true,
+        val checkboxLabel: String? = null,
     ) : AppDialogRequest
 
     /**
@@ -165,6 +168,7 @@ sealed interface AppDialogResult {
     data object Neutral : AppDialogResult
     data class Text(val value: String) : AppDialogResult
     data class Selected(val value: String) : AppDialogResult
+    data class SelectedWithCheckbox(val value: String, val checked: Boolean) : AppDialogResult
     data class SelectedMany(val ids: List<String>) : AppDialogResult
     /** The [AppDialogRequest.ReleaseNotice] answer: the chosen [action] (null = Close) and the checkbox state. */
     data class ReleaseNoticeAnswer(val action: ReleaseNoticeAction?, val dontShowAgain: Boolean) : AppDialogResult

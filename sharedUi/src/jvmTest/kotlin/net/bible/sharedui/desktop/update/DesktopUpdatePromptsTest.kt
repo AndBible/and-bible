@@ -48,6 +48,7 @@ class DesktopUpdatePromptsTest {
             val shown = assertNotNull(dialogs.pending.value)
             val options = (shown.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
             assertEquals(listOf("download", "later"), options.options.map { it.value })
+            assertEquals("desktop_update_dont_notify", options.checkboxLabel)
             dialogs.cancelAll(); runCurrent()
             assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
             first.close()
@@ -55,17 +56,57 @@ class DesktopUpdatePromptsTest {
             now += 86400000L
             val second = start(); runCurrent()
             dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("later")); runCurrent()
-            assertEquals(1240, prefs.getInt("desktop_update_announced_build", 0))
+            assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
             assertEquals(emptyList(), opened)
-            second.close()
+
+            now += 86400000L
+            testScheduler.advanceTimeBy(86400000L); runCurrent()
+            assertNotNull(dialogs.pending.value)
+            val third = second
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("download")); runCurrent()
+            assertEquals(1240, prefs.getInt("desktop_update_announced_build", 0))
+            assertEquals(listOf("https://example.com/1240"), opened)
+            third.close()
 
             now += 86400000L; build = 1241
-            val third = start(); runCurrent()
+            val fourth = start(); runCurrent()
             dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("download")); runCurrent()
             assertEquals(1241, prefs.getInt("desktop_update_announced_build", 0))
-            assertEquals(listOf("https://example.com/1241"), opened)
-            third.close()
+            assertEquals(listOf("https://example.com/1240", "https://example.com/1241"), opened)
+            fourth.close()
         } finally {
+            root.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun optingOutFromUpdateOfferDisablesFutureChecks() = runTest {
+        val root = Files.createTempDirectory("update-opt-out")
+        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "yes") }
+        val secrets = object : SecretStore {
+            override fun get(key: String): String? = null
+            override fun put(key: String, value: String) = Unit
+            override fun remove(key: String) = Unit
+        }
+        val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), secrets, prefs)
+        val dialogs = AppDialogController()
+        var checks = 0
+        val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
+            HostStringTableHolder(StringTable.of("en", { it }, { _, _ -> "" }, { emptyList() })), object : ExternalLinks {
+                override val askBeforeOpening = false
+                override fun open(url: String) = Unit
+            }, { true }, { 100000000L }, {
+                checks++
+                """[{"tag_name":"production-1240","draft":false,"html_url":"https://example.com/1240","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+            })
+        try {
+            runCurrent()
+            val pending = assertNotNull(dialogs.pending.value)
+            dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox("later", true)); runCurrent()
+            assertEquals("no", prefs.getString("desktop_update_check"))
+            assertNull(dialogs.pending.value)
+            assertEquals(1, checks)
+        } finally {
+            prompts.close()
             root.toFile().deleteRecursively()
         }
     }

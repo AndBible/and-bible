@@ -252,6 +252,27 @@ class AppDialogHostTest {
         compose.onNodeWithText("a\nbold").assertExists()
     }
 
+    @Test fun optionsCheckboxIsReturnedWithTheSelectedValue() {
+        show(ShownDialog(42, AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
+        )))
+        compose.onNodeWithText("Remember").performClick()
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(42L to AppDialogResult.SelectedWithCheckbox("a", true)), answers)
+    }
+
+    @Test fun optionsCheckboxStartsUnchecked() {
+        show(ShownDialog(43, AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = "Cancel", asActionSheet = false, checkboxLabel = "Remember",
+        )))
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
+    }
+
     @Test fun optionsDialogAnswersTheChosenValue() {
         show(
             ShownDialog(
