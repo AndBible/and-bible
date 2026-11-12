@@ -404,6 +404,41 @@ class ActivityMenuTest {
         assertEquals(1, calls)
     }
 
+    @Test fun activityOverflowFailedAndInterruptedRowsCanBeDismissedByIdWithoutClosingMenu() = runComposeUiTest {
+        val dismissed = mutableListOf<String>()
+        var expanded by mutableStateOf(true)
+        val activity = ActivityMenuState(
+            items = mutableStateOf(listOf(
+                item("running"),
+                item("failed", ActivityState.FAILED, message = "Download failed"),
+                item("interrupted", ActivityState.INTERRUPTED, message = "Run sync again"),
+            )), unreadFailures = mutableStateOf(0), onShowAll = {}, onMenuOpened = {},
+            onDismissItem = { dismissed += it.id },
+        )
+        setContent {
+            AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+                ReadingToolbar(
+                    toolbarState(), icons, callbacks, overflowExpanded = expanded,
+                    onOverflowDismiss = { expanded = false }, activity = activity,
+                )
+            } }
+        }
+
+        onAllNodesWithTag(ACTIVITY_DISMISS_TAG).assertCountEquals(2)
+        onAllNodesWithContentDescription(strings.dismiss).assertCountEquals(2)
+        onAllNodesWithTag(ACTIVITY_DISMISS_TAG)[0].performClick()
+        onAllNodesWithTag(ACTIVITY_DISMISS_TAG)[1].performClick()
+        assertEquals(listOf("failed", "interrupted"), dismissed)
+        onNodeWithTag(ACTIVITY_SECTION_TAG).assertExists()
+        onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(3)
+    }
+
+    @Test fun runningActivityHasNoDismissButton() = runComposeUiTest {
+        setContent { Section(menu(listOf(item("running")))) }
+
+        onAllNodesWithTag(ACTIVITY_DISMISS_TAG).assertCountEquals(0)
+    }
+
     @Test fun showAllInTheOverflowMenuClosesTheMenuAndOpensTheList() = runComposeUiTest {
         var showAll = 0
         var dismissed = 0

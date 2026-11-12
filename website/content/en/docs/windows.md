@@ -36,6 +36,7 @@ There are three ways to create a new window.
 1. First, push the New Window button in the bottom right corner.
 2. Second, choose ‘New Window’ via the window button at the top right of any window.
 3. Third, long-press a window button at the bottom of the screen and choose ‘New Window’.
+   On desktop, you can also right-click a window button to open its menu.
 
 A new window starts with the source window's document and reading position, but
 inherits its text display settings from the workspace defaults. Window-specific

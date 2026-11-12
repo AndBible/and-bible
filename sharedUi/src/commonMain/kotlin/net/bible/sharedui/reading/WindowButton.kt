@@ -63,6 +63,10 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -240,6 +244,7 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  *   and what the Pane call site passes) renders no top row, matching classic hiding
  *   `topButtonText` for non-rail buttons (`WindowButtonWidget.kt:149`).
  */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun WindowButton(
     label: String,
@@ -327,6 +332,19 @@ fun WindowButton(
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },
             )
+            .pointerInput(mode) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed &&
+                            !event.buttons.isPrimaryPressed && event.changes.none { it.isConsumed }
+                        ) {
+                            if (mode == WindowButtonMode.Pane) latestOnClick.value() else latestOnLongPress.value()
+                            event.changes.forEach { it.consume() }
+                        }
+                    }
+                }
+            }
             // The detector is keyed on Unit and so installed once: read the lambdas through state, or it keeps
             // calling the ones of the first composition.
             .pointerInput(Unit) {

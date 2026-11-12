@@ -142,7 +142,10 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     }
 
     fun fail(id: String, message: String, reportable: Boolean = false, cause: Throwable? = null) = modify(id) {
-        it.copy(state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false, reportable = reportable, cause = cause, attention = false)
+        it.copy(
+            state = ActivityState.FAILED, message = message, finishedAt = clock(), cancel = null, read = false,
+            reportable = reportable, cause = cause, attention = false, failureOccurrence = nextSeq(),
+        )
     }
 
     fun setNotificationMessage(id: String, message: String?) = modify(id) {
@@ -155,12 +158,21 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 
     fun interrupt(id: String, message: String, notify: Boolean) = modify(id) {
         if (it.state == ActivityState.RUNNING) it.copy(state = ActivityState.INTERRUPTED, message = message,
-            finishedAt = clock(), cancel = null, attention = false, notifyInterruption = notify) else it
+            finishedAt = clock(), cancel = null, attention = false, notifyInterruption = notify,
+            failureOccurrence = nextSeq()) else it
     }
 
     fun cancelled(id: String) = change { it - id }
 
     fun dismiss(id: String) = change { it - id }
+
+    /** Removes the same failed or interrupted snapshot only; a newer event for [item.id] survives. */
+    fun dismissFinished(item: ActivityItem) = change { recs ->
+        val current = recs[item.id]?.item
+        if (current != null && current.state in setOf(ActivityState.FAILED, ActivityState.INTERRUPTED) &&
+            current.state == item.state && current.failureOccurrence == item.failureOccurrence
+        ) recs - item.id else recs
+    }
 
     /** Removes every finished item (running ones stay). */
     fun clearFinished() = change { recs -> recs.filterValues { it.item.state == ActivityState.RUNNING } }

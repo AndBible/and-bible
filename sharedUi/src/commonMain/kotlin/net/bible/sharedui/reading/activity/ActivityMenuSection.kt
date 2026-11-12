@@ -22,11 +22,18 @@ package net.bible.sharedui.reading.activity
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +64,9 @@ internal const val MENU_ACTIVITY_ROWS = 3
  * Renders nothing when there is nothing to show, so the menu is then exactly the normal one.
  */
 @kotlin.native.HiddenFromObjC
+const val ACTIVITY_DISMISS_TAG = "activityDismiss"
+
+@kotlin.native.HiddenFromObjC
 @Composable
 fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? = null) {
     // Stable sort: the incoming order (newest first) is kept within each state.
@@ -71,7 +81,9 @@ fun ActivityMenuSection(activity: ActivityMenuState, onSyncClick: (() -> Unit)? 
     Column(Modifier.testTag(ACTIVITY_SECTION_TAG)) {
         if (sync != null) SyncNowRow(sync, onSyncClick ?: sync.onClick)
         val rows = shown.take(MENU_ACTIVITY_ROWS)
-        rows.forEach { ActivityRow(it) { activity.onOpenItem(it) } }
+        rows.forEach { item ->
+            ActivityRow(item, onClick = { activity.onOpenItem(item) }, onDismiss = { activity.onDismissItem(item) })
+        }
         // Compact sync rows omit transfer details even when there is only one activity.
         if (shown.isNotEmpty() && (all.size > rows.size || shown.any {
             it.state == ActivityState.FAILED || it.kind == ActivityKind.DOCUMENT_SYNC
@@ -88,7 +100,8 @@ private fun ActivityState.menuRank(): Int = when (this) {
 }
 
 @Composable
-private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
+private fun ActivityRow(item: ActivityItem, onClick: () -> Unit, onDismiss: () -> Unit) {
+    val strings = LocalStrings.current
     val mono = isPureMonochrome()
     val progress = item.progress
     val message = item.message
@@ -96,41 +109,54 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
     // Dropdowns measure intrinsic width: maxLines alone still lets changing text widen the popup.
     // A preferred width also supplies a stable intrinsic width, but yields to narrow parent constraints.
     val rowWidth = if (documentSync) Modifier.width(280.dp) else Modifier.fillMaxWidth()
-    Column(
+    Row(
         rowWidth.clickable(onClick = onClick)
             .then(if (documentSync) Modifier.semantics { contentDescription = item.title } else Modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp).testTag(ACTIVITY_ROW_TAG),
+            .padding(start = 16.dp, end = if (item.state == ActivityState.RUNNING) 16.dp else 8.dp, top = 8.dp, bottom = 8.dp)
+            .testTag(ACTIVITY_ROW_TAG),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
-        val summary = if (documentSync) item.compactMessage
-            ?: message?.takeIf { item.state != ActivityState.RUNNING } ?: item.title else item.title
-        Text(summary, style = MaterialTheme.typography.bodyMedium,
-            color = if (documentSync && item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
-                else LocalContentColor.current,
-            maxLines = 1, overflow = TextOverflow.Ellipsis)
-        when {
-            item.state == ActivityState.RUNNING -> {
-                if (message != null && item.kind == ActivityKind.AI_AGENT) {
-                    Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.weight(1f)) {
+            val summary = if (documentSync) item.compactMessage
+                ?: message?.takeIf { item.state != ActivityState.RUNNING } ?: item.title else item.title
+            Text(summary, style = MaterialTheme.typography.bodyMedium,
+                color = if (documentSync && item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
+                    else LocalContentColor.current,
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
+            when {
+                item.state == ActivityState.RUNNING -> {
+                    if (message != null && item.kind == ActivityKind.AI_AGENT) {
+                        Text(message, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    val barColor = LocalContentColor.current
+                    val trackColor = barColor.copy(alpha = 0.2f)
+                    val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)
+                    if (progress != null) {
+                        LinearProgressIndicator(
+                            progress = { progress.coerceIn(0, 100) / 100f },
+                            modifier = barModifier, color = barColor, trackColor = trackColor,
+                        )
+                    } else {
+                        AbLoadingIndicator(modifier = barModifier, color = barColor, trackColor = trackColor)
+                    }
                 }
-                val barColor = LocalContentColor.current
-                val trackColor = barColor.copy(alpha = 0.2f)
-                val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)
-                if (progress != null) {
-                    LinearProgressIndicator(
-                        progress = { progress.coerceIn(0, 100) / 100f },
-                        modifier = barModifier, color = barColor, trackColor = trackColor,
-                    )
-                } else {
-                    AbLoadingIndicator(modifier = barModifier, color = barColor, trackColor = trackColor)
-                }
+                message != null && !documentSync -> Text(
+                    message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
             }
-            message != null && !documentSync -> Text(
-                message,
-                style = MaterialTheme.typography.bodySmall,
-                color = if (item.state == ActivityState.FAILED && !mono) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1, overflow = TextOverflow.Ellipsis,
-            )
+        }
+        if (item.state == ActivityState.FAILED || item.state == ActivityState.INTERRUPTED) {
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.size(40.dp).testTag(ACTIVITY_DISMISS_TAG),
+                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+            ) {
+                Icon(Icons.Filled.Close, contentDescription = strings.dismiss, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }

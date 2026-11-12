@@ -172,6 +172,70 @@ class ActivityCenterTest {
     }
 
     @Test
+    fun dismissingOldFinishedRowDoesNotRemoveRestartedRunningItem() = runTest {
+        val c = center()
+        c.start("a", ActivityKind.DOWNLOAD, "Old run")
+        advance(2000)
+        c.fail("a", "old failure")
+        val oldSnapshot = c.items.value.single()
+
+        c.start("a", ActivityKind.DOWNLOAD, "Restarted run")
+        advance(1000)
+        c.dismissFinished(oldSnapshot)
+
+        assertEquals(listOf(ActivityState.RUNNING), c.items.value.map { it.state })
+        assertEquals("Restarted run", c.items.value.single().title)
+    }
+
+    @Test
+    fun dismissingOldFailureSnapshotDoesNotRemoveNewFailureWithSameId() = runTest {
+        val c = center()
+        c.start("a", ActivityKind.DOWNLOAD, "A")
+        c.fail("a", "first failure")
+        val oldSnapshot = c.items.value.single()
+
+        c.start("a", ActivityKind.DOWNLOAD, "A")
+        c.fail("a", "second failure")
+        val newSnapshot = c.items.value.single()
+        assertTrue(oldSnapshot.failureOccurrence != newSnapshot.failureOccurrence)
+
+        c.dismissFinished(oldSnapshot)
+
+        assertEquals("second failure", c.items.value.single().message)
+    }
+
+    @Test
+    fun dismissingOldInterruptedSnapshotDoesNotRemoveNewInterruptionWithSameId() = runTest {
+        val c = center()
+        c.start("sync", ActivityKind.DOCUMENT_SYNC, "Sync")
+        c.interrupt("sync", "first pause", notify = false)
+        val oldSnapshot = c.items.value.single()
+
+        c.start("sync", ActivityKind.DOCUMENT_SYNC, "Sync")
+        c.interrupt("sync", "second pause", notify = false)
+        val newSnapshot = c.items.value.single()
+        assertTrue(oldSnapshot.failureOccurrence != newSnapshot.failureOccurrence)
+
+        c.dismissFinished(oldSnapshot)
+
+        assertEquals("second pause", c.items.value.single().message)
+    }
+
+    @Test
+    fun dismissFinishedRemovesFailedAndInterruptedItems() = runTest {
+        val c = center()
+        c.start("failed", ActivityKind.DOWNLOAD, "Failed")
+        c.fail("failed", "boom")
+        c.start("interrupted", ActivityKind.DOCUMENT_SYNC, "Interrupted")
+        c.interrupt("interrupted", "paused", notify = false)
+
+        c.dismissFinished(c.items.value.single { it.id == "failed" })
+        c.dismissFinished(c.items.value.single { it.id == "interrupted" })
+
+        assertTrue(c.items.value.isEmpty())
+    }
+
+    @Test
     fun startSameIdRestartsItem() = runTest {
         val c = center()
         c.start("a", ActivityKind.DOWNLOAD, "A")

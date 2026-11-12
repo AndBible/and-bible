@@ -51,6 +51,7 @@ class ActivityMenuState(
     val syncNow: SyncNowMenuState? = null,
     val onOpenItem: (ActivityItem) -> Unit = {},
     val badge: State<ActivityBadgeCounts> = mutableStateOf(ActivityBadgeCounts(failures = unreadFailures.value)),
+    val onDismissItem: (ActivityItem) -> Unit = {},
 ) {
     /** A snapshot of plain values, for tests and goldens. */
     constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit, syncNow: SyncNowMenuState? = null) :
@@ -63,7 +64,7 @@ class ActivityMenuState(
 
     /** The same data with another "show all" action. */
     fun withShowAll(onShowAll: () -> Unit, onOpenItem: (ActivityItem) -> Unit = this.onOpenItem) =
-        ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow, onOpenItem, badge)
+        ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened, syncNow, onOpenItem, badge, onDismissItem)
 }
 
 /** Semantics test tags of the activity UI. */
