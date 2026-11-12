@@ -4,8 +4,12 @@ import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.BookmarkDatabase
@@ -18,6 +22,7 @@ import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.createTriggers
+import net.bible.service.cloudsync.drive.fake.FakeDriveRequest
 import net.bible.service.cloudsync.drive.fake.FakeDriveServer
 import net.bible.service.cloudsync.dropTriggers
 import net.bible.service.common.CommonUtils
@@ -41,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.jvm.isAccessible
@@ -66,10 +72,11 @@ class DriveAdapterSyncRoundTest {
         DatabaseResetter.resetDatabase()
     }
 
+    /** All blocking sync work runs in [Device.sync]'s off-thread job, so this thread only suspends and the timeout can fire. */
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(120_000) { block() } }
 
     /** A device: its own bookmarks database file, device id and device name, and a [CloudSync] over [adapter]. */
-    private inner class Device(name: String, val adapter: CloudAdapter) {
+    private inner class Device(val name: String, val adapter: CloudAdapter) {
         val db: SyncableDatabaseAccessor<BookmarkDatabase>
         val dialogs = AppDialogController()
         val cloud: CloudSync
@@ -106,30 +113,41 @@ class DriveAdapterSyncRoundTest {
             CloudSync::class.declaredFunctions.single { it.name == name }.apply { isAccessible = true }.callSuspend(cloud, db)
         }
 
-        /** One category's part of `synchronize`: join (answering "fetch" if asked), upload own changes, apply the others'. */
-        suspend fun sync() {
-            answeringDialogs { cloud.initializeSync(db) }
+        /**
+         * One category's part of `synchronize`: join (answering "fetch" if asked), upload own changes, apply the others'.
+         * Runs off the test (main) thread, which keeps the main looper turning for the join's dialog.
+         */
+        suspend fun sync() = answeringDialogs {
+            cloud.initializeSync(db)
             step("createAndUploadNewPatch")
             step("downloadAndApplyNewPatches")
         }
 
+        /**
+         * Runs [block] on [Dispatchers.Default] and answers its dialogs from here. The old adapter does blocking I/O on
+         * its caller's thread, so no coroutine timeout can interrupt [block]; the wait instead has a wall-clock deadline
+         * and suspends ([delay]) between polls, so a stuck dialog or a hung request fails the test after
+         * [SYNC_DEADLINE_MS] instead of hanging the test JVM.
+         */
         private suspend fun answeringDialogs(block: suspend () -> Unit) {
             val job = CoroutineScope(Dispatchers.Default).async { block() }
+            val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(SYNC_DEADLINE_MS)
             try {
-                withTimeout(30_000) {
-                    while (!job.isCompleted) {
-                        shadowOf(Looper.getMainLooper()).idle()
-                        dialogs.pending.value?.let { p ->
-                            val r = p.request
-                            dialogs.respond(p.id, when (r) {
-                                is AppDialogRequest.Options -> AppDialogResult.Selected(r.options.single { it.value == "fetch" }.value)
-                                else -> AppDialogResult.Ok
-                            })
-                        }
-                        Thread.sleep(20)
+                while (!job.isCompleted) {
+                    if (System.nanoTime() > deadline) {
+                        throw AssertionError("sync of $name did not finish in $SYNC_DEADLINE_MS ms; pending dialog: ${dialogs.pending.value?.request}")
                     }
-                    job.await()
+                    shadowOf(Looper.getMainLooper()).idle()
+                    dialogs.pending.value?.let { p ->
+                        val r = p.request
+                        dialogs.respond(p.id, when (r) {
+                            is AppDialogRequest.Options -> AppDialogResult.Selected(r.options.single { it.value == "fetch" }.value)
+                            else -> AppDialogResult.Ok
+                        })
+                    }
+                    delay(20)
                 }
+                job.await()
             } finally {
                 job.cancel()
             }
@@ -157,24 +175,42 @@ class DriveAdapterSyncRoundTest {
     private suspend fun exchange(server: FakeDriveServer, a: Device, b: Device) {
         a.start(); b.start()
         a.sync() // creates the sync folder and uploads the initial file
-        Thread.sleep(5)
+        nextMillis()
         val first = a.addBookmark()
-        Thread.sleep(5)
+        nextMillis()
         a.sync() // uploads the first patch
-        assertTrue("A uploaded a patch", server.requests.any { it.url.contains("uploadType=resumable") && it.body.decodeToString().contains("\"name\":\"1.") })
+        assertTrue("A uploaded patch 1", server.requests.any { it.url.contains("uploadType=resumable") && it.uploadName()?.matches(PATCH_1) == true })
 
-        Thread.sleep(5)
+        nextMillis()
         b.sync() // joins from A's folder (fetch), then applies A's patch
         assertEquals(setOf(first), b.bookmarkIds())
 
-        Thread.sleep(5)
+        nextMillis()
         val second = b.addBookmark()
-        Thread.sleep(5)
+        nextMillis()
         b.sync()
-        Thread.sleep(5)
+        nextMillis()
         a.sync()
         assertEquals(setOf(first, second), a.bookmarkIds())
         assertEquals(setOf(first, second), b.bookmarkIds())
+    }
+
+    /**
+     * Waits until the wall clock has moved on by at least 2 ms. Sync compares patch `createdTime`s (server clock) and
+     * log timestamps strictly against watermarks taken from the same wall clock, so steps must not share a millisecond.
+     */
+    private fun nextMillis() {
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() < start + 2) Thread.sleep(1)
+    }
+
+    /** The file name in a resumable-upload start request's JSON metadata, or null. */
+    private fun FakeDriveRequest.uploadName(): String? =
+        runCatching { (Json.parseToJsonElement(body.decodeToString()).jsonObject["name"] as? JsonPrimitive)?.content }.getOrNull()
+
+    private companion object {
+        const val SYNC_DEADLINE_MS = 30_000L
+        val PATCH_1 = Regex("""1\.\d+\.sqlite3\.gz""")
     }
 
     @Test fun oldDeviceCreatesNewDeviceJoins() = run {
