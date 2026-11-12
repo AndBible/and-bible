@@ -1153,6 +1153,23 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: full screen
 
+    func testFullScreenExitButtonAndHint() throws {
+        let app = try launchReading()
+        byLabel(app, "More options").tap()
+        let fullscreen = app.buttons.matching(NSPredicate(format: "label == 'Fullscreen'")).firstMatch
+        XCTAssertTrue(fullscreen.waitForExistence(timeout: 10))
+        fullscreen.tap()
+        let exit = byLabel(app, "Exit fullscreen")
+        XCTAssertTrue(exit.waitForExistence(timeout: 10), "the exit button must be visible")
+        let hint = byLabel(app, "Double-tap or tap the button to exit full screen.")
+        XCTAssertTrue(hint.waitForExistence(timeout: 2), "the hint must be visible")
+        shot(app, "fullscreen-exit-hint")
+        if !isPad { XCTAssertGreaterThanOrEqual(exit.frame.minY, 40, "the exit button must clear the notch") }
+        exit.tap()
+        XCTAssertTrue(waitUntil(timeout: 15) { toolbarShown(app) }, "the exit button must restore the toolbar")
+        XCTAssertFalse(exit.exists)
+    }
+
     /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar; scrolling shows the Bible reference overlay with
     /// Android's real short-name form `KJV:Joh 3:16` (`bibleOverlayText`: "<abbreviation>:<title>" with short book names;
     /// ruling R5). A double tap on the pane leaves full screen (the chrome returns, the overlay goes), a second one

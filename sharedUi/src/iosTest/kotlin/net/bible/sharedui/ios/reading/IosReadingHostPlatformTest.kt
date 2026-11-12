@@ -66,6 +66,17 @@ class IosReadingHostPlatformTest {
     }
 
     @Test
+    fun fullScreenHintUsesTheInAppToast() {
+        net.bible.sharedui.components.AppToasts.clear()
+        try {
+            IosReadingHostPlatform.showFullScreenHint("hint")
+            assertEquals("hint", net.bible.sharedui.components.AppToasts.state.value?.text)
+        } finally {
+            net.bible.sharedui.components.AppToasts.clear()
+        }
+    }
+
+    @Test
     fun theSettingsUrlAndInvalidTaskIdAreUikits() {
         assertEquals(UIApplicationOpenSettingsURLString, IosReadingHostPlatform.settingsUrl)
         assertEquals(UIBackgroundTaskInvalid, IosReadingHostPlatform.invalidBackgroundTaskId)

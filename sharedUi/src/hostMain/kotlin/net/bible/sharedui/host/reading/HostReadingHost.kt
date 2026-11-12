@@ -204,7 +204,7 @@ class HostReadingHost(
         val entering = value && !fullScreen.state.value
         fullScreen.set(value, byDoubleTap)
         statusBarHidden(fullScreen.state.value)
-        if (entering) platform.showFullScreenHint(strings().desktopFullscreenHint)
+        if (entering) platform.showFullScreenHint(platform.fullScreenHint(strings()))
     }
 
     /**

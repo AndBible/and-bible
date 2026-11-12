@@ -195,6 +195,7 @@ class IosReadingHostTest {
             "speakSettingsSlot" to (deps.speakSettingsSlot !== d1.speakSettingsSlot),
             "quickSheetContent" to (deps.quickSheetContent !== d1.quickSheetContent),
             "readingDialogSlot" to (deps.readingDialogSlot !== d1.readingDialogSlot),
+            "onExitFullScreen" to (deps.onExitFullScreen != null),
             // background activity wiring (#4007); null only in a graph without the activity center
             "activity" to (deps.activity != null),
         )
@@ -204,9 +205,7 @@ class IosReadingHostTest {
         // - generation, imeBottomPaddingPx: Android bumps/feeds them from activity events; iOS never rebuilds the pane subtree
         //   and Compose handles the keyboard inset itself.
         // - onDrawerInMotion, onDrawerIdleClosed: Android shows/hides the system bars around the drawer; iOS has no such chrome.
-        // - onExitFullScreen: the persistent exit button is desktop-only.
         val inert: Map<String, Boolean> = mapOf(
-            "onExitFullScreen" to (deps.onExitFullScreen == null),
             "generation" to (deps.generation.value == 0),
             "imeBottomPaddingPx" to (deps.imeBottomPaddingPx.value == 0),
             "onDrawerInMotion" to (deps.onDrawerInMotion === d1.onDrawerInMotion),
@@ -237,6 +236,20 @@ class IosReadingHostTest {
             deps.toolbarCallbacks.onOverflow()
             deps.onOverflowItemClick("fullscreen")
             assertFalse(deps.fullScreen.value, "leaving brings toolbar, tab bar and status bar back")
+            assertEquals(listOf(true, false), statusBar)
+        }
+    }
+
+    @Test
+    fun exitButtonLeavesFullScreenAndRestoresStatusBar() {
+        val statusBar = mutableListOf<Boolean>()
+        withReadingHost(statusBar = { statusBar += it }) { host, deps ->
+            host.setFullScreen(true, byDoubleTap = true)
+            assertTrue(deps.fullScreen.value)
+            assertEquals("Double-tap or tap the button to exit full screen.", net.bible.sharedui.components.AppToasts.state.value?.text)
+            requireNotNull(deps.onExitFullScreen).invoke()
+            assertFalse(deps.fullScreen.value)
+            assertFalse(host.fullScreen.lockedByDoubleTap)
             assertEquals(listOf(true, false), statusBar)
         }
     }

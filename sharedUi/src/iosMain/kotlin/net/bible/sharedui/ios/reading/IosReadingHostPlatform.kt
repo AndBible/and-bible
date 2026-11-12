@@ -47,6 +47,12 @@ object IosReadingHostPlatform : ReadingHostPlatform {
 
     override fun setStatusBarHidden(hidden: Boolean) = iosSetStatusBarHidden(hidden)
 
+    override val showFullScreenExit: Boolean get() = true
+
+    override fun fullScreenHint(strings: net.bible.sharedui.strings.Strings): String = strings.iosFullscreenHint
+
+    override fun showFullScreenHint(message: String) = net.bible.sharedui.components.AppToasts.show(message)
+
     override fun isPortrait(): Boolean = iosIsPortrait()
 
     override fun isRightToLeft(): Boolean = iosIsRightToLeft()

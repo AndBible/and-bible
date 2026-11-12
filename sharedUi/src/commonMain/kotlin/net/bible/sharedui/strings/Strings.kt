@@ -29,6 +29,7 @@ interface Strings {
     val autoFullscreen: String
     val autoFullscreenSummary: String
     val desktopFullscreenHint: String
+    val iosFullscreenHint: String
     val desktopExitFullscreen: String
     val calculatorPar1: String
     val calculatorPar2: String

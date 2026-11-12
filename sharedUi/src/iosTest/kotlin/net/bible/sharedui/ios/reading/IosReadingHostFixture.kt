@@ -98,6 +98,7 @@ internal fun withIosReadingHost(
             host.dispose()
         }
     } finally {
+        net.bible.sharedui.components.AppToasts.clear()
         scope.cancel()
         ReadingAppInit.resetForTest()
         runBlocking { IosAppStartup.resetForTest() }

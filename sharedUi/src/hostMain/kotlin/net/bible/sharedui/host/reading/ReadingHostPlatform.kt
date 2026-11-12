@@ -46,6 +46,9 @@ interface ReadingHostPlatform {
     /** Optional platform-specific hint when fullscreen is entered. */
     fun showFullScreenHint(message: String) = Unit
 
+    /** Selects the hint appropriate for the platform's input methods. */
+    fun fullScreenHint(strings: net.bible.sharedui.strings.Strings): String = strings.desktopFullscreenHint
+
     /** Whether fullscreen needs a persistent mouse-accessible exit control. */
     val showFullScreenExit: Boolean get() = false
 
