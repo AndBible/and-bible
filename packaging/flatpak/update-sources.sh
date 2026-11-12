@@ -7,7 +7,7 @@ trap 'rm -rf "$tmp"' EXIT
 cp app/bibleview-js/package-lock.json "$tmp/package-lock.json"
 flatpak-node-generator --no-playwright-browsers npm "$tmp/package-lock.json" -o "$tmp/node-sources.json"
 python3 -I packaging/flatpak/add-sha256.py "$tmp/node-sources.json"
-projects=(. app desktopApp desktopWebkitGtk desktopWebView2 sharedUi sharedLogic sharedData sharedCore jsword strings-gen kdom)
+projects=(. app desktopApp desktopWebView2 sharedUi sharedLogic sharedData sharedCore jsword strings-gen kdom)
 outputs=()
 for project in "${projects[@]}"; do
     output="$project/build/flatpak/gradle-sources.json"

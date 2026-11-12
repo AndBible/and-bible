@@ -116,7 +116,7 @@ class DisplayScaleTest {
     }
 
     /**
-     * With Compose layers as own windows (WebKitGTK, windowed CEF) a popup window takes the AWT density, not the content's,
+     * With Compose layers as own windows (windowed CEF) a popup window takes the AWT density, not the content's,
      * so a Compose factor would break popups: the scale is rounded to an integer there.
      */
     @Test fun integerOnlyRoundsToTheNearestWholeScale() {
@@ -236,21 +236,9 @@ class DisplayScaleTest {
         val o = detect(props = mapOf("sun.java2d.uiScale.enabled" to "false", "andbible.uiScale" to "2"))!!
         assertEquals(1, o.awtScale)
         assertEquals(2.0, o.composeFactor)
-        // A host that cannot take a Compose factor (popups as own windows) stays at 1, the rest goes to the text.
+        // A host that cannot take a Compose factor (popups as own windows) stays at 1.
         assertEquals(1.0, o.integerOnly().composeFactor)
         assertEquals(1, o.integerOnly().awtScale)
-        assertEquals(2.0, o.integerOnly().textFactor)
-    }
-
-    /**
-     * WebKitGTK rounds the scale (Compose popups are own windows) and sets GTK's font DPI to 96: a 125 % desktop lost
-     * its text scaling entirely. The rounding's leftover goes to the font DPI instead.
-     */
-    @Test fun integerOnlyKeepsTheLeftoverAsTextFactor() {
-        assertEquals(1.25, detect(resources = "Xft.dpi: 120")!!.integerOnly().textFactor)
-        assertEquals(0.75, detect(resources = "Xft.dpi: 144")!!.integerOnly().textFactor)
-        assertEquals(1.0, detect(resources = "Xft.dpi: 192")!!.integerOnly().textFactor)
-        assertEquals(1.0, detect(resources = "Xft.dpi: 120")!!.textFactor)
     }
 
     private class Blob(val order: ByteOrder) {

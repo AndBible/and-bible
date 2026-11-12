@@ -52,7 +52,7 @@ lifecycleRuntimeCompose = "2.9.6"
 # hostMain back handlers (#4003) must link against that same version.
 composeMultiplatform = "1.11.1"
 navigationEvent = "1.0.1"
-# Desktop D5: JNA for the WebKitGTK experiment (:desktopWebkitGtk)
+# Desktop: JNA for WebView2 and X11 integration
 jna = "5.17.0"
 dbusJava = "4.3.1"
 

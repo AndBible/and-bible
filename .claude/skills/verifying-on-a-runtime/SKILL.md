@@ -21,7 +21,7 @@ and successful compilation do not replace a live check of native glue.
 | Android lifecycle, WebView, input, API-specific behavior | Container emulator: **android-emulator** | Match the API; not OEM/e-ink/phone-call hardware |
 | iOS UIKit/WebKit, Native tests, framework/XCUITest, simulator screenshots | Remote Mac: **ios-mac** | Linux iOS compile is type checking, not UIKit runtime; missing mount/relay is setup, not automatic handoff |
 | Windows installer, taskbar, font/DPI, WebView2, keyboard | QEMU Windows 11: **windows-vm** | Obtain orchestrator's host-wide VM token; not physical Direct3D/GPU |
-| Linux CEF/WebKitGTK launch, native click/key focus, exit | Xvfb + openbox: **desktop-linux-live** | Test each engine; not physical GPU/Wayland/IME without explicit tests |
+| Linux CEF launch, native click/key focus, exit | Xvfb + openbox: **desktop-linux-live** | Not physical GPU/Wayland/IME without explicit tests |
 | Shared logic/data and host-independent regressions | Module `jvmTest` (desktop modules use `test`) | Does not load UIKit or prove native browser/OS behavior |
 | Android host behavior / composed image regression | Robolectric / Roborazzi | Diff-selected gates below; one bundled Skia is not per-Android rendering |
 | Physical iOS/Android devices, real iOS-on-Mac app launch, physical GPU/Wayland | Named maintainer checklist, issue **#3946** | Keep exact unverified action; don't relabel container-capable work as hardware-only |

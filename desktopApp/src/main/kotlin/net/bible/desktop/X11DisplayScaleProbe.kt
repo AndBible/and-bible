@@ -98,7 +98,7 @@ internal object X11DisplayScaleProbe {
         fun XFree(data: Pointer): Int
     }
 
-    /** libX11 by its runtime soname first (no `-dev` package installs the bare `libX11.so`), as GtkBindings does. */
+    /** libX11 by its runtime soname first (no `-dev` package installs the bare `libX11.so`). */
     private fun loadX11(): X11 = runCatching { Native.load("libX11.so.6", X11::class.java) }
         .recoverCatching { Native.load("X11", X11::class.java) }.getOrThrow()
 

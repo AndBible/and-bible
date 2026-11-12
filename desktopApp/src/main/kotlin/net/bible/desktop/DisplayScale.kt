@@ -32,7 +32,7 @@ internal data class DisplayScaleInputs(
  * The JDK 17 X11 toolkit supports only integer scales (`sun.java2d.uiScale=1.5` renders at 1), so the scale is split:
  * [awtScale], the integer part, goes to the JDK ([applyToJdk]), and the rest, [composeFactor], multiplies the Compose
  * density of the window content (and with it the off-screen CEF pane's device scale). Hosts whose popups are own windows
- * use [integerOnly] instead; the rounding's leftover is kept as [textFactor] (WebKitGTK's font DPI).
+ * use [integerOnly] instead.
  *
  * [jdkScaling] false: the user switched JDK scaling off (`-Dsun.java2d.uiScale.enabled=false`); AWT stays at 1 and the
  * whole scale goes through the Compose density.
@@ -40,7 +40,6 @@ internal data class DisplayScaleInputs(
 internal data class DisplayScale(
     val scale: Double,
     val source: String,
-    val textFactor: Double = 1.0,
     val jdkScaling: Boolean = true,
 ) {
     val awtScale: Int get() = if (!jdkScaling) 1 else floor(scale + EPSILON).toInt().coerceAtLeast(1)
@@ -49,7 +48,7 @@ internal data class DisplayScale(
     /** Sets the JDK's own scale and keeps skiko from replacing it. Before AWT initialises (it reads `sun.java2d.uiScale` once). */
     fun applyToJdk(setProperty: (String, String) -> Unit) {
         // Compose's Swing globals turn skiko's Linux auto-DPI on by default; it would overwrite the scale with its own
-        // (Xft.dpi only) whenever skiko initialises before AWT (the WebKitGTK app does). This decision replaces it.
+        // (Xft.dpi only) whenever skiko initialises before AWT. This decision replaces it.
         setProperty("skiko.linux.autodpi", "false")
         if (!jdkScaling) return
         setProperty("sun.java2d.uiScale.enabled", "true")
@@ -59,16 +58,15 @@ internal data class DisplayScale(
     /**
      * This scale rounded to a whole number (at least 1), for hosts whose Compose popups and dialogs are own windows
      * (`compose.layers.type=WINDOW`): such a window takes its density from AWT, so a [composeFactor] would mis-size them.
-     * The leftover (`scale / whole`) becomes [textFactor]. Without [jdkScaling] the whole number is 1.
+     * Without [jdkScaling] the whole number is 1.
      */
     fun integerOnly(): DisplayScale {
         val whole = if (!jdkScaling) 1.0 else floor(scale + 0.5).coerceAtLeast(1.0)
         return if (whole == scale) this else
-            copy(scale = whole, source = "$source, ${fmt(scale)} rounded: Compose popups are own windows", textFactor = round4(scale / whole))
+            copy(scale = whole, source = "$source, ${fmt(scale)} rounded: Compose popups are own windows")
     }
 
-    fun describe(): String = "display scale ${fmt(scale)} ($source): AWT $awtScale, Compose x${fmt(composeFactor)}" +
-        if (textFactor != 1.0) ", text x${fmt(textFactor)}" else ""
+    fun describe(): String = "display scale ${fmt(scale)} ($source): AWT $awtScale, Compose x${fmt(composeFactor)}"
 
     private companion object {
         const val EPSILON = 1e-6
@@ -215,19 +213,16 @@ internal object DisplayScaleDetector {
 
 /**
  * The process's display scale (#4006), decided once by [init] at the start of [runDesktopApp], before AWT. Read by the
- * window (Compose density, window size), the log and the engines (KCEF windowed switch, WebKitGTK `GDK_SCALE`).
+ * window (Compose density, window size), the log and the KCEF windowed switch.
  */
 object DesktopDisplayScale {
     @Volatile private var decided: DisplayScale? = null
 
-    /** The integer scale given to the JDK (and to GTK as `GDK_SCALE`); 1 off Linux or before [init]. */
+    /** The integer scale given to the JDK; 1 off Linux or before [init]. */
     val awtScale: Int get() = decided?.awtScale ?: 1
 
     /** The fractional rest, applied to the Compose density; 1 off Linux, before [init] or with integerOnly. */
     val composeFactor: Double get() = decided?.composeFactor ?: 1.0
-
-    /** The rest a whole-number ([DisplayScale.integerOnly]) host leaves to the text size; 1 otherwise. */
-    val textFactor: Double get() = decided?.textFactor ?: 1.0
 
     /** The whole scale; 1 off Linux or before [init]. */
     val scale: Double get() = decided?.scale ?: 1.0

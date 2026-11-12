@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import net.bible.sharedcore.bibleview.JsHost
 
 /**
- * The swappable desktop web engine (Chromium via KCEF, or an OS engine such as WebKitGTK). Nothing outside
+ * The swappable desktop web engine (Chromium via KCEF, or an OS engine such as WebView2). Nothing outside
  * this package and the engine wiring in `:desktopApp` may reference engine-specific (KCEF/JCEF) types.
  */
 interface DesktopWebEngine {
