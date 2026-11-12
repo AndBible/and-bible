@@ -29,9 +29,11 @@ class AiPromptsGoldenTest {
         initiallyOverflowMenuOpen: Boolean = false,
         initiallySearchOpen: Boolean = false,
         initiallyFilter: PromptListFilter = PromptListFilter(),
+        copiedPromptId: String? = null,
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
+                copiedPromptId = copiedPromptId,
                 configured = configured,
                 groups = groups,
                 showHidden = showHidden,
@@ -121,6 +123,12 @@ class AiPromptsGoldenTest {
                 ),
             ),
         ),
+    )
+
+    /** The transient copy emphasis reuses the current-row tint/bar and monochrome ink outline. */
+    @Test fun copied_matrix() = captureMatrix(
+        "AiPrompts", "copied", heightDp = 900,
+        content = screen(configured = true, groups = configuredGroups(), copiedPromptId = "p-crossref"),
     )
 
     /** Mirrors classic `manage_prompts.xml` child 0: not yet configured -> centered CTA only. */
