@@ -142,10 +142,10 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 ## Sharing on Android
 
-**Recommend to a friend** (the same on every platform) offers two choices: **Share a link**
-opens the system share sheet with a short description of AndBible and a link to
-[andbible.org](https://andbible.org), where the downloads for every platform are listed;
-**Show QR code** displays a QR code of the same address that a friend can scan in person.
+**Recommend to a friend** (the same on every platform) shows a QR code of
+[andbible.org](https://andbible.org), where the downloads for every platform are listed, that a friend
+can scan in person. **Share a link** in the same dialog opens the system share sheet with a short
+description of AndBible and the same link.
 **Rate the app**, when offered, opens the standard Play listing, or Samsung Apps for Samsung builds.
 
 **Recommend to a friend** is hidden in discrete mode. Recommendation and rating actions
@@ -156,7 +156,7 @@ are disabled while discrete mode is active, to avoid revealing the app's identit
 The iOS drawer's **Help & tips** shows all eight help topics, tutorial and manual links,
 and the app version. It does not include the Android development-shop promotion.
 **Licence** displays the complete licence bundled with the app, so it is available offline.
-**Recommend to a friend** works as on Android: share a link to the homepage, or show a QR code.
+**Recommend to a friend** works as on Android: it shows a QR code of the homepage and a **Share a link** button.
 
 The iOS **Report a bug** action asks for confirmation before preparing a report with device
 and version details, any retained crash details, and a compressed recent app log. If iOS has
