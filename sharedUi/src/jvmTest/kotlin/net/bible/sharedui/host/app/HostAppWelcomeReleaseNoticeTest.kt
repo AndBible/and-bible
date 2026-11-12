@@ -133,6 +133,8 @@ class HostAppWelcomeReleaseNoticeTest {
                     }
                 }
             } finally {
+                HostReadingReady.resetForTest()
+                net.bible.service.startup.ReadingAppInit.resetForTest()
                 DesktopAppStartup.resetForTest()
                 HostRootLinks.reset()
                 previousHost?.let { DatabaseContainer.installHost(it) }
