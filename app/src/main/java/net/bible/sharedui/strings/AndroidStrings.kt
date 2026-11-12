@@ -24,6 +24,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val autoFullscreen: String get() = context.getString(R.string.auto_fullscreen)
     override val autoFullscreenSummary: String get() = context.getString(R.string.auto_fullscreen_summary)
     override val desktopFullscreenHint: String get() = context.getString(R.string.desktop_fullscreen_hint)
+    override val iosFullscreenHint: String get() = context.getString(R.string.ios_fullscreen_hint)
     override val desktopExitFullscreen: String get() = context.getString(R.string.desktop_exit_fullscreen)
     override val calculatorPar1: String get() = context.getString(R.string.calculator_par1)
     override val calculatorPar2: String get() = context.getString(R.string.calculator_par2)

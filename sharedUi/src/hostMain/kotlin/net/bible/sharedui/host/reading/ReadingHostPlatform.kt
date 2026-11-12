@@ -43,8 +43,11 @@ interface ReadingHostPlatform {
     /** Hides or shows the system status bar (full screen hides it). */
     fun setStatusBarHidden(hidden: Boolean)
 
-    /** Optional platform-specific hint when fullscreen is entered. */
-    fun showFullScreenHint(message: String) = Unit
+    /** Optional fullscreen hint; returns its owned toast so leaving fullscreen cannot dismiss a replacement. */
+    fun showFullScreenHint(message: String): net.bible.sharedui.components.AppToasts.Toast? = null
+
+    /** Selects the hint appropriate for the platform's input methods. */
+    fun fullScreenHint(strings: net.bible.sharedui.strings.Strings): String = strings.desktopFullscreenHint
 
     /** Whether fullscreen needs a persistent mouse-accessible exit control. */
     val showFullScreenExit: Boolean get() = false

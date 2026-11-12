@@ -201,7 +201,7 @@ class DesktopReadingHostPlatform(
 
     override fun setStatusBarHidden(hidden: Boolean) = Unit
 
-    override fun showFullScreenHint(message: String) = net.bible.sharedui.components.AppToasts.show(message, false)
+    override fun showFullScreenHint(message: String) = net.bible.sharedui.components.AppToasts.showOwned(message, false)
     override val showFullScreenExit: Boolean get() = true
 
     override fun isPortrait(): Boolean = window.sizeDp.let { it.height > it.width }

@@ -18,6 +18,7 @@
 package net.bible.sharedui.reading
 
 import net.bible.sharedui.reading.activity.ActivityMenuState
+import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
@@ -289,7 +290,11 @@ fun ReadingViewScreen(
             }
         }
         if (fullScreen && onExitFullScreen != null) {
-            Surface(Modifier.align(Alignment.TopEnd), color = MaterialTheme.colorScheme.surface) {
+            Surface(
+                Modifier.align(Alignment.TopEnd).padding(top = LocalReadingTopSafeInset.current)
+                    .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)),
+                color = MaterialTheme.colorScheme.surface,
+            ) {
                 IconButton(onClick = onExitFullScreen) {
                     Icon(Icons.Filled.CloseFullscreen, contentDescription = LocalStrings.current.desktopExitFullscreen)
                 }

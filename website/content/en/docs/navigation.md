@@ -233,11 +233,16 @@ again to exit fullscreen. Entering fullscreen this way is enabled by default on
 mobile, but disabled by default when running the iPad app on a Mac. Change it in
 `Settings` > `Application behavior` > `Double-tap to fullscreen`. Your saved
 choice is kept. Double-tapping still exits fullscreen when the setting is off.
+On iPhone and iPad, you can also tap the exit-fullscreen button at the upper right.
 
 In the desktop app, double-click does not toggle fullscreen and the double-tap
 setting is not shown. Choose **Fullscreen** in the main menu or press **F11**
 to toggle fullscreen. To exit, you can also click the exit-fullscreen button at
 the upper right or press **Esc**. When a dialog or page editor is open, close it first.
+
+On iPhone, iPad, and desktop, fullscreen hides the floating pane menu buttons so
+they do not overlap the exit-fullscreen button. Exit fullscreen to use the pane
+menus again. The fullscreen hint disappears when you exit.
 
 ### Fullscreen by Scrolling
 

@@ -127,6 +127,7 @@ class ReadingViewScreenGoldenTest {
 
     private fun screen(
         fullScreen: Boolean,
+        onExitFullScreen: (() -> Unit)? = null,
         tabBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
         agentLog: (@Composable (
             applyNavBarInset: Boolean,
@@ -142,6 +143,7 @@ class ReadingViewScreenGoldenTest {
             toolbarIcons = icons(),
             toolbarCallbacks = noopCallbacks,
             fullScreen = fullScreen,
+            onExitFullScreen = onExitFullScreen,
             onWindowActivated = {},
             onSeparatorCommitted = { _, _, _, _ -> },
             pane = pane,
@@ -263,6 +265,12 @@ class ReadingViewScreenGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun fullScreen() = captureGolden("ReadingViewScreen", "fullScreen", EDGE_MODE, content = screen(fullScreen = true))
+
+    @Test
+    fun fullScreenExitButton() = captureGolden(
+        "ReadingViewScreen", "fullScreenExitButton", EDGE_MODE,
+        content = screen(fullScreen = true, onExitFullScreen = {}),
+    )
 
     // A small representative multi-window model for the rail — mirrors WindowTabBarGoldenTest's
     // own fixture shape (a pinned "P" + active non-pinned "N1"), NOT the single-window `layout`

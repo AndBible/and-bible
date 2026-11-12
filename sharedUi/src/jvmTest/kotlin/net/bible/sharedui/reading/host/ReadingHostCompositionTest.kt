@@ -28,6 +28,9 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import java.lang.reflect.Proxy
@@ -129,6 +132,7 @@ class ReadingHostCompositionTest {
         drawerMenu: DrawerMenuState = DrawerMenuState.EMPTY,
         quickSheetContent: @Composable (net.bible.sharedcore.reading.ReadingQuickSheet) -> Unit = {},
         fullScreen: androidx.compose.runtime.State<Boolean> = mutableStateOf(false),
+        onExitFullScreen: (() -> Unit)? = null,
         onRailLayoutChanged: (Set<String>, Set<String>?) -> Unit = { _, _ -> },
     ): ReadingHostDeps {
         val icon = ColorPainter(Color.Gray)
@@ -147,6 +151,7 @@ class ReadingHostCompositionTest {
             drawerMenu = mutableStateOf(drawerMenu),
             quickSheetContent = quickSheetContent,
             fullScreen = fullScreen,
+            onExitFullScreen = onExitFullScreen,
             onRailLayoutChanged = onRailLayoutChanged,
         )
     }
@@ -182,6 +187,29 @@ class ReadingHostCompositionTest {
         runOnIdle { fullScreen.value = false }
         waitForIdle()
         kotlin.test.assertTrue(coverage.last().isNotEmpty(), "leaving fullscreen restores the strip")
+    }
+
+    @Test
+    fun fullscreenExitButtonClearsTopInsetAndRestoresChrome() = runComposeUiTest {
+        val fullScreen = mutableStateOf(true)
+        val deps = deps(newState(), controller("w1"), fullScreen = fullScreen,
+            onExitFullScreen = { fullScreen.value = false })
+        setContent {
+            Themed {
+                CompositionLocalProvider(
+                    LocalReadingPane provides { _, modifier -> Box(modifier) },
+                    LocalReadingTopSafeInset provides 48.dp,
+                    androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(1f),
+                ) { ReadingHost(deps) }
+            }
+        }
+        val button = onNodeWithContentDescription("Exit fullscreen")
+        val bounds = button.fetchSemanticsNode().boundsInRoot
+        kotlin.test.assertTrue(bounds.top >= 47f, "the exit button must clear the top safe area")
+        button.performClick()
+        waitForIdle()
+        kotlin.test.assertFalse(fullScreen.value)
+        button.assertDoesNotExist()
     }
 
     @Test
