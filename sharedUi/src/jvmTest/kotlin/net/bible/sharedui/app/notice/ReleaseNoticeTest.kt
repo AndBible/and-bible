@@ -55,6 +55,18 @@ class ReleaseNoticeTest {
         assertTrue(settings.values.isEmpty())
     }
 
+    /**
+     * The internal 6.0.1266 test build's older gate silently stored "6.0" under the old key `stable-notice-displayed`
+     * on an undetected beta -> stable update, without showing anything. That value must not suppress the notice.
+     */
+    @Test
+    fun legacyStableNoticeKeyDoesNotSuppressNotice() = runTest {
+        val settings = MemoryAppSettings().apply { setString("stable-notice-displayed", "6.0") }
+        var asked = 0
+        show(settings) { asked++; AppDialogResult.Cancel }
+        assertEquals(1, asked)
+    }
+
     @Test
     fun betaAndDiscreteNeitherAskNorWriteEvenOnWelcome() = runTest {
         for ((beta, discrete) in listOf(true to false, false to true, true to true)) {

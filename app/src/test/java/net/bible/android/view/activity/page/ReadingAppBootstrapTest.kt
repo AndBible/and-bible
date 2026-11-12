@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page
 
+import net.bible.sharedui.app.notice.ReleaseNotice
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
@@ -661,7 +662,7 @@ class ReadingAppBootstrapTest {
     @Test
     fun showStableNoticeSkipsWithNoDialogWhenAlreadyDisplayedForThisVersion() = runTest(timeout = 30.seconds) {
         withNonBetaBuild {
-            CommonUtils.settings.setString("stable-notice-displayed", CommonUtils.mainVersion)
+            CommonUtils.settings.setString(ReleaseNotice.DISPLAYED_KEY, CommonUtils.mainVersion)
             val controller = navHostOnReading()
             try {
                 val activity = controller.create().get()
@@ -669,7 +670,7 @@ class ReadingAppBootstrapTest {
                 assertNull(appDialogs.pending.value)
             } finally {
                 controller.close()
-                CommonUtils.settings.removeString("stable-notice-displayed")
+                CommonUtils.settings.removeString(ReleaseNotice.DISPLAYED_KEY)
             }
         }
     }
@@ -679,7 +680,7 @@ class ReadingAppBootstrapTest {
         block: suspend (NavHostComposeActivity, kotlinx.coroutines.Deferred<Boolean>) -> Unit,
     ) {
         withNonBetaBuild {
-            CommonUtils.settings.removeString("stable-notice-displayed")
+            CommonUtils.settings.removeString(ReleaseNotice.DISPLAYED_KEY)
             CommonUtils.settings.removeString("stable-notice-beta-ran")
             CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
             if (discretePref) CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
@@ -692,7 +693,7 @@ class ReadingAppBootstrapTest {
             } finally {
                 controller.close()
                 CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
-                CommonUtils.settings.removeString("stable-notice-displayed")
+                CommonUtils.settings.removeString(ReleaseNotice.DISPLAYED_KEY)
                 CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
             }
         }
@@ -717,7 +718,7 @@ class ReadingAppBootstrapTest {
     }
 
     private fun clearNoticeMarkers() {
-        CommonUtils.settings.removeString("stable-notice-displayed")
+        CommonUtils.settings.removeString(ReleaseNotice.DISPLAYED_KEY)
         CommonUtils.settings.removeString("stable-notice-beta-ran")
         CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
     }
@@ -729,7 +730,7 @@ class ReadingAppBootstrapTest {
             val welcome = welcomeHost()
             try {
                 composeWelcome(welcome)
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
             } catch (failure: Throwable) {
                 clearNoticeMarkers()
                 throw failure
@@ -739,7 +740,7 @@ class ReadingAppBootstrapTest {
             val reading = navHostOnReading()
             try {
                 val activity = reading.create().get()
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
                 val notice = async { activity.readingAppBootstrap.showStableNotice() }
                 advanceUntilIdle()
                 assertTrue(appDialogs.pending.value?.request is AppDialogRequest.ReleaseNotice)
@@ -762,7 +763,7 @@ class ReadingAppBootstrapTest {
             val welcome = welcomeHost()
             try {
                 val activity = composeWelcome(welcome)
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
                 // Download performs a network refresh; use the same real leave/return path with a light destination.
                 activity.welcomeFlow.leaveFor(NavRoutes.AI_TOOL_INFO)
                 net.bible.test.awaitHostRoute(activity, NavRoutes.AI_TOOL_INFO)
@@ -773,7 +774,7 @@ class ReadingAppBootstrapTest {
                 net.bible.test.awaitHostUntil("the same-launch startup notice chain must finish") {
                     ReadingAppBootstrap.initialized
                 }
-                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
                 assertFalse(activity.readingAppBootstrap.showStableNotice())
                 assertNull(appDialogs.pending.value)
             } catch (failure: Throwable) {
@@ -805,7 +806,7 @@ class ReadingAppBootstrapTest {
                 val completion = activity.welcomeAfterFlow()
                 net.bible.test.awaitHostUntil("Welcome completion must finish") { completion.isCompleted }
                 assertEquals(NavRoutes.WELCOME, activity.currentRouteForTest())
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
                 assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
             } finally {
                 controller.close()
@@ -823,7 +824,7 @@ class ReadingAppBootstrapTest {
             val activity = composeWelcome(controller)
             activity.welcomeAfterFlow()
             net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
-            assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
             assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
         } finally {
             controller.close()
@@ -841,7 +842,7 @@ class ReadingAppBootstrapTest {
                 val activity = composeWelcome(controller)
                 activity.welcomeAfterFlow()
                 net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
-                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+                assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
                 assertEquals("", CommonUtils.settings.getString("stable-notice-beta-ran", ""))
             } finally {
                 controller.close()
@@ -860,7 +861,7 @@ class ReadingAppBootstrapTest {
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = true))
             advanceUntilIdle()
             assertTrue("don't show again returns true", done.await())
-            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+            assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
         }
     }
 
@@ -870,7 +871,7 @@ class ReadingAppBootstrapTest {
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = false))
             advanceUntilIdle()
             assertFalse(done.await())
-            assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            assertEquals("", CommonUtils.settings.getString(ReleaseNotice.DISPLAYED_KEY, ""))
             val nextLaunch = async { activity.readingAppBootstrap.showStableNotice() }
             advanceUntilIdle()
             assertTrue(appDialogs.pending.value!!.request is AppDialogRequest.ReleaseNotice)

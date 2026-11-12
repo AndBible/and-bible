@@ -36,8 +36,12 @@ enum class ReleaseNoticePlatform { ANDROID, IOS, DESKTOP }
  */
 @kotlin.native.HiddenFromObjC
 object ReleaseNotice {
-    /** The settings key holding the main version whose notice was last seen (the name is the old Android key). */
-    const val DISPLAYED_KEY = "stable-notice-displayed"
+    /**
+     * The settings key holding the main version whose notice was last seen. Not the old Android key
+     * `stable-notice-displayed`: the internal 6.0.1266 test build's earlier gate silently stored "6.0" there on an
+     * undetected beta -> stable update, which would hide the notice for good.
+     */
+    const val DISPLAYED_KEY = "release-notice-displayed"
 
     /** Call on successful Welcome completion, before reading can check notices; showing Welcome alone is not enough. */
     fun dismissForWelcome(isBeta: Boolean, discrete: Boolean, mainVersion: String, settings: AppSettings) {
