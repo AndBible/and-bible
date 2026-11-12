@@ -27,7 +27,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.removeLeadingZeroes
 import net.bible.sharedcore.calculator.CalculatorController
 import net.bible.sharedcore.calculator.EvalResult
-import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.calculator.CalculatorScreen
@@ -41,6 +40,10 @@ import java.math.BigDecimal
  * Behaviour (arithmetic formatting, PIN-vs-operation unlock decision, RESULT_OK/finish) mirrors
  * [CalculatorActivity] exactly. Like it, [doNotInitializeApp] is true (no workspace init behind
  * the disguise). Resolved by [net.bible.android.view.ScreenLauncher].
+ *
+ * Deliberately mounts no [net.bible.android.view.activity.base.AppDialogOverlay] (#4055): this screen is
+ * the PIN lock, so nothing of the app (Help, backup-success, ...) may draw above it. Queued dialogs stay
+ * in [net.bible.sharedcore.ui.dialog.AppDialogController] and the reading host shows them after unlock.
  */
 class CalculatorComposeActivity : ActivityBase() {
     override val doNotInitializeApp: Boolean = true
@@ -103,7 +106,6 @@ class CalculatorComposeActivity : ActivityBase() {
                     val display by controller.display.collectAsState()
                     val error by controller.error.collectAsState()
                     CalculatorScreen(display, error, controller::onKey)
-                    AppDialogOverlay()
                 }
             }
         }
