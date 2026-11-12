@@ -22,6 +22,7 @@ import net.bible.android.control.versification.wholeChapter
 import net.bible.sharedlogic.sync.bookNameMonitor
 import net.bible.sharedlogic.sync.withMonitor
 import org.crosswire.jsword.book.BookCategory
+import net.bible.service.common.titleName
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
@@ -42,7 +43,7 @@ fun pageTitleText(pageControl: PageControl): String? {
 
 /** The title of [key]: a verse 0 stands for its whole chapter; null for no key. Pure, for tests. */
 internal fun pageTitleFor(key: Key?): String? =
-    if (key is Verse && key.verse == 0) wholeChapter(key, false).getName() else key?.getName()
+    if (key is Verse && key.verse == 0) wholeChapter(key, false).titleName else key?.titleName
 
 /**
  * The Bible reference overlay's text, `"<document abbreviation>:<page title>"` with short book names (for example
