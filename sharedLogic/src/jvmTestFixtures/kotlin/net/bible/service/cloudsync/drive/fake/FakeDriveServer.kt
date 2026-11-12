@@ -47,7 +47,13 @@ class FakeDriveServer(
     var pageSize: Int? = null,
     val clock: () -> Long = { System.currentTimeMillis() },
 ) {
-    private class Session(val metadata: JsonObject, val buffer: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream())
+    private class Session(
+        val metadata: JsonObject,
+        val declaredType: String?,
+        val buffer: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream(),
+        /** Set once the upload finished; later requests on the session replay this response, as Drive does. */
+        var finished: FakeDriveFile? = null,
+    )
 
     private val lock = Any()
     private val files = LinkedHashMap<String, FakeDriveFile>()
@@ -137,7 +143,7 @@ class FakeDriveServer(
         val predicate = q["q"]?.let { parseExpr(it) } ?: { _: FakeDriveFile -> true }
         val matching = files.values.filter { it.id != ROOT_ID && predicate(it) }
             .sortedWith(compareBy<FakeDriveFile> { it.createdTime }.thenBy { it.id })
-        val size = (pageSize ?: q["pageSize"]?.toIntOrNull() ?: 100).coerceAtLeast(1)
+        val size = (pageSize ?: (q["pageSize"]?.toIntOrNull() ?: 100).coerceIn(1, 1000)).coerceAtLeast(1)
         val offset = q["pageToken"]?.let { decodeToken(it) } ?: 0
         val page = matching.drop(offset).take(size)
         val next = offset + page.size
@@ -152,8 +158,8 @@ class FakeDriveServer(
     private fun encodeToken(offset: Int) = Base64.getUrlEncoder().withoutPadding().encodeToString("off:$offset".encodeToByteArray())
 
     private fun decodeToken(token: String): Int = try {
-        String(Base64.getUrlDecoder().decode(token)).removePrefix("off:").toInt()
-    } catch (e: IllegalArgumentException) {
+        String(Base64.getUrlDecoder().decode(token)).removePrefix("off:").toInt().also { require(it >= 0) }
+    } catch (e: IllegalArgumentException) { // includes NumberFormatException
         throw BadRequest("Invalid pageToken")
     }
 
@@ -179,6 +185,7 @@ class FakeDriveServer(
         val m = RANGE.matchEntire(range.trim()) ?: throw BadRequest("Unsupported Range: $range")
         val total = content.size
         val (a, b) = m.destructured
+        if (a.isEmpty() && b.isEmpty()) throw BadRequest("Unsupported Range: $range")
         val start: Int
         val end: Int
         if (a.isEmpty()) { // suffix range: last N bytes
@@ -197,13 +204,14 @@ class FakeDriveServer(
 
     private fun startResumable(r: FakeDriveRequest, uri: URI): FakeDriveResponse {
         val id = "session-${++sessionCounter}"
-        sessions[id] = Session(if (r.body.isEmpty()) JsonObject(emptyMap()) else parseJson(r.body))
+        sessions[id] = Session(if (r.body.isEmpty()) JsonObject(emptyMap()) else parseJson(r.body), r.headers["x-upload-content-type"])
         val loc = "${uri.scheme}://${uri.authority}$UPLOAD_PATH?uploadType=resumable&upload_id=$id"
         return FakeDriveResponse(200, mapOf("Location" to loc, "Content-Length" to "0"), ByteArray(0))
     }
 
     private fun continueResumable(r: FakeDriveRequest, sessionId: String): FakeDriveResponse {
         val s = sessions[sessionId] ?: return notFound(sessionId)
+        s.finished?.let { return json(200, meta(it)) }
         val received = s.buffer.size()
         val cr = r.headers["content-range"]
         if (cr == null) { // whole content in one request
@@ -228,8 +236,9 @@ class FakeDriveServer(
         FakeDriveResponse(308, if (received > 0) mapOf("Range" to "bytes=0-${received - 1}") else emptyMap(), ByteArray(0))
 
     private fun finishSession(id: String, s: Session, contentType: String?): FakeDriveResponse {
-        sessions.remove(id)
-        return complete(s.metadata, s.buffer.toByteArray(), contentType)
+        val response = complete(s.metadata, s.buffer.toByteArray(), contentType ?: s.declaredType)
+        if (response.status == 200) s.finished = files.values.last()
+        return response
     }
 
     private fun multipart(r: FakeDriveRequest): FakeDriveResponse {
@@ -262,7 +271,7 @@ class FakeDriveServer(
         parents.forEach { if (it !in files) return notFound(it) }
         val name = (meta["name"] as? JsonPrimitive)?.content ?: "Untitled"
         val mime = (meta["mimeType"] as? JsonPrimitive)?.content ?: contentType?.substringBefore(';')?.trim()
-            ?: if (content == null) "application/octet-stream" else "application/octet-stream"
+            ?: "application/octet-stream"
         return json(200, meta(store(name, parents, content, clock(), mime)))
     }
 

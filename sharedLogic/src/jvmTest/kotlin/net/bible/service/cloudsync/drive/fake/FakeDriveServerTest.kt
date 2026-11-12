@@ -230,6 +230,51 @@ class FakeDriveServerTest {
         assertContentEquals(media, f.content)
     }
 
+    private fun beginSession(headers: Map<String, String> = emptyMap(), meta: String = """{"name":"s","parents":["appDataFolder"]}"""): String =
+        req("POST", "/upload/drive/v3/files", mapOf("uploadType" to "resumable"), headers, meta.encodeToByteArray()).headers["Location"]!!
+
+    @Test
+    fun resumableSessionKeepsDeclaredMimeType() {
+        val s1 = beginSession(mapOf("x-upload-content-type" to "application/gzip"))
+        val r1 = server.handle(FakeDriveRequest("PUT", s1, mapOf("content-range" to "bytes 0-1/2"), byteArrayOf(1, 2)))
+        assertEquals("application/gzip", server.file(json(r1)["id"]!!.jsonPrimitive.content)!!.mimeType)
+        val s2 = beginSession(meta = """{"name":"m","parents":["appDataFolder"],"mimeType":"text/plain"}""")
+        val r2 = server.handle(FakeDriveRequest("PUT", s2, mapOf("content-range" to "bytes 0-1/2"), byteArrayOf(1, 2)))
+        assertEquals("text/plain", server.file(json(r2)["id"]!!.jsonPrimitive.content)!!.mimeType)
+        assertEquals(1, ids(list("mimeType = 'application/gzip'")).size)
+    }
+
+    @Test
+    fun finishedSessionReplaysCompletionOnRetryAndStatusQuery() {
+        val s = beginSession()
+        val last = server.handle(FakeDriveRequest("PUT", s, mapOf("content-range" to "bytes 0-1/2"), byteArrayOf(1, 2)))
+        val id = json(last)["id"]!!.jsonPrimitive.content
+        val retry = server.handle(FakeDriveRequest("PUT", s, mapOf("content-range" to "bytes 0-1/2"), byteArrayOf(1, 2)))
+        assertEquals(200, retry.status)
+        assertEquals(id, json(retry)["id"]!!.jsonPrimitive.content)
+        val status = server.handle(FakeDriveRequest("PUT", s, mapOf("content-range" to "bytes */2"), ByteArray(0)))
+        assertEquals(200, status.status)
+        assertEquals(id, json(status)["id"]!!.jsonPrimitive.content)
+        assertEquals(1, ids(list("'appDataFolder' in parents")).size)
+    }
+
+    @Test
+    fun malformedRangeAndPageTokenAre400() {
+        val id = server.putFile("a", "appDataFolder", byteArrayOf(1, 2), 1)
+        assertEquals(400, req("GET", "/drive/v3/files/$id", mapOf("alt" to "media"), mapOf("range" to "bytes=-")).status)
+        assertEquals(400, list("name = 'a'", mapOf("pageToken" to "bm9wZQ")).status)
+        val negative = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString("off:-1".encodeToByteArray())
+        assertEquals(400, list("name = 'a'", mapOf("pageToken" to negative)).status)
+    }
+
+    @Test
+    fun requestPageSizeIsCappedAt1000() {
+        repeat(1001) { server.putFile("f$it", "appDataFolder", byteArrayOf(), it.toLong()) }
+        val r = list("'appDataFolder' in parents", mapOf("pageSize" to "5000"))
+        assertEquals(1000, ids(r).size)
+        assertNotNull(json(r)["nextPageToken"])
+    }
+
     @Test
     fun ktorEngineRoutesToHandleAndLogsRequests() = runBlocking {
         server.putFile("a.gz", "appDataFolder", byteArrayOf(1), 1)
