@@ -77,6 +77,7 @@ internal class WebView2Pane(
     private val whenReady = ArrayList<(ComPtr) -> Unit>()
     private var lastBounds = Bounds(0, 0, 1, 1)
     private var attachedTo: WinDef.HWND? = null
+    private val visibility = PaneVisibility { visible -> controller?.call(Wv2.Controller.put_IsVisible, if (visible) 1 else 0) }
     private var backgroundArgb: Int? = null
 
     @Volatile
@@ -161,10 +162,10 @@ internal class WebView2Pane(
         ctl.call(Wv2.Controller.put_RasterizationScale, scale)
         backgroundArgb?.let { applyBackground(ctl, it) }
         applyBounds()
-        // Created while the host was parked (hidden): the page starts hidden. attach() may have run before the controller
-        // existed, so apply the current state now.
-        ctl.call(Wv2.Controller.put_IsVisible, if (attachedTo != null) 1 else 0)
-        if (attachedTo != null) ctl.call(Wv2.Controller.NotifyParentWindowPositionChanged)
+        // Created while the host was parked (hidden): the page starts hidden. attach() (and a minimize) may have run before
+        // the controller existed, so apply the current state now.
+        ctl.call(Wv2.Controller.put_IsVisible, if (visibility.visible) 1 else 0)
+        if (visibility.visible) ctl.call(Wv2.Controller.NotifyParentWindowPositionChanged)
         val wv = ctl.getPtr(Wv2.Controller.get_CoreWebView2) ?: error("get_CoreWebView2 failed")
         webView = wv
         configureSettings(wv)
@@ -326,11 +327,19 @@ internal class WebView2Pane(
                 if (api != org.jetbrains.skiko.GraphicsApi.DIRECT3D) log("Compose renders with $api: the page below the canvas is hidden")
             }
             val frame = window?.let { WinDef.HWND(Native.getComponentPointer(it)) }
+            val initialState = (window as? java.awt.Frame)?.extendedState ?: java.awt.Frame.NORMAL
             trace("mount ${System.identityHashCode(mount)} frame=$frame")
             if (frame != null) attachment.attach(mount) {
                 trace("attach ${System.identityHashCode(mount)}")
+                visibility.setFrameState(initialState)
                 attach(frame)
             }
+            // Minimized frame: WebView2 must hide its own input window, or it keeps the desktop's clicks (issue #4067).
+            val states = java.awt.event.WindowStateListener { e ->
+                val state = e.newState
+                attachment.update(mount) { frameStateChanged(state) }
+            }
+            window?.addWindowStateListener(states)
             // A moved frame changes no Compose layout, but WebView2 needs it for IME candidate and accessibility positions.
             val moves = object : java.awt.event.ComponentAdapter() {
                 override fun componentMoved(e: java.awt.event.ComponentEvent?) {
@@ -340,6 +349,7 @@ internal class WebView2Pane(
             window?.addComponentListener(moves)
             onDispose {
                 window?.removeComponentListener(moves)
+                window?.removeWindowStateListener(states)
                 trace("unmount ${System.identityHashCode(mount)}")
                 attachment.detach(mount) {
                     trace("detach ${System.identityHashCode(mount)}")
@@ -444,13 +454,19 @@ internal class WebView2Pane(
         attachedTo = frame
         Win32.setParent(h, frame)
         place(lastBounds, force = true)
-        controller?.call(Wv2.Controller.put_IsVisible, 1)
-        controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged)
+        visibility.setAttached(true)
+        if (visibility.visible) controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged)
+    }
+
+    private fun frameStateChanged(extendedState: Int) {
+        trace("frame state $extendedState")
+        visibility.setFrameState(extendedState)
+        if (visibility.visible) controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged)
     }
 
     private fun detach() {
         val h = host ?: return
-        controller?.call(Wv2.Controller.put_IsVisible, 0)
+        visibility.setAttached(false)
         attachedTo = null
         parking?.let { Win32.setParent(h, it) }
     }

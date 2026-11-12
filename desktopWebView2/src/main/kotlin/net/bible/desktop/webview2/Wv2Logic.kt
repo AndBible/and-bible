@@ -194,3 +194,36 @@ class EvalReplies(
         const val DEFAULT_TIMEOUT_MS = 10_000L
     }
 }
+
+/**
+ * Whether a pane's WebView2 controller is visible (`put_IsVisible`): only while the pane is attached to a frame and that
+ * frame is not minimized. In visual hosting mode WebView2 keeps its own top-level input window ("Chrome Legacy Window",
+ * owned by the browser process, z-ordered just above the desktop) at the pane's last screen position; it ignores the host
+ * HWND being hidden with a minimized frame, so unless it is told the pane is hidden it keeps taking the desktop's clicks
+ * there (issue #4067). Calls [apply] (on the caller's thread, the STA) with each change of [visible], not on every update.
+ */
+class PaneVisibility(private val apply: (visible: Boolean) -> Unit) {
+    private var attached = false
+    private var minimized = false
+
+    var visible = false
+        private set
+
+    fun setAttached(attached: Boolean) {
+        this.attached = attached
+        refresh()
+    }
+
+    /** The frame's AWT extended state (`Frame.extendedState`, `WindowEvent.newState`); `ICONIFIED` means minimized. */
+    fun setFrameState(extendedState: Int) {
+        minimized = extendedState and java.awt.Frame.ICONIFIED != 0
+        refresh()
+    }
+
+    private fun refresh() {
+        val now = attached && !minimized
+        if (now == visible) return
+        visible = now
+        apply(now)
+    }
+}
