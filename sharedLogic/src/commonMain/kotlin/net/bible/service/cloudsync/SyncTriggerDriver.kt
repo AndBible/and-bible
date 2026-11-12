@@ -195,6 +195,17 @@ class SyncTriggerDriver(
         scope.cancel()
     }
 
+    /**
+     * [close] that also waits until every coroutine in [scope] (the timer loop and any pass) has actually finished.
+     * Cancelling cannot interrupt a blocking read the timer has already started, so without the join that read can
+     * outlive the state it reads (a test's Application, a closed database).
+     */
+    suspend fun closeAndJoin() {
+        val job = scope.coroutineContext[Job]
+        close()
+        job?.join()
+    }
+
     private fun stopTimer() {
         synchronized(lock) {
             foreground = false

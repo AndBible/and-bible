@@ -297,6 +297,13 @@ open class TestBibleApplication : BibleApplication() {
             }
             overriddenKoin = null
         }
+        // The sync timer (a Koin single started by any reading host) reads settings on Dispatchers.IO: cancel AND join
+        // it before CommonUtils.destroy() nulls the context it reads, else a read in flight dies with an NPE that the
+        // next test's runTest reports as UncaughtExceptionsBeforeTest.
+        cleanup {
+            val driver = GlobalContext.getOrNull()?.getOrNull<net.bible.service.cloudsync.SyncTriggerDriver>()
+            if (driver != null) net.bible.test.DatabaseResetter.runResetBlocking { driver.closeAndJoin() }
+        }
         cleanup { CommonUtils.destroy() }
         if (!presenterReleased) cleanup {
             super.onTerminate()
