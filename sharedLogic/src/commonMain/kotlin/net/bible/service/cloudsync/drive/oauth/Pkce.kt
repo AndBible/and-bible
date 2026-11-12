@@ -8,7 +8,6 @@ import kotlin.uuid.Uuid
 /** PKCE (RFC 7636) helpers. */
 internal object Pkce {
     /** 64 base64url characters from 48 random bytes (three random UUIDs). */
-    @OptIn(ExperimentalUuidApi::class)
     fun verifier(): String = randomBase64Url(3)
 
     /** `base64url(sha256(verifier))` without padding (method S256). */

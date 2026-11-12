@@ -47,22 +47,28 @@ class PkceGoogleAuth(
     private val nowMs: () -> Long,
     private val interactive: Boolean = true,
 ) : GoogleAuth {
+    /** Guards the cached access token and refresh-token store writes; never held across the browser wait. */
     private val mutex = Mutex()
+
+    /** Serializes interactive sign-ins so a second one waits for the first instead of opening another browser. */
+    private val signInMutex = Mutex()
     private var cachedToken: String? = null
     private var cachedExpiryMs = 0L
 
     override val signedIn: Boolean get() = secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN) != null
 
-    override suspend fun signIn(): Boolean = mutex.withLock {
+    override suspend fun signIn(): Boolean = signInMutex.withLock {
         if (signedIn) return true
         if (!interactive) return false
         val verifier = Pkce.verifier()
         val state = Pkce.state()
-        var usedRedirect = ""
+        var usedRedirect: String? = null
+        // The browser wait (up to minutes) runs outside the token mutex so accessToken/invalidate/signOut stay responsive.
         val redirect = browser.authorize { redirectUri ->
             usedRedirect = redirectUri
             authorizationUrl(redirectUri, Pkce.challenge(verifier), state)
         }
+        val redirectUri = usedRedirect ?: return false
         val query = parseQueryString(redirect.substringAfter('?', "").substringBefore('#'))
         if (query["state"] != state) return false
         query["error"]?.let { error ->
@@ -70,19 +76,22 @@ class PkceGoogleAuth(
             return false
         }
         val code = query["code"] ?: return false
-        val form = mutableMapOf(
-            "grant_type" to "authorization_code",
-            "code" to code,
-            "code_verifier" to verifier,
-            "redirect_uri" to usedRedirect,
-        )
-        val response = tokenRequest(form)
-        if (!response.status.isSuccess()) return false
-        val json = parse(response.bodyAsText()) ?: return false
-        val refresh = json.string("refresh_token") ?: return false
-        val access = json.string("access_token") ?: return false
-        secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, refresh)
-        cache(access, json)
+        mutex.withLock {
+            val response = tokenRequest(
+                mapOf(
+                    "grant_type" to "authorization_code",
+                    "code" to code,
+                    "code_verifier" to verifier,
+                    "redirect_uri" to redirectUri,
+                ),
+            )
+            if (!response.status.isSuccess()) return false
+            val json = parse(response.bodyAsText()) ?: return false
+            val refresh = json.string("refresh_token") ?: return false
+            val access = json.string("access_token") ?: return false
+            secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, refresh)
+            cache(access, json)
+        }
         true
     }
 
@@ -112,19 +121,20 @@ class PkceGoogleAuth(
     }
 
     override suspend fun signOut() {
-        mutex.withLock {
-            val token = secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN) ?: cachedToken
-            if (token != null) {
-                try {
-                    http.submitForm(REVOKE_ENDPOINT, Parameters.build { append("token", token) })
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    // Best effort: local sign-out must succeed offline.
-                }
-            }
+        val token = mutex.withLock {
+            val t = secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN) ?: cachedToken
             secrets.remove(GoogleDriveSecretKeys.REFRESH_TOKEN)
             cachedToken = null
+            t
+        }
+        if (token != null) {
+            // Best effort, outside the lock: local sign-out has already happened and must succeed offline.
+            try {
+                http.submitForm(REVOKE_ENDPOINT, Parameters.build { append("token", token) })
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
         }
     }
 

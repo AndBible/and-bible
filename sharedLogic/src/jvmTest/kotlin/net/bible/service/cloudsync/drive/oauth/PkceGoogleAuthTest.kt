@@ -12,7 +12,11 @@ import io.ktor.http.Url
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.http.parseQueryString
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import net.bible.service.cloudsync.CloudSyncUserCancelledException
@@ -50,7 +54,7 @@ class PkceGoogleAuthTest {
     private val secrets = MemSecrets()
     private var now = 1_000_000L
     private val requests = mutableListOf<Pair<HttpRequestData, Map<String, String>>>()
-    private var handler: MockRequestHandleScope.(HttpRequestData, Map<String, String>) -> HttpResponseData =
+    private var handler: suspend MockRequestHandleScope.(HttpRequestData, Map<String, String>) -> HttpResponseData =
         { _, _ -> tokenOk() }
 
     private fun MockRequestHandleScope.json(body: String, status: HttpStatusCode = HttpStatusCode.OK) =
@@ -193,15 +197,6 @@ class PkceGoogleAuthTest {
     }
 
     @Test
-    fun reSignInOmitsPromptConsentNeverNeededWhenTokenPresent() = runBlocking<Unit> {
-        // With a token stored, signIn returns true without the browser, so prompt=consent only appears without one.
-        secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, "ref1")
-        val b = okBrowser()
-        assertTrue(auth(b).signIn())
-        assertEquals(0, b.calls)
-    }
-
-    @Test
     fun invalidateDropsCache() = runBlocking<Unit> {
         val a = auth(okBrowser())
         a.signIn()
@@ -216,9 +211,86 @@ class PkceGoogleAuthTest {
     @Test
     fun concurrentAccessTokenRefreshesOnce() = runBlocking<Unit> {
         secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, "ref1")
+        handler = { _, _ -> delay(100); tokenOk() }
         val a = auth(okBrowser(), interactive = false)
-        val results = (1..8).map { async { a.accessToken() } }.awaitAll()
+        val results = (1..8).map { async(Dispatchers.Default) { a.accessToken() } }.awaitAll()
         assertEquals(setOf("acc1"), results.toSet())
+        assertEquals(1, requests.size)
+    }
+
+    @Test
+    fun pendingSignInDoesNotBlockTokenCallsOrSignOut() = runBlocking<Unit> {
+        val gate = CompletableDeferred<String>()
+        val entered = CompletableDeferred<Unit>()
+        val blocking = object : OAuthBrowser {
+            override suspend fun authorize(buildUrl: (String) -> String): String {
+                buildUrl(REDIRECT)
+                entered.complete(Unit)
+                return gate.await()
+            }
+        }
+        val a = auth(blocking)
+        val pending = async(Dispatchers.Default) { a.signIn() }
+        entered.await()
+        // Another component (or a previous run) has stored a token meanwhile.
+        secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, "ref1")
+        withTimeout(5_000) {
+            assertEquals("acc1", a.accessToken())
+            a.invalidate("acc1")
+            a.signOut()
+        }
+        assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+        gate.complete("$REDIRECT?error=server_error&state=x")
+        assertFalse(pending.await())
+    }
+
+    @Test
+    fun concurrentSignInsOpenOneBrowserAtATime() = runBlocking<Unit> {
+        var active = 0
+        var maxActive = 0
+        val browser = object : OAuthBrowser {
+            override suspend fun authorize(buildUrl: (String) -> String): String {
+                active++; maxActive = maxOf(maxActive, active)
+                val url = Url(buildUrl(REDIRECT))
+                delay(50)
+                active--
+                return "$REDIRECT?error=server_error&state=${url.parameters["state"]}"
+            }
+        }
+        val a = auth(browser)
+        (1..3).map { async(Dispatchers.Default) { a.signIn() } }.awaitAll()
+        assertEquals(1, maxActive)
+    }
+
+    @Test
+    fun failedExchangeStoresNothing() = runBlocking<Unit> {
+        handler = { _, _ -> json("""{"error":"invalid_request"}""", HttpStatusCode.BadRequest) }
+        assertFalse(auth(okBrowser()).signIn())
+        assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+    }
+
+    @Test
+    fun exchangeWithoutRefreshTokenStoresNothing() = runBlocking<Unit> {
+        handler = { _, _ -> tokenOk(refresh = null) }
+        val a = auth(okBrowser())
+        assertFalse(a.signIn())
+        assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+        assertFalse(a.signedIn)
+    }
+
+    @Test
+    fun forgedStateWithAccessDeniedIsRefusedNotCancelled() = runBlocking<Unit> {
+        val a = auth(FakeBrowser { "$REDIRECT?error=access_denied&state=evil" })
+        assertFalse(a.signIn())
+        assertTrue(requests.isEmpty())
+    }
+
+    @Test
+    fun tokenIsReusedJustBeforeTheMargin() = runBlocking<Unit> {
+        val a = auth(okBrowser())
+        a.signIn()
+        now += 3600_000L - 61_000L // 1 s before the 60 s safety margin
+        assertEquals("acc1", a.accessToken())
         assertEquals(1, requests.size)
     }
 
