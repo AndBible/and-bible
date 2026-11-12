@@ -20,7 +20,14 @@ final class ReadingUITests: RealAppUITestCase {
         let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"] + extraArguments
         var app = launch(arguments)
         let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
-        XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
+        let arrived = waitUntil(timeout: 60) {
+            // The first stable launch can cover the reading host with the release notice.
+            if app.staticTexts["Your Bible, now on every device"].exists && app.buttons["Close"].exists {
+                app.buttons["Close"].tap()
+            }
+            return welcome.exists || host.exists
+        }
+        XCTAssertTrue(arrived, "neither Welcome nor reading shown")
         // NASB also renders John 3 with three 'Nicodemus' labels. It is not the KJV fixture: the
         // rail queries and Strong's tests below require KJV, which may not be installed after onboarding.
         if welcome.exists || !kjvJohn3Shown(app, timeout: 30) {
@@ -1501,6 +1508,24 @@ final class ReadingUITests: RealAppUITestCase {
         app.typeKey("f", modifierFlags: [])
         XCTAssertTrue(element(app, "reading-search-field").waitForExistence(timeout: 15), "Cmd+F must open Find")
         shot(app, "command-f-search")
+    }
+
+    /// Repeating Cmd+F over results replaces the previous query, without a manual field tap or clear.
+    func testCommandFSelectsAnExistingSearchQuery() throws {
+        let app = try launchReading()
+        firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        firstPane(app).typeKey("f", modifierFlags: .command)
+        app.typeKey("f", modifierFlags: [])
+        let field = element(app, "reading-search-field")
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        field.typeText("light\n")
+        // Search submission releases the field. Another shortcut must reacquire it and select the query.
+        app.typeKey("f", modifierFlags: .command)
+        app.typeKey("f", modifierFlags: [])
+        XCTAssertTrue(waitUntil(timeout: 10) { field.debugDescription.contains("Keyboard Focused") })
+        app.typeText("hope")
+        XCTAssertTrue(waitUntil(timeout: 10) { (field.value as? String) == "hope" }, "typing must replace the selected query")
+        shot(app, "command-f-query-replaced")
     }
 
     /// Ctrl+B must push exactly one chooser: one Back must return to reading, not uncover a second chooser.

@@ -796,6 +796,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) =
         searchState.openSearch(seedQuery, preDecorated)
 
+    fun openSearchFromShortcut() = searchState.openSearch(fromShortcut = true)
+
     /** Strong's find-all; `false` means the caller must fall back to its own route. See [ReadingSearchState.openSearchStrongs]. */
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean =
         searchState.openSearchStrongs(ref, translationIds)

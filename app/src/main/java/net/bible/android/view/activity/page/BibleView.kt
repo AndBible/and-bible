@@ -293,8 +293,11 @@ class BibleView(
 
             override fun copySelection() = copySelectionToClipboard()
 
-            override fun searchIfHosted(): Boolean =
-                hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)
+            override fun searchIfHosted(): Boolean {
+                val readingHost = hostCallbacks.composeReadingViewHost() ?: return false
+                readingHost.openSearchFromShortcut()
+                return true
+            }
 
             override fun crashAllBibleViews() = hostCallbacks.crashAllBibleViews()
         }

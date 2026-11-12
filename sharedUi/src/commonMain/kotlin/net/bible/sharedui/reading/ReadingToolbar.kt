@@ -98,6 +98,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -277,6 +278,8 @@ fun ReadingSearchField(
     keyboardActions: KeyboardActions,
     modifier: Modifier = Modifier,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit = { it() },
+    imeRequest: SearchFieldImeRequest? = null,
+    onImeRequestHandled: () -> Unit = {},
 ) {
     // The host's echo can trail several keystrokes (iOS: collectAsState a dispatch later), so a stale echo of an
     // edit already shown must not overwrite the text; ControllerTextState tells it from a genuine external write.
@@ -284,6 +287,22 @@ fun ReadingSearchField(
     var fieldValue by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
     if (fieldValue.text != controllerText.text) {
         fieldValue = TextFieldValue(controllerText.text, TextRange(controllerText.text.length))
+    }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(imeRequest) {
+        when (imeRequest) {
+            null -> return@LaunchedEffect
+            SearchFieldImeRequest.Focus -> { focusRequester.requestFocus(); keyboard?.show() }
+            SearchFieldImeRequest.FocusSelectAll -> {
+                fieldValue = fieldValue.copy(selection = TextRange(0, fieldValue.text.length))
+                focusRequester.requestFocus()
+                keyboard?.show()
+            }
+            SearchFieldImeRequest.Release -> { focusManager.clearFocus(); keyboard?.hide() }
+        }
+        onImeRequestHandled()
     }
     BasicTextField(
         value = fieldValue,
@@ -296,7 +315,12 @@ fun ReadingSearchField(
         cursorBrush = cursorBrush,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        modifier = modifier.testTag(SEARCH_FIELD_TAG),
+        modifier = modifier.testTag(SEARCH_FIELD_TAG).focusRequester(focusRequester).onPreviewKeyEvent { event ->
+            if (readingShortcut(event, iosCommandKeys = searchFieldUsesCommandKeys) == "CtrlKeyF") {
+                fieldValue = fieldValue.copy(selection = TextRange(0, fieldValue.text.length))
+                true
+            } else false
+        },
         decorationBox = decorationBox,
     )
 }
@@ -378,23 +402,8 @@ fun ReadingToolbar(
     // toolbar, exactly as the normal row does.
     if (searchBar != null && searchBarCallbacks != null) {
         val strings = LocalStrings.current
-        val focusRequester = remember { FocusRequester() }
-        val keyboard = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
         var searchHelpOpen by remember { mutableStateOf(false) }
         var searchMenuOpen by remember { mutableStateOf(false) }
-        // F6-B2/B3. Keyed on the instruction so the ack (which returns it to null) is what arms the
-        // next edge — a level would not fire twice for two submits in a row. `show()` follows
-        // `requestFocus()` belt-and-braces: focusing a field usually raises the IME, and findings
-        // F23/F24 are this repo's record of "usually" not being good enough.
-        LaunchedEffect(searchBar.imeRequest) {
-            when (searchBar.imeRequest) {
-                null -> return@LaunchedEffect
-                SearchFieldImeRequest.Focus -> { focusRequester.requestFocus(); keyboard?.show() }
-                SearchFieldImeRequest.Release -> { focusManager.clearFocus(); keyboard?.hide() }
-            }
-            searchBarCallbacks.onImeRequestHandled()
-        }
         CompositionLocalProvider(LocalContentColor provides onContainer) {
             CappedBarFontScale {
                 Box {
@@ -443,13 +452,14 @@ fun ReadingToolbar(
                             ReadingSearchField(
                                 value = searchBar.query,
                                 onValueChange = searchBarCallbacks.onQueryChange,
+                                imeRequest = searchBar.imeRequest,
+                                onImeRequestHandled = searchBarCallbacks.onImeRequestHandled,
                                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
                                 cursorBrush = SolidColor(onContainer),
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                 keyboardActions = KeyboardActions(onSearch = { searchBarCallbacks.onSubmit() }),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .focusRequester(focusRequester)
                                     .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
                                 decorationBox = { innerTextField ->
                                     Row(verticalAlignment = Alignment.CenterVertically) {

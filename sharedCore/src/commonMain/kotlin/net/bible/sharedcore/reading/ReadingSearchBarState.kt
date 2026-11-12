@@ -29,7 +29,7 @@ package net.bible.sharedcore.reading
  * sheet is a `Results -> Results` transition, so anything derived from the phase would not even emit.
  * Same shape as the reading host's existing `searchUnavailableDocNameState` + `onSearchUnavailableMessageShown`.
  */
-enum class SearchFieldImeRequest { Focus, Release }
+enum class SearchFieldImeRequest { Focus, FocusSelectAll, Release }
 
 /**
  * Everything the reading toolbar's search mode renders, as plain data (F6 Task 4).
