@@ -899,7 +899,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             return@composable
         }
 
+        var copiedPromptId by remember { mutableStateOf<String?>(null) }
         AiPromptsScreen(
+            copiedPromptId = copiedPromptId,
+            onCopyRevealed = { copiedPromptId = null },
             configured = configured,
             groups = groups,
             showHidden = showHidden,
@@ -927,7 +930,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // worse than the old behaviour.
             onImportCsv = d.onImportCsv,
             onExportCsv = d.onExportCsv,
-            onCopyPrompt = { id -> promptsScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.onCopyPrompt(id) } },
+            onCopyPrompt = { id -> promptsScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                controller.onCopyPrompt(id)?.let { copiedPromptId = it }
+            } },
             onMovePromptToCategory = controller::onMovePromptToCategory,
             categoriesProvider = { promptCategories },
             helpBody = remember { d.helpBody() },
