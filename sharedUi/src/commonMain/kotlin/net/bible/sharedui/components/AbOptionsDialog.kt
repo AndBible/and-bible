@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.theme.LocalDisableAnimations
 
 /**
  * Three or more answers to one question (spec §6.2, class F "answers"). A list of ACTIONS belongs in
@@ -76,7 +78,10 @@ fun AbOptionsDialog(
                         ).padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Checkbox(checked = checked, onCheckedChange = null)
+                        // Recreate the control at its target state when desktop motion is disabled.
+                        key(if (LocalDisableAnimations.current) checked else Unit) {
+                            Checkbox(checked = checked, onCheckedChange = null)
+                        }
                         Text(checkboxLabel, modifier = Modifier.padding(start = 8.dp))
                     }
                 }

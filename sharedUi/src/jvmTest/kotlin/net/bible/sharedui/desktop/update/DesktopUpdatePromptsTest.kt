@@ -49,28 +49,33 @@ class DesktopUpdatePromptsTest {
             val options = (shown.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
             assertEquals(listOf("download", "later"), options.options.map { it.value })
             assertEquals("desktop_update_dont_notify", options.checkboxLabel)
+            kotlin.test.assertTrue(options.message.orEmpty().contains("desktop_update_reenable"))
             dialogs.cancelAll(); runCurrent()
             assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
             first.close()
 
             now += 86400000L
             val second = start(); runCurrent()
-            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("later")); runCurrent()
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("later", false)); runCurrent()
             assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
             assertEquals(emptyList(), opened)
+            assertEquals("yes", prefs.getString(CONSENT_KEY))
 
-            now += 86400000L
-            testScheduler.advanceTimeBy(86400000L); runCurrent()
+            now += 86399999L
+            testScheduler.advanceTimeBy(86399999L); runCurrent()
+            assertNull(dialogs.pending.value)
+            now += 1L
+            testScheduler.advanceTimeBy(1L); runCurrent()
             assertNotNull(dialogs.pending.value)
             val third = second
-            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("download")); runCurrent()
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("download", false)); runCurrent()
             assertEquals(1240, prefs.getInt("desktop_update_announced_build", 0))
             assertEquals(listOf("https://example.com/1240"), opened)
             third.close()
 
             now += 86400000L; build = 1241
             val fourth = start(); runCurrent()
-            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.Selected("download")); runCurrent()
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("download", false)); runCurrent()
             assertEquals(1241, prefs.getInt("desktop_update_announced_build", 0))
             assertEquals(listOf("https://example.com/1240", "https://example.com/1241"), opened)
             fourth.close()
@@ -79,7 +84,10 @@ class DesktopUpdatePromptsTest {
         }
     }
 
-    @Test fun optingOutFromUpdateOfferDisablesFutureChecks() = runTest {
+    @Test fun optingOutWithLaterDisablesFutureChecks() = verifyOptOut("later")
+    @Test fun optingOutWithDownloadStillOpensReleaseAndDisablesFutureChecks() = verifyOptOut("download")
+
+    private fun verifyOptOut(choice: String) = runTest {
         val root = Files.createTempDirectory("update-opt-out")
         val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "yes") }
         val secrets = object : SecretStore {
@@ -90,21 +98,32 @@ class DesktopUpdatePromptsTest {
         val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), secrets, prefs)
         val dialogs = AppDialogController()
         var checks = 0
+        val opened = mutableListOf<String>()
+        var now = 100000000L
         val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
             HostStringTableHolder(StringTable.of("en", { it }, { _, _ -> "" }, { emptyList() })), object : ExternalLinks {
                 override val askBeforeOpening = false
-                override fun open(url: String) = Unit
-            }, { true }, { 100000000L }, {
+                override fun open(url: String) { opened += url }
+            }, { true }, { now }, {
                 checks++
                 """[{"tag_name":"production-1240","draft":false,"html_url":"https://example.com/1240","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
             })
         try {
             runCurrent()
             val pending = assertNotNull(dialogs.pending.value)
-            dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox("later", true)); runCurrent()
+            dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox(choice, true)); runCurrent()
             assertEquals("no", prefs.getString("desktop_update_check"))
+            assertEquals(false, prompts.enabled)
+            assertEquals(if (choice == "download") listOf("https://example.com/1240") else emptyList(), opened)
+            assertEquals(if (choice == "download") 1240 else 0, prefs.getInt("desktop_update_announced_build", 0))
+            now += 3 * 86400000L
+            testScheduler.advanceTimeBy(3 * 86400000L); runCurrent()
             assertNull(dialogs.pending.value)
             assertEquals(1, checks)
+            prompts.setEnabled(true); runCurrent()
+            assertEquals(true, prompts.enabled)
+            assertEquals(2, checks)
+            if (choice == "later") assertNotNull(dialogs.pending.value)
         } finally {
             prompts.close()
             root.toFile().deleteRecursively()

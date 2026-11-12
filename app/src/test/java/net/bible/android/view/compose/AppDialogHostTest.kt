@@ -273,6 +273,30 @@ class AppDialogHostTest {
         assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
     }
 
+    @Test fun aNewOptionsDialogDoesNotInheritTheCheckedOptOut() {
+        val request = AppDialogRequest.Options(
+            title = "Question", message = null,
+            options = listOf(SettingsItem.Choice("a", "Answer")),
+            dismissText = null, asActionSheet = true, checkboxLabel = "Remember",
+        )
+        val current = mutableStateOf(ShownDialog(42, request))
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(
+                        shown = current.value, permission = null,
+                        onRespond = { id, result -> answers += id to result },
+                        onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {},
+                    )
+                }
+            }
+        }
+        compose.onNodeWithText("Remember").performClick()
+        compose.runOnIdle { current.value = ShownDialog(43, request) }
+        compose.onNodeWithText("Answer").performClick()
+        assertEquals(listOf(43L to AppDialogResult.SelectedWithCheckbox("a", false)), answers)
+    }
+
     @Test fun optionsDialogAnswersTheChosenValue() {
         show(
             ShownDialog(
