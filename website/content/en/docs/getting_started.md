@@ -142,7 +142,18 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 ## Release notice
 
-After an upgrade to 6.0, a release card introduces the new features and platforms.
+On stable builds, a release card introduces the new features and platforms. Close it with
+**Don't show again** checked to hide it for the current main version (for example, 6.0,
+including later 6.0 patches). Without that checkbox, it appears again on the next launch;
+a new main version, such as 6.1, can show it again.
+
+After you complete the welcome flow by downloading, importing or restoring a Bible and enter
+reading, the release card is silently dismissed for that main version instead. Simply opening
+or leaving the welcome screen without completing it does not dismiss the card.
+Discrete mode does not show or remember the card.
+On desktop, the card omits the link to the computer version. The sponsor link is available
+on Android and desktop, but not iOS.
+
 On a small screen or with large text, scroll inside the card to reach the remaining links.
 A downward arrow at the bottom of the content indicates that there is more below;
 **Don't show again** and **Close** stay visible while you scroll.

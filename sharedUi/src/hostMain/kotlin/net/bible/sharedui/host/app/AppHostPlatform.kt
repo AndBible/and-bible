@@ -53,13 +53,10 @@ interface AppHostPlatform {
     val betaNoticePlatform: net.bible.sharedui.app.notice.BetaNoticePlatform? get() = null
 
     /**
-     * Whose wording the 6.0 release notice uses (`ReleaseNotice`); null shows none (desktop). Shown once reading is
-     * displayed, to upgraders only.
+     * Whose wording the 6.0 release notice uses (`ReleaseNotice`); null shows none. Shown once reading is
+     * displayed, unless completing Welcome or the user's checkbox has already dismissed this main version.
      */
     val releaseNoticePlatform: net.bible.sharedui.app.notice.ReleaseNoticePlatform? get() = null
-
-    /** Whether this install replaced an older version of the app (iOS: the legacy migration carried data over). */
-    suspend fun isUpgradeInstall(): Boolean = false
 
     /** Debug launch arguments (iOS: `IosDebugLaunchArgs`). */
     val debugArgs: HostDebugArgs

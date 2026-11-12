@@ -957,8 +957,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    private fun bootstrapIfNeeded() {
-        if (readingAppBootstrapped) return
+    private fun bootstrapIfNeeded(beforeNotices: () -> Unit = {}) {
+        if (readingAppBootstrapped) {
+            beforeNotices()
+            return
+        }
         readingAppBootstrapped = true
         if (!paused) {
             ReadingHostPresence.setForeground(this)
@@ -972,6 +975,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             lifecycleScope.launch { readingCommands.applyRestoredDatabase() }
         }
         readingAppBootstrap.setSoftKeyboardMode()
+        beforeNotices()
         bootstrapUiOwed = true
         applyBootstrapUiIfForeground()
         readingAppBootstrap.registerNetworkCallback()
@@ -2829,7 +2833,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (controller.currentDestination?.route != NavRoutes.WELCOME) return@launch
             // After initializeAppCoroutine, its initializeApp() is a no-op: what it adds is the window state.
             initialiseIfStartedUninitialised()
-            bootstrapIfNeeded()
+            bootstrapIfNeeded {
+                // Mark only after reading preparation succeeds, before its notices can run.
+                net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
+                    CommonUtils.isBeta, CommonUtils.isDiscrete, CommonUtils.mainVersion, CommonUtils.settings,
+                )
+            }
             if (hasBackStackEntry(controller, NavRoutes.READING)) {
                 // Slice 8 final review, finding 4: gate (c) via [onNewIntent] on a live reading host pushed
                 // WELCOME over an existing READING entry. Return to it; navigating a new one would stack two.

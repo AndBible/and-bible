@@ -5,6 +5,8 @@ package net.bible.sharedui.host.ports
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.sharedui.assembly.HostStringTableHolder
 import kotlinx.coroutines.launch
 import net.bible.android.control.backup.BackupControl
@@ -51,7 +53,9 @@ class HostWelcomeHostPlatform(
                 table.fmt("supported_formats", "$zip, ${table.text("format_mybible")}, ${table.text("format_mysword")}, ${table.text("format_epub")}")
             },
             language = { koin.getOrNull<HostStringTableHolder>()?.current?.tag ?: table.tag }, isDiscrete = { discrete },
-            knownInstalled = { DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao().getKnownInstalled() },
+            knownInstalled = {
+                withContext(Dispatchers.Default) { DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao().getKnownInstalled() }
+            },
             // IosAppEnvironment uses NSURLVolumeAvailableCapacityForImportantUsageKey.
             megabytesFree = { environment.megabytesFree },
             refuseDownload = { koin.get<UserNotifier>().showError(koin.get<CoreStrings>().storageSpaceWarning) },
@@ -68,6 +72,14 @@ class HostWelcomeHostPlatform(
     suspend fun refreshInfo() = core.refreshInfo()
     fun refreshTextIfCreated() {
         if (controllerLazy.isInitialized()) core.refreshTextIfCreated()
+    }
+
+    /** Called only after the return gate has made reading ready, before navigation can show startup notices. */
+    fun onCompleted() {
+        net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
+            environment.isBeta, discrete, versionName().split('.').take(2).joinToString("."),
+            koin.get<net.bible.sharedcore.platform.AppSettings>(),
+        )
     }
 
     /** Bound after AppHosts exists; resolving the platform itself must not construct another host graph. */

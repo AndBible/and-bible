@@ -53,17 +53,17 @@ class AbReleaseNoticeCardTest {
 
     private val answers = mutableListOf<Pair<ReleaseNoticeAction?, Boolean>>()
 
-    private fun show(sponsorAllowed: Boolean = true, fontScale: Float = 1f) {
+    private fun show(sponsorAllowed: Boolean = true, fontScale: Float = 1f, computerAllowed: Boolean = true) {
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                ProvideAppLocals { AbTheme { Card(sponsorAllowed) } }
+                ProvideAppLocals { AbTheme { Card(sponsorAllowed, computerAllowed) } }
             }
         }
     }
 
-    @Composable private fun Card(sponsorAllowed: Boolean) =
-        AbReleaseNoticeCard("6.0", sponsorAllowed, null) { action, dontShowAgain -> answers += action to dontShowAgain }
+    @Composable private fun Card(sponsorAllowed: Boolean, computerAllowed: Boolean) =
+        AbReleaseNoticeCard("6.0", sponsorAllowed, null, computerAllowed = computerAllowed) { action, dontShowAgain -> answers += action to dontShowAgain }
 
     @Test fun closeWithoutCheckboxAnswersNullFalse() {
         show()
@@ -112,6 +112,19 @@ class AbReleaseNoticeCardTest {
         compose.onNodeWithText("Visit andbible.org").assertDoesNotExist()
         compose.onNodeWithText("Sponsor development").performScrollTo().performClick()
         assertEquals(listOf<Pair<ReleaseNoticeAction?, Boolean>>(ReleaseNoticeAction.SPONSOR to false), answers)
+    }
+
+    @Test fun desktopVariantHidesComputerAndOffersSponsor() {
+        show(computerAllowed = false)
+        compose.onNodeWithText("Get AndBible on your computer").assertDoesNotExist()
+        compose.onNodeWithText("Sponsor development").performScrollTo().performClick()
+        assertEquals(listOf<Pair<ReleaseNoticeAction?, Boolean>>(ReleaseNoticeAction.SPONSOR to false), answers)
+    }
+
+    @Test fun mobileVariantOffersComputerAction() {
+        show()
+        compose.onNodeWithText("Get AndBible on your computer").performScrollTo().performClick()
+        assertEquals(listOf<Pair<ReleaseNoticeAction?, Boolean>>(ReleaseNoticeAction.COMPUTER to false), answers)
     }
 
     @Test

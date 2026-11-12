@@ -62,6 +62,11 @@ class AbReleaseNoticeCardGoldenTest {
             AbReleaseNoticeCard("6.0", sponsorAllowed = false, logoPainter = StandInLogo) { _, _ -> }
         }
 
+    @Test fun desktop_matrix() =
+        captureMatrix("AbReleaseNoticeCard", "desktop", heightDp = 760) {
+            AbReleaseNoticeCard("6.0", sponsorAllowed = true, logoPainter = StandInLogo, computerAllowed = false) { _, _ -> }
+        }
+
     @Test fun largeFont() =
         captureGolden("AbReleaseNoticeCard", "largeFont", EDGE_MODE, heightDp = 760) {
             val density = LocalDensity.current

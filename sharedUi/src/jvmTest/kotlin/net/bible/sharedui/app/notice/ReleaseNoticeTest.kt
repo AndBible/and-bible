@@ -35,102 +35,72 @@ class ReleaseNoticeTest {
         settings: MemoryAppSettings,
         mainVersion: String = "6.0",
         platform: ReleaseNoticePlatform = ReleaseNoticePlatform.ANDROID,
-        isUpgrade: Boolean = true,
         isBeta: Boolean = false,
         discrete: Boolean = false,
         actions: MutableList<ReleaseNoticeAction> = mutableListOf(),
         answer: (AppDialogRequest) -> AppDialogResult,
     ) = ReleaseNotice.showIfNeeded(
-        platform, isBeta, discrete, isUpgrade, mainVersion, settings,
+        platform, isBeta, discrete, mainVersion, settings,
         ask = { answer(it) }, onAction = { actions += it },
     )
 
     private fun noAsk(request: AppDialogRequest): AppDialogResult = fail("asked: $request")
 
     @Test
-    fun showsForUpgraderOnStableBuild() {
-        assertTrue(ReleaseNotice.shouldShow(false, false, true, "6.0", ""))
-    }
-
-    @Test
-    fun hiddenInBetaAndDiscrete() {
-        assertFalse(ReleaseNotice.shouldShow(true, false, true, "6.0", ""))
-        assertFalse(ReleaseNotice.shouldShow(false, true, true, "6.0", ""))
-    }
-
-    @Test
-    fun freshInstallMarksSeenSoLaterPatchDoesNotShow() = runTest {
+    fun stableLaunchWithEmptyKeyShowsNotice() = runTest {
         val settings = MemoryAppSettings()
-        assertFalse(show(settings, isUpgrade = false, answer = ::noAsk))
-        assertEquals("6.0", settings.getString(key, ""))
-        assertFalse(show(settings, isUpgrade = true, answer = ::noAsk))
-    }
-
-    @Test
-    fun betaFreshInstallDoesNotStoreStableVersion() = runTest {
-        val freshBeta = MemoryAppSettings()
-        assertFalse(show(freshBeta, isUpgrade = false, isBeta = true, answer = ::noAsk))
-        assertEquals("", freshBeta.getString(key, ""))
-
-        for ((beta, discrete) in listOf(true to false, false to true)) {
-            val upgrader = MemoryAppSettings()
-            assertFalse(show(upgrader, isUpgrade = true, isBeta = beta, discrete = discrete, answer = ::noAsk))
-            assertEquals("", upgrader.getString(key, ""))
-        }
-    }
-
-    @Test
-    fun freshBetaDoesNotSuppressStableUpgradeNotice() = runTest {
-        val settings = MemoryAppSettings()
-        assertFalse(show(settings, isUpgrade = false, isBeta = true, answer = ::noAsk))
-        assertEquals("", settings.getString(key, ""))
-
         var asked = 0
-        assertFalse(show(settings, isUpgrade = true) {
-            asked++
-            AppDialogResult.ReleaseNoticeAnswer(null, false)
-        })
+        show(settings) { asked++; AppDialogResult.Cancel }
         assertEquals(1, asked)
+        assertTrue(settings.values.isEmpty())
     }
 
     @Test
-    fun freshBetaThenFreshLookingStableShowsNotice() = runTest {
-        val settings = MemoryAppSettings()
-        show(settings, isUpgrade = false, isBeta = true, answer = ::noAsk)
-        var asked = false
-        show(settings, isUpgrade = false) {
-            asked = true
-            AppDialogResult.ReleaseNoticeAnswer(null, false)
+    fun betaAndDiscreteNeitherAskNorWriteEvenOnWelcome() = runTest {
+        for ((beta, discrete) in listOf(true to false, false to true, true to true)) {
+            val settings = MemoryAppSettings()
+            assertFalse(show(settings, isBeta = beta, discrete = discrete, answer = ::noAsk))
+            ReleaseNotice.dismissForWelcome(beta, discrete, "6.0", settings)
+            assertTrue(settings.values.isEmpty(), "beta=$beta discrete=$discrete")
+            settings.setString(key, "5.9")
+            val before = settings.values.toMap()
+            show(settings, isBeta = beta, discrete = discrete, answer = ::noAsk)
+            ReleaseNotice.dismissForWelcome(beta, discrete, "6.0", settings)
+            assertEquals(before, settings.values)
         }
-        assertTrue(asked)
     }
 
     @Test
-    fun discreteBetaDoesNotMarkBetaRun() = runTest {
+    fun welcomeSilentlyDismissesCurrentVersionIncludingLaterPatch() = runTest {
         val settings = MemoryAppSettings()
-        show(settings, isUpgrade = false, isBeta = true, discrete = true, answer = ::noAsk)
-        assertEquals("", settings.getString("stable-notice-beta-ran", ""))
-        show(settings, isUpgrade = false, answer = ::noAsk)
+        ReleaseNotice.dismissForWelcome(false, false, "6.0", settings)
         assertEquals("6.0", settings.getString(key, ""))
+        assertFalse(show(settings, answer = ::noAsk))
+        assertFalse(show(settings, mainVersion = "6.0", answer = ::noAsk))
     }
 
     @Test
-    fun betaPreservesExistingDisplayedVersionAndDifferentBetaVersionDoesNotCount() = runTest {
+    fun welcomeAgainUpdatesAnOlderDismissal() = runTest {
         val settings = MemoryAppSettings()
         settings.setString(key, "5.9")
-        show(settings, mainVersion = "6.0", isUpgrade = false, isBeta = true, answer = ::noAsk)
-        assertEquals("5.9", settings.getString(key, ""))
-        settings.removeString(key)
-        show(settings, mainVersion = "6.1", isUpgrade = false, answer = ::noAsk)
-        assertEquals("6.1", settings.getString(key, ""))
+        ReleaseNotice.dismissForWelcome(false, false, "6.0", settings)
+        assertEquals("6.0", settings.getString(key, ""))
+        show(settings, answer = ::noAsk)
     }
 
     @Test
-    fun nonUpgradeWithStoredVersionDoesNotAskOrStore() = runTest {
-        val settings = MemoryAppSettings()
-        settings.setString(key, "6.0")
-        assertFalse(show(settings, mainVersion = "6.1", isUpgrade = false, answer = ::noAsk))
-        assertEquals("6.0", settings.getString(key, ""))
+    fun staleBetaMarkerDoesNotChangeStableOrWelcomeBehavior() = runTest {
+        for (marker in listOf("6.0", "6.1", "5.9")) {
+            val settings = MemoryAppSettings()
+            settings.setString("stable-notice-beta-ran", marker)
+            var asked = 0
+            show(settings) { asked++; AppDialogResult.Cancel }
+            assertEquals(1, asked)
+            assertEquals("", settings.getString(key, ""))
+            ReleaseNotice.dismissForWelcome(false, false, "6.0", settings)
+            show(settings, answer = ::noAsk)
+            assertEquals(marker, settings.getString("stable-notice-beta-ran", ""))
+        }
     }
 
     @Test
@@ -144,7 +114,7 @@ class ReleaseNoticeTest {
     }
 
     @Test
-    fun checkboxStopsUntilNextMinor() = runTest {
+    fun checkboxStopsUntilNextMainVersion() = runTest {
         val settings = MemoryAppSettings()
         assertTrue(show(settings) { AppDialogResult.ReleaseNoticeAnswer(null, true) })
         assertEquals("6.0", settings.getString(key, ""))
@@ -152,6 +122,16 @@ class ReleaseNoticeTest {
         var asked = 0
         show(settings, "6.1") { asked++; AppDialogResult.ReleaseNoticeAnswer(null, false) }
         assertEquals(1, asked)
+    }
+
+    @Test
+    fun nextMainVersionAfterWelcomeShowsAgain() = runTest {
+        val settings = MemoryAppSettings()
+        ReleaseNotice.dismissForWelcome(false, false, "6.0", settings)
+        var asked = 0
+        show(settings, "6.1") { asked++; AppDialogResult.Cancel }
+        assertEquals(1, asked)
+        assertEquals("6.0", settings.getString(key, ""))
     }
 
     @Test
@@ -176,12 +156,13 @@ class ReleaseNoticeTest {
     }
 
     @Test
-    fun sponsorOnlyOnAndroid() = runTest {
+    fun actionsMatchPlatform() = runTest {
         ReleaseNoticePlatform.entries.forEach { platform ->
             var captured: AppDialogRequest? = null
             show(MemoryAppSettings(), platform = platform) { captured = it; AppDialogResult.Cancel }
             val request = assertIs<AppDialogRequest.ReleaseNotice>(captured)
-            assertEquals(platform == ReleaseNoticePlatform.ANDROID, request.sponsorAllowed, "$platform")
+            assertEquals(platform != ReleaseNoticePlatform.IOS, request.sponsorAllowed, "$platform")
+            assertEquals(platform != ReleaseNoticePlatform.DESKTOP, request.computerAllowed, "$platform")
             assertEquals("6.0", request.version)
         }
     }

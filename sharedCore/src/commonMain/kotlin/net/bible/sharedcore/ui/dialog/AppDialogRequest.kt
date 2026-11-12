@@ -144,7 +144,7 @@ sealed interface AppDialogRequest {
      * resources, so only the facts it depends on travel here. [sponsorAllowed] is false where the sponsor
      * action must not be offered (iOS). Answered [AppDialogResult.ReleaseNoticeAnswer] (back/scrim: Cancel).
      */
-    data class ReleaseNotice(val version: String, val sponsorAllowed: Boolean) : AppDialogRequest {
+    data class ReleaseNotice(val version: String, val sponsorAllowed: Boolean, val computerAllowed: Boolean = true) : AppDialogRequest {
         override val title: String? = null
     }
 

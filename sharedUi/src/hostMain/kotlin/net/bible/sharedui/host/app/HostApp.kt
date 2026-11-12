@@ -478,7 +478,10 @@ private fun HostAppContent(
             },
             ensureReading = { HostReadingReady.ensure(table) },
             currentRoute = { navController.currentDestination?.route },
-            openReading = { shell.openReading() },
+            openReading = {
+                welcome.onCompleted()
+                shell.openReading()
+            },
             refreshWelcome = {
                 nsLog("IosApp: no usable Bible after the flow, staying on Welcome")
                 welcome.controller.setProgress(null)
@@ -579,8 +582,8 @@ private fun HostAppContent(
         },
     )
     }
-    // The beta notice (Android: ReadingAppBootstrap.showBetaNotice), once reading is shown: a fresh install reaches
-    // reading only after Welcome. Shown by hosts that name a notice platform, when the environment says beta.
+    // Startup notices run once reading is shown. Only completed Welcome has silently dismissed the stable notice;
+    // beta builds use their separate notice, and each host opts into its supported variants.
     val betaNoticePlatform = platform.betaNoticePlatform
     val releaseNoticePlatform = platform.releaseNoticePlatform
     if (nightObserver != null && (betaNoticePlatform != null || releaseNoticePlatform != null)) LaunchedEffect(navController) {
@@ -590,12 +593,11 @@ private fun HostAppContent(
             val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
             val links = koin.get<ExternalLinks>()
             val textShare = koin.get<net.bible.sharedui.app.ports.TextShare>()
-            // The 6.0 notice for upgraders (Android: ReadingAppBootstrap.showStableNotice); it names no sponsor on iOS.
+            // The shared stable gate; a completed Welcome marks the version before navigating to reading.
             net.bible.sharedui.app.notice.ReleaseNotice.showIfNeeded(
                 platform = releaseNoticePlatform,
                 isBeta = environment.isBeta,
                 discrete = environment.isDiscrete,
-                isUpgrade = platform.isUpgradeInstall(),
                 mainVersion = platform.readingHost.versionName().split('.').take(2).joinToString("."),
                 settings = koin.get<AppSettings>(),
                 ask = dialogs::await,
@@ -603,8 +605,8 @@ private fun HostAppContent(
                     when (action) {
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.VIDEO -> links.open(net.bible.sharedcore.docs.SiteLinks.WHATS_NEW_VIDEO_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.COMPUTER,
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE,
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
+                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE ->
                             net.bible.sharedui.app.recommend.RecommendApp.run(strings, dialogs::await, textShare::shareText)
                     }

@@ -82,13 +82,13 @@ class WelcomeFlowDatabaseTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
         ).apply { create().start().resume().visible() }
-        shadowOf(Looper.getMainLooper()).idle()
-
-        assertTrue(
-            "WelcomeFlow read the repo DB without anyone opening it -- process-death crash",
-            DatabaseContainer.ready,
-        )
-        controller.close()
+        try {
+            net.bible.test.awaitHostUntil("Welcome must open the database before reading it") {
+                DatabaseContainer.ready
+            }
+        } finally {
+            controller.close()
+        }
     }
 
     /** The previous-install check reads the repo database, so it is a `suspend` call (no blocking bridge in view code). */
