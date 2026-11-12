@@ -40,7 +40,7 @@ class ShareVersesOptionsTest {
         referenceFull = "Genesis 1:1",
         versionAbbreviation = "KJV",
         notesText = null,
-        advertiseText = "Shared from AndBible Bible Study (https://andbible.github.io)",
+        advertiseText = "Shared from AndBible Bible Study (https://andbible.org)",
         hasRange = false,
     )
 
@@ -56,7 +56,7 @@ class ShareVersesOptionsTest {
         referenceFull = "Genesis 1:1-3",
         versionAbbreviation = "KJV",
         notesText = "my note",
-        advertiseText = "Shared from AndBible Bible Study (https://andbible.github.io)",
+        advertiseText = "Shared from AndBible Bible Study (https://andbible.org)",
         hasRange = true,
     )
 
@@ -101,7 +101,7 @@ class ShareVersesOptionsTest {
         val text = ShareVersesOptions(advertiseApp = true, showReferenceAtFront = false).buildText(singleVerse)
         assertEquals(
             "In the beginning God created the heaven and the earth. (Gen 1:1, KJV)" +
-                "\n\nShared from AndBible Bible Study (https://andbible.github.io)",
+                "\n\nShared from AndBible Bible Study (https://andbible.org)",
             text,
         )
     }
