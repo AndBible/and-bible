@@ -178,9 +178,13 @@ class GoogleDriveRestAdapterTest {
         job = launch {
             adapter.download(id, sink) { job.cancel() }
         }
+        var cause: Throwable? = null
+        job.invokeOnCompletion { cause = it }
         job.join()
         assertTrue(job.isCancelled)
+        assertTrue(cause is kotlinx.coroutines.CancellationException, "cause: $cause")
         assertTrue(closed)
+        assertTrue(buffer.size < 20L * MiB, "wrote ${buffer.size} bytes")
         val mediaRequests = server.requests.count { Url(it.url).parameters["alt"] == "media" }
         assertTrue(mediaRequests <= 2, "media requests: $mediaRequests")
     }
@@ -235,5 +239,73 @@ class GoogleDriveRestAdapterTest {
         val f = sun.misc.Unsafe::class.java.getDeclaredField("theUnsafe").apply { isAccessible = true }
         return (f.get(null) as sun.misc.Unsafe).allocateInstance(net.bible.service.cloudsync.SyncableDatabaseAccessor::class.java)
             as net.bible.service.cloudsync.SyncableDatabaseAccessor<*>
+    }
+
+    @Test
+    fun uploadResumesFromServerReportedRange() = runBlocking {
+        server.keepAtMostPerChunk = 3L * MiB
+        val payload = Random(3).nextBytes(9 * MiB)
+        val file = tmp.resolve("partial.gz").also { Files.write(it, payload) }
+        val created = adapter.upload("p.gz", file.toOkioPath(), root)
+        assertContentEquals(payload, downloadBytes(created.id))
+        // 8 MiB chunk keeps 3, then 8 MiB re-sent from 3 keeps 3, ... : more than the 2 PUTs of a lossless upload.
+        assertTrue(server.requests.count { it.method == "PUT" } > 2)
+        val starts = server.requests.filter { it.method == "PUT" }.mapNotNull { it.headers["content-range"] }
+        assertTrue(starts.any { it.startsWith("bytes ${3 * MiB}-") }, starts.toString())
+    }
+
+    @Test
+    fun uploadOfExactlyOneChunk() = runBlocking {
+        val payload = Random(4).nextBytes(8 * MiB)
+        val file = tmp.resolve("exact.gz").also { Files.write(it, payload) }
+        val created = adapter.upload("x.gz", file.toOkioPath(), root)
+        assertContentEquals(payload, downloadBytes(created.id))
+        assertEquals(1, server.requests.count { it.method == "PUT" })
+    }
+
+    @Test
+    fun uploadRetriesChunkAfterUnauthorized() = runBlocking {
+        server.rejectNextChunkUnauthorized = true
+        val payload = Random(5).nextBytes(9 * MiB)
+        val file = tmp.resolve("auth.gz").also { Files.write(it, payload) }
+        val created = adapter.upload("a.gz", file.toOkioPath(), root)
+        assertEquals(listOf("t1"), auth.invalidateCalls)
+        assertContentEquals(payload, downloadBytes(created.id))
+    }
+
+    @Test
+    fun downloadRejectsWholeBodyAtNonZeroOffset() {
+        val chunk = ByteArray(DRIVE_DOWNLOAD_CHUNK_SIZE.toInt())
+        val engine = io.ktor.client.engine.mock.MockEngine { request ->
+            val range = request.headers[io.ktor.http.HttpHeaders.Range]!!
+            if (range.startsWith("bytes=0-")) {
+                respond(
+                    chunk, io.ktor.http.HttpStatusCode.PartialContent,
+                    io.ktor.http.headersOf(io.ktor.http.HttpHeaders.ContentRange, "bytes 0-${chunk.size - 1}/${3L * chunk.size}"),
+                )
+            } else {
+                respond(ByteArray(3 * chunk.size), io.ktor.http.HttpStatusCode.OK) // ignores Range
+            }
+        }
+        val a = GoogleDriveRestAdapter(auth, createGoogleDriveHttpClient(engine))
+        val buffer = Buffer()
+        assertFailsWith<okio.IOException> { runBlocking { a.download("x", buffer) } }
+        assertEquals(chunk.size.toLong(), buffer.size)
+    }
+
+    @Test
+    fun downloadClosesSinkWhenCancelledBeforeStart() = runBlocking {
+        val id = server.putFile("f", root, ByteArray(10), 1)
+        var closed = false
+        val sink = object : ForwardingSink(Buffer()) {
+            override fun close() { closed = true; super.close() }
+        }
+        val job = launch(kotlinx.coroutines.Dispatchers.Default, start = kotlinx.coroutines.CoroutineStart.ATOMIC) {
+            adapter.download(id, sink)
+        }
+        job.cancel()
+        job.join()
+        assertTrue(job.isCancelled)
+        assertTrue(closed, "sink must be closed even when cancelled before the download started")
     }
 }

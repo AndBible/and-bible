@@ -35,6 +35,7 @@ import okio.FileNotFoundException
 import okio.FileSystem
 import okio.IOException
 import okio.Path
+import okio.BufferedSink
 import okio.Sink
 import okio.buffer
 import okio.use
@@ -135,12 +136,14 @@ class GoogleDriveRestAdapter(
         ensureSuccess(start)
         val sessionUrl = start.headers[HttpHeaders.Location] ?: throw IOException("Drive did not return an upload session URL")
 
-        fs.source(file).buffer().use { source ->
+        fs.openReadOnly(file).use { handle ->
             var offset = 0L
+            var stalled = 0
             while (true) {
                 currentCoroutineContext().ensureActive()
                 val size = minOf(UPLOAD_CHUNK_SIZE, total - offset)
-                val chunk = source.readByteArray(size)
+                // Re-read at the confirmed offset: Drive may have kept less than the whole chunk.
+                val chunk = handle.source(offset).buffer().use { it.readByteArray(size) }
                 val range = if (total == 0L) "bytes */0" else "bytes $offset-${offset + size - 1}/$total"
                 val response = send(HttpMethod.Put) {
                     url(sessionUrl)
@@ -148,43 +151,52 @@ class GoogleDriveRestAdapter(
                     contentType(ContentType.parse(GZIP_MIMETYPE))
                     setBody(chunk)
                 }
-                when {
-                    response.status.value == 308 -> {
-                        offset += size
-                        if (offset >= total) throw IOException("Drive upload session did not complete after all bytes were sent")
-                    }
-                    else -> return@withContext decode<DriveFileDto>(response).toCloudFile()
-                }
+                if (response.status.value != 308) return@withContext decode<DriveFileDto>(response).toCloudFile()
+                // "Range: bytes=0-N" = Drive holds N+1 bytes; no Range header = it holds none.
+                val persisted = response.headers[HttpHeaders.Range]?.substringAfterLast('-')?.toLongOrNull()?.plus(1) ?: 0L
+                if (persisted > offset + size) throw IOException("Drive reports $persisted bytes received, more than the $total sent so far")
+                if (persisted >= total) throw IOException("Drive upload session did not complete after all bytes were sent")
+                stalled = if (persisted <= offset) stalled + 1 else 0
+                if (stalled >= 3) throw IOException("Drive upload made no progress at offset $offset")
+                offset = persisted
             }
         }
         error("unreachable: the upload loop returns or throws")
     }
 
-    override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?): Unit =
-        withContext(Dispatchers.IO) {
-            sink.buffer().use { out ->
-                var offset = 0L
-                while (true) {
-                    currentCoroutineContext().ensureActive()
-                    val response = send(HttpMethod.Get) {
-                        url { appendPathSegments(FILES_PATH.split('/') + id) }
-                        parameter("alt", "media")
-                        header(HttpHeaders.Range, "bytes=$offset-${offset + DRIVE_DOWNLOAD_CHUNK_SIZE - 1}")
-                    }
-                    if (response.status.value == 416 && offset == 0L) return@use // empty file: nothing to range over
-                    if (response.status.value == 404) throw FileNotFoundException("Drive file not found: $id")
-                    ensureSuccess(response)
-                    val bytes = response.readRawBytes()
-                    out.write(bytes)
-                    out.flush()
-                    offset += bytes.size
-                    onProgress?.invoke(offset)
-                    val total = response.headers[HttpHeaders.ContentRange]?.substringAfter('/')?.toLongOrNull()
-                    val whole = response.status == HttpStatusCode.OK // server ignored Range and sent everything
-                    if (whole || bytes.isEmpty() || (total != null && offset >= total) || (total == null && bytes.size < DRIVE_DOWNLOAD_CHUNK_SIZE)) return@use
-                }
-            }
+    override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
+        // The sink is closed here, outside withContext: a coroutine cancelled before the block starts never enters it.
+        val out = sink.buffer()
+        try {
+            withContext(Dispatchers.IO) { downloadRanges(id, out, onProgress) }
+        } finally {
+            out.close()
         }
+    }
+
+    private suspend fun downloadRanges(id: String, out: BufferedSink, onProgress: DownloadProgressListener?) {
+        var offset = 0L
+        while (true) {
+            currentCoroutineContext().ensureActive()
+            val response = send(HttpMethod.Get) {
+                url { appendPathSegments(FILES_PATH.split('/') + id) }
+                parameter("alt", "media")
+                header(HttpHeaders.Range, "bytes=$offset-${offset + DRIVE_DOWNLOAD_CHUNK_SIZE - 1}")
+            }
+            if (response.status.value == 416 && offset == 0L) return // empty file: nothing to range over
+            if (response.status.value == 404) throw FileNotFoundException("Drive file not found: $id")
+            ensureSuccess(response)
+            val whole = response.status == HttpStatusCode.OK // server ignored Range and sent everything
+            if (whole && offset != 0L) throw IOException("Drive ignored the Range header of a continuation request at offset $offset")
+            val bytes = response.readRawBytes()
+            out.write(bytes)
+            out.flush()
+            offset += bytes.size
+            onProgress?.invoke(offset)
+            val total = response.headers[HttpHeaders.ContentRange]?.substringAfter('/')?.toLongOrNull()
+            if (whole || bytes.isEmpty() || (total != null && offset >= total) || (total == null && bytes.size < DRIVE_DOWNLOAD_CHUNK_SIZE)) return
+        }
+    }
 
     override suspend fun delete(id: String) {
         val response = send(HttpMethod.Delete) {

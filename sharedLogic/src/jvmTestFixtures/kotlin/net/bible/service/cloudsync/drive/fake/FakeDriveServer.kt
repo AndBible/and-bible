@@ -47,6 +47,14 @@ class FakeDriveServer(
     var pageSize: Int? = null,
     val clock: () -> Long = { System.currentTimeMillis() },
 ) {
+    /** When set, a resumable-upload chunk request keeps at most this many bytes (Drive may persist less than sent). */
+    @Volatile
+    var keepAtMostPerChunk: Long? = null
+
+    /** When true, the next resumable-upload chunk request is answered 401 once (an access token expiring mid-upload). */
+    @Volatile
+    var rejectNextChunkUnauthorized: Boolean = false
+
     private class Session(
         val metadata: JsonObject,
         val declaredType: String?,
@@ -211,6 +219,10 @@ class FakeDriveServer(
 
     private fun continueResumable(r: FakeDriveRequest, sessionId: String): FakeDriveResponse {
         val s = sessions[sessionId] ?: return notFound(sessionId)
+        if (rejectNextChunkUnauthorized) {
+            rejectNextChunkUnauthorized = false
+            return error(401, "Invalid Credentials", "authError")
+        }
         s.finished?.let { return json(200, meta(it)) }
         val received = s.buffer.size()
         val cr = r.headers["content-range"]
@@ -228,7 +240,10 @@ class FakeDriveServer(
         val total = m.groupValues[3]
         if (start > received) throw BadRequest("Chunk starts at $start but only $received bytes were received")
         val skip = (received - start).toInt()
-        if (skip < r.body.size) s.buffer.write(r.body, skip, r.body.size - skip)
+        if (skip < r.body.size) {
+            val n = (r.body.size - skip).toLong().coerceAtMost(keepAtMostPerChunk ?: Long.MAX_VALUE).toInt()
+            s.buffer.write(r.body, skip, n)
+        }
         return if (total != "*" && s.buffer.size().toLong() >= total.toLong()) finishSession(sessionId, s, null) else incomplete(s.buffer.size())
     }
 
