@@ -217,7 +217,21 @@ class SyncSettingsController(
 
     fun confirmReset() {
         dismissDialog()
-        scope.launch { setLoading(true); service.resetSync(); service.refresh(); setLoading(false) }
+        // The host scope is an Android lifecycleScope without an exception handler: a failing reset must not crash the
+        // app (osTicket 3515). The screen then shows whatever state the reset left.
+        scope.launch {
+            setLoading(true)
+            try {
+                service.resetSync()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                net.bible.sharedcore.log.Log.e("SyncSettingsController", "Sync reset failed", e)
+            } finally {
+                service.refresh()
+                setLoading(false)
+            }
+        }
     }
 
     fun dismissDialog() { _state.value = _state.value.copy(dialog = SyncDialog.None) }
