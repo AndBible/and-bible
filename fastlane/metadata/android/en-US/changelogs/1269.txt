@@ -1,0 +1,28 @@
+- Added a 6.0 release notice card and a "Recommend to a friend" dialog with a QR code and share link (54fd674cdd)
+- Added a desktop update prompt with opt-out and a daily snooze, plus layout changes (108d70c59e)
+- Added iOS Cmd+F and Cmd+B shortcuts, and the find shortcut now selects the search query (#3989, #4038)
+- Added a dismiss button on failed activity rows, and right-click on the window button opens its menu (b3600b275c)
+- Note editor now pastes and drops plain text (#3925)
+- Removed the WebKitGTK engine from the Linux desktop app (73203211a9)
+- Release notice on compact screens shows a continuation cue (d14f22571d)
+- Release notice is shown by main version only and is dismissed silently when Welcome completes; desktop is enabled (72a1741826)
+- iOS full-screen exit is visible, and pane buttons stay clear of it (eb219ae3a9)
+- Chooser grids keep empty cells in column order, so book, chapter and verse grids no longer skip them (#4059)
+- AI prompt copies keep their favorite status and are revealed and highlighted (#4060)
+- Synced AI document markers now reach an open Bible view (9de07cf9c8)
+- Calculator lock no longer draws queued app dialogs (7117429954)
+- Beta builds no longer silently mark the stable release notice as seen (0fffb1d059)
+- Fixed a crash in the QR code, and the release notice now detects upgrades correctly (91618c751f)
+
+AndBible 6.0 public beta!
+
+One app for Android, iPhone, iPad, Mac, Windows and Linux.
+- The whole app rebuilt, with a redesigned interface
+- Sync between all your devices: Nextcloud, WebDAV, Google Drive (Android) and iCloud Drive (Apple)
+- Background activity list with notifications
+- Reading plans in sync
+- New search index, rebuilt once after the update
+
+This is a beta: please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
