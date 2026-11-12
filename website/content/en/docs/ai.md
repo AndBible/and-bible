@@ -501,7 +501,8 @@ Built-in prompts cannot be modified directly. To customize one:
 You can also choose `Copy` from any prompt's menu in the prompt list. The
 copy keeps the original's favorite mark. The list scrolls to the new copy
 and briefly emphasizes its row, including when animations are disabled.
-Any active search or filters are cleared so the copy is visible.
+Your search and filters stay active if the copy matches them. If they would
+hide the copy, they are cleared so you can see it.
 
 ### Prompt Template Tips
 

@@ -68,7 +68,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.delay
 import net.bible.sharedui.components.currentRowHighlight
 import net.bible.sharedui.theme.LocalDisableAnimations
@@ -240,14 +243,75 @@ fun AiPromptsScreen(
     var query by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf(initiallyFilter) }
     var filterSheetOpen by remember { mutableStateOf(false) }
-    LaunchedEffect(copiedPromptId) {
-        if (copiedPromptId != null) {
-            // A built-in/add-on copy becomes a user prompt and may no longer match the type filter.
-            query = ""
-            filter = PromptListFilter()
+    val visibleGroups = remember(groups, query, filter) { filterPromptGroups(groups, query, filter) }
+    val collapsed = remember { mutableStateMapOf<String, Boolean>() }
+    val currentGroups by rememberUpdatedState(groups)
+    val currentVisibleGroups by rememberUpdatedState(visibleGroups)
+    val currentCopiedId by rememberUpdatedState(copiedPromptId)
+    val copyRevealed by rememberUpdatedState(onCopyRevealed)
+    val disableAnimations = LocalDisableAnimations.current
+    var highlightedKey by remember {
+        mutableStateOf(visibleGroups.firstOrNull { group -> group.prompts.any { it.id == copiedPromptId } }
+            ?.let { "prompt-${groupKey(it)}-$copiedPromptId" })
+    }
+    LaunchedEffect(highlightedKey) {
+        if (highlightedKey != null) {
+            delay(2500)
+            highlightedKey = null
         }
     }
-    val visibleGroups = remember(groups, query, filter) { filterPromptGroups(groups, query, filter) }
+    // Group refreshes and layout changes belong to this one request, not new reveal attempts.
+    LaunchedEffect(copiedPromptId) {
+        val id = copiedPromptId ?: return@LaunchedEffect
+        try {
+            withTimeoutOrNull(5000) {
+                snapshotFlow { currentGroups }.first { list -> list.any { group -> group.prompts.any { it.id == id } } }
+                if (filterPromptGroups(currentGroups, query, filter).none { group -> group.prompts.any { it.id == id } }) {
+                    query = ""
+                    filter = PromptListFilter()
+                }
+                while (true) {
+                    yield() // Let layout and timeout cancellation proceed even if scrolling returns immediately.
+                    // Re-derive the occurrence, index and count together: favorite membership and
+                    // collapsed groups can change while the refreshed list is being measured.
+                    val (key, targetIndex) = snapshotFlow {
+                        val list = currentVisibleGroups
+                        val target = list.firstOrNull { group -> group.prompts.any { it.id == id } }
+                            ?: return@snapshotFlow null
+                        val key = groupKey(target)
+                        if (collapsed[key] == true) return@snapshotFlow key to -1
+                        var index = 0
+                        var copyIndex = 0
+                        list.forEachIndexed { groupIndex, group ->
+                            if (groupIndex > 0) index++
+                            index++ // Header.
+                            if (collapsed[groupKey(group)] != true) {
+                                if (group == target) copyIndex = index + group.prompts.indexOfFirst { it.id == id }
+                                index += group.prompts.size
+                            }
+                        }
+                        (key to copyIndex).takeIf { listState.layoutInfo.totalItemsCount == index }
+                    }.first { it != null }!!
+                    if (targetIndex < 0) {
+                        collapsed[key] = false
+                        continue
+                    }
+                    if (disableAnimations) listState.scrollToItem(targetIndex)
+                    else listState.animateScrollToItem(targetIndex)
+                    val currentTarget = currentVisibleGroups.firstOrNull { group -> group.prompts.any { it.id == id } }
+                    val rowKey = "prompt-$key-$id"
+                    if (currentTarget?.let(::groupKey) != key ||
+                        listState.layoutInfo.visibleItemsInfo.none { it.key == rowKey }
+                    ) continue
+                    highlightedKey = rowKey
+                    break
+                }
+            }
+        } finally {
+            // Cancellation by a newer copy must not consume that newer request.
+            if (currentCopiedId == id) copyRevealed()
+        }
+    }
 
     AbScaffold(
         title = strings.aiPromptsTitle,
@@ -331,8 +395,8 @@ fun AiPromptsScreen(
             } else {
                 PromptGroupsList(
                     groups = visibleGroups,
-                    copiedPromptId = copiedPromptId,
-                    onCopyRevealed = onCopyRevealed,
+                    collapsed = collapsed,
+                    highlightedKey = highlightedKey,
                     listState = listState,
                     strings = strings,
                     onOpenPrompt = onOpenPrompt,
@@ -523,8 +587,8 @@ private fun groupKey(group: PromptGroupVd): String = when {
 @Composable
 private fun PromptGroupsList(
     groups: List<PromptGroupVd>,
-    copiedPromptId: String?,
-    onCopyRevealed: () -> Unit,
+    collapsed: MutableMap<String, Boolean>,
+    highlightedKey: String?,
     listState: androidx.compose.foundation.lazy.LazyListState,
     strings: Strings,
     onOpenPrompt: (String) -> Unit,
@@ -540,47 +604,7 @@ private fun PromptGroupsList(
     onRenameCategoryRequest: (PromptCategoryVd) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Collapse/expand state is component-local (mirrors ToolPermissionList): all groups start
-    // expanded, absent-from-map means expanded.
-    val collapsed = remember { mutableStateMapOf<String, Boolean>() }
     val categorized = groups.filter { it.category != null }
-
-    val disableAnimations = LocalDisableAnimations.current
-    val targetGroup = groups.firstOrNull { group -> group.prompts.any { it.id == copiedPromptId } }
-    var highlightedKey by remember {
-        mutableStateOf(targetGroup?.let { "prompt-${groupKey(it)}-$copiedPromptId" })
-    }
-    LaunchedEffect(highlightedKey) {
-        if (highlightedKey != null) {
-            delay(2500)
-            highlightedKey = null
-        }
-    }
-    LaunchedEffect(copiedPromptId, groups) {
-        val id = copiedPromptId ?: return@LaunchedEffect
-        val target = targetGroup ?: return@LaunchedEffect
-        collapsed[groupKey(target)] = false
-        // Include dividers and headers, and omit the rows of collapsed groups.
-        var targetIndex = 0
-        for ((index, group) in groups.withIndex()) {
-            if (index > 0) targetIndex++
-            targetIndex++
-            if (group == target) {
-                targetIndex += group.prompts.indexOfFirst { it.id == id }
-                break
-            }
-            if (collapsed[groupKey(group)] != true) targetIndex += group.prompts.size
-        }
-        val expectedItems = groups.sumOf { group ->
-            1 + if (collapsed[groupKey(group)] != true) group.prompts.size else 0
-        } + (groups.size - 1).coerceAtLeast(0)
-        // A collapsed group's rows do not exist in the measured list until its next layout.
-        snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it == expectedItems }
-        if (disableAnimations) listState.scrollToItem(targetIndex)
-        else listState.animateScrollToItem(targetIndex)
-        highlightedKey = "prompt-${groupKey(target)}-$id"
-        onCopyRevealed()
-    }
     LazyColumn(state = listState, modifier = modifier.volumeScrollTarget(listState)) {
         groups.forEachIndexed { index, group ->
             val key = groupKey(group)
@@ -774,7 +798,9 @@ private fun PromptRow(
         listOfNotNull(type, targets).joinToString(" · ")
     }
     Row(
-        modifier = Modifier.fillMaxWidth().currentRowHighlight(justCopied).semantics { selected = justCopied },
+        modifier = Modifier.fillMaxWidth().currentRowHighlight(justCopied).semantics {
+            if (justCopied) stateDescription = strings.promptCopied
+        },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onToggleFavorite, modifier = Modifier.toggleStateSemantics(prompt.isFavorite)) {
