@@ -1495,7 +1495,8 @@ final class ReadingUITests: RealAppUITestCase {
         let app = try launchReading()
         let pane = firstPane(app)
         XCTAssertTrue(pane.waitForExistence(timeout: 15))
-        pane.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        // A verse tap opens the page's selection menu, whose Ctrl+B correctly bookmarks instead of opening the chooser.
+        // Sending to the pane itself focuses it without that unrelated selection action.
         pane.typeKey("b", modifierFlags: .command)
         app.typeKey("b", modifierFlags: [])
         let back = app.buttons["Back"]
@@ -1503,7 +1504,6 @@ final class ReadingUITests: RealAppUITestCase {
         back.tap()
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15))
         XCTAssertFalse(back.exists, "one Cmd+B must not open two choosers")
-        firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         firstPane(app).typeKey("f", modifierFlags: .command)
         app.typeKey("f", modifierFlags: [])
         XCTAssertTrue(element(app, "reading-search-field").waitForExistence(timeout: 15), "Cmd+F must open Find")
@@ -1513,7 +1513,6 @@ final class ReadingUITests: RealAppUITestCase {
     /// Repeating Cmd+F over results replaces the previous query, without a manual field tap or clear.
     func testCommandFSelectsAnExistingSearchQuery() throws {
         let app = try launchReading()
-        firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         firstPane(app).typeKey("f", modifierFlags: .command)
         let field = element(app, "reading-search-field")
         XCTAssertTrue(field.waitForExistence(timeout: 15))
