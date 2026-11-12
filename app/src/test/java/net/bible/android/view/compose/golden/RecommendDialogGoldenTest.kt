@@ -28,20 +28,25 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Golden for the "Recommend to a friend" QR notice in light, dark and monochrome ([captureMatrix] records
- * the colour modes and audits monochrome). The code is black on white in every theme, so it stays scannable.
- * It renders the REAL `andbible_qr` drawable through compose resources.
+ * Goldens for the "Recommend to a friend" dialog (QR code shown directly, "Share a link" and "Close" buttons) in
+ * light, dark and monochrome ([captureMatrix] records the colour modes and audits monochrome) plus the iOS look
+ * (light). The code is black on white in every theme, so it stays scannable. It renders the REAL `andbible_qr`
+ * drawable through compose resources.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
-class RecommendQrGoldenTest {
-    @Test fun qrNotice_matrix() =
-        captureMatrix("RecommendQr", "qrNotice") {
-            val request = RecommendApp.qrRequest(AndroidStrings(ApplicationProvider.getApplicationContext()))
-            AbNoticeDialog(
-                title = request.title, showTitleLogo = request.showTitleLogo, blocks = request.blocks,
-                confirmText = request.confirmText, onConfirm = {}, onDismissRequest = {},
-            )
-        }
+class RecommendDialogGoldenTest {
+    private val content: @androidx.compose.runtime.Composable () -> Unit = {
+        val request = RecommendApp.request(AndroidStrings(ApplicationProvider.getApplicationContext()))
+        AbNoticeDialog(
+            title = request.title, showTitleLogo = request.showTitleLogo, blocks = request.blocks,
+            confirmText = request.confirmText, onConfirm = {}, onDismissRequest = {},
+            dismissText = request.dismissText,
+        )
+    }
+
+    @Test fun android_matrix() = captureMatrix("RecommendDialog", "android", content = content)
+
+    @Test fun ios() = captureGolden("RecommendDialog", "ios", EDGE_MODE, content = content)
 }

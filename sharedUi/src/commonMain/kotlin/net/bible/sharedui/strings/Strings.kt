@@ -1365,7 +1365,6 @@ interface Strings {
     val recommendBody: String // R.string.recommend_body
     fun recommendGetIt(link: String): String // R.string.recommend_get_it
     val recommendShareLink: String // R.string.recommend_share_link
-    val recommendShowQr: String // R.string.recommend_show_qr
     val recommendQrCaption: String // R.string.recommend_qr_caption
 }
 

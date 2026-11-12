@@ -41,7 +41,6 @@ import org.junit.After
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import net.bible.sharedui.app.recommend.RecommendApp
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -141,22 +140,20 @@ class MenuCommandHandlerDialogTest {
         }
     }
 
-    @Test fun tellFriendShowsChooser() {
+    @Test fun tellFriendShowsQrDirectlyWithShareLink() {
         handler.handleMenuRequest(R.id.tellFriend)
         idle()
-        val request = dialogs.pending.value!!.request as AppDialogRequest.Options
+        val request = dialogs.pending.value!!.request as AppDialogRequest.Notice
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.tell_friend_title), request.title)
-        assertEquals(
-            listOf(RecommendApp.SHARE_LINK, RecommendApp.SHOW_QR),
-            request.options.map { it.value },
-        )
+        assertTrue(request.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
+        assertEquals(RuntimeEnvironment.getApplication().getString(R.string.recommend_share_link), request.confirmText)
         assertNull("nothing is shared before a choice", shadowOf(activity).nextStartedActivityForResult)
     }
 
     @Test fun tellFriendShareLinkSendsTextWithoutPlayStore() {
         handler.handleMenuRequest(R.id.tellFriend)
         idle()
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(RecommendApp.SHARE_LINK))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
         idle()
         val chooser = shadowOf(activity).nextStartedActivityForResult.intent
         val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!

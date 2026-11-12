@@ -30,6 +30,9 @@ kotlin {
         compileSdk = 36
         minSdk = 23
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        // Compose resources (Res.drawable...) reach the APK as assets of this library; without Android resources
+        // enabled the AGP-9 KMP library does not package them and painterResource crashes on a real device.
+        androidResources { enable = true }
         // Host-side (JVM, no device/emulator) unit tests for this module's `commonTest`/
         // `androidUnitTest` sources. Added for Task 3 fix round 1's `popOrExitOnFailedPop` test —
         // :sharedUi had no test source set at all before this; the test needs no Android API, so

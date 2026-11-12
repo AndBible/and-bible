@@ -1285,6 +1285,5 @@ class AndroidStrings(private val context: Context) : Strings {
     override val recommendBody: String get() = context.getString(R.string.recommend_body)
     override fun recommendGetIt(link: String): String = context.getString(R.string.recommend_get_it, link)
     override val recommendShareLink: String get() = context.getString(R.string.recommend_share_link)
-    override val recommendShowQr: String get() = context.getString(R.string.recommend_show_qr)
     override val recommendQrCaption: String get() = context.getString(R.string.recommend_qr_caption)
 }

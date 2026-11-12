@@ -230,23 +230,9 @@ val jsTests by tasks.registering(Exec::class) {
 
 tasks.named("check").configure { dependsOn(jsTests) }
 
-// The unit-test resources include :sharedUi's assembled compose resources (see the test source set
-// below). AGP drops the FileCollection's builtBy when it converts the srcDir, so declare the producer
-// explicitly; without it Gradle refuses the build whenever :sharedUi:assembleJvmMainResources also runs.
-tasks.matching { it.name.startsWith("process") && it.name.endsWith("UnitTestJavaRes") }.configureEach {
-    dependsOn(":sharedUi:assembleJvmMainResources")
-}
-
 android {
     sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     sourceSets.getByName("test").kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
-    // Robolectric tests that render :sharedUi's compose resources (Res.drawable..., e.g. the QR code golden):
-    // on Android the library's resources are APK assets, but the compose resource reader finds them through the
-    // test JVM's classpath. Put the assembled (merged, path-qualified) resource tree on it.
-    sourceSets.getByName("test").resources.srcDir(
-        files(project(":sharedUi").layout.buildDirectory.dir("generated/compose/resourceGenerator/assembledResources/jvmMain"))
-            .builtBy(":sharedUi:assembleJvmMainResources"),
-    )
     compileSdk = 36
 
     // version.properties (repo root) is the one version source for Android and iOS.

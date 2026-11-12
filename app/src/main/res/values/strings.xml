@@ -2315,6 +2315,5 @@
     <string name="recommend_body">It is a free, ad-free Bible study app for phones, tablets and computers.</string>
     <string name="recommend_get_it">Get it here: %s</string>
     <string name="recommend_share_link">Share a link</string>
-    <string name="recommend_show_qr">Show QR code</string>
     <string name="recommend_qr_caption">Scan to get AndBible for your phone, tablet or computer.</string>
 </resources>

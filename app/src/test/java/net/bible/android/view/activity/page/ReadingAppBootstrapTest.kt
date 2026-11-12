@@ -663,10 +663,12 @@ class ReadingAppBootstrapTest {
     private suspend fun kotlinx.coroutines.test.TestScope.runStableNotice(
         upgrade: Boolean,
         discretePref: Boolean = false,
+        earlierRunMarker: Boolean = false,
         block: suspend (NavHostComposeActivity, kotlinx.coroutines.Deferred<Boolean>) -> Unit,
     ) {
         withNonBetaBuild {
             CommonUtils.settings.removeString("stable-notice-displayed")
+            if (earlierRunMarker) CommonUtils.settings.setInt("new-sync-targets-notice-displayed", 1)
             if (discretePref) CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
             val controller = navHostOnReading()
             try {
@@ -679,7 +681,25 @@ class ReadingAppBootstrapTest {
                 controller.close()
                 CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
                 CommonUtils.settings.removeString("stable-notice-displayed")
+                CommonUtils.settings.removeString("new-sync-targets-notice-displayed")
             }
+        }
+    }
+
+    /**
+     * The upgrade from the 6.0 beta to the stable build was missed on a real device: the package times alone
+     * (`lastUpdateTime - firstInstallTime`) are not a reliable "this is an update" signal (they can look fresh
+     * after a store update). Data an earlier run left behind is: the sync-targets notice marker is written on
+     * the first launch of any earlier version, after this notice, so a fresh install never has it yet.
+     */
+    @Test
+    fun stableNoticeShownWhenInstallTimesLookFreshButAnEarlierRunLeftItsMarker() = runTest(timeout = 30.seconds) {
+        runStableNotice(upgrade = false, earlierRunMarker = true) { _, done ->
+            val request = appDialogs.pending.value!!.request as AppDialogRequest.ReleaseNotice
+            assertEquals(CommonUtils.mainVersion, request.version)
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.ReleaseNoticeAnswer(null, dontShowAgain = false))
+            advanceUntilIdle()
+            assertFalse(done.await())
         }
     }
 
@@ -729,18 +749,15 @@ class ReadingAppBootstrapTest {
     }
 
     @Test
-    fun shareActionOpensRecommendChooser() = runTest(timeout = 30.seconds) {
+    fun shareActionOpensRecommendDialog() = runTest(timeout = 30.seconds) {
         runStableNotice(upgrade = true) { _, done ->
             appDialogs.respond(
                 appDialogs.pending.value!!.id,
                 AppDialogResult.ReleaseNoticeAnswer(net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE, dontShowAgain = false),
             )
             advanceUntilIdle()
-            val chooser = appDialogs.pending.value!!.request as AppDialogRequest.Options
-            assertEquals(
-                listOf(net.bible.sharedui.app.recommend.RecommendApp.SHARE_LINK, net.bible.sharedui.app.recommend.RecommendApp.SHOW_QR),
-                chooser.options.map { it.value },
-            )
+            val dialog = appDialogs.pending.value!!.request as AppDialogRequest.Notice
+            assertTrue(dialog.blocks.contains(AppDialogRequest.NoticeBlock.QrCode))
             appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Cancel)
             advanceUntilIdle()
             done.await()
