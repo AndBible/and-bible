@@ -73,6 +73,8 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
 
 - Keep `max_running_children` children busy and **1–2 spawns queued**, no more; spawn the next
   one whenever a child is merged.
+- Assign each issue to the publishing account as soon as its child is spawned (`jailbee issue assign <n> --me`,
+  published right away when the grant allows; issue-management Flow 3, "Assign when work starts").
 - Runner: the one the maintainer names at the start of the session (it changes with quota); runner notes from earlier
   sessions do not carry over. Check `jailbee inbox runners` for what is available. The script's default is the
   `claude-jb` codex profile, tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.

@@ -117,6 +117,12 @@ From the Priorities and Quick wins views (P1–P2, Size S first, demand from `in
 2–5 items with AskUserQuestion. Move the chosen ones to Next up through a batch. Each picked item then
 starts its own superpowers chain: brainstorming → spec/plan → SDD, with the issue as input.
 
+**Assign when work starts (maintainer, 2026-11-12).** The moment an issue is taken into work (a child
+spawned for it, an SDD run or your own fix started), assign it to the publishing account:
+`jailbee issue assign <n> --me` (several: `--batch NAME` + `jailbee outbox submit NAME --kind issue`), then
+publish it yourself when the grant's `publish issues` includes `assign_self`/`assign`; otherwise leave it
+for `jb issue apply`. Do it in the same turn as the spawn, not at merge time.
+
 ### 4. Close the loop
 
 Fix commits start `Fixes #NNN (short description)`. **Close an issue as soon as its fix is merged
