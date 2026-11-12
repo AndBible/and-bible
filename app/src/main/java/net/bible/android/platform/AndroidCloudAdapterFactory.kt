@@ -30,8 +30,7 @@ class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFac
     override fun create(id: String): CloudAdapter = when (id) {
         "GOOGLE_DRIVE" -> {
             val useShared = DriveImplementation.useShared(CommonUtils.isBeta, CommonUtils.realSharedPreferences.getString(DriveImplementation.PREF_KEY, null))
-            val provider = Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider").getDeclaredConstructor().newInstance()
-            provider.javaClass.getMethod("create", Boolean::class.javaPrimitiveType).invoke(provider, useShared) as CloudAdapter
+            (Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider").getDeclaredConstructor().newInstance() as DriveAdapterProvider).create(useShared)
         }
         "NEXT_CLOUD" -> CommonUtils.realSharedPreferences.let { prefs ->
             NextCloudAdapter(prefs.getString("cloud_sync_server_url", null), prefs.getString("cloud_sync_username", null), prefs.getString("cloud_sync_password", null), prefs.getString("cloud_sync_folder_path", null), context.getString(R.string.webdav_https_required))

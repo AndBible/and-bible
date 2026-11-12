@@ -36,4 +36,15 @@ class AndroidCloudAdapterFactoryDriveTest {
     @Test fun `legacy override creates the old adapter`() = withOverride(DriveImplementation.LEGACY) {
         assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveCloudAdapter)
     }
+
+    @Test fun `no override follows isBeta`() = withOverride(null) {
+        val adapter = factory.create("GOOGLE_DRIVE")
+        if (CommonUtils.isBeta) assertTrue(adapter is GoogleDriveRestAdapter) else assertTrue(adapter is GoogleDriveCloudAdapter)
+    }
+
+    @Test fun `providers share one http client`() {
+        val a = net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider.sharedClient
+        val b = net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider.sharedClient
+        org.junit.Assert.assertSame(a, b)
+    }
 }
