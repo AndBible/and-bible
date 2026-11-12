@@ -36,6 +36,61 @@ class ReadingSearchControllerTest {
     )
 
     @Test
+    fun findShortcutSelectsTheQueryWithoutRunningTheOldSearchAgain() {
+        for (hideResults in listOf(false, true)) {
+            val (r, c) = controller()
+            c.open("light")
+            if (hideResults) c.onResultOpened()
+            c.imeRequestHandled()
+
+            c.openFromShortcut()
+
+            assertTrue(c.searchModeActive.value)
+            assertEquals("light", c.queries.query.value)
+            assertEquals("FocusSelectAll", c.imeRequest.value?.name)
+            assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+            c.imeRequestHandled()
+            c.openFromShortcut()
+            assertEquals("FocusSelectAll", c.imeRequest.value?.name, "a second request is not lost")
+        }
+    }
+
+    @Test
+    fun findShortcutWithAnUnsubmittedQueryDoesNotSubmitIt() {
+        val (r, c) = controller()
+        c.open()
+        c.queries.setQuery("new query")
+        c.imeRequestHandled()
+
+        c.openFromShortcut()
+
+        assertEquals(emptyList(), r.searchesRun)
+        assertEquals("FocusSelectAll", c.imeRequest.value?.name)
+    }
+
+    @Test
+    fun findShortcutReportsAnUnavailableDocumentOnlyOnce() {
+        val (r, c) = controller(doc = null)
+        c.openFromShortcut()
+        assertEquals(1, r.unavailable)
+        assertFalse(c.searchModeActive.value)
+        assertNull(c.imeRequest.value)
+    }
+
+    @Test
+    fun findShortcutDoesNotAbandonAnIndexBuild() {
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open("light")
+        c.acceptIndexing()
+        c.imeRequestHandled()
+        c.openFromShortcut()
+        assertEquals(ReadingSearchPhase.Indexing("ESV", forEpub = false), c.phase.value)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+        assertEquals(listOf("ESV"), r.indexingStarted)
+    }
+
+    @Test
     fun reopeningSearchPreservesAnIndexBuildForAnExplicitlySelectedTranslation() {
         val (r, c) = controller(unindexedInSelection = "ESV")
         c.open("light")

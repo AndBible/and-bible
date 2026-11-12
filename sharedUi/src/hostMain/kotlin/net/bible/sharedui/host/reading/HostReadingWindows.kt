@@ -382,7 +382,7 @@ object HostReadingWindows {
             val bridgeRef = arrayOfNulls<ReadingBridge>(1)
             session.keyActions = HostReadingKeyActions(
                 hostState = b.host.hostState,
-                openSearch = { b.host.navigator.openSearch(null) },
+                openSearch = { b.host.openSearchFromShortcut() },
                 openOverflow = { b.host.toolbarHost.openOverflowMenu() },
                 copyCurrentSelection = { bridgeRef[0]?.copyCurrentSelection() },
             )

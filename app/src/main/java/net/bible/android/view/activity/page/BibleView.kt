@@ -293,8 +293,11 @@ class BibleView(
             /** Ctrl+C: the shared copy path, so Android, iOS and desktop copy the same text. */
             override fun copySelection() = readingBridge.copyCurrentSelection()
 
-            override fun searchIfHosted(): Boolean =
-                hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)
+            override fun searchIfHosted(): Boolean {
+                val readingHost = hostCallbacks.composeReadingViewHost() ?: return false
+                readingHost.openSearchFromShortcut()
+                return true
+            }
 
             override fun crashAllBibleViews() = hostCallbacks.crashAllBibleViews()
         }

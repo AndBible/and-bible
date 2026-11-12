@@ -187,9 +187,12 @@ jobs (under a second) are not shown.
 ### Keyboard Search
 
 With the reading view open, **Ctrl+F** opens the in-place search field, including
-on iPhone and iPad with a connected keyboard. You can also open the same search
-from **Find** in the main menu. These are **Control** shortcuts, not Command
-shortcuts on an Apple keyboard. While a native text field has focus, its own
+on iPhone and iPad with a connected keyboard. On iOS, **Cmd+F** also opens search,
+and **Cmd+B** performs the same reading action as **Ctrl+B**. You can also open
+the same search from **Find** in the main menu. Other Command-key combinations
+are not reading shortcuts. Press **Ctrl+F** again (**Cmd+F** on iOS) to focus the
+search field and select the whole query; typing replaces the old query without
+running it again. While a native text field has focus, its own
 keyboard commands take precedence over reading shortcuts. In the Bible text's
 note editor, **Ctrl+C** copies and **Ctrl+B** stays with the editor. Alt+arrow
 keys and Alt+M/O do not trigger reading actions while editing, on Android and

@@ -103,9 +103,9 @@ class ReadingSearchController(
     fun imeRequestHandled() { _imeRequest.value = null }
 
     /**
-     * The one rule behind every call site: the field is focused with the keyboard up exactly when the
-     * phase becomes [ReadingSearchPhase.Form] — "the user is expected to type". Every other phase
-     * releases it. The two setters clear each other so a stale opposite instruction can never fire.
+     * Phase transitions focus the field in [ReadingSearchPhase.Form] (the user is expected to type)
+     * and otherwise release it. [openFromShortcut] explicitly requests editing even over existing
+     * results. Replacing the instruction prevents a stale opposite instruction from firing.
      */
     private fun requestFieldFocus() { _imeRequest.value = SearchFieldImeRequest.Focus }
     private fun requestFieldRelease() { _imeRequest.value = SearchFieldImeRequest.Release }
@@ -218,6 +218,22 @@ class ReadingSearchController(
             is SearchKind.Bible -> enterFormOrResults(kind.docId, forEpub = false)
             is SearchKind.Epub -> enterFormOrResults(kind.docId, forEpub = true)
             SearchKind.Unavailable -> Unit // unreachable, handled above
+        }
+    }
+
+    /** The hardware find shortcut edits the query rather than reopening old results. */
+    fun openFromShortcut() {
+        val wasActive = _searchModeActive.value
+        if (!wasActive) open()
+        when (_phase.value) {
+            is ReadingSearchPhase.Form, is ReadingSearchPhase.Results -> {
+                onLeaveFullScreen()
+                resultTapPending = false
+                _imeRequest.value = SearchFieldImeRequest.FocusSelectAll
+            }
+            // Index prompts and in-flight builds keep their normal ownership; do not open an
+            // unavailable document twice on the first shortcut press.
+            else -> if (wasActive) open()
         }
     }
 
