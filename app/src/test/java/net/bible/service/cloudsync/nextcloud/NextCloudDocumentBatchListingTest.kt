@@ -90,12 +90,17 @@ class NextCloudDocumentBatchListingTest {
     }
 
     @Test fun fullResultPageFallsBackInsteadOfTrustingSuccessfulTruncation() = withServer { dav, adapter ->
+        // The truncation signal is the SEARCH page reaching its 512-response limit, independent of how many
+        // folders were requested. Only a few folders are requested (more than the fallback's 6 concurrent
+        // PROPFINDs) so the test does not depend on wall-clock speed: 600 real HTTP round trips took >60 s
+        // when the parallel test forks starved the CPU.
+        val folderCount = 8
         dav.searchBody = (0 until 512).joinToString("") { file("$root/DOC$it/meta.json") }
         dav.generateFolderMeta = true
-        val files = awaitOperation(timeoutMillis = 60_000, cleanupMillis = 10_000) { adapter.listChangedFilesInFolders(root, (0 until 600).map { "$root/DOC$it" }, "meta.json", 0) }
-        assertEquals(600, files.size)
+        val files = awaitOperation { adapter.listChangedFilesInFolders(root, (0 until folderCount).map { "$root/DOC$it" }, "meta.json", 0) }
+        assertEquals(folderCount, files.size)
         assertEquals(1, dav.methods.count { it == "SEARCH" })
-        assertEquals(600, dav.methods.count { it == "PROPFIND" })
+        assertEquals(folderCount, dav.methods.count { it == "PROPFIND" })
         assertTrue(dav.queries.single().contains("512"))
     }
 
