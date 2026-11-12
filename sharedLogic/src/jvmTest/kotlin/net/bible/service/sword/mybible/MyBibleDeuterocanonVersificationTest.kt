@@ -57,14 +57,31 @@ class MyBibleDeuterocanonVersificationTest {
         )
     }
 
-    /** NRSVCE: Vulgate-style Daniel (3:24-90 inside chapter 3, Susanna 13, Bel 14) and Baruch 6. */
+    /**
+     * NRSVCE: Vulgate-style Daniel (3:24-90 inside chapter 3, Susanna 13, Bel 14), Esther 10:4-13 and Baruch 6.
+     * NRSVA keeps every protocanonical verse; the Catholic systems that hold Daniel 13-14 would drop Joel 2:28-32
+     * and Malachi 4 (they number them Joel 3 and Malachi 3:19-24), so the Greek additions are what is lost.
+     */
     @Test
-    fun catholicLayoutKeepsDanielAdditionsInsideDaniel() = withBible("nrsvce") { book ->
-        assertEquals(14, book.versification.getLastChapter(BibleBook.DAN))
+    fun catholicLayoutKeepsEveryProtocanonicalVerse() = withBible("nrsvce") { book ->
+        assertEquals("NRSVA", book.versification.name)
         assertVerses(book,
-            "Dan.3.90" to "340 3:90", "Dan.3.97" to "340 3:97", "Dan.13.64" to "340 13:64", "Dan.14.42" to "340 14:42",
-            "Bar.6.72" to "320 6:72", "1Macc.16.24" to "462 16:24",
+            "Joel.2.32" to "360 2:32", "Joel.3.21" to "360 3:21", "Mal.4.6" to "460 4:6", "Dan.12.13" to "340 12:13",
+            "Bar.6.72" to "320 6:72", "1Macc.16.24" to "462 16:24", "Esth.10.3" to "190 10:3",
         )
+        // Daniel 13-14 have no place in NRSVA (see MyBibleVersificationDetectionTest for the full loss).
+        assertEquals(12, book.versification.getLastChapter(BibleBook.DAN))
+    }
+
+    /**
+     * Installations detected while 345 meant AddDan (betas 1263-1270) may be pinned to Luther, the only system
+     * with AddDan. Book 345 must stay readable there, and AddDan keys must find book 345 again.
+     */
+    @Test
+    fun lutherPinnedModuleKeepsBook345AsAdditionsToDaniel() = withBible("nrsv", pinned = "Luther") { book ->
+        assertEquals("Luther", book.versification.name)
+        assertTrue(BibleBook.ADD_DAN in DocumentBibleBooks(book).getBookList())
+        assertVerses(book, "AddDan.1.1" to "345 1:1", "AddDan.1.42" to "345 1:42", "Dan.12.13" to "340 12:13")
     }
 
     private fun assertVerses(book: SwordBook, vararg refs: Pair<String, String>) {
@@ -75,7 +92,7 @@ class MyBibleDeuterocanonVersificationTest {
         assertEquals(refs.toMap(), actual)
     }
 
-    private fun withBible(bounds: String, check: (SwordBook) -> Unit) {
+    private fun withBible(bounds: String, pinned: String? = null, check: (SwordBook) -> Unit) {
         val root = Files.createTempDirectory("mybible-deuterocanon").toFile()
         var book: SwordBook? = null
         val dirs = object : AppDirectories {
@@ -109,6 +126,7 @@ class MyBibleDeuterocanonVersificationTest {
                 }
                 db.exec("COMMIT")
             }
+            pinned?.let { MyBibleVersificationStore.restore(file.path.toPath(), it) }
             addMyBibleBook(file.path.toPath())
             book = Books.installed().getBook("MyBible-Deuterocanon_$bounds") as SwordBook
             check(book)

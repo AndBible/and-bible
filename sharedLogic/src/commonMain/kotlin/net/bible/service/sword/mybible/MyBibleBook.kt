@@ -214,52 +214,12 @@ class SqliteVerseBackendState(private val sqliteFile: Path, private val allowVer
         }
     }
 
-    /**
-     * MyBible stores native chapter/verse coordinates, but does not declare a SWORD versification.
-     * Match the observed chapter bounds to a known system so its existing reference mappings work
-     * too. The versification wins that loses the fewest module verses (JSword cannot show a verse
-     * outside its versification, issue #2747: a book it lacks loses all of its verses); among those,
-     * the one whose chapter and verse bounds differ least. Missing verses (often combined into the
-     * preceding verse) only count as small discrepancies. Keep KJVA on ties, including empty or
-     * inconclusive modules.
-     */
-    private fun detectVersification(): Versification {
-        // (MyBible book number, chapter, last verse); the module's verses are taken as numbered 1..last verse.
-        val chapters = rows(
-            "select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter"
-        ) { Triple(it.getInt(0), it.getInt(1), it.getInt(2)) }
-            .filter { myBibleIntToBibleBook.containsKey(it.first) }
-        val lastChapters = chapters.groupBy { it.first }.mapValues { (_, rows) -> rows.maxOf { it.second } }
-
-        data class Score(val lostVerses: Long, val discrepancy: Long)
-        fun score(v11n: Versification): Score {
-            var lost = 0L
-            var discrepancy = 0L
-            for ((number, lastChapter) in lastChapters) {
-                val book = myBibleBook(number, v11n)!!
-                if (v11n.containsBook(book)) discrepancy += kotlin.math.abs(v11n.getLastChapter(book) - lastChapter)
-            }
-            for ((number, chapter, verse) in chapters) {
-                val book = myBibleBook(number, v11n)!!
-                if (!v11n.containsBook(book) || chapter > v11n.getLastChapter(book)) {
-                    lost += verse
-                } else {
-                    val lastVerse = v11n.getLastVerse(book, chapter)
-                    lost += maxOf(0, verse - lastVerse)
-                    discrepancy += kotlin.math.abs(lastVerse - verse)
-                }
-            }
-            return Score(lost, discrepancy)
+    /** Picks the versification for the module's chapter bounds, see [detectMyBibleVersification]. */
+    private fun detectVersification(): Versification = detectMyBibleVersification(
+        rows("select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter") {
+            MyBibleChapterBound(it.getInt(0), it.getInt(1), it.getInt(2))
         }
-
-        val registry = Versifications.instance()
-        // Prefer the historical default and German on equal scores, not registry HashSet order.
-        val candidates = listOf("KJVA", "German") + registry.iterator().asSequence().toList().sorted()
-        // minWithOrNull keeps the first of equal scores.
-        return candidates.distinct().mapNotNull { registry.getVersification(it) }.map { it to score(it) }
-            .minWithOrNull(compareBy({ it.second.lostVerses }, { it.second.discrepancy }))?.first
-            ?: registry.getVersification("KJVA")!!
-    }
+    )
 
     override fun releaseResources() {
         close()

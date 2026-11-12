@@ -111,13 +111,19 @@ val myBibleIntToBibleBook = mapOf(
     811 to BibleBook.EN1,
 )
 
-val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k } + (BibleBook.ESTH_GR to 192)
+/** Reverse of [myBibleBook]: also maps the versification-specific EsthGr (192) and AddDan (345). */
+val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k } +
+    listOf(BibleBook.ESTH_GR to 192, BibleBook.ADD_DAN to 345)
 
 /**
  * The book of MyBible [number] in [v11n]. MyBible 192 holds the Greek additions to Esther: in a versification
  * with a whole Greek Esther book (NRSVA's EsthGr, chapters 1-10 like NRSV's "Greek Esther") it is that book,
- * otherwise the Vulgate-numbered AddEsth.
+ * otherwise the Vulgate-numbered AddEsth. 345 is Bel and the Dragon, except in a versification without Bel but
+ * with AddDan (Luther): modules detected while 345 meant AddDan (issue #2747) may be pinned to Luther.
  */
-fun myBibleBook(number: Int, v11n: Versification?): BibleBook? =
-    if (number == 192 && v11n != null && v11n.containsBook(BibleBook.ESTH_GR) && !v11n.containsBook(BibleBook.ADD_ESTH)) BibleBook.ESTH_GR
-    else myBibleIntToBibleBook[number]
+fun myBibleBook(number: Int, v11n: Versification?): BibleBook? = when {
+    v11n == null -> myBibleIntToBibleBook[number]
+    number == 192 && v11n.containsBook(BibleBook.ESTH_GR) && !v11n.containsBook(BibleBook.ADD_ESTH) -> BibleBook.ESTH_GR
+    number == 345 && v11n.containsBook(BibleBook.ADD_DAN) && !v11n.containsBook(BibleBook.BEL) -> BibleBook.ADD_DAN
+    else -> myBibleIntToBibleBook[number]
+}
