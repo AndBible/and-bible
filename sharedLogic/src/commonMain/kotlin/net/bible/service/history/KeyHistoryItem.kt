@@ -25,6 +25,7 @@ import net.bible.android.control.page.window.Window
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import net.bible.service.common.titleName
 import net.bible.android.database.DbDate
 import net.bible.sharedlogic.util.currentTimeMillis
 
@@ -102,7 +103,7 @@ class KeyHistoryItem(
 fun keyDescription(key: Key): String {
     var name: String
     try {
-        name = key.getName()
+        name = key.titleName
 
         // do not show verse 0
         if (key is Verse) {

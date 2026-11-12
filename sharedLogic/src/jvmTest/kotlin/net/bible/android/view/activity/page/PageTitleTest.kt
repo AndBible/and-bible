@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page
 
 import net.bible.service.common.singularPsalmTitle
+import net.bible.service.history.keyDescription
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -20,6 +21,11 @@ class PageTitleTest {
     @Test fun oneChapterBookWholeChapterIsBookName() = assertEquals("Jude", title(BibleBook.JUDE, 1, 0))
     @Test fun multiChapterBookUnchanged() = assertEquals("John 3:16", title(BibleBook.JOHN, 3, 16))
     @Test fun multiChapterWholeChapterUnchanged() = assertEquals("John 3", title(BibleBook.JOHN, 3, 0))
+
+    @Test fun historyDescriptionUsesSingularPsalm() {
+        assertEquals("Psalm 119:5", withLongNames { keyDescription(Verse(kjv, BibleBook.PS, 119, 5)) })
+        assertEquals("Psalm 119", withLongNames { keyDescription(Verse(kjv, BibleBook.PS, 119, 0)) })
+    }
 
     @Test fun psalmRangesAndWholeBookKeepPlural() {
         assertEquals("Psalms 1-2", singularPsalmTitle("Psalms 1-2", "Psalms"))
