@@ -19,6 +19,8 @@ final class ReadingUITests: RealAppUITestCase {
         // `extraArguments` (e.g. the content size category of the Dynamic Type tests) go after the fixed ones.
         let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"] + extraArguments
         var app = launch(arguments)
+        let noticeClose = app.buttons["Close"]
+        if noticeClose.waitForExistence(timeout: 5) { noticeClose.tap() }
         let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
         XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
         // NASB also renders John 3 with three 'Nicodemus' labels. It is not the KJV fixture: the
