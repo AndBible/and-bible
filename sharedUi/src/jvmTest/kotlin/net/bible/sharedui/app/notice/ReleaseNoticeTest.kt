@@ -17,6 +17,8 @@
 package net.bible.sharedui.app.notice
 
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
@@ -25,6 +27,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -211,5 +214,39 @@ class ReleaseNoticeTest {
             assertEquals(platform != ReleaseNoticePlatform.DESKTOP, request.computerAllowed, "$platform")
             assertEquals("6.0", request.version)
         }
+    }
+
+    /** #4065: each platform pill opens that platform's section of the installation guide; the computer row its top. */
+    @Test
+    fun installLinksPointToEachPlatformSection() {
+        val expected = mapOf(
+            ReleaseNoticeAction.INSTALL_ANDROID to DocsLinks.page("getting_started", "android"),
+            ReleaseNoticeAction.INSTALL_IOS to DocsLinks.page("getting_started", "iphone-and-ipad"),
+            ReleaseNoticeAction.INSTALL_WINDOWS to DocsLinks.page("getting_started", "windows"),
+            ReleaseNoticeAction.INSTALL_MAC to DocsLinks.page("getting_started", "mac"),
+            ReleaseNoticeAction.INSTALL_LINUX to DocsLinks.page("getting_started", "linux"),
+            ReleaseNoticeAction.COMPUTER to DocsLinks.page("getting_started", "installation"),
+            ReleaseNoticeAction.VIDEO to SiteLinks.WHATS_NEW_VIDEO_URL,
+            ReleaseNoticeAction.WEBSITE to SiteLinks.HOME_URL,
+        )
+        for ((action, url) in expected) assertEquals(url, ReleaseNotice.linkFor(action), "$action")
+        // Share and Sponsor are the host's own flows (recommend dialog, platform shop link).
+        assertNull(ReleaseNotice.linkFor(ReleaseNoticeAction.SHARE))
+        assertNull(ReleaseNotice.linkFor(ReleaseNoticeAction.SPONSOR))
+    }
+
+    /** #4065: opening a pill's link does not close the notice either. */
+    @Test
+    fun pillKeepsNoticeOpen() = runTest {
+        val settings = MemoryAppSettings()
+        val actions = mutableListOf<ReleaseNoticeAction>()
+        val answers = ArrayDeque(listOf(
+            AppDialogResult.ReleaseNoticeAnswer(ReleaseNoticeAction.INSTALL_MAC, false),
+            AppDialogResult.ReleaseNoticeAnswer(null, false),
+        ))
+        var asked = 0
+        show(settings, actions = actions) { asked++; answers.removeFirst() }
+        assertEquals(2, asked)
+        assertEquals(listOf(ReleaseNoticeAction.INSTALL_MAC), actions)
     }
 }

@@ -183,8 +183,11 @@ sealed interface AppDialogResult {
     data class ReleaseNoticeAnswer(val action: ReleaseNoticeAction?, val dontShowAgain: Boolean) : AppDialogResult
 }
 
-/** The action buttons of the 6.0 release notice. */
-enum class ReleaseNoticeAction { VIDEO, COMPUTER, SHARE, SPONSOR, WEBSITE }
+/** The action buttons of the 6.0 release notice; the INSTALL_* actions are its platform pills. */
+enum class ReleaseNoticeAction {
+    VIDEO, COMPUTER, SHARE, SPONSOR, WEBSITE,
+    INSTALL_ANDROID, INSTALL_IOS, INSTALL_WINDOWS, INSTALL_MAC, INSTALL_LINUX,
+}
 
 /** The queue head as the host sees it: [id] is what the host passes back to `respond`. */
 data class ShownDialog(val id: Long, val request: AppDialogRequest)

@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -127,7 +128,7 @@ internal fun releaseNoticePalette(scheme: ColorScheme, mode: DisplayColorMode): 
 private const val NOTICE_GLOW_ALPHA = 0.16f
 
 /**
- * The 6.0 stable release notice: a card over the current screen with a header, three action rows, a
+ * The 6.0 stable release notice: a card over the current screen with a header, platform pills linking to their install instructions, three action rows, a
  * sponsor (or, with [sponsorAllowed] false, a website) pill and a footer with "Don't show again" and Close.
  * Every control calls [onAnswer] once with the chosen action (null for Close, back and scrim) and the
  * checkbox state, which starts at [initialDontShowAgain]. Only a null action ends the notice: for an action the
@@ -192,12 +193,17 @@ fun AbReleaseNoticeCard(
                             lineHeight = 28.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
                         )
                         FlowRow(
-                            modifier = Modifier.padding(top = 10.dp, bottom = 14.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
                         ) {
-                            listOf("Android", strings.releaseNoticePlatformIphoneIpad, "Windows", "Mac", "Linux").forEach {
-                                PlatformChip(it, palette)
+                            listOf(
+                                "Android" to ReleaseNoticeAction.INSTALL_ANDROID,
+                                strings.releaseNoticePlatformIphoneIpad to ReleaseNoticeAction.INSTALL_IOS,
+                                "Windows" to ReleaseNoticeAction.INSTALL_WINDOWS,
+                                "Mac" to ReleaseNoticeAction.INSTALL_MAC,
+                                "Linux" to ReleaseNoticeAction.INSTALL_LINUX,
+                            ).forEach { (label, action) ->
+                                PlatformPill(label, strings.releaseNoticePlatformInstall, palette) { onAnswer(action, dontShowAgain) }
                             }
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -280,12 +286,30 @@ fun AbReleaseNoticeCard(
     }
 }
 
+/**
+ * A platform pill (#4065): a link to that platform's install instructions. The visible pill stays small; the
+ * clickable area around it is 48 dp tall, with a pill-shaped ripple.
+ */
 @Composable
-private fun PlatformChip(label: String, palette: NoticePalette) {
-    Text(
-        label, color = palette.muted, fontSize = 11.sp,
-        modifier = Modifier.border(1.dp, palette.border, CircleShape).padding(horizontal = 10.dp, vertical = 3.dp),
-    )
+private fun PlatformPill(label: String, clickLabel: String, palette: NoticePalette, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.heightIn(min = 48.dp).clip(CircleShape)
+            .clickable(role = Role.Button, onClickLabel = clickLabel, onClick = onClick).padding(horizontal = 2.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier.border(1.dp, if (isGreyMode()) palette.ink else palette.border, CircleShape)
+                .padding(start = 10.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label, color = palette.accentInk, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Icon(
+                Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = palette.accentInk,
+                modifier = Modifier.size(12.dp),
+            )
+        }
+    }
 }
 
 @Composable

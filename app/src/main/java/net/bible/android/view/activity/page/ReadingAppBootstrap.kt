@@ -49,7 +49,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncTriggerDriver
 import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
 import net.bible.sharedui.app.notice.ReleaseNotice
 import net.bible.sharedui.app.notice.ReleaseNoticePlatform
@@ -331,8 +330,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
     /**
      * The 6.0 release notice, built and gated by the shared [ReleaseNotice] (the same source as
-     * iOS). Its action buttons open the what's-new video, the computer-version page, the sponsor page, or the
-     * same recommend flow as the menu. Only the checked "don't show again" persists dismissal for this main version.
+     * iOS). Its action buttons and platform pills open the what's-new video, the installation guide, the sponsor
+     * page, or the same recommend flow as the menu; the notice stays up until closed. Only the checked "don't show again" persists dismissal for this main version.
      */
     internal suspend fun showStableNotice(): Boolean {
         return ReleaseNotice.showIfNeeded(
@@ -344,10 +343,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             ask = appDialogs::await,
             onAction = { action ->
                 when (action) {
-                    ReleaseNoticeAction.VIDEO -> CommonUtils.openLink(SiteLinks.WHATS_NEW_VIDEO_URL)
-                    ReleaseNoticeAction.COMPUTER, ReleaseNoticeAction.WEBSITE -> CommonUtils.openLink(SiteLinks.HOME_URL)
                     ReleaseNoticeAction.SPONSOR -> CommonUtils.openLink(buyDevelopmentLink)
                     ReleaseNoticeAction.SHARE -> recommendToFriend(host, appDialogs::await)
+                    else -> ReleaseNotice.linkFor(action)?.let { CommonUtils.openLink(it) }
                 }
             },
         )

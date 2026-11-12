@@ -18,6 +18,8 @@
 
 package net.bible.sharedui.app.notice
 
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -42,6 +44,22 @@ object ReleaseNotice {
      * undetected beta -> stable update, which would hide the notice for good.
      */
     const val DISPLAYED_KEY = "release-notice-displayed"
+
+    /**
+     * The page an action opens, the same on every platform: the platform pills (#4065) open their section of the
+     * installation guide and the computer row its start. Null for Share and Sponsor, which the host handles itself.
+     */
+    fun linkFor(action: ReleaseNoticeAction): String? = when (action) {
+        ReleaseNoticeAction.VIDEO -> SiteLinks.WHATS_NEW_VIDEO_URL
+        ReleaseNoticeAction.WEBSITE -> SiteLinks.HOME_URL
+        ReleaseNoticeAction.COMPUTER -> DocsLinks.page("getting_started", "installation")
+        ReleaseNoticeAction.INSTALL_ANDROID -> DocsLinks.page("getting_started", "android")
+        ReleaseNoticeAction.INSTALL_IOS -> DocsLinks.page("getting_started", "iphone-and-ipad")
+        ReleaseNoticeAction.INSTALL_WINDOWS -> DocsLinks.page("getting_started", "windows")
+        ReleaseNoticeAction.INSTALL_MAC -> DocsLinks.page("getting_started", "mac")
+        ReleaseNoticeAction.INSTALL_LINUX -> DocsLinks.page("getting_started", "linux")
+        ReleaseNoticeAction.SHARE, ReleaseNoticeAction.SPONSOR -> null
+    }
 
     /** Call on successful Welcome completion, before reading can check notices; showing Welcome alone is not enough. */
     fun dismissForWelcome(isBeta: Boolean, discrete: Boolean, mainVersion: String, settings: AppSettings) {

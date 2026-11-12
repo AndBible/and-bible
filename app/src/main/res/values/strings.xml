@@ -2314,6 +2314,7 @@
     <string name="release_notice_website">Visit andbible.org</string>
     <string name="release_notice_free_no_ads">AndBible is free and has no ads</string>
     <string name="release_notice_dont_show_again">Don\'t show again</string>
+    <string name="release_notice_platform_install">Installation instructions</string>
     <string name="recommend_intro">I would like to recommend AndBible to you.</string>
     <string name="recommend_body">It is a free, ad-free Bible study app for phones, tablets and computers.</string>
     <string name="recommend_get_it">Get it here: %s</string>

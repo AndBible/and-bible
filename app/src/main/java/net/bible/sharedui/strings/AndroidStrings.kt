@@ -1282,6 +1282,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val releaseNoticeWebsite: String get() = context.getString(R.string.release_notice_website)
     override val releaseNoticeFreeNoAds: String get() = context.getString(R.string.release_notice_free_no_ads)
     override val releaseNoticeDontShowAgain: String get() = context.getString(R.string.release_notice_dont_show_again)
+    override val releaseNoticePlatformInstall: String get() = context.getString(R.string.release_notice_platform_install)
 
     override val tellFriendTitle: String get() = context.getString(R.string.tell_friend_title)
     override val recommendIntro: String get() = context.getString(R.string.recommend_intro)
