@@ -217,25 +217,48 @@ class SqliteVerseBackendState(private val sqliteFile: Path, private val allowVer
     /**
      * MyBible stores native chapter/verse coordinates, but does not declare a SWORD versification.
      * Match the observed chapter bounds to a known system so its existing reference mappings work
-     * too. Missing verses (often combined into the preceding verse) count as small discrepancies;
-     * missing books are ignored. Keep KJVA on ties, including empty or inconclusive modules.
+     * too. The versification wins that loses the fewest module verses (JSword cannot show a verse
+     * outside its versification, issue #2747: a book it lacks loses all of its verses); among those,
+     * the one whose chapter and verse bounds differ least. Missing verses (often combined into the
+     * preceding verse) only count as small discrepancies. Keep KJVA on ties, including empty or
+     * inconclusive modules.
      */
     private fun detectVersification(): Versification {
+        // (MyBible book number, chapter, last verse); the module's verses are taken as numbered 1..last verse.
         val chapters = rows(
             "select book_number, chapter, max(verse) from verses where chapter > 0 and verse > 0 group by book_number, chapter"
-        ) { Triple(myBibleIntToBibleBook[it.getInt(0)], it.getInt(1), it.getInt(2)) }
-            .mapNotNull { (book, chapter, verse) -> book?.let { Triple(it, chapter, verse) } }
+        ) { Triple(it.getInt(0), it.getInt(1), it.getInt(2)) }
+            .filter { myBibleIntToBibleBook.containsKey(it.first) }
         val lastChapters = chapters.groupBy { it.first }.mapValues { (_, rows) -> rows.maxOf { it.second } }
-        fun discrepancy(v11n: Versification): Long =
-            lastChapters.entries.sumOf { (book, chapter) -> kotlin.math.abs(v11n.getLastChapter(book) - chapter).toLong() } +
-                chapters.sumOf { (book, chapter, verse) -> kotlin.math.abs(v11n.getLastVerse(book, chapter) - verse).toLong() }
+
+        data class Score(val lostVerses: Long, val discrepancy: Long)
+        fun score(v11n: Versification): Score {
+            var lost = 0L
+            var discrepancy = 0L
+            for ((number, lastChapter) in lastChapters) {
+                val book = myBibleBook(number, v11n)!!
+                if (v11n.containsBook(book)) discrepancy += kotlin.math.abs(v11n.getLastChapter(book) - lastChapter)
+            }
+            for ((number, chapter, verse) in chapters) {
+                val book = myBibleBook(number, v11n)!!
+                if (!v11n.containsBook(book) || chapter > v11n.getLastChapter(book)) {
+                    lost += verse
+                } else {
+                    val lastVerse = v11n.getLastVerse(book, chapter)
+                    lost += maxOf(0, verse - lastVerse)
+                    discrepancy += kotlin.math.abs(lastVerse - verse)
+                }
+            }
+            return Score(lost, discrepancy)
+        }
 
         val registry = Versifications.instance()
         // Prefer the historical default and German on equal scores, not registry HashSet order.
         val candidates = listOf("KJVA", "German") + registry.iterator().asSequence().toList().sorted()
-        return candidates.distinct().mapNotNull { registry.getVersification(it) }
-            .filter { v11n -> lastChapters.keys.all { v11n.containsBook(it) } }
-            .minByOrNull { discrepancy(it) } ?: registry.getVersification("KJVA")!!
+        // minWithOrNull keeps the first of equal scores.
+        return candidates.distinct().mapNotNull { registry.getVersification(it) }.map { it to score(it) }
+            .minWithOrNull(compareBy({ it.second.lostVerses }, { it.second.discrepancy }))?.first
+            ?: registry.getVersification("KJVA")!!
     }
 
     override fun releaseResources() {
@@ -433,9 +456,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             ?.let { it.groups[2]?.value ?: it.groups[3]?.value ?: it.groups[4]?.value }
             ?: return anchor.value
         val link = bibleLinkRe.matchEntire(href) ?: return anchor.value
-        val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return anchor.value
+        val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
+        val book = link.groupValues[1].toIntOrNull()?.let { myBibleBook(it, v11n) } ?: return anchor.value
         val osisRef = try {
-            val v11n = Versifications.instance().getVersification(bookMetaData.getProperty("Versification"))!!
             PassageKeyFactory.instance().getKey(v11n, "${book.osis} ${link.groupValues[2]}").getOsisRef()
         } catch (_: NoSuchKeyException) {
             return anchor.value

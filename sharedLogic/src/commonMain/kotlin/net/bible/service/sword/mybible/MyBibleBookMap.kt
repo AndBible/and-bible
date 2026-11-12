@@ -17,6 +17,7 @@
 package net.bible.service.sword.mybible
 
 import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.Versification
 
 val myBibleIntToBibleBook = mapOf(
     10 to BibleBook.GEN,
@@ -37,13 +38,14 @@ val myBibleIntToBibleBook = mapOf(
     //145 to
     150 to BibleBook.EZRA,
     160 to BibleBook.NEH,
-    //165 to
+    165 to BibleBook.ESD1,
     170 to BibleBook.TOB,
     180 to BibleBook.JDT,
     190 to BibleBook.ESTH,
     192 to BibleBook.ADD_ESTH,
     220 to BibleBook.JOB,
     230 to BibleBook.PS,
+    232 to BibleBook.ADD_PS,
     240 to BibleBook.PROV,
     250 to BibleBook.ECCL,
     260 to BibleBook.SONG,
@@ -59,7 +61,7 @@ val myBibleIntToBibleBook = mapOf(
     325 to BibleBook.SUS,
     330 to BibleBook.EZEK,
     340 to BibleBook.DAN,
-    345 to BibleBook.ADD_DAN,
+    345 to BibleBook.BEL,
     350 to BibleBook.HOS,
     360 to BibleBook.JOEL,
     370 to BibleBook.AMOS,
@@ -105,7 +107,17 @@ val myBibleIntToBibleBook = mapOf(
     650 to BibleBook.HEB,
     730 to BibleBook.REV,
     780 to BibleBook.EP_LAO,
+    790 to BibleBook.PR_MAN,
     811 to BibleBook.EN1,
 )
 
-val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k }
+val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k } + (BibleBook.ESTH_GR to 192)
+
+/**
+ * The book of MyBible [number] in [v11n]. MyBible 192 holds the Greek additions to Esther: in a versification
+ * with a whole Greek Esther book (NRSVA's EsthGr, chapters 1-10 like NRSV's "Greek Esther") it is that book,
+ * otherwise the Vulgate-numbered AddEsth.
+ */
+fun myBibleBook(number: Int, v11n: Versification?): BibleBook? =
+    if (number == 192 && v11n != null && v11n.containsBook(BibleBook.ESTH_GR) && !v11n.containsBook(BibleBook.ADD_ESTH)) BibleBook.ESTH_GR
+    else myBibleIntToBibleBook[number]
