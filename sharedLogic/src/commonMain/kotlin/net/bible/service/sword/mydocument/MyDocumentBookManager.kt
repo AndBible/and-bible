@@ -96,6 +96,9 @@ object MyDocumentBookManager {
     /** Special initials for the AI Documents default document */
     const val AI_DOCUMENTS_INITIALS = "AIDocuments"
 
+    /** Page ids per `IN (...)` query, below SQLite's bound-variable limit. */
+    private const val SQL_VARIABLE_CHUNK = 500
+
     val registeredInitials: Set<String>
         get() = registeredBooks.keys.toSet()
 
@@ -153,6 +156,18 @@ object MyDocumentBookManager {
             }
         }
 
+        // AI document markers shown in open reading views (#4061): pages the sync deleted, and the
+        // current markers of the pages it created or changed. Read before switching to main.
+        val deletedPageIds = updated.filter {
+            it.type == LogEntryTypes.DELETE && (it.tableName == "MyDocumentPage" || it.tableName == "AiPageCacheEntry")
+        }.map { it.entityId1 }.distinct()
+        val aiDocMarkers = pageIds.distinct().chunked(SQL_VARIABLE_CHUNK).flatMap { dao.aiDocMarkersForPageIds(it) }
+        val stillMarkedIds = aiDocMarkers.map { it.pageId }.toSet()
+        val aiDocChange = MyDocumentChange.AiDocPages(
+            markers = aiDocMarkers,
+            deletedPageIds = deletedPageIds.filter { it !in stillMarkedIds },
+        )
+
         run {
             if (documentIds.isNotEmpty()) {
                 affectedInitials.addAll(dao.initialsByIds(documentIds))
@@ -169,6 +184,9 @@ object MyDocumentBookManager {
             for (initials in initialsToRefresh) {
                 SwordContentFacade.evictBook(initials)
                 changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
+            }
+            if (aiDocChange.markers.isNotEmpty() || aiDocChange.deletedPageIds.isNotEmpty()) {
+                changeSource.emit(aiDocChange)
             }
             Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
         }
