@@ -40,6 +40,7 @@ import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.mydocuments.MyDocumentPagesScreen
 import net.bible.sharedui.mydocuments.MyDocumentsScreen
 import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.nav.isCurrentEntry
 import net.bible.sharedui.nav.popOrExitFrom
 
 /**
@@ -355,9 +356,12 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // with NO documentInitials/pageKey extras, since those are the pages relay's alone; the
             // honest nav-result shape for that is [MyDocumentsResult.Saved].
             onSave = {
-                finished.value = true
-                controller.save()
-                deps.myDocumentsResults.deliver(navController, entry, MyDocumentsResult.Saved)
+                // A second tap while this screen fades out after the first (issue #4073): nothing more to do.
+                if (navController.isCurrentEntry(entry)) {
+                    finished.value = true
+                    controller.save()
+                    deps.myDocumentsResults.deliver(navController, entry, MyDocumentsResult.Saved)
+                }
             },
             // Classic's Dismiss button, `{ finishCanceled() }` (`:127`).
             onCancel = {
@@ -473,9 +477,12 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // documentInitials/pageKey extras attached (those are [onOpen]'s alone) -- the honest
             // nav-result shape for that is [MyDocumentPagesResult.Saved], not [MyDocumentPagesResult.Selected].
             onSave = {
-                finished.value = true
-                controller.save()
-                deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Saved)
+                // A second tap while this screen fades out after the first (issue #4073): nothing more to do.
+                if (navController.isCurrentEntry(backStackEntry)) {
+                    finished.value = true
+                    controller.save()
+                    deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Saved)
+                }
             },
             // Classic's Dismiss button, `{ finishCanceled() }` (`:129`, `:344`): RESULT_CANCELED with
             // the kind still tagged, unlike a bare leave through onNavigateUp/hardware-back-with-

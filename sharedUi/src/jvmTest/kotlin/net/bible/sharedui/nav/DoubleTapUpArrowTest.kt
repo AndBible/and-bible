@@ -1,4 +1,4 @@
-package net.bible.sharedui.app.settings
+package net.bible.sharedui.nav
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -20,8 +20,6 @@ import androidx.navigation.compose.rememberNavController
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.components.AbNavHost
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -108,7 +106,10 @@ class DoubleTapUpArrowTest {
         var saves = 0
         val nav = host { nav ->
             composable(NavRoutes.SETTINGS) { entry ->
-                Button(onClick = { saves++; nav.popOrExitFrom(entry) { exits++ } }) { Text("save") }
+                // The AI filter / MyDocuments save shape: the save itself also runs only for the current entry.
+                Button(onClick = { if (nav.isCurrentEntry(entry)) { saves++; nav.popOrExitFrom(entry) { exits++ } } }) {
+                    Text("save")
+                }
             }
         }()
         openSettings(nav)
@@ -120,6 +121,7 @@ class DoubleTapUpArrowTest {
         mainClock.advanceTimeBy(2_000)
 
         assertEquals(0, exits)
+        assertEquals(1, saves, "the second tap must not save again")
         assertEquals(listOf(NavRoutes.READING), routes(nav))
     }
 

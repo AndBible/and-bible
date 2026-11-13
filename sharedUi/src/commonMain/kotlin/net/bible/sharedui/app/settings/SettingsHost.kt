@@ -261,6 +261,9 @@ class SettingsHost(
      */
     private var readingProgressHistorySink: ((ReadHistoryRequest) -> Unit)? = null
 
+    /** The latest arm's result callback for the cached [readingProgressController]; see [readingProgressControllerFor]. */
+    private var readingProgressResultSink: ((ReadingProgressResult) -> Unit)? = null
+
     /**
      * The raw tab route argument last APPLIED to [readingProgressController], so a re-entry can tell "the route
      * names a tab I have not acted on yet" from "the argument the surviving controller was built with". Null
@@ -284,6 +287,9 @@ class SettingsHost(
         onResult: (ReadingProgressResult) -> Unit,
     ): ReadingProgressController {
         readingProgressHistorySink = onShowHistory
+        // Re-pointed on every call like the history sink: the cached controller outlives the destination entry
+        // whose arm built it, and a result sent through that entry's callback would be dropped (issue #4073).
+        readingProgressResultSink = onResult
 
         readingProgressController?.let { existing ->
             if (tabArg != null && tabArg != readingProgressAppliedTabArg) {
@@ -301,7 +307,7 @@ class SettingsHost(
             service = readingProgressService,
             scope = shell.hostScope,
             initialTab = readingProgressInitialTab(tabArg),
-            onNavigateToChapter = { bookId, chapter -> onResult(ReadingProgressResult.Chapter(bookId, chapter)) },
+            onNavigateToChapter = { bookId, chapter -> readingProgressResultSink?.invoke(ReadingProgressResult.Chapter(bookId, chapter)) },
             // Through the sink, never through this call's `onShowHistory`: the controller outlives the
             // composition that supplied that lambda.
             onShowDayHistory = { day ->
@@ -315,7 +321,7 @@ class SettingsHost(
             },
             initialOverviewActive = appSettings.getBoolean(PREF_READING_PROGRESS_MEM_OVERVIEW, true),
             onNavigateToMemorize = { startOrdinal, endOrdinal ->
-                onResult(ReadingProgressResult.Memorize(startOrdinal, endOrdinal))
+                readingProgressResultSink?.invoke(ReadingProgressResult.Memorize(startOrdinal, endOrdinal))
             },
             persistOverview = { appSettings.setBoolean(PREF_READING_PROGRESS_MEM_OVERVIEW, it) },
         )

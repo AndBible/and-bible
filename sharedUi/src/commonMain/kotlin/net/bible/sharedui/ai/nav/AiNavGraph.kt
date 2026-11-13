@@ -72,6 +72,7 @@ import net.bible.sharedui.ai.RawLlmLogScreen
 import net.bible.sharedui.ai.RawLogHistoryScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.nav.isCurrentEntry
 import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.strings.LocalStrings
 
@@ -506,7 +507,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onUp = { navController.popOrExit(entry, deps.exitHost) },
             onToggle = controller::toggle,
             onResetAll = controller::resetAll,
-            onSave = { controller.save(); navController.popOrExit(entry, deps.exitHost) },
+            onSave = { if (navController.isCurrentEntry(entry)) { controller.save(); navController.popOrExit(entry, deps.exitHost) } },
             helpBody = remember { deps.aiDocumentFilter.helpBody() },
             helpReadMoreUrl = deps.aiDocumentFilter.helpReadMoreUrl,
         )
@@ -545,7 +546,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onSetCategoryRead = controller::setCategoryRead,
             onSetCategoryWrite = controller::setCategoryWrite,
             onResetAll = controller::resetAll,
-            onSave = { controller.save(); navController.popOrExit(entry, deps.exitHost) },
+            onSave = { if (navController.isCurrentEntry(entry)) { controller.save(); navController.popOrExit(entry, deps.exitHost) } },
             helpBody = remember { deps.globalToolPermissions.helpBody() },
             helpReadMoreUrl = deps.globalToolPermissions.helpReadMoreUrl,
         )
