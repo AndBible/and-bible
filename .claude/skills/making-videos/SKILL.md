@@ -43,7 +43,9 @@ The pipeline (script, one HTML page per scene, headless-Chrome frames, ffmpeg, W
    (`--voice own` uses the maintainer's recordings: `voice --script`, record, `voice --accept`, `voice --check`).
 4. **Frame checks:** `render.py preview <scene> --at <t> [--format short]` after each anchor; contact sheet of every
    scene; nothing under the Short's caption band; the clip in its device frame readable.
-5. **Render:** `render.py render main` and `render short`; watch both end to end (contact sheet of the final MP4s).
+5. **Render:** `render.py render main` and `render short` (full-bleed app by default; `--short-layout framed` for the
+   phone-in-a-frame variant, README "Palette, themes and Short layouts"); watch them end to end (contact sheet of the
+   final MP4s). The outro carries the on-screen sponsor line (not narrated).
 6. **Maintainer review:** hand the maintainer the rendered MP4s (paths) and wait for approval. The narration text
    and the English SRT are final only then.
 7. **Subtitles (only after that approval):** `update-translations` skill, section "Video subtitles" (Tier 1+2);

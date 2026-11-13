@@ -1,6 +1,6 @@
 // Scene runtime for website/video/render.py.
 //
-// render.py opens a scene as `scene.html?duration=…&speech=…&clip=…&format=…`
+// render.py opens a scene as `scene.html?duration=…&speech=…&clip=…&format=…&layout=…`
 // and steps it frame by frame: `JB.seek(t)` puts every animation on the page
 // at scene time `t` (seconds), then the page is screenshotted. Nothing runs on
 // wall-clock time, so a frame is the same however slow the machine is.
@@ -14,6 +14,11 @@
 // one word. In the short format every scene also gets burned-in captions built
 // from the same timestamps; a scene opts out with `params.captions: false`, or lifts them with
 // `params.caption_bottom` (a CSS length) when its own text sits low.
+//
+// `html[data-layout]` is `full` (a short with the app clip full-bleed, the default for shorts)
+// or `framed` (the phone in a device frame; always so in main), from the `layout` parameter.
+// `html[data-theme]` is `light` (the default) or `dark`, the opt-in for a scene that shows the
+// app's night mode: `<body class="dark">` or `params: {theme: dark}`.
 (() => {
   const q = new URLSearchParams(location.search);
   const num = (name, fallback) => {
@@ -26,6 +31,8 @@
     speech: num("speech", 0.6),
     clip: num("clip", 4.8),
     format: q.get("format") || "main",
+    layout: "framed",
+    theme: "light",
     params: JSON.parse(q.get("params") || "{}"),
     words: JSON.parse(q.get("words") || "[]").map(([text, start, end]) => ({ text, start, end })),
     groups: JSON.parse(q.get("groups") || "[]"),
@@ -148,7 +155,14 @@
     },
   };
   window.JB = JB;
-  document.documentElement.dataset.format = JB.format;
+  JB.layout = JB.format === "short" && q.get("layout") !== "framed" ? "full" : "framed";
+  // The script sits at the end of <body>, so the body's class is already there.
+  JB.theme = JB.params.theme === "dark" || document.body?.classList.contains("dark") ? "dark" : "light";
+  Object.assign(document.documentElement.dataset, {
+    format: JB.format,
+    layout: JB.layout,
+    theme: JB.theme,
+  });
 
   // One group of words at a time, the spoken word in amber. Everything is a
   // Web Animation, so JB.seek drives it like the rest of the page.
@@ -170,8 +184,9 @@
         span.textContent = text;
         el.append(span);
         const from = JB.speech + start;
-        const idle = { color: "var(--text)", backgroundColor: "rgba(240, 169, 43, 0)" };
-        const spoken = { color: "var(--ground)", backgroundColor: "var(--amber)" };
+        // Fixed caption colours (base.css), the same in either theme: the plate is always dark.
+        const idle = { color: "var(--caption-ink)", backgroundColor: "rgba(254, 186, 42, 0)" };
+        const spoken = { color: "var(--caption-chip-ink)", backgroundColor: "var(--caption-chip)" };
         JB.anim(span, [idle, spoken], from, from + 0.06, "ease-out");
         JB.anim(span, [spoken, idle], Math.max(from + 0.06, JB.speech + stop),
                 JB.speech + stop + 0.06, "ease-in", "forwards");

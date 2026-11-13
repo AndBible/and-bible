@@ -10,8 +10,10 @@
 // A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
 // falls back to a rough fraction of the narration; a real render always uses the phrase.
 const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
-JB.scene(({ show }) => {
+JB.scene(({ show, layout }) => {
   show('.phone-slot .device', 0.1);
+  // Full-bleed short: the title's card arrives with the wordmark, over the app's text.
+  if (layout === 'full') show('.copy', cue('In AndBible six point oh', 0.15));
   show('.wordmark', cue('In AndBible six point oh', 0.15));
   show('h2', cue('search right from', 0.4));
   show('.lede', cue('keep your place', 0.6));

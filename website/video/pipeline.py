@@ -395,9 +395,29 @@ def voice_script(scenes: Sequence[Scene]) -> str:
     return "\n".join(f"[{s.id}]\n{s.narration}\n" for s in scenes)
 
 
-def output_name(fmt: str, voice: str, suffix: str) -> str:
-    """e.g. main-tts.mp4, short-own.srt."""
-    return f"{fmt}-{voice}.{suffix}"
+SHORT_LAYOUTS = ("full", "framed")
+"""How a short shows the app: `full` (the clip full-bleed, no device frame, the
+default) or `framed` (a phone in a device frame under the scene's heading)."""
+
+DEFAULT_SHORT_LAYOUT = "full"
+
+
+def page_layout(fmt: str, short_layout: str | None = None) -> str:
+    """The layout a scene page is opened with (its `layout` URL parameter):
+    the short's chosen layout, or `framed` for the main video, which has one."""
+    if fmt != "short":
+        return "framed"
+    layout = short_layout or DEFAULT_SHORT_LAYOUT
+    if layout not in SHORT_LAYOUTS:
+        raise ValueError(f"unknown short layout '{layout}'; one of {', '.join(SHORT_LAYOUTS)}")
+    return layout
+
+
+def output_name(fmt: str, voice: str, suffix: str, layout: str | None = None) -> str:
+    """e.g. main-tts.mp4, short-own.srt; a framed short is short-tts-framed.mp4.
+    The default layout keeps the plain name."""
+    tag = "-framed" if fmt == "short" and page_layout(fmt, layout) == "framed" else ""
+    return f"{fmt}-{voice}{tag}.{suffix}"
 
 
 def english_subs_path(media: Path, episode: str, fmt: str, voice: str) -> Path:

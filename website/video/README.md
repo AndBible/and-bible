@@ -15,7 +15,8 @@ uv run website/video/render.py tts                  # generate it
 uv run website/video/render.py preview hook --at 12 # one frame of a scene, as PNG
 uv run website/video/render.py preview hook         # one scene as a quick, small mp4
 uv run website/video/render.py render main          # main-tts.mp4 + main-tts.srt
-uv run website/video/render.py render short         # short-tts.mp4 + short-tts.srt
+uv run website/video/render.py render short         # short-tts.mp4 + short-tts.srt (full-bleed app)
+uv run website/video/render.py render short --short-layout framed  # short-tts-framed.mp4 (phone in a device frame)
 ```
 
 `--episode DIR` picks an episode directory; without it the only directory under
@@ -216,6 +217,20 @@ no longer match it. Re-run `srt_validate.py` on them and retranslate what fails.
 Each episode's own facts — its video IDs, the illustration prompts used, the
 frames picked for stills — live in `episodes/<name>/NOTES.md`.
 
+
+## Palette, themes and Short layouts
+
+- **Light palette by default** (the website's `[data-md-color-scheme="default"]` tokens in `lib/base.css`). The dark
+  palette is an opt-in for scenes that showcase the app's night mode: `<body class="dark">` or
+  `params: {theme: dark}` (sets `html[data-theme="dark"]`, `JB.theme`).
+- **Short layouts**: `--short-layout full|framed` on `render` and `preview` (default `full`; main ignores it). `full` shows
+  the clip full-bleed, no device frame, fitted to the full 1920 px height (about 886 px wide, bands of background
+  colour at the sides), with the burned-in captions on a semi-transparent band over the app; `framed` is the phone in
+  a device frame. The page sees `html[data-layout="full"|"framed"]` and `JB.layout`. Output names: `short-tts.mp4`
+  (full) and `short-tts-framed.mp4`. A kicker with class `top-label` becomes a chip in the app's status bar in `full`.
+  Keep the app's key UI clear of the caption band (bottom 15%).
+- **Sponsor line**: the outro of an episode carries one short on-screen line, not narrated (the PoC: "No ads. Made
+  possible by sponsors · shop.andbible.org"), so the narration never needs a retake for it.
 
 ## Device frames
 
