@@ -157,7 +157,7 @@ class BookmarksManageLabelsCollectorTest {
         val nav = navController(activity)
         nav.navigate(NavRoutes.manageLabels("""{"mode":"WORKSPACE"}"""))
         idle()
-        channel(activity).deliver(nav, result)
+        channel(activity).deliver(nav, nav.currentBackStackEntry, result)
         idle()
     }
 

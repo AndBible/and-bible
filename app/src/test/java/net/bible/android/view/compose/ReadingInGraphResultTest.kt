@@ -207,7 +207,7 @@ class ReadingInGraphResultTest {
     }
 
     private fun <T> deliver(channel: NavResultChannel<T>, result: T) {
-        compose.runOnUiThread { channel.deliver(navController, result) }
+        compose.runOnUiThread { channel.deliver(navController, navController.currentBackStackEntry, result) }
         compose.waitForIdle()
     }
 

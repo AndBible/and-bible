@@ -161,7 +161,7 @@ class ReadingChooserInGraphResultTest {
         idle(); val nav = nav(activity)
         assertEquals(NavRoutes.chooseDocument().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
 
-        channel<DocumentResult>(activity, "documentResults").deliver(nav, DocumentResult("ESV2011"))
+        channel<DocumentResult>(activity, "documentResults").deliver(nav, nav.currentBackStackEntry, DocumentResult("ESV2011"))
         idle()
 
         assertEquals(
@@ -181,7 +181,7 @@ class ReadingChooserInGraphResultTest {
         idle(); val nav = nav(activity)
         assertEquals(NavRoutes.gridChoosePassage(isScripture = true).substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
 
-        channel<PassageResult>(activity, "passageResults").deliver(nav, PassageResult("Ps.23.1"))
+        channel<PassageResult>(activity, "passageResults").deliver(nav, nav.currentBackStackEntry, PassageResult("Ps.23.1"))
         idle()
 
         assertEquals(
@@ -204,7 +204,7 @@ class ReadingChooserInGraphResultTest {
         assertEquals(NavRoutes.WORKSPACE_SELECTOR, activity.currentRouteForTest())
 
         channel<WorkspaceResult>(activity, "workspaceResults")
-            .deliver(nav, WorkspaceResult(workspaceId = target.id.toString(), changed = false))
+            .deliver(nav, nav.currentBackStackEntry, WorkspaceResult(workspaceId = target.id.toString(), changed = false))
         idle()
         // The switch runs in lifecycleScope: it reads the target workspace on a real IO thread and applies it
         // on the main looper, which idle() (simulated time) does not wait for. Wait on the in-flight counter,
@@ -260,7 +260,7 @@ class ReadingChooserInGraphResultTest {
         val nav = standInAbove(activity)
 
         channel<KeyChooserResult>(activity, "keyChooserResults")
-            .deliver(nav, KeyChooserResult(key = "Gen.1.1", book = "KJV"))
+            .deliver(nav, nav.currentBackStackEntry, KeyChooserResult(key = "Gen.1.1", book = "KJV"))
         idle()
 
         assertEquals(
