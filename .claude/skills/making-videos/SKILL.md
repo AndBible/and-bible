@@ -59,8 +59,19 @@ The pipeline (script, one HTML page per scene, headless-Chrome frames, ffmpeg, W
 ## Music
 
 Music is the shared track under `.local/video-media/shared/music/`; the episode opts in with `music:` (README
-"Music"). Keep the bed about 10 dB under the speech (measure the stems with `ebur128`); ducking is off by default
-in new episodes. For a video longer than the track set `loop`: loop points are chosen **once per track** with
+"Music"). The maintainer's settings: no ducking (`duck: null`), `volume: 0.20` (speech stays about 7 dB above the
+bed; louder is fine, quieter was judged too quiet).
+
+The AndBible theme (Suno, 110 BPM, 146.8 s), approved by the maintainer 2026-11-13 with loop points chosen by ear:
+
+```yaml
+music:
+  file: shared/music/curious_pulse.wav
+  volume: 0.20
+  duck: null
+  loop: {start: 11.0, end: 118.0}
+```
+ For a new track, loop points are chosen **once per track** with
 `render.py music-points FILE`, then confirmed **by ear** with `render.py music-loop-test` (the seams) before they go
 into `script.yaml`. Shorter videos play the plain looping bed.
 
