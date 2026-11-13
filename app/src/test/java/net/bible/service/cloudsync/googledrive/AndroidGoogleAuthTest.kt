@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Looper
 import com.google.android.gms.auth.GoogleAuthException
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException
 import com.google.android.gms.auth.UserRecoverableAuthException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -133,6 +134,20 @@ class AndroidGoogleAuthTest {
         } catch (e: GoogleAuthRequiredException) {
             // coroutine stack-trace recovery may re-wrap the cause, so check the message, not the cause chain
             assertTrue(e.message!!.contains("account removed"))
+        }
+    }
+
+    @Test fun playServicesUnavailableInBackgroundIsTransientIOException() = runBlocking {
+        storeAccount("stored")
+        val transient = org.mockito.Mockito.mock(GooglePlayServicesAvailabilityException::class.java) // ctor is package-private
+        val auth = AndroidGoogleAuth(tokenSource = { throw transient }, clearToken = {})
+        try {
+            auth.accessToken()
+            fail("expected IOException")
+        } catch (e: GoogleAuthRequiredException) {
+            fail("a transient Play Services problem must not drop the adapter: $e")
+        } catch (e: IOException) {
+            assertTrue(e.message!!.contains("Play Services"))
         }
     }
 

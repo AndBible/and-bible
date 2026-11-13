@@ -23,6 +23,7 @@ import android.os.Parcel
 import android.util.Base64
 import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.GoogleAuthUtil
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException
 import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -173,6 +174,10 @@ class AndroidGoogleAuth(
         return withContext(Dispatchers.IO) {
             try {
                 tokenSource(current)
+            } catch (e: GooglePlayServicesAvailabilityException) {
+                // Play Services missing/updating/unavailable is transient (a subclass of the recoverable
+                // exception below): surface it as retryable I/O, not as lost sign-in.
+                throw IOException("Google Play Services unavailable: ${e.message}", e)
             } catch (e: UserRecoverableAuthException) {
                 throw GoogleAuthRequiredException("Google needs interactive consent", e)
             } catch (e: GoogleAuthException) {
