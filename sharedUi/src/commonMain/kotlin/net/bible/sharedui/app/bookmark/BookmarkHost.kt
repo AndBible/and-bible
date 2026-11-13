@@ -628,8 +628,10 @@ class BookmarkHost(
 
         // Restore the absent parent request with this Activity's navigation bindings before results can arrive.
         restoredBookmarks?.filter?.takeIf { bookmarksSession == null }?.let { filter ->
+            // Built while the label manager is on top: the bookmarks entry the results belong to is the one below it.
+            val bookmarksEntry = navController?.previousBackStackEntry
             bookmarksControllerFor(filter,
-                { result -> navController?.let { nav -> bookmarkResults?.deliver(nav, result) } },
+                { result -> navController?.let { nav -> bookmarkResults?.deliver(nav, bookmarksEntry, result) } },
                 { payload -> navController?.navigate(NavRoutes.manageLabels(payload)) },
             )
         }

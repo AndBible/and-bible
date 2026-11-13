@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -53,7 +54,7 @@ import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.NavSessionMemo
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.BackgroundImageChooserScreen
 import net.bible.sharedui.settings.ColorSettingsLabels
@@ -338,8 +339,8 @@ class WorkspaceNavDeps(
  * itself is [popOrExitOnFailedPop], shared so that "a failed pop still leaves" is decided in one
  * place.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -575,7 +576,7 @@ private fun textDisplaySettingsNavState(
  */
 fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: WorkspaceNavDeps) {
     // ——— WORKSPACE SELECTOR ———
-    composable(route = NavRoutes.WORKSPACE_SELECTOR) {
+    composable(route = NavRoutes.WORKSPACE_SELECTOR) { entry ->
         val d = deps.workspaceSelector
 
         // Over a HOST-MEMOISED factory -- see WorkspaceSelectorDeps.controllerFor for why this
@@ -584,12 +585,12 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
         val controller = remember {
             d.controllerFor(
                 { workspaceId, changed ->
-                    deps.workspaceResults.deliver(navController, WorkspaceResult(workspaceId, changed))
+                    deps.workspaceResults.deliver(navController, entry, WorkspaceResult(workspaceId, changed))
                 },
                 // Classic's cancel path set RESULT_CANCELED with an EMPTY Intent and its consumer
                 // ignores it, so the in-graph equivalent publishes nothing at all -- see
                 // WorkspaceResult's kdoc for why there is no cancelled variant to publish.
-                { navController.popOrExit(deps.exitHost) },
+                { navController.popOrExit(entry, deps.exitHost) },
                 { id ->
                     navController.navigate(
                         NavRoutes.textDisplaySettings(settingsBundle = d.settingsBundleJson(id)),
@@ -745,8 +746,8 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
         fun leave() {
             val result = nav.session.resultOnLeave()
             d.navStateMemo.drop()
-            if (result != null) deps.textSettingsResults.deliver(navController, result)
-            else navController.popOrExit(deps.exitHost)
+            if (result != null) deps.textSettingsResults.deliver(navController, backStackEntry, result)
+            else navController.popOrExit(backStackEntry, deps.exitHost)
         }
 
         fun back() {

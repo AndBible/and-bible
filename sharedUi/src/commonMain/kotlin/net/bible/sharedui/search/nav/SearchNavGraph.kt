@@ -49,7 +49,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.PlatformBackHandler
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.search.SearchIndexScreen
@@ -391,8 +391,8 @@ class SearchNavDeps(
  * retired four byte-identical copies covered by a single test). What stays here is the part that
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -435,7 +435,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         if (setup == null) {
             // Classic's "no document to search -> finish() immediately". Nothing was pushed on top
             // of us, so leaving means leaving the host.
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+            LaunchedEffect(Unit) { navController.popOrExit(backStackEntry, deps.exitHost) }
         } else {
             LaunchedEffect(setup.title) { deps.setWindowTitle(setup.title) }
 
@@ -540,7 +540,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                         }
                     }
                 },
-                onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
                 recentTerms = recentTerms,
                 onRecentTermSelected = controller::setQuery,
             )
@@ -555,19 +555,19 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         val d = deps.searchIndex
         val args = backStackEntry.searchArgs()
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
-        SearchIndexPromptBack { navController.popOrExit(deps.exitHost) }
+        SearchIndexPromptBack { navController.popOrExit(backStackEntry, deps.exitHost) }
 
         val target = remember(args.searchDocument) { d.resolve(args.searchDocument) }
         if (target == null) {
             // Classic's "nothing to index -> finish() immediately".
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+            LaunchedEffect(Unit) { navController.popOrExit(backStackEntry, deps.exitHost) }
         } else {
             SearchIndexScreen(
                 title = d.title,
                 documentName = target.documentName,
                 isRebuild = target.isRebuild,
                 engineChanged = target.engineChanged,
-                onCancel = { navController.popOrExit(deps.exitHost) },
+                onCancel = { navController.popOrExit(backStackEntry, deps.exitHost) },
                 onCreate = {
                     d.createIndex(target.documentId)
                     // Classic `SearchIndexComposeActivity.kt:72-75`: forward every current extra,
@@ -581,7 +581,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                         popUpTo(NavRoutes.SEARCH_INDEX_PATTERN) { inclusive = true }
                     }
                 },
-                onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
             )
         }
     }
@@ -597,7 +597,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
 
         val controller = remember {
             // Classic's onHide = finish(): "Continue in background".
-            SearchIndexProgressController(onHide = { navController.popOrExit(deps.exitHost) })
+            SearchIndexProgressController(onHide = { navController.popOrExit(backStackEntry, deps.exitHost) })
         }
 
         // A newly-finished job is reported by the work listener, which is not a coroutine; this
@@ -665,13 +665,13 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
 
     // ——— EPUB SEARCH FORM ———
     // The form resolves its document from the current page.
-    composable(route = NavRoutes.EPUB_SEARCH) {
+    composable(route = NavRoutes.EPUB_SEARCH) { entry ->
         val d = deps.epubSearch
         val setup = remember { d.prepare() }
         if (setup == null) {
             // No current document to search. Classic wrote `currentDocument!!` here and would have
             // thrown; leaving is the graph's equivalent of every other "nothing to show" gate.
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+            LaunchedEffect(Unit) { navController.popOrExit(entry, deps.exitHost) }
         } else {
             LaunchedEffect(setup.title) { deps.setWindowTitle(setup.title) }
 
@@ -720,7 +720,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 // Task 15: was a platform AlertDialog reached through EpubSearchFormDeps.showHelp;
                 // now the controller's own dialog state, rendered by EpubSearchScreen itself.
                 onHelp = controller::showHelp,
-                onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
                 helpOpen = helpOpen,
                 onDismissHelp = controller::dismissHelp,
                 askBeforeOpeningLink = d.askBeforeOpeningLink(),

@@ -51,9 +51,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -157,8 +154,7 @@ fun AbTopAppBar(
             title = title,
             navigationIcon = {
                 if (onNavigateUp != null) {
-                    val resumedUp = rememberDropUnlessResumed(onNavigateUp)
-                    IconButton(onClick = resumedUp) {
+                    IconButton(onClick = onNavigateUp) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = LocalStrings.current.settingsEditorBack,
@@ -384,20 +380,4 @@ fun AbScaffold(
         contentWindowInsets = abScaffoldContentInsets(),
         content = content,
     )
-}
-
-/**
- * [action] wrapped so it only runs while the enclosing lifecycle owner (inside a NavHost: this
- * destination's back stack entry) is RESUMED. A popped destination stays drawn during the NavHost's exit
- * fade, but its entry is no longer RESUMED, so a second tap on the up arrow is dropped instead of popping the
- * entry below it -- typically the reading start destination, which exits the host (issue #4073).
- * Outside a NavHost the owner is the activity or window and is RESUMED, so the tap goes through.
- */
-@Composable
-fun rememberDropUnlessResumed(action: () -> Unit): () -> Unit {
-    val owner = LocalLifecycleOwner.current
-    val current by rememberUpdatedState(action)
-    return remember(owner) {
-        { if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) current() }
-    }
 }
