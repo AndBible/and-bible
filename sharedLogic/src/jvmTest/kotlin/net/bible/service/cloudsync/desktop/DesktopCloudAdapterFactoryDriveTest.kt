@@ -68,7 +68,7 @@ class DesktopCloudAdapterFactoryDriveTest {
                     single<AppEnvironment> { inert() }
                     single<CoreStrings> { inert() }
                     single { AppDialogController() }
-                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "Signed in <b>" }) }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "Signed in <b>" }, { "Sign in again" }) }
                 },
                 desktopSyncModule(
                     { SessionMemoryBackend() }, openBrowser, { client },

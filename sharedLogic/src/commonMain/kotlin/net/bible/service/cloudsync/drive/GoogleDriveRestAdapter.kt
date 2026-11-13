@@ -27,6 +27,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.bible.android.database.SyncConfiguration
 import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.sharedcore.platform.cloud.CloudFile
@@ -54,11 +55,17 @@ private val driveJson = Json { ignoreUnknownKeys = true; explicitNulls = false; 
  * Mirrors the wire semantics of the Android Google API client adapter: the same `files.list` query,
  * page size and fields, a resumable upload and 8 MiB ranged downloads. Authentication is delegated to
  * [auth], which only ever hands out access tokens.
+ *
+ * A lost sign-in ([GoogleAuthRequiredException]: revoked refresh token, or Drive rejecting a fresh token) surfaces from
+ * every data call as [CloudSyncUserFacingException] with `requiresReconnect`, so CloudSync reports "sign in again"
+ * and drops the adapter instead of retrying the failure as a transport error. [signIn] is unchanged.
+ * [signInRequiredMessage] supplies the localized user-readable text.
  */
 class GoogleDriveRestAdapter(
     private val auth: GoogleAuth,
     private val http: HttpClient,
     private val baseUrl: String = DRIVE_BASE_URL,
+    private val signInRequiredMessage: () -> String = { "Sign in to Google Drive again." },
 ) : CloudAdapter {
     override val signedIn: Boolean get() = auth.signedIn
 
@@ -230,7 +237,11 @@ class GoogleDriveRestAdapter(
     ): HttpResponse {
         var attempt = 0
         while (true) {
-            val token = auth.accessToken()
+            val token = try {
+                auth.accessToken()
+            } catch (e: GoogleAuthRequiredException) {
+                throw signInNeeded(e)
+            }
             val response = http.request {
                 this.method = method
                 url(baseUrl)
@@ -239,9 +250,12 @@ class GoogleDriveRestAdapter(
             }
             if (response.status.value != 401) return response
             auth.invalidate(token)
-            if (++attempt >= 2) throw GoogleAuthRequiredException("Google Drive rejected the access token twice")
+            if (++attempt >= 2) throw signInNeeded(GoogleAuthRequiredException("Google Drive rejected the access token twice"))
         }
     }
+
+    private fun signInNeeded(cause: GoogleAuthRequiredException) =
+        CloudSyncUserFacingException(signInRequiredMessage(), requiresReconnect = true, cause = cause)
 
     private suspend fun ensureSuccess(response: HttpResponse) {
         if (response.status.isSuccess()) return

@@ -171,6 +171,7 @@ fun desktopSyncModule(
                 GoogleDriveRestAdapter(
                     PkceGoogleAuth(c, get<LoopbackOAuthBrowser>(), get<SecretStore>(), http, System::currentTimeMillis, interactive = !background),
                     http,
+                    signInRequiredMessage = get<HostSyncStrings>().googleDriveSignInRequired,
                 )
             }
         }

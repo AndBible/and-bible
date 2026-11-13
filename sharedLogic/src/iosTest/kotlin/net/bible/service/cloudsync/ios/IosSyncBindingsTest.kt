@@ -96,6 +96,7 @@ class IosSyncBindingsTest {
         webDavMessage = { "msg" },
         ok = { "OK" },
         googleDriveSignInDone = { "done" },
+        googleDriveSignInRequired = { "again" },
     )
 
     @Test

@@ -90,6 +90,7 @@ fun buildIosSyncBindings(
                 GoogleDriveRestAdapter(
                     PkceGoogleAuth(c, IosWebAuthOAuthBrowser(c), get<SecretStore>(), http, ::nowMs, interactive = !background),
                     http,
+                    signInRequiredMessage = strings.googleDriveSignInRequired,
                 )
             }
         }

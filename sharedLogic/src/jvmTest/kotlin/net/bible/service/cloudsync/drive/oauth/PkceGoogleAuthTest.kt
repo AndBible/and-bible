@@ -176,6 +176,22 @@ class PkceGoogleAuthTest {
     }
 
     @Test
+    fun invalidGrantThroughAdapterIsUserFacingReconnect() = runBlocking<Unit> {
+        secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, "ref1")
+        handler = { _, _ -> json("""{"error":"invalid_grant"}""", HttpStatusCode.BadRequest) }
+        val a = auth(okBrowser(), interactive = false)
+        val adapter = net.bible.service.cloudsync.drive.GoogleDriveRestAdapter(
+            a, HttpClient(MockEngine { error("Drive must not be called without a token") }), signInRequiredMessage = { "Sign in again" },
+        )
+        val e = assertFailsWith<net.bible.service.cloudsync.CloudSyncUserFacingException> { adapter.listFiles(listOf("root")) }
+        assertTrue(e.requiresReconnect)
+        assertEquals("Sign in again", e.message)
+        assertTrue(e.cause is GoogleAuthRequiredException)
+        assertFalse(adapter.signedIn)
+        assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+    }
+
+    @Test
     fun networkErrorKeepsToken() = runBlocking<Unit> {
         secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, "ref1")
         handler = { _, _ -> throw IOException("offline") }
