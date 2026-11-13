@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -164,8 +165,8 @@ internal fun Modifier.drawerEdgeSwipe(
  * finger's position on every frame; the release then interrupts it with the drawer's own
  * [DrawerState.open] / [DrawerState.close], which animate on from where the finger left the sheet.
  *
- * With [followFinger] false (the no-animations setting) the drag only [requestOpen]s once it passes the
- * slop, so the drawer appears at once as it does from the toolbar button.
+ * With [followFinger] false (the no-animations setting) or a zero [MotionDurationScale] the drag only
+ * [requestOpen]s once it passes the slop, so the drawer appears at once as it does from the toolbar button.
  */
 internal class DrawerEdgeDrag(
     private val drawerState: DrawerState,
@@ -183,7 +184,11 @@ internal class DrawerEdgeDrag(
 
     override fun onDragStart() {
         val offset = drawerState.currentOffset
-        tracking = followFinger() && !offset.isNaN() && offset < 0f
+        // A zero motion scale (Android's animator scale 0, or the app's no-animations setting there)
+        // finishes the tracking animation at once, at its target: the sheet would jump open and a slow
+        // release could close it again. Treat it like the no-animations setting.
+        val animationsRun = (scope.coroutineContext[MotionDurationScale]?.scaleFactor ?: 1f) > 0f
+        tracking = followFinger() && animationsRun && !offset.isNaN() && offset < 0f
         if (!tracking) {
             requestOpen()
             return

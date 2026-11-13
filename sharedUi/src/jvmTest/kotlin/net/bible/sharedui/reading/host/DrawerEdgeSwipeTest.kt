@@ -51,7 +51,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.bible.sharedui.theme.NoMotionDurationScale
 
 /**
  * #4074: the leading-edge swipe that opens the reading view's main menu ([drawerEdgeSwipe] driving an
@@ -73,6 +75,7 @@ class DrawerEdgeSwipeTest {
     private fun ComposeUiTest.setHarness(
         rtl: Boolean = false,
         followFinger: Boolean = true,
+        zeroMotionScale: Boolean = false,
     ): Harness {
         val h = Harness()
         setContent {
@@ -82,7 +85,9 @@ class DrawerEdgeSwipeTest {
             ) {
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 h.drawerState = drawerState
-                val scope = rememberCoroutineScope()
+                val composeScope = rememberCoroutineScope()
+                // Android puts the animator scale (and the app's no-animations setting) in the recomposer's context.
+                val scope = if (zeroMotionScale) CoroutineScope(composeScope.coroutineContext + NoMotionDurationScale) else composeScope
                 val drag = remember {
                     DrawerEdgeDrag(
                         drawerState = drawerState,
@@ -284,6 +289,20 @@ class DrawerEdgeSwipeTest {
         settle()
         assertEquals(DrawerValue.Open, h.drawerState.currentValue, "release does not undo the requested open")
         assertEquals(1, h.openRequests)
+    }
+
+    @Test
+    fun withAZeroMotionScaleASlowShortDragStillOpens() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness(zeroMotionScale = true)
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(5f, midY))
+            slowMove(60f, steps = 30)
+            up()
+        }
+        settle()
+        assertEquals(1, h.openRequests, "no finger tracking when animations finish instantly")
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue, "the slow short release must not close it again")
     }
 
     @Test
