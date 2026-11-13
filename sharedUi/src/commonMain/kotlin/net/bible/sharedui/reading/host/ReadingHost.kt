@@ -24,8 +24,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -378,10 +376,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     val edgeSwipeEnabled = md3DrawerState.isClosed
     // 3-button navigation with the phone rotated puts the nav bar on a side: measure the strip from the
     // safe drawing area's leading edge, not from under the bar.
-    val edgeInsetDensity = LocalDensity.current
-    val edgeLeadingInset = WindowInsets.safeDrawing.let {
-        if (edgeRtl) it.getRight(edgeInsetDensity, LayoutDirection.Rtl) else it.getLeft(edgeInsetDensity, LayoutDirection.Ltr)
-    }.toFloat()
+    val edgeLeadingInset = drawerEdgeLeadingInset(edgeRtl)
 
     ReadingOverlayTracking(
         drawerActive = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open,

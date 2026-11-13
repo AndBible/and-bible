@@ -23,6 +23,24 @@ import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.ui.Modifier
@@ -69,6 +87,73 @@ internal expect fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: B
  */
 internal fun isInLeadingEdge(x: Float, width: Int, edgePx: Float, rtl: Boolean, leadingInset: Float = 0f): Boolean =
     if (rtl) x >= width - leadingInset - edgePx else x <= leadingInset + edgePx
+
+/**
+ * How much of a pane spanning [paneLeft]..[paneRight] (px, in the coordinates of a [rootWidth]-wide root that the
+ * [drawerEdgeSwipe] owner fills) lies in the leading edge strip: [leadingInset] + [edgePx] from the leading side
+ * (mirrored for [rtl]). 0 when the pane does not reach the strip, at most the pane's own width.
+ */
+internal fun leadingEdgeOverlap(
+    paneLeft: Float,
+    paneRight: Float,
+    rootWidth: Float,
+    edgePx: Float,
+    rtl: Boolean,
+    leadingInset: Float = 0f,
+): Float {
+    val paneWidth = (paneRight - paneLeft).coerceAtLeast(0f)
+    val overlap = if (rtl) paneRight - (rootWidth - leadingInset - edgePx) else leadingInset + edgePx - paneLeft
+    return overlap.coerceIn(0f, paneWidth)
+}
+
+/** The safe drawing area's leading inset (px): where the edge strip starts (a side nav bar, a landscape notch). */
+@Composable
+internal fun drawerEdgeLeadingInset(rtl: Boolean): Float {
+    val density = LocalDensity.current
+    return WindowInsets.safeDrawing.let {
+        if (rtl) it.getRight(density, LayoutDirection.Rtl) else it.getLeft(density, LayoutDirection.Ltr)
+    }.toFloat()
+}
+
+/**
+ * A transparent hit target over the part of this box (a reading pane) that lies in the drawer's leading edge
+ * strip ([leadingEdgeOverlap]); zero-wide in every other pane.
+ *
+ * For panes whose content is a native interop view: on iOS a touch that starts on the `UIKitView` hosting the
+ * WKWebView goes to the web view, and Compose (so [drawerEdgeSwipe] on the ancestor) never sees it. Over this
+ * target the topmost hit node is a Compose one, so the touch stays in Compose and the ancestor's
+ * [PointerEventPass.Initial] detector gets it. The target consumes nothing itself. The cost: a tap, long-press
+ * or vertical drag that starts in these few points reaches the target, not the page (the strip is mostly page
+ * margin). Android and desktop panes need no target and do not use it.
+ */
+@Composable
+internal fun BoxScope.DrawerEdgeHitTarget(
+    modifier: Modifier = Modifier,
+    leadingInset: Float = drawerEdgeLeadingInset(LocalLayoutDirection.current == LayoutDirection.Rtl),
+) {
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val density = LocalDensity.current
+    val edgePx = with(density) { DrawerEdgeSwipeWidth.toPx() }
+    var widthPx by remember { mutableFloatStateOf(0f) }
+    // Measures the pane (this box) against the root, which the drawerEdgeSwipe owner fills.
+    Spacer(
+        Modifier.matchParentSize().onGloballyPositioned { coordinates ->
+            val root = coordinates.findRootCoordinates()
+            val bounds = root.localBoundingBoxOf(coordinates, clipBounds = false)
+            widthPx = leadingEdgeOverlap(bounds.left, bounds.right, root.size.width.toFloat(), edgePx, rtl, leadingInset)
+        },
+    )
+    Box(
+        modifier
+            .align(Alignment.CenterStart)
+            .fillMaxHeight()
+            .width(with(density) { widthPx.toDp() })
+            .pointerInput(Unit) {
+                // Only here to be the topmost hit node; the events go on to the ancestor's detector untouched.
+                awaitPointerEventScope { while (true) awaitPointerEvent() }
+            },
+    )
+}
 
 /**
  * The settle decision at the end of an edge drag: a fling ([inwardVelocity], px/s, positive towards
