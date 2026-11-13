@@ -31,8 +31,7 @@ description: Use for AndBible issue and project-board work — creating, comment
     exact option names (`Status=Next up`, `Status=In progress`, `Priority=P0 Blocker`, `Priority=Someday`).
   - Publish like other issue actions when `jailbee inbox grant` lists `publish projects: andbible/11`.
   - Each `--set` is one action and each stage does a host read (slow: run a long list in the
-    background). Publication is rate-limited (`publish max_actions_per_hour` in the grant, 30 on
-    2026-11-12), so a triage of many items may need two publish rounds an hour apart.
+    background).
   - Automation adds new issues as Needs triage and moves closed ones to Done; do not set Done by hand.
 
 The tracker rules apply on both routes: labels from `docs/superpowers/triage/taxonomy.yaml`, one `Type:` and
