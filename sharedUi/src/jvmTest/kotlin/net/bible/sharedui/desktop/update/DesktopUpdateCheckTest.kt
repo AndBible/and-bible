@@ -15,6 +15,7 @@ import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import net.bible.sharedui.settings.DesktopUpdateInterval
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DesktopUpdateCheckTest {
@@ -33,7 +34,7 @@ class DesktopUpdateCheckTest {
         assertEquals(0, requests)
         assertNull(prefs.getString("desktop_update_check"))
         answer.complete(true); runCurrent()
-        assertEquals("yes", prefs.getString("desktop_update_check"))
+        assertEquals("weekly", prefs.getString("desktop_update_check"))
         assertEquals(1, requests)
     }
 
@@ -44,7 +45,7 @@ class DesktopUpdateCheckTest {
         val first = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { questions++; false })
         first.start(); runCurrent()
-        assertEquals("no", prefs.getString("desktop_update_check"))
+        assertEquals("never", prefs.getString("desktop_update_check"))
         val upgraded = DesktopUpdateCheck(prefs, { 200000000L }, { requests++; "[]" }, 2, DesktopChannel.PRODUCTION, backgroundScope, {},
             consent = { questions++; true })
         upgraded.start(); runCurrent()
@@ -53,7 +54,7 @@ class DesktopUpdateCheckTest {
     }
 
     @Test fun attemptsAreLimitedToOncePerDayIncludingFailures() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
         var now = 100000000L
         var requests = 0
         val checker = DesktopUpdateCheck(prefs, { now }, { requests++; throw IOException("offline") }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
@@ -66,7 +67,7 @@ class DesktopUpdateCheckTest {
     }
 
     @Test fun announcesEachVersionOnceAndIgnoresErrorBodies() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
         var now = 100000000L
         var body = release(1240)
         val announced = mutableListOf<Int>()
@@ -90,7 +91,7 @@ class DesktopUpdateCheckTest {
     }
 
     @Test fun withdrawnQueuedAnnouncementCanBeOfferedOnNextLaunch() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
         val dialogs = AppDialogController()
         val blocking = dialogs.post(AppDialogRequest.Message("Busy", "Other dialog", "OK"))
         var now = 100000000L
@@ -114,19 +115,19 @@ class DesktopUpdateCheckTest {
     }
 
     @Test fun revokedConsentSuppressesPendingResult() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
         val pending = CompletableDeferred<String>()
         val announced = mutableListOf<Int>()
         val checker = DesktopUpdateCheck(prefs, { 100000000L }, { pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, { announced += it.build })
         checker.start(); runCurrent()
-        prefs.putString("desktop_update_check", "no")
+        prefs.putString("desktop_update_check", "never")
         pending.complete(release(2)); runCurrent()
         assertEquals(emptyList(), announced)
         assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
     }
 
     @Test fun startReturnsWhileFetchIsSuspended() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
         val pending = CompletableDeferred<String>()
         var entered = false
         val checker = DesktopUpdateCheck(prefs, { 100000000L }, { entered = true; pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
@@ -135,12 +136,85 @@ class DesktopUpdateCheckTest {
         checker.start(); runCurrent()
     }
 
+    private fun ms(days: Int) = days * 24 * 60 * 60 * 1000L
+
+    private suspend fun kotlinx.coroutines.test.TestScope.requestsAfterDays(stored: String?, days: Int): Int {
+        val prefs = settings().apply { stored?.let { putString("desktop_update_check", it) } }
+        var now = 100000000L
+        var requests = 0
+        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
+        checker.start(); runCurrent()
+        now += ms(days) - 1; checker.start(); runCurrent()
+        val before = requests
+        now += 1; checker.start(); runCurrent()
+        assertEquals(1, before)
+        return requests
+    }
+
+    @Test fun intervalGatesChecksPerChoice() = runTest {
+        for ((choice, days) in listOf("daily" to 1, "weekly" to 7, "monthly" to 30)) {
+            assertEquals(2, requestsAfterDays(choice, days), choice)
+        }
+    }
+
+    @Test fun neverChecksNothing() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "never") }
+        var requests = 0; var questions = 0
+        DesktopUpdateCheck(prefs, { 100000000L }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {},
+            consent = { questions++; true }).start()
+        runCurrent()
+        assertEquals(0, requests); assertEquals(0, questions)
+    }
+
+    @Test fun legacyYesMigratesToWeeklyAndNoToNever() = runTest {
+        val yes = settings().apply { putString("desktop_update_check", "yes") }
+        assertEquals(2, requestsAfterDaysWith(yes, 7))
+        assertEquals("weekly", yes.getString("desktop_update_check"))
+        val no = settings().apply { putString("desktop_update_check", "no") }
+        assertEquals(0, requestsAfterDaysWith(no, 7))
+        assertEquals("never", no.getString("desktop_update_check"))
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.requestsAfterDaysWith(prefs: DesktopDeviceSettings, days: Int): Int {
+        var now = 100000000L
+        var requests = 0
+        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
+        checker.start(); runCurrent()
+        now += ms(days); checker.start(); runCurrent()
+        return requests
+    }
+
+    @Test fun snoozeHoldsAnnouncementsUntilItExpiresThenChecksAtOnce() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "monthly") }
+        var now = 100000000L
+        var requests = 0
+        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; release(1240) }, 1239, DesktopChannel.PRODUCTION, backgroundScope, {})
+        prefs.putLong("desktop_update_last_check", now)
+        prefs.snoozeUntil(now + ms(1))
+        checker.start(); runCurrent(); assertEquals(0, requests)
+        now += ms(1) - 1; checker.start(); runCurrent(); assertEquals(0, requests)
+        now += 1; checker.start(); runCurrent(); assertEquals(1, requests)
+    }
+
+    @Test fun skippedVersionIsNotOfferedAgainButANewerOneIs() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
+        var now = 100000000L
+        var body = release(1240)
+        val offered = mutableListOf<Int>()
+        val checker = DesktopUpdateCheck(prefs, { now }, { body }, 1239, DesktopChannel.PRODUCTION, backgroundScope, {},
+            announceAndAwait = { offered += it.build; true })
+        checker.start(); runCurrent()
+        now += ms(1); checker.start(); runCurrent()
+        body = release(1241); now += ms(1); checker.start(); runCurrent()
+        assertEquals(listOf(1240, 1241), offered)
+    }
+
     private fun mixed() = """[
         {"tag_name":"beta-1245","draft":false,"html_url":"https://example.com/b","assets":[{"name":"andbible-desktop-linux.deb"}]},
         {"tag_name":"production-1240","draft":false,"html_url":"https://example.com/p","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
 
     private suspend fun kotlinx.coroutines.test.TestScope.offeredTag(channel: DesktopChannel, offerBeta: String?): String? {
-        val prefs = settings().apply { putString("desktop_update_check", "yes"); offerBeta?.let { putString("desktop_update_offer_beta", it) } }
+        val prefs = settings().apply { putString("desktop_update_check", "daily"); offerBeta?.let { putString("desktop_update_offer_beta", it) } }
         var tag: String? = null
         DesktopUpdateCheck(prefs, { 100000000L }, { mixed() }, 1230, channel, backgroundScope, { tag = it.tag }).start()
         runCurrent()

@@ -18,12 +18,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import net.bible.sharedui.settings.DesktopUpdateInterval
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DesktopUpdatePromptsTest {
     @Test fun announcementAcknowledgesOnlyExplicitChoices() = runTest {
         val root = Files.createTempDirectory("update-ack")
-        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "yes") }
+        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "daily") }
         val secrets = object : SecretStore {
             override fun get(key: String): String? = null
             override fun put(key: String, value: String) = Unit
@@ -47,7 +48,7 @@ class DesktopUpdatePromptsTest {
             val first = start(); runCurrent()
             val shown = assertNotNull(dialogs.pending.value)
             val options = (shown.request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
-            assertEquals(listOf("download", "later"), options.options.map { it.value })
+            assertEquals(listOf("download", "snooze_day", "snooze_week", "snooze_month", "skip"), options.options.map { it.value })
             assertEquals("desktop_update_dont_notify", options.checkboxLabel)
             kotlin.test.assertTrue(options.message.orEmpty().contains("desktop_update_reenable"))
             dialogs.cancelAll(); runCurrent()
@@ -56,10 +57,10 @@ class DesktopUpdatePromptsTest {
 
             now += 86400000L
             val second = start(); runCurrent()
-            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("later", false)); runCurrent()
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("snooze_day", false)); runCurrent()
             assertEquals(0, prefs.getInt("desktop_update_announced_build", 0))
             assertEquals(emptyList(), opened)
-            assertEquals("yes", prefs.getString(CONSENT_KEY))
+            assertEquals("daily", prefs.getString(CONSENT_KEY))
 
             now += 86399999L
             testScheduler.advanceTimeBy(86399999L); runCurrent()
@@ -84,12 +85,79 @@ class DesktopUpdatePromptsTest {
         }
     }
 
-    @Test fun optingOutWithLaterDisablesFutureChecks() = verifyOptOut("later")
+    @Test fun snoozeChoicesDelayTheNextAnnouncement() = runTest {
+        for ((choice, days) in listOf("snooze_day" to 1, "snooze_week" to 7, "snooze_month" to 30)) {
+            val root = Files.createTempDirectory("update-snooze")
+            val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "daily") }
+            val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), object : SecretStore {
+                override fun get(key: String): String? = null
+                override fun put(key: String, value: String) = Unit
+                override fun remove(key: String) = Unit
+            }, prefs)
+            val dialogs = AppDialogController()
+            var now = 100000000L
+            var checks = 0
+            val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
+                HostStringTableHolder(StringTable.of("en", { it }, { _, _ -> "" }, { emptyList() })), object : ExternalLinks {
+                    override val askBeforeOpening = false
+                    override fun open(url: String) = Unit
+                }, { true }, { now }, {
+                    checks++
+                    """[{"tag_name":"production-1240","draft":false,"html_url":"https://example.com/1240","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+                })
+            try {
+                runCurrent()
+                dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox(choice, false)); runCurrent()
+                assertEquals(0, prefs.getInt("desktop_update_announced_build", 0), choice)
+                assertEquals("daily", prefs.getString("desktop_update_check"), choice)
+                val delay = days * 86400000L
+                now += delay - 1; testScheduler.advanceTimeBy(delay - 1); runCurrent()
+                assertNull(dialogs.pending.value, choice); assertEquals(1, checks, choice)
+                now += 1; testScheduler.advanceTimeBy(1); runCurrent()
+                assertNotNull(dialogs.pending.value, choice)
+            } finally {
+                prompts.close(); root.toFile().deleteRecursively()
+            }
+        }
+    }
+
+    @Test fun skipThisVersionOffersOnlyANewerBuild() = runTest {
+        val root = Files.createTempDirectory("update-skip")
+        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "daily") }
+        val env = DesktopAppEnvironment(DesktopPaths({ null }, "Linux", root), object : SecretStore {
+            override fun get(key: String): String? = null
+            override fun put(key: String, value: String) = Unit
+            override fun remove(key: String) = Unit
+        }, prefs)
+        val dialogs = AppDialogController()
+        var now = 100000000L
+        var build = 1240
+        val prompts = DesktopUpdatePrompts(prefs, backgroundScope, env, "6.0.1230", 1230, DesktopChannel.PRODUCTION, dialogs,
+            HostStringTableHolder(StringTable.of("en", { it }, { _, _ -> "" }, { emptyList() })), object : ExternalLinks {
+                override val askBeforeOpening = false
+                override fun open(url: String) = Unit
+            }, { true }, { now }, {
+                """[{"tag_name":"production-$build","draft":false,"html_url":"https://example.com/$build","assets":[{"name":"andbible-desktop-linux.deb"}]}]"""
+            })
+        try {
+            runCurrent()
+            dialogs.respond(assertNotNull(dialogs.pending.value).id, AppDialogResult.SelectedWithCheckbox("skip", false)); runCurrent()
+            assertEquals(1240, prefs.getInt("desktop_update_announced_build", 0))
+            now += 86400000L; testScheduler.advanceTimeBy(86400000L); runCurrent()
+            assertNull(dialogs.pending.value)
+            build = 1241; now += 86400000L; testScheduler.advanceTimeBy(86400000L); runCurrent()
+            assertNotNull(dialogs.pending.value)
+        } finally {
+            prompts.close(); root.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun optingOutWithSnoozeDisablesFutureChecks() = verifyOptOut("snooze_day")
     @Test fun optingOutWithDownloadStillOpensReleaseAndDisablesFutureChecks() = verifyOptOut("download")
 
     private fun verifyOptOut(choice: String) = runTest {
         val root = Files.createTempDirectory("update-opt-out")
-        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "yes") }
+        val prefs = DesktopDeviceSettings(root.resolve("settings")).apply { putString("desktop_update_check", "daily") }
         val secrets = object : SecretStore {
             override fun get(key: String): String? = null
             override fun put(key: String, value: String) = Unit
@@ -112,18 +180,18 @@ class DesktopUpdatePromptsTest {
             runCurrent()
             val pending = assertNotNull(dialogs.pending.value)
             dialogs.respond(pending.id, AppDialogResult.SelectedWithCheckbox(choice, true)); runCurrent()
-            assertEquals("no", prefs.getString("desktop_update_check"))
-            assertEquals(false, prompts.enabled)
+            assertEquals("never", prefs.getString("desktop_update_check"))
+            assertEquals(DesktopUpdateInterval.NEVER, prompts.interval)
             assertEquals(if (choice == "download") listOf("https://example.com/1240") else emptyList(), opened)
             assertEquals(if (choice == "download") 1240 else 0, prefs.getInt("desktop_update_announced_build", 0))
             now += 3 * 86400000L
             testScheduler.advanceTimeBy(3 * 86400000L); runCurrent()
             assertNull(dialogs.pending.value)
             assertEquals(1, checks)
-            prompts.setEnabled(true); runCurrent()
-            assertEquals(true, prompts.enabled)
+            prompts.setInterval(DesktopUpdateInterval.DAILY); runCurrent()
+            assertEquals(DesktopUpdateInterval.DAILY, prompts.interval)
             assertEquals(2, checks)
-            if (choice == "later") assertNotNull(dialogs.pending.value)
+            if (choice == "snooze_day") assertNotNull(dialogs.pending.value)
         } finally {
             prompts.close()
             root.toFile().deleteRecursively()

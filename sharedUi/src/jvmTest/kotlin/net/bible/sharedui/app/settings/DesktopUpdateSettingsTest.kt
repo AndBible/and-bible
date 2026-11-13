@@ -7,12 +7,14 @@ import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
+import net.bible.sharedui.settings.DesktopUpdateInterval
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -48,11 +50,11 @@ class DesktopUpdateSettingsTest {
                     }
                 }
                 onNodeWithText("Check for updates").assertExists().performClick()
-                runOnIdle { assertTrue(setting.enabled) }
+                onNodeWithText("Daily").assertExists().performClick()
+                runOnIdle { assertEquals(DesktopUpdateInterval.DAILY, setting.interval) }
                 onNodeWithText("Check for updates").performClick()
-                runOnIdle { assertFalse(setting.enabled) }
-                runOnIdle { setting.setEnabled(true) }
-                onNodeWithText("Check for updates").assertIsOn()
+                onNodeWithText("Never").performClick()
+                runOnIdle { assertEquals(DesktopUpdateInterval.NEVER, setting.interval) }
             }
         } finally {
             boundKoin.close()
@@ -104,10 +106,10 @@ class DesktopUpdateSettingsTest {
     }
 
     private class TestUpdateSetting : DesktopUpdateCheckSetting {
-        override var enabled = false
+        override var interval = DesktopUpdateInterval.WEEKLY
             private set
         private var listener: (() -> Unit)? = null
-        override fun setEnabled(enabled: Boolean) { this.enabled = enabled; listener?.invoke() }
+        override fun setInterval(interval: DesktopUpdateInterval) { this.interval = interval; listener?.invoke() }
         override fun observeChanges(onChange: () -> Unit): () -> Unit {
             listener = onChange
             return { listener = null }

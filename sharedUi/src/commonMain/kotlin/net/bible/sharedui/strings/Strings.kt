@@ -1063,6 +1063,10 @@ interface Strings {
     // Batch 10-remainder — preference search (main Settings screen)
     val desktopUpdateSettingTitle: String
     val desktopUpdateSettingSummary: String
+    val desktopUpdateIntervalDaily: String
+    val desktopUpdateIntervalWeekly: String
+    val desktopUpdateIntervalMonthly: String
+    val desktopUpdateIntervalNever: String
     val desktopBetaUpdateSettingTitle: String
     val desktopBetaUpdateSettingSummary: String
     val searchSettings: String                              // R.string.search_settings
@@ -1301,7 +1305,10 @@ interface Strings {
     val desktopUpdateAvailableTitle: String // R.string.desktop_update_available_title
     fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
     val desktopUpdateDownload: String // R.string.desktop_update_download
-    val desktopUpdateLater: String // R.string.desktop_update_later
+    val desktopUpdateSnoozeDay: String // R.string.desktop_update_snooze_day
+    val desktopUpdateSnoozeWeek: String // R.string.desktop_update_snooze_week
+    val desktopUpdateSnoozeMonth: String // R.string.desktop_update_snooze_month
+    val desktopUpdateSkip: String // R.string.desktop_update_skip
     val desktopUpdateDontNotify: String // R.string.desktop_update_dont_notify
     val desktopUpdateReenable: String // R.string.desktop_update_reenable
 

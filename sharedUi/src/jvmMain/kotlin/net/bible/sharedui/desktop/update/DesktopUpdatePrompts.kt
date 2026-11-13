@@ -21,10 +21,12 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.settings.DesktopBetaUpdateSetting
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
+import net.bible.sharedui.settings.DesktopUpdateInterval
 import net.bible.service.db.DatabaseContainer
 
 private const val RELEASES_URL = "https://api.github.com/repos/AndBible/and-bible/releases?per_page=30"
 private const val UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000L
+private const val DAY_MS = 24 * 60 * 60 * 1000L
 
 class DesktopUpdatePrompts(
     private val settings: DesktopDeviceSettings,
@@ -37,7 +39,7 @@ class DesktopUpdatePrompts(
     private val strings: HostStringTableHolder,
     private val links: ExternalLinks,
     private val appReady: () -> Boolean = { DatabaseContainer.ready && environment.isInitialized },
-    clock: () -> Long = System::currentTimeMillis,
+    private val clock: () -> Long = System::currentTimeMillis,
     fetchOverride: (suspend () -> String)? = null,
 ) : DesktopUpdateCheckSetting, AutoCloseable {
     private val lifetime = Job(scope.coroutineContext[Job])
@@ -70,7 +72,10 @@ class DesktopUpdatePrompts(
             AppDialogRequest.Options(table.text("desktop_update_available_title"),
                 "${table.fmt("desktop_update_available_message", release.tag, version)}<br><br>${table.text("desktop_update_reenable")}",
                 listOf(SettingsItem.Choice("download", table.text("desktop_update_download")),
-                    SettingsItem.Choice("later", table.text("desktop_update_later"))),
+                    SettingsItem.Choice("snooze_day", table.text("desktop_update_snooze_day")),
+                    SettingsItem.Choice("snooze_week", table.text("desktop_update_snooze_week")),
+                    SettingsItem.Choice("snooze_month", table.text("desktop_update_snooze_month")),
+                    SettingsItem.Choice("skip", table.text("desktop_update_skip"))),
                 dismissText = null, asActionSheet = false, cancellable = false,
                 checkboxLabel = table.text("desktop_update_dont_notify"))
         })
@@ -79,10 +84,12 @@ class DesktopUpdatePrompts(
             is AppDialogResult.SelectedWithCheckbox -> result.value to result.checked
             else -> null
         }
-        if (choice?.second == true) settings.putString(CONSENT_KEY, "no")
+        if (choice?.second == true) settings.putString(CONSENT_KEY, DesktopUpdateInterval.NEVER.value)
+        val snoozeDays = when (choice?.first) { "snooze_day" -> 1; "snooze_week" -> 7; "snooze_month" -> 30; else -> 0 }
+        if (snoozeDays > 0) settings.snoozeUntil(clock() + snoozeDays * DAY_MS)
         when (choice?.first) {
             "download" -> { links.open(release.htmlUrl); true }
-            "later" -> false
+            "skip" -> true
             else -> false
         }
     })
@@ -97,7 +104,7 @@ class DesktopUpdatePrompts(
         }
     }
 
-    override val enabled: Boolean get() = settings.getString(CONSENT_KEY) == "yes"
+    override val interval: DesktopUpdateInterval get() = settings.updateInterval() ?: DesktopUpdateInterval.NEVER
     /** The offer-beta row; bound separately because a test build has none. */
     val offerBeta: DesktopBetaUpdateSetting = object : DesktopBetaUpdateSetting {
         override val enabled: Boolean
@@ -105,9 +112,9 @@ class DesktopUpdatePrompts(
         override fun setEnabled(enabled: Boolean) = settings.putString(OFFER_BETA_KEY, if (enabled) "yes" else "no")
         override fun observeChanges(onChange: () -> Unit): () -> Unit = settings.observeChanges(onChange)
     }
-    override fun setEnabled(enabled: Boolean) {
-        settings.putString(CONSENT_KEY, if (enabled) "yes" else "no")
-        if (enabled) checker.start()
+    override fun setInterval(interval: DesktopUpdateInterval) {
+        settings.putString(CONSENT_KEY, interval.value)
+        if (interval != DesktopUpdateInterval.NEVER) checker.start()
     }
     override fun observeChanges(onChange: () -> Unit): () -> Unit = settings.observeChanges(onChange)
     override fun close() = lifetime.cancel()

@@ -73,9 +73,9 @@ fun AppSettingsScreen(
     val strings = LocalStrings.current
     val searchHint = strings.searchSettings
     val updateSetting = remember(settingsKoin) { settingsKoin?.getOrNull<DesktopUpdateCheckSetting>() }
-    var updateEnabled by remember(updateSetting) { mutableStateOf(updateSetting?.enabled == true) }
+    var updateInterval by remember(updateSetting) { mutableStateOf(updateSetting?.interval ?: DesktopUpdateInterval.NEVER) }
     DisposableEffect(updateSetting) {
-        val unsubscribe = updateSetting?.observeChanges { updateEnabled = updateSetting.enabled }
+        val unsubscribe = updateSetting?.observeChanges { updateInterval = updateSetting.interval }
         onDispose { unsubscribe?.invoke() }
     }
     val betaSetting = remember(settingsKoin) { settingsKoin?.getOrNull<DesktopBetaUpdateSetting>() }
@@ -87,9 +87,16 @@ fun AppSettingsScreen(
     val updateKey = "desktop_update_check"
     val betaKey = "desktop_update_offer_beta"
     val desktopRows = buildList {
-        if (updateSetting != null) add(SettingsItem.SwitchRow(
+        if (updateSetting != null) add(SettingsItem.ListChoiceRow(
             key = updateKey, title = strings.desktopUpdateSettingTitle,
-            summary = strings.desktopUpdateSettingSummary, checked = updateEnabled,
+            summary = strings.desktopUpdateSettingSummary,
+            entries = listOf(
+                SettingsItem.Choice(DesktopUpdateInterval.DAILY.value, strings.desktopUpdateIntervalDaily),
+                SettingsItem.Choice(DesktopUpdateInterval.WEEKLY.value, strings.desktopUpdateIntervalWeekly),
+                SettingsItem.Choice(DesktopUpdateInterval.MONTHLY.value, strings.desktopUpdateIntervalMonthly),
+                SettingsItem.Choice(DesktopUpdateInterval.NEVER.value, strings.desktopUpdateIntervalNever),
+            ),
+            selectedValue = updateInterval.value,
         ))
         if (betaSetting != null) add(SettingsItem.SwitchRow(
             key = betaKey, title = strings.desktopBetaUpdateSettingTitle,
@@ -101,15 +108,18 @@ fun AppSettingsScreen(
         state = screenState,
         onUp = onUp,
         onSwitch = { key, value ->
-            if (key == updateKey && updateSetting != null) {
-                updateSetting.setEnabled(value)
-                updateEnabled = updateSetting.enabled
-            } else if (key == betaKey && betaSetting != null) {
+            if (key == betaKey && betaSetting != null) {
                 betaSetting.setEnabled(value)
                 betaEnabled = betaSetting.enabled
             } else onSwitch(key, value)
         },
-        onListChoice = onListChoice,
+        onListChoice = { key, value ->
+            val chosen = DesktopUpdateInterval.fromStored(value)
+            if (key == updateKey && updateSetting != null && chosen != null) {
+                updateSetting.setInterval(chosen)
+                updateInterval = updateSetting.interval
+            } else onListChoice(key, value)
+        },
         onTextInput = onTextInput,
         onNavigate = onNavigate,
         onSliderChange = onSliderChange,
