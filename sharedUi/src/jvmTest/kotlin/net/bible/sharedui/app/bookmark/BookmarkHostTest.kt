@@ -175,4 +175,40 @@ class BookmarkHostTest {
         assertEquals(strings.backupSaveToFiles, host(d.getValue("SHARE_AND_FILES")).saveDestinationLabel())
         assertEquals("Save to Files", strings.backupSaveToFiles)
     }
+
+    // --- #4073 follow-up: a stale delivery must not clear another visit's label manager ---
+
+    @Test
+    fun aDeliveryFromTheMemoisedSessionClearsTheMemo() {
+        val host = host()
+        val session = session()
+        host.manageLabelsSession = "payload" to session
+        host.manageLabelsHelpOpen = true
+        val delivered = mutableListOf<net.bible.sharedcore.nav.ManageLabelsResult>()
+
+        host.deliverManageLabelsResult(session) { delivered += it }
+
+        assertEquals(1, delivered.size)
+        assertEquals(null, host.manageLabelsSession, "a finished visit must not be resumed by the next entry")
+        assertEquals(false, host.manageLabelsHelpOpen)
+    }
+
+    /**
+     * A second Reset/Save from a label manager that is already fading out (its delivery is dropped by the result
+     * channel), arriving after the user re-entered the label manager with the same payload: it must leave the new
+     * visit's memo and sheets alone.
+     */
+    @Test
+    fun aStaleDeliveryLeavesANewerSessionAlone() {
+        val host = host()
+        val stale = session()
+        val current = session()
+        host.manageLabelsSession = "payload" to current
+        host.manageLabelsHelpOpen = true
+
+        host.deliverManageLabelsResult(stale) { }
+
+        assertEquals(current, host.manageLabelsSession?.second, "the re-entered visit keeps its controller")
+        assertEquals(true, host.manageLabelsHelpOpen)
+    }
 }

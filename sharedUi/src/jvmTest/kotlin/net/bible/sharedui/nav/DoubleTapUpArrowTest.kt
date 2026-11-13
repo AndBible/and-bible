@@ -145,6 +145,38 @@ class DoubleTapUpArrowTest {
         assertEquals(listOf(NavRoutes.READING), routes(nav))
     }
 
+    /** A dropped pop or delivery is logged (#4073 follow-up), so a lost result after async work can be traced. */
+    @Test
+    fun droppedPopsAndDeliveriesAreLogged() = runComposeUiTest {
+        val warnings = mutableListOf<String>()
+        net.bible.sharedcore.log.Log.sinkOverride = { level, _, msg, _ ->
+            if (level == net.bible.sharedcore.log.LogLevel.WARN) synchronized(warnings) { warnings += msg }
+        }
+        try {
+            val channel = NavResultChannel<String> { }
+            var exits = 0
+            val nav = host { nav ->
+                composable(NavRoutes.SETTINGS) { entry ->
+                    AbScaffold(title = "settings", onNavigateUp = { nav.popOrExitFrom(entry) { exits++ } }) { }
+                    Button(onClick = { channel.deliver(nav, entry, "r") }) { Text("deliver") }
+                }
+            }()
+            openSettings(nav)
+
+            upArrow().performClick()
+            mainClock.advanceTimeBy(100)
+            upArrow().performClick()
+            onAllNodesWithText("deliver").onFirst().performClick()
+            mainClock.advanceTimeBy(2_000)
+
+            val dropped = synchronized(warnings) { warnings.toList() }
+            assertEquals(2, dropped.size, "one warning per dropped call: $dropped")
+            dropped.forEach { assert(it.contains(NavRoutes.SETTINGS)) { "the warning names the requesting route: $it" } }
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = null
+        }
+    }
+
     /**
      * MyDocumentPages -> MyDocuments -> exit host: the parent consumes the child's result while it is still fading
      * in and delivers its own at once. Its entry is current, so that delivery must go through.

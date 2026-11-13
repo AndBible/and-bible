@@ -953,17 +953,24 @@ class BookmarkHost(
      * The ONE place the label manager leaves. Drops the memoised session first, so that a re-entry
      * (from `Bookmarks`, once that destination exists) builds a fresh controller from a fresh
      * payload rather than resuming a finished one — see [manageLabelsSession].
+     *
+     * Only [session]'s own memo is dropped (#4073 follow-up): a second Reset from a screen that is already fading
+     * out, or a delivery after async writes, may arrive after the memo was cleared or after the user re-entered the
+     * label manager. Its delivery is then dropped by the result channel (and logged there), and it must not clear the
+     * newer visit's controller or sheets either. `internal` for `BookmarkHostTest`.
      */
-    private fun deliverManageLabelsResult(
+    internal fun deliverManageLabelsResult(
         session: ManageLabelsSession,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
-        manageLabelsSession = null
-        restoredBookmarks = restoredBookmarks?.copy(
-            managerKey = null, manager = null, labels = emptyList(), pendingLabel = null, pendingLabelIsNew = false,
-        )
-        manageLabelsHelpOpen = false
-        manageLabelsExportOpen = false
+        if (manageLabelsSession?.second === session) {
+            manageLabelsSession = null
+            restoredBookmarks = restoredBookmarks?.copy(
+                managerKey = null, manager = null, labels = emptyList(), pendingLabel = null, pendingLabelIsNew = false,
+            )
+            manageLabelsHelpOpen = false
+            manageLabelsExportOpen = false
+        }
         onResult(ManageLabelsResult(session.data.toJSON()))
     }
 

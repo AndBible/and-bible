@@ -20,6 +20,7 @@ package net.bible.sharedui.nav
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import net.bible.sharedcore.log.Log
 
 /**
  * Whether an up-navigation attempt that just tried to pop the back stack should fall through to
@@ -77,6 +78,23 @@ internal fun NavHostController.isCurrentEntry(entry: NavBackStackEntry?): Boolea
  * current entry ([isCurrentEntry]).
  */
 internal fun NavHostController.popOrExitFrom(from: NavBackStackEntry, exitHost: () -> Unit) {
-    if (!isCurrentEntry(from)) return
+    if (!isCurrentEntry(from)) {
+        logDroppedFrom(from, "pop")
+        return
+    }
     popOrExitOnFailedPop(popBackStack(), exitHost)
 }
+
+/**
+ * A call [isCurrentEntry] refused, logged: harmless for a second tap, but a result delivered after async work (a
+ * bookmark pick, the label manager's writes) is LOST when its entry has gone meanwhile, and this line is the trace.
+ */
+internal fun NavHostController.logDroppedFrom(from: NavBackStackEntry, what: String) {
+    Log.w(
+        TAG_NAV_GUARD,
+        "Dropped a $what from ${from.destination.route} (${from.lifecycle.currentState}): " +
+            "the current entry is ${currentBackStackEntry?.destination?.route}",
+    )
+}
+
+private const val TAG_NAV_GUARD = "NavEntryGuard"
