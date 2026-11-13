@@ -457,6 +457,9 @@ SKILL=.claude/skills/update-translations
 
 ## Video subtitles
 
+**Process rule:** translate subtitles only after the maintainer has reviewed and approved the rendered video
+(the narration text is final only then); an edited narration invalidates every translation.
+
 Use this mode when a video episode's English SRT exists (`render.py render` copies it to
 `MEDIA_DIR/<episode>/subs/<format>-<voice>.en.srt`; `MEDIA_DIR` is `.local/video-media/`).
 Pipeline background: `website/video/README.md`.

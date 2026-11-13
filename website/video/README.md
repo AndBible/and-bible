@@ -294,6 +294,9 @@ A scene shows a real app recording inside a `.device` frame:
 
 ## Subtitles
 
+**Process rule:** translate only after the maintainer has reviewed and approved the rendered video; the
+narration text is final only then, and an edit invalidates every translation.
+
 Every `render` writes the English SRT twice: `.local/video-out/<episode>/<format>-<voice>.srt` and
 `.local/video-media/<episode>/subs/<format>-<voice>.en.srt` (the media copy is kept, together with the
 translations). Translated subtitles are made with the `update-translations` skill's "Video subtitles"
