@@ -39,8 +39,8 @@ const val NIGHT_WORKSPACE_TINT_FRACTION: Float = 0.30f
  * [DEFAULT_WORKSPACE_COLOR_ARGB], so BOTH count as not set. Accepted side effect: a user who
  * deliberately picks `#444444` gets the untinted default look; in exchange "reset to default"
  * behaves correctly with no migration.
- * `abColorScheme` uses this in NORMAL mode to select the stock Material 3 scheme and in
- * COLOR_EINK to select its greyscaled counterpart. The literal-toolbar path likewise leaves
+ * `abColorScheme` uses this in NORMAL mode to select the stock Material 3 scheme; MONOCHROME and
+ * COLOR_EINK ignore it. The literal-toolbar path likewise leaves
  * the theme surface untinted when the colour is not set.
  */
 fun isWorkspaceColorSet(workspaceArgb: Int?): Boolean =

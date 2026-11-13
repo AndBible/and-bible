@@ -44,7 +44,8 @@ private const val OTHER_BASE = 0xFF0099FF.toInt()
  * one being rendered, which is exactly the bug the sweep is meant to catch.
  *
  * Display-colour-mode handling is NOT applied here — the caller wraps this in
- * [accentArgbFor] so the e-ink/BW modes grey the tint.
+ * [accentArgbFor] so the grey-base modes grey the tint (the chip palette uses ink in
+ * MONOCHROME/COLOR_EINK instead).
  */
 fun categoryBaseArgb(colorGroup: Int): Int =
     if (colorGroup in CATEGORY_BASE.indices) CATEGORY_BASE[colorGroup] else OTHER_BASE

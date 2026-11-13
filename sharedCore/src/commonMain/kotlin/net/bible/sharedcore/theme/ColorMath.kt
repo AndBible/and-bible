@@ -34,7 +34,7 @@ fun toGrayscaleArgb(argb: Int): Int {
     return (a shl 24) or (y shl 16) or (y shl 8) or y
 }
 
-/** Accent color for a mode: colored in NORMAL, grayscale in every e-ink/BW mode. */
+/** Accent color for a mode: colored in NORMAL, grayscale in every grey-base mode (all but NORMAL). */
 fun accentArgbFor(baseArgb: Int, mode: DisplayColorMode): Int =
     if (mode.isGreyBase) toGrayscaleArgb(baseArgb) else baseArgb
 

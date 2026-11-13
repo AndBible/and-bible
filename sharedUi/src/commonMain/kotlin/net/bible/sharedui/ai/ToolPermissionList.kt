@@ -119,8 +119,8 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  * "Default (denied)" hint from [globalDefaultLabelFor] stays reachable as menu-item text once
  * expanded) for direct selection -- see [ReadToolPermissionToggle]/[WriteToolPermissionControl].
  * [permissionIcon] maps each [ToolPermission] to a shape/fill distinguishable icon (never color
- * alone), so it stays legible when [MaterialTheme.colorScheme] is grayscaled by `AbTheme`'s
- * BW/COLOR_EINK modes; each icon's `contentDescription` names the state.
+ * alone), so it stays legible when [MaterialTheme.colorScheme] is greyed (BW) or ink-only
+ * (MONOCHROME/COLOR_EINK) by `AbTheme`; each icon's `contentDescription` names the state.
  *
  * @param categories Tool categories in display order, each paired with its tools in display order.
  * @param permissionFor Current [ToolPermission] for a given `toolId` (drives which option is shown

@@ -35,7 +35,8 @@ private val ActiveWindowBase = Color(0xFF2196F3)
 private val HelperLineBase = Color(0xFF4CAF50)
 
 /** The active [DisplayColorMode], exposed so content (e.g. the passage-grid category palette) can
- *  grayscale its own non-scheme colors in BW/COLOR_EINK. Defaults to NORMAL outside an [AbTheme]. */
+ *  grey its own non-scheme colors in BW and use ink in MONOCHROME/COLOR_EINK. Defaults to NORMAL
+ *  outside an [AbTheme]. */
 val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
 
 /** Whether [AbTheme] resolved to the dark scheme. Exposed so content can branch on night mode
@@ -63,8 +64,9 @@ val LocalMotionDurationScaleHandledByHost = staticCompositionLocalOf { false }
  *   tests that have no `ScreenSettings`; a real host that lets it default would wrongly follow
  *   the OS theme instead of AndBible's own night setting. This is the contract every Compose host
  *   follows — thread it exactly like [colorMode]/[disableAnimations] come from `CommonUtils`.
- * @param colorMode NORMAL keeps full color; BW/COLOR_EINK grayscale the whole base scheme
- *   (accents in [LocalAbColors] stay colored in COLOR_EINK via [accentArgbFor]).
+ * @param colorMode NORMAL keeps full color; BW greys the whole base scheme; MONOCHROME and
+ *   COLOR_EINK use the ink/paper scheme and ink accents (COLOR_EINK keeps its bookmark label
+ *   colours outside the theme, see [DisplayColorMode.keepsBookmarkColors]).
  * @param disableAnimations exposed to content via [LocalDisableAnimations].
  * @param seedArgb the workspace colour used as the Material 3 seed (A/B batch 4b). `null` — the
  *   default -- is the default workspace colour (`#444444`) in NORMAL. `:app` hosts do not pass

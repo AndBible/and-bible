@@ -60,8 +60,8 @@ import androidx.compose.ui.unit.dp
  * grab area moved out of this composable's own bounds.
  *
  * Three visual states, matching classic `Separator.kt`'s `separator`/`separator_active`/
- * `separator_drag` drawables, remapped to M3 theme roles so BW/COLOR_EINK degrade automatically
- * (`AbTheme`'s `displayColorMode`) instead of needing dedicated drawables per mode: idle (neither
+ * `separator_drag` drawables, remapped to M3 theme roles so BW greys and MONOCHROME/COLOR_EINK go
+ * ink automatically (`AbTheme`'s `displayColorMode`) instead of needing dedicated drawables per mode: idle (neither
  * [isActive] nor [isDragging]) paints `outlineVariant`, [isActive] (this separator is adjacent to
  * the active window — see `:sharedCore`'s `separatorIsActive`) paints `primary`, and [isDragging]
  * (this separator is currently being dragged) paints `tertiary` and takes priority over [isActive].
