@@ -2,8 +2,11 @@ package net.bible.service.cloudsync.googledrive
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.platform.DriveAdapterProvider
 import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.drive.GoogleAuth
 import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
 import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
 
@@ -13,7 +16,13 @@ import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
  */
 class GoogleDriveAdapterProvider : DriveAdapterProvider {
     override fun create(useShared: Boolean): CloudAdapter =
-        if (useShared) GoogleDriveRestAdapter(AndroidGoogleAuth(), sharedClient) else GoogleDriveCloudAdapter()
+        if (useShared) createRest(AndroidGoogleAuth(), sharedClient) else GoogleDriveCloudAdapter()
+
+    internal fun createRest(auth: GoogleAuth, client: HttpClient) = GoogleDriveRestAdapter(
+        auth,
+        client,
+        signInRequiredMessage = { BibleApplication.application.getString(R.string.google_drive_signin_required) },
+    )
 
     companion object {
         /** One process-wide client (one OkHttp engine); the factory builds a provider per create(). */
