@@ -294,12 +294,10 @@ A scene shows a real app recording inside a `.device` frame:
 
 ## Subtitles
 
-**Process rule:** translate only after the maintainer has reviewed and approved the rendered video; the
-narration text is final only then, and an edit invalidates every translation.
-
 Every `render` writes the English SRT twice: `.local/video-out/<episode>/<format>-<voice>.srt` and
 `.local/video-media/<episode>/subs/<format>-<voice>.en.srt` (the media copy is kept, together with the
-translations). Translated subtitles are made with the `update-translations` skill's "Video subtitles"
+translations). Translations are made only after the maintainer has reviewed and approved the rendered
+video, when the narration is final. Translated subtitles are made with the `update-translations` skill's "Video subtitles"
 section (`.claude/skills/update-translations/SKILL.md`): prepare, translate cue texts, merge, validate;
 the files land next to the English one as `<format>-<voice>.<LANG>.srt` and are uploaded by hand in
 YouTube Studio.
