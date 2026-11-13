@@ -14,7 +14,7 @@ music:
   file: shared/music/curious_pulse.wav
   volume: 0.20
   duck: null                       # speech is clearly louder; no sidechain
-  loop: {start: 11.0, end: 118.0}   # chosen by ear by the maintainer (Audacity)
+  loop: {start: 11.0, end: 118.18}  # maintainer-approved seam (49 bars at 109.7 BPM)
 
 # Clips live in .local/video-media/poc-title-bar-search/captures/ (made by capture.py).
 scenes:

@@ -59,12 +59,28 @@ The pipeline (script, one HTML page per scene, headless-Chrome frames, ffmpeg, W
 ## Music
 
 Music is the shared track under `.local/video-media/shared/music/`; the episode opts in with `music:` (README
-"Music"). Keep the bed about 10 dB under the speech (measure the stems with `ebur128`); ducking is off by default
-in new episodes. For a video longer than the track set `loop`: loop points are chosen **once per track** with
+"Music"). The maintainer's settings: no ducking (`duck: null`), `volume: 0.20` (speech stays about 7 dB above the
+bed; louder is fine, quieter was judged too quiet).
+
+The AndBible theme (Suno, prompted at 110 BPM, measured 109.7 BPM, 146.8 s), approved by the maintainer 2026-11-13 with loop points chosen by ear:
+
+```yaml
+music:
+  file: shared/music/curious_pulse.wav
+  volume: 0.20
+  duck: null
+  loop: {start: 11.0, end: 118.18}
+```
+ For a new track, loop points are chosen **once per track** with
 `render.py music-points FILE`, then confirmed **by ear** with `render.py music-loop-test` (the seams) before they go
 into `script.yaml`. Shorter videos play the plain looping bed.
 
 ## Traps
+
+- A loop seam must be a whole number of bars to a few hundredths of a second, or every seam skips: 118.0 by ear was
+  0.18 s short (audible); 118.18 was found by correlating the onset envelope after `start` with the one after
+  candidate ends (49 bars). `music-points`' tempo estimate (110.1) and Audacity's (120) were both off; trust the
+  envelope correlation, then the ear.
 
 - A scene clip is shown by frame index from a pre-decoded PNG sequence; `screenrecord` is variable frame rate, so
   trim with `trim_cmd` (constant 30 fps) or later cuts show stray frames.
