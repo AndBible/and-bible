@@ -18,6 +18,8 @@ package net.bible.sharedui.reading.host
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -443,5 +445,106 @@ class DrawerEdgeSwipeTest {
         assertFalse(isInLeadingEdge(x = 570f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
         assertTrue(isInLeadingEdge(x = 60f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
         assertFalse(isInLeadingEdge(x = 69f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
+    }
+
+    @Test
+    fun leadingEdgeOverlapCoversOnlyTheLeadingPaneUpToTheStrip() {
+        // A full-width pane: the strip itself.
+        assertEquals(20f, leadingEdgeOverlap(paneLeft = 0f, paneRight = 600f, rootWidth = 600f, edgePx = 20f, rtl = false))
+        // Landscape notch: the strip starts at the safe-area inset, so it covers inset + edge.
+        assertEquals(68f, leadingEdgeOverlap(0f, 600f, 600f, 20f, rtl = false, leadingInset = 48f))
+        // A pane that starts inside the inset (the WebView laid out from the safe area) gets the rest of it.
+        assertEquals(20f, leadingEdgeOverlap(48f, 600f, 600f, 20f, rtl = false, leadingInset = 48f))
+        // The second pane of a split, or a pane right of a leading rail, does not reach the strip.
+        assertEquals(0f, leadingEdgeOverlap(300f, 600f, 600f, 20f, rtl = false))
+        // A pane narrower than the strip is covered whole, never beyond itself.
+        assertEquals(12f, leadingEdgeOverlap(0f, 12f, 600f, 20f, rtl = false))
+    }
+
+    @Test
+    fun leadingEdgeOverlapIsMirroredForRtl() {
+        assertEquals(20f, leadingEdgeOverlap(0f, 600f, 600f, 20f, rtl = true))
+        assertEquals(68f, leadingEdgeOverlap(0f, 600f, 600f, 20f, rtl = true, leadingInset = 48f))
+        assertEquals(0f, leadingEdgeOverlap(0f, 300f, 600f, 20f, rtl = true))
+        assertEquals(20f, leadingEdgeOverlap(300f, 600f, 600f, 20f, rtl = true))
+    }
+
+    /**
+     * iOS: a native interop view (the WKWebView) takes every touch that starts on it, so the panes lay
+     * [DrawerEdgeHitTarget] over their part of the edge strip. Only the leading pane gets one, it does not
+     * consume (the ancestor's edge swipe still opens the drawer) and touches outside it still reach the pane.
+     */
+    private fun ComposeUiTest.setSplitHarness(rtl: Boolean = false, leadingInset: Float = 0f): Harness {
+        val h = Harness()
+        setContent {
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f),
+                LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            ) {
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                h.drawerState = drawerState
+                val scope = rememberCoroutineScope()
+                h.scope = scope
+                val drag = remember {
+                    DrawerEdgeDrag(drawerState, scope, 400f, followFinger = { true }, requestOpen = { scope.launch { drawerState.open() } })
+                }
+                Box(Modifier.size(width.dp, height.dp).testTag("root")) {
+                    ModalNavigationDrawer(
+                        drawerState = drawerState,
+                        gesturesEnabled = drawerState.isOpen,
+                        drawerContent = { ModalDrawerSheet(Modifier.width(sheetWidth.dp)) { Text("menu") } },
+                    ) {
+                        Row(
+                            Modifier
+                                .fillMaxSize()
+                                .drawerEdgeSwipe(enabled = drawerState.isClosed, rtl = rtl, callbacks = drag, leadingInset = leadingInset),
+                        ) {
+                            repeat(2) { pane ->
+                                Box(Modifier.weight(1f).fillMaxHeight().testTag("pane$pane")) {
+                                    Box(Modifier.fillMaxSize().clickable { h.clicks++ })
+                                    DrawerEdgeHitTarget(leadingInset = leadingInset, modifier = Modifier.testTag("strip$pane"))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        return h
+    }
+
+    @Test
+    fun hitTargetCoversOnlyTheLeadingPanesEdgeStrip() = runComposeUiTest {
+        setSplitHarness(leadingInset = 48f)
+        val strip = onNodeWithTag("strip0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertEquals(0f, strip.left)
+        assertEquals(68f, strip.right)
+        assertEquals(height, strip.height)
+        assertEquals(0f, onNodeWithTag("strip1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width)
+    }
+
+    @Test
+    fun hitTargetIsOnTheRightPaneForRtl() = runComposeUiTest {
+        setSplitHarness(rtl = true)
+        // The Row lays the first (leading) pane out on the right.
+        assertEquals(0f, onNodeWithTag("strip1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width)
+        val strip = onNodeWithTag("strip0", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertEquals(width - 20f, strip.left)
+        assertEquals(width, strip.right)
+    }
+
+    @Test
+    fun hitTargetPassesTheEdgeSwipeOnAndLeavesTheRestOfThePane() = runComposeUiTest {
+        val h = setSplitHarness()
+        onNodeWithTag("root").performTouchInput { click(Offset(40f, midY)) }
+        assertEquals(1, h.clicks, "a tap outside the strip reaches the pane")
+        onNodeWithTag("root").performTouchInput { click(Offset(400f, midY)) }
+        assertEquals(2, h.clicks, "the second pane has no strip")
+        onNodeWithTag("root").performTouchInput { click(Offset(5f, midY)) }
+        assertEquals(2, h.clicks, "the strip is the hit target there (on iOS: instead of the web view)")
+        onNodeWithTag("root").performTouchInput { swipe(Offset(5f, midY), Offset(400f, midY), durationMillis = 200) }
+        waitForIdle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue, "the edge swipe over the strip opens the drawer")
     }
 }

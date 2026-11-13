@@ -2,6 +2,8 @@
 
 package net.bible.sharedui.webview
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +37,7 @@ import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.readingShortcutScript
+import net.bible.sharedui.reading.host.DrawerEdgeHitTarget
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.session.BibleWindowSession
 import platform.Foundation.NSLocale
@@ -518,16 +521,21 @@ fun iosReadingPaneFactory(
                 }
             }
         }
-        UIKitView(
-            // Detach from any previous (disposed) interop holder before re-parenting the cached view.
-            factory = { entry.webView.apply { removeFromSuperview() } },
-            modifier = modifier.testTag("pane-$windowId")
-                .semantics { this[PaneAttachGeneration] = attachGeneration }
-                .wheelScrollsWebView(windowId, entry.webView),
-            update = {},
-            onRelease = {}, // never destroy or detach the shared WKWebView; IosReadingWebViews owns it
-            properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
-        )
+        Box(modifier) {
+            UIKitView(
+                // Detach from any previous (disposed) interop holder before re-parenting the cached view.
+                factory = { entry.webView.apply { removeFromSuperview() } },
+                modifier = Modifier.matchParentSize().testTag("pane-$windowId")
+                    .semantics { this[PaneAttachGeneration] = attachGeneration }
+                    .wheelScrollsWebView(windowId, entry.webView),
+                update = {},
+                onRelease = {}, // never destroy or detach the shared WKWebView; IosReadingWebViews owns it
+                properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
+            )
+            // #4074: a touch starting on the web view never reaches Compose, so the leading pane keeps the drawer's
+            // edge strip for Compose (the ReadingHost edge swipe); everywhere else the web view has its gestures.
+            DrawerEdgeHitTarget()
+        }
     }
 }
 

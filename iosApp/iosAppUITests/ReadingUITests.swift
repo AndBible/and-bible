@@ -1364,6 +1364,83 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(backAgain, "after a right swipe the title is '\(title())'; expected John 3 again")
     }
 
+    // MARK: #4074: leading-edge swipe over the text
+
+    /// #4074 on iOS: a drag that starts in the leading 20 pt edge strip OVER THE BIBLE TEXT (the WKWebView interop view,
+    /// not the toolbar) opens the main menu drawer, at several speeds, without turning the chapter. The same launch then
+    /// proves the web view still owns its gestures outside the strip: a horizontal swipe mid-text changes the chapter, a
+    /// vertical swipe scrolls, and a long-press on a word shows the selection menu.
+    func testLeftEdgeSwipeOverTextOpensDrawer() throws {
+        let app = try launchReading()
+        XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown first")
+        let window = app.windows.firstMatch.frame
+        let menuRow = byLabel(app, "Choose Document") // first row of the drawer (ReadingDrawerMenu)
+        let title = { self.toolbarTitle(app)?.label ?? "" }
+        let origin = app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        // (name, start x in pt, start y as a fraction of the window, press time, velocity in pt/s)
+        let swipes: [(String, CGFloat, CGFloat, TimeInterval, XCUIGestureVelocity)] = [
+            ("slow", 4, 0.5, 0.05, XCUIGestureVelocity(250)),
+            ("default", 2, 0.6, 0.05, .default),
+            ("fast", 8, 0.45, 0.01, .fast),
+            ("held", 4, 0.55, 0.4, .default),
+        ]
+        for (name, x, y, press, velocity) in swipes {
+            let start = origin.withOffset(CGVector(dx: x, dy: window.height * y))
+            let end = origin.withOffset(CGVector(dx: window.width * 0.75, dy: window.height * y))
+            start.press(forDuration: press, thenDragTo: end, withVelocity: velocity, thenHoldForDuration: 0)
+            let opened = waitUntil(timeout: 5) { menuRow.exists && menuRow.isHittable }
+            shot(app, "edge-swipe-\(name)")
+            if !opened { attachTree(app, "edge-swipe-\(name)-closed") }
+            XCTAssertTrue(opened, "edge swipe '\(name)' over the text did not open the drawer (title '\(title())')")
+            XCTAssertTrue(title().hasPrefix("John 3"), "edge swipe '\(name)' turned the chapter: title '\(title())'")
+            // Close it with a tap on the scrim right of the sheet.
+            origin.withOffset(CGVector(dx: window.width * 0.95, dy: window.height * 0.5)).tap()
+            XCTAssertTrue(waitUntil(timeout: 5) { !(menuRow.exists && menuRow.isHittable) }, "drawer did not close after '\(name)'")
+        }
+
+        // Outside the strip the web view keeps its horizontal swipe: John 3 -> John 4.
+        let pane = firstPane(app)
+        pane.swipeLeft()
+        let next = waitUntil(timeout: 30) { title().hasPrefix("John 4") && chapterMarkerShown(app, 4) }
+        shot(app, "edge-swipe-mid-text-chapter")
+        if !next { attachTree(app, "edge-swipe-mid-text-not-john-4") }
+        XCTAssertTrue(next, "a swipe mid-text did not turn the chapter: title '\(title())'")
+        XCTAssertFalse(menuRow.exists && menuRow.isHittable, "a swipe mid-text opened the drawer")
+
+        // Vertical scrolling still moves the text.
+        let before = title()
+        pane.swipeUp(velocity: .fast)
+        let scrolled = waitUntil(timeout: 10) { title() != before }
+        shot(app, "edge-swipe-vertical-scroll")
+        XCTAssertTrue(scrolled, "a vertical swipe did not scroll (title stayed '\(before)')")
+
+        // Long-press selection still reaches the web view.
+        XCTAssertTrue(longPressVisibleWord(app), "no word to long-press")
+        let menu = editMenuItem(app, "Bookmark")
+        shot(app, "edge-swipe-selection-menu")
+        if menu == nil { attachTree(app, "edge-swipe-no-selection-menu") }
+        XCTAssertNotNil(menu, "a long-press on a word showed no selection menu")
+
+        // Landscape with the notch on the leading side: the strip starts at the safe-area inset, so a swipe from inside
+        // the inset band and one from just past it both open the drawer.
+        origin.withOffset(CGVector(dx: window.width * 0.5, dy: window.height * 0.3)).tap() // dismiss the selection menu
+        XCUIDevice.shared.orientation = .landscapeRight
+        defer { XCUIDevice.shared.orientation = .portrait }
+        sleep(2)
+        let landscape = app.windows.firstMatch.frame
+        for (name, x) in [("landscape-in-inset", CGFloat(8)), ("landscape-past-inset", CGFloat(66))] {
+            let start = origin.withOffset(CGVector(dx: x, dy: landscape.height * 0.6))
+            let end = origin.withOffset(CGVector(dx: landscape.width * 0.6, dy: landscape.height * 0.6))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .default, thenHoldForDuration: 0)
+            let opened = waitUntil(timeout: 5) { menuRow.exists && menuRow.isHittable }
+            shot(app, "edge-swipe-\(name)")
+            if !opened { attachTree(app, "edge-swipe-\(name)-closed") }
+            XCTAssertTrue(opened, "edge swipe '\(name)' (x=\(x) of \(landscape.width)) did not open the drawer")
+            origin.withOffset(CGVector(dx: landscape.width * 0.95, dy: landscape.height * 0.5)).tap()
+            XCTAssertTrue(waitUntil(timeout: 5) { !(menuRow.exists && menuRow.isHittable) }, "drawer did not close after '\(name)'")
+        }
+    }
+
     // MARK: Task 11: workspaces
 
     /// Stable A/B fixture for frame-by-frame workspace-switch measurements (#3955). The recording is taken outside
