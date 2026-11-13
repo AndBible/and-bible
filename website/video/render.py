@@ -44,6 +44,7 @@ from pipeline import (
     api_key,
     cache_key,
     captions,
+    english_subs_path,
     group_words,
     load_episode,
     music_filter,
@@ -652,7 +653,11 @@ def command_render(episode: Episode, args: argparse.Namespace) -> None:
     out.mkdir(parents=True, exist_ok=True)
     target = out / output_name(args.format, args.voice, "mp4")
     assemble(episode, slots, parts, target, args.voice)
-    (out / output_name(args.format, args.voice, "srt")).write_text(captions(slots, clips), encoding="utf-8")
+    srt = captions(slots, clips)
+    (out / output_name(args.format, args.voice, "srt")).write_text(srt, encoding="utf-8")
+    english = english_subs_path(MEDIA_DIR, args.episode.name, args.format, args.voice)
+    english.parent.mkdir(parents=True, exist_ok=True)
+    english.write_text(srt, encoding="utf-8")
     print(f"{target} ({total_length(slots):.1f}s)")
 
 

@@ -454,3 +454,31 @@ SKILL=.claude/skills/update-translations
 3. Batch 5-8 agents at a time, wait between batches
 4. Final validation sweep
 ```
+
+## Video subtitles
+
+Use this mode when a video episode's English SRT exists (`render.py render` copies it to
+`MEDIA_DIR/<episode>/subs/<format>-<voice>.en.srt`; `MEDIA_DIR` is `.local/video-media/`).
+Pipeline background: `website/video/README.md`.
+
+**Languages:** the tiers this skill already uses, Tier 1 + 2 by default (see `lang_codes.py`;
+`get_translatable_languages(tiers=[1, 2])`). Use the canonical code from `lang_codes.py` in file names.
+
+**UI terms** (menu, setting and button names) must come from the language's glossary, so the subtitles
+match the translated app. `srt_prepare.py` embeds `extract_glossary.py`'s output in the work file.
+
+Steps per language (run from the repo root, `SKILL=.claude/skills/update-translations`):
+
+1. `python3 $SKILL/srt_prepare.py MEDIA_DIR/<episode>/subs <format>-<voice> LANG` writes
+   `tmp/translate-srt/<episode>-<format>-<voice>.LANG.yaml`: glossary plus numbered cue texts, no timings.
+2. Translate the cue texts. The agent writes a cues YAML with the Write tool, for example
+   `tmp/translate-srt/<episode>-<format>-<voice>.LANG.cues.yaml`, as `cues: [{n: 1, text: "..."}, ...]`
+   with exactly the same numbers and count (multi-line cue texts stay multi-line). Never touch timings.
+3. `python3 $SKILL/srt_merge.py MEDIA_DIR/<episode>/subs/<format>-<voice>.en.srt <cues.yaml> MEDIA_DIR/<episode>/subs/<format>-<voice>.LANG.srt`
+   copies the English timing lines byte-identically; it fails on a cue count mismatch.
+4. `python3 $SKILL/srt_validate.py <english.srt> <translated.srt>` must exit 0 for every file (cue count,
+   identical timing lines, no empty text); on failure fix the cues YAML and merge again.
+
+Translated files live at `MEDIA_DIR/<episode>/subs/<format>-<voice>.LANG.srt`. Uploading is manual: in
+YouTube Studio, Subtitles, add the language, *Upload file, With timing*. Clean `tmp/translate-srt/` when done.
+Tests: `uv run --with pyyaml --with pytest pytest .claude/skills/update-translations/tests -q`.

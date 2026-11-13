@@ -374,3 +374,9 @@ def test_scene_clip_paths_finds_unique_clips_in_order(tmp_path: Path):
         '<img class="clip" data-clip="captures/a.mp4" data-start="2">'
     )
     assert pipeline.scene_clip_paths(page) == ["captures/a.mp4", "captures/b.mp4"]
+
+
+def test_english_subs_path(tmp_path: Path):
+    assert pipeline.english_subs_path(tmp_path, "my-episode", "main", "own") == (
+        tmp_path / "my-episode" / "subs" / "main-own.en.srt"
+    )

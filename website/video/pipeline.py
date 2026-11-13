@@ -400,6 +400,11 @@ def output_name(fmt: str, voice: str, suffix: str) -> str:
     return f"{fmt}-{voice}.{suffix}"
 
 
+def english_subs_path(media: Path, episode: str, fmt: str, voice: str) -> Path:
+    """Where a render's English SRT is kept for translation: MEDIA_DIR/<episode>/subs/<fmt>-<voice>.en.srt."""
+    return media / episode / "subs" / output_name(fmt, voice, "en.srt")
+
+
 def clip_frame_index(t: float, start: float, fps: int, frames: int) -> int:
     """0-based frame of a pre-decoded clip to show at scene time `t`: the clip
     starts at `start`, holds frame 0 before it and its last frame after its end.
