@@ -7,12 +7,28 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
+import net.bible.sharedui.settings.DesktopUpdateInterval
 
-private const val DAY_MS = 24 * 60 * 60 * 1000L
+private const val MONTH_MS = 30 * 24 * 60 * 60 * 1000L
 internal const val CONSENT_KEY = "desktop_update_check"
 internal const val OFFER_BETA_KEY = "desktop_update_offer_beta"
 private const val LAST_CHECK_KEY = "desktop_update_last_check"
 private const val ANNOUNCED_KEY = "desktop_update_announced_build"
+private const val SNOOZE_UNTIL_KEY = "desktop_update_snooze_until"
+
+/** The stored check interval; migrates the legacy `yes`/`no` values to `weekly`/`never` in place. */
+internal fun DesktopDeviceSettings.updateInterval(): DesktopUpdateInterval? {
+    val stored = getString(CONSENT_KEY)
+    val interval = DesktopUpdateInterval.fromStored(stored)
+    if (interval != null && stored != interval.value) putString(CONSENT_KEY, interval.value)
+    return interval
+}
+
+/** Postpones every announcement until [until]; the next check then runs at once, whatever the interval. */
+internal fun DesktopDeviceSettings.snoozeUntil(until: Long) {
+    putLong(SNOOZE_UNTIL_KEY, until)
+    remove(LAST_CHECK_KEY)
+}
 
 class DesktopUpdateCheck(
     private val settings: DesktopDeviceSettings,
@@ -35,25 +51,24 @@ class DesktopUpdateCheck(
     }
 
     private suspend fun check() {
-        when (settings.getString(CONSENT_KEY)) {
-            "yes" -> Unit
-            "no" -> return
-            else -> {
-                val answer = consent() ?: return
-                if (settings.getString(CONSENT_KEY) != null) return
-                settings.putString(CONSENT_KEY, if (answer) "yes" else "no")
-                if (!answer) return
-            }
+        val interval = settings.updateInterval() ?: run {
+            val answer = consent() ?: return
+            if (settings.getString(CONSENT_KEY) != null) return
+            val chosen = if (answer) DesktopUpdateInterval.WEEKLY else DesktopUpdateInterval.NEVER
+            settings.putString(CONSENT_KEY, chosen.value)
+            chosen
         }
-        if (settings.getString(CONSENT_KEY) != "yes") return
+        val intervalMs = interval.intervalMs ?: return
         val now = clock()
+        val snoozedUntil = settings.getLong(SNOOZE_UNTIL_KEY, Long.MIN_VALUE)
+        if (snoozedUntil != Long.MIN_VALUE && now < snoozedUntil && snoozedUntil - now <= MONTH_MS) return
         val last = settings.getLong(LAST_CHECK_KEY, Long.MIN_VALUE)
-        if (last != Long.MIN_VALUE && (now < last || now - last < DAY_MS)) return
+        if (last != Long.MIN_VALUE && (now < last || now - last < intervalMs)) return
         settings.putLong(LAST_CHECK_KEY, now)
         try {
             val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownChannel, settings.getInt(ANNOUNCED_KEY, 0),
                 when (settings.getString(OFFER_BETA_KEY)) { "yes" -> true; "no" -> false; else -> null })
-            if (release != null && settings.getString(CONSENT_KEY) == "yes") {
+            if (release != null && settings.updateInterval().let { it != null && it != DesktopUpdateInterval.NEVER }) {
                 if (announceAndAwait(release)) settings.putInt(ANNOUNCED_KEY, release.build)
             }
         } catch (e: CancellationException) {
