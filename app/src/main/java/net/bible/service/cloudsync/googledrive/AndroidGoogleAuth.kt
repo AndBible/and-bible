@@ -46,11 +46,18 @@ import net.bible.service.cloudsync.drive.GoogleAuth
 import net.bible.service.cloudsync.drive.GoogleAuthRequiredException
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.log.Log
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 private const val LAST_ACCOUNT_KEY = "cloud_sync_last_account"
 private const val GOOGLE_ACCOUNT_TYPE = "com.google"
-private const val EMAIL_SCOPE = "email"
+
+/** Drive `about.get` reduced to the user's e-mail address; any Drive scope, `drive.appdata` included, may call it. */
+private const val ABOUT_USER_URL = "https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)"
 
 /** Outcome of one authorization request for the Drive app-data scope. */
 internal sealed interface DriveAuthorization {
@@ -66,10 +73,7 @@ internal sealed interface DriveAuthorization {
  * testable. Failures are reported as Play services' [ApiException]s.
  */
 internal interface DriveAuthorizer {
-    /**
-     * Asks for `drive.appdata` access for [account] (null: let Play services choose / ask). Without an account the
-     * request also asks for the `email` scope, so the result names the account the user picked and it can be stored.
-     */
+    /** Asks for `drive.appdata` access for [account] (null: let Play services choose / ask). */
     suspend fun authorize(account: Account?): DriveAuthorization
 
     /** Reads the outcome of a resolution launched from [DriveAuthorization.NeedsResolution]. */
@@ -77,6 +81,12 @@ internal interface DriveAuthorizer {
 
     /** Drops [token] from Play services' token cache. */
     suspend fun clearToken(token: String)
+
+    /**
+     * The Google account [token] was granted for, or null if it cannot be found out now. Needed because Play services
+     * does not name the account of a `drive.appdata`-only grant (`toGoogleSignInAccount()` is null, seen on API 36).
+     */
+    suspend fun accountOf(token: String): Account?
 }
 
 internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
@@ -84,7 +94,7 @@ internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
 
     override suspend fun authorize(account: Account?): DriveAuthorization {
         val request = AuthorizationRequest.builder()
-            .setRequestedScopes(listOfNotNull(Scope(DRIVE_APPDATA_SCOPE), if (account == null) Scope(EMAIL_SCOPE) else null))
+            .setRequestedScopes(listOf(Scope(DRIVE_APPDATA_SCOPE)))
             .apply { if (account != null) setAccount(account) }
             .build()
         return client.authorize(request).await().toDriveAuthorization()
@@ -95,6 +105,26 @@ internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
 
     override suspend fun clearToken(token: String) {
         client.clearToken(ClearTokenRequest.builder().setToken(token).build()).await()
+    }
+
+    override suspend fun accountOf(token: String): Account? = withContext(Dispatchers.IO) {
+        val connection = URL(ABOUT_USER_URL).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = 30_000
+            connection.readTimeout = 30_000
+            connection.setRequestProperty("Authorization", "Bearer $token")
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) return@withContext null
+            val body = connection.inputStream.bufferedReader().use { it.readText() }
+            val email = Json.parseToJsonElement(body).jsonObject["user"]?.jsonObject?.get("emailAddress")?.jsonPrimitive?.content
+            email?.let { Account(it, GOOGLE_ACCOUNT_TYPE) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not look up the Drive account", e)
+            null
+        } finally {
+            connection.disconnect()
+        }
     }
 
     private fun AuthorizationResult.toDriveAuthorization(): DriveAuthorization {
@@ -194,8 +224,9 @@ class AndroidGoogleAuth internal constructor(
         lastAccount = null
     }
 
-    private fun remember(granted: DriveAuthorization.Granted, requested: Account?) {
-        val chosen = granted.account?.asGoogleAccount() ?: requested
+    /** Keeps the account of a fresh grant; when Play services does not name it, asks Drive whose token it is. */
+    private suspend fun remember(granted: DriveAuthorization.Granted, requested: Account?) {
+        val chosen = granted.account?.asGoogleAccount() ?: requested ?: authorizer.accountOf(granted.token)
         account = chosen
         if (chosen != null) lastAccount = chosen
         authorized = true
@@ -277,10 +308,14 @@ class AndroidGoogleAuth internal constructor(
             }
             when (outcome) {
                 is DriveAuthorization.Granted -> outcome.token.also {
-                    // In memory only (the pref already holds this account); skipped if a sign-out happened meanwhile.
+                    // Skipped if a sign-out happened meanwhile. The pref is written only for a still unknown account.
                     if (generation == startGeneration) {
                         if (account == null) account = current
                         authorized = true
+                    }
+                    if (current == null) {
+                        val found = authorizer.accountOf(outcome.token)
+                        if (found != null && generation == startGeneration) { account = found; lastAccount = found }
                     }
                 }
                 is DriveAuthorization.NeedsResolution -> throw GoogleAuthRequiredException("Google needs interactive consent")

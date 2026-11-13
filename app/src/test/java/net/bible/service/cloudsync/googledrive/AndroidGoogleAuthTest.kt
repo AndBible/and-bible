@@ -44,7 +44,10 @@ class AndroidGoogleAuthTest {
     private class FakeAuthorizer(
         vararg answers: () -> DriveAuthorization,
         val fromIntent: () -> DriveAuthorization = { fail("no resolution expected"); throw AssertionError() },
+        val lookup: (String) -> Account? = { null },
     ) : DriveAuthorizer {
+        val lookups = mutableListOf<String>()
+        override suspend fun accountOf(token: String): Account? { lookups += token; return lookup(token) }
         private val queue = ArrayDeque(answers.toList())
         val requested = mutableListOf<Account?>()
         val cleared = mutableListOf<String>()
@@ -317,12 +320,34 @@ class AndroidGoogleAuthTest {
         assertTrue("got $e", e is IOException && e !is GoogleAuthRequiredException)
     }
 
-    @Test fun grantWithoutAccountOnFirstSignInKeepsSessionSignedIn() {
-        val fake = FakeAuthorizer(granted("tok-1", account = null), granted("tok-2", account = null))
+    // Play services does not name the account of a drive.appdata-only grant: it is looked up and stored (seen on API 36)
+    @Test fun firstSignInWithoutNamedAccountLooksItUpAndStoresIt() {
+        val fake = FakeAuthorizer(
+            needsResolution(),
+            granted("tok-2", account = null),
+            fromIntent = granted("tok-1", account = null),
+            lookup = { Account("found@example.com", "com.google") },
+        )
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals(listOf("tok-1"), fake.lookups)
+        assertEquals("found@example.com", storedAccountName())
+        // A later background request (e.g. after a process restart) asks for exactly that account, no chooser.
+        assertEquals("tok-2", runBlocking { auth.accessToken() })
+        assertEquals(listOf(null, Account("found@example.com", "com.google")), fake.requested)
+        assertEquals("no second lookup once the account is known", 1, fake.lookups.size)
+    }
+
+    @Test fun failedLookupKeepsSessionAndRetriesOnTheNextToken() {
+        var answer: Account? = null
+        val fake = FakeAuthorizer(granted("tok-1", account = null), granted("tok-2", account = null), lookup = { answer })
         val auth = auth(fake)
         assertTrue(withActivity { auth.signIn() })
         assertTrue(auth.signedIn)
+        assertNull(prefs.getString(key, null))
+        answer = Account("later@example.com", "com.google")
         assertEquals("tok-2", runBlocking { auth.accessToken() })
-        assertEquals(listOf<Account?>(null, null), fake.requested)
+        assertEquals(listOf("tok-1", "tok-2"), fake.lookups)
+        assertEquals("later@example.com", storedAccountName())
     }
 }
