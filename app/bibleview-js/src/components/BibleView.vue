@@ -685,13 +685,20 @@ a {
   }
 }
 
+// The marker and its note badge are inline-block on purpose. As plain inline boxes holding only an
+// SVG icon (no text), WebKit (iOS WKWebView) leaves their own line-height out of `vertical-align: top`
+// and lifts the icon to the line box top, about 0.8em above where Blink (Android WebView) draws it.
+// An inline-block's height is its line-height in both engines, so both place the icon alike; Blink's
+// icon position does not change. A marker with a "×N" count was already equal: text makes WebKit count it.
 .bookmark-marker {
   @extend .superscript;
+  display: inline-block;
   font-size: 60%;
   top: -0.8em;
   cursor: pointer;
   > .bookmark-marker-note {
     @extend .superscript;
+    display: inline-block;
     font-size: 60%;
     top: -0.5em;
     padding-left: 2px;
