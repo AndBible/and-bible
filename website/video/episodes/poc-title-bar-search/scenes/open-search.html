@@ -8,16 +8,32 @@
   <div class="note find">Choose Find<small>The title bar becomes a search field</small></div>
   <div class="note type">Type a word, press Enter<small>Here: light</small></div>
 </div></div>
-<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/search-open.mp4" data-start="Open the menu" alt="Opening search from the menu"></div></div>
+<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/search-open.mp4" data-start="0" alt="Opening search from the menu"></div></div>
 </main><script src="../../../lib/runtime.js"></script><script>
 // A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
 // falls back to a rough fraction of the narration; a real render always uses the phrase.
 const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
-JB.scene(({ show }) => {
+JB.scene(({ show, anim }) => {
+  // The clip runs ahead of the voice between Find and typing. Its stretch from 3.3 s to 4.87 s
+  // is a still (empty search field, keyboard up; only the cursor blinks, period 1 s), so the
+  // page rewinds that stretch by whole blink periods: stacked copies of the clip, each started
+  // 1 s later, cut in when the one below reaches 4.7 s and the new one shows 3.7 s. Nothing in
+  // the app's picture changes at a cut; "light" appears as "here, light" is said.
+  const clip = document.querySelector('.phone-slot .clip');
+  const t0 = JB.words.length ? JB.word('Open the menu') - 0.9 : 0;
+  clip.dataset.start = String(t0);
+  for (let k = 1; k <= 3; k++) {
+    const copy = clip.cloneNode();
+    copy.classList.add('rewind');
+    copy.dataset.start = String(t0 + k);
+    clip.parentElement.append(copy);
+    const cut = t0 + (k - 1) + 4.7;
+    anim(copy, [{ opacity: 0 }, { opacity: 1 }], cut, cut + 0.001, 'linear');
+  }
   show('.kicker', 0.1); show('.phone-slot .device', 0.1);
   show('h2', cue('Open the menu', 0.2));
   show('.menu', cue('Open the menu', 0.2));
-  show('.find', cue('The title bar becomes', 0.4));
+  show('.find', cue('choose Find', 0.35));
   show('.type', cue('Type the word', 0.6));
 });
 </script></body></html>

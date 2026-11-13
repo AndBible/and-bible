@@ -8,12 +8,16 @@
   <div class="note close">Back arrow<small>Closes search</small></div>
   <div class="note home">Back<small>John 3:16, where you were reading</small></div>
 </div></div>
-<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/result-and-back.mp4" data-start="The text jumps" alt="Opening a result, then returning to John 3:16"></div></div>
+<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/result-and-back.mp4" data-start="0" alt="Opening a result, then returning to John 3:16"></div></div>
 </main><script src="../../../lib/runtime.js"></script><script>
 // A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
 // falls back to a rough fraction of the narration; a real render always uses the phrase.
 const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
 JB.scene(({ show }) => {
+  // The clip's tap lands 0.5 s in; start it 0.6 s before "The text jumps", so the tap follows
+  // "tap a result", Genesis 1:3 shows on "Genesis", the back arrow and Back land on their words.
+  document.querySelector('.phone-slot .clip').dataset.start =
+    String(JB.words.length ? JB.word('The text jumps') - 0.6 : 0);
   show('.kicker', 0.1); show('.phone-slot .device', 0.1);
   show('h2', cue('Now tap a result', 0.0));
   show('.open', cue('Now tap a result', 0.0));
