@@ -70,7 +70,9 @@ class CloudSyncSignOutTest {
         override val signedIn get() = loggedIn
         var onSignIn: suspend () -> Boolean = { true }
         override suspend fun signIn() = onSignIn()
-        override suspend fun signOut() { loggedIn = false }
+        /** Like GoogleDriveCloudAdapter.signOut when Google Play services fails the request (osTicket 3515). */
+        var onSignOut: suspend () -> Unit = {}
+        override suspend fun signOut() { onSignOut(); loggedIn = false }
         /** Like WebDavCloudAdapter.client: a call before sign-in has completed throws. */
         var listingsBeforeSignIn = 0
         var listings = 0
@@ -216,6 +218,40 @@ class CloudSyncSignOutTest {
                 subscription.cancel()
             }
         }
+    }
+
+    /**
+     * osTicket 3515: switching from Google Drive to Nextcloud goes through "Reset synchronization", which signs the
+     * Google account out. When Google Play services fails that request (here: unavailable on the device), the
+     * exception escaped CloudSync.signOut into the settings screen's lifecycle scope and crashed the app, and the
+     * local sync state was left half reset. The provider's sign-out is best effort: the local reset completes anyway.
+     */
+    @Test fun failingProviderSignOutStillResetsLocalSyncStateWithoutThrowing() = withFixture { f ->
+        val (cloud, adapter, db, settings, _) = f
+        adapter.finishUpload.complete(Unit)
+        adapter.onSignOut = { throw IllegalStateException("17: API: Auth.Api.Identity.SignIn.API is not available on this device") }
+        val result = runCatching { cloud.signOut() }
+        assertTrue(result.isSuccess, "Provider sign-out failure must not escape: ${result.exceptionOrNull()}")
+        assertFalse(cloud.signedIn)
+        assertFalse(db.category.isSyncEnabled(settings))
+        assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertTrue(f.stopping(), "Document transfers of the old account must be stopped")
+    }
+
+    /**
+     * osTicket 3515, seen on the emulator: with Google Play services disabled or missing, the Google sign-out task never
+     * completes (Play services retries every 5 s), so "Sign Out" spun forever while holding the sync lock. The
+     * provider's sign-out is bounded; the local reset completes after the bound.
+     */
+    @Test fun hangingProviderSignOutIsBoundedAndStillResetsLocalSyncState() = withFixture { f ->
+        val (cloud, adapter, db, settings, _) = f
+        adapter.finishUpload.complete(Unit)
+        adapter.onSignOut = { kotlinx.coroutines.awaitCancellation() }
+        cloud.signOut()
+        assertFalse(cloud.signedIn)
+        assertFalse(db.category.isSyncEnabled(settings))
+        assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
     }
 
     /**

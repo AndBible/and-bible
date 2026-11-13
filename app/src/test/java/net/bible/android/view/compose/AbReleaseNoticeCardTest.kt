@@ -19,10 +19,17 @@ package net.bible.android.view.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -30,6 +37,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ui.dialog.ReleaseNoticeAction
@@ -53,17 +61,46 @@ class AbReleaseNoticeCardTest {
 
     private val answers = mutableListOf<Pair<ReleaseNoticeAction?, Boolean>>()
 
-    private fun show(sponsorAllowed: Boolean = true, fontScale: Float = 1f, computerAllowed: Boolean = true) {
+    private fun show(
+        sponsorAllowed: Boolean = true, fontScale: Float = 1f, computerAllowed: Boolean = true, initialDontShowAgain: Boolean = false,
+    ) {
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                ProvideAppLocals { AbTheme { Card(sponsorAllowed, computerAllowed) } }
+                ProvideAppLocals { AbTheme { Card(sponsorAllowed, computerAllowed, initialDontShowAgain) } }
             }
         }
     }
 
-    @Composable private fun Card(sponsorAllowed: Boolean, computerAllowed: Boolean) =
-        AbReleaseNoticeCard("6.0", sponsorAllowed, null, computerAllowed = computerAllowed) { action, dontShowAgain -> answers += action to dontShowAgain }
+    @Composable private fun Card(sponsorAllowed: Boolean, computerAllowed: Boolean, initialDontShowAgain: Boolean) =
+        AbReleaseNoticeCard("6.0", sponsorAllowed, null, computerAllowed = computerAllowed, initialDontShowAgain = initialDontShowAgain) {
+            action, dontShowAgain -> answers += action to dontShowAgain
+        }
+
+    /** #4063: the card shown again after an action keeps the checkbox the user ticked before it. */
+    @Test fun reshownCardStartsWithCarriedCheckbox() {
+        show(initialDontShowAgain = true)
+        compose.onNodeWithText("Close").performClick()
+        assertEquals(listOf<Pair<ReleaseNoticeAction?, Boolean>>(null to true), answers)
+    }
+
+    /** #4065: every platform pill is a 48 dp button that answers its install action with the checkbox state. */
+    @Test fun platformPillsAreButtonsAnsweringTheirInstallAction() {
+        show()
+        compose.onNodeWithText("Don't show again").performClick()
+        val pills = listOf(
+            "Android" to ReleaseNoticeAction.INSTALL_ANDROID, "iPhone & iPad" to ReleaseNoticeAction.INSTALL_IOS,
+            "Windows" to ReleaseNoticeAction.INSTALL_WINDOWS, "Mac" to ReleaseNoticeAction.INSTALL_MAC,
+            "Linux" to ReleaseNoticeAction.INSTALL_LINUX,
+        )
+        for ((label, _) in pills) {
+            compose.onNode(hasText(label) and hasClickAction(), useUnmergedTree = false)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+                .assertHeightIsAtLeast(48.dp)
+                .performClick()
+        }
+        assertEquals(pills.map { it.second to true }, answers)
+    }
 
     @Test fun closeWithoutCheckboxAnswersNullFalse() {
         show()

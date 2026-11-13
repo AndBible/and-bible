@@ -30,5 +30,6 @@ fun rememberIosReadingIcons(): ReadingToolbarIcons {
         workspace = painterResource(resources.getValue("ic_workspace_solid_24dp")),
         overflow = painterResource(resources.getValue("ic_more_vert_black_24dp")),
         sync = painterResource(resources.getValue("ic_syncdb_24dp")),
+        strongsGreek = painterResource(resources.getValue("ic_strongs_greek")),
     )
 }

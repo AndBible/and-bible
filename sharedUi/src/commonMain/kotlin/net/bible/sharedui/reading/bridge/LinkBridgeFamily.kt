@@ -28,14 +28,16 @@ import net.bible.android.control.page.window.update
 import net.bible.android.database.IdType
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.mybible.myBibleIntToBibleBook
+import net.bible.service.sword.mybible.myBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedui.reading.session.BibleWindowSession
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.versification.Versification
 
 /** What a JS external link resolves to. */
 internal sealed interface ExternalLinkAction {
@@ -52,15 +54,18 @@ internal sealed interface ExternalLinkAction {
 /**
  * Classifies a link the JS side asks the app to open (MyBible and MySword shapes, `sword://`/`osis:`,
  * document-independent `strongs://` and `morphology://`); everything else is a [ExternalLinkAction.Browser] link.
+ *
+ * @param v11n the versification of the document that showed the link, when known. A MyBible book number then
+ *   maps to that versification's book (192 is EsthGr in NRSVA, issue #2747) and the reference is read in it.
  */
-internal fun classifyExternalLink(link: String): ExternalLinkAction = when {
+internal fun classifyExternalLink(link: String, v11n: Versification? = null): ExternalLinkAction = when {
     link.startsWith("B:") -> {
         // MyBible links
         val (book, rest) = link.split(" ", limit = 2)
         val bookInt = book.split(":")[1].toInt()
-        val bibleBook = myBibleIntToBibleBook[bookInt]
+        val bibleBook = myBibleBook(bookInt, v11n)
         if (bibleBook == null) ExternalLinkAction.Ignored
-        else ExternalLinkAction.AppLink(BibleLink("content", target = "${bibleBook.osis} $rest"))
+        else ExternalLinkAction.AppLink(BibleLink("content", target = "${bibleBook.osis} $rest", v11nName = v11n?.name))
     }
     link.startsWith("S:") -> {
         // MyBible strongs
@@ -139,7 +144,8 @@ internal class LinkBridgeFamily(
     fun openExternalLink(link: String) {
         if (session.isDisposed) return
         val ticket = session.documentTicket()
-        when (val action = classifyExternalLink(link)) {
+        val v11n = (session.window.pageManager.currentPage.currentDocument as? AbstractPassageBook)?.versification
+        when (val action = classifyExternalLink(link, v11n)) {
             is ExternalLinkAction.AppLink -> session.scope.launch(Dispatchers.Main) {
                 // Navigates the active window: only while the page that showed the link is still this window's (#3975).
                 if (session.holdsDocument(ticket)) session.linkControl.loadApplicationUrl(action.link)

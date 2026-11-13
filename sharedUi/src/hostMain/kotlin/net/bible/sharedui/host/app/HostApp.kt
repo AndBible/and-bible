@@ -603,12 +603,10 @@ private fun HostAppContent(
                 ask = dialogs::await,
                 onAction = { action ->
                     when (action) {
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.VIDEO -> links.open(net.bible.sharedcore.docs.SiteLinks.WHATS_NEW_VIDEO_URL)
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.COMPUTER,
-                        net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.WEBSITE -> links.open(net.bible.sharedcore.docs.SiteLinks.HOME_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE ->
                             net.bible.sharedui.app.recommend.RecommendApp.run(strings, dialogs::await, textShare::shareText)
+                        else -> net.bible.sharedui.app.notice.ReleaseNotice.linkFor(action)?.let { links.open(it) }
                     }
                 },
             )

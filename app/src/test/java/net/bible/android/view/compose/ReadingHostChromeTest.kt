@@ -198,7 +198,7 @@ class ReadingHostChromeTest {
         assertEquals(
             "the common pageTitleText is the ONE page-title body; if it is gone or duplicated, the assertions below " +
                 "are watching nothing",
-            1, Regex("wholeChapter\\(key, false\\)\\.getName\\(\\)").findAll(commonTitle).count(),
+            1, Regex("wholeChapter\\(key, false\\)\\.titleName").findAll(commonTitle).count(),
         )
         assertTrue(
             "ReadingCommands.pageTitleText must delegate to the common page-title body",

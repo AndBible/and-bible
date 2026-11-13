@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading.bridge
 
+import org.crosswire.jsword.versification.system.Versifications
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -35,6 +36,18 @@ class ExternalLinkClassifierTest {
 
     @Test fun myBibleBibleLinkWithUnknownBookNumberIsIgnored() {
         assertSame(ExternalLinkAction.Ignored, classifyExternalLink("B:99999 1:1"))
+    }
+
+    /** Issue #2747: MyBible 192 is EsthGr in NRSVA (AddEsth would not resolve there), 345 AddDan in Luther. */
+    @Test fun myBibleBibleLinkUsesTheSourceDocumentsVersification() {
+        val nrsva = Versifications.instance().getVersification("NRSVA")!!
+        val esther = assertIs<ExternalLinkAction.AppLink>(classifyExternalLink("B:192 10:3", nrsva)).link
+        assertEquals("EsthGr 10:3", esther.target)
+        assertSame(nrsva, esther.versification)
+        val luther = Versifications.instance().getVersification("Luther")!!
+        assertEquals("AddDan 1:1", assertIs<ExternalLinkAction.AppLink>(classifyExternalLink("B:345 1:1", luther)).link.target)
+        // Unknown source versification: the plain book map, parsed as before.
+        assertEquals("AddEsth 10:3", app("B:192 10:3").target)
     }
 
     @Test fun myBibleStrongs() {

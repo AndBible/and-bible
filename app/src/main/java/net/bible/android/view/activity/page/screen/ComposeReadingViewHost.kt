@@ -1695,9 +1695,10 @@ internal fun bibleToolbarIconRes(): Int =
 /**
  * [ReadingToolbarIcons] for the reading view ([ComposeReadingViewHost.ReadingView]) — the same
  * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses (a single static icon
- * per action; the classic Strongs button's OT/NT + link-variant icon swap in
- * `MainBibleActivity.updateStrongsButton` is not reproduced here — [net.bible.sharedui.reading.ReadingToolbar]
- * only dims the single Strongs icon via [ToolbarState.strongsMode]).
+ * per action, except Strong's: Hebrew in the Old Testament, Greek in the New, chosen by
+ * [ReadingToolbarIcons.strongsFor] from [ToolbarState.isNewTestament] (issue #4041). The classic
+ * `MainBibleActivity.updateStrongsButton` link-variant swap is not reproduced;
+ * [net.bible.sharedui.reading.ReadingToolbar] dims the icon via [ToolbarState.strongsMode]).
  */
 @Composable
 private fun readingToolbarIcons() = ReadingToolbarIcons(
@@ -1710,4 +1711,5 @@ private fun readingToolbarIcons() = ReadingToolbarIcons(
     workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
     overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
     sync = painterResource(R.drawable.ic_syncdb_24dp),
+    strongsGreek = painterResource(R.drawable.ic_strongs_greek),
 )
