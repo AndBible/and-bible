@@ -29,6 +29,7 @@ import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
 import io.ktor.client.HttpClient
+import net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import net.bible.service.cloudsync.desktop.drive.LoopbackOAuthBrowser
@@ -160,13 +161,13 @@ fun desktopSyncModule(
     single {
         LoopbackOAuthBrowser(openBrowser, successPage = googleDriveSignInDonePage(get<HostSyncStrings>().googleDriveSignInDone()))
     }
-    single { createGoogleDriveHttpClient(googleEngine()) }
+    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(googleEngine()) } onClose { it?.close() }
     single<CloudAdapterFactory> {
         val clientFactory = DesktopWebDavClientFactory()
         val client = googleClient()
         val googleDrive = client?.let { c ->
             { background: Boolean ->
-                val http = get<HttpClient>()
+                val http = get<HttpClient>(GOOGLE_DRIVE_HTTP)
                 GoogleDriveRestAdapter(
                     PkceGoogleAuth(c, get<LoopbackOAuthBrowser>(), get<SecretStore>(), http, System::currentTimeMillis, interactive = !background),
                     http,

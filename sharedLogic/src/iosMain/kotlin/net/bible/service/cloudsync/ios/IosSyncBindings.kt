@@ -38,6 +38,8 @@ import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
 import io.ktor.client.HttpClient
+import org.koin.dsl.onClose
+import net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP
 import io.ktor.client.engine.darwin.Darwin
 import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
 import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
@@ -80,11 +82,11 @@ fun buildIosSyncBindings(
     single<SyncSettingsPlatform> {
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
-    single { createGoogleDriveHttpClient(Darwin.create()) }
+    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(Darwin.create()) } onClose { it?.close() }
     single<CloudAdapterFactory> {
         val googleDrive = googleClient?.let { c ->
             { background: Boolean ->
-                val http = get<HttpClient>()
+                val http = get<HttpClient>(GOOGLE_DRIVE_HTTP)
                 GoogleDriveRestAdapter(
                     PkceGoogleAuth(c, IosWebAuthOAuthBrowser(c), get<SecretStore>(), http, ::nowMs, interactive = !background),
                     http,

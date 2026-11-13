@@ -54,6 +54,12 @@ class DesktopCloudAdapterFactoryDriveTest {
         client: GoogleOAuthClient?,
         openBrowser: suspend (String) -> Boolean = { false },
         block: (CloudAdapterFactory, SecretStore) -> T,
+    ): T = withKoin(client, openBrowser) { koin -> block(koin.get(), koin.get()) }
+
+    private fun <T> withKoin(
+        client: GoogleOAuthClient?,
+        openBrowser: suspend (String) -> Boolean = { false },
+        block: (org.koin.core.Koin) -> T,
     ): T {
         val app = koinApplication(createEagerInstances = false) {
             modules(
@@ -71,9 +77,17 @@ class DesktopCloudAdapterFactoryDriveTest {
             )
         }
         try {
-            return block(app.koin.get<CloudAdapterFactory>(), app.koin.get<SecretStore>())
+            return block(app.koin)
         } finally {
             app.close()
+        }
+    }
+
+    @Test fun driveHttpClientIsNotServedUnqualified() {
+        withKoin(GoogleOAuthClient("id", "secret")) { koin ->
+            koin.get<CloudAdapterFactory>().create("GOOGLE_DRIVE")
+            assertNotNull(koin.get<io.ktor.client.HttpClient>(net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP))
+            assertNull(koin.getOrNull<io.ktor.client.HttpClient>())
         }
     }
 
