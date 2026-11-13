@@ -85,6 +85,18 @@ optional_mounts:
     readonly: true
     description: "support.andbible.org credentials for ostickethelper (maintainer only)"
 
+  # The OpenAI API key for the narrated videos' TTS and Whisper word timings
+  # (website/video/render.py reads ~/.config/openai/api-key). It stays on the host:
+  # attach it for a render with `jailbee mount openai <container>`, read-only, and it
+  # detaches itself after an hour. The whole directory, not the file: a bind-mounted
+  # file loses an editor's atomic replace on the host.
+  openai:
+    host: ~/.config/openai
+    container: /home/dev/.config/openai
+    readonly: true
+    description: "OpenAI API key for website/video TTS and Whisper"
+    auto_unmount_after: 1h
+
   # SSH access to a real Mac for iOS builds (Xcode, simulator tests): the private key, an
   # ssh config (Host andbible-mac) and the pinned known_hosts. The Mac's address is allowed
   # through the host_ports forward `mac-ssh` (127.0.0.1:2224, see below). See docs/ios-remote-mac.md.
@@ -226,6 +238,9 @@ egress_allow:
   - i.ytimg.com:443
   - play.google.com:443
   - shop.andbible.org:443
+  # Narrated videos (website/video/render.py): OpenAI /v1/audio/speech and
+  # /v1/audio/transcriptions. The key is the maintainer's own (optional mount `openai`).
+  - api.openai.com:443
   # AndBible module repositories (catalogue refresh and module downloads,
   # e.g. in the in-container emulator; app/src/main/res/raw/repositories.txt)
   - andbible.org:443
