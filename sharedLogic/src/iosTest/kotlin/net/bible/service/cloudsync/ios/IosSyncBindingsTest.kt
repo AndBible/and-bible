@@ -95,6 +95,9 @@ class IosSyncBindingsTest {
         syncError = { "sync error" },
         webDavMessage = { "msg" },
         ok = { "OK" },
+        googleDriveSignInDone = { "done" },
+        googleDriveSignInIncomplete = { "incomplete" },
+        googleDriveSignInRequired = { "again" },
     )
 
     @Test

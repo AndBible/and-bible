@@ -94,6 +94,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.okhttp)   // Google Drive HTTP engine on desktop
+        }
         getByName("hostMain").dependencies {
             implementation(libs.jetbrains.markdown)
         }
@@ -111,11 +114,16 @@ kotlin {
         androidMain { kotlin.srcDir("src/jvmMain/kotlin/net/bible/sharedlogic/security") }
         jvmTest {
             kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
+            // In-memory fake Drive v3 server + FakeGoogleAuth; shared with :app's unit tests.
+            kotlin.srcDir("src/jvmTestFixtures/kotlin")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/stubs")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/policy")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/backuperror")
-            dependencies { implementation(libs.androidx.sqlite.bundled.jvm) }
+            dependencies {
+                implementation(libs.androidx.sqlite.bundled.jvm)
+                implementation(libs.ktor.client.mock)
+            }
         }
     }
 }

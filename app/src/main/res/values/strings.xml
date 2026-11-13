@@ -1463,6 +1463,9 @@
     <string name="sync_adapter_summary">Current: %s</string>
     <string name="sync_adapter_unavailable">Synchronization is disabled because the saved backend is not available on this device. Choose a supported backend to set up synchronization.</string>
     <string name="adapters_google_drive">Google Drive</string>
+    <string name="google_drive_signin_incomplete">Sign-in was not completed. You can close this tab and return to AndBible.</string>
+    <string name="google_drive_signin_done">Signed in. You can close this tab and return to AndBible.</string>
+    <string name="google_drive_signin_required">Your Google Drive sign-in has expired or was revoked. Sign in again to continue synchronizing.</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="adapters_webdav">WebDAV</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>

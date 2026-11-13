@@ -37,6 +37,16 @@ import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
+import io.ktor.client.HttpClient
+import org.koin.dsl.onClose
+import net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP
+import io.ktor.client.engine.darwin.Darwin
+import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
+import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
+import net.bible.service.cloudsync.drive.oauth.GoogleOAuthClient
+import net.bible.service.cloudsync.drive.oauth.GoogleOAuthClients
+import net.bible.service.cloudsync.drive.oauth.PkceGoogleAuth
+import net.bible.service.cloudsync.ios.drive.IosWebAuthOAuthBrowser
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.HostDocumentSyncStarter
@@ -61,14 +71,34 @@ internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDate
  * caller waiting for that lock.
  */
 @OptIn(ExperimentalForeignApi::class)
-fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
+fun buildIosSyncBindings(
+    strings: HostSyncStrings,
+    backgroundRefresh: BackgroundRefresh,
+    googleClient: GoogleOAuthClient? = GoogleOAuthClients.ios,
+): Module = module {
     single { IosDevicePrefs() }
     // ONE container for the whole module: its lookup runs once and signIn() awaits that same lookup.
     single { IosUbiquityContainer().also { it.prefetch() } }
     single<SyncSettingsPlatform> {
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
+    // Ktor does not own an injected engine, so keep it and close it together with the client.
+    var driveEngine: io.ktor.client.engine.HttpClientEngine? = null
+    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(Darwin.create().also { driveEngine = it }) } onClose {
+        it?.close()
+        driveEngine?.close()
+    }
     single<CloudAdapterFactory> {
+        val googleDrive = googleClient?.let { c ->
+            { background: Boolean ->
+                val http = get<HttpClient>(GOOGLE_DRIVE_HTTP)
+                GoogleDriveRestAdapter(
+                    PkceGoogleAuth(c, IosWebAuthOAuthBrowser(c), get<SecretStore>(), http, ::nowMs, interactive = !background),
+                    http,
+                    signInRequiredMessage = strings.googleDriveSignInRequired,
+                )
+            }
+        }
         HostCloudAdapterFactory(
             platform = get<SyncSettingsPlatform>(),
             deviceId = get<AppEnvironment>().deviceIdentifier,
@@ -78,6 +108,7 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
             clientFactory = { c, s -> createIosWebDavClient(c, s, ::nowMs) },
             awaitReady = { get<IosUbiquityContainer>().awaitReady() },
+            googleDrive = googleDrive,
         )
     }
     single<DocumentSyncStarter> {

@@ -228,6 +228,7 @@ tasks.named("check").configure { dependsOn(jsTests) }
 android {
     sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     sourceSets.getByName("test").kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
+    sourceSets.getByName("test").kotlin.srcDir(project(":sharedLogic").file("src/jvmTestFixtures/kotlin"))
     compileSdk = 36
 
     // version.properties (repo root) is the one version source for Android and iOS.
@@ -530,16 +531,17 @@ dependencies {
     implementation(libs.kaml)
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
-        // Google Drive API
-        variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
-        variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
-            exclude("org.apache.httpcomponents")
-            exclude("com.google.guava.guava")
-        }
-        variantImplementation("com.google.guava:guava:32.0.1-android")
-        variantImplementation("com.google.api-client:google-api-client-android:2.2.0") {
-            exclude("org.apache.httpcomponents")
-        }
+        // Google Drive authorization (AuthorizationClient); Drive itself is the shared Ktor adapter.
+        variantImplementation("com.google.android.gms:play-services-auth:21.6.0")
+    }
+    // The Java Drive client only for the frozen old-app fixture (LegacyDriveAdapter) in the compatibility tests.
+    testImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
+        exclude("org.apache.httpcomponents")
+        exclude("com.google.guava.guava")
+    }
+    testImplementation("com.google.guava:guava:32.0.1-android")
+    testImplementation("com.google.api-client:google-api-client-android:2.2.0") {
+        exclude("org.apache.httpcomponents")
     }
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 

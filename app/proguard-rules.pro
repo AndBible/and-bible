@@ -96,14 +96,11 @@
 
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer { *; }
 
-# Google Drive
+# Google Drive: AndroidCloudAdapterFactory loads the provider by name (googledrive/ is absent from F-Droid builds).
+-keep class net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider { <init>(); }
+
 -keepattributes *Annotation*,InnerClasses,Signature,SourceFile,LineNumberTable
 #,RuntimeVisibleAnnotations,AnnotationDefault
--keep class * extends com.google.api.client.json.GenericJson { *; }
--keep class com.google.api.services.drive.** { *; }
--keepclassmembers class * {
-  @com.google.api.client.util.Key <fields>;
-}
 
 -dontwarn java.lang.invoke.StringConcatFactory
 

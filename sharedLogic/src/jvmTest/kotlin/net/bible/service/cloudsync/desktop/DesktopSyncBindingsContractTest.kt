@@ -90,7 +90,7 @@ class DesktopSyncBindingsContractTest {
                     single {
                         HostSyncStrings(
                             adapterDisplayName = { "name:$it" }, webDavServerUrlHint = { "hint" }, syncError = { "err" },
-                            webDavMessage = { "msg" }, ok = { "ok" },
+                            webDavMessage = { "msg" }, ok = { "ok" }, googleDriveSignInDone = { "done" }, googleDriveSignInIncomplete = { "incomplete" }, googleDriveSignInRequired = { "again" },
                         )
                     }
                     single<UserNotifier> { inert() }
@@ -298,9 +298,10 @@ class DesktopSyncBindingsContractTest {
         }
     }
 
-    @Test fun onlyNextCloudAndWebDavAreOffered() = withGraph { koin ->
+    /** The shipped desktop OAuth client (GoogleOAuthClients.desktop) is configured, so the real graph offers Google Drive too. */
+    @Test fun nextCloudWebDavAndGoogleDriveAreOffered() = withGraph { koin ->
         val factory = koin.get<CloudAdapterFactory>()
-        assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), factory.available)
+        assertEquals(listOf("NEXT_CLOUD", "WEBDAV", "GOOGLE_DRIVE"), factory.available)
         assertEquals("name:NEXT_CLOUD", factory.displayName("NEXT_CLOUD"))
         assertEquals(false, factory.create("NEXT_CLOUD").signedIn)
         assertEquals(false, factory.create("WEBDAV").signedIn)
@@ -335,7 +336,7 @@ class DesktopSyncBindingsContractTest {
                     single<CoreStrings> { inert() }; single<UserNotifier> { notifier }; single<FilePicker> { inert() }
                     single<FileDelivery> { inert() }; single { AppDialogController() }; single { scope }
                     single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
-                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }) }
                 },
                 desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
             )

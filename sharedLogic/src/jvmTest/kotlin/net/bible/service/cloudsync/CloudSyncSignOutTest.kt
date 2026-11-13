@@ -70,7 +70,7 @@ class CloudSyncSignOutTest {
         override val signedIn get() = loggedIn
         var onSignIn: suspend () -> Boolean = { true }
         override suspend fun signIn() = onSignIn()
-        /** Like GoogleDriveCloudAdapter.signOut when Google Play services fails the request (osTicket 3515). */
+        /** Like the old Android Drive adapter's signOut when Google Play services fails the request (osTicket 3515). */
         var onSignOut: suspend () -> Unit = {}
         override suspend fun signOut() { onSignOut(); loggedIn = false }
         /** Like WebDavCloudAdapter.client: a call before sign-in has completed throws. */
@@ -282,6 +282,33 @@ class CloudSyncSignOutTest {
             assertEquals(1, errors.size, "$errors")
             assertTrue(errors.single().repeated, "The same failure in the next pass is recorded quietly")
             assertTrue(errors.single().background)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    /**
+     * A lost Google sign-in (revoked refresh token) reaches CloudSync as CloudSyncUserFacingException(requiresReconnect):
+     * the pass reports it once, the adapter is dropped (signedIn false), and the next automatic pass does not retry.
+     */
+    @Test fun lostSignInIsReportedDropsTheAdapterAndIsNotRetried() = withFixture { f ->
+        val (cloud, adapter, _, _, _) = f
+        val errors = mutableListOf<UserMessage.ErrorNotification>()
+        val subscription = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        try {
+            adapter.finishUpload.complete(Unit)
+            adapter.onUpload = { throw CloudSyncUserFacingException("Sign in again", true, net.bible.service.cloudsync.drive.GoogleAuthRequiredException("revoked")) }
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(1, errors.size, "$errors")
+            assertEquals("Sign in again", errors.single().text)
+            assertTrue(errors.single().cause is CloudSyncUserFacingException)
+            assertFalse(cloud.signedIn, "The adapter is dropped until the user signs in again")
+
+            errors.clear()
+            val before = adapter.listings
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(before, adapter.listings, "A dropped adapter must not be retried by automatic passes")
+            assertTrue(errors.isEmpty(), "$errors")
         } finally {
             subscription.cancel()
         }
