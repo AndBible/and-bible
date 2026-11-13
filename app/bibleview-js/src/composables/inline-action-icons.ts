@@ -67,7 +67,6 @@ export function useInlineActionIcons(
         void config.showBookmarks;
         void config.showMyNotes;
         void appSettings.monochromeMode;
-        void appSettings.colorEinkMode;
 
         const item = globalBookmarks.bookmarks.value.find(b =>
             isWholePageItem(b, bookInitials, annotateRef)
@@ -86,7 +85,7 @@ export function useInlineActionIcons(
     const menuColor = computed<string | null>(() => {
         const bm = wholePageBookmark.value;
         if (!bm) return null;
-        return adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bm.label.color).string();
+        return adjustedColor(appSettings.monochromeMode ? "black" : bm.label.color).string();
     });
 
     function applyIconStyle(span: HTMLSpanElement) {

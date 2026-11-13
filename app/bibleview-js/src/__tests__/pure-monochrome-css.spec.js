@@ -43,6 +43,19 @@ function stateElement(rootClasses, classes) {
 }
 
 describe("pure monochrome compiled styles", () => {
+    // #4069: COLOR_EINK arrives as `monochrome colorEink pureMonochrome`; its accents are ink too.
+    for (const dark of [false, true]) for (const noAnimation of [false, true]) {
+        const night = dark ? " night" : "";
+        const anim = noAnimation ? " noAnimation" : "";
+        const ink = dark ? "white" : "black";
+        it(`color e-ink chrome accents are ink dark=${dark} noAnimation=${noAnimation}`, () => {
+            const css = rules("../components/BibleView.vue");
+            const theme = `monochrome colorEink pureMonochrome${night}${anim}`;
+            expect(cascaded(css, stateElement(theme, "active-window-corner"), "color")).toBe(ink);
+            expect(cascaded(css, stateElement(theme, "scroll-helper-line"), "border-top-color")).toBe(ink);
+            expect(css).not.toContain(".colorEink");
+        });
+    }
     it("memorized menu uses ink in the winning cascade, leaving BW and normal unchanged", () => {
         const css = rules("../components/documents/MemorizeDocument.vue");
         expect(cascaded(css, stateElement("monochrome pureMonochrome", "menu-item memorized"), "color")).toBe("black");
@@ -180,12 +193,16 @@ describe("pure monochrome compiled styles", () => {
             expect(cascaded(linkCss, link, "color")).toBe(dark ? "#7b7bff" : "blue");
         }
     });
-    it("uses ink tokens and a one-pixel frame, inverted at night", () => {
+    it("uses ink tokens and bold highlights, inverted at night", () => {
         const css = rules("../common.scss");
         declaration(css, ":root .pureMonochrome", "--primary-color: black");
         declaration(css, ":root .pureMonochrome.night", "--primary-color: white");
-        declaration(css, ".pureMonochrome .mono-frame", "border-top-width: 1px");
-        declaration(css, ".pureMonochrome.night .mono-frame", "border-color: white");
+        // #4069: MONOCHROME draws a highlight label as bold text, not a frame.
+        for (const theme of ["monochrome pureMonochrome", "monochrome pureMonochrome night"]) {
+            expect(cascaded(css, stateElement(theme, "mono-bold"), "font-weight")).toBe("bold");
+            expect(cascaded(css, stateElement(theme, "mono-bold"), "border")).toBeUndefined();
+        }
+        expect(css).not.toContain("mono-frame");
         declaration(css, ".pureMonochrome .icon-button.disabled", "opacity: 1");
         declaration(css, ".pureMonochrome .icon-button.disabled", "color: #808080");
     });

@@ -158,7 +158,7 @@
     <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
     <string name="prefs_eink_mode_summary">Use application in monochrome mode (no colors), making it more suitable for E-ink devices.</string>
     <string name="prefs_display_color_mode_title">Color mode</string>
-    <string name="prefs_display_color_mode_summary">Choose how colors are displayed. Color e-ink keeps a black &amp; white base but shows bookmark colors, the active-window indicator and helper lines in color — for color e-ink screens. Monochrome uses only black and white, for e-ink screens.</string>
+    <string name="prefs_display_color_mode_summary">Choose how colors are displayed. Monochrome uses only black and white, for e-ink screens; highlighted bookmarks are shown in bold. Color e-ink looks like Monochrome but keeps bookmark highlight and underline colors — for color e-ink screens.</string>
     <string name="prefs_display_color_mode_normal">Normal</string>
     <string name="prefs_display_color_mode_bw">Black &amp; white</string>
     <string name="prefs_display_color_mode_monochrome">Monochrome</string>

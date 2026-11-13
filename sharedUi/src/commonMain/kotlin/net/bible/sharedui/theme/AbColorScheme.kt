@@ -23,8 +23,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.materialkolor.Contrast
-import com.materialkolor.PaletteStyle
-import com.materialkolor.dynamicColorScheme
 import com.materialkolor.hct.Hct
 import com.materialkolor.palettes.TonalPalette
 import com.materialkolor.scheme.DynamicScheme
@@ -41,9 +39,7 @@ private fun grayed(c: Color, mode: DisplayColorMode): Color =
  * Grayscale EVERY role of a Material3 [ColorScheme] (not just the 6 accent roles): error,
  * surface/background, and all `onXxx`/container roles included. This enforces AndBible's
  * monochrome doctrine (CLAUDE.md: in BW "virtually everything should be grayscale") — e.g.
- * `MaterialTheme.colorScheme.error` must not render red on an e-ink screen. In COLOR_EINK the
- * base scheme is likewise grayed here; the intentionally-colored bits are the `LocalAbColors`
- * accents, which stay colored via [net.bible.sharedcore.theme.accentArgbFor]. No-op in NORMAL
+ * `MaterialTheme.colorScheme.error` must not render red on an e-ink screen. No-op in NORMAL
  * (each role maps to itself).
  */
 private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
@@ -84,11 +80,6 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
     surfaceContainerLow = grayed(surfaceContainerLow, mode),
     surfaceContainerLowest = grayed(surfaceContainerLowest, mode),
 )
-
-private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorScheme =
-    // Named arguments only: the positional list carries six optional role overrides between
-    // `isAmoled` and `style`. `isAmoled` has NO default in the real signature — pass it explicitly.
-    dynamicColorScheme(seedColor = Color(seedArgb), isDark = dark, isAmoled = false, style = style)
 
 /**
  * materialkolor TonalSpot with every palette's chroma capped at the seed's own HCT chroma.
@@ -134,12 +125,10 @@ private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme.
  *   A chosen colour always uses [greySafeTonalSpot], keeping low-chroma seeds muted.
  *   Unseeded goldens and previews render the same stock baseline-violet theme as the app.
- * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
+ * - **MONOCHROME, COLOR_EINK** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
+ *   COLOR_EINK differs only in the bookmark highlight colours, which are not scheme roles (#4069).
  * - **BW** -> the seed is ignored: the stock scheme is greyscaled so contrast is
  *   consistent across workspaces on black-and-white screens.
- * - **COLOR_EINK** -> a set colour (see [isWorkspaceColorSet]) seeds TonalSpot, then the scheme
- *   is greyscaled. An unset colour uses the stock scheme, greyscaled.
- *   This keeps equal contrast for every workspace colour on e-ink; deliberate accents stay coloured.
  */
 fun abColorScheme(
     seedArgb: Int?,
@@ -152,11 +141,8 @@ fun abColorScheme(
             if (!isWorkspaceColorSet(seedArgb)) stock
             else greySafeTonalSpot(seedArgb!!, dark)
         }
-        DisplayColorMode.MONOCHROME -> monochromeScheme(dark)
+        DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK -> monochromeScheme(dark)
         DisplayColorMode.BW -> stock.grayscale(colorMode)
-        DisplayColorMode.COLOR_EINK ->
-            (if (isWorkspaceColorSet(seedArgb)) seeded(seedArgb!!, dark, PaletteStyle.TonalSpot) else stock)
-                .grayscale(colorMode)
     }
 }
 

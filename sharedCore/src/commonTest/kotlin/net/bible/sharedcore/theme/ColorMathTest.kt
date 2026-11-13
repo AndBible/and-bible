@@ -24,13 +24,22 @@ class ColorMathTest {
         val er = (err shr 16) and 0xFF; val eg = (err shr 8) and 0xFF; val eb = err and 0xFF
         assertTrue(er == eg && eg == eb, "error role must be grayscale in monochrome")
     }
-    @Test fun accent_stays_colored_in_normal_and_color_eink_but_grays_in_bw() {
+    @Test fun accent_stays_colored_only_in_normal() {
         val base = 0xFF2196F3.toInt()
         assertEquals(base, accentArgbFor(base, DisplayColorMode.NORMAL))
-        assertEquals(base, accentArgbFor(base, DisplayColorMode.COLOR_EINK))
+        // #4069: COLOR_EINK accents follow MONOCHROME; only bookmark label colours stay coloured.
+        assertEquals(accentArgbFor(base, DisplayColorMode.MONOCHROME), accentArgbFor(base, DisplayColorMode.COLOR_EINK))
         val bw = accentArgbFor(base, DisplayColorMode.BW)
         val r = (bw shr 16) and 0xFF; val g = (bw shr 8) and 0xFF; val b = bw and 0xFF
         assertTrue(r == g && g == b, "BW accent must be gray")
+    }
+
+    @Test fun bookmark_label_colour_stays_coloured_in_normal_and_color_eink_only() {
+        val base = 0xFF2196F3.toInt()
+        assertEquals(base, bookmarkLabelArgbFor(base, DisplayColorMode.NORMAL))
+        assertEquals(base, bookmarkLabelArgbFor(base, DisplayColorMode.COLOR_EINK))
+        assertEquals(toGrayscaleArgb(base), bookmarkLabelArgbFor(base, DisplayColorMode.BW))
+        assertEquals(toGrayscaleArgb(base), bookmarkLabelArgbFor(base, DisplayColorMode.MONOCHROME))
     }
 
     // ---- Batch 4c: classic colour-picker maths ----

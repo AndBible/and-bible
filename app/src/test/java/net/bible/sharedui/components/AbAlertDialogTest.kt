@@ -54,11 +54,13 @@ class AbAlertDialogTest {
         assertTrue(window!!.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
         assertEquals(originalDim, window!!.attributes.dimAmount)
         assertTrue(monoWindow.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
-        for (oldMode in listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
-            rule.runOnIdle { mode.value = oldMode }
-            rule.waitForIdle()
-            assertTrue(window!!.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
-        }
+        rule.runOnIdle { mode.value = DisplayColorMode.BW }
+        rule.waitForIdle()
+        assertTrue(window!!.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
+        // #4069: colour e-ink shares the MONOCHROME ink/paper look, so no dim either.
+        rule.runOnIdle { mode.value = DisplayColorMode.COLOR_EINK }
+        rule.waitForIdle()
+        assertEquals(0, window!!.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND)
     }
 
     @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -114,7 +116,7 @@ class AbAlertDialogTest {
         assertTrue(sheet.isNavigationBarContrastEnforced)
         sheet = window!!
         assertFalse(sheet.isNavigationBarContrastEnforced)
-        rule.runOnIdle { mode.value = DisplayColorMode.COLOR_EINK }
+        rule.runOnIdle { mode.value = DisplayColorMode.BW }
         rule.waitForIdle()
         assertTrue(sheet.isNavigationBarContrastEnforced)
         assertTrue(window!!.isNavigationBarContrastEnforced)
@@ -144,7 +146,7 @@ class AbAlertDialogTest {
                 }
             }
         }
-        for (oldMode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
+        for (oldMode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW)) {
             rule.runOnIdle { wrapped.value = false; mode.value = oldMode }
             rule.waitForIdle()
             val defaultSize = size

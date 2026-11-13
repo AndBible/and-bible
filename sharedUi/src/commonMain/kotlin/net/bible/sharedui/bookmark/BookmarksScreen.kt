@@ -17,7 +17,7 @@
 
 package net.bible.sharedui.bookmark
 
-import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.inkBookmarkLabelColors
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -331,7 +331,7 @@ private fun BookmarkListRow(
                         Box(
                             modifier = Modifier
                                 .size(14.dp)
-                                .background(if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                                .background(if (inkBookmarkLabelColors()) MaterialTheme.colorScheme.onSurface
                                     else AbColor.toComposeColor(colorArgb), CircleShape),
                         )
                     }

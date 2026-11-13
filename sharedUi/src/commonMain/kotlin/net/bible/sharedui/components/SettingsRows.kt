@@ -118,7 +118,7 @@ fun AbSwitchRow(
     badge: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
-    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+    val mono = LocalDisplayColorMode.current.isInkBase
     val disabled = LocalAbColors.current.monoDisabled
     val foreground = if (mono && !enabled) disabled else LocalContentColor.current
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
@@ -230,7 +230,7 @@ fun AbSettingsRow(
     badge: String? = null,
     modifier: Modifier = Modifier,
 ) {
-    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+    val mono = LocalDisplayColorMode.current.isInkBase
     val disabled = LocalAbColors.current.monoDisabled
     val foreground = if (mono && !enabled) disabled else LocalContentColor.current
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }

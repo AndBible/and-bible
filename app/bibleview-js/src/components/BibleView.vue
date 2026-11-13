@@ -577,14 +577,12 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 }
 
 $borderDistance: 0;
-$colorEinkAccent: rgba(0, 0, 255, 0.6);
-$colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 // Active-window corner: the screen corner filled up to a concave quarter circle. The curve is tangent
 // to both screen edges, so the paint thins to nothing along them and blends into the edge with no
 // angular line end. Paint goes through `color` (currentColor in the gradient) so it follows the theme.
-// Colored modes soften the inner edge (--corner-softness > 1); monochrome and color e-ink keep it
-// crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
+// Colored modes soften the inner edge (--corner-softness > 1); monochrome modes (color e-ink included)
+// keep it crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
 $cornerRadius: 32px;
 $cornerRadiusCrisp: 16px;
 $cornerSoftness: 1.4;
@@ -613,14 +611,6 @@ $cornerSoftness: 1.4;
   }
   .monochrome.night & {
     color: white;
-  }
-  .colorEink & {
-    color: $colorEinkAccent;
-    --corner-radius: #{$cornerRadiusCrisp};
-    --corner-softness: 1;
-  }
-  .colorEink.night & {
-    color: $colorEinkAccentNight;
   }
 }
 
@@ -676,20 +666,6 @@ $cornerSoftness: 1.4;
   }
   .night.noAnimation & {
     border-bottom: 1px dashed rgba(var(--accent-rgb), 0.5);
-  }
-  // Accent blue at lower alpha (cannot reuse $colorEinkAccent — different alpha)
-  .colorEink & {
-    background-color: rgba(0, 0, 255, 0.25);
-  }
-  .colorEink.night & {
-    background-color: rgba(196, 196, 255, 0.35);
-  }
-  .colorEink.noAnimation & {
-    background-color: unset;
-    border-bottom: 1px dashed $colorEinkAccent;
-  }
-  .colorEink.night.noAnimation & {
-    border-bottom: 1px dashed $colorEinkAccentNight;
   }
 }
 
@@ -892,13 +868,6 @@ a {
     opacity: 0.3;
   }
 
-  .colorEink & {
-    border-top-color: $colorEinkAccent;
-    opacity: 1;
-  }
-  .colorEink.night & {
-    border-top-color: $colorEinkAccentNight;
-  }
 }
 
 .page-buttons {

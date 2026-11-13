@@ -139,8 +139,8 @@ fun DocumentRow(
                                 Icon(
                                     Icons.Filled.Star,
                                     contentDescription = strings.recommendedDocument,
-                                    // accentArgbFor keeps classic's amber in the normal and COLOR_EINK
-                                    // modes and greys it on BW; pure monochrome uses ink.
+                                    // accentArgbFor keeps classic's amber in the normal mode and greys
+                                    // it on BW; MONOCHROME and COLOR_EINK use ink.
                                     tint = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
                                     else Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
                                     modifier = Modifier.size(11.dp),

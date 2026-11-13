@@ -22,10 +22,10 @@ package net.bible.service.common
  *
  * - [NORMAL]: full color.
  * - [BW]: monochrome (black & white) — the whole UI is grayscale.
- * - [COLOR_EINK]: monochrome base but selected accents (bookmark colors, active-window
- *   indicator, scroll helper lines, top-margin line) are shown in color. Intended for
- *   color e-ink screens where high contrast still matters.
+ * - [COLOR_EINK]: the [MONOCHROME] ink/paper look, except that bookmark highlights and underlines
+ *   keep their label colours (#4069). Intended for colour e-ink screens.
  * - [MONOCHROME]: pure black & white for e-ink — ink, paper and one #808080 for disabled; no other grey.
+ *   A highlight-style bookmark renders as bold text instead of a coloured band.
  */
 enum class DisplayColorMode(val value: String) {
     NORMAL("normal"),
@@ -33,8 +33,14 @@ enum class DisplayColorMode(val value: String) {
     COLOR_EINK("color_eink"),
     MONOCHROME("monochrome");
 
-    /** BW and MONOCHROME both start from a greyscale, unseeded base (workspace colour ignored). */
-    val isGreyBase: Boolean get() = this == BW || this == MONOCHROME
+    /** Every mode but NORMAL starts from a greyscale, unseeded base (workspace colour ignored). */
+    val isGreyBase: Boolean get() = this != NORMAL
+
+    /** MONOCHROME and COLOR_EINK share the pure ink/paper look (no greys, no accents). */
+    val isInkBase: Boolean get() = this == MONOCHROME || this == COLOR_EINK
+
+    /** Bookmark highlights and underlines keep their label colours (NORMAL and COLOR_EINK). */
+    val keepsBookmarkColors: Boolean get() = this == NORMAL || this == COLOR_EINK
 
     companion object {
         /** Returns null for a null or unrecognized value so callers can apply a device default. */

@@ -7,7 +7,7 @@ import net.bible.service.common.DisplayColorMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** The hidden search sheet must not cast a shadow on greyscale-base (BW and MONOCHROME) paper. */
+/** The hidden search sheet must not cast a shadow on greyscale-base (BW, MONOCHROME, COLOR_EINK) paper. */
 @OptIn(ExperimentalMaterial3Api::class)
 class SearchSheetShadowElevationTest {
     @Test fun monochromeHasNoShadow() =
@@ -19,11 +19,11 @@ class SearchSheetShadowElevationTest {
     @Test fun normalKeepsDefaultElevation() =
         assertEquals(BottomSheetDefaults.Elevation, searchSheetShadowElevation(DisplayColorMode.NORMAL))
 
-    @Test fun colorEinkKeepsDefaultElevation() =
-        assertEquals(BottomSheetDefaults.Elevation, searchSheetShadowElevation(DisplayColorMode.COLOR_EINK))
+    @Test fun colorEinkHasNoShadow() =
+        assertEquals(0.dp, searchSheetShadowElevation(DisplayColorMode.COLOR_EINK))
 
     @Test fun everyModeIsCoveredByAnExpectation() {
-        val expectedFlat = setOf(DisplayColorMode.MONOCHROME, DisplayColorMode.BW)
+        val expectedFlat = setOf(DisplayColorMode.MONOCHROME, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)
         DisplayColorMode.entries.forEach {
             val flat = searchSheetShadowElevation(it) == 0.dp
             assertEquals(it.name, it in expectedFlat, flat)

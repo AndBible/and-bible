@@ -63,25 +63,15 @@ type StyleRange = {
     underlineLabelIds: IdType[],
     hiddenLabelIds: IdType[],
     bookmarks: IdType[],
-    frameStart?: boolean,
-    frameEnd?: boolean,
 }
 
-/** Merge overlap splits into one frame, including the canonical end/start of adjacent verses. */
-export function monoFrameEdges(
-    ranges: {start: OrdinalOffset, end: OrdinalOffset, highlighted: boolean}[],
-): {frameStart: boolean, frameEnd: boolean}[] {
-    const contiguous = (a: OrdinalOffset, b: OrdinalOffset) =>
-        (a[0] === b[0] && a[1] === b[1]) || (a[1] === null && b[1] === 0 && b[0] === a[0] + 1);
-    return ranges.map((cur, i) => {
-        if (!cur.highlighted) return {frameStart: false, frameEnd: false};
-        const prev = ranges[i - 1];
-        const next = ranges[i + 1];
-        return {
-            frameStart: !(prev?.highlighted && contiguous(prev.end, cur.start)),
-            frameEnd: !(next?.highlighted && contiguous(cur.end, next.start)),
-        };
-    });
+/**
+ * MONOCHROME (pure black-and-white e-ink) draws a highlight-style label as bold text instead of a
+ * background band (#4069). COLOR_EINK shares the pure ink base (`pureMonochromeMode`) but keeps the
+ * coloured band, so it is excluded here.
+ */
+export function highlightsAsBold(appSettings: AppSettings): boolean {
+    return appSettings.pureMonochromeMode && !appSettings.colorEinkMode;
 }
 
 type LabelAndId = { id: IdType, label: LabelAndStyle }
@@ -163,7 +153,7 @@ export function verseHighlighting(
         // Generate background gradients
         const highlightColors = [];
         let span = 0;
-        for (const {label: s, id} of appSettings.pureMonochromeMode ? [] : highlightLabels) {
+        for (const {label: s, id} of highlightsAsBold(appSettings) ? [] : highlightLabels) {
             highlightColors.push(highlightColorFn(s, highlightLabelCount.get(id)!).hsl().string());
         }
         if (highlightColors.length !== 0) {
@@ -211,7 +201,7 @@ export function verseHighlighting(
 }
 
 export function bookmarkHighlightColor(label: LabelAndStyle, count: number, appSettings: AppSettings): ColorInstance {
-    if (appSettings.pureMonochromeMode) return Color.rgb(0, 0, 0).alpha(0);
+    if (highlightsAsBold(appSettings)) return Color.rgb(0, 0, 0).alpha(0);
     if (appSettings.monochromeMode && !appSettings.colorEinkMode) {
         return appSettings.nightMode ? Color.rgb(180, 180, 180) : Color.rgb(210, 210, 210);
     }
@@ -630,14 +620,6 @@ export function useBookmarks(
                 });
             }
         }
-        if (appSettings.pureMonochromeMode) {
-            const edges = monoFrameEdges(styleRanges.map(s => ({
-                start: s.ordinalAndOffsetRange[0],
-                end: s.ordinalAndOffsetRange[1],
-                highlighted: s.highlightLabelIds.some(id => !bookmarkLabels.get(id)!.isSpeak),
-            })));
-            styleRanges.forEach((s, i) => Object.assign(s, edges[i]));
-        }
         return styleRanges;
     })
 
@@ -740,13 +722,12 @@ export function useBookmarks(
         let firstElement: Element | null = null, lastElement: Element | null = null;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId)!);
-        function frameElement(elem: Element, first: boolean, last: boolean) {
-            if (!config.showBookmarks || !appSettings.pureMonochromeMode ||
+        // Only a class: the text nodes stay as they are, so ordinal offsets are unaffected.
+        function boldElement(elem: Element) {
+            if (!config.showBookmarks || !highlightsAsBold(appSettings) ||
                 !styleRange.highlightLabelIds.some(id => !bookmarkLabels.get(id)!.isSpeak)) return;
-            elem.classList.add("mono-frame");
-            if (first && styleRange.frameStart) elem.classList.add("mono-frame-start");
-            if (last && styleRange.frameEnd) elem.classList.add("mono-frame-end");
-            undoHighlights.push(() => elem.classList.remove("mono-frame", "mono-frame-start", "mono-frame-end"));
+            elem.classList.add("mono-bold");
+            undoHighlights.push(() => elem.classList.remove("mono-bold"));
         }
 
         function addBookmarkEventFunctions(event: MouseEvent) {
@@ -771,7 +752,7 @@ export function useBookmarks(
                 const oldStyle = elem.style.backgroundImage;
                 elem.classList.add("bookmarked")
                 elem.style.backgroundImage = style;
-                frameElement(elem, ord === startOrdinal, ord === lastOrdinal);
+                boldElement(elem);
                 elem.addEventListener("click", addBookmarkEventFunctions)
                 undoHighlights.push(() => {
                     elem.style.backgroundImage = oldStyle;
@@ -803,7 +784,7 @@ export function useBookmarks(
                     firstElement = highlightElements[0];
                     lastElement = highlightElements[highlightElements.length - 1];
                     highlightElements.forEach(elem => elem.addEventListener("click", (event: MouseEvent) => addBookmarkEventFunctions(event)));
-                    highlightElements.forEach((elem, i) => frameElement(elem, i === 0, i === highlightElements.length - 1));
+                    highlightElements.forEach(elem => boldElement(elem));
                     undoHighlights.push(undo);
                 } else {
                     console.error("Highlight range failed!", {
@@ -832,7 +813,7 @@ export function useBookmarks(
                 if (hasSpeakLabel(b)) {
                     const label = getBookmarkStyleLabel(b);
                     const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
-                        : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : "red").string();
+                        : adjustedColor(appSettings.monochromeMode ? "black" : "red").string();
                     const resolvedIcon = resolveIcon(b, label) ?? speakIcon;
                     const iconElement = getIconElement(resolvedIcon, color, false);
                     iconElement.addEventListener("click", event => addEventFunction(event,
@@ -865,7 +846,7 @@ export function useBookmarks(
             if (bookmark) {
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
                 const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
-                    : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
+                    : adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
                 const defaultIcon = hasNote ? editIcon : bookmarkIcon;
                 const resolvedIcon = resolveIcon(bookmark, bookmarkLabel);
                 const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon !== null && hasNote);
@@ -962,7 +943,7 @@ export function useBookmarks(
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
-                : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
+                : adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
             const defaultIcon = b.hasNote ? editIcon : bookmarkIcon;
             const resolvedIcon = resolveIcon(b, bookmarkLabel);
             const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon != null && b.hasNote);

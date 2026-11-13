@@ -28,10 +28,27 @@ class DisplayColorModeTest {
     }
 
     @Test
-    fun greyBaseIsBwAndMonochromeOnly() {
+    fun greyBaseIsEveryModeButNormal() {
         assertEquals(
-            setOf(DisplayColorMode.BW, DisplayColorMode.MONOCHROME),
+            setOf(DisplayColorMode.BW, DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK),
             DisplayColorMode.entries.filter { it.isGreyBase }.toSet(),
+        )
+    }
+
+    @Test
+    fun colorEinkSharesTheInkBaseWithMonochrome() {
+        // #4069: colour e-ink is the pure ink/paper look plus coloured bookmark highlights.
+        assertEquals(
+            setOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK),
+            DisplayColorMode.entries.filter { it.isInkBase }.toSet(),
+        )
+    }
+
+    @Test
+    fun bookmarkLabelColoursSurviveOnlyInNormalAndColorEink() {
+        assertEquals(
+            setOf(DisplayColorMode.NORMAL, DisplayColorMode.COLOR_EINK),
+            DisplayColorMode.entries.filter { it.keepsBookmarkColors }.toSet(),
         )
     }
 

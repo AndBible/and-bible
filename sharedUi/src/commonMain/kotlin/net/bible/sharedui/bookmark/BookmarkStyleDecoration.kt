@@ -17,7 +17,6 @@
 
 package net.bible.sharedui.bookmark
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.inkBookmarkLabelColors
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoInk
 
@@ -73,7 +74,7 @@ private val UnderlineBandHeight = 3.dp
  * raised placement in the label's colour — rather than each call site drawing its icon slot at its
  * own full size.
  */
-data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIcon: Boolean, val frame: Boolean = false)
+data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIcon: Boolean, val bold: Boolean = false)
 
 /**
  * Resolves [style] into a decoration for text painted in [colorArgb].
@@ -87,7 +88,8 @@ data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIc
  * own rules (`bookmarks.ts:140`, `:164-165`, `:193-199`), so anyone changing the JS should find and
  * update this too. One deliberate deviation: the monochrome underline uses the theme's `onSurface`
  * rather than a hardcoded black/white, staying consistent with the rest of the theme.
- * Pure monochrome replaces the highlight band with a transparent, square 1dp ink frame.
+ * MONOCHROME replaces the highlight band with bold text ([BookmarkStyleDecoration.bold], #4069);
+ * COLOR_EINK keeps the label colours like NORMAL.
  *
  * HIDDEN and MARKER return an undecorated modifier, because that is what they look like: HIDDEN
  * draws nothing, MARKER draws the glyph instead. Their callers tell them apart — the preview by
@@ -98,15 +100,15 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
     // The reader treats monochrome as a SUBSTITUTION, not a desaturation: fixed greys for the
     // highlight and plain black/white for the underline. accentArgbFor is for workspace accents and
     // would grey the label colour into the container tone here, making highlight, underline and
-    // hidden indistinguishable in BW.
-    val monochrome = LocalDisplayColorMode.current.isGreyBase
+    // hidden indistinguishable in BW. COLOR_EINK keeps the label colours (#4069).
+    val monochrome = !LocalDisplayColorMode.current.keepsBookmarkColors
     // The theme's own resolved night state, not re-derived from a colour (that is exactly what
     // LocalIsDarkTheme exists to prevent) — this mirrors the reader's nightMode flag.
     val night = LocalIsDarkTheme.current
     val labelColor = Color(colorArgb)
-    val frame = isPureMonochrome()
+    val bold = inkBookmarkLabelColors()
     val highlightFill = when {
-        frame -> Color.Transparent
+        bold -> Color.Transparent
         monochrome -> if (night) Color(0xFFB4B4B4) else Color(0xFFD2D2D2)   // 180 / 210 grey
         else -> labelColor.copy(alpha = if (night) 0.4f else 0.3f)          // bookmarks.ts:198
     }
@@ -116,10 +118,10 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
     }
     return when (style) {
         BookmarkDisplayStyle.HIGHLIGHT -> BookmarkStyleDecoration(
-            (if (frame) Modifier.background(highlightFill).border(1.dp, monoInk(night))
-            else Modifier.background(highlightFill, RoundedCornerShape(2.dp))).padding(horizontal = 2.dp),
+            (if (bold) Modifier else Modifier.background(highlightFill, RoundedCornerShape(2.dp)))
+                .padding(horizontal = 2.dp),
             showsMarkerIcon = false,
-            frame = frame,
+            bold = bold,
         )
         BookmarkDisplayStyle.UNDERLINE -> BookmarkStyleDecoration(
             Modifier.drawBehind {
@@ -247,6 +249,8 @@ fun BookmarkStyleSample(
     iconSlot: @Composable () -> Unit,
 ) {
     val decoration = bookmarkStyleDecoration(style, colorArgb)
+    // MONOCHROME's highlight: the decorated text itself turns bold, as in the reader (#4069).
+    val decoratedStyle = if (decoration.bold) textStyle.copy(fontWeight = FontWeight.Bold) else textStyle
     val marker: @Composable () -> Unit = {
         if (decoration.showsMarkerIcon) {
             Spacer(Modifier.width(1.dp))
@@ -256,7 +260,7 @@ fun BookmarkStyleSample(
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (decoratePartially && style != BookmarkDisplayStyle.HIDDEN) {
             val (decorated, rest) = splitSelectionSample(text)
-            Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
+            Text(decorated, style = decoratedStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
             marker()
             Text(
                 rest,
@@ -268,7 +272,7 @@ fun BookmarkStyleSample(
         } else {
             Text(
                 text,
-                style = textStyle,
+                style = decoratedStyle,
                 color = color,
                 maxLines = 1,
                 overflow = if (ellipsizeTail) TextOverflow.Ellipsis else TextOverflow.Clip,

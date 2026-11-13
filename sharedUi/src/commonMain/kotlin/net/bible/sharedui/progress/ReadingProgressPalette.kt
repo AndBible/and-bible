@@ -42,11 +42,11 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * This is a deliberate divergence from classic, which is left untouched as the flag-OFF fallback.
  *
  * Heat-ramp helpers read [LocalDisplayColorMode] so they degrade for e-ink: colours stay as designed
- * in `NORMAL`/`COLOR_EINK`, and are converted to grayscale in `BW` (`accentArgbFor`). Blends are
+ * in `NORMAL`, converted to grayscale in `BW` (`accentArgbFor`) and ink in `MONOCHROME`/`COLOR_EINK`. Blends are
  * computed with Compose's [lerp] on the two un-degraded anchor colours, and the *result* of the blend
  * is then degraded — never the anchors individually — so a mid-blend hue is preserved faithfully
  * before graying. The theme-derived neutrals need no such wrapping: `AbTheme` greyscales the entire
- * `ColorScheme` in `BW` **and** `COLOR_EINK`.
+ * `ColorScheme` in `BW`.
  */
 
 // Memorization heatmap (green scale), levels 1..4; level 0 is the theme neutral.

@@ -84,12 +84,13 @@ class ReleaseNoticePaletteTest {
         }
     }
 
-    /** Colour e-ink keeps the theme colours but draws no gradient: a soft glow only dithers on an e-ink panel. */
+    /** #4069: colour e-ink shares the flat ink/paper card of the grey-base modes. */
     @Test
-    fun colorEinkFollowsThemeWithoutGlow() {
+    fun colorEinkIsFlatLikeMonochrome() {
         val p = releaseNoticePalette(light, DisplayColorMode.COLOR_EINK)
         assertNull(p.glow)
-        assertEquals(light.surfaceContainerHigh, p.panel)
-        assertEquals(light.primary, p.accent)
+        assertEquals(light.surface, p.panel)
+        assertEquals(light.onSurface, p.accent)
+        assertEquals(light.onSurface, p.buttonBg)
     }
 }

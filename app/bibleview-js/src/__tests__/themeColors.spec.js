@@ -577,14 +577,16 @@ describe("bounded theme chrome contrast and geometry", () => {
             const winner = winning(css, selector.slice(1), mode, "div");
             expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.4"]);
         }
-        for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
+        // COLOR_EINK arrives with the pure ink base classes (#4069).
+        for (const mode of ["monochrome", "monochrome night", "monochrome colorEink pureMonochrome", "monochrome colorEink pureMonochrome night"]) {
             const winner = winning(css, selector.slice(1), mode, "div");
             expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["16px", "1"]);
         }
         // Paint still goes through `color` in every mode.
         expect(winning(css, selector.slice(1), "monochrome", "div").color).toBe("black");
         expect(winning(css, selector.slice(1), "monochrome night", "div").color).toBe("white");
-        expect(winning(css, selector.slice(1), "colorEink", "div").color).toBe("rgba(0, 0, 255, 0.6)");
+        expect(winning(css, selector.slice(1), "monochrome colorEink pureMonochrome", "div").color).toBe("black");
+        expect(winning(css, selector.slice(1), "monochrome colorEink pureMonochrome night", "div").color).toBe("white");
         expect(winning(css, selector.slice(1), "", "div").color).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
     });
     it("keeps only the bottom corners above the bottom window's bar, via --corner-bottom-offset", () => {

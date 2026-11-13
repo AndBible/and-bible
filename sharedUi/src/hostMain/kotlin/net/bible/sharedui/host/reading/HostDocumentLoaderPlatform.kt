@@ -123,7 +123,7 @@ class HostDocumentLoaderPlatform(
             monochromeMode = colorMode != DisplayColorMode.NORMAL,
             einkMode = s.getBoolean("eink_mode", false),
             colorEinkMode = colorMode == DisplayColorMode.COLOR_EINK,
-            pureMonochromeMode = colorMode == DisplayColorMode.MONOCHROME,
+            pureMonochromeMode = colorMode.isInkBase,
             disableAnimations = s.getBoolean("disable_animations", false),
             fontSizeMultiplier = s.getInt("font_size_multiplier", 100) / 100F,
             enabledExperimentalFeatures = s.getStringSet("experimental_features", emptySet()).toList(),

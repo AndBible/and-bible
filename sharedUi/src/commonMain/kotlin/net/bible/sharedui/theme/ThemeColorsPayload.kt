@@ -19,7 +19,6 @@ package net.bible.sharedui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
-import net.bible.sharedcore.reading.isWorkspaceColorSet
 
 private fun Color.toCssHex(): String = "#" + (0xFFFFFF and toArgb()).toString(16).uppercase().padStart(6, '0')
 
@@ -28,25 +27,21 @@ private fun Color.toCssHex(): String = "#" + (0xFFFFFF and toArgb()).toString(16
  * roles its generic chrome needs, as CSS hex strings.
  *
  * Derived from the SAME [abColorScheme] the Compose UI uses, so the two palettes cannot drift; the
- * Vue side does no colour maths at all. That includes the display-mode greyscale pass, which lives
- * *inside* [abColorScheme] rather than at its call sites — so `COLOR_EINK` reaches the Vue chrome
- * greyscaled, exactly as it reaches Compose, without this function testing a second condition.
+ * Vue side does no colour maths at all.
  *
  * NORMAL always sends roles, including for no seed or the default workspace colour, to keep Vue
  * and Compose on the same palette. Returns the literal `"null"` in a grey-base mode (BW,
- * MONOCHROME), or in COLOR_EINK without a set workspace colour; Vue's `var(…, fallback)`
- * declarations preserve those modes' appearance.
+ * MONOCHROME, COLOR_EINK); Vue's `var(…, fallback)` and monochrome rules preserve those modes'
+ * appearance.
  */
 fun themeColorsJson(
     seedArgb: Int?,
     dark: Boolean,
     colorMode: DisplayColorMode,
 ): String {
-    // Grey-base modes ignore the seed, so Vue's own monochrome rules apply; COLOR_EINK ships only a
-    // set colour (unchanged). NORMAL always ships, including the stock default palette, to keep
-    // the Vue chrome and Compose on the same colours.
+    // Grey-base modes ignore the seed, so Vue's own monochrome rules apply. NORMAL always ships,
+    // including the stock default palette, to keep the Vue chrome and Compose on the same colours.
     if (colorMode.isGreyBase) return "null"
-    if (colorMode == DisplayColorMode.COLOR_EINK && !isWorkspaceColorSet(seedArgb)) return "null"
     val s = abColorScheme(seedArgb, dark, colorMode)
     return """{"primary":"${s.primary.toCssHex()}",""" +
         """"onPrimary":"${s.onPrimary.toCssHex()}",""" +

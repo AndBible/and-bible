@@ -393,8 +393,9 @@ object CommonUtils : CommonUtilsBase() {
         val displayColorMode: DisplayColorMode get() = resolveDisplayColorMode(isOnyxDevice)
         val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
-        /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
-        val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
+        /** The pure black & white ink/paper look (MONOCHROME and COLOR_EINK, #4069), stricter than
+         *  [monochromeMode]. COLOR_EINK additionally keeps bookmark highlight colours ([colorEinkMode]). */
+        val pureMonochromeMode: Boolean get() = displayColorMode.isInkBase
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisableAnimations]. */
         val disableAnimations: Boolean get() = resolveDisableAnimations(isOnyxDevice)
