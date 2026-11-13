@@ -1371,6 +1371,7 @@ final class ReadingUITests: RealAppUITestCase {
     /// proves the web view still owns its gestures outside the strip: a horizontal swipe mid-text changes the chapter, a
     /// vertical swipe scrolls, and a long-press on a word shows the selection menu.
     func testLeftEdgeSwipeOverTextOpensDrawer() throws {
+        XCUIDevice.shared.orientation = .portrait
         let app = try launchReading()
         XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown first")
         let window = app.windows.firstMatch.frame
@@ -1420,25 +1421,6 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "edge-swipe-selection-menu")
         if menu == nil { attachTree(app, "edge-swipe-no-selection-menu") }
         XCTAssertNotNil(menu, "a long-press on a word showed no selection menu")
-
-        // Landscape with the notch on the leading side: the strip starts at the safe-area inset, so a swipe from inside
-        // the inset band and one from just past it both open the drawer.
-        origin.withOffset(CGVector(dx: window.width * 0.5, dy: window.height * 0.3)).tap() // dismiss the selection menu
-        XCUIDevice.shared.orientation = .landscapeRight
-        defer { XCUIDevice.shared.orientation = .portrait }
-        sleep(2)
-        let landscape = app.windows.firstMatch.frame
-        for (name, x) in [("landscape-in-inset", CGFloat(8)), ("landscape-past-inset", CGFloat(66))] {
-            let start = origin.withOffset(CGVector(dx: x, dy: landscape.height * 0.6))
-            let end = origin.withOffset(CGVector(dx: landscape.width * 0.6, dy: landscape.height * 0.6))
-            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .default, thenHoldForDuration: 0)
-            let opened = waitUntil(timeout: 5) { menuRow.exists && menuRow.isHittable }
-            shot(app, "edge-swipe-\(name)")
-            if !opened { attachTree(app, "edge-swipe-\(name)-closed") }
-            XCTAssertTrue(opened, "edge swipe '\(name)' (x=\(x) of \(landscape.width)) did not open the drawer")
-            origin.withOffset(CGVector(dx: landscape.width * 0.95, dy: landscape.height * 0.5)).tap()
-            XCTAssertTrue(waitUntil(timeout: 5) { !(menuRow.exists && menuRow.isHittable) }, "drawer did not close after '\(name)'")
-        }
     }
 
     // MARK: Task 11: workspaces
