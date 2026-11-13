@@ -461,6 +461,9 @@ Use this mode when a video episode's English SRT exists (`render.py render` copi
 `MEDIA_DIR/<episode>/subs/<format>-<voice>.en.srt`; `MEDIA_DIR` is `.local/video-media/`).
 Pipeline background: `website/video/README.md`.
 
+**Only after the maintainer has approved the rendered video.** The narration (and so the English SRT) is final
+only then; translating earlier wastes the work on the next text change.
+
 **Languages:** the tiers this skill already uses, Tier 1 + 2 by default (see `lang_codes.py`;
 `get_translatable_languages(tiers=[1, 2])`). Use the canonical code from `lang_codes.py` in file names.
 

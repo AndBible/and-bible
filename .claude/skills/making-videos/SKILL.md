@@ -44,11 +44,14 @@ The pipeline (script, one HTML page per scene, headless-Chrome frames, ffmpeg, W
 4. **Frame checks:** `render.py preview <scene> --at <t> [--format short]` after each anchor; contact sheet of every
    scene; nothing under the Short's caption band; the clip in its device frame readable.
 5. **Render:** `render.py render main` and `render short`; watch both end to end (contact sheet of the final MP4s).
-6. **Subtitles:** `update-translations` skill, section "Video subtitles" (Tier 1 for a PoC, Tier 1+2 normally);
-   every file passes `srt_validate.py`.
-7. **NOTES.md:** pinned commit, capture provenance, production status, proposed YouTube copy for main and Short
+6. **Maintainer review:** hand the maintainer the rendered MP4s (paths) and wait for approval. The narration text
+   and the English SRT are final only then.
+7. **Subtitles (only after that approval):** `update-translations` skill, section "Video subtitles" (Tier 1+2);
+   every file passes `srt_validate.py`. Never translate before the render is approved: a text change after it
+   makes every translation stale.
+8. **NOTES.md:** pinned commit, capture provenance, production status, proposed YouTube copy for main and Short
    (README "Publishing an episode").
-8. **After the maintainer uploads:** `website/data/videos.yaml`, the docs page embed and the app link
+9. **After the maintainer uploads:** `website/data/videos.yaml`, the docs page embed and the app link
    (`video-blog-post` skill and the spec's "App links"/"Website" sections).
 
 ## Traps
