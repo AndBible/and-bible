@@ -32,6 +32,7 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Scope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -49,6 +50,7 @@ import java.io.IOException
 
 private const val LAST_ACCOUNT_KEY = "cloud_sync_last_account"
 private const val GOOGLE_ACCOUNT_TYPE = "com.google"
+private const val EMAIL_SCOPE = "email"
 
 /** Outcome of one authorization request for the Drive app-data scope. */
 internal sealed interface DriveAuthorization {
@@ -64,7 +66,10 @@ internal sealed interface DriveAuthorization {
  * testable. Failures are reported as Play services' [ApiException]s.
  */
 internal interface DriveAuthorizer {
-    /** Asks for `drive.appdata` access for [account] (null: let Play services choose / ask). */
+    /**
+     * Asks for `drive.appdata` access for [account] (null: let Play services choose / ask). Without an account the
+     * request also asks for the `email` scope, so the result names the account the user picked and it can be stored.
+     */
     suspend fun authorize(account: Account?): DriveAuthorization
 
     /** Reads the outcome of a resolution launched from [DriveAuthorization.NeedsResolution]. */
@@ -79,7 +84,7 @@ internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
 
     override suspend fun authorize(account: Account?): DriveAuthorization {
         val request = AuthorizationRequest.builder()
-            .setRequestedScopes(listOf(Scope(DRIVE_APPDATA_SCOPE)))
+            .setRequestedScopes(listOfNotNull(Scope(DRIVE_APPDATA_SCOPE), if (account == null) Scope(EMAIL_SCOPE) else null))
             .apply { if (account != null) setAccount(account) }
             .build()
         return client.authorize(request).await().toDriveAuthorization()
@@ -103,14 +108,20 @@ internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
     }
 }
 
+/** `GoogleSignInStatusCodes.SIGN_IN_FAILED`: authorization failed for good (not a transient error). */
+private const val SIGN_IN_FAILED = 12500
+
 /**
- * Status codes of an [ApiException] that only a fresh interactive authorization can fix. Every other code
- * (network error, timeout, Play services missing / updating / disconnected, internal error) is transient.
+ * Status codes of an [ApiException] that a retry cannot fix: only a fresh interactive authorization can (or nothing
+ * can, for a developer error). Every other code (network error, timeout, Play services missing / updating /
+ * disconnected, internal error) is transient.
  */
 private val SIGN_IN_STATUS_CODES = setOf(
     CommonStatusCodes.SIGN_IN_REQUIRED,
     CommonStatusCodes.INVALID_ACCOUNT,
     CommonStatusCodes.RESOLUTION_REQUIRED,
+    CommonStatusCodes.DEVELOPER_ERROR,
+    SIGN_IN_FAILED,
 )
 
 private val ApiException.needsSignIn get() = statusCode in SIGN_IN_STATUS_CODES
@@ -136,6 +147,8 @@ class AndroidGoogleAuth internal constructor(
 
     @Volatile private var account: Account? = null
     @Volatile private var authorized = false
+    /** Bumped by [forget]: a token request that started before a sign-out must not sign the user back in. */
+    @Volatile private var generation = 0
 
     /** In memory only, like the old adapter: a stored pref alone must not skip [signIn]'s consent check. */
     override val signedIn get() = authorized
@@ -175,6 +188,7 @@ class AndroidGoogleAuth internal constructor(
         }
 
     private fun forget() {
+        generation++
         authorized = false
         account = null
         lastAccount = null
@@ -243,6 +257,7 @@ class AndroidGoogleAuth internal constructor(
     }
 
     override suspend fun accessToken(): String {
+        val startGeneration = generation
         val current = account ?: lastAccount
         if (current == null && !authorized) throw GoogleAuthRequiredException("Not signed in to Google")
         return withContext(Dispatchers.IO) {
@@ -252,9 +267,22 @@ class AndroidGoogleAuth internal constructor(
                 if (e.needsSignIn) throw GoogleAuthRequiredException("Google auth failed: ${e.message}", e)
                 // Play services missing/updating/unavailable or no network: retryable I/O, not lost sign-in.
                 throw IOException("Google Play services unavailable: ${e.message}", e)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: IOException) {
+                throw e
+            } catch (e: Exception) {
+                // Anything else Play services throws (SecurityException, IllegalStateException, ...): retryable I/O.
+                throw IOException("Google authorization failed: $e", e)
             }
             when (outcome) {
-                is DriveAuthorization.Granted -> outcome.token.also { remember(outcome, current) }
+                is DriveAuthorization.Granted -> outcome.token.also {
+                    // In memory only (the pref already holds this account); skipped if a sign-out happened meanwhile.
+                    if (generation == startGeneration) {
+                        if (account == null) account = current
+                        authorized = true
+                    }
+                }
                 is DriveAuthorization.NeedsResolution -> throw GoogleAuthRequiredException("Google needs interactive consent")
             }
         }

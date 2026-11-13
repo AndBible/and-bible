@@ -288,4 +288,41 @@ class AndroidGoogleAuthTest {
         assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
         Unit
     }
+
+    @Test fun signOutDuringTokenRequestStaysSignedOut() = runBlocking {
+        storeAccount("stored@example.com")
+        lateinit var auth: AndroidGoogleAuth
+        val fake = FakeAuthorizer({
+            runBlocking { auth.signOut() } // the user signs out while Play services is answering
+            DriveAuthorization.Granted("tok", Account("stored@example.com", "com.google"))
+        })
+        auth = auth(fake)
+        assertEquals("tok", auth.accessToken())
+        assertFalse("an in-flight token request must not sign the user back in", auth.signedIn)
+        assertNull(prefs.getString(key, null))
+    }
+
+    @Test fun permanentFailuresInBackgroundRequireSignIn() = runBlocking {
+        for (code in listOf(CommonStatusCodes.DEVELOPER_ERROR, 12500)) {
+            storeAccount("stored@example.com")
+            val auth = auth(FakeAuthorizer(apiError(code)))
+            assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
+        }
+    }
+
+    @Test fun nonApiFailureInBackgroundIsIOException() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer({ throw SecurityException("Play services disabled for this app") }))
+        val e = runCatching { auth.accessToken() }.exceptionOrNull()
+        assertTrue("got $e", e is IOException && e !is GoogleAuthRequiredException)
+    }
+
+    @Test fun grantWithoutAccountOnFirstSignInKeepsSessionSignedIn() {
+        val fake = FakeAuthorizer(granted("tok-1", account = null), granted("tok-2", account = null))
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertTrue(auth.signedIn)
+        assertEquals("tok-2", runBlocking { auth.accessToken() })
+        assertEquals(listOf<Account?>(null, null), fake.requested)
+    }
 }
