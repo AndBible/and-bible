@@ -62,50 +62,85 @@ chapter), you can enable the *Navigate to verse* option in Application preferenc
 Now after selecting the chapter number, you will be prompted to choose the exact
 verse number you would like to open.
 
+## The Reading Toolbar {#the-reading-toolbar}
+
+The toolbar at the top of the reading screen has these parts, from left to right:
+
+- **Menu (☰)** opens the [main menu](getting_started.md#main-menu).
+- **The title** shows the current reference and document. Tap it to open the *Book Chooser*
+    (see [Opening Bible References](#opening-bible-references)). Long-press it to open the document
+    sheet. Swipe down on it to open the workspace selector, or swipe left or right on it to go to
+    the previous or next [workspace](workspaces.md).
+- **Quick buttons**. How many fit depends on the width of the screen (at most about half of the
+    toolbar); on a narrow screen the last ones are left out. They are:
+    - **Bible** and **Commentary**: open the document sheets, see
+        [Opening Documents](#opening-documents) below.
+    - **Strong's numbers**, shown only when the current document has Strong's numbers. Each press
+        cycles the Strong's mode of the active window: `Hidden Links`, `Links`, `Text and Links`.
+        Long-press it to open the *Strong's numbers* setting for that window. See
+        [Dictionaries](documents.md#dictionaries).
+    - **Find**: opens the search field, see [Search](search.md).
+    - **Speak**: shows the speak bar. It is shown when the document can be spoken and speech is
+        stopped. Long-press it to open the speak settings. See [Speak](speak.md).
+    - **Workspaces**: opens the workspace selector.
+- **More options (⋮)** is always shown. Its menu has *Fullscreen*, *Night mode* (see
+    [Look and Feel](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (Android only), *Reversed split
+    mode* (when several windows are open), *Window pinning*, *Label settings*, *AI Actions*
+    (when an AI provider is set up), *Sync now* (when sync is set up), the text options you used
+    most recently and *All text options*. See also
+    [Background activity](#background-activity).
+
 ## Moving Between Documents
 
 ### Opening Documents
 
-To open a document, click on either the Bible or Books icons in the top navigation bar.
+To open a document, click on either the Bible or Commentary icons in the top navigation bar.
 
 [![Book chooser icons](images/book-chooser-icons.png){ height="100" }](images/book-chooser-icons.png)
 > - Clicking on the Bible icon will show a list of installed Bibles that you can open.
-> - Clicking on the Books icon will show a list of other installed documents you can open (
+> - Clicking on the Commentary icon will show a list of other installed documents you can open (
 >     i.e. Commentaries, Dictionaries, Generic books, etc).
 
 By default each button opens a sheet. The Bible button lists your Bibles. The
 other button is titled *Commentary* and lists commentaries, general books and
 dictionaries. The tabs are *Recent*, *This verse* and *All*, and *All
-documents…* at the bottom opens the full document list. If only two Bibles (or
-books) are available for the current verse, the button switches directly to the
-other one instead; if none are, it opens the full document list.
+documents…* at the bottom opens the full document list. A tab with no documents is
+not shown. If only two Bibles (or books) are available for the current verse, the
+button switches directly to the other one instead; if none are, it opens the full
+document list.
+
+Long-pressing the title at the top of the screen opens the same kind of sheet for
+all documents. Its tabs are *Recent*, *This verse* and *Last filter* (the documents
+that match the language and type filter you last used in the document list).
 
 Note: This will open the document in the currently active window. To open a
 document in a new window, see [Windows](windows.md).
 
-The Bible and books toolbar buttons can also be customized. To customize the
-actions, to to the top left main menu (☰) and click *Application
-Preferences*. Click *Action for toolbar button press* to configure the custom
+The Bible and Commentary toolbar buttons can also be customized. To customize the
+actions, go to the top left main menu (☰) and click *Application
+preferences*. Click *Action for toolbar button press* to configure the custom
 button actions:
 
 > - Press to open menu, long press for documents screen (default)
-> - Press to open next document, long press to open the document sheet (list of documents)
-> - Press to open next document, long press to open documents screen
+> - Press to open next document, long press to open menu
+> - Press to open next document, long press for documents screen
+
+Here "menu" means the document sheet described above, and "documents screen" means the full
+document list.
 
 ### Closing Documents
 
-To close a document, click the ☰ menu at the top right of the document
-you want to close and click *Close*. Alternatively, long-click on a bottom-right
-window bar button and click *Close*.
+To close a document, open its window menu and click *Close*. The window menu opens
+from the ☰ button over the window, or by long-pressing the window's button in the
+window button bar at the bottom right.
 
 ### Maximizing/Minimizing Document Windows {#maximizing-minimizing-document-windows}
 
 To maximize or minimize a window, click on the window icon in the bottom right
 window button bar. Clicking on a window that is visible will minimize the window
-and clicking on a window that is minimized will maximize it. Maximized window
-buttons will have a grey background while minimized window buttons will have a
-darker background. The window button that is highlighted indicates the active
-window (which should also be maximized):
+and clicking on a window that is minimized will maximize it. The window button of
+a minimized window has a dashed outline. The window button that is highlighted
+indicates the active window:
 
 [![Open the workspaces dialog](images/window-buttons.png){ height="100" }](images/window-buttons.png)
 
@@ -185,6 +220,37 @@ jobs (under a second) are not shown.
 
 *AndBible* supports a variety of gestures and shortcuts for efficient navigation.
 
+### Keyboard Shortcuts {#keyboard-shortcuts}
+
+With a hardware keyboard, the reading view understands the shortcuts below. They work in the
+reading view, not in text fields or in the note editor (see the notes under
+[Keyboard Search](#keyboard-search)).
+
+| Keys | Action | Platforms |
+|---|---|---|
+| **Ctrl+F** (**Cmd+F** on iOS) | Open the search field | All |
+| **Ctrl+B** (**Cmd+B** on iOS) | Open the *Book Chooser* | All |
+| **Ctrl+L** | Open the *Book Chooser* ("go to reference") | Desktop |
+| **Ctrl+B** with text selected | Bookmark the selection | Desktop |
+| **Ctrl+C** | Copy the selected text | All |
+| **Ctrl+W** | Open the workspace selector | All |
+| **Alt+M** | Open the main menu | All |
+| **Alt+O** | Open the ⋮ menu | All |
+| **Alt+Up / Alt+Left**, **Alt+Down / Alt+Right** | Switch to the previous / next window | Android, iOS |
+| **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
+| Mouse back button | Go back | Desktop |
+| **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop |
+| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0** | Larger text, smaller text, default text size | Desktop |
+| **Ctrl + mouse wheel** | Larger or smaller text | Desktop |
+| **Ctrl+,** | Open *Application preferences* | Desktop |
+| **F11** | Toggle fullscreen | Desktop |
+| **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
+| **Up / Down** | Scroll the text | All |
+| **Space** | Pause or resume speaking, while speech is not stopped | All |
+
+When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
+**Space** speaks the verse. See [Verse Action Dialog](verse_action_dialog.md).
+
 ### Keyboard Search
 
 With the reading view open, **Ctrl+F** opens the in-place search field, including
@@ -250,7 +316,7 @@ choice is kept. Double-tapping still exits fullscreen when the setting is off.
 On iPhone and iPad, you can also tap the exit-fullscreen button at the upper right.
 
 In the desktop app, double-click does not toggle fullscreen and the double-tap
-setting is not shown. Choose **Fullscreen** in the main menu or press **F11**
+setting is not shown. Choose **Fullscreen** in the top right three-dot menu (⋮) or press **F11**
 to toggle fullscreen. To exit, you can also click the exit-fullscreen button at
 the upper right or press **Esc**. When a dialog or page editor is open, close it first.
 
@@ -280,7 +346,10 @@ To disable: `Settings` > `Application behavior` > `Volume keys scroll`.
 Several buttons support long-press for quick access to additional features:
 
 - **Speak toolbar button** – Open speak settings directly.
-- **Window button** (in the bottom bar) – Minimize the window instantly.
-- **Verse location title** (top of screen) – Jump to the document selector.
+- **Window button** (in the bottom bar) – Open the window menu (see [Windows](windows.md)).
+- **Verse location title** (top of screen) – Open the document sheet.
+- **Links** (Android) – Open a menu with *Open link here* or *Open link in special window*
+    (whichever is not what a plain tap does, depending on the *Links window* setting),
+    *Open link in new window* and, for Bible reference links, *Copy link to clipboard*.
 
 The navigation history list is in the main menu as `History`.

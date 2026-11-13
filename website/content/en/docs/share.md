@@ -16,7 +16,7 @@ On iPhone, iPad and Mac sharing uses the share sheet; on Windows and Linux you c
         in the sharing options. If the bookmark is not tied to a particular Bible,
         the verse text comes from the current Bible.
 3. Toggle the items that you want to include in the shared text.
-4. Click *COPY* to copy the text to your clipboard, or click *SHARE* to share
+4. Click *Copy* to copy the text to your clipboard, or click *Share* to share
     the text via another app.
 
 [![Share options](images/share-options.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
@@ -41,15 +41,22 @@ With a hardware keyboard, select text and press *Ctrl+C*:
 [Study Pads](study_pads.md) can be shared with other *AndBible* users, or with anyone in html
 format:
 
-1. Open a StudyPad (See [Study Pads](study_pads.md) for more details)
+1. Open a Study Pad (See [Study Pads](study_pads.md#opening-a-study-pad) for more details)
 2. Long-Click on the study pad window button
 3. In the window menu, choose:
 
     - *Export as HTML* to export an html file that can be shared with anyone.
     - *Export Study Pad* to export a study pad file that can be imported
         by other *AndBible* users.
-4. When prompted, choose either to save the exported study pad to your
-    *Phone Storage* or to *Share* it via another app.
+    - *Export Bookmarks as CSV* to export the bookmarks of the study pad as a CSV
+        file (you choose the columns first). See [Bookmarks](bookmarks.md#csv-export-import).
+4. When asked *Export to where?*, choose either to save the exported study pad to your
+    *Phone Storage* (*Save to Files* on iPhone and iPad) or to *Share* it via another app.
+
+To export several study pads at once, use *Export Study Pads* in the ⋮ menu of
+*Study Pads* (main menu) or of the label settings, and tick the study pads you
+want. To import a study pad file you have received, use *Import Study Pads* in
+the same ⋮ menu. See [Study Pads](study_pads.md#exporting-and-importing-study-pads).
 
 Empty text entries do not include the "Tap to edit text" placeholder in HTML exports.
 The placeholder remains visible in the Study Pad so you can add text later.

@@ -293,6 +293,36 @@ see:
 
 You can cancel a running prompt at any time by tapping the cancel button.
 
+### The Raw LLM Log
+
+Under a finished step in the agent log, tap **View raw LLM log** to see exactly
+what was exchanged with the AI provider. The **Raw LLM Log** screen lists the
+system prompt, your message, the tool definitions, each tool call and its
+result, and each API response, with token counts. Tap an entry to expand or
+collapse it. Use the copy and share buttons in the top bar to take the whole log
+elsewhere. If there is nothing to show, the screen says *No raw log data
+available*.
+
+The three-dot menu may contain **Delete** (for a saved log, after a confirmation)
+and **Report AI bug**.
+
+### AI Log History
+
+*AndBible* saves the raw logs of your AI conversations. To browse them, open
+`AI Settings` > `Configure Connection` and, under **Usage**, tap
+**AI Log History** (*View and manage saved AI conversation logs*). The list
+shows each log's prompt name, model, token counts and cost, and time, and marks
+logs that ended in an error with **Error**. Tap a log to open it in the Raw LLM
+Log screen.
+
+- **Delete selected:** long-press a log to start selecting, tick more logs, and
+    tap the delete icon in the top bar.
+- **Delete old logs…:** in the three-dot menu, choose *Older than 1 week*,
+    *Older than 1 month*, *Older than 3 months* or *Delete all*.
+- **Auto-delete old logs:** the setting just below **AI Log History** in
+    `Connection settings` deletes logs automatically after the number of days you
+    enter, or keeps everything when you tick *disable* (*Disabled (keep all)*).
+
 ## AI Tools
 
 AI prompts can use *tools* – specialized functions that let the AI read data

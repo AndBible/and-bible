@@ -4,11 +4,11 @@ Reading plans provide a pre-determined schedule of scripture readings.
 To access reading plans, navigate to the left main menu (☰) and choose
 *Reading Plan*.
 
-When first accessing *Reading Plan*, you will be prompted to select a plan. After
-selecting a plan, you will be shown the Daily Reading screen for the first day
-of the reading plan’s schedule.
+When first accessing *Reading Plan*, you will be prompted to select a plan (*Choose a Reading Plan*). After
+selecting a plan, you will be shown the *Reading Plan* screen for the first day
+of the reading plan’s schedule. Its title shows the plan name, with the day (and date) below it.
 
-Passage references in the Daily Reading screen and the list of days use the chapter
+Passage references in the *Reading Plan* screen and the list of days use the chapter
 and verse numbering of your current Bible. Plans are mapped from the numbering they
 declare (KJV for built-in plans), so a reading may span different chapters in your Bible. For example,
 the plan's Joel 3 reading appears as Joel 4 in Bibles with four chapters in Joel;
@@ -16,7 +16,8 @@ KJV Joel 2 also includes their short Joel 3 chapter.
 
 Clicking the *Done* button will take you to the next day’s reading schedule.
 Note: The *Done* button will only be enabled after pressing either the *Speak*
-or *Passage* buttons for each passage that is listed. Alternatively, you can tap
+or *Passage* buttons for each passage that is listed (*Speak* is available only on
+platforms that support [speaking](speak.md); there is also an *All* row with a *Speak* button for the whole day). Alternatively, you can tap
 the check next to each passage to enable the *Done* button (manually checking
 the check marks can be useful if you’re reading in a paper Bible).
 
@@ -24,39 +25,42 @@ the check marks can be useful if you’re reading in a paper Bible).
 
 ## Abandon Reading Plan
 
-Press the vertical 3-dot menu from the *Daily Reading* screen, and click *Reset*.
+Press the vertical 3-dot menu from the *Reading Plan* screen, and click *Reset*. You can also press and hold a plan in
+*Choose a Reading Plan* to reset it.
 Reset clears the saved start date and completion progress. The next time you select the same
 *Reading Plan*, a regular plan starts at day 1, even if you select it again immediately after
 resetting. A date-based plan opens at today's scheduled reading.
 
 ## Switch Between Reading Plans
 
-From the *Daily Reading* screen, click the first button in the top lef of the
-toolbar. This will let you select a different reading plan. You can return to
+From the *Reading Plan* screen, tap the plan name in the title.
+This will open *Choose a Reading Plan*, where you can select a different reading plan. You can return to
 the original reading plan and your progress will remain where you left it.
 In other words, it is possible to use several reading plans simultaneously.
 
 ## Preview Reading Plans or Go To Specific Day
 
-When in the *Daily Reading* screen, click the second button in the top left of
-the toolbar. You will see a list of daily readings. Clicking on a daily reading
-will bring you to *Daily Reading* screen for that specific day.
+When in the *Reading Plan* screen, tap the day line (for example *Day 3*) below the plan name.
+You will see a list of daily readings. Clicking on a daily reading
+will bring you to *Reading Plan* screen for that specific day.
 
 ## Changing Reading Plan Start Date
 
 To set the start date of a reading plan, select the vertical 3-dot menu from
-the *Daily Reading* screen and click *Set Start Date…* to pick a specific
-start date.
+the *Reading Plan* screen and click *Set Start Date…* to pick a specific
+start date. This item is not shown for plans that follow the calendar (date-based plans).
 
 ## Set Specific Reading Plan Day to Today’s Date {#set-specific-reading-plan-day-to-today-s-date}
 
 This is useful if you started reading on a previous day and have just switched
 to *AndBible*. To update the current reading plan day to today’s date:
 
-1. Open the *Daily Reading* screen for the reading plan you would like to adjust
+1. Open the *Reading Plan* screen for the reading plan you would like to adjust
 2. Go to the specific day of the reading plan you want to set to today’s date.
 3. Click the top right 3-dot menu
-4. Click *Set as current day*.
+4. Click *Set as current day…*. After you confirm, today becomes the current day of the plan and all earlier days are marked as read.
+
+Like *Set Start Date…*, this is not shown for date-based plans.
 
 # Custom Reading Plans
 
@@ -198,6 +202,6 @@ Example reading plans can be found
 
 Your reading plans and their progress can be synchronized across devices using
 [cloud sync](cloud_sync.md). Enable the **Reading Plans** toggle in the cloud
-sync settings. When a sync finishes, an open daily reading screen updates its
+sync settings. When a sync finishes, an open *Reading Plan* screen updates its
 completion ticks automatically. Resetting a plan on another device also clears
 it as the current plan on this device; choose a plan again to start reading.

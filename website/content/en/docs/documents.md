@@ -12,9 +12,11 @@ The *Document Library* contains the list of all Bibles, commentaries, dictionari
 books, and other modules that have been download.
 The *Document Library* can be accessed in a few different ways:
 
-> - Click and hold on the document name on the top of the menu bar.
 > - Click the top left main menu (☰).
 > - Click *Choose Document*.
+
+Long-pressing the title at the top of the screen, or a toolbar button's *All documents…*
+row, also gets you to the document list; see [Opening Documents](navigation.md#opening-documents).
 
 ## Bibles
 
@@ -46,7 +48,7 @@ data. To display them:
 1. Open the text options for your window or workspace (via the popup menu or the
     kebab menu).
 2. Enable **Cross references** to show cross-reference indicators in the text.
-3. Optionally enable **Expand cross references** to display the references inline
+3. Optionally enable **Inline cross references** (off by default) to display the references inline
     rather than in a popup dialog.
 
 When enabled, cross-references appear as small orange superscript markers in the
@@ -62,7 +64,7 @@ window. Its title uses localized abbreviated book names (for example,
 For comprehensive cross-references covering every verse in the Bible, install the
 **TSK** (Treasury of Scripture Knowledge) or **TSKe** (extended edition) module:
 
-1. From the top left main menu (☰), click `Download documents`.
+1. From the top left main menu (☰), click `Download Documents`.
 2. Search for **TSK** and install the module.
 3. Open TSK in a separate window (see [Windows](windows.md)) or use the links window to
     view cross-references alongside your Bible text.
@@ -91,10 +93,10 @@ Strong’s and Robinson dictionaries can be used as the primary lookup for words
 in Strong’s enabled document modules (like KJV, BSB, NASB, NET, etc):
 
 1. From the top left main menu (☰) click *Application preferences*
-2. Click on *Strong’s Greek Dictionary* to select the Strong’s Greek dictionary you want to use.
-3. Click on *Strong’s Hebrew Dictionary* to select the Strong’s Hebrew dictionary you want to use.
+2. In the *Dictionaries* section, click on *Strongs Greek dictionary* to select the Strong’s Greek dictionary you want to use.
+3. Click on *Strongs Hebrew dictionary* to select the Strong’s Hebrew dictionary you want to use.
 4. Click on *Robinson Greek morphology* to select the Robinson Greek dictionary you want to use.
-5. In the main menu toolbar, click the Greek/Hebrew icon until dotted lines appear
+5. In the toolbar at the top, click the Greek/Hebrew icon until dotted lines appear
     below the words.
 
 To view the Strong’s definition for a word, simply click on a word in a Strong’s
@@ -105,13 +107,30 @@ To display the Strong’s numbers in the Bible instead of underlines,
 click on the Greek or Hebrew icon on the top menu bar (For books in Hebrew,
 this icon shows Hebrew letters and for books in Greek the icon shows a Greek letter).
 
-Toggling this icon can show underlines, Strong’s numbers, or no links at all.
+Each press of this icon switches the active window between `Hidden Links`, `Links`
+(underlines) and `Text and Links` (Strong’s numbers shown in the text). Long-press the icon to
+open the *Strong’s numbers* setting for the window.
 
-It is also possible to display the dictionary definitions in a special window
-rather than a pop-up dialog:
+The dictionary definitions open in a special window rather than a pop-up dialog
+when the *Links window* option is on, which it is by default:
 
 > - From the top left main menu (☰) click on *Application preferences* and
->     enable the *Links window* option.
+>     check the *Links window* option.
+
+### Word lookup dictionaries {#word-lookup-dictionaries}
+
+Other (plain) dictionaries, such as an English dictionary, are used for looking up any word you
+select in the text. Select a word and choose *Look up in dictionaries* from the selection menu
+(see [Verse Action Dialog](verse_action_dialog.md#text-selection-menu)); the entries that match
+are shown together. The menu row is only offered when at least one lookup dictionary is
+enabled, and a message tells you if the word is not found.
+
+By default every installed dictionary is used, except the Strong’s and Robinson dictionaries above.
+To choose which ones are used:
+
+1. From the top left main menu (☰) click *Application preferences*.
+2. In the *Dictionaries* section, click *Word lookup dictionaries* and check the dictionaries you
+    want to use for word lookups.
 
 ## Books
 
@@ -166,7 +185,7 @@ repositories.
 To download a document from the provided repositories:
 
 1. Click on the top left main menu (☰).
-2. Click *Download documents*.
+2. Click *Download Documents*.
 3. Search for, and click on a document to install it.
 
 The language filter starts with your last picked language when it is available in
@@ -195,9 +214,9 @@ running for a short while after you switch to another app.
 To load a document from your device’s filesystem:
 
 1. Click on the top left main menu (☰).
-2. Click *Download documents*.
+2. Click *Download Documents*.
 3. Click the three vertical dot menu on the right of the top menu bar.
-4. Click *Load Document From Files*.
+4. Click *Load Documents From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
 On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
@@ -227,7 +246,7 @@ is restored when you leave the installation screen.
 To delete any of the above module types:
 
 1. From the top left main menu (☰), click on “Choose Document”.
-    (Alternatively you can click and hold on the book name in the top menu bar.)
+    (Alternatively, long-press the title at the top of the screen and choose *All documents…*.)
 2. Search for the document you want to delete, or filter by the document type.
 3. Click and hold on the document you want to delete.
 4. Once highlighted, click on the trash can icon in the top menu.

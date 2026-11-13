@@ -13,7 +13,8 @@ saved automatically.
 ### Add a note from the verse action dialog:
 
 1. Click a verse to open the [verse action dialog](verse_action_dialog.md).
-2. Click the *Note* button to add a note.
+2. Click the *Note* button. The note opens for editing in the bookmark panel of
+    the reading view.
 
     - This will automatically create a new bookmark with the [label](labels.md):
         ‘Unlabeled’.
@@ -30,8 +31,8 @@ saved automatically.
 
 1. [Create a Bookmark](bookmarks.md#creating-a-bookmark).
 2. After selecting labels for your bookmark you will see the bookmark dialog.
-3. Click the pencil icon at the top right of the bookmark dialog to add a note
-    to the bookmark.
+3. Click the pencil icon on the bookmark card in the verse action dialog to add a
+    note to the bookmark.
 
 > [![Bookmark dialog note button](images/bookmark-dialog-note-button.png){ .align-left width="291" height="218" }](images/bookmark-dialog-note-button.png)
 
@@ -41,13 +42,12 @@ Notes can be added to a [study pad](study_pads.md). These notes will not be
 visible in the document and will only be visible on the study pad.
 
 1. Open a [study pad](study_pads.md).
-2. At the bottom of the study pad (or in any of the three-dot menus) click the (+)
+2. At the bottom of the study pad (or in the toolbar of any entry) click the (+)
     icon to add a note.
 
 This note will *not* be linked to a specific document or verse.
-The note can be re-located in the study pad by clicking the three-dot menu next
-to the note and dragging the up/down arrows to the position in the study pad
-where you would like to locate the note.
+The note can be re-located in the study pad by dragging it by its drag handle
+to the position where you would like to locate it.
 
 > [![Study pad notes](images/study-pad-notes.png){ .align-left width="488" height="211" }](images/study-pad-notes.png)
 
@@ -67,15 +67,17 @@ is displayed in the verse action dialog.
 
 ### Viewing notes as a commentary:
 
-To view all notes for the active Bible chapter, open the *My Notes* “document”
-from the books menu:
+To view all notes for the active Bible chapter, open the *My Notes* “document”.
+You can reach it from the *My Notes* button of the verse action dialog or from
+the *Commentary* sheet:
 
 > [![Open my notes](images/open-my-notes.png){ .align-left width="411" height="211" }](images/open-my-notes.png)
 
 ### Viewing all notes:
 
-To view and search all notes, open the Bookmark list from the top left main menu
-(☰).
+To view all notes, open *Bookmarks* from the top left main menu
+(☰) and switch on *Show notes* in the ⋮ menu. A search button then appears for
+searching the notes. See [Bookmarks list](bookmarks.md#bookmarks-list).
 
 ## Editing a note
 
@@ -94,9 +96,9 @@ replace the selected text.
 
 ### Choosing the Editor Format
 
-1. From the top left main menu (☰), click `Settings`.
-2. Under the notes settings, find `Format for new bookmark notes`.
-3. Select either **HTML** or **Markdown**.
+1. From the top left main menu (☰), open `Application preferences` > `Look & feel`.
+2. Find `Format for new bookmark notes`.
+3. Select either **Rich text (HTML)** or **Markdown**.
 
 This setting applies to newly created notes and study pad entries. Existing
 notes keep the format they were created with.

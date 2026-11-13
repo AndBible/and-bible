@@ -23,32 +23,31 @@ Workspaces remember:
 Access the list of workspaces via the ‘dot’ menu or by swiping down on the verse selector.
 In the workspace selector sheet, tap **+**, enter a name and confirm to create a workspace and switch to it immediately. Cancelling leaves your current workspace unchanged.
 When switching workspaces, existing reading views are reused on Android, iOS and desktop. The previous text can remain briefly visible until the selected workspace's text replaces it.
-Choose **Manage workspaces** for the full list, which allows you to:
+Choose `Manage workspaces…` for the full list (the screen is titled `Select workspace`). Tap a workspace to select it, drag the handle to reorder, use the search icon to filter, and `+` to create a new one. Each workspace has its own ⋮ menu with:
 
-- reorder workspaces
-- create new workspaces
-- and delete existing ones
+- `Remove`
+- `Rename`
+- `Copy as new`: makes a copy of the workspace as a new workspace (you are asked for its name, `Copy of …` by default)
+- `Settings…`: edit the workspace's text display settings
+- `Copy settings…`: choose `To other workspaces…` (pick which settings and which workspaces) or `To global defaults…`
 
-The Settings option allows you to edit the default text display settings for all
+Changes made here take effect only when you tap `Save`; `Dismiss` cancels them.
+
+The `Settings…` option allows you to edit the default text display settings for all
 windows in the workspace. These workspace settings override the
 [global defaults](look_and_feel.md#global-text-options), and in turn can be overridden by
 individual window settings.
-
-The **gray workspace** icon indicates you are changing a workspace default
-setting.
 
 !!! warning
 
     These settings affect all windows in the workspace that are using the
     defaults.
 
-A **green workspace** icon indicates that this window setting *is* using the
-default workspace setting. A **settings gear** icon indicates the setting is
-inherited from global defaults.
-
-If there is no icon, then the setting has been changed manually and changes at
-higher levels won’t affect it. Restore it to the default by pushing the Reset
-button.
+In the text options screens, a setting that is inherited from a higher level shows
+a small text label: `Workspace` (inherited from the workspace) or `Global`
+(inherited from the global defaults). If there is no label, then the setting has
+been changed manually at this level and changes at higher levels won’t affect it.
+Restore it to the default by pushing the Reset button.
 
 For more details on how settings are inherited, see
 [Text display settings hierarchy](look_and_feel.md#settings-hierarchy).

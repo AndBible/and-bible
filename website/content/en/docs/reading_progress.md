@@ -12,8 +12,10 @@ as you scroll through the text.
 
 ### Mark as Read Button
 
-A **Mark as read** button is shown at the bottom of each Bible chapter. Tap it to
-record the chapter as read. The button changes appearance once marked.
+A check mark icon is shown at the bottom of each Bible chapter. Tap it to
+record the chapter as read. The icon changes appearance once marked, and a count such as `×2` shows
+how many times the chapter has been recorded. Each tap adds a new record. To see or remove the records,
+press and hold the icon (or right-click it) or tap the count; this opens the read history.
 
 The button is a [text display setting](look_and_feel.md), so it can be turned
 off or on per workspace or per window:
@@ -30,11 +32,11 @@ as read.
 
 To enable automatic tracking:
 
-1. Open the main menu (☰) and go to **Settings**.
-2. Open **Progress & memorization**.
+1. Open the main menu (☰) and go to **Application preferences**.
+2. Under **Features**, open **Progress & memorization**. (The same page opens from the ⋮ menu of the **Read/Memory Progress** screen.)
 3. Toggle **Auto-track reading**.
 
-This sets the application-wide default, the same switch as **Auto-track reading** under
+Auto-track reading is off by default. This sets the application-wide default, the same switch as **Auto-track reading** under
 **Global Text Options** > **Reading & Memorization**. A workspace or an individual window
 can override it in its own text options.
 
@@ -49,8 +51,8 @@ if you have not run an exercise.
 You can also disable the automatic marking, for example if you prefer to
 mark verses manually after reviewing them yourself:
 
-1. Open the main menu (☰) and go to **Settings**.
-2. Open **Progress & memorization**.
+1. Open the main menu (☰) and go to **Application preferences**.
+2. Under **Features**, open **Progress & memorization**.
 3. Toggle **Auto-mark as memorized**.
 
 The same screen contains other memorization options described under
@@ -66,27 +68,39 @@ The book and chapter selection grids show visual progress indicators:
 - **Chapter grid:** Individual chapter buttons show a full progress bar when the
     chapter has been marked as read (green) or has memorized verses (gold).
 
-## Reading Progress View
+<a id="reading-progress-view"></a>
+## Read/Memory Progress View
 
 A dedicated statistics view is available from the main menu (☰) under
-**Reading Progress**. It shows:
+**Read/Memory Progress**. It has two tabs, **Reading** and **Memorization**. The ⋮ menu has
+**Progress & memorization** (the settings page) and **Help**.
 
-- **Summary cards:** Total chapters read, verses memorized, and active reading days.
+### Reading tab
+
+- **Summary cards:** Chapters read and active days.
 - **Overall progress bar:** Percentage of the entire Bible read.
-- **Bible overview heatmap:** All 66 books displayed as colored tiles, grouped by
+- **Bible Overview heatmap:** The books displayed as colored tiles, grouped by
     Old and New Testament. The color intensity indicates how much of each book you
     have read. Tap a book to expand it and see which individual chapters are marked
-    as read. Tap a chapter to navigate directly to that passage.
-- **Reading activity calendar:** A GitHub-style heatmap showing your daily reading
-    activity over the past year. Darker squares indicate more chapters read on that day.
+    as read. Tap a chapter to navigate directly to that passage. Press and hold a book or chapter
+    to see its read history.
+- **Reading Activity:** A GitHub-style heatmap showing your daily reading
+    activity over the past year. Darker squares indicate more chapters read on that day. Tap a day to see what you read.
+
+### Memorization tab
+
+The tab shows how many verses you have memorized and, when you have set
+memorization goals, the progress towards them. Choose **Overview** to see a book heatmap and a **Memorization Activity** calendar,
+or **List** to see your **Memorized passages** and **Memorization goals**. Tap a passage or a goal to open it in [Memorize](memorize.md), and
+use the X button to remove it from the list.
 
 ## Reading Cycles
 
 You can start a new reading cycle to track reading the Bible multiple times. Starting
 a new cycle preserves your previous cycle’s data but begins tracking from scratch.
 
-To start a new cycle, open the **Reading Progress** view and tap the **New Cycle**
-button at the bottom. The current cycle number is shown next to it.
+On the **Reading** tab, the current cycle number (for example *Cycle 2*) is shown at the bottom, with arrows at its sides
+that take you to the previous and next cycle. Tap **New Cycle** next to it and confirm to start a new cycle.
 
 ## Cloud Sync
 
