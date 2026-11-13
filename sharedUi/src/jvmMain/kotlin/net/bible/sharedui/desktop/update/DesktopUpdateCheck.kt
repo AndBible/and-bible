@@ -9,6 +9,8 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedui.settings.DesktopUpdateInterval
 
+/** After a failed fetch the next attempt is allowed this long after it, not a whole interval later. */
+internal const val RETRY_BACKOFF_MS = 6 * 60 * 60 * 1000L
 private const val MONTH_MS = 30 * 24 * 60 * 60 * 1000L
 internal const val CONSENT_KEY = "desktop_update_check"
 internal const val OFFER_BETA_KEY = "desktop_update_offer_beta"
@@ -63,7 +65,8 @@ class DesktopUpdateCheck(
         val snoozedUntil = settings.getLong(SNOOZE_UNTIL_KEY, Long.MIN_VALUE)
         if (snoozedUntil != Long.MIN_VALUE && now < snoozedUntil && snoozedUntil - now <= MONTH_MS) return
         val last = settings.getLong(LAST_CHECK_KEY, Long.MIN_VALUE)
-        if (last != Long.MIN_VALUE && (now < last || now - last < intervalMs)) return
+        if (last != Long.MIN_VALUE && (last - now <= intervalMs && (now < last || now - last < intervalMs))) return
+        // Written before fetching so that overlapping checks do not both fetch; rewound below if the fetch fails.
         settings.putLong(LAST_CHECK_KEY, now)
         try {
             val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownChannel, settings.getInt(ANNOUNCED_KEY, 0),
@@ -75,6 +78,7 @@ class DesktopUpdateCheck(
             throw e
         } catch (e: Exception) {
             Log.w("DesktopUpdateCheck", "Update check failed")
+            settings.putLong(LAST_CHECK_KEY, now - intervalMs + minOf(RETRY_BACKOFF_MS, intervalMs))
         }
     }
 }

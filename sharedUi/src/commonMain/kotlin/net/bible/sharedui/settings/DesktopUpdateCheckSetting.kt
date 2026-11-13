@@ -8,11 +8,15 @@ enum class DesktopUpdateInterval(val value: String, val intervalMs: Long?) {
     NEVER("never", null);
 
     companion object {
-        /** The stored value, or null when it is absent or unknown. The legacy `yes`/`no` map to weekly/never. */
+        /**
+         * The stored value, or null only when it is absent (not asked yet). The legacy `yes`/`no` map to
+         * weekly/never; any other unknown value is weekly, so a damaged or future value never leaves checks off silently.
+         */
         fun fromStored(stored: String?): DesktopUpdateInterval? = when (stored) {
             "yes" -> WEEKLY
             "no" -> NEVER
-            else -> entries.firstOrNull { it.value == stored }
+            null -> null
+            else -> entries.firstOrNull { it.value == stored } ?: WEEKLY
         }
     }
 }

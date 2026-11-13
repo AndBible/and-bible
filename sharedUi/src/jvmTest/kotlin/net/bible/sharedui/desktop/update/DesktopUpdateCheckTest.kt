@@ -53,17 +53,74 @@ class DesktopUpdateCheckTest {
         assertEquals(0, requests)
     }
 
-    @Test fun attemptsAreLimitedToOncePerDayIncludingFailures() = runTest {
-        val prefs = settings().apply { putString("desktop_update_check", "daily") }
+    @Test fun failedFetchIsRetriedAfterBackoffNotAfterAWholeInterval() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "monthly") }
         var now = 100000000L
         var requests = 0
         val checker = DesktopUpdateCheck(prefs, { now }, { requests++; throw IOException("offline") }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
-        checker.start(); runCurrent()
-        assertEquals(now, prefs.getLong("desktop_update_last_check", 0))
-        now += 23 * 60 * 60 * 1000L
         checker.start(); runCurrent(); assertEquals(1, requests)
-        now += 60 * 60 * 1000L
+        now += RETRY_BACKOFF_MS - 1
+        checker.start(); runCurrent(); assertEquals(1, requests)
+        now += 1
         checker.start(); runCurrent(); assertEquals(2, requests)
+    }
+
+    @Test fun successfulFetchKeepsTheFullInterval() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "weekly") }
+        var now = 100000000L
+        var requests = 0
+        val checker = DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
+        checker.start(); runCurrent()
+        now += ms(7) - 1; checker.start(); runCurrent(); assertEquals(1, requests)
+        now += 1; checker.start(); runCurrent(); assertEquals(2, requests)
+    }
+
+    @Test fun overlappingChecksFetchOnlyOnce() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
+        val pending = CompletableDeferred<String>()
+        var requests = 0
+        val a = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
+        val b = DesktopUpdateCheck(prefs, { 100000000L }, { requests++; pending.await() }, 1, DesktopChannel.PRODUCTION, backgroundScope, {})
+        a.start(); runCurrent(); b.start(); runCurrent()
+        assertEquals(1, requests)
+    }
+
+    @Test fun lastCheckFurtherAheadThanOneIntervalIsIgnored() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "weekly") }
+        val now = 100000000L
+        var requests = 0
+        prefs.putLong("desktop_update_last_check", now + ms(7) + 1)
+        DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {}).start()
+        runCurrent()
+        assertEquals(1, requests)
+        assertEquals(now, prefs.getLong("desktop_update_last_check", 0))
+    }
+
+    @Test fun lastCheckSlightlyAheadWithinTheIntervalStillWaits() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "weekly") }
+        val now = 100000000L
+        var requests = 0
+        prefs.putLong("desktop_update_last_check", now + ms(7))
+        DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {}).start()
+        runCurrent()
+        assertEquals(0, requests)
+    }
+
+    @Test fun snoozeFurtherThanAMonthAheadIsIgnored() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "daily") }
+        val now = 100000000L
+        var requests = 0
+        prefs.snoozeUntil(now + ms(30) + 1)
+        DesktopUpdateCheck(prefs, { now }, { requests++; "[]" }, 1, DesktopChannel.PRODUCTION, backgroundScope, {}).start()
+        runCurrent()
+        assertEquals(1, requests)
+    }
+
+    @Test fun unknownStoredIntervalMeansWeeklyAndOnlyAbsentMeansNotAsked() {
+        assertEquals(DesktopUpdateInterval.WEEKLY, DesktopUpdateInterval.fromStored("fortnightly"))
+        assertEquals(DesktopUpdateInterval.WEEKLY, DesktopUpdateInterval.fromStored(""))
+        assertNull(DesktopUpdateInterval.fromStored(null))
+        assertEquals(DesktopUpdateInterval.NEVER, DesktopUpdateInterval.fromStored("never"))
     }
 
     @Test fun announcesEachVersionOnceAndIgnoresErrorBodies() = runTest {
