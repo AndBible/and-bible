@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -39,7 +40,8 @@ import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.mydocuments.MyDocumentPagesScreen
 import net.bible.sharedui.mydocuments.MyDocumentsScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.isCurrentEntry
+import net.bible.sharedui.nav.popOrExitFrom
 
 /**
  * [MyDocumentPagesScreen]'s platform-supplied slots, ported from classic
@@ -226,8 +228,8 @@ class MyDocumentsNavDeps(
  * [net.bible.sharedui.bookmark.nav.BookmarkNavGraph]'s -- every cluster graph in this tree carries
  * its own.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -245,7 +247,7 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  */
 fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: MyDocumentsNavDeps) {
     // ——— MY DOCUMENTS ———
-    composable(route = NavRoutes.MY_DOCUMENTS_PATTERN) {
+    composable(route = NavRoutes.MY_DOCUMENTS_PATTERN) { entry ->
         val d = deps.myDocuments
 
         // Classic's `finished` latch (`:71`, `:452-453`, `:465-468`): set before every `deliver`,
@@ -261,7 +263,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
         val controller = remember {
             d.controllerFor { result ->
                 finished.value = true
-                deps.myDocumentsResults.deliver(navController, result)
+                deps.myDocumentsResults.deliver(navController, entry, result)
             }
         }
 
@@ -297,6 +299,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
                 finished.value = true
                 deps.myDocumentsResults.deliver(
                     navController,
+                    entry,
                     MyDocumentsResult.Selected(result.documentInitials, result.pageKey),
                 )
             }
@@ -353,16 +356,19 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // with NO documentInitials/pageKey extras, since those are the pages relay's alone; the
             // honest nav-result shape for that is [MyDocumentsResult.Saved].
             onSave = {
-                finished.value = true
-                controller.save()
-                deps.myDocumentsResults.deliver(navController, MyDocumentsResult.Saved)
+                // A second tap while this screen fades out after the first (issue #4073): nothing more to do.
+                if (navController.isCurrentEntry(entry)) {
+                    finished.value = true
+                    controller.save()
+                    deps.myDocumentsResults.deliver(navController, entry, MyDocumentsResult.Saved)
+                }
             },
             // Classic's Dismiss button, `{ finishCanceled() }` (`:127`).
             onCancel = {
                 finished.value = true
-                deps.myDocumentsResults.deliver(navController, MyDocumentsResult.Cancelled)
+                deps.myDocumentsResults.deliver(navController, entry, MyDocumentsResult.Cancelled)
             },
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
             importNamePrompt = importNamePrompt,
             onConfirmImport = d.onConfirmImport,
             onDismissImport = d.onDismissImport,
@@ -395,7 +401,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
         // happened" exit -- and it goes through the channel like every other exit, rather than a
         // bare popOrExit, so a caller waiting on a result is not left hanging forever.
         if (documentId == null) {
-            LaunchedEffect(Unit) { deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Cancelled) }
+            LaunchedEffect(Unit) { deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Cancelled) }
             return@composable
         }
 
@@ -410,7 +416,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             d.controllerFor(documentId, documentInitials) { result ->
                 if (live.value && !finished.value && navController.currentBackStackEntry === backStackEntry) {
                     finished.value = true
-                    deps.myDocumentPagesResults.deliver(navController, result)
+                    deps.myDocumentPagesResults.deliver(navController, backStackEntry, result)
                 }
             }
         }
@@ -471,16 +477,19 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // documentInitials/pageKey extras attached (those are [onOpen]'s alone) -- the honest
             // nav-result shape for that is [MyDocumentPagesResult.Saved], not [MyDocumentPagesResult.Selected].
             onSave = {
-                finished.value = true
-                controller.save()
-                deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Saved)
+                // A second tap while this screen fades out after the first (issue #4073): nothing more to do.
+                if (navController.isCurrentEntry(backStackEntry)) {
+                    finished.value = true
+                    controller.save()
+                    deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Saved)
+                }
             },
             // Classic's Dismiss button, `{ finishCanceled() }` (`:129`, `:344`): RESULT_CANCELED with
             // the kind still tagged, unlike a bare leave through onNavigateUp/hardware-back-with-
             // nothing-active, which classic never routed through setResult at all.
             onCancel = {
                 finished.value = true
-                deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Cancelled)
+                deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Cancelled)
             },
             // Reachable only in plain mode (see the PlatformBackHandler note above), so it needs no
             // selection/search branch of its own -- classic's `super.onBackPressed()` after neither
@@ -488,7 +497,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // own `onUp` (`BookmarkNavGraph.kt`) EXCEPT for one thing `MyDocumentPages` alone has:
             // final review M1. `Pages` is reached from `reading` through `awaitChosenKey`/
             // `awaitIntent`, which parks a deferred the host's `MyDocumentPages` collector completes
-            // -- but ONLY when something `deliver`s an answer. A bare `navController.popOrExit(...)`
+            // -- but ONLY when something `deliver`s an answer. A bare `navController.popOrExit(backStackEntry, ...)`
             // (this arm's original shape) pops without delivering anything at all, so that deferred
             // hangs for the life of the Activity whenever the user backs out of `Pages` with nothing
             // chosen (up arrow or hardware back). `deliver(Cancelled)` fixes it: `Pages` always has a
@@ -498,7 +507,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // plus the completion the bare pop was missing. Entered from `MyDocuments` (the ordinary
             // path), a `Cancelled` relay is a harmless no-op there (`MyDocumentsNavDeps
             // .myDocumentPagesResults`' `LaunchedEffect` only acts on `Selected`).
-            onNavigateUp = { deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Cancelled) },
+            onNavigateUp = { deps.myDocumentPagesResults.deliver(navController, backStackEntry, MyDocumentPagesResult.Cancelled) },
             // F60 fix round 1: `popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }` ALONE
             // removes only the LEAVING Pages entry -- if a `MyDocuments` entry is already sitting
             // below it (the normal `MyDocuments -> open doc -> Pages` path), a bare `navigate`

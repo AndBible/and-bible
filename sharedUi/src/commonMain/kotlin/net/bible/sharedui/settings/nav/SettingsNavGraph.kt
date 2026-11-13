@@ -34,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -53,7 +54,7 @@ import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
@@ -347,8 +348,8 @@ class SettingsNavDeps(
  * retired four byte-identical copies covered by a single test). What stays here is the part that
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -374,7 +375,7 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  */
 fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: SettingsNavDeps) {
     // ——— APP SETTINGS ———
-    composable(NavRoutes.SETTINGS) {
+    composable(NavRoutes.SETTINGS) { entry ->
         val d = deps.appSettings
         // The host's lazy getter: one instance per HOST, resolved here rather than when the deps
         // were assembled, so another cluster's destination never pays for building it. See
@@ -430,7 +431,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
 
         AppSettingsScreen(
             state = state,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             // The controller write FIRST, then the recreate check — classic's order. See
             // AppSettingsDeps.maybeRecreate.
             onSwitch = { key, checked -> controller.onSwitch(key, checked); d.maybeRecreate(key) },
@@ -476,7 +477,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     }
 
     // ——— SYNC SETTINGS ———
-    composable(NavRoutes.SYNC_SETTINGS) {
+    composable(NavRoutes.SYNC_SETTINGS) { entry ->
         val d = deps.syncSettings
         val controller = remember { d.controller() }
         val languageStrings = LocalStrings.current
@@ -493,7 +494,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
 
         SyncSettingsScreen(
             uiState = uiState,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onSwitch = controller::onSwitch,
             onListChoice = controller::onListChoice,
             onTextInput = controller::onTextInput,
@@ -550,7 +551,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             d.controllerFor(
                 tabArg,
                 { request -> historyDialog = request },
-                { deps.readingProgressResults.deliver(navController, it) },
+                { deps.readingProgressResults.deliver(navController, backStackEntry, it) },
             )
         }
 
@@ -579,7 +580,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             // Classic's `finish()`. popOrExit because this destination is normally entered directly
             // (BibleJavascriptInterface) but may also sit on a back stack one day; a bare
             // popBackStack() would be a dead up-arrow in the direct case.
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
             onSelectTab = { controller.selectTab(it); d.persistTab(it) },
             onPrevCycle = controller::prevCycle,
             onNextCycle = controller::nextCycle,
@@ -651,7 +652,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     }
 
     // ——— READING PROGRESS SETTINGS ———
-    composable(NavRoutes.READING_PROGRESS_SETTINGS) {
+    composable(NavRoutes.READING_PROGRESS_SETTINGS) { entry ->
         val d = deps.readingProgressSettings
         val controller = remember { d.controller() }
         val languageStrings = LocalStrings.current
@@ -666,7 +667,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
 
         AbSettingsScreen(
             state = state,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onSwitch = controller::onSwitch,
             onListChoice = controller::onListChoice,
             // Classic's two no-op slots (`:64-65`): this screen has no text input and no

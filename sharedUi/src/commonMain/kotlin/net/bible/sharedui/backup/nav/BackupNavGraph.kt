@@ -24,12 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.backup.BackupRestoreScreen
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 
 /**
  * What the Backup & restore destination needs from its host (slice 8 §3.3) -- the classic
@@ -56,7 +57,7 @@ class BackupNavDeps(
  * the crash file -- which is what classic's `onCreate` + `onResume` pair did.
  */
 fun NavGraphBuilder.backupNavGraph(navController: NavHostController, deps: BackupNavDeps) {
-    composable(route = NavRoutes.BACKUP) {
+    composable(route = NavRoutes.BACKUP) { entry ->
         val controller = remember { deps.controllerFor() }
         LaunchedEffect(deps.windowTitle) { deps.setWindowTitle(deps.windowTitle) }
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { controller.load() }
@@ -69,12 +70,12 @@ fun NavGraphBuilder.backupNavGraph(navController: NavHostController, deps: Backu
             onExportFile = controller::exportFile,
             onRestoreFile = controller::restoreFile,
             onResetDb = controller::resetDb,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 }
 
 /** This cluster's private copy of the one-line extension every graph carries -- see [popOrExitOnFailedPop]. */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }

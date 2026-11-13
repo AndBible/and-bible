@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -47,7 +48,7 @@ import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
 import net.bible.sharedui.navigation.ChooseGeneralBookKeyScreen
 import net.bible.sharedui.navigation.ChooseMapKeyScreen
@@ -294,8 +295,8 @@ class ChooserNavDeps(
  * itself is [popOrExitOnFailedPop], shared so that "a failed pop still leaves" is decided in one
  * place.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 /**
@@ -343,7 +344,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         var loaded by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             resolvedController = d.controllerFor { result ->
-                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, result)
+                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, entry, result)
             }
             loaded = true
         }
@@ -357,7 +358,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         if (controller == null) {
             LaunchedEffect(Unit) {
                 entry.lifecycle.currentStateFlow.first { it == androidx.lifecycle.Lifecycle.State.RESUMED }
-                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, d.emptyResult())
+                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, entry, d.emptyResult())
             }
             return@composable
         }
@@ -377,21 +378,21 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onDismissError = controller::dismissError,
             // Classic's `onNavigateUp = { finish() }`: a bare leave with NO result, which classic
             // never routed through `setResult` at all.
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 
     // ——— CHOOSE MAP KEY ———
-    composable(route = NavRoutes.CHOOSE_MAP_KEY) {
+    composable(route = NavRoutes.CHOOSE_MAP_KEY) { entry ->
         val d = deps.chooseMapKey
 
         val controller = remember {
-            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, result) }
+            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, entry, result) }
         }
 
         // Classic `ChooseMapKeyComposeActivity:70-74`, identical to the general-book arm above.
         if (controller == null) {
-            LaunchedEffect(Unit) { deps.keyChooserResults.deliver(navController, d.emptyResult()) }
+            LaunchedEffect(Unit) { deps.keyChooserResults.deliver(navController, entry, d.emptyResult()) }
             return@composable
         }
 
@@ -408,23 +409,23 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             error = error,
             onSelect = controller::select,
             onDismissError = controller::dismissError,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 
     // ——— CHOOSE DICTIONARY WORD ———
-    composable(route = NavRoutes.CHOOSE_DICTIONARY_WORD) {
+    composable(route = NavRoutes.CHOOSE_DICTIONARY_WORD) { entry ->
         val d = deps.chooseDictionaryWord
 
         val controller = remember {
-            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, result) }
+            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, entry, result) }
         }
 
         // Classic's `if (page.currentDocument == null) { finish(); return }` (`:72`) -- and note it
         // is NOT the general-book arm's branch: classic set no result here, so nothing is published.
         // There is no fallback key to hand back when there is no dictionary at all.
         if (controller == null) {
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+            LaunchedEffect(Unit) { navController.popOrExit(entry, deps.exitHost) }
             return@composable
         }
 
@@ -455,7 +456,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onQueryChange = controller::setQuery,
             onSelect = controller::select,
             onDismissError = controller::dismissError,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 
@@ -482,7 +483,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
 
         val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember(isScripture) {
-            d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, result) }
+            d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, backStackEntry, result) }
         }
 
         RefreshGridLanguage(controller)
@@ -497,7 +498,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         // was -- the branch lives inside the handler, never in its `enabled` flag, because
         // `controller.back()` is the thing that decides.
         PlatformBackHandler(enabled = true) {
-            if (!controller.back()) navController.popOrExit(deps.exitHost)
+            if (!controller.back()) navController.popOrExit(backStackEntry, deps.exitHost)
         }
 
         val rendered = ui
@@ -508,7 +509,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onToggle = controller::toggle,
             // Classic's `onNavigateUp` (`:95`) is the same branch as its back callback: the up-arrow
             // walks the step stack too.
-            onNavigateUp = { if (!controller.back()) navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { if (!controller.back()) navController.popOrExit(backStackEntry, deps.exitHost) },
         )
     }
 
@@ -530,7 +531,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
 
         val controller = remember(type) {
             d.controllerFor(d.initialTypeFilter(type)) { result ->
-                deps.documentResults.deliver(navController, result)
+                deps.documentResults.deliver(navController, backStackEntry, result)
             }
         }
 
@@ -628,7 +629,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             // controller-method callback on this call, per DocumentSelectionScreen's own KDoc.
             onConfirmProceed = controller::confirmProceed,
             onDismissProceed = controller::dismissProceed,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
             onExitSelection = controller::clearSelection,
         )
     }

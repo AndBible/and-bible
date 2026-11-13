@@ -38,8 +38,8 @@ What is here now, in November:
 - The 6.0 beta is the **multiplatform** version, not an Android-only one. The same code runs on
   Android and on iPhone and iPad, and the iOS beta of it opens in a few days.
 - **Windows and Linux** are new platforms that were not in any roadmap.
-- **WebDAV sync** is already in, next to Nextcloud on every platform, iCloud Drive on Apple devices
-  and Google Drive on Android.
+- **WebDAV sync** is already in, next to Nextcloud and Google Drive on every platform and iCloud
+  Drive on Apple devices.
 
 One big factor in this pace is JailBee, my own side project, which I develop partly at my
 workplace, Gisgro Oy. It runs each piece of development work in its own isolated container and
@@ -68,8 +68,8 @@ work the same way wherever you open them.
 - **Every platform.** AndBible now runs on iPhone, iPad, Mac, Windows and Linux as well as on
   Android. On a Mac it is the iPad app, on any Mac with Apple Silicon.
 - **A new interface,** rebuilt with Compose Multiplatform and shared between the platforms.
-- **Sync between platforms.** Nextcloud and WebDAV sync work everywhere. iCloud Drive is available
-  on iPhone, iPad and Mac, Google Drive on Android (not in the F-Droid build).
+- **Sync between platforms.** Nextcloud, WebDAV and Google Drive sync work everywhere, the F-Droid
+  build included. iCloud Drive is available on iPhone, iPad and Mac.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
   activity list, and finished or failed work is reported with a notification.
 - **Reading plans** are now included in synchronization.

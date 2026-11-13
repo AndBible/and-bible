@@ -143,7 +143,7 @@ internal class InstallZipEntrySessions {
             if (heldFor(entry) !== held) return@onFinished // entry gone: closed, answer nothing
             if (navController.currentBackStackEntry === entry) {
                 held.session.onDelivering()
-                deps.installZipResults.deliver(navController, result)
+                deps.installZipResults.deliver(navController, entry, result)
             } else {
                 held.pending = result // covered: answer when this entry is on top again
             }
@@ -160,7 +160,7 @@ internal class InstallZipEntrySessions {
                     held.pending = null
                     if (navController.currentBackStackEntry === entry) {
                         held.session.onDelivering()
-                        deps.installZipResults.deliver(navController, result)
+                        deps.installZipResults.deliver(navController, entry, result)
                     }
                 }
                 Lifecycle.Event.ON_DESTROY -> {

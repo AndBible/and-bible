@@ -409,7 +409,7 @@ class WorkspaceInGraphResultTest {
         assertEquals(0, exitHostCalls, "the round trip must not leave the host")
 
         compose.runOnUiThread {
-            manageLabelsResults.deliver(navController, ManageLabelsResult(LABEL_ANSWER))
+            manageLabelsResults.deliver(navController, navController.currentBackStackEntry, ManageLabelsResult(LABEL_ANSWER))
         }
         compose.waitForIdle()
 
@@ -433,7 +433,7 @@ class WorkspaceInGraphResultTest {
         navigateTo(detachedRoute())
         compose.runOnUiThread { lastTextOnNavigate!!(TextSettingType.BOOKMARKS_HIDELABELS.name) }
         compose.waitForIdle()
-        compose.runOnUiThread { manageLabelsResults.deliver(navController, ManageLabelsResult(LABEL_ANSWER)) }
+        compose.runOnUiThread { manageLabelsResults.deliver(navController, navController.currentBackStackEntry, ManageLabelsResult(LABEL_ANSWER)) }
         compose.waitForIdle()
         assertEquals(1, appliedLabelResults.size)
 
@@ -458,7 +458,7 @@ class WorkspaceInGraphResultTest {
         navigateTo(detachedRoute())
         navigateTo(NavRoutes.manageLabels(LABEL_PAYLOAD))
 
-        compose.runOnUiThread { manageLabelsResults.deliver(navController, ManageLabelsResult(LABEL_ANSWER)) }
+        compose.runOnUiThread { manageLabelsResults.deliver(navController, navController.currentBackStackEntry, ManageLabelsResult(LABEL_ANSWER)) }
         compose.waitForIdle()
 
         assertTrue(appliedLabelResults.isEmpty(), "an unrequested label answer must not be applied")
@@ -487,7 +487,7 @@ class WorkspaceInGraphResultTest {
         navigateTo(detachedRoute())
         compose.runOnUiThread { lastTextOnNavigate!!(TextSettingType.BOOKMARKS_HIDELABELS.name) }
         compose.waitForIdle()
-        compose.runOnUiThread { manageLabelsResults.deliver(navController, ManageLabelsResult(LABEL_ANSWER)) }
+        compose.runOnUiThread { manageLabelsResults.deliver(navController, navController.currentBackStackEntry, ManageLabelsResult(LABEL_ANSWER)) }
         compose.waitForIdle()
 
         builtSessions.single().changed = true

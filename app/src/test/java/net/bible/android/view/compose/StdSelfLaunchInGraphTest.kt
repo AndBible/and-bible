@@ -124,7 +124,7 @@ class StdSelfLaunchInGraphTest {
         assertEquals(NavRoutes.chooseDocument().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
 
         // The REAL delivery: the chooser is on top, `reading` below it -- the shape that crashed in the second host.
-        channel<DocumentResult>(activity, "documentResults").deliver(nav(activity), DocumentResult("ESV2011"))
+        channel<DocumentResult>(activity, "documentResults").deliver(nav(activity), nav(activity).currentBackStackEntry, DocumentResult("ESV2011"))
         idle()
         assertEquals("ESV2011", CommonUtils.windowControl.activeWindowPageManager.currentPage.currentDocument?.initials)
     }
@@ -179,7 +179,7 @@ class StdSelfLaunchInGraphTest {
         )
         idle()
         assertNull(shadowOf(activity).nextStartedActivity)
-        channel<PassageResult>(activity, "passageResults").deliver(nav(activity), PassageResult("Ps.23.1"))
+        channel<PassageResult>(activity, "passageResults").deliver(nav(activity), nav(activity).currentBackStackEntry, PassageResult("Ps.23.1"))
         idle()
         assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID())
     }

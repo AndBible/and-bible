@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -70,7 +71,7 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.download.CustomRepositoriesScreen
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
@@ -468,8 +469,8 @@ class DownloadNavDeps(
  * boolean branch itself is [popOrExitOnFailedPop], shared so that "a failed pop still leaves" is
  * decided in one place.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 /**
@@ -533,7 +534,7 @@ private fun downloadGateKey(
  */
 fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: DownloadNavDeps) {
     // ——— CUSTOM REPOSITORIES ———
-    composable(route = NavRoutes.CUSTOM_REPOSITORIES_PATTERN) {
+    composable(route = NavRoutes.CUSTOM_REPOSITORIES_PATTERN) { entry ->
         val d = deps.customRepositories
         val controller = remember { d.controllerFor(d.onDuplicate) }
         val state by controller.state.collectAsState()
@@ -560,7 +561,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             // id, so the argument is simply OMITTED (plan D9) -- absent, never present-and-empty.
             onRowClick = { id -> navController.navigate(NavRoutes.customRepositoryEditor(id)) },
             onCreate = { navController.navigate(NavRoutes.customRepositoryEditor(null)) },
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 
@@ -619,7 +620,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // PlatformBackHandler, never androidx.activity.compose.BackHandler: this is commonMain.
         PlatformBackHandler(enabled = true) {
             if (state.isDirty) showDiscardConfirm = true
-            else deps.repositoryEditorResults.deliver(navController, controller.buildCancelResult())
+            else deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildCancelResult())
         }
 
         CustomRepositoryEditorScreen(
@@ -627,9 +628,9 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             onUrlChange = controller::setUrl,
             onPaste = { d.readClipboard()?.let(controller::setUrl) },
             onPackageDirChange = controller::setPackageDir,
-            onSave = { deps.repositoryEditorResults.deliver(navController, controller.buildSaveResult()) },
-            onDelete = { deps.repositoryEditorResults.deliver(navController, controller.buildDeleteResult()) },
-            onUp = { deps.repositoryEditorResults.deliver(navController, controller.buildCancelResult()) },
+            onSave = { deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildSaveResult()) },
+            onDelete = { deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildDeleteResult()) },
+            onUp = { deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildCancelResult()) },
         )
 
         if (showDiscardConfirm) {
@@ -640,7 +641,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 dismissText = strings.cancel,
                 onConfirm = {
                     showDiscardConfirm = false
-                    deps.repositoryEditorResults.deliver(navController, controller.buildCancelResult())
+                    deps.repositoryEditorResults.deliver(navController, backStackEntry, controller.buildCancelResult())
                 },
                 onDismiss = { showDiscardConfirm = false },
             )
@@ -648,13 +649,13 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
     }
 
     // ——— PROGRESS STATUS ———
-    composable(route = NavRoutes.PROGRESS_STATUS_PATTERN) {
+    composable(route = NavRoutes.PROGRESS_STATUS_PATTERN) { entry ->
         val d = deps.progressStatus
         val strings = LocalStrings.current
         // onHide used to be `setResult(RESULT_OK) + finish()` (ProgressStatusComposeActivity:123-126).
         // The result was dead — the only inbound edge is a getActivity PendingIntent, which cannot
         // receive one (design §7.3) — so hiding is now an ordinary exit.
-        val controller = remember { SearchIndexProgressController(onHide = { navController.popOrExit(deps.exitHost) }) }
+        val controller = remember { SearchIndexProgressController(onHide = { navController.popOrExit(entry, deps.exitHost) }) }
         val jobs by controller.jobs.collectAsState()
         val noTasks by controller.noTasks.collectAsState()
         val error by controller.error.collectAsState()
@@ -836,7 +837,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             ranEntrySetupFor = seedKey
             if (gateAnsweredFor != gateKey) {
                 if (!d.askIfWantToProceed()) {
-                    navController.popOrExit(deps.exitHost)
+                    navController.popOrExit(backStackEntry, deps.exitHost)
                     return@LaunchedEffect
                 }
                 gateAnsweredFor = gateKey
@@ -972,7 +973,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onDismissDialog = controller::dismissDialog,
                 onConfirmProceed = controller::confirmProceed,
                 onDismissProceed = controller::dismissProceed,
-                onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
                 onExitSelection = controller::clearSelection,
             )
 
@@ -982,7 +983,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             // OK is now the ordinary exit this destination already has (plan D7).
             if (firstDownload) {
                 Button(
-                    onClick = { navController.popOrExit(deps.exitHost) },
+                    onClick = { navController.popOrExit(backStackEntry, deps.exitHost) },
                     enabled = bibleInstalled,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -996,7 +997,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
     }
 
     // ——— CLOUD DOCUMENTS ———
-    composable(route = NavRoutes.CLOUD_DOCUMENTS_PATTERN) {
+    composable(route = NavRoutes.CLOUD_DOCUMENTS_PATTERN) { entry ->
         val d = deps.cloudDocuments
         val controller = remember { d.controllerFor() }
         val scope = rememberCoroutineScope()
@@ -1018,7 +1019,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         LaunchedEffect(Unit) {
             if (ranOpenOrGate) return@LaunchedEffect
             ranOpenOrGate = true
-            if (!d.openOrGate()) navController.popOrExit(deps.exitHost)
+            if (!d.openOrGate()) navController.popOrExit(entry, deps.exitHost)
         }
 
         // Classic bridge.register()/unregister() plus the running.drop(1) collector (:105, :180,
@@ -1098,7 +1099,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             onConfirmDialog = controller::confirmDialog,
             onDismissDialog = controller::dismissDialog,
             onNavigateUp = {
-                if (selectionMode) controller.clearSelection() else navController.popOrExit(deps.exitHost)
+                if (selectionMode) controller.clearSelection() else navController.popOrExit(entry, deps.exitHost)
             },
             onExitSelection = controller::clearSelection,
         )
