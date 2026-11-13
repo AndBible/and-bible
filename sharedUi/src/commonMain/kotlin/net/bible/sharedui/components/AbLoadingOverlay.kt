@@ -52,7 +52,7 @@ import net.bible.service.common.DisplayColorMode
  */
 @Composable
 fun AbLoadingOverlay(message: String? = null, modifier: Modifier = Modifier) {
-    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+    val mono = LocalDisplayColorMode.current.isInkBase
     Box(
         modifier = modifier
             .fillMaxSize()

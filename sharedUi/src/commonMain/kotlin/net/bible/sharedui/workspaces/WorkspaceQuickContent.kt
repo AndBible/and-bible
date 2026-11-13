@@ -109,7 +109,7 @@ fun WorkspaceQuickContent(
             ) {
                 // The per-workspace color is a decorative-but-meaningful identifier, not a scheme
                 // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
-                // grays out in BW, stays colored in COLOR_EINK. Construction copied verbatim from
+                // grays out in BW, ink in MONOCHROME and COLOR_EINK. Construction copied verbatim from
                 // `WorkspaceSelectorScreen.kt:183-187` so the two screens tint identically.
                 Surface(
                     color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface

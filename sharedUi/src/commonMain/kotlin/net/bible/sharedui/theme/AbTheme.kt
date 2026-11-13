@@ -79,11 +79,11 @@ fun AbTheme(
     disableAnimations: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    // abColorScheme returns the FINAL scheme: seeding and the BW/COLOR_EINK greyscale pass both
-    // happen inside it, so this host cannot fall out of step with the BibleView payload builder,
-    // which calls the same function. Accents follow accentArgbFor (still coloured in COLOR_EINK).
+    // abColorScheme returns the FINAL scheme: seeding and the BW greyscale pass both happen inside
+    // it, so this host cannot fall out of step with the BibleView payload builder, which calls the
+    // same function. MONOCHROME and COLOR_EINK share the ink/paper look and ink accents (#4069).
     val scheme = abColorScheme(seedArgb, darkTheme, colorMode)
-    val mono = colorMode == DisplayColorMode.MONOCHROME
+    val mono = colorMode.isInkBase
     val accents = if (mono) {
         val ink = monoInk(darkTheme)
         AbColors(bookmark = ink, activeWindow = ink, helperLine = ink, monoDisabled = MonoDisabled)

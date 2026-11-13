@@ -27,7 +27,7 @@ import net.bible.sharedcore.theme.categoryChipArgb
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.isPureMonochrome
 
-/** Category color for a [GridButton.colorGroup]; grays out in BW, stays colored in COLOR_EINK.
+/** Category color for a [GridButton.colorGroup]; grays out in BW, ink in MONOCHROME and COLOR_EINK.
  *  The palette itself lives in `:sharedCore` ([categoryBaseArgb]) so the tint maths can be swept
  *  over the real table in a unit test rather than over a copy that could drift from it. */
 @Composable

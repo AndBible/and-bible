@@ -84,8 +84,10 @@ class ReadingToolbarColorsTest {
     }
 
     @Test
-    fun setInDayStaysColouredInColorEink() {
-        assertEquals(orange, readingToolbarContainerArgb(orange, lightSurface, false, DisplayColorMode.COLOR_EINK))
+    fun colorEinkIgnoresTheWorkspaceColourLikeMonochrome() {
+        // #4069: colour e-ink is the pure ink/paper look; only bookmark highlights keep colour.
+        assertEquals(lightSurface, readingToolbarContainerArgb(orange, lightSurface, false, DisplayColorMode.COLOR_EINK))
+        assertEquals(darkSurface, readingToolbarContainerArgb(orange, darkSurface, true, DisplayColorMode.COLOR_EINK))
     }
 
     @Test
@@ -110,8 +112,6 @@ class ReadingToolbarColorsTest {
         val maxDiff = maxOf(kotlin.math.abs(r - g), kotlin.math.abs(g - b), kotlin.math.abs(r - b))
         assertTrue(maxDiff <= 3, "set + night + BW must be nearly grey (channels differ by at most 3), got #${result.toUInt().toString(16)} (r=$r, g=$g, b=$b, maxDiff=$maxDiff)")
     }
-    // Note: COLOR_EINK is not tested in night mode because accentArgbFor only special-cases BW,
-    // so COLOR_EINK takes the identical code path as NORMAL.
 
     @Test
     fun lerpEndpointsAreExact() {

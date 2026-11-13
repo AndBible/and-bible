@@ -93,7 +93,7 @@ class NavBarContrastOnReadingTest {
                     activity.window.decorView.dispatchConfigurationChanged(config)
                     idleMain()
                     kotlin.test.assertEquals(route.substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'), "contrast fixture must have navigated")
-                    val expected = mode != net.bible.service.common.DisplayColorMode.MONOCHROME && route != NavRoutes.READING
+                    val expected = !mode.isInkBase && route != NavRoutes.READING
                     kotlin.test.assertEquals(expected, activity.window.isNavigationBarContrastEnforced, "$mode $route")
                 }
                 controller.close()

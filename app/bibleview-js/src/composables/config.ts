@@ -194,8 +194,11 @@ export type AppSettings = {
     windowId: IdType,
     disableBibleModalButtons: BibleModalButtonId[],
     disableGenericModalButtons: GenericModalButtonId[],
+    /** Any non-NORMAL display colour mode (BW, COLOR_EINK, MONOCHROME). */
     monochromeMode: boolean,
+    /** COLOR_EINK: the pure ink/paper look, but bookmark highlights and underlines keep label colours. */
     colorEinkMode: boolean,
+    /** Pure ink/paper look: MONOCHROME and COLOR_EINK (#4069). */
     pureMonochromeMode: boolean,
     einkMode: boolean,
     disableAnimations: boolean,

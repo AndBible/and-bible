@@ -34,9 +34,13 @@ fun toGrayscaleArgb(argb: Int): Int {
     return (a shl 24) or (y shl 16) or (y shl 8) or y
 }
 
-/** Accent color for a mode: colored in NORMAL/COLOR_EINK, grayscale in BW and MONOCHROME. */
+/** Accent color for a mode: colored in NORMAL, grayscale in every e-ink/BW mode. */
 fun accentArgbFor(baseArgb: Int, mode: DisplayColorMode): Int =
     if (mode.isGreyBase) toGrayscaleArgb(baseArgb) else baseArgb
+
+/** A bookmark label colour (highlight, underline) for a mode: colored in NORMAL and COLOR_EINK. */
+fun bookmarkLabelArgbFor(labelArgb: Int, mode: DisplayColorMode): Int =
+    if (mode.keepsBookmarkColors) labelArgb else toGrayscaleArgb(labelArgb)
 
 /** Opaque black, classic's 20th preset. */
 const val BLACK_ARGB: Int = 0xFF000000.toInt()

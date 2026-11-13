@@ -16,8 +16,14 @@ val MonoDisabled: Color = Color(0xFF808080)
 fun monoInk(dark: Boolean): Color = if (dark) Color.White else Color.Black
 fun monoPaper(dark: Boolean): Color = if (dark) Color.Black else Color.White
 
+/** The pure ink/paper look: MONOCHROME and COLOR_EINK (#4069). */
 @Composable
-fun isPureMonochrome(): Boolean = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+fun isPureMonochrome(): Boolean = LocalDisplayColorMode.current.isInkBase
+
+/** Bookmark label colours (highlights, underlines, label colour dots) replaced by ink: MONOCHROME
+ *  only. COLOR_EINK shares the ink/paper look but keeps these colours. */
+@Composable
+fun inkBookmarkLabelColors(): Boolean = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
 
 /** Replaces a tone step or shadow with an ink edge; preserves other modes' modifiers unchanged. */
 @Composable

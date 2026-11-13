@@ -99,13 +99,13 @@ internal class NoticePalette(
     val buttonBg: Color, val buttonInk: Color,
 )
 
-/** Pure monochrome and BW are both greyscale modes: no hues and no gradient on the card. */
+/** Every e-ink/BW mode is a greyscale mode: no hues and no gradient on the card. */
 @Composable
 private fun isGreyMode(): Boolean = LocalDisplayColorMode.current.isGreyBase
 
 /**
- * The card's colours for [scheme] in [mode]: monochrome and BW are flat surface/onSurface; every other mode follows
- * the theme, and only [DisplayColorMode.NORMAL] draws the glow (a gradient just dithers on a colour e-ink panel).
+ * The card's colours for [scheme] in [mode]: the grey-base modes (BW, MONOCHROME, COLOR_EINK) are flat
+ * surface/onSurface; NORMAL follows the theme and draws the glow.
  */
 internal fun releaseNoticePalette(scheme: ColorScheme, mode: DisplayColorMode): NoticePalette = when {
     mode.isGreyBase -> NoticePalette(
@@ -116,7 +116,7 @@ internal fun releaseNoticePalette(scheme: ColorScheme, mode: DisplayColorMode): 
     )
     // Light and dark: the app theme, like every other dialog (#4064); the primary glow keeps the mockup's warmth.
     else -> NoticePalette(
-        panel = scheme.surfaceContainerHigh, glow = scheme.primary.copy(alpha = NOTICE_GLOW_ALPHA).takeIf { mode == DisplayColorMode.NORMAL },
+        panel = scheme.surfaceContainerHigh, glow = scheme.primary.copy(alpha = NOTICE_GLOW_ALPHA),
         ink = scheme.onSurface, muted = scheme.onSurfaceVariant, border = scheme.outlineVariant,
         tile = scheme.surfaceContainerHighest, accent = scheme.primary, accentInk = scheme.primary,
         highlight = scheme.primaryContainer, highlightInk = scheme.onPrimaryContainer,

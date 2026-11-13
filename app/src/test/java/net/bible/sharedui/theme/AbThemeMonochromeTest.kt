@@ -25,13 +25,13 @@ import org.robolectric.annotation.Config
 class AbThemeMonochromeTest {
     @get:Rule val rule = createComposeRule()
 
-    @Test fun `monoBorder adds an ink edge only in pure monochrome`() {
+    @Test fun `monoBorder adds an ink edge only in MONOCHROME and COLOR_EINK`() {
         val base = Modifier
         val actual = mutableListOf<Triple<DisplayColorMode, Boolean, Modifier>>()
         rule.setContent {
             for (dark in listOf(false, true)) for (mode in DisplayColorMode.entries) {
                 AbTheme(darkTheme = dark, colorMode = mode) {
-                    assertEquals(mode == DisplayColorMode.MONOCHROME, isPureMonochrome())
+                    assertEquals(mode.isInkBase, isPureMonochrome())
                     actual.add(Triple(mode, dark, base.monoBorder()))
                 }
             }
@@ -39,13 +39,13 @@ class AbThemeMonochromeTest {
         rule.waitForIdle()
         assertEquals(8, actual.size)
         actual.forEach { (mode, dark, modifier) ->
-            if (mode == DisplayColorMode.MONOCHROME) {
+            if (mode.isInkBase) {
                 assertEquals(base.border(1.dp, if (dark) Color.White else Color.Black), modifier)
             } else assertSame(base, modifier)
         }
     }
 
-    @Test fun `disabled content is opaque middle grey only in MONOCHROME`() {
+    @Test fun `disabled content is opaque middle grey only in MONOCHROME and COLOR_EINK`() {
         val actual = mutableListOf<Pair<DisplayColorMode, Pair<Color, Color>>>()
         rule.setContent {
             for (dark in listOf(false, true)) for (mode in DisplayColorMode.entries) {
@@ -57,17 +57,24 @@ class AbThemeMonochromeTest {
         rule.waitForIdle()
         assertTrue(actual.isNotEmpty())
         actual.forEach { (mode, colors) ->
-            assertEquals(if (mode == DisplayColorMode.MONOCHROME) Color(0xFF808080) else colors.second.copy(alpha = 0.38f), colors.first)
+            assertEquals(if (mode.isInkBase) Color(0xFF808080) else colors.second.copy(alpha = 0.38f), colors.first)
         }
     }
 
-    @Test fun `light MONOCHROME accents are ink`() {
-        var colors: AbColors? = null
-        rule.setContent { AbTheme(darkTheme = false, colorMode = DisplayColorMode.MONOCHROME) { colors = LocalAbColors.current } }
+    @Test fun `light MONOCHROME and COLOR_EINK accents are ink`() {
+        val colors = mutableListOf<AbColors>()
+        rule.setContent {
+            for (mode in listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK)) {
+                AbTheme(darkTheme = false, colorMode = mode) { colors.add(LocalAbColors.current) }
+            }
+        }
         rule.waitForIdle()
-        assertEquals(Color.Black, colors!!.bookmark)
-        assertEquals(Color.Black, colors!!.activeWindow)
-        assertEquals(Color.Black, colors!!.helperLine)
+        assertEquals(2, colors.size)
+        colors.forEach {
+            assertEquals(Color.Black, it.bookmark)
+            assertEquals(Color.Black, it.activeWindow)
+            assertEquals(Color.Black, it.helperLine)
+        }
     }
 
     @Test fun `dark MONOCHROME accents are ink`() {
@@ -79,22 +86,25 @@ class AbThemeMonochromeTest {
         assertEquals(Color.White, colors!!.helperLine)
     }
 
-    @Test fun `MONOCHROME disables even inherited ripple`() {
-        var actual: RippleConfiguration? = RippleConfiguration()
+    @Test fun `MONOCHROME and COLOR_EINK disable even inherited ripple`() {
+        val actual = mutableListOf<RippleConfiguration?>()
         rule.setContent {
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration()) {
-                AbTheme(darkTheme = false, colorMode = DisplayColorMode.MONOCHROME) { actual = LocalRippleConfiguration.current }
+                for (mode in listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK)) {
+                    AbTheme(darkTheme = false, colorMode = mode) { actual.add(LocalRippleConfiguration.current) }
+                }
             }
         }
         rule.waitForIdle()
-        assertNull(actual)
+        assertEquals(2, actual.size)
+        actual.forEach { assertNull(it) }
     }
 
     @Test fun `old modes preserve inherited and default ripple`() {
         val inherited = RippleConfiguration(color = Color.Red)
         val results = mutableListOf<RippleConfiguration?>()
         rule.setContent {
-            for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
+            for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW)) {
                 AbTheme(darkTheme = false, colorMode = mode) { assertNotNull(LocalRippleConfiguration.current) }
                 CompositionLocalProvider(LocalRippleConfiguration provides inherited) {
                     AbTheme(darkTheme = false, colorMode = mode) { results.add(LocalRippleConfiguration.current) }

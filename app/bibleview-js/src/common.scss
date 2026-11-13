@@ -721,16 +721,8 @@ table {
   }
 }
 .pureMonochrome, .pureMonochrome.night {
-  .mono-frame {
-    border: 0 solid black;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-  }
-  .mono-frame-start { border-left-width: 1px; }
-  .mono-frame-end { border-right-width: 1px; }
-  &.night .mono-frame { border-color: white; }
+  // MONOCHROME highlight label (#4069); COLOR_EINK never gets the class (coloured band instead).
+  .mono-bold { font-weight: bold; }
   .icon-button.disabled {
     opacity: 1;
     color: #808080;

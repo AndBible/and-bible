@@ -58,36 +58,19 @@ class DefaultColorSchemeTest {
     }
 
     @Test
-    fun colorEinkStillUsesPlainTonalSpotThenGrayscale() {
-        for (dark in listOf(false, true)) {
-            // A low-chroma seed distinguishes the e-ink variant from the grey-safe NORMAL variant.
-            val seed = Color(0xFF607D8B)
-            val plain = dynamicColorScheme(seedColor = seed, isDark = dark, isAmoled = false,
-                style = PaletteStyle.TonalSpot)
-            val actual = abColorScheme(seed.toArgb(), dark, DisplayColorMode.COLOR_EINK)
-            for ((base, grey) in listOf(plain.primary to actual.primary, plain.primaryContainer to actual.primaryContainer,
-                plain.surface to actual.surface, plain.secondaryContainer to actual.secondaryContainer)) {
-                val argb = base.toArgb()
-                val y = (299 * ((argb ushr 16) and 255) + 587 * ((argb ushr 8) and 255) + 114 * (argb and 255)) / 1000
-                val expected = (argb and 0xFF000000.toInt()) or (y shl 16) or (y shl 8) or y
-                assertEquals(expected, grey.toArgb(), "e-ink keeps the existing TonalSpot grey role, dark=$dark")
-            }
-        }
-    }
-
-    @Test
     fun einkDefaultsKeepTheirExistingGreyRoles() {
         for (dark in listOf(false, true)) {
             for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
-                for (mode in listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
-                    val scheme = abColorScheme(seed, dark, mode)
-                    assertEquals(if (dark) 0xFFC9C9C9.toInt() else 0xFF606060.toInt(), scheme.primary.toArgb())
-                    assertEquals(if (dark) 0xFF131313.toInt() else 0xFFFAFAFA.toInt(), scheme.surface.toArgb())
+                val bw = abColorScheme(seed, dark, DisplayColorMode.BW)
+                assertEquals(if (dark) 0xFFC9C9C9.toInt() else 0xFF606060.toInt(), bw.primary.toArgb())
+                assertEquals(if (dark) 0xFF131313.toInt() else 0xFFFAFAFA.toInt(), bw.surface.toArgb())
+                // #4069: COLOR_EINK shares the MONOCHROME ink/paper scheme.
+                for (mode in listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK)) {
+                    val mono = abColorScheme(seed, dark, mode)
+                    assertEquals(if (dark) Color.White else Color.Black, mono.primary)
+                    assertEquals(if (dark) Color.Black else Color.White, mono.surface)
+                    assertEquals(Color.Transparent, mono.scrim)
                 }
-                val mono = abColorScheme(seed, dark, DisplayColorMode.MONOCHROME)
-                assertEquals(if (dark) Color.White else Color.Black, mono.primary)
-                assertEquals(if (dark) Color.Black else Color.White, mono.surface)
-                assertEquals(Color.Transparent, mono.scrim)
             }
         }
     }

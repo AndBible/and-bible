@@ -190,7 +190,7 @@ fun WorkspaceSelectorScreen(
                         }
                         // The per-workspace color is a decorative-but-meaningful identifier, not a scheme
                         // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
-                        // grays out in BW, stays colored in COLOR_EINK.
+                        // grays out in BW, ink in MONOCHROME and COLOR_EINK.
                         Surface(
                             color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
                             else Color(accentArgbFor(item.colorArgb, LocalDisplayColorMode.current)),

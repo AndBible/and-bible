@@ -104,7 +104,7 @@ class BibleViewScrollbarTest {
                 view.isScrollbarFadingEnabled = fading
                 val geometry = listOf(view.scrollBarSize, view.scrollBarStyle,
                     view.scrollBarFadeDuration, view.scrollBarDefaultDelayBeforeFade)
-                for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
+                for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW)) {
                     CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
                     view.updateBackgroundColor()
                     // Repeated refreshes must not snapshot the already-hidden flags.
@@ -123,6 +123,17 @@ class BibleViewScrollbarTest {
                     for (name in names) assertSame("Original object in $mode: $name", originals[name], part(view, name))
                 }
             }
+        }
+    }
+
+    /** #4069: colour e-ink shares the pure ink look, scrollbars included. */
+    @Test fun colorEinkHidesBothBarsLikeMono() = withView { view ->
+        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.COLOR_EINK.value)
+        for (dark in listOf(false, true)) {
+            CommonUtils.realSharedPreferences.edit().putBoolean("night_mode_pref", dark).commit()
+            view.updateBackgroundColor()
+            assertFalse(view.isVerticalScrollBarEnabled)
+            assertFalse(view.isHorizontalScrollBarEnabled)
         }
     }
 

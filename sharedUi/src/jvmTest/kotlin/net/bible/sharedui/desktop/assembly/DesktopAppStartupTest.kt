@@ -420,10 +420,8 @@ class DesktopAppStartupTest {
                     // A chosen workspace colour must reach BibleView as Android sends it (it used to be "null").
                     assertTrue(json.startsWith("{\"primary\":\"#"), json)
                     assertTrue(!json.contains("#D0BCFF") && !json.contains("#6750A4"), "palette follows the chosen colour: $json")
-                } else if (mode == net.bible.service.common.DisplayColorMode.COLOR_EINK && chosen) {
-                    assertTrue(json.startsWith("{\"primary\":\"#"), json)
                 } else {
-                    assertEquals("null", json, "grey-base modes and unset-colour e-ink keep the host CSS palette")
+                    assertEquals("null", json, "grey-base modes (e-ink included) keep the host CSS palette")
                 }
             }
         }

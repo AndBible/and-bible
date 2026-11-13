@@ -2,6 +2,7 @@ package net.bible.android.view.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,49 +49,96 @@ class BookmarkStyleMonoDecorationTest {
         }
         compose.runOnIdle {
             decorations.forEach { (style, decoration) ->
-                assertEquals(mode == DisplayColorMode.MONOCHROME && style == BookmarkDisplayStyle.HIGHLIGHT, decoration.frame)
+                // #4069: only MONOCHROME turns a highlight into bold text; COLOR_EINK keeps the band.
+                assertEquals(mode == DisplayColorMode.MONOCHROME && style == BookmarkDisplayStyle.HIGHLIGHT, decoration.bold)
                 assertEquals(style == BookmarkDisplayStyle.MARKER, decoration.showsMarkerIcon)
             }
         }
     }
 
-    private fun checkPixels(dark: Boolean) {
-        val ink = if (dark) Color.White else Color.Black
+    /** HIGHLIGHT decoration painted over paper, one box per mode; returns each mode's centre and edge pixels. */
+    private fun highlightPixels(modes: List<DisplayColorMode>, dark: Boolean): Map<DisplayColorMode, Pair<Color, List<Color>>> {
         val paper = if (dark) Color.Black else Color.White
         compose.setContent {
             ProvideAppLocals {
-                AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME, disableAnimations = true) {
-                    Box(Modifier.background(paper)) {
-                        Box(Modifier.size(80.dp, 40.dp).testTag("decoration")
-                            .then(bookmarkStyleDecoration(BookmarkDisplayStyle.HIGHLIGHT, 0xFFFF0000.toInt()).textModifier))
+                androidx.compose.foundation.layout.Column(Modifier.background(paper)) {
+                    modes.forEach { mode ->
+                        AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
+                            Box(Modifier.background(paper).padding(4.dp)) {
+                                Box(Modifier.size(80.dp, 40.dp).testTag("decoration-$mode")
+                                    .then(bookmarkStyleDecoration(BookmarkDisplayStyle.HIGHLIGHT, 0xFFFF0000.toInt()).textModifier))
+                            }
+                        }
                     }
                 }
             }
         }
-        val bounds = compose.onNodeWithTag("decoration").getUnclippedBoundsInRoot()
         val content = compose.activity.findViewById<ViewGroup>(android.R.id.content)
         val bitmap = Bitmap.createBitmap(content.width, content.height, Bitmap.Config.ARGB_8888)
         compose.runOnUiThread { content.draw(Canvas(bitmap)) }
         val density = compose.density.density
-        val left = (bounds.left.value * density).toInt()
-        val top = (bounds.top.value * density).toInt()
-        val right = (bounds.right.value * density).toInt() - 1
-        val bottom = (bounds.bottom.value * density).toInt() - 1
-        val x = (left + right) / 2
-        val y = (top + bottom) / 2
-        assertEquals(paper, Color(bitmap.getPixel(x, y)), "fill stays transparent over paper")
-        listOf(x to top, x to bottom, left to y, right to y).forEach { (px, py) ->
-            assertEquals(ink, Color(bitmap.getPixel(px, py)), "all four rectangle edges use ink")
+        val result = modes.associateWith { mode ->
+            val bounds = compose.onNodeWithTag("decoration-$mode").getUnclippedBoundsInRoot()
+            val left = (bounds.left.value * density).toInt() + 1
+            val top = (bounds.top.value * density).toInt() + 1
+            val right = (bounds.right.value * density).toInt() - 2
+            val bottom = (bounds.bottom.value * density).toInt() - 2
+            val x = (left + right) / 2
+            val y = (top + bottom) / 2
+            Color(bitmap.getPixel(x, y)) to
+                listOf(x to top, x to bottom, left to y, right to y).map { (px, py) -> Color(bitmap.getPixel(px, py)) }
         }
         bitmap.recycle()
+        return result
     }
 
-    private fun checkEditorMarker(dark: Boolean) {
+    private fun checkMonoPaintsNothing(dark: Boolean) {
+        val paper = if (dark) Color.Black else Color.White
+        val (centre, edges) = highlightPixels(listOf(DisplayColorMode.MONOCHROME), dark).getValue(DisplayColorMode.MONOCHROME)
+        assertEquals(paper, centre, "no fill: the highlight is bold text")
+        edges.forEach { assertEquals(paper, it, "no frame edge any more (#4069)") }
+    }
+
+    private fun checkColorEinkPaintsLabelBand(dark: Boolean) {
+        val pixels = highlightPixels(listOf(DisplayColorMode.COLOR_EINK, DisplayColorMode.NORMAL), dark)
+        val centre = pixels.getValue(DisplayColorMode.COLOR_EINK).first
+        assertEquals(pixels.getValue(DisplayColorMode.NORMAL).first, centre, "COLOR_EINK keeps the NORMAL label-colour band")
+        kotlin.test.assertTrue(centre.red > centre.green + 0.1f, "band is the red label colour, got $centre")
+    }
+
+    @Test fun mono_highlight_sample_is_bold_others_are_not() {
+        val modes = listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.NORMAL, DisplayColorMode.COLOR_EINK)
+        compose.setContent {
+            ProvideAppLocals {
+                androidx.compose.foundation.layout.Column {
+                    modes.forEach { mode ->
+                        AbTheme(darkTheme = false, colorMode = mode, disableAnimations = true) {
+                            Box(Modifier.testTag("sample-$mode")) {
+                                net.bible.sharedui.bookmark.BookmarkStyleSample(
+                                    style = BookmarkDisplayStyle.HIGHLIGHT, colorArgb = 0xFFFF0000.toInt(),
+                                    text = "Highlighted words",
+                                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = androidx.compose.ui.unit.TextUnit(16f, androidx.compose.ui.unit.TextUnitType.Sp)),
+                                    color = Color.Black, iconSlot = {},
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        fun width(mode: DisplayColorMode) = compose.onNodeWithTag("sample-$mode").getUnclippedBoundsInRoot().let { (it.right - it.left).value }
+        val mono = width(DisplayColorMode.MONOCHROME)
+        val normal = width(DisplayColorMode.NORMAL)
+        kotlin.test.assertTrue(mono > normal, "MONOCHROME highlight renders bold (wider): $mono vs $normal")
+        assertEquals(normal, width(DisplayColorMode.COLOR_EINK), "COLOR_EINK highlight keeps regular weight")
+    }
+
+    private fun checkEditorMarker(dark: Boolean, mode: DisplayColorMode = DisplayColorMode.MONOCHROME) {
         val seed = 0xFF43A9D7.toInt()
         val tints = mutableListOf<Color>()
         compose.setContent {
             ProvideAppLocals {
-                AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME, disableAnimations = false) {
+                AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = false) {
                     net.bible.sharedui.bookmark.LabelEditScreen(
                         state = net.bible.sharedcore.bookmark.LabelEditState(
                             labelId = "L1", name = "Study", color = seed, customIcon = "star",
@@ -113,11 +161,11 @@ class BookmarkStyleMonoDecorationTest {
         }
     }
 
-    private fun checkListMarker(dark: Boolean) {
+    private fun checkListMarker(dark: Boolean, mode: DisplayColorMode = DisplayColorMode.MONOCHROME) {
         val tints = mutableListOf<Color>()
         compose.setContent {
             ProvideAppLocals {
-                AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME, disableAnimations = true) {
+                AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
                     net.bible.sharedui.bookmark.ManageLabelsScreen(
                         title = "Labels",
                         rows = listOf(net.bible.sharedcore.bookmark.ManageLabelsRow.Item(
@@ -151,12 +199,19 @@ class BookmarkStyleMonoDecorationTest {
     @Test fun actual_editor_marker_light_uses_ink() = checkEditorMarker(false)
     @Test fun actual_editor_marker_dark_uses_ink() = checkEditorMarker(true)
 
-    @Test fun mono_light_paints_transparent_fill_and_ink_edges() = checkPixels(false)
-    @Test fun mono_dark_paints_transparent_fill_and_ink_edges() = checkPixels(true)
+    // #4069: COLOR_EINK markers follow the MONOCHROME ink; only highlight/underline keep colour.
+    @Test fun color_eink_list_marker_uses_ink() = checkListMarker(false, DisplayColorMode.COLOR_EINK)
+    @Test fun color_eink_editor_marker_dark_uses_ink() = checkEditorMarker(true, DisplayColorMode.COLOR_EINK)
 
-    @Test fun mono_light_frames_only_highlights() = checkMode(DisplayColorMode.MONOCHROME, false)
-    @Test fun mono_dark_frames_only_highlights() = checkMode(DisplayColorMode.MONOCHROME, true)
+    @Test fun mono_light_highlight_paints_no_fill_or_frame() = checkMonoPaintsNothing(false)
+    @Test fun mono_dark_highlight_paints_no_fill_or_frame() = checkMonoPaintsNothing(true)
+    @Test fun color_eink_light_paints_label_band() = checkColorEinkPaintsLabelBand(false)
+    @Test fun color_eink_dark_paints_label_band() = checkColorEinkPaintsLabelBand(true)
+
+    @Test fun mono_light_bolds_only_highlights() = checkMode(DisplayColorMode.MONOCHROME, false)
+    @Test fun mono_dark_bolds_only_highlights() = checkMode(DisplayColorMode.MONOCHROME, true)
     @Test fun bw_keeps_band_decorations() = checkMode(DisplayColorMode.BW, false)
     @Test fun normal_keeps_band_decorations() = checkMode(DisplayColorMode.NORMAL, false)
     @Test fun color_eink_keeps_band_decorations() = checkMode(DisplayColorMode.COLOR_EINK, false)
+    @Test fun color_eink_dark_keeps_band_decorations() = checkMode(DisplayColorMode.COLOR_EINK, true)
 }

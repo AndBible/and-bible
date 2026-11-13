@@ -21,7 +21,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /** Semantic AndBible accents (bookmark, active-window indicator, helper lines) — colored in
- *  NORMAL/COLOR_EINK, gray in BW, ink in MONOCHROME.
+ *  NORMAL, gray in BW, ink in MONOCHROME and COLOR_EINK.
  *  monoDisabled: disabled/off content, #808080 in MONOCHROME, onSurface at 38% elsewhere. Read via LocalAbColors so a mode switch recolors uniformly. */
 data class AbColors(
     val bookmark: Color,

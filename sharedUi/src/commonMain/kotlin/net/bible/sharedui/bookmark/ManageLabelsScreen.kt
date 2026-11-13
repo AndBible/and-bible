@@ -18,6 +18,7 @@
 package net.bible.sharedui.bookmark
 
 import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.inkBookmarkLabelColors
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -597,7 +598,7 @@ private fun SearchResultRow(
         Box(
             modifier = Modifier
                 .size(24.dp)
-                .background(if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                .background(if (inkBookmarkLabelColors()) MaterialTheme.colorScheme.onSurface
                     else AbColor.toComposeColor(row.color), CircleShape),
         )
 

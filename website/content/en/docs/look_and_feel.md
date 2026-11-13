@@ -100,13 +100,14 @@ select it.
 
     - *Normal* – use the configured colors.
     - *Black & white* – convert colors to grayscale, retaining shades of grey.
-    - *Color e-ink* – use a black-and-white base while keeping bookmark colors,
-        the active-window indicator and helper lines in color. Intended for
+    - *Color e-ink* – the same black-and-white look as *Monochrome*, except that
+        bookmark highlights and underlines keep their label colors. Intended for
         color e-ink screens.
     - *Monochrome* – use black ink on white paper, or white ink on black paper
         in the dark theme. Disabled controls and off states use one solid grey
-        rather than faded shades. Highlighted bookmarks have frames instead of
-        grey background fills. Recommended for e-ink screens where lighter grey
+        rather than faded shades. Highlighted bookmarks are shown in **bold**
+        text instead of a background color; underlined bookmarks keep a black
+        (or white) underline. Recommended for e-ink screens where lighter grey
         levels fade or disappear.
 
     Monochrome is the default on Onyx devices when no Color mode has been
@@ -114,9 +115,10 @@ select it.
     changed, including Black & white on an Onyx device. Changing Color mode
     does not replace your configured colors; color-selection swatches still
     show those colors. Images are not restricted to black and white.
-    In Monochrome, the reading pane's native horizontal and vertical scrollbars
-    are hidden on all Android versions; scrolling and autoscroll still work
-    normally. Leaving Monochrome restores the previous scrollbar settings.
+    In Monochrome and Color e-ink, the reading pane's native horizontal and
+    vertical scrollbars are hidden on all Android versions; scrolling and
+    autoscroll still work normally. Leaving these modes restores the previous
+    scrollbar settings.
     Window buttons keep a paper background and ink text: the active window has
     a thicker outline, while minimised windows use solid grey text and a dashed
     outline.
@@ -126,7 +128,7 @@ select it.
     Improves responsiveness on e-ink screens and very old devices. This is a
     separate setting; choosing a Color mode does not toggle it.
 
-In Monochrome, progress heatmaps use three states instead of a color gradient:
+In Monochrome and Color e-ink, progress heatmaps use three states instead of a color gradient:
 **grey** means no activity or progress, **outlined** means partial progress or
 an intermediate activity level, and **filled** means full progress or the
 highest level. Ink and paper swap in the dark theme. In reading progress, a
@@ -143,9 +145,8 @@ Select a calendar day to see its activity count below the heatmap, including
 zero for a day with no activity; days with activity also open the day's history.
 
 In the *Black & white*, *Color e-ink* and *Monochrome* color modes, the
-base interface stays grey (or black and white) for readable contrast.
-*Color e-ink* still derives grey tones from a chosen workspace color and
-keeps the deliberate color accents described above.
+base interface stays grey (or black and white) for readable contrast, and a
+chosen workspace color is not used.
 
 Color mode and Disable animations can be used together for an e-ink reading
 experience.
