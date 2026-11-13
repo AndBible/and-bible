@@ -8,11 +8,13 @@
 #       over CDP (`status`). Skipped when the profile is already signed in.
 #   scripts/google-test-signin.sh status
 #       Print SIGNED-IN <email> (exit 0) or NOT-SIGNED-IN (exit 3).
-#   scripts/google-test-signin.sh authorize '<auth url>' [--replay local|windows-vm|none]
+#   scripts/google-test-signin.sh authorize '<auth url>' [--replay local|windows-vm|none] [--redirect-prefix URL]
 #       Open the app's OAuth URL in the signed-in profile, choose the account, accept the consent,
 #       catch the loopback redirect http://127.0.0.1:<port>/?code=... and replay it where the app
 #       listens: `local` (default) curls it in this container (Linux desktop app), `windows-vm`
 #       runs curl.exe inside the Windows VM over SSH (scripts/windows-vm.sh ssh), `none` only prints it.
+#       --redirect-prefix https://read.andbible.org/oauth2/drive catches the Android App Link redirect
+#       instead (use with --replay none and deliver it with `adb shell am start -a VIEW -d '<url>'`).
 #
 # Environment (defaults in brackets):
 #   GOOGLE_TEST_PROFILE  Chrome profile dir, created mode 700 [.local/google-drive/chrome-profile]
@@ -32,7 +34,7 @@ ACCOUNT=${GOOGLE_TEST_ACCOUNT:-$ROOT/.local/google-drive/test-account.txt}
 SHOTS=${GOOGLE_TEST_SHOTS:-$ROOT/.local/google-drive/signin-shots}
 TIMEOUT=${GOOGLE_TEST_TIMEOUT:-1800}
 
-usage() { sed -n '2,25p' "$0" >&2; exit 2; }
+usage() { sed -n '2,27p' "$0" >&2; exit 2; }
 [[ $# -ge 1 ]] || usage
 cmd=$1; shift
 replay=local
@@ -40,10 +42,11 @@ args=()
 while [[ $# -gt 0 ]]; do
   case $1 in
     --replay) replay=$2; shift 2 ;;
+    --redirect-prefix) args+=("$1" "$2"); shift 2 ;;
     *) args+=("$1"); shift ;;
   esac
 done
-case $cmd in login|status) ;; authorize) [[ ${#args[@]} == 1 ]] || usage ;; *) usage ;; esac
+case $cmd in login|status) ;; authorize) [[ ${#args[@]} == 1 || ${#args[@]} == 3 ]] || usage ;; *) usage ;; esac
 case $replay in local|windows-vm|none) ;; *) usage ;; esac
 
 [[ -r $ACCOUNT ]] || { echo "account file $ACCOUNT missing" >&2; exit 2; }
