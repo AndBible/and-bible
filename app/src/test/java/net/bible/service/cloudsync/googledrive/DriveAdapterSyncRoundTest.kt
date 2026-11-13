@@ -162,12 +162,6 @@ class DriveAdapterSyncRoundTest {
         suspend fun bookmarkIds(): Set<IdType> = db.localDb.bookmarkDao().allBookmarks().map { it.id }.toSet()
     }
 
-    /** The old adapter's own signIn() needs an activity (One Tap); its account is already set, so it is skipped. */
-    private fun oldSignedIn(server: FakeDriveServer): CloudAdapter {
-        val old = oldDriveAdapter(server)
-        return object : CloudAdapter by old { override suspend fun signIn() = true }
-    }
-
     /**
      * Device A creates the sync folder and uploads a patch; B (empty database) joins from A's initial file and patch,
      * then adds its own bookmark; A receives it.
@@ -215,11 +209,11 @@ class DriveAdapterSyncRoundTest {
 
     @Test fun oldDeviceCreatesNewDeviceJoins() = run {
         val server = FakeDriveServer()
-        exchange(server, Device("a", oldSignedIn(server)), Device("b", newDriveAdapter(server)))
+        exchange(server, Device("a", oldDriveAdapter(server)), Device("b", newDriveAdapter(server)))
     }
 
     @Test fun newDeviceCreatesOldDeviceJoins() = run {
         val server = FakeDriveServer()
-        exchange(server, Device("a", newDriveAdapter(server)), Device("b", oldSignedIn(server)))
+        exchange(server, Device("a", newDriveAdapter(server)), Device("b", oldDriveAdapter(server)))
     }
 }

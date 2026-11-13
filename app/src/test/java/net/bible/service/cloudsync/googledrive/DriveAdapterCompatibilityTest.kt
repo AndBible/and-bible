@@ -35,7 +35,7 @@ import java.util.TimeZone
 import kotlin.random.Random
 
 /**
- * The Android Google API client adapter ([GoogleDriveCloudAdapter], "old") and the shared Ktor adapter
+ * The old app's Google API client adapter (frozen as [LegacyDriveAdapter], "old") and the shared Ktor adapter
  * ([net.bible.service.cloudsync.drive.GoogleDriveRestAdapter], "new") against one [FakeDriveServer]: whatever one
  * writes, the other reads identically, and both send equivalent requests. Each test runs in both directions
  * ([writerName] writes, the other reads), because devices on the old and the new adapter share one Drive.

@@ -70,7 +70,7 @@ class CloudSyncSignOutTest {
         override val signedIn get() = loggedIn
         var onSignIn: suspend () -> Boolean = { true }
         override suspend fun signIn() = onSignIn()
-        /** Like GoogleDriveCloudAdapter.signOut when Google Play services fails the request (osTicket 3515). */
+        /** Like the old Android Drive adapter's signOut when Google Play services fails the request (osTicket 3515). */
         var onSignOut: suspend () -> Unit = {}
         override suspend fun signOut() { onSignOut(); loggedIn = false }
         /** Like WebDavCloudAdapter.client: a call before sign-in has completed throws. */

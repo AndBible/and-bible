@@ -15,8 +15,7 @@ import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
  * exclusion removes it together with the Play Services code.
  */
 class GoogleDriveAdapterProvider : DriveAdapterProvider {
-    override fun create(useShared: Boolean): CloudAdapter =
-        if (useShared) createRest(AndroidGoogleAuth(), sharedClient) else GoogleDriveCloudAdapter()
+    override fun create(): CloudAdapter = createRest(AndroidGoogleAuth(), sharedClient)
 
     internal fun createRest(auth: GoogleAuth, client: HttpClient) = GoogleDriveRestAdapter(
         auth,
