@@ -94,6 +94,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.okhttp)   // Google Drive HTTP engine on desktop
+        }
         getByName("hostMain").dependencies {
             implementation(libs.jetbrains.markdown)
         }

@@ -1,5 +1,6 @@
 package net.bible.service.cloudsync.ios
 
+import net.bible.service.cloudsync.drive.oauth.GoogleDriveSecretKeys
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.WebDavPrefKeys
@@ -7,7 +8,7 @@ import net.bible.service.cloudsync.webdav.WebDavStateStore
 import platform.Foundation.NSUserDefaults
 
 /** Credential keys that must never sit in NSUserDefaults; they go to the Keychain-backed SecretStore. */
-val SECRET_CREDENTIAL_KEYS = setOf("cloud_sync_password", "webdav_sync_password")
+val SECRET_CREDENTIAL_KEYS = setOf("cloud_sync_password", "webdav_sync_password", GoogleDriveSecretKeys.REFRESH_TOKEN)
 
 /** Device-local string preferences in the standard NSUserDefaults domain, using Android's key names. */
 class IosDevicePrefs(private val defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults) {

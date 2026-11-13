@@ -21,11 +21,12 @@ import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 
 /**
- * The desktop cloud back ends: Nextcloud and generic WebDAV only (no iCloud, no Google Drive). Everything else is the hoisted
+ * The desktop cloud back ends: Nextcloud and generic WebDAV, plus Google Drive last when the inner factory offers it (no iCloud). Everything else is the hoisted
  * [HostCloudAdapterFactory]; an id outside [available] is refused here so the factory's iCloud branch is never reached.
  */
 class DesktopCloudAdapterFactory(private val inner: HostCloudAdapterFactory) : CloudAdapterFactory by inner {
-    override val available: List<String> = listOf("NEXT_CLOUD", "WEBDAV")
+    override val available: List<String> =
+        listOf("NEXT_CLOUD", "WEBDAV") + listOfNotNull("GOOGLE_DRIVE".takeIf { it in inner.available })
 
     override fun create(id: String): CloudAdapter = inner.create(checked(id))
     override fun createForBackground(id: String): CloudAdapter = inner.createForBackground(checked(id))

@@ -25,6 +25,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.cloudsync.desktop.desktopSyncModule
+import net.bible.sharedui.desktop.files.DesktopExternalLinks
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.log.DesktopLogFile
 import net.bible.sharedcore.log.Log
@@ -159,7 +160,7 @@ object DesktopAppStartup {
         try {
             app.modules(
                 desktopPlatformModule(paths, window, language, launchArgs, lifecycleEvents, notifierSource),
-                desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(), desktopSyncModule(),
+                desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(), desktopSyncModule(openBrowser = { url -> app.koin.get<DesktopExternalLinks>().openAndWait(url) }),
             )
             // Before any eager instance or other reader can touch a setting: the settings store opens through this host.
             DatabaseContainer.installHost(DesktopDatabaseHost(app.koin.get()))

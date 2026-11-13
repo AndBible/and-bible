@@ -90,7 +90,7 @@ class DesktopSyncBindingsContractTest {
                     single {
                         HostSyncStrings(
                             adapterDisplayName = { "name:$it" }, webDavServerUrlHint = { "hint" }, syncError = { "err" },
-                            webDavMessage = { "msg" }, ok = { "ok" },
+                            webDavMessage = { "msg" }, ok = { "ok" }, googleDriveSignInDone = { "done" }, googleDriveSignInIncomplete = { "incomplete" }, googleDriveSignInRequired = { "again" },
                         )
                     }
                     single<UserNotifier> { inert() }
@@ -335,7 +335,7 @@ class DesktopSyncBindingsContractTest {
                     single<CoreStrings> { inert() }; single<UserNotifier> { notifier }; single<FilePicker> { inert() }
                     single<FileDelivery> { inert() }; single { AppDialogController() }; single { scope }
                     single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
-                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }) }
                 },
                 desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
             )

@@ -10,7 +10,7 @@ See [Cloud synchronization](cloud_sync.md) for how to set sync up.
 
 | | Android | iPhone, iPad & Mac | Windows & Linux |
 |---|---|---|---|
-| Google Drive | Yes (not in the F-Droid build) | No | No |
+| Google Drive | Yes (not in the F-Droid build) | Yes (when Google sign-in is configured in the build) | Yes (when Google sign-in is configured in the build) |
 | iCloud Drive | No | Yes | No |
 | Nextcloud | Yes | Yes | Yes |
 | WebDAV | Yes | Yes | Yes |

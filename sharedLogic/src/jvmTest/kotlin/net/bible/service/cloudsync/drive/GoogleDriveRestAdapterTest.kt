@@ -5,6 +5,8 @@ import io.ktor.http.Url
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.bible.service.cloudsync.CloudSyncUserCancelledException
+import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.drive.fake.FakeDriveServer
 import net.bible.service.cloudsync.drive.fake.FakeGoogleAuth
@@ -201,7 +203,8 @@ class GoogleDriveRestAdapterTest {
     @Test
     fun alwaysUnauthorizedThrowsAuthRequired() {
         server.authorize = { false }
-        assertFailsWith<GoogleAuthRequiredException> { runBlocking { adapter.get("x") } }
+        val e = assertFailsWith<CloudSyncUserFacingException> { runBlocking { adapter.get("x") } }
+        assertTrue(e.requiresReconnect && e.cause is GoogleAuthRequiredException)
         assertEquals(2, server.requests.size)
         assertEquals(listOf("t1", "t2"), auth.invalidateCalls)
     }
@@ -216,6 +219,61 @@ class GoogleDriveRestAdapterTest {
         val e = assertFailsWith<DriveHttpException> { runBlocking { a.get("x") } }
         assertEquals(500, e.status)
         assertEquals("backendError", e.reason)
+    }
+
+    private fun expireAuth() { auth.accessTokenFailure = GoogleAuthRequiredException("revoked") }
+
+    private fun assertSignInNeeded(block: suspend () -> Unit) {
+        val e = assertFailsWith<CloudSyncUserFacingException> { runBlocking { block() } }
+        assertTrue(e.requiresReconnect)
+        assertEquals("Sign in again", e.message)
+        assertTrue(e.cause is GoogleAuthRequiredException)
+    }
+
+    private fun lostSignInAdapter() = GoogleDriveRestAdapter(auth, createGoogleDriveHttpClient(server.ktorEngine()), signInRequiredMessage = { "Sign in again" })
+
+    @Test
+    fun lostSignInSurfacesAsUserFacingReconnectOnEveryCall() {
+        val a = lostSignInAdapter()
+        val file = tmp.resolve("up.gz").also { Files.write(it, byteArrayOf(1, 2, 3)) }.toFile().toOkioPath()
+        expireAuth()
+        assertSignInNeeded { a.listFiles(listOf(root)) }
+        assertSignInNeeded { a.get("x") }
+        assertSignInNeeded { a.createNewFolder("f") }
+        assertSignInNeeded { a.upload("n.gz", file, root) }
+        assertSignInNeeded { a.download("x", Buffer()) }
+        assertSignInNeeded { a.delete("x") }
+    }
+
+    @Test
+    fun secondRejectedTokenSurfacesAsUserFacingReconnect() {
+        val engine = io.ktor.client.engine.mock.MockEngine { respond("", io.ktor.http.HttpStatusCode.Unauthorized) }
+        val a = GoogleDriveRestAdapter(auth, createGoogleDriveHttpClient(engine), signInRequiredMessage = { "Sign in again" })
+        assertSignInNeeded { a.get("x") }
+    }
+
+    @Test
+    fun lostSignInDefaultMessageIsNotBlank() {
+        expireAuth()
+        val e = assertFailsWith<CloudSyncUserFacingException> { runBlocking { adapter.listFiles(listOf(root)) } }
+        assertTrue(e.requiresReconnect)
+        assertTrue(!e.message.isNullOrBlank())
+    }
+
+    @Test
+    fun signInCancelAndFailureKeepTheirSemantics() = runBlocking {
+        val cancelling = GoogleDriveRestAdapter(FakeGoogleAuth(signedIn = false, cancelSignIn = true), createGoogleDriveHttpClient(server.ktorEngine()))
+        assertFailsWith<CloudSyncUserCancelledException> { cancelling.signIn() }
+        val failing = GoogleDriveRestAdapter(FakeGoogleAuth(signedIn = false, signInResult = false), createGoogleDriveHttpClient(server.ktorEngine()))
+        assertFalse(failing.signIn())
+    }
+
+    @Test
+    fun cancellationAndTransportErrorsAreNotRemapped() {
+        auth.accessTokenFailure = kotlinx.coroutines.CancellationException("c")
+        assertFailsWith<kotlinx.coroutines.CancellationException> { runBlocking { adapter.get("x") } }
+        auth.accessTokenFailure = okio.IOException("offline")
+        assertFailsWith<okio.IOException> { runBlocking { adapter.get("x") } }
     }
 
     @Test

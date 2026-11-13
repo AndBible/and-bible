@@ -15,8 +15,8 @@ import net.bible.sharedcore.webdav.WebDavClient
 import okio.Path
 
 /**
- * iOS cloud back ends (spec C9), in this order: iCloud Drive, Nextcloud (a [WebDavCloudAdapter]
- * preset), generic WebDAV. No Google Drive.
+ * iOS and desktop cloud back ends (spec C9), in this order: iCloud Drive, Google Drive (only when [googleDrive] is
+ * supplied), Nextcloud (a [WebDavCloudAdapter] preset), generic WebDAV.
  *
  * [awaitReady] is awaited by the iCloud adapter's `signIn()` (the ubiquity container resolves
  * asynchronously and reads as null until then). The host binds ONE container and passes its
@@ -35,16 +35,19 @@ class HostCloudAdapterFactory(
     private val tempDir: Path,
     private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient,
     private val awaitReady: suspend () -> Unit = {},
+    private val googleDrive: ((background: Boolean) -> CloudAdapter)? = null,
 ) : CloudAdapterFactory {
-    override val available: List<String> = listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
+    override val available: List<String> =
+        listOf("ICLOUD_DRIVE") + listOfNotNull("GOOGLE_DRIVE".takeIf { googleDrive != null }) + listOf("NEXT_CLOUD", "WEBDAV")
 
     override fun displayName(id: String): String = displayName.invoke(id)
 
-    override fun create(id: String): CloudAdapter = create(id, signInUi)
+    override fun create(id: String): CloudAdapter = create(id, signInUi, false)
 
-    override fun createForBackground(id: String): CloudAdapter = create(id, HostBackgroundSignInUi(signInUi))
+    override fun createForBackground(id: String): CloudAdapter = create(id, HostBackgroundSignInUi(signInUi), true)
 
-    private fun create(id: String, ui: WebDavSignInUi): CloudAdapter = when (id) {
+    private fun create(id: String, ui: WebDavSignInUi, background: Boolean): CloudAdapter = when (id) {
+        "GOOGLE_DRIVE" -> (googleDrive ?: throw IllegalStateException("Google Drive is not configured")).invoke(background)
         "ICLOUD_DRIVE" -> FileTreeCloudAdapter(iCloudStore(), deviceId, tempDir, awaitReady = awaitReady)
         "NEXT_CLOUD" -> {
             val user = platform.credential("cloud_sync_username")

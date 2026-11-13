@@ -251,6 +251,33 @@ class CloudSyncSignOutTest {
         }
     }
 
+    /**
+     * A lost Google sign-in (revoked refresh token) reaches CloudSync as CloudSyncUserFacingException(requiresReconnect):
+     * the pass reports it once, the adapter is dropped (signedIn false), and the next automatic pass does not retry.
+     */
+    @Test fun lostSignInIsReportedDropsTheAdapterAndIsNotRetried() = withFixture { f ->
+        val (cloud, adapter, _, _, _) = f
+        val errors = mutableListOf<UserMessage.ErrorNotification>()
+        val subscription = UserMessages.messages.subscribe { if (it is UserMessage.ErrorNotification) errors += it }
+        try {
+            adapter.finishUpload.complete(Unit)
+            adapter.onUpload = { throw CloudSyncUserFacingException("Sign in again", true, net.bible.service.cloudsync.drive.GoogleAuthRequiredException("revoked")) }
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(1, errors.size, "$errors")
+            assertEquals("Sign in again", errors.single().text)
+            assertTrue(errors.single().cause is CloudSyncUserFacingException)
+            assertFalse(cloud.signedIn, "The adapter is dropped until the user signs in again")
+
+            errors.clear()
+            val before = adapter.listings
+            cloud.synchronize(allowInteraction = false)
+            assertEquals(before, adapter.listings, "A dropped adapter must not be retried by automatic passes")
+            assertTrue(errors.isEmpty(), "$errors")
+        } finally {
+            subscription.cancel()
+        }
+    }
+
     @Test fun missingFolderIdsAreSkippedWithoutGenericError() = withFixture { f ->
         val (cloud, adapter, db, _, _) = f
         val errors = mutableListOf<UserMessage>()
