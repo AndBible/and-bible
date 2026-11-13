@@ -24,7 +24,7 @@ Errors raised during startup remain queued until the app can display them.
 ## Requirements
 
 - Android 6.0 or newer, iOS or iPadOS 16 or newer, Windows or Linux
-- A Google account (for Google Drive sync on Android), an iCloud account (for iCloud Drive sync on iPhone, iPad and Mac), a Nextcloud server, or a WebDAV server
+- A Google account (for Google Drive sync), an iCloud account (for iCloud Drive sync on iPhone, iPad and Mac), a Nextcloud server, or a WebDAV server
 - Internet connection
 
 !!! note
@@ -36,7 +36,7 @@ Errors raised during startup remain queued until the app can display them.
 
 1. Open the top left main menu (☰).
 2. Tap `Sync settings`.
-3. Choose your sync adapter: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. Windows and Linux offer Nextcloud and WebDAV.
+3. Choose your sync adapter: **Google Drive** (default on Android; also available on iPhone, iPad, Mac, Windows and Linux), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. On Windows and Linux, signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder; return to *AndBible* when the browser page says you are done. On iPhone, iPad and Mac, a Google sign-in sheet opens inside the app.
 4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
 
 If a saved backend is unavailable on this platform (for example, after restoring an Android backup with Google Drive sync on Windows), synchronization is disabled. Sync settings explain that a supported backend needs to be chosen, and the sync switches show as off. No other backend is selected automatically, and neither manual nor background synchronization runs. The saved backend is kept unchanged until you choose a supported backend and configure synchronization for this device.
@@ -219,7 +219,7 @@ All release versions of *AndBible* use the same synced data: the Android app
 from the Play Store, F-Droid, GitHub, and the other stores, the discrete
 (calculator) version, the Accrescent version, and the iOS app. The shared
 folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
-Google Drive is available only on Android, and iCloud Drive only on iPhone, iPad and Mac. Windows and Linux use Nextcloud or WebDAV; see [Platform differences](platform_differences.md).
+Google Drive is available on every platform, so signing in with the same Google account shares the data between Android, iPhone, iPad, Mac, Windows and Linux. iCloud Drive is available only on iPhone, iPad and Mac; see [Platform differences](platform_differences.md).
 
 If you already use sync on the **standard Android** version, nothing changes
 when you update: sync keeps working as before.
@@ -286,7 +286,7 @@ accumulate. To compact the cloud storage:
 ## Privacy and Security
 
 - **Google Drive:** *AndBible* uses the app-specific `AppData` folder on Google
-    Drive. It cannot access any other files on your Drive, and other apps cannot
+    Drive (on every platform, including iOS, Windows and Linux). It cannot access any other files on your Drive, and other apps cannot
     access *AndBible*’s sync data.
 - **Data sent:** Only your bookmarks, labels, notes, study pads, workspaces,
     and window configurations are uploaded — no personal information beyond what
