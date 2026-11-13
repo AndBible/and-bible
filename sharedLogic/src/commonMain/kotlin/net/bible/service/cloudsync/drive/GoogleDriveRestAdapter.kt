@@ -31,6 +31,7 @@ import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import okio.FileNotFoundException
@@ -45,6 +46,8 @@ import okio.use
 
 private const val FILES_PATH = "drive/v3/files"
 private const val UPLOAD_FILES_PATH = "upload/drive/v3/files"
+
+private const val DRIVE_LOG_TAG = "GoogleDrive"
 
 /** Size of one `Content-Range` chunk of a resumable upload (a multiple of 256 KiB, as Drive requires). */
 private const val UPLOAD_CHUNK_SIZE = 8L * 1024 * 1024
@@ -167,7 +170,9 @@ class GoogleDriveRestAdapter(
                     contentType(ContentType.parse(GZIP_MIMETYPE))
                     setBody(chunk)
                 }
-                if (response.status.value != 308) return@withContext decode<DriveFileDto>(response).toCloudFile()
+                if (response.status.value != 308) return@withContext decode<DriveFileDto>(response).toCloudFile().also {
+                    Log.i(DRIVE_LOG_TAG, "Uploaded $name ($total bytes) in a resumable session")
+                }
                 // "Range: bytes=0-N" = Drive holds N+1 bytes; no Range header = it holds none.
                 val persisted = response.headers[HttpHeaders.Range]?.substringAfterLast('-')?.toLongOrNull()?.plus(1) ?: 0L
                 if (persisted > offset + size) throw IOException("Drive reports $persisted bytes received, more than the $total sent so far")
@@ -201,7 +206,9 @@ class GoogleDriveRestAdapter(
             contentType(ContentType("multipart", "related").withParameter("boundary", boundary))
             setBody(body)
         }
-        return decode<DriveFileDto>(response).toCloudFile()
+        return decode<DriveFileDto>(response).toCloudFile().also {
+            Log.i(DRIVE_LOG_TAG, "Uploaded $name (${content.size} bytes) in one multipart request")
+        }
     }
 
     override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
