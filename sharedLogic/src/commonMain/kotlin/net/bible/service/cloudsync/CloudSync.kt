@@ -71,6 +71,9 @@ const val SYNC_NAMESPACE_KEY = "syncNamespace"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
+/** Bound on a cloud provider's own sign-out (osTicket 3515: Play services may never answer). */
+private const val PROVIDER_SIGN_OUT_TIMEOUT_MS = 10_000L
+
 class CancelStartedSync: Exception()
 
 /**
@@ -215,7 +218,7 @@ class CloudSync(
     suspend fun signOut() {
         // A running sync still needs its adapter and folder IDs through the patch download.
         syncMutex.withLock {
-            _adapter?.signOut()
+            _adapter?.let { signOutOfProvider(it) }
             _adapter = null
             // Stop any in-flight document transfers before wiping their state: they belong to the
             // account just disconnected. store() already returns null now (_adapter == null), so a
@@ -229,6 +232,25 @@ class CloudSync(
                 dbDef.dao.clearSyncStatus()
                 dbDef.dao.clearSyncConfiguration()
             }
+        }
+    }
+
+    /**
+     * The provider's own sign-out is best effort: the local reset must complete whatever the provider does (osTicket 3515).
+     * Google's sign-out goes through Play services, which can fail (unavailable) or never answer (disabled, missing or
+     * updating: it retries every few seconds). A failure escaped into the settings screen's lifecycle scope and crashed
+     * the app; a hang kept "Sign Out" spinning with the sync lock held. Both now end in a logged, bounded no-op.
+     */
+    private suspend fun signOutOfProvider(adapter: CloudAdapter) {
+        try {
+            val finished = kotlinx.coroutines.withTimeoutOrNull(PROVIDER_SIGN_OUT_TIMEOUT_MS) { adapter.signOut(); true }
+            if (finished == null) Log.w(TAG, "Provider sign-out did not finish in $PROVIDER_SIGN_OUT_TIMEOUT_MS ms; resetting locally")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // Our own cancellation propagates; a provider task that was cancelled (Task.await) is just a failed sign-out.
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            Log.w(TAG, "Provider sign-out was cancelled; resetting locally", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "Provider sign-out failed; resetting locally: ${e::class.simpleName}: ${e.message}", e)
         }
     }
 

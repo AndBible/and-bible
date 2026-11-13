@@ -1,5 +1,6 @@
 package net.bible.sharedcore.settings
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +33,8 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun plainHttpRefused(url: String): Boolean = refusedPlainHttp
     override fun forgetCertificate() { calls += "forgetCert" }
     override fun setAdapter(value: String) { calls += "adapter=$value" }
-    override suspend fun resetSync() { calls += "reset" }
+    var resetFailure: Throwable? = null
+    override suspend fun resetSync() { calls += "reset"; resetFailure?.let { throw it } }
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) = "docs-msg"
 }
 
@@ -304,6 +306,24 @@ class SyncSettingsControllerTest {
         c.confirmReset()
         assertTrue("reset" in svc.calls)
         assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    /**
+     * osTicket 3515: the reset runs in the host's lifecycle scope (no exception handler on Android), so a failing
+     * reset crashed the app and left the screen loading. It is contained: the screen refreshes and stops loading.
+     */
+    @Test fun failingReset_doesNotEscapeTheScope_andStopsLoading() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { resetFailure = IllegalStateException("provider sign-out failed") }
+        val escaped = mutableListOf<Throwable>()
+        val scope = CoroutineScope(Dispatchers.Unconfined + CoroutineExceptionHandler { _, e -> escaped += e })
+        val c = SyncSettingsController(svc, scope, SyncSettingsLabels.forTest(), {})
+        c.onNavigate("cloud_sync_reset")
+        val refreshesBefore = svc.refreshes
+        c.confirmReset()
+        assertTrue("reset" in svc.calls)
+        assertTrue(escaped.isEmpty(), "Reset failure escaped to the host scope: $escaped")
+        assertFalse(c.state.value.loading)
+        assertTrue(svc.refreshes > refreshesBefore, "The screen must show the state the failed reset left")
     }
 
     @Test fun manageNav_opensCloudDocuments() {
