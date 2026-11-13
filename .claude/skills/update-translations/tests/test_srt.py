@@ -99,3 +99,35 @@ def test_merge_fails_on_count_mismatch(tmp_path):
     r = run("srt_merge.py", en, cues, out)
     assert r.returncode == 1 and "cue count" in (r.stdout + r.stderr)
     assert not out.exists()
+
+
+def _merge(tmp_path, content):
+    en = write_srt(tmp_path / "en.srt", CUES[:2])
+    cues = tmp_path / "cues.yaml"
+    cues.write_text(content, encoding="utf-8")
+    out = tmp_path / "o.srt"
+    return run("srt_merge.py", en, cues, out), out
+
+
+def test_merge_rejects_non_string_and_blank_texts(tmp_path):
+    for bad in ("No", "~", "42", '"  "'):
+        r, out = _merge(tmp_path, f"cues:\n- {{n: 1, text: Yes}}\n- {{n: 2, text: {bad}}}\n")
+        assert r.returncode == 1, bad
+        assert "cue 1" in r.stdout and not out.exists()
+    r, out = _merge(tmp_path, "cues:\n- {n: 1, text: x}\n- {n: 2, text: y}\n")
+    assert r.returncode == 0
+
+
+def test_merge_reports_malformed_cue_files(tmp_path):
+    for content in ("cues: [unclosed", "cues:\n- {n: 1, text: a}\n- {text: b}\n",
+                    "cues:\n- {n: 1, text: a}\n- {n: two, text: b}\n", "cues:\n- {n: 1, text: a}\n- {n: 2}\n"):
+        r, out = _merge(tmp_path, content)
+        assert r.returncode == 1 and "cue file invalid" in r.stdout
+        assert "Traceback" not in r.stderr and not out.exists()
+
+
+def test_bom_and_crlf_are_tolerated(tmp_path):
+    en = tmp_path / "en.srt"
+    en.write_bytes(b"\xef\xbb\xbf" + "\n".join(f"{i}\n{t}\n{x}\n" for i, (t, x) in enumerate(CUES[:2], 1)).replace("\n", "\r\n").encode())
+    tr = write_srt(tmp_path / "de.srt", [(CUES[0][0], "a"), (CUES[1][0], "b")])
+    assert run_validate(en, tr).returncode == 0

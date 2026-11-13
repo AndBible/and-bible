@@ -16,14 +16,18 @@ import yaml
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from lang_codes import normalize_code
-from srt_common import parse_srt
+from srt_common import read_srt
 
 
 def glossary(lang):
     """extract_glossary.py's markdown for LANG; empty text when there is no data."""
     r = subprocess.run([sys.executable, str(HERE / "extract_glossary.py"), lang],
-                       capture_output=True, text=True)
-    return r.stdout.strip() if r.returncode == 0 else ""
+                       capture_output=True, text=True, cwd=HERE.parents[2])
+    text = r.stdout.strip() if r.returncode == 0 else ""
+    if not text or text.startswith("No translated string pairs"):
+        print(f"warning: no glossary for language '{lang}'; UI terms are unchecked", file=sys.stderr)
+        return ""
+    return text
 
 
 def main():
@@ -32,7 +36,7 @@ def main():
         return 2
     subs, name, lang = Path(sys.argv[1]), sys.argv[2], normalize_code(sys.argv[3])
     src = subs / f"{name}.en.srt"
-    cues = parse_srt(src.read_text(encoding="utf-8"))
+    cues = read_srt(src)
     episode = subs.resolve().parent.name
     out = Path("tmp/translate-srt") / f"{episode}-{name}.{lang}.yaml"
     out.parent.mkdir(parents=True, exist_ok=True)

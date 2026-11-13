@@ -8,7 +8,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from srt_common import parse_srt
+from srt_common import read_srt
 
 
 def problem(en, tr):
@@ -26,7 +26,7 @@ def main():
     if len(sys.argv) != 3:
         print("Usage: srt_validate.py <english.srt> <translated.srt>", file=sys.stderr)
         return 2
-    read = lambda p: parse_srt(open(p, encoding="utf-8").read())
+    read = read_srt
     msg = problem(read(sys.argv[1]), read(sys.argv[2]))
     if msg:
         print(f"INVALID {sys.argv[2]}: {msg}")

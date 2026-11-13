@@ -473,7 +473,7 @@ Steps per language (run from the repo root, `SKILL=.claude/skills/update-transla
    `tmp/translate-srt/<episode>-<format>-<voice>.LANG.yaml`: glossary plus numbered cue texts, no timings.
 2. Translate the cue texts. The agent writes a cues YAML with the Write tool, for example
    `tmp/translate-srt/<episode>-<format>-<voice>.LANG.cues.yaml`, as `cues: [{n: 1, text: "..."}, ...]`
-   with exactly the same numbers and count (multi-line cue texts stay multi-line). Never touch timings.
+   with exactly the same numbers and count (multi-line cue texts stay multi-line). Double-quote every cue text: unquoted `No`, `Yes`, `On`, `~` or a bare number is not a string in YAML and `srt_merge.py` rejects it. Never touch timings.
 3. `python3 $SKILL/srt_merge.py MEDIA_DIR/<episode>/subs/<format>-<voice>.en.srt <cues.yaml> MEDIA_DIR/<episode>/subs/<format>-<voice>.LANG.srt`
    copies the English timing lines byte-identically; it fails on a cue count mismatch.
 4. `python3 $SKILL/srt_validate.py <english.srt> <translated.srt>` must exit 0 for every file (cue count,
