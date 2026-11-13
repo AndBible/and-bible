@@ -11,8 +11,8 @@ TTS narration, subtitles and their translations. It can double as the first Shor
 | Narration | TTS, model `gpt-4o-mini-tts-2025-12-15`, voice `marin`; 5 clips, 952 characters, about 64 s of audio; Whisper (`whisper-1`) once per clip for word timings. Paid calls pre-approved by the maintainer through the orchestrator. |
 | Own narration | not recorded. `render.py voice --script` writes `.local/video-media/poc-title-bar-search/voice/script.txt`; `voice --check` reports all 5 scenes `missing` (exit 1), as intended. |
 | Music | **none**: `.local/video-media/shared/music/` has no track yet, so both videos are rendered without `music:`. Add the key to `script.yaml` once the maintainer's track exists. |
-| Main | `.local/video-out/poc-title-bar-search/main-tts.mp4` (1920x1080, 68.2 s) + `main-tts.srt` |
-| Short | `.local/video-out/poc-title-bar-search/short-tts.mp4` (1080x1920, 68.2 s, burned-in captions) + `short-tts.srt`. It is as long as the main video because every scene is in both formats; cut it down before publishing it as a Short. |
+| Main | `.local/video-out/poc-title-bar-search/main-tts.mp4` (1920x1080, 68.2 s) + `main-tts.srt`; light palette |
+| Short | `.local/video-out/poc-title-bar-search/short-tts.mp4` (1080x1920, 68.2 s, full-bleed app, burned-in captions on a semi-transparent band) + `short-tts.srt`; framed variant `short-tts-framed.mp4` + `.srt` (phone in a device frame). It is as long as the main video because every scene is in both formats; cut it down before publishing it as a Short. |
 | Subtitles | English SRT in `.local/video-media/poc-title-bar-search/subs/{main,short}-tts.en.srt`; Tier 1 translations `main-tts.<lang>.srt` (30 languages) and identical-timing copies for `short-tts`, every file validated with `srt_validate.py`. Upload by hand in YouTube Studio. |
 | Watched | frame checks only: contact sheets of both final MP4s (one frame per 3 s) and per-scene previews at every anchor; the caption band is clear in the Short; audio mean -16.5 dB, peak -1.4 dB. **Still to do by a human: watch both end to end for pacing** (nobody has played the videos). |
 
