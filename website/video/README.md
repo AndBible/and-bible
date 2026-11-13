@@ -12,8 +12,8 @@ Origin: the renderer is ported from the JailBee project's `website/video`
 ```bash
 uv run website/video/render.py tts --dry-run        # what narration is missing, no API call
 uv run website/video/render.py tts                  # generate it
-uv run website/video/render.py preview what --at 12 # one frame of a scene, as PNG
-uv run website/video/render.py preview what         # one scene as a quick, small mp4
+uv run website/video/render.py preview hook --at 12 # one frame of a scene, as PNG
+uv run website/video/render.py preview hook         # one scene as a quick, small mp4
 uv run website/video/render.py render main          # main-tts.mp4 + main-tts.srt
 uv run website/video/render.py render short         # short-tts.mp4 + short-tts.srt
 ```
@@ -205,18 +205,13 @@ After `render main` and `render short`, in this order:
    description comes from the scene start times
    (`pipeline.timeline(...)` — each slot's `start`). Upload unlisted and publish
    with the release.
-4. **Embed in the release post.** The video ID alone on its own line in the
-   article (`https://youtu.be/<id>`) becomes a click-to-load player; its
-   thumbnail goes to `website/assets/videos/<id>.jpg`. Use a frame of the video
-   (`ffmpeg -ss <t> -i .local/video-out/<episode>/main-tts.mp4 -frames:v 1 -vf scale=1280:720 …`), not the
-   post's feature image, which already heads the article. See
-   `website/news/README.md`.
-5. **The landing page.** `#demos` in `website/index.html` carries the tour as
-   the same player (update its `data-yt-id`, thumbnail, `aria-label` and
-   caption) and three stills cut from the episode's scenes
-   (`render.py preview <scene> --at <t> --scale 1`, saved as JPEG under
-   `website/assets/img/tour-*.jpg`). Pick a `<t>` where every label and ring of
-   the scene is showing.
+4. **After the upload:** add the video to `website/data/videos.yaml`, embed it in its docs page and the release
+   post, and link it from the app. Use the `video-blog-post` skill and the design's "App links" and "Website"
+   sections (`docs/superpowers/specs/2026-11-13-andbible-video-production-design.md`). A thumbnail frame:
+   `ffmpeg -ss <t> -i .local/video-out/<episode>/main-tts.mp4 -frames:v 1 -vf scale=1280:720 …`.
+
+Re-rendering overwrites `.local/video-media/<episode>/subs/<format>-<voice>.en.srt`; translations made earlier
+no longer match it. Re-run `srt_validate.py` on them and retranslate what fails.
 
 Each episode's own facts — its video IDs, the illustration prompts used, the
 frames picked for stills — live in `episodes/<name>/NOTES.md`.

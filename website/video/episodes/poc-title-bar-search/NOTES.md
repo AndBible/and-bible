@@ -14,7 +14,7 @@ TTS narration, subtitles and their translations. It can double as the first Shor
 | Main | `.local/video-out/poc-title-bar-search/main-tts.mp4` (1920x1080, 68.2 s) + `main-tts.srt` |
 | Short | `.local/video-out/poc-title-bar-search/short-tts.mp4` (1080x1920, 68.2 s, burned-in captions) + `short-tts.srt`. It is as long as the main video because every scene is in both formats; cut it down before publishing it as a Short. |
 | Subtitles | English SRT in `.local/video-media/poc-title-bar-search/subs/{main,short}-tts.en.srt`; Tier 1 translations `main-tts.<lang>.srt` (30 languages) and identical-timing copies for `short-tts`, every file validated with `srt_validate.py`. Upload by hand in YouTube Studio. |
-| Watched | contact sheets of both final MP4s (one frame per 3 s) checked end to end; the caption band is clear in the Short; audio mean -16.5 dB, peak -1.4 dB (target loudnorm -16 LUFS). |
+| Watched | frame checks only: contact sheets of both final MP4s (one frame per 3 s) and per-scene previews at every anchor; the caption band is clear in the Short; audio mean -16.5 dB, peak -1.4 dB. **Still to do by a human: watch both end to end for pacing** (nobody has played the videos). |
 
 Not done: music, own narration, publishing (no upload from containers), thumbnails.
 
@@ -22,7 +22,7 @@ Not done: music, own narration, publishing (no upload from containers), thumbnai
 
 | What | Value |
 | --- | --- |
-| Pinned capture commit | `22bbf75fbb` (branch `feat/video-pipeline`; only docs and website files changed after it, no app code) |
+| Pinned capture commit | `22bbf75fbb` (branch `feat/video-pipeline`; after it only docs, website files and the `scripts/store-shots` screenrecord helper changed, no app code) |
 | Build | `./gradlew assembleStandardGithubDebug`, version string `6.0.1271-beta#22bbf75fbb github standard debug`. It is a **debug build**: the navigation drawer header reads "Bible Study (AndBible) *Debug*" and its footer shows the debug version line. Retake with a release-like build before a public video if that matters. |
 | Device | container emulator 37.3.4, AVD `screenshot_phone` (API 36, pixel_6_pro, 1440x3120), light theme, English locale, SystemUI demo mode (clock 9:41, full battery) |
 | Data | demo backup `.local/store-shots/en/demo.abdb.zip` generated from `store-screenshots/demo-content/en/content.yaml` (`scripts/store-shots/prepare-lang.sh en`), seeded with `scripts/store-shots/android-seed.sh`; Sword modules from `demo-content/modules.yaml` pushed with `scripts/andbible-emu.sh push-module`. Berean Standard Bible is the active Bible; its search index was created once in the app before recording. |
@@ -43,7 +43,7 @@ If `search-open.mp4` changes, re-check the rewind constants in `scenes/open-sear
 
 ## Proposed YouTube copy
 
-Chapters (computed from the cue starts of the current narration, rounded down).
+Chapters (scene starts from the cached narration durations, padding and cross-fades, rounded down).
 
 ### Main
 
@@ -56,10 +56,10 @@ Description:
 > result to read it, then go Back to return to your place.
 >
 > 0:00 Search without losing your place
-> 0:14 Open the menu and choose Find
+> 0:13 Open the menu and choose Find
 > 0:28 Results in a sheet over your text
-> 0:42 Open a result and come back
-> 0:55 More help
+> 0:41 Open a result and come back
+> 0:54 More help
 >
 > User documentation: https://andbible.org/docs/search/
 > AndBible is free and open source: https://andbible.org
