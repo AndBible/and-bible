@@ -96,14 +96,8 @@
 
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer { *; }
 
-# Google Drive
 -keepattributes *Annotation*,InnerClasses,Signature,SourceFile,LineNumberTable
 #,RuntimeVisibleAnnotations,AnnotationDefault
--keep class * extends com.google.api.client.json.GenericJson { *; }
--keep class com.google.api.services.drive.** { *; }
--keepclassmembers class * {
-  @com.google.api.client.util.Key <fields>;
-}
 
 -dontwarn java.lang.invoke.StringConcatFactory
 
