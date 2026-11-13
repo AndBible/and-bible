@@ -12,7 +12,7 @@ tts:
 
 music:
   file: shared/music/curious_pulse.wav
-  volume: 0.14
+  volume: 0.20
   duck: null                       # speech is clearly louder; no sidechain
   loop: {start: 74.72, end: 92.18}  # from `render.py music-points`; confirm by ear
 
