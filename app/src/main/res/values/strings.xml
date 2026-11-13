@@ -1459,6 +1459,7 @@
     <string name="google_drive_signin_incomplete">Sign-in was not completed. You can close this tab and return to AndBible.</string>
     <string name="google_drive_signin_done">Signed in. You can close this tab and return to AndBible.</string>
     <string name="google_drive_signin_required">Your Google Drive sign-in has expired or was revoked. Sign in again to continue synchronizing.</string>
+    <string name="google_drive_signin_interrupted">Google sign-in was interrupted. Try again.</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="adapters_webdav">WebDAV</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
