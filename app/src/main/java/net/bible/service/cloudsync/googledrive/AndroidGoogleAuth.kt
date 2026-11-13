@@ -19,27 +19,28 @@ package net.bible.service.cloudsync.googledrive
 
 import android.accounts.Account
 import android.app.Activity
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Parcel
 import android.util.Base64
-import com.google.android.gms.auth.GoogleAuthException
-import com.google.android.gms.auth.GoogleAuthUtil
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException
-import com.google.android.gms.auth.UserRecoverableAuthException
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import androidx.activity.result.ActivityResult
+import com.google.android.gms.auth.api.identity.AuthorizationClient
+import com.google.android.gms.auth.api.identity.AuthorizationRequest
+import com.google.android.gms.auth.api.identity.AuthorizationResult
+import com.google.android.gms.auth.api.identity.ClearTokenRequest
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.services.drive.DriveScopes
+import com.google.android.gms.common.api.Scope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.TAG
+import net.bible.service.cloudsync.drive.DRIVE_APPDATA_SCOPE
 import net.bible.service.cloudsync.drive.GoogleAuth
 import net.bible.service.cloudsync.drive.GoogleAuthRequiredException
 import net.bible.service.common.CommonUtils
@@ -47,34 +48,97 @@ import net.bible.sharedcore.log.Log
 import java.io.IOException
 
 private const val LAST_ACCOUNT_KEY = "cloud_sync_last_account"
+private const val GOOGLE_ACCOUNT_TYPE = "com.google"
 
-private val defaultTokenSource: (Account) -> String = { account ->
-    GoogleAccountCredential
-        .usingOAuth2(BibleApplication.application, setOf(DriveScopes.DRIVE_APPDATA))
-        .setSelectedAccount(account)
-        .token
-}
+/** Outcome of one authorization request for the Drive app-data scope. */
+internal sealed interface DriveAuthorization {
+    /** Access granted; [account] is the Google account it was granted for, when Play services reports it. */
+    data class Granted(val token: String, val account: Account?) : DriveAuthorization
 
-private val defaultClearToken: (String) -> Unit = { token ->
-    GoogleAuthUtil.clearToken(BibleApplication.application, token)
+    /** Only the user can grant access: [pendingIntent] shows the account chooser and/or the consent sheet. */
+    class NeedsResolution(val pendingIntent: PendingIntent) : DriveAuthorization
 }
 
 /**
- * [GoogleAuth] over the existing One Tap sign-in. The sign-in logic is a deliberate copy of
- * `GoogleDriveCloudAdapter` (same stored account, same cancel mapping); only the Drive access check
- * is replaced by asking [tokenSource] for an access token. Lives in `googledrive/` so the F-Droid
- * exclusion removes it with the rest.
+ * Seam over Play services' [AuthorizationClient], so the sign-in and token logic of [AndroidGoogleAuth] is unit
+ * testable. Failures are reported as Play services' [ApiException]s.
  */
-class AndroidGoogleAuth(
-    private val tokenSource: (Account) -> String = defaultTokenSource,
-    private val clearToken: (String) -> Unit = defaultClearToken,
+internal interface DriveAuthorizer {
+    /** Asks for `drive.appdata` access for [account] (null: let Play services choose / ask). */
+    suspend fun authorize(account: Account?): DriveAuthorization
+
+    /** Reads the outcome of a resolution launched from [DriveAuthorization.NeedsResolution]. */
+    fun resultFromIntent(data: Intent?): DriveAuthorization
+
+    /** Drops [token] from Play services' token cache. */
+    suspend fun clearToken(token: String)
+}
+
+internal class PlayServicesDriveAuthorizer : DriveAuthorizer {
+    private val client: AuthorizationClient by lazy { Identity.getAuthorizationClient(BibleApplication.application) }
+
+    override suspend fun authorize(account: Account?): DriveAuthorization {
+        val request = AuthorizationRequest.builder()
+            .setRequestedScopes(listOf(Scope(DRIVE_APPDATA_SCOPE)))
+            .apply { if (account != null) setAccount(account) }
+            .build()
+        return client.authorize(request).await().toDriveAuthorization()
+    }
+
+    override fun resultFromIntent(data: Intent?): DriveAuthorization =
+        client.getAuthorizationResultFromIntent(data).toDriveAuthorization()
+
+    override suspend fun clearToken(token: String) {
+        client.clearToken(ClearTokenRequest.builder().setToken(token).build()).await()
+    }
+
+    private fun AuthorizationResult.toDriveAuthorization(): DriveAuthorization {
+        val pendingIntent = pendingIntent
+        val token = accessToken
+        return when {
+            hasResolution() && pendingIntent != null -> DriveAuthorization.NeedsResolution(pendingIntent)
+            token != null -> DriveAuthorization.Granted(token, toGoogleSignInAccount()?.account)
+            else -> throw ApiException(com.google.android.gms.common.api.Status(CommonStatusCodes.SIGN_IN_REQUIRED))
+        }
+    }
+}
+
+/**
+ * Status codes of an [ApiException] that only a fresh interactive authorization can fix. Every other code
+ * (network error, timeout, Play services missing / updating / disconnected, internal error) is transient.
+ */
+private val SIGN_IN_STATUS_CODES = setOf(
+    CommonStatusCodes.SIGN_IN_REQUIRED,
+    CommonStatusCodes.INVALID_ACCOUNT,
+    CommonStatusCodes.RESOLUTION_REQUIRED,
+)
+
+private val ApiException.needsSignIn get() = statusCode in SIGN_IN_STATUS_CODES
+
+/** One Tap stored the account with the app's package name as type; authorization needs a Google account. */
+private fun Account.asGoogleAccount() = if (type == GOOGLE_ACCOUNT_TYPE) this else Account(name, GOOGLE_ACCOUNT_TYPE)
+
+/**
+ * [GoogleAuth] over Play services' authorization API ([AuthorizationClient]): AndBible needs only Drive
+ * authorization (`drive.appdata`), no identity. The account is remembered in [LAST_ACCOUNT_KEY] (same key and
+ * format the old One Tap sign-in used), so an upgraded install asks Play services for that account and gets its
+ * existing grant without any prompt. Lives in `googledrive/` so the F-Droid exclusion removes it with the rest.
+ *
+ * Interactive authorization ([signIn]) may launch Play services' chooser/consent sheet; background token requests
+ * ([accessToken]) never do: a grant that needs the user is [GoogleAuthRequiredException], a transient Play services
+ * or network failure is a plain [IOException] (retried, the sign-in is kept).
+ */
+class AndroidGoogleAuth internal constructor(
+    private val authorizer: DriveAuthorizer,
+    private val launchResolution: suspend (ActivityBase, PendingIntent) -> ActivityResult,
 ) : GoogleAuth {
-    private val oneTapClient: SignInClient by lazy { Identity.getSignInClient(BibleApplication.application) }
+    constructor() : this(PlayServicesDriveAuthorizer(), { activity, intent -> activity.awaitPendingIntent(intent) })
 
     @Volatile private var account: Account? = null
+    @Volatile private var authorized = false
 
     /** In memory only, like the old adapter: a stored pref alone must not skip [signIn]'s consent check. */
-    override val signedIn get() = account != null
+    override val signedIn get() = authorized
 
     private val prefs get() = CommonUtils.realSharedPreferences
 
@@ -84,9 +148,13 @@ class AndroidGoogleAuth(
             return try {
                 val bytes = Base64.decode(s, Base64.DEFAULT)
                 val p = Parcel.obtain()
-                p.unmarshall(bytes, 0, bytes.size)
-                p.setDataPosition(0)
-                Account(p)
+                try {
+                    p.unmarshall(bytes, 0, bytes.size)
+                    p.setDataPosition(0)
+                    Account(p).asGoogleAccount()
+                } finally {
+                    p.recycle()
+                }
             } catch (e: Exception) {
                 prefs.edit().remove(LAST_ACCOUNT_KEY).apply()
                 null
@@ -97,106 +165,113 @@ class AndroidGoogleAuth(
                 prefs.edit().remove(LAST_ACCOUNT_KEY).apply()
             } else {
                 val p = Parcel.obtain()
-                value.writeToParcel(p, 0)
-                val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
-                prefs.edit().putString(LAST_ACCOUNT_KEY, s).apply()
+                try {
+                    value.writeToParcel(p, 0)
+                    prefs.edit().putString(LAST_ACCOUNT_KEY, String(Base64.encode(p.marshall(), Base64.DEFAULT))).apply()
+                } finally {
+                    p.recycle()
+                }
             }
         }
 
+    private fun forget() {
+        authorized = false
+        account = null
+        lastAccount = null
+    }
+
+    private fun remember(granted: DriveAuthorization.Granted, requested: Account?) {
+        val chosen = granted.account?.asGoogleAccount() ?: requested
+        account = chosen
+        if (chosen != null) lastAccount = chosen
+        authorized = true
+    }
+
     override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
         val activity = CurrentActivityHolder.currentActivity ?: return@withContext false
-        Log.i(TAG, "Starting")
-        try {
-            account = lastAccount ?: oneTapSignIn(activity).also { lastAccount = it }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error signing in", e)
-            account = null
-            throw e
-        }
-        val success = try {
-            ensureDriveAccess(activity, account!!)
-        } catch (e: CloudSyncUserCancelledException) {
-            account = null
-            lastAccount = null
-            throw e
-        }
-        if (!success) {
-            account = null
-            lastAccount = null
-        }
-        return@withContext success
-    }
-
-    private suspend fun oneTapSignIn(activity: ActivityBase): Account {
-        Log.i(TAG, "Signing in (one tap)")
-        val signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(webClientId)
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
-            )
-            .setAutoSelectEnabled(true)
-            .build()
-        val beginSignInResult = oneTapClient.beginSignIn(signInRequest).await()
-        val result = activity.awaitPendingIntent(beginSignInResult.pendingIntent)
-        if (result.resultCode == Activity.RESULT_CANCELED) throw CloudSyncUserCancelledException()
-        val oneTapCredential: SignInCredential = try {
-            oneTapClient.getSignInCredentialFromIntent(result.data)
+        Log.i(TAG, "Authorizing Google Drive")
+        var requested = lastAccount
+        val first = try {
+            authorizer.authorize(requested)
         } catch (e: ApiException) {
-            if (e.statusCode == CommonStatusCodes.CANCELED) throw CloudSyncUserCancelledException()
-            throw e
+            when {
+                // The stored account may be gone from the device: let Play services offer the chooser once.
+                e.needsSignIn && requested != null -> null
+                e.needsSignIn -> { Log.e(TAG, "Authorization failed", e); forget(); return@withContext false }
+                // Transient: keep a known account (do not log out because of this), else the sign-in cannot start.
+                requested != null -> { account = requested; authorized = true; return@withContext true }
+                else -> throw IOException("Google Play services unavailable: ${e.message}", e)
+            }
         }
-        return Account(oneTapCredential.id, BibleApplication.application.packageName)
+        val outcome = first ?: run {
+            requested = null
+            lastAccount = null
+            try {
+                authorizer.authorize(null)
+            } catch (e: ApiException) {
+                Log.e(TAG, "Authorization failed", e)
+                forget()
+                if (e.needsSignIn) return@withContext false
+                throw IOException("Google Play services unavailable: ${e.message}", e)
+            }
+        }
+        val granted = when (outcome) {
+            is DriveAuthorization.Granted -> outcome
+            is DriveAuthorization.NeedsResolution -> resolve(activity, outcome.pendingIntent)
+                ?: return@withContext false
+        }
+        remember(granted, requested)
+        return@withContext true
     }
 
-    private suspend fun ensureDriveAccess(activity: ActivityBase, account: Account): Boolean {
-        try {
-            tokenSource(account)
-        } catch (e: UserRecoverableAuthException) {
-            val result = activity.awaitIntent(e.intent!!)
-            if (result.resultCode != Activity.RESULT_OK) throw CloudSyncUserCancelledException()
-            return true
-        } catch (e: IOException) {
-            Log.e(TAG, "Network unavailable", e)
-            return true // We do not want to log out because of this!
-        } catch (e: Throwable) {
-            Log.e(TAG, "ensureDriveAccess error", e)
-            return false
+    /** Shows Play services' chooser / consent sheet; null when it ends without a grant. */
+    private suspend fun resolve(activity: ActivityBase, intent: PendingIntent): DriveAuthorization.Granted? {
+        val result = launchResolution(activity, intent)
+        if (result.resultCode != Activity.RESULT_OK) {
+            forget()
+            throw CloudSyncUserCancelledException()
         }
-        return true
+        val outcome = try {
+            authorizer.resultFromIntent(result.data)
+        } catch (e: ApiException) {
+            forget()
+            if (e.statusCode == CommonStatusCodes.CANCELED) throw CloudSyncUserCancelledException()
+            Log.e(TAG, "Authorization result error", e)
+            return null
+        }
+        return outcome as? DriveAuthorization.Granted ?: run { forget(); null }
     }
 
     override suspend fun accessToken(): String {
-        val current = account ?: lastAccount?.also { account = it }
-            ?: throw GoogleAuthRequiredException("Not signed in to Google")
+        val current = account ?: lastAccount
+        if (current == null && !authorized) throw GoogleAuthRequiredException("Not signed in to Google")
         return withContext(Dispatchers.IO) {
-            try {
-                tokenSource(current)
-            } catch (e: GooglePlayServicesAvailabilityException) {
-                // Play Services missing/updating/unavailable is transient (a subclass of the recoverable
-                // exception below): surface it as retryable I/O, not as lost sign-in.
-                throw IOException("Google Play Services unavailable: ${e.message}", e)
-            } catch (e: UserRecoverableAuthException) {
-                throw GoogleAuthRequiredException("Google needs interactive consent", e)
-            } catch (e: GoogleAuthException) {
-                // Account removed, bad authentication, scope disabled: only a fresh sign-in can help.
-                throw GoogleAuthRequiredException("Google auth failed: ${e.message}", e)
+            val outcome = try {
+                authorizer.authorize(current)
+            } catch (e: ApiException) {
+                if (e.needsSignIn) throw GoogleAuthRequiredException("Google auth failed: ${e.message}", e)
+                // Play services missing/updating/unavailable or no network: retryable I/O, not lost sign-in.
+                throw IOException("Google Play services unavailable: ${e.message}", e)
+            }
+            when (outcome) {
+                is DriveAuthorization.Granted -> outcome.token.also { remember(outcome, current) }
+                is DriveAuthorization.NeedsResolution -> throw GoogleAuthRequiredException("Google needs interactive consent")
             }
         }
     }
 
     override suspend fun invalidate(token: String) {
-        withContext(Dispatchers.IO) { clearToken(token) }
+        withContext(Dispatchers.IO) {
+            try {
+                authorizer.clearToken(token)
+            } catch (e: ApiException) {
+                throw IOException("Could not clear the Google token: ${e.message}", e)
+            }
+        }
     }
 
+    /** Forgets the account locally. The Drive grant is not revoked: other devices of the same account keep it. */
     override suspend fun signOut() {
-        try {
-            oneTapClient.signOut().await()
-        } finally {
-            lastAccount = null
-            account = null
-        }
+        forget()
     }
 }

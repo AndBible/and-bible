@@ -532,7 +532,7 @@ dependencies {
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Google Drive API
-        variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
+        variantImplementation("com.google.android.gms:play-services-auth:21.6.0")
         variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
             exclude("org.apache.httpcomponents")
             exclude("com.google.guava.guava")
