@@ -45,6 +45,7 @@ from pipeline import (
     captions,
     group_words,
     load_episode,
+    music_filter,
     output_name,
     own_clip_key,
     own_voice_path,
@@ -100,6 +101,15 @@ def clip_path(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> Pat
     if not flac.is_file():
         sys.exit(f"render: no recording for {scene.id}: {flac}")
     return CACHE / "own" / f"{own_clip_key(flac.read_bytes())}.wav"
+
+
+def music_path(episode: Episode) -> Path:
+    """The music bed's file under the media directory; exits when it is missing."""
+    assert episode.music is not None
+    path = MEDIA_DIR / episode.music.file
+    if not path.is_file():
+        sys.exit(f"render: music file not found: {path}")
+    return path
 
 
 def words_path(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> Path:
@@ -384,6 +394,9 @@ def assemble(
         args += ["-i", part]
     for slot in slots:
         args += ["-i", clip_path(episode, slot.scene, voice)]
+    music_input = len(parts) + len(slots)
+    if episode.music:
+        args += ["-i", music_path(episode)]
     chains = []
     video = "[0:v]"
     for index, slot in enumerate(slots[1:], start=1):
@@ -398,17 +411,23 @@ def assemble(
         delay = round(slot.speech_at * 1000)
         chains.append(f"[{len(parts) + index}:a]adelay={delay}|{delay}[a{index}]")
         audio.append(f"[a{index}]")
-    chains.append(
-        f"{''.join(audio)}amix=inputs={len(audio)}:normalize=0,apad,"
-        f"atrim=0:{total:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[aout]"
-    )
+    speech = f"{''.join(audio)}amix=inputs={len(audio)}:normalize=0,apad,atrim=0:{total:.3f}"
+    if episode.music:
+        chains.append(f"{speech}[speech]")
+        graph, audio_out = music_filter(
+            music_input, "[speech]", total, episode.music.volume, episode.music.duck
+        )
+        chains.append(graph)
+    else:
+        chains.append(f"{speech},loudnorm=I=-16:TP=-1.5:LRA=11[aout]")
+        audio_out = "[aout]"
     args += [
         "-filter_complex",
         ";".join(chains),
         "-map",
         "[vout]",
         "-map",
-        "[aout]",
+        audio_out,
         "-c:v",
         "libx264",
         "-preset",
@@ -537,6 +556,8 @@ def _render_part(job: tuple[Slot, float, str, int, Path, list[Word]]) -> str:
 
 
 def command_render(episode: Episode, args: argparse.Namespace) -> None:
+    if episode.music:
+        music_path(episode)  # exits naming the file before any paid or slow step
     scenes = episode.for_format(args.format)
     ensure_clips(episode, scenes, dry_run=False, voice=args.voice)
     ensure_words(episode, scenes, args.voice)

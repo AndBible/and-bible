@@ -262,7 +262,20 @@ other scenes' clips, timings and rendered parts are reused.
 
 ## Music
 
-(Filled in by the music task.)
+One shared track under all videos, made by the maintainer (e.g. with Suno) and kept at
+`.local/video-media/shared/music/`. An episode opts in with an optional key in `script.yaml`:
+
+```yaml
+music:
+  file: shared/music/theme.flac   # relative to .local/video-media
+  volume: 0.25                    # linear gain of the bed
+  duck: 0.35                      # sidechain threshold x 0.1; smaller ducks on quieter speech
+```
+
+`music: null` or no key means no music. The track loops to the video's length, is ducked under
+the narration, fades in over 1.0 s and out over the last 1.5 s, and is mixed with the speech
+before the final loudness normalisation. A missing file makes `render` exit naming its path,
+before anything is rendered.
 
 ## Clips
 

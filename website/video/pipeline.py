@@ -62,6 +62,16 @@ class Scene:
 
 
 @dataclass(frozen=True)
+class Music:
+    """The shared music bed. `file` is relative to the video media directory;
+    `volume` is a linear gain, `duck` the sidechain threshold (see music_filter)."""
+
+    file: Path
+    volume: float = 0.25
+    duck: float = 0.35
+
+
+@dataclass(frozen=True)
 class Episode:
     title: str
     tts: TTS
@@ -71,6 +81,7 @@ class Episode:
     fade: float = 0.4
     directory: Path = Path(".")
     """The episode's own directory (where script.yaml is)."""
+    music: Music | None = None
 
     def for_format(self, name: str) -> list[Scene]:
         return [scene for scene in self.scenes if name in scene.formats]
@@ -123,6 +134,7 @@ def load_episode(path: Path) -> Episode:
         scenes.append(Scene(scene_id, page, narration, formats, dict(raw.get("params") or {})))
     if not scenes:
         raise ValueError(f"{path}: no scenes")
+    music = _load_music(path, data.get("music"))
     return Episode(
         title=str(data.get("title") or path.parent.name),
         tts=tts,
@@ -131,7 +143,51 @@ def load_episode(path: Path) -> Episode:
         pad=float(data.get("pad", 0.6)),
         fade=float(data.get("fade", 0.4)),
         directory=path.parent,
+        music=music,
     )
+
+
+def _load_music(path: Path, raw: object) -> Music | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, Mapping) or not str(raw.get("file") or "").strip():
+        raise ValueError(f"{path}: music.file is required")
+    volume = float(raw.get("volume", 0.25))
+    duck = float(raw.get("duck", 0.35))
+    if not 0 < volume <= 1:
+        raise ValueError(f"{path}: music.volume must be in (0, 1]")
+    if not 0 < duck <= 1:
+        raise ValueError(f"{path}: music.duck must be in (0, 1]")
+    return Music(Path(str(raw["file"])), volume, duck)
+
+
+def music_filter(
+    music_input: int, speech_label: str, total: float, volume: float, duck: float
+) -> tuple[str, str]:
+    """The ffmpeg filter-graph fragment that mixes the music bed under the speech.
+
+    `speech_label` is the finished speech mix (one use of it is consumed: it is
+    split into the sidechain key and the mix leg). The music loops, is cut to
+    `total`, scaled by `volume`, ducked by sidechaincompress keyed on the speech
+    (`duck` x 0.1 is the linear threshold: a smaller `duck` ducks on quieter
+    speech, ratio 8, 20 ms attack, 400 ms release), faded in over 1.0 s and out
+    over the last 1.5 s, summed with the speech and loudness-normalised.
+    Returns (graph, output label)."""
+    threshold = max(duck * 0.1, 0.001)
+    fade_out = max(total - 1.5, 0.0)
+    graph = ";".join(
+        [
+            f"{speech_label}asplit=2[sp_key][sp_mix]",
+            f"[{music_input}:a]aloop=loop=-1:size=2147483647,atrim=0:{total:.3f},"
+            f"asetpts=N/SR/TB,volume={volume:g},"
+            f"afade=t=in:st=0:d=1.0,afade=t=out:st={fade_out:.3f}:d=1.5[bed]",
+            f"[bed][sp_key]sidechaincompress=threshold={threshold:.4f}:ratio=8:"
+            "attack=20:release=400[ducked]",
+            "[sp_mix][ducked]amix=inputs=2:normalize=0:duration=first,"
+            "loudnorm=I=-16:TP=-1.5:LRA=11[mixout]",
+        ]
+    )
+    return graph, "[mixout]"
 
 
 def cache_key(tts: TTS, text: str) -> str:

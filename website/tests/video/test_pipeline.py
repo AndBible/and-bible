@@ -311,3 +311,42 @@ def test_voice_script_has_one_block_per_scene(tmp_path):
 def test_output_name_carries_the_voice_source():
     assert pipeline.output_name("main", "tts", "mp4") == "main-tts.mp4"
     assert pipeline.output_name("short", "own", "srt") == "short-own.srt"
+
+
+def test_music_filter_loops_and_fades() -> None:
+    graph, label = pipeline.music_filter(5, "[speech]", total=92.4, volume=0.25, duck=0.35)
+
+    assert "aloop=loop=-1" in graph and "atrim=0:92.400" in graph
+    assert "afade=t=in:st=0:d=1.0" in graph
+    assert "afade=t=out:st=90.900:d=1.5" in graph
+    assert "volume=0.25" in graph
+    assert "sidechaincompress" in graph and "[speech]" in graph
+    assert "[5:a]" in graph and "loudnorm=I=-16:TP=-1.5:LRA=11" in graph
+    assert label.startswith("[") and label in graph
+
+
+def test_the_music_is_mixed_with_the_speech_before_loudnorm() -> None:
+    graph, _ = pipeline.music_filter(5, "[speech]", total=10.0, volume=0.25, duck=0.35)
+
+    assert graph.index("amix") < graph.index("loudnorm")
+
+
+def test_load_episode_music_optional(tmp_path: Path) -> None:
+    assert pipeline.load_episode(_episode(tmp_path, GOOD)).music is None
+    assert pipeline.load_episode(_episode(tmp_path, GOOD + "music: null\n")).music is None
+    ep = pipeline.load_episode(_episode(tmp_path, GOOD + "music: {file: shared/theme.flac}\n"))
+    assert ep.music is not None
+    assert ep.music.file == Path("shared/theme.flac")
+    assert ep.music.volume == 0.25 and ep.music.duck == 0.35
+    ep = pipeline.load_episode(
+        _episode(tmp_path, GOOD + "music: {file: a.flac, volume: 0.1, duck: 0.5}\n")
+    )
+    assert ep.music is not None and (ep.music.volume, ep.music.duck) == (0.1, 0.5)
+
+
+@pytest.mark.parametrize(
+    "music", ["{volume: 0.2}", "{file: a.flac, volume: 2}", "{file: a.flac, duck: 0}", "theme.flac"]
+)
+def test_a_broken_music_block_is_refused(tmp_path: Path, music: str) -> None:
+    with pytest.raises(ValueError, match="music"):
+        pipeline.load_episode(_episode(tmp_path, GOOD + f"music: {music}\n"))
