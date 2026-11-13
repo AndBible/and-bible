@@ -6,8 +6,9 @@
 """Render a narrated video episode: TTS clips, HTML scenes, ffmpeg.
 
     uv run website/video/render.py tts     [--episode DIR] [--dry-run] [--voice tts|own]
-    uv run website/video/render.py preview SCENE [--format main|short] [--at SECONDS] [--voice tts|own]
-    uv run website/video/render.py render  main|short [--episode DIR] [--voice tts|own]
+    uv run website/video/render.py preview SCENE [--format main|short] [--short-layout full|framed]
+                                         [--at SECONDS] [--voice tts|own]
+    uv run website/video/render.py render  main|short [--short-layout full|framed] [--episode DIR] [--voice tts|own]
     uv run website/video/render.py voice   --script | --check | --accept SCENE...
 
 See website/video/README.md. The pure parts live in pipeline.py.
@@ -49,6 +50,8 @@ from pipeline import (
     load_episode,
     music_filter,
     output_name,
+    page_layout,
+    SHORT_LAYOUTS,
     own_clip_key,
     own_voice_path,
     own_voice_stamp,
@@ -336,6 +339,7 @@ def scene_url(
     fmt: str,
     words: Sequence[Word] = (),
     clips: Mapping[str, list] | None = None,
+    layout: str | None = None,
 ) -> str:
     query = urlencode(
         {
@@ -344,6 +348,7 @@ def scene_url(
             "speech": f"{slot.speech_at - slot.start:.3f}",
             "clip": f"{clip:.3f}",
             "format": fmt,
+            "layout": page_layout(fmt, layout),
             "params": json.dumps(slot.scene.params),
             "words": json.dumps([[w.text, round(w.start, 3), round(w.end, 3)] for w in words]),
             "groups": json.dumps(
@@ -365,6 +370,7 @@ def open_scene(
     scale: float,
     words: Sequence[Word] = (),
     clips: Mapping[str, list] | None = None,
+    layout: str | None = None,
 ):
     width, height = VIEWPORTS[fmt]
     page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=scale)
@@ -376,7 +382,7 @@ def open_scene(
         if m.type in ("warning", "error")
         else None,
     )
-    page.goto(scene_url(slot, clip, fmt, words, clips))
+    page.goto(scene_url(slot, clip, fmt, words, clips, layout))
     page.wait_for_function("window.JB && (window.JB.isReady || window.JB.failure)", timeout=30_000)
     failure = page.evaluate("JB.failure")
     if failure:
@@ -396,8 +402,9 @@ def render_slot(
     scale: float = 1.0,
     words: Sequence[Word] = (),
     clips: Mapping[str, list] | None = None,
+    layout: str | None = None,
 ) -> None:
-    page = open_scene(browser, slot, clip, fmt, scale, words, clips)
+    page = open_scene(browser, slot, clip, fmt, scale, words, clips, layout)
     frames = round(slot.length * fps)
     target.parent.mkdir(parents=True, exist_ok=True)
     encoder = subprocess.Popen(
@@ -559,18 +566,25 @@ def command_preview(episode: Episode, args: argparse.Namespace) -> None:
     slot = timeline([scene], clip, pad=episode.pad, fade=0.0)[0]
     words = load_words(episode, scene, args.voice)
     frames = scene_clips(episode, scene)
+    # A short's preview names its layout: hook-short-full-3s.png, hook-short-framed-3s.png.
+    name = f"{scene.id}-{args.format}"
+    if args.format == "short":
+        name += f"-{page_layout(args.format, args.short_layout)}"
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome(), args=["--no-sandbox"])
         if args.at is not None:
-            page = open_scene(browser, slot, clip[scene.id], args.format, args.scale, words, frames)
+            page = open_scene(
+                browser, slot, clip[scene.id], args.format, args.scale, words, frames, args.short_layout
+            )
             page.evaluate("t => JB.seek(t)", args.at)
-            target = out_dir(REPO, args.episode) / "preview" / f"{scene.id}-{args.format}-{args.at:g}s.png"
+            target = out_dir(REPO, args.episode) / "preview" / f"{name}-{args.at:g}s.png"
             target.parent.mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(target))
         else:
-            target = out_dir(REPO, args.episode) / "preview" / f"{scene.id}-{args.format}.mp4"
+            target = out_dir(REPO, args.episode) / "preview" / f"{name}.mp4"
             render_slot(
-                browser, slot, clip[scene.id], args.format, args.fps, target, args.scale, words, frames
+                browser, slot, clip[scene.id], args.format, args.fps, target, args.scale, words, frames,
+                args.short_layout,
             )
         browser.close()
     print(target)
@@ -583,6 +597,7 @@ def part_key(
     fmt: str,
     words: Sequence[Word],
     clips: Mapping[str, list] | None = None,
+    layout: str | None = None,
 ) -> str:
     """What a rendered scene depends on: its page, the shared runtime, the
     episode's assets, its timing and its params. Not the news crops a page
@@ -598,6 +613,7 @@ def part_key(
         digest.update(path.name.encode() + b"\0" + path.read_bytes())
     timing = (
         fmt,
+        page_layout(fmt, layout),
         episode.fps,
         round(slot.length, 3),
         round(slot.speech_at - slot.start, 3),
@@ -610,16 +626,18 @@ def part_key(
     return digest.hexdigest()[:16]
 
 
-def _render_part(job: tuple[Slot, float, str, int, Path, list[Word], dict[str, list]]) -> str:
+def _render_part(
+    job: tuple[Slot, float, str, int, Path, list[Word], dict[str, list], str | None],
+) -> str:
     """One scene in its own process with its own Chrome (fork: Playwright is
     never started in the parent)."""
     from playwright.sync_api import sync_playwright
 
-    slot, clip, fmt, fps, target, words, frames = job
+    slot, clip, fmt, fps, target, words, frames, layout = job
     partial = target.with_suffix(".part.mp4")
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome(), args=["--no-sandbox"])
-        render_slot(browser, slot, clip, fmt, fps, partial, words=words, clips=frames)
+        render_slot(browser, slot, clip, fmt, fps, partial, words=words, clips=frames, layout=layout)
         browser.close()
     partial.replace(target)
     return slot.scene.id
@@ -638,12 +656,18 @@ def command_render(episode: Episode, args: argparse.Namespace) -> None:
     parts_dir = CACHE / "parts" / args.episode.name / args.format
     parts_dir.mkdir(parents=True, exist_ok=True)
     keys = [
-        part_key(episode, s, clips[s.scene.id], args.format, words[s.scene.id], frames[s.scene.id])
+        part_key(
+            episode, s, clips[s.scene.id], args.format, words[s.scene.id], frames[s.scene.id],
+            args.short_layout,
+        )
         for s in slots
     ]
     parts = [parts_dir / f"{s.scene.id}-{key}.mp4" for s, key in zip(slots, keys, strict=True)]
     jobs = [
-        (slot, clips[slot.scene.id], args.format, episode.fps, part, words[slot.scene.id], frames[slot.scene.id])
+        (
+            slot, clips[slot.scene.id], args.format, episode.fps, part,
+            words[slot.scene.id], frames[slot.scene.id], args.short_layout,
+        )
         for slot, part in zip(slots, parts, strict=True)
         if args.fresh or not part.is_file()
     ]
@@ -655,13 +679,16 @@ def command_render(episode: Episode, args: argparse.Namespace) -> None:
                 print(f"render: {scene_id} done", flush=True)
     out = out_dir(REPO, args.episode)
     out.mkdir(parents=True, exist_ok=True)
-    target = out / output_name(args.format, args.voice, "mp4")
+    target = out / output_name(args.format, args.voice, "mp4", args.short_layout)
     assemble(episode, slots, parts, target, args.voice)
     srt = captions(slots, clips)
-    (out / output_name(args.format, args.voice, "srt")).write_text(srt, encoding="utf-8")
-    english = english_subs_path(MEDIA_DIR, args.episode.name, args.format, args.voice)
-    english.parent.mkdir(parents=True, exist_ok=True)
-    english.write_text(srt, encoding="utf-8")
+    (out / output_name(args.format, args.voice, "srt", args.short_layout)).write_text(srt, encoding="utf-8")
+    # The media copy is the translators' source. A framed short says the same words at the same
+    # times as the default one, so only the default layout writes it.
+    if args.format == "main" or page_layout(args.format, args.short_layout) == "full":
+        english = english_subs_path(MEDIA_DIR, args.episode.name, args.format, args.voice)
+        english.parent.mkdir(parents=True, exist_ok=True)
+        english.write_text(srt, encoding="utf-8")
     print(f"{target} ({total_length(slots):.1f}s)")
 
 
@@ -681,12 +708,15 @@ def main(argv: Sequence[str] | None = None) -> None:
     preview = commands.add_parser("preview", parents=[common], help="render one scene")
     preview.add_argument("scene")
     preview.add_argument("--format", choices=sorted(VIEWPORTS), default="main")
+    layout_help = "short only: the app clip full-bleed (full, default) or in a device frame (framed)"
+    preview.add_argument("--short-layout", choices=SHORT_LAYOUTS, default=None, help=layout_help)
     preview.add_argument("--at", type=float, help="a single frame at this scene time, as PNG")
     preview.add_argument("--voice", choices=("tts", "own"), default="tts", help=voice_help)
     preview.add_argument("--fps", type=int, default=15)
     preview.add_argument("--scale", type=float, default=0.5)
     render = commands.add_parser("render", parents=[common], help="render a whole format")
     render.add_argument("format", choices=sorted(VIEWPORTS))
+    render.add_argument("--short-layout", choices=SHORT_LAYOUTS, default=None, help=layout_help)
     render.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))
     render.add_argument("--voice", choices=("tts", "own"), default="tts", help=voice_help)
     render.add_argument("--fresh", action="store_true", help="re-render unchanged scenes too")

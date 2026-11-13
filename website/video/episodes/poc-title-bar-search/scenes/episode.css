@@ -16,42 +16,71 @@
 
 /* Callouts pinned to narration phrases: plain text, no plates or chips. */
 .notes { margin-top: 60px; display: flex; flex-direction: column; gap: 32px; }
-.note { font-size: 50px; line-height: 1.25; padding-left: 32px; border-left: 5px solid var(--amber); }
+.note { font-size: 50px; line-height: 1.25; padding-left: 32px; border-left: 5px solid var(--amber-dim); }
 .note small { display: block; font-size: 36px; color: var(--muted); margin-top: 8px; }
 
 .wordmark { font-family: var(--serif); font-weight: 600; font-size: 150px; letter-spacing: -0.03em;
             color: var(--amber); line-height: 1; }
 .version { color: var(--text); }
-.url { font: 44px var(--mono); color: var(--amber); margin-top: 48px; }
+.url { font: 600 44px var(--mono); color: var(--amber); margin-top: 48px; }
 
 /* Outro: type only, centred. */
 .center { position: absolute; inset: 0; display: flex; flex-direction: column;
           align-items: center; justify-content: center; text-align: center; padding: 0 120px; }
 .center h2 { font-size: 80px; margin-top: 44px; }
 .center .lede { margin-top: 30px; }
+/* Not narrated: one line, below the docs address. */
+.sponsor { margin: 56px 0 0; font-size: 40px; line-height: 1.3; color: var(--muted); }
+.sponsor .amber { font-family: var(--mono); font-weight: 600; }
 
-/* Short (1080x1920): heading on top, phone below it, all above the caption band
-   (bottom 15% + ~125 px plate, i.e. clear above y = 1500;
-   the phone ends at about y = 1484). */
-html[data-format="short"] .copy { left: 72px; right: 72px; width: auto; top: 96px; bottom: auto;
-                                  display: block; text-align: center; }
-html[data-format="short"] .copy .kicker { font-size: 34px; margin-bottom: 18px; }
-html[data-format="short"] .copy h2 { font-size: 76px; }
-html[data-format="short"] .copy .lede,
-html[data-format="short"] .notes,
-html[data-format="short"] .long-only { display: none; }
-html[data-format="short"] .phone-slot { right: auto; left: 50%; top: 360px; transform: translateX(-50%); }
-html[data-format="short"] .device.phone > .clip { width: 502px; }
-html[data-format="short"] .hook .copy { top: 96px; }
-html[data-format="short"] .hook .wordmark { font-size: 112px; }
-html[data-format="short"] .hook .copy h2 { font-size: 64px; margin-top: 18px; }
-html[data-format="short"] .hook .phone-slot { top: 470px; }
-html[data-format="short"] .hook .device.phone > .clip { width: 450px; }
+/* Short (1080x1920), both layouts: the outro is type only. */
 html[data-format="short"] .center { justify-content: flex-start; padding: 330px 72px 0; }
 html[data-format="short"] .center .wordmark { font-size: 150px; }
 html[data-format="short"] .center h2 { font-size: 72px; }
 html[data-format="short"] .center .lede { font-size: 40px; }
 html[data-format="short"] .center .url { font-size: 48px; }
+html[data-format="short"] .sponsor { font-size: 36px; margin-top: 64px; }
+/* Too wide for the Short in one line: the address goes under the sentence. */
+html[data-format="short"] .sponsor .sep { display: none; }
+html[data-format="short"] .sponsor .amber { display: block; margin-top: 8px; }
+
+/* Short, framed: heading on top, phone below it, all above the caption band
+   (bottom 15% + ~125 px plate, i.e. clear above y = 1500;
+   the phone ends at about y = 1484). */
+html[data-layout="framed"][data-format="short"] .copy { left: 72px; right: 72px; width: auto; top: 96px;
+                                                      bottom: auto; display: block; text-align: center; }
+html[data-layout="framed"][data-format="short"] .copy .kicker { font-size: 34px; margin-bottom: 18px; }
+html[data-format="short"] .copy h2 { font-size: 76px; }
+html[data-format="short"] .copy .lede,
+html[data-format="short"] .notes,
+html[data-format="short"] .long-only { display: none; }
+html[data-layout="framed"][data-format="short"] .phone-slot { right: auto; left: 50%; top: 360px;
+                                                            transform: translateX(-50%); }
+html[data-layout="framed"][data-format="short"] .device.phone > .clip { width: 502px; }
+html[data-layout="framed"][data-format="short"] .hook .copy { top: 96px; }
+html[data-format="short"] .hook .wordmark { font-size: 112px; }
+html[data-format="short"] .hook .copy h2 { font-size: 64px; margin-top: 18px; }
+html[data-layout="framed"][data-format="short"] .hook .phone-slot { top: 470px; }
+html[data-layout="framed"][data-format="short"] .hook .device.phone > .clip { width: 450px; }
+
+/* Short, full-bleed: the app fills the frame's height, centred (base.css drops the
+   device frame). The step scenes keep only their kicker, as a label in the status
+   bar; the hook's title sits on a card over the Bible text of its still, below
+   John 3:16 (the place the episode keeps). */
+html[data-layout="full"] .phone-slot { inset: 0; left: 0; transform: none; display: flex;
+                                       justify-content: center; }
+html[data-layout="full"] .device.phone > .clip.rewind { top: 0; left: 0; }
+html[data-layout="full"] .copy > :not(.top-label) { display: none; }
+html[data-layout="full"] .hook .copy { position: absolute; z-index: 10; left: 140px; right: 140px; top: 730px;
+                                       bottom: auto; width: auto; display: block; text-align: center;
+                                       padding: 44px 40px 48px; border: 1px solid var(--border);
+                                       border-radius: 36px; background: var(--surface);
+                                       box-shadow: 0 24px 60px rgb(var(--shadow-ink) / 28%); }
+html[data-layout="full"] .hook .copy > .wordmark,
+html[data-layout="full"] .hook .copy > h2 { display: block; }
+html[data-layout="full"] .hook .wordmark { font-size: 104px; }
+html[data-layout="full"] .hook .copy h2 { font-size: 58px; margin-top: 22px; }
+
 /* Main hook: the title on one line each. */
 html:not([data-format="short"]) .hook .copy { width: 950px; }
 html:not([data-format="short"]) .hook .copy h2 { font-size: 80px; white-space: nowrap; }

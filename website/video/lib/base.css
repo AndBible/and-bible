@@ -1,6 +1,9 @@
 /* Shared look of every video scene: the website's tokens and fonts
-   (website/assets/style.css), sized for a 1920x1080 or 1080x1920 frame.
-   `html[data-format]` is `main` or `short`; runtime.js sets it. */
+   (website/assets/css/site.css), sized for a 1920x1080 or 1080x1920 frame.
+   runtime.js sets `html[data-format]` (`main` | `short`), `html[data-layout]`
+   (`full` | `framed`; `full` only in a short) and `html[data-theme]` (`light`, the
+   default, or `dark`: the opt-in for scenes showing the app's night mode, set by
+   `<body class="dark">` or `params: {theme: dark}`). */
 
 @font-face {
   font-family: "Inter";
@@ -29,18 +32,30 @@
 }
 
 :root {
-  /* The website's dark palette (website/assets/css/site.css). */
-  --ground: #161616;
-  --surface: #1c1c1b;
-  --surface-2: #121212;
-  --border: #2c2a26;
-  --text: #efe9dd;
-  --muted: #a59f93;
-  --amber: #feba2a;
-  --amber-dim: #d99a2b;
-  --green: #74c47c;
-  --red: #e06c6c;
+  /* The website's light palette (site.css `:root`; the docs' "default" scheme). */
+  --ground: #f7f1e3;
+  --surface: #fffaf0;
+  --surface-2: #f3ead7;
+  --border: #e3d8c0;
+  --text: #2a2620;
+  --muted: #5d5546;
+  --faint: #8a806d;
+  --amber: #9a5b10;        /* accent ink: text and lines on the ground (4.9:1) */
+  --amber-dim: #d99a2b;    /* accent fill */
+  --green: #2f7a3a;
+  --red: #b23b32;
   --bezel: #16171a;
+  --glow-a: rgb(254 186 42 / 30%);
+  --glow-b: rgb(217 126 53 / 10%);
+  --ring-glow: rgb(217 154 43 / 55%);
+  --dim: rgb(42 38 32 / 55%);
+  --shadow-ink: 107 79 26;  /* warm brown, as the site's --shadow */
+  --screen-shadow: 0 30px 70px rgb(var(--shadow-ink) / 28%), 0 6px 18px rgb(var(--shadow-ink) / 18%);
+  /* Burned-in captions: a dark plate in either theme, the spoken word a bright amber chip. */
+  --caption-plate: rgb(24 22 19 / 88%);
+  --caption-ink: #fffaf0;
+  --caption-chip: #feba2a;
+  --caption-chip-ink: #1c1a16;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Source Serif 4", Georgia, "Iowan Old Style", serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -50,6 +65,27 @@
 
 html[data-format="short"] {
   --edge: 72px;
+}
+
+/* Opt-in dark palette (site.css's dark block) for scenes showing the app's night mode. */
+html[data-theme="dark"] {
+  --ground: #161616;
+  --surface: #1c1c1b;
+  --surface-2: #121212;
+  --border: #2c2a26;
+  --text: #efe9dd;
+  --muted: #a59f93;
+  --faint: #7e786d;
+  --amber: #feba2a;
+  --amber-dim: #d99a2b;
+  --green: #74c47c;
+  --red: #e06c6c;
+  --glow-a: rgb(254 186 42 / 12%);
+  --glow-b: transparent;
+  --ring-glow: rgb(254 186 42 / 60%);
+  --dim: rgb(22 22 22 / 60%);
+  --shadow-ink: 0 0 0;
+  --screen-shadow: 0 30px 80px rgb(0 0 0 / 55%);
 }
 
 * {
@@ -73,7 +109,9 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 70% 40%, rgb(254 186 42 / 12%), transparent 60%);
+  background:
+    radial-gradient(ellipse at 70% 40%, var(--glow-a), transparent 60%),
+    radial-gradient(ellipse at 15% 90%, var(--glow-b), transparent 55%);
   pointer-events: none;
 }
 
@@ -125,7 +163,7 @@ h2 {
   border-radius: 10px;
   border: 1px solid var(--border);
   background: #000;
-  box-shadow: 0 30px 80px rgb(0 0 0 / 55%);
+  box-shadow: var(--screen-shadow);
   image-rendering: auto;
 }
 
@@ -141,13 +179,13 @@ h2 {
   position: absolute;
   border: 4px solid var(--amber);
   border-radius: 12px;
-  box-shadow: 0 0 40px rgb(254 186 42 / 60%);
+  box-shadow: 0 0 40px var(--ring-glow);
   pointer-events: none;
 }
 
 /* Dims everything outside the ring; one dimming ring at a time. */
 .ring.dim {
-  box-shadow: 0 0 0 9999px rgb(22 22 22 / 60%), 0 0 40px rgb(254 186 42 / 60%);
+  box-shadow: 0 0 0 9999px var(--dim), 0 0 40px var(--ring-glow);
 }
 
 .frame {
@@ -188,13 +226,15 @@ h2 {
   font-family: var(--mono);
   font-size: 40px;
   line-height: 1.6;
-  background: #000;
+  /* A terminal is dark in either theme. */
+  background: #121212;
+  color: #efe9dd;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 36px 44px;
-  box-shadow: 0 30px 80px rgb(0 0 0 / 55%);
+  box-shadow: var(--screen-shadow);
 }
-.term .prompt { color: var(--green); }
+.term .prompt { color: #74c47c; }
 
 /* Burned-in captions (short format only; runtime.js builds them). Kept above
    the bottom 15%; YouTube's Shorts controls cover the last stretch of it. */
@@ -219,13 +259,26 @@ h2 {
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.01em;
-  color: var(--text);
-  /* A plate and a filled chip, not just a colour: the scenes' own text is
-     white and amber too, and must never be mistaken for a caption. */
-  background: rgba(0, 0, 0, 0.88);
+  color: var(--caption-ink);
+  /* A dark plate and a filled chip in either theme: on the light ground it is the
+     darkest thing in the frame, so it is never mistaken for the scene's own text. */
+  background: var(--caption-plate);
   border-radius: 28px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
   opacity: 0;
+}
+
+/* Over a full-bleed app clip the plate is see-through and blurs what is under it,
+   so a busy screen stays readable around it and the words stay legible on top.
+   A type-only scene in the same short keeps the solid plate. */
+html[data-layout="full"]:has(.clip) .burned-caption {
+  font-size: 64px;
+  padding: 18px 24px;
+  background: rgb(24 22 19 / 66%);
+  -webkit-backdrop-filter: blur(14px) saturate(0.8);
+  backdrop-filter: blur(14px) saturate(0.8);
+  box-shadow: 0 6px 28px rgb(0 0 0 / 35%);
+  text-shadow: 0 2px 6px rgb(0 0 0 / 45%);
 }
 .burned-caption span {
   display: inline-block;
@@ -235,14 +288,22 @@ h2 {
 }
 
 /* Device frames: one `img` or `.clip` child is the screen. The bezel is dark on
-   purpose, so the frame reads on both light and dark scene backgrounds. */
+   purpose, so the frame reads on both light and dark scene backgrounds: on the
+   light ground a warm drop shadow lifts it, on the dark one a faint light rim. */
 .device {
   position: relative;
   display: inline-block;
   padding: 18px;
   background: var(--bezel);
-  border: 2px solid rgb(255 255 255 / 12%);
+  border: 2px solid #3a3b40;
   border-radius: 64px;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 30%),
+    0 40px 90px rgb(var(--shadow-ink) / 30%),
+    0 10px 24px rgb(var(--shadow-ink) / 22%);
+}
+html[data-theme="dark"] .device {
+  border-color: rgb(255 255 255 / 14%);
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 35%),
     0 24px 60px rgb(0 0 0 / 40%);
@@ -278,3 +339,49 @@ h2 {
   aspect-ratio: 4 / 3;
   border-radius: 20px;
 }
+
+/* Full-bleed short (`html[data-layout="full"]`): no device frame, the phone's
+   screen fills the frame's height. A 9:19.5 clip is then 886 px wide; the side
+   bands show the scene's ground. Scenes centre the `.device` and keep their own
+   text off the app. */
+html[data-layout="full"] .device.phone {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+html[data-layout="full"] .device.phone > img,
+html[data-layout="full"] .device.phone > .clip {
+  width: auto;
+  height: 100vh;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 1px rgb(var(--shadow-ink) / 16%),
+    0 0 48px rgb(var(--shadow-ink) / 22%);
+}
+
+/* A small label over the full-bleed app, in the middle of the status bar (where
+   the app shows nothing): a light chip, never a dark plate like the captions.
+   Give it to a scene's kicker (`class="kicker top-label"`); in the framed layout
+   it stays an ordinary kicker. */
+html[data-layout="full"] .top-label {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  right: 0;
+  width: max-content;
+  margin: 0 auto;   /* not a transform: JB.show animates the transform */
+  z-index: 50;
+  padding: 10px 22px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgb(255 250 240 / 92%);
+  color: var(--amber);
+  font: 600 28px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgb(var(--shadow-ink) / 18%);
+}
+html[data-theme="dark"][data-layout="full"] .top-label { background: rgb(28 28 27 / 92%); }

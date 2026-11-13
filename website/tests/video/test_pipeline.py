@@ -313,6 +313,25 @@ def test_output_name_carries_the_voice_source():
     assert pipeline.output_name("short", "own", "srt") == "short-own.srt"
 
 
+def test_output_name_carries_a_non_default_short_layout():
+    assert pipeline.output_name("short", "tts", "mp4", "full") == "short-tts.mp4"
+    assert pipeline.output_name("short", "tts", "mp4", None) == "short-tts.mp4"
+    assert pipeline.output_name("short", "tts", "mp4", "framed") == "short-tts-framed.mp4"
+    assert pipeline.output_name("short", "own", "srt", "framed") == "short-own-framed.srt"
+    # The main video has one layout; a short-layout option never renames it.
+    assert pipeline.output_name("main", "tts", "mp4", "framed") == "main-tts.mp4"
+    assert pipeline.output_name("main", "tts", "mp4", "full") == "main-tts.mp4"
+
+
+def test_page_layout_defaults_and_validates():
+    assert pipeline.page_layout("short") == "full"
+    assert pipeline.page_layout("short", "framed") == "framed"
+    assert pipeline.page_layout("main") == "framed"
+    assert pipeline.page_layout("main", "full") == "framed"
+    with pytest.raises(ValueError, match="short layout"):
+        pipeline.page_layout("short", "tiled")
+
+
 def test_music_filter_loops_and_fades() -> None:
     graph, label = pipeline.music_filter(5, "[speech]", total=92.4, volume=0.25, duck=0.35)
 
