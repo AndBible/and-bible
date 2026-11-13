@@ -1,0 +1,16 @@
+- Edge swipe from the screen edge opens the main menu, including over the iOS WebView (#4074)
+- Google Drive sync on every platform, including F-Droid builds (8bda3e8)
+- Desktop update check: choose the check interval and snooze update reminders (#4070)
+- E-ink mode: highlights are bold in monochrome, and colour e-ink uses the monochrome look with coloured highlights (#4069)
+- Translations updated for 48 languages (e911bd1)
+- Back navigation no longer double-pops or exits on a double system back, and back callbacks stay in sync with navigation (#4073)
+- iOS bookmark markers now place correctly in the text (222a5f2)
+- Windows: the WebView2 view is hidden while the window is minimized (#4067)
+- Cloud provider sign-out is bounded and reset failures are contained (f89e644)
+- MyBible modules: correct deuterocanon book mapping and versification detection (#2747)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
