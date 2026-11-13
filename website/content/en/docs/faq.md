@@ -9,6 +9,7 @@
 - [What happens if the reading pane's WebView renderer crashes?](#what-happens-if-the-reading-panes-webview-renderer-crashes)
 - [How do I change the voice of the speech synthesis?](#how-do-i-change-the-voice-of-the-speech-synthesis)
 - [Is there a version for iOS (iPhone / iPad)?](#is-there-a-version-for-ios-iphone-ipad)
+- [Is there a version for Windows, Linux or Mac?](#is-there-a-version-for-windows-linux-or-mac)
 - [How do I download more Bibles, commentaries, etc.?](#how-do-i-download-more-bibles-commentaries-etc)
 - [How do I copy my notes and bookmarks to a new device?](#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone)
 - [Where do the Bible translations come from?](#where-do-the-bible-translations-come-from)
@@ -117,10 +118,26 @@ soon as a public beta through TestFlight.
 <!-- end -->
 <!-- end -->
 
-If you’re still on an older Android device and prefer not to switch:
+## Is there a version for Windows, Linux or Mac?
 
-- Consider buying an inexpensive Android tablet to use *AndBible*.
-- You can install the [desktop app](getting_started.md#windows) on Windows or Linux.
+Yes! AndBible 6.0 is shared by Android, iPhone and iPad, Mac (Apple Silicon), Windows (64-bit, x64)
+and Linux (64-bit, x86_64). See [AndBible on Windows and Linux](desktop.md) for the desktop app,
+and [Getting started](getting_started.md#windows) for installation on
+[Windows](getting_started.md#windows), [Linux](getting_started.md#linux) and
+[Mac](getting_started.md#mac). On a Mac there is no separate desktop build: install the iPad app from
+the [App Store](https://apps.apple.com/us/app/andbible-bible-study/id6774904527).
+
+<!-- if beta -->
+The Windows and Linux versions are new in AndBible 6.0, which is in public beta. Download them from the
+newest *Beta release* on the [GitHub releases page]({{ beta_release }}).
+<!-- else -->
+Download the Windows and Linux versions from
+[GitHub Releases](https://github.com/AndBible/and-bible/releases/latest).
+<!-- end -->
+
+You can share your notes and bookmarks between your devices with [Cloud Sync](cloud_sync.md).
+Nextcloud and WebDAV work on every platform; Google Drive is available on Android only, and iCloud
+Drive on iPhone, iPad and Mac.
 
 ## How do I download more Bibles, commentaries, etc.?
 
@@ -131,7 +148,10 @@ then search for and install the documents you need.
 
 ## How do I copy my notes and bookmarks to a new device? {#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone}
 
-Back up on one device and restore on the other. See [Backup and Restore](backup_restore.md)
+To keep your devices in sync continuously, set up [Cloud Sync](cloud_sync.md): your notes,
+bookmarks and settings are then kept up to date on every device that uses the same sync account.
+
+Alternatively, back up on one device and restore on the other. See [Backup and Restore](backup_restore.md)
 for detailed instructions.
 
 ## Where do the Bible translations come from?
