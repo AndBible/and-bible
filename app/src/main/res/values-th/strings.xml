@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ไม่สามารถเริ่มต้น WebView2 ซึ่งจำเป็นสำหรับการแสดงข้อความพระคัมภีร์ได้ โปรดติดตั้งหรือซ่อมแซม Microsoft Edge WebView2 Evergreen Runtime จาก:\n%1$s\n\nรายละเอียดอยู่ในไฟล์บันทึก:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible ต้องใช้กราฟิก Direct3D เพื่อแสดงข้อความพระคัมภีร์ด้วย WebView2 ตัวเรนเดอร์กราฟิกปัจจุบันคือ %1$s โปรดตรวจสอบไดรเวอร์กราฟิกและการรองรับ Direct3D\n\nรายละเอียดอยู่ในไฟล์บันทึก:\n%2$s</string>
   <string name="desktop_update_setting_title">ตรวจสอบการอัปเดต</string>
-  <string name="desktop_update_setting_summary">วันละครั้ง จาก github.com</string>
   <string name="desktop_beta_update_setting_title">เสนออัปเดตเบต้าสาธารณะ</string>
   <string name="desktop_beta_update_setting_summary">เสนอเวอร์ชันเบต้าสาธารณะด้วย เมื่อปิดอยู่ การติดตั้งเบต้าจะได้รับเฉพาะรุ่นเสถียรเท่านั้น</string>
   <string name="desktop_update_consent_title">ตรวจสอบการอัปเดตหรือไม่?</string>
-  <string name="desktop_update_consent_message">AndBible สามารถตรวจสอบ github.com วันละครั้งเพื่อหาเวอร์ชันใหม่ GitHub จะเห็นที่อยู่ IP ของคุณ และจะไม่มีการส่งข้อมูลอื่นใด คุณสามารถเปลี่ยนแปลงได้ภายหลังในการตั้งค่า</string>
   <string name="desktop_update_consent_yes">ตรวจสอบการอัปเดต</string>
   <string name="desktop_update_consent_no">ไม่ต้องตรวจสอบ</string>
   <string name="desktop_update_available_title">มีเวอร์ชันใหม่</string>
   <string name="desktop_update_available_message">AndBible %1$s พร้อมให้ใช้งานแล้ว คุณใช้เวอร์ชัน %2$s</string>
   <string name="desktop_update_download">ดาวน์โหลด</string>
-  <string name="desktop_update_later">ภายหลัง</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">การศึกษาพระคัมภีร์</string>
   <string name="app_name_medium">การศึกษาพระคัมภีร์ (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">โหมดขาวดำ</string>
   <string name="prefs_eink_mode_summary">ใช้แอปพลิเคชันในโหมดโมโนโครม (ไม่มีสี) เหมาะสำหรับอุปกรณ์ E-ink</string>
   <string name="prefs_display_color_mode_title">โหมดสี</string>
-  <string name="prefs_display_color_mode_summary">เลือกวิธีการแสดงสี โหมดอีอิงค์สีจะคงพื้นฐานสีขาวดำแต่แสดงสีของที่คั่นหน้า ตัวบ่งชี้หน้าต่างที่ใช้งานอยู่ และเส้นช่วยเป็นสี — สำหรับหน้าจออีอิงค์สี</string>
   <string name="prefs_display_color_mode_normal">ปกติ</string>
   <string name="prefs_display_color_mode_bw">ขาวดำ</string>
   <string name="prefs_display_color_mode_monochrome">โมโนโครม</string>

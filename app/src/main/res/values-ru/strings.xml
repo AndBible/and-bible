@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible не удалось запустить WebView2, который необходим для отображения текста Библии. Установите или восстановите Microsoft Edge WebView2 Evergreen Runtime:\n%1$s\n\nПодробности в файле журнала:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">Для отображения текста Библии через WebView2 AndBible требуется графика Direct3D. Текущий графический рендерер: %1$s. Проверьте графический драйвер и поддержку Direct3D.\n\nПодробности в файле журнала:\n%2$s</string>
   <string name="desktop_update_setting_title">Проверять обновления</string>
-  <string name="desktop_update_setting_summary">Раз в день, на github.com</string>
   <string name="desktop_beta_update_setting_title">Предлагать публичные бета-обновления</string>
   <string name="desktop_beta_update_setting_summary">Предлагать также публичные бета-версии. Если выключено, бета-версия получает только стабильные выпуски.</string>
   <string name="desktop_update_consent_title">Проверять обновления?</string>
-  <string name="desktop_update_consent_message">AndBible может раз в день проверять github.com на наличие новой версии. GitHub видит ваш IP-адрес; больше ничего не отправляется. Это можно изменить позже в настройках.</string>
   <string name="desktop_update_consent_yes">Проверять обновления</string>
   <string name="desktop_update_consent_no">Не проверять</string>
   <string name="desktop_update_available_title">Доступна новая версия</string>
   <string name="desktop_update_available_message">Доступна версия AndBible %1$s. У вас установлена %2$s.</string>
   <string name="desktop_update_download">Скачать</string>
-  <string name="desktop_update_later">Позже</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Изучение Библии</string>
   <string name="app_name_medium">Изучение Библии (AndBible) </string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Черно-белый режим</string>
   <string name="prefs_eink_mode_summary">Используйте приложение в монохромном режиме (без цветов), что делает его более подходящим для устройств E-ink.</string>
   <string name="prefs_display_color_mode_title">Цветовой режим</string>
-  <string name="prefs_display_color_mode_summary">Выберите способ отображения цветов. Цветной e-ink сохраняет чёрно-белую основу, но показывает цвета закладок, индикатор активного окна и вспомогательные линии в цвете — для цветных экранов e-ink.</string>
   <string name="prefs_display_color_mode_normal">Обычный</string>
   <string name="prefs_display_color_mode_bw">Чёрно-белый</string>
   <string name="prefs_display_color_mode_monochrome">Монохромный</string>

@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible није могао да покрене WebView2, који је потребан за приказ текста Библије. Инсталирајте или поправите Microsoft Edge WebView2 Evergreen Runtime са:\n%1$s\n\nДетаљи су у датотеци дневника:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible захтева Direct3D графику за приказ текста Библије помоћу WebView2. Тренутни графички рендерер је %1$s. Проверите графички драјвер и подршку за Direct3D.\n\nДетаљи су у датотеци дневника:\n%2$s</string>
   <string name="desktop_update_setting_title">Провери ажурирања</string>
-  <string name="desktop_update_setting_summary">Једном дневно, са github.com</string>
   <string name="desktop_beta_update_setting_title">Нуди јавна бета ажурирања</string>
   <string name="desktop_beta_update_setting_summary">Нуди и јавне бета верзије. Када је искључено, бета инсталација добија само произвођачка издања.</string>
   <string name="desktop_update_consent_title">Проверити ажурирања?</string>
-  <string name="desktop_update_consent_message">AndBible може једном дневно да провери github.com због новије верзије. GitHub види вашу IP адресу; ништа друго се не шаље. Ово можете касније променити у поставкама.</string>
   <string name="desktop_update_consent_yes">Провери ажурирања</string>
   <string name="desktop_update_consent_no">Не проверавај</string>
   <string name="desktop_update_available_title">Доступна је нова верзија</string>
   <string name="desktop_update_available_message">Доступан је AndBible %1$s. Ви имате %2$s.</string>
   <string name="desktop_update_download">Преузми</string>
-  <string name="desktop_update_later">Касније</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Учење Библије</string>
   <string name="app_name_medium">Учење Библије (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Црно-бели режим</string>
   <string name="prefs_eink_mode_summary">Користите апликацију у монохроматском (једнобојном) режиму, прилагођеном за E-ink уређаје.</string>
   <string name="prefs_display_color_mode_title">Режим боја</string>
-  <string name="prefs_display_color_mode_summary">Изаберите како се боје приказују. Боја е-инк задржава црно-белу основу, али приказује боје обележивача, индикатор активног прозора и помоћне линије у боји — за е-инк екране у боји.</string>
   <string name="prefs_display_color_mode_normal">Нормално</string>
   <string name="prefs_display_color_mode_bw">Црно-бело</string>
   <string name="prefs_display_color_mode_monochrome">Монохроматски</string>

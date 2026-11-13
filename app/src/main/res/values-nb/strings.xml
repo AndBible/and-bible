@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible kunne ikke starte WebView2, som kreves for å vise bibeltekst. Installer eller reparer Microsoft Edge WebView2 Evergreen Runtime fra:\n%1$s\n\nDetaljer finnes i loggfilen:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible krever Direct3D-grafikk for å vise bibeltekst med WebView2. Den gjeldende grafikkgjengiveren er %1$s. Kontroller grafikkdriveren og Direct3D-støtten.\n\nDetaljer finnes i loggfilen:\n%2$s</string>
   <string name="desktop_update_setting_title">Se etter oppdateringer</string>
-  <string name="desktop_update_setting_summary">Én gang om dagen, fra github.com</string>
   <string name="desktop_beta_update_setting_title">Tilby offentlige betaoppdateringer</string>
   <string name="desktop_beta_update_setting_summary">Tilby også offentlige betaversjoner. Når dette er av, får en betainstallasjon bare produksjonsutgivelser.</string>
   <string name="desktop_update_consent_title">Se etter oppdateringer?</string>
-  <string name="desktop_update_consent_message">AndBible kan se på github.com én gang om dagen om det finnes en nyere versjon. GitHub ser IP-adressen din; ingenting annet sendes. Du kan endre dette senere i Innstillinger.</string>
   <string name="desktop_update_consent_yes">Se etter oppdateringer</string>
   <string name="desktop_update_consent_no">Ikke se etter</string>
   <string name="desktop_update_available_title">Ny versjon tilgjengelig</string>
   <string name="desktop_update_available_message">AndBible %1$s er tilgjengelig. Du har %2$s.</string>
   <string name="desktop_update_download">Last ned</string>
-  <string name="desktop_update_later">Senere</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bibelstudie</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Svart/hvitt-modus</string>
   <string name="prefs_eink_mode_summary">Sett applikasjonen i monokrom modus (ingen farger) for å tilpasse til bl.a. E-ink-enheter.</string>
   <string name="prefs_display_color_mode_title">Fargemodus</string>
-  <string name="prefs_display_color_mode_summary">Velg hvordan farger vises. Farge e-ink beholder en svart-hvitt-base, men viser bokmerkefarger, indikatoren for aktivt vindu og hjelpelinjer i farger — for e-ink-skjermer med farger.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Svart-hvitt</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>

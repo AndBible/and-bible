@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">బైబిల్ వచనాన్ని చూపించడానికి అవసరమైన WebView2ని AndBible ప్రారంభించలేకపోయింది. Microsoft Edge WebView2 Evergreen Runtimeను ఇక్కడ నుండి ఇన్‌స్టాల్ చేయండి లేదా రిపేర్ చేయండి:\n%1$s\n\nవివరాలు లాగ్ ఫైల్‌లో ఉన్నాయి:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">WebView2తో బైబిల్ వచనాన్ని చూపించడానికి AndBibleకు Direct3D గ్రాఫిక్స్ అవసరం. ప్రస్తుత గ్రాఫిక్స్ రెండరర్ %1$s. మీ గ్రాఫిక్స్ డ్రైవర్‌ను మరియు Direct3D మద్దతును తనిఖీ చేయండి.\n\nవివరాలు లాగ్ ఫైల్‌లో ఉన్నాయి:\n%2$s</string>
   <string name="desktop_update_setting_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
-  <string name="desktop_update_setting_summary">రోజుకు ఒకసారి, github.com నుండి</string>
   <string name="desktop_beta_update_setting_title">పబ్లిక్ బీటా అప్‌డేట్‌లను అందించు</string>
   <string name="desktop_beta_update_setting_summary">పబ్లిక్ బీటా వెర్షన్‌లను కూడా అందించు. ఆఫ్‌లో ఉంటే, బీటా ఇన్‌స్టాల్‌కు ప్రొడక్షన్ విడుదలలు మాత్రమే వస్తాయి.</string>
   <string name="desktop_update_consent_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయాలా?</string>
-  <string name="desktop_update_consent_message">AndBible కొత్త వెర్షన్ కోసం రోజుకు ఒకసారి github.comను తనిఖీ చేయగలదు. GitHubకు మీ IP చిరునామా కనిపిస్తుంది; ఇంకేమీ పంపబడదు. మీరు దీన్ని తర్వాత సెట్టింగ్‌లలో మార్చవచ్చు.</string>
   <string name="desktop_update_consent_yes">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
   <string name="desktop_update_consent_no">తనిఖీ చేయవద్దు</string>
   <string name="desktop_update_available_title">కొత్త వెర్షన్ అందుబాటులో ఉంది</string>
   <string name="desktop_update_available_message">AndBible %1$s అందుబాటులో ఉంది. మీ వద్ద %2$s ఉంది.</string>
   <string name="desktop_update_download">డౌన్‌లోడ్ చేయండి</string>
-  <string name="desktop_update_later">తర్వాత</string>
   <string name="app_name_andbible">అండ్ బైబిల్</string>
   <string name="app_name_short">బైబిల్ అధ్యయనం</string>
   <string name="app_name_medium">బైబిల్ అధ్యయనం (అండ్ బైబిల్)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">నలుపు &amp; తెలుపు మోడ్</string>
   <string name="prefs_eink_mode_summary">మోనోక్రోమ్ మోడ్‌లో అప్లికేషన్‌ను ఉపయోగించండి (రంగులు లేవు), ఇది E-ఇంక్ పరికరాలకు మరింత అనుకూలంగా ఉంటుంది.</string>
   <string name="prefs_display_color_mode_title">కలర్ మోడ్</string>
-  <string name="prefs_display_color_mode_summary">రంగులు ఎలా ప్రదర్శించబడతాయో ఎంచుకోండి. కలర్ ఇ-ఇంక్ నలుపు &amp; తెలుపు ఆధారాన్ని కొనసాగిస్తూ బుక్‌మార్క్ రంగులు, యాక్టివ్-విండో సూచిక మరియు హెల్పర్ లైన్‌లను రంగులో చూపిస్తుంది — కలర్ ఇ-ఇంక్ స్క్రీన్‌ల కోసం.</string>
   <string name="prefs_display_color_mode_normal">సాధారణం</string>
   <string name="prefs_display_color_mode_bw">నలుపు &amp; తెలుపు</string>
   <string name="prefs_display_color_mode_monochrome">ఏకవర్ణం</string>

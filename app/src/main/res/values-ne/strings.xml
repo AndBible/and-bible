@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ले WebView2 सुरु गर्न सकेन, जुन बाइबलको पाठ देखाउन आवश्यक छ। Microsoft Edge WebView2 Evergreen Runtime यहाँबाट स्थापना वा मर्मत गर्नुहोस्:\n%1$s\n\nविवरण लग फाइलमा छ:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">WebView2 सँग बाइबलको पाठ देखाउन AndBible लाई Direct3D ग्राफिक्स आवश्यक छ। हालको ग्राफिक्स रेन्डरर %1$s हो। आफ्नो ग्राफिक्स ड्राइभर र Direct3D समर्थन जाँच गर्नुहोस्।\n\nविवरण लग फाइलमा छ:\n%2$s</string>
   <string name="desktop_update_setting_title">अद्यावधिकहरू जाँच गर्नुहोस्</string>
-  <string name="desktop_update_setting_summary">दिनमा एक पटक, github.com बाट</string>
   <string name="desktop_beta_update_setting_title">सार्वजनिक बिटा अद्यावधिकहरू प्रस्ताव गर्नुहोस्</string>
   <string name="desktop_beta_update_setting_summary">सार्वजनिक बिटा संस्करणहरू पनि प्रस्ताव गर्नुहोस्। बन्द हुँदा, बिटा स्थापनाले उत्पादन संस्करणहरू मात्र पाउँछ।</string>
   <string name="desktop_update_consent_title">अद्यावधिकहरू जाँच गर्ने?</string>
-  <string name="desktop_update_consent_message">AndBible ले नयाँ संस्करणका लागि दिनमा एक पटक github.com जाँच गर्न सक्छ। GitHub ले तपाईंको IP ठेगाना देख्छ; अरू केही पठाइँदैन। तपाईं यो पछि सेटिङहरूमा परिवर्तन गर्न सक्नुहुन्छ।</string>
   <string name="desktop_update_consent_yes">अद्यावधिकहरू जाँच गर्नुहोस्</string>
   <string name="desktop_update_consent_no">जाँच नगर्नुहोस्</string>
   <string name="desktop_update_available_title">नयाँ संस्करण उपलब्ध छ</string>
   <string name="desktop_update_available_message">AndBible %1$s उपलब्ध छ। तपाईंसँग %2$s छ।</string>
   <string name="desktop_update_download">डाउनलोड गर्नुहोस्</string>
-  <string name="desktop_update_later">पछि</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">बाइबल अध्ययन</string>
   <string name="app_name_medium">बाइबल अध्ययन (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">कालो र सेतो मोड</string>
   <string name="prefs_eink_mode_summary">अनुप्रयोग एकरंगी मोडमा (कुनै रंग नभई) प्रयोग गर्नुहोस्, जसले E-ink उपकरणहरूको लागि उपयुक्त बनाउँछ।</string>
   <string name="prefs_display_color_mode_title">रङ मोड</string>
-  <string name="prefs_display_color_mode_summary">रङहरू कसरी देखाइन्छन् भन्ने छान्नुहोस्। रङ e-ink ले कालो र सेतो आधार राख्दछ तर बुकमार्क रङहरू, सक्रिय-विन्डो सूचक र सहायक रेखाहरू रङमा देखाउँछ — रङ e-ink स्क्रिनहरूको लागि।</string>
   <string name="prefs_display_color_mode_normal">सामान्य</string>
   <string name="prefs_display_color_mode_bw">कालो र सेतो</string>
   <string name="prefs_display_color_mode_monochrome">एकवर्णीय</string>

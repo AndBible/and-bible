@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">Az AndBible nem tudta elindítani a WebView2-t, amely a bibliaszöveg megjelenítéséhez szükséges. Telepítse vagy javítsa meg a Microsoft Edge WebView2 Evergreen Runtime-ot innen:\n%1$s\n\nA részletek a naplófájlban találhatók:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">Az AndBible a bibliaszöveg WebView2-vel történő megjelenítéséhez Direct3D grafikát igényel. A jelenlegi grafikus megjelenítő: %1$s. Ellenőrizze a grafikus illesztőprogramot és a Direct3D-támogatást.\n\nA részletek a naplófájlban találhatók:\n%2$s</string>
   <string name="desktop_update_setting_title">Frissítések keresése</string>
-  <string name="desktop_update_setting_summary">Naponta egyszer, a github.com oldalról</string>
   <string name="desktop_beta_update_setting_title">Nyilvános béta frissítések felajánlása</string>
   <string name="desktop_beta_update_setting_summary">Nyilvános béta verziók felajánlása is. Kikapcsolva a béta telepítés csak éles kiadásokat kap.</string>
   <string name="desktop_update_consent_title">Keres frissítéseket?</string>
-  <string name="desktop_update_consent_message">Az AndBible naponta egyszer megnézheti a github.com oldalon, hogy van-e újabb verzió. A GitHub látja az Ön IP-címét, de semmi más nem kerül elküldésre. Ezt később a Beállításokban módosíthatja.</string>
   <string name="desktop_update_consent_yes">Frissítések keresése</string>
   <string name="desktop_update_consent_no">Ne keressen</string>
   <string name="desktop_update_available_title">Új verzió érhető el</string>
   <string name="desktop_update_available_message">Az AndBible %1$s elérhető. Az Ön verziója: %2$s.</string>
   <string name="desktop_update_download">Letöltés</string>
-  <string name="desktop_update_later">Később</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Fekete-fehér mód</string>
   <string name="prefs_eink_mode_summary">Az alkalmazás használata színek nélkül, jobb olvashatóság e-ink képernyőn.</string>
   <string name="prefs_display_color_mode_title">Szín mód</string>
-  <string name="prefs_display_color_mode_summary">Válassza ki, hogyan jelenjenek meg a színek. A színes e-ink mód fekete-fehér alapot tart, de színesben mutatja a könyvjelző színeket, az aktív ablak jelzőjét és a segédvonalakat — színes e-ink képernyőkhöz.</string>
   <string name="prefs_display_color_mode_normal">Normál</string>
   <string name="prefs_display_color_mode_bw">Fekete-fehér</string>
   <string name="prefs_display_color_mode_monochrome">Egyszínű</string>

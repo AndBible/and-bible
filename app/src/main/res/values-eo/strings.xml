@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ne povis startigi WebView2, kiu necesas por montri la biblian tekston. Instalu aŭ riparu la Microsoft Edge WebView2 Evergreen Runtime de:\n%1$s\n\nDetaloj estas en la protokola dosiero:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible bezonas Direct3D-grafikon por montri la biblian tekston per WebView2. La nuna grafika bildigilo estas %1$s. Kontrolu vian grafikan peliston kaj subtenon de Direct3D.\n\nDetaloj estas en la protokola dosiero:\n%2$s</string>
   <string name="desktop_update_setting_title">Kontroli ĝisdatigojn</string>
-  <string name="desktop_update_setting_summary">Unufoje tage, de github.com</string>
   <string name="desktop_beta_update_setting_title">Proponi publikajn beta-ĝisdatigojn</string>
   <string name="desktop_beta_update_setting_summary">Proponi ankaŭ publikajn beta-versiojn. Kiam malŝaltita, beta-instalaĵo ricevas nur produktajn eldonojn.</string>
   <string name="desktop_update_consent_title">Kontroli ĝisdatigojn?</string>
-  <string name="desktop_update_consent_message">AndBible povas kontroli github.com unufoje tage por pli nova versio. GitHub vidas vian IP-adreson; nenio alia estas sendata. Vi povas ŝanĝi tion poste en la Agordoj.</string>
   <string name="desktop_update_consent_yes">Kontroli ĝisdatigojn</string>
   <string name="desktop_update_consent_no">Ne kontroli</string>
   <string name="desktop_update_available_title">Nova versio disponeblas</string>
   <string name="desktop_update_available_message">AndBible %1$s disponeblas. Vi havas %2$s.</string>
   <string name="desktop_update_download">Elŝuti</string>
-  <string name="desktop_update_later">Poste</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Blank-nigra reĝimo</string>
   <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj.</string>
   <string name="prefs_display_color_mode_title">Reĝimo de koloroj</string>
-  <string name="prefs_display_color_mode_summary">Elekti kiel koloroj estas montrataj. Kolora elektronika papero konservas blank-nigran bazon sed montras kolorojn de legosignoj, la indikilon de la aktiva fenestro kaj rulum-help-liniojn kolore – por koloraj elektronik-paperaj ekranoj.</string>
   <string name="prefs_display_color_mode_normal">Norma</string>
   <string name="prefs_display_color_mode_bw">Blank-nigra</string>
   <string name="prefs_display_color_mode_monochrome">Unukolora</string>

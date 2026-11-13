@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible nemohol spustiť WebView2, ktorý je potrebný na zobrazenie textu Biblie. Nainštalujte alebo opravte Microsoft Edge WebView2 Evergreen Runtime z:\n%1$s\n\nPodrobnosti sú v súbore denníka:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible vyžaduje grafiku Direct3D na zobrazenie textu Biblie pomocou WebView2. Aktuálny grafický renderer je %1$s. Skontrolujte svoj grafický ovládač a podporu Direct3D.\n\nPodrobnosti sú v súbore denníka:\n%2$s</string>
   <string name="desktop_update_setting_title">Kontrolovať aktualizácie</string>
-  <string name="desktop_update_setting_summary">Raz denne z github.com</string>
   <string name="desktop_beta_update_setting_title">Ponúkať verejné beta aktualizácie</string>
   <string name="desktop_beta_update_setting_summary">Ponúkať aj verejné beta verzie. Keď je vypnuté, beta inštalácia dostane iba produkčné vydania.</string>
   <string name="desktop_update_consent_title">Kontrolovať aktualizácie?</string>
-  <string name="desktop_update_consent_message">AndBible môže raz denne skontrolovať na github.com, či je dostupná novšia verzia. GitHub uvidí vašu IP adresu; nič iné sa neodosiela. Neskôr to môžete zmeniť v Nastaveniach.</string>
   <string name="desktop_update_consent_yes">Kontrolovať aktualizácie</string>
   <string name="desktop_update_consent_no">Nekontrolovať</string>
   <string name="desktop_update_available_title">Je dostupná nová verzia</string>
   <string name="desktop_update_available_message">Je dostupný AndBible %1$s. Máte verziu %2$s.</string>
   <string name="desktop_update_download">Stiahnuť</string>
-  <string name="desktop_update_later">Neskôr</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Štúdium Biblie</string>
   <string name="app_name_medium">Štúdium Biblie (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Čierno-biely režim</string>
   <string name="prefs_eink_mode_summary">Používať aplikáciu v monochromatickom režime (bez farieb), vďaka čomu je vhodnejšia pre zariadenia s elektronickým atramentom. </string>
   <string name="prefs_display_color_mode_title">Farebný režim</string>
-  <string name="prefs_display_color_mode_summary">Vyberte, ako sa zobrazujú farby. Farebný e-ink zachováva čiernobiely základ, ale zobrazuje farby záložiek, indikátor aktívneho okna a pomocné čiary vo farbe — pre farebné e-ink obrazovky.</string>
   <string name="prefs_display_color_mode_normal">Normálny</string>
   <string name="prefs_display_color_mode_bw">Čiernobiely</string>
   <string name="prefs_display_color_mode_monochrome">Monochromatický</string>

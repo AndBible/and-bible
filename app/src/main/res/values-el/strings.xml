@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">Το AndBible δεν μπόρεσε να εκκινήσει το WebView2, το οποίο απαιτείται για την εμφάνιση του κειμένου της Αγίας Γραφής. Εγκαταστήστε ή επισκευάστε το Microsoft Edge WebView2 Evergreen Runtime από:\n%1$s\n\nΟι λεπτομέρειες βρίσκονται στο αρχείο καταγραφής:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">Το AndBible απαιτεί γραφικά Direct3D για την εμφάνιση του κειμένου της Αγίας Γραφής με το WebView2. Ο τρέχων επεξεργαστής γραφικών είναι %1$s. Ελέγξτε το πρόγραμμα οδήγησης γραφικών και την υποστήριξη Direct3D.\n\nΟι λεπτομέρειες βρίσκονται στο αρχείο καταγραφής:\n%2$s</string>
   <string name="desktop_update_setting_title">Έλεγχος για ενημερώσεις</string>
-  <string name="desktop_update_setting_summary">Μία φορά την ημέρα, από το github.com</string>
   <string name="desktop_beta_update_setting_title">Προσφορά δημόσιων beta ενημερώσεων</string>
   <string name="desktop_beta_update_setting_summary">Προσφέρονται επίσης δημόσιες beta εκδόσεις. Όταν είναι απενεργοποιημένο, μια beta εγκατάσταση λαμβάνει μόνο παραγωγικές εκδόσεις.</string>
   <string name="desktop_update_consent_title">Έλεγχος για ενημερώσεις;</string>
-  <string name="desktop_update_consent_message">Το AndBible μπορεί να ελέγχει το github.com μία φορά την ημέρα για νεότερη έκδοση. Το GitHub βλέπει τη διεύθυνση IP σας· δεν αποστέλλεται τίποτα άλλο. Μπορείτε να το αλλάξετε αργότερα στις Ρυθμίσεις.</string>
   <string name="desktop_update_consent_yes">Έλεγχος για ενημερώσεις</string>
   <string name="desktop_update_consent_no">Να μη γίνεται έλεγχος</string>
   <string name="desktop_update_available_title">Διαθέσιμη νέα έκδοση</string>
   <string name="desktop_update_available_message">Είναι διαθέσιμο το AndBible %1$s. Έχετε την έκδοση %2$s.</string>
   <string name="desktop_update_download">Λήψη</string>
-  <string name="desktop_update_later">Αργότερα</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Βιβλική Μελέτη (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Ασπρόμαυρη εμφάνιση</string>
   <string name="prefs_eink_mode_summary">Χρήση μονόχρωμου στυλ (χωρίς χρώματα), κατάλληλο για συσκευές E-ink.</string>
   <string name="prefs_display_color_mode_title">Λειτουργία χρωμάτων</string>
-  <string name="prefs_display_color_mode_summary">Επιλέξτε πώς εμφανίζονται τα χρώματα. Η λειτουργία έγχρωμου e-ink διατηρεί μια βάση ασπρόμαυρου, αλλά εμφανίζει τα χρώματα σελιδοδεικτών, την ένδειξη ενεργού παραθύρου και τις βοηθητικές γραμμές έγχρωμα — για έγχρωμες οθόνες e-ink.</string>
   <string name="prefs_display_color_mode_normal">Κανονική</string>
   <string name="prefs_display_color_mode_bw">Ασπρόμαυρη</string>
   <string name="prefs_display_color_mode_monochrome">Μονόχρωμο</string>

@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">অ্যান্ডবাইবেল WebView2 চালু করতে পারেনি, যা বাইবেলের পাঠ প্রদর্শনের জন্য প্রয়োজন। এখান থেকে Microsoft Edge WebView2 Evergreen Runtime ইনস্টল বা মেরামত করুন:\n%1$s\n\nবিস্তারিত লগ ফাইলে আছে:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">WebView2 দিয়ে বাইবেলের পাঠ প্রদর্শনের জন্য অ্যান্ডবাইবেলের Direct3D গ্রাফিক্স প্রয়োজন। বর্তমান গ্রাফিক্স রেন্ডারার হলো %1$s। আপনার গ্রাফিক্স ড্রাইভার ও Direct3D সমর্থন পরীক্ষা করুন।\n\nবিস্তারিত লগ ফাইলে আছে:\n%2$s</string>
   <string name="desktop_update_setting_title">আপডেট পরীক্ষা করুন</string>
-  <string name="desktop_update_setting_summary">দিনে একবার, github.com থেকে</string>
   <string name="desktop_beta_update_setting_title">পাবলিক বিটা আপডেট অফার করুন</string>
   <string name="desktop_beta_update_setting_summary">পাবলিক বিটা সংস্করণও অফার করুন। বন্ধ থাকলে বিটা ইনস্টলেশন শুধু প্রোডাকশন রিলিজ পাবে।</string>
   <string name="desktop_update_consent_title">আপডেট পরীক্ষা করবেন?</string>
-  <string name="desktop_update_consent_message">অ্যান্ডবাইবেল দিনে একবার github.com-এ নতুন সংস্করণ আছে কি না দেখতে পারে। GitHub আপনার IP ঠিকানা দেখতে পায়; আর কিছু পাঠানো হয় না। আপনি পরে সেটিংসে এটি পরিবর্তন করতে পারবেন।</string>
   <string name="desktop_update_consent_yes">আপডেট পরীক্ষা করুন</string>
   <string name="desktop_update_consent_no">পরীক্ষা করবেন না</string>
   <string name="desktop_update_available_title">নতুন সংস্করণ পাওয়া যাচ্ছে</string>
   <string name="desktop_update_available_message">অ্যান্ডবাইবেল %1$s পাওয়া যাচ্ছে। আপনার কাছে %2$s আছে।</string>
   <string name="desktop_update_download">ডাউনলোড</string>
-  <string name="desktop_update_later">পরে</string>
   <string name="app_name_andbible">এ্যন্ড বাইবেল</string>
   <string name="app_name_short">বাইবেল অধ্যায়ণ</string>
   <string name="app_name_medium">বাইবেল অধ্যায়ণ ( এ্যন্ড বাইবেল) </string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">কালো &amp; সাদা মোড</string>
   <string name="prefs_eink_mode_summary">একরঙা মোডে অ্যাপ্লিকেশন ব্যবহার করুন (কোনও রঙ নেই), এটি ই-কালি ডিভাইসের জন্য আরও উপযুক্ত করে তোলে।</string>
   <string name="prefs_display_color_mode_title">রঙের মোড</string>
-  <string name="prefs_display_color_mode_summary">রঙ কীভাবে প্রদর্শিত হবে তা নির্বাচন করুন। কালার ই-ইঙ্ক একটি সাদা-কালো ভিত্তি বজায় রাখে কিন্তু বুকমার্কের রঙ, সক্রিয়-উইন্ডো নির্দেশক এবং সহায়ক রেখা রঙে দেখায় — কালার ই-ইঙ্ক স্ক্রিনের জন্য।</string>
   <string name="prefs_display_color_mode_normal">স্বাভাবিক</string>
   <string name="prefs_display_color_mode_bw">সাদা-কালো</string>
   <string name="prefs_display_color_mode_monochrome">একরঙা</string>

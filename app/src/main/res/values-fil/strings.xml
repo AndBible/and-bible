@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">Hindi masimulan ng AndBible ang WebView2, na kailangan para maipakita ang teksto ng Bibliya. I-install o ayusin ang Microsoft Edge WebView2 Evergreen Runtime mula sa:\n%1$s\n\nMakikita ang mga detalye sa log file:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">Kailangan ng AndBible ang Direct3D graphics para maipakita ang teksto ng Bibliya gamit ang WebView2. Ang kasalukuyang graphics renderer ay %1$s. Tingnan ang iyong graphics driver at suporta sa Direct3D.\n\nMakikita ang mga detalye sa log file:\n%2$s</string>
   <string name="desktop_update_setting_title">Tingnan kung may update</string>
-  <string name="desktop_update_setting_summary">Minsan isang araw, mula sa github.com</string>
   <string name="desktop_beta_update_setting_title">Mag-alok ng mga pampublikong beta update</string>
   <string name="desktop_beta_update_setting_summary">Mag-alok din ng mga beta na bersyon. Kapag naka-off, mga production release lang ang makukuha ng beta install.</string>
   <string name="desktop_update_consent_title">Tingnan kung may update?</string>
-  <string name="desktop_update_consent_message">Maaaring tingnan ng AndBible ang github.com minsan isang araw para sa mas bagong bersyon. Makikita ng GitHub ang iyong IP address; wala nang ibang ipinapadala. Maaari mo itong baguhin sa Mga Setting.</string>
   <string name="desktop_update_consent_yes">Tingnan kung may update</string>
   <string name="desktop_update_consent_no">Huwag tingnan</string>
   <string name="desktop_update_available_title">May bagong bersyon</string>
   <string name="desktop_update_available_message">Available na ang AndBible %1$s. Ang gamit mo ay %2$s.</string>
   <string name="desktop_update_download">I-download</string>
-  <string name="desktop_update_later">Mamaya na</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Pag-aaral ng Bibliya</string>
   <string name="app_name_medium">Pag-aaral ng Bibliya (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
   <string name="prefs_eink_mode_summary">Gamitin ang application sa monochrome mode (walang kulay), na mas angkop para sa mga E-ink device.</string>
   <string name="prefs_display_color_mode_title">Mode ng kulay</string>
-  <string name="prefs_display_color_mode_summary">Piliin kung paano ipapakita ang mga kulay. Ang color e-ink ay nagpapanatili ng itim at puting base ngunit nagpapakita ng mga kulay ng bookmark, ang tagapahiwatig ng aktibong window, at mga tulong na linya sa kulay — para sa mga color e-ink na screen.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Itim at puti</string>
   <string name="prefs_display_color_mode_monochrome">Monochrome</string>

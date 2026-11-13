@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible kon nie WebView2 begin nie, wat nodig is om Bybelteks te vertoon. Installeer of herstel die Microsoft Edge WebView2 Evergreen Runtime vanaf:\n%1$s\n\nBesonderhede is in die loglêer:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible vereis Direct3D-grafika om Bybelteks met WebView2 te vertoon. Die huidige grafika-weergawer is %1$s. Kontroleer jou grafikadrywer en Direct3D-ondersteuning.\n\nBesonderhede is in die loglêer:\n%2$s</string>
   <string name="desktop_update_setting_title">Soek na opdaterings</string>
-  <string name="desktop_update_setting_summary">Een keer per dag, vanaf github.com</string>
   <string name="desktop_beta_update_setting_title">Bied openbare beta-opdaterings aan</string>
   <string name="desktop_beta_update_setting_summary">Bied ook openbare beta-weergawes aan. Wanneer af, kry \'n beta-installasie net produksie-vrystellings.</string>
   <string name="desktop_update_consent_title">Soek na opdaterings?</string>
-  <string name="desktop_update_consent_message">AndBible kan een keer per dag github.com nagaan vir \'n nuwer weergawe. GitHub sien jou IP-adres; niks anders word gestuur nie. Jy kan dit later in Instellings verander.</string>
   <string name="desktop_update_consent_yes">Soek na opdaterings</string>
   <string name="desktop_update_consent_no">Moenie soek nie</string>
   <string name="desktop_update_available_title">Nuwe weergawe beskikbaar</string>
   <string name="desktop_update_available_message">AndBible %1$s is beskikbaar. Jy het %2$s.</string>
   <string name="desktop_update_download">Laai af</string>
-  <string name="desktop_update_later">Later</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel Studie (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Swart &amp; wit modus</string>
   <string name="prefs_eink_mode_summary">Gebruik die toep in monochroom-modus (geen kleure nie), wat dit meer geskik maak vir E-ink-toestelle.</string>
   <string name="prefs_display_color_mode_title">Kleurmodus</string>
-  <string name="prefs_display_color_mode_summary">Kies hoe kleure vertoon word. Kleur e-ink behou \'n swart-en-wit basis, maar wys boekmerkkleure, die aktiewe-vensteraanduier en hulplyne in kleur — vir kleur e-ink skerms.</string>
   <string name="prefs_display_color_mode_normal">Normaal</string>
   <string name="prefs_display_color_mode_bw">Swart en wit</string>
   <string name="prefs_display_color_mode_monochrome">Monochroom</string>

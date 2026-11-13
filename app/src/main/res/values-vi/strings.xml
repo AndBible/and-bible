@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible không thể khởi động WebView2, thành phần cần thiết để hiển thị văn bản Kinh Thánh. Hãy cài đặt hoặc sửa chữa Microsoft Edge WebView2 Evergreen Runtime tại:\n%1$s\n\nChi tiết có trong tệp nhật ký:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible cần đồ họa Direct3D để hiển thị văn bản Kinh Thánh bằng WebView2. Trình kết xuất đồ họa hiện tại là %1$s. Hãy kiểm tra trình điều khiển đồ họa và khả năng hỗ trợ Direct3D.\n\nChi tiết có trong tệp nhật ký:\n%2$s</string>
   <string name="desktop_update_setting_title">Kiểm tra bản cập nhật</string>
-  <string name="desktop_update_setting_summary">Mỗi ngày một lần, từ github.com</string>
   <string name="desktop_beta_update_setting_title">Đề xuất bản cập nhật beta công khai</string>
   <string name="desktop_beta_update_setting_summary">Đề xuất cả các phiên bản beta công khai. Khi tắt, bản cài beta chỉ nhận các bản phát hành chính thức.</string>
   <string name="desktop_update_consent_title">Kiểm tra bản cập nhật?</string>
-  <string name="desktop_update_consent_message">AndBible có thể kiểm tra github.com mỗi ngày một lần để tìm phiên bản mới hơn. GitHub sẽ thấy địa chỉ IP của bạn; không có gì khác được gửi đi. Bạn có thể thay đổi điều này sau trong Cài đặt.</string>
   <string name="desktop_update_consent_yes">Kiểm tra bản cập nhật</string>
   <string name="desktop_update_consent_no">Không kiểm tra</string>
   <string name="desktop_update_available_title">Có phiên bản mới</string>
   <string name="desktop_update_available_message">AndBible %1$s đã có. Bạn đang dùng %2$s.</string>
   <string name="desktop_update_download">Tải xuống</string>
-  <string name="desktop_update_later">Để sau</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Học Kinh Thánh</string>
   <string name="app_name_medium">Học Kinh Thánh (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Chế độ đen &amp; trắng</string>
   <string name="prefs_eink_mode_summary">Sử dụng ứng dụng ở chế độ đơn sắc (không màu), phù hợp hơn cho các thiết bị E-ink.</string>
   <string name="prefs_display_color_mode_title">Chế độ màu</string>
-  <string name="prefs_display_color_mode_summary">Chọn cách hiển thị màu sắc. Chế độ e-ink màu giữ nền đen trắng nhưng hiển thị màu đánh dấu, chỉ báo cửa sổ đang hoạt động và các đường trợ giúp bằng màu — dành cho màn hình e-ink màu.</string>
   <string name="prefs_display_color_mode_normal">Bình thường</string>
   <string name="prefs_display_color_mode_bw">Đen &amp; trắng</string>
   <string name="prefs_display_color_mode_monochrome">Đơn sắc</string>

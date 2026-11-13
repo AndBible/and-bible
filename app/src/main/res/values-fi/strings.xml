@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ei voinut käynnistää WebView2:ta, jota tarvitaan Raamatun tekstin näyttämiseen. Asenna tai korjaa Microsoft Edge WebView2 Evergreen Runtime osoitteesta:\n%1$s\n\nLisätiedot ovat lokitiedostossa:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible tarvitsee Direct3D-grafiikkaa näyttääkseen Raamatun tekstin WebView2:n avulla. Nykyinen grafiikkarenderöijä on %1$s. Tarkista grafiikkaohjain ja Direct3D-tuki.\n\nLisätiedot ovat lokitiedostossa:\n%2$s</string>
   <string name="desktop_update_setting_title">Tarkista päivitykset</string>
-  <string name="desktop_update_setting_summary">Kerran päivässä, osoitteesta github.com</string>
   <string name="desktop_beta_update_setting_title">Tarjoa julkisia beta-päivityksiä</string>
   <string name="desktop_beta_update_setting_summary">Tarjoa myös julkisia beta-versioita. Kun asetus on pois päältä, beta-asennus saa vain tuotantoversiot.</string>
   <string name="desktop_update_consent_title">Tarkistetaanko päivitykset?</string>
-  <string name="desktop_update_consent_message">AndBible voi tarkistaa github.comista kerran päivässä, onko uudempaa versiota saatavilla. GitHub näkee IP-osoitteesi, mutta mitään muuta ei lähetetä. Voit muuttaa tätä myöhemmin asetuksissa.</string>
   <string name="desktop_update_consent_yes">Tarkista päivitykset</string>
   <string name="desktop_update_consent_no">Älä tarkista</string>
   <string name="desktop_update_available_title">Uusi versio saatavilla</string>
   <string name="desktop_update_available_message">AndBible %1$s on saatavilla. Sinulla on versio %2$s.</string>
   <string name="desktop_update_download">Lataa</string>
-  <string name="desktop_update_later">Myöhemmin</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Raamattu</string>
   <string name="app_name_medium">Raamattu (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Mustavalkoinen tila</string>
   <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
   <string name="prefs_display_color_mode_title">Värien tila</string>
-  <string name="prefs_display_color_mode_summary">Valitse, miten värit näytetään. Värillinen e-ink-tila pitää mustavalkoisen perustan, mutta näyttää kirjanmerkkien värit, aktiivisen ikkunan merkin ja apuviivat värillisinä — värillisille e-ink-näytöille.</string>
   <string name="prefs_display_color_mode_normal">Normaali</string>
   <string name="prefs_display_color_mode_bw">Mustavalkoinen</string>
   <string name="prefs_display_color_mode_monochrome">Yksivärinen</string>

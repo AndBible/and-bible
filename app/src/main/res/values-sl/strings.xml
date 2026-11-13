@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ni mogel zagnati komponente WebView2, ki je potrebna za prikaz besedila Biblije. Namestite ali popravite Microsoft Edge WebView2 Evergreen Runtime z naslova:\n%1$s\n\nPodrobnosti so v dnevniški datoteki:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible za prikaz besedila Biblije z WebView2 potrebuje grafiko Direct3D. Trenutni grafični izris je %1$s. Preverite grafični gonilnik in podporo za Direct3D.\n\nPodrobnosti so v dnevniški datoteki:\n%2$s</string>
   <string name="desktop_update_setting_title">Preveri posodobitve</string>
-  <string name="desktop_update_setting_summary">Enkrat na dan, z github.com</string>
   <string name="desktop_beta_update_setting_title">Ponudi javne beta posodobitve</string>
   <string name="desktop_beta_update_setting_summary">Ponudi tudi javne beta različice. Ko je izklopljeno, beta namestitev prejema samo produkcijske izdaje.</string>
   <string name="desktop_update_consent_title">Preverim posodobitve?</string>
-  <string name="desktop_update_consent_message">AndBible lahko enkrat na dan preveri github.com za novejšo različico. GitHub vidi vaš naslov IP, drugega se ne pošlje. To lahko pozneje spremenite v nastavitvah.</string>
   <string name="desktop_update_consent_yes">Preveri posodobitve</string>
   <string name="desktop_update_consent_no">Ne preverjaj</string>
   <string name="desktop_update_available_title">Na voljo je nova različica</string>
   <string name="desktop_update_available_message">Na voljo je AndBible %1$s. Imate %2$s.</string>
   <string name="desktop_update_download">Prenesi</string>
-  <string name="desktop_update_later">Pozneje</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">And Biblija</string>
   <string name="app_name_medium">Proučevanje Biblije (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Črno-bel način</string>
   <string name="prefs_eink_mode_summary">Aplikacijo uporabljate v enobarvnem načinu (brez barv), zato je primernejša za naprave z e-črnilom.</string>
   <string name="prefs_display_color_mode_title">Barvni način</string>
-  <string name="prefs_display_color_mode_summary">Izberite, kako naj se prikazujejo barve. Barvni e-papir ohranja črno-belo osnovo, vendar prikazuje barve zaznamkov, indikator aktivnega okna in pomožne črte v barvi — za barvne zaslone e-papir.</string>
   <string name="prefs_display_color_mode_normal">Običajno</string>
   <string name="prefs_display_color_mode_bw">Črno-belo</string>
   <string name="prefs_display_color_mode_monochrome">Enobarvno</string>

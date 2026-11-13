@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible ei saanud WebView2 käivitada, mida on vaja piiblitekstide kuvamiseks. Paigalda või paranda Microsoft Edge WebView2 Evergreen Runtime siit:\n%1$s\n\nÜksikasjad on logifailis:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible vajab piiblitekstide kuvamiseks WebView2-ga Direct3D graafikat. Praegune graafikarenderdaja on %1$s. Kontrolli graafikadraiverit ja Direct3D tuge.\n\nÜksikasjad on logifailis:\n%2$s</string>
   <string name="desktop_update_setting_title">Otsi uuendusi</string>
-  <string name="desktop_update_setting_summary">Kord päevas, saidilt github.com</string>
   <string name="desktop_beta_update_setting_title">Paku avalikke beetauuendusi</string>
   <string name="desktop_beta_update_setting_summary">Paku ka avalikke beetaversioone. Kui see on väljas, saab beetainstall ainult tootmisversioone.</string>
   <string name="desktop_update_consent_title">Kas otsida uuendusi?</string>
-  <string name="desktop_update_consent_message">AndBible saab kord päevas saidilt github.com uuemat versiooni otsida. GitHub näeb sinu IP-aadressi; midagi muud ei saadeta. Seda saad hiljem seadetes muuta.</string>
   <string name="desktop_update_consent_yes">Otsi uuendusi</string>
   <string name="desktop_update_consent_no">Ära otsi</string>
   <string name="desktop_update_available_title">Saadaval on uus versioon</string>
   <string name="desktop_update_available_message">Saadaval on AndBible %1$s. Sul on %2$s.</string>
   <string name="desktop_update_download">Lae alla</string>
-  <string name="desktop_update_later">Hiljem</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Piibliuurimine</string>
   <string name="app_name_medium">Piibliuurimine (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Mustvalge režiim</string>
   <string name="prefs_eink_mode_summary">Kasuta mustvalget režiimi, mis teeb selle sobivamaks e-lugeritele.</string>
   <string name="prefs_display_color_mode_title">Värvirežiim</string>
-  <string name="prefs_display_color_mode_summary">Vali, kuidas värve kuvatakse. Värviline e-tint hoiab must-valge põhja, kuid näitab järjehoidjate värve, aktiivse akna indikaatorit ja abijooni värvilisena — värvilise e-tindiga ekraanide jaoks.</string>
   <string name="prefs_display_color_mode_normal">Tavaline</string>
   <string name="prefs_display_color_mode_bw">Must-valge</string>
   <string name="prefs_display_color_mode_monochrome">Ühevärviline</string>

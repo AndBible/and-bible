@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible nie mógł uruchomić WebView2, który jest wymagany do wyświetlania tekstu Biblii. Zainstaluj lub napraw Microsoft Edge WebView2 Evergreen Runtime ze strony:\n%1$s\n\nSzczegóły znajdziesz w pliku dziennika:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible wymaga grafiki Direct3D do wyświetlania tekstu Biblii z użyciem WebView2. Bieżący moduł renderujący grafikę to %1$s. Sprawdź sterownik grafiki i obsługę Direct3D.\n\nSzczegóły znajdziesz w pliku dziennika:\n%2$s</string>
   <string name="desktop_update_setting_title">Sprawdzaj aktualizacje</string>
-  <string name="desktop_update_setting_summary">Raz dziennie, z github.com</string>
   <string name="desktop_beta_update_setting_title">Oferuj publiczne aktualizacje beta</string>
   <string name="desktop_beta_update_setting_summary">Oferuj także publiczne wersje beta. Gdy opcja jest wyłączona, instalacja beta otrzymuje tylko wydania produkcyjne.</string>
   <string name="desktop_update_consent_title">Sprawdzać aktualizacje?</string>
-  <string name="desktop_update_consent_message">AndBible może raz dziennie sprawdzać na github.com, czy jest nowsza wersja. GitHub widzi Twój adres IP; nic więcej nie jest wysyłane. Możesz to później zmienić w ustawieniach.</string>
   <string name="desktop_update_consent_yes">Sprawdzaj aktualizacje</string>
   <string name="desktop_update_consent_no">Nie sprawdzaj</string>
   <string name="desktop_update_available_title">Dostępna nowa wersja</string>
   <string name="desktop_update_available_message">Dostępny jest AndBible %1$s. Masz wersję %2$s.</string>
   <string name="desktop_update_download">Pobierz</string>
-  <string name="desktop_update_later">Później</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Tryb czarno-biały</string>
   <string name="prefs_eink_mode_summary">Wyświetl aplikację bez użycia kolorów w celu lepszego dostosowania do czytników e-książek (E Ink).</string>
   <string name="prefs_display_color_mode_title">Tryb kolorów</string>
-  <string name="prefs_display_color_mode_summary">Wybierz sposób wyświetlania kolorów. Kolorowy e-ink zachowuje czarno-białą bazę, ale wyświetla kolory zakładek, wskaźnik aktywnego okna i linie pomocnicze w kolorze — dla kolorowych ekranów e-ink.</string>
   <string name="prefs_display_color_mode_normal">Normalny</string>
   <string name="prefs_display_color_mode_bw">Czarno-biały</string>
   <string name="prefs_display_color_mode_monochrome">Monochromatyczny</string>

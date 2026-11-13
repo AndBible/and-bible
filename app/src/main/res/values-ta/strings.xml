@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">விவிலிய உரையைக் காட்டத் தேவையான WebView2-ஐ ஆண்ட்பைபிளால் தொடங்க முடியவில்லை. Microsoft Edge WebView2 Evergreen Runtime-ஐ இங்கிருந்து நிறுவவும் அல்லது பழுதுபார்க்கவும்:\n%1$s\n\nவிவரங்கள் பதிவுக் கோப்பில் உள்ளன:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">WebView2 மூலம் விவிலிய உரையைக் காட்ட ஆண்ட்பைபிளுக்கு Direct3D கிராபிக்ஸ் தேவை. தற்போதைய கிராபிக்ஸ் ரெண்டரர் %1$s. உங்கள் கிராபிக்ஸ் இயக்கி மற்றும் Direct3D ஆதரவைச் சரிபார்க்கவும்.\n\nவிவரங்கள் பதிவுக் கோப்பில் உள்ளன:\n%2$s</string>
   <string name="desktop_update_setting_title">புதுப்பிப்புகளைச் சரிபார்</string>
-  <string name="desktop_update_setting_summary">ஒரு நாளுக்கு ஒருமுறை, github.com இலிருந்து</string>
   <string name="desktop_beta_update_setting_title">பொது பீட்டா புதுப்பிப்புகளை வழங்கு</string>
   <string name="desktop_beta_update_setting_summary">பீட்டா பதிப்புகளையும் வழங்கு. அணைக்கப்பட்டிருக்கும்போது, பீட்டா நிறுவலுக்கு உற்பத்தி வெளியீடுகள் மட்டுமே கிடைக்கும்.</string>
   <string name="desktop_update_consent_title">புதுப்பிப்புகளைச் சரிபார்க்கவா?</string>
-  <string name="desktop_update_consent_message">புதிய பதிப்பிற்காக ஆண்ட்பைபிள் ஒரு நாளுக்கு ஒருமுறை github.com-ஐச் சரிபார்க்கலாம். GitHub உங்கள் IP முகவரியைப் பார்க்கும்; வேறு எதுவும் அனுப்பப்படாது. இதை பின்னர் அமைப்புகளில் மாற்றலாம்.</string>
   <string name="desktop_update_consent_yes">புதுப்பிப்புகளைச் சரிபார்</string>
   <string name="desktop_update_consent_no">சரிபார்க்க வேண்டாம்</string>
   <string name="desktop_update_available_title">புதிய பதிப்பு உள்ளது</string>
   <string name="desktop_update_available_message">ஆண்ட்பைபிள் %1$s கிடைக்கிறது. உங்களிடம் %2$s உள்ளது.</string>
   <string name="desktop_update_download">தரவிறக்கு</string>
-  <string name="desktop_update_later">பின்னர்</string>
   <string name="app_name_andbible">ஆண்ட் பைபில்</string>
   <string name="app_name_short">விவிலிய ஆய்வு</string>
   <string name="app_name_medium">விவிலிய ஆய்வு (ஆண்ட் பைபில்)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">கருப்பு &amp; வெள்ளை முறை</string>
   <string name="prefs_eink_mode_summary">மோனோக்ரோம் பயன்முறையில் (வண்ணங்கள் இல்லாமல்), E-ink கருவிகளுக்கு மிகவும் பொருத்தமானதாக இருக்கும்.</string>
   <string name="prefs_display_color_mode_title">வண்ண பயன்முறை</string>
-  <string name="prefs_display_color_mode_summary">வண்ணங்கள் எவ்வாறு காட்டப்படும் என்பதைத் தேர்வு செய்யவும். வண்ண e-ink பயன்முறையில் கருப்பு &amp; வெள்ளை அடிப்படை இருந்தாலும், புக்மார்க் வண்ணங்கள், செயலில் உள்ள சாளர குறிகாட்டி மற்றும் உதவி கோடுகள் வண்ணத்தில் காட்டப்படும் — வண்ண e-ink திரைகளுக்கு.</string>
   <string name="prefs_display_color_mode_normal">இயல்பானது</string>
   <string name="prefs_display_color_mode_bw">கருப்பு &amp; வெள்ளை</string>
   <string name="prefs_display_color_mode_monochrome">ஒற்றை நிறம்</string>

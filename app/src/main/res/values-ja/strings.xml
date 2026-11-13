@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBibleは聖書の本文を表示するために必要なWebView2を起動できませんでした。次の場所からMicrosoft Edge WebView2 Evergreen Runtimeをインストールまたは修復してください:\n%1$s\n\n詳細はログファイルを参照してください:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBibleがWebView2で聖書の本文を表示するには、Direct3Dグラフィックスが必要です。現在のグラフィックスレンダラーは%1$sです。グラフィックスドライバーとDirect3Dのサポートを確認してください。\n\n詳細はログファイルを参照してください:\n%2$s</string>
   <string name="desktop_update_setting_title">アップデートを確認</string>
-  <string name="desktop_update_setting_summary">1日1回、github.comから</string>
   <string name="desktop_beta_update_setting_title">公開ベータ版の更新を通知する</string>
   <string name="desktop_beta_update_setting_summary">公開ベータ版も通知します。オフの場合、ベータ版をインストールしていても正式版のリリースのみ通知されます。</string>
   <string name="desktop_update_consent_title">アップデートを確認しますか？</string>
-  <string name="desktop_update_consent_message">AndBibleは1日1回github.comで新しいバージョンを確認できます。GitHubにはお使いのIPアドレスが表示されますが、それ以外は何も送信されません。この設定は後で「設定」から変更できます。</string>
   <string name="desktop_update_consent_yes">アップデートを確認</string>
   <string name="desktop_update_consent_no">確認しない</string>
   <string name="desktop_update_available_title">新しいバージョンがあります</string>
   <string name="desktop_update_available_message">AndBible %1$sが利用可能です。現在のバージョンは%2$sです。</string>
   <string name="desktop_update_download">ダウンロード</string>
-  <string name="desktop_update_later">後で</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">聖書研究</string>
   <string name="app_name_medium">聖書研究（AndBible）</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">白黒モード</string>
   <string name="prefs_eink_mode_summary">モノクロモード（色なし）でアプリを使用します。電子インクデバイスに適しています。</string>
   <string name="prefs_display_color_mode_title">カラーモード</string>
-  <string name="prefs_display_color_mode_summary">色の表示方法を選択します。カラーE-Inkは白黒をベースにしつつ、ブックマークの色、アクティブウィンドウの表示、補助線をカラーで表示します — カラーE-Ink画面向けです。</string>
   <string name="prefs_display_color_mode_normal">通常</string>
   <string name="prefs_display_color_mode_bw">白黒</string>
   <string name="prefs_display_color_mode_monochrome">モノクロ</string>

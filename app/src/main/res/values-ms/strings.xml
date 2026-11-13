@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible tidak dapat memulakan WebView2, yang diperlukan untuk memaparkan teks Alkitab. Pasang atau baiki Microsoft Edge WebView2 Evergreen Runtime dari:\n%1$s\n\nButiran terdapat dalam fail log:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible memerlukan grafik Direct3D untuk memaparkan teks Alkitab dengan WebView2. Pemapar grafik semasa ialah %1$s. Semak pemacu grafik dan sokongan Direct3D anda.\n\nButiran terdapat dalam fail log:\n%2$s</string>
   <string name="desktop_update_setting_title">Semak kemas kini</string>
-  <string name="desktop_update_setting_summary">Sekali sehari, dari github.com</string>
   <string name="desktop_beta_update_setting_title">Tawarkan kemas kini beta awam</string>
   <string name="desktop_beta_update_setting_summary">Tawarkan juga versi beta awam. Apabila dimatikan, pemasangan beta hanya menerima keluaran pengeluaran.</string>
   <string name="desktop_update_consent_title">Semak kemas kini?</string>
-  <string name="desktop_update_consent_message">AndBible boleh menyemak github.com sekali sehari untuk versi yang lebih baharu. GitHub melihat alamat IP anda; tiada apa-apa lagi dihantar. Anda boleh mengubahnya kemudian dalam Tetapan.</string>
   <string name="desktop_update_consent_yes">Semak kemas kini</string>
   <string name="desktop_update_consent_no">Jangan semak</string>
   <string name="desktop_update_available_title">Versi baharu tersedia</string>
   <string name="desktop_update_available_message">AndBible %1$s tersedia. Anda menggunakan %2$s.</string>
   <string name="desktop_update_download">Muat turun</string>
-  <string name="desktop_update_later">Kemudian</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kajian Alkitab</string>
   <string name="app_name_medium">Kajian Alkitab (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Mod hitam &amp; putih</string>
   <string name="prefs_eink_mode_summary">Gunakan aplikasi dalam mod monokrom (tanpa warna), menjadikannya lebih sesuai untuk peranti E-ink.</string>
   <string name="prefs_display_color_mode_title">Mod warna</string>
-  <string name="prefs_display_color_mode_summary">Pilih bagaimana warna dipaparkan. E-ink warna mengekalkan asas hitam &amp; putih tetapi menunjukkan warna penanda buku, penunjuk tetingkap aktif dan garis bantuan dalam warna — untuk skrin e-ink warna.</string>
   <string name="prefs_display_color_mode_normal">Biasa</string>
   <string name="prefs_display_color_mode_bw">Hitam &amp; putih</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>

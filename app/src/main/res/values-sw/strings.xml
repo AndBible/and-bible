@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible haikuweza kuanzisha WebView2, ambayo inahitajika ili kuonyesha maandishi ya Biblia. Sakinisha au rekebisha Microsoft Edge WebView2 Evergreen Runtime kutoka:\n%1$s\n\nMaelezo yako kwenye faili ya kumbukumbu:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible inahitaji michoro ya Direct3D ili kuonyesha maandishi ya Biblia kwa WebView2. Kionyeshi cha michoro cha sasa ni %1$s. Angalia kiendeshi chako cha michoro na usaidizi wa Direct3D.\n\nMaelezo yako kwenye faili ya kumbukumbu:\n%2$s</string>
   <string name="desktop_update_setting_title">Angalia masasisho</string>
-  <string name="desktop_update_setting_summary">Mara moja kwa siku, kutoka github.com</string>
   <string name="desktop_beta_update_setting_title">Toa masasisho ya beta ya umma</string>
   <string name="desktop_beta_update_setting_summary">Toa pia matoleo ya beta ya umma. Ikizimwa, usakinishaji wa beta hupokea matoleo ya uzalishaji pekee.</string>
   <string name="desktop_update_consent_title">Angalia masasisho?</string>
-  <string name="desktop_update_consent_message">AndBible inaweza kuangalia github.com mara moja kwa siku kutafuta toleo jipya. GitHub huona anwani yako ya IP; hakuna kingine kinachotumwa. Unaweza kubadilisha hili baadaye katika Mipangilio.</string>
   <string name="desktop_update_consent_yes">Angalia masasisho</string>
   <string name="desktop_update_consent_no">Usiangalie</string>
   <string name="desktop_update_available_title">Toleo jipya linapatikana</string>
   <string name="desktop_update_available_message">AndBible %1$s inapatikana. Una %2$s.</string>
   <string name="desktop_update_download">Pakua</string>
-  <string name="desktop_update_later">Baadaye</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Masomo ya Biblia</string>
   <string name="app_name_medium">Masomo ya Biblia (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Hali nyeusi na nyeupe</string>
   <string name="prefs_eink_mode_summary">Tumia programu katika hali ya rangi moja (bila rangi), kufaa zaidi kwa vifaa vya E-ink.</string>
   <string name="prefs_display_color_mode_title">Hali ya rangi</string>
-  <string name="prefs_display_color_mode_summary">Chagua jinsi rangi zinavyoonyeshwa. Hali ya e-ink ya rangi hudumisha msingi mweusi na mweupe lakini huonyesha rangi za alamisho, kionyeshi cha dirisha linalotumika, na mistari ya usaidizi kwa rangi — kwa skrini za e-ink za rangi.</string>
   <string name="prefs_display_color_mode_normal">Kawaida</string>
   <string name="prefs_display_color_mode_bw">Nyeusi na nyeupe</string>
   <string name="prefs_display_color_mode_monochrome">Rangi moja</string>

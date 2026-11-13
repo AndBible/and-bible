@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible WebView2 शुरू नहीं कर सका, जो बाइबल का पाठ दिखाने के लिए आवश्यक है। Microsoft Edge WebView2 Evergreen Runtime यहाँ से इंस्टॉल या रिपेयर करें:\n%1$s\n\nविवरण लॉग फ़ाइल में हैं:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">WebView2 के साथ बाइबल का पाठ दिखाने के लिए AndBible को Direct3D ग्राफ़िक्स चाहिए। वर्तमान ग्राफ़िक्स रेंडरर %1$s है। अपना ग्राफ़िक्स ड्राइवर और Direct3D सपोर्ट जाँचें।\n\nविवरण लॉग फ़ाइल में हैं:\n%2$s</string>
   <string name="desktop_update_setting_title">अपडेट की जाँच करें</string>
-  <string name="desktop_update_setting_summary">दिन में एक बार, github.com से</string>
   <string name="desktop_beta_update_setting_title">सार्वजनिक बीटा अपडेट प्रदान करें</string>
   <string name="desktop_beta_update_setting_summary">सार्वजनिक बीटा संस्करण भी प्रदान करें। बंद होने पर, बीटा इंस्टॉलेशन को केवल प्रोडक्शन रिलीज़ मिलती हैं।</string>
   <string name="desktop_update_consent_title">अपडेट की जाँच करें?</string>
-  <string name="desktop_update_consent_message">AndBible नए संस्करण के लिए दिन में एक बार github.com देख सकता है। GitHub आपका IP पता देख सकता है; इसके अलावा कुछ नहीं भेजा जाता। आप इसे बाद में सेटिंग्स में बदल सकते हैं।</string>
   <string name="desktop_update_consent_yes">अपडेट की जाँच करें</string>
   <string name="desktop_update_consent_no">जाँच न करें</string>
   <string name="desktop_update_available_title">नया संस्करण उपलब्ध है</string>
   <string name="desktop_update_available_message">AndBible %1$s उपलब्ध है। आपके पास %2$s है।</string>
   <string name="desktop_update_download">डाउनलोड करें</string>
-  <string name="desktop_update_later">बाद में</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">बाइबिल अध्ययन</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">ब्लैक &amp;amp वाइट मोड</string>
   <string name="prefs_eink_mode_summary">मोनोक्रोम मोड (कोई रंग नहीं) में एप्लिकेशन का उपयोग करें, जिससे यह ई-इंक उपकरणों के लिए अधिक उपयुक्त हो।</string>
   <string name="prefs_display_color_mode_title">रंग मोड</string>
-  <string name="prefs_display_color_mode_summary">रंग कैसे दिखाए जाएं यह चुनें। कलर ई-इंक एक ब्लैक एंड व्हाइट आधार बनाए रखता है लेकिन बुकमार्क रंग, सक्रिय-विंडो संकेतक और सहायक रेखाओं को रंग में दिखाता है — कलर ई-इंक स्क्रीन के लिए।</string>
   <string name="prefs_display_color_mode_normal">सामान्य</string>
   <string name="prefs_display_color_mode_bw">ब्लैक एंड व्हाइट</string>
   <string name="prefs_display_color_mode_monochrome">एकवर्णी</string>

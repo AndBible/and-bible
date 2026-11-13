@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible nu a putut porni WebView2, necesar pentru afișarea textului biblic. Instalează sau repară Microsoft Edge WebView2 Evergreen Runtime de la:\n%1$s\n\nDetalii se găsesc în fișierul jurnal:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible necesită grafică Direct3D pentru a afișa textul biblic cu WebView2. Motorul grafic curent este %1$s. Verifică driverul grafic și suportul Direct3D.\n\nDetalii se găsesc în fișierul jurnal:\n%2$s</string>
   <string name="desktop_update_setting_title">Caută actualizări</string>
-  <string name="desktop_update_setting_summary">O dată pe zi, de pe github.com</string>
   <string name="desktop_beta_update_setting_title">Oferă actualizări beta publice</string>
   <string name="desktop_beta_update_setting_summary">Oferă și versiuni beta publice. Când este dezactivat, o instalare beta primește doar versiunile de producție.</string>
   <string name="desktop_update_consent_title">Cauți actualizări?</string>
-  <string name="desktop_update_consent_message">AndBible poate verifica github.com o dată pe zi pentru o versiune mai nouă. GitHub vede adresa ta IP; nu se trimite nimic altceva. Poți schimba această opțiune ulterior în Preferințe.</string>
   <string name="desktop_update_consent_yes">Caută actualizări</string>
   <string name="desktop_update_consent_no">Nu căuta</string>
   <string name="desktop_update_available_title">Versiune nouă disponibilă</string>
   <string name="desktop_update_available_message">AndBible %1$s este disponibil. Ai versiunea %2$s.</string>
   <string name="desktop_update_download">Descarcă</string>
-  <string name="desktop_update_later">Mai târziu</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Fond negru sau alb</string>
   <string name="prefs_eink_mode_summary">Folosește o singură culoare pentru aplicație (pentru a fi mai potrivită ecranelor E-ink).</string>
   <string name="prefs_display_color_mode_title">Mod culoare</string>
-  <string name="prefs_display_color_mode_summary">Alege modul în care sunt afișate culorile. Modul e-ink color păstrează o bază alb-negru, dar arată culorile semnelor de carte, indicatorul ferestrei active și liniile ajutătoare în culoare — pentru ecrane e-ink color.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Alb-negru</string>
   <string name="prefs_display_color_mode_monochrome">Monocrom</string>

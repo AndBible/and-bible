@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible nepavyko paleisti „WebView2“, kurios reikia Biblijos tekstui rodyti. Įdiekite arba pataisykite „Microsoft Edge WebView2 Evergreen Runtime“ iš:\n%1$s\n\nIšsamesnė informacija žurnalo faile:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible reikia „Direct3D“ grafikos, kad galėtų rodyti Biblijos tekstą naudodama „WebView2“. Dabartinė grafikos vaizdavimo priemonė yra %1$s. Patikrinkite grafikos tvarkyklę ir „Direct3D“ palaikymą.\n\nIšsamesnė informacija žurnalo faile:\n%2$s</string>
   <string name="desktop_update_setting_title">Tikrinti, ar yra naujinimų</string>
-  <string name="desktop_update_setting_summary">Kartą per dieną iš github.com</string>
   <string name="desktop_beta_update_setting_title">Siūlyti viešų beta versijų naujinimus</string>
   <string name="desktop_beta_update_setting_summary">Siūlyti ir viešas beta versijas. Kai išjungta, beta versija gauna tik gamybines laidas.</string>
   <string name="desktop_update_consent_title">Tikrinti, ar yra naujinimų?</string>
-  <string name="desktop_update_consent_message">AndBible kartą per dieną gali patikrinti github.com, ar yra naujesnė versija. „GitHub“ mato jūsų IP adresą; daugiau nieko nesiunčiama. Vėliau tai galite pakeisti nustatymuose.</string>
   <string name="desktop_update_consent_yes">Tikrinti, ar yra naujinimų</string>
   <string name="desktop_update_consent_no">Netikrinti</string>
   <string name="desktop_update_available_title">Yra nauja versija</string>
   <string name="desktop_update_available_message">Yra AndBible %1$s. Jūsų versija: %2$s.</string>
   <string name="desktop_update_download">Atsisiųsti</string>
-  <string name="desktop_update_later">Vėliau</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblijos studijos</string>
   <string name="app_name_medium">Biblijos studijos (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Nespalvotasis režimas</string>
   <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotame režime (be spalvų), taip paverčiant ją labiau tinkama elektroninio popieriaus įrenginiams.</string>
   <string name="prefs_display_color_mode_title">Spalvų režimas</string>
-  <string name="prefs_display_color_mode_summary">Pasirinkite, kaip rodomos spalvos. Spalvotas el. rašalas išlaiko juodai baltą pagrindą, tačiau rodo žymių spalvas, aktyvaus lango indikatorių ir pagalbines linijas spalvotai — skirta spalvotiems el. rašalo ekranams.</string>
   <string name="prefs_display_color_mode_normal">Normalus</string>
   <string name="prefs_display_color_mode_bw">Juoda ir balta</string>
   <string name="prefs_display_color_mode_monochrome">Vienspalvis</string>

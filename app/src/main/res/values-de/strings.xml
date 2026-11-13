@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible konnte WebView2 nicht starten, das zur Anzeige des Bibeltexts erforderlich ist. Installieren oder reparieren Sie die Microsoft Edge WebView2 Evergreen Runtime von:\n%1$s\n\nEinzelheiten stehen in der Protokolldatei:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible benötigt Direct3D-Grafik, um den Bibeltext mit WebView2 anzuzeigen. Der aktuelle Grafikrenderer ist %1$s. Prüfen Sie Ihren Grafiktreiber und die Direct3D-Unterstützung.\n\nEinzelheiten stehen in der Protokolldatei:\n%2$s</string>
   <string name="desktop_update_setting_title">Nach Updates suchen</string>
-  <string name="desktop_update_setting_summary">Einmal täglich, von github.com</string>
   <string name="desktop_beta_update_setting_title">Öffentliche Beta-Updates anbieten</string>
   <string name="desktop_beta_update_setting_summary">Auch öffentliche Beta-Versionen anbieten. Wenn deaktiviert, erhält eine Beta-Installation nur Produktionsversionen.</string>
   <string name="desktop_update_consent_title">Nach Updates suchen?</string>
-  <string name="desktop_update_consent_message">AndBible kann einmal täglich auf github.com nach einer neueren Version suchen. GitHub sieht Ihre IP-Adresse; es wird nichts anderes gesendet. Sie können dies später in den Einstellungen ändern.</string>
   <string name="desktop_update_consent_yes">Nach Updates suchen</string>
   <string name="desktop_update_consent_no">Nicht suchen</string>
   <string name="desktop_update_available_title">Neue Version verfügbar</string>
   <string name="desktop_update_available_message">AndBible %1$s ist verfügbar. Sie haben %2$s.</string>
   <string name="desktop_update_download">Download</string>
-  <string name="desktop_update_later">Später</string>
   <string name="app_name_andbible">AndBible: Bibel+</string>
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Schwarz/Weiß Modus</string>
   <string name="prefs_eink_mode_summary">Die Applikation im Monochrommodus (ohne Farben) benutzen, um sie bequemer auf E-Ink - Geräten benutzen zu können.</string>
   <string name="prefs_display_color_mode_title">Farbmodus</string>
-  <string name="prefs_display_color_mode_summary">Wählen Sie, wie Farben angezeigt werden. Farb-E-Ink behält eine Schwarz-Weiß-Basis bei, zeigt aber Lesezeichenfarben, die Anzeige des aktiven Fensters und Hilfslinien in Farbe an — für Farb-E-Ink-Bildschirme.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Schwarz &amp; Weiß</string>
   <string name="prefs_display_color_mode_monochrome">Monochrom</string>

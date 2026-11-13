@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible kunde inte starta WebView2, som krävs för att visa bibeltext. Installera eller reparera Microsoft Edge WebView2 Evergreen Runtime från:\n%1$s\n\nDetaljer finns i loggfilen:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible kräver Direct3D-grafik för att visa bibeltext med WebView2. Den nuvarande grafikrenderaren är %1$s. Kontrollera din grafikdrivrutin och ditt Direct3D-stöd.\n\nDetaljer finns i loggfilen:\n%2$s</string>
   <string name="desktop_update_setting_title">Sök efter uppdateringar</string>
-  <string name="desktop_update_setting_summary">En gång per dag, från github.com</string>
   <string name="desktop_beta_update_setting_title">Erbjud offentliga betauppdateringar</string>
   <string name="desktop_beta_update_setting_summary">Erbjud även offentliga betaversioner. När det är av får en betainstallation bara skarpa utgåvor.</string>
   <string name="desktop_update_consent_title">Söka efter uppdateringar?</string>
-  <string name="desktop_update_consent_message">AndBible kan söka på github.com en gång per dag efter en nyare version. GitHub ser din IP-adress; inget annat skickas. Du kan ändra detta senare i Inställningar.</string>
   <string name="desktop_update_consent_yes">Sök efter uppdateringar</string>
   <string name="desktop_update_consent_no">Sök inte</string>
   <string name="desktop_update_available_title">Ny version tillgänglig</string>
   <string name="desktop_update_available_message">AndBible %1$s är tillgänglig. Du har %2$s.</string>
   <string name="desktop_update_download">Ladda ner</string>
-  <string name="desktop_update_later">Senare</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studera Bibeln</string>
   <string name="app_name_medium">Studera Bibeln (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Svartvitt läge</string>
   <string name="prefs_eink_mode_summary">Använd appen i monokromt läge (inga färger) för att göra den mer lämpad för E-Ink-enheter.</string>
   <string name="prefs_display_color_mode_title">Färgläge</string>
-  <string name="prefs_display_color_mode_summary">Välj hur färger visas. Färg-e-ink behåller en svartvit grund men visar bokmärkesfärger, indikatorn för det aktiva fönstret och hjälplinjer i färg – för e-inkskärmar med färg.</string>
   <string name="prefs_display_color_mode_normal">Normalt</string>
   <string name="prefs_display_color_mode_bw">Svartvitt</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>

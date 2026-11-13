@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible, Kutsal Kitap metnini görüntülemek için gereken WebView2\'yi başlatamadı. Microsoft Edge WebView2 Evergreen Runtime\'ı şuradan yükleyin veya onarın:\n%1$s\n\nAyrıntılar günlük dosyasındadır:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible\'ın WebView2 ile Kutsal Kitap metnini görüntülemesi için Direct3D grafikleri gerekir. Geçerli grafik oluşturucu: %1$s. Grafik sürücünüzü ve Direct3D desteğini kontrol edin.\n\nAyrıntılar günlük dosyasındadır:\n%2$s</string>
   <string name="desktop_update_setting_title">Güncellemeleri denetle</string>
-  <string name="desktop_update_setting_summary">Günde bir kez, github.com üzerinden</string>
   <string name="desktop_beta_update_setting_title">Herkese açık beta güncellemelerini sun</string>
   <string name="desktop_beta_update_setting_summary">Herkese açık beta sürümlerini de sun. Kapalıyken beta kurulumu yalnızca kararlı sürümleri alır.</string>
   <string name="desktop_update_consent_title">Güncellemeler denetlensin mi?</string>
-  <string name="desktop_update_consent_message">AndBible, daha yeni bir sürüm için günde bir kez github.com\'u denetleyebilir. GitHub IP adresinizi görür; başka hiçbir şey gönderilmez. Bunu daha sonra Ayarlar\'dan değiştirebilirsiniz.</string>
   <string name="desktop_update_consent_yes">Güncellemeleri denetle</string>
   <string name="desktop_update_consent_no">Denetleme</string>
   <string name="desktop_update_available_title">Yeni sürüm mevcut</string>
   <string name="desktop_update_available_message">AndBible %1$s mevcut. Sizdeki sürüm: %2$s.</string>
   <string name="desktop_update_download">İndir</string>
-  <string name="desktop_update_later">Daha sonra</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
   <string name="app_name_medium">Kutsal Kitap Çalışması (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Siyah beyaz modu</string>
   <string name="prefs_eink_mode_summary">Uygulamayı tek renk kipinde (renksiz) kullan, bu seçenek e-mürekkep cihazlar için daha uygundur.</string>
   <string name="prefs_display_color_mode_title">Renk modu</string>
-  <string name="prefs_display_color_mode_summary">Renklerin nasıl görüntüleneceğini seçin. Renkli e-kağıt, siyah beyaz tabanı korur ancak yer imi renklerini, etkin pencere göstergesini ve yardımcı çizgileri renkli olarak gösterir — renkli e-kağıt ekranlar için.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Siyah beyaz</string>
   <string name="prefs_display_color_mode_monochrome">Tek renkli</string>

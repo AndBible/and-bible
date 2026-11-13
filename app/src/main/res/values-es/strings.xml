@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible no pudo iniciar WebView2, que es necesario para mostrar el texto bíblico. Instala o repara Microsoft Edge WebView2 Evergreen Runtime desde:\n%1$s\n\nLos detalles están en el archivo de registro:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible requiere gráficos Direct3D para mostrar el texto bíblico con WebView2. El renderizador gráfico actual es %1$s. Revisa el controlador gráfico y la compatibilidad con Direct3D.\n\nLos detalles están en el archivo de registro:\n%2$s</string>
   <string name="desktop_update_setting_title">Buscar actualizaciones</string>
-  <string name="desktop_update_setting_summary">Una vez al día, desde github.com</string>
   <string name="desktop_beta_update_setting_title">Ofrecer actualizaciones de la beta pública</string>
   <string name="desktop_beta_update_setting_summary">Ofrecer también versiones beta públicas. Si está desactivado, una instalación beta solo recibe versiones de producción.</string>
   <string name="desktop_update_consent_title">¿Buscar actualizaciones?</string>
-  <string name="desktop_update_consent_message">AndBible puede consultar github.com una vez al día para ver si hay una versión más reciente. GitHub ve tu dirección IP; no se envía nada más. Puedes cambiarlo más tarde en Ajustes.</string>
   <string name="desktop_update_consent_yes">Buscar actualizaciones</string>
   <string name="desktop_update_consent_no">No buscar</string>
   <string name="desktop_update_available_title">Nueva versión disponible</string>
   <string name="desktop_update_available_message">AndBible %1$s está disponible. Tienes la %2$s.</string>
   <string name="desktop_update_download">Descargar</string>
-  <string name="desktop_update_later">Más tarde</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblia de Estudio</string>
   <string name="app_name_medium">Biblia de Estudio (AndBible)</string>
@@ -127,7 +124,6 @@
   <string name="prefs_e_ink_mode_title">Modo negro &amp; blanco</string>
   <string name="prefs_eink_mode_summary">Utilice la aplicación en modo monocromo (sin colores), lo que la hace más adecuada para dispositivos de E-ink.</string>
   <string name="prefs_display_color_mode_title">Modo de color</string>
-  <string name="prefs_display_color_mode_summary">Elige cómo se muestran los colores. El modo e-ink en color mantiene una base en blanco y negro pero muestra los colores de los marcadores, el indicador de ventana activa y las líneas de ayuda en color — para pantallas e-ink en color.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Blanco y negro</string>
   <string name="prefs_display_color_mode_monochrome">Monocromo</string>

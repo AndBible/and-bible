@@ -3,17 +3,14 @@
   <string name="desktop_webview2_startup_error">AndBible לא הצליח להפעיל את WebView2, הנדרש להצגת טקסט המקרא. התקינו או תקנו את Microsoft Edge WebView2 Evergreen Runtime מהכתובת:\n%1$s\n\nפרטים נמצאים בקובץ היומן:\n%2$s</string>
   <string name="desktop_webview2_graphics_error">AndBible דורש גרפיקת Direct3D כדי להציג את טקסט המקרא עם WebView2. מעבד הגרפיקה הנוכחי הוא %1$s. בדקו את מנהל ההתקן של הגרפיקה ואת התמיכה ב-Direct3D.\n\nפרטים נמצאים בקובץ היומן:\n%2$s</string>
   <string name="desktop_update_setting_title">בדיקת עדכונים</string>
-  <string name="desktop_update_setting_summary">פעם ביום, מ-github.com</string>
   <string name="desktop_beta_update_setting_title">להציע עדכוני בטא ציבוריים</string>
   <string name="desktop_beta_update_setting_summary">להציע גם גרסאות בטא ציבוריות. כשההגדרה כבויה, התקנת בטא תקבל רק גרסאות יציבות.</string>
   <string name="desktop_update_consent_title">לבדוק אם יש עדכונים?</string>
-  <string name="desktop_update_consent_message">AndBible יכול לבדוק ב-github.com פעם ביום אם קיימת גרסה חדשה יותר. GitHub רואה את כתובת ה-IP שלכם; שום דבר אחר אינו נשלח. אפשר לשנות זאת מאוחר יותר בהגדרות.</string>
   <string name="desktop_update_consent_yes">בדיקת עדכונים</string>
   <string name="desktop_update_consent_no">לא לבדוק</string>
   <string name="desktop_update_available_title">קיימת גרסה חדשה</string>
   <string name="desktop_update_available_message">AndBible %1$s זמין. הגרסה שלכם היא %2$s.</string>
   <string name="desktop_update_download">הורדה</string>
-  <string name="desktop_update_later">מאוחר יותר</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">לימוד הכתובים</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -129,7 +126,6 @@
   <string name="prefs_e_ink_mode_title">מצב שחור-לבן</string>
   <string name="prefs_eink_mode_summary">האפליקציה תעבוד במצב מונוכרומטי (ללא צבעים), מה שמתאים יותר למכשירי דיו אלקטרוני</string>
   <string name="prefs_display_color_mode_title">מצב צבע</string>
-  <string name="prefs_display_color_mode_summary">בחר כיצד צבעים מוצגים. מצב דיו אלקטרוני צבעוני משמר בסיס שחור-לבן אך מציג צבעי סימניות, סמן החלון הפעיל וקווי עזר בצבע — למסכי דיו אלקטרוני צבעוניים.</string>
   <string name="prefs_display_color_mode_normal">רגיל</string>
   <string name="prefs_display_color_mode_bw">שחור-לבן</string>
   <string name="prefs_display_color_mode_monochrome">מונוכרומטי</string>
