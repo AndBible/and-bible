@@ -215,6 +215,20 @@ first Esc only leaves the field (and hides the on-screen keyboard); press Esc
 again to go back. Esc that a note editor or an input method uses itself, for
 example to cancel a composition, never also counts as Back.
 
+### Swipe from the Edge to Open the Main Menu {#swipe-from-the-edge-to-open-the-main-menu}
+
+On a touch screen, you can open the main menu (☰) by swiping inwards from the
+left edge of the reading view (the right edge in right-to-left languages). The
+menu follows your finger; let go past halfway, or with a quick flick, to keep it
+open. Swipe it back or tap outside it to close it. Swipes that start further
+from the edge keep their usual effect on the Bible text.
+
+On Android with gesture navigation, a swipe from the screen edge is also the
+system **Back** gesture. Android lets an app take over only a limited part of
+the edge, so the edge swipe opens the menu in the upper part of the screen and
+works as Back elsewhere. With three-button navigation it works along the whole
+edge. In the desktop app, open the menu with ☰.
+
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 
 You can swipe left or right on the Bible text to navigate. The behavior can be

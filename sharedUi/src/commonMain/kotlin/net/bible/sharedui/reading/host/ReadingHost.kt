@@ -63,6 +63,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.withContext
 import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.noMotionIf
@@ -352,6 +356,24 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         }
     }
 
+    // #4074: classic's ~20dp edge drag opens the drawer again, without M3's anywhere-drag (see
+    // [drawerEdgeSwipe]). The detector stays on while the drawer is SETTLED closed, which covers its own
+    // drag (the sheet moves but has not settled), so removing it can never cancel a drag mid-way.
+    val edgeRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val edgeScope = rememberCoroutineScope()
+    val edgeVelocityPx = with(LocalDensity.current) { DrawerEdgeSettleVelocity.toPx() }
+    val edgeDisableAnimations by rememberUpdatedState(LocalDisableAnimations.current)
+    val edgeDrag = remember(md3DrawerState, edgeScope, edgeVelocityPx) {
+        DrawerEdgeDrag(
+            drawerState = md3DrawerState,
+            scope = edgeScope,
+            velocityThresholdPx = edgeVelocityPx,
+            followFinger = { !edgeDisableAnimations },
+            requestOpen = { drawerOpen.value = true },
+        )
+    }
+    val edgeSwipeEnabled = md3DrawerState.isClosed
+
     ReadingOverlayTracking(
         drawerActive = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open,
         searchBarOpen = searchBar != null,
@@ -360,8 +382,8 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     ModalNavigationDrawer(
         modifier = modifier,
         drawerState = md3DrawerState,
-        // No drag-to-OPEN (classic opens on a ~20dp EDGE drag; M3's anywhere-drag is a new gesture, and
-        // the panes' WebViews swallow horizontal drags anyway). Gate on the open state rather than
+        // No M3 drag-to-OPEN (its anywhere-drag is a new gesture, and the panes' WebViews swallow
+        // horizontal drags anyway); classic's ~20dp EDGE drag is [drawerEdgeSwipe] below. Gate on the open state rather than
         // hardcoding `false`: in M3 1.4.0 `gesturesEnabled` ALSO gates the scrim's dismiss handler, so
         // `false` outright would kill tap-outside-to-dismiss. With `isOpen`, gestures stay off while
         // closed but turn on once open, restoring scrim-tap-to-dismiss and swipe-to-close.
@@ -406,6 +428,9 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             onShown = deps.onSearchUnavailableMessageShown,
         )
         BottomSheetScaffold(
+            modifier = Modifier
+                .drawerEdgeGestureExclusion(enabled = edgeSwipeEnabled, rtl = edgeRtl)
+                .drawerEdgeSwipe(enabled = edgeSwipeEnabled, rtl = edgeRtl, callbacks = edgeDrag),
             scaffoldState = searchSheetState,
             sheetPeekHeight = 0.dp,
             // The mounted hidden sheet's shadow otherwise spills onto grey-base (MONO and B&W) paper.
