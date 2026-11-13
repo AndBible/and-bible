@@ -10,5 +10,6 @@ data class HostSyncStrings(
     val webDavMessage: (WebDavMessage) -> String,
     val ok: () -> String,
     val googleDriveSignInDone: () -> String,
+    val googleDriveSignInIncomplete: () -> String,
     val googleDriveSignInRequired: () -> String,
 )

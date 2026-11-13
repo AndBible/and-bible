@@ -82,7 +82,12 @@ fun buildIosSyncBindings(
     single<SyncSettingsPlatform> {
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
-    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(Darwin.create()) } onClose { it?.close() }
+    // Ktor does not own an injected engine, so keep it and close it together with the client.
+    var driveEngine: io.ktor.client.engine.HttpClientEngine? = null
+    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(Darwin.create().also { driveEngine = it }) } onClose {
+        it?.close()
+        driveEngine?.close()
+    }
     single<CloudAdapterFactory> {
         val googleDrive = googleClient?.let { c ->
             { background: Boolean ->

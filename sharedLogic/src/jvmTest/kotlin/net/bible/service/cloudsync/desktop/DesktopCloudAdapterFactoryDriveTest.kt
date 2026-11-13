@@ -68,7 +68,7 @@ class DesktopCloudAdapterFactoryDriveTest {
                     single<AppEnvironment> { inert() }
                     single<CoreStrings> { inert() }
                     single { AppDialogController() }
-                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "Signed in <b>" }, { "Sign in again" }) }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "Signed in <b>" }, { "Incomplete <b>" }, { "Sign in again" }) }
                 },
                 desktopSyncModule(
                     { SessionMemoryBackend() }, openBrowser, { client },
@@ -89,6 +89,26 @@ class DesktopCloudAdapterFactoryDriveTest {
             assertNotNull(koin.get<io.ktor.client.HttpClient>(net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP))
             assertNull(koin.getOrNull<io.ktor.client.HttpClient>())
         }
+    }
+
+    @Test fun closingKoinClosesTheInjectedEngine() {
+        val engine = MockEngine { respondError(HttpStatusCode.InternalServerError) }
+        val app = koinApplication(createEagerInstances = false) {
+            modules(
+                module {
+                    single<DeviceLocalPrefs> { MapPrefs() }
+                    single<AppEnvironment> { inert() }
+                    single<CoreStrings> { inert() }
+                    single { AppDialogController() }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }, { "" }) }
+                },
+                desktopSyncModule({ SessionMemoryBackend() }, { false }, { GoogleOAuthClient("id", "secret") }, { engine }),
+            )
+        }
+        app.koin.get<io.ktor.client.HttpClient>(net.bible.service.cloudsync.drive.GOOGLE_DRIVE_HTTP)
+        assertTrue(engine.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+        app.close()
+        assertFalse(engine.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
     }
 
     @Test fun withoutClientDriveIsAbsent(): Unit = withFactory(null) { f, _ ->

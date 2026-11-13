@@ -94,6 +94,24 @@ class PkceGoogleAuthTest {
     }
 
     @Test
+    fun signInRejectsGrantWithoutAppdataScope() = runBlocking<Unit> {
+        handler = { _, _ ->
+            json("""{"access_token":"a","expires_in":3600,"refresh_token":"r","scope":"openid email"}""")
+        }
+        assertFalse(auth(okBrowser()).signIn())
+        assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+    }
+
+    @Test
+    fun signInAcceptsGrantListingAppdataScope() = runBlocking<Unit> {
+        handler = { _, _ ->
+            json("""{"access_token":"a","expires_in":3600,"refresh_token":"r","scope":"openid https://www.googleapis.com/auth/drive.appdata"}""")
+        }
+        assertTrue(auth(okBrowser()).signIn())
+        assertEquals("r", secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+    }
+
+    @Test
     fun signInStoresRefreshTokenAndCachesAccessToken() = runBlocking<Unit> {
         val b = okBrowser()
         val a = auth(b)

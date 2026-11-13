@@ -87,6 +87,10 @@ class PkceGoogleAuth(
             )
             if (!response.status.isSuccess()) return false
             val json = parse(response.bodyAsText()) ?: return false
+            // Granular consent: the user may have unticked the Drive scope; keep nothing then.
+            json.string("scope")?.let { granted ->
+                if (DRIVE_APPDATA_SCOPE !in granted.split(' ')) return false
+            }
             val refresh = json.string("refresh_token") ?: return false
             val access = json.string("access_token") ?: return false
             secrets.put(GoogleDriveSecretKeys.REFRESH_TOKEN, refresh)

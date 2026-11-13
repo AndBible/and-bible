@@ -25,12 +25,14 @@ import java.util.concurrent.atomic.AtomicReference
  * coroutine cancellation (the `CancellationException` propagates) or when another [authorize] call in this JVM supersedes it ([CloudSyncUserCancelledException]). The socket is closed in every case.
  * Requests without `code`/`error` (such as `/favicon.ico`) get a 404 and the wait continues.
  *
- * @param successPage HTML shown in the browser after a redirect was received.
+ * @param successPage HTML shown in the browser after a redirect carrying `code` was received.
+ * @param errorPage HTML shown after a redirect carrying `error` (such as `access_denied`); defaults to [successPage].
  */
 class LoopbackOAuthBrowser(
     private val openBrowser: suspend (String) -> Boolean,
     private val timeoutMs: Long = 5 * 60_000,
     private val successPage: String,
+    private val errorPage: String = successPage,
 ) : OAuthBrowser {
 
     /** One authorize call: its listening socket, its accepted clients and the redirect it waits for. */
@@ -112,12 +114,17 @@ class LoopbackOAuthBrowser(
             val target = parts.getOrNull(1)
             val isRedirect = parts.size >= 2 && parts[0] == "GET" && target != null && target.startsWith("/") &&
                 hasCodeOrError(target)
-            if (isRedirect) respond(socket, "200 OK", "text/html; charset=utf-8", successPage)
+            if (isRedirect) respond(socket, "200 OK", "text/html; charset=utf-8", if (isErrorRedirect(target!!)) errorPage else successPage)
             else respond(socket, "404 Not Found", "text/plain; charset=utf-8", "")
             return if (isRedirect) target else null
         } catch (_: IOException) {
             return null
         }
+    }
+
+    private fun isErrorRedirect(target: String): Boolean {
+        val query = target.substringAfter('?', "").substringBefore('#')
+        return query.split('&').any { it.substringBefore('=') == "error" }
     }
 
     private fun hasCodeOrError(target: String): Boolean {

@@ -57,6 +57,28 @@ class LoopbackOAuthBrowserTest {
     }
 
     @Test
+    fun errorRedirectGetsErrorPageAndCodeRedirectGetsSuccessPage() = runBlocking {
+        var errorServed: Pair<Int, String>? = null
+        val denied = LoopbackOAuthBrowser(openBrowser = { url ->
+            val base = URI(url).query.substringAfter("redirect_uri=")
+            errorServed = withContext(Dispatchers.IO) { httpGet("$base?error=access_denied&state=s") }
+            true
+        }, successPage = "<ok/>", errorPage = "<fail/>")
+        denied.authorize { "https://x/auth?redirect_uri=$it" }
+        assertEquals(200, errorServed!!.first)
+        assertEquals("<fail/>", errorServed!!.second)
+
+        var okServed: Pair<Int, String>? = null
+        val granted = LoopbackOAuthBrowser(openBrowser = { url ->
+            val base = URI(url).query.substringAfter("redirect_uri=")
+            okServed = withContext(Dispatchers.IO) { httpGet("$base?code=c&state=s") }
+            true
+        }, successPage = "<ok/>", errorPage = "<fail/>")
+        granted.authorize { "https://x/auth?redirect_uri=$it" }
+        assertEquals("<ok/>", okServed!!.second)
+    }
+
+    @Test
     fun faviconRequestIsIgnored() = runBlocking {
         val browser = LoopbackOAuthBrowser(openBrowser = { url ->
             val base = URI(url).query.substringAfter("redirect_uri=").trimEnd('/')

@@ -159,9 +159,19 @@ fun desktopSyncModule(
     }
     // ONE loopback browser per module: a second sign-in supersedes a pending one (supersede is JVM-wide anyway).
     single {
-        LoopbackOAuthBrowser(openBrowser, successPage = googleDriveSignInDonePage(get<HostSyncStrings>().googleDriveSignInDone()))
+        val strings = get<HostSyncStrings>()
+        LoopbackOAuthBrowser(
+            openBrowser,
+            successPage = googleDriveSignInDonePage(strings.googleDriveSignInDone()),
+            errorPage = googleDriveSignInDonePage(strings.googleDriveSignInIncomplete()),
+        )
     }
-    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(googleEngine()) } onClose { it?.close() }
+    // Ktor does not own an injected engine, so keep it and close it together with the client.
+    var driveEngine: HttpClientEngine? = null
+    single(GOOGLE_DRIVE_HTTP) { createGoogleDriveHttpClient(googleEngine().also { driveEngine = it }) } onClose {
+        it?.close()
+        driveEngine?.close()
+    }
     single<CloudAdapterFactory> {
         val clientFactory = DesktopWebDavClientFactory()
         val client = googleClient()
