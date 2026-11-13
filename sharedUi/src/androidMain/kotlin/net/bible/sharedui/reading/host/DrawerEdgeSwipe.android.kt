@@ -29,7 +29,7 @@ import androidx.compose.ui.composed
  * gesture navigation the edge swipe opens the menu in this band and is the system back gesture
  * elsewhere. With 3-button navigation there is no edge gesture and the exclusion has no effect.
  */
-internal actual fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean): Modifier =
+internal actual fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean, leadingInset: Float): Modifier =
     if (!enabled) this else composed {
         val density = LocalDensity.current
         systemGestureExclusion { coordinates ->
@@ -39,7 +39,8 @@ internal actual fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: B
                 val edge = DrawerEdgeSwipeWidth.toPx()
                 val top = height * DrawerEdgeExclusionTopFraction
                 val bottom = (top + DrawerEdgeExclusionMaxHeight.toPx()).coerceAtMost(height)
-                if (rtl) Rect(width - edge, top, width, bottom) else Rect(0f, top, edge, bottom)
+                if (rtl) Rect(width - leadingInset - edge, top, width - leadingInset, bottom)
+                else Rect(leadingInset, top, leadingInset + edge, bottom)
             }
         }
     }

@@ -24,6 +24,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -374,6 +376,12 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         )
     }
     val edgeSwipeEnabled = md3DrawerState.isClosed
+    // 3-button navigation with the phone rotated puts the nav bar on a side: measure the strip from the
+    // safe drawing area's leading edge, not from under the bar.
+    val edgeInsetDensity = LocalDensity.current
+    val edgeLeadingInset = WindowInsets.safeDrawing.let {
+        if (edgeRtl) it.getRight(edgeInsetDensity, LayoutDirection.Rtl) else it.getLeft(edgeInsetDensity, LayoutDirection.Ltr)
+    }.toFloat()
 
     ReadingOverlayTracking(
         drawerActive = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open,
@@ -430,8 +438,13 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         )
         BottomSheetScaffold(
             modifier = Modifier
-                .drawerEdgeGestureExclusion(enabled = edgeSwipeEnabled, rtl = edgeRtl)
-                .drawerEdgeSwipe(enabled = edgeSwipeEnabled, rtl = edgeRtl, callbacks = edgeDrag),
+                .drawerEdgeGestureExclusion(enabled = edgeSwipeEnabled, rtl = edgeRtl, leadingInset = edgeLeadingInset)
+                .drawerEdgeSwipe(
+                    enabled = edgeSwipeEnabled,
+                    rtl = edgeRtl,
+                    callbacks = edgeDrag,
+                    leadingInset = edgeLeadingInset,
+                ),
             scaffoldState = searchSheetState,
             sheetPeekHeight = 0.dp,
             // The mounted hidden sheet's shadow otherwise spills onto grey-base (MONO and B&W) paper.

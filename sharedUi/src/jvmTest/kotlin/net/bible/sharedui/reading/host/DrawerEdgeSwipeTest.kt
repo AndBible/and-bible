@@ -65,6 +65,7 @@ class DrawerEdgeSwipeTest {
         lateinit var drawerState: DrawerState
         var clicks = 0
         var openRequests = 0
+        lateinit var scope: CoroutineScope
     }
 
     private val width = 600f
@@ -76,6 +77,7 @@ class DrawerEdgeSwipeTest {
         rtl: Boolean = false,
         followFinger: Boolean = true,
         zeroMotionScale: Boolean = false,
+        leadingInset: Float = 0f,
     ): Harness {
         val h = Harness()
         setContent {
@@ -88,6 +90,7 @@ class DrawerEdgeSwipeTest {
                 val composeScope = rememberCoroutineScope()
                 // Android puts the animator scale (and the app's no-animations setting) in the recomposer's context.
                 val scope = if (zeroMotionScale) CoroutineScope(composeScope.coroutineContext + NoMotionDurationScale) else composeScope
+                h.scope = scope
                 val drag = remember {
                     DrawerEdgeDrag(
                         drawerState = drawerState,
@@ -109,7 +112,7 @@ class DrawerEdgeSwipeTest {
                         Box(
                             Modifier
                                 .fillMaxSize()
-                                .drawerEdgeSwipe(enabled = drawerState.isClosed, rtl = rtl, callbacks = drag),
+                                .drawerEdgeSwipe(enabled = drawerState.isClosed, rtl = rtl, callbacks = drag, leadingInset = leadingInset),
                         ) {
                             Box(Modifier.fillMaxSize().clickable { h.clicks++ })
                         }
@@ -359,5 +362,86 @@ class DrawerEdgeSwipeTest {
         assertFalse(isInLeadingEdge(x = 21f, width = 600, edgePx = 20f, rtl = false))
         assertTrue(isInLeadingEdge(x = 580f, width = 600, edgePx = 20f, rtl = true))
         assertFalse(isInLeadingEdge(x = 10f, width = 600, edgePx = 20f, rtl = true))
+    }
+
+    private fun ComposeUiTest.openFromElsewhere(h: Harness) {
+        runOnUiThread { h.scope.launch { h.drawerState.open() } }
+    }
+
+    @Test
+    fun anOpenFromElsewhereWhileTheFingerIsDownIsNotClosedByTheRelease() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(5f, midY))
+            slowMove(40f, steps = 10)
+        }
+        openFromElsewhere(h)
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue)
+        onNodeWithTag("root").performTouchInput { up() }
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue, "a short drag's release must not close the opened drawer")
+        assertEquals(0f, h.drawerState.currentOffset)
+    }
+
+    @Test
+    fun anOpenFromElsewhereThatTheLiftInterruptsStillEndsOpen() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(5f, midY))
+            slowMove(40f, steps = 10)
+        }
+        openFromElsewhere(h)
+        mainClock.advanceTimeBy(32)
+        onNodeWithTag("root").performTouchInput { up() }
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue)
+        assertEquals(DrawerValue.Open, h.drawerState.targetValue)
+    }
+
+    @Test
+    fun aFastDragThatIsCancelledSettlesByPositionNotByVelocity() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(5f, midY))
+            repeat(6) { moveBy(Offset(10f, 0f), delayMillis = 8) }
+            cancel()
+        }
+        settle()
+        assertEquals(DrawerValue.Closed, h.drawerState.currentValue, "a cancelled short fast drag must not open")
+    }
+
+    /** A drag that starts while the sheet is still a little open is measured against the Closed anchor, not its start offset. */
+    @Test
+    fun openFractionIsMeasuredAgainstTheClosedAnchor() {
+        assertEquals(0f, edgeOpenFraction(offset = -300f, closedAnchor = -300f))
+        assertEquals(0.5f, edgeOpenFraction(offset = -150f, closedAnchor = -300f))
+        assertEquals(1f, edgeOpenFraction(offset = 0f, closedAnchor = -300f))
+        // Started 40 px open (-260) and moved 140 px more: 180/300 open, not 140/260.
+        assertEquals(0.6f, edgeOpenFraction(offset = -120f, closedAnchor = -300f), 1e-6f)
+    }
+
+    @Test
+    fun theStripIsMeasuredFromTheLeadingInset() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness(leadingInset = 48f)
+        onNodeWithTag("root").performTouchInput {
+            down(Offset(60f, midY))
+            slowMove(250f, steps = 100)
+            up()
+        }
+        settle()
+        assertEquals(DrawerValue.Open, h.drawerState.currentValue)
+    }
+
+    @Test
+    fun insetStripIsMirroredForRtl() {
+        assertTrue(isInLeadingEdge(x = 540f, width = 600, edgePx = 20f, rtl = true, leadingInset = 48f))
+        assertFalse(isInLeadingEdge(x = 570f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
+        assertTrue(isInLeadingEdge(x = 60f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
+        assertFalse(isInLeadingEdge(x = 69f, width = 600, edgePx = 20f, rtl = false, leadingInset = 48f))
     }
 }
