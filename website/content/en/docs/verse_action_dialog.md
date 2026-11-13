@@ -23,8 +23,8 @@ At the top of the dialog there is a **+** button that adds the following verse t
 (see [Adding a bookmark](bookmarks.md#creating-a-bookmark)), a button that expands or collapses
 the dialog, and a **?** button that opens the *Bookmarks & My Notes* help.
 
-With a hardware keyboard, **B** adds a bookmark, **N** adds a note and **Space** speaks the
-selected verse.
+With a hardware keyboard, **B** adds a bookmark, **N** adds a note, **Space** speaks the
+selected verse, **+** and **−** extend or shrink the selected range, and **Ctrl+C** copies the verses.
 
 ## Bookmark
 
@@ -85,5 +85,5 @@ next to the selection. Which entries it shows depends on what you selected:
 - **Look up in dictionaries**: looks up the selected word in your word lookup dictionaries. Shown
     only when at least one is enabled, see [Word lookup dictionaries](documents.md#word-lookup-dictionaries).
 - **Paragraph break**: adds a paragraph break at the selected verse; shown only when the
-    experimental *Add paragraph break bookmark* feature is on.
+    experimental *Add paragraph break bookmark* feature is on. The same feature adds an item to the text selection menu.
 - **AI Actions**: shown when an AI provider is set up. See [AI](ai.md).

@@ -268,7 +268,7 @@ which buttons are shown in this bar:
 
     - `Bookmark edit actions` – see [Bookmarks](bookmarks.md).
     - `Add paragraph break bookmark` – adds a `Paragraph break` item to the
-      text selection menu.
+      text selection menu and a `Paragraph` button to the verse menu.
     - `Use the literal workspace colour for the reading toolbar (instead of the theme colour)`
       – the reading toolbar uses the workspace colour as it is, rather than a tone derived from it.
 - **Import data from the previous app version:** (iOS only) Shown only when data

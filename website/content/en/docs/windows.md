@@ -9,7 +9,7 @@ The ‘Bible Study App’ provides amazing window functionality.
 - Each window has its own button at the bottom of the screen. Use it to show or hide that window. Or long press the button to access the window menu.
 - You can also access the window menu from the button at the top right of each window. The appearance of each window can be configured from the `Text options` item of that menu.
 - Windows can be synchronised so they always show the same verse, with the `Synchronise` item of the window menu (see [Synchronising windows](#synchronising-windows)).
-- There are three types of windows: pinned windows, unpinned windows and the links window. By default every window acts as pinned; see [Window pinning](#window-pinning) to change this.
+- There are three types of windows: pinned windows, unpinned windows and the links window. Window pinning is on by default; see [Window pinning](#window-pinning).
 - With window pinning on, any number of pinned windows can be shown at one time, but only one unpinned window.
 - Document links are opened in the links window (the `Links window` setting is on by default).
 
@@ -63,7 +63,7 @@ Minimised windows have a dashed outline around their bottom-bar button. In true
 monochrome mode, their text and outline stay black on white (or white on black in
 the dark theme), rather than fading to gray. Bottom-bar buttons have square bottom
 corners; pinned and links windows have more rounded top corners than unpinned
-windows. While `Window pinning` is off, all window buttons use the pinned shape.
+windows. While `Window pinning` is unticked, all window buttons use the pinned shape.
 
 The expanded window-button bar spans the full width of the reading area, with
 its buttons aligned to the end. In a side-by-side split, every window reserves
@@ -90,7 +90,8 @@ Long-press a window button at the bottom of the screen, or tap the button at the
 - `Change to normal window`: shown for the links window; turns it into an ordinary window.
 - `Move to`: a list of the positions of the other windows of the same kind (pinned or unpinned).
 - `Pin`: see [Window pinning](#window-pinning). Shown only while `Window pinning` is on.
-- `Synchronise`: see [Synchronising windows](#synchronising-windows).
+- `Synchronise`: see [Synchronising windows](#synchronising-windows). Shown only for windows that can be synchronised.
+- `AI Actions`: shown when an AI provider is set up. See [AI](ai.md).
 - `Add bookmark for whole page`: for documents that are not Bibles, such as a commentary or book page, bookmarks the whole page.
 - `Export as HTML`, `Export Study Pad` and `Export Bookmarks as CSV`: shown for a Study Pad (the HTML export also for My Notes and multi-reference windows). See [Sharing](share.md) for what they produce.
 - `Text options`: a submenu with the most recently used settings, `All text options`, and `Copy settings to` (see below).
@@ -104,7 +105,7 @@ In the `Text options` submenu, `Copy settings to` copies this window's text disp
 
 ### Window pinning
 
-`Window pinning` is a toggle in the three-dot menu (⋮) at the top right of the screen. It is off by default, which means every window acts as pinned and the window menu has no `Pin` item. When you turn it on, each ordinary window gets a `Pin` item in its menu:
+`Window pinning` is a toggle in the three-dot menu (⋮) at the top right of the screen. It is on by default, so each ordinary window has a `Pin` item in its menu. Untick it to make every window act as pinned and hide the `Pin` item:
 
 - Pinned windows are displayed first. You can show any number of them.
 - Only one unpinned window is shown at once. Unpinned windows suit commentaries, maps and other extra material, while your Bibles stay pinned.

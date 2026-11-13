@@ -79,12 +79,13 @@ The toolbar at the top of the reading screen has these parts, from left to right
         cycles the Strong's mode of the active window: `Hidden Links`, `Links`, `Text and Links`.
         Long-press it to open the *Strong's numbers* setting for that window. See
         [Dictionaries](documents.md#dictionaries).
-    - **Find**: opens the search field, see [Search](search.md).
+    - **Find** and **Speak** (the one you used last comes first).
+    - **Find**: opens the search field, see [Search](search.md). Shown only when the page can be searched.
     - **Speak**: shows the speak bar. It is shown when the document can be spoken and speech is
         stopped. Long-press it to open the speak settings. See [Speak](speak.md).
     - **Workspaces**: opens the workspace selector.
 - **More options (⋮)** is always shown. Its menu has *Fullscreen*, *Night mode* (see
-    [Look and Feel](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (Android only), *Reversed split
+    [Look and Feel](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (on devices with a motion sensor, so not on Windows and Linux), *Reversed split
     mode* (when several windows are open), *Window pinning*, *Label settings*, *AI Actions*
     (when an AI provider is set up), *Sync now* (when sync is set up), the text options you used
     most recently and *All text options*. See also
@@ -125,7 +126,7 @@ button actions:
 > - Press to open next document, long press to open menu
 > - Press to open next document, long press for documents screen
 
-Here "menu" means the document sheet described above, and "documents screen" means the full
+Here "menu" means the document sheet described above (*Press to open menu*), and "documents screen" means the full
 document list.
 
 ### Closing Documents
@@ -236,7 +237,8 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Ctrl+W** | Open the workspace selector | All |
 | **Alt+M** | Open the main menu | All |
 | **Alt+O** | Open the ⋮ menu | All |
-| **Alt+Up / Alt+Left**, **Alt+Down / Alt+Right** | Switch to the previous / next window | Android, iOS |
+| **Alt+Up**, **Alt+Down** | Switch to the previous / next window | All |
+| **Alt+Left**, **Alt+Right** | Switch to the previous / next window | Android, iOS |
 | **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop |

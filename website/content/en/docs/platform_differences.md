@@ -37,9 +37,9 @@ On Windows and Linux, quitting shows a short "synchronizing" window while your c
 
 On Android, the standard app (not the discrete calculator app) offers five home-screen widgets for [Speak](speak.md). To add one,
 press and hold an empty place on the home screen, open the widgets list, find AndBible and drag a widget to the screen. The widgets can be resized.
-Tapping the title or the background of a speak control widget opens AndBible.
+The widget names below only describe the widgets by size and buttons; the widget picker lists them all as "AndBible" with a preview. Tapping the title or the background of a speak control widget opens AndBible.
 
-| Widget | Buttons | Shows |
+| Widget (descriptive name) | Buttons | Shows |
 |---|---|---|
 | Small speak control | Rewind, play/pause | No title |
 | Middle speak control | Rewind, fast-forward, play/pause, stop, sleep timer | Title and the progress in percent |

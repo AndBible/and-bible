@@ -56,7 +56,7 @@ The buttons on the card are:
     only the selected text. Some bookmarks cannot be turned back into a
     selection bookmark; the app tells you if so.
 - **Icons**: opens *Configure bookmark settings* (see below).
-- **Study Pad**: opens the [Study Pad](study_pads.md) of each of the bookmark's labels.
+- **Study Pad**: there is one Study Pad button per label; each opens that label's [Study Pad](study_pads.md).
 - **Trash can**: deletes the bookmark.
 
 https://www.youtube.com/watch?v=rcQv6YNeMpQ
@@ -122,7 +122,7 @@ settings > Experimental features. They may change or be removed.
 
 - **Bookmark edit actions:** see below.
 - **Add paragraph break bookmark:** adds a *Paragraph break* button to the verse
-    action dialog. It creates a bookmark with a special paragraph-break label
+    action dialog, and an item to the text selection menu. It creates a bookmark with a special paragraph-break label
     for the selected verse or verses.
 - **Use the literal workspace colour for the reading toolbar (instead of the theme colour):**
     the toolbar uses the workspace's own colour as it is, instead of a colour
