@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from storeshots.record import screenrecord_cmd, trim_cmd
+from storeshots.record import screenrecord_cmd, should_stop_on_read, trim_cmd
 
 
 def pair(argv, flag, value):
@@ -35,3 +35,10 @@ def test_trim_cmd_has_no_audio_and_exact_range():
 def test_trim_cmd_rejects_empty_range():
     with pytest.raises(ValueError):
         trim_cmd(Path("a.mp4"), Path("b.mp4"), 4, 4)
+
+
+def test_should_stop_on_read():
+    assert should_stop_on_read("\n", True)
+    assert not should_stop_on_read("", True)    # EOF
+    assert not should_stop_on_read("\n", False)  # non-tty
+    assert not should_stop_on_read("", False)

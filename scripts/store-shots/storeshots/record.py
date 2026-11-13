@@ -42,6 +42,11 @@ def register(sub) -> None:
     p.set_defaults(handler=cmd_record)
 
 
+def should_stop_on_read(line: str, is_tty: bool) -> bool:
+    """Enter stops the recording only from an interactive stdin; EOF or a non-tty never stops it early."""
+    return is_tty and line != ""
+
+
 def cmd_record(args) -> int:
     import shlex
     from .android_driver import Device, exit_demo_mode, prepare_device, set_night
@@ -54,33 +59,52 @@ def cmd_record(args) -> int:
         raise ShotError(str(e)) from e
     dev = Device(REPO)
     if args.seed:
-        subprocess.run([str(REPO / "scripts/store-shots/android-seed.sh"), str(args.seed), dev.pkg],
-                       check=True, capture_output=True, stdin=subprocess.DEVNULL)
+        try:
+            subprocess.run([str(REPO / "scripts/store-shots/android-seed.sh"), str(args.seed), dev.pkg],
+                           check=True, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as e:
+            raise ShotError(f"seeding failed: {e.stderr or e}") from e
     args.out.parent.mkdir(parents=True, exist_ok=True)
     proc = None
+    stopped = False
     try:
         prepare_device(dev, "en", args.landscape)
         if args.night:
             set_night(dev, True)
         proc = subprocess.Popen([str(REPO / "scripts/with-container-adb.sh"), "adb", "shell", shlex.join(remote_argv)],
-                                stdin=subprocess.DEVNULL)
+                                stdin=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         print(f"recording up to {args.seconds} s: press Enter to stop", flush=True)
         stop = threading.Event()
-        threading.Thread(target=lambda: (sys.stdin.readline(), stop.set()), daemon=True).start()
+        is_tty = sys.stdin.isatty()
+
+        def watch() -> None:
+            if should_stop_on_read(sys.stdin.readline() if is_tty else "", is_tty):
+                stop.set()
+
+        threading.Thread(target=watch, daemon=True).start()
         stop.wait(args.seconds + 1)
         # SIGINT lets screenrecord finalise the mp4 header.
         dev.shell("pkill -2 screenrecord", check=False)
-        proc.wait(timeout=30)
+        try:
+            _, err = proc.communicate(timeout=30)
+        except subprocess.TimeoutExpired as e:
+            raise ShotError(f"screenrecord did not stop within 30 s: {e.stderr or ''}") from e
+        stopped = True
         time.sleep(1)
         dev.adb("pull", REMOTE, str(args.out))
         print(args.out)
     finally:
+        if not stopped:
+            dev.shell("pkill -2 screenrecord", check=False)
         if proc and proc.poll() is None:
             proc.kill()
         dev.shell(f"rm -f {REMOTE}", check=False)
-        for restore in (lambda: set_night(dev, False), lambda: exit_demo_mode(dev)):
+        restores = [lambda: exit_demo_mode(dev)]
+        if args.night:
+            restores.insert(0, lambda: set_night(dev, False))
+        for restore in restores:
             try:
                 restore()
             except Exception as e:  # noqa: BLE001
-                print(f"record: cleanup failed: {e}")
+                print(f"record: cleanup failed: {e}", file=sys.stderr)
     return 0
