@@ -19,4 +19,17 @@ object GoogleOAuthClients {
         clientId = "533479479097-sp8bhqtuubpjqpk8mqs6sr084cige6a4.apps.googleusercontent.com",
         clientSecret = "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",
     )
+
+    /**
+     * The "Web application" client of the Android browser sign-in (F-Droid builds, and Play builds on devices without
+     * Play services). Its redirect is the verified App Link [ANDROID_WEB_REDIRECT_URI]. Google's token endpoint wants
+     * the secret even with PKCE; in an installed app it is not confidential, for the same reason as [desktop]'s.
+     */
+    val androidWeb: GoogleOAuthClient = GoogleOAuthClient(
+        clientId = "533479479097-d64q085rb43su0dido7uso490o2m397l.apps.googleusercontent.com",
+        clientSecret = "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",
+    )
+
+    /** The only redirect URI registered on [androidWeb]; Android routes it to AndBible as an App Link. */
+    const val ANDROID_WEB_REDIRECT_URI = "https://read.andbible.org/oauth2/drive"
 }

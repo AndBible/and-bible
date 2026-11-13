@@ -3,7 +3,8 @@
 // Wrapper with the defaults and the display handling: scripts/google-test-signin.sh.
 //
 //   node google-test-signin.mjs status    --profile DIR --account FILE [--shots DIR] [--timeout S]
-//   node google-test-signin.mjs authorize --profile DIR --account FILE [--shots DIR] [--timeout S] '<auth url>'
+//   node google-test-signin.mjs authorize --profile DIR --account FILE [--shots DIR] [--timeout S]
+//                                         [--redirect-prefix URL] '<auth url>'
 //
 // status     waits until the profile is signed in to the account (prints SIGNED-IN), reporting
 //            any challenge screen on the way. The sign-in itself is NOT done here: Google refuses
@@ -14,6 +15,8 @@
 //            or http://localhost:<port>/...) BEFORE it reaches any listener. The redirect URL is
 //            printed on stdout as `REDIRECT <url>`; the caller replays it where the app listens
 //            (the container for Linux, the VM for Windows). The code is single-use.
+//            --redirect-prefix catches an https redirect instead (the Android App Link
+//            https://read.andbible.org/oauth2/drive): the caller delivers it to the app with adb.
 //
 // The account file holds the e-mail on line 1 (used to pick the account); this script never reads
 // the password on line 2.
@@ -42,6 +45,7 @@ const accountFile = opt('account') ?? die('--account is required');
 const shots = opt('shots', join(profile, '..', 'signin-shots'));
 const timeoutS = Number(opt('timeout', '1800'));
 const chromeBin = opt('chrome', '/opt/google/chrome/chrome');
+const redirectPrefix = opt('redirect-prefix');
 const authUrl = argv.find(a => !a.startsWith('--'));
 if (!['status', 'authorize'].includes(cmd)) die('usage: status|authorize ... (see header)');
 if (cmd === 'authorize' && !authUrl) die('authorize needs the auth URL');
@@ -104,10 +108,12 @@ await send('Page.enable');
 let redirect = null;
 if (cmd === 'authorize') {
     // Catch the loopback redirect before Chrome sends it: the app (or nothing) listens there.
-    await send('Fetch.enable', { patterns: [
-        { urlPattern: 'http://127.0.0.1:*', requestStage: 'Request' },
-        { urlPattern: 'http://localhost:*', requestStage: 'Request' },
-    ] });
+    await send('Fetch.enable', { patterns: redirectPrefix
+        ? [{ urlPattern: `${redirectPrefix}*`, requestStage: 'Request' }]
+        : [
+            { urlPattern: 'http://127.0.0.1:*', requestStage: 'Request' },
+            { urlPattern: 'http://localhost:*', requestStage: 'Request' },
+        ] });
     listeners.push(msg => {
         if (msg.method !== 'Fetch.requestPaused') return;
         const url = msg.params.request.url;

@@ -23,10 +23,15 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.cloudsync.drivebrowser.AppLinkOAuthBrowser
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -82,5 +87,54 @@ class StartupHandoffTest {
             Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP,
             handoff.flags and (Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
         )
+    }
+
+    private val redirect = "https://read.andbible.org/oauth2/drive?code=c&state=s"
+    private fun view(url: String) = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+
+    @Test
+    fun oauthRedirectIsNotHandedOffAsLink() {
+        for (route in listOf(NavRoutes.READING, NavRoutes.WELCOME)) {
+            assertNull(bootHandoffIntent(context, view(redirect), route).getStringExtra("openLink"))
+        }
+    }
+
+    @Test
+    fun verseLinkStillHandedOff() {
+        val handoff = bootHandoffIntent(context, view("https://read.andbible.org/John.3.16"), NavRoutes.READING)
+        assertEquals("https://read.andbible.org/John.3.16", handoff.getStringExtra("openLink"))
+    }
+
+    @Test
+    fun routeDeliversToPendingAttempt() = runTest {
+        val signIn = async { AppLinkOAuthBrowser(openUrl = {}).authorize { "https://accounts.google.com/?r=$it" } }
+        runCurrent()
+        assertEquals(OAuthRedirectOutcome.DELIVERED, routeOAuthRedirect(view(redirect)))
+        assertEquals(redirect, signIn.await())
+    }
+
+    @Test
+    fun routeWithoutPendingIsStale() {
+        assertEquals(OAuthRedirectOutcome.STALE, routeOAuthRedirect(view(redirect)))
+    }
+
+    @Test
+    fun routeFromHistoryIsIgnored() = runTest {
+        val signIn = async {
+            runCatching { AppLinkOAuthBrowser(openUrl = {}, timeoutMs = 10_000).authorize { "https://accounts.google.com/?r=$it" } }
+        }
+        runCurrent()
+        val replay = view(redirect).addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+        assertEquals(OAuthRedirectOutcome.FROM_HISTORY, routeOAuthRedirect(replay))
+        assertFalse(signIn.isCompleted)
+        assertTrue(signIn.await().isFailure) // times out (virtual time), not completed by the replay
+    }
+
+    @Test
+    fun nonViewIntentIsNotARedirect() {
+        assertEquals(OAuthRedirectOutcome.NOT_A_REDIRECT, routeOAuthRedirect(Intent(Intent.ACTION_MAIN)))
+        assertEquals(OAuthRedirectOutcome.NOT_A_REDIRECT, routeOAuthRedirect(Intent(Intent.ACTION_SEND, Uri.parse(redirect))))
+        assertEquals(OAuthRedirectOutcome.NOT_A_REDIRECT, routeOAuthRedirect(view("https://read.andbible.org/John.3.16")))
+        assertEquals(OAuthRedirectOutcome.NOT_A_REDIRECT, routeOAuthRedirect(null))
     }
 }

@@ -1577,6 +1577,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     override fun onResume() {
         ReadingHostPresence.setForeground(this)
+        // Back from the browser without a redirect: lets a pending Drive browser sign-in end as cancelled.
+        net.bible.service.cloudsync.drivebrowser.OAuthRedirectInbox.hostResumed()
         rearmBootstrapBridgeIfStillOwed()
         paused = false
         // Classic computes its `needRefresh` BEFORE `super.onResume()` and acts on it after, and

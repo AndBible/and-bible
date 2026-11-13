@@ -25,4 +25,14 @@ class GoogleOAuthClientsTest {
     @Test fun platformsUseDistinctClients() {
         assertTrue(GoogleOAuthClients.ios!!.clientId != GoogleOAuthClients.desktop!!.clientId)
     }
+
+    @Test fun androidWebClientHasSecretAndHttpsRedirect() {
+        val web = GoogleOAuthClients.androidWeb
+        assertTrue(web.clientId.startsWith(projectPrefix), web.clientId)
+        assertTrue(web.clientId.endsWith(".apps.googleusercontent.com"), web.clientId)
+        assertTrue(!web.clientSecret.isNullOrBlank())
+        assertTrue(web.clientId != GoogleOAuthClients.desktop!!.clientId)
+        assertTrue(web.clientId != GoogleOAuthClients.ios!!.clientId)
+        assertTrue(GoogleOAuthClients.ANDROID_WEB_REDIRECT_URI.startsWith("https://read.andbible.org/"))
+    }
 }

@@ -42,11 +42,6 @@ device background restrictions.
     Google Drive or Nextcloud.
 - Internet connection.
 
-!!! note
-
-    Google Drive sync is not available in the F-Droid build. If you installed
-    *AndBible* from F-Droid, you can use Nextcloud instead.
-
 ## Enabling Document Sync
 
 1. Open the top left main menu (☰).

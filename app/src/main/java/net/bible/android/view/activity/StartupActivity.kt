@@ -18,11 +18,13 @@
 package net.bible.android.view.activity
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.event.Subscription
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.cloudsync.drivebrowser.OAuthRedirectInbox
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
@@ -116,6 +119,18 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
+        // A recreate() re-runs onCreate with the same intent: route Google's redirect only on the first creation.
+        if (savedInstanceState == null) {
+            when (routeOAuthRedirect(intent)) {
+                OAuthRedirectOutcome.DELIVERED -> {
+                    returnToSignInTask()
+                    return
+                }
+                OAuthRedirectOutcome.STALE ->
+                    Toast.makeText(this, R.string.google_drive_signin_interrupted, Toast.LENGTH_LONG).show()
+                OAuthRedirectOutcome.FROM_HISTORY, OAuthRedirectOutcome.NOT_A_REDIRECT -> {}
+            }
+        }
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         installProgress = InstallZipProgress.messages.subscribeOnMain { spinnerBinding.progressText.text = it }
         if(CommonUtils.isDiscrete) {
@@ -145,6 +160,26 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             postBasicInitialisationControl()
         }
     }
+
+    /**
+     * Google's redirect reached the pending browser sign-in: the screen that started it continues there. When this
+     * activity was opened in a task of its own (the App Link started from the browser), bring the app's other task,
+     * which holds that screen, to the front; never start the reading host here, it would re-route the user.
+     */
+    private fun returnToSignInTask() {
+        try {
+            getSystemService(ActivityManager::class.java)?.appTasks
+                ?.firstOrNull { it.taskInfo.persistentIdCompat() != taskId }
+                ?.moveToFront()
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Could not bring the sign-in task to the front", e)
+        }
+        finish()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun ActivityManager.RecentTaskInfo.persistentIdCompat(): Int =
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) taskId else persistentId
 
     override fun onDestroy() {
         installProgress?.cancel()
@@ -220,12 +255,32 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 /** Slice 8 §4 gate (a): the start route, from the one predicate. */
 internal fun startRouteForBoot(usable: Boolean): String = if (usable) NavRoutes.READING else NavRoutes.WELCOME
 
-/** Reuse the reading host for external links; a WELCOME host keeps the link until a Bible is usable. */
+/** What [routeOAuthRedirect] did with the launching intent. */
+internal enum class OAuthRedirectOutcome { NOT_A_REDIRECT, DELIVERED, STALE, FROM_HISTORY }
+
+/**
+ * Takes Google's Drive sign-in redirect (`https://read.andbible.org/oauth2/drive?...`) out of the launch before it can be
+ * read as a verse link. A redirect replayed from Recents is ignored; one with no sign-in waiting for it (the process died
+ * while the browser was in front) is [OAuthRedirectOutcome.STALE].
+ */
+internal fun routeOAuthRedirect(launching: Intent?): OAuthRedirectOutcome {
+    if (launching?.action != Intent.ACTION_VIEW || !OAuthRedirectInbox.isOAuthRedirect(launching.data)) {
+        return OAuthRedirectOutcome.NOT_A_REDIRECT
+    }
+    if ((launching.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return OAuthRedirectOutcome.FROM_HISTORY
+    val url = launching.dataString ?: return OAuthRedirectOutcome.STALE
+    return if (OAuthRedirectInbox.deliver(url)) OAuthRedirectOutcome.DELIVERED else OAuthRedirectOutcome.STALE
+}
+
+/**
+ * Reuse the reading host for external links; a WELCOME host keeps the link until a Bible is usable. Google's sign-in
+ * redirect is never handed off as a link.
+ */
 internal fun bootHandoffIntent(context: Context, launching: Intent?, route: String): Intent {
     val handlerIntent = NavHostComposeActivity.intentFor(context, route)
     // A Recents relaunch re-delivers the original VIEW intent; replaying it would jump back to the old link.
     val fromHistory = launching != null && (launching.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
-    if (launching?.action == Intent.ACTION_VIEW && !fromHistory) {
+    if (launching?.action == Intent.ACTION_VIEW && !fromHistory && !OAuthRedirectInbox.isOAuthRedirect(launching.data)) {
         handlerIntent.putExtra("openLink", launching.dataString)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
     } else {

@@ -27,11 +27,6 @@ Errors raised during startup remain queued until the app can display them.
 - A Google account (for Google Drive sync), an iCloud account (for iCloud Drive sync on iPhone, iPad and Mac), a Nextcloud server, or a WebDAV server
 - Internet connection
 
-!!! note
-
-    Google Drive sync is not available in the F-Droid build. If you installed
-    *AndBible* from F-Droid, you can use Nextcloud instead.
-
 ## Setting Up Sync
 
 1. Open the top left main menu (☰).
@@ -40,6 +35,7 @@ Errors raised during startup remain queued until the app can display them.
     - Google Drive is also offered on iPhone, iPad, Mac, Windows and Linux.
     - Windows and Linux: signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder. Return to *AndBible* when the browser page says you are done.
     - iPhone, iPad and Mac: a Google sign-in sheet opens inside the app.
+    - Android: Google Drive normally uses the Google account of your device. In the F-Droid build, and on devices without Google Play services (for example GrapheneOS without sandboxed Google Play, or /e/OS), signing in opens your browser instead: choose your Google account, allow *AndBible* to use its own app folder, and the browser returns you to *AndBible*. Once you have signed in this way, *AndBible* keeps using the browser sign-in on that device.
 4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
 
 If a saved backend is unavailable on this platform (for example, after restoring an Android backup with Google Drive sync on Windows), synchronization is disabled. Sync settings explain that a supported backend needs to be chosen, and the sync switches show as off. No other backend is selected automatically, and neither manual nor background synchronization runs. The saved backend is kept unchanged until you choose a supported backend and configure synchronization for this device.
