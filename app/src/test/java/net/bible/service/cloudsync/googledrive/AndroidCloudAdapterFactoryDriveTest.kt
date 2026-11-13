@@ -44,6 +44,6 @@ class AndroidCloudAdapterFactoryDriveTest {
     }
 
     @Test fun `providers share one http client`() {
-        assertSame(GoogleDriveAdapterProvider.sharedClient, GoogleDriveAdapterProvider.sharedClient)
+        assertSame(GoogleDriveAdapterProvider.sharedClient, net.bible.service.cloudsync.drivebrowser.DriveHttp.sharedClient)
     }
 }
