@@ -30,6 +30,8 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -273,5 +275,45 @@ class ReadingHostCompositionTest {
         waitForIdle()
 
         onNodeWithText("Drawer Settings Row").assertIsNotDisplayed()
+    }
+    /** #4074: the leading-edge swipe opens the real host's drawer (and its request state); a swipe in the panes does not. */
+    @Test
+    fun edgeSwipeOpensTheDrawerButAPaneSwipeDoesNot() = runComposeUiTest {
+        val state = newState()
+        val menu = DrawerMenuState(
+            appName = "AndBible",
+            groups = listOf(DrawerGroup(null, listOf(DrawerItem("settings", "Drawer Settings Row", "settings")))),
+            versionText = "1.0",
+        )
+        val deps = deps(state, controller("w1"), drawerMenu = menu)
+        setContent {
+            Themed {
+                CompositionLocalProvider(
+                    LocalReadingPane provides { windowId, modifier -> Box(modifier.testTag("pane-$windowId")) },
+                    androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(1f),
+                ) { ReadingHost(deps) }
+            }
+        }
+        waitForIdle()
+        val pane = onNodeWithTag("pane-w1")
+        val paneBounds = pane.fetchSemanticsNode().boundsInRoot
+        val y = paneBounds.center.y
+        onRoot().performTouchInput {
+            down(androidx.compose.ui.geometry.Offset(paneBounds.center.x, y))
+            repeat(40) { moveBy(androidx.compose.ui.geometry.Offset(6f, 0f), delayMillis = 16) }
+            up()
+        }
+        waitForIdle()
+        onNodeWithText("Drawer Settings Row").assertIsNotDisplayed()
+        assertEquals(false, state.drawerOpen.value)
+
+        onRoot().performTouchInput {
+            down(androidx.compose.ui.geometry.Offset(4f, y))
+            repeat(40) { moveBy(androidx.compose.ui.geometry.Offset(6f, 0f), delayMillis = 16) }
+            up()
+        }
+        waitForIdle()
+        onNodeWithText("Drawer Settings Row").assertIsDisplayed()
+        assertEquals(true, state.drawerOpen.value)
     }
 }
