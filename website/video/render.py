@@ -589,7 +589,11 @@ def part_key(
     may show from website/assets/; render with --fresh after changing one."""
     digest = hashlib.sha256()
     files = [slot.scene.page, *sorted((HERE / "lib").iterdir())]
-    files += sorted((slot.scene.page.parent.parent / "assets").iterdir())
+    # The page's folder (the episode's shared CSS) and the episode's assets, when it has any.
+    files += sorted(p for p in slot.scene.page.parent.iterdir() if p.is_file() and p != slot.scene.page)
+    assets = slot.scene.page.parent.parent / "assets"
+    if assets.is_dir():
+        files += sorted(p for p in assets.iterdir() if p.is_file())
     for path in files:
         digest.update(path.name.encode() + b"\0" + path.read_bytes())
     timing = (
