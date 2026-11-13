@@ -28,6 +28,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
 import java.io.FileNotFoundException
+import net.bible.service.cloudsync.drive.DRIVE_MULTIPART_MAX_BYTES
 import java.net.URI
 import java.net.URLDecoder
 import java.time.OffsetDateTime
@@ -172,6 +173,29 @@ class DriveAdapterCompatibilityTest(private val writerName: String) {
         } catch (e: FileNotFoundException) { /* expected */ }
     }
 
+    /**
+     * Uploads deliberately differ: the old app always starts a resumable session (two requests), the shared adapter
+     * sends a file under [DRIVE_MULTIPART_MAX_BYTES] as one multipart request. What Drive stores must be identical.
+     */
+    @Test fun smallUploadsStoreTheSameFileOverDifferentProtocols() = run {
+        val parent = writer.createNewFolder("parent")
+        val (bytes, small) = payload(3 * 1024, 4)
+        val stored = listOf(old, new).map { adapter ->
+            val before = server.requests.size
+            val uploaded = adapter.upload("1.12.sqlite3.gz", small, parent.id)
+            val types = server.requests.drop(before).filter { it.method == "POST" }.map { r -> URI(r.url).rawQuery.split("&").firstOrNull { it.startsWith("uploadType=") }?.substringAfter('=') }
+            assertEquals(if (adapter === old) listOf("resumable") else listOf("multipart"), types)
+            if (adapter === new) assertEquals("one request", 1, server.requests.size - before)
+            server.file(uploaded.id)!!
+        }
+        val (o, n) = stored
+        assertEquals(o.name, n.name)
+        assertEquals(o.mimeType, n.mimeType)
+        assertEquals(o.parents, n.parents)
+        assertArrayEquals(bytes, o.content)
+        assertArrayEquals(bytes, n.content)
+    }
+
     /** One request reduced to what both clients must agree on. */
     private data class Shape(
         val method: String,
@@ -220,13 +244,11 @@ class DriveAdapterCompatibilityTest(private val writerName: String) {
         try {
             run {
                 val parent = writer.createNewFolder("parent")
-                val (_, small) = payload(3 * 1024, 4)
                 val ops: List<Pair<String, suspend CloudAdapter.() -> Unit>> = listOf(
                     "list" to { listFiles(listOf(parent.id, "appDataFolder"), "1.12.sqlite3.gz", "application/gzip", 1_751_000_000_123L) },
                     "getFolders" to { getFolders(parent.id) },
                     "create folder (root)" to { createNewFolder("sync") },
                     "create folder (child)" to { createNewFolder("device", parent.id) },
-                    "upload" to { upload("1.12.sqlite3.gz", small, parent.id) },
                     "get" to { get(parent.id) },
                     "delete" to { delete(createNewFolder("doomed").id) },
                 )

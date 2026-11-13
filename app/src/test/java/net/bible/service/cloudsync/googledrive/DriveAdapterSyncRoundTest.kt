@@ -173,7 +173,7 @@ class DriveAdapterSyncRoundTest {
         val first = a.addBookmark()
         nextMillis()
         a.sync() // uploads the first patch
-        assertTrue("A uploaded patch 1", server.requests.any { it.url.contains("uploadType=resumable") && it.uploadName()?.matches(PATCH_1) == true })
+        assertTrue("A uploaded patch 1", server.requests.any { it.isUploadStart() && it.uploadName()?.matches(PATCH_1) == true })
 
         nextMillis()
         b.sync() // joins from A's folder (fetch), then applies A's patch
@@ -198,9 +198,15 @@ class DriveAdapterSyncRoundTest {
         while (System.currentTimeMillis() < start + 2) Thread.sleep(1)
     }
 
-    /** The file name in a resumable-upload start request's JSON metadata, or null. */
-    private fun FakeDriveRequest.uploadName(): String? =
-        runCatching { (Json.parseToJsonElement(body.decodeToString()).jsonObject["name"] as? JsonPrimitive)?.content }.getOrNull()
+    /** A resumable-upload start (old adapter, large files) or a one-request multipart upload (new adapter, < 5 MiB). */
+    private fun FakeDriveRequest.isUploadStart() = url.contains("uploadType=resumable") || url.contains("uploadType=multipart")
+
+    /** The file name in an upload request's JSON metadata (the whole body, or a multipart body's first part), or null. */
+    private fun FakeDriveRequest.uploadName(): String? = runCatching {
+        val text = body.decodeToString()
+        val json = if (text.startsWith("--")) text.substringAfter("\r\n\r\n").substringBefore("\r\n--") else text
+        (Json.parseToJsonElement(json).jsonObject["name"] as? JsonPrimitive)?.content
+    }.getOrNull()
 
     private companion object {
         const val SYNC_DEADLINE_MS = 30_000L
