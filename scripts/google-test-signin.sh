@@ -116,6 +116,6 @@ url=$(sed -n 's/^REDIRECT //p' <<<"$out" | tail -1)
 [[ -n $url ]] || { echo "no redirect captured" >&2; exit 4; }
 case $replay in
   local) echo "REPLAYED $(curl -s -o /dev/null -w '%{http_code}' -m 30 "$url")" ;;
-  windows-vm) echo "REPLAYED $("$ROOT/scripts/windows-vm.sh" ssh "curl.exe -s -o NUL -w %{http_code} -m 30 \"$url\"")" ;;
+  windows-vm) echo "REPLAYED $("$ROOT/scripts/windows-vm.sh" ssh "curl.exe -s -o NUL -w '%{http_code}' -m 30 '$url'")" ;;
   none) ;;
 esac
