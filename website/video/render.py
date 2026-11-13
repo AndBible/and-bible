@@ -53,6 +53,7 @@ from pipeline import (
     music_bed,
     music_filter,
     check_loop,
+    validate_loop,
     Loop,
     output_name,
     page_layout,
@@ -149,6 +150,7 @@ def command_music_loop_test(args: argparse.Namespace) -> None:
     loop = Loop(args.start, args.end, args.crossfade)
     length = probe_duration(args.file)
     try:
+        validate_loop(loop)
         check_loop(loop, length)
     except ValueError as error:
         sys.exit(f"render: {error}")

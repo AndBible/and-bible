@@ -458,8 +458,8 @@ def test_plan_exactly_track_length_is_plain_playback() -> None:
 @pytest.mark.parametrize("total", [100.2, 100.7, 101.0, 140.3, 141.0, 400.123])
 def test_plan_always_ends_at_total(total: float) -> None:
     plan = _plan(total=total)
-    if plan is None:  # a sliver of extra time shorter than two crossfades: plain playback
-        assert total < 100.0 + 1.0
+    if plan is None:  # a remainder shorter than a crossfade: plain playback
+        assert (total - 100.0) % 40.0 < 0.5
         return
     assert abs(_plan_length(plan) - total) < 1e-9
     assert plan[-1].src_end == 100.0
@@ -521,3 +521,8 @@ def test_check_loop_against_the_track_length() -> None:
     pipeline.check_loop(pipeline.Loop(20.0, 60.0, 0.5), 100.0)
     with pytest.raises(ValueError, match="track"):
         pipeline.check_loop(pipeline.Loop(20.0, 160.0, 0.5), 100.0)
+
+
+def test_plan_remainder_shorter_than_a_crossfade_falls_back() -> None:
+    assert _plan(total=140.3) is None  # one loop + 0.3 s: would overrun into the ending
+    assert _plan(total=140.5) is not None

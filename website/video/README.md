@@ -295,7 +295,7 @@ anything is rendered. The bed is mixed with the speech before the final loudness
   equal-power crossfade (`crossfade`, default 0.5 s) blends the audio just before `end` with the audio just
   before `start`. The track's real ending (`end` to the track's end) is placed so that it finishes exactly at
   the video's end and is heard complete (no fade-out). The final partial loop crossfades into the outro. A video
-  shorter than the track (or longer by under about one crossfade) falls back to the plain looping bed above.
+  shorter than the track (or one whose time past a whole number of loops is under one crossfade) falls back to the plain looping bed above.
   Validation: `0 <= start < end`, `start >= crossfade`, `end - start > 2 * crossfade`; `end` must be before the
   track's end (checked at render time).
 - **Choosing the points** is done once per track: `uv run website/video/render.py music-points FILE` prints the

@@ -184,17 +184,24 @@ def _load_loop(path: Path, raw: object) -> Loop | None:
         return None
     if not isinstance(raw, Mapping) or "start" not in raw or "end" not in raw:
         raise ValueError(f"{path}: music.loop needs start and end (seconds)")
-    start, end = float(raw["start"]), float(raw["end"])
-    crossfade = float(raw.get("crossfade", 0.5))
-    if crossfade <= 0:
-        raise ValueError(f"{path}: music.loop.crossfade must be positive")
-    if not 0 <= start < end:
-        raise ValueError(f"{path}: music.loop needs 0 <= start < end")
-    if start < crossfade:
-        raise ValueError(f"{path}: music.loop.start must be at least the crossfade ({crossfade:g} s)")
-    if end - start <= 2 * crossfade:
-        raise ValueError(f"{path}: music.loop must be longer than twice the crossfade")
-    return Loop(start, end, crossfade)
+    loop = Loop(float(raw["start"]), float(raw["end"]), float(raw.get("crossfade", 0.5)))
+    try:
+        validate_loop(loop)
+    except ValueError as error:
+        raise ValueError(f"{path}: {error}") from None
+    return loop
+
+
+def validate_loop(loop: Loop) -> None:
+    """Static rules for loop points (the track length is checked at render time)."""
+    if loop.crossfade <= 0:
+        raise ValueError("music.loop.crossfade must be positive")
+    if not 0 <= loop.start < loop.end:
+        raise ValueError("music.loop needs 0 <= start < end")
+    if loop.start < loop.crossfade:
+        raise ValueError(f"music.loop.start must be at least the crossfade ({loop.crossfade:g} s)")
+    if loop.end - loop.start <= 2 * loop.crossfade:
+        raise ValueError("music.loop must be longer than twice the crossfade")
 
 
 def check_loop(loop: Loop, track_length: float) -> None:
@@ -223,7 +230,7 @@ def music_segments(
     blends the audio before `end` with the audio before `start`), one partial loop
     for the remainder, and the real ending [end, track_length] last, so it finishes
     exactly at `total`. None when the video is shorter than the track (or longer by
-    less than the room a partial loop needs): the caller plays from 0 and fades out."""
+    less than a crossfade past a whole number of loops): the caller plays from 0 and fades out."""
     loop_len = end - start
     remaining = total - track_length  # time the loops have to fill
     if remaining < -1e-9:
@@ -233,10 +240,7 @@ def music_segments(
     if rest < 1e-6:
         rest = 0.0
     elif rest < crossfade:
-        if count == 0:
-            return None
-        count -= 1
-        rest += loop_len
+        return None  # no room for a partial loop between two crossfades
     plan = [MusicSegment(0.0, end, 0.0)]
     plan += [MusicSegment(start - crossfade, end, crossfade)] * count
     if rest:
