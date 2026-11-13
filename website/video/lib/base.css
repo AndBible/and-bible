@@ -1,0 +1,280 @@
+/* Shared look of every video scene: the website's tokens and fonts
+   (website/assets/style.css), sized for a 1920x1080 or 1080x1920 frame.
+   `html[data-format]` is `main` or `short`; runtime.js sets it. */
+
+@font-face {
+  font-family: "Inter";
+  src: url("../../assets/fonts/inter-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../../assets/fonts/inter-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../../assets/fonts/source-serif-4-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../../assets/fonts/source-serif-4-latin-600-italic.woff2") format("woff2");
+  font-weight: 600;
+  font-style: italic;
+}
+
+:root {
+  /* The website's dark palette (website/assets/css/site.css). */
+  --ground: #161616;
+  --surface: #1c1c1b;
+  --surface-2: #121212;
+  --border: #2c2a26;
+  --text: #efe9dd;
+  --muted: #a59f93;
+  --amber: #feba2a;
+  --amber-dim: #d99a2b;
+  --green: #74c47c;
+  --red: #e06c6c;
+  --bezel: #16171a;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Source Serif 4", Georgia, "Iowan Old Style", serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius: 12px;
+  --edge: 96px;
+}
+
+html[data-format="short"] {
+  --edge: 72px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A soft warm glow, as behind the website's hero. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 40%, rgb(254 186 42 / 12%), transparent 60%);
+  pointer-events: none;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--edge);
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+h1 {
+  font-size: 104px;
+}
+
+h2 {
+  font-size: 72px;
+}
+
+.lede {
+  font-size: 38px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.amber {
+  color: var(--amber);
+}
+
+/* A screenshot shown 1:1 or scaled by an integer-free transform. */
+.shot {
+  display: block;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #000;
+  box-shadow: 0 30px 80px rgb(0 0 0 / 55%);
+  image-rendering: auto;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+}
+
+/* The "look here" ring drawn over part of a screenshot. */
+.ring {
+  position: absolute;
+  border: 4px solid var(--amber);
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgb(254 186 42 / 60%);
+  pointer-events: none;
+}
+
+/* Dims everything outside the ring; one dimming ring at a time. */
+.ring.dim {
+  box-shadow: 0 0 0 9999px rgb(22 22 22 / 60%), 0 0 40px rgb(254 186 42 / 60%);
+}
+
+.frame {
+  position: relative;
+  display: inline-block;
+}
+
+/* A legend row: a glyph or key, then what it means. */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 40px;
+  margin: 0 0 30px;
+}
+.legend .glyph {
+  width: 64px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 52px;
+}
+
+.key {
+  display: inline-block;
+  min-width: 64px;
+  padding: 6px 16px;
+  border: 2px solid var(--border);
+  border-bottom-width: 6px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 40px;
+  text-align: center;
+  color: var(--text);
+}
+
+.term {
+  font-family: var(--mono);
+  font-size: 40px;
+  line-height: 1.6;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 44px;
+  box-shadow: 0 30px 80px rgb(0 0 0 / 55%);
+}
+.term .prompt { color: var(--green); }
+
+/* Burned-in captions (short format only; runtime.js builds them). Kept above
+   the bottom 15%; YouTube's Shorts controls cover the last stretch of it. */
+.burned-captions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--caption-bottom, 15%);
+  z-index: 100;
+  pointer-events: none;
+}
+.burned-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 64px);
+  padding: 22px 26px;
+  text-align: center;
+  font: 800 72px/1.1 var(--sans);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  /* A plate and a filled chip, not just a colour: the scenes' own text is
+     white and amber too, and must never be mistaken for a caption. */
+  background: rgba(0, 0, 0, 0.88);
+  border-radius: 28px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+}
+.burned-caption span {
+  display: inline-block;
+  padding: 0 0.16em;
+  margin: 0 0.04em;
+  border-radius: 14px;
+}
+
+/* Device frames: one `img` or `.clip` child is the screen. The bezel is dark on
+   purpose, so the frame reads on both light and dark scene backgrounds. */
+.device {
+  position: relative;
+  display: inline-block;
+  padding: 18px;
+  background: var(--bezel);
+  border: 2px solid rgb(255 255 255 / 12%);
+  border-radius: 64px;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 35%),
+    0 24px 60px rgb(0 0 0 / 40%);
+}
+
+.device > img,
+.device > .clip {
+  display: block;
+  object-fit: cover;
+  background: #000;
+  border-radius: 46px;
+  overflow: hidden;
+}
+
+/* The screen child carries the aspect ratio, so the screen is exactly 9:19.5
+   (phone) or 4:3 (tablet) and the bezel is added around it. */
+.device.phone > img,
+.device.phone > .clip {
+  width: 480px;
+  height: auto;
+  aspect-ratio: 9 / 19.5;
+}
+
+.device.tablet {
+  border-radius: 40px;
+  padding: 24px;
+}
+
+.device.tablet > img,
+.device.tablet > .clip {
+  width: 960px;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+}
