@@ -39,7 +39,7 @@ import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.mydocuments.MyDocumentPagesScreen
 import net.bible.sharedui.mydocuments.MyDocumentsScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitGuarded
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 
 /**
  * [MyDocumentPagesScreen]'s platform-supplied slots, ported from classic
@@ -227,7 +227,7 @@ class MyDocumentsNavDeps(
  * its own.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitGuarded(exitHost)
+    popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————

@@ -48,7 +48,7 @@ import net.bible.sharedui.bookmark.BookmarksScreen
 import net.bible.sharedui.bookmark.LabelEditScreen
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitGuarded
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // A NOTE ON THE TWO `LabelEditResult`s
@@ -346,7 +346,7 @@ class BookmarkNavDeps(
  * is decided in one place.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitGuarded(exitHost)
+    popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————

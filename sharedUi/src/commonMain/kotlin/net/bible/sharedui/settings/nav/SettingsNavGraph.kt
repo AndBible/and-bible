@@ -53,7 +53,7 @@ import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitGuarded
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
@@ -348,7 +348,7 @@ class SettingsNavDeps(
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitGuarded(exitHost)
+    popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————

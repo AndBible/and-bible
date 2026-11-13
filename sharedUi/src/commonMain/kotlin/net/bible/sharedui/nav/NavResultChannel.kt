@@ -66,14 +66,11 @@ class NavResultChannel<T>(private val exitWithResult: (T) -> Unit) {
 
     /** Delivers [result] the right way for how this destination was entered. */
     fun deliver(navController: NavHostController, result: T) {
-        // A second tap while the first delivery's pop is still settling (issue #4073): the entry below
-        // is not the caller, so a second delivery would pop it or exit the host with the result.
-        if (navController.popInFlight()) return
         deliverNavResult(
             hasParentEntry = navController.previousBackStackEntry != null,
             result = result,
             publishToParent = { _pending.value = it },
-            popBackStack = { navController.popBackStack().also { if (it) navController.rememberPopLanding() } },
+            popBackStack = { navController.popBackStack() },
             exitWithResult = exitWithResult,
         )
     }

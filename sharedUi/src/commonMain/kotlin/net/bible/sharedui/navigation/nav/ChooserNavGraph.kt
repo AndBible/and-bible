@@ -47,7 +47,7 @@ import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitGuarded
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
 import net.bible.sharedui.navigation.ChooseGeneralBookKeyScreen
 import net.bible.sharedui.navigation.ChooseMapKeyScreen
@@ -295,7 +295,7 @@ class ChooserNavDeps(
  * place.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitGuarded(exitHost)
+    popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
 /**

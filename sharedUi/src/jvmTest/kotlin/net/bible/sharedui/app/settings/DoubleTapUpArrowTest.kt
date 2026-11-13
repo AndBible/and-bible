@@ -14,7 +14,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.components.AbNavHost
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitGuarded
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -42,7 +41,7 @@ class DoubleTapUpArrowTest {
                     AbNavHost(nav, startDestination = NavRoutes.READING) {
                         composable(NavRoutes.READING) { Text("reading") }
                         composable(NavRoutes.SETTINGS) {
-                            AbScaffold(title = "settings", onNavigateUp = { nav.popOrExitGuarded { exits++ } }) { }
+                            AbScaffold(title = "settings", onNavigateUp = { if (!nav.popBackStack()) exits++ }) { }
                         }
                     }
                 }

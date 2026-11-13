@@ -71,7 +71,7 @@ import net.bible.sharedui.ai.RawLlmLogScreen
 import net.bible.sharedui.ai.RawLogHistoryScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
-import net.bible.sharedui.nav.popOrExitGuarded
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -460,7 +460,7 @@ class AiNavDeps(
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitGuarded(exitHost)
+    popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
 /**
