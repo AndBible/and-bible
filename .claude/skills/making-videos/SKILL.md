@@ -56,6 +56,14 @@ The pipeline (script, one HTML page per scene, headless-Chrome frames, ffmpeg, W
 9. **After the maintainer uploads:** `website/data/videos.yaml`, the docs page embed and the app link
    (`video-blog-post` skill and the spec's "App links"/"Website" sections).
 
+## Music
+
+Music is the shared track under `.local/video-media/shared/music/`; the episode opts in with `music:` (README
+"Music"). Keep the bed about 10 dB under the speech (measure the stems with `ebur128`); ducking is off by default
+in new episodes. For a video longer than the track set `loop`: loop points are chosen **once per track** with
+`render.py music-points FILE`, then confirmed **by ear** with `render.py music-loop-test` (the seams) before they go
+into `script.yaml`. Shorter videos play the plain looping bed.
+
 ## Traps
 
 - A scene clip is shown by frame index from a pre-decoded PNG sequence; `screenrecord` is variable frame rate, so

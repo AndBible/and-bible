@@ -278,14 +278,31 @@ One shared track under all videos, made by the maintainer (e.g. with Suno) and k
 ```yaml
 music:
   file: shared/music/theme.flac   # relative to .local/video-media
-  volume: 0.25                    # linear gain of the bed
-  duck: 0.35                      # sidechain threshold x 0.1; smaller ducks on quieter speech
+  volume: 0.14                    # linear gain of the bed
+  duck: null                      # optional: sidechain threshold x 0.1; null or 0 = no ducking
+  loop: {start: 74.72, end: 92.18}  # optional intro/loop/outro points in seconds (crossfade: 0.5)
 ```
 
-`music: null` or no key means no music. The track loops to the video's length, is ducked under
-the narration, fades in over 1.0 s and out over the last 1.5 s, and is mixed with the speech
-before the final loudness normalisation. A missing file makes `render` exit naming its path,
-before anything is rendered.
+`music: null` or no key means no music. A missing file makes `render` exit naming its path, before
+anything is rendered. The bed is mixed with the speech before the final loudness normalisation.
+
+- **Level.** Speech should stay clearly louder than the bed: aim for the music stem about 10 dB below the
+  speech in integrated loudness (`ffmpeg -i x -af ebur128`). A narrated stem is near -22 LUFS, so the bed is
+  near -32 LUFS (about 0.14 for the Suno track). Ducking is off unless `duck` is set; with `duck` the bed is
+  ducked by sidechaincompress keyed on the speech (smaller values duck on quieter speech).
+- **Without `loop`** the whole track loops to the video's length, fades in over 1.0 s and out over the last 1.5 s.
+- **With `loop`** the track plays 0 to `loop.end`, then the `[start, end)` region repeats; at each seam an
+  equal-power crossfade (`crossfade`, default 0.5 s) blends the audio just before `end` with the audio just
+  before `start`. The track's real ending (`end` to the track's end) is placed so that it finishes exactly at
+  the video's end and is heard complete (no fade-out). The final partial loop crossfades into the outro. A video
+  shorter than the track (or longer by under about one crossfade) falls back to the plain looping bed above.
+  Validation: `0 <= start < end`, `start >= crossfade`, `end - start > 2 * crossfade`; `end` must be before the
+  track's end (checked at render time).
+- **Choosing the points** is done once per track: `uv run website/video/render.py music-points FILE` prints the
+  estimated tempo and the best bar-aligned candidates (ranked by how alike the audio is just before `end` and
+  just before `start`); it only suggests. Listen to the seams before committing the points:
+  `render.py music-loop-test FILE --start S --end E [--length 180] [--out WAV]` renders the music alone
+  through the loop logic (default `.local/video-out/music-loop-test.wav`).
 
 ## Clips
 

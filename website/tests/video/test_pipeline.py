@@ -364,7 +364,9 @@ def test_load_episode_music_optional(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "music", ["{volume: 0.2}", "{file: a.flac, volume: 2}", "{file: a.flac, duck: 0}", "theme.flac"]
+    "music", ["{volume: 0.2}", "{file: a.flac, volume: 2}", "{file: a.flac, duck: 2}", "theme.flac",
+     "{file: a.flac, loop: {start: 5, end: 5}}", "{file: a.flac, loop: {start: 0, end: 20}}",
+     "{file: a.flac, loop: {start: 10, end: 10.8}}", "{file: a.flac, loop: {start: 10}}"]
 )
 def test_a_broken_music_block_is_refused(tmp_path: Path, music: str) -> None:
     with pytest.raises(ValueError, match="music"):
@@ -399,3 +401,123 @@ def test_english_subs_path(tmp_path: Path):
     assert pipeline.english_subs_path(tmp_path, "my-episode", "main", "own") == (
         tmp_path / "my-episode" / "subs" / "main-own.en.srt"
     )
+
+
+# --- intro / loop / outro ----------------------------------------------------
+
+def _plan(total, track=100.0, start=20.0, end=60.0, cf=0.5):
+    return pipeline.music_segments(total, track, start, end, cf)
+
+
+def _plan_length(plan):
+    return sum(s.src_end - s.src_start for s in plan) - sum(s.overlap for s in plan)
+
+
+def test_plan_long_video_has_intro_loops_and_outro_ending_at_total() -> None:
+    plan = _plan(total=250.0)  # intro 60, outro 40 -> 150 s of loop = 3 full loops + 30 s
+
+    assert plan is not None
+    assert (plan[0].src_start, plan[0].src_end, plan[0].overlap) == (0.0, 60.0, 0.0)
+    assert plan[-1].src_end == 100.0  # the track's real ending, complete
+    assert abs(_plan_length(plan) - 250.0) < 1e-9  # outro ends exactly at the video's end
+    loops = [s for s in plan[1:-1]]
+    assert len(loops) == 4  # 3 full loops and the partial one
+    for full in loops[:3]:
+        assert (full.src_start, full.src_end, full.overlap) == (19.5, 60.0, 0.5)
+    assert plan[-1].overlap == 0.5  # partial loop crossfades into the outro
+    assert plan[-1].src_start == 59.5
+
+
+def test_plan_exact_loops_joins_outro_without_crossfade() -> None:
+    plan = _plan(total=100.0 + 2 * 40.0)
+
+    assert plan is not None
+    assert [s.overlap for s in plan] == [0.0, 0.5, 0.5, 0.0]
+    assert (plan[-1].src_start, plan[-1].src_end) == (60.0, 100.0)
+    assert abs(_plan_length(plan) - 180.0) < 1e-9
+
+
+def test_plan_crossfade_count_is_one_per_loop_plus_the_outro_seam() -> None:
+    plan = _plan(total=250.0)
+    assert plan is not None
+    assert sum(1 for s in plan if s.overlap > 0) == 4 + 1
+
+
+def test_plan_video_shorter_than_the_track_falls_back() -> None:
+    assert _plan(total=99.0) is None
+    assert _plan(total=100.0) is not None  # exactly intro+outro: the track as it is
+
+
+def test_plan_exactly_track_length_is_plain_playback() -> None:
+    plan = _plan(total=100.0)
+    assert plan is not None
+    assert abs(_plan_length(plan) - 100.0) < 1e-9
+    assert all(s.overlap == 0 for s in plan)
+
+
+@pytest.mark.parametrize("total", [100.2, 100.7, 101.0, 140.3, 141.0, 400.123])
+def test_plan_always_ends_at_total(total: float) -> None:
+    plan = _plan(total=total)
+    if plan is None:  # a sliver of extra time shorter than two crossfades: plain playback
+        assert total < 100.0 + 1.0
+        return
+    assert abs(_plan_length(plan) - total) < 1e-9
+    assert plan[-1].src_end == 100.0
+    assert all(0 <= s.src_start < s.src_end <= 100.0 + 1e-9 for s in plan)
+
+
+def test_music_filter_loop_graph_crossfades_and_keeps_the_ending() -> None:
+    loop = pipeline.Loop(start=20.0, end=60.0, crossfade=0.5)
+    graph, label = pipeline.music_filter(
+        5, "[speech]", total=250.0, volume=0.35, duck=None, loop=loop, track_length=100.0
+    )
+
+    assert graph.count("acrossfade") == 5
+    assert "acrossfade=d=0.500:c1=qsin:c2=qsin" in graph
+    assert "atrim=start=0.000:end=60.000" in graph
+    assert "afade=t=out" not in graph  # the outro is heard complete
+    assert "afade=t=in:st=0:d=1.0" in graph
+    assert "sidechaincompress" not in graph and "[speech]" in graph and "amix" in graph
+    assert "aloop" not in graph and label in graph
+
+
+def test_music_filter_loop_falls_back_for_a_short_video() -> None:
+    loop = pipeline.Loop(start=20.0, end=60.0, crossfade=0.5)
+    graph, _ = pipeline.music_filter(
+        5, "[speech]", total=50.0, volume=0.35, duck=0.35, loop=loop, track_length=100.0
+    )
+
+    assert "acrossfade" not in graph and "atrim=0:50.000" in graph
+    assert "afade=t=out:st=48.500:d=1.5" in graph and "sidechaincompress" in graph
+
+
+def test_music_filter_without_ducking_has_no_sidechain() -> None:
+    graph, _ = pipeline.music_filter(5, "[speech]", total=10.0, volume=0.35, duck=None)
+
+    assert "sidechaincompress" not in graph and "asplit" not in graph
+    assert "amix" in graph and "loudnorm" in graph
+
+
+def test_load_music_loop_and_duck_options(tmp_path: Path) -> None:
+    ep = pipeline.load_episode(
+        _episode(
+            tmp_path,
+            GOOD + "music: {file: a.wav, volume: 0.35, duck: null,"
+            " loop: {start: 30, end: 90, crossfade: 1}}\n",
+        )
+    )
+    assert ep.music is not None and ep.music.duck is None
+    assert ep.music.loop == pipeline.Loop(30.0, 90.0, 1.0)
+    ep = pipeline.load_episode(_episode(tmp_path, GOOD + "music: {file: a.wav, duck: 0}\n"))
+    assert ep.music is not None and ep.music.duck is None and ep.music.loop is None
+    ep = pipeline.load_episode(
+        _episode(tmp_path, GOOD + "music: {file: a.wav, loop: {start: 30, end: 90}}\n")
+    )
+    assert ep.music is not None and ep.music.duck == 0.35
+    assert ep.music.loop is not None and ep.music.loop.crossfade == 0.5
+
+
+def test_check_loop_against_the_track_length() -> None:
+    pipeline.check_loop(pipeline.Loop(20.0, 60.0, 0.5), 100.0)
+    with pytest.raises(ValueError, match="track"):
+        pipeline.check_loop(pipeline.Loop(20.0, 160.0, 0.5), 100.0)

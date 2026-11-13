@@ -10,13 +10,13 @@ TTS narration, subtitles and their translations. It can double as the first Shor
 | Script (5 scenes, 177 words) | done, `script.yaml` |
 | Narration | TTS, model `gpt-4o-mini-tts-2025-12-15`, voice `marin`; 5 clips, 952 characters, about 64 s of audio; Whisper (`whisper-1`) once per clip for word timings. Paid calls pre-approved by the maintainer through the orchestrator. |
 | Own narration | not recorded. `render.py voice --script` writes `.local/video-media/poc-title-bar-search/voice/script.txt`; `voice --check` reports all 5 scenes `missing` (exit 1), as intended. |
-| Music | **none**: `.local/video-media/shared/music/` has no track yet, so both videos are rendered without `music:`. Add the key to `script.yaml` once the maintainer's track exists. |
+| Music | `shared/music/curious_pulse.wav` (146.8 s, Suno), volume 0.14, no ducking, loop points 74.72-92.18 s (8 bars, 110 BPM, from `render.py music-points`; confirm by ear). The videos (68.2 s) are shorter than the track, so they use the plain fallback bed (fade in 1.0 s, out 1.5 s); the loop logic is exercised by `.local/video-out/music-loop-test.wav` (180 s). Loudness (first 68.2 s, integrated): speech -22.3 LUFS; music stem -32.0 LUFS at 0.14, 9.7 dB under (-24.0 at 0.35, only 1.7 dB under the speech, hence 0.14: the 10 dB rule decides). For reference the old setup (0.25 + ducking) came to -32.4 LUFS too. Final mixes -16.2 LUFS, peak -1.4 dBFS. |
 | Main | `.local/video-out/poc-title-bar-search/main-tts.mp4` (1920x1080, 68.2 s) + `main-tts.srt`; light palette |
 | Short | `.local/video-out/poc-title-bar-search/short-tts.mp4` (1080x1920, 68.2 s, full-bleed app, burned-in captions on a semi-transparent band) + `short-tts.srt`; framed variant `short-tts-framed.mp4` + `.srt` (phone in a device frame). It is as long as the main video because every scene is in both formats; cut it down before publishing it as a Short. |
 | Subtitles | English SRT in `.local/video-media/poc-title-bar-search/subs/{main,short}-tts.en.srt`; Tier 1 translations `main-tts.<lang>.srt` (30 languages) and identical-timing copies for `short-tts`, every file validated with `srt_validate.py`. Upload by hand in YouTube Studio. |
 | Watched | frame checks only: contact sheets of both final MP4s (one frame per 3 s) and per-scene previews at every anchor; the caption band is clear in the Short; audio mean -16.5 dB, peak -1.4 dB. **Still to do by a human: watch both end to end for pacing** (nobody has played the videos). |
 
-Not done: music, own narration, publishing (no upload from containers), thumbnails.
+Not done: own narration, publishing (no upload from containers), thumbnails.
 
 ## Capture provenance
 

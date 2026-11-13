@@ -62,13 +62,26 @@ class Scene:
 
 
 @dataclass(frozen=True)
+class Loop:
+    """Loop points of the music track in seconds: the track plays 0 -> end, the
+    [start, end) region repeats with an equal-power `crossfade` at each seam, and the
+    track's real ending (end -> track length) closes the video."""
+
+    start: float
+    end: float
+    crossfade: float = 0.5
+
+
+@dataclass(frozen=True)
 class Music:
     """The shared music bed. `file` is relative to the video media directory;
-    `volume` is a linear gain, `duck` the sidechain threshold (see music_filter)."""
+    `volume` is a linear gain, `duck` the sidechain threshold (see music_filter;
+    None = no ducking), `loop` optional intro/loop/outro points."""
 
     file: Path
     volume: float = 0.25
-    duck: float = 0.35
+    duck: float | None = 0.35
+    loop: Loop | None = None
 
 
 @dataclass(frozen=True)
@@ -153,40 +166,168 @@ def _load_music(path: Path, raw: object) -> Music | None:
     if not isinstance(raw, Mapping) or not str(raw.get("file") or "").strip():
         raise ValueError(f"{path}: music.file is required")
     volume = float(raw.get("volume", 0.25))
-    duck = float(raw.get("duck", 0.35))
     if not 0 < volume <= 1:
         raise ValueError(f"{path}: music.volume must be in (0, 1]")
-    if not 0 < duck <= 1:
-        raise ValueError(f"{path}: music.duck must be in (0, 1]")
-    return Music(Path(str(raw["file"])), volume, duck)
+    duck: float | None = 0.35
+    if "duck" in raw:  # `duck: null` or 0 switches the sidechain off
+        duck = float(raw["duck"]) if raw["duck"] is not None else None
+        if duck is not None and duck != 0 and not 0 < duck <= 1:
+            raise ValueError(f"{path}: music.duck must be in (0, 1], 0 or null")
+        if not duck:
+            duck = None
+    loop = _load_loop(path, raw.get("loop"))
+    return Music(Path(str(raw["file"])), volume, duck, loop)
+
+
+def _load_loop(path: Path, raw: object) -> Loop | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, Mapping) or "start" not in raw or "end" not in raw:
+        raise ValueError(f"{path}: music.loop needs start and end (seconds)")
+    start, end = float(raw["start"]), float(raw["end"])
+    crossfade = float(raw.get("crossfade", 0.5))
+    if crossfade <= 0:
+        raise ValueError(f"{path}: music.loop.crossfade must be positive")
+    if not 0 <= start < end:
+        raise ValueError(f"{path}: music.loop needs 0 <= start < end")
+    if start < crossfade:
+        raise ValueError(f"{path}: music.loop.start must be at least the crossfade ({crossfade:g} s)")
+    if end - start <= 2 * crossfade:
+        raise ValueError(f"{path}: music.loop must be longer than twice the crossfade")
+    return Loop(start, end, crossfade)
+
+
+def check_loop(loop: Loop, track_length: float) -> None:
+    """Render-time check: the loop must lie inside the track."""
+    if loop.end >= track_length:
+        raise ValueError(
+            f"music.loop.end {loop.end:g} s must be before the end of the track ({track_length:.1f} s)"
+        )
+
+
+@dataclass(frozen=True)
+class MusicSegment:
+    """One piece of the music timeline: source [src_start, src_end), crossfaded
+    over `overlap` seconds with the piece before it (0 = plain join)."""
+
+    src_start: float
+    src_end: float
+    overlap: float
+
+
+def music_segments(
+    total: float, track_length: float, start: float, end: float, crossfade: float
+) -> list[MusicSegment] | None:
+    """The segment plan that fills `total` seconds: the intro [0, end], whole loops
+    [start - crossfade, end] (each crossfaded into the previous piece, so the seam
+    blends the audio before `end` with the audio before `start`), one partial loop
+    for the remainder, and the real ending [end, track_length] last, so it finishes
+    exactly at `total`. None when the video is shorter than the track (or longer by
+    less than the room a partial loop needs): the caller plays from 0 and fades out."""
+    loop_len = end - start
+    remaining = total - track_length  # time the loops have to fill
+    if remaining < -1e-9:
+        return None
+    count = int(remaining / loop_len + 1e-9)
+    rest = remaining - count * loop_len
+    if rest < 1e-6:
+        rest = 0.0
+    elif rest < crossfade:
+        if count == 0:
+            return None
+        count -= 1
+        rest += loop_len
+    plan = [MusicSegment(0.0, end, 0.0)]
+    plan += [MusicSegment(start - crossfade, end, crossfade)] * count
+    if rest:
+        plan.append(MusicSegment(start - crossfade, start + rest, crossfade))
+        plan.append(MusicSegment(end - crossfade, track_length, crossfade))
+    else:
+        plan.append(MusicSegment(end, track_length, 0.0))
+    return plan
+
+
+def _bed_with_loop(
+    music_input: int, total: float, volume: float, loop: Loop, track_length: float
+) -> str | None:
+    plan = music_segments(total, track_length, loop.start, loop.end, loop.crossfade)
+    if plan is None:
+        return None
+    parts = [f"[{music_input}:a]asplit={len(plan)}" + "".join(f"[mseg{i}]" for i in range(len(plan)))]
+    for index, seg in enumerate(plan):
+        parts.append(
+            f"[mseg{index}]atrim=start={seg.src_start:.3f}:end={seg.src_end:.3f},"
+            f"asetpts=PTS-STARTPTS[mp{index}]"
+        )
+    joined = "[mp0]"
+    for index, seg in enumerate(plan[1:], start=1):
+        out = f"[mj{index}]"
+        if seg.overlap:
+            parts.append(
+                f"{joined}[mp{index}]acrossfade=d={seg.overlap:.3f}:c1=qsin:c2=qsin{out}"
+            )
+        else:
+            parts.append(f"{joined}[mp{index}]concat=n=2:v=0:a=1{out}")
+        joined = out
+    parts.append(
+        f"{joined}atrim=0:{total:.3f},asetpts=N/SR/TB,volume={volume:g},afade=t=in:st=0:d=1.0[bed]"
+    )
+    return ";".join(parts)
+
+
+def music_bed(
+    music_input: int,
+    total: float,
+    volume: float,
+    loop: Loop | None = None,
+    track_length: float | None = None,
+) -> str:
+    """The graph fragment that makes the music bed (output label `[bed]`) for `total` seconds:
+    intro/loop/outro when `loop` and the track length are given and the video is long
+    enough, otherwise the whole track looped, faded in over 1.0 s and out over 1.5 s."""
+    if loop is not None and track_length is not None:
+        graph = _bed_with_loop(music_input, total, volume, loop, track_length)
+        if graph is not None:
+            return graph
+    fade_out = max(total - 1.5, 0.0)
+    return (
+        f"[{music_input}:a]aloop=loop=-1:size=2147483647,atrim=0:{total:.3f},"
+        f"asetpts=N/SR/TB,volume={volume:g},"
+        f"afade=t=in:st=0:d=1.0,afade=t=out:st={fade_out:.3f}:d=1.5[bed]"
+    )
 
 
 def music_filter(
-    music_input: int, speech_label: str, total: float, volume: float, duck: float
+    music_input: int,
+    speech_label: str,
+    total: float,
+    volume: float,
+    duck: float | None,
+    loop: Loop | None = None,
+    track_length: float | None = None,
 ) -> tuple[str, str]:
     """The ffmpeg filter-graph fragment that mixes the music bed under the speech.
 
-    `speech_label` is the finished speech mix (one use of it is consumed: it is
-    split into the sidechain key and the mix leg). The music loops, is cut to
-    `total`, scaled by `volume`, ducked by sidechaincompress keyed on the speech
-    (`duck` x 0.1 is the linear threshold: a smaller `duck` ducks on quieter
-    speech, ratio 8, 20 ms attack, 400 ms release), faded in over 1.0 s and out
-    over the last 1.5 s, summed with the speech and loudness-normalised.
-    Returns (graph, output label)."""
-    threshold = max(duck * 0.1, 0.001)
-    fade_out = max(total - 1.5, 0.0)
-    graph = ";".join(
-        [
-            f"{speech_label}asplit=2[sp_key][sp_mix]",
-            f"[{music_input}:a]aloop=loop=-1:size=2147483647,atrim=0:{total:.3f},"
-            f"asetpts=N/SR/TB,volume={volume:g},"
-            f"afade=t=in:st=0:d=1.0,afade=t=out:st={fade_out:.3f}:d=1.5[bed]",
-            f"[bed][sp_key]sidechaincompress=threshold={threshold:.4f}:ratio=8:"
-            "attack=20:release=400[ducked]",
-            "[sp_mix][ducked]amix=inputs=2:normalize=0:duration=first,"
-            "loudnorm=I=-16:TP=-1.5:LRA=11[mixout]",
-        ]
-    )
+    The bed is `music_bed` (looped or intro/loop/outro). With `duck` it is ducked by
+    sidechaincompress keyed on the speech (`speech_label` is split into the key and the
+    mix leg; `duck` x 0.1 is the linear threshold, ratio 8, 20 ms attack, 400 ms
+    release); `duck=None` skips the sidechain and uses `speech_label` once. The bed is
+    summed with the speech and loudness-normalised. Returns (graph, output label)."""
+    bed = music_bed(music_input, total, volume, loop, track_length)
+    mix = "amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[mixout]"
+    if not duck:
+        graph = ";".join([bed, f"{speech_label}[bed]{mix}"])
+    else:
+        threshold = max(duck * 0.1, 0.001)
+        graph = ";".join(
+            [
+                f"{speech_label}asplit=2[sp_key][sp_mix]",
+                bed,
+                f"[bed][sp_key]sidechaincompress=threshold={threshold:.4f}:ratio=8:"
+                "attack=20:release=400[ducked]",
+                f"[sp_mix][ducked]{mix}",
+            ]
+        )
     return graph, "[mixout]"
 
 

@@ -10,6 +10,8 @@
                                          [--at SECONDS] [--voice tts|own]
     uv run website/video/render.py render  main|short [--short-layout full|framed] [--episode DIR] [--voice tts|own]
     uv run website/video/render.py voice   --script | --check | --accept SCENE...
+    uv run website/video/render.py music-points FILE [--top N]
+    uv run website/video/render.py music-loop-test FILE --start S --end E [--crossfade X] [--length 180] [--out WAV]
 
 See website/video/README.md. The pure parts live in pipeline.py.
 """
@@ -48,7 +50,10 @@ from pipeline import (
     english_subs_path,
     group_words,
     load_episode,
+    music_bed,
     music_filter,
+    check_loop,
+    Loop,
     output_name,
     page_layout,
     SHORT_LAYOUTS,
@@ -106,6 +111,55 @@ def clip_path(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> Pat
     if not flac.is_file():
         sys.exit(f"render: no recording for {scene.id}: {flac}")
     return CACHE / "own" / f"{own_clip_key(flac.read_bytes())}.wav"
+
+
+def probe_duration(path: Path) -> float:
+    """Length of an audio file in seconds (ffprobe)."""
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+        check=True, capture_output=True, text=True,
+    ).stdout
+    return float(out.strip())
+
+
+def command_music_points(args: argparse.Namespace) -> None:
+    """Print the estimated tempo and the best bar-aligned loop-point candidates for a track."""
+    from array import array
+
+    import music_points
+
+    rate = 11025
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(args.file), "-ac", "1", "-ar", str(rate), "-f", "s16le", "-"],
+        check=True, capture_output=True,
+    ).stdout
+    samples = array("h")
+    samples.frombytes(raw)
+    length = len(samples) / rate
+    bpm, found = music_points.analyze(samples, rate, hop=256, top=args.top)
+    print(f"{args.file}: {length:.1f} s, estimated tempo {bpm:.1f} BPM")
+    print("candidates (lower score = more alike just before end and just before start); listen before choosing:")
+    for c in found:
+        print(f"  start {c.start:7.2f}  end {c.end:7.2f}  {c.bars:2d} bars  score {c.score:.3f}"
+              f"   loop: {{start: {c.start:.2f}, end: {c.end:.2f}}}")
+
+
+def command_music_loop_test(args: argparse.Namespace) -> None:
+    """Render the music alone through the loop logic (for listening to the seams)."""
+    loop = Loop(args.start, args.end, args.crossfade)
+    length = probe_duration(args.file)
+    try:
+        check_loop(loop, length)
+    except ValueError as error:
+        sys.exit(f"render: {error}")
+    graph = music_bed(0, args.length, 1.0, loop, length)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-i", str(args.file), "-filter_complex", graph,
+         "-map", "[bed]", "-ar", "48000", str(args.out)],
+        check=True,
+    )
+    print(f"{args.out} ({probe_duration(args.out):.2f}s for {args.length:g}s requested)")
 
 
 def music_path(episode: Episode) -> Path:
@@ -461,6 +515,12 @@ def assemble(
     music_input = len(parts) + len(slots)
     if episode.music:
         args += ["-i", music_path(episode)]
+        track_length = probe_duration(music_path(episode)) if episode.music.loop else None
+        if episode.music.loop and track_length:
+            try:
+                check_loop(episode.music.loop, track_length)
+            except ValueError as error:
+                sys.exit(f"render: {error}")
     chains = []
     video = "[0:v]"
     for index, slot in enumerate(slots[1:], start=1):
@@ -479,7 +539,13 @@ def assemble(
     if episode.music:
         chains.append(f"{speech}[speech]")
         graph, audio_out = music_filter(
-            music_input, "[speech]", total, episode.music.volume, episode.music.duck
+            music_input,
+            "[speech]",
+            total,
+            episode.music.volume,
+            episode.music.duck,
+            episode.music.loop,
+            track_length,
         )
         chains.append(graph)
     else:
@@ -724,7 +790,21 @@ def main(argv: Sequence[str] | None = None) -> None:
     voice.add_argument("--script", action="store_true", help="write script.txt to read aloud")
     voice.add_argument("--check", action="store_true", help="status per scene; exit 1 if any bad")
     voice.add_argument("--accept", nargs="+", metavar="SCENE", help="stamp recordings as current")
+    points = commands.add_parser("music-points", help="suggest loop points for a music file")
+    points.add_argument("file", type=Path)
+    points.add_argument("--top", type=int, default=5)
+    loop_test = commands.add_parser("music-loop-test", help="render the music alone through the loop logic")
+    loop_test.add_argument("file", type=Path)
+    loop_test.add_argument("--start", type=float, required=True)
+    loop_test.add_argument("--end", type=float, required=True)
+    loop_test.add_argument("--crossfade", type=float, default=0.5)
+    loop_test.add_argument("--length", type=float, default=180.0)
+    loop_test.add_argument("--out", type=Path, default=OUT_DIR / "music-loop-test.wav")
     args = parser.parse_args(argv)
+    if args.command == "music-points":
+        return command_music_points(args)
+    if args.command == "music-loop-test":
+        return command_music_loop_test(args)
     if args.command == "voice" and not (args.script or args.check or args.accept):
         parser.error("voice: give --script, --check or --accept SCENE...")
     args.episode = args.episode or default_episode()
