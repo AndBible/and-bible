@@ -128,7 +128,7 @@ class HostDocumentLoaderPlatform(
             fontSizeMultiplier = s.getInt("font_size_multiplier", 100) / 100F,
             enabledExperimentalFeatures = s.getStringSet("experimental_features", emptySet()).toList(),
             // Same as Android's BibleView: always the derived palette (themeColorsJson itself yields "null" for the
-            // grey-base modes and for COLOR_EINK without a chosen colour).
+            // grey-base modes, COLOR_EINK included).
             themeColors = themeColorsJson(
                 workspaceSettings.workspaceColor, night, colorMode,
             ),
