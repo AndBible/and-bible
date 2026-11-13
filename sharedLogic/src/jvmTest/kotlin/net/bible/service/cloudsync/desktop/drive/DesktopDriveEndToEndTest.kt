@@ -115,6 +115,9 @@ class DesktopDriveEndToEndTest {
             assertEquals("desktop-id", exchange["client_id"])
             assertEquals("desktop-secret", exchange["client_secret"])
             val consent = Url(browserUrls.single()).parameters
+            assertEquals("https://www.googleapis.com/auth/drive.appdata", consent["scope"])
+            assertEquals("code", consent["response_type"])
+            assertEquals("offline", consent["access_type"])
             assertEquals(consent["code_challenge"], Pkce.challenge(exchange["code_verifier"]!!))
             assertTrue(exchange["redirect_uri"]!!.startsWith("http://127.0.0.1:"))
             assertEquals("refresh-1", secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
@@ -135,13 +138,37 @@ class DesktopDriveEndToEndTest {
             // Restart: new non-interactive auth over the same store refreshes silently, without a browser.
             val second = adapter(newAuth(interactive = false))
             assertTrue(second.signIn())
-            assertEquals(1, browserUrls.size)
             assertEquals(listOf("data.bin"), second.listFiles(listOf(folder.id), null, null, null).map { it.name })
             val refresh = tokenRequests.last().fields
             assertEquals("refresh_token", refresh["grant_type"])
             assertEquals("refresh-1", refresh["refresh_token"])
             assertEquals("desktop-secret", refresh["client_secret"])
             assertEquals(1, browserUrls.size)
+        }
+    }
+
+    @Test
+    fun wrongStateInRedirectIsRefused() = runBlocking<Unit> {
+        withTimeout(60_000) {
+            val evil = LoopbackOAuthBrowser(
+                openBrowser = { url ->
+                    val target = Url(url).parameters["redirect_uri"]!! + "?code=the-code&state=other-state"
+                    withContext(Dispatchers.IO) {
+                        (java.net.URL(target).openConnection() as HttpURLConnection).run {
+                            connectTimeout = 5000
+                            readTimeout = 5000
+                            try { responseCode } finally { disconnect() }
+                        }
+                    }
+                    true
+                },
+                timeoutMs = 20_000,
+                successPage = "<html>ok</html>",
+            )
+            val auth = PkceGoogleAuth(GoogleOAuthClient("desktop-id", "desktop-secret"), evil, secrets, tokenHttp, { now }, true)
+            assertEquals(false, auth.signIn())
+            assertNull(secrets.get(GoogleDriveSecretKeys.REFRESH_TOKEN))
+            assertTrue(tokenRequests.isEmpty())
         }
     }
 
