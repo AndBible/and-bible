@@ -102,6 +102,13 @@ private const val MANAGE_LABELS_SEARCH_MODE_KEY = "labels_list_search_mode"
 @kotlin.native.HiddenFromObjC
 class BookmarksSession {
     lateinit var controller: BookmarksController
+
+    /**
+     * Where a picked bookmark goes: re-pointed by every `bookmarksControllerFor` call, because this session (and its
+     * controller) outlives the destination entry whose arm built it, and a pick sent on behalf of a gone entry is
+     * dropped (issue #4073).
+     */
+    var onSelectBookmark: (BookmarkResult) -> Unit = {}
     var restoredAssignIds: List<String>? = null
     var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
 
@@ -384,12 +391,15 @@ class BookmarkHost(
         onSelectBookmark: (BookmarkResult) -> Unit,
         navigateToManageLabels: (payload: String) -> Unit,
     ): BookmarksController {
-        bookmarksSession?.let { (key, existing) -> if (key == initialFilterIndex) return existing.controller }
+        bookmarksSession?.let { (key, existing) ->
+            if (key == initialFilterIndex) return existing.controller.also { existing.onSelectBookmark = onSelectBookmark }
+        }
 
         // Classic `BookmarksComposeActivity.onCreate` (`:95`). Once per opening of the list, as there.
         appSettings.setLong("bookmarks-last-used", currentTimeMillis())
 
         val session = BookmarksSession()
+        session.onSelectBookmark = onSelectBookmark
         restoredBookmarks?.takeIf { it.filter == initialFilterIndex }?.let {
             session.restoredAssignIds = it.pendingAssignIds
             session.awaitingManageLabels = it.awaitingManager
@@ -401,7 +411,7 @@ class BookmarkHost(
             onSelectBookmark = { id, listPosition ->
                 val labelNo = session.controller.selectedFilterIndex.value
                 shell.hostScope.launch {
-                    bookmarkResultFor(id, listPosition, labelNo)?.let(onSelectBookmark)
+                    bookmarkResultFor(id, listPosition, labelNo)?.let { session.onSelectBookmark(it) }
                 }
             },
             onAssignLabels = { ids -> requestAssignLabels(session, ids, navigateToManageLabels) },
@@ -628,8 +638,12 @@ class BookmarkHost(
 
         // Restore the absent parent request with this Activity's navigation bindings before results can arrive.
         restoredBookmarks?.filter?.takeIf { bookmarksSession == null }?.let { filter ->
+            // The bookmark list's entry, if it is on the stack under the label manager; otherwise the list's own arm
+            // re-points the pick callback when it is composed (BookmarksSession.onSelectBookmark).
+            val bookmarksEntry = navController?.currentBackStack?.value
+                ?.lastOrNull { it.destination.route == NavRoutes.BOOKMARKS_PATTERN }
             bookmarksControllerFor(filter,
-                { result -> navController?.let { nav -> bookmarkResults?.deliver(nav, result) } },
+                { result -> navController?.let { nav -> bookmarkResults?.deliver(nav, bookmarksEntry, result) } },
                 { payload -> navController?.navigate(NavRoutes.manageLabels(payload)) },
             )
         }

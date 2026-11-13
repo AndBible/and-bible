@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -71,7 +72,8 @@ import net.bible.sharedui.ai.RawLlmLogScreen
 import net.bible.sharedui.ai.RawLogHistoryScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.isCurrentEntry
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -459,8 +461,8 @@ class AiNavDeps(
  * retired four byte-identical copies covered by a single test). What stays here is the part that
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 /**
@@ -472,19 +474,19 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  * the screen signatures are frozen for this migration.
  */
 fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps) {
-    composable(NavRoutes.AI_TOOL_INFO) {
+    composable(NavRoutes.AI_TOOL_INFO) { entry ->
         val strings = LocalStrings.current
         val title = strings.viewToolsMenuLabel
         LaunchedEffect(title) { deps.setWindowTitle(title) }
         ToolInfoScreen(
             readTools = remember { deps.toolInfo.readTools() },
             writeTools = remember { deps.toolInfo.writeTools() },
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             helpBody = remember { deps.toolInfo.helpBody() },
             helpReadMoreUrl = deps.toolInfo.helpReadMoreUrl,
         )
     }
-    composable(NavRoutes.AI_DOCUMENT_FILTER) {
+    composable(NavRoutes.AI_DOCUMENT_FILTER) { entry ->
         val strings = LocalStrings.current
         val title = strings.aiDocumentFilterTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -502,10 +504,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         AiDocumentFilterScreen(
             groups = groups,
             isDirty = isDirty,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onToggle = controller::toggle,
             onResetAll = controller::resetAll,
-            onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
+            onSave = { if (navController.isCurrentEntry(entry)) { controller.save(); navController.popOrExit(entry, deps.exitHost) } },
             helpBody = remember { deps.aiDocumentFilter.helpBody() },
             helpReadMoreUrl = deps.aiDocumentFilter.helpReadMoreUrl,
         )
@@ -516,12 +518,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 message = strings.discardChangesConfirmation,
                 confirmText = strings.discard,
                 dismissText = strings.cancel,
-                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(entry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
         }
     }
-    composable(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS) {
+    composable(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS) { entry ->
         val strings = LocalStrings.current
         val title = strings.globalToolPermissionsTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -539,12 +541,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             groups = groups,
             permissionFor = { permissions[it] ?: ToolPermission.ASK },
             isDirty = isDirty,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onSetPermission = controller::setPermission,
             onSetCategoryRead = controller::setCategoryRead,
             onSetCategoryWrite = controller::setCategoryWrite,
             onResetAll = controller::resetAll,
-            onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
+            onSave = { if (navController.isCurrentEntry(entry)) { controller.save(); navController.popOrExit(entry, deps.exitHost) } },
             helpBody = remember { deps.globalToolPermissions.helpBody() },
             helpReadMoreUrl = deps.globalToolPermissions.helpReadMoreUrl,
         )
@@ -555,12 +557,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 message = strings.discardChangesConfirmation,
                 confirmText = strings.discard,
                 dismissText = strings.cancel,
-                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(entry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
         }
     }
-    composable(NavRoutes.AI_MODELS) {
+    composable(NavRoutes.AI_MODELS) { entry ->
         val strings = LocalStrings.current
         val title = strings.aiModelsTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -586,7 +588,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             models = models,
             providers = providers,
             editState = editState,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onAdd = controller::startAdd,
             onPickProvider = { providerId ->
                 swallowNextDismiss = true
@@ -611,7 +613,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             helpReadMoreUrl = deps.aiModels.helpReadMoreUrl,
         )
     }
-    composable(NavRoutes.AI_CONNECTION_SETTINGS) {
+    composable(NavRoutes.AI_CONNECTION_SETTINGS) { entry ->
         val d = deps.aiConnectionSettings
         val controller = remember { d.controller() }
         val state by controller.state.collectAsState()
@@ -635,7 +637,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
 
         AiConnectionSettingsScreen(
             state = state,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onSwitch = controller::onSwitch,
             onListChoice = controller::onListChoice,
             onTextInputInt = controller::onTextInputInt,
@@ -705,7 +707,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val enteredForQuickSetup = remember {
             backStackEntry.arguments?.read { getBooleanOrNull(NavRoutes.ARG_START_EASY_SETUP) } ?: false
         }
-        val quickSetupExit = remember { QuickSetupEntryExit(enteredForQuickSetup) { navController.popOrExit(deps.exitHost) } }
+        val quickSetupExit = remember { QuickSetupEntryExit(enteredForQuickSetup) { navController.popOrExit(backStackEntry, deps.exitHost) } }
         // Whether the pending disclaimer guards the Quick Setup start (vs. an Add) -- see QuickSetupEntryExit.
         var pendingDisclaimerIsQuickSetup by remember { mutableStateOf(false) }
         var pendingDisclaimerAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -758,7 +760,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             providers = providers,
             providerTypes = providerTypes,
             editState = dialog,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
             onAdd = { ensureDisclaimerAccepted { controller.startAdd() } },
             onPickType = { typeId ->
                 swallowNextPickTypeDismiss = true
@@ -847,7 +849,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             )
         }
     }
-    composable(NavRoutes.AI_PROMPTS) {
+    composable(NavRoutes.AI_PROMPTS) { entry ->
         val strings = LocalStrings.current
         val title = strings.aiPromptsTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -907,7 +909,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             groups = groups,
             showHidden = showHidden,
             hasHiddenPrompts = hasHiddenPrompts,
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(entry, deps.exitHost) },
             onOpenPrompt = controller::onOpenPrompt,
             onNewPrompt = controller::onNewPrompt,
             onToggleFavorite = controller::onToggleFavorite,
@@ -1049,7 +1051,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // defensively — the Save action is already disabled in that case).
             onSave = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
                 try {
-                    if (controller.save() != null) navController.popOrExit(deps.exitHost)
+                    if (controller.save() != null) navController.popOrExit(backStackEntry, deps.exitHost)
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
                     throw cancelled
                 } catch (failure: Exception) {
@@ -1058,7 +1060,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             } },
             onDelete = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
                 try {
-                    if (controller.delete()) navController.popOrExit(deps.exitHost)
+                    if (controller.delete()) navController.popOrExit(backStackEntry, deps.exitHost)
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
                     throw cancelled
                 } catch (failure: Exception) {
@@ -1094,7 +1096,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 }
             } },
             onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },
-            onBack = { navController.popOrExit(deps.exitHost) },
+            onBack = { navController.popOrExit(backStackEntry, deps.exitHost) },
             helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
         )
@@ -1105,7 +1107,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 message = strings.discardChangesConfirmation,
                 confirmText = strings.discard,
                 dismissText = strings.cancel,
-                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(backStackEntry, deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
         }
@@ -1182,13 +1184,13 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // row away, see RawLogHistoryDeps' kdoc.
             onDelete = {
                 recordId?.let { d.onDelete(it) }
-                navController.popOrExit(deps.exitHost)
+                navController.popOrExit(backStackEntry, deps.exitHost)
             },
             onReportBug = { d.onReportBug(recordId, workspaceId) },
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
         )
     }
-    composable(NavRoutes.AI_RAW_LOG_HISTORY) {
+    composable(NavRoutes.AI_RAW_LOG_HISTORY) { entry ->
         val strings = LocalStrings.current
         val title = strings.rawLogHistoryTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -1218,7 +1220,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onDeleteSelected = controller::deleteSelected,
             onDeleteOlderThan = controller::deleteOlderThan,
             onDeleteAll = controller::deleteAll,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
             helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
         )

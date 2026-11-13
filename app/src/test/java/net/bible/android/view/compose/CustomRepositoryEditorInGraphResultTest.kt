@@ -241,7 +241,7 @@ class CustomRepositoryEditorInGraphResultTest {
         assertEquals(NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN, currentRoute)
 
         val saved = RepositoryResult(repository = CustomRepositoryData(name = "Grace", manifestUrl = "https://x"))
-        compose.runOnIdle { repositoryEditorChannel.deliver(navController, saved) }
+        compose.runOnIdle { repositoryEditorChannel.deliver(navController, navController.currentBackStackEntry, saved) }
         compose.waitForIdle()
 
         // The BRANCH first: a `deliver` that wrongly took the exit branch would fail every
@@ -275,7 +275,7 @@ class CustomRepositoryEditorInGraphResultTest {
         compose.runOnIdle { navController.navigate(NavRoutes.customRepositoryEditor(null)) }
         compose.waitForIdle()
         val saved = RepositoryResult(repository = CustomRepositoryData(name = "Grace"))
-        compose.runOnIdle { repositoryEditorChannel.deliver(navController, saved) }
+        compose.runOnIdle { repositoryEditorChannel.deliver(navController, navController.currentBackStackEntry, saved) }
         compose.waitForIdle()
 
         // Force further recompositions of the parent arm the same way a user would: go into the

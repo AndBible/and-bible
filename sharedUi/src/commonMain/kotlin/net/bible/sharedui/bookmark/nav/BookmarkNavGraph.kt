@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -48,7 +49,7 @@ import net.bible.sharedui.bookmark.BookmarksScreen
 import net.bible.sharedui.bookmark.LabelEditScreen
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // A NOTE ON THE TWO `LabelEditResult`s
@@ -345,8 +346,8 @@ class BookmarkNavDeps(
  * the boolean branch itself is [popOrExitOnFailedPop], shared so that "a failed pop still leaves"
  * is decided in one place.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -415,7 +416,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         val controller = remember(initialFilterIndex) {
             d.controllerFor(
                 initialFilterIndex,
-                { result -> deps.bookmarkResults.deliver(navController, result) },
+                { result -> deps.bookmarkResults.deliver(navController, backStackEntry, result) },
                 // The one line the host cannot write: the payload is entirely the host's (Room
                 // labels, the workspace settings), turning it into a destination is this graph's.
                 { payload -> navController.navigate(NavRoutes.manageLabels(payload)) },
@@ -509,7 +510,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // `NavResultChannelGuardTest` should grow its per-channel line for it. Until then the
             // safe reading of this line is "pops correctly if it is ever a child", not "is ready to
             // be one".
-            onUp = { navController.popOrExit(deps.exitHost) },
+            onUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
             dialog = dialog,
             onConfirmDialog = controller::confirmDialog,
             onDismissDialog = controller::dismissDialog,
@@ -538,7 +539,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // no result to construct. Leaving quietly is strictly better than delivering a made-up one
         // to a caller that would then write it back over the user's settings.
         if (data == null) {
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+            LaunchedEffect(Unit) { navController.popOrExit(backStackEntry, deps.exitHost) }
             return@composable
         }
 
@@ -552,7 +553,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
                 // host's (Room entities, the workspace override table); turning it into a
                 // destination is this graph's.
                 { payload -> navController.navigate(NavRoutes.labelEdit(payload)) },
-                { result -> deps.manageLabelsResults.deliver(navController, result) },
+                { result -> deps.manageLabelsResults.deliver(navController, backStackEntry, result) },
             )
         }
 
@@ -692,7 +693,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // controller around a payload that is not there.
         if (data == null) {
             LaunchedEffect(Unit) {
-                deps.labelEditResults.deliver(navController, NavLabelEditResult.Cancelled)
+                deps.labelEditResults.deliver(navController, backStackEntry, NavLabelEditResult.Cancelled)
             }
             return@composable
         }
@@ -702,7 +703,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // outcomes onto the nav type's two), so the only thing left to decide is HOW it leaves, and
         // that is precisely what NavResultChannel.deliver decides.
         val controller = remember(data) {
-            d.controllerFor(data) { result -> deps.labelEditResults.deliver(navController, result) }
+            d.controllerFor(data) { result -> deps.labelEditResults.deliver(navController, backStackEntry, result) }
         }
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }

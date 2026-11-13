@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -37,7 +38,7 @@ import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import net.bible.sharedui.PassThroughBackHandler
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.DailyReadingScreen
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
@@ -273,8 +274,8 @@ class ReadingPlanNavDeps(
  * retired four byte-identical copies covered by a single test). What stays here is the part that
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
-private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () -> Unit) {
+    popOrExitFrom(from, exitHost)
 }
 
 /**
@@ -428,10 +429,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
             onDismissError = controller::dismissError,
             onConfirmStartDatePicker = controller::confirmStartDate,
             onDismissStartDatePicker = controller::dismissStartDatePicker,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
         )
     }
-    composable(NavRoutes.READING_PLAN_DAY_LIST) {
+    composable(NavRoutes.READING_PLAN_DAY_LIST) { entry ->
         val d = deps.dayList
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
@@ -441,7 +442,7 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
                 // Classic set the day as the result Intent's ACTION and finished; the parent
                 // destination reads this instead — see ReadingPlanSelection.
                 deps.pendingSelection.value = ReadingPlanSelection.Day(day)
-                navController.popOrExit(deps.exitHost)
+                navController.popOrExit(entry, deps.exitHost)
             }
         }
         DisposableEffect(controller) {
@@ -458,10 +459,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
             error = error,
             onSelect = controller::select,
             onDismissError = controller::dismissError,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
-    composable(NavRoutes.READING_PLAN_SELECTOR) {
+    composable(NavRoutes.READING_PLAN_SELECTOR) { entry ->
         val d = deps.selector
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
@@ -472,7 +473,7 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
                 // startReadingPlan, kept there because it needs ReadingPlanControl) — see
                 // SelectorDeps' kdoc.
                 deps.pendingSelection.value = ReadingPlanSelection.Plan(planCode)
-                navController.popOrExit(deps.exitHost)
+                navController.popOrExit(entry, deps.exitHost)
             }
         }
         DisposableEffect(controller) {
@@ -497,7 +498,7 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
             onReset = controller::reset,
             onDismissError = controller::dismissError,
             onDismissDuplicate = controller::dismissDuplicateWarning,
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            onNavigateUp = { navController.popOrExit(entry, deps.exitHost) },
         )
     }
 }

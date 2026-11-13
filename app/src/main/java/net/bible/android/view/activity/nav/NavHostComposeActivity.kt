@@ -34,6 +34,7 @@ import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
@@ -640,6 +641,36 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private var lastBackPressed: Long? = null
+
+    /**
+     * Issue #4073, system back: swallows a back press that arrives between a back stack change and the frame that
+     * composes the new destination. After a pop to `reading`, that destination's [PassThroughBackHandler][net.bible.sharedui.PassThroughBackHandler]
+     * is registered again only when its arm composes, and the graph's own handler is already off (one entry left).
+     * A second press in that gap (two quick presses on the emulator) found no enabled callback and closed the app.
+     *
+     * Added before `setContent`, so every Compose handler outranks it; enabled only for [SETTLING_FRAMES] frames
+     * after each destination change ([armSettlingBack]), so it never hides the platform's own back-to-home.
+     */
+    private val settlingBack = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            Log.i(TAG_BACK, "BACK swallowed: the graph is still settling after a destination change")
+        }
+    }
+    private var settlingBackToken: Any? = null
+
+    private fun armSettlingBack() {
+        settlingBack.isEnabled = true
+        val token = Any()
+        settlingBackToken = token
+        val choreographer = android.view.Choreographer.getInstance()
+        var left = SETTLING_FRAMES
+        fun onFrame() {
+            if (settlingBackToken !== token) return
+            if (--left > 0) choreographer.postFrameCallback { onFrame() }
+            else settlingBack.isEnabled = false
+        }
+        choreographer.postFrameCallback { onFrame() }
+    }
 
     /**
      * F55 chain, the reading destination's BACK (spec 2026-10-08 API 36 §3.1). Reached through the reading
@@ -3015,6 +3046,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         startStageForTest = "content set, start settings not loaded"
+        onBackPressedDispatcher.addCallback(this, settlingBack)
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
             // Do not compose synchronous settings consumers until their snapshot is loaded.
@@ -3057,6 +3089,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { controller, destination, _ ->
+                        armSettlingBack()
                         deliverPendingReadingSearch()
                         applyReadingReturnDebts(destination.route)
                         answerAbandonedReadingRequests(destination.route)
@@ -3463,6 +3496,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         /** Classic's 1000 ms double-back window (`MainBibleActivity.kt:807`). */
         private const val BACK_EXIT_WINDOW_MS = 1000L
         private const val TAG_BACK = "NavHostBack"
+
+        /** Frames [settlingBack] stays on after a destination change: one to compose, one to run its effects, one spare. */
+        private const val SETTLING_FRAMES = 3
 
         const val EXTRA_ROUTE: String = "nav_route"
 

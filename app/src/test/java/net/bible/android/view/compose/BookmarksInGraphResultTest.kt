@@ -393,7 +393,7 @@ class BookmarksInGraphResultTest {
         assertEquals(NavRoutes.MANAGE_LABELS_PATTERN, currentRoute)
 
         val returned = """{"mode":"WORKSPACE","selected":["L1"]}"""
-        compose.runOnIdle { manageLabelsChannel.deliver(navController, ManageLabelsResult(returned)) }
+        compose.runOnIdle { manageLabelsChannel.deliver(navController, navController.currentBackStackEntry, ManageLabelsResult(returned)) }
         compose.waitForIdle()
 
         assertEquals(NavRoutes.BOOKMARKS_PATTERN, currentRoute)
