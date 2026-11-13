@@ -148,10 +148,6 @@ const inspect = () => evaluate(`(() => { ${PAGE_HELPERS}
   const pwIn = [...document.querySelectorAll('input[type=password][name=Passwd]')].find(vis);
   if (pwIn) return {kind: 'password', host, title};
   if (host === 'myaccount.google.com') return {kind: 'signed-in', host, title};
-  const acct = [...document.querySelectorAll('[data-identifier], [data-email]')].filter(vis)
-        .find(e => (e.getAttribute('data-identifier') || e.getAttribute('data-email') || '').toLowerCase()
-                   === ${JSON.stringify(email.toLowerCase())});
-  if (acct) return {kind: 'account', host, title, at: rect(acct)};
   const selectAll = byText('input[type=checkbox], [role=checkbox]', /^(select all|valitse kaikki)$/i)
         || [...document.querySelectorAll('input[type=checkbox][aria-label]')].filter(vis)
            .find(e => /select all|valitse kaikki/i.test(e.getAttribute('aria-label')));
@@ -160,6 +156,11 @@ const inspect = () => evaluate(`(() => { ${PAGE_HELPERS}
   const ok = byText('button, [role=button]', /^(continue|allow|jatka|salli)$/i);
   if (ok && ok.getAttribute('aria-disabled') !== 'true' && !ok.disabled)
       return {kind: 'consent', host, title, at: rect(ok), label: (ok.innerText || '').trim()};
+  // Last: the consent page also shows the account as a [data-email] chip.
+  const acct = [...document.querySelectorAll('[data-identifier], [data-email]')].filter(vis)
+        .find(e => (e.getAttribute('data-identifier') || e.getAttribute('data-email') || '').toLowerCase()
+                   === ${JSON.stringify(email.toLowerCase())});
+  if (acct) return {kind: 'account', host, title, at: rect(acct)};
   return {kind: 'unknown', host, title, text: (document.body?.innerText || '').slice(0, 300)};
 })()`);
 
