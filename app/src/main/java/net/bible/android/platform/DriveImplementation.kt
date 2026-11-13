@@ -10,10 +10,9 @@ object DriveImplementation {
     const val SHARED = "shared"
     const val LEGACY = "legacy"
 
-    /** [SHARED] wins, [LEGACY] loses, anything else (including null) falls back to [isBeta]. */
-    fun useShared(isBeta: Boolean, override: String?): Boolean = when (override) {
-        SHARED -> true
-        LEGACY -> false
-        else -> isBeta
-    }
+    /**
+     * The shared adapter is the default on every Android channel; only an explicit [LEGACY] keeps the old adapter
+     * (kept until the old adapter and the Java Drive libraries are removed).
+     */
+    fun useShared(override: String?): Boolean = override != LEGACY
 }

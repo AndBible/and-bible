@@ -29,7 +29,7 @@ class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFac
     }
     override fun create(id: String): CloudAdapter = when (id) {
         "GOOGLE_DRIVE" -> {
-            val useShared = DriveImplementation.useShared(CommonUtils.isBeta, CommonUtils.realSharedPreferences.getString(DriveImplementation.PREF_KEY, null))
+            val useShared = DriveImplementation.useShared(CommonUtils.realSharedPreferences.getString(DriveImplementation.PREF_KEY, null))
             (Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider").getDeclaredConstructor().newInstance() as DriveAdapterProvider).create(useShared)
         }
         "NEXT_CLOUD" -> CommonUtils.realSharedPreferences.let { prefs ->
