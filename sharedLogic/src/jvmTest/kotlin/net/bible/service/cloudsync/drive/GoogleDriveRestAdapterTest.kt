@@ -358,7 +358,10 @@ class GoogleDriveRestAdapterTest {
         val sink = object : ForwardingSink(Buffer()) {
             override fun close() { closed = true; super.close() }
         }
-        val job = launch(kotlinx.coroutines.Dispatchers.Default, start = kotlinx.coroutines.CoroutineStart.ATOMIC) {
+        // ATOMIC on runBlocking's own single-threaded loop: the body cannot run before cancel() below (this thread
+        // only yields at join()), yet ATOMIC still starts it, so download() always begins already cancelled. A
+        // multi-threaded dispatcher let the 10-byte download finish before cancel() on a loaded machine.
+        val job = launch(start = kotlinx.coroutines.CoroutineStart.ATOMIC) {
             adapter.download(id, sink)
         }
         job.cancel()

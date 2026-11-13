@@ -107,7 +107,8 @@ class IosSyncBindingsTest {
         assertNotNull(koin.get<IosDevicePrefs>())
         assertNotNull(koin.get<SyncSettingsPlatform>())
         val factory = koin.get<CloudAdapterFactory>()
-        assertEquals(listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV"), factory.available)
+        // GoogleOAuthClients.ios is configured, so the default bindings offer Google Drive.
+        assertEquals(listOf("ICLOUD_DRIVE", "GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), factory.available)
         assertEquals("name-WEBDAV", factory.displayName("WEBDAV"))
         assertNotNull(koin.get<DocumentSyncStarter>())
         assertNotNull(koin.get<SyncScheduler>())
@@ -116,6 +117,18 @@ class IosSyncBindingsTest {
         assertNotNull(koin.get<net.bible.service.cloudsync.SyncTriggerDriver>())
         assertSame(koin.get<IosSyncTriggers>(), koin.get<IosSyncTriggers>())
         app.close()
+    }
+
+    @Test
+    fun withoutAGoogleClientDriveIsNotOffered() {
+        val app = koinApplication {
+            modules(fakeCModule(), buildIosSyncBindings(strings, FakeRefresh(), googleClient = null))
+        }
+        try {
+            assertEquals(listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV"), app.koin.get<CloudAdapterFactory>().available)
+        } finally {
+            app.close()
+        }
     }
 
     @Test
