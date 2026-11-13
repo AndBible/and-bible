@@ -28,6 +28,17 @@ import net.bible.service.cloudsync.SyncNamespace
 import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.okhttp.OkHttp
+import net.bible.service.cloudsync.desktop.drive.LoopbackOAuthBrowser
+import net.bible.service.cloudsync.desktop.drive.desktopClient
+import net.bible.service.cloudsync.desktop.drive.googleDriveSignInDonePage
+import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
+import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
+import net.bible.service.cloudsync.drive.oauth.GoogleOAuthClient
+import net.bible.service.cloudsync.drive.oauth.GoogleOAuthClients
+import net.bible.service.cloudsync.drive.oauth.PkceGoogleAuth
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.HostDocumentSyncStarter
@@ -132,7 +143,12 @@ internal fun desktopCertificateDate(epochMs: Long): String =
  * on-close passes. `BackupHost` is the hoisted [HostBackupHost] over the `FilePicker` and `FileDelivery` ports that the
  * document stream (D3b) binds. A NEW module is built per call. Everything that needs the open databases is resolved lazily.
  */
-fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend() }): Module = module {
+fun desktopSyncModule(
+    secretBackend: () -> KeyringBackend = { JavaKeyringBackend() },
+    openBrowser: suspend (String) -> Boolean = { false },
+    googleClient: () -> GoogleOAuthClient? = { GoogleOAuthClients.desktopClient() },
+    googleEngine: () -> HttpClientEngine = { OkHttp.create() },
+): Module = module {
     single {
         CloudSyncNamespace(desktopSyncNamespace(System.getProperty("andbible.version"), System.getProperty("andbible.syncNamespaceSuffix")))
     }
@@ -140,8 +156,23 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
     single<SyncSettingsPlatform> {
         DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), get<HostSyncStrings>().webDavServerUrlHint)
     }
+    // ONE loopback browser per module: a second sign-in supersedes a pending one (supersede is JVM-wide anyway).
+    single {
+        LoopbackOAuthBrowser(openBrowser, successPage = googleDriveSignInDonePage(get<HostSyncStrings>().googleDriveSignInDone()))
+    }
+    single { createGoogleDriveHttpClient(googleEngine()) }
     single<CloudAdapterFactory> {
         val clientFactory = DesktopWebDavClientFactory()
+        val client = googleClient()
+        val googleDrive = client?.let { c ->
+            { background: Boolean ->
+                val http = get<HttpClient>()
+                GoogleDriveRestAdapter(
+                    PkceGoogleAuth(c, get<LoopbackOAuthBrowser>(), get<SecretStore>(), http, System::currentTimeMillis, interactive = !background),
+                    http,
+                )
+            }
+        }
         DesktopCloudAdapterFactory(
             HostCloudAdapterFactory(
                 platform = get<SyncSettingsPlatform>(),
@@ -151,6 +182,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
                 signInUi = HostWebDavCertificatePrompt({ get<AppDialogController>() }, get<CoreStrings>(), ::desktopCertificateDate),
                 tempDir = get<AppEnvironment>().tmpDir.toPath(),
                 clientFactory = clientFactory::create,
+                googleDrive = googleDrive,
             ),
         )
     }

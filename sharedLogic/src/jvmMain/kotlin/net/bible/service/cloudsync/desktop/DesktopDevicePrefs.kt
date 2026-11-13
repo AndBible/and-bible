@@ -16,6 +16,7 @@
  */
 package net.bible.service.cloudsync.desktop
 
+import net.bible.service.cloudsync.drive.oauth.GoogleDriveSecretKeys
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.WebDavPrefKeys
@@ -23,7 +24,7 @@ import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 
 /** The credential keys whose values live in the secret store, never in the device preferences file (same keys as iOS/Android). */
-val DESKTOP_SECRET_CREDENTIAL_KEYS = setOf("cloud_sync_password", "webdav_sync_password")
+val DESKTOP_SECRET_CREDENTIAL_KEYS = setOf("cloud_sync_password", "webdav_sync_password", GoogleDriveSecretKeys.REFRESH_TOKEN)
 
 /** The WebDAV adapter's persisted calibration and certificate pin, in the device-local preferences (same keys and encodings as iOS). */
 class DesktopWebDavStateStore(private val prefs: DeviceLocalPrefs) : WebDavStateStore {

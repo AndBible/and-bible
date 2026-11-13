@@ -1,7 +1,14 @@
 package net.bible.service.cloudsync.ios
 
 import kotlinx.coroutines.test.runTest
+import io.ktor.client.engine.darwin.Darwin
 import net.bible.service.cloudsync.SyncSettingsPlatform
+import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
+import net.bible.service.cloudsync.drive.createGoogleDriveHttpClient
+import net.bible.service.cloudsync.drive.oauth.GoogleDriveSecretKeys
+import net.bible.service.cloudsync.drive.oauth.GoogleOAuthClient
+import net.bible.service.cloudsync.drive.oauth.OAuthBrowser
+import net.bible.service.cloudsync.drive.oauth.PkceGoogleAuth
 import net.bible.service.cloudsync.filetree.FileTreeCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.webdav.WebDavMessage
@@ -72,6 +79,44 @@ class IosCloudAdapterFactoryTest {
         },
         awaitReady = awaitReady,
     )
+
+    private fun driveFactory(browserCalls: MutableList<String>) = HostCloudAdapterFactory(
+        platform, "dev-1", { "name-$it" }, { store(tmpRoot) }, ui, tmpRoot / "tmp",
+        clientFactory = { _: WebDavConfig, _: WebDavStateStore -> error("I2-test: no network") },
+        googleDrive = { background ->
+            val http = createGoogleDriveHttpClient(Darwin.create())
+            val browser = object : OAuthBrowser {
+                override suspend fun authorize(buildUrl: (redirectUri: String) -> String): String {
+                    browserCalls += "authorize"
+                    error("no browser in test")
+                }
+            }
+            GoogleDriveRestAdapter(
+                PkceGoogleAuth(GoogleOAuthClient("id.apps.googleusercontent.com"), browser, secrets, http, { clock }, interactive = !background),
+                http,
+            )
+        },
+    )
+
+    @Test fun driveIsOfferedSecondWhenAClientIsConfigured() {
+        assertEquals(listOf("ICLOUD_DRIVE", "GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), driveFactory(mutableListOf()).available)
+        assertIs<GoogleDriveRestAdapter>(driveFactory(mutableListOf()).create("GOOGLE_DRIVE"))
+    }
+
+    @Test fun backgroundDriveSignInWithoutRefreshTokenIsFalseAndOpensNoBrowser() = runTest {
+        val calls = mutableListOf<String>()
+        val adapter = driveFactory(calls).createForBackground("GOOGLE_DRIVE")
+        assertFalse(adapter.signedIn)
+        assertFalse(adapter.signIn())
+        assertTrue(calls.isEmpty())
+    }
+
+    @Test fun refreshTokenKeyIsRoutedToTheSecretStore() {
+        assertTrue(GoogleDriveSecretKeys.REFRESH_TOKEN in SECRET_CREDENTIAL_KEYS)
+        platform.setCredential(GoogleDriveSecretKeys.REFRESH_TOKEN, "rt")
+        assertEquals("rt", secrets.map[GoogleDriveSecretKeys.REFRESH_TOKEN])
+        assertEquals(null, defaults.stringForKey(GoogleDriveSecretKeys.REFRESH_TOKEN))
+    }
 
     @Test fun availableOrder() {
         val f = factory()

@@ -48,4 +48,5 @@ internal fun hostSyncStrings(strings: StringTable): HostSyncStrings = HostSyncSt
         )
     },
     ok = { strings.text("okay") },
+    googleDriveSignInDone = { strings.text("google_drive_signin_done") },
 )
