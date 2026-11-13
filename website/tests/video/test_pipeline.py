@@ -231,3 +231,83 @@ def test_out_dir_is_per_episode(tmp_path):
     repo = tmp_path / "repo"
     episode = repo / "website" / "video" / "episodes" / "tour-1"
     assert pipeline.out_dir(repo, episode) == repo / ".local" / "video-out" / "tour-1"
+
+
+# --- narration sources -------------------------------------------------------
+
+
+def ep_dir(tmp_path: Path) -> Path:
+    return tmp_path
+
+
+def make_episode(tmp_path: Path, scenes: list[str]):
+    (tmp_path / "scenes").mkdir(exist_ok=True)
+    body = "title: T\ntts:\n  model: m\n  voice: v\n  instructions: Calm.\nscenes:\n"
+    for sid in scenes:
+        (tmp_path / "scenes" / f"{sid}.html").write_text("<html></html>")
+        body += (
+            f"  - id: {sid}\n    page: scenes/{sid}.html\n    formats: [main]\n"
+            f"    narration: Narration of {sid}.\n"
+        )
+    (tmp_path / "script.yaml").write_text(body)
+    return pipeline.load_episode(tmp_path / "script.yaml")
+
+
+def write_recording(tmp_path: Path, ep, scene_id: str, text: str, data: bytes = b"flac") -> None:
+    flac = pipeline.own_voice_path(tmp_path / "media", ep_dir(tmp_path), scene_id)
+    flac.parent.mkdir(parents=True, exist_ok=True)
+    flac.write_bytes(data)
+    flac.with_suffix(".txt").write_text(text, encoding="utf-8")
+
+
+def test_own_voice_path_is_per_episode_and_scene(tmp_path):
+    path = pipeline.own_voice_path(tmp_path / "media", tmp_path / "tour-1", "hook")
+    assert path == tmp_path / "media" / "tour-1" / "voice" / "hook.flac"
+
+
+def test_own_voice_missing_scene_names_it(tmp_path):
+    ep = make_episode(tmp_path, scenes=["hook", "search"])
+    write_recording(tmp_path, ep, "hook", text=ep.scenes[0].narration)
+    status = pipeline.voice_status(tmp_path / "media", ep_dir(tmp_path), ep.scenes)
+    assert status == {"hook": "ok", "search": "missing"}
+
+
+def test_own_voice_stale_after_text_edit(tmp_path):
+    ep = make_episode(tmp_path, scenes=["hook"])
+    write_recording(tmp_path, ep, "hook", text="an older narration")
+    assert pipeline.voice_status(tmp_path / "media", ep_dir(tmp_path), ep.scenes) == {"hook": "stale"}
+
+
+def test_own_voice_recording_without_stamp_is_stale(tmp_path):
+    ep = make_episode(tmp_path, scenes=["hook"])
+    write_recording(tmp_path, ep, "hook", text="x")
+    pipeline.own_voice_path(tmp_path / "media", tmp_path, "hook").with_suffix(".txt").unlink()
+    assert pipeline.voice_status(tmp_path / "media", tmp_path, ep.scenes) == {"hook": "stale"}
+
+
+def test_own_voice_stamp_ignores_whitespace_and_tracks_text():
+    assert pipeline.own_voice_stamp("a  b\n") == pipeline.own_voice_stamp("a b")
+    assert pipeline.own_voice_stamp("a b") != pipeline.own_voice_stamp("a c")
+    assert len(pipeline.own_voice_stamp("a b")) == 16
+
+
+def test_own_clip_key_follows_flac_bytes_only():
+    assert pipeline.own_clip_key(b"one") == pipeline.own_clip_key(b"one")
+    assert pipeline.own_clip_key(b"one") != pipeline.own_clip_key(b"two")
+
+
+def test_voice_problems_lists_every_bad_scene():
+    text = pipeline.voice_problems({"a": "ok", "b": "missing", "c": "stale"})
+    assert "b (missing)" in text and "c (stale)" in text and "ok" not in text
+
+
+def test_voice_script_has_one_block_per_scene(tmp_path):
+    ep = make_episode(tmp_path, scenes=["hook", "search"])
+    text = pipeline.voice_script(ep.scenes)
+    assert text.index("hook") < text.index("Narration of hook.") < text.index("search")
+    assert "Narration of search." in text
+
+
+def test_output_name_carries_the_voice_source():
+    assert pipeline.output_name("main", "tts", "mp4") == "main-tts.mp4"
+    assert pipeline.output_name("short", "own", "srt") == "short-own.srt"

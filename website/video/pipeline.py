@@ -14,6 +14,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 import yaml
 
@@ -68,6 +69,8 @@ class Episode:
     fps: int = 30
     pad: float = 0.6
     fade: float = 0.4
+    directory: Path = Path(".")
+    """The episode's own directory (where script.yaml is)."""
 
     def for_format(self, name: str) -> list[Scene]:
         return [scene for scene in self.scenes if name in scene.formats]
@@ -127,6 +130,7 @@ def load_episode(path: Path) -> Episode:
         fps=int(data.get("fps", 30)),
         pad=float(data.get("pad", 0.6)),
         fade=float(data.get("fade", 0.4)),
+        directory=path.parent,
     )
 
 
@@ -282,3 +286,59 @@ def align_words(narration: str, heard: Sequence[Word]) -> list[Word]:
 def out_dir(repo: Path, episode_dir: Path) -> Path:
     """Where an episode's finished videos and captions go, under the repo's .local/."""
     return repo / ".local" / "video-out" / episode_dir.name
+
+
+VoiceStatus = Literal["ok", "missing", "stale"]
+VoiceSource = Literal["tts", "own"]
+
+
+def own_voice_path(media: Path, episode_dir: Path, scene_id: str) -> Path:
+    """The maintainer's recording of one scene: media/<episode>/voice/<scene>.flac."""
+    return media / episode_dir.name / "voice" / f"{scene_id}.flac"
+
+
+def own_voice_stamp(narration: str) -> str:
+    """Identifies the narration text a recording was read from (whitespace-insensitive)."""
+    normalized = " ".join(narration.split())
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16]
+
+
+def voice_status(
+    media: Path, episode_dir: Path, scenes: Sequence[Scene]
+) -> dict[str, VoiceStatus]:
+    """Per scene: `missing` (no FLAC), `stale` (no stamp, or the stamp's text is
+    not the script's current narration), else `ok`."""
+    result: dict[str, VoiceStatus] = {}
+    for scene in scenes:
+        flac = own_voice_path(media, episode_dir, scene.id)
+        stamp = flac.with_suffix(".txt")
+        if not flac.is_file():
+            result[scene.id] = "missing"
+        elif not stamp.is_file() or own_voice_stamp(
+            stamp.read_text(encoding="utf-8")
+        ) != own_voice_stamp(scene.narration):
+            result[scene.id] = "stale"
+        else:
+            result[scene.id] = "ok"
+    return result
+
+
+def voice_problems(status: Mapping[str, str]) -> str:
+    """The scenes that are not `ok`, each with its status, for an error message."""
+    return ", ".join(f"{sid} ({state})" for sid, state in status.items() if state != "ok")
+
+
+def own_clip_key(flac: bytes) -> str:
+    """The transcoded own-voice clip's cache name: only the recording's bytes
+    matter, so re-recording one scene invalidates only that scene."""
+    return hashlib.sha256(flac).hexdigest()
+
+
+def voice_script(scenes: Sequence[Scene]) -> str:
+    """The text to read aloud: one block per scene, its id then its narration."""
+    return "\n".join(f"[{s.id}]\n{s.narration}\n" for s in scenes)
+
+
+def output_name(fmt: str, voice: str, suffix: str) -> str:
+    """e.g. main-tts.mp4, short-own.srt."""
+    return f"{fmt}-{voice}.{suffix}"

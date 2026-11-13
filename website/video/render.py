@@ -5,9 +5,10 @@
 # Ported from the JailBee project (website/video), which is GPL-compatible with AndBible.
 """Render a narrated video episode: TTS clips, HTML scenes, ffmpeg.
 
-    uv run website/video/render.py tts     [--episode DIR] [--dry-run]
-    uv run website/video/render.py preview SCENE [--format main|short] [--at SECONDS]
-    uv run website/video/render.py render  main|short [--episode DIR]
+    uv run website/video/render.py tts     [--episode DIR] [--dry-run] [--voice tts|own]
+    uv run website/video/render.py preview SCENE [--format main|short] [--at SECONDS] [--voice tts|own]
+    uv run website/video/render.py render  main|short [--episode DIR] [--voice tts|own]
+    uv run website/video/render.py voice   --script | --check | --accept SCENE...
 
 See website/video/README.md. The pure parts live in pipeline.py.
 """
@@ -33,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pipeline import (
     out_dir,
     Episode,
+    VoiceSource,
     MissingKeyError,
     Scene,
     Slot,
@@ -43,6 +45,13 @@ from pipeline import (
     captions,
     group_words,
     load_episode,
+    output_name,
+    own_clip_key,
+    own_voice_path,
+    own_voice_stamp,
+    voice_problems,
+    voice_script,
+    voice_status,
     timeline,
     total_length,
 )
@@ -53,6 +62,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 CACHE_DIR = REPO / ".local" / "video-cache"
 OUT_DIR = REPO / ".local" / "video-out"
+MEDIA_DIR = REPO / ".local" / "video-media"
 CACHE = CACHE_DIR
 EPISODES = HERE / "episodes"
 VIEWPORTS = {"main": (1920, 1080), "short": (1080, 1920)}
@@ -80,13 +90,45 @@ def default_episode(episodes: Path = EPISODES) -> Path:
     sys.exit(f"render: several episodes ({names}); pick one with --episode DIR")
 
 
-def clip_path(episode: Episode, scene: Scene) -> Path:
-    return CACHE / "tts" / f"{cache_key(episode.tts, scene.narration)}.wav"
+def clip_path(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> Path:
+    """The scene's narration as a WAV: the TTS cache entry, or (own) a 48 kHz
+    mono transcode of the recording, named by the FLAC's bytes so a re-recorded
+    scene invalidates only itself. The path need not exist yet."""
+    if voice == "tts":
+        return CACHE / "tts" / f"{cache_key(episode.tts, scene.narration)}.wav"
+    flac = own_voice_path(MEDIA_DIR, episode.directory, scene.id)
+    if not flac.is_file():
+        sys.exit(f"render: no recording for {scene.id}: {flac}")
+    return CACHE / "own" / f"{own_clip_key(flac.read_bytes())}.wav"
 
 
-def words_path(episode: Episode, scene: Scene) -> Path:
+def words_path(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> Path:
     """Word timings sit under the clip's own hash: new audio, new timings."""
-    return CACHE / "words" / f"{cache_key(episode.tts, scene.narration)}.json"
+    return CACHE / "words" / f"{clip_path(episode, scene, voice).stem}.json"
+
+
+def require_own_voice(episode: Episode, scenes: Sequence[Scene]) -> None:
+    """Exit naming every scene whose recording is missing or stale; never fall
+    back to TTS."""
+    status = voice_status(MEDIA_DIR, episode.directory, scenes)
+    bad = voice_problems(status)
+    if bad:
+        sys.exit(f"render: --voice own, but these scenes have no usable recording: {bad}")
+
+
+def transcode_own(episode: Episode, scene: Scene) -> Path:
+    """Make sure the scene's own-voice WAV exists in the cache."""
+    target = clip_path(episode, scene, "own")
+    if not target.is_file():
+        source = own_voice_path(MEDIA_DIR, episode.directory, scene.id)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        partial = target.with_suffix(".part.wav")
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-y", "-i", source, "-ar", "48000", "-ac", "1", partial],
+            check=True,
+        )
+        partial.replace(target)
+    return target
 
 
 def transcribe(scene: Scene, clip: Path, key: str) -> list[Word]:
@@ -127,12 +169,12 @@ def transcribe(scene: Scene, clip: Path, key: str) -> list[Word]:
     ]
 
 
-def ensure_words(episode: Episode, scenes: Sequence[Scene]) -> None:
+def ensure_words(episode: Episode, scenes: Sequence[Scene], voice: VoiceSource) -> None:
     """Transcribe every clip that has no cached word timings yet."""
     missing = [
         s
         for s in scenes
-        if not words_path(episode, s).is_file() and clip_path(episode, s).is_file()
+        if not words_path(episode, s, voice).is_file() and clip_path(episode, s, voice).is_file()
     ]
     print(f"words: {len(scenes) - len(missing)} cached, {len(missing)} to transcribe")
     if not missing:
@@ -143,17 +185,19 @@ def ensure_words(episode: Episode, scenes: Sequence[Scene]) -> None:
         sys.exit(f"render: {error}")
     for scene in missing:
         print(f"words: {scene.id}")
-        words = transcribe(scene, clip_path(episode, scene), key)
-        target = words_path(episode, scene)
+        words = transcribe(scene, clip_path(episode, scene, voice), key)
+        target = words_path(episode, scene, voice)
         target.parent.mkdir(parents=True, exist_ok=True)
         partial = target.with_suffix(".part")
         partial.write_text(json.dumps([[w.text, w.start, w.end] for w in words]))
         partial.replace(target)
 
 
-def load_words(episode: Episode, scene: Scene) -> list[Word]:
+def load_words(episode: Episode, scene: Scene, voice: VoiceSource = "tts") -> list[Word]:
     """Cached word timings, or none (a preview before `render.py tts`)."""
-    path = words_path(episode, scene)
+    if voice == "own" and not clip_path(episode, scene, voice).is_file():
+        return []
+    path = words_path(episode, scene, voice)
     if not path.is_file():
         return []
     heard = [Word(text, start, end) for text, start, end in json.loads(path.read_text())]
@@ -197,7 +241,18 @@ def synthesize(episode: Episode, scene: Scene, key: str, target: Path) -> None:
     partial.replace(target)
 
 
-def ensure_clips(episode: Episode, scenes: Sequence[Scene], *, dry_run: bool) -> None:
+def ensure_clips(
+    episode: Episode, scenes: Sequence[Scene], *, dry_run: bool, voice: VoiceSource = "tts"
+) -> None:
+    if voice == "own":
+        require_own_voice(episode, scenes)
+        missing = [s for s in scenes if not clip_path(episode, s, voice).is_file()]
+        print(f"own voice: {len(scenes) - len(missing)} cached, {len(missing)} to transcode")
+        if not dry_run:
+            for scene in missing:
+                print(f"own voice: {scene.id}")
+                transcode_own(episode, scene)
+        return
     missing = [scene for scene in scenes if not clip_path(episode, scene).is_file()]
     chars = sum(len(scene.narration) for scene in missing)
     print(f"tts: {len(scenes) - len(missing)} cached, {len(missing)} missing ({chars} characters)")
@@ -213,17 +268,21 @@ def ensure_clips(episode: Episode, scenes: Sequence[Scene], *, dry_run: bool) ->
 
 
 def durations(
-    episode: Episode, scenes: Sequence[Scene], *, estimate: bool = False
+    episode: Episode,
+    scenes: Sequence[Scene],
+    *,
+    estimate: bool = False,
+    voice: VoiceSource = "tts",
 ) -> dict[str, float]:
     result = {}
     for scene in scenes:
-        path = clip_path(episode, scene)
+        path = clip_path(episode, scene, voice)
         if path.is_file():
             result[scene.id] = probe_duration(path)
         elif estimate:
             result[scene.id] = len(scene.narration) / ESTIMATED_CHARS_PER_SECOND
         else:
-            raise SystemExit(f"render: no clip for {scene.id}; run `render.py tts` first")
+            raise SystemExit(f"render: no clip for {scene.id}; run `render.py tts --voice {voice}` first")
     return result
 
 
@@ -312,13 +371,19 @@ def render_slot(
     page.close()
 
 
-def assemble(episode: Episode, slots: Sequence[Slot], parts: Sequence[Path], target: Path) -> None:
+def assemble(
+    episode: Episode,
+    slots: Sequence[Slot],
+    parts: Sequence[Path],
+    target: Path,
+    voice: VoiceSource = "tts",
+) -> None:
     total = total_length(slots)
     args = ["ffmpeg", "-v", "error", "-y"]
     for part in parts:
         args += ["-i", part]
     for slot in slots:
-        args += ["-i", clip_path(episode, slot.scene)]
+        args += ["-i", clip_path(episode, slot.scene, voice)]
     chains = []
     video = "[0:v]"
     for index, slot in enumerate(slots[1:], start=1):
@@ -370,9 +435,37 @@ def assemble(episode: Episode, slots: Sequence[Slot], parts: Sequence[Path], tar
 
 
 def command_tts(episode: Episode, args: argparse.Namespace) -> None:
-    ensure_clips(episode, episode.scenes, dry_run=args.dry_run)
+    ensure_clips(episode, episode.scenes, dry_run=args.dry_run, voice=args.voice)
     if not args.dry_run:
-        ensure_words(episode, episode.scenes)
+        ensure_words(episode, episode.scenes, args.voice)
+
+
+def command_voice(episode: Episode, args: argparse.Namespace) -> None:
+    media = MEDIA_DIR
+    if args.script:
+        target = media / args.episode.name / "voice" / "script.txt"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(voice_script(episode.scenes), encoding="utf-8")
+        print(target)
+    if args.accept:
+        known = {s.id: s for s in episode.scenes}
+        unknown = [sid for sid in args.accept if sid not in known]
+        if unknown:
+            sys.exit(f"render: no such scene: {', '.join(unknown)}")
+        for sid in args.accept:
+            flac = own_voice_path(media, episode.directory, sid)
+            if not flac.is_file():
+                sys.exit(f"render: no recording for {sid}: save it as {flac}")
+        for sid in args.accept:
+            stamp = own_voice_path(media, episode.directory, sid).with_suffix(".txt")
+            stamp.write_text(known[sid].narration, encoding="utf-8")
+            print(f"accepted {sid} (stamp {own_voice_stamp(known[sid].narration)})")
+    if args.check:
+        status = voice_status(media, episode.directory, episode.scenes)
+        for sid, state in status.items():
+            print(f"{sid}: {state}")
+        if voice_problems(status):
+            sys.exit(1)
 
 
 def command_preview(episode: Episode, args: argparse.Namespace) -> None:
@@ -383,9 +476,12 @@ def command_preview(episode: Episode, args: argparse.Namespace) -> None:
         sys.exit(
             f"render: no scene {args.scene}; scenes: {', '.join(s.id for s in episode.scenes)}"
         )
-    clip = durations(episode, [scene], estimate=True)
+    if args.voice == "own":
+        require_own_voice(episode, [scene])
+        transcode_own(episode, scene)
+    clip = durations(episode, [scene], estimate=True, voice=args.voice)
     slot = timeline([scene], clip, pad=episode.pad, fade=0.0)[0]
-    words = load_words(episode, scene)
+    words = load_words(episode, scene, args.voice)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome(), args=["--no-sandbox"])
         if args.at is not None:
@@ -442,11 +538,11 @@ def _render_part(job: tuple[Slot, float, str, int, Path, list[Word]]) -> str:
 
 def command_render(episode: Episode, args: argparse.Namespace) -> None:
     scenes = episode.for_format(args.format)
-    ensure_clips(episode, scenes, dry_run=False)
-    ensure_words(episode, scenes)
-    clips = durations(episode, scenes)
+    ensure_clips(episode, scenes, dry_run=False, voice=args.voice)
+    ensure_words(episode, scenes, args.voice)
+    clips = durations(episode, scenes, voice=args.voice)
     slots = timeline(scenes, clips, pad=episode.pad, fade=episode.fade)
-    words = {s.id: load_words(episode, s) for s in scenes}
+    words = {s.id: load_words(episode, s, args.voice) for s in scenes}
     parts_dir = CACHE / "parts" / args.episode.name / args.format
     parts_dir.mkdir(parents=True, exist_ok=True)
     keys = [part_key(episode, s, clips[s.scene.id], args.format, words[s.scene.id]) for s in slots]
@@ -464,9 +560,9 @@ def command_render(episode: Episode, args: argparse.Namespace) -> None:
                 print(f"render: {scene_id} done", flush=True)
     out = out_dir(REPO, args.episode)
     out.mkdir(parents=True, exist_ok=True)
-    target = out / f"{args.format}.mp4"
-    assemble(episode, slots, parts, target)
-    (out / f"{args.format}.srt").write_text(captions(slots, clips), encoding="utf-8")
+    target = out / output_name(args.format, args.voice, "mp4")
+    assemble(episode, slots, parts, target, args.voice)
+    (out / output_name(args.format, args.voice, "srt")).write_text(captions(slots, clips), encoding="utf-8")
     print(f"{target} ({total_length(slots):.1f}s)")
 
 
@@ -481,23 +577,38 @@ def main(argv: Sequence[str] | None = None) -> None:
     commands = parser.add_subparsers(dest="command", required=True)
     tts = commands.add_parser("tts", parents=[common], help="generate missing narration clips")
     tts.add_argument("--dry-run", action="store_true", help="count, call nothing")
+    voice_help = "narration source: generated (tts) or the recordings in .local/video-media (own)"
+    tts.add_argument("--voice", choices=("tts", "own"), default="tts", help=voice_help)
     preview = commands.add_parser("preview", parents=[common], help="render one scene")
     preview.add_argument("scene")
     preview.add_argument("--format", choices=sorted(VIEWPORTS), default="main")
     preview.add_argument("--at", type=float, help="a single frame at this scene time, as PNG")
+    preview.add_argument("--voice", choices=("tts", "own"), default="tts", help=voice_help)
     preview.add_argument("--fps", type=int, default=15)
     preview.add_argument("--scale", type=float, default=0.5)
     render = commands.add_parser("render", parents=[common], help="render a whole format")
     render.add_argument("format", choices=sorted(VIEWPORTS))
     render.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))
+    render.add_argument("--voice", choices=("tts", "own"), default="tts", help=voice_help)
     render.add_argument("--fresh", action="store_true", help="re-render unchanged scenes too")
+    voice = commands.add_parser("voice", parents=[common], help="own-voice recordings")
+    voice.add_argument("--script", action="store_true", help="write script.txt to read aloud")
+    voice.add_argument("--check", action="store_true", help="status per scene; exit 1 if any bad")
+    voice.add_argument("--accept", nargs="+", metavar="SCENE", help="stamp recordings as current")
     args = parser.parse_args(argv)
+    if args.command == "voice" and not (args.script or args.check or args.accept):
+        parser.error("voice: give --script, --check or --accept SCENE...")
     args.episode = args.episode or default_episode()
     try:
         episode = load_episode(args.episode / "script.yaml")
     except (OSError, ValueError) as error:
         sys.exit(f"render: {error}")
-    {"tts": command_tts, "preview": command_preview, "render": command_render}[args.command](
+    {
+        "tts": command_tts,
+        "preview": command_preview,
+        "render": command_render,
+        "voice": command_voice,
+    }[args.command](
         episode, args
     )
 
