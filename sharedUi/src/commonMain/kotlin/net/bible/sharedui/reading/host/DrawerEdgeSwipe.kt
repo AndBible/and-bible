@@ -28,6 +28,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -60,11 +61,14 @@ internal val DrawerEdgeSettleVelocity: Dp = 400.dp
  * [DrawerEdgeExclusionMaxHeight] per edge, so outside the band the system back gesture keeps the edge.
  * No-op on iOS and desktop.
  */
-internal expect fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean): Modifier
+internal expect fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean, leadingInset: Float = 0f): Modifier
 
-/** Whether [x] (px, in the strip owner's coordinates) lies in the leading [edgePx] of a [width]-wide area. */
-internal fun isInLeadingEdge(x: Float, width: Int, edgePx: Float, rtl: Boolean): Boolean =
-    if (rtl) x >= width - edgePx else x <= edgePx
+/**
+ * Whether [x] (px, in the strip owner's coordinates) lies in the leading [edgePx] of a [width]-wide
+ * area, measured from [leadingInset] px inwards (a navigation bar on the leading side, for example).
+ */
+internal fun isInLeadingEdge(x: Float, width: Int, edgePx: Float, rtl: Boolean, leadingInset: Float = 0f): Boolean =
+    if (rtl) x >= width - leadingInset - edgePx else x <= leadingInset + edgePx
 
 /**
  * The settle decision at the end of an edge drag: a fling ([inwardVelocity], px/s, positive towards
@@ -77,6 +81,12 @@ internal fun edgeSwipeSettlesOpen(fraction: Float, inwardVelocity: Float, veloci
     else -> fraction >= 0.5f
 }
 
+/**
+ * How far open the sheet is: [offset] px from the open position (0) against its [closedAnchor] (negative,
+ * the offset when closed), not against wherever the drag happened to start.
+ */
+internal fun edgeOpenFraction(offset: Float, closedAnchor: Float): Float = (1f - offset / closedAnchor).coerceIn(0f, 1f)
+
 /** Callbacks of [drawerEdgeSwipe]; distances and velocities are px, positive towards the open position. */
 internal interface DrawerEdgeSwipeCallbacks {
     /** The drag passed the touch slop inwards; it is now the drawer's. */
@@ -85,7 +95,10 @@ internal interface DrawerEdgeSwipeCallbacks {
     /** The finger is [distance] px inwards from where the drag started (after the slop). */
     fun onDrag(distance: Float)
 
-    /** The finger lifted with [inwardVelocity] px/s, or the gesture was cancelled (velocity 0). */
+    /**
+     * The finger lifted with [inwardVelocity] px/s, or the gesture was cancelled or lost (velocity 0:
+     * the release then settles by position only, never by the speed of a drag that did not end in a lift).
+     */
     fun onDragEnd(inwardVelocity: Float)
 }
 
@@ -106,11 +119,12 @@ internal fun Modifier.drawerEdgeSwipe(
     enabled: Boolean,
     rtl: Boolean,
     callbacks: DrawerEdgeSwipeCallbacks,
-): Modifier = if (!enabled) this else pointerInput(rtl, callbacks) {
+    leadingInset: Float = 0f,
+): Modifier = if (!enabled) this else pointerInput(rtl, callbacks, leadingInset) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
         if (down.type == PointerType.Mouse) return@awaitEachGesture
-        if (!isInLeadingEdge(down.position.x, size.width, DrawerEdgeSwipeWidth.toPx(), rtl)) return@awaitEachGesture
+        if (!isInLeadingEdge(down.position.x, size.width, DrawerEdgeSwipeWidth.toPx(), rtl, leadingInset)) return@awaitEachGesture
         val sign = if (rtl) -1f else 1f
         val slop = viewConfiguration.touchSlop
         var dx = 0f
@@ -139,15 +153,17 @@ internal fun Modifier.drawerEdgeSwipe(
         callbacks.onDragStart()
         try {
             while (true) {
-                val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
-                    ?: break
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                val change = event.changes.firstOrNull { it.id == down.id } ?: break
                 tracker.addPosition(change.uptimeMillis, change.position)
                 // Read before consume(): a consumed change reports no position change.
                 val delta = change.positionChange().x * sign
                 change.consume()
                 if (!change.pressed) {
                     ended = true
-                    callbacks.onDragEnd(tracker.calculateVelocity().x * sign)
+                    // Only a real lift carries a velocity; a cancel settles by position.
+                    val lifted = event.type == PointerEventType.Release
+                    callbacks.onDragEnd(if (lifted) tracker.calculateVelocity().x * sign else 0f)
                     break
                 }
                 distance += delta
@@ -179,7 +195,9 @@ internal class DrawerEdgeDrag(
     private val requestOpen: () -> Unit,
 ) : DrawerEdgeSwipeCallbacks {
     private var job: Job? = null
-    private var closedOffset = Float.NaN
+
+    /** The sheet's Closed anchor (its most negative offset seen): the open fraction is measured against it. */
+    private var closedAnchor = Float.NaN
     private var tracking = false
 
     /** The finger's distance, read on every animation frame by [FingerTrackingSpec]. */
@@ -196,13 +214,19 @@ internal class DrawerEdgeDrag(
             requestOpen()
             return
         }
-        closedOffset = offset
+        // A drag may begin while the sheet is still snapping back, so the start offset is not the anchor.
+        closedAnchor = if (closedAnchor.isNaN()) offset else minOf(closedAnchor, offset)
         distance = 0f
         job?.cancel()
-        job = scope.launch {
+        val own = scope.launch {
             @Suppress("DEPRECATION") // The only public way to move the sheet to an arbitrary offset; see the kdoc.
             drawerState.animateTo(DrawerValue.Open, FingerTrackingSpec { distance })
         }
+        job = own
+        // The tracking animation ends only by our own release (which clears `job` first) or because
+        // someone else moved the drawer (a second finger on the hamburger, a programmatic open): then the
+        // release must not decide anything, or it would close what the other party just opened.
+        own.invokeOnCompletion { if (job === own) tracking = false }
     }
 
     override fun onDrag(distance: Float) {
@@ -212,8 +236,7 @@ internal class DrawerEdgeDrag(
     override fun onDragEnd(inwardVelocity: Float) {
         if (!tracking) return
         tracking = false
-        val width = -closedOffset
-        val fraction = (distance / width).coerceIn(0f, 1f)
+        val fraction = edgeOpenFraction(drawerState.currentOffset, closedAnchor)
         val open = edgeSwipeSettlesOpen(fraction, inwardVelocity, velocityThresholdPx)
         job?.cancel()
         job = null

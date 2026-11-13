@@ -19,4 +19,4 @@ package net.bible.sharedui.reading.host
 import androidx.compose.ui.Modifier
 
 /** iOS and desktop have no system edge gesture to exclude: the reading view is the root of the iOS stack. */
-internal actual fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean): Modifier = this
+internal actual fun Modifier.drawerEdgeGestureExclusion(enabled: Boolean, rtl: Boolean, leadingInset: Float): Modifier = this
