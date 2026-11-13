@@ -25,13 +25,13 @@ import org.robolectric.annotation.Config
 class AbThemeMonochromeTest {
     @get:Rule val rule = createComposeRule()
 
-    @Test fun `monoBorder adds an ink edge only in pure monochrome`() {
+    @Test fun `monoBorder adds an ink edge only in MONOCHROME and COLOR_EINK`() {
         val base = Modifier
         val actual = mutableListOf<Triple<DisplayColorMode, Boolean, Modifier>>()
         rule.setContent {
             for (dark in listOf(false, true)) for (mode in DisplayColorMode.entries) {
                 AbTheme(darkTheme = dark, colorMode = mode) {
-                    assertEquals(mode == DisplayColorMode.MONOCHROME, isPureMonochrome())
+                    assertEquals(mode.isInkBase, isPureMonochrome())
                     actual.add(Triple(mode, dark, base.monoBorder()))
                 }
             }
@@ -62,13 +62,18 @@ class AbThemeMonochromeTest {
     }
 
     @Test fun `light MONOCHROME and COLOR_EINK accents are ink`() {
-        for (mode in listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK)) {
-            var colors: AbColors? = null
-            rule.setContent { AbTheme(darkTheme = false, colorMode = mode) { colors = LocalAbColors.current } }
-            rule.waitForIdle()
-            assertEquals(Color.Black, colors!!.bookmark)
-            assertEquals(Color.Black, colors!!.activeWindow)
-            assertEquals(Color.Black, colors!!.helperLine)
+        val colors = mutableListOf<AbColors>()
+        rule.setContent {
+            for (mode in listOf(DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK)) {
+                AbTheme(darkTheme = false, colorMode = mode) { colors.add(LocalAbColors.current) }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(2, colors.size)
+        colors.forEach {
+            assertEquals(Color.Black, it.bookmark)
+            assertEquals(Color.Black, it.activeWindow)
+            assertEquals(Color.Black, it.helperLine)
         }
     }
 
