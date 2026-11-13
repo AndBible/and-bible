@@ -94,10 +94,10 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-# Push the current branch, pushing our own submodules (jsword, goldens, superpowers, media, kdom, store screenshots) first so the
-# gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
-# gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
-# fast-forward only. --recurse-submodules=check refuses the final push if any gitlink is unpushed.
+# make push [DRY_RUN=1]: push the current branch, publishing our own submodules (jsword, goldens, superpowers, media,
+# kdom, store screenshots) first so no pushed gitlink points at an unpublished commit. Each submodule pushes the commit
+# HEAD's gitlink names to the superproject's branch name (fast-forward only), plus any gitlink of an intermediate
+# pushed commit that no origin branch contains (to gitlink/<sha>). Details: scripts/push.sh (tested by scripts/test-push.sh).
 PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media kdom store-screenshots
 
 # andbible.org (website/): build into website/_site, then check it. CI runs both.
@@ -119,18 +119,7 @@ site-serve:
 	cd website/_site && python3 -m http.server 8000
 
 push:
-	@set -e; \
-	branch=$$(git symbolic-ref --short HEAD) || { echo "push: detached HEAD" >&2; exit 1; }; \
-	for sm in $(PUSH_SUBMODULES); do \
-		if [ ! -e "$$sm/.git" ]; then echo "push: $$sm not checked out, skipping"; continue; fi; \
-		sha=$$(git rev-parse "HEAD:$$sm"); \
-		[ "$$(git -C "$$sm" rev-parse HEAD)" = "$$sha" ] || \
-			echo "push: note: $$sm checkout differs from the committed gitlink; pushing the gitlink"; \
-		echo "push: $$sm ($$(git -C "$$sm" rev-parse --short "$$sha") -> $$branch)"; \
-		git -C "$$sm" push origin "$$sha:refs/heads/$$branch"; \
-	done; \
-	echo "push: and-bible ($$branch)"; \
-	git push --recurse-submodules=check -u origin "$$branch"
+	@scripts/push.sh $(if $(DRY_RUN),--dry-run,) $(PUSH_SUBMODULES)
 
 # Release pipeline (I4c-1)
 # One-touch internal release of the clean HEAD: Google Play internal + TestFlight internal in parallel, one YubiKey touch
