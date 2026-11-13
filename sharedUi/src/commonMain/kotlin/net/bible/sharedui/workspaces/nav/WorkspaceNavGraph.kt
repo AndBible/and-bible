@@ -53,7 +53,7 @@ import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.NavSessionMemo
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitGuarded
 import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.BackgroundImageChooserScreen
 import net.bible.sharedui.settings.ColorSettingsLabels
@@ -339,7 +339,7 @@ class WorkspaceNavDeps(
  * place.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+    popOrExitGuarded(exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————

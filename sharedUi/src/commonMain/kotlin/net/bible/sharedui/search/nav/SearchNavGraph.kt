@@ -49,7 +49,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.PlatformBackHandler
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitGuarded
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.search.SearchIndexScreen
@@ -392,7 +392,7 @@ class SearchNavDeps(
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+    popOrExitGuarded(exitHost)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————

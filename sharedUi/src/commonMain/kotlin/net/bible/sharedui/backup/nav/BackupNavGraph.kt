@@ -29,7 +29,7 @@ import androidx.navigation.compose.composable
 import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.backup.BackupRestoreScreen
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitGuarded
 
 /**
  * What the Backup & restore destination needs from its host (slice 8 §3.3) -- the classic
@@ -76,5 +76,5 @@ fun NavGraphBuilder.backupNavGraph(navController: NavHostController, deps: Backu
 
 /** This cluster's private copy of the one-line extension every graph carries -- see [popOrExitOnFailedPop]. */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+    popOrExitGuarded(exitHost)
 }

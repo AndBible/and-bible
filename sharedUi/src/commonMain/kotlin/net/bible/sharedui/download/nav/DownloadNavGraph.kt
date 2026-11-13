@@ -70,7 +70,7 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.download.CustomRepositoriesScreen
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitGuarded
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
@@ -469,7 +469,7 @@ class DownloadNavDeps(
  * decided in one place.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+    popOrExitGuarded(exitHost)
 }
 
 /**

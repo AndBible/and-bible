@@ -37,7 +37,7 @@ import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import net.bible.sharedui.PassThroughBackHandler
-import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.nav.popOrExitGuarded
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.DailyReadingScreen
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
@@ -274,7 +274,7 @@ class ReadingPlanNavDeps(
  * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
-    popOrExitOnFailedPop(popBackStack(), exitHost)
+    popOrExitGuarded(exitHost)
 }
 
 /**
