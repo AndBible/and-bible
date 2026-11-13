@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Results in a sheet</title><link rel="stylesheet" href="episode.css"></head>
+<body><main class="stage">
+<div class="copy"><div class="kicker top-label">Step 2 / Results</div>
+<h2>Results in a sheet,<br><span class="amber">over your text.</span></h2>
+<div class="notes">
+  <div class="note count">How many verses matched<small>At the top of the sheet</small></div>
+  <div class="note cards">One card per verse<small>Your word highlighted</small></div>
+  <div class="note still">Your chapter stays in view<small>Above the sheet</small></div>
+</div></div>
+<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/search-results.mp4" data-start="The results slide up" alt="Search results sheet over the Bible text"></div></div>
+</main><script src="../../../lib/runtime.js"></script><script>
+// A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
+// falls back to a rough fraction of the narration; a real render always uses the phrase.
+const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
+JB.scene(({ show }) => {
+  show('.kicker', 0.1); show('.phone-slot .device', 0.1);
+  show('h2', cue('The results slide up', 0.0));
+  show('.count', cue('how many verses matched', 0.25));
+  show('.cards', cue('each card shows', 0.5));
+  show('.still', cue('The chapter you were reading', 0.75));
+});
+</script></body></html>

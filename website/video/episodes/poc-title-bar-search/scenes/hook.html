@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Search in AndBible</title><link rel="stylesheet" href="episode.css"></head>
+<body><main class="stage hook">
+<div class="copy"><div class="wordmark">AndBible <span class="version">6.0</span></div>
+<h2>Search from the title bar.<br><span class="amber">Keep your place.</span></h2>
+<p class="lede">Find a word in your Bibles without leaving the chapter you are reading.</p></div>
+<!-- A still of the real reading view: the clip's first frame, held (its start is never reached). -->
+<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/search-open.mp4" data-start="9999" alt="AndBible reading view at John 3:16"></div></div>
+</main><script src="../../../lib/runtime.js"></script><script>
+// A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
+// falls back to a rough fraction of the narration; a real render always uses the phrase.
+const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
+JB.scene(({ show, layout }) => {
+  show('.phone-slot .device', 0.1);
+  // Full-bleed short: the title's card arrives with the wordmark, over the app's text.
+  if (layout === 'full') show('.copy', cue('In AndBible six point oh', 0.15));
+  show('.wordmark', cue('In AndBible six point oh', 0.15));
+  show('h2', cue('search right from', 0.4));
+  show('.lede', cue('keep your place', 0.6));
+});
+</script></body></html>

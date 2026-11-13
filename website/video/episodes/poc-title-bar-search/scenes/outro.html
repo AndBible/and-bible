@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AndBible docs</title><link rel="stylesheet" href="episode.css"></head>
+<body><main class="stage">
+<div class="center"><div class="kicker">Free and open source</div>
+<div class="wordmark">AndBible</div>
+<h2>Search when you need it.<br><span class="amber">Stay where you are reading.</span></h2>
+<p class="lede">More help in the user documentation</p>
+<div class="url">andbible.org/docs</div>
+<!-- On screen only, not narrated (shop.andbible.org is where the app's Sponsor action points). -->
+<p class="sponsor">No ads. Made possible by sponsors<span class="sep"> · </span><span class="amber">shop.andbible.org</span></p></div>
+</main><script src="../../../lib/runtime.js"></script><script>
+// A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
+// falls back to a rough fraction of the narration; a real render always uses the phrase.
+const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
+JB.scene(({ show }) => {
+  show('.wordmark', 0.1);
+  show('h2', cue('Search when you need it', 0.0));
+  show('.kicker', cue('free and open source', 0.3));
+  show('.lede', cue('user documentation', 0.6));
+  show('.url', cue('andbible dot org slash docs', 0.75));
+  // As the docs address has been said, so it stays up through "Thank you for watching".
+  show('.sponsor', JB.words.length ? JB.word('andbible dot org slash docs', { end: true }) + 0.2 : JB.at(0.85));
+});
+</script></body></html>

@@ -19,6 +19,8 @@ def build_parser() -> argparse.ArgumentParser:
     from . import contact, fastlane
     contact.register(sub)
     fastlane.register(sub)
+    from . import record
+    record.register(sub)
     return parser
 
 

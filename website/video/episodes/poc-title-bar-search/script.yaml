@@ -1,0 +1,59 @@
+title: Search from the title bar
+fps: 30
+pad: 0.6
+fade: 0.4
+tts:
+  model: gpt-4o-mini-tts-2025-12-15
+  voice: marin
+  instructions: >-
+    You are a calm, warm teacher showing a friend how to use a Bible study app.
+    Speak clearly and unhurriedly, with gentle, natural emphasis and short pauses
+    between steps. Friendly and patient, never salesy or over-excited.
+
+music:
+  file: shared/music/curious_pulse.wav
+  volume: 0.20
+  duck: null                       # speech is clearly louder; no sidechain
+  loop: {start: 11.0, end: 118.0}   # chosen by ear by the maintainer (Audacity)
+
+# Clips live in .local/video-media/poc-title-bar-search/captures/ (made by capture.py).
+scenes:
+  - id: hook
+    page: scenes/hook.html
+    formats: [main, short]
+    narration: >-
+      Looking for a word somewhere in the Bible? In AndBible six point oh, you
+      can search right from the reading view, and keep your place in the text.
+      Let's find the verses that speak about light.
+
+  - id: open-search
+    page: scenes/open-search.html
+    formats: [main, short]
+    narration: >-
+      Here we are reading John chapter three. Open the menu and choose Find.
+      The title bar becomes a search field. Type the word you are looking for,
+      here light, and press Enter.
+
+  - id: results
+    page: scenes/results.html
+    formats: [main, short]
+    narration: >-
+      The results slide up in a sheet over the Bible text. At the top you see
+      how many verses matched, and each card shows a verse with your word
+      highlighted. The chapter you were reading is still there, above the sheet.
+
+  - id: result-and-back
+    page: scenes/result-and-back.html
+    formats: [main, short]
+    narration: >-
+      Now tap a result. The text jumps to Genesis chapter one, verse three.
+      The back arrow closes search, and Back takes you home, to John three
+      sixteen, exactly where you were reading.
+
+  - id: outro
+    page: scenes/outro.html
+    formats: [main, short]
+    narration: >-
+      Search when you need it, and stay where you are reading. AndBible is free
+      and open source. You can find more help in the user documentation, at
+      andbible dot org slash docs. Thank you for watching.
