@@ -14,7 +14,7 @@ music:
   file: shared/music/curious_pulse.wav
   volume: 0.20
   duck: null                       # speech is clearly louder; no sidechain
-  loop: {start: 74.72, end: 92.18}  # from `render.py music-points`; confirm by ear
+  loop: {start: 11.0, end: 118.0}   # chosen by ear by the maintainer (Audacity)
 
 # Clips live in .local/video-media/poc-title-bar-search/captures/ (made by capture.py).
 scenes:
