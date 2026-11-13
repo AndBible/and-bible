@@ -149,8 +149,8 @@ class DoubleTapUpArrowTest {
     @Test
     fun droppedPopsAndDeliveriesAreLogged() = runComposeUiTest {
         val warnings = mutableListOf<String>()
-        net.bible.sharedcore.log.Log.sinkOverride = { level, _, msg, _ ->
-            if (level == net.bible.sharedcore.log.LogLevel.WARN) synchronized(warnings) { warnings += msg }
+        net.bible.sharedcore.log.Log.sinkOverride = { level, tag, msg, _ ->
+            if (level == net.bible.sharedcore.log.LogLevel.WARN && tag == "NavEntryGuard") synchronized(warnings) { warnings += msg }
         }
         try {
             val channel = NavResultChannel<String> { }

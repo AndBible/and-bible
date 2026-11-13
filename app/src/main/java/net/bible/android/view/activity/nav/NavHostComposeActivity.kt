@@ -683,8 +683,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             )
     }
 
-    /** Hands a press on below [hostBack] (the platform fallback), as `super.onBackPressed()` did. */
+    /**
+     * Hands a press on from [hostBack], as `PassThroughBackHandler`'s pass-through does: to the pop when an entry is
+     * below (the NavHost's own handler may still be off for a stack that just grew), else to the platform fallback.
+     */
     private fun passThroughHostBack() {
+        val controller = navController
+        if (controller?.previousBackStackEntry != null) {
+            controller.popBackStack()
+            return
+        }
         hostBack.isEnabled = false
         try {
             onBackPressedDispatcher.onBackPressed()
@@ -3132,6 +3140,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { controller, destination, _ ->
                         syncHostBack(controller)
+                        // A warning shown on reading does not arm an exit for a press after a round trip elsewhere.
+                        if (destination.route?.substringBefore('?') != NavRoutes.READING) lastBackPressed = null
                         deliverPendingReadingSearch()
                         applyReadingReturnDebts(destination.route)
                         answerAbandonedReadingRequests(destination.route)

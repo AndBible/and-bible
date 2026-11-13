@@ -42,7 +42,8 @@ import org.robolectric.annotation.Config
  * Nothing is idled between a destination change and the next press, so the destination's Compose back handlers and
  * the NavHost's own handler still have the enablement of the previous frame. A press in that state must still go
  * where the new destination sends it: the reading back chain on `reading` (which warns before exiting), a pop
- * elsewhere. It must never reach the platform fallback that finishes the Activity, and never be swallowed.
+ * elsewhere. It must never reach the platform fallback that finishes the Activity. The one exception to "and is not
+ * swallowed" is navigation-compose's own: see [twoQuickBacksFromSettingsStayInTheApp].
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
