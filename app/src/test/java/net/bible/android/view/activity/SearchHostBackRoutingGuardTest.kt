@@ -173,7 +173,14 @@ class SearchHostBackRoutingGuardTest {
         private const val READING_GRAPH_FILE =
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/nav/ReadingNavGraph.kt"
         private val READING_GRAPH_BACK_HANDLER = Regex("PassThroughBackHandler\\s*\\(")
-        private val READING_HOST_WIRES_CHAIN = Regex("onBack\\s*=\\s*::readingBack")
+        private val READING_HOST_WIRES_CHAIN = Regex("onBack\\s*=\\s*::readingArmBack")
+        // Issue #4073: the host-level BACK that covers the frame before the reading arm (re)composes. Registered
+        // before `setContent` (so Compose handlers outrank it), enabled from the destination listener (so it is
+        // never a frame late), and running the same chain on `reading`.
+        private val HOST_BACK_REGISTERED = Regex("onBackPressedDispatcher\\.addCallback\\(\\s*this\\s*,\\s*hostBack\\s*\\)")
+        private val HOST_BACK_SYNCED_IN_LISTENER =
+            Regex("OnDestinationChangedListener\\s*\\{[^}]*syncHostBack\\(\\s*controller\\s*\\)")
+        private val HOST_BACK_RUNS_CHAIN = Regex("readingBack\\(\\s*::passThroughHostBack\\s*\\)")
         private const val READING_HOST_SEARCH_STEP = "composeCloseSearchIfOpen()"
     }
 
@@ -186,13 +193,34 @@ class SearchHostBackRoutingGuardTest {
             READING_GRAPH_BACK_HANDLER.containsMatchIn(strippedSourceOf(READING_GRAPH_FILE)), equalTo(true),
         )
         assertThat(
-            "$READING_HOST_FILE must pass `onBack = ::readingBack` to ReadingNavDeps -- the reading view's " +
+            "$READING_HOST_FILE must pass `onBack = ::readingArmBack` to ReadingNavDeps -- the reading view's " +
                 "back chain (drawer, search, fullscreen, WebView modal, history, double-back exit) lives there (F55)",
             READING_HOST_WIRES_CHAIN.containsMatchIn(source), equalTo(true),
         )
         assertThat(
             "$READING_HOST_FILE's back chain must close an open search (`$READING_HOST_SEARCH_STEP`)",
             source.contains(READING_HOST_SEARCH_STEP), equalTo(true),
+        )
+    }
+
+    @Test
+    fun theReadingHostCoversTheFrameBeforeTheReadingArmComposes() {
+        val source = strippedSourceOf(READING_HOST_FILE)
+        val registered = HOST_BACK_REGISTERED.find(source)
+        val setContent = source.indexOf("setContent {")
+        assertThat(
+            "$READING_HOST_FILE must add `hostBack` to the dispatcher BEFORE `setContent`, so every Compose " +
+                "back handler (the reading view's drawer, search, the destinations' own) outranks it (#4073)",
+            registered != null && setContent >= 0 && registered.range.first < setContent, equalTo(true),
+        )
+        assertThat(
+            "$READING_HOST_FILE must enable `hostBack` from its OnDestinationChangedListener " +
+                "(`syncHostBack(controller)`): enabling it in composition reopens the one-frame gap (#4073)",
+            HOST_BACK_SYNCED_IN_LISTENER.containsMatchIn(source), equalTo(true),
+        )
+        assertThat(
+            "$READING_HOST_FILE's `hostBack` must run the reading back chain on `reading`",
+            HOST_BACK_RUNS_CHAIN.containsMatchIn(source), equalTo(true),
         )
     }
 

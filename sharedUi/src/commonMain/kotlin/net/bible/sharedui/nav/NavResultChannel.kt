@@ -68,10 +68,13 @@ class NavResultChannel<T>(private val exitWithResult: (T) -> Unit) {
     /**
      * Delivers [result] the right way for how this destination was entered, on behalf of the destination entry
      * [from]. Dropped when [from] is no longer the current entry (a second tap while the first delivery's pop still
-     * fades out, issue #4073; see [isCurrentEntry]). `null` only for a host-level caller that has no entry.
+     * fades out, issue #4073; see [isCurrentEntry]) and logged. `null` only for a host-level caller that has no entry.
      */
     fun deliver(navController: NavHostController, from: NavBackStackEntry?, result: T) {
-        if (!navController.isCurrentEntry(from)) return
+        if (!navController.isCurrentEntry(from)) {
+            from?.let { navController.logDroppedFrom(it, "result") } // never null here: a null requester is current
+            return
+        }
         deliverNavResult(
             hasParentEntry = navController.previousBackStackEntry != null,
             result = result,

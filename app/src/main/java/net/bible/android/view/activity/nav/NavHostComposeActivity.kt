@@ -643,39 +643,89 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var lastBackPressed: Long? = null
 
     /**
-     * Issue #4073, system back: swallows a back press that arrives between a back stack change and the frame that
-     * composes the new destination. After a pop to `reading`, that destination's [PassThroughBackHandler][net.bible.sharedui.PassThroughBackHandler]
-     * is registered again only when its arm composes, and the graph's own handler is already off (one entry left).
-     * A second press in that gap (two quick presses on the emulator) found no enabled callback and closed the app.
+     * Issue #4073, system back: the graph's BACK, kept in step with the back stack synchronously.
      *
-     * Added before `setContent`, so every Compose handler outranks it; enabled only for [SETTLING_FRAMES] frames
-     * after each destination change ([armSettlingBack]), so it never hides the platform's own back-to-home.
+     * The Compose back handlers (the destination's own, the NavHost's pop) are enabled in composition, i.e. a frame
+     * after the back stack changed. A press inside that frame used to find the wrong callback or none: after a pop to
+     * `reading` the reading arm's `PassThroughBackHandler` is back only when the arm composes again and the NavHost's
+     * handler is already off (one entry left), so two quick presses from Settings closed the app; right after opening a
+     * screen the NavHost's pop is not enabled yet.
+     *
+     * This callback is added before `setContent`, so every Compose handler outranks it, and [syncHostBack] sets it from
+     * the `OnDestinationChangedListener`, which the controller calls synchronously on every navigate and pop. It acts
+     * only when no Compose handler took the press: on `reading` it runs the reading back chain ([readingBack]), on any
+     * other destination with an entry below it pops. With predictive back the callback enabled at gesture start keeps
+     * the gesture, and this one is correct from the moment the destination changed, so no window swallows a gesture.
      */
-    private val settlingBack = object : OnBackPressedCallback(false) {
+    private val hostBack = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            Log.i(TAG_BACK, "BACK swallowed: the graph is still settling after a destination change")
+            val controller = navController
+            when {
+                controller == null -> passThroughHostBack()
+                readingDestinationIsCurrent() -> {
+                    Log.i(TAG_BACK, "BACK on reading reached the host callback (reading arm not composed yet)")
+                    readingBack(::passThroughHostBack)
+                }
+                controller.previousBackStackEntry != null -> {
+                    Log.i(TAG_BACK, "BACK popped by the host callback (graph not recomposed yet)")
+                    controller.popBackStack()
+                }
+                else -> passThroughHostBack()
+            }
         }
     }
-    private var settlingBackToken: Any? = null
 
-    private fun armSettlingBack() {
-        settlingBack.isEnabled = true
-        val token = Any()
-        settlingBackToken = token
-        val choreographer = android.view.Choreographer.getInstance()
-        var left = SETTLING_FRAMES
-        fun onFrame() {
-            if (settlingBackToken !== token) return
-            if (--left > 0) choreographer.postFrameCallback { onFrame() }
-            else settlingBack.isEnabled = false
+    /** [hostBack]'s state for [controller]'s current destination; see its kdoc. */
+    private fun syncHostBack(controller: NavController?) {
+        hostBack.isEnabled = controller != null && (
+            controller.currentDestination?.route?.substringBefore('?') == NavRoutes.READING ||
+                controller.previousBackStackEntry != null
+            )
+    }
+
+    /**
+     * Hands a press on from [hostBack], as `PassThroughBackHandler`'s pass-through does: to the pop when an entry is
+     * below (the NavHost's own handler may still be off for a stack that just grew), else to the platform fallback.
+     */
+    private fun passThroughHostBack() {
+        val controller = navController
+        if (controller?.previousBackStackEntry != null) {
+            controller.popBackStack()
+            return
         }
-        choreographer.postFrameCallback { onFrame() }
+        hostBack.isEnabled = false
+        try {
+            onBackPressedDispatcher.onBackPressed()
+        } finally {
+            syncHostBack(navController)
+        }
+    }
+
+    /**
+     * The reading destination's `PassThroughBackHandler` ([ReadingNavDeps.onBack]). Its pass-through skips [hostBack],
+     * which would otherwise run the same chain a second time for one press. While another destination is already
+     * current (a press in the frame after leaving `reading`, before its arm stopped), the press is not the reading
+     * view's: it goes on to the NavHost's pop or to [hostBack], which pops.
+     */
+    private fun readingArmBack(passThrough: () -> Unit) {
+        if (!readingDestinationIsCurrent()) {
+            passThrough()
+            return
+        }
+        readingBack {
+            hostBack.isEnabled = false
+            try {
+                passThrough()
+            } finally {
+                syncHostBack(navController)
+            }
+        }
     }
 
     /**
      * F55 chain, the reading destination's BACK (spec 2026-10-08 API 36 §3.1). Reached through the reading
-     * destination's `PassThroughBackHandler`, never through `onBackPressed()`, which the platform no longer calls
-     * with predictive back on. `passThrough` hands an unconsumed press on, as `super.onBackPressed()` did.
+     * destination's `PassThroughBackHandler` ([readingArmBack]) or, before that arm has composed, through [hostBack];
+     * never through `onBackPressed()`, which the platform no longer calls with predictive back on. `passThrough` hands an unconsumed press on, as `super.onBackPressed()` did.
      */
     internal fun readingBack(passThrough: () -> Unit) {
         for (step in readingBackChain) {
@@ -3046,7 +3096,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         startStageForTest = "content set, start settings not loaded"
-        onBackPressedDispatcher.addCallback(this, settlingBack)
+        onBackPressedDispatcher.addCallback(this, hostBack)
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
             // Do not compose synchronous settings consumers until their snapshot is loaded.
@@ -3089,7 +3139,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { controller, destination, _ ->
-                        armSettlingBack()
+                        syncHostBack(controller)
+                        // A warning shown on reading does not arm an exit for a press after a round trip elsewhere.
+                        if (destination.route?.substringBefore('?') != NavRoutes.READING) lastBackPressed = null
                         deliverPendingReadingSearch()
                         applyReadingReturnDebts(destination.route)
                         answerAbandonedReadingRequests(destination.route)
@@ -3103,6 +3155,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     onDispose {
                         navController.removeOnDestinationChangedListener(onDestinationChanged)
                         this@NavHostComposeActivity.navController = null
+                        syncHostBack(null)
                     }
                 }
                 // An onNewIntent route that arrived before this composition existed — see
@@ -3148,7 +3201,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         // This host's own block carries no label at all, so without this the reading
                         // view's window title would become the application label instead.
                         windowTitle = getString(R.string.app_name_short),
-                        onBack = ::readingBack,
+                        onBack = ::readingArmBack,
                         content = {
                             // R8: the real reading view, composed by THIS host's own
                             // `ComposeReadingViewHost` -- see [readingViewHost] for why the instance
@@ -3496,9 +3549,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         /** Classic's 1000 ms double-back window (`MainBibleActivity.kt:807`). */
         private const val BACK_EXIT_WINDOW_MS = 1000L
         private const val TAG_BACK = "NavHostBack"
-
-        /** Frames [settlingBack] stays on after a destination change: one to compose, one to run its effects, one spare. */
-        private const val SETTLING_FRAMES = 3
 
         const val EXTRA_ROUTE: String = "nav_route"
 
