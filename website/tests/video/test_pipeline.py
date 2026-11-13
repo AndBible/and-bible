@@ -350,3 +350,27 @@ def test_load_episode_music_optional(tmp_path: Path) -> None:
 def test_a_broken_music_block_is_refused(tmp_path: Path, music: str) -> None:
     with pytest.raises(ValueError, match="music"):
         pipeline.load_episode(_episode(tmp_path, GOOD + f"music: {music}\n"))
+
+
+def test_clip_frame_index_bounds():
+    assert pipeline.clip_frame_index(0.0, start=1.0, fps=30, frames=90) == 0
+    assert pipeline.clip_frame_index(1.0, start=1.0, fps=30, frames=90) == 0
+    assert pipeline.clip_frame_index(2.0, start=1.0, fps=30, frames=90) == 30
+    assert pipeline.clip_frame_index(99.0, start=1.0, fps=30, frames=90) == 89
+    assert pipeline.clip_frame_index(5.0, start=1.0, fps=30, frames=0) == 0
+
+
+def test_clip_frame_index_rounds_to_nearest_frame():
+    # 0.49 frames in -> frame 0; 0.51 frames in -> frame 1 (matches the JS Math.round)
+    assert pipeline.clip_frame_index(1.0 + 0.49 / 30, start=1.0, fps=30, frames=90) == 0
+    assert pipeline.clip_frame_index(1.0 + 0.51 / 30, start=1.0, fps=30, frames=90) == 1
+
+
+def test_scene_clip_paths_finds_unique_clips_in_order(tmp_path: Path):
+    page = tmp_path / "s.html"
+    page.write_text(
+        '<img class="clip" data-clip="captures/a.mp4" data-start="x">'
+        "<img data-start=\"1\" class='clip' data-clip='captures/b.mp4'>"
+        '<img class="clip" data-clip="captures/a.mp4" data-start="2">'
+    )
+    assert pipeline.scene_clip_paths(page) == ["captures/a.mp4", "captures/b.mp4"]

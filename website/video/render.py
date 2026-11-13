@@ -25,7 +25,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -40,6 +40,7 @@ from pipeline import (
     Slot,
     Word,
     align_words,
+    scene_clip_paths,
     api_key,
     cache_key,
     captions,
@@ -296,9 +297,48 @@ def durations(
     return result
 
 
-def scene_url(slot: Slot, clip: float, fmt: str, words: Sequence[Word] = ()) -> str:
+def clip_frames(episode: Episode, relative: str, fps: int) -> tuple[Path, int]:
+    """Decode a clip (path relative to MEDIA_DIR/<episode>/) into CACHE_DIR/frames/<sha256 of
+    the file>/%05d.png at `fps`, once. Returns the directory and its frame count."""
+    source = MEDIA_DIR / episode.directory.name / relative
+    if not source.is_file():
+        sys.exit(f"render: clip {relative} not found at {source}")
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    target = CACHE / "frames" / digest / f"{fps}fps"
+    done = target / ".complete"
+    if not done.is_file():
+        shutil.rmtree(target, ignore_errors=True)  # a partial extraction is not reusable
+        target.mkdir(parents=True)
+        print(f"clips: decoding {relative} at {fps} fps")
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-i", str(source), "-vf", f"fps={fps}", str(target / "%05d.png")],
+            check=True,
+        )
+        if not any(target.glob("*.png")):
+            sys.exit(f"render: ffmpeg produced no frames from {source}")
+        done.write_text("")
+    return target, sum(1 for _ in target.glob("*.png"))
+
+
+def scene_clips(episode: Episode, scene: Scene) -> dict[str, list]:
+    """The page's clips as {path: [frame directory URL, frame count, fps]} for the scene URL."""
+    result: dict[str, list] = {}
+    for relative in scene_clip_paths(scene.page):
+        directory, count = clip_frames(episode, relative, episode.fps)
+        result[relative] = [directory.as_uri(), count, episode.fps]
+    return result
+
+
+def scene_url(
+    slot: Slot,
+    clip: float,
+    fmt: str,
+    words: Sequence[Word] = (),
+    clips: Mapping[str, list] | None = None,
+) -> str:
     query = urlencode(
         {
+            "clips": json.dumps(clips or {}),
             "duration": f"{slot.length:.3f}",
             "speech": f"{slot.speech_at - slot.start:.3f}",
             "clip": f"{clip:.3f}",
@@ -317,13 +357,19 @@ def scene_url(slot: Slot, clip: float, fmt: str, words: Sequence[Word] = ()) -> 
 
 
 def open_scene(
-    browser, slot: Slot, clip: float, fmt: str, scale: float, words: Sequence[Word] = ()
+    browser,
+    slot: Slot,
+    clip: float,
+    fmt: str,
+    scale: float,
+    words: Sequence[Word] = (),
+    clips: Mapping[str, list] | None = None,
 ):
     width, height = VIEWPORTS[fmt]
     page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=scale)
     errors: list[str] = []
     page.on("pageerror", lambda error: errors.append(str(error)))
-    page.goto(scene_url(slot, clip, fmt, words))
+    page.goto(scene_url(slot, clip, fmt, words, clips))
     page.wait_for_function("window.JB && window.JB.isReady", timeout=30_000)
     if errors:
         sys.exit(f"render: scene {slot.scene.id} threw: {errors[0]}")
@@ -339,8 +385,9 @@ def render_slot(
     target: Path,
     scale: float = 1.0,
     words: Sequence[Word] = (),
+    clips: Mapping[str, list] | None = None,
 ) -> None:
-    page = open_scene(browser, slot, clip, fmt, scale, words)
+    page = open_scene(browser, slot, clip, fmt, scale, words, clips)
     frames = round(slot.length * fps)
     target.parent.mkdir(parents=True, exist_ok=True)
     encoder = subprocess.Popen(
@@ -501,10 +548,11 @@ def command_preview(episode: Episode, args: argparse.Namespace) -> None:
     clip = durations(episode, [scene], estimate=True, voice=args.voice)
     slot = timeline([scene], clip, pad=episode.pad, fade=0.0)[0]
     words = load_words(episode, scene, args.voice)
+    frames = scene_clips(episode, scene)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome(), args=["--no-sandbox"])
         if args.at is not None:
-            page = open_scene(browser, slot, clip[scene.id], args.format, args.scale, words)
+            page = open_scene(browser, slot, clip[scene.id], args.format, args.scale, words, frames)
             page.evaluate("t => JB.seek(t)", args.at)
             target = out_dir(REPO, args.episode) / "preview" / f"{scene.id}-{args.format}-{args.at:g}s.png"
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -512,13 +560,20 @@ def command_preview(episode: Episode, args: argparse.Namespace) -> None:
         else:
             target = out_dir(REPO, args.episode) / "preview" / f"{scene.id}-{args.format}.mp4"
             render_slot(
-                browser, slot, clip[scene.id], args.format, args.fps, target, args.scale, words
+                browser, slot, clip[scene.id], args.format, args.fps, target, args.scale, words, frames
             )
         browser.close()
     print(target)
 
 
-def part_key(episode: Episode, slot: Slot, clip: float, fmt: str, words: Sequence[Word]) -> str:
+def part_key(
+    episode: Episode,
+    slot: Slot,
+    clip: float,
+    fmt: str,
+    words: Sequence[Word],
+    clips: Mapping[str, list] | None = None,
+) -> str:
     """What a rendered scene depends on: its page, the shared runtime, the
     episode's assets, its timing and its params. Not the news crops a page
     may show from website/assets/; render with --fresh after changing one."""
@@ -535,21 +590,22 @@ def part_key(episode: Episode, slot: Slot, clip: float, fmt: str, words: Sequenc
         round(clip, 3),
         json.dumps(slot.scene.params, sort_keys=True),
         [(w.text, round(w.start, 3), round(w.end, 3)) for w in words],
+        json.dumps(clips or {}, sort_keys=True),  # frame dirs are named by clip content hash
     )
     digest.update(repr(timing).encode())
     return digest.hexdigest()[:16]
 
 
-def _render_part(job: tuple[Slot, float, str, int, Path, list[Word]]) -> str:
+def _render_part(job: tuple[Slot, float, str, int, Path, list[Word], dict[str, list]]) -> str:
     """One scene in its own process with its own Chrome (fork: Playwright is
     never started in the parent)."""
     from playwright.sync_api import sync_playwright
 
-    slot, clip, fmt, fps, target, words = job
+    slot, clip, fmt, fps, target, words, frames = job
     partial = target.with_suffix(".part.mp4")
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome(), args=["--no-sandbox"])
-        render_slot(browser, slot, clip, fmt, fps, partial, words=words)
+        render_slot(browser, slot, clip, fmt, fps, partial, words=words, clips=frames)
         browser.close()
     partial.replace(target)
     return slot.scene.id
@@ -564,12 +620,16 @@ def command_render(episode: Episode, args: argparse.Namespace) -> None:
     clips = durations(episode, scenes, voice=args.voice)
     slots = timeline(scenes, clips, pad=episode.pad, fade=episode.fade)
     words = {s.id: load_words(episode, s, args.voice) for s in scenes}
+    frames = {s.id: scene_clips(episode, s) for s in scenes}
     parts_dir = CACHE / "parts" / args.episode.name / args.format
     parts_dir.mkdir(parents=True, exist_ok=True)
-    keys = [part_key(episode, s, clips[s.scene.id], args.format, words[s.scene.id]) for s in slots]
+    keys = [
+        part_key(episode, s, clips[s.scene.id], args.format, words[s.scene.id], frames[s.scene.id])
+        for s in slots
+    ]
     parts = [parts_dir / f"{s.scene.id}-{key}.mp4" for s, key in zip(slots, keys, strict=True)]
     jobs = [
-        (slot, clips[slot.scene.id], args.format, episode.fps, part, words[slot.scene.id])
+        (slot, clips[slot.scene.id], args.format, episode.fps, part, words[slot.scene.id], frames[slot.scene.id])
         for slot, part in zip(slots, parts, strict=True)
         if args.fresh or not part.is_file()
     ]

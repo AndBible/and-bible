@@ -279,7 +279,23 @@ before anything is rendered.
 
 ## Clips
 
-(Filled in by the capture/clip task.)
+A scene shows a real app recording inside a `.device` frame:
+
+```html
+<div class="device phone"><img class="clip" data-clip="captures/search-open.mp4" data-start="search open"></div>
+```
+
+- `data-clip` is relative to `.local/video-media/<episode>/` (the episode directory's name).
+- `data-start` is a narration phrase (resolved with `JB.word`) or a number of seconds of scene time.
+  Before it the first frame is held; after the clip ends the last frame is held.
+- No `<video>` and no wall-clock playback. `render.py` decodes each clip once into PNG frames at the
+  episode fps (`ffmpeg -vf fps=<fps>`) in `.local/video-cache/frames/<sha256 of the file>/<fps>fps/%05d.png`
+  and skips it when that directory is marked complete (an interrupted extraction is redone). It hands the
+  frame directory, count and fps to the page in the `clips` URL parameter; `JB.seek(t)` then sets each
+  `.clip`'s `src` to frame `clip_frame_index(t, start, fps, frames)` and waits for it to decode, so
+  the same `t` always gives the same pixels.
+- Check one: `uv run website/video/render.py preview SCENE --at 3` (needs no narration audio).
+  Frames are cached by content hash, so re-recording a clip re-decodes and re-renders its scene.
 
 ## Subtitles
 

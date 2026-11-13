@@ -398,3 +398,29 @@ def voice_script(scenes: Sequence[Scene]) -> str:
 def output_name(fmt: str, voice: str, suffix: str) -> str:
     """e.g. main-tts.mp4, short-own.srt."""
     return f"{fmt}-{voice}.{suffix}"
+
+
+def clip_frame_index(t: float, start: float, fps: int, frames: int) -> int:
+    """0-based frame of a pre-decoded clip to show at scene time `t`: the clip
+    starts at `start`, holds frame 0 before it and its last frame after its end.
+    Rounds to the nearest frame, so float noise in `t` never skips one. The
+    same formula is in runtime.js (`JB.clips`)."""
+    if frames <= 0:
+        return 0
+    index = int((t - start) * fps + 0.5) if t > start else 0
+    return min(index, frames - 1)
+
+
+_CLIP_TAG = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+_DATA_CLIP = re.compile(r"""\bdata-clip\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+
+
+def scene_clip_paths(page: Path) -> list[str]:
+    """The distinct `data-clip` paths of a scene page's `<img>` tags, in page order."""
+    found: list[str] = []
+    for tag in _CLIP_TAG.findall(page.read_text(encoding="utf-8")):
+        match = _DATA_CLIP.search(tag)
+        path = (match.group(1) or match.group(2)) if match else None
+        if path and path not in found:
+            found.append(path)
+    return found

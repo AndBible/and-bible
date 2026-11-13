@@ -29,6 +29,7 @@
     params: JSON.parse(q.get("params") || "{}"),
     words: JSON.parse(q.get("words") || "[]").map(([text, start, end]) => ({ text, start, end })),
     groups: JSON.parse(q.get("groups") || "[]"),
+    clipFrames: JSON.parse(q.get("clips") || "{}"),
     isReady: false,
     scene(fn) {
       builders.push(fn);
@@ -104,11 +105,40 @@
         JB.anim(el, [{ opacity: 1 }, { opacity: 0 }], to, to + 0.35, "ease-in", "forwards");
       }
     },
+    // Real app clips: every `img.clip[data-clip]` shows the pre-decoded PNG frame for scene time
+    // t (`data-start`: a number of seconds or a narration phrase). Call before seeking; it
+    // resolves the start times once and returns the function seek() runs.
+    clips() {
+      const entries = [...document.querySelectorAll("img.clip[data-clip]")].map((img) => {
+        const info = JB.clipFrames[img.dataset.clip];
+        if (!info) throw new Error(`JB.clips: no frames for ${img.dataset.clip}`);
+        const raw = img.dataset.start || "0";
+        const start = Number.isFinite(Number(raw)) ? Number(raw) : JB.word(raw);
+        return { img, start, dir: info[0], frames: info[1], fps: info[2] };
+      });
+      // Returns the decode promises of the frames just swapped in.
+      JB.updateClips = (t) => {
+        const pending = [];
+        for (const { img, start, dir, frames, fps } of entries) {
+          // same formula as pipeline.clip_frame_index
+          const i = frames <= 0 ? 0 : Math.min(t > start ? Math.floor((t - start) * fps + 0.5) : 0, frames - 1);
+          const src = `${dir}/${String(i + 1).padStart(5, "0")}.png`;
+          if (img.getAttribute("src") !== src) {
+            img.src = src;
+            pending.push(img.decode().catch(() => {}));
+          }
+        }
+        return Promise.all(pending);
+      };
+      return entries.length;
+    },
     seek(t) {
+      const decoded = JB.updateClips ? JB.updateClips(t) : null;
       for (const animation of document.getAnimations()) {
         animation.pause();
         animation.currentTime = t * 1000;
       }
+      return decoded; // a promise when clip frames were swapped, so callers can await the images
     },
   };
   window.JB = JB;
@@ -154,8 +184,9 @@
       [...document.images].map((img) => (img.decode ? img.decode().catch(() => {}) : null)),
     );
     for (const fn of builders) fn(JB);
+    JB.clips();
     if (JB.format === "short" && JB.params.captions !== false && JB.groups.length) captions();
-    JB.seek(0);
+    await JB.seek(0);
     JB.isReady = true;
   });
 })();
