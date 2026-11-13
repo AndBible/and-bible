@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Open search</title><link rel="stylesheet" href="episode.css"></head>
+<body><main class="stage">
+<div class="copy"><div class="kicker">Step 1 / Open search</div>
+<h2>Menu, then <span class="amber">Find</span>.</h2>
+<div class="notes">
+  <div class="note menu">Open the menu<small>Top left of the reading view</small></div>
+  <div class="note find">Choose Find<small>The title bar becomes a search field</small></div>
+  <div class="note type">Type a word, press Enter<small>Here: light</small></div>
+</div></div>
+<div class="phone-slot"><div class="device phone"><img class="clip" data-clip="captures/search-open.mp4" data-start="Open the menu" alt="Opening search from the menu"></div></div>
+</main><script src="../../../lib/runtime.js"></script><script>
+// A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
+// falls back to a rough fraction of the narration; a real render always uses the phrase.
+const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
+JB.scene(({ show }) => {
+  show('.kicker', 0.1); show('.phone-slot .device', 0.1);
+  show('h2', cue('Open the menu', 0.2));
+  show('.menu', cue('Open the menu', 0.2));
+  show('.find', cue('The title bar becomes', 0.4));
+  show('.type', cue('Type the word', 0.6));
+});
+</script></body></html>

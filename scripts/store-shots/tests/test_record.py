@@ -29,7 +29,8 @@ def test_trim_cmd_has_no_audio_and_exact_range():
     assert pair(argv, "-c:v", "libx264")
     assert argv[argv.index("-i") + 1] == "a.mp4"
     assert argv[-1] == "b.mp4"
-    assert argv.index("-ss") < argv.index("-i")  # input seek
+    assert argv.index("-ss") > argv.index("-i")  # output seek: frame-accurate, no stray frames past the cut
+    assert pair(argv, "-vf", "fps=30")  # screenrecord is variable frame rate
 
 
 def test_trim_cmd_rejects_empty_range():

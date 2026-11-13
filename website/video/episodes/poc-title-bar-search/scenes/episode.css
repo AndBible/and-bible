@@ -1,0 +1,50 @@
+@import url("../../../lib/base.css");
+
+/* Main (1920x1080): text on the left, the phone on the right. */
+.stage { padding: 0; }
+.copy { position: absolute; left: 120px; top: 0; bottom: 0; width: 1060px;
+        display: flex; flex-direction: column; justify-content: center; }
+.copy .kicker { margin-bottom: 28px; }
+.copy .wordmark + h2 { margin-top: 28px; }
+.copy h2 { font-size: 84px; }
+.copy .lede { margin: 36px 0 0; max-width: 960px; }
+.phone-slot { position: absolute; right: 200px; top: 50%; transform: translateY(-50%); }
+.device.phone > .clip { width: 440px; }
+
+/* Callouts pinned to narration phrases: plain text, no plates or chips. */
+.notes { margin-top: 56px; display: flex; flex-direction: column; gap: 26px; }
+.note { font-size: 40px; line-height: 1.3; padding-left: 28px; border-left: 4px solid var(--amber); }
+.note small { display: block; font-size: 29px; color: var(--muted); margin-top: 6px; }
+
+.wordmark { font-family: var(--serif); font-weight: 600; font-size: 132px; letter-spacing: -0.03em;
+            color: var(--amber); line-height: 1; }
+.version { color: var(--text); }
+.url { font: 44px var(--mono); color: var(--amber); margin-top: 48px; }
+
+/* Outro: type only, centred. */
+.center { position: absolute; inset: 0; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; text-align: center; padding: 0 120px; }
+.center h2 { font-size: 80px; margin-top: 44px; }
+.center .lede { margin-top: 30px; }
+
+/* Short (1080x1920): heading on top, phone below it, all above the caption band
+   (bottom 15% + ~130 px, i.e. clear above y = 1500). */
+html[data-format="short"] .copy { left: 72px; right: 72px; width: auto; top: 110px; bottom: auto;
+                                  display: block; text-align: center; }
+html[data-format="short"] .copy .kicker { font-size: 30px; margin-bottom: 20px; }
+html[data-format="short"] .copy h2 { font-size: 76px; }
+html[data-format="short"] .copy .lede,
+html[data-format="short"] .notes,
+html[data-format="short"] .long-only { display: none; }
+html[data-format="short"] .phone-slot { right: auto; left: 50%; top: 390px; transform: translateX(-50%); }
+html[data-format="short"] .device.phone > .clip { width: 490px; }
+html[data-format="short"] .hook .copy { top: 96px; }
+html[data-format="short"] .hook .wordmark { font-size: 112px; }
+html[data-format="short"] .hook .copy h2 { font-size: 64px; margin-top: 18px; }
+html[data-format="short"] .hook .phone-slot { top: 470px; }
+html[data-format="short"] .hook .device.phone > .clip { width: 450px; }
+html[data-format="short"] .center { justify-content: flex-start; padding: 330px 72px 0; }
+html[data-format="short"] .center .wordmark { font-size: 150px; }
+html[data-format="short"] .center h2 { font-size: 72px; }
+html[data-format="short"] .center .lede { font-size: 40px; }
+html[data-format="short"] .center .url { font-size: 48px; }

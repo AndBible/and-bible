@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AndBible docs</title><link rel="stylesheet" href="episode.css"></head>
+<body><main class="stage">
+<div class="center"><div class="kicker">Free and open source</div>
+<div class="wordmark">AndBible</div>
+<h2>Search when you need it.<br><span class="amber">Stay where you are reading.</span></h2>
+<p class="lede">More help in the user documentation</p>
+<div class="url">andbible.org/docs</div></div>
+</main><script src="../../../lib/runtime.js"></script><script>
+// A phrase's scene time. Before `render.py tts` there are no word timings, so a preview
+// falls back to a rough fraction of the narration; a real render always uses the phrase.
+const cue = (phrase, frac) => (JB.words.length ? JB.word(phrase) : JB.at(frac));
+JB.scene(({ show }) => {
+  show('.wordmark', 0.1);
+  show('h2', cue('Search when you need it', 0.0));
+  show('.kicker', cue('free and open source', 0.3));
+  show('.lede', cue('user documentation', 0.6));
+  show('.url', cue('andbible dot org slash docs', 0.75));
+});
+</script></body></html>

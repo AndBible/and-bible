@@ -27,7 +27,9 @@ def trim_cmd(src: Path, dst: Path, start: float, end: float) -> list[str]:
     """ffmpeg re-encode of [start, end] seconds to H.264 at the source resolution, no audio."""
     if end <= start:
         raise ValueError(f"empty range {start}..{end}")
-    return ["ffmpeg", "-y", "-ss", f"{start:.3f}", "-to", f"{end:.3f}", "-i", str(src), "-an",
+    # -ss/-to are output options (frame-accurate, decoded from the start) and the result is constant 30 fps:
+    # screenrecord writes a variable frame rate, and input-side -to leaves stray frames past the cut.
+    return ["ffmpeg", "-y", "-i", str(src), "-ss", f"{start:.3f}", "-to", f"{end:.3f}", "-an", "-vf", "fps=30",
             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "18", str(dst)]
 
 
