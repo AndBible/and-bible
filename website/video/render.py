@@ -369,8 +369,17 @@ def open_scene(
     page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=scale)
     errors: list[str] = []
     page.on("pageerror", lambda error: errors.append(str(error)))
+    page.on(
+        "console",
+        lambda m: print(f"render: {slot.scene.id}: {m.text}", file=sys.stderr)
+        if m.type in ("warning", "error")
+        else None,
+    )
     page.goto(scene_url(slot, clip, fmt, words, clips))
-    page.wait_for_function("window.JB && window.JB.isReady", timeout=30_000)
+    page.wait_for_function("window.JB && (window.JB.isReady || window.JB.failure)", timeout=30_000)
+    failure = page.evaluate("JB.failure")
+    if failure:
+        sys.exit(f"render: scene {slot.scene.id} failed to build: {failure}")
     if errors:
         sys.exit(f"render: scene {slot.scene.id} threw: {errors[0]}")
     return page

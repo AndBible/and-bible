@@ -113,7 +113,13 @@
         const info = JB.clipFrames[img.dataset.clip];
         if (!info) throw new Error(`JB.clips: no frames for ${img.dataset.clip}`);
         const raw = img.dataset.start || "0";
-        const start = Number.isFinite(Number(raw)) ? Number(raw) : JB.word(raw);
+        let start;
+        if (Number.isFinite(Number(raw))) start = Number(raw);
+        else if (!JB.words.length) {
+          // A preview before `render.py tts`: no word timings yet, so degrade to the scene start.
+          console.warn(`JB.clips: no word timings, clip ${img.dataset.clip} starts at 0 instead of "${raw}"`);
+          start = 0;
+        } else start = JB.word(raw); // a phrase missing from the narration throws: loud, by design
         return { img, start, dir: info[0], frames: info[1], fps: info[2] };
       });
       // Returns the decode promises of the frames just swapped in.
@@ -125,7 +131,7 @@
           const src = `${dir}/${String(i + 1).padStart(5, "0")}.png`;
           if (img.getAttribute("src") !== src) {
             img.src = src;
-            pending.push(img.decode().catch(() => {}));
+            pending.push(img.decode().catch(() => console.warn(`JB.clips: frame ${src} did not load`)));
           }
         }
         return Promise.all(pending);
@@ -179,14 +185,18 @@
   }
 
   window.addEventListener("load", async () => {
-    await document.fonts.ready;
-    await Promise.all(
-      [...document.images].map((img) => (img.decode ? img.decode().catch(() => {}) : null)),
-    );
-    for (const fn of builders) fn(JB);
-    JB.clips();
-    if (JB.format === "short" && JB.params.captions !== false && JB.groups.length) captions();
-    await JB.seek(0);
-    JB.isReady = true;
+    try {
+      await document.fonts.ready;
+      await Promise.all(
+        [...document.images].map((img) => (img.decode ? img.decode().catch(() => {}) : null)),
+      );
+      for (const fn of builders) fn(JB);
+      JB.clips();
+      if (JB.format === "short" && JB.params.captions !== false && JB.groups.length) captions();
+      await JB.seek(0);
+      JB.isReady = true;
+    } catch (error) {
+      JB.failure = String((error && error.message) || error);
+    }
   });
 })();
