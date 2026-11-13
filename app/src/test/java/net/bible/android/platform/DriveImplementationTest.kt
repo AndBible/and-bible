@@ -5,17 +5,16 @@ import org.junit.Test
 
 class DriveImplementationTest {
     @Test fun `selection table`() {
+        // Stable and beta both default to the shared adapter; only an explicit "legacy" keeps the old one.
         val cases = listOf(
-            Triple(true, null, true),
-            Triple(false, null, false),
-            Triple(false, DriveImplementation.SHARED, true),
-            Triple(true, DriveImplementation.LEGACY, false),
-            Triple(true, "garbage", true),
-            Triple(false, "garbage", false),
-            Triple(false, "", false),
+            null to true,
+            DriveImplementation.SHARED to true,
+            DriveImplementation.LEGACY to false,
+            "garbage" to true,
+            "" to true,
         )
-        for ((beta, override, expected) in cases) {
-            assertEquals("beta=$beta override=$override", expected, DriveImplementation.useShared(beta, override))
+        for ((override, expected) in cases) {
+            assertEquals("override=$override", expected, DriveImplementation.useShared(override))
         }
     }
 

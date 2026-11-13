@@ -298,9 +298,10 @@ class DesktopSyncBindingsContractTest {
         }
     }
 
-    @Test fun onlyNextCloudAndWebDavAreOffered() = withGraph { koin ->
+    /** The shipped desktop OAuth client (GoogleOAuthClients.desktop) is configured, so the real graph offers Google Drive too. */
+    @Test fun nextCloudWebDavAndGoogleDriveAreOffered() = withGraph { koin ->
         val factory = koin.get<CloudAdapterFactory>()
-        assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), factory.available)
+        assertEquals(listOf("NEXT_CLOUD", "WEBDAV", "GOOGLE_DRIVE"), factory.available)
         assertEquals("name:NEXT_CLOUD", factory.displayName("NEXT_CLOUD"))
         assertEquals(false, factory.create("NEXT_CLOUD").signedIn)
         assertEquals(false, factory.create("WEBDAV").signedIn)

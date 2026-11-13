@@ -154,8 +154,9 @@ class DesktopCloudAdapterFactoryDriveTest {
     }
 
     @Test fun desktopClientHonoursJvmProperties() {
-        assertNull(GoogleOAuthClients.desktopClient { null })
-        assertNull(GoogleOAuthClients.desktopClient { "  " })
+        // Unset or blank properties fall back to the built-in desktop client.
+        assertEquals(GoogleOAuthClients.desktop, GoogleOAuthClients.desktopClient { null })
+        assertEquals(GoogleOAuthClients.desktop, GoogleOAuthClients.desktopClient { "  " })
         val c = assertNotNull(GoogleOAuthClients.desktopClient { if (it.endsWith("Id")) "cid" else "sec" })
         assertEquals(GoogleOAuthClient("cid", "sec"), c)
         assertNull(GoogleOAuthClients.desktopClient { if (it.endsWith("Id")) "cid" else null }!!.clientSecret)

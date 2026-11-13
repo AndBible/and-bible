@@ -38,9 +38,8 @@ class AndroidCloudAdapterFactoryDriveTest {
         assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveCloudAdapter)
     }
 
-    @Test fun `no override follows isBeta`() = withOverride(null) {
-        val adapter = factory.create("GOOGLE_DRIVE")
-        if (CommonUtils.isBeta) assertTrue(adapter is GoogleDriveRestAdapter) else assertTrue(adapter is GoogleDriveCloudAdapter)
+    @Test fun `no override creates the shared adapter`() = withOverride(null) {
+        assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveRestAdapter)
     }
 
     @Test fun `providers share one http client`() {
