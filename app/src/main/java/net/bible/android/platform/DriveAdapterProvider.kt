@@ -8,5 +8,5 @@ import net.bible.service.cloudsync.CloudAdapter
  * factory compiles on F-Droid where the implementation is excluded.
  */
 interface DriveAdapterProvider {
-    fun create(useShared: Boolean): CloudAdapter
+    fun create(): CloudAdapter
 }

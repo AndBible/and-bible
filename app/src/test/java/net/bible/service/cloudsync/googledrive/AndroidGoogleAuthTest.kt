@@ -2,15 +2,12 @@ package net.bible.service.cloudsync.googledrive
 
 import android.accounts.Account
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
-import android.os.Looper
-import com.google.android.gms.auth.GoogleAuthException
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException
-import com.google.android.gms.auth.UserRecoverableAuthException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import androidx.activity.result.ActivityResult
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -30,10 +27,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -42,12 +38,32 @@ class AndroidGoogleAuthTest {
         override val doNotInitializeApp = true
         override val allowThemeChange = false
         override val disableBaseSetupUi = true
-        fun answer(requestCode: Int, resultCode: Int) = onActivityResult(requestCode, resultCode, null)
+    }
+
+    /** Scripted [DriveAuthorizer]: answers [authorize] calls in order and records the requested accounts. */
+    private class FakeAuthorizer(
+        vararg answers: () -> DriveAuthorization,
+        val fromIntent: () -> DriveAuthorization = { fail("no resolution expected"); throw AssertionError() },
+        val lookup: (String) -> Account? = { null },
+    ) : DriveAuthorizer {
+        val lookups = mutableListOf<String>()
+        override suspend fun accountOf(token: String): Account? { lookups += token; return lookup(token) }
+        private val queue = ArrayDeque(answers.toList())
+        val requested = mutableListOf<Account?>()
+        val cleared = mutableListOf<String>()
+        override suspend fun authorize(account: Account?): DriveAuthorization {
+            requested += account
+            val next = queue.removeFirstOrNull() ?: throw AssertionError("unexpected authorize($account)")
+            return next()
+        }
+        override fun resultFromIntent(data: Intent?) = fromIntent()
+        override suspend fun clearToken(token: String) { cleared += token }
     }
 
     private val key = "cloud_sync_last_account"
     private val prefs get() = CommonUtils.realSharedPreferences
     private var oldAccount: String? = null
+    private val launched = mutableListOf<PendingIntent>()
 
     @Before fun saveState() {
         oldAccount = prefs.getString(key, null)
@@ -58,165 +74,280 @@ class AndroidGoogleAuthTest {
         prefs.edit().apply { if (oldAccount == null) remove(key) else putString(key, oldAccount) }.commit()
     }
 
-    private fun storeAccount(name: String) {
+    private fun storeAccount(name: String, type: String = "com.google") {
         val parcel = android.os.Parcel.obtain()
-        Account(name, "com.google").writeToParcel(parcel, 0)
+        Account(name, type).writeToParcel(parcel, 0)
         val encoded = android.util.Base64.encodeToString(parcel.marshall(), android.util.Base64.DEFAULT)
         parcel.recycle()
         prefs.edit().putString(key, encoded).commit()
     }
 
-    private fun recoverable() = UserRecoverableAuthException("permission", Intent("test.google.permission"))
-
-    @Test fun accessTokenUsesStoredAccountWithoutActivity() = runBlocking {
-        storeAccount("stored")
-        var seen: Account? = null
-        val auth = AndroidGoogleAuth(tokenSource = { seen = it; "tok-1" }, clearToken = {})
-        assertEquals("tok-1", auth.accessToken())
-        assertEquals("stored", seen?.name)
-        assertTrue(auth.signedIn)
+    private fun storedAccountName(): String? = prefs.getString(key, null)?.let {
+        val bytes = android.util.Base64.decode(it, android.util.Base64.DEFAULT)
+        val p = android.os.Parcel.obtain()
+        p.unmarshall(bytes, 0, bytes.size)
+        p.setDataPosition(0)
+        Account(p).name.also { p.recycle() }
     }
 
-    @Test fun signedInIsInMemoryOnlyLikeTheOldAdapter() = runBlocking {
-        storeAccount("stored")
-        val auth = AndroidGoogleAuth(tokenSource = { "tok" }, clearToken = {})
+    private fun pendingIntent(): PendingIntent = PendingIntent.getActivity(
+        RuntimeEnvironment.getApplication(), 0, Intent("test.google.authorize"), PendingIntent.FLAG_IMMUTABLE,
+    )
+
+    private fun granted(token: String, account: String? = null): () -> DriveAuthorization =
+        { DriveAuthorization.Granted(token, account?.let { Account(it, "com.google") }) }
+
+    private fun needsResolution(): () -> DriveAuthorization = { DriveAuthorization.NeedsResolution(pendingIntent()) }
+
+    private fun apiError(code: Int): () -> DriveAuthorization = { throw ApiException(Status(code)) }
+
+    private fun auth(fake: FakeAuthorizer, resultCode: Int = Activity.RESULT_OK) =
+        AndroidGoogleAuth(fake) { _, intent -> launched += intent; ActivityResult(resultCode, Intent()) }
+
+    /** Runs [block] with a resumed [ActivityBase] as the current activity (interactive sign-in). */
+    private fun <T> withActivity(block: suspend () -> T): T {
+        val controller = Robolectric.buildActivity(AuthActivity::class.java).setup()
+        try {
+            return runBlocking { block() }
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    private inline fun <reified E : Throwable> assertThrows(block: () -> Unit): E {
+        try {
+            block()
+        } catch (e: Throwable) {
+            if (e is E) return e
+            throw AssertionError("expected ${E::class.simpleName}, got $e", e)
+        }
+        throw AssertionError("expected ${E::class.simpleName}")
+    }
+
+    // (a) granted result -> token, no UI
+    @Test fun grantedTokenInBackgroundUsesStoredAccountWithoutUi() = runBlocking {
+        storeAccount("stored@example.com")
+        val fake = FakeAuthorizer(granted("tok-1"))
+        val auth = auth(fake)
+        assertEquals("tok-1", auth.accessToken())
+        assertEquals(Account("stored@example.com", "com.google"), fake.requested.single())
+        assertTrue(auth.signedIn)
+        assertTrue(launched.isEmpty())
+    }
+
+    @Test fun signedInIsInMemoryOnly() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer(granted("tok")))
         assertFalse("a stored pref alone must not count as signed in (consent check must run)", auth.signedIn)
         auth.accessToken()
         assertTrue(auth.signedIn)
     }
 
-    @Test fun signInWithoutActivityReturnsFalse() = runBlocking {
-        storeAccount("stored")
-        val auth = AndroidGoogleAuth(tokenSource = { "tok" }, clearToken = {})
-        assertFalse(auth.signIn())
-        assertNotNull("pref untouched", prefs.getString(key, null))
+    // (e) upgrade from the One Tap builds (Review Focus 1-2): their stored account had the package name as type
+    @Test fun upgradeFromOneTapReusesStoredAccountWithoutPrompt() {
+        storeAccount("old@example.com", type = "net.bible.android.activity")
+        val fake = FakeAuthorizer(granted("tok", account = "old@example.com"))
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals(Account("old@example.com", "com.google"), fake.requested.single())
+        assertTrue("no chooser or consent sheet", launched.isEmpty())
+        assertTrue(auth.signedIn)
+        assertEquals("old@example.com", storedAccountName())
     }
 
-    @Test fun otherThrowableDuringSignInReturnsFalseAndClearsAccount() {
-        val controller = Robolectric.buildActivity(AuthActivity::class.java).setup()
-        storeAccount("broken")
-        val auth = AndroidGoogleAuth(tokenSource = { throw IllegalStateException("boom") }, clearToken = {})
-        try {
-            assertFalse(runBlocking { auth.signIn() })
-            assertFalse(auth.signedIn)
-            assertNull(prefs.getString(key, null))
-        } finally {
-            controller.pause().stop().destroy()
-        }
+    // Review Focus 6: several accounts on the device; the stored one is passed, so no chooser
+    @Test fun upgradeWithStoredAccountAndGrantedResultWithoutAccountKeepsStoredAccount() {
+        storeAccount("second@example.com")
+        val fake = FakeAuthorizer(granted("tok", account = null))
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals("second@example.com", fake.requested.single()?.name)
+        assertTrue(launched.isEmpty())
+        assertEquals("second@example.com", storedAccountName())
     }
 
-    @Test fun accessTokenWithoutAccountRequiresSignIn() = runBlocking {
-        val auth = AndroidGoogleAuth(tokenSource = { "x" }, clearToken = {})
-        try {
-            auth.accessToken()
-            fail("expected GoogleAuthRequiredException")
-        } catch (_: GoogleAuthRequiredException) {
-        }
+    // (b) resolution needed while interactive -> launched, token from the intent result
+    @Test fun firstSignInLaunchesResolutionAndStoresChosenAccount() {
+        val fake = FakeAuthorizer(needsResolution(), fromIntent = granted("tok", account = "picked@example.com"))
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals(listOf<Account?>(null), fake.requested)
+        assertEquals(1, launched.size)
+        assertEquals("picked@example.com", storedAccountName())
+        assertTrue(auth.signedIn)
+    }
+
+    // Review Focus 6: the stored account was removed from the device -> one chooser is acceptable
+    @Test fun storedAccountGoneFromDeviceFallsBackToOneChooser() {
+        storeAccount("removed@example.com")
+        val fake = FakeAuthorizer(
+            apiError(CommonStatusCodes.INVALID_ACCOUNT),
+            needsResolution(),
+            fromIntent = granted("tok", account = "other@example.com"),
+        )
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals(listOf("removed@example.com", null), fake.requested.map { it?.name })
+        assertEquals(1, launched.size)
+        assertEquals("other@example.com", storedAccountName())
+    }
+
+    // (c) resolution needed non-interactively -> sign in again
+    @Test fun resolutionNeededInBackgroundRequiresSignIn() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer(needsResolution()))
+        assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
+        assertTrue("background never shows UI", launched.isEmpty())
+        Unit
+    }
+
+    @Test fun signInRequiredStatusInBackgroundRequiresSignIn() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer(apiError(CommonStatusCodes.SIGN_IN_REQUIRED)))
+        assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
+        Unit
+    }
+
+    @Test fun accessTokenWithoutAccountRequiresSignInWithoutAskingPlayServices() = runBlocking {
+        val fake = FakeAuthorizer()
+        val auth = auth(fake)
+        assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
+        assertTrue(fake.requested.isEmpty())
         assertFalse(auth.signedIn)
     }
 
-    @Test fun recoverableErrorInBackgroundRequiresSignIn() = runBlocking {
-        storeAccount("stored")
-        val auth = AndroidGoogleAuth(tokenSource = { throw recoverable() }, clearToken = {})
-        try {
-            auth.accessToken()
-            fail("expected GoogleAuthRequiredException")
-        } catch (_: GoogleAuthRequiredException) {
+    // (d) user cancels the resolution
+    @Test fun cancelledResolutionClearsAccount() {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer(needsResolution()), resultCode = Activity.RESULT_CANCELED)
+        val e = withActivity { runCatching { auth.signIn() }.exceptionOrNull() }
+        assertTrue("got $e", e is CloudSyncUserCancelledException)
+        assertFalse(auth.signedIn)
+        assertNull(prefs.getString(key, null))
+    }
+
+    @Test fun cancelledStatusFromResolutionResultIsCancel() {
+        val auth = auth(FakeAuthorizer(needsResolution(), fromIntent = apiError(CommonStatusCodes.CANCELED)))
+        val e = withActivity { runCatching { auth.signIn() }.exceptionOrNull() }
+        assertTrue("got $e", e is CloudSyncUserCancelledException)
+        assertFalse(auth.signedIn)
+    }
+
+    // (f) transient Play services / network failures stay retryable I/O (phase-2 fix, Review Focus 4)
+    @Test fun transientFailuresInBackgroundAreIOExceptions() = runBlocking {
+        for (code in listOf(
+            CommonStatusCodes.NETWORK_ERROR,
+            CommonStatusCodes.SERVICE_VERSION_UPDATE_REQUIRED,
+            CommonStatusCodes.SERVICE_DISABLED,
+            CommonStatusCodes.API_NOT_CONNECTED,
+            CommonStatusCodes.TIMEOUT,
+            CommonStatusCodes.INTERNAL_ERROR,
+        )) {
+            storeAccount("stored@example.com")
+            val auth = auth(FakeAuthorizer(apiError(code)))
+            val e = runCatching { auth.accessToken() }.exceptionOrNull()
+            assertFalse("status $code must not drop the sign-in: $e", e is GoogleAuthRequiredException)
+            assertTrue("status $code: got $e", e is IOException)
+            assertNotNull("account kept", prefs.getString(key, null))
         }
     }
 
-    @Test fun otherAuthExceptionInBackgroundRequiresSignIn() = runBlocking {
-        storeAccount("stored")
-        val auth = AndroidGoogleAuth(tokenSource = { throw GoogleAuthException("account removed") }, clearToken = {})
-        try {
-            auth.accessToken()
-            fail("expected GoogleAuthRequiredException")
-        } catch (e: GoogleAuthRequiredException) {
-            // coroutine stack-trace recovery may re-wrap the cause, so check the message, not the cause chain
-            assertTrue(e.message!!.contains("account removed"))
-        }
+    @Test fun transientFailureDuringSignInKeepsStoredAccount() {
+        storeAccount("offline@example.com")
+        val auth = auth(FakeAuthorizer(apiError(CommonStatusCodes.NETWORK_ERROR)))
+        assertTrue(withActivity { auth.signIn() })
+        assertTrue(auth.signedIn)
+        assertEquals("offline@example.com", storedAccountName())
     }
 
-    @Test fun playServicesUnavailableInBackgroundIsTransientIOException() = runBlocking {
-        storeAccount("stored")
-        val transient = org.mockito.Mockito.mock(GooglePlayServicesAvailabilityException::class.java) // ctor is package-private
-        val auth = AndroidGoogleAuth(tokenSource = { throw transient }, clearToken = {})
-        try {
-            auth.accessToken()
-            fail("expected IOException")
-        } catch (e: GoogleAuthRequiredException) {
-            fail("a transient Play Services problem must not drop the adapter: $e")
-        } catch (e: IOException) {
-            assertTrue(e.message!!.contains("Play Services"))
-        }
+    @Test fun transientFailureOnFirstSignInIsIOException() {
+        val auth = auth(FakeAuthorizer(apiError(CommonStatusCodes.NETWORK_ERROR)))
+        val e = withActivity { runCatching { auth.signIn() }.exceptionOrNull() }
+        assertTrue("got $e", e is IOException)
+        assertFalse(auth.signedIn)
     }
 
-    @Test fun ioErrorInBackgroundPropagatesUnchanged() = runBlocking {
-        storeAccount("stored")
-        val io = IOException("offline")
-        val auth = AndroidGoogleAuth(tokenSource = { throw io }, clearToken = {})
-        try {
-            auth.accessToken()
-            fail("expected IOException")
-        } catch (e: IOException) {
-            // coroutine stack-trace recovery may copy the instance: check type and message, not identity
-            assertEquals(IOException::class.java, e.javaClass)
-            assertEquals("offline", e.message)
-        }
+    @Test fun signInWithoutActivityReturnsFalse() = runBlocking {
+        storeAccount("stored@example.com")
+        val fake = FakeAuthorizer()
+        assertFalse(auth(fake).signIn())
+        assertNotNull("pref untouched", prefs.getString(key, null))
+        assertTrue(fake.requested.isEmpty())
     }
 
     @Test fun invalidateClearsThatToken() = runBlocking {
-        val cleared = mutableListOf<String>()
-        val auth = AndroidGoogleAuth(tokenSource = { "x" }, clearToken = { cleared += it })
-        auth.invalidate("old-token")
-        assertEquals(listOf("old-token"), cleared)
+        val fake = FakeAuthorizer()
+        auth(fake).invalidate("old-token")
+        assertEquals(listOf("old-token"), fake.cleared)
     }
 
-    @Test fun cancelledConsentClearsAccount() {
-        val controller = Robolectric.buildActivity(AuthActivity::class.java).setup()
-        val activity = controller.get()
-        storeAccount("cancel-test")
-        val auth = AndroidGoogleAuth(tokenSource = { throw recoverable() }, clearToken = {})
-        try {
-            runBlocking {
-                val result = CoroutineScope(Dispatchers.Default).async {
-                    try { auth.signIn(); null } catch (e: CloudSyncUserCancelledException) { e }
-                }
-                val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
-                var started: org.robolectric.shadows.ShadowActivity.IntentForResult? = null
-                while (started == null && System.nanoTime() < deadline) {
-                    shadowOf(Looper.getMainLooper()).idle()
-                    started = shadowOf(activity).nextStartedActivityForResult
-                    if (started == null) Thread.sleep(10)
-                }
-                assertNotNull("consent intent must be launched", started)
-                activity.answer(started!!.requestCode, Activity.RESULT_CANCELED)
-                val done = CompletableDeferred<Unit>()
-                val waiter = CoroutineScope(Dispatchers.Default).async { result.await().also { done.complete(Unit) } }
-                val end = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
-                while (!done.isCompleted && System.nanoTime() < end) {
-                    shadowOf(Looper.getMainLooper()).idle()
-                    Thread.sleep(10)
-                }
-                assertNotNull("cancel must surface as CloudSyncUserCancelledException", waiter.await())
-            }
-            assertFalse(auth.signedIn)
-            assertNull(prefs.getString(key, null))
-        } finally {
-            controller.pause().stop().destroy()
+    @Test fun signOutForgetsAccount() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer(granted("tok")))
+        auth.accessToken()
+        auth.signOut()
+        assertFalse(auth.signedIn)
+        assertNull(prefs.getString(key, null))
+        assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
+        Unit
+    }
+
+    @Test fun signOutDuringTokenRequestStaysSignedOut() = runBlocking {
+        storeAccount("stored@example.com")
+        lateinit var auth: AndroidGoogleAuth
+        val fake = FakeAuthorizer({
+            runBlocking { auth.signOut() } // the user signs out while Play services is answering
+            DriveAuthorization.Granted("tok", Account("stored@example.com", "com.google"))
+        })
+        auth = auth(fake)
+        assertEquals("tok", auth.accessToken())
+        assertFalse("an in-flight token request must not sign the user back in", auth.signedIn)
+        assertNull(prefs.getString(key, null))
+    }
+
+    @Test fun permanentFailuresInBackgroundRequireSignIn() = runBlocking {
+        for (code in listOf(CommonStatusCodes.DEVELOPER_ERROR, 12500)) {
+            storeAccount("stored@example.com")
+            val auth = auth(FakeAuthorizer(apiError(code)))
+            assertThrows<GoogleAuthRequiredException> { auth.accessToken() }
         }
     }
 
-    @Test fun networkErrorDuringSignInKeepsAccount() {
-        val controller = Robolectric.buildActivity(AuthActivity::class.java).setup()
-        storeAccount("offline")
-        val auth = AndroidGoogleAuth(tokenSource = { throw IOException("offline") }, clearToken = {})
-        try {
-            assertTrue(runBlocking { auth.signIn() })
-            assertTrue(auth.signedIn)
-            assertNotNull(prefs.getString(key, null))
-        } finally {
-            controller.pause().stop().destroy()
-        }
+    @Test fun nonApiFailureInBackgroundIsIOException() = runBlocking {
+        storeAccount("stored@example.com")
+        val auth = auth(FakeAuthorizer({ throw SecurityException("Play services disabled for this app") }))
+        val e = runCatching { auth.accessToken() }.exceptionOrNull()
+        assertTrue("got $e", e is IOException && e !is GoogleAuthRequiredException)
+    }
+
+    // Play services does not name the account of a drive.appdata-only grant: it is looked up and stored (seen on API 36)
+    @Test fun firstSignInWithoutNamedAccountLooksItUpAndStoresIt() {
+        val fake = FakeAuthorizer(
+            needsResolution(),
+            granted("tok-2", account = null),
+            fromIntent = granted("tok-1", account = null),
+            lookup = { Account("found@example.com", "com.google") },
+        )
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertEquals(listOf("tok-1"), fake.lookups)
+        assertEquals("found@example.com", storedAccountName())
+        // A later background request (e.g. after a process restart) asks for exactly that account, no chooser.
+        assertEquals("tok-2", runBlocking { auth.accessToken() })
+        assertEquals(listOf(null, Account("found@example.com", "com.google")), fake.requested)
+        assertEquals("no second lookup once the account is known", 1, fake.lookups.size)
+    }
+
+    @Test fun failedLookupKeepsSessionAndRetriesOnTheNextToken() {
+        var answer: Account? = null
+        val fake = FakeAuthorizer(granted("tok-1", account = null), granted("tok-2", account = null), lookup = { answer })
+        val auth = auth(fake)
+        assertTrue(withActivity { auth.signIn() })
+        assertTrue(auth.signedIn)
+        assertNull(prefs.getString(key, null))
+        answer = Account("later@example.com", "com.google")
+        assertEquals("tok-2", runBlocking { auth.accessToken() })
+        assertEquals(listOf("tok-1", "tok-2"), fake.lookups)
+        assertEquals("later@example.com", storedAccountName())
     }
 }

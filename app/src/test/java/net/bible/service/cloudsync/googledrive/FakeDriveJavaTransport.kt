@@ -1,6 +1,5 @@
 package net.bible.service.cloudsync.googledrive
 
-import android.accounts.Account
 import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.http.HttpTransport
 import com.google.api.client.http.LowLevelHttpRequest
@@ -22,7 +21,7 @@ import java.util.zip.GZIPInputStream
 
 /**
  * A google-http-client [HttpTransport] that answers every request from [FakeDriveServer.handle], so the Android
- * Google API client (and [GoogleDriveCloudAdapter] on it) talks to the same in-memory Drive as the Ktor adapter.
+ * Google API client (and [LegacyDriveAdapter] on it) talks to the same in-memory Drive as the Ktor adapter.
  *
  * The request body is buffered whole. A `Content-Encoding: gzip` body (the client gzips JSON request bodies by
  * default) is decoded here, as Drive itself does, so the fake sees the plain body.
@@ -82,18 +81,14 @@ class FakeDriveJavaTransport(private val server: FakeDriveServer) : HttpTranspor
 }
 
 /**
- * The production [GoogleDriveCloudAdapter] on [server], built as `GoogleDriveCloudFileStoreTest.store()` builds it
- * (an account and a ready `Drive` service set by reflection). The request initializer stands in for
- * `GoogleAccountCredential`: it only adds the bearer token the fake requires.
+ * The frozen old-app adapter ([LegacyDriveAdapter]) on [server]. The request initializer stands in for the old
+ * app's `GoogleAccountCredential`: it only adds the bearer token the fake requires.
  */
 fun oldDriveAdapter(server: FakeDriveServer): CloudAdapter {
     val bearer = HttpRequestInitializer { it.headers.authorization = "Bearer java-client-token" }
     val service = Drive.Builder(FakeDriveJavaTransport(server), GsonFactory.getDefaultInstance(), bearer)
         .setApplicationName("test").build()
-    return GoogleDriveCloudAdapter().apply {
-        javaClass.getDeclaredField("account").apply { isAccessible = true }.set(this, Account("test", "com.google"))
-        javaClass.getDeclaredField("_service").apply { isAccessible = true }.set(this, service)
-    }
+    return LegacyDriveAdapter(service)
 }
 
 /** The shared Ktor [GoogleDriveRestAdapter] on [server]. */

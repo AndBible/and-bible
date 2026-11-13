@@ -4,9 +4,9 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.platform.AndroidCloudAdapterFactory
-import net.bible.android.platform.DriveImplementation
 import net.bible.service.cloudsync.drive.GoogleDriveRestAdapter
 import net.bible.service.common.CommonUtils
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,33 +18,32 @@ import org.robolectric.annotation.Config
 class AndroidCloudAdapterFactoryDriveTest {
     private val prefs get() = CommonUtils.realSharedPreferences
 
-    private fun withOverride(value: String?, block: () -> Unit) {
-        val old = prefs.getString(DriveImplementation.PREF_KEY, null)
+    /** Hidden pref of the phase 1-3 builds that chose the old adapter; it is no longer read. */
+    private val retiredPrefKey = "google_drive_implementation"
+
+    private fun withRetiredPref(value: String?, block: () -> Unit) {
+        val old = prefs.getString(retiredPrefKey, null)
         try {
-            prefs.edit().apply { if (value == null) remove(DriveImplementation.PREF_KEY) else putString(DriveImplementation.PREF_KEY, value) }.commit()
+            prefs.edit().apply { if (value == null) remove(retiredPrefKey) else putString(retiredPrefKey, value) }.commit()
             block()
         } finally {
-            prefs.edit().apply { if (old == null) remove(DriveImplementation.PREF_KEY) else putString(DriveImplementation.PREF_KEY, old) }.commit()
+            prefs.edit().apply { if (old == null) remove(retiredPrefKey) else putString(retiredPrefKey, old) }.commit()
         }
     }
 
     private val factory get() = AndroidCloudAdapterFactory(ApplicationProvider.getApplicationContext())
 
-    @Test fun `shared override creates the shared adapter`() = withOverride(DriveImplementation.SHARED) {
+    @Test fun `stored legacy choice still creates the shared adapter`() = withRetiredPref("legacy") {
         assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveRestAdapter)
+        assertTrue(factory.createForBackground("GOOGLE_DRIVE") is GoogleDriveRestAdapter)
     }
 
-    @Test fun `legacy override creates the old adapter`() = withOverride(DriveImplementation.LEGACY) {
-        assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveCloudAdapter)
-    }
-
-    @Test fun `no override creates the shared adapter`() = withOverride(null) {
+    @Test fun `no stored choice creates the shared adapter`() = withRetiredPref(null) {
         assertTrue(factory.create("GOOGLE_DRIVE") is GoogleDriveRestAdapter)
+        assertTrue(factory.createForBackground("GOOGLE_DRIVE") is GoogleDriveRestAdapter)
     }
 
     @Test fun `providers share one http client`() {
-        val a = net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider.sharedClient
-        val b = net.bible.service.cloudsync.googledrive.GoogleDriveAdapterProvider.sharedClient
-        org.junit.Assert.assertSame(a, b)
+        assertSame(GoogleDriveAdapterProvider.sharedClient, GoogleDriveAdapterProvider.sharedClient)
     }
 }

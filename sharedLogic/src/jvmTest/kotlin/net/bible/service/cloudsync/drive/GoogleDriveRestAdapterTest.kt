@@ -366,4 +366,87 @@ class GoogleDriveRestAdapterTest {
         assertTrue(job.isCancelled)
         assertTrue(closed, "sink must be closed even when cancelled before the download started")
     }
+
+    private fun uploadType(r: net.bible.service.cloudsync.drive.fake.FakeDriveRequest) = Url(r.url).parameters["uploadType"]
+
+    @Test
+    fun smallUploadIsOneMultipartRequestStoringWhatResumableStores() = runBlocking {
+        val folder = adapter.createNewFolder("sync")
+        val small = Random(10).nextBytes(3 * 1024)
+        val before = server.requests.size
+        val created = adapter.upload("1.12.sqlite3.gz", tmp.resolve("small.gz").also { Files.write(it, small) }.toOkioPath(), folder.id)
+        val sent = server.requests.drop(before)
+        assertEquals(1, sent.size, "one request for a small file")
+        assertEquals("POST", sent.single().method)
+        assertEquals("multipart", uploadType(sent.single()))
+        assertEquals("id, name, size, createdTime, parents", Url(sent.single().url).parameters["fields"])
+
+        val big = Random(11).nextBytes(DRIVE_MULTIPART_MAX_BYTES.toInt())
+        val viaResumable = adapter.upload("1.12.sqlite3.gz", tmp.resolve("big.gz").also { Files.write(it, big) }.toOkioPath(), folder.id)
+        val m = server.file(created.id)!!
+        val r = server.file(viaResumable.id)!!
+        assertEquals(r.name, m.name)
+        assertEquals(r.mimeType, m.mimeType)
+        assertEquals(GZIP_MIMETYPE, m.mimeType)
+        assertEquals(r.parents, m.parents)
+        assertContentEquals(small, m.content)
+        assertEquals(small.size.toLong(), created.size)
+        assertEquals(folder.id, created.parentId)
+        assertEquals("1.12.sqlite3.gz", created.name)
+        assertContentEquals(small, downloadBytes(created.id))
+    }
+
+    @Test
+    fun multipartThresholdPicksTheUploadProtocol() = runBlocking {
+        for ((size, expected) in listOf(DRIVE_MULTIPART_MAX_BYTES - 1 to "multipart", DRIVE_MULTIPART_MAX_BYTES to "resumable")) {
+            val payload = Random(size.toInt()).nextBytes(size.toInt())
+            val before = server.requests.size
+            val created = adapter.upload("t.gz", tmp.resolve("t$size.gz").also { Files.write(it, payload) }.toOkioPath(), root)
+            val posts = server.requests.drop(before).filter { it.method == "POST" }
+            assertEquals(listOf<String?>(expected), posts.map { uploadType(it) }, "size $size")
+            assertContentEquals(payload, server.file(created.id)!!.content, "size $size")
+        }
+    }
+
+    @Test
+    fun multipartUploadRefreshesExpiredTokenOnce() = runBlocking {
+        server.authorize = { it == "Bearer t2" }
+        val payload = Random(12).nextBytes(1000)
+        val created = adapter.upload("a.gz", tmp.resolve("a.gz").also { Files.write(it, payload) }.toOkioPath(), root)
+        assertEquals(listOf("t1"), auth.invalidateCalls)
+        assertEquals(listOf("multipart", "multipart"), server.requests.map { uploadType(it) })
+        assertContentEquals(payload, server.file(created.id)!!.content)
+        assertEquals(created.id, adapter.listFiles(parentsIds = listOf(root)).single().id, "exactly one file stored")
+    }
+
+    @Test
+    fun cancelledMultipartUploadLeavesNoFile() = runBlocking {
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val engine = io.ktor.client.engine.mock.MockEngine { request ->
+            // The whole body is built before the request goes out; Drive stores nothing until it has all of it.
+            started.complete(Unit)
+            kotlinx.coroutines.awaitCancellation()
+        }
+        val a = GoogleDriveRestAdapter(auth, createGoogleDriveHttpClient(engine))
+        val file = tmp.resolve("c.gz").also { Files.write(it, ByteArray(1000)) }.toOkioPath()
+        val job = launch(kotlinx.coroutines.Dispatchers.Default) { a.upload("c.gz", file, root) }
+        started.await()
+        job.cancel()
+        job.join()
+        assertTrue(job.isCancelled)
+        assertTrue(adapter.listFiles(parentsIds = listOf(root)).isEmpty())
+    }
+
+    @Test
+    fun multipartBoundaryNeverOccursInContent() {
+        val content = "--andbible_".encodeToByteArray() + ByteArray(100)
+        repeat(50) { seed ->
+            val b = multipartBoundary(content, Random(seed))
+            assertFalse(String(content, Charsets.ISO_8859_1).contains(b))
+        }
+        // A content that contains the first candidate forces a second one.
+        val first = multipartBoundary(ByteArray(0), Random(7))
+        val second = multipartBoundary(first.encodeToByteArray(), Random(7))
+        assertTrue(first != second)
+    }
 }

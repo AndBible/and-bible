@@ -25,17 +25,20 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.random.Random
 import net.bible.android.database.SyncConfiguration
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import okio.FileNotFoundException
 import okio.FileSystem
 import okio.IOException
 import okio.Path
+import okio.Buffer
 import okio.BufferedSink
 import okio.Sink
 import okio.buffer
@@ -44,8 +47,16 @@ import okio.use
 private const val FILES_PATH = "drive/v3/files"
 private const val UPLOAD_FILES_PATH = "upload/drive/v3/files"
 
+private const val DRIVE_LOG_TAG = "GoogleDrive"
+
 /** Size of one `Content-Range` chunk of a resumable upload (a multiple of 256 KiB, as Drive requires). */
 private const val UPLOAD_CHUNK_SIZE = 8L * 1024 * 1024
+
+/**
+ * Files smaller than this upload in one `uploadType=multipart` request (metadata and media together); larger ones
+ * use the resumable protocol. Sync patches are usually a few KiB, so most uploads take one request instead of two.
+ */
+const val DRIVE_MULTIPART_MAX_BYTES = 5L * 1024 * 1024
 
 private val driveJson = Json { ignoreUnknownKeys = true; explicitNulls = false; encodeDefaults = false }
 
@@ -130,6 +141,7 @@ class GoogleDriveRestAdapter(
     override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = withContext(Dispatchers.IO) {
         val fs = FileSystem.SYSTEM
         val total = fs.metadata(file).size ?: throw IOException("Cannot determine size of $file")
+        if (total < DRIVE_MULTIPART_MAX_BYTES) return@withContext uploadMultipart(name, fs.read(file) { readByteArray() }, parentId)
         val metadata = DriveCreateDto(name, listOf(parentId))
         val start = send(HttpMethod.Post) {
             url { appendPathSegments(UPLOAD_FILES_PATH.split('/')) }
@@ -158,7 +170,9 @@ class GoogleDriveRestAdapter(
                     contentType(ContentType.parse(GZIP_MIMETYPE))
                     setBody(chunk)
                 }
-                if (response.status.value != 308) return@withContext decode<DriveFileDto>(response).toCloudFile()
+                if (response.status.value != 308) return@withContext decode<DriveFileDto>(response).toCloudFile().also {
+                    Log.i(DRIVE_LOG_TAG, "Uploaded $name ($total bytes) in a resumable session")
+                }
                 // "Range: bytes=0-N" = Drive holds N+1 bytes; no Range header = it holds none.
                 val persisted = response.headers[HttpHeaders.Range]?.substringAfterLast('-')?.toLongOrNull()?.plus(1) ?: 0L
                 if (persisted > offset + size) throw IOException("Drive reports $persisted bytes received, more than the $total sent so far")
@@ -169,6 +183,32 @@ class GoogleDriveRestAdapter(
             }
         }
         error("unreachable: the upload loop returns or throws")
+    }
+
+    /**
+     * One `multipart/related` request: a JSON metadata part (name, parents, `application/gzip`) and the media part.
+     * Drive creates the file only when the whole request arrived, so a cancelled upload leaves nothing behind.
+     */
+    private suspend fun uploadMultipart(name: String, content: ByteArray, parentId: String): CloudFile {
+        val metadata = driveJson.encodeToString(DriveCreateDto(name, listOf(parentId), GZIP_MIMETYPE)).encodeToByteArray()
+        val boundary = multipartBoundary(content)
+        val body = Buffer().apply {
+            writeUtf8("--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n")
+            write(metadata)
+            writeUtf8("\r\n--$boundary\r\nContent-Type: $GZIP_MIMETYPE\r\n\r\n")
+            write(content)
+            writeUtf8("\r\n--$boundary--\r\n")
+        }.readByteArray()
+        val response = send(HttpMethod.Post) {
+            url { appendPathSegments(UPLOAD_FILES_PATH.split('/')) }
+            parameter("uploadType", "multipart")
+            parameter("fields", DRIVE_FILE_FIELDS)
+            contentType(ContentType("multipart", "related").withParameter("boundary", boundary))
+            setBody(body)
+        }
+        return decode<DriveFileDto>(response).toCloudFile().also {
+            Log.i(DRIVE_LOG_TAG, "Uploaded $name (${content.size} bytes) in one multipart request")
+        }
     }
 
     override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
@@ -281,6 +321,23 @@ class GoogleDriveRestAdapter(
         val message = error?.message ?: response.status.description
         return DriveHttpException(response.status.value, reason, "Google Drive HTTP ${response.status.value}: $message")
     }
+}
+
+/** A random multipart boundary that does not occur in [content]. */
+internal fun multipartBoundary(content: ByteArray, random: Random = Random.Default): String {
+    while (true) {
+        val boundary = "andbible_" + (1..24).map { "0123456789abcdefghijklmnopqrstuvwxyz"[random.nextInt(36)] }.joinToString("")
+        if (!content.contains(boundary.encodeToByteArray())) return boundary
+    }
+}
+
+private fun ByteArray.contains(needle: ByteArray): Boolean {
+    if (needle.size > size) return false
+    outer@ for (i in 0..size - needle.size) {
+        for (j in needle.indices) if (this[i + j] != needle[j]) continue@outer
+        return true
+    }
+    return false
 }
 
 /** Escapes a value for use inside a single-quoted Drive query string. */

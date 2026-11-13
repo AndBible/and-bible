@@ -258,14 +258,17 @@ class FakeDriveServer(
 
     private fun multipart(r: FakeDriveRequest): FakeDriveResponse {
         val ct = r.headers["content-type"] ?: throw BadRequest("Missing Content-Type")
+        if (!ct.trim().startsWith("multipart/related", ignoreCase = true)) throw BadRequest("multipart upload needs multipart/related, got $ct")
         val boundary = BOUNDARY.find(ct)?.groupValues?.get(1) ?: throw BadRequest("Missing multipart boundary")
         val delim = "--$boundary".encodeToByteArray()
         val body = r.body
         val parts = ArrayList<Pair<Map<String, String>, ByteArray>>()
         var pos = indexOf(body, delim, 0)
+        if (pos != 0) throw BadRequest("Malformed multipart body: must start with the boundary")
+        var closed = false
         while (pos >= 0) {
             val afterDelim = pos + delim.size
-            if (body.startsWith("--", afterDelim)) break
+            if (body.startsWith("--", afterDelim)) { closed = true; break }
             val headerStart = afterDelim + (if (body.startsWith("\r\n", afterDelim)) 2 else 0)
             val headerEnd = indexOf(body, "\r\n\r\n".encodeToByteArray(), headerStart)
             if (headerEnd < 0) throw BadRequest("Malformed multipart body")
@@ -277,8 +280,12 @@ class FakeDriveServer(
             parts += headers to body.copyOfRange(contentStart, next)
             pos = next + 2
         }
+        if (!closed) throw BadRequest("Malformed multipart body: no closing boundary")
         if (parts.size != 2) throw BadRequest("multipart upload needs exactly 2 parts, got ${parts.size}")
-        return complete(parseJson(parts[0].second), parts[1].second, parts[1].first["content-type"])
+        val metaType = parts[0].first["content-type"]?.substringBefore(';')?.trim()
+        if (!metaType.equals("application/json", ignoreCase = true)) throw BadRequest("multipart metadata part must be application/json, got $metaType")
+        val mediaType = parts[1].first["content-type"] ?: throw BadRequest("multipart media part has no Content-Type")
+        return complete(parseJson(parts[0].second), parts[1].second, mediaType)
     }
 
     private fun complete(meta: JsonObject, content: ByteArray?, contentType: String?): FakeDriveResponse {

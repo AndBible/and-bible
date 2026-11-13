@@ -162,12 +162,6 @@ class DriveAdapterSyncRoundTest {
         suspend fun bookmarkIds(): Set<IdType> = db.localDb.bookmarkDao().allBookmarks().map { it.id }.toSet()
     }
 
-    /** The old adapter's own signIn() needs an activity (One Tap); its account is already set, so it is skipped. */
-    private fun oldSignedIn(server: FakeDriveServer): CloudAdapter {
-        val old = oldDriveAdapter(server)
-        return object : CloudAdapter by old { override suspend fun signIn() = true }
-    }
-
     /**
      * Device A creates the sync folder and uploads a patch; B (empty database) joins from A's initial file and patch,
      * then adds its own bookmark; A receives it.
@@ -179,7 +173,7 @@ class DriveAdapterSyncRoundTest {
         val first = a.addBookmark()
         nextMillis()
         a.sync() // uploads the first patch
-        assertTrue("A uploaded patch 1", server.requests.any { it.url.contains("uploadType=resumable") && it.uploadName()?.matches(PATCH_1) == true })
+        assertTrue("A uploaded patch 1", server.requests.any { it.isUploadStart() && it.uploadName()?.matches(PATCH_1) == true })
 
         nextMillis()
         b.sync() // joins from A's folder (fetch), then applies A's patch
@@ -204,9 +198,15 @@ class DriveAdapterSyncRoundTest {
         while (System.currentTimeMillis() < start + 2) Thread.sleep(1)
     }
 
-    /** The file name in a resumable-upload start request's JSON metadata, or null. */
-    private fun FakeDriveRequest.uploadName(): String? =
-        runCatching { (Json.parseToJsonElement(body.decodeToString()).jsonObject["name"] as? JsonPrimitive)?.content }.getOrNull()
+    /** A resumable-upload start (old adapter, large files) or a one-request multipart upload (new adapter, < 5 MiB). */
+    private fun FakeDriveRequest.isUploadStart() = url.contains("uploadType=resumable") || url.contains("uploadType=multipart")
+
+    /** The file name in an upload request's JSON metadata (the whole body, or a multipart body's first part), or null. */
+    private fun FakeDriveRequest.uploadName(): String? = runCatching {
+        val text = body.decodeToString()
+        val json = if (text.startsWith("--")) text.substringAfter("\r\n\r\n").substringBefore("\r\n--") else text
+        (Json.parseToJsonElement(json).jsonObject["name"] as? JsonPrimitive)?.content
+    }.getOrNull()
 
     private companion object {
         const val SYNC_DEADLINE_MS = 30_000L
@@ -215,11 +215,11 @@ class DriveAdapterSyncRoundTest {
 
     @Test fun oldDeviceCreatesNewDeviceJoins() = run {
         val server = FakeDriveServer()
-        exchange(server, Device("a", oldSignedIn(server)), Device("b", newDriveAdapter(server)))
+        exchange(server, Device("a", oldDriveAdapter(server)), Device("b", newDriveAdapter(server)))
     }
 
     @Test fun newDeviceCreatesOldDeviceJoins() = run {
         val server = FakeDriveServer()
-        exchange(server, Device("a", newDriveAdapter(server)), Device("b", oldSignedIn(server)))
+        exchange(server, Device("a", newDriveAdapter(server)), Device("b", oldDriveAdapter(server)))
     }
 }

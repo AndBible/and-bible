@@ -230,6 +230,40 @@ class FakeDriveServerTest {
         assertContentEquals(media, f.content)
     }
 
+    private fun multipartBody(
+        boundary: String,
+        metaType: String? = "application/json; charset=UTF-8",
+        mediaType: String? = "application/gzip",
+        closing: String = "\r\n--$boundary--\r\n",
+        extraPart: Boolean = false,
+    ): ByteArray {
+        fun head(type: String?) = if (type == null) "\r\n" else "Content-Type: $type\r\n\r\n"
+        val meta = """{"name":"mp.gz","parents":["appDataFolder"]}"""
+        val extra = if (extraPart) "\r\n--$boundary\r\n${head("text/plain")}x" else ""
+        return ("--$boundary\r\n${head(metaType)}$meta\r\n--$boundary\r\n${head(mediaType)}abc$extra$closing").encodeToByteArray()
+    }
+
+    private fun postMultipart(body: ByteArray, contentType: String = "multipart/related; boundary=b1") =
+        req("POST", "/upload/drive/v3/files", mapOf("uploadType" to "multipart"), mapOf("content-type" to contentType), body)
+
+    @Test
+    fun multipartRejectsMalformedBodies() {
+        assertEquals(200, postMultipart(multipartBody("b1")).status, "the well-formed baseline must pass")
+        val bad = mapOf(
+            "wrong outer type" to postMultipart(multipartBody("b1"), "multipart/form-data; boundary=b1"),
+            "missing boundary parameter" to postMultipart(multipartBody("b1"), "multipart/related"),
+            "other boundary" to postMultipart(multipartBody("b2")),
+            "no closing boundary" to postMultipart(multipartBody("b1", closing = "")),
+            "unterminated closing" to postMultipart(multipartBody("b1", closing = "\r\n--b1\r\n")),
+            "three parts" to postMultipart(multipartBody("b1", extraPart = true)),
+            "metadata not JSON" to postMultipart(multipartBody("b1", metaType = "text/plain")),
+            "metadata without type" to postMultipart(multipartBody("b1", metaType = null)),
+            "media without type" to postMultipart(multipartBody("b1", mediaType = null)),
+            "preamble" to postMultipart("junk".encodeToByteArray() + multipartBody("b1")),
+        )
+        for ((case, response) in bad) assertEquals(400, response.status, case)
+    }
+
     private fun beginSession(headers: Map<String, String> = emptyMap(), meta: String = """{"name":"s","parents":["appDataFolder"]}"""): String =
         req("POST", "/upload/drive/v3/files", mapOf("uploadType" to "resumable"), headers, meta.encodeToByteArray()).headers["Location"]!!
 
