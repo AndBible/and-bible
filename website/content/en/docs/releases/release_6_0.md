@@ -49,8 +49,8 @@ See [Platform differences](../platform_differences.md).
 
 - **Every platform:** AndBible now runs on iPhone, iPad, Mac, Windows and Linux as well as Android.
 - **New interface:** all screens are rebuilt with Compose Multiplatform and shared between the platforms.
-- **Sync between platforms:** Nextcloud and WebDAV sync work on every platform. iCloud Drive is
-    available on iPhone, iPad and Mac, Google Drive on Android.
+- **Sync between platforms:** Nextcloud and WebDAV sync work on every platform. Google Drive works on every platform, and iCloud Drive is
+    available on iPhone, iPad and Mac.
     See [Cloud synchronization](../cloud_sync.md).
 - **Sync now:** start a synchronization yourself from the overflow menu of the reading view.
 - **Background activity:** syncing, downloads, search indexing and AI agent runs show in an
