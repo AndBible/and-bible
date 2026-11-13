@@ -357,8 +357,9 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     }
 
     // #4074: classic's ~20dp edge drag opens the drawer again, without M3's anywhere-drag (see
-    // [drawerEdgeSwipe]). The detector stays on while the drawer is SETTLED closed, which covers its own
-    // drag (the sheet moves but has not settled), so removing it can never cancel a drag mid-way.
+    // [drawerEdgeSwipe]). The detector stays on while the drawer is SETTLED closed (`isClosed` reads the
+    // anchored state's settledValue, which changes only when a drag or animation ends at an anchor, not
+    // when the sheet passes halfway), which covers its own drag, so removing it never cancels a drag mid-way.
     val edgeRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val edgeScope = rememberCoroutineScope()
     val edgeVelocityPx = with(LocalDensity.current) { DrawerEdgeSettleVelocity.toPx() }

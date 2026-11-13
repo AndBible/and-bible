@@ -172,6 +172,32 @@ class DrawerEdgeSwipeTest {
         assertEquals(DrawerValue.Closed, h.drawerState.currentValue, "released barely open and slowly: closes")
     }
 
+    /**
+     * Past halfway the anchored state's internal current value flips to Open, but `DrawerState.isClosed` reads the
+     * SETTLED value, so the detector (enabled on `isClosed`, as in `ReadingHost`) stays attached and the drag can
+     * still be taken back.
+     */
+    @Test
+    fun dragPastHalfwayAndBackStillCloses() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val h = setHarness()
+        val root = onNodeWithTag("root")
+        root.performTouchInput {
+            down(Offset(5f, midY))
+            slowMove(260f, steps = 100)
+        }
+        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeByFrame()
+        assertTrue(h.drawerState.currentOffset > -sheetWidth / 2, "past halfway: ${h.drawerState.currentOffset}")
+        root.performTouchInput {
+            slowMove(-220f, steps = 100)
+            up()
+        }
+        settle()
+        assertEquals(DrawerValue.Closed, h.drawerState.currentValue)
+        assertEquals(-sheetWidth, h.drawerState.currentOffset)
+    }
+
     @Test
     fun shortSlowDragSnapsBackClosed() = runComposeUiTest {
         mainClock.autoAdvance = false

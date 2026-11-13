@@ -115,11 +115,15 @@ internal fun Modifier.drawerEdgeSwipe(
         val slop = viewConfiguration.touchSlop
         var dx = 0f
         var dy = 0f
+        // Tracked from the down, so a quick flick that lifts just after the slop still has a velocity.
+        val tracker = VelocityTracker()
+        tracker.addPosition(down.uptimeMillis, down.position)
         // Pre-slop: watch only, consume nothing.
         while (true) {
             val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
                 ?: return@awaitEachGesture
             if (!change.pressed) return@awaitEachGesture
+            tracker.addPosition(change.uptimeMillis, change.position)
             val delta = change.positionChange()
             dx += delta.x * sign
             dy += delta.y
@@ -130,7 +134,6 @@ internal fun Modifier.drawerEdgeSwipe(
                 break
             }
         }
-        val tracker = VelocityTracker()
         var distance = 0f
         var ended = false
         callbacks.onDragStart()
