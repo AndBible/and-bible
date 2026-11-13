@@ -10,6 +10,11 @@ tts:
     Speak clearly and unhurriedly, with gentle, natural emphasis and short pauses
     between steps. Friendly and patient, never salesy or over-excited.
 
+music:
+  file: shared/music/curious_pulse.wav
+  volume: 0.25
+  duck: 0.35
+
 # Clips live in .local/video-media/poc-title-bar-search/captures/ (made by capture.py).
 scenes:
   - id: hook
