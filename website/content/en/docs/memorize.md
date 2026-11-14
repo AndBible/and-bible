@@ -11,6 +11,10 @@ exercises.
     **Memorize** button.
 3. A new window opens with the Memorize view.
 
+Opening the Memorize view on a passage also adds it as a memorization goal (if it is not one already),
+since tapping **Memorize** means you want to learn it. To drop the goal, choose **Remove from targets** in the
+view's menu (see [Menu actions](#menu-actions)).
+
 The Memorize view offers four study modes that you can switch between using
 the tabs at the top of the window.
 

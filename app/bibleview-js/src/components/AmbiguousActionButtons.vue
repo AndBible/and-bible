@@ -29,7 +29,7 @@
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
+    <div v-if="secondaryButtons.length > 0" class="large-action more-action" @click.stop="showMoreMenu = true" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, nextTick, onMounted, ref} from "vue";
+import {computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, memorizationKey, modalKey} from "@/types/constants";
@@ -183,6 +183,11 @@ onMounted(() => {
     recalculateVisibleButtons();
     window.addEventListener('resize', recalculateVisibleButtons);
 });
+onBeforeUnmount(() => window.removeEventListener('resize', recalculateVisibleButtons));
+
+// The button set can change while the menu is open (e.g. "Goal -" appears once the verse becomes a goal).
+// Without re-fitting, a row that was exactly full gains a More button that wraps alone onto a second row (#4106).
+watch(() => modalButtons.value.join(","), () => recalculateVisibleButtons());
 
 function hasButton(buttonId: ModalButtonId) {
     return modalButtons.value.includes(buttonId);
