@@ -46,7 +46,26 @@ enum class DefaultThemeProposal {
     INK,
 
     /** D: the site accent #D99A2B through the same seeded TonalSpot path as a user workspace colour. */
-    SEEDED;
+    SEEDED,
+
+    /**
+     * C2 (round 2): C with cool neutral paper and a stronger, cooler ink; the amber accent is kept.
+     * Changes exactly one thing against C, the warmth of the neutrals, so the poll can tell whether
+     * C won for its ink-on-paper structure or for the warm paper tone.
+     */
+    INK_COOL,
+
+    /** D2 (round 2): D's TonalSpot path with a bronze seed #B5652A (hue ~45 instead of ~70). */
+    SEEDED_BRONZE,
+
+    /** E (round 2): CURRENT's calm Material 3 feel with a light silvery blue (seed #6F87AE) instead of violet. */
+    SILVER_BLUE,
+
+    /** F (round 2): graphite with a slate hint (seed #5A5E65, chroma ~7): nearly neutral blue-grey, the quietest coloured option. */
+    SLATE,
+
+    /** G (round 2): muted sage green (seed #66845F): a calm natural hue outside the logo's brown/orange range. */
+    SAGE;
 
     /** The proposal's scheme, or null for [CURRENT] (the caller then uses the stock scheme). */
     fun scheme(dark: Boolean): ColorScheme? = when (this) {
@@ -55,6 +74,11 @@ enum class DefaultThemeProposal {
         BRONZE -> if (dark) bronzeDark() else bronzeLight()
         INK -> if (dark) inkDark() else inkLight()
         SEEDED -> greySafeTonalSpot(SITE_ACCENT, dark)
+        INK_COOL -> if (dark) inkCoolDark() else inkCoolLight()
+        SEEDED_BRONZE -> greySafeTonalSpot(BRONZE_SEED, dark)
+        SILVER_BLUE -> greySafeTonalSpot(SILVER_BLUE_SEED, dark)
+        SLATE -> greySafeTonalSpot(SLATE_SEED, dark)
+        SAGE -> greySafeTonalSpot(SAGE_SEED, dark)
     }
 
     companion object {
@@ -70,8 +94,12 @@ enum class DefaultThemeProposal {
  */
 var activeDefaultThemeProposal: DefaultThemeProposal = DefaultThemeProposal.CURRENT
 
-private const val SITE_ACCENT = 0xFFD99A2B.toInt()
+internal const val SITE_ACCENT = 0xFFD99A2B.toInt()
 private const val LOGO_BRONZE = 0xFF7B4639.toInt()
+internal const val BRONZE_SEED = 0xFFB5652A.toInt()
+internal const val SILVER_BLUE_SEED = 0xFF6F87AE.toInt()
+internal const val SLATE_SEED = 0xFF5A5E65.toInt()
+internal const val SAGE_SEED = 0xFF66845F.toInt()
 
 private val Paper = Color(0xFFFFFAF0)
 private val Ground = Color(0xFFF7F1E3)
@@ -158,4 +186,61 @@ private fun inkDark() = greySafeTonalSpot(SITE_ACCENT, true).siteNight().copy(
     secondary = Gold, onSecondary = Ink,
     secondaryContainer = Color(0xFF4A3812), onSecondaryContainer = Color(0xFFFFDFA0),
     tertiary = Gold, onTertiary = Ink,
+)
+
+/** C2's cool neutral paper: the same structure as [sitePaper] with the yellow taken out. */
+private fun ColorScheme.coolPaper(): ColorScheme = copy(
+    background = CoolGround, onBackground = CoolInk,
+    surface = CoolPaper, onSurface = CoolInk, surfaceVariant = CoolPaper2, onSurfaceVariant = CoolMuted,
+    surfaceTint = Color.Transparent,
+    surfaceBright = CoolPaper, surfaceDim = Color(0xFFE0E1DE),
+    surfaceContainerLowest = Color(0xFFFFFFFF), surfaceContainerLow = CoolPaper,
+    surfaceContainer = CoolGround, surfaceContainerHigh = CoolPaper2, surfaceContainerHighest = CoolBorder,
+    outline = CoolFaint, outlineVariant = CoolBorder,
+    inverseSurface = CoolInk, inverseOnSurface = CoolGround,
+)
+
+/** C2's cool night neutrals. */
+private fun ColorScheme.coolNight(): ColorScheme = copy(
+    background = CoolNightGround, onBackground = CoolNightInk,
+    surface = CoolNightSurface, onSurface = CoolNightInk, surfaceVariant = CoolNightSurface3, onSurfaceVariant = CoolNightMuted,
+    surfaceTint = Color.Transparent,
+    surfaceBright = CoolNightSurface3, surfaceDim = Color(0xFF101213),
+    surfaceContainerLowest = Color(0xFF101213), surfaceContainerLow = CoolNightGround,
+    surfaceContainer = CoolNightSurface, surfaceContainerHigh = CoolNightSurface2, surfaceContainerHighest = CoolNightSurface3,
+    outline = CoolNightFaint, outlineVariant = Color(0xFF363A3F),
+    inverseSurface = CoolNightInk, inverseOnSurface = CoolNightGround,
+)
+
+private val CoolGround = Color(0xFFF2F3F1)
+private val CoolPaper = Color(0xFFFAFAF9)
+private val CoolPaper2 = Color(0xFFE9EAE7)
+private val CoolBorder = Color(0xFFD6D8D4)
+private val CoolInk = Color(0xFF1C2024)
+private val CoolMuted = Color(0xFF4C5258)
+private val CoolFaint = Color(0xFF7A8087)
+private val CoolNightGround = Color(0xFF131517)
+private val CoolNightSurface = Color(0xFF191B1D)
+private val CoolNightSurface2 = Color(0xFF212427)
+private val CoolNightSurface3 = Color(0xFF2A2D31)
+private val CoolNightInk = Color(0xFFEDEFF1)
+private val CoolNightMuted = Color(0xFFA0A6AC)
+private val CoolNightFaint = Color(0xFF777D84)
+
+private fun inkCoolLight() = greySafeTonalSpot(SITE_ACCENT, false).coolPaper().copy(
+    primary = CoolInk, onPrimary = CoolGround,
+    primaryContainer = CoolPaper2, onPrimaryContainer = CoolInk,
+    inversePrimary = Gold,
+    secondary = AccentInk, onSecondary = Color.White,
+    secondaryContainer = Gold, onSecondaryContainer = CoolInk,
+    tertiary = AccentInk, onTertiary = Color.White,
+)
+
+private fun inkCoolDark() = greySafeTonalSpot(SITE_ACCENT, true).coolNight().copy(
+    primary = CoolNightInk, onPrimary = CoolNightGround,
+    primaryContainer = CoolNightSurface3, onPrimaryContainer = CoolNightInk,
+    inversePrimary = CoolInk,
+    secondary = Gold, onSecondary = CoolInk,
+    secondaryContainer = Color(0xFF4A3812), onSecondaryContainer = Color(0xFFFFDFA0),
+    tertiary = Gold, onTertiary = CoolInk,
 )
