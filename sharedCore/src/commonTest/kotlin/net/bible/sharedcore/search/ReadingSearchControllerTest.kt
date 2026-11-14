@@ -720,14 +720,50 @@ class ReadingSearchControllerTest {
         assertNull(c.imeRequest.value)
     }
 
-    // The index prompt is a sheet with buttons; there is nothing to type.
+    // #4089: a Bible reference needs no index, so the field stays focused under a Bible's index prompt (otherwise
+    // the typed keys reach the reading view: spaces page-scroll it). An EPUB prompt has nothing to type for, and a
+    // seeded query is already a word search.
     @Test
-    fun theIndexPromptReleasesTheField() {
-        val (_, c) = controller(
+    fun theIndexPromptKeepsTheFieldFocusedOnlyWhereAReferenceCanBeTyped() {
+        val bible = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false)
+        val epub = SearchDocumentInfo("EP", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = false)
+        for ((case, expected) in listOf(
+            Triple(bible, null, false) to SearchFieldImeRequest.Focus,
+            Triple(bible, null, true) to SearchFieldImeRequest.Focus,
+            Triple(bible, "light", false) to SearchFieldImeRequest.Release,
+            Triple(epub, null, false) to SearchFieldImeRequest.Release,
+            Triple(epub, null, true) to SearchFieldImeRequest.Release,
+        )) {
+            val (doc, seed, indexing) = case
+            val c = ReadingSearchController(
+                resolveDoc = { doc },
+                onUnavailable = {},
+                onLeaveFullScreen = {},
+                onStartIndexing = {},
+                onRunSearch = { _, _, _ -> },
+                isIndexing = { indexing },
+            )
+            c.open(seed)
+            assertTrue(c.sheetVisible.value, "$case: the index prompt or progress is shown")
+            assertEquals(expected, c.imeRequest.value, "$case")
+        }
+    }
+
+    @Test
+    fun aReferenceTypedUnderTheIndexPromptJumps() {
+        val (r, c) = controller(
             doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+            references = setOf("1 jo 3 16"),
         )
         c.open()
-        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+        assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), c.phase.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+        c.imeRequestHandled()
+        c.queries.setQuery("1 jo 3 16")
+        c.submit()
+        assertEquals(1, r.referenceOpened)
+        assertEquals(emptyList(), r.indexingStarted)
+        assertEquals(emptyList(), r.searchesRun)
     }
 
     // F6-C6 / spec D7: closeSearchMode() now clears the query (see
