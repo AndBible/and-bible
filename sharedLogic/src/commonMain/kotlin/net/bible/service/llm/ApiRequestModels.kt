@@ -39,7 +39,8 @@ data class OpenAiRequest(
     val model: String,
     val messages: List<OpenAiWireMessage>,
     val tools: List<OpenAiWireTool>? = null,
-    val temperature: Double? = null
+    val temperature: Double? = null,
+    @SerialName("reasoning_effort") val reasoningEffort: String? = null
 )
 
 @Serializable
@@ -95,8 +96,13 @@ data class AnthropicRequest(
     val messages: List<AnthropicWireMessage>,
     @SerialName("max_tokens") val maxTokens: Int,
     val tools: List<AnthropicWireTool>? = null,
-    val temperature: Double? = null
+    val temperature: Double? = null,
+    val thinking: AnthropicThinking? = null
 )
+
+/** Anthropic extended/adaptive thinking switch; only `disabled` is sent (see [ModelRequestRules]). */
+@Serializable
+data class AnthropicThinking(val type: String)
 
 @Serializable
 data class AnthropicSystemBlock(
