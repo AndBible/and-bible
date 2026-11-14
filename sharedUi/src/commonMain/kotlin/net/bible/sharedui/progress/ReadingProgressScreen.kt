@@ -47,6 +47,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -123,11 +126,15 @@ fun ReadingProgressScreen(
                     )
                 }
             }
-            if (loading) {
+            if (loading && model.loaded) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
             }
             when (model.tab) {
-                ReadingTab.READING -> ReadingTabBody(
+                // Before the first load the model only holds placeholder zeros: show a spinner, not
+                // "0 chapters read" / "0.0% of Bible read" (#4096). A reload keeps the loaded data visible.
+                ReadingTab.READING -> if (!model.loaded) {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) { AbIndeterminateCircularProgress() }
+                } else ReadingTabBody(
                     model = model,
                     strings = strings,
                     onPrevCycle = onPrevCycle,

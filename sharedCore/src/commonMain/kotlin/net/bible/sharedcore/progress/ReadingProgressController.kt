@@ -80,6 +80,7 @@ class ReadingProgressController(
             calendar = CalendarHeatmap(emptyList(), emptyList(), 0, emptyList()),
             cycle = 1,
             latestCycle = 1,
+            loaded = false,
         )
     )
     val model: StateFlow<ReadingProgressModel> = _model.asStateFlow()
@@ -112,6 +113,7 @@ class ReadingProgressController(
                     calendar = calendar,
                     cycle = cycle,
                     latestCycle = latest,
+                    loaded = true,
                 )
             }
             _loading.value = false

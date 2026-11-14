@@ -92,6 +92,17 @@ class ReadingProgressControllerTest {
             initialOverviewActive, onNavigateToMemorize, persistOverview,
         )
 
+    @Test fun model_is_not_loaded_until_first_load_completes() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(Fake(), this)
+        assertEquals(false, c.model.value.loaded, "placeholder zeros must not look like data")
+        c.load()
+        assertEquals(true, c.model.value.loaded)
+        assertEquals(10, c.model.value.summary.chaptersRead)
+        // a reload keeps showing the loaded data
+        c.refresh()
+        assertEquals(true, c.model.value.loaded)
+    }
+
     @Test fun load_assembles_model() = runTest(UnconfinedTestDispatcher()) {
         val fake = Fake(); val c = controller(fake, backgroundScope); c.load()
         val m = c.model.value
