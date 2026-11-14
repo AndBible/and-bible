@@ -83,8 +83,22 @@ class DocumentQuickSheetScopeTest {
         DocumentQuickTab.entries.forEach { tab ->
             assertTrue(tabs.rowsByTab.getValue(tab).all { it.category == DocCategory.BIBLE }, "$tab leaks a non-Bible")
         }
-        val expected = documentControl.biblesForVerse.filterNot { it.isLocked }.map { it.initials }.toSet()
+        val expected = documentControl.biblesContainingVerse.filterNot { it.isLocked }.map { it.initials }.toSet()
         assertEquals(expected, tabs.rowsByTab.getValue(DocumentQuickTab.FOR_VERSE).map { it.docId }.toSet())
+    }
+
+    @Test
+    fun theBibleVerseTabDropsBiblesLackingTheVerseWhileTheToolbarListKeepsThem() {
+        val host = net.bible.test.fixtureReadingHost(activity)
+        val forVerse = host.buildDocumentQuickTabsForHost(DocumentSheetScope.BIBLE)
+            .rowsByTab.getValue(DocumentQuickTab.FOR_VERSE).map { it.docId }
+        val containing = documentControl.biblesContainingVerse.map { it.initials }
+        val all = documentControl.biblesForVerse.map { it.initials }
+        assertEquals(containing.toSet(), forVerse.toSet())
+        // Unfiltered toolbar list (#578) keeps every Bible; verse holders come first.
+        assertTrue(all.containsAll(containing))
+        assertEquals(containing.toSet(), all.take(containing.size).toSet())
+        all.filterNot { it in containing }.forEach { assertFalse(it in forVerse, "$it lacks the verse") }
     }
 
     @Test
@@ -93,8 +107,8 @@ class DocumentQuickSheetScopeTest {
         val tabs = host.buildDocumentQuickTabsForHost(DocumentSheetScope.COMMENTARY)
         val forVerse = tabs.rowsByTab.getValue(DocumentQuickTab.FOR_VERSE).map { it.docId }.toSet()
         assertTrue(
-            forVerse.all { id -> documentControl.commentariesForVerse.any { it.initials == id } },
-            "This-verse must be commentariesForVerse only; got $forVerse",
+            forVerse.all { id -> documentControl.commentariesContainingVerse.any { it.initials == id } },
+            "This-verse must be commentariesContainingVerse only; got $forVerse",
         )
         val allCategories = tabs.rowsByTab.getValue(DocumentQuickTab.ALL).map { it.category }.toSet()
         assertTrue(DocCategory.DICTIONARY in allCategories, "the Strong's lexicons in the test modules must be offered; got $allCategories")
