@@ -115,6 +115,12 @@ data class ReadingProgressModel(
     val cycle: Int,
     val latestCycle: Int,
     val memorize: MemorizeModel? = null,
+    /**
+     * False only for the controller's placeholder model before its first `load()` completes: the numbers in it
+     * are not data (zero chapters, empty overview), so the screen must show a loading state instead of them.
+     * Defaults to true so any hand-built model counts as real data.
+     */
+    val loaded: Boolean = true,
 ) {
     val canPrevCycle get() = cycle > 1
     val canNextCycle get() = cycle < latestCycle
