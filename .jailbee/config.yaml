@@ -97,6 +97,16 @@ optional_mounts:
     description: "OpenAI API key for website/video TTS and Whisper"
     auto_unmount_after: 1h
 
+  # YouTube publishing (website/video/youtube_upload.py): the OAuth Desktop client JSON
+  # (client_secret*.json) and the token the tool writes (token.json, mode 600). Writable,
+  # because `auth` stores the refresh token there. Attach with `jailbee mount youtube <container>`.
+  youtube:
+    host: ~/.config/youtube
+    container: /home/dev/.config/youtube
+    readonly: false
+    description: "YouTube Data API OAuth client and token for website/video publishing"
+    auto_unmount_after: 1h
+
   # SSH access to a real Mac for iOS builds (Xcode, simulator tests): the private key, an
   # ssh config (Host andbible-mac) and the pinned known_hosts. The Mac's address is allowed
   # through the host_ports forward `mac-ssh` (127.0.0.1:2224, see below). See docs/ios-remote-mac.md.
@@ -241,6 +251,11 @@ egress_allow:
   # Narrated videos (website/video/render.py): OpenAI /v1/audio/speech and
   # /v1/audio/transcriptions. The key is the maintainer's own (optional mount `openai`).
   - api.openai.com:443
+  # YouTube publishing (website/video/youtube_upload.py): OAuth token exchange, Data API
+  # and resumable uploads (www.googleapis.com/upload/youtube/v3).
+  - oauth2.googleapis.com:443
+  - www.googleapis.com:443
+  - youtube.googleapis.com:443
   # AndBible module repositories (catalogue refresh and module downloads,
   # e.g. in the in-container emulator; app/src/main/res/raw/repositories.txt)
   - andbible.org:443
