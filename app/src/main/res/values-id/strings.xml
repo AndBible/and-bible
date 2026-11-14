@@ -81,7 +81,6 @@
   <!--Multi-translation search-->
   <string name="search_translations">Terjemahan</string>
   <string name="choose_translations">Pilih terjemahan…</string>
-  <string name="multi_search_results">%1$d ayat dalam %2$d terjemahan</string>
   <string name="search_index_not_created">tidak ada indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nomor ayat</string>

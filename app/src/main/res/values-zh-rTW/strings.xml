@@ -128,7 +128,13 @@
   <string name="search_not_available">無法搜尋此文件</string>
   <string name="search_indexing_notification_title">正在建立搜尋索引</string>
   <string name="choose_translations">選擇翻譯版本…</string>
-  <string name="multi_search_results">%2$d 個翻譯版本中共 %1$d 節經文</string>
+  <string name="multi_search_count_summary">在%2$s中共%1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d 節經文</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d 個譯本</item>
+  </plurals>
   <string name="search_index_not_created">無索引</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">章節號碼</string>
@@ -320,8 +326,9 @@
   <string name="create_bookmark_with_a_note">新增帶筆記的書籤</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">顏色設定</string>
-  <string name="window_color_settings_title">視窗顏色設定</string>
-  <string name="workspace_color_settings_title">預設工作區顏色設定</string>
+  <string name="global_color_settings_title">顏色設定（全域）</string>
+  <string name="window_color_settings_title">顏色設定（視窗）</string>
+  <string name="workspace_color_settings_title">顏色設定（工作區）</string>
   <string name="color_workspace">工作區顏色</string>
   <string name="color_text">文字顏色</string>
   <string name="color_background">背景顏色</string>
@@ -412,6 +419,7 @@
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="set_current_day">設定為目前日子...</string>
+  <string name="msg_set_current_day_reading_plan">這將把 %1$s 設為此計畫的目前日，並將之前的所有日期標記為已讀。是否繼續？</string>
   <string name="done">完成</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
   <string name="import_reading_plan">匯入讀經計劃...</string>
@@ -498,7 +506,7 @@ http://www.heartlight.org 准予使用
   <string name="auto_assign_labels_title">標籤設定</string>
   <string name="auto_assign_labels">自動分配及最愛標籤</string>
   <string name="auto_assign_labels1">自動將標記至新書籤</string>
-  <string name="auto_assign_labels_primary">自動分配為主要</string>
+  <string name="auto_assign_labels_primary">自動分配為主標籤</string>
   <!--can be removed-->
   <string name="bookmark_warning">此文件中有書籤及/或筆記。</string>
   <string name="bookmark_warning2">
@@ -785,6 +793,14 @@ http://www.heartlight.org 准予使用
   <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>
   <string name="empty_list">沒有可顯示項目</string>
   <string name="error_skip">暫停</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">資料已損毀</string>
+  <string name="corrupt_database_message">部分資料無法開啟，因為其資料庫檔案已損毀：%1$s。\n\n未做任何變更或刪除。您可以傳送錯誤報告以協助我們找出原因，也可以開啟「備份及回復」進行備份或回復到較早的備份，或者重設已損毀的資料。\n\n重設後，該資料將從空白開始。已損毀的檔案會保留在此裝置上，並以 \".corrupt-\" 和日期重新命名。</string>
+  <string name="corrupt_database_reset">重設已損毀的資料</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">無法重設已損毀的資料：無法移開 %1$s。未做任何變更。您可以重試、傳送錯誤報告或使用「備份及回復」。</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">應用程式資料需要處理。點按以開啟應用程式。</string>
   <string name="debug_test_error">測試錯誤（除錯版本）</string>
   <string name="bug_report_prepare_failed">無法準備或分享報告。您可以重試，或使用「備份與還原」來儲存您的資料。</string>
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
@@ -899,6 +915,10 @@ http://www.heartlight.org 准予使用
 從工具列向下滑動，可以快速打開工作區。
 您還可以在工具列上左右滑動，以切換到上一個/下一個工作區。
 </string>
+  <string name="help_study_tools_title">研經工具</string>
+  <string name="help_study_tools_text">點按 Strong\'s 編號，可在字典中查詢經文背後的希臘文或希伯來文原詞。點按交叉參考，可在連結視窗中閱讀，而不會失去您在經文中的位置。</string>
+  <string name="help_look_and_feel_title">外觀</string>
+  <string name="help_look_and_feel_text">夜間模式、字型大小和字型、顏色以及邊界位於選項選單（右上角的三個點）中的「文字選項」。可以為所有工作區、某個工作區或單一視窗分別設定。</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
   <string name="help_hidden_features_text">
 在工具列向下滑動以顯示工作區選項。
@@ -918,6 +938,7 @@ http://www.heartlight.org 准予使用
   <string name="welcome_restore_row_hint">含有書籤與筆記的資料庫檔案</string>
   <string name="welcome_link_website">網站</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">影片</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">您需要選擇載入到 %s 的檔案。</string>
@@ -1174,7 +1195,7 @@ http://www.heartlight.org 准予使用
   <string name="labels_filter_favourite">僅最愛標籤</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">勾選標籤即可將其指派給此書籤。</string>
-  <string name="manage_labels_help_primary">主要標籤。書籤會顯示它的顏色和樣式。</string>
+  <string name="manage_labels_help_primary">主標籤。書籤會顯示它的顏色和樣式。</string>
   <string name="manage_labels_help_autoassign">自動將此標籤指派給每個新書籤。空心閃電表示關閉。</string>
   <string name="manage_labels_help_favourite">將標籤保留在最愛中，方便快速存取。</string>
   <string name="manage_labels_help_styles">名稱下方的小範例顯示標籤的外觀：「選取文字」代表選取文字書籤，「整節經文」代表整節經文書籤，「工作區」標記代表此工作區覆寫的樣式。灰色且沒有裝飾的範例表示該標籤的書籤不會繪製。可從 ⋮ 選單隱藏這些範例。</string>
@@ -1872,12 +1893,15 @@ http://www.heartlight.org 准予使用
   <string name="my_document_create_title">新增文件</string>
   <string name="my_document_rename_title">重新命名文件</string>
   <string name="my_document_delete_confirmation">刪除文件「%s」？</string>
+  <string name="show_secret">顯示</string>
+  <string name="hide_secret">隱藏</string>
+  <string name="ai_documents_name">AI 文件</string>
+  <string name="ai_documents_description">由 AI 自動產生的文件</string>
   <string name="my_document_cannot_delete_ai_documents">AI 文件包含頁面時無法刪除。請先刪除其中的頁面。</string>
   <string name="my_document_save_changes">儲存變更？</string>
   <string name="my_document_no_description">無描述</string>
   <string name="my_document_edit_description">編輯描述</string>
   <string name="my_document_pages_title">%s - 頁面</string>
-  <string name="my_document_pages_empty">此文件中沒有頁面。</string>
   <string name="my_document_page_rename_title">重新命名頁面</string>
   <string name="my_document_page_delete_confirmation">刪除頁面「%s」？</string>
   <string name="my_document_pages_delete_confirmation">要刪除這些頁面嗎？</string>
@@ -1885,6 +1909,9 @@ http://www.heartlight.org 准予使用
   <string name="my_document_new_page_name">第 %1$d 頁</string>
   <string name="my_document_create_page_title">新增頁面</string>
   <string name="my_document_content_type_label">內容類型</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">此文件中沒有頁面。</string>
   <string name="my_document_import_page">匯入 Markdown/HTML</string>
   <string name="my_document_export_page">匯出頁面</string>
   <string name="my_document_imported_page_name">已匯入</string>

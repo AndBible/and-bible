@@ -128,7 +128,15 @@
   <string name="search_not_available">Δεν είναι δυνατή η αναζήτηση σε αυτό το έγγραφο</string>
   <string name="search_indexing_notification_title">Δημιουργία ευρετηρίου αναζήτησης</string>
   <string name="choose_translations">Επιλέξτε μεταφράσεις…</string>
-  <string name="multi_search_results">%1$d στίχοι σε %2$d μεταφράσεις</string>
+  <string name="multi_search_count_summary">%1$s σε %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d εδάφιο</item>
+    <item quantity="other">%1$d εδάφια</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d μετάφραση</item>
+    <item quantity="other">%1$d μεταφράσεις</item>
+  </plurals>
   <string name="search_index_not_created">χωρίς ευρετήριο</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Αριθμοί κεφαλαίων &amp; εδαφίων</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Δημιουργία νέου Σελιδοδείκτη με σημείωση</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ρυθμίσεις χρωμάτων</string>
-  <string name="window_color_settings_title">Ρυθμίσεις χρώματος παραθύρου</string>
-  <string name="workspace_color_settings_title">Προκαθορισμένες ρυθμίσεις Χώρου Εργασίας</string>
+  <string name="global_color_settings_title">Ρυθμίσεις χρωμάτων (Καθολικές)</string>
+  <string name="window_color_settings_title">Ρυθμίσεις χρωμάτων (Παράθυρο)</string>
+  <string name="workspace_color_settings_title">Ρυθμίσεις χρωμάτων (Χώρος εργασίας)</string>
   <string name="color_workspace">Χρώμα Χώρου Εργασίας</string>
   <string name="color_text">Χρώμα κειμένου</string>
   <string name="color_background">Χρώμα παρασκηνίου</string>
@@ -411,6 +420,7 @@
   <string name="rdg_plan_day">Ημέρα %s</string>
   <string name="rdg_plan_set_start_date">Ρύθμιση Ημερομηνίας έναρξης...</string>
   <string name="set_current_day">Ρύθμιση ως τρέχουσα ημέρα...</string>
+  <string name="msg_set_current_day_reading_plan">Αυτό θα ορίσει το %1$s ως την τρέχουσα ημέρα σε αυτό το σχέδιο και θα σημειώσει όλες τις προηγούμενες ημέρες ως αναγνωσμένες. Συνέχεια;</string>
   <string name="done">Τελος</string>
   <string name="reset_plan_question">Σίγουρα θέλετε να επαναφέρετε αυτό το σχέδιο?</string>
   <string name="import_reading_plan">Εισαγωγή σχέδιου ανάγνωσης...</string>
@@ -489,7 +499,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="auto_assign_labels_title">Ρυθμίσεις ετικετών</string>
   <string name="auto_assign_labels">Αυτόματη εκχώρηση &amp; Αγαπημένων ετικετών</string>
   <string name="auto_assign_labels1">Αυτόματη εκχώρηση ετικετών σε νέους σελιδοδείκτες</string>
-  <string name="auto_assign_labels_primary">Αυτόματη εκχώρηση ως κύριας</string>
+  <string name="auto_assign_labels_primary">Αυτόματη εκχώρηση ως κύριας ετικέτας</string>
   <!--can be removed-->
   <string name="bookmark_warning">Υπάρχουν σελιδοδείκτες ή/και σημειώσεις για το έγγραφο αυτό</string>
   <string name="bookmark_warning2">
@@ -767,6 +777,14 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="error_key_not_in_document2">%1$s δεν βρέθηκε στο έγγραφο %2$s.</string>
   <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
   <string name="error_skip">Παράβλεψη</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Κατεστραμμένα δεδομένα</string>
+  <string name="corrupt_database_message">Ορισμένα από τα δεδομένα σας δεν μπόρεσαν να ανοιχτούν επειδή το αρχείο της βάσης δεδομένων είναι κατεστραμμένο: %1$s.\n\nΔεν έχει αλλάξει ούτε διαγραφεί τίποτα. Μπορείτε να στείλετε μια αναφορά σφάλματος για να μας βοηθήσετε να βρούμε την αιτία, να ανοίξετε το Αντίγραφο ασφαλείας &amp; επαναφορά για να δημιουργήσετε αντίγραφο ή να επαναφέρετε ένα παλαιότερο, ή να επαναρυθμίσετε τα κατεστραμμένα δεδομένα.\n\nΗ επαναρύθμιση ξεκινά αυτά τα δεδομένα από την αρχή, κενά. Το κατεστραμμένο αρχείο διατηρείται σε αυτή τη συσκευή, μετονομασμένο με \".corrupt-\" και την ημερομηνία.</string>
+  <string name="corrupt_database_reset">Επαναρύθμιση κατεστραμμένων δεδομένων</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Τα κατεστραμμένα δεδομένα δεν μπόρεσαν να επαναρυθμιστούν: το %1$s δεν μπόρεσε να μετακινηθεί. Δεν άλλαξε τίποτα. Μπορείτε να δοκιμάσετε ξανά, να στείλετε μια αναφορά σφάλματος ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας &amp; επαναφορά.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Τα δεδομένα της εφαρμογής χρειάζονται προσοχή. Πατήστε για να ανοίξετε την εφαρμογή.</string>
   <string name="debug_test_error">Δοκιμαστικό σφάλμα (έκδοση αποσφαλμάτωσης)</string>
   <string name="bug_report_prepare_failed">Δεν ήταν δυνατή η προετοιμασία ή η κοινοποίηση της αναφοράς. Μπορείτε να δοκιμάσετε ξανά ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας και επαναφορά για να αποθηκεύσετε τα δεδομένα σας.</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
@@ -881,6 +899,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Οι Χώροι Εργασίας επιτρέπουν την ύπαρξη πέραν του ενός εργασιακού περιβάλλοντος. Οι λειτουργίες του χώρου
 είναι προσβάσιμες από την επιλογή \"Χώροι Εργασίας\" στο μενού επιλογών (πάνω δεξιά γωνία). Γρήγορος τρόπος πρόσβασης στους Χώρους είναι η χειρονομία κύλισης προς τα κάτω από την μπάρα εργαλείων. Μπορείτε επίσης με σύρσιμο αριστερά ή σύρσιμο δεξιά πάνω από την μπάρα εργαλείων να
 μετακινηθείτε στο προηγούμενο / επόμενο χώρο εργασίας. </string>
+  <string name="help_study_tools_title">Εργαλεία μελέτης</string>
+  <string name="help_study_tools_text">Πατήστε έναν αριθμό Strong για να αναζητήσετε σε λεξικό την ελληνική ή εβραϊκή λέξη πίσω από ένα εδάφιο. Πατήστε μια παραπομπή για να τη διαβάσετε στο παράθυρο συνδέσμων, χωρίς να χάσετε τη θέση σας στο κείμενο.</string>
+  <string name="help_look_and_feel_title">Εμφάνιση</string>
+  <string name="help_look_and_feel_text">Η νυχτερινή λειτουργία, το μέγεθος και η γραμματοσειρά, τα χρώματα και τα περιθώρια βρίσκονται στις Επιλογές κειμένου στο μενού επιλογών (τρεις τελείες, πάνω δεξιά). Μπορούν να οριστούν για όλους τους χώρους εργασίας, για έναν χώρο εργασίας ή για ένα μεμονωμένο παράθυρο.</string>
   <string name="help_hidden_features_title">Κρυφές συντομεύσεις</string>
   <string name="help_hidden_features_text">
 Κάτω κύλιση από την μπάρα εργαλείων εμφανίζει τον επιλογέα Χώρου Εργασίας.
@@ -903,6 +925,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="welcome_restore_row_hint">Αρχείο βάσης δεδομένων με σελιδοδείκτες και σημειώσεις</string>
   <string name="welcome_link_website">Ιστότοπος</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Βίντεο</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Πρέπει να επιλέξεις το αρχείο που θέλεις να φορτώσεις στο %s.</string>
@@ -1840,12 +1863,15 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="my_document_create_title">Δημιουργία νέου εγγράφου</string>
   <string name="my_document_rename_title">Μετονομασία εγγράφου</string>
   <string name="my_document_delete_confirmation">Διαγραφή εγγράφου \"%s\";</string>
+  <string name="show_secret">Εμφάνιση</string>
+  <string name="hide_secret">Απόκρυψη</string>
+  <string name="ai_documents_name">Έγγραφα AI</string>
+  <string name="ai_documents_description">Έγγραφα που δημιουργούνται αυτόματα από AI</string>
   <string name="my_document_cannot_delete_ai_documents">Τα έγγραφα AI δεν μπορούν να διαγραφούν ενώ περιέχουν σελίδες. Διαγράψτε πρώτα τις σελίδες.</string>
   <string name="my_document_save_changes">Αποθήκευση αλλαγών;</string>
   <string name="my_document_no_description">Χωρίς περιγραφή</string>
   <string name="my_document_edit_description">Επεξεργασία περιγραφής</string>
   <string name="my_document_pages_title">%s - Σελίδες</string>
-  <string name="my_document_pages_empty">Δεν υπάρχουν σελίδες σε αυτό το έγγραφο.</string>
   <string name="my_document_page_rename_title">Μετονομασία σελίδας</string>
   <string name="my_document_page_delete_confirmation">Διαγραφή σελίδας \"%s\";</string>
   <string name="my_document_pages_delete_confirmation">Να διαγραφούν αυτές οι σελίδες;</string>
@@ -1853,6 +1879,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="my_document_new_page_name">Σελίδα %1$d</string>
   <string name="my_document_create_page_title">Νέα σελίδα</string>
   <string name="my_document_content_type_label">Τύπος περιεχομένου</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Δεν υπάρχουν σελίδες σε αυτό το έγγραφο.</string>
   <string name="my_document_import_page">Εισαγωγή Markdown/HTML</string>
   <string name="my_document_export_page">Εξαγωγή σελίδας</string>
   <string name="my_document_imported_page_name">Εισαγμένο</string>

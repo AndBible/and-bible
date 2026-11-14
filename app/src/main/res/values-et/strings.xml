@@ -128,7 +128,15 @@
   <string name="search_not_available">Sellest dokumendist ei saa otsida</string>
   <string name="search_indexing_notification_title">Otsinguindeksi loomine</string>
   <string name="choose_translations">Vali tõlked…</string>
-  <string name="multi_search_results">%1$d salmi %2$d tõlkes</string>
+  <string name="multi_search_count_summary">%1$s, %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d salm</item>
+    <item quantity="other">%1$d salmi</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d tõlge</item>
+    <item quantity="other">%1$d tõlget</item>
+  </plurals>
   <string name="search_index_not_created">indeks puudub</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Peatüki ja salmi numbrid</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Uus järjehoidja märkmega</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värvi seaded</string>
-  <string name="window_color_settings_title">Akna värvi seaded</string>
-  <string name="workspace_color_settings_title">Tööala värviseadete vaikeväärtused</string>
+  <string name="global_color_settings_title">Värviseaded (üldine)</string>
+  <string name="window_color_settings_title">Värviseaded (aken)</string>
+  <string name="workspace_color_settings_title">Värviseaded (tööala)</string>
   <string name="color_workspace">Tööala värv</string>
   <string name="color_text">Tekstivärv</string>
   <string name="color_background">Taustavärv</string>
@@ -411,6 +420,7 @@ Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
   <string name="rdg_plan_day">Päev %s</string>
   <string name="rdg_plan_set_start_date">Määra alguskuupäev...</string>
   <string name="set_current_day">Tõsta järg käeolevale päevale...</string>
+  <string name="msg_set_current_day_reading_plan">See määrab päeva %1$s selle kava praeguseks päevaks ja märgib kõik eelnevad päevad loetuks. Kas jätkata?</string>
   <string name="done">Valmis</string>
   <string name="reset_plan_question">Oled sa kindel, et soovid selle kava nullida?</string>
   <string name="import_reading_plan">Impordi lugemiskava...</string>
@@ -489,7 +499,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="auto_assign_labels_title">Sildi seaded</string>
   <string name="auto_assign_labels">Automaatne määramine ja lemmik sildid</string>
   <string name="auto_assign_labels1">Määra automaatselt uutele järjehoidjatele</string>
-  <string name="auto_assign_labels_primary">Määra automaatselt peamise sildina</string>
+  <string name="auto_assign_labels_primary">Määra automaatselt peamiseks sildiks</string>
   <!--can be removed-->
   <string name="bookmark_warning">Dokumendi järjehoidjad ja märkmed.</string>
   <string name="bookmark_warning2">Kui dokumendi struktuur on muutunud, võib selle dokumendi uuendamine põhjustada järjehoidjate/märkmete asukohtade nihkumise dokumendis või nende kadumise.</string>
@@ -779,6 +789,14 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="error_key_not_in_document2">%1$s ei leitud dokumendist %2$s.</string>
   <string name="empty_list">Pole ühtegi kirjet, mida näidata</string>
   <string name="error_skip">Jäta vahele</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Rikutud andmed</string>
+  <string name="corrupt_database_message">Osa su andmetest ei õnnestunud avada, sest nende andmebaasifail on rikutud: %1$s.\n\nMidagi ei ole muudetud ega kustutatud. Võid saata veaaruande, et aidata meil põhjust leida, avada Varundamine ja taastamine, et teha varukoopia või taastada varasem, või lähtestada rikutud andmed.\n\nLähtestamisel alustatakse neid andmeid tühjana. Rikutud fail jääb sellesse seadmesse alles, nimetatuna ümber lõpuga \".corrupt-\" ja kuupäev.</string>
+  <string name="corrupt_database_reset">Lähtesta rikutud andmed</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Rikutud andmeid ei õnnestunud lähtestada: faili %1$s ei saanud kõrvale tõsta. Midagi ei muudetud. Võid proovida uuesti, saata veaaruande või kasutada Varundamine ja taastamine.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Rakenduse andmed vajavad tähelepanu. Puuduta rakenduse avamiseks.</string>
   <string name="debug_test_error">Testviga (silumisversioon)</string>
   <string name="bug_report_prepare_failed">Aruannet ei õnnestunud ette valmistada ega jagada. Võid uuesti proovida või kasutada andmete salvestamiseks varundust ja taastamist.</string>
   <string name="bug_report_email_title">Saada vearaport e-postiga</string>
@@ -876,6 +894,10 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="help_fts5">FTS5 täistekst päringu süntaks</string>
   <string name="help_workspaces_title">Tööalad</string>
   <string name="help_workspaces_text">Tööalad võimaldavad omada mitut kontekstist sõltuvat töökeskkonda. Tööala funktsioonidele pääseb ligi valikumenüü (üleval paremal nurgas) tööalade kaudu. Kiire viis tööaladele ligipääsemiseks on libistada alla tööriistaribalt. Samuti võid kasutada vasakule ja paremale libistamist tööriistariba kohal, et lülituda eelmisele/järgmisele tööalale.</string>
+  <string name="help_study_tools_title">Uurimistööriistad</string>
+  <string name="help_study_tools_text">Puuduta Strongi numbrit, et sõnaraamatust vaadata salmi taga olevat kreeka või heebrea sõna. Puuduta ristviidet, et lugeda seda linkide aknas, kaotamata oma kohta tekstis.</string>
+  <string name="help_look_and_feel_title">Välimus ja tunnetus</string>
+  <string name="help_look_and_feel_text">Öörežiim, fondi suurus ja kirjastiil, värvid ja veerised asuvad suvandimenüü (kolm punkti paremas ülanurgas) jaotises Teksti suvandid. Neid saab seadistada kõigile tööaladele, ühele tööalale või ühele aknale.</string>
   <string name="help_hidden_features_title">Peidetud otseteed</string>
   <string name="help_hidden_features_text">Libista alla tööriistaribalt, et kuvada tööala valija. Pikalt vajuta akna nuppu kiireks minimeerimiseks. Pikalt vajuta kõnelemise tööriistariba nuppu kiiremaks kõnelemise seadetesse minemiseks. Pikalt vajuta tööriistariba asukohapealkirja, et hüpata dokumendi valijasse.</string>
   <string name="help_window_pinning_title">Akna kinnitamine</string>
@@ -887,6 +909,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="welcome_restore_row_hint">Andmebaasifail järjehoidjate ja märkmetega</string>
   <string name="welcome_link_website">Veebisait</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Vali fail mida soovid laadida rakendusse %s. </string>
@@ -1821,12 +1844,15 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="my_document_create_title">Loo uus dokument</string>
   <string name="my_document_rename_title">Nimeta dokument ümber</string>
   <string name="my_document_delete_confirmation">Kustutada dokument \"%s\"?</string>
+  <string name="show_secret">Näita</string>
+  <string name="hide_secret">Peida</string>
+  <string name="ai_documents_name">AI dokumendid</string>
+  <string name="ai_documents_description">AI poolt automaatselt loodud dokumendid</string>
   <string name="my_document_cannot_delete_ai_documents">AI dokumente ei saa kustutada, kui need sisaldavad lehti. Kustuta esmalt lehed.</string>
   <string name="my_document_save_changes">Salvestada muudatused?</string>
   <string name="my_document_no_description">Kirjeldus puudub</string>
   <string name="my_document_edit_description">Muuda kirjeldust</string>
   <string name="my_document_pages_title">%s - Lehed</string>
-  <string name="my_document_pages_empty">Selles dokumendis pole lehti.</string>
   <string name="my_document_page_rename_title">Nimeta leht ümber</string>
   <string name="my_document_page_delete_confirmation">Kustutada leht \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Kas kustutada need lehed?</string>
@@ -1834,6 +1860,9 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="my_document_new_page_name">Leht %1$d</string>
   <string name="my_document_create_page_title">Uus leht</string>
   <string name="my_document_content_type_label">Sisu tüüp</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Selles dokumendis pole lehti.</string>
   <string name="my_document_import_page">Impordi Markdown/HTML</string>
   <string name="my_document_export_page">Ekspordi leht</string>
   <string name="my_document_imported_page_name">Imporditud</string>

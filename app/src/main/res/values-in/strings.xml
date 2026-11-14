@@ -128,7 +128,13 @@
   <string name="search_not_available">Dokumen ini tidak dapat dicari</string>
   <string name="search_indexing_notification_title">Membuat indeks pencarian</string>
   <string name="choose_translations">Pilih terjemahan…</string>
-  <string name="multi_search_results">%1$d ayat dalam %2$d terjemahan</string>
+  <string name="multi_search_count_summary">%1$s dalam %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d ayat</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d terjemahan</item>
+  </plurals>
   <string name="search_index_not_created">tidak ada indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nomor ayat</string>
@@ -320,8 +326,9 @@
   <string name="create_bookmark_with_a_note">Buat Penanda Buku baru dengan catatan</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Pengaturan warna</string>
-  <string name="window_color_settings_title">Pengaturan warna jendela</string>
-  <string name="workspace_color_settings_title">Default pengaturan warna ruang kerja</string>
+  <string name="global_color_settings_title">Pengaturan warna (Global)</string>
+  <string name="window_color_settings_title">Pengaturan warna (Jendela)</string>
+  <string name="workspace_color_settings_title">Pengaturan warna (Ruang kerja)</string>
   <string name="color_workspace">Warna ruang kerja</string>
   <string name="color_text">Warna teks</string>
   <string name="color_background">Warna latar belakang</string>
@@ -407,6 +414,7 @@
   <string name="rdg_plan_day">Hari %s</string>
   <string name="rdg_plan_set_start_date">Atur tanggal mulai..</string>
   <string name="set_current_day">Tetapkan sebagai hari ini…</string>
+  <string name="msg_set_current_day_reading_plan">Ini akan menetapkan %1$s sebagai hari saat ini dalam rencana ini dan menandai semua hari sebelumnya sebagai sudah dibaca. Lanjutkan?</string>
   <string name="done">Selesai</string>
   <string name="reset_plan_question">Apakah Anda yakin ingin mengatur ulang rencana ini?</string>
   <string name="import_reading_plan">Impor rencana bacaan…</string>
@@ -486,7 +494,7 @@
   <string name="auto_assign_labels_title">Pengaturan label</string>
   <string name="auto_assign_labels">Label otomatis &amp; Favorit</string>
   <string name="auto_assign_labels1">Tetapkan label otomatis ke penanda buku baru</string>
-  <string name="auto_assign_labels_primary">Tetapkan otomatis sebagai primer</string>
+  <string name="auto_assign_labels_primary">Tetapkan otomatis sebagai label utama</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ada penanda buku dan/atau catatan untuk dokumen ini.</string>
   <string name="bookmark_warning2">Jika struktur dokumen telah berubah, memperbarui dokumen ini dapat menyebabkan lokasi penanda buku/catatan ini berpindah di dalam dokumen atau hilang sepenuhnya.</string>
@@ -771,6 +779,14 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="error_key_not_in_document2">%1$s tidak ditemukan dalam dokumen %2$s.</string>
   <string name="empty_list">Tidak ada item untuk ditampilkan</string>
   <string name="error_skip">Lewati</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Data rusak</string>
+  <string name="corrupt_database_message">Sebagian data Anda tidak dapat dibuka karena file basis datanya rusak: %1$s.\n\nTidak ada yang diubah atau dihapus. Anda dapat mengirim laporan kesalahan untuk membantu kami menemukan penyebabnya, membuka Cadangkan &amp; Pulihkan untuk membuat cadangan atau memulihkan cadangan sebelumnya, atau mengatur ulang data yang rusak.\n\nPengaturan ulang akan memulai data tersebut dalam keadaan kosong. File yang rusak tetap disimpan di perangkat ini, dengan nama diubah menjadi berakhiran \".corrupt-\" dan tanggal.</string>
+  <string name="corrupt_database_reset">Atur ulang data yang rusak</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Data yang rusak tidak dapat diatur ulang: %1$s tidak dapat dipindahkan. Tidak ada yang diubah. Anda dapat mencoba lagi, mengirim laporan kesalahan, atau menggunakan Cadangkan &amp; Pulihkan.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Data aplikasi perlu diperhatikan. Ketuk untuk membuka aplikasi.</string>
   <string name="debug_test_error">Galat uji (build debug)</string>
   <string name="bug_report_prepare_failed">Laporan tidak dapat disiapkan atau dibagikan. Anda dapat mencoba lagi, atau gunakan Cadangkan &amp; Pulihkan untuk menyimpan data Anda.</string>
   <string name="bug_report_email_title">Kirim laporan bug melalui email</string>
@@ -875,6 +891,10 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="help_fts5">Sintaksis Kueri Teks Lengkap FTS5</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <string name="help_workspaces_text">Ruang kerja memungkinkan memiliki beberapa lingkungan kerja yang bergantung pada konteks. Fungsi ruang kerja dapat diakses melalui item Ruang Kerja di menu opsi (sudut kanan atas). Cara cepat untuk mengakses ruang kerja adalah dengan gerakan geser ke bawah dari toolbar. Anda juga dapat menggunakan gerakan geser ke kiri dan ke kanan di atas toolbar untuk beralih ke ruang kerja sebelumnya / berikutnya.</string>
+  <string name="help_study_tools_title">Alat studi</string>
+  <string name="help_study_tools_text">Ketuk nomor Strong untuk mencari kata Yunani atau Ibrani di balik sebuah ayat dalam kamus. Ketuk referensi silang untuk membacanya di jendela tautan, tanpa kehilangan posisi Anda dalam teks.</string>
+  <string name="help_look_and_feel_title">Tampilan dan nuansa</string>
+  <string name="help_look_and_feel_text">Mode malam, ukuran dan jenis huruf, warna, dan margin ada di Opsi teks pada menu opsi (tiga titik, pojok kanan atas). Semuanya dapat diatur untuk setiap ruang kerja, untuk satu ruang kerja, atau untuk satu jendela.</string>
   <string name="help_hidden_features_title">Pintasan tersembunyi</string>
   <string name="help_hidden_features_text">Geser ke bawah dari toolbar untuk menampilkan pemilih ruang kerja. Tekan lama tombol jendela untuk meminimalkan dengan cepat. Tekan lama tombol toolbar bicara untuk langsung masuk ke pengaturan bicara. Tekan lama judul lokasi ayat di toolbar untuk melompat ke pemilih dokumen.</string>
   <string name="help_window_pinning_title">Penyematan jendela</string>
@@ -886,6 +906,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="welcome_restore_row_hint">Berkas basis data berisi penanda buku dan catatan</string>
   <string name="welcome_link_website">Situs web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Anda harus memilih file yang ingin Anda muat ke %s.</string>
@@ -1798,12 +1819,15 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="my_document_create_title">Buat dokumen baru</string>
   <string name="my_document_rename_title">Ganti nama dokumen</string>
   <string name="my_document_delete_confirmation">Hapus dokumen \"%s\"?</string>
+  <string name="show_secret">Tampilkan</string>
+  <string name="hide_secret">Sembunyikan</string>
+  <string name="ai_documents_name">Dokumen AI</string>
+  <string name="ai_documents_description">Dokumen yang dibuat otomatis oleh AI</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak dapat dihapus selama masih berisi halaman. Hapus halaman terlebih dahulu.</string>
   <string name="my_document_save_changes">Simpan perubahan?</string>
   <string name="my_document_no_description">Tidak ada deskripsi</string>
   <string name="my_document_edit_description">Edit deskripsi</string>
   <string name="my_document_pages_title">%s - Halaman</string>
-  <string name="my_document_pages_empty">Tidak ada halaman dalam dokumen ini.</string>
   <string name="my_document_page_rename_title">Ganti nama halaman</string>
   <string name="my_document_page_delete_confirmation">Hapus halaman \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Hapus halaman-halaman ini?</string>
@@ -1811,6 +1835,9 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="my_document_new_page_name">Halaman %1$d</string>
   <string name="my_document_create_page_title">Halaman baru</string>
   <string name="my_document_content_type_label">Jenis konten</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Tidak ada halaman dalam dokumen ini.</string>
   <string name="my_document_import_page">Impor Markdown/HTML</string>
   <string name="my_document_export_page">Ekspor halaman</string>
   <string name="my_document_imported_page_name">Diimpor</string>

@@ -128,7 +128,17 @@
   <string name="search_not_available">Impossible de rechercher dans ce document</string>
   <string name="search_indexing_notification_title">Création de l\'index de recherche</string>
   <string name="choose_translations">Choisir des traductions…</string>
-  <string name="multi_search_results">%1$d versets dans %2$d traductions</string>
+  <string name="multi_search_count_summary">%1$s dans %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verset</item>
+    <item quantity="many">%1$d de versets</item>
+    <item quantity="other">%1$d versets</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduction</item>
+    <item quantity="many">%1$d de traductions</item>
+    <item quantity="other">%1$d traductions</item>
+  </plurals>
   <string name="search_index_not_created">aucun index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
@@ -320,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Créer un nouveau signet avec une note</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Options de couleur</string>
-  <string name="window_color_settings_title">Paramètres de couleur de fenêtre</string>
-  <string name="workspace_color_settings_title">Couleurs par défaut de l’espace</string>
+  <string name="global_color_settings_title">Paramètres de couleur (global)</string>
+  <string name="window_color_settings_title">Paramètres de couleur (fenêtre)</string>
+  <string name="workspace_color_settings_title">Paramètres de couleur (espace)</string>
   <string name="color_workspace">Couleur de l’espace de travail</string>
   <string name="color_text">Couleur du texte</string>
   <string name="color_background">Couleur du fond</string>
@@ -411,6 +422,7 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="rdg_plan_day">Jour %s</string>
   <string name="rdg_plan_set_start_date">Définir la date de début…</string>
   <string name="set_current_day">Définir comme le jour actuel...</string>
+  <string name="msg_set_current_day_reading_plan">Cela définira %1$s comme jour actuel de ce plan et marquera tous les jours précédents comme lus. Continuer ?</string>
   <string name="done">Fait</string>
   <string name="reset_plan_question">Êtes-vous sûrs de redémarrer ce plan?</string>
   <string name="import_reading_plan">Importer le plan de lecture…</string>
@@ -489,7 +501,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="auto_assign_labels_title">Paramètres des étiquettes</string>
   <string name="auto_assign_labels">Auto-assignation &amp; étiquettes favorites</string>
   <string name="auto_assign_labels1">Attribution automatique d’une étiquette aux nouveaux signets</string>
-  <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
+  <string name="auto_assign_labels_primary">Attribuer automatiquement comme étiquette principale</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ce document comporte des signets et/ou des notes.</string>
   <string name="bookmark_warning2">
@@ -769,6 +781,14 @@ Le fichier est peut-être invalide.</string>
   <string name="error_key_not_in_document2">%1$s n’a pas été trouvé dans le document %2$s.</string>
   <string name="empty_list">Aucun élément à afficher</string>
   <string name="error_skip">Sauter</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Données endommagées</string>
+  <string name="corrupt_database_message">Certaines de vos données n\'ont pas pu être ouvertes car leur fichier de base de données est endommagé : %1$s.\n\nRien n\'a été modifié ni supprimé. Vous pouvez envoyer un rapport d\'erreur pour nous aider à trouver la cause, ouvrir Sauvegarder &amp; Restaurer pour faire une sauvegarde ou en restaurer une plus ancienne, ou réinitialiser les données endommagées.\n\nLa réinitialisation repart de données vides. Le fichier endommagé est conservé sur cet appareil, renommé avec \".corrupt-\" et la date.</string>
+  <string name="corrupt_database_reset">Réinitialiser les données endommagées</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Les données endommagées n\'ont pas pu être réinitialisées : %1$s n\'a pas pu être mis de côté. Rien n\'a été modifié. Vous pouvez réessayer, envoyer un rapport d\'erreur ou utiliser Sauvegarder &amp; Restaurer.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Les données de l\'application demandent votre attention. Touchez pour ouvrir l\'application.</string>
   <string name="debug_test_error">Erreur de test (version de débogage)</string>
   <string name="bug_report_prepare_failed">Impossible de préparer ou de partager le rapport. Vous pouvez réessayer, ou utiliser Sauvegarde et restauration pour enregistrer vos données.</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
@@ -885,6 +905,10 @@ Les espaces de travail permettent d’avoir plusieurs environnements de travail 
 sont accessibles via l’élément Espaces de travail dans le menu Options (coin supérieur droit). Un moyen rapide d’accéder aux espaces de travail est
 de faire glisser votre doigt vers le bas depuis la barre d’outils. Vous pouvez également utiliser des mouvements de balayage vers la gauche et vers la droite sur la barre d’outils pour passer à
 l’espace de travail précédent / suivant.</string>
+  <string name="help_study_tools_title">Outils d\'étude</string>
+  <string name="help_study_tools_text">Touchez un numéro Strong pour rechercher dans un dictionnaire le mot grec ou hébreu qui se trouve derrière un verset. Touchez un renvoi pour le lire dans la fenêtre des liens, sans perdre votre place dans le texte.</string>
+  <string name="help_look_and_feel_title">Apparence</string>
+  <string name="help_look_and_feel_text">Le mode nuit, la taille et la police de caractères, les couleurs et les marges se trouvent dans Options du texte, dans le menu des options (trois points, en haut à droite). Ils peuvent être réglés pour tous les espaces, pour un seul espace ou pour une seule fenêtre.</string>
   <string name="help_hidden_features_title">Raccourcis cachés</string>
   <string name="help_hidden_features_text">
 Balayez vers le bas depuis la barre d’outils pour afficher le sélecteur d’espace de travail.
@@ -908,6 +932,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="welcome_restore_row_hint">Fichier de base de données avec signets et notes</string>
   <string name="welcome_link_website">Site web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Vidéo</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Vous devez choisir le fichier que vous voulez charger dans %s.</string>
@@ -1058,7 +1083,7 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="display_mode_hidden">Masqué</string>
   <string name="display_mode_inherit">Identique à la sélection</string>
   <string name="workspace_override_indicator">Cette étiquette a un mode d\'affichage spécifique à l\'espace de travail</string>
-  <string name="primary_label">Première étiquette</string>
+  <string name="primary_label">Étiquette principale</string>
   <string name="favourite_label">Étiquette favorite</string>
   <string name="edit_label">Éditer l’étiquette</string>
   <string name="delete_label_confirmation">Voulez-vous supprimer l’étiquette du signet « %s » ? Toutes les notes du bloc-notes associées seront également supprimées.</string>
@@ -1863,12 +1888,15 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="my_document_create_title">Créer un nouveau document</string>
   <string name="my_document_rename_title">Renommer le document</string>
   <string name="my_document_delete_confirmation">Supprimer le document \"%s\" ?</string>
+  <string name="show_secret">Afficher</string>
+  <string name="hide_secret">Masquer</string>
+  <string name="ai_documents_name">Documents IA</string>
+  <string name="ai_documents_description">Documents générés automatiquement par l\'IA</string>
   <string name="my_document_cannot_delete_ai_documents">Les documents AI ne peuvent pas être supprimés tant qu\'ils contiennent des pages. Supprimez d\'abord les pages.</string>
   <string name="my_document_save_changes">Enregistrer les modifications ?</string>
   <string name="my_document_no_description">Aucune description</string>
   <string name="my_document_edit_description">Modifier la description</string>
   <string name="my_document_pages_title">%s - Pages</string>
-  <string name="my_document_pages_empty">Aucune page dans ce document.</string>
   <string name="my_document_page_rename_title">Renommer la page</string>
   <string name="my_document_page_delete_confirmation">Supprimer la page \"%s\" ?</string>
   <string name="my_document_pages_delete_confirmation">Supprimer ces pages ?</string>
@@ -1876,6 +1904,9 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="my_document_new_page_name">Page %1$d</string>
   <string name="my_document_create_page_title">Nouvelle page</string>
   <string name="my_document_content_type_label">Type de contenu</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Aucune page dans ce document.</string>
   <string name="my_document_import_page">Importer Markdown/HTML</string>
   <string name="my_document_export_page">Exporter la page</string>
   <string name="my_document_imported_page_name">Importé</string>

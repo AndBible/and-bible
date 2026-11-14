@@ -128,7 +128,15 @@
   <string name="search_not_available">Dieses Dokument kann nicht durchsucht werden</string>
   <string name="search_indexing_notification_title">Suchindex wird erstellt</string>
   <string name="choose_translations">Übersetzungen auswählen…</string>
-  <string name="multi_search_results">%1$d Verse in %2$d Übersetzungen</string>
+  <string name="multi_search_count_summary">%1$s in %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d Vers</item>
+    <item quantity="other">%1$d Verse</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d Übersetzung</item>
+    <item quantity="other">%1$d Übersetzungen</item>
+  </plurals>
   <string name="search_index_not_created">kein Index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Erstelle ein neues Lesezeichen mit Notiz</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
-  <string name="window_color_settings_title">Fensterfarben</string>
-  <string name="workspace_color_settings_title">Voreinstellungen der Arbeitsbereichsfarben</string>
+  <string name="global_color_settings_title">Farbeinstellungen (Global)</string>
+  <string name="window_color_settings_title">Farbeinstellungen (Fenster)</string>
+  <string name="workspace_color_settings_title">Farbeinstellungen (Arbeitsbereich)</string>
   <string name="color_workspace">Arbeitsbereich-Farbe</string>
   <string name="color_text">Textfarbe</string>
   <string name="color_background">Hintergrundfarbe</string>
@@ -411,6 +420,7 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="rdg_plan_day">Tag %s</string>
   <string name="rdg_plan_set_start_date">Setze Startdatum...</string>
   <string name="set_current_day">Als aktuellen Tag einstellen...</string>
+  <string name="msg_set_current_day_reading_plan">Dadurch wird %1$s als aktueller Tag in diesem Plan festgelegt und alle vorherigen Tage werden als gelesen markiert. Fortfahren?</string>
   <string name="done">Fertig</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
   <string name="import_reading_plan">Leseplan importieren...</string>
@@ -482,7 +492,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="auto_assign_labels_title">Einstellungen für Kategorien</string>
   <string name="auto_assign_labels">Lesezeichen-Kategorie automatisch zuweisen</string>
   <string name="auto_assign_labels1">Kategorie neuen Lesezeichen automatisch zuweisen</string>
-  <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
+  <string name="auto_assign_labels_primary">Automatisch als Hauptkategorie zuweisen</string>
   <!--can be removed-->
   <string name="bookmark_warning">Es gibt Lesezeichen und/oder Notizen für dieses Dokument</string>
   <string name="bookmark_warning2">
@@ -759,6 +769,14 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_key_not_in_document2">%1$s wurde nicht in Dokument %2$s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Beschädigte Daten</string>
+  <string name="corrupt_database_message">Ein Teil deiner Daten konnte nicht geöffnet werden, weil die Datenbankdatei beschädigt ist: %1$s.\n\nEs wurde nichts geändert oder gelöscht. Du kannst einen Fehlerbericht senden, damit wir die Ursache finden, Sicherung &amp; Wiederherstellung öffnen, um eine Sicherung zu erstellen oder eine frühere wiederherzustellen, oder die beschädigten Daten zurücksetzen.\n\nBeim Zurücksetzen beginnen diese Daten leer. Die beschädigte Datei bleibt auf diesem Gerät erhalten und wird mit \".corrupt-\" und dem Datum umbenannt.</string>
+  <string name="corrupt_database_reset">Beschädigte Daten zurücksetzen</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Die beschädigten Daten konnten nicht zurückgesetzt werden: %1$s konnte nicht beiseitegelegt werden. Es wurde nichts geändert. Du kannst es erneut versuchen, einen Fehlerbericht senden oder Sicherung &amp; Wiederherstellung verwenden.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Die Daten der App brauchen Aufmerksamkeit. Tippe, um die App zu öffnen.</string>
   <string name="debug_test_error">Testfehler (Debug-Build)</string>
   <string name="bug_report_prepare_failed">Der Bericht konnte nicht vorbereitet oder geteilt werden. Sie können es erneut versuchen oder Ihre Daten mit „Sicherung &amp; Wiederherstellung“ sichern.</string>
   <string name="bug_report_email_title">Fehlerbericht via E-Mail senden</string>
@@ -870,6 +888,10 @@ Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</
   <string name="help_workspaces_text">
 Mit Arbeitsbereichen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
 Einstellungen zu Arbeitsbereichen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsbereiche erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsbereich.</string>
+  <string name="help_study_tools_title">Studienwerkzeuge</string>
+  <string name="help_study_tools_text">Tippe auf eine Strong-Nummer, um das griechische oder hebräische Wort hinter einem Vers in einem Wörterbuch nachzuschlagen. Tippe auf einen Querverweis, um ihn im Verweisfenster zu lesen, ohne deine Stelle im Text zu verlieren.</string>
+  <string name="help_look_and_feel_title">Aussehen</string>
+  <string name="help_look_and_feel_text">Nachtmodus, Schriftgröße und -art, Farben und Ränder findest du unter Textoptionen im Optionsmenü (drei Punkte, oben rechts). Sie können für alle Arbeitsbereiche, für einen Arbeitsbereich oder für ein einzelnes Fenster eingestellt werden.</string>
   <string name="help_hidden_features_title">Verborgene Kürzel</string>
   <string name="help_hidden_features_text">
 Von der Werkzeugleiste herunterwischen, um die Arbeitsbereichsauswahl anzuzeigen.
@@ -887,6 +909,7 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="welcome_restore_row_hint">Datenbankdatei mit Lesezeichen und Notizen</string>
   <string name="welcome_link_website">Website</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>
@@ -1029,7 +1052,7 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="display_mode_hidden">Ausgeblendet</string>
   <string name="display_mode_inherit">Wie Auswahl</string>
   <string name="workspace_override_indicator">Diese Kategorie hat einen arbeitsbereichsspezifischen Anzeigemodus</string>
-  <string name="primary_label">Primärkategorie</string>
+  <string name="primary_label">Hauptkategorie</string>
   <string name="favourite_label">Lieblingskategorie</string>
   <string name="edit_label">Kategorie bearbeiten</string>
   <string name="delete_label_confirmation">Möchtest du die Lesezeichenkategorie \"%s\" entfernen? Alle zugewiesenen Studienmappen werden ebenfalls entfernt.</string>
@@ -1133,7 +1156,7 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="labels_filter_favourite">Nur favorisierte Kategorien</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Haken Sie eine Kategorie an, um sie diesem Lesezeichen zuzuweisen.</string>
-  <string name="manage_labels_help_primary">Die primäre Kategorie. Ihre Farbe und ihr Stil bestimmen, wie das Lesezeichen angezeigt wird.</string>
+  <string name="manage_labels_help_primary">Die Hauptkategorie. Ihre Farbe und ihr Stil bestimmen, wie das Lesezeichen angezeigt wird.</string>
   <string name="manage_labels_help_autoassign">Diese Kategorie automatisch jedem neuen Lesezeichen zuweisen. Ein hohler Blitz bedeutet aus.</string>
   <string name="manage_labels_help_favourite">Die Kategorie für schnellen Zugriff in Ihren Favoriten behalten.</string>
   <string name="manage_labels_help_styles">Unter dem Namen zeigt ein kleines Beispiel das Aussehen der Kategorie: „Auswahl“ für ein Lesezeichen auf einer Textauswahl, „Ganzer Vers“ für ein Lesezeichen auf einem ganzen Vers und ein Tag „Arbeitsbereich“ für einen Stil, den dieser Arbeitsbereich überschreibt. Ein ausgegrautes Beispiel ohne Dekoration bedeutet, dass die Lesezeichen der Kategorie nicht gezeichnet werden. Blenden Sie die Beispiele über das ⋮-Menü aus.</string>
@@ -1825,12 +1848,15 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="my_document_create_title">Neues Dokument erstellen</string>
   <string name="my_document_rename_title">Dokument umbenennen</string>
   <string name="my_document_delete_confirmation">Dokument \"%s\" löschen?</string>
+  <string name="show_secret">Anzeigen</string>
+  <string name="hide_secret">Verbergen</string>
+  <string name="ai_documents_name">KI-Dokumente</string>
+  <string name="ai_documents_description">Automatisch von KI erzeugte Dokumente</string>
   <string name="my_document_cannot_delete_ai_documents">KI-Dokumente können nicht gelöscht werden, solange sie Seiten enthalten. Bitte zuerst die Seiten löschen.</string>
   <string name="my_document_save_changes">Änderungen speichern?</string>
   <string name="my_document_no_description">Keine Beschreibung</string>
   <string name="my_document_edit_description">Beschreibung bearbeiten</string>
   <string name="my_document_pages_title">%s - Seiten</string>
-  <string name="my_document_pages_empty">Keine Seiten in diesem Dokument.</string>
   <string name="my_document_page_rename_title">Seite umbenennen</string>
   <string name="my_document_page_delete_confirmation">Seite \"%s\" löschen?</string>
   <string name="my_document_pages_delete_confirmation">Diese Seiten löschen?</string>
@@ -1838,6 +1864,9 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="my_document_new_page_name">Seite %1$d</string>
   <string name="my_document_create_page_title">Neue Seite</string>
   <string name="my_document_content_type_label">Inhaltstyp</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Keine Seiten in diesem Dokument.</string>
   <string name="my_document_import_page">Markdown/HTML importieren</string>
   <string name="my_document_export_page">Seite exportieren</string>
   <string name="my_document_imported_page_name">Importiert</string>
