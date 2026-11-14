@@ -36,6 +36,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.util.Date
 
 /**
  * Verifies that reading status changes arriving through sync are picked up by
@@ -61,7 +62,8 @@ class ReadingPlanControlSyncTest {
 
     /** Write a status for [day] straight into the db, as a sync download would. */
     private fun writeSyncedStatus(vararg readReadings: Int) {
-        val remote = ReadingStatus(planCode, day, 2).apply {
+        val numReadings = control.getDaysReading(day).numReadings
+        val remote = ReadingStatus(planCode, day, numReadings).apply {
             readReadings.forEach { setStatus(it, read = true, saveStatus = false) }
         }
         runBlocking {
@@ -99,12 +101,30 @@ class ReadingPlanControlSyncTest {
     }
 
     @Test
-    fun cachedStatusIsKeptWithoutSyncEvent() {
-        val cached = control.getReadingStatus(day)
+    fun syncedCurrentDayMakesEarlierDayHistoric() {
+        assertFalse(control.getReadingStatus(day).isRead(1))
+
+        // Another device has moved the plan on to the next day. Plain INSERT because
+        // ReadingPlanDao.updatePlan's upsert syntax needs the bundled sqlite-android,
+        // which unit tests exclude.
+        DatabaseContainer.instance.readingPlanDb.openHelper.writableDatabase.execSQL(
+            "INSERT INTO ReadingPlan (planCode, planStartDate, planCurrentDay, id) VALUES (?, ?, ?, ?)",
+            arrayOf(planCode, Date().time, day + 1, IdType().toByteArray())
+        )
+        postSyncEvent()
+
+        // Earlier days of a non-date-based plan count as fully read
+        assertTrue(control.getReadingStatus(day).isRead(1))
+    }
+
+    @Test
+    fun statusIsNotReloadedWithoutSyncEvent() {
+        assertFalse(control.getReadingStatus(day).isRead(1))
 
         writeSyncedStatus(1)
 
-        // No sync event: the same cached instance is returned (cache still works)
-        assertTrue(cached === control.getReadingStatus(day))
+        // Without the event the cached status is still served, so the
+        // invalidation (not a cache bypass) is what makes synced data visible
+        assertFalse(control.getReadingStatus(day).isRead(1))
     }
 }
