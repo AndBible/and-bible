@@ -156,8 +156,8 @@ class TextToSpeechNotificationManager : KoinComponent {
                 ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_REWIND -> speakControl.rewind()
-                ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+                ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
+                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
                 ACTION_STOP -> speakControl.stop()
                 ACTION_UPDATE_NOTIFICATION -> {
                     if(speakControl.isPaused) {

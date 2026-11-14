@@ -181,8 +181,8 @@ class SpeakTransportServiceImpl(
 
     override fun rewind() = speakControl.rewind()
     override fun forward() = speakControl.forward()
-    override fun prevVerse() = speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-    override fun nextVerse() = speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+    override fun prevVerse() = speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
+    override fun nextVerse() = speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
 
     /** Classic sync side-effect (SpeakTransportWidget :163-167, :206-210). */
     private fun maybeSyncToFront() {
