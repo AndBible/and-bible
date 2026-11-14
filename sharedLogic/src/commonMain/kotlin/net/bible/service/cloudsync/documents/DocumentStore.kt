@@ -28,6 +28,8 @@ import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.common.asyncMap
 import net.bible.service.common.createTempFile
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 private const val TAG = "DocumentStore"
 
@@ -53,10 +55,106 @@ data class ChangedListing(
     val failedCreatedTimes: List<Long>,
 )
 
+/**
+ * The meta.json reads of earlier listings, kept by their owner ([DocumentSync]) across the short-lived
+ * [DocumentStore]s it builds per operation (#4103).
+ *
+ * The listing overlap ([LISTING_MARGIN_MS] here, plus the adapter's own clock margin) re-matches every meta
+ * uploaded in the same burst as the newest one, on every refresh, until a newer meta arrives. Without this,
+ * each refresh (the "Sync now" preview included) downloaded all of them again in a second sequential round
+ * trip. Reusing a read changes nothing downstream: the listing still reports the meta as matched, so the merge
+ * and the watermark see exactly what a fresh download would have given.
+ *
+ * Correctness over speed; a matched meta file is reused only when all of these hold:
+ * - **Same cloud.** The reads belong to one adapter instance and one documents root folder ([begin] clears them
+ *   when either changes). File ids alone do not identify a cloud: WebDAV ids are paths below the server base,
+ *   equal on every server and account. An adapter instance talks to one server and account for its whole life
+ *   (its configuration is fixed at construction; switching backend or changing the WebDAV server, URL or user
+ *   signs in a new instance), so the instance plus the root folder id is the cloud's identity.
+ * - **Same version.** The provider reports a version token ([CloudFile.etag]) and a raw server modification time
+ *   ([CloudFile.serverModifiedTime]), and the file's id, token, size and server time equal the ones it was read
+ *   at. The server time is compared as listed, not [CloudFile.createdTime]: that one carries a per-response
+ *   clock offset that jitters.
+ * - **Settled.** The listing that read it started at least [SETTLE_MS] after the file's modification time. Some
+ *   servers derive the etag from mtime in whole seconds + size (+ an inode a delete-and-recreate may reuse):
+ *   a rewrite in the same second with the same length repeats every listed property, so a read taken in that
+ *   second may be stale while looking current.
+ *
+ * Otherwise the meta is downloaded, as before #4103. [clear] (sign-out, listing reset) also invalidates any
+ * listing still running: a read it finishes afterwards is not remembered.
+ */
+class DocumentMetaReads(private val nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }) {
+    private data class Read(val etag: String, val size: Long, val serverModifiedTime: Long, val meta: DocumentSyncMeta)
+
+    /** One listing's view of the reads: valid while no [clear] or owner change happened since it began. */
+    internal class Session(val generation: Long, val startedAt: Long)
+
+    private val reads = HashMap<String, Read>()
+    private val lock = SynchronizedObject()
+    private var ownerAdapter: Any? = null
+    private var ownerRootFolderId: String? = null
+    private var generation = 0L
+
+    /**
+     * Starts a listing of [rootFolderId] through [adapter], before its first request: forgets every read of
+     * another cloud, and returns the session [reuse] and [remember] check.
+     */
+    internal fun begin(adapter: Any, rootFolderId: String): Session = synchronized(lock) { // L1-common-ok: atomicfu lock
+        if (ownerAdapter !== adapter || ownerRootFolderId != rootFolderId) {
+            clearLocked()
+            ownerAdapter = adapter
+            ownerRootFolderId = rootFolderId
+        }
+        Session(generation, nowMs())
+    }
+
+    /** The meta read earlier from this exact version of [file], or null when it must be downloaded. */
+    internal fun reuse(file: CloudFile, session: Session): DocumentSyncMeta? {
+        val etag = file.etag ?: return null
+        val mtime = file.serverModifiedTime ?: return null
+        val read = synchronized(lock) { // L1-common-ok: atomicfu lock
+            reads[file.id].takeIf { session.generation == generation }
+        } ?: return null
+        return read.meta.takeIf { read.etag == etag && read.size == file.size && read.serverModifiedTime == mtime }
+    }
+
+    /**
+     * Keeps [meta], read from [file] in [session], for later listings: only when the file is versioned, the read
+     * is settled (see the class comment) and nothing cleared the reads since the session began.
+     */
+    internal fun remember(file: CloudFile, meta: DocumentSyncMeta, session: Session) {
+        val etag = file.etag ?: return
+        val mtime = file.serverModifiedTime ?: return
+        // createdTime is the device-clock time of the write, comparable with the device-clock session start.
+        if (session.startedAt - file.createdTime < SETTLE_MS) return
+        synchronized(lock) { // L1-common-ok: atomicfu lock
+            if (session.generation == generation) reads[file.id] = Read(etag, file.size, mtime, meta)
+        }
+    }
+
+    /** Forgets every read and invalidates running listings, so the next listing downloads every matched meta again. */
+    fun clear() = synchronized(lock) { clearLocked() } // L1-common-ok: atomicfu lock
+
+    private fun clearLocked() {
+        reads.clear()
+        generation++
+    }
+
+    companion object {
+        /**
+         * How long after its server modification time a meta read may be kept. Covers a whole-second server
+         * mtime resolution plus the error of the device-clock conversion (the WebDAV clock offset comes from
+         * whole-second `Date` headers).
+         */
+        const val SETTLE_MS = 5_000L
+    }
+}
+
 class DocumentStore(
     private val adapter: CloudAdapter,
     private val rootFolderId: String,
     private val env: net.bible.sharedcore.platform.AppEnvironment,
+    private val metaReads: DocumentMetaReads? = null,
 ) {
     private suspend fun folderFor(initials: String): CloudFile? =
         adapter.getFolders(rootFolderId).firstOrNull { it.name == initials }
@@ -90,6 +188,8 @@ class DocumentStore(
      * Pass watermark = 0 for a full (cold-start) listing.
      */
     suspend fun listChangedDocuments(watermark: Long): ChangedListing {
+        // Begun before the first request: the settle check compares the file times with the listing's start.
+        val session = metaReads?.begin(adapter, rootFolderId)
         val folders = adapter.getFolders(rootFolderId)
         val since = maxOf(0L, watermark - LISTING_MARGIN_MS)
         val metaFiles = adapter.listChangedFilesInFolders(
@@ -101,7 +201,11 @@ class DocumentStore(
         // Each meta read is an independent read-only fetch, so fan them out with bounded concurrency.
         // The merge is order-independent, so the concurrent map + null-partition is correct.
         val matched = metaFiles.map { it.createdTime }
-        val results = metaFiles.asyncMap(LIST_CONCURRENCY) { it to downloadMeta(it) }
+        val results = metaFiles.asyncMap(LIST_CONCURRENCY) { file ->
+            file to (session?.let { metaReads?.reuse(file, it) } ?: downloadMeta(file)?.also { meta ->
+                session?.let { metaReads?.remember(file, meta, it) }
+            })
+        }
         val changed = results.mapNotNull { it.second }
         val failed = results.filter { it.second == null }.map { it.first.createdTime }
         return ChangedListing(changed, folders.map { it.name }.toSet(), matched, failed)
