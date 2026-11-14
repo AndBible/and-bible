@@ -748,16 +748,11 @@ class BookmarkHost(
             hasWorkspaceContext = workspaceContext,
         )
         if (isNew) {
-            when (session.data.mode) {
-                ManageLabelsContract.Mode.ASSIGN -> {
-                    labelData.isThisBookmarkSelected = true
-                    labelData.isThisBookmarkPrimary = true
-                }
-                ManageLabelsContract.Mode.WORKSPACE -> {
-                    labelData.isAutoAssignPrimary = true
-                    labelData.isAutoAssign = true
-                }
-                else -> {}
+            ManageLabelsMapper.newLabelPresets(session.data.mode).let {
+                labelData.isThisBookmarkSelected = it.thisBookmarkSelected
+                labelData.isThisBookmarkPrimary = it.thisBookmarkPrimary
+                labelData.isAutoAssign = it.autoAssign
+                labelData.isAutoAssignPrimary = it.autoAssignPrimary
             }
         }
 
