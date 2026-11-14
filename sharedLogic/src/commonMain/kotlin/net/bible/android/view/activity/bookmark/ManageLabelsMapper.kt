@@ -52,6 +52,26 @@ object ManageLabelsMapper {
     fun labelEditHasWorkspaceContext(mode: ManageLabelsContract.Mode): Boolean =
         mode != ManageLabelsContract.Mode.HIDELABELS
 
+    /** What a brand-new label's editor starts with, beyond the plain defaults. */
+    data class NewLabelPresets(
+        val thisBookmarkSelected: Boolean = false,
+        val thisBookmarkPrimary: Boolean = false,
+        val autoAssign: Boolean = false,
+        val autoAssignPrimary: Boolean = false,
+    )
+
+    /**
+     * Presets for the editor of a label created with + in [mode]. Only the bookmark label sheet
+     * ([ManageLabelsContract.Mode.ASSIGN]) presets anything: the label is made for the bookmark being
+     * labelled, so it starts selected and primary on that bookmark. A label made on the Label settings
+     * screen ([ManageLabelsContract.Mode.WORKSPACE]) starts plain: auto-assign off and not the main label.
+     */
+    fun newLabelPresets(mode: ManageLabelsContract.Mode): NewLabelPresets = when (mode) {
+        ManageLabelsContract.Mode.ASSIGN -> NewLabelPresets(thisBookmarkSelected = true, thisBookmarkPrimary = true)
+        ManageLabelsContract.Mode.WORKSPACE -> NewLabelPresets(autoAssign = true, autoAssignPrimary = true)
+        else -> NewLabelPresets()
+    }
+
     /** [ManageLabelsContract.Mode] -> the portable [ManageLabelsMode] the shared controller/screen use. */
     fun toMode(mode: ManageLabelsContract.Mode): ManageLabelsMode = when (mode) {
         ManageLabelsContract.Mode.STUDYPAD -> ManageLabelsMode.STUDYPAD
