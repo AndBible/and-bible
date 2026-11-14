@@ -39,8 +39,13 @@ at that point. You can choose:
 
 On Android, the message appears only after the calculator PIN when the
 calculator disguise is on. Speaking from the widget, the notification or a
-headset button does nothing while data is damaged; open the app to see the
-message.
+headset button does nothing while data is damaged. Instead, a notification
+says that the app's data needs attention, and the speak widgets show the same
+text; tap either one to open the app and see the message.
+
+When AndBible cannot tell which database is damaged, the message names every
+database holding your own data, and **Reset damaged data** moves all of them
+aside in the same way.
 
 When sync downloads data from the cloud, the downloaded database is checked
 before it replaces yours. A damaged download is refused and your data on the
