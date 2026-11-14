@@ -60,6 +60,13 @@ class ConfigCommandTest {
     private fun noSpace(s: String) = s.replace(" ", "")
 
     @Test
+    fun strongHighlightsIsOffByDefaultAndPassedWhenOn() {
+        assertTrue(noSpace(ConfigCommand.build(false, inputs()).js).contains("strongHighlights:false"))
+        val on = noSpace(ConfigCommand.build(false, inputs().copy(strongHighlights = true)).js)
+        assertTrue(on.contains("strongHighlights:true"), on)
+    }
+
+    @Test
     fun initialConfigCarriesAllFlags() {
         val js = noSpace(ConfigCommand.build(true, inputs()).js)
         listOf(

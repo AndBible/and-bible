@@ -46,7 +46,6 @@ class BookmarkHostTest {
         override fun subscribeBookmarkSync(onChanged: () -> Unit): () -> Unit = {}
         override suspend fun exportBookmarksCsv(bookmarks: List<net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes>) = Unit
         override suspend fun importBookmarksCsv() = Unit
-        override fun helpReadMoreUrl(studyPad: Boolean): String = "https://example.test/help"
         override fun documentsRecreation() = BookmarkDocumentsRecreation()
     }
 

@@ -64,6 +64,8 @@ data class ConfigInputs(
     val speakSupported: Boolean = true,
     /** Null preserves Android's separate URL/reload_addons source; host platforms supply their live font catalog. */
     val fontModuleNames: List<String>? = null,
+    /** Stronger selection and bookmark highlights for tutorial video captures (Android `-PvideoLook=true`). */
+    val strongHighlights: Boolean = false,
 )
 
 /** Builds the `set_config` JS call; pure, so equal inputs give the identical script. */
@@ -109,6 +111,7 @@ object ConfigCommand {
                         llmConfigured: $llmConfigured,
                         notesContentType: "$notesContentType",
                         speakSupported: $speakSupported,
+                        strongHighlights: $strongHighlights,
                         ${fontModuleNames?.let { "fontModuleNames: ${json.encodeToString(it)}," }.orEmpty()}
                     },
                     initial: $initial,

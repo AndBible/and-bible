@@ -34,9 +34,6 @@ interface BookmarkHostPlatform {
     /** Classic `importBookmarksFromCSV`. */
     suspend fun importBookmarksCsv()
 
-    /** The "read more" link of the label manager's help dialog: the StudyPad playlist or the labels one. */
-    fun helpReadMoreUrl(studyPad: Boolean): String
-
     /** The My Documents screens' share of the recreation snapshot. */
     fun documentsRecreation(): BookmarkDocumentsRecreation
 }

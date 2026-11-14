@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.nav.ports
 
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -44,11 +45,13 @@ class AndroidHelpDialogsTest {
         val pairs = listOf(
             R.string.help_nav_title to R.string.help_nav_text,
             R.string.help_contextmenus_title to R.string.help_contextmenus_text,
+            R.string.help_study_tools_title to R.string.help_study_tools_text,
             R.string.help_window_pinning_title to R.string.help_window_pinning_text,
             R.string.help_bookmarks_title to R.string.help_bookmarks_text,
             R.string.studypads to R.string.help_studypads_text,
             R.string.help_search_title to R.string.help_search_text2,
             R.string.help_workspaces_title to R.string.help_workspaces_text,
+            R.string.help_look_and_feel_title to R.string.help_look_and_feel_text,
             R.string.help_hidden_features_title to R.string.help_hidden_features_text,
         )
         var previous = -1
@@ -60,10 +63,10 @@ class AndroidHelpDialogsTest {
         }
         listOf(DocsLinks.page("navigation"), DocsLinks.page("windows"), DocsLinks.page("bookmarks"),
             DocsLinks.page("study_pads"), DocsLinks.page("search"), DocsLinks.page("workspaces"),
-            "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ",
-            "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden",
-            "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m",
+            DocsLinks.page("documents"), DocsLinks.page("look_and_feel"),
+            TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS),
         ).forEach { assertContains(html, "href=\"$it\"") }
+        assertEquals(9, Regex(Regex.escape(activity.getString(R.string.watch_tutorial_video))).findAll(html).count())
         assertEquals(4, notice.blocks.size)
         assertContains(assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks[1]).html, DocsLinks.BASE_URL)
         assertIs<AppDialogRequest.NoticeBlock.IconLine>(notice.blocks[2])

@@ -425,6 +425,13 @@ $modal-content-background-color-night: rgb(33, 33, 33);
   .night & {
     background-color: rgba(var(--accent-rgb), 0.3);
   }
+  // Strong highlights (video look): the 0.1 tint barely shows on a video frame.
+  .strongHighlights:not(.monochrome) & {
+    background-color: rgba(var(--accent-rgb), 0.3);
+  }
+  .night.strongHighlights:not(.monochrome) & {
+    background-color: rgba(var(--accent-rgb), 0.5);
+  }
 }
 
 .one-liner {

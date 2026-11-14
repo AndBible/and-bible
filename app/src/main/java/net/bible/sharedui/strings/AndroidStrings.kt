@@ -1022,6 +1022,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val welcomeRedownloadButton: String get() = context.getString(R.string.redownload)
     override val welcomeHomepageLabel: String get() = context.getString(R.string.welcome_link_website)
     override val welcomeGithubLabel: String get() = context.getString(R.string.welcome_link_github)
+    override val welcomeVideoLabel: String get() = context.getString(R.string.welcome_link_video)
     override val welcomeIntro: String get() = context.getString(R.string.welcome_intro)
     override val welcomeTabEasy: String get() = context.getString(R.string.welcome_tab_easy)
     override val welcomeTabAdvanced: String get() = context.getString(R.string.welcome_tab_advanced)

@@ -35,8 +35,5 @@ class HostBookmarkHostPlatform(
     override fun subscribeBookmarkSync(onChanged: () -> Unit): () -> Unit = subscribeToBookmarkSync(onChanged)
     override suspend fun exportBookmarksCsv(bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>) = csv.exportBookmarksCsv(bookmarks)
     override suspend fun importBookmarksCsv() = csv.importBookmarksCsv()
-    override fun helpReadMoreUrl(studyPad: Boolean): String = if (studyPad)
-        "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m"
-    else "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7"
     override fun documentsRecreation(): BookmarkDocumentsRecreation = BookmarkDocumentsRecreation()
 }

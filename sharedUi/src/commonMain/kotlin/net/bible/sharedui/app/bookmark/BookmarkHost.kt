@@ -42,6 +42,7 @@ import net.bible.service.common.displayName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.BookmarksController
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
@@ -1272,9 +1273,12 @@ class BookmarkHost(
                             if (session.data.isWindow) strings.settingScopeWindow else strings.settingScopeWorkspace,
                         )
                     } else null,
-                    // STUDYPAD keeps its own playlist; the other three modes use the
-                    // Labels & Bookmarks one. Don't collapse this to one URL.
-                    readMoreUrl = platform.helpReadMoreUrl(studyPad = session.controller.mode == ManageLabelsMode.STUDYPAD),
+                    // STUDYPAD keeps its own video; the other three modes use the
+                    // Labels & highlights one. Don't collapse this to one URL.
+                    readMoreUrl = TutorialVideos.url(
+                        if (session.controller.mode == ManageLabelsMode.STUDYPAD) TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS
+                        else TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+                    ),
                     onDismiss = { manageLabelsHelpOpen = false },
                 )
             }
