@@ -354,8 +354,8 @@ class SpeakWidgetManager : KoinComponent {
                 ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_FAST_FORWARD -> speakControl.forward()
-                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
+                ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
                 ACTION_SLEEP_TIMER -> toggleSleepTimer()
                 ACTION_STOP -> speakControl.stop()
             }
