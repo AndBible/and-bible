@@ -102,8 +102,6 @@ class CloudSync(
             if (value != adapterId) _adapter = null
             settings.setString("sync_adapter", value)
         }
-    init { adapters.pinLegacyAdapterIfInUse(settings) }
-
     /** Fixes the backend before the first category is enabled (see [pinAdapterOnEnable]). */
     fun pinAdapterOnEnable() = adapters.pinAdapterOnEnable(settings)
     val adapterAvailable: Boolean get() = adapters.isAvailable(settings)
@@ -780,6 +778,10 @@ class CloudSync(
         reportTransportErrors: Boolean = allowInteraction,
         includeDocuments: Boolean = true,
     ) = withContext(Dispatchers.IO) {
+        // #4102 one-time pin, here on IO and not in the constructor: the Koin graph builds CloudSync on Main during
+        // startup (BackupControl), where reading settings cold-opens the database (CoreModuleResolveTest). Until it
+        // runs, effectiveAdapterId already gives the same answer.
+        adapters.pinLegacyAdapterIfInUse(settings)
         if (!adapterAvailable) return@withContext
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
