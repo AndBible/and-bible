@@ -121,6 +121,8 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val pause: String get() = context.getString(R.string.pause)
     override val stop: String get() = context.getString(R.string.stop)
     override val speakStatusStopped: String get() = context.getString(R.string.speak_status_stopped)
+    override val aiDocumentsName: String get() = context.getString(R.string.ai_documents_name)
+    override val aiDocumentsDescription: String get() = context.getString(R.string.ai_documents_description)
     override fun sleepTimerStarted(minutes: Int): String = context.getString(R.string.sleep_timer_started, minutes)
     override val webDavUntrustedCertificateTitle: String get() = context.getString(R.string.webdav_untrusted_certificate_title)
     override val webDavTrustCertificate: String get() = context.getString(R.string.webdav_trust_certificate)

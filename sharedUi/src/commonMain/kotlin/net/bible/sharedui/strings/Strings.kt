@@ -24,6 +24,8 @@ interface Strings {
     val authFolderPath: String
     val authFolderPathSummary: String
     val authPassword: String
+    val showSecret: String   // R.string.show_secret
+    val hideSecret: String   // R.string.hide_secret
     val authServerUri: String
     val authUsername: String
     val autoFullscreen: String

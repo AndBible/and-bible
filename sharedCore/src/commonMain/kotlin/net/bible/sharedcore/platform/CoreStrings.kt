@@ -73,6 +73,8 @@ interface CoreStrings {
     val pause: String // R.string.pause
     val stop: String // R.string.stop
     val speakStatusStopped: String // R.string.speak_status_stopped
+    val aiDocumentsName: String // R.string.ai_documents_name
+    val aiDocumentsDescription: String // R.string.ai_documents_description
     fun sleepTimerStarted(minutes: Int): String // R.string.sleep_timer_started
     val webDavUntrustedCertificateTitle: String
     val webDavTrustCertificate: String

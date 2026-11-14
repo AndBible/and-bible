@@ -19,6 +19,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val authFolderPath: String get() = context.getString(R.string.auth_folder_path)
     override val authFolderPathSummary: String get() = context.getString(R.string.auth_folder_path_summary)
     override val authPassword: String get() = context.getString(R.string.auth_password)
+    override val showSecret: String get() = context.getString(R.string.show_secret)
+    override val hideSecret: String get() = context.getString(R.string.hide_secret)
     override val authServerUri: String get() = context.getString(R.string.auth_server_uri)
     override val authUsername: String get() = context.getString(R.string.auth_username)
     override val autoFullscreen: String get() = context.getString(R.string.auto_fullscreen)

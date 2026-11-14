@@ -52,7 +52,7 @@
           <div class="menu-item" @click="menuAction(openSettings)">
             <FontAwesomeIcon :icon="faCog"/> {{ strings.viewReadingProgressSettings }}
           </div>
-          <div class="menu-item" @click="menuAction(listenInLoop)">
+          <div v-if="speakAvailable" class="menu-item" @click="menuAction(listenInLoop)">
             <FontAwesomeIcon :icon="faVolumeUp"/> {{ strings.listenInLoop }}
           </div>
           <div class="menu-item" @click="menuAction(openHelp)">
@@ -154,7 +154,9 @@ const memorizeState = computed<MemorizeState>(() => {
     }
 })
 
-const {strings, android} = useCommon();
+const {strings, android, appSettings} = useCommon();
+// The host adds "SPEAK" to the disabled modal buttons where the platform has no speech (desktop); Listen in Loop needs speech too.
+const speakAvailable = computed(() => !appSettings?.disableBibleModalButtons?.includes("SPEAK"));
 const memorization = inject(memorizationKey)!;
 const readingProgressSettings = useReadingProgressSettings(document.value.readingProgressSettings, android);
 provide(readingProgressSettingsKey, readingProgressSettings);

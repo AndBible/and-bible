@@ -1523,7 +1523,7 @@
     <string name="app_opened_elsewhere">App opened elsewhere</string>
     <string name="open_here">Open here</string>
     <string name="external_link">External link</string>
-    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+    <string name="external_link_question">This will open external link %s in a browser application, do you wish to continue?</string>
     <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
@@ -2068,6 +2068,10 @@
     <string name="my_document_create_title">Create new document</string>
     <string name="my_document_rename_title">Rename document</string>
     <string name="my_document_delete_confirmation">Delete document \"%s\"?</string>
+    <string name="show_secret">Show</string>
+    <string name="hide_secret">Hide</string>
+    <string name="ai_documents_name">AI Documents</string>
+    <string name="ai_documents_description">Automatically generated documents from AI</string>
     <string name="my_document_cannot_delete_ai_documents">AI Documents cannot be deleted while it contains pages. Delete the pages first.</string>
     <string name="my_document_save_changes">Save changes?</string>
     <string name="my_document_no_description">No description</string>
