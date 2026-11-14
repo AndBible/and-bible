@@ -71,6 +71,7 @@ val LocalMotionDurationScaleHandledByHost = staticCompositionLocalOf { false }
  * @param seedArgb the workspace colour used as the Material 3 seed (A/B batch 4b). `null` — the
  *   default -- is the default workspace colour (`#444444`) in NORMAL. `:app` hosts do not pass
  *   this by hand; `AbAppTheme` supplies it.
+ * @param useSystemColors the user's opt-in "Use system colors (Material You)"; see [abColorScheme].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,12 +80,13 @@ fun AbTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorMode: DisplayColorMode = DisplayColorMode.NORMAL,
     disableAnimations: Boolean = false,
+    useSystemColors: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     // abColorScheme returns the FINAL scheme: seeding and the BW greyscale pass both happen inside
     // it, so this host cannot fall out of step with the BibleView payload builder, which calls the
     // same function. MONOCHROME and COLOR_EINK share the ink/paper look and ink accents (#4069).
-    val scheme = abColorScheme(seedArgb, darkTheme, colorMode)
+    val scheme = abColorScheme(seedArgb, darkTheme, colorMode, useSystemColors)
     val mono = colorMode.isInkBase
     val accents = if (mono) {
         val ink = monoInk(darkTheme)

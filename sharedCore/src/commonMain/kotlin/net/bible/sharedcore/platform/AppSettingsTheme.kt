@@ -15,3 +15,12 @@ fun AppSettings.resolveDisplayColorMode(isOnyx: Boolean): DisplayColorMode =
 
 /** "No animations" setting; unset defaults to true on Onyx devices. */
 fun AppSettings.resolveDisableAnimations(isOnyx: Boolean): Boolean = getBoolean("disable_animations", isOnyx)
+
+/** Settings key of the opt-in "Use system colors (Material You)" switch. */
+const val USE_SYSTEM_COLORS_KEY = "use_system_colors"
+
+/**
+ * Whether the user opted into the platform's dynamic system colours (Material You). Default off.
+ * Only a platform that offers them acts on it (see `systemColorSchemeProvider` in `:sharedUi`).
+ */
+fun AppSettings.resolveUseSystemColors(): Boolean = getBoolean(USE_SYSTEM_COLORS_KEY, false)

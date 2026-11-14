@@ -138,6 +138,8 @@ interface Strings {
     val prefsShowErrorBoxTitle: String
     val prefsToolbarButtonActionSummary: String
     val prefsToolbarButtonActionTitle: String
+    val prefsUseSystemColorsSummary: String
+    val prefsUseSystemColorsTitle: String
     val prefsVolumeKeysScrollSummary: String
     val prefsVolumeKeysScrollTitle: String
     val readingProgressSettingsSummary: String

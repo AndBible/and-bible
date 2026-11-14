@@ -124,6 +124,8 @@ internal fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  * - **NORMAL** -> an unset workspace colour (null or the stored `#444444` sentinel; see
  *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme, unless the host
  *   selected a candidate default via [activeDefaultThemeProposal] (opt-in; CURRENT = stock).
+ *   With [useSystemColors] on and a platform [systemColorSchemeProvider] (Android 12+), the
+ *   system's dynamic "Material You" scheme replaces both; elsewhere the flag is ignored.
  *   A chosen colour always uses [greySafeTonalSpot], keeping low-chroma seeds muted.
  *   Unseeded goldens and previews render the same stock baseline-violet theme as the app.
  * - **MONOCHROME, COLOR_EINK** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
@@ -135,11 +137,15 @@ fun abColorScheme(
     seedArgb: Int?,
     dark: Boolean,
     colorMode: DisplayColorMode,
+    useSystemColors: Boolean = false,
 ): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
     return when (colorMode) {
         DisplayColorMode.NORMAL -> {
-            if (!isWorkspaceColorSet(seedArgb)) activeDefaultThemeProposal.scheme(dark) ?: stock
+            if (!isWorkspaceColorSet(seedArgb)) {
+                val system = if (useSystemColors) systemColorSchemeProvider?.invoke(dark) else null
+                system ?: activeDefaultThemeProposal.scheme(dark) ?: stock
+            }
             else greySafeTonalSpot(seedArgb!!, dark)
         }
         DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK -> monochromeScheme(dark)

@@ -55,6 +55,8 @@ data class AppSettingsLabels(
     val nightModeSummary: String,
 
     // Display
+    val useSystemColorsTitle: String,
+    val useSystemColorsSummary: String,
     val localeTitle: String,
     val localeSummary: String,
     val disableClickToEditTitle: String,
@@ -176,6 +178,8 @@ data class AppSettingsLabels(
             nightModeTitle = "Night mode",
             nightModeSummary = "Choose when the dark theme is used",
 
+            useSystemColorsTitle = "Use system colors (Material You)",
+            useSystemColorsSummary = "Follow the colors of your wallpaper. A workspace color and the e-ink color modes still take precedence.",
             localeTitle = "Language",
             localeSummary = "App display language",
             disableClickToEditTitle = "Disable click to edit notes",

@@ -38,11 +38,12 @@ fun themeColorsJson(
     seedArgb: Int?,
     dark: Boolean,
     colorMode: DisplayColorMode,
+    useSystemColors: Boolean = false,
 ): String {
     // Grey-base modes ignore the seed, so Vue's own monochrome rules apply. NORMAL always ships,
     // including the stock default palette, to keep the Vue chrome and Compose on the same colours.
     if (colorMode.isGreyBase) return "null"
-    val s = abColorScheme(seedArgb, dark, colorMode)
+    val s = abColorScheme(seedArgb, dark, colorMode, useSystemColors)
     return """{"primary":"${s.primary.toCssHex()}",""" +
         """"onPrimary":"${s.onPrimary.toCssHex()}",""" +
         """"primaryContainer":"${s.primaryContainer.toCssHex()}",""" +

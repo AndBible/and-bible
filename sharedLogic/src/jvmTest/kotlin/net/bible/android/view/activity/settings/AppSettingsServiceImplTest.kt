@@ -240,6 +240,17 @@ class AppSettingsServiceImplTest {
         assertTrue(service().snapshot.value.legacyImportVisible)
     }
 
+    @Test fun useSystemColorsDefaultsOffAndMapsAvailabilityAndWrites() {
+        val s = service()
+        assertFalse(s.snapshot.value.useSystemColors)
+        assertFalse(s.snapshot.value.systemColorsAvailable)
+        s.setBool("use_system_colors", true)
+        assertTrue(s.snapshot.value.useSystemColors)
+        assertTrue(db.getBoolean("use_system_colors", false))
+        flags.systemColorsAvailable = true
+        assertTrue(service().snapshot.value.systemColorsAvailable)
+    }
+
     @Test fun flagsDefaultsChoicesAndSystemBarNotification() {
         flags.isOnyx = true
         val s = service()
@@ -264,7 +275,7 @@ class AppSettingsServiceImplTest {
             "disable_two_step_bookmarking", "double_tap_to_fullscreen", "night_mode_pref3",
             "request_sdcard_permission_pref", "show_errorbox", "show_calculator", "calculator_pin",
             "google_drive_sync", "disable_bible_bookmark_modal_buttons", "disable_gen_bookmark_modal_buttons",
-            "display_color_mode", "theme_palette_style", "disable_animations", "disable_click_to_edit",
+            "display_color_mode", "use_system_colors", "theme_palette_style", "disable_animations", "disable_click_to_edit",
             "font_size_multiplier", "bible_view_swipe_mode", "experimental_features", "notes_content_type",
         )
         for (key in cleared + preserved) {
@@ -295,6 +306,7 @@ class AppSettingsServiceImplTest {
         override val autoNightModeAvailable = false
         override var isOnyx = false
         override var legacyImportVisible = false
+        override var systemColorsAvailable = false
         var notifications = 0
         val writes = mutableListOf<String>()
         var onWrite: (String) -> Unit = {}

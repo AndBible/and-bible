@@ -100,6 +100,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "volume_keys_scroll" -> R.drawable.ic_baseline_volume_up_24
     "night_mode_pref3" -> R.drawable.ic_night_mode_switching_24dp
     "global_text_display_settings" -> R.drawable.ic_text_format_white_24dp
+    "use_system_colors" -> R.drawable.ic_color_settings_24dp
     "locale_pref" -> R.drawable.ic_application_language_24dp
     "disable_click_to_edit" -> R.drawable.ic_click_24dp
     "notes_content_type" -> R.drawable.ic_text_format_white_24dp

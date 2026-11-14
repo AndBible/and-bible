@@ -43,6 +43,10 @@ data class AppSettingsSnapshot(
     val enabledGenBookmarkModalButtons: Set<String>,   // inverse of disable_gen_bookmark_modal_buttons
     val bibleBookmarkModalOptions: List<DictOption>,
     val genBookmarkModalOptions: List<DictOption>,
+    /** Material You: follow the system (wallpaper) colours instead of the default scheme; default off. */
+    val useSystemColors: Boolean = false,
+    /** True only where the platform offers dynamic system colours (Android 12+); else the row is hidden. */
+    val systemColorsAvailable: Boolean = false,
     // E-ink
     val displayColorMode: String,
     val einkMode: Boolean,

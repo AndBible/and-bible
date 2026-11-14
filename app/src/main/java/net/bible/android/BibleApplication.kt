@@ -131,6 +131,7 @@ open class BibleApplication : Application() {
         // Before any Compose host is created: every Compose root then honours "Disable animations".
         net.bible.android.view.compose.AppWindowRecomposer.install()
         net.bible.sharedui.theme.activeDefaultThemeProposal = resolveDefaultThemeProposal()
+        net.bible.android.view.compose.SystemDynamicColors.install(this)
         CommonUtils.tmpDir.deleteRecursively()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

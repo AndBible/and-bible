@@ -113,6 +113,15 @@ window is marked by rounded corners in the theme color; without a workspace
 theme, the corners remain blue. Bookmark colors and correctness/error colors
 keep their own meaning.
 
+<a id="system-colors"></a>
+**Use system colors (Material You).** On Android 12 and newer, turn this on
+to use the colors your phone derives from your wallpaper instead of the
+standard violet theme, in both light and dark mode. Change the wallpaper and
+AndBible follows it. It is off by default. A workspace color still takes
+precedence: the system colors apply only to workspaces without one. The
+*Black & white*, *Color e-ink* and *Monochrome* color modes also ignore it.
+The setting is not shown on older Android versions, iOS or desktop.
+
 <a id="e-ink-displays"></a>
 ### E-ink settings
 

@@ -27,6 +27,7 @@ On Windows and Linux, quitting shows a short "synchronizing" window while your c
 |---|---|---|---|
 | Speak (text to speech) | Yes | Yes | No |
 | Night mode follows the system | Yes | Yes | No, choose light or dark yourself |
+| [System colors (Material You)](look_and_feel.md#system-colors) | Android 12 and newer, opt-in | No | No |
 | Keep the screen on while reading | Yes | Yes | No |
 | Scroll with the volume keys | Yes | No | No |
 | Tilt to scroll | Yes | Yes | No |
