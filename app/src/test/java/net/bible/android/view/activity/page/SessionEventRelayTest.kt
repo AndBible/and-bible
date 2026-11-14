@@ -26,6 +26,11 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.StudyPadDocument
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.progress.ProgressChange
 import net.bible.android.database.IdType
@@ -179,6 +184,67 @@ class SessionEventRelayTest {
         val bookmark = newBookmark()
         bookmarkEvents.emit(BookmarkChange.BookmarksUpserted(listOf(bookmark)))
         assertTrue("JS: ${host.js}", awaitJs { js -> js.any { it.contains("add_or_update_bookmarks") && it.contains(bookmark.id.toString()) } })
+    }
+
+    private fun openStudyPad(label: BookmarkEntities.Label) {
+        session.firstDocument = StudyPadDocument(
+            label, null, emptyList(), emptyList(), emptyList(), emptyList(), emptyList(),
+        )
+        relay.start()
+    }
+
+    private fun bookmarkToLabelPayload(): JsonObject {
+        assertTrue("Bookmark-to-label change must reach JS: ${host.js}", awaitJs { js ->
+            js.any { it.startsWith("bibleView.emit(\"add_or_update_bookmark_to_label\",") }
+        })
+        val call = host.js.single { it.startsWith("bibleView.emit(\"add_or_update_bookmark_to_label\",") }
+        return Json.parseToJsonElement(call.substringAfter(", ").removeSuffix(")")).jsonObject
+    }
+
+    @Test fun bibleBookmarkCollapseAndIndentReachTheOpenStudyPad() {
+        val label = BookmarkEntities.Label(name = "Study pad")
+        val entry = BookmarkEntities.BibleBookmarkToLabel(
+            IdType(), label.id, orderNumber = 4, indentLevel = 2, expandContent = false,
+        )
+        openStudyPad(label)
+        bookmarkEvents.emit(BookmarkChange.BookmarkToLabelUpserted(entry))
+
+        val payload = bookmarkToLabelPayload()
+        assertEquals(entry.bookmarkId.toString(), payload.getValue("bookmarkId").jsonPrimitive.content)
+        assertEquals(label.id.toString(), payload.getValue("labelId").jsonPrimitive.content)
+        assertEquals("4", payload.getValue("orderNumber").jsonPrimitive.content)
+        assertEquals("2", payload.getValue("indentLevel").jsonPrimitive.content)
+        assertEquals("false", payload.getValue("expandContent").jsonPrimitive.content)
+        assertEquals("BibleBookmarkToLabel", payload.getValue("type").jsonPrimitive.content)
+    }
+
+    @Test fun genericBookmarkCollapseAndIndentReachTheOpenStudyPad() {
+        val label = BookmarkEntities.Label(name = "Study pad")
+        val entry = BookmarkEntities.GenericBookmarkToLabel(
+            IdType(), label.id, orderNumber = 3, indentLevel = 1, expandContent = false,
+        )
+        openStudyPad(label)
+        bookmarkEvents.emit(BookmarkChange.BookmarkToLabelUpserted(entry))
+
+        val payload = bookmarkToLabelPayload()
+        assertEquals(entry.bookmarkId.toString(), payload.getValue("bookmarkId").jsonPrimitive.content)
+        assertEquals(label.id.toString(), payload.getValue("labelId").jsonPrimitive.content)
+        assertEquals("3", payload.getValue("orderNumber").jsonPrimitive.content)
+        assertEquals("1", payload.getValue("indentLevel").jsonPrimitive.content)
+        assertEquals("false", payload.getValue("expandContent").jsonPrimitive.content)
+        assertEquals("GenericBookmarkToLabel", payload.getValue("type").jsonPrimitive.content)
+    }
+
+    @Test fun bookmarkToLabelChangesForAnotherStudyPadAreIgnored() {
+        openStudyPad(BookmarkEntities.Label(name = "Open study pad"))
+        bookmarkEvents.emit(BookmarkChange.BookmarkToLabelUpserted(
+            BookmarkEntities.BibleBookmarkToLabel(IdType(), IdType(), expandContent = false),
+        ))
+        bookmarkEvents.emit(BookmarkChange.BookmarkToLabelUpserted(
+            BookmarkEntities.GenericBookmarkToLabel(IdType(), IdType(), indentLevel = 2),
+        ))
+        awaitJs(300) { false }
+        assertEquals(emptyList<String>(), host.js.toList())
     }
 
     @Test fun memorizationOrdinalsAreConvertedToTheDocumentsV11n() {
