@@ -48,6 +48,7 @@ import net.bible.service.cloudsync.drivebrowser.OAuthRedirectInbox
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
+import net.bible.service.db.openAskingOnCorruption
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
@@ -186,14 +187,25 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
     }
 
-    private suspend fun initializeDatabase() {
-        withContext(Dispatchers.IO) { DatabaseContainer.openForUse() }
+    /**
+     * Opens the databases. Damaged user-data files (#4112) are not emptied silently: the user is asked
+     * ([ErrorReportControl.showCorruptDatabaseDialog]) and the open is retried after a reset or a restore.
+     * False when the user chose to close the app (the activity is finished).
+     */
+    private suspend fun initializeDatabase(): Boolean {
+        val opened = openAskingOnCorruption(
+            open = { withContext(Dispatchers.IO) { DatabaseContainer.openForUse() } },
+            ask = { ErrorReportControl.showCorruptDatabaseDialog(this, it) },
+            reset = { withContext(Dispatchers.IO) { DatabaseContainer.resetCorruptDatabases(it) } },
+        )
+        if (opened == null) finish()
+        return opened != null
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
-        initializeDatabase()
+        if (!initializeDatabase()) return@withContext
 
         // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.
