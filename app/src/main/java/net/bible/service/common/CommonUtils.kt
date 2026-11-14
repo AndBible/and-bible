@@ -286,7 +286,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE ($CommitDate)"
+            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance ${VideoLook.displayedBuildType(BUILD_TYPE)} ($CommitDate)"
         }
 
     val mainVersion: String get() {
@@ -304,9 +304,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val isBeta: Boolean get() {
-        val verFull = applicationVersionName
-        val ver = verFull.split("#")[0]
-        return ver.endsWith("-beta") || ver.endsWith("-test") || ver.endsWith("-alpha") || application.packageName.endsWith(".next") || isDebugMode
+        return VideoLook.isBeta(applicationVersionName, application.packageName, showsDebugTraits)
     }
 
     val applicationVersionNumber: Int
@@ -1377,6 +1375,9 @@ object CommonUtils : CommonUtilsBase() {
         ArchiveUtils.unzip(inputStream.source(), destinationDir.toOkioPath(), filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+
+    /** [isDebugMode] unless the build has the video capture look ([VideoLook]), which hides debug traits. */
+    val showsDebugTraits get() = VideoLook.showsDebugTraits(isDebugMode)
 
     val tmpDir: File get() {
         val file = File(application.filesDir, "tmp")

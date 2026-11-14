@@ -4,6 +4,7 @@ import android.os.Build
 import net.bible.android.activity.BuildConfig
 import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.service.common.BuildVariant
+import net.bible.service.common.VideoLook
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
@@ -21,7 +22,7 @@ class AndroidDeviceLocalPrefs : DeviceLocalPrefs {
 class AndroidSettingsPlatformFlags : SettingsPlatformFlags {
     override val sdcardPermissionVisible get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
     override val openLinksVisible get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    override val debugToolsVisible get() = BuildConfig.DEBUG
+    override val debugToolsVisible get() = VideoLook.showsDebugTraits(BuildConfig.DEBUG)
     override val autoNightModeAvailable get() = ScreenSettings.autoModeAvailable
     override val isOnyx get() = CommonUtils.isOnyxDevice
     override val isDiscreteBuild get() = BuildVariant.Appearance.isDiscrete
