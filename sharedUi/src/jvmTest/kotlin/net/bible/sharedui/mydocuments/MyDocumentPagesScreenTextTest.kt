@@ -3,8 +3,11 @@ package net.bible.sharedui.mydocuments
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
+import net.bible.sharedcore.mydocuments.ContentType
 import net.bible.sharedcore.mydocuments.MyDocPageItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
@@ -37,5 +40,24 @@ class MyDocumentPagesScreenTextTest {
         show(emptyList())
         onNodeWithText("No pages yet. Tap + to add one.").assertExists()
         onNodeWithText("No documents yet. Tap + to create one.").assertDoesNotExist()
+    }
+
+    @Test
+    fun pageListShowsTranslatedContentTypeLabels() = runComposeUiTest {
+        show(listOf(
+            MyDocPageItem(1, "One", ContentType.MARKDOWN, isAiGenerated = false),
+            MyDocPageItem(2, "Two", ContentType.HTML, isAiGenerated = false),
+        ))
+        onNodeWithText("Markdown").assertExists()
+        onNodeWithText("HTML").assertExists()
+        onNodeWithText("MARKDOWN").assertDoesNotExist()
+    }
+
+    @Test
+    fun newPageSheetShowsTranslatedContentType() = runComposeUiTest {
+        show(emptyList())
+        onNodeWithContentDescription("New page").performClick()
+        onNodeWithText("Markdown").assertExists()
+        onNodeWithText("MARKDOWN").assertDoesNotExist()
     }
 }
