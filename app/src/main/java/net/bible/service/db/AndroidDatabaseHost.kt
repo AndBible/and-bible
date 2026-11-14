@@ -54,6 +54,8 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
 
     override suspend fun awaitWorkspacePersisted() = DatabaseHostSupport.awaitWorkspacePersisted()
 
+    override suspend fun persistLiveWorkspace() = DatabaseHostSupport.persistLiveWorkspace()
+
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {
         try {
             blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)

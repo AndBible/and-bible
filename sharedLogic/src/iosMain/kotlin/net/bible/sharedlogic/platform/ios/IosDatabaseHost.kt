@@ -111,6 +111,8 @@ class IosDatabaseHost(
 
     override suspend fun awaitWorkspacePersisted() = DatabaseHostSupport.awaitWorkspacePersisted()
 
+    override suspend fun persistLiveWorkspace() = DatabaseHostSupport.persistLiveWorkspace()
+
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {
         runBlocking { DatabaseHostSupport.flushOrderedWrites(store, timeoutMs) } // L1-edge: DatabaseHost sync contract, off the main thread (C2)
     }

@@ -195,8 +195,10 @@ class WindowRepositoryEarlyReaderTest {
     @Test fun saveDuringTheReadPhaseAfterARestoreWritesNothing() {
         runBlocking { f.repo.initialize() }
         runBlocking { f.persistence.awaitPersisted() }
-        f.repo.name = "pre-restore state"
         runBlocking { DatabaseContainer.replacingDatabases { } }
+        // After the replace: since #4101 a replace first saves the live repository, so a change made before it is
+        // legitimately written. A change in the stale repository after it must not be.
+        f.repo.name = "pre-restore state"
         val loader = HoldingLoader(realLoader(f.persistence), f.persistence)
         f.repo.loaderOverride = loader
         runBlocking {

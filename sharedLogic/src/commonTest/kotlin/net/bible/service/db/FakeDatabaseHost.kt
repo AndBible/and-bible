@@ -31,6 +31,7 @@ class FakeDatabaseHost(private val dir: String) : DatabaseHost {
     override val databaseBackupSuffix = ".zip"
     override val legacyMonolithicMigrations: Array<out Migration> = emptyArray()
     override suspend fun awaitWorkspacePersisted() {}
+    override suspend fun persistLiveWorkspace() {}
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {}
     override fun openContainer(): DatabaseContainer = error("commonTest opens containers with create()")
 }

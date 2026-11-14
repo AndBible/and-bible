@@ -244,7 +244,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         if(pending == null) finishInitialize(createIfMissing)
     }
 
-    private var _activeWindow: Window? = null
+    // Volatile: [initialized] is read off Main (WindowControl.holdsLoadedRepository, before a database replace).
+    @Volatile private var _activeWindow: Window? = null
 
     // 1 based screen no
     var activeWindow: Window
