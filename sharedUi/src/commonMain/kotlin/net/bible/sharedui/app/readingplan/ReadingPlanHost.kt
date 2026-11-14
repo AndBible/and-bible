@@ -41,6 +41,7 @@ import net.bible.sharedui.readingplan.nav.DayListDeps
 import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
 import net.bible.sharedui.readingplan.nav.ReadingPlanSelection
+import net.bible.sharedui.readingplan.nav.showPlanListOrPopTo
 import net.bible.sharedui.readingplan.nav.SelectorDeps
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.versification.BookName
@@ -269,6 +270,12 @@ class ReadingPlanHost(
         else shell.exitHost()
     }
 
+    /** Done with no next day to show: the day list, popping to it when the user came through it. */
+    private fun showDayList() {
+        val controller = navController
+        if (controller != null) controller.showPlanListOrPopTo(NavRoutes.READING_PLAN_DAY_LIST) else returnToReadingOrFinish()
+    }
+
     private fun buildDailyReadingController(
         onChangePlan: () -> Unit,
         onChangeDay: () -> Unit,
@@ -468,7 +475,8 @@ class ReadingPlanHost(
                     if (readingPlanControl.currentPlanCode.isEmpty()) {
                         if (donePlanCode != null) forgetResetReadingPlan(donePlanCode) else forgetLoadedReadingPlan()
                     }
-                    returnToReadingOrFinish()
+                    // The plan goes on: stay inside it, on the day list. A finished (reset) plan has no list.
+                    if (readingPlanControl.currentPlanCode.isEmpty()) returnToReadingOrFinish() else showDayList()
                 }
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)

@@ -38,7 +38,11 @@ import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import net.bible.sharedui.PassThroughBackHandler
+import net.bible.sharedui.nav.isCurrentEntry
 import net.bible.sharedui.nav.popOrExitFrom
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.DailyReadingScreen
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
@@ -279,6 +283,16 @@ private fun NavHostController.popOrExit(from: NavBackStackEntry, exitHost: () ->
 }
 
 /**
+ * Shows [route] (the plan list or the day list) without stacking a second copy: when it is already on the back
+ * stack the screens above it are popped, otherwise it is pushed. Used by every in-plan way to reach those lists, so
+ * Back retraces the user's path inside the plan instead of leaving it.
+ */
+fun NavHostController.showPlanListOrPopTo(route: String) {
+    val onStack = currentBackStack.value.any { it.destination.route == route }
+    if (onStack) popBackStack(route, inclusive = false) else navigate(route)
+}
+
+/**
  * The reading-plan cluster's three destinations. Registered into the app's single `NavHost` by the
  * host Activity.
  *
@@ -310,8 +324,8 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
 
         val controller = remember {
             d.controllerFor(
-                { navController.navigate(NavRoutes.READING_PLAN_SELECTOR) },
-                { navController.navigate(NavRoutes.READING_PLAN_DAY_LIST) },
+                { navController.showPlanListOrPopTo(NavRoutes.READING_PLAN_SELECTOR) },
+                { navController.showPlanListOrPopTo(NavRoutes.READING_PLAN_DAY_LIST) },
             )
         }
 
@@ -439,10 +453,12 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember {
             d.controllerFor(scope) { day ->
-                // Classic set the day as the result Intent's ACTION and finished; the parent
-                // destination reads this instead — see ReadingPlanSelection.
-                deps.pendingSelection.value = ReadingPlanSelection.Day(day)
-                navController.popOrExit(entry, deps.exitHost)
+                // Open the day ABOVE the list (the day screen re-reads the host's loaded day), so Back from it
+                // returns to the list the user came from rather than leaving the plan.
+                scope.launch {
+                    deps.dailyReading.loadDay(deps.dailyReading.loaded.value?.planCode, day)
+                    withContext(Dispatchers.Main) { if (navController.isCurrentEntry(entry)) navController.navigate(NavRoutes.dailyReading()) }
+                }
             }
         }
         DisposableEffect(controller) {
@@ -472,8 +488,11 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
                 // The host has already started the plan by the time this runs (classic's
                 // startReadingPlan, kept there because it needs ReadingPlanControl) — see
                 // SelectorDeps' kdoc.
-                deps.pendingSelection.value = ReadingPlanSelection.Plan(planCode)
-                navController.popOrExit(entry, deps.exitHost)
+                // The plan opens ABOVE the selector, so Back from it returns to the plan list.
+                scope.launch {
+                    deps.dailyReading.loadDay(planCode, null)
+                    withContext(Dispatchers.Main) { if (navController.isCurrentEntry(entry)) navController.navigate(NavRoutes.dailyReading()) }
+                }
             }
         }
         DisposableEffect(controller) {
