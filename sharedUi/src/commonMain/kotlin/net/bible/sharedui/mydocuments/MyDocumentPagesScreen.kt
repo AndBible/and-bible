@@ -151,7 +151,7 @@ fun MyDocumentPagesScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (pages.isEmpty()) {
                     Text(
-                        s.myDocumentsEmpty,
+                        s.myDocumentPagesEmpty,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                     )
