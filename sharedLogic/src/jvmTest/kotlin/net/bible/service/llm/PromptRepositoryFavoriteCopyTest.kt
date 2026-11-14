@@ -16,6 +16,12 @@ import net.bible.sharedlogic.platform.PromptPackSource
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
+import net.bible.service.llm.agent.PermissionCheckResult
+import net.bible.service.llm.agent.PermissionMode
+import net.bible.service.llm.agent.PermissionSettings
+import net.bible.service.llm.agent.checkPermission
+import net.bible.service.llm.agent.computeExcludedTools
+import net.bible.sharedlogic.platform.PromptPackRef
 import java.io.File
 import java.lang.reflect.Proxy
 import kotlin.test.Test
@@ -55,6 +61,88 @@ class PromptRepositoryFavoriteCopyTest {
         assertEquals(emptySet(), container.aiSettingsDb.globalAiSettingsDao().get()?.favoritePrompts)
     }
 
+    /** #4108: a built-in's allowedTools lists the tools it may use, not tools the user has granted. */
+    @Test
+    fun copiedBuiltInWriteToolsStillAskForPermission() = withFixture { _, _ ->
+        val source = assertNotNull(BuiltInPrompts.promptById(BuiltInPrompts.BOOKMARK_ANNOTATE_ID))
+        assertTrue(AgentTool.CREATE_BOOKMARK in source.allowedTools.orEmpty())
+
+        val copy = assertNotNull(PromptRepository.promptById(assertNotNull(PromptRepository.copyPrompt(source.id))))
+
+        for (tool in listOf(AgentTool.CREATE_BOOKMARK, AgentTool.ADD_BOOKMARK_NOTE)) {
+            assertEquals(PermissionCheckResult.NeedsDialog, decide(tool, copy), "$tool of the copy")
+            assertEquals(PermissionCheckResult.NeedsDialog, decide(tool, source), "$tool of the built-in")
+            // The copy can still use the tool: it asks, it is not hidden from the model.
+            assertFalse(tool in computeExcludedTools(emptySet(), copy.deniedTools, copy.allowedTools), "$tool excluded")
+        }
+        // Read tools stay enabled in the copy.
+        assertTrue(AgentTool.GET_VERSE_CONTENT in copy.allowedTools.orEmpty())
+    }
+
+    @Test
+    fun addonPromptWriteToolsAskForPermissionAndSoDoTheirCopies() {
+        val csvDir = newTestDir()
+        val csv = File(csvDir, "prompts.csv").apply {
+            writeText(
+                "name;promptTemplate;showIn;permissionMode;allowedTools;deniedTools;id\n" +
+                    "Addon bookmark;Bookmark it;VERSE_SELECTION;ASK_ONCE_PER_RUN;GET_VERSE_CONTENT,CREATE_BOOKMARK;;" +
+                    "0b2c4d6e-1111-2222-3333-444455556666\n"
+            )
+        }
+        PromptRepository.clearAddonCache()
+        try {
+            withFixture(addonPacks = listOf(PromptPackRef("AddonMod", csv.path))) { _, _ ->
+                val addon = assertNotNull(PromptRepository.allPrompts().find { it.name == "Addon bookmark" })
+                assertTrue(PromptRepository.isAddon(addon.id))
+                assertEquals(PermissionCheckResult.NeedsDialog, decide(AgentTool.CREATE_BOOKMARK, addon), "add-on")
+
+                val copy = assertNotNull(PromptRepository.promptById(assertNotNull(PromptRepository.copyPrompt(addon.id))))
+                assertEquals(PermissionCheckResult.NeedsDialog, decide(AgentTool.CREATE_BOOKMARK, copy), "copy of add-on")
+            }
+        } finally {
+            PromptRepository.clearAddonCache()
+            csvDir.let { File(it).deleteRecursively() }
+        }
+    }
+
+    @Test
+    fun userGrantedWriteToolIsStillAutoAllowed() = withFixture { _, _ ->
+        val prompt = AgentPrompt(
+            name = "Mine",
+            permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            deniedTools = emptySet(),
+        )
+        PromptRepository.insertPrompt(prompt)
+        val stored = assertNotNull(PromptRepository.promptById(prompt.id))
+        assertEquals(PermissionCheckResult.Allowed, decide(AgentTool.CREATE_BOOKMARK, stored))
+
+        // A copy of a user prompt keeps the user's own grant.
+        val copy = assertNotNull(PromptRepository.promptById(assertNotNull(PromptRepository.copyPrompt(prompt.id))))
+        assertEquals(PermissionCheckResult.Allowed, decide(AgentTool.CREATE_BOOKMARK, copy))
+    }
+
+    /** The decision AgentSessionManager/AgentExecutor make for [tool] in a fresh run of [prompt]. */
+    private fun decide(tool: AgentTool, prompt: AgentPrompt) = checkPermission(
+        tool = tool,
+        settings = PermissionSettings(PermissionMode.ASK_ONCE_PER_RUN, emptySet(), emptySet()),
+        promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
+        promptDeniedTools = prompt.deniedTools,
+        promptPermissionMode = prompt.permissionMode,
+        grantedWritePermission = false,
+        grantedAllToolsPermission = false,
+    )
+
+    /**
+     * One shared source for every test: PromptRepository resolves its [PromptPackSource] once per JVM
+     * (`by lazy`), so a per-test instance would be ignored after the first test.
+     */
+    private object TestPromptPacks : PromptPackSource {
+        var current: List<PromptPackRef> = emptyList()
+        override val packs get() = current
+        override val reloaded = EventSource<Unit>()
+    }
+
     private object TestLocaleSupport : LocaleSupport {
         override val default = LocaleValue("en", "", "en", "en")
         override fun of(language: String, country: String) = LocaleValue(language, country, language, language)
@@ -65,7 +153,10 @@ class PromptRepositoryFavoriteCopyTest {
         override fun formatGrouped(value: Long) = value.toString()
     }
 
-    private fun withFixture(block: suspend (DatabaseContainer, AiSettingsStore) -> Unit) = runTest {
+    private fun withFixture(
+        addonPacks: List<PromptPackRef> = emptyList(),
+        block: suspend (DatabaseContainer, AiSettingsStore) -> Unit,
+    ) = runTest {
         val hostField = DatabaseContainer::class.java.getDeclaredField("_host").apply { isAccessible = true }
         val instanceField = DatabaseContainer::class.java.getDeclaredField("_instance").apply { isAccessible = true }
         val previousHost = hostField.get(null)
@@ -112,17 +203,14 @@ class PromptRepositoryFavoriteCopyTest {
                         if (method.returnType == String::class.java) method.name else error("Unexpected LlmStrings method: ${method.name}")
                     } as LlmStrings
                 }
-                single<PromptPackSource> {
-                    object : PromptPackSource {
-                        override val packs = emptyList<net.bible.sharedlogic.platform.PromptPackRef>()
-                        override val reloaded = EventSource<Unit>()
-                    }
-                }
+                single<PromptPackSource> { TestPromptPacks }
             }) }
             koinStarted = true
+            TestPromptPacks.current = addonPacks
             block(container, settings)
         } finally {
             try {
+                TestPromptPacks.current = emptyList()
                 if (koinStarted) stopKoin()
                 DatabaseContainer.detachInstanceForTest()
                 opened?.let { container -> DatabaseContainer.aiLifetime.replace { container.closeAllOwned(it) } }

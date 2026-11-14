@@ -26,6 +26,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.tools.ToolRegistry
 import net.bible.sharedlogic.platform.PromptPackSource
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -149,24 +150,37 @@ object PromptRepository : KoinComponent {
     /**
      * The tools [prompt] may run without the permission dialog (`promptAllowedTools` of
      * [net.bible.service.llm.agent.checkPermission], step 3.6), or null for none.
+     *
+     * Only a user prompt's [AgentPrompt.allowedTools] is a grant the user made in the prompt editor.
+     * For read-only prompts (built-in and add-on) it only lists the tools the prompt may use, so
+     * their write tools still follow the permission mode (#4108).
      */
     fun autoAllowedTools(prompt: AgentPrompt): Set<AgentTool>? =
-        if (isBuiltIn(prompt.id)) null else prompt.allowedTools
+        if (isReadOnly(prompt.id)) null else prompt.allowedTools
 
     /**
      * Copy a prompt (built-in, add-on, or user) into the DB as a new user prompt with a new ID.
      * Returns the new prompt's ID, or null if the source prompt was not found.
+     *
+     * A copy of a read-only prompt drops the write tools from [AgentPrompt.allowedTools]: there they
+     * only mark tools the prompt may use, while in a user prompt they mean "allowed without asking"
+     * (see [autoAllowedTools]). The copy can still use them (they stay out of
+     * [AgentPrompt.deniedTools]); it asks for permission like any user prompt (#4108).
      */
     suspend fun copyPrompt(id: IdType): IdType? {
         val source = promptById(id) ?: return null
         val effectiveCategoryId = getCategoryForPrompt(source)?.id
         val newOrder = source.orderNumber + 1
+        val allowedTools = if (isReadOnly(source.id)) {
+            source.allowedTools?.filterNot { ToolRegistry.get(it)?.requiresPermission == true }?.toSet()
+        } else source.allowedTools
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
             createdAt = currentTimeMillis(),
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
+            allowedTools = allowedTools,
         ).also { it.sourceModule = null }
         run {
             dao.shiftOrderNumbersAfter(source.orderNumber)
