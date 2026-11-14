@@ -5,6 +5,7 @@ import net.bible.android.activity.R
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import org.koin.mp.KoinPlatform
 
@@ -16,10 +17,12 @@ class AndroidWebDavSignInUi(private val app: Context) : WebDavSignInUi {
         val df = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM)
         val result = dialogs.await(AppDialogRequest.Confirm(
             title = app.getString(R.string.webdav_untrusted_certificate_title),
-            message = app.getString(R.string.webdav_untrusted_certificate_message,
+            // The dialog renders its message as HTML, so the plain-text newlines must become <br> and the
+            // certificate fields must be escaped (same as HostWebDavCertificatePrompt on desktop and iOS).
+            message = plainTextToHtml(app.getString(R.string.webdav_untrusted_certificate_message,
                 info.host, info.subject, info.issuer,
                 df.format(java.util.Date(info.notBefore)), df.format(java.util.Date(info.notAfter)),
-                formatFingerprint(info.sha256)),
+                formatFingerprint(info.sha256))),
             confirmText = app.getString(R.string.webdav_trust_certificate),
             dismissText = app.getString(R.string.cancel),
             cancellable = true,
