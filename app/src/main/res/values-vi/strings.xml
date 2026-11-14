@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Ngày %s</string>
   <string name="rdg_plan_set_start_date">Đặt Ngày Bắt Đầu…</string>
   <string name="set_current_day">Đặt làm ngày hiện tại…</string>
-  <string name="msg_set_current_day_reading_plan">Thao tác này sẽ đặt hôm nay làm ngày hiện tại trong kế hoạch và đánh dấu tất cả các ngày trước là đã đọc. Tiếp tục?</string>
   <string name="done">Hoàn thành</string>
   <string name="reset_plan_question">Bạn có chắc muốn đặt lại kế hoạch này không?</string>
   <string name="import_reading_plan">Nhập kế hoạch đọc…</string>

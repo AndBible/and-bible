@@ -411,7 +411,6 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="rdg_plan_day">Tag %s</string>
   <string name="rdg_plan_set_start_date">Setze Startdatum...</string>
   <string name="set_current_day">Als aktuellen Tag einstellen...</string>
-  <string name="msg_set_current_day_reading_plan">Das wird heute als den aktuellen Tag im Leseplan einstellen und alle vorhergehenden Tage als gelesen markieren. Fortfahren?</string>
   <string name="done">Fertig</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
   <string name="import_reading_plan">Leseplan importieren...</string>

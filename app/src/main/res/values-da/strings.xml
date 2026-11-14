@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Angiv startdato…</string>
   <string name="set_current_day">Sæt som aktuel dag…</string>
-  <string name="msg_set_current_day_reading_plan">Dette vil sætte i dag som den aktuelle dag i denne plan og markere alle tidligere dage som læst. Fortsæt?</string>
   <string name="done">Færdig</string>
   <string name="reset_plan_question">Er du sikker på, at du vil nulstille denne plan?</string>
   <string name="import_reading_plan">Importér læseplan…</string>

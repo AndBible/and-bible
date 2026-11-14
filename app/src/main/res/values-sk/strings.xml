@@ -414,7 +414,6 @@
   <string name="rdg_plan_day">Deň %s</string>
   <string name="rdg_plan_set_start_date">Zadať začiatočný deň…</string>
   <string name="set_current_day">Nastaviť ako dnešný deň…</string>
-  <string name="msg_set_current_day_reading_plan">Toto nastaví dnešok ako aktuálny deň v tomto pláne a všetky predchádzajúce dni sa označia ako prečítané. Pokračovať? </string>
   <string name="done">Hotovo</string>
   <string name="reset_plan_question">Ste si istý, že chcete resetovať tento plán? </string>
   <string name="import_reading_plan">Importovanie plánu čítania…</string>

@@ -413,7 +413,6 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Välj startdatum...</string>
   <string name="set_current_day">Välj dagens datum...</string>
-  <string name="msg_set_current_day_reading_plan">Idag kommer att ställas in som nuvarande dag i planen och alla tidigare dagar kommer att markeras som lästa. Vill du fortsätta?</string>
   <string name="done">Färdig</string>
   <string name="reset_plan_question">Är du säker på att du vill återställa denna plan?</string>
   <string name="import_reading_plan">Importera läsningsplan...</string>

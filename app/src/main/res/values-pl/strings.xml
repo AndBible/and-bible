@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Dzień %s</string>
   <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
   <string name="set_current_day">Ustaw jako obecny dzień…</string>
-  <string name="msg_set_current_day_reading_plan">Ta opcja oznaczy w tym planie czytania dzisiaj jako obecny dzień i wszystkich poprzednie dni jako przeczytane. Czy kontynuować?</string>
   <string name="done">Gotowe</string>
   <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
   <string name="import_reading_plan">Importowanie planu czytania…</string>

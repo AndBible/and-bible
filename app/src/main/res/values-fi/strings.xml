@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Päivä %s</string>
   <string name="rdg_plan_set_start_date">Aseta alkupäivämäärä…</string>
   <string name="set_current_day">Aseta nykyiseksi päiväksi…</string>
-  <string name="msg_set_current_day_reading_plan">Tämä asettaa tämän päivän nykyiseksi päiväksi lukusuunnitelmassa ja merkitsee edeltävät päivät luetuksi. Jatketaanko?</string>
   <string name="done">Valmis</string>
   <string name="reset_plan_question">Oletko varma että haluat alustaa tämän lukusuunnitelman?</string>
   <string name="import_reading_plan">Tuo lukusuunnitelma…</string>

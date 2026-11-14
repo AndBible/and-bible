@@ -412,7 +412,6 @@ Substituir?</string>
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Definir Data de Começo</string>
   <string name="set_current_day">Definir como dia atual ...</string>
-  <string name="msg_set_current_day_reading_plan">Isso definirá hoje como o dia atual neste plano e marcará todos os dias anteriores como lidos. Prosseguir?</string>
   <string name="done">Concluído</string>
   <string name="reset_plan_question">Tem certeza de que deseja redefinir este plano?</string>
   <string name="import_reading_plan">Importar plano de leitura ...</string>

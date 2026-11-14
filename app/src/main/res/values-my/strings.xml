@@ -227,7 +227,6 @@
   <string name="rdg_plan_day">နေ့ရက် %s</string>
   <string name="rdg_plan_set_start_date">အစပြုနေ့ရက် သတ်မှတ်ပါ</string>
   <string name="set_current_day">ယနေ့ကို သတ်မှတ်ပါ</string>
-  <string name="msg_set_current_day_reading_plan">ယနေ့အားဤအစီအစဉ်၏ လက်ရှိနေ့အဖြစ်ထားပြီး ယခင်နေ့များအား ဖတ်ပြီးသားအဖြစ် သတ်မှတ်မည်ဖြစ်သည်။ ဆက်လုပ်မှာလား။</string>
   <string name="done">ပြီးပါပြီ</string>
   <string name="reset_plan_question">အစီအစဉ်ကို အစမှပြန်လည်သတ်မှတ်လိုပါသလား။</string>
   <string name="import_reading_plan">စာဖတ်ခြင်း အစီအစဉ်ကို ထည့်သွင်းပါ</string>

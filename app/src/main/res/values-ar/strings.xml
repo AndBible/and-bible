@@ -412,7 +412,6 @@
   <string name="rdg_plan_day">يوم %s</string>
   <string name="rdg_plan_set_start_date">تعيين تاريخ البدء...</string>
   <string name="set_current_day">تعيين كاليوم الحالي...</string>
-  <string name="msg_set_current_day_reading_plan">سيؤدي هذا إلى تعيين اليوم باعتباره اليوم الحالي في هذه الخطة ووضع علامة على جميع الأيام السابقة كمقروءة. استمرار؟</string>
   <string name="done">تم</string>
   <string name="reset_plan_question">هل أنت متأكد أنك تريد إعادة تعيين هذه الخطة؟</string>
   <string name="import_reading_plan">استيراد خطة قراءة…</string>

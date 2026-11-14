@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Araw %s</string>
   <string name="rdg_plan_set_start_date">Itakda ang Petsa ng Pagsisimula…</string>
   <string name="set_current_day">Itakda bilang kasalukuyang araw…</string>
-  <string name="msg_set_current_day_reading_plan">Itatakda nito ang ngayon bilang kasalukuyang araw sa planong ito at markahan ang lahat ng nakaraang araw bilang nabasa. Magpatuloy?</string>
   <string name="done">Tapos na</string>
   <string name="reset_plan_question">Sigurado ka bang nais mong i-reset ang planong ito?</string>
   <string name="import_reading_plan">Mag-import ng plano sa pagbabasa…</string>

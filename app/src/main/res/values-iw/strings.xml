@@ -411,7 +411,6 @@
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
   <string name="set_current_day">הגדר בתור היום הנוכחי....</string>
-  <string name="msg_set_current_day_reading_plan">להגדיר את היום בתור היום הנוכחי עבור תוכנית זו, ולסמן את כל הימים הקודמים כימים שנקראו?</string>
   <string name="done">סיום</string>
   <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="import_reading_plan">ייבוא תוכנית קריאה...</string>

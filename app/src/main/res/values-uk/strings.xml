@@ -412,7 +412,6 @@
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Встановити дату початку…</string>
   <string name="set_current_day">Встановити як поточний день…</string>
-  <string name="msg_set_current_day_reading_plan">Це встановить сьогодні як поточний день у цьому плані та позначить усі попередні дні як прочитані. Продовжити?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Ви впевнені, що хочете скинути цей план?</string>
   <string name="import_reading_plan">Імпортувати план читання…</string>

@@ -410,7 +410,6 @@
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="set_current_day">Nustatyti kaip šią dieną...</string>
-  <string name="msg_set_current_day_reading_plan">Tai nustatys šiandieną šiame plane kaip dabartinę dieną ir pažymės visas ankstesnes dienas kaip skaitytas. Tęsti?</string>
   <string name="done">Atlikta</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
   <string name="import_reading_plan">Importuoti skaitymo planą…</string>

@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Hari %s</string>
   <string name="rdg_plan_set_start_date">Tetapkan Tarikh Mula…</string>
   <string name="set_current_day">Tetapkan sebagai hari semasa…</string>
-  <string name="msg_set_current_day_reading_plan">Ini akan menetapkan hari ini sebagai hari semasa dalam rancangan ini dan menandakan semua hari sebelumnya sebagai dibaca. Teruskan?</string>
   <string name="done">Selesai</string>
   <string name="reset_plan_question">Adakah anda pasti ingin menetapkan semula rancangan ini?</string>
   <string name="import_reading_plan">Import rancangan bacaan…</string>

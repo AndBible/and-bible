@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">%s-a tago</string>
   <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
   <string name="set_current_day">Agordi kiel nunan tagon…</string>
-  <string name="msg_set_current_day_reading_plan">Tio ĉi markos la hodiaŭon kiel la nunan tagon en tiu ĉi plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu pluigi?</string>
   <string name="done">Farita</string>
   <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
   <string name="import_reading_plan">Enportado de legplano…</string>

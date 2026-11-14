@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Ден %s</string>
   <string name="rdg_plan_set_start_date">Задай начална дата…</string>
   <string name="set_current_day">Задай като текущ ден…</string>
-  <string name="msg_set_current_day_reading_plan">Това ще зададе днес като текущия ден в този план и ще маркира всички предишни дни като прочетени. Продължаване?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Сигурни ли сте, че искате да изчистите този план?</string>
   <string name="import_reading_plan">Импортирай план за четене…</string>

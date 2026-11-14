@@ -414,7 +414,6 @@
   <string name="rdg_plan_day">Дан %s</string>
   <string name="rdg_plan_set_start_date">Постави датум почетка...</string>
   <string name="set_current_day">Подесити на тренутни дан...</string>
-  <string name="msg_set_current_day_reading_plan">Овим ће те подесити данашњи дан као тренутни у овом плану и означити све претходне дане као прочитане. Да ли желите да наставите даље?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Да ли сте сигурни да желите ресетовати овај план?</string>
   <string name="import_reading_plan">Увезите план читања...</string>

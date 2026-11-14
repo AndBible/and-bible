@@ -411,7 +411,6 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <string name="rdg_plan_day">%s. nap</string>
   <string name="rdg_plan_set_start_date">Kezdési dátum beállítása…</string>
   <string name="set_current_day">Beállítás aktuális napként…</string>
-  <string name="msg_set_current_day_reading_plan">Ez a mai napot fogja aktuális napként beállítani ebben az olvasási tervben és minden korábbi napot olvasottként fog megjelölni. Folytatja?</string>
   <string name="done">Kész</string>
   <string name="reset_plan_question">Biztos, hogy űjrakezdi ezt az olvasási tervet?</string>
   <string name="import_reading_plan">Olvasási terv importálása…</string>

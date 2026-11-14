@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Giorno %s</string>
   <string name="rdg_plan_set_start_date">Imposta data di inizio...</string>
   <string name="set_current_day">Imposta come giorno corrente...</string>
-  <string name="msg_set_current_day_reading_plan">Stai impostando la data odierna come giorno corrente in questo piano, e segnando tutti i giorni precedenti come letti. Vuoi continuare?</string>
   <string name="done">Fatto</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
   <string name="import_reading_plan">Importa piano di lettura...</string>
