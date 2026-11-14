@@ -117,6 +117,11 @@ that match the language and type filter you last used in the document list).
 Note: This will open the document in the currently active window. To open a
 document in a new window, see [Windows](windows.md).
 
+When you switch Bibles, the window keeps the current reference. If the selected
+Bible does not contain that book or chapter, a notice names the missing reference
+and the document (for example, "Romans 8 was not found in document OSHB."). Open
+the *Book Chooser* to select a reference available in that Bible.
+
 The Bible and Commentary toolbar buttons can also be customized. To customize the
 actions, go to the top left main menu (☰) and click *Application
 preferences*. Click *Action for toolbar button press* to configure the custom
