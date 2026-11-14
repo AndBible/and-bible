@@ -38,6 +38,7 @@ enum class TextDisplayString {
     WORKSPACE_TITLE,
     /** Arg: one-based window position (Int). */
     WINDOW_TITLE,
+    GLOBAL_COLOR_TITLE,
     WINDOW_COLOR_TITLE,
     WORKSPACE_COLOR_TITLE,
     BACKGROUND_IMAGE_NONE,

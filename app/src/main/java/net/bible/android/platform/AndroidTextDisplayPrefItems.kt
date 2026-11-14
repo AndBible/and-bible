@@ -68,6 +68,7 @@ class AndroidTextDisplayPrefItems : TextDisplayPrefItems {
                 TextDisplayString.GLOBAL_TITLE -> R.string.global_text_display_settings_title
                 TextDisplayString.WORKSPACE_TITLE -> R.string.workspace_text_display_settings_title
                 TextDisplayString.WINDOW_TITLE -> R.string.window_text_display_settings_title
+                TextDisplayString.GLOBAL_COLOR_TITLE -> R.string.global_color_settings_title
                 TextDisplayString.WINDOW_COLOR_TITLE -> R.string.window_color_settings_title
                 TextDisplayString.WORKSPACE_COLOR_TITLE -> R.string.workspace_color_settings_title
                 TextDisplayString.BACKGROUND_IMAGE_NONE -> R.string.background_image_none

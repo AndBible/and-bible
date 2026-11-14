@@ -96,6 +96,19 @@ class TextDisplaySettingsServiceImplColorsTest {
         assertEquals(-1, w.pageManager.textDisplaySettings.colors!!.nightBackground)
     }
 
+    @Test fun colorScreenTitleNamesTheLevelItWasOpenedAt() {
+        val window = checkNotNull(windowControl.activeWindow)
+        val titles = listOf(
+            SettingsScope.Global,
+            SettingsScope.Workspace(repo.id.toString()),
+            SettingsScope.Window(window.id.toString(), repo.id.toString()),
+        ).map { impl.loadColors(it).title }
+        assertEquals(
+            listOf("Color settings (Global)", "Color settings (Workspace)", "Color settings (Window)"),
+            titles,
+        )
+    }
+
     @Test fun loadColorsHidesWorkspaceColorAtWindowScope() {
         val w = repo.activeWindow
         assertFalse(impl.loadColors(SettingsScope.Window(w.id.toString(), repo.id.toString())).workspaceColorVisible)

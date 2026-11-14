@@ -346,7 +346,8 @@ class TextDisplaySettingsServiceImpl(
 
     private fun colorTitleFor(scope: SettingsScope) = when (scope) {
         is SettingsScope.Window -> prefItems.string(TextDisplayString.WINDOW_COLOR_TITLE)
-        is SettingsScope.Workspace, is SettingsScope.Global -> prefItems.string(TextDisplayString.WORKSPACE_COLOR_TITLE)
+        is SettingsScope.Workspace -> prefItems.string(TextDisplayString.WORKSPACE_COLOR_TITLE)
+        is SettingsScope.Global -> prefItems.string(TextDisplayString.GLOBAL_COLOR_TITLE)
     }
 
     private fun bgName(initials: String?): String =
