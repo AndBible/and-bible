@@ -115,8 +115,8 @@ class DesktopCloudAdapterFactoryDriveTest {
         assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), f.available)
     }
 
-    @Test fun withClientDriveIsOfferedLastAndCreated(): Unit = withFactory(GoogleOAuthClient("id", "secret")) { f, _ ->
-        assertEquals(listOf("NEXT_CLOUD", "WEBDAV", "GOOGLE_DRIVE"), f.available)
+    @Test fun withClientDriveIsOfferedFirstAsTheDefaultAndCreated(): Unit = withFactory(GoogleOAuthClient("id", "secret")) { f, _ ->
+        assertEquals(listOf("GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), f.available)
         assertIs<GoogleDriveRestAdapter>(f.create("GOOGLE_DRIVE"))
         assertIs<GoogleDriveRestAdapter>(f.createForBackground("GOOGLE_DRIVE")); Unit
     }

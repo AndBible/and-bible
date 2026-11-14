@@ -113,7 +113,7 @@ class UnavailableSyncAdapterTest {
             assertEquals("NEXT_CLOUD", f.cloud.adapterId)
             assertEquals(true, f.cloud.signIn(background = true))
             assertEquals(1, f.backgroundCreates)
-            assertEquals("", f.values["sync_adapter"], "Reading the default must not persist it")
+            assertEquals("NEXT_CLOUD", f.values["sync_adapter"], "An install that already syncs is pinned to its implicit backend (#4102)")
         }
     }
 

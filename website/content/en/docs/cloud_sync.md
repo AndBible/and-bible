@@ -31,7 +31,7 @@ Errors raised during startup remain queued until the app can display them.
 
 1. Open the top left main menu (☰).
 2. Under *Administration*, tap `Device synchronization`. The screen has the sections `Info & general settings` and `Synchronization categories`.
-3. Choose your backend in the `Synchronization Backend` row: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. The row is greyed out while you are signed in; tap `Sign Out` to change the backend.
+3. Choose your backend in the `Synchronization Backend` row: **Google Drive** (the default on every platform where it is offered; an existing choice is kept), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. The row is greyed out while you are signed in; tap `Sign Out` to change the backend.
     - Google Drive is also offered on iPhone, iPad, Mac, Windows and Linux.
     - Windows and Linux: signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder. Return to *AndBible* when the browser page says you are done.
     - iPhone, iPad and Mac: a Google sign-in sheet opens inside the app.

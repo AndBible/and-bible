@@ -98,8 +98,8 @@ class IosCloudAdapterFactoryTest {
         },
     )
 
-    @Test fun driveIsOfferedSecondWhenAClientIsConfigured() {
-        assertEquals(listOf("ICLOUD_DRIVE", "GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), driveFactory(mutableListOf()).available)
+    @Test fun driveIsOfferedFirstAsTheDefaultWhenAClientIsConfigured() {
+        assertEquals(listOf("GOOGLE_DRIVE", "ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV"), driveFactory(mutableListOf()).available)
         assertIs<GoogleDriveRestAdapter>(driveFactory(mutableListOf()).create("GOOGLE_DRIVE"))
     }
 
