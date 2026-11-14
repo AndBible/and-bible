@@ -11,6 +11,10 @@ exercises.
     **Memorize** button.
 3. A new window opens with the Memorize view.
 
+Opening the Memorize view does not make the passage a memorization goal. To work on it as a goal, choose
+**Add memorization target** in the view's menu (see [Menu actions](#menu-actions)); marking the passage as
+memorized also adds it.
+
 The Memorize view offers four study modes that you can switch between using
 the tabs at the top of the window.
 

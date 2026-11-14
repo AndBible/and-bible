@@ -433,13 +433,6 @@ object ProgressControl {
         return target
     }
 
-    /** Adds a memorization target only if the exact range is not already a target. */
-    suspend fun addMemorizationTargetIfNeeded(verseRange: VerseRange) {
-        val kjvRange = verseRange.toV11n(KJVA)
-        if (dao.findMemorizationTarget(kjvRange.start.ordinal, kjvRange.end.ordinal) != null) return
-        addMemorizationTarget(verseRange)
-    }
-
     suspend fun removeMemorizationTarget(id: IdType) {
         val target = dao.allMemorizationTargets().find { it.id == id }
         dao.deleteMemorizationTarget(id)

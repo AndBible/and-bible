@@ -336,6 +336,21 @@ function saveState() {
   margin-top: 0.8em;
 }
 
+// On a phone the four mode tabs (Blur, Scramble, Type, Order) with side-by-side icon and label are wider than
+// the screen, so Order hid behind a horizontal swipe (#4106). Stack icon over label and share the row evenly so
+// every tab is visible. (Higher specificity than TabNavigation's scoped .tab-button rule.)
+@media (max-width: 480px) {
+  .tab-navigation.memorize-mode-selector .tab-button {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}
+
 </style>
 
 <style scoped lang="scss">
