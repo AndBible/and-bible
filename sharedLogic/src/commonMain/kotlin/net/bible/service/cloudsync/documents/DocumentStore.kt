@@ -28,6 +28,8 @@ import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.common.asyncMap
 import net.bible.service.common.createTempFile
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 private const val TAG = "DocumentStore"
 
@@ -53,10 +55,46 @@ data class ChangedListing(
     val failedCreatedTimes: List<Long>,
 )
 
+/**
+ * The meta.json reads of earlier listings, kept by their owner ([DocumentSync]) across the short-lived
+ * [DocumentStore]s it builds per operation (#4103).
+ *
+ * The listing overlap ([LISTING_MARGIN_MS] here, plus the adapter's own clock margin) re-matches every meta
+ * uploaded in the same burst as the newest one, on every refresh, until a newer meta arrives. Without this,
+ * each refresh (the "Sync now" preview included) downloaded all of them again in a second sequential round
+ * trip. A matched meta file is reused only when the provider reports a version token ([CloudFile.etag]) and the
+ * file's id, token and size equal the ones it was read at (not its time: WebDAV times carry a per-response clock
+ * offset that jitters); a file without a token is always downloaded, as before. Reusing a read changes nothing
+ * downstream: the listing still reports the meta as matched, so the merge and the watermark see exactly what a
+ * fresh download would have given.
+ */
+class DocumentMetaReads {
+    private data class Read(val etag: String, val size: Long, val meta: DocumentSyncMeta)
+
+    private val reads = HashMap<String, Read>()
+    private val lock = SynchronizedObject()
+
+    /** The meta read earlier from this exact version of [file], or null when it must be downloaded. */
+    internal fun reuse(file: CloudFile): DocumentSyncMeta? {
+        val etag = file.etag ?: return null
+        val read = synchronized(lock) { reads[file.id] } ?: return null // L1-common-ok: atomicfu lock
+        return read.meta.takeIf { read.etag == etag && read.size == file.size }
+    }
+
+    internal fun remember(file: CloudFile, meta: DocumentSyncMeta) {
+        val etag = file.etag ?: return
+        synchronized(lock) { reads[file.id] = Read(etag, file.size, meta) } // L1-common-ok: atomicfu lock
+    }
+
+    /** Forgets every read, so the next listing downloads every matched meta again. */
+    fun clear() = synchronized(lock) { reads.clear() } // L1-common-ok: atomicfu lock
+}
+
 class DocumentStore(
     private val adapter: CloudAdapter,
     private val rootFolderId: String,
     private val env: net.bible.sharedcore.platform.AppEnvironment,
+    private val metaReads: DocumentMetaReads? = null,
 ) {
     private suspend fun folderFor(initials: String): CloudFile? =
         adapter.getFolders(rootFolderId).firstOrNull { it.name == initials }
@@ -101,7 +139,9 @@ class DocumentStore(
         // Each meta read is an independent read-only fetch, so fan them out with bounded concurrency.
         // The merge is order-independent, so the concurrent map + null-partition is correct.
         val matched = metaFiles.map { it.createdTime }
-        val results = metaFiles.asyncMap(LIST_CONCURRENCY) { it to downloadMeta(it) }
+        val results = metaFiles.asyncMap(LIST_CONCURRENCY) { file ->
+            file to (metaReads?.reuse(file) ?: downloadMeta(file)?.also { metaReads?.remember(file, it) })
+        }
         val changed = results.mapNotNull { it.second }
         val failed = results.filter { it.second == null }.map { it.first.createdTime }
         return ChangedListing(changed, folders.map { it.name }.toSet(), matched, failed)

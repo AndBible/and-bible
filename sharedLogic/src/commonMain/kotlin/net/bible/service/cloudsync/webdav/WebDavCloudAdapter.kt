@@ -223,6 +223,7 @@ class WebDavCloudAdapter(
         id = path, name = name, size = contentLength,
         createdTime = ((lastModified ?: creationDate) ?: 0L) - client.serverClockOffsetMs,
         parentId = parent,
+        etag = etag,
     )
 
     /** Maps a missing resource to FileNotFoundException (the sync layer's "not there" signal) and user-actionable failures to [CloudSyncUserFacingException]. */

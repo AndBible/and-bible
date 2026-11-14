@@ -92,12 +92,15 @@ class DocumentSync(
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }
 
+    /** Meta reads shared by the per-operation [DocumentStore]s, so an unchanged meta.json is not re-downloaded (#4103). */
+    private val metaReads = DocumentMetaReads()
+
     private suspend fun store(): DocumentStore? {
         documentSettings.ensureLoaded()
         // Never the adapter of a sign-in still running (#4031): wait for it, and skip when not signed in.
         val adapter = cloud.get().signedInAdapter() ?: return null
         val folderId = cloud.get().documentsSyncFolderId(adapter) ?: return null
-        return DocumentStore(adapter, folderId, env)
+        return DocumentStore(adapter, folderId, env, metaReads)
     }
 
     private fun installedSyncableBooks(): List<Book> =
@@ -151,7 +154,11 @@ class DocumentSync(
      */
     suspend fun refreshCache() {
         documentSettings.ensureLoaded()
-        val store = store() ?: return
+        refreshCache(store() ?: return)
+    }
+
+    /** [refreshCache] on a [store] the caller already resolved, so the documents folder is looked up once (#4103). */
+    private suspend fun refreshCache(store: DocumentStore) {
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         val watermark = documentSettings.watermark()
         val listing = store.listChangedDocuments(watermark)
@@ -174,6 +181,7 @@ class DocumentSync(
      */
     suspend fun resetListingCache() {
         documentSettings.ensureLoaded()
+        metaReads.clear()
         DatabaseContainer.instance.documentSyncDb.apply {
             cloudDocumentCacheDao().clear()
             cloudListingStateDao().clear()
@@ -190,6 +198,7 @@ class DocumentSync(
     suspend fun onSignOut() = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         documentSettings.clearPreferences()
+        metaReads.clear()
         val db = DatabaseContainer.instance.documentSyncDb
         db.roomTransaction {
             db.cloudDocumentCacheDao().clear()
@@ -364,10 +373,10 @@ class DocumentSync(
      */
     suspend fun computeSyncPlan(download: Boolean, upload: Boolean, delete: Boolean): SyncPlan {
         documentSettings.ensureLoaded()
-        store() ?: return SyncPlan(emptyList(), emptyList(), emptyList(), 0L, 0L)
+        val store = store() ?: return SyncPlan(emptyList(), emptyList(), emptyList(), 0L, 0L)
         // Incrementally refresh the cache (fast no-op when nothing changed), then resolve actions
         // from the freshly-merged full cloud picture held in the cache.
-        refreshCache()
+        refreshCache(store)
         val cloudMetas = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().all().map { it.toMeta() }
         val local = installedSyncableBooks().associateBy { it.initials }
         val cloudDocs = cloudMetas.map {

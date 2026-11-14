@@ -8,7 +8,12 @@ data class CloudFile(
     val name: String,
     val size: Long,
     val createdTime: Long,
-    val parentId: String
+    val parentId: String,
+    /**
+     * The provider's content version token for this file (a WebDAV `getetag`), or null when the provider does not
+     * report one. It changes whenever the file's content changes, so an equal token means unchanged content.
+     */
+    val etag: String? = null,
 )
 
 /**
