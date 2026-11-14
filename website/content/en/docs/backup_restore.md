@@ -10,16 +10,33 @@ reading plans, and other information.
 
 ## Damaged app databases
 
-Before opening an app database, AndBible checks that its schema can be read.
+Before opening its databases, AndBible checks that each one can be read.
 If SQLite reports corruption, AndBible closes that connection and checks again
 with a new connection. A single failed check, a lock, or an I/O error does not
-cause the database to be replaced.
+count as damage.
 
-If both checks report corruption, AndBible moves the damaged database and any
-remaining journal or lock files aside under a name containing `.corrupt-` and
-a timestamp, then creates an empty replacement. The saved files are not restored
-automatically. Restore a known-good backup to recover your data. This automatic
-recovery does not apply to files selected for import or restore.
+If a database holding your own data (bookmarks, notes, StudyPads, workspaces,
+reading plans, My Documents, settings, AI settings, reading progress or
+repositories) is damaged, AndBible does not open and shows a **Damaged data**
+message naming the damaged database file. Nothing has been changed or deleted
+at that point. You can choose:
+
+- **Send Report**: send us an error report so that we can look for the cause.
+- **Backup & Restore**: opens Backup & Restore without opening the databases.
+  Make a backup of your files as they are, or restore a known-good backup.
+  When you leave Backup & Restore, AndBible tries to start again; after a
+  successful restore it opens normally.
+- **Reset damaged data**: moves the damaged database and any remaining journal
+  or lock files aside under a name containing `.corrupt-` and a timestamp, and
+  starts that data empty. Your other data is not touched. The saved files stay
+  on the device, but AndBible does not restore them automatically; restore a
+  known-good backup to recover the data.
+- **Close** (Android only): closes the app without changing anything. On
+  desktop close the window; the message appears again at the next start.
+
+Temporary databases that AndBible can rebuild by itself (for example download
+and search caches) are still replaced automatically, keeping the damaged file
+in the same way. Files selected for import or restore are never moved aside.
 
 ## Recovery after repeated crashes on iOS
 
