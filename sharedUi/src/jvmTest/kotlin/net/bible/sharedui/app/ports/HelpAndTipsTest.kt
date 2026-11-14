@@ -24,12 +24,12 @@ class HelpAndTipsTest {
         assertEquals(
             listOf("navigation", null, "documents", "windows", "bookmarks", "study_pads", "search", "workspaces", "look_and_feel", null),
             HelpAndTips.items.map { it.docPage })
-        val e = TutorialVideos.Episode
+        val e = TutorialVideos.Episode.entries.associateBy { it.name }
         // Every video link comes from the registry (a published episode's own URL, else the placeholder).
         assertEquals(
-            listOf(e.TUTORIAL_02_FINDING_YOUR_WAY, e.TUTORIAL_03_VERSE_MENU, e.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS,
-                e.TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS, e.TUTORIAL_08_BOOKMARKS, e.TUTORIAL_11_STUDY_PADS,
-                e.TUTORIAL_12_SEARCH_1_BASICS, e.TUTORIAL_07_WORKSPACES, e.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS, null)
+            listOf(e.getValue("TUTORIAL_02_FINDING_YOUR_WAY"), e.getValue("TUTORIAL_03_VERSE_MENU"), e.getValue("TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS"),
+                e.getValue("TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS"), e.getValue("TUTORIAL_08_BOOKMARKS"), e.getValue("TUTORIAL_11_STUDY_PADS"),
+                e.getValue("TUTORIAL_12_SEARCH_1_BASICS"), e.getValue("TUTORIAL_07_WORKSPACES"), e.getValue("TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS"), null)
                 .map { ep -> ep?.let(TutorialVideos::url) },
             HelpAndTips.items.map { it.videoLink })
     }
