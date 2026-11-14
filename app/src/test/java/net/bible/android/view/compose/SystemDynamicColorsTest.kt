@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.settings.AndroidSettingsPlatformFlags
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.theme.abColorScheme
+import net.bible.sharedui.theme.DefaultThemeProposal
 import net.bible.sharedui.theme.systemColorSchemeProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -48,7 +49,7 @@ class SystemDynamicColorsTest {
     @Config(sdk = [TEST_SDK]) // 33, any API >= 31 offers dynamic colour
     fun android12InstallsTheWallpaperSchemeAndOffersTheSetting() = preservingProvider {
         val app = RuntimeEnvironment.getApplication()
-        SystemDynamicColors.install(app)
+        SystemDynamicColors.install(app, videoLook = false)
         assertNotNull(systemColorSchemeProvider)
         val provider = systemColorSchemeProvider!!
         assertEquals(dynamicLightColorScheme(app).toString(), provider(false).toString())
@@ -60,10 +61,25 @@ class SystemDynamicColorsTest {
         assertTrue(AndroidSettingsPlatformFlags().systemColorsAvailable)
     }
 
+    /** A video capture shows the built-in default theme even with "Use system colors" left on. */
+    @Test
+    @Config(sdk = [TEST_SDK])
+    fun videoLookBuildIgnoresMaterialYou() = preservingProvider {
+        val app = RuntimeEnvironment.getApplication()
+        SystemDynamicColors.install(app, videoLook = true)
+        assertNull(systemColorSchemeProvider)
+        for (dark in listOf(false, true)) {
+            assertEquals(
+                DefaultThemeProposal.DEFAULT.scheme(dark).toString(),
+                abColorScheme(null, dark, DisplayColorMode.NORMAL, useSystemColors = true).toString(),
+            )
+        }
+    }
+
     @Test
     @Config(sdk = [30])
     fun android11HasNoProviderAndHidesTheSetting() = preservingProvider {
-        SystemDynamicColors.install(RuntimeEnvironment.getApplication())
+        SystemDynamicColors.install(RuntimeEnvironment.getApplication(), videoLook = false)
         assertNull(systemColorSchemeProvider)
         assertFalse(AndroidSettingsPlatformFlags().systemColorsAvailable)
         assertEquals(

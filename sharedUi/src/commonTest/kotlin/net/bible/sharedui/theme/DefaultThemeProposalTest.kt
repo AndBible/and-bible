@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.theme
 
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
@@ -40,14 +42,49 @@ class DefaultThemeProposalTest {
         try { return block() } finally { activeDefaultThemeProposal = saved }
     }
 
-    private val proposals = DefaultThemeProposal.entries - DefaultThemeProposal.CURRENT
+    private val proposals = DefaultThemeProposal.entries - DefaultThemeProposal.VIOLET
+
+    private fun stock(dark: Boolean) = if (dark) darkColorScheme() else lightColorScheme()
 
     @Test
-    fun defaultSwitchIsCurrentAndUnknownValuesFallBack() {
-        assertEquals(DefaultThemeProposal.CURRENT, activeDefaultThemeProposal)
-        assertEquals(DefaultThemeProposal.CURRENT, DefaultThemeProposal.parse(null))
-        assertEquals(DefaultThemeProposal.CURRENT, DefaultThemeProposal.parse("purple"))
+    fun defaultIsInkAndUnknownValuesFallBackToIt() {
+        assertEquals(DefaultThemeProposal.INK, DefaultThemeProposal.DEFAULT)
+        assertEquals(DefaultThemeProposal.INK, activeDefaultThemeProposal)
+        assertEquals(DefaultThemeProposal.INK, DefaultThemeProposal.parse(null))
+        assertEquals(DefaultThemeProposal.INK, DefaultThemeProposal.parse(""))
+        assertEquals(DefaultThemeProposal.INK, DefaultThemeProposal.parse("purple"))
         assertEquals(DefaultThemeProposal.AMBER, DefaultThemeProposal.parse(" amber "))
+        assertEquals(DefaultThemeProposal.VIOLET, DefaultThemeProposal.parse("violet"))
+        // The pre-INK name of the stock scheme still selects it (older capture scripts).
+        assertEquals(DefaultThemeProposal.VIOLET, DefaultThemeProposal.parse("CURRENT"))
+    }
+
+    @Test
+    fun unseededNormalSchemeIsInkByDefaultAndVioletIsTheStockScheme() {
+        for (dark in listOf(false, true)) {
+            assertEquals(DefaultThemeProposal.INK.scheme(dark).toString(), abColorScheme(null, dark, DisplayColorMode.NORMAL).toString())
+            withProposal(DefaultThemeProposal.VIOLET) {
+                assertEquals(stock(dark).toString(), abColorScheme(null, dark, DisplayColorMode.NORMAL).toString())
+            }
+        }
+    }
+
+    @Test
+    fun resolveHonoursTheDebugOverrideOnlyInDebuggableNonVideoBuilds() {
+        val r = DefaultThemeProposal.Companion::resolve
+        // No switches: the default.
+        assertEquals(DefaultThemeProposal.INK, r("", null, true, false))
+        // Explicit build switch applies everywhere, video look included.
+        assertEquals(DefaultThemeProposal.SAGE, r("SAGE", null, false, false))
+        assertEquals(DefaultThemeProposal.SAGE, r("SAGE", null, true, true))
+        // The sysprop overrides in an ordinary debug build...
+        assertEquals(DefaultThemeProposal.AMBER, r("", "amber", true, false))
+        assertEquals(DefaultThemeProposal.AMBER, r("SAGE", "amber", true, false))
+        assertEquals(DefaultThemeProposal.SAGE, r("SAGE", "  ", true, false))
+        // ...but never in a release build or a video-look capture build.
+        assertEquals(DefaultThemeProposal.INK, r("", "amber", false, false))
+        assertEquals(DefaultThemeProposal.INK, r("", "violet", true, true))
+        assertEquals(DefaultThemeProposal.SAGE, r("SAGE", "violet", true, true))
     }
 
     @Test
@@ -74,12 +111,12 @@ class DefaultThemeProposalTest {
 
     /**
      * WCAG AA (4.5:1) for the text-bearing pairs: toolbar, buttons, body text, links/accents.
-     * CURRENT (stock) is only printed, as the reference for the comparison sheet.
+     * VIOLET (stock) is only printed, as the reference for the comparison sheet.
      */
     @Test
     fun keyPairsMeetWcagAa() {
         for (p in DefaultThemeProposal.entries) for (dark in listOf(false, true)) {
-            val s = p.scheme(dark) ?: abColorScheme(null, dark, DisplayColorMode.NORMAL)
+            val s = p.scheme(dark) ?: stock(dark)
             val pairs = mapOf(
                 "onPrimary/primary" to (s.onPrimary to s.primary),
                 "onPrimaryContainer/primaryContainer" to (s.onPrimaryContainer to s.primaryContainer),
@@ -96,15 +133,15 @@ class DefaultThemeProposalTest {
             for ((name, pair) in pairs) {
                 val ratio = contrast(pair.first, pair.second)
                 println("CONTRAST $p dark=$dark $name ${pair.first.hex()} on ${pair.second.hex()} = ${(ratio * 100).toInt() / 100f}")
-                if (p != DefaultThemeProposal.CURRENT) assertTrue(ratio >= 4.5f, "$p dark=$dark $name = $ratio")
+                if (p != DefaultThemeProposal.VIOLET) assertTrue(ratio >= 4.5f, "$p dark=$dark $name = $ratio")
             }
-            if (p != DefaultThemeProposal.CURRENT) assertNotEquals(abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), s.toString())
+            if (p != DefaultThemeProposal.VIOLET) assertNotEquals(stock(dark).toString(), s.toString())
         }
     }
 
     /**
      * Round 2 seeds land in the hue family they are named for (HCT hue): E is blue, not teal
-     * (teal sits around 180-220) or violet (CURRENT, ~280+); F is a near-neutral slate; G is green.
+     * (teal sits around 180-220) or violet (VIOLET, ~280+); F is a near-neutral slate; G is green.
      * Seeds with chroma below TonalSpot's 36 stay muted through [greySafeTonalSpot]'s cap.
      */
     @Test

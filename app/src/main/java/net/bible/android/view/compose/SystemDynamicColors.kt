@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import net.bible.service.common.VideoLook
 import net.bible.sharedui.theme.systemColorSchemeProvider
 
 /**
@@ -37,9 +38,14 @@ object SystemDynamicColors {
     val available: Boolean
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S) get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    fun install(context: Context) {
+    /**
+     * Installs the provider. A video-look capture build ([VideoLook.enabled]) installs none, so the
+     * "Use system colors" setting left on in a reused profile cannot change a capture's colours:
+     * videos always show the built-in default theme.
+     */
+    fun install(context: Context, videoLook: Boolean = VideoLook.enabled) {
         val app = context.applicationContext
-        systemColorSchemeProvider = if (available) { dark ->
+        systemColorSchemeProvider = if (available && !videoLook) { dark ->
             if (dark) dynamicDarkColorScheme(app) else dynamicLightColorScheme(app)
         } else null
     }

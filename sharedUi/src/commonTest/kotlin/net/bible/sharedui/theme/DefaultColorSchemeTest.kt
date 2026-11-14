@@ -15,15 +15,27 @@ import kotlin.test.assertNotEquals
 
 class DefaultColorSchemeTest {
     @Test
-    fun unsetWorkspaceUsesEveryStockRole() {
+    fun unsetWorkspaceUsesEveryRoleOfTheDefaultTheme() {
         for (dark in listOf(false, true)) {
-            val stock = if (dark) darkColorScheme() else lightColorScheme()
+            val default = DefaultThemeProposal.DEFAULT.scheme(dark)!!
             for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
                 // ColorScheme has identity equality; toString enumerates all its roles.
-                assertEquals(stock.toString(), abColorScheme(seed, dark, DisplayColorMode.NORMAL).toString(),
+                assertEquals(default.toString(), abColorScheme(seed, dark, DisplayColorMode.NORMAL).toString(),
                     "dark=$dark seed=$seed")
             }
         }
+    }
+
+    @Test
+    fun violetProposalUsesEveryStockRole() {
+        val saved = activeDefaultThemeProposal
+        activeDefaultThemeProposal = DefaultThemeProposal.VIOLET
+        try {
+            for (dark in listOf(false, true)) {
+                val stock = if (dark) darkColorScheme() else lightColorScheme()
+                assertEquals(stock.toString(), abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), "dark=$dark")
+            }
+        } finally { activeDefaultThemeProposal = saved }
     }
 
     @Test

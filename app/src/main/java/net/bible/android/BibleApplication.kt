@@ -102,18 +102,25 @@ open class BibleApplication : Application() {
     }
 
     /**
-     * The candidate default theme for unset workspace colours: `BuildConfig.DEFAULT_THEME_PROPOSAL`
-     * (CURRENT unless built with -PdefaultThemeProposal=...). Debug builds also honour the system
-     * property `debug.andbible.theme_proposal` (`adb shell setprop ...`, then restart the app) so one
-     * APK can be screenshotted with every proposal.
+     * The default theme for unset workspace colours: `BuildConfig.DEFAULT_THEME_PROPOSAL`
+     * (blank = the shipped default, INK, unless built with -PdefaultThemeProposal=...). Debug builds
+     * also honour the system property `debug.andbible.theme_proposal` (`adb shell setprop ...`, then
+     * restart the app) so one APK can be screenshotted with every proposal; a video-look build
+     * ignores that property ([net.bible.sharedui.theme.DefaultThemeProposal.resolve]).
      */
     private fun resolveDefaultThemeProposal(): net.bible.sharedui.theme.DefaultThemeProposal {
-        val debugOverride = if (net.bible.android.activity.BuildConfig.DEBUG) runCatching {
+        val debuggable = net.bible.android.activity.BuildConfig.DEBUG
+        val debugOverride = if (debuggable) runCatching {
             @SuppressLint("PrivateApi")
             val sp = Class.forName("android.os.SystemProperties")
             sp.getMethod("get", String::class.java).invoke(null, "debug.andbible.theme_proposal") as String?
-        }.getOrNull()?.takeIf { it.isNotBlank() } else null
-        return net.bible.sharedui.theme.DefaultThemeProposal.parse(debugOverride ?: net.bible.android.activity.BuildConfig.DEFAULT_THEME_PROPOSAL)
+        }.getOrNull() else null
+        return net.bible.sharedui.theme.DefaultThemeProposal.resolve(
+            buildValue = net.bible.android.activity.BuildConfig.DEFAULT_THEME_PROPOSAL,
+            debugOverride = debugOverride,
+            debuggable = debuggable,
+            videoLook = net.bible.service.common.VideoLook.enabled,
+        )
     }
 
     private var userMessagesSubscription: Subscription? = null

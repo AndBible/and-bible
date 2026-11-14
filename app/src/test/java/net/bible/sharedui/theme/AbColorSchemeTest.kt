@@ -1,6 +1,5 @@
 package net.bible.sharedui.theme
 
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -66,9 +65,9 @@ class AbColorSchemeTest {
     }
 
     @Test
-    fun `NORMAL uses the stock lilac scheme with no seed`() {
-        assertEquals(lightColorScheme().toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
-        assertEquals(darkColorScheme().toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
+    fun `NORMAL uses the built-in Ink on paper default with no seed`() {
+        assertEquals(DefaultThemeProposal.INK.scheme(false).toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
+        assertEquals(DefaultThemeProposal.INK.scheme(true).toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
     }
 
     @Test

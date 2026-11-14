@@ -44,11 +44,23 @@
 
 	<style name="BaseAppTheme" parent="BaseAppTheme1"/>
 
+	<!-- StartupActivity (the launcher target): the spinner screen on the default theme's paper.
+	     values-v31 adds the same ground to the system splash screen. -->
+	<style name="Theme.AbStartup" parent="@style/AppTheme">
+		<item name="android:windowBackground">@color/default_theme_ground</item>
+	</style>
+
 	<style name="BaseAppTheme1" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
+
+		<!-- Default theme "Ink on paper": AppCompat tints (spinners, legacy dialog buttons) are ink,
+		     not AppCompat's stock teal. -->
+		<item name="colorPrimary">@color/default_theme_ink</item>
+		<item name="colorPrimaryDark">@color/default_theme_ink</item>
+		<item name="colorAccent">@color/default_theme_ink</item>
 
 		<item name="windowButtonBackgroundColor">#118D8D8D</item>
 

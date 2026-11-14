@@ -56,7 +56,8 @@ class ThemeStyleEffectTest {
             // Independently captured baseline roles from the pre-removal default palette.
             val expected = when {
                 case.seed == 0xFF9C27B0.toInt() -> if (case.dark) 0xFF613766 else 0xFFFFD6FE
-                else -> if (case.dark) 0xFF4F378B else 0xFFEADDFF
+                // Unset: the built-in "Ink on paper" default (paper2 / night surface 3).
+                else -> if (case.dark) 0xFF2C2A26 else 0xFFF3EAD7
             }.toInt()
             assertEquals("Fixed default for $case", expected, toolbar)
         }

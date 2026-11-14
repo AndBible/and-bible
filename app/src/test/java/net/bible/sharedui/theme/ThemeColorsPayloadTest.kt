@@ -16,8 +16,6 @@
  */
 package net.bible.sharedui.theme
 
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
@@ -47,9 +45,9 @@ class ThemeColorsPayloadTest {
     }
 
     @Test
-    fun `unset workspace payload uses stock Material roles in light and dark`() {
+    fun `unset workspace payload uses the default theme's roles in light and dark`() {
         for (dark in listOf(false, true)) {
-            val stock = if (dark) darkColorScheme() else lightColorScheme()
+            val stock = DefaultThemeProposal.DEFAULT.scheme(dark)!!
             for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
                 val json = themeColorsJson(seed, dark, DisplayColorMode.NORMAL)
                 assertTrue(json, json.contains("\"primaryContainer\":\"#%06X\"".format(0xFFFFFF and stock.primaryContainer.toArgb())))

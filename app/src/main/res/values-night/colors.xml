@@ -21,6 +21,9 @@
 
 
     <color name="status_bar">@color/black</color>
+    <!-- "Ink on paper" default theme, night (see values/colors.xml). -->
+    <color name="default_theme_ink">#EFE9DD</color>
+    <color name="default_theme_ground">#161616</color>
 
 
     <color name="navigation_bar">@color/black</color>
