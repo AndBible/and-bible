@@ -222,6 +222,126 @@ class PromptRepositoryFavoriteCopyTest {
             PromptRepository.withoutGrants(prompt.copy(permissionMode = PermissionMode.ALWAYS_ASK)).permissionMode)
     }
 
+    /**
+     * #4108 review: a CSV row whose id is an installed add-on prompt's id must not be stored under that id (a
+     * duplicate id that promptById/isReadOnly resolve to the add-on, and that would make the add-on id look
+     * stored). It becomes a new user prompt with a fresh id, without grants.
+     */
+    @Test
+    fun csvRowWithAddonIdIsImportedUnderAFreshIdWithoutGrants() {
+        val addonId = "0b2c4d6e-1111-2222-3333-444455558888"
+        val csvDir = newTestDir()
+        val csv = File(csvDir, "prompts.csv").apply {
+            writeText(
+                "name;promptTemplate;showIn;permissionMode;allowedTools;deniedTools;id\n" +
+                    "Addon one;Do it;VERSE_SELECTION;ASK_ONCE_PER_RUN;GET_VERSE_CONTENT;;$addonId\n"
+            )
+        }
+        PromptRepository.clearAddonCache()
+        try {
+            withFixture(addonPacks = listOf(PromptPackRef("AddonMod", csv.path))) { container, _ ->
+                val import = "name;promptTemplate;permissionMode;allowedTools;deniedTools;id\n" +
+                    "Imported;Mine;ALLOW_ALL;CREATE_BOOKMARK,GET_VERSE_CONTENT;;$addonId\n"
+                val result = PromptCsvUtils.importPromptsFromCsv(okio.Buffer().writeUtf8(import))
+                assertEquals(1, result.created)
+                assertEquals(0, result.updated)
+
+                val stored = container.aiSettingsDb.agentPromptDao().allPrompts()
+                assertEquals(1, stored.size)
+                val imported = stored.single()
+                assertTrue(imported.id.toString() != addonId, "imported under the add-on's id")
+                assertEquals("Imported", imported.name)
+                assertNull(imported.permissionMode)
+                assertEquals(setOf(AgentTool.GET_VERSE_CONTENT), imported.allowedTools)
+
+                val all = PromptRepository.allPrompts().map { it.id }
+                assertEquals(all.size, all.toSet().size, "duplicate ids in allPrompts()")
+                assertEquals("Imported", PromptRepository.promptById(imported.id)?.name)
+                assertFalse(PromptRepository.isReadOnly(imported.id))
+                val addon = assertNotNull(PromptRepository.promptById(IdTypeOf(addonId)))
+                assertFalse(PromptRepository.isStoredUserPrompt(addon))
+            }
+        } finally {
+            PromptRepository.clearAddonCache()
+            File(csvDir).deleteRecursively()
+        }
+    }
+
+    /**
+     * #4108 review: a run's write-permission grant is one flag for all write tools, so a non-user prompt's
+     * ASK_ONCE_PER_RUN must not loosen a stricter global ALWAYS_ASK (one approval would unlock every write
+     * tool). Its mode is the stricter of its own and the global one; a stored user prompt keeps its own.
+     */
+    @Test
+    fun nonUserPromptModeIsTheStricterOfItsOwnAndTheGlobalMode() = withFixture { _, settings ->
+        settings.agentPermissionMode = PermissionMode.ALWAYS_ASK
+        val unstored = AgentPrompt(name = "Unstored", permissionMode = PermissionMode.ASK_ONCE_PER_RUN, allowedTools = null, deniedTools = null)
+        assertEquals(PermissionMode.ALWAYS_ASK, PromptRepository.effectivePermissionMode(unstored))
+        assertEquals(PermissionMode.DENY_ALL, PromptRepository.effectivePermissionMode(unstored.copy(permissionMode = PermissionMode.DENY_ALL)))
+        assertNull(PromptRepository.effectivePermissionMode(unstored.copy(permissionMode = null)))
+        assertNull(PromptRepository.effectivePermissionMode(unstored.copy(permissionMode = PermissionMode.ALLOW_ALL)))
+
+        settings.agentPermissionMode = PermissionMode.ASK_ONCE_PER_RUN
+        assertEquals(PermissionMode.ALWAYS_ASK, PromptRepository.effectivePermissionMode(unstored.copy(permissionMode = PermissionMode.ALWAYS_ASK)))
+        assertEquals(PermissionMode.ASK_ONCE_PER_RUN, PromptRepository.effectivePermissionMode(unstored))
+
+        settings.agentPermissionMode = PermissionMode.ALWAYS_ASK
+        val mine = unstored.copy(name = "Mine")
+        PromptRepository.insertPrompt(mine)
+        assertEquals(PermissionMode.ASK_ONCE_PER_RUN, PromptRepository.effectivePermissionMode(assertNotNull(PromptRepository.promptById(mine.id))))
+    }
+
+    /**
+     * #4108 review: isStoredUserPrompt must not trust the passed object's grants. An object with the id of a
+     * stored prompt but other grants (e.g. an add-on object that lost its sourceModule in a copy) is not that
+     * stored prompt.
+     */
+    @Test
+    fun objectWithAStoredIdButOtherGrantsIsNotAStoredUserPrompt() = withFixture { _, _ ->
+        val mine = AgentPrompt(name = "Mine", permissionMode = PermissionMode.ASK_ONCE_PER_RUN, allowedTools = setOf(AgentTool.GET_VERSE_CONTENT), deniedTools = null)
+        PromptRepository.insertPrompt(mine)
+        assertTrue(PromptRepository.isStoredUserPrompt(assertNotNull(PromptRepository.promptById(mine.id))))
+
+        val forged = mine.copy(permissionMode = PermissionMode.ALLOW_ALL, allowedTools = setOf(AgentTool.DELETE_BOOKMARK))
+        assertFalse(PromptRepository.isStoredUserPrompt(forged))
+        assertNull(PromptRepository.autoAllowedTools(forged))
+        assertNull(PromptRepository.effectivePermissionMode(forged))
+    }
+
+    /**
+     * #4108 review: re-importing over a stored prompt keeps its grants only where the file does not tighten
+     * them: a granted write tool the file denies is not put back (allowed and denied at once), and a stricter
+     * mode in the file replaces the existing ALLOW_ALL. A file without a mode keeps ALLOW_ALL.
+     */
+    @Test
+    fun csvReimportTightensButDoesNotLoosenExistingGrants() = withFixture { container, _ ->
+        val granted = AgentPrompt(
+            name = "Granted", promptTemplate = "t", permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.DELETE_BOOKMARK, AgentTool.GET_VERSE_CONTENT),
+            deniedTools = null,
+        )
+        val keepMode = granted.copy(id = net.bible.android.database.IdType(), name = "Keep mode")
+        PromptRepository.insertPrompt(granted)
+        PromptRepository.insertPrompt(keepMode)
+
+        val import = "name;promptTemplate;permissionMode;allowedTools;deniedTools;id\n" +
+            "Granted;t;ALWAYS_ASK;GET_VERSE_CONTENT;DELETE_BOOKMARK;${granted.id}\n" +
+            "Keep mode;t;;GET_VERSE_CONTENT;;${keepMode.id}\n"
+        assertEquals(2, PromptCsvUtils.importPromptsFromCsv(okio.Buffer().writeUtf8(import)).updated)
+
+        val dao = container.aiSettingsDb.agentPromptDao()
+        val g = assertNotNull(dao.promptById(granted.id))
+        assertEquals(PermissionMode.ALWAYS_ASK, g.permissionMode)
+        assertEquals(setOf(AgentTool.GET_VERSE_CONTENT, AgentTool.CREATE_BOOKMARK), g.allowedTools)
+        assertEquals(setOf(AgentTool.DELETE_BOOKMARK), g.deniedTools)
+
+        val k = assertNotNull(dao.promptById(keepMode.id))
+        assertEquals(PermissionMode.ALLOW_ALL, k.permissionMode)
+        assertEquals(setOf(AgentTool.GET_VERSE_CONTENT, AgentTool.CREATE_BOOKMARK, AgentTool.DELETE_BOOKMARK), k.allowedTools)
+    }
+
+    private fun IdTypeOf(s: String) = net.bible.android.database.IdType(s)
+
     /** The decision AgentSessionManager/AgentExecutor make for [tool] in a fresh run of [prompt]. */
     private suspend fun decide(tool: AgentTool, prompt: AgentPrompt) = checkPermission(
         tool = tool,

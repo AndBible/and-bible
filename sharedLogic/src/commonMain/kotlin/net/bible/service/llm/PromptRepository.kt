@@ -148,19 +148,30 @@ object PromptRepository : KoinComponent {
      */
     fun isBuiltIn(id: IdType): Boolean = BuiltInPrompts.isBuiltIn(id)
 
-    /** The user prompt stored in the DB under [id], or null (always null for a built-in id). */
-    suspend fun storedUserPromptById(id: IdType): AgentPrompt? = if (isBuiltIn(id)) null else dao.promptById(id)
+    /**
+     * The user prompt stored in the DB under [id], or null. Always null for a built-in or add-on id: such a
+     * prompt is read-only and its id resolves to the built-in/add-on, never to a DB row (#4108).
+     */
+    suspend fun storedUserPromptById(id: IdType): AgentPrompt? =
+        if (isBuiltIn(id) || isAddon(id)) null else dao.promptById(id)
 
     /**
      * True only for a user prompt stored in the DB: the only kind whose [AgentPrompt.allowedTools] and
      * [AgentPrompt.permissionMode] are grants the user made in the prompt editor (#4108).
      *
+     * The grants of [prompt] itself are not trusted: it counts only when they equal those of the stored row
+     * with its id, so an object that merely shares a stored id (an add-on object that lost its
+     * [AgentPrompt.sourceModule] in a `copy`, a prompt built in memory) gets no grants.
+     *
      * A positive condition on purpose: an add-on row without an id gets a new random id on every parse, and a
      * pack reload empties the add-on cache, so "not built-in and not a cached add-on" would let a prompt object
      * a run still holds pass as a user prompt.
      */
-    suspend fun isStoredUserPrompt(prompt: AgentPrompt): Boolean =
-        prompt.sourceModule == null && storedUserPromptById(prompt.id) != null
+    suspend fun isStoredUserPrompt(prompt: AgentPrompt): Boolean {
+        if (prompt.sourceModule != null) return false
+        val stored = storedUserPromptById(prompt.id) ?: return false
+        return stored.allowedTools == prompt.allowedTools && stored.permissionMode == prompt.permissionMode
+    }
 
     /**
      * The tools [prompt] may run without the permission dialog (`promptAllowedTools` of
@@ -175,12 +186,25 @@ object PromptRepository : KoinComponent {
 
     /**
      * The per-prompt permission mode a run of [prompt] uses (`promptPermissionMode` of
-     * [net.bible.service.llm.agent.checkPermission], step 5). A prompt that is not a stored user prompt
-     * (see [isStoredUserPrompt]) keeps a stricter mode but not [PermissionMode.ALLOW_ALL]: an add-on pack must
-     * not allow write tools on the user's behalf (#4108).
+     * [net.bible.service.llm.agent.checkPermission], step 5). A stored user prompt (see [isStoredUserPrompt])
+     * keeps its own mode. Any other prompt's mode can only tighten the global mode, never loosen it: the
+     * stricter of the two (DENY_ALL > ALWAYS_ASK > ASK_ONCE_PER_RUN), and never [PermissionMode.ALLOW_ALL]
+     * (null then: the global mode applies). A run grants write permission with one flag for all write tools,
+     * so an add-on's ASK_ONCE_PER_RUN under a global ALWAYS_ASK would let one approval unlock them all (#4108).
      */
-    suspend fun effectivePermissionMode(prompt: AgentPrompt): PermissionMode? =
-        if (isStoredUserPrompt(prompt)) prompt.permissionMode else withoutAllowAll(prompt.permissionMode)
+    suspend fun effectivePermissionMode(prompt: AgentPrompt): PermissionMode? {
+        if (isStoredUserPrompt(prompt)) return prompt.permissionMode
+        val own = withoutAllowAll(prompt.permissionMode) ?: return null
+        val global = aiSettings.agentPermissionMode
+        return if (strictness(global) > strictness(own)) global else own
+    }
+
+    private fun strictness(mode: PermissionMode): Int = when (mode) {
+        PermissionMode.ALLOW_ALL -> 0
+        PermissionMode.ASK_ONCE_PER_RUN -> 1
+        PermissionMode.ALWAYS_ASK -> 2
+        PermissionMode.DENY_ALL -> 3
+    }
 
     private fun withoutAllowAll(mode: PermissionMode?): PermissionMode? = mode.takeUnless { it == PermissionMode.ALLOW_ALL }
 

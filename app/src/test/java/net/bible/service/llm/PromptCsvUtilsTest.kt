@@ -818,7 +818,7 @@ class PromptCsvUtilsTest {
         }
     }
 
-    /** #4108: re-importing a file over an existing prompt keeps the user's own grants, and adds none. */
+    /** #4108: re-importing a file over an existing prompt keeps the user's own grants (unless the file tightens them), and adds none. */
     @Test
     fun importOverExistingPromptKeepsItsGrantsAndAddsNone(): Unit = runBlocking {
         val granted = AgentPrompt(
@@ -839,7 +839,8 @@ class PromptCsvUtilsTest {
 
         val g = dao.promptById(granted.id)!!
         assertThat(g.name, equalTo("Granted renamed"))
-        assertThat(g.permissionMode, equalTo(PermissionMode.ALLOW_ALL))
+        // The file's stricter mode replaces the existing ALLOW_ALL; the granted write tool stays (#4108 review).
+        assertThat(g.permissionMode, equalTo(PermissionMode.ALWAYS_ASK))
         assertThat(g.allowedTools, equalTo(setOf(AgentTool.GET_VERSE_CONTENT, AgentTool.CREATE_BOOKMARK)))
 
         val p = dao.promptById(plain.id)!!

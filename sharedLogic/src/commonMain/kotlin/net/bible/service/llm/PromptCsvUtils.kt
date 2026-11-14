@@ -221,7 +221,11 @@ object PromptCsvUtils {
                             PromptRepository.updatePrompt(withGrantsOf(shared, existing))
                             updated++
                         } else {
-                            PromptRepository.insertPrompt(shared)
+                            // An add-on prompt's id gets a fresh one: no stored prompt may share an id with
+                            // a read-only (add-on) prompt, which promptById would resolve instead.
+                            PromptRepository.insertPrompt(
+                                if (PromptRepository.isAddon(shared.id)) shared.copy(id = IdType()) else shared
+                            )
                             created++
                         }
                     } catch (e: CancellationException) {
@@ -246,14 +250,20 @@ object PromptCsvUtils {
     /**
      * [imported] with the grants [existing] (a stored user prompt) already has: its write tools allowed without
      * asking and its [PermissionMode.ALLOW_ALL]. [imported] itself must already be [PromptRepository.withoutGrants].
+     *
+     * The file can only tighten them: a granted write tool the file lists in [AgentPrompt.deniedTools] stays
+     * denied (never both allowed and denied), and a mode the file sets (stricter than ALLOW_ALL, which
+     * [PromptRepository.withoutGrants] already removed) replaces the existing ALLOW_ALL.
      */
     private fun withGrantsOf(imported: AgentPrompt, existing: AgentPrompt): AgentPrompt {
-        val grantedWriteTools = existing.allowedTools.orEmpty() - PromptRepository.withoutGrants(existing).allowedTools.orEmpty()
+        val grantedWriteTools = existing.allowedTools.orEmpty() -
+            PromptRepository.withoutGrants(existing).allowedTools.orEmpty() -
+            imported.deniedTools.orEmpty()
         return imported.copy(
             allowedTools = if (grantedWriteTools.isEmpty()) imported.allowedTools
                 else imported.allowedTools.orEmpty() + grantedWriteTools,
-            permissionMode = if (existing.permissionMode == PermissionMode.ALLOW_ALL) PermissionMode.ALLOW_ALL
-                else imported.permissionMode,
+            permissionMode = imported.permissionMode
+                ?: PermissionMode.ALLOW_ALL.takeIf { existing.permissionMode == it },
         )
     }
 

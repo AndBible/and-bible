@@ -25,17 +25,21 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AiSettings
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptRepository
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.mp.KoinPlatform
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -109,5 +113,69 @@ class BuildAgentContextGrantsTest {
         val context = contextFor(stored)
         assertEquals(PermissionMode.ALLOW_ALL, context.promptPermissionMode)
         assertEquals(setOf(AgentTool.CREATE_BOOKMARK), context.promptAllowedTools)
+    }
+    /**
+     * #4108 review: an add-on whose id also exists as a DB row (a user prompt imported before the pack was
+     * installed) still gets no grants: the add-on object is not that stored row.
+     */
+    @Test fun addonWhoseIdIsAlsoStoredGetsNoGrants() {
+        val row = AgentPrompt(
+            name = "Mine, same id",
+            permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.DELETE_BOOKMARK),
+            deniedTools = emptySet(),
+        )
+        onIoIdlingMain { PromptRepository.insertPrompt(row) }
+        val addon = row.copy(name = "Addon").also { it.sourceModule = "AddonMod" }
+        val context = contextFor(addon)
+        assertNull(context.promptPermissionMode)
+        assertNull(context.promptAllowedTools)
+    }
+
+    /**
+     * #4108, the original bug path: a stored copy of a built-in runs without the built-in's write tools as
+     * grants (they ask) and without ALLOW_ALL.
+     */
+    @Test fun storedCopyOfBuiltInDoesNotInheritWriteGrants() {
+        val copyId = onIoIdlingMain { PromptRepository.copyPrompt(BuiltInPrompts.BOOKMARK_ANNOTATE_ID) }!!
+        val copy = onIoIdlingMain { PromptRepository.promptById(copyId) }!!
+        val context = contextFor(copy)
+        val excluded = computeExcludedTools(emptySet(), context.promptDeniedTools, context.promptAvailableTools)
+        for (tool in listOf(AgentTool.CREATE_BOOKMARK, AgentTool.ADD_BOOKMARK_NOTE)) {
+            assertFalse("$tool granted", tool in context.promptAllowedTools.orEmpty())
+            assertFalse("$tool excluded: the copy can still use it (it asks)", tool in excluded)
+        }
+        assertTrue(AgentTool.GET_VERSE_CONTENT in context.promptAllowedTools.orEmpty())
+        assertNotEquals(PermissionMode.ALLOW_ALL, context.promptPermissionMode)
+    }
+
+    /**
+     * #4108 review: one approval grants write permission for all write tools of the run, so a non-user
+     * prompt's ASK_ONCE_PER_RUN must not loosen a global ALWAYS_ASK. A stored user prompt keeps its own mode.
+     */
+    @Test fun nonUserPromptCannotLoosenTheGlobalMode() {
+        val settings = KoinPlatform.getKoin().get<AiSettings>()
+        val previous = settings.agentPermissionMode
+        try {
+            settings.agentPermissionMode = PermissionMode.ALWAYS_ASK
+            val builtIn = BuiltInPrompts.promptById(BuiltInPrompts.BOOKMARK_ANNOTATE_ID)!!
+            assertEquals(PermissionMode.ASK_ONCE_PER_RUN, builtIn.permissionMode)
+            assertEquals(PermissionMode.ALWAYS_ASK, contextFor(builtIn).promptPermissionMode)
+
+            val addon = AgentPrompt(
+                name = "Addon once",
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.DELETE_BOOKMARK),
+                deniedTools = emptySet(),
+            ).also { it.sourceModule = "AddonMod" }
+            assertEquals(PermissionMode.ALWAYS_ASK, contextFor(addon).promptPermissionMode)
+
+            val mine = addon.copy(name = "Mine once")
+            onIoIdlingMain { PromptRepository.insertPrompt(mine) }
+            val stored = onIoIdlingMain { PromptRepository.promptById(mine.id) }!!
+            assertEquals(PermissionMode.ASK_ONCE_PER_RUN, contextFor(stored).promptPermissionMode)
+        } finally {
+            settings.agentPermissionMode = previous
+        }
     }
 }
