@@ -126,12 +126,14 @@ class DocumentControl constructor(
         }
     }
 
+    /** Unlocked Bibles that actually contain the current verse (#4085); `sortedBy` here once only reordered the list. */
     val biblesForVerse : List<Book>
-        get () = SwordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
+        get () = SwordDocumentFacade.unlockedBibles.filter { bookFilter.test(it) }
 
+    /** Unlocked commentaries that contain the current verse, plus the pseudo-documents (My Notes, Journal, ...). */
     val commentariesForVerse: List<Book>
         get () {
-            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
+            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked && commentaryFilter.test(it) }.toMutableList()
             docs.addAll(fakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY && !it.hideFromSelector })
             return docs
         }
