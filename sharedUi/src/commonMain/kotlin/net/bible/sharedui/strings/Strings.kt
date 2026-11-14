@@ -415,6 +415,10 @@ interface Strings {
     val crashRecoveryMessage: String
     val crashRecoveryContinue: String
     val crashRecoveryReport: String
+    val corruptDatabaseTitle: String                // R.string.corrupt_database_title
+    fun corruptDatabaseMessage(databases: String): String // R.string.corrupt_database_message
+    val corruptDatabaseReset: String                // R.string.corrupt_database_reset
+    fun corruptDatabaseResetFailed(database: String): String // R.string.corrupt_database_reset_failed
     val startupLogFolder: String                    // R.string.startup_log_folder
     val openLogFolder: String                       // R.string.open_log_folder
     val startupReportBug: String                    // R.string.startup_report_bug

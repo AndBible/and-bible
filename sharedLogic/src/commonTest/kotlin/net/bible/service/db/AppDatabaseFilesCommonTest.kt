@@ -11,6 +11,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -186,21 +187,22 @@ class AppDatabaseFilesCommonTest {
     }
 
     @Test
-    fun userVersionRecoveringCorruptionOfAMissingFileIsZero() = runTest(timeout = 10.minutes) {
+    fun userVersionOrZeroOfAMissingFileIsZero() = runTest(timeout = 10.minutes) {
         val (dir, _) = host()
-        assertEquals(0, userVersionRecoveringCorruption("$dir/missing.db"))
+        assertEquals(0, userVersionOrZero("$dir/missing.db"))
         assertFalse(FileSystem.SYSTEM.exists("$dir/missing.db".toPath()))
     }
 
+    /** #4112: the startup version read never moves a damaged file aside; `create()` reports it before this runs. */
     @Test
-    fun userVersionRecoveringCorruptionOfAGarbageFileMovesItAsideAndIsZero() = runTest(timeout = 10.minutes) {
+    fun userVersionOrZeroOfAGarbageFileThrowsAndLeavesItInPlace() = runTest(timeout = 10.minutes) {
         val (dir, _) = host()
         val path = "$dir/garbage-version.db"
         FileSystem.SYSTEM.write(path.toPath()) { writeUtf8("this is definitely not a sqlite database ".repeat(20)) }
-        assertEquals(0, userVersionRecoveringCorruption(path))
-        assertFalse(FileSystem.SYSTEM.exists(path.toPath()), "corrupt file moved aside")
+        assertFailsWith<SQLiteException> { userVersionOrZero(path) }
+        assertTrue(FileSystem.SYSTEM.exists(path.toPath()), "the damaged file stays in place")
         val aside = FileSystem.SYSTEM.list(dir.toPath()).filter { it.name.startsWith("garbage-version.db.corrupt-") }
-        assertEquals(1, aside.size, "moved-aside copy in $dir")
+        assertTrue(aside.isEmpty(), "nothing moved aside in $dir")
     }
 
     @Test

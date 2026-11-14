@@ -10,16 +10,50 @@ reading plans, and other information.
 
 ## Damaged app databases
 
-Before opening an app database, AndBible checks that its schema can be read.
+Before opening its databases, AndBible checks that each one can be read.
 If SQLite reports corruption, AndBible closes that connection and checks again
 with a new connection. A single failed check, a lock, or an I/O error does not
-cause the database to be replaced.
+count as damage. Damage that shows only later while the databases are being
+opened (for example in one table) is reported in the same way.
 
-If both checks report corruption, AndBible moves the damaged database and any
-remaining journal or lock files aside under a name containing `.corrupt-` and
-a timestamp, then creates an empty replacement. The saved files are not restored
-automatically. Restore a known-good backup to recover your data. This automatic
-recovery does not apply to files selected for import or restore.
+If a database holding your own data (bookmarks, notes, StudyPads, workspaces,
+reading plans, My Documents, settings, AI settings, reading progress or
+repositories) is damaged, AndBible does not open and shows a **Damaged data**
+message naming the damaged database file. Nothing has been changed or deleted
+at that point. You can choose:
+
+- **Send Report**: send us an error report so that we can look for the cause.
+- **Backup & Restore**: opens Backup & Restore without opening the databases.
+  Make a backup of your files as they are, or restore a known-good backup.
+  When you leave Backup & Restore, AndBible tries to start again; after a
+  successful restore it opens normally, otherwise the message comes back.
+- **Reset damaged data**: moves the damaged database and any remaining journal
+  or lock files aside under a name containing `.corrupt-` and a timestamp, and
+  starts that data empty. Your other data is not touched. The saved files stay
+  on the device, but AndBible does not restore them automatically; restore a
+  known-good backup to recover the data. If the damaged file cannot be moved,
+  AndBible says so and changes nothing.
+- **Close** (Android only): closes the app without changing anything. On
+  desktop, close the window. iOS has no Close choice: leave the app as usual.
+  The message appears again at the next start.
+
+On Android, the message appears only after the calculator PIN when the
+calculator disguise is on. Speaking from the widget, the notification or a
+headset button does nothing while data is damaged. Instead, a notification
+says that the app's data needs attention, and the speak widgets show the same
+text; tap either one to open the app and see the message.
+
+When AndBible cannot tell which database is damaged, the message names every
+database holding your own data, and **Reset damaged data** moves all of them
+aside in the same way.
+
+When sync downloads data from the cloud, the downloaded database is checked
+before it replaces yours. A damaged download is refused and your data on the
+device is kept.
+
+Temporary databases that AndBible can rebuild by itself (for example download
+and search caches) are still replaced automatically, keeping the damaged file
+in the same way. Files selected for import or restore are never moved aside.
 
 ## Recovery after repeated crashes on iOS
 

@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppJson
+import net.bible.service.db.DamagedDataHandedOver
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
@@ -57,9 +58,17 @@ class WelcomeFlowCore(
 
     suspend fun leaveFor(route: String) = initialiseThen { navigate(route) }
 
-    /** Import has no route until the host's picker opens, but has the same prerequisites as Download. */
+    /**
+     * Import has no route until the host's picker opens, but has the same prerequisites as Download. An [initialise]
+     * that throws [DamagedDataHandedOver] (#4112: the host showed its damaged-data recovery and is going away) ends
+     * the flow here, before anything else is loaded or navigated.
+     */
     suspend fun initialiseThen(action: () -> Unit) {
-        initialise()
+        try {
+            initialise()
+        } catch (e: DamagedDataHandedOver) {
+            return
+        }
         ensureSyncLoaded()
         action()
     }

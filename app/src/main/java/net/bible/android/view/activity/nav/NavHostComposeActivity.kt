@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.service.db.corruptDatabasesOrNull
+import net.bible.service.db.DamagedDataHandedOver
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
@@ -2831,12 +2833,22 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * reads false, so `ActivityBase.onRestart`'s keep-screen-on refresh runs as on any initialised host.
      *
      * Synchronous on the main thread, as classic's `onCreate` initialisation was. E2's Welcome gate reuses it.
+     *
+     * Returns false when the app could not be initialised because of damaged user data (#4112): the damage was handed
+     * over to the startup's recovery question and this host is finishing, so the caller must stop.
      */
-    internal fun initialiseIfStartedUninitialised() {
-        if (!doNotInitializeApp) return
-        CommonUtils.initializeApp(blockOnCipherUnlock = false)
+    internal fun initialiseIfStartedUninitialised(): Boolean {
+        if (!doNotInitializeApp) return true
+        try {
+            CommonUtils.initializeApp(blockOnCipherUnlock = false)
+        } catch (e: Exception) {
+            e.corruptDatabasesOrNull() ?: throw e
+            routeToDamagedDataRecovery() // #4112
+            return false
+        }
         applyInitialisedWindowState()
         initialisedAfterStart = true
+        return true
     }
 
     /**
@@ -2887,7 +2899,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Welcome needs nothing beyond it on the way out -- the unlock attempt and the predicate belong to the
      * way back, [welcomeAfterFlow].
      */
-    internal fun initialiseLeavingWelcome() = initialiseIfStartedUninitialised()
+    internal fun initialiseLeavingWelcome() {
+        // #4112: the flow that asked must not go on (sync settings, navigation) on a host that handed over and finishes.
+        if (!initialiseIfStartedUninitialised()) throw DamagedDataHandedOver()
+    }
 
     /**
      * Slice 8 §4 gate (b), and `StartupComposeActivity.afterFlow`'s other half. After a welcome flow:
@@ -2902,7 +2917,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     internal fun welcomeAfterFlow(): kotlinx.coroutines.Job {
         val flow = welcomeFlow
         return lifecycleScope.launch(Dispatchers.Main) {
-            CommonUtils.initializeAppCoroutine()
+            try {
+                CommonUtils.initializeAppCoroutine()
+            } catch (e: Exception) {
+                // #4112: damaged user data found on the way back from a welcome flow goes to the recovery question.
+                e.corruptDatabasesOrNull() ?: throw e
+                routeToDamagedDataRecovery()
+                return@launch
+            }
             unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {
                 flow.controller.setProgress(null)
@@ -2915,7 +2937,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val controller = navController ?: return@launch
             if (controller.currentDestination?.route != NavRoutes.WELCOME) return@launch
             // After initializeAppCoroutine, its initializeApp() is a no-op: what it adds is the window state.
-            initialiseIfStartedUninitialised()
+            if (!initialiseIfStartedUninitialised()) return@launch
             bootstrapIfNeeded {
                 // Mark only after reading preparation succeeds, before its notices can run.
                 net.bible.sharedui.app.notice.ReleaseNotice.dismissForWelcome(
@@ -2991,6 +3013,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // instant.
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
+        // #4112: damaged user data; the startup's recovery question has taken over and this host is finishing.
+        if (routedToDamagedDataRecovery) return
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
         // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
@@ -3515,6 +3539,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
+        if (routedToDamagedDataRecovery) {
+            super.onDestroy()
+            return
+        }
         ReadingViewVisibility.setActivityVisible(this, false)
         ReadingHostPresence.clearForeground(this)
         if (::appHosts.isInitialized) appHosts.onHostDestroy()

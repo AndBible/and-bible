@@ -69,5 +69,5 @@ class AndroidInstallZipHostPlatform(private val activity: NavHostComposeActivity
 
     override fun noFileManager() = UserMessages.toast(context.getString(R.string.no_file_manager))
 
-    override fun initialiseIfStartedUninitialised() = activity.initialiseIfStartedUninitialised()
+    override fun initialiseIfStartedUninitialised() { activity.initialiseIfStartedUninitialised() }
 }

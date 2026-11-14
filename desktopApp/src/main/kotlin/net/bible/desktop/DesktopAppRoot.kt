@@ -16,6 +16,8 @@
  */
 package net.bible.desktop
 
+import net.bible.service.db.corruptDatabasesOrNull
+import net.bible.sharedui.host.startup.CorruptDatabaseRecovery
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -103,6 +105,7 @@ class DesktopStartupState(
     private val launched = AtomicBoolean(false)
     private val lifecycleLock = Any()
     private var cleanExit = false
+    private var startupReadyReported = false
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
 
     /** The normal startup's phase; it leaves [StartupPhase.Starting] once. */
@@ -117,10 +120,44 @@ class DesktopStartupState(
         scope.launch(Dispatchers.IO) {
             val result = runStart(openDatabases = true)
             if (result is StartupPhase.Ready) synchronized(lifecycleLock) {
-                if (!cleanExit) onStartupReady()
+                // Once per process: a retry after damage found later (#4112) is not a second start for the crash gate.
+                if (!cleanExit && !startupReadyReported) {
+                    startupReadyReported = true
+                    onStartupReady()
+                }
             }
             _phase.value = result
         }
+    }
+
+    /**
+     * Runs the normal startup again after it failed (#4112: after the user reset damaged databases or returned from
+     * Backup & Restore). Does nothing unless the last run failed.
+     */
+    fun retry(scope: CoroutineScope) {
+        if (_phase.value !is StartupPhase.Failed) return
+        net.bible.service.db.DatabaseContainer.forgetCorruption()
+        _phase.value = StartupPhase.Starting
+        launched.set(false)
+        launch(scope)
+    }
+
+    /**
+     * #4112: damaged user data found after the start ([net.bible.service.db.DamagedDataRecovery], e.g. the Welcome flow
+     * opening the databases again): the window shows the same recovery screen as a failed start, whose [retry] starts
+     * again.
+     */
+    fun showDamagedData(error: net.bible.service.db.CorruptDatabasesException) {
+        launched.set(true)
+        _phase.value = StartupPhase.Failed(error)
+    }
+
+    /**
+     * Makes [showDamagedData] the process's [net.bible.service.db.DamagedDataRecovery] route. The route is one global,
+     * so only the state of the live app window registers it (`main()`), never every constructed state.
+     */
+    fun registerDamagedDataRoute() {
+        net.bible.service.db.DamagedDataRecovery.route = ::showDamagedData
     }
 
     internal fun markCleanExit() = synchronized(lifecycleLock) {
@@ -181,7 +218,21 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 val phase by state.phase.collectAsState()
                 when (val p = phase) {
                     StartupPhase.Starting -> StartupSplash(dark)
-                    is StartupPhase.Failed -> StartupFailed(dark, strings, p.error, state)
+                    is StartupPhase.Failed -> {
+                        val corrupt = p.error.corruptDatabasesOrNull()
+                        if (corrupt == null) StartupFailed(dark, strings, p.error, state)
+                        else CorruptDatabaseRecovery(corrupt, dark, strings, state.reportBug, onRetry = { state.retry(scope) }) { back ->
+                            // Backup & Restore with the databases closed, as the crash-recovery gate opens it.
+                            val recovery by produceState<StartupPhase>(StartupPhase.Starting) { value = state.startForRecovery() }
+                            when (val r = recovery) {
+                                StartupPhase.Starting -> StartupSplash(dark)
+                                is StartupPhase.Failed -> StartupFailed(dark, strings, r.error, state)
+                                StartupPhase.Ready -> AppProviders(state, layoutDirection) {
+                                    HostApp(state.platform(), NavRoutes.BACKUP, dark, back)
+                                }
+                            }
+                        }
+                    }
                     StartupPhase.Ready -> AppProviders(state, layoutDirection) { HostApp(state.platform()) }
                 }
             }

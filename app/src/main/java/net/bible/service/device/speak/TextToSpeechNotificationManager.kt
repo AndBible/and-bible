@@ -149,7 +149,7 @@ class TextToSpeechNotificationManager : KoinComponent {
         val speakControl: SpeakControl by lazy { instance!!.speakControl }
 
         override fun onReceive(context: Context?, intent: Intent?) {
-            CommonUtils.initializeApp()
+            if (!CommonUtils.initializeAppForHeadlessEntry()) return
             val action = intent?.action
             Log.i(TAG, "NotificationReceiver onReceive $intent $action")
             when (action) {
