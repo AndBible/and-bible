@@ -155,7 +155,15 @@
     <string name="search_not_available">This document cannot be searched</string>
     <string name="search_indexing_notification_title">Creating search index</string>
     <string name="choose_translations">Choose translations…</string>
-    <string name="multi_search_results">%1$d verses in %2$d translations</string>
+    <string name="multi_search_count_summary">%1$s in %2$s</string>
+    <plurals name="multi_search_verse_count">
+        <item quantity="one">%1$d verse</item>
+        <item quantity="other">%1$d verses</item>
+    </plurals>
+    <plurals name="multi_search_translation_count">
+        <item quantity="one">%1$d translation</item>
+        <item quantity="other">%1$d translations</item>
+    </plurals>
     <string name="search_index_not_created">no index</string>
 
     <!-- Preferences -->

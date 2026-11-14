@@ -162,7 +162,10 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
     val selected by searchResults.selectedTranslations.collectAsState()
     val candidates by searchResults.candidates.collectAsState()
     SearchSheetContent(
-        countLabel = strings.multiSearchResults(results.total, selected.size),
+        countLabel = strings.multiSearchResults(
+            strings.multiSearchVerseCount(results.total),
+            strings.multiSearchTranslationCount(selected.size),
+        ),
         loading = loading,
         error = error,
         // "Nothing found" only once a search has actually finished: an empty list while loading is

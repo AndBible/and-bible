@@ -184,7 +184,10 @@ interface Strings {
     val documentSyncAutoDeleteTitle: String
     val webdavHttpsRequired: String
     // Search cluster
-    fun multiSearchResults(total: Int, selectedCount: Int): String   // R.string.multi_search_results
+    /** "N verses in M translations": [verses]/[translations] are the already pluralised parts. */
+    fun multiSearchResults(verses: String, translations: String): String   // R.string.multi_search_count_summary
+    fun multiSearchVerseCount(count: Int): String                        // R.plurals.multi_search_verse_count
+    fun multiSearchTranslationCount(count: Int): String                  // R.plurals.multi_search_translation_count
     val errorExecutingSearch: String                                  // R.string.error_executing_search
     val backgroundImageChange: String
     val backgroundImageDay: String
