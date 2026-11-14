@@ -104,6 +104,10 @@ soft tones from your workspace color, keeping grey and black colors grey
 and muted colors muted. Without a workspace color (or after resetting it
 to default), the app uses the standard Material 3 violet theme in both
 light and dark mode. There is no setting for choosing a palette style.
+The **Color settings** screen is titled with the level it was opened at:
+`Color settings (Global)`, `Color settings (Workspace)` or
+`Color settings (Window)`. The extra `Workspace color` row appears only at the
+workspace and global levels; it is the base color the theme above is derived from.
 If you previously chose another Theme style, upgrading switches to this
 fixed soft palette; restoring an old backup does not restore that style.
 Reading-view controls also follow the workspace theme,

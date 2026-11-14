@@ -388,8 +388,9 @@
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
-    <string name="window_color_settings_title">Window color settings</string>
-    <string name="workspace_color_settings_title">Workspace color setting defaults</string>
+    <string name="global_color_settings_title">Color settings (Global)</string>
+    <string name="window_color_settings_title">Color settings (Window)</string>
+    <string name="workspace_color_settings_title">Color settings (Workspace)</string>
 
     <string name="color_workspace">Workspace color</string>
     <string name="color_text">Text color</string>
