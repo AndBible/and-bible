@@ -127,23 +127,28 @@ internal fun confirmedCorruption(path: String, openConnection: (String) -> SQLit
 }
 
 /**
- * Whether [path] is damaged: [confirmedCorruption] (the schema read), or else `PRAGMA quick_check` reports a problem or
- * fails with SQLITE_CORRUPT/NOTADB (#4112: damage in a table page, found by a later query in `create()`). A missing
- * file, a healthy one, or any other error (busy, I/O) is not damage.
+ * Whether [path] is damaged: [confirmedCorruption] (the schema read), or else `PRAGMA integrity_check` reports a problem
+ * or fails with SQLITE_CORRUPT/NOTADB (#4112: damage in a table page, or an index that disagrees with its table, found
+ * by a later query in `create()`; `quick_check` cannot see the latter). Only failure paths call it (an open that
+ * already failed, the user's reset), so the full check's cost is paid only there. A missing file, a healthy one, or
+ * any other error (busy, I/O) is not damage.
  */
 internal fun isDamagedDatabase(path: String): Boolean {
     if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile != true) return false
     if (confirmedCorruption(path) != null) return true
     return try {
-        quickCheckProblems(path).isNotEmpty()
+        checkProblems(path, "integrity_check").isNotEmpty()
     } catch (e: SQLiteException) {
         isCorruptionError(e)
     }
 }
 
 /** The rows of `PRAGMA quick_check` other than `ok` (empty for a healthy file). */
-private fun quickCheckProblems(path: String): List<String> = openSqlite(path).use { c ->
-    c.prepare("PRAGMA quick_check").use { st -> buildList { while (st.step()) add(st.getText(0)) } }.filter { it != "ok" }
+private fun quickCheckProblems(path: String): List<String> = checkProblems(path, "quick_check")
+
+/** The rows of `PRAGMA <pragma>` (`quick_check` or `integrity_check`) other than `ok`. */
+private fun checkProblems(path: String, pragma: String): List<String> = openSqlite(path).use { c ->
+    c.prepare("PRAGMA $pragma").use { st -> buildList { while (st.step()) add(st.getText(0)) } }.filter { it != "ok" }
 }
 
 /** A database file that must not be used: [requireIntactDatabase] found [detail] in [path]. */
@@ -221,8 +226,12 @@ fun deleteAppDatabase(name: String): Boolean {
  */
 val USER_DATA_DB_FILENAMES: Set<String> by lazy { (ALL_DB_FILENAMES.toList() + OLD_MONOLITHIC_DATABASE_NAME).toSet() }
 
-/** One damaged database file found at startup: its file name in the database directory and its full path. */
-data class CorruptDatabase(val fileName: String, val path: String)
+/**
+ * One damaged database file found at startup: its file name in the database directory and its full path.
+ * [confirmed] is false for a suspect: opening failed with an SQLite corruption error that no check could pin on a
+ * file, so every existing user-data file is named (#4112); the user's reset then moves each suspect aside (kept).
+ */
+data class CorruptDatabase(val fileName: String, val path: String, val confirmed: Boolean = true)
 
 /**
  * Opening the databases found damaged user-data files (#4112). Nothing has been moved or emptied: the host shows the
@@ -241,6 +250,12 @@ fun Throwable.corruptDatabasesOrNull(): CorruptDatabasesException? =
  * the asking host.
  */
 enum class CorruptDatabaseChoice { RESET, RETRY, CLOSE }
+
+/**
+ * Thrown by a host's initialisation after it handed damaged user data over to its recovery screen (#4112): the screen
+ * that asked is going away, so its caller must stop instead of carrying on (navigating, loading more data).
+ */
+class DamagedDataHandedOver : Exception("Damaged user data was handed over to the recovery screen")
 
 /** The user's reset could not move [database] aside (#4112); nothing was emptied. The host tells the user. */
 class CorruptDatabaseResetException(val database: CorruptDatabase, cause: Throwable?) :

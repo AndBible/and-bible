@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.flow.first
 import kotlin.test.fail
 
 @OptIn(ExperimentalTestApi::class)
@@ -128,6 +129,52 @@ class DesktopAppRootTest {
                 kotlin.test.assertTrue(state.awaitStartupSettled(10_000))
             } finally {
                 release.countDown()
+                scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            }
+        }
+    }
+
+    private val damaged = net.bible.service.db.CorruptDatabasesException(
+        listOf(net.bible.service.db.CorruptDatabase("bookmarks.sqlite3", "/data/bookmarks.sqlite3")),
+    )
+
+    /** #4112 review 2: the damaged-data route is one global; a second constructed state must not take it over. */
+    @Test
+    fun onlyTheRegisteredStateReceivesDamagedData() {
+        val previous = net.bible.service.db.DamagedDataRecovery.route
+        try {
+            net.bible.service.db.DamagedDataRecovery.route = null
+            val live = DesktopStartupState(language = "en", start = { StartupPhase.Ready }, platform = noPlatform)
+            live.registerDamagedDataRoute()
+            val other = DesktopStartupState(language = "en", start = { StartupPhase.Ready }, platform = noPlatform)
+
+            kotlin.test.assertTrue(net.bible.service.db.DamagedDataRecovery.show(damaged))
+
+            assertEquals(StartupPhase.Failed(damaged), live.phase.value)
+            assertEquals(StartupPhase.Starting, other.phase.value)
+        } finally {
+            net.bible.service.db.DamagedDataRecovery.route = previous
+        }
+    }
+
+    /** #4112 review 2: a retry after damage found later restarts the app, but the crash gate hears "ready" once. */
+    @Test
+    fun aRetryAfterAnEarlierSuccessfulStartReportsReadyOnce() = kotlinx.coroutines.runBlocking {
+        kotlinx.coroutines.withTimeout(20_000) {
+            val ready = AtomicInteger(0)
+            val state = DesktopStartupState(
+                language = "en", start = { StartupPhase.Ready }, platform = noPlatform,
+                onStartupReady = { ready.incrementAndGet() },
+            )
+            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO)
+            try {
+                state.launch(scope)
+                state.phase.first { it is StartupPhase.Ready }
+                state.showDamagedData(damaged)
+                state.retry(scope)
+                state.phase.first { it is StartupPhase.Ready }
+                assertEquals(1, ready.get())
+            } finally {
                 scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
             }
         }

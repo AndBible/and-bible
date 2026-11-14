@@ -392,4 +392,93 @@ class CorruptDatabaseStartupCommonTest {
             openAskingOnCorruption<Unit>(open = { error("not corruption") }, ask = { error("must not ask") })
         }
     }
+
+    /** Makes index `i` of a new table `t` in [path] disagree with its table: `quick_check` says ok, writes fail. */
+    private fun mismatchIndex(path: String) {
+        openSqlite(path).use {
+            it.execSQL("CREATE TABLE t(a)")
+            it.execSQL("CREATE INDEX i ON t(a)")
+            it.execSQL("WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < 200) INSERT INTO t SELECT x FROM c")
+            it.execSQL("PRAGMA writable_schema = ON")
+            it.execSQL("UPDATE sqlite_master SET sql = 'CREATE INDEX i ON t(a + 1)' WHERE name = 'i'")
+        }
+    }
+
+    /** #4112 review 2: an index that disagrees with its table is damage too, though `quick_check` cannot see it. */
+    @Test
+    fun anIndexThatDisagreesWithItsTableIsDamageAndCanBeReset() = runTest(timeout = 10.minutes) {
+        val (dir, host) = host()
+        val bookmarks = host.databasePath(BookmarkDatabase.dbFileName)
+        mismatchIndex(bookmarks)
+        openSqlite(bookmarks).use {
+            assertEquals("ok", it.prepare("PRAGMA quick_check").use { st -> st.step(); st.getText(0) }, "precondition")
+            val write = assertFailsWith<Exception> { it.execSQL("DELETE FROM t WHERE a = 5") }
+            assertTrue(isCorruptionError(write), "precondition: a write meets the damage as SQLITE_CORRUPT")
+        }
+
+        assertTrue(isDamagedDatabase(bookmarks))
+        DatabaseContainer.resetCorruptDatabases(listOf(CorruptDatabase(BookmarkDatabase.dbFileName, bookmarks)))
+        assertEquals(1, corruptCopies(dir, BookmarkDatabase.dbFileName).size)
+    }
+
+    /**
+     * #4112 review 2: corruption in `create()` that no check can pin on a file still reaches the recovery: every
+     * existing user-data file is named as a suspect, and the user's reset moves the suspects aside (kept).
+     */
+    @Test
+    fun corruptionNoCheckCanPinNamesTheUserDatabasesAsSuspectsAndTheResetMovesThem() = runTest(timeout = 10.minutes) {
+        val (dir, host) = host()
+        DatabaseContainer.create().closeOwned()
+        val corrupt = Exception("Error code: 11, message: database disk image is malformed")
+
+        val error = DatabaseContainer.damageFoundLater(corrupt, isDamaged = { false })!!
+
+        val existing = USER_DATA_DB_FILENAMES.filter { fs.exists(host.databasePath(it).toPath()) }.toSet()
+        assertTrue(existing.isNotEmpty())
+        assertEquals(existing, error.databases.map { it.fileName }.toSet())
+        assertTrue(error.databases.none { it.confirmed })
+        assertSame(corrupt, error.cause)
+
+        DatabaseContainer.resetCorruptDatabases(error.databases)
+        for (name in existing) assertEquals(1, corruptCopies(dir, name).size, name)
+        assertEquals(null, DatabaseContainer.damageFoundLater(Exception("not corruption"), isDamaged = { false }))
+    }
+
+    /** #4112 review 2: a restore through Backup & Restore replaces the files, so the remembered damage is forgotten. */
+    @Test
+    fun aRestoreForgetsARememberedCorruption() = runTest(timeout = 10.minutes) {
+        host()
+        DatabaseContainer.detachInstanceForTest()?.closeOwned()
+        val wasReady = DatabaseContainer.ready
+        var opens = 0
+        val damaged = CorruptDatabasesException(listOf(CorruptDatabase("bookmarks.sqlite3", "/x/bookmarks.sqlite3")))
+        DatabaseContainer.containerFactory = { opens++; throw damaged }
+        DatabaseContainer.ready = true
+        try {
+            assertFailsWith<CorruptDatabasesException> { DatabaseContainer.instance }
+            DatabaseContainer.replacingDatabases { }
+            assertFailsWith<CorruptDatabasesException> { DatabaseContainer.instance }
+            assertEquals(2, opens, "the restored files are looked at again")
+        } finally {
+            DatabaseContainer.ready = wasReady
+            DatabaseContainer.forgetReplacesForTest()
+        }
+    }
+
+    /** #4112 review 2: a failed open leaves the databases "not ready"; it never clears an open that succeeded. */
+    @Test
+    fun openForUseClearsReadyOnlyWhileNothingIsOpen() = runTest(timeout = 10.minutes) {
+        host()
+        DatabaseContainer.detachInstanceForTest()?.closeOwned()
+        val wasReady = DatabaseContainer.ready
+        val damaged = CorruptDatabasesException(listOf(CorruptDatabase("bookmarks.sqlite3", "/x/bookmarks.sqlite3")))
+        DatabaseContainer.containerFactory = { throw damaged }
+        try {
+            assertFailsWith<CorruptDatabasesException> { DatabaseContainer.openForUse() }
+            assertFalse(DatabaseContainer.ready)
+        } finally {
+            DatabaseContainer.ready = wasReady
+            DatabaseContainer.forgetReplacesForTest()
+        }
+    }
 }

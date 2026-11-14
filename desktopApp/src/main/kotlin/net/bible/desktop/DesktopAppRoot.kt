@@ -105,6 +105,7 @@ class DesktopStartupState(
     private val launched = AtomicBoolean(false)
     private val lifecycleLock = Any()
     private var cleanExit = false
+    private var startupReadyReported = false
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
 
     /** The normal startup's phase; it leaves [StartupPhase.Starting] once. */
@@ -119,7 +120,11 @@ class DesktopStartupState(
         scope.launch(Dispatchers.IO) {
             val result = runStart(openDatabases = true)
             if (result is StartupPhase.Ready) synchronized(lifecycleLock) {
-                if (!cleanExit) onStartupReady()
+                // Once per process: a retry after damage found later (#4112) is not a second start for the crash gate.
+                if (!cleanExit && !startupReadyReported) {
+                    startupReadyReported = true
+                    onStartupReady()
+                }
             }
             _phase.value = result
         }
@@ -147,7 +152,11 @@ class DesktopStartupState(
         _phase.value = StartupPhase.Failed(error)
     }
 
-    init {
+    /**
+     * Makes [showDamagedData] the process's [net.bible.service.db.DamagedDataRecovery] route. The route is one global,
+     * so only the state of the live app window registers it (`main()`), never every constructed state.
+     */
+    fun registerDamagedDataRoute() {
         net.bible.service.db.DamagedDataRecovery.route = ::showDamagedData
     }
 

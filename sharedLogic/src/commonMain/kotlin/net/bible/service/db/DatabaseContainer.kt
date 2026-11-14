@@ -66,6 +66,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.settings.store.SettingsStore
 import okio.FileSystem
 import okio.Path
@@ -285,29 +287,38 @@ class DatabaseContainer private constructor() {
                 container.settingsStore.load()
                 return container
             } catch (e: Exception) {
-                val late = damageFoundLater(e) ?: throw e
-                // The recovery (reset, restore) works on closed files.
+                // Nothing this failed open built may stay open: the recovery (reset, restore) and the checks below
+                // work on closed files, and a later open must not meet a second handle.
                 try { container?.let { synchronized(Companion) { it.closeDatabasesAfterFlush() } } } // L1-common-ok: atomicfu lock
-                catch (closeError: Exception) { Log.w(TAG, "Closing after damaged data failed", closeError) }
-                throw late
+                catch (closeError: Exception) { Log.w(TAG, "Closing after a failed open failed", closeError) }
+                if (e is CancellationException) throw e
+                // The file checks read whole databases: never on the caller's (possibly Main) thread.
+                throw withContext(Dispatchers.IO) { damageFoundLater(e) } ?: e
             }
         }
 
         /**
-         * #4112: SQLite corruption that the early schema read cannot see (a damaged table page, found by a migration,
-         * the settings load or another query in [create]) as the same [CorruptDatabasesException], naming the
-         * user-data files that `PRAGMA quick_check` finds damaged. Null for any other failure, or when no file can be
-         * named (then the original error propagates).
+         * #4112: SQLite corruption that the early schema read cannot see (a damaged table page or an index that
+         * disagrees with its table, found by a migration, the settings load or another query in [create]) as the same
+         * [CorruptDatabasesException], naming the user-data files that [isDamaged] (`PRAGMA integrity_check`) finds
+         * damaged. When no file can be named, every existing user-data file is a suspect
+         * ([CorruptDatabase.confirmed] false), so the recovery still appears. Null for any other failure.
          */
-        private fun damageFoundLater(e: Throwable): CorruptDatabasesException? {
+        @VisibleForTesting
+        internal fun damageFoundLater(e: Throwable, isDamaged: (String) -> Boolean = ::isDamagedDatabase): CorruptDatabasesException? {
             if (e.corruptDatabasesOrNull() != null) return null
             if (generateSequence(e) { it.cause.takeIf { c -> c !== it } }.none(::isCorruptionError)) return null
             val damaged = USER_DATA_DB_FILENAMES.mapNotNull { name ->
-                host.databasePath(name).takeIf(::isDamagedDatabase)?.let { CorruptDatabase(name, it) }
+                host.databasePath(name).takeIf(isDamaged)?.let { CorruptDatabase(name, it) }
+            }.ifEmpty {
+                USER_DATA_DB_FILENAMES.mapNotNull { name ->
+                    host.databasePath(name).takeIf { FileSystem.SYSTEM.exists(it.toPath()) }
+                        ?.let { CorruptDatabase(name, it, confirmed = false) }
+                }
             }
             if (damaged.isEmpty()) return null
             return CorruptDatabasesException(damaged, e).also {
-                Log.e(TAG, "Damaged database file(s) found while opening: ${damaged.joinToString { d -> d.fileName }}", it)
+                Log.e(TAG, "Damaged database file(s) found while opening: ${damaged.joinToString { d -> d.fileName + if (d.confirmed) "" else " (suspect)" }}", it)
             }
         }
 
@@ -332,7 +343,8 @@ class DatabaseContainer private constructor() {
         /**
          * The user's "reset damaged data" choice (#4112): each of [databases] that is still damaged is moved, with its
          * siblings, to `<name>.corrupt-<timestamp>` (never deleted), so the next [create] recreates it empty. A file
-         * that is healthy again (restored meanwhile) or missing is left alone. Returns the new names of the moved files.
+         * that is healthy again (restored meanwhile) or missing is left alone; a suspect ([CorruptDatabase.confirmed]
+         * false: no check could see its damage) is moved whenever it exists. Returns the new names of the moved files.
          * Throws [CorruptDatabaseResetException] when a damaged file cannot be moved ([moveAside] is the test seam).
          * Call with the databases closed (a failed [create] closes what it opened).
          */
@@ -342,7 +354,8 @@ class DatabaseContainer private constructor() {
         ): List<String> {
             forgetCorruption()
             return databases.mapNotNull { db ->
-                if (!isDamagedDatabase(db.path)) return@mapNotNull null
+                val stillToMove = if (db.confirmed) isDamagedDatabase(db.path) else FileSystem.SYSTEM.exists(db.path.toPath())
+                if (!stillToMove) return@mapNotNull null
                 val moved = moveAside(db.path) ?: throw CorruptDatabaseResetException(db, null)
                 Log.w(TAG, "User reset damaged database ${db.fileName}; kept as $moved")
                 moved
@@ -352,12 +365,14 @@ class DatabaseContainer private constructor() {
         /**
          * The last [CorruptDatabasesException] that opening [instance] threw (#4112). Later accesses rethrow it instead
          * of checking every file again (a cold widget or media-button process would otherwise re-scan the files on
-         * each access, some on Main), until [forgetCorruption]: a retry, a reset or a restore.
+         * each access, some on Main), until [forgetCorruption]: a retry ([openAskingOnCorruption], the hosts' retry), a
+         * reset ([resetCorruptDatabases]) or a restore (every [replacingDatabases] block). Written only under the
+         * companion lock, like the open that sets it.
          */
         @Volatile private var corruptionFound: CorruptDatabasesException? = null
 
         /** Lets the next [instance] access look at the files again (#4112: after a reset, a restore, or a retry). */
-        fun forgetCorruption() { corruptionFound = null }
+        fun forgetCorruption() { synchronized(Companion) { corruptionFound = null } } // L1-common-ok: atomicfu lock
 
         private fun getOldDatabase(): OldMonolithicAppDatabase =
             buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
@@ -538,6 +553,8 @@ class DatabaseContainer private constructor() {
                 try {
                     if (!completed) kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dropInstanceWithoutOpeningOwned(token) }
                 } finally {
+                    // #4112: the files may have been replaced (a restore), so remembered damage no longer holds.
+                    forgetCorruption()
                     try { if (gateClosed) writeGate.open() } finally { replaceDepth.decrementAndGet() }
                 }
             }
@@ -602,8 +619,10 @@ class DatabaseContainer private constructor() {
             return try {
                 instance
             } catch (e: Throwable) {
-                // E.g. CorruptDatabasesException (#4112): the host's recovery (Backup & Restore) runs with the databases closed.
-                ready = false
+                // E.g. CorruptDatabasesException (#4112): the host's recovery (Backup & Restore) runs with the databases
+                // closed. The one place that clears [ready] after a failed open, under the lock that publishes an open
+                // container: an open that succeeded meanwhile on another thread is never undone.
+                synchronized(Companion) { if (_instance == null) ready = false } // L1-common-ok: atomicfu lock
                 throw e
             }
         }
