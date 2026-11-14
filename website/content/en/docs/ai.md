@@ -534,6 +534,10 @@ and briefly emphasizes its row, including when animations are disabled.
 Your search and filters stay active if the copy matches them. If they would
 hide the copy, they are cleared so you can see it.
 
+A copy is a custom prompt like any other: it can use the same tools as the
+original, but its write tools ask for your permission (following the
+[permission mode](#permissions)) until you allow them in the copy's tool list.
+
 ### Prompt Template Tips
 
 - **Be specific** – Clearly describe what you want the AI to do and what
@@ -568,6 +572,8 @@ add-on:
     showing where they came from.
 - The prompts are **read-only** – you cannot edit them, but you can copy
     them to customize.
+- Write tools used by add-on prompts always follow your
+    [permission](#permissions) settings; a pack cannot allow them on your behalf.
 - Removing the add-on module removes all its prompts at once.
 - Add-on prompts are not synchronized via cloud sync; the underlying CSV
     file lives with the add-on module.
