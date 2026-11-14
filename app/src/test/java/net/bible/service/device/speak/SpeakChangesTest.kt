@@ -244,6 +244,17 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         }
     }
 
+    /** #4081: verse-menu / selection Speak go bridge -> SpeakControl.speakBible, never via the toolbar button. */
+    @Test
+    fun startingSpeechWithoutTheToolbarButtonShowsTheBar() {
+        val transport = GlobalContext.get().get<SpeakTransportServiceImpl>()
+        transport.setTransportVisible(false)
+        speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(true, transport.state.value.visible)
+    }
+
     @Test
     fun stopWhenStoppedHidesTheBarAndARefreshKeepsItHidden() {
         val transport = GlobalContext.get().get<SpeakTransportServiceImpl>()
