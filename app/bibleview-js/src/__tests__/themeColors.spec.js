@@ -185,6 +185,9 @@ const EXPECTED_TINTS = {
         {token: "--accent-rgb", alpha: "0.3"},
         {token: "--accent-rgb", alpha: "0.1"},
         {token: "--accent-rgb", alpha: "0.3"},
+        // .isHighlighted under .strongHighlights (video look), day and night
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.5"},
         {token: "--accent-rgb", alpha: "0.05"},
         {token: "--accent-rgb", alpha: "0.05"},
         {token: "--accent-rgb", alpha: "0.2"},

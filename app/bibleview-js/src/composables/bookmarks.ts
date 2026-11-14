@@ -206,7 +206,10 @@ export function bookmarkHighlightColor(label: LabelAndStyle, count: number, appS
         return appSettings.nightMode ? Color.rgb(180, 180, 180) : Color.rgb(210, 210, 210);
     }
     let c = new Color(label.color);
-    c = c.alpha(appSettings.nightMode ? 0.4 : 0.3);
+    // Strong highlights (video look): the pale default alphas barely show on a video frame.
+    c = appSettings.strongHighlights
+        ? c.alpha(appSettings.nightMode ? 0.65 : 0.55)
+        : c.alpha(appSettings.nightMode ? 0.4 : 0.3);
     for (let i = 0; i < count - 1; i++) {
         c = c.opaquer(0.3).darken(0.2);
     }

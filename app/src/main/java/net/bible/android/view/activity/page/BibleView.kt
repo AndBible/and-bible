@@ -110,6 +110,7 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.android.control.page.window.WorkspaceChange
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.VideoLook
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils.parseAndBibleReference
@@ -1341,6 +1342,7 @@ class BibleView(
         disableClickToEdit = CommonUtils.settings.disableClickToEdit,
         llmConfigured = CommonUtils.settings.llmConfigured,
         notesContentType = CommonUtils.settings.notesContentType,
+        strongHighlights = VideoLook.enabled,
     )
 
     // Synchronous, so set_config keeps its place in the JS task queue relative to what is emitted

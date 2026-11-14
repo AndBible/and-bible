@@ -18,7 +18,7 @@
 <template>
   <div
       @click="ambiguousSelection?.handle"
-      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode, pureMonochrome: appSettings.pureMonochromeMode}"
+      :class="bibleViewRootClasses(appSettings)"
       :style="topStyle"
       :dir="direction"
   >
@@ -150,7 +150,7 @@ import {useMemorization} from "@/composables/memorization";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
-import {black, useConfig, white} from "@/composables/config";
+import {bibleViewRootClasses, black, useConfig, white} from "@/composables/config";
 import {
     calcActiveCornerBottomOffset,
     calcHelperLinePositions,

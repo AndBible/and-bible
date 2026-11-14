@@ -172,6 +172,18 @@ export function applyThemeColors(colors: ThemeColors | null): void {
     }
 }
 
+/** The CSS classes of the BibleView root element (display modes the stylesheets key on). */
+export function bibleViewRootClasses(appSettings: AppSettings): Record<string, boolean> {
+    return {
+        night: appSettings.nightMode,
+        noAnimation: appSettings.disableAnimations,
+        monochrome: appSettings.monochromeMode,
+        colorEink: appSettings.colorEinkMode,
+        pureMonochrome: appSettings.pureMonochromeMode,
+        strongHighlights: appSettings.strongHighlights,
+    };
+}
+
 export type AppSettings = {
     isBottomWindow: boolean,
     topOffset: number,
@@ -209,6 +221,11 @@ export type AppSettings = {
     notesContentType: TextContentType,
     fontModuleNames: string[] | null,
     themeColors: ThemeColors | null,
+    /**
+     * Stronger selection and bookmark highlights for tutorial video captures (Android `-PvideoLook=true`);
+     * false keeps the normal look.
+     */
+    strongHighlights: boolean,
 }
 
 export type CalculatedConfig = Ref<{
@@ -322,6 +339,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         notesContentType: "HTML",
         fontModuleNames: null,
         themeColors: null,
+        strongHighlights: false,
     });
 
     function calcMmInPx() {
