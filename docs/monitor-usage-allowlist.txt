@@ -5,6 +5,7 @@ sharedLogic/src/commonMain/kotlin/net/bible/android/control/download/DownloadQue
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/ClientPageObjects.kt | 1 | BookName formatting flag must be restored atomically with reference formatting.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/CurrentPageBase.kt | 1 | Per-document render exclusion; same Book target as SwordContentFacade, no process-wide mutex.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/window/WindowRepository.kt | 1 | BookName formatting flag; page/document snapshot outside, only names formatted inside.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/search/BibleSearchServiceImpl.kt | 1 | Per-document read of one commentary entry (BookData.getOsisFragment); same Book target as SwordContentFacade, no process-wide mutex.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/versification/BookInstallWatcher.kt | 1 | Listener replacement serialization; JSword listener list add/remove are in-memory, not listener invocations.
 sharedLogic/src/commonMain/kotlin/net/bible/android/view/activity/page/BibleOverlayText.kt | 1 | BookName short-name scope; caller must not do I/O or invoke host callbacks.
 sharedLogic/src/commonMain/kotlin/net/bible/service/common/BookKeyExtensions.kt | 2 | Scoped BookName full/truncation flags with finally restore; reference formatting only.

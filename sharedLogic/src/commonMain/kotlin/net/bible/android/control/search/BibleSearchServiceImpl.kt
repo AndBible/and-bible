@@ -168,18 +168,24 @@ class BibleSearchServiceImpl(
     }
 
     /**
-     * The previews of one search. A Bible verse is shown whole. A non-Bible hit (a commentary) is cut to an excerpt
-     * around the match, and is read once per entry: a commentary entry is linked to every verse it covers, and each
-     * of those verses is a hit with the same, often very long, text (#4092: Matthew Henry, "vine": 949 hits, 95
-     * entries, 19.6 MB of text).
+     * The previews of one search. A Bible verse is shown whole. A hit in any other document is cut to an excerpt
+     * around the match. A commentary hit is also read once per entry: a commentary entry is linked to every verse it
+     * covers, and each of those verses is a hit with the same, often very long, text (#4092: Matthew Henry, "vine":
+     * 949 hits, 95 entries, 19.6 MB of text).
      */
     private inner class PreviewReader(private val terms: List<String>, private val lemmaTerms: List<String>) {
-        private val byEntry = HashMap<Pair<String, String>, StyledText>()
+        /** Keyed by a digest of the entry text, not the text itself: the keys of 95 entries would hold ~20 MB. */
+        private val byEntry = HashMap<Triple<String, Int, Long>, StyledText>()
 
-        fun previewFor(book: SwordBook, key: Key): StyledText {
-            if (book.bookCategory == BookCategory.BIBLE) {
-                return highlighted { SwordContentFacade.readOsisFragment(book, key, strings = strings) to null }
-            }
+        fun previewFor(book: SwordBook, key: Key): StyledText = when (book.bookCategory) {
+            BookCategory.BIBLE -> highlighted { SwordContentFacade.readOsisFragment(book, key, strings = strings) to null }
+            BookCategory.COMMENTARY -> commentaryPreview(book, key)
+            // Dictionaries, general books, EPUB: their entries have their own installed/key checks in readOsisFragment,
+            // so they keep that path (the fast read below is verified for commentaries only), with an excerpt.
+            else -> highlighted { SwordContentFacade.readOsisFragment(book, key, strings = strings) to SEARCH_EXCERPT_LENGTH }
+        }
+
+        private fun commentaryPreview(book: SwordBook, key: Key): StyledText {
             // Not readOsisFragment: its reading-view preparation (sentence anchors over the whole entry) took ~85 %
             // of the time of a commentary preview, and its cache would fill with entries nobody opened.
             // The text the index was built from: the whole entry without generated titles (the reference heading),
@@ -195,7 +201,7 @@ class BibleSearchServiceImpl(
                 Log.e(TAG, "Error reading raw entry for preview", e)
                 return highlighted(read)
             }
-            return byEntry.getOrPut(book.initials to raw) { highlighted(read) }
+            return byEntry.getOrPut(Triple(book.initials, raw.length, entryDigest(raw))) { highlighted(read) }
         }
 
         private fun highlighted(read: () -> Pair<Element, Int?>): StyledText =
@@ -224,4 +230,16 @@ class BibleSearchServiceImpl(
     companion object {
         private const val TAG = "BibleSearchService"
     }
+}
+
+/**
+ * A 64-bit FNV-1a digest of an entry's text, to recognise the same entry reached through different verses without
+ * keeping the (possibly 200 KB) text itself as a key.
+ */
+internal fun entryDigest(text: String): Long {
+    var hash = -3750763034362895579L // FNV offset basis
+    for (c in text) {
+        hash = (hash xor c.code.toLong()) * 1099511628211L
+    }
+    return hash
 }

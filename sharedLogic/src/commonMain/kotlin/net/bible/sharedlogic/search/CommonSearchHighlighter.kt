@@ -8,6 +8,7 @@ import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.strongsHighlightPatterns
 import net.bible.sharedcore.search.searchExcerpt
+import net.bible.sharedcore.search.searchExcerptAtBold
 import net.bible.sharedcore.search.termHighlightPattern
 
 /**
@@ -41,7 +42,11 @@ object CommonSearchHighlighter : SearchTextHighlighter {
 
         // Strip our own bold markers, recording the bold ranges in plain-text coordinates.
         val marked = verseString.toString().let {
-            if (excerptLength != null && !isStrongsSearch) searchExcerpt(it, terms, excerptLength) else it
+            when {
+                excerptLength == null -> it
+                isStrongsSearch -> searchExcerptAtBold(it, excerptLength)
+                else -> searchExcerpt(it, terms, excerptLength)
+            }
         }
         val plain = StringBuilder()
         val bold = ArrayList<Boolean>()
