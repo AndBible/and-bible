@@ -72,11 +72,14 @@ class DefaultThemeProposalTest {
         }
     }
 
-    /** WCAG AA (4.5:1) for the text-bearing pairs: toolbar, buttons, body text, links/accents. */
+    /**
+     * WCAG AA (4.5:1) for the text-bearing pairs: toolbar, buttons, body text, links/accents.
+     * CURRENT (stock) is only printed, as the reference for the comparison sheet.
+     */
     @Test
     fun keyPairsMeetWcagAa() {
-        for (p in proposals) for (dark in listOf(false, true)) {
-            val s = p.scheme(dark)!!
+        for (p in DefaultThemeProposal.entries) for (dark in listOf(false, true)) {
+            val s = p.scheme(dark) ?: abColorScheme(null, dark, DisplayColorMode.NORMAL)
             val pairs = mapOf(
                 "onPrimary/primary" to (s.onPrimary to s.primary),
                 "onPrimaryContainer/primaryContainer" to (s.onPrimaryContainer to s.primaryContainer),
@@ -87,9 +90,9 @@ class DefaultThemeProposalTest {
             for ((name, pair) in pairs) {
                 val ratio = contrast(pair.first, pair.second)
                 println("CONTRAST $p dark=$dark $name ${pair.first.hex()} on ${pair.second.hex()} = ${(ratio * 100).toInt() / 100f}")
-                assertTrue(ratio >= 4.5f, "$p dark=$dark $name = $ratio")
+                if (p != DefaultThemeProposal.CURRENT) assertTrue(ratio >= 4.5f, "$p dark=$dark $name = $ratio")
             }
-            assertNotEquals(abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), s.toString())
+            if (p != DefaultThemeProposal.CURRENT) assertNotEquals(abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), s.toString())
         }
     }
 
