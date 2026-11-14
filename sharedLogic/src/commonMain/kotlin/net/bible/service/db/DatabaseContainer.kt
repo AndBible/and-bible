@@ -262,10 +262,13 @@ class DatabaseContainer private constructor() {
 
     companion object : SynchronizedObject() {
         /**
-         * Opens the container in the one order that matters: backup, orphan delete, legacy split, construct,
-         * trigger setup, settings load. Suspends instead of blocking; the host's `openContainer` bridges it.
+         * Opens the container in the one order that matters: corruption check, backup, orphan delete, legacy split,
+         * construct, trigger setup, settings load. Throws [CorruptDatabasesException] for damaged user-data files
+         * (#4112). Suspends instead of blocking; the host's `openContainer` bridges it.
          */
         suspend fun create(): DatabaseContainer {
+            // #4112: a damaged user-data file is reported before anything (backup, migration, Room) touches it.
+            checkForCorruptDatabases()
             backupDatabaseIfNeeded()
             // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
             if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
@@ -280,6 +283,37 @@ class DatabaseContainer private constructor() {
             container.settingsStore.load()
             return container
         }
+
+        /**
+         * The damaged user-data databases ([USER_DATA_DB_FILENAMES]) in the database directory, or an empty list.
+         * Reads only; nothing is moved.
+         */
+        fun findCorruptDatabases(): List<Pair<CorruptDatabase, Throwable>> =
+            USER_DATA_DB_FILENAMES.mapNotNull { name ->
+                val path = host.databasePath(name)
+                confirmedCorruption(path)?.let { CorruptDatabase(name, path) to it }
+            }
+
+        private fun checkForCorruptDatabases() {
+            val corrupt = findCorruptDatabases()
+            if (corrupt.isEmpty()) return
+            val error = CorruptDatabasesException(corrupt.map { it.first }, corrupt.first().second)
+            Log.e(TAG, "Damaged database file(s): ${corrupt.joinToString { it.first.fileName }}", error)
+            throw error
+        }
+
+        /**
+         * The user's "reset damaged data" choice (#4112): each of [databases] that is still damaged is moved, with its
+         * siblings, to `<name>.corrupt-<timestamp>` (never deleted), so the next [create] recreates it empty. A file
+         * that is healthy again (restored meanwhile) or missing is left alone. Returns the new names of the moved files.
+         * Call with the databases closed (a failed [create] opened none of them).
+         */
+        fun resetCorruptDatabases(databases: List<CorruptDatabase>): List<String> =
+            databases.mapNotNull { db ->
+                recoverIfCorrupt(db.path).also { moved ->
+                    if (moved != null) Log.w(TAG, "User reset damaged database ${db.fileName}; kept as $moved")
+                }
+            }
 
         private fun getOldDatabase(): OldMonolithicAppDatabase =
             buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
@@ -306,7 +340,7 @@ class DatabaseContainer private constructor() {
         private fun backupDatabaseIfNeeded() {
             if(host.isRunningTests) return
             val oldDb = host.databasePath(OLD_MONOLITHIC_DATABASE_NAME)
-            if(FileSystem.SYSTEM.exists(oldDb.toPath()) && recoverIfCorrupt(oldDb) == null) {
+            if(FileSystem.SYSTEM.exists(oldDb.toPath())) {
                 backupOldDatabase(oldDb)
             } else {
                 backupNewDatabaseIfNeeded()
@@ -323,7 +357,7 @@ class DatabaseContainer private constructor() {
 
         private fun backupNewDatabaseIfNeeded() {
             Log.i(TAG, "backupDatabaseIfNeeded")
-            val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(host.databasePath(it)) }
+            val versions = ALL_DB_FILENAMES.map { userVersionOrZero(host.databasePath(it)) }
 
             val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
             val needBackup = maxVersions != versions
@@ -521,7 +555,13 @@ class DatabaseContainer private constructor() {
          */
         fun openForUse(): DatabaseContainer {
             ready = true
-            return instance
+            return try {
+                instance
+            } catch (e: Throwable) {
+                // E.g. CorruptDatabasesException (#4112): the host's recovery (Backup & Restore) runs with the databases closed.
+                ready = false
+                throw e
+            }
         }
         @Volatile private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {

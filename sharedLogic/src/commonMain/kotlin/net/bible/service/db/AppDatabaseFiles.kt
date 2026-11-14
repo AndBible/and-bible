@@ -55,16 +55,18 @@ fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.
  * Builds an app database with [productionConfig] and [migrations]. [name] is a file name in the app's database
  * directory or an absolute path.
  *
- * For a file in the app's database directory, a file that is not a database or is corrupt is first moved aside by
- * [recoverIfCorrupt], so Room creates it empty instead of every access throwing (the old framework/requery error
- * handler deleted such a file; this keeps the bytes). Absolute paths (imported files, sync downloads and patches,
- * tests' temporary files) are never recovered: moving a user-chosen import file aside would silently import nothing,
- * so there the SQLite error propagates to the caller.
+ * For a regenerable cache in the app's database directory (anything not in [USER_DATA_DB_FILENAMES]), a file that is
+ * not a database or is corrupt is first moved aside by [recoverIfCorrupt], so Room creates it empty instead of every
+ * access throwing (the old framework/requery error handler deleted such a file; this keeps the bytes).
+ * User-data databases are never recovered here (#4112): [DatabaseContainer.create] reports a damaged one as
+ * [CorruptDatabasesException] and only the user's explicit reset ([DatabaseContainer.resetCorruptDatabases]) moves it
+ * aside. Absolute paths (imported files, sync downloads and patches, tests' temporary files) are never recovered either:
+ * moving a user-chosen import file aside would silently import nothing, so there the SQLite error propagates to the caller.
  */
 inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
     val absolute = name.toPath().isAbsolute
     val path = if (absolute) name else DatabaseContainer.host.databasePath(name)
-    if (!absolute) recoverIfCorrupt(path)
+    if (!absolute && name !in USER_DATA_DB_FILENAMES) recoverIfCorrupt(path)
     path.toPath().parent?.let { FileSystem.SYSTEM.createDirectories(it) }
     return Room.databaseBuilder<T>(name = path)
         .productionConfig()
@@ -100,8 +102,17 @@ fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { 
 fun recoverIfCorrupt(path: String): String? = recoverIfCorrupt(path) { openSqlite(it) }
 
 internal fun recoverIfCorrupt(path: String, openConnection: (String) -> SQLiteConnection): String? {
-    val fs = FileSystem.SYSTEM
-    if (fs.metadataOrNull(path.toPath())?.isRegularFile != true) return null
+    val error = confirmedCorruption(path, openConnection) ?: return null
+    return moveCorruptAside(path, error)
+}
+
+/**
+ * The corruption error of [path] when two schema reads on fresh connections both report SQLITE_CORRUPT/NOTADB, else
+ * null (missing file, healthy file, or any other error such as busy/locked or I/O). Never changes the file itself
+ * (SQLite's own open may still roll back or discard a `-journal`/`-wal`, see [recoverIfCorrupt]).
+ */
+internal fun confirmedCorruption(path: String, openConnection: (String) -> SQLiteConnection = { openSqlite(it) }): SQLiteException? {
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile != true) return null
     fun corruptionError(): SQLiteException? = try {
         openConnection(path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
         null
@@ -110,7 +121,12 @@ internal fun recoverIfCorrupt(path: String, openConnection: (String) -> SQLiteCo
     }
     val firstError = corruptionError() ?: return null
     Log.w(TAG, "Possible corruption in ${path.toPath().name}; confirming with a fresh connection", firstError)
-    val error = corruptionError() ?: return null
+    return corruptionError()
+}
+
+/** Moves [path] and its siblings to `<name>.corrupt-<timestamp>[-n]`; the new name, or null if the move failed. */
+private fun moveCorruptAside(path: String, error: SQLiteException): String? {
+    val fs = FileSystem.SYSTEM
     val target = corruptTarget(path)
     if (!renamed(path, target)) {
         Log.e(TAG, "Corrupt database $path could not be moved aside", error)
@@ -141,13 +157,13 @@ private fun corruptTarget(path: String): String {
 }
 
 /**
- * `PRAGMA user_version` of [path], 0 when it does not exist. A corrupt file is moved aside first ([recoverIfCorrupt],
- * then it counts as missing): the startup backup check reads every version before Room opens anything, and must not
- * crash on a file that the builders would recover anyway.
+ * `PRAGMA user_version` of [path], 0 when it does not exist. The startup backup check reads every version before Room
+ * opens anything; [DatabaseContainer.create] has already reported any damaged user-data file by then (#4112), so a
+ * read error here propagates instead of moving the file aside.
  */
 @VisibleForTesting
-fun userVersionRecoveringCorruption(path: String): Int =
-    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true && recoverIfCorrupt(path) == null) readUserVersion(path) else 0
+fun userVersionOrZero(path: String): Int =
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true) readUserVersion(path) else 0
 
 /** [android.content.Context.deleteDatabase], plus Room 3's `<name>.lck` lock file, which it does not know about. */
 fun deleteAppDatabase(name: String): Boolean {
@@ -155,4 +171,52 @@ fun deleteAppDatabase(name: String): Boolean {
     val deleted = host.deleteDatabase(name)
     try { FileSystem.SYSTEM.delete((host.databasePath(name) + ".lck").toPath(), mustExist = false) } catch (_: IOException) { }
     return deleted
+}
+
+/**
+ * The databases holding the user's own data (#4112): a damaged one is reported ([CorruptDatabasesException]) and only
+ * moved aside when the user chooses to reset it. Every other app database is a regenerable cache and is recovered
+ * silently by [buildAppDatabase].
+ */
+val USER_DATA_DB_FILENAMES: Set<String> by lazy { (ALL_DB_FILENAMES.toList() + OLD_MONOLITHIC_DATABASE_NAME).toSet() }
+
+/** One damaged database file found at startup: its file name in the database directory and its full path. */
+data class CorruptDatabase(val fileName: String, val path: String)
+
+/**
+ * Opening the databases found damaged user-data files (#4112). Nothing has been moved or emptied: the host shows the
+ * error with "send report", "Backup & Restore" and "reset" ([DatabaseContainer.resetCorruptDatabases]) choices.
+ */
+class CorruptDatabasesException(val databases: List<CorruptDatabase>, cause: Throwable? = null) :
+    Exception("Damaged database file(s): " + databases.joinToString { it.fileName }, cause)
+
+/** The [CorruptDatabasesException] in this throwable's cause chain (hosts wrap startup failures), or null. */
+fun Throwable.corruptDatabasesOrNull(): CorruptDatabasesException? =
+    generateSequence(this) { it.cause.takeIf { cause -> cause !== it } }.filterIsInstance<CorruptDatabasesException>().firstOrNull()
+
+/** The user's answer when damaged user-data databases were found (#4112); Backup & Restore and report are handled by the asking host. */
+enum class CorruptDatabaseChoice { RESET, CLOSE }
+
+/**
+ * Runs [open] and, while it fails with damaged user-data databases, asks the user ([ask]): [CorruptDatabaseChoice.RESET]
+ * moves the damaged files aside ([reset], keeping them) and retries; [CorruptDatabaseChoice.CLOSE] returns null with
+ * nothing changed. [ask] also returns after a restore from Backup & Restore, which the retry then picks up. Any other
+ * failure propagates. Android's `StartupActivity` uses it; desktop and iOS show `CorruptDatabaseRecovery`.
+ */
+suspend fun <T> openAskingOnCorruption(
+    open: suspend () -> T,
+    ask: suspend (CorruptDatabasesException) -> CorruptDatabaseChoice,
+    reset: suspend (List<CorruptDatabase>) -> Unit = { DatabaseContainer.resetCorruptDatabases(it) },
+): T? {
+    while (true) {
+        val corrupt = try {
+            return open()
+        } catch (e: Exception) {
+            e.corruptDatabasesOrNull() ?: throw e
+        }
+        when (ask(corrupt)) {
+            CorruptDatabaseChoice.RESET -> reset(corrupt.databases)
+            CorruptDatabaseChoice.CLOSE -> return null
+        }
+    }
 }
