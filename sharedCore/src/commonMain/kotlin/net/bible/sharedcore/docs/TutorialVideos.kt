@@ -16,7 +16,7 @@ object TutorialVideos {
     const val CHANNEL_URL = "https://www.youtube.com/@AndBible"
 
     /** Id of the "Videos coming soon" placeholder video (`placeholder-coming-soon` episode); null until uploaded. */
-    val PLACEHOLDER_VIDEO_ID: String? = null
+    val PLACEHOLDER_VIDEO_ID: String? = "RlLkpKZZwTg"
 
     /** Id of the tutorials playlist ("AndBible tutorials"); null until the playlist is public. */
     val TUTORIAL_PLAYLIST_ID: String? = null
@@ -43,7 +43,19 @@ object TutorialVideos {
         TUTORIAL_17_SYNC_1_GOOGLE_DRIVE(null),
         TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS(null),
         TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS(null),
-        TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW(null);
+        TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW(null),
+        TUTORIAL_21_DOCUMENT_LIBRARY(null),
+        TUTORIAL_22_LOAD_FILES_AND_CUSTOM_REPOSITORIES(null),
+        TUTORIAL_23_MY_DOCUMENTS_AND_EPUB(null),
+        TUTORIAL_24_SHARING_AND_BIBLE_LINKS(null),
+        TUTORIAL_25_MEMORIZE(null),
+        TUTORIAL_26_DESKTOP(null),
+        TUTORIAL_27_STUDY_WORKFLOWS_1_TOPICAL_AND_SERMON(null),
+        TUTORIAL_28_STUDY_WORKFLOWS_2_WORD_STUDY_AND_DEVOTIONS(null),
+        TUTORIAL_29_AI_1_GETTING_STARTED(null),
+        TUTORIAL_30_AI_2_PROMPTS(null),
+        TUTORIAL_31_AI_3_TOOLS_DATA_PERMISSIONS(null),
+        TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC(null);
 
         /** The episode's folder name under `website/video/episodes/`. */
         val slug: String get() = name.lowercase().replace('_', '-')

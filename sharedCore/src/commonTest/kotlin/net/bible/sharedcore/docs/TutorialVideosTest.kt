@@ -36,6 +36,6 @@ class TutorialVideosTest {
     fun slugIsTheEpisodeFolderName() {
         assertEquals("whats-new-6-0", TutorialVideos.Episode.WHATS_NEW_6_0.slug)
         assertEquals("tutorial-14-speak", TutorialVideos.Episode.TUTORIAL_14_SPEAK.slug)
-        assertEquals(21, TutorialVideos.Episode.entries.size)
+        assertEquals(33, TutorialVideos.Episode.entries.size)
     }
 }
