@@ -74,15 +74,12 @@ internal class ProgressSpeakBridgeFamily(
         session.linkControl.openMemorize(BookAndKey(verseRange, selection.book))
     }
 
-    /**
-     * Opens the memorize document for the verses. Opening is not adding a goal: a verse becomes a memorization
-     * goal only through the user's explicit add (or marking it memorized) on the Memorize page (#4106).
-     */
     fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
+        val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
         val ticket = session.documentTicket()
-        session.scope.launch(Dispatchers.Main) {
-            // Only while the page is still this window's (#3975).
+        progressJsActions.addTargetIfNeededThen(windowId, verseRange, session.scope, Dispatchers.Main) {
+            // The target is kept; opening the memorize document only while the page is still this window's (#3975).
             if (session.holdsDocument(ticket)) memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }

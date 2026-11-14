@@ -17,6 +17,7 @@
 
 package net.bible.android.control.progress
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
@@ -35,6 +36,7 @@ import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
 import kotlinx.coroutines.CompletableDeferred
+import kotlin.coroutines.EmptyCoroutineContext
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -860,6 +862,36 @@ class ProgressControlTest {
     }
 
     // --- JS edge: fire-and-forget writes survive the screen (spec L1a section 4) ---
+
+    @Test
+    fun `memorize target write is not cancelled with the caller scope and runs before the follow-up`() = runTest {
+        val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val callerJob = SupervisorJob()
+        val callerScope = CoroutineScope(callerJob + StandardTestDispatcher(testScheduler))
+        val launcher = OrderedLauncher(appScope)
+        val actions = ProgressJsActions(launcher)
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 2))
+        var targetsSeenByFollowUp: Int? = null
+
+        val follow = actions.addTargetIfNeededThen("w", range, callerScope, EmptyCoroutineContext) {
+            targetsSeenByFollowUp = ProgressControl.getTargetOrdinalsInRange(range.start.ordinal, range.end.ordinal).size
+        }
+        advanceUntilIdle()
+        follow.join()
+        assertEquals("follow-up must see the target written before it", 2, targetsSeenByFollowUp)
+
+        // Caller scope cancelled right after the call: the write must still complete.
+        val range2 = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 2, 1))
+        val follow2 = actions.addTargetIfNeededThen("w", range2, callerScope, EmptyCoroutineContext) { }
+        callerScope.cancel()
+        advanceUntilIdle()
+        follow2.join() // cancelled with the caller: returns without waiting for the write
+        // The DAO call can resume off the test scheduler, so advanceUntilIdle() may return mid-write; a no-op queued
+        // behind the write on the same key finishes only after it.
+        launcher.launch("w") { }.join()
+        assertEquals(1, ProgressControl.getTargetOrdinalsInRange(range2.start.ordinal, range2.end.ordinal).size)
+        appScope.cancel()
+    }
 
     @Test
     fun `JS writes for one window wait for the earlier one even when it suspends, other windows do not`() = runTest {

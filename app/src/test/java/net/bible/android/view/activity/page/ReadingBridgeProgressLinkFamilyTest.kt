@@ -176,12 +176,10 @@ class ReadingBridgeProgressLinkFamilyTest {
     private val memorizeShown get() =
         repo.windowList.any { it.pageManager.currentPage.currentDocument === memorizeDocument }
 
-    /** Opening Memorize is not adding a goal: only the user's explicit "add" makes a verse a goal (#4106). */
-    @Test fun memorizeStartsMemorizeModeWithoutAddingATarget() {
+    @Test fun memorizeAddsATargetThenStartsMemorizeMode() {
         bridge.memorize("KJV", 1000, 1002)
         awaitMain { memorizeShown }
-        drain()
-        assertTrue("opening Memorize must not make the verses a goal", targets.isEmpty())
+        assertEquals("memorize mode started after the target was written", 1, targets.size)
     }
 
     @Test fun memorizeOfUnknownBookWritesNoTarget() {
