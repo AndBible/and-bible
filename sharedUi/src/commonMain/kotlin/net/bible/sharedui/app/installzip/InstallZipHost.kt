@@ -41,6 +41,15 @@ interface InstallZipHostPlatform {
     /** Whether [uri] is a StudyPad export (a cheap manifest peek), which skips the "install this?" confirm. */
     suspend fun isStudyPadExport(uri: DocumentRef): Boolean
 
+    /**
+     * Whether [uri] is a database backup (`*.abdb.zip`, or the old `.abdb`), which belongs to the database restore and
+     * not to the module install. Default false: the desktop/iOS hosts route those before InstallZip opens.
+     */
+    suspend fun isDatabaseBackup(uri: DocumentRef): Boolean = false
+
+    /** Runs the database restore for [uri] (its own section questions included); true when it restored. */
+    suspend fun restoreDatabaseBackup(uri: DocumentRef): Boolean = false
+
     fun displayName(uri: DocumentRef): String?
 
     /** The supported-formats blurb of the picker prelude. */
@@ -177,6 +186,8 @@ class InstallZipHost(
                 formatsText = platform::formatsText,
                 pickFile = { documentPicker.openDocuments(INSTALL_ZIP_SAF_MIME_TYPES, multiple = false).firstOrNull() },
                 enqueue = { list, act -> starter.start(list, act) },
+                isDatabaseBackup = platform::isDatabaseBackup,
+                restoreBackup = platform::restoreDatabaseBackup,
                 enqueueAndAwait = (starter as? net.bible.sharedui.app.ports.CompletingDocumentInstallStarter)
                     ?.let { completing -> completing::startAndAwait },
                 resolveDecision = platform::resolveDecision,

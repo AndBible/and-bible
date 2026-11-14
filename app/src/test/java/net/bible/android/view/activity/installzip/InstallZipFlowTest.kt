@@ -55,6 +55,9 @@ class InstallZipFlowTest {
     private val results = mutableListOf<InstallZipResult>()
     private var pickerAnswer: DocumentRef? = null
     private var studyPad = false
+    private var databaseBackup = false
+    private var restoreResult = true
+    private val restored = mutableListOf<DocumentRef>()
     private val uri = DocumentRef("content://x/module.zip")
     private val uri2 = DocumentRef("content://x/other.epub")
 
@@ -69,6 +72,8 @@ class InstallZipFlowTest {
             formatsText = { "formats" },
             pickFile = { pickerAnswer },
             enqueue = { list, act -> enqueued += list to act },
+            isDatabaseBackup = { databaseBackup },
+            restoreBackup = { restored += it; restoreResult },
             resolveDecision = { id, ok -> decisions += id to ok },
             mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
             requestNotificationPermission = {},
@@ -91,6 +96,42 @@ class InstallZipFlowTest {
         jobs.value = emptyList()
 
         assertEquals(listOf(InstallZipResult.OK), results)
+    }
+
+    /** #4095: an `.abdb.zip` opened from a file manager is a database backup: restore it, never ask to install it as a module. */
+    @Test
+    fun anExternalViewOfADatabaseBackupIsRestoredNotInstalled() = runTest(UnconfinedTestDispatcher()) {
+        databaseBackup = true
+        val f = flow(backgroundScope, Intent.ACTION_VIEW, listOf(uri))
+        f.start()
+        assertEquals(listOf(uri), restored)
+        assertEquals("no 'install this module?' prompt", null, f.state.value)
+        assertEquals(emptyList<Pair<List<DocumentRef>, String?>>(), enqueued)
+        assertEquals(listOf(InstallZipResult.OK), results)
+    }
+
+    @Test
+    fun aSharedDatabaseBackupIsRestoredNotInstalled() = runTest(UnconfinedTestDispatcher()) {
+        databaseBackup = true
+        flow(backgroundScope, Intent.ACTION_SEND, listOf(uri)).start()
+        assertEquals(listOf(uri), restored)
+        assertEquals(emptyList<Pair<List<DocumentRef>, String?>>(), enqueued)
+    }
+
+    @Test
+    fun aDeclinedDatabaseRestoreAnswersCanceled() = runTest(UnconfinedTestDispatcher()) {
+        databaseBackup = true
+        restoreResult = false
+        flow(backgroundScope, Intent.ACTION_VIEW, listOf(uri)).start()
+        assertEquals(listOf(InstallZipResult.CANCELED), results)
+    }
+
+    @Test
+    fun aSendMultipleIsNeverTakenForADatabaseBackup() = runTest(UnconfinedTestDispatcher()) {
+        databaseBackup = true
+        flow(backgroundScope, Intent.ACTION_SEND_MULTIPLE, listOf(uri, uri2)).start()
+        assertEquals(emptyList<DocumentRef>(), restored)
+        assertEquals(listOf(listOf(uri, uri2) to Intent.ACTION_SEND_MULTIPLE), enqueued)
     }
 
     @Test
