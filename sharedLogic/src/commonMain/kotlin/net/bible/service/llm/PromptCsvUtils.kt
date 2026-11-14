@@ -212,12 +212,16 @@ object PromptCsvUtils {
                             continue
                         }
 
-                        val existing = PromptRepository.promptById(prompt.id)
-                        if (existing != null && !BuiltInPrompts.isBuiltIn(existing.id)) {
-                            PromptRepository.updatePrompt(prompt)
+                        // #4108: a CSV file may come from someone else, so it carries no grants: its write
+                        // tools ask and its ALLOW_ALL falls back to the global mode. Updating an existing
+                        // user prompt keeps that prompt's own grants.
+                        val shared = PromptRepository.withoutGrants(prompt)
+                        val existing = PromptRepository.storedUserPromptById(prompt.id)
+                        if (existing != null) {
+                            PromptRepository.updatePrompt(withGrantsOf(shared, existing))
                             updated++
                         } else {
-                            PromptRepository.insertPrompt(prompt)
+                            PromptRepository.insertPrompt(shared)
                             created++
                         }
                     } catch (e: CancellationException) {
@@ -237,6 +241,20 @@ object PromptCsvUtils {
         }
 
         ImportResult(created, updated, errorMessages)
+    }
+
+    /**
+     * [imported] with the grants [existing] (a stored user prompt) already has: its write tools allowed without
+     * asking and its [PermissionMode.ALLOW_ALL]. [imported] itself must already be [PromptRepository.withoutGrants].
+     */
+    private fun withGrantsOf(imported: AgentPrompt, existing: AgentPrompt): AgentPrompt {
+        val grantedWriteTools = existing.allowedTools.orEmpty() - PromptRepository.withoutGrants(existing).allowedTools.orEmpty()
+        return imported.copy(
+            allowedTools = if (grantedWriteTools.isEmpty()) imported.allowedTools
+                else imported.allowedTools.orEmpty() + grantedWriteTools,
+            permissionMode = if (existing.permissionMode == PermissionMode.ALLOW_ALL) PermissionMode.ALLOW_ALL
+                else imported.permissionMode,
+        )
     }
 
     private fun parseCsvRowToPrompt(

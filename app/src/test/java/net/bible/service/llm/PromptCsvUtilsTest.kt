@@ -357,10 +357,11 @@ class PromptCsvUtilsTest {
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
 
+        // #4108: a shared file carries no grants of the user's: write tools are not auto-allowed and
+        // ALLOW_ALL falls back to the global mode. Read tools and denials are kept.
         val prompt = dao.allPrompts()[0]
-        assertThat(prompt.permissionMode, equalTo(PermissionMode.ALLOW_ALL))
-        assertTrue(prompt.allowedTools!!.contains(AgentTool.CREATE_BOOKMARK))
-        assertTrue(prompt.allowedTools!!.contains(AgentTool.SEARCH_BIBLE))
+        assertNull(prompt.permissionMode)
+        assertThat(prompt.allowedTools, equalTo(setOf(AgentTool.SEARCH_BIBLE)))
         assertTrue(prompt.deniedTools!!.contains(AgentTool.SET_DOCUMENT_TITLE))
         assertNull(prompt.configuredModelId)
     }
@@ -469,7 +470,8 @@ class PromptCsvUtilsTest {
         assertThat(imported.orderNumber, equalTo(7))
         assertFalse(imported.strictContextMatching)
         assertThat(imported.permissionMode, equalTo(PermissionMode.ASK_ONCE_PER_RUN))
-        assertThat(imported.allowedTools, equalTo(setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE)))
+        // Grants (write tools allowed without asking) are not imported (#4108).
+        assertThat(imported.allowedTools, equalTo(setOf(AgentTool.SEARCH_BIBLE)))
         assertThat(imported.deniedTools, equalTo(setOf(AgentTool.CREATE_LABEL)))
         // configuredModelId is not tested here as it requires a configured model in DB
         assertThat(imported.createdAt, equalTo(1640995200000L))
@@ -816,6 +818,36 @@ class PromptCsvUtilsTest {
         }
     }
 
+    /** #4108: re-importing a file over an existing prompt keeps the user's own grants, and adds none. */
+    @Test
+    fun importOverExistingPromptKeepsItsGrantsAndAddsNone(): Unit = runBlocking {
+        val granted = AgentPrompt(
+            name = "Granted", promptTemplate = "t",
+            permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE),
+            deniedTools = null,
+        )
+        val plain = AgentPrompt(name = "Plain", promptTemplate = "t", permissionMode = null, allowedTools = null, deniedTools = null)
+        dao.insert(granted)
+        dao.insert(plain)
+
+        val csv = "name;promptTemplate;permissionMode;allowedTools;deniedTools;id\n" +
+            "Granted renamed;t2;ALWAYS_ASK;GET_VERSE_CONTENT;;${granted.id}\n" +
+            "Plain renamed;t2;ALLOW_ALL;DELETE_BOOKMARK,GET_VERSE_CONTENT;;${plain.id}\n"
+        val result = PromptCsvUtils.importPromptsFromCsv(ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8)).source())
+        assertThat(result.updated, equalTo(2))
+
+        val g = dao.promptById(granted.id)!!
+        assertThat(g.name, equalTo("Granted renamed"))
+        assertThat(g.permissionMode, equalTo(PermissionMode.ALLOW_ALL))
+        assertThat(g.allowedTools, equalTo(setOf(AgentTool.GET_VERSE_CONTENT, AgentTool.CREATE_BOOKMARK)))
+
+        val p = dao.promptById(plain.id)!!
+        assertThat(p.name, equalTo("Plain renamed"))
+        assertNull(p.permissionMode)
+        assertThat(p.allowedTools, equalTo(setOf(AgentTool.GET_VERSE_CONTENT)))
+    }
+
     @Test
     fun testRoundTripUpdateExistingPrompt(): Unit = runBlocking {
         // Insert original
@@ -895,7 +927,10 @@ class PromptCsvUtilsTest {
         val imported = dao.allPrompts().sortedBy { ids.indexOf(it.id.toString()) }
         val out = ByteArrayOutputStream()
         PromptCsvUtils.exportPromptsToCsv(out.sink(), imported)
-        assertEquals(fixture, out.toString("UTF-8"))
+        // The only change: a grant (write tool allowed without asking) is not imported (#4108).
+        val expected = fixture.replace(";ASK_ONCE_PER_RUN;CREATE_BOOKMARK,SEARCH_BIBLE;", ";ASK_ONCE_PER_RUN;SEARCH_BIBLE;")
+        assertNotEquals(fixture, expected)
+        assertEquals(expected, out.toString("UTF-8"))
     }
 
     @Test
