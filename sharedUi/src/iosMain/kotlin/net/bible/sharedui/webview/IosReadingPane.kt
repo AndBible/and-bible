@@ -171,6 +171,9 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
 internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosNavDelegate) {
     var handler: IosBridgeMessageHandler? = null
 
+    /** The window's session once wired ([IosReadingWebViews.attachSession]); native events reach the page through it. */
+    var session: BibleWindowSession? = null
+
     /** How many `"bridge"` script-message handlers this WebView has registered (0 or 1; WebKit throws on a duplicate name). */
     var handlerCount: Int = 0
 
@@ -391,6 +394,7 @@ object IosReadingWebViews {
         entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).
         entry.webView.bibleSchemeHandler?.currentDocument = { session.firstDocument }
+        entry.session = session
         entry.handler = handler // strong reference: WebKit holds the handler weakly
         entry.webView.configuration.userContentController.addScriptMessageHandler(handler, "bridge")
         entry.handlerCount++
@@ -432,7 +436,12 @@ internal fun attachReadingGestures(windowId: String, gestures: HostReadingGestur
     if (gestures == null) return
     val entry = IosReadingWebViews.entry(windowId)
     if (entry.gestureRecognisers != null || entry.failed) return
-    entry.gestureRecognisers = IosReadingGestureRecognisers(windowId, entry.webView, gestures).also { it.attach() }
+    entry.gestureRecognisers = IosReadingGestureRecognisers(
+        windowId,
+        entry.webView,
+        gestures,
+        emit = { call -> entry.session?.emit(call) },
+    ).also { it.attach() }
 }
 
 /**

@@ -93,6 +93,29 @@ describe("margin page turns of a double tap (#4083)", () => {
         expect(scroll.y).toBe(start);
     });
 
+    it("a chapter inserted above between the tap and double_tap keeps the undo relative (infinite scroll)", async () => {
+        mountView(false);
+        scroll.y = start;
+        await wrapper.get(".prev-page-button").trigger("click");
+        const turned = scroll.y;
+        const chapterHeight = 5000;
+        scroll.y += chapterHeight; // insertThisTextAtTop keeps the same text on screen
+        emit("double_tap");
+        expect(scroll.y).toBe(start + chapterHeight);
+        expect(turned).toBeLessThan(start);
+    });
+
+    it("a top offset change between the taps and double_tap keeps the undo relative (set_offsets)", async () => {
+        mountView(false);
+        scroll.y = start;
+        await wrapper.get(".next-page-button").trigger("click");
+        await wrapper.get(".next-page-button").trigger("click");
+        const offsetDiff = -56; // the toolbar hides: setToolbarOffset scrolls by the offset difference
+        scroll.y += offsetDiff;
+        emit("double_tap");
+        expect(scroll.y).toBe(start + offsetDiff);
+    });
+
     it("a double tap after a page turn of an earlier tap does not undo that turn", async () => {
         vi.useFakeTimers();
         mountView(false);
