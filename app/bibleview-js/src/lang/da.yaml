@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI-handling
 aiDocumentRegenerate: Regenerér
 aiDocumentDelete: Slet
+aiDocumentsName: AI-dokumenter
 aiGeneratedBy: "Genereret af %s"
 aiGeneratedByWithModel: "Genereret af %s (%s)"

@@ -123,5 +123,6 @@ llmAction: ШІ
 llmActionLong: Дія ШІ
 aiDocumentRegenerate: Перегенерувати
 aiDocumentDelete: Видалити
+aiDocumentsName: Документи ШІ
 aiGeneratedBy: "Згенеровано %s"
 aiGeneratedByWithModel: "Згенеровано %s (%s)"

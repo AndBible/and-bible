@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI कार्य
 aiDocumentRegenerate: पुनर्उत्पादन
 aiDocumentDelete: मेट्नुहोस्
+aiDocumentsName: AI कागजातहरू
 aiGeneratedBy: "%s द्वारा उत्पन्न"
 aiGeneratedByWithModel: "%s (%s) द्वारा उत्पन्न"

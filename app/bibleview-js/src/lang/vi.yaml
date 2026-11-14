@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Hành động AI
 aiDocumentRegenerate: Tạo lại
 aiDocumentDelete: Xóa
+aiDocumentsName: Tài liệu AI
 aiGeneratedBy: "Được tạo bởi %s"
 aiGeneratedByWithModel: "Được tạo bởi %s (%s)"

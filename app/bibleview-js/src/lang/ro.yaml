@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Acțiune AI
 aiDocumentRegenerate: Regenerează
 aiDocumentDelete: Șterge
+aiDocumentsName: Documente AI
 aiGeneratedBy: "Generat de %s"
 aiGeneratedByWithModel: "Generat de %s (%s)"

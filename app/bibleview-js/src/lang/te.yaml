@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI చర్య
 aiDocumentRegenerate: పునర్జనరేట్ చేయండి
 aiDocumentDelete: తొలగించు
+aiDocumentsName: AI పత్రాలు
 aiGeneratedBy: "%s ద్వారా జనరేట్ చేయబడింది"
 aiGeneratedByWithModel: "%s (%s) ద్వారా జనరేట్ చేయబడింది"

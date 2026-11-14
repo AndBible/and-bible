@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI-åtgärd
 aiDocumentRegenerate: Återskapa
 aiDocumentDelete: Radera
+aiDocumentsName: AI-dokument
 aiGeneratedBy: "Genererad av %s"
 aiGeneratedByWithModel: "Genererad av %s (%s)"

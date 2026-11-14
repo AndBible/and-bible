@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: การดำเนินการ AI
 aiDocumentRegenerate: สร้างใหม่
 aiDocumentDelete: ลบ
+aiDocumentsName: เอกสาร AI
 aiGeneratedBy: "สร้างโดย %s"
 aiGeneratedByWithModel: "สร้างโดย %s (%s)"
