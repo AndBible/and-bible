@@ -66,7 +66,8 @@ class ReadingPlanControl @Inject constructor(
     }
 
     fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
-        // TODO: Reload readingStatus from db
+        // Invalidate the in-memory cache so the next access reloads from the synced db
+        readingStatus = null
     }
 
     private val readingPlanTextDao = ReadingPlanTextFileDao()
