@@ -14,6 +14,13 @@ data class CloudFile(
      * report one. It changes whenever the file's content changes, so an equal token means unchanged content.
      */
     val etag: String? = null,
+    /**
+     * The provider's own modification time exactly as it listed it (server clock, before any clock-offset
+     * adjustment that [createdTime] may carry), or null when the provider does not report one. Unlike
+     * [createdTime] it does not jitter between listings, so an equal value means the same server-side write
+     * time (to the provider's resolution, often whole seconds).
+     */
+    val serverModifiedTime: Long? = null,
 )
 
 /**

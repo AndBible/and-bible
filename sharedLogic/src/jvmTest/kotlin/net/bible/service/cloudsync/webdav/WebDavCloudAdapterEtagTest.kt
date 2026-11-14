@@ -63,4 +63,35 @@ class WebDavCloudAdapterEtagTest {
 
         assertEquals(mapOf("docs/KJV/meta.json" to "\"abc-1\"", "docs/KJV/1.0.abmd.zip" to null), files.associate { it.id to it.etag })
     }
+
+    /**
+     * Review of #4103: an etag derived from mtime(seconds) + size + inode can repeat for a rewrite in the same
+     * second, so the meta reuse also keys on the server's own modification time, exactly as listed: before the
+     * per-response clock offset (which jitters) is subtracted.
+     */
+    @Test fun listedFilesCarryTheRawServerModificationTime() = runBlocking {
+        val engine = MockEngine { request ->
+            val body = if (request.url.encodedPath.trimEnd('/') == "/dav") rootListing else listing
+            // The server clock runs 60 s ahead of the device (device clock is 0 below): a non-zero offset.
+            respond(body, HttpStatusCode.MultiStatus, headersOf(
+                HttpHeaders.ContentType to listOf("application/xml; charset=utf-8"),
+                HttpHeaders.Date to listOf("Thu, 01 Jan 1970 00:01:00 GMT"),
+            ))
+        }
+        val state = object : WebDavStateStore { override var propagation = Propagation.UNKNOWN; override var certPin: CertPin? = null }
+        val ui = object : WebDavSignInUi {
+            override suspend fun confirmCertificate(info: DavCertificateInfo) = true
+            override fun message(kind: WebDavMessage) = kind.name
+        }
+        val adapter = WebDavCloudAdapter(WebDavConfig("https://h/dav/", "me", "pw", ""), state, ui, "device", { c, _ ->
+            WebDavClient(createWebDavHttpClient(engine, c.username, c.password), c.serverUrl, c.username, c.password, { 0L })
+        })
+        adapter.signIn()
+
+        val meta = adapter.listFiles(parentsIds = listOf("docs/KJV")).single { it.name == "meta.json" }
+
+        val serverMtime = 1_790_849_100_000L // Thu, 01 Oct 2026 10:05:00 GMT
+        assertEquals(serverMtime, meta.serverModifiedTime)
+        assertEquals(serverMtime - 60_000L, meta.createdTime, "the device-clock time still carries the offset")
+    }
 }
