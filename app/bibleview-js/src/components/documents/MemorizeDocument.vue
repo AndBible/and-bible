@@ -155,8 +155,8 @@ const memorizeState = computed<MemorizeState>(() => {
 })
 
 const {strings, android, appSettings} = useCommon();
-// The host adds "SPEAK" to the disabled modal buttons where the platform has no speech (desktop); Listen in Loop needs speech too.
-const speakAvailable = computed(() => !appSettings?.disableBibleModalButtons?.includes("SPEAK"));
+// Platform capability, independent of the user's choice to hide the SPEAK modal button.
+const speakAvailable = computed(() => appSettings?.speakSupported !== false);
 const memorization = inject(memorizationKey)!;
 const readingProgressSettings = useReadingProgressSettings(document.value.readingProgressSettings, android);
 provide(readingProgressSettingsKey, readingProgressSettings);

@@ -60,6 +60,8 @@ data class ConfigInputs(
     val disableClickToEdit: Boolean,
     val llmConfigured: Boolean,
     val notesContentType: String,
+    /** Whether the platform can speak (TTS); gates BibleView's Listen in Loop independently of the user's modal-button choices. */
+    val speakSupported: Boolean = true,
     /** Null preserves Android's separate URL/reload_addons source; host platforms supply their live font catalog. */
     val fontModuleNames: List<String>? = null,
 )
@@ -106,6 +108,7 @@ object ConfigCommand {
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: $llmConfigured,
                         notesContentType: "$notesContentType",
+                        speakSupported: $speakSupported,
                         ${fontModuleNames?.let { "fontModuleNames: ${json.encodeToString(it)}," }.orEmpty()}
                     },
                     initial: $initial,

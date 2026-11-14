@@ -78,6 +78,15 @@ class ConfigCommandTest {
     }
 
     @Test
+    fun configCarriesTheSpeakCapabilityApartFromTheModalButtons() {
+        assertTrue(noSpace(ConfigCommand.build(true, inputs()).js).contains("speakSupported:true"), "default is speech-capable (Android)")
+        val off = noSpace(ConfigCommand.build(true, inputs().copy(
+            speakSupported = false, disableBibleModalButtons = withSpeakGate(emptySet(), false),
+        )).js)
+        assertTrue(off.contains("speakSupported:false"), off)
+    }
+
+    @Test
     fun initialFlagFollowsTheArgument() {
         assertTrue(noSpace(ConfigCommand.build(false, inputs()).js).contains("initial:false"))
     }

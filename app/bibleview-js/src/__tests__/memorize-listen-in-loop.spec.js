@@ -26,8 +26,8 @@ globalThis.ResizeObserver = vi.fn().mockImplementation(function () {
     this.disconnect = vi.fn();
 });
 
-// Set per test: the platform gate arrives as "SPEAK" in appSettings.disableBibleModalButtons.
-const mockAppSettings = {disableBibleModalButtons: []};
+// Set per test: the platform capability arrives as appSettings.speakSupported, separate from the user's hidden modal buttons.
+const mockAppSettings = {disableBibleModalButtons: [], speakSupported: true};
 
 vi.mock("@/composables", () => ({
     useCommon: () => ({
@@ -37,8 +37,9 @@ vi.mock("@/composables", () => ({
     }),
 }));
 
-async function openMenu(disabledButtons) {
+async function openMenu(disabledButtons, speakSupported = true) {
     mockAppSettings.disableBibleModalButtons = disabledButtons;
+    mockAppSettings.speakSupported = speakSupported;
     const wrapper = mount(MemorizeDocument, {
         props: {
             document: {
@@ -67,9 +68,14 @@ describe("MemorizeDocument overflow menu: Listen in Loop", () => {
         expect(wrapper.find(".dropdown-menu").text()).toContain("Listen in Loop");
     });
 
-    it("is hidden where the platform cannot speak (SPEAK gated off)", async () => {
-        const wrapper = await openMenu(["SPEAK"]);
+    it("is hidden where the platform cannot speak (speakSupported=false)", async () => {
+        const wrapper = await openMenu([], false);
         expect(wrapper.find(".dropdown-menu").exists()).toBe(true);
         expect(wrapper.find(".dropdown-menu").text()).not.toContain("Listen in Loop");
+    });
+
+    it("stays shown when the user only hides the SPEAK modal button", async () => {
+        const wrapper = await openMenu(["SPEAK"], true);
+        expect(wrapper.find(".dropdown-menu").text()).toContain("Listen in Loop");
     });
 });

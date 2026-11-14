@@ -132,6 +132,7 @@ class HostDocumentLoaderPlatform(
             themeColors = themeColorsJson(
                 workspaceSettings.workspaceColor, night, colorMode,
             ),
+            speakSupported = speakSupported(),
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
             notesContentType = s.getString("notes_content_type", "HTML") ?: "HTML",
