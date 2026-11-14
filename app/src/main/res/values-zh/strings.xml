@@ -1304,7 +1304,7 @@ http://www.heartlight.org 准予使用
   <string name="google_drive_signin_done">已登入。您可以關閉此分頁並返回 AndBible。</string>
   <string name="google_drive_signin_required">您的 Google 雲端硬碟登入已過期或已被撤銷。請重新登入以繼續同步。</string>
   <string name="google_drive_signin_interrupted">Google 登入已中斷。請再試一次。</string>
-  <string name="adapters_next_cloud">下一個雲端</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV 資料夾的位址，例如 https://nas.local/dav/ 或 https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">同步需要安全的 https:// 位址。</string>

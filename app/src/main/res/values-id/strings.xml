@@ -1017,7 +1017,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_adapter">Backend Sinkronisasi</string>
   <string name="sync_adapter_summary">Saat ini: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_server_uri">URL server</string>
   <string name="auth_username">Nama pengguna</string>
   <string name="auth_password">Kata sandi</string>

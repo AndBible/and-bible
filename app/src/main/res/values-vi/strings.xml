@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">Đã đăng nhập. Bạn có thể đóng thẻ này và quay lại AndBible.</string>
   <string name="google_drive_signin_required">Phiên đăng nhập Google Drive của bạn đã hết hạn hoặc bị thu hồi. Hãy đăng nhập lại để tiếp tục đồng bộ hóa.</string>
   <string name="google_drive_signin_interrupted">Đăng nhập Google bị gián đoạn. Hãy thử lại.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Địa chỉ của thư mục WebDAV, ví dụ https://nas.local/dav/ hoặc https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Đồng bộ hóa yêu cầu địa chỉ https:// an toàn.</string>

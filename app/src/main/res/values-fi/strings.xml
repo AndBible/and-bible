@@ -1230,7 +1230,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="google_drive_signin_done">Kirjautuminen onnistui. Voit sulkea tämän välilehden ja palata AndBibleen.</string>
   <string name="google_drive_signin_required">Google Drive -kirjautumisesi on vanhentunut tai peruutettu. Kirjaudu uudelleen jatkaaksesi synkronointia.</string>
   <string name="google_drive_signin_interrupted">Google-kirjautuminen keskeytyi. Yritä uudelleen.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV-kansion osoite, esim. https://nas.local/dav/ tai https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronointi vaatii suojatun https://-osoitteen.</string>

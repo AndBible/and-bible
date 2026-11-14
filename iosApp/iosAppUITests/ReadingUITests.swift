@@ -1845,12 +1845,12 @@ final class ReadingUITests: RealAppUITestCase {
         guard openDrawerRow(app, "Device synchronization") else { return }
         let adapter = element(app, "settings-row-sync_adapter")
         XCTAssertTrue(adapter.waitForExistence(timeout: 30), "Device synchronization did not open")
-        if !adapter.label.contains("NextCloud") {
+        if !adapter.label.contains("Nextcloud") {
             adapter.tap()
-            let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "NextCloud")).firstMatch
+            let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Nextcloud")).firstMatch
             XCTAssertTrue(choice.waitForExistence(timeout: 10), "NextCloud choice missing")
             choice.tap()
-            XCTAssertTrue(waitUntil(timeout: 15) { adapter.label.contains("NextCloud") }, "NextCloud not chosen")
+            XCTAssertTrue(waitUntil(timeout: 15) { adapter.label.contains("Nextcloud") }, "Nextcloud not chosen")
         }
         let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Server URL")).firstMatch
         var swipes = 0

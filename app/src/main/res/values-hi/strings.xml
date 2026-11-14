@@ -1294,7 +1294,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="google_drive_signin_done">साइन इन हो गया। आप इस टैब को बंद करके AndBible पर लौट सकते हैं।</string>
   <string name="google_drive_signin_required">आपका Google Drive साइन-इन समाप्त हो गया है या रद्द कर दिया गया है। सिंक्रनाइज़ करना जारी रखने के लिए फिर से साइन इन करें।</string>
   <string name="google_drive_signin_interrupted">Google साइन-इन बाधित हो गया। फिर से प्रयास करें।</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV फ़ोल्डर का पता, जैसे https://nas.local/dav/ या https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">सिंक के लिए सुरक्षित https:// पता आवश्यक है।</string>

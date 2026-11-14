@@ -1282,7 +1282,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="google_drive_signin_done">সাইন ইন হয়েছে। আপনি এই ট্যাব বন্ধ করে AndBible-এ ফিরে যেতে পারেন।</string>
   <string name="google_drive_signin_required">আপনার Google Drive সাইন-ইনের মেয়াদ শেষ হয়ে গেছে বা প্রত্যাহার করা হয়েছে। সিঙ্ক্রোনাইজ করা চালিয়ে যেতে আবার সাইন ইন করুন।</string>
   <string name="google_drive_signin_interrupted">Google সাইন-ইন বাধাগ্রস্ত হয়েছে। আবার চেষ্টা করুন।</string>
-  <string name="adapters_next_cloud">পরবর্তী ক্লাউড</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV ফোল্ডারের ঠিকানা, যেমন https://nas.local/dav/ বা https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">সিঙ্কের জন্য নিরাপদ https:// ঠিকানা প্রয়োজন।</string>

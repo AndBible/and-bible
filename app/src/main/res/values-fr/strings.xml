@@ -1295,7 +1295,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="google_drive_signin_done">Connecté. Vous pouvez fermer cet onglet et revenir à AndBible.</string>
   <string name="google_drive_signin_required">Votre connexion à Google Drive a expiré ou a été révoquée. Reconnectez-vous pour poursuivre la synchronisation.</string>
   <string name="google_drive_signin_interrupted">La connexion à Google a été interrompue. Réessayez.</string>
-  <string name="adapters_next_cloud">NextCloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresse du dossier WebDAV, par exemple https://nas.local/dav/ ou https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La synchronisation nécessite une adresse sécurisée https://.</string>

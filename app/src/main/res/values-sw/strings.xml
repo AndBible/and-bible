@@ -1234,7 +1234,7 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="google_drive_signin_done">Umeingia. Unaweza kufunga kichupo hiki na kurudi kwenye AndBible.</string>
   <string name="google_drive_signin_required">Kuingia kwako kwenye Google Drive kumeisha muda au kumebatilishwa. Ingia tena ili kuendelea kusawazisha.</string>
   <string name="google_drive_signin_interrupted">Kuingia kwenye Google kulikatizwa. Jaribu tena.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Anwani ya folda ya WebDAV, k.m. https://nas.local/dav/ au https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Usawazishaji unahitaji anwani salama ya https://.</string>

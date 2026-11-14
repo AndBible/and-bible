@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">साइन इन भयो। तपाईं यो ट्याब बन्द गरेर AndBible मा फर्कन सक्नुहुन्छ।</string>
   <string name="google_drive_signin_required">तपाईंको Google Drive साइन इनको म्याद सकिएको छ वा रद्द गरिएको छ। सिङ्क्रोनाइज गर्न जारी राख्न फेरि साइन इन गर्नुहोस्।</string>
   <string name="google_drive_signin_interrupted">Google साइन इन अवरुद्ध भयो। फेरि प्रयास गर्नुहोस्।</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV फोल्डरको ठेगाना, जस्तै https://nas.local/dav/ वा https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">सिंकका लागि सुरक्षित https:// ठेगाना आवश्यक छ।</string>

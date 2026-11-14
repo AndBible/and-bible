@@ -1288,7 +1288,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="google_drive_signin_done">Login realizado. Você pode fechar esta aba e voltar ao AndBible.</string>
   <string name="google_drive_signin_required">Seu login no Google Drive expirou ou foi revogado. Faça login novamente para continuar sincronizando.</string>
   <string name="google_drive_signin_interrupted">O login do Google foi interrompido. Tente novamente.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Endereço da pasta WebDAV, por exemplo https://nas.local/dav/ ou https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">A sincronização requer um endereço seguro https://.</string>

@@ -1253,7 +1253,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="google_drive_signin_done">Sisse logitud. Võid selle vahelehe sulgeda ja AndBiblesse naasta.</string>
   <string name="google_drive_signin_required">Sinu Google Drive\'i sisselogimine on aegunud või tühistatud. Sünkroonimise jätkamiseks logi uuesti sisse.</string>
   <string name="google_drive_signin_interrupted">Google\'i sisselogimine katkes. Proovi uuesti.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV-kausta aadress, nt https://nas.local/dav/ või https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sünkroonimine nõuab turvalist https:// aadressi.</string>

@@ -1322,7 +1322,7 @@ informe los problemas a los mantenedores de texto
   <string name="google_drive_signin_done">Sesión iniciada. Puedes cerrar esta pestaña y volver a AndBible.</string>
   <string name="google_drive_signin_required">Tu inicio de sesión en Google Drive ha caducado o se ha revocado. Inicia sesión de nuevo para continuar sincronizando.</string>
   <string name="google_drive_signin_interrupted">El inicio de sesión de Google se interrumpió. Inténtalo de nuevo.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Dirección de la carpeta WebDAV, p. ej. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronización requiere una dirección segura https://.</string>

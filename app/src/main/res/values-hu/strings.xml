@@ -1288,7 +1288,7 @@ jelentse be az észlelt problémát</string>
   <string name="google_drive_signin_done">Sikeresen bejelentkeztél. Bezárhatod ezt a lapot, és visszatérhetsz az AndBible alkalmazásba.</string>
   <string name="google_drive_signin_required">A Google Drive-bejelentkezésed lejárt vagy visszavonták. A szinkronizálás folytatásához jelentkezz be újra.</string>
   <string name="google_drive_signin_interrupted">A Google-bejelentkezés megszakadt. Próbáld újra.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">A WebDAV-mappa címe, pl. https://nas.local/dav/ vagy https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">A szinkronizáláshoz biztonságos https:// cím szükséges.</string>

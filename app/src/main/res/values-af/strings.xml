@@ -1286,7 +1286,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="google_drive_signin_done">Aangemeld. Jy kan hierdie oortjie toemaak en na AndBible terugkeer.</string>
   <string name="google_drive_signin_required">Jou Google Drive-aanmelding het verval of is herroep. Meld weer aan om voort te gaan met sinchroniseer.</string>
   <string name="google_drive_signin_interrupted">Google-aanmelding is onderbreek. Probeer weer.</string>
-  <string name="adapters_next_cloud">Volgende Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adres van die WebDAV-gids, bv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronisasie vereis \'n veilige https://-adres.</string>

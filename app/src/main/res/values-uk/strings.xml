@@ -1310,7 +1310,7 @@
   <string name="google_drive_signin_done">Вхід виконано. Ви можете закрити цю вкладку та повернутися до AndBible.</string>
   <string name="google_drive_signin_required">Термін дії вашого входу в Google Drive сплив або його було скасовано. Увійдіть знову, щоб продовжити синхронізацію.</string>
   <string name="google_drive_signin_interrupted">Вхід у Google було перервано. Спробуйте ще раз.</string>
-  <string name="adapters_next_cloud">Наступна хмара</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Адреса теки WebDAV, наприклад https://nas.local/dav/ або https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронізації потрібна захищена адреса https://.</string>

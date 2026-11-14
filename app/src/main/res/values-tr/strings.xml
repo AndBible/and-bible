@@ -1329,7 +1329,7 @@
   <string name="google_drive_signin_done">Oturum açıldı. Bu sekmeyi kapatıp AndBible\'a dönebilirsiniz.</string>
   <string name="google_drive_signin_required">Google Drive oturumunuzun süresi doldu veya iptal edildi. Eşzamanlamaya devam etmek için yeniden oturum açın.</string>
   <string name="google_drive_signin_interrupted">Google oturum açma kesintiye uğradı. Tekrar deneyin.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV klasörünün adresi, örn. https://nas.local/dav/ veya https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Eşitleme için güvenli bir https:// adresi gerekir.</string>

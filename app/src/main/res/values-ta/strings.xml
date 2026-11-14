@@ -1325,7 +1325,7 @@
   <string name="google_drive_signin_done">உள்நுழைந்துவிட்டது. இந்தத் தாவலை மூடிவிட்டு AndBible க்குத் திரும்பலாம்.</string>
   <string name="google_drive_signin_required">உங்கள் Google Drive உள்நுழைவு காலாவதியாகிவிட்டது அல்லது திரும்பப் பெறப்பட்டது. தொடர்ந்து ஒத்திசைக்க மீண்டும் உள்நுழையவும்.</string>
   <string name="google_drive_signin_interrupted">Google உள்நுழைவு குறுக்கிடப்பட்டது. மீண்டும் முயலவும்.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV கோப்புறையின் முகவரி, எ.கா. https://nas.local/dav/ அல்லது https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">ஒத்திசைவுக்குப் பாதுகாப்பான https:// முகவரி தேவை.</string>

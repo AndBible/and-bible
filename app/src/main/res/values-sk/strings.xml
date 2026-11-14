@@ -1324,7 +1324,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="google_drive_signin_done">Prihlásenie prebehlo úspešne. Túto kartu môžete zavrieť a vrátiť sa do AndBible.</string>
   <string name="google_drive_signin_required">Vaše prihlásenie do Google Drive vypršalo alebo bolo zrušené. Ak chcete pokračovať v synchronizácii, prihláste sa znova.</string>
   <string name="google_drive_signin_interrupted">Prihlásenie do Google bolo prerušené. Skúste to znova.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa priečinka WebDAV, napr. https://nas.local/dav/ alebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronizácia vyžaduje zabezpečenú adresu https://.</string>

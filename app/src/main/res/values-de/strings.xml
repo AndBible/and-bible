@@ -1258,7 +1258,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="google_drive_signin_done">Angemeldet. Du kannst diesen Tab schließen und zu AndBible zurückkehren.</string>
   <string name="google_drive_signin_required">Deine Google-Drive-Anmeldung ist abgelaufen oder wurde widerrufen. Melde dich erneut an, um die Synchronisierung fortzusetzen.</string>
   <string name="google_drive_signin_interrupted">Die Google-Anmeldung wurde unterbrochen. Versuche es erneut.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresse des WebDAV-Ordners, z. B. https://nas.local/dav/ oder https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Die Synchronisierung erfordert eine sichere https://-Adresse.</string>

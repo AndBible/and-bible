@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">Naka-sign in na. Maaari mong isara ang tab na ito at bumalik sa AndBible.</string>
   <string name="google_drive_signin_required">Nag-expire o binawbawi na ang iyong pag-sign in sa Google Drive. Mag-sign in muli para magpatuloy sa pag-synchronize.</string>
   <string name="google_drive_signin_interrupted">Naantala ang pag-sign in sa Google. Subukan muli.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Address ng WebDAV folder, hal. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Nangangailangan ang sync ng ligtas na https:// address.</string>

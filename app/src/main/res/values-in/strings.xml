@@ -1232,7 +1232,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="google_drive_signin_done">Berhasil masuk. Anda dapat menutup tab ini dan kembali ke AndBible.</string>
   <string name="google_drive_signin_required">Akses masuk Google Drive Anda telah kedaluwarsa atau dicabut. Masuk lagi untuk melanjutkan sinkronisasi.</string>
   <string name="google_drive_signin_interrupted">Proses masuk Google terhenti. Coba lagi.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Alamat folder WebDAV, mis. https://nas.local/dav/ atau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinkronisasi memerlukan alamat https:// yang aman.</string>
