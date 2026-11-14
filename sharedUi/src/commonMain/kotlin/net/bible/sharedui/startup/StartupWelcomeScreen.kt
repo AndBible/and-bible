@@ -24,6 +24,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,6 +83,7 @@ import net.bible.sharedui.theme.isPureMonochrome
  * seams; the tab lives in `StartupWelcomeController` ([onSelectTab]). No top app bar (this is a
  * launcher-context screen, like the classic splash which hides the action bar).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun StartupWelcomeScreen(
     state: StartupWelcomeState,
@@ -180,7 +183,11 @@ fun StartupWelcomeScreen(
         )
         // Batch 6 A6: both open AndBible URLs, so discrete mode hides them.
         if (state.homepageButtonsVisible) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Three chips do not fit one line on a 320dp screen: wrap, centred.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
                 FooterLink(Icons.Outlined.Language, strings.welcomeHomepageLabel, onOpenHomepage)
                 FooterLink(Icons.Outlined.Code, strings.welcomeGithubLabel, onOpenGithub)
                 val videoUrl = TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)
