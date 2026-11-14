@@ -147,6 +147,13 @@ object PromptRepository : KoinComponent {
     fun isBuiltIn(id: IdType): Boolean = BuiltInPrompts.isBuiltIn(id)
 
     /**
+     * The tools [prompt] may run without the permission dialog (`promptAllowedTools` of
+     * [net.bible.service.llm.agent.checkPermission], step 3.6), or null for none.
+     */
+    fun autoAllowedTools(prompt: AgentPrompt): Set<AgentTool>? =
+        if (isBuiltIn(prompt.id)) null else prompt.allowedTools
+
+    /**
      * Copy a prompt (built-in, add-on, or user) into the DB as a new user prompt with a new ID.
      * Returns the new prompt's ID, or null if the source prompt was not found.
      */

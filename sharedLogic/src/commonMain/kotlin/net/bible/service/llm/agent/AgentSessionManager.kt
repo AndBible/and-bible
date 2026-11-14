@@ -36,7 +36,6 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmRawLogRecord
@@ -638,8 +637,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         previousResponse: String? = null,
         userSpecification: String? = null
     ): AgentContext {
-        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
-
         // Workspace-level prompt: no specific verse/document selected
         if (selection.bookInitials == null && selection.startOrdinal < 0
             && selection.noteEditorEntityType == null) {
@@ -652,7 +649,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 windowId = windowControl.activeWindow.id,
                 promptPermissionMode = prompt.permissionMode,
                 promptAvailableTools = prompt.allowedTools,
-                promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
+                promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
                 promptDeniedTools = prompt.deniedTools,
                 noDocumentCreation = prompt.noDocumentCreation,
                 previousResponse = previousResponse,
@@ -687,7 +684,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
             promptAvailableTools = prompt.allowedTools,
-            promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
+            promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
             promptDeniedTools = prompt.deniedTools,
             noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,
