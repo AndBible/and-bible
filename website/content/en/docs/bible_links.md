@@ -43,7 +43,7 @@ for some special documents (those that are not a normal Bible, book or dictionar
 - <https://read.andbible.org/1Sam.1.2?v11n=KJV>
 - <https://read.andbible.org/1Sam.1.2-1Sam1.5?v11n=KJV>
 
-## Other Link Formats
+## Other Link Formats {#alternative-link-formats-non-google-builds-only}
 
 Only `https://read.andbible.org/` links are registered with Android as links that open in
 *AndBible*. The app’s code can read StepBible.org and Bible.com addresses, but no link
