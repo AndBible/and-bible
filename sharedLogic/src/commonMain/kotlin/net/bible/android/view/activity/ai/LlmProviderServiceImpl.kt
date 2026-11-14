@@ -221,23 +221,13 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
 
     // --- Easy-setup wizard (ported from classic EasySetupDialogs) ---------------------------------
 
-    override fun recommendedSetups(): List<RecommendedSetupVd> = listOf(
-        recommendedSetup(
-            LlmProvider.GEMINI, "gemini-3-flash-preview",
-            strings.easySetupGeminiDesc,
-            strings.easySetupFreeTier,
-        ),
-        recommendedSetup(
-            LlmProvider.ANTHROPIC, "claude-haiku-4-5",
-            strings.easySetupAnthropicDesc,
-            null,
-        ),
-        recommendedSetup(
-            LlmProvider.OPENAI, "gpt-5.4-mini",
-            strings.easySetupOpenaiDesc,
-            null,
-        ),
-    )
+    override fun recommendedSetups(): List<RecommendedSetupVd> = QUICK_SETUP_MODELS.map { (provider, modelId) ->
+        when (provider) {
+            LlmProvider.GEMINI -> recommendedSetup(provider, modelId, strings.easySetupGeminiDesc, strings.easySetupFreeTier)
+            LlmProvider.ANTHROPIC -> recommendedSetup(provider, modelId, strings.easySetupAnthropicDesc, null)
+            else -> recommendedSetup(provider, modelId, strings.easySetupOpenaiDesc, null)
+        }
+    }
 
     override suspend fun performEasySetup(setupId: String, apiKey: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         val setup = recommendedSetups().firstOrNull { it.id == setupId } ?: return@withContext
@@ -310,4 +300,17 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
      * and the classic add-provider spinner default). */
     private fun parseApiFormat(id: String): ApiFormat =
         try { ApiFormat.valueOf(id) } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
+
+    companion object {
+        /**
+         * The Quick Setup (easy-setup wizard) offers: one efficient model per provider, in this order.
+         * Each needs an entry with pricing in [LlmProvider]; models with special request needs get them
+         * from [net.bible.service.llm.ModelRequestRules].
+         */
+        val QUICK_SETUP_MODELS: List<Pair<LlmProvider, String>> = listOf(
+            LlmProvider.GEMINI to "gemini-3.8-flash",
+            LlmProvider.ANTHROPIC to "claude-haiku-5-5",
+            LlmProvider.OPENAI to "gpt-6-luna",
+        )
+    }
 }
