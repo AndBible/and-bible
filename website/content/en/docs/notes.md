@@ -16,8 +16,9 @@ saved automatically.
 2. Click the *Note* button. The note opens for editing in the bookmark panel of
     the reading view.
 
-    - This will automatically create a new bookmark with the [label](labels.md):
-        ‘Unlabeled’.
+    - This will automatically create a new bookmark with the [label](labels.md)
+        ‘Unlabeled’, or with the workspace’s
+        [auto-assign labels](labels.md#change-label-settings) if there are any.
 
 > [![Verse action dialog note button](images/verse-action-dialog-note-button.png){ .align-left width="340" height="110" }](images/verse-action-dialog-note-button.png)
 

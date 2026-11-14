@@ -60,15 +60,23 @@ The desktop app can be used with the keyboard and the mouse. Among others: **Ctr
 or **Ctrl+L** opens the *Book Chooser*, **Ctrl+Tab** switches windows, **Ctrl+Plus**, **Ctrl+Minus**
 and **Ctrl+0** (or **Ctrl** and the mouse wheel) change the text size, **Ctrl+,** opens
 *Application preferences*, **F11** toggles fullscreen, and **Esc**, **Alt+Left** or the mouse back
-button go back. See the full list, with the Android and iOS keys, in
+button go back. **Ctrl+=** also enlarges the text. See the full list, with the Android and iOS keys, in
 [Keyboard Shortcuts](navigation.md#keyboard-shortcuts).
+
+Some of those keys (**Ctrl+W**, **Alt+M**, **Alt+O** and **Alt+Up**/**Alt+Down**) are handled by the
+reading page itself, so the keyboard focus must be in a reading window for them to work.
+
+The mouse has no press and hold: the right button replaces it. Right-click a window button to open its
+menu, right-click the check mark that marks a chapter as read to open the read history, and right-click
+selected text in the Bible to open the selection menu. A left click on a verse opens the verse menu. A
+horizontal mouse wheel or a sideways touchpad gesture acts as a swipe gesture.
 
 ## Update checks
 
-Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub once a week by default. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. Use **Check for updates** in Settings to choose how often: daily, weekly, monthly or never. An earlier "yes" becomes weekly and an earlier "no" becomes never. When a newer version is found, AndBible can open its release page; you install it yourself. Instead of installing, you can choose **Remind me tomorrow**, **Remind me in a week** or **Remind me in a month**; AndBible then stays quiet until that time, even across restarts. **Skip this version** hides that release and offers only a newer one. To stop checking, select **Don't notify me about updates** before closing the offer, which sets **Check for updates** to never. You can turn checks back on using **Check for updates** in Settings. The update check never offers a release that is less stable than the one you have installed.
+Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub once a week by default. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. Use **Check for updates** in *Application preferences* (in the main menu; the row is at the end of the list) to choose how often: daily, weekly, monthly or never. An earlier "yes" becomes weekly and an earlier "no" becomes never. When a newer version is found, AndBible can open its release page; you install it yourself. Instead of installing, you can choose **Remind me tomorrow**, **Remind me in a week** or **Remind me in a month**; AndBible then stays quiet until that time, even across restarts. **Skip this version** hides that release and offers only a newer one. To stop checking, select **Don't notify me about updates** before closing the offer, which sets **Check for updates** to never. You can turn checks back on using **Check for updates** in *Application preferences*. The update check never offers a release that is less stable than the one you have installed.
 <!-- if beta -->
 
-**Offer public beta updates** (also in Settings) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for Flatpak, Microsoft Store (MSIX) and development installs, which update through their own channel or not at all, nor for developer test builds, which always see every channel.
+**Offer public beta updates** (also in *Application preferences*) decides whether public beta versions are offered. It is on by default when you have a public beta installed and off by default when you have a production release installed. Turn it on in a production install to be offered newer public betas. Turn it off in a beta install to be offered production releases only: you then wait until a production release is newer than your beta, and are never moved to an older version. The setting is not shown for Flatpak and MSIX package installs and development installs, which do not use this update check, nor for developer test builds, which always see every channel.
 
 <!-- end -->
 
@@ -87,6 +95,8 @@ On Windows, data is in `%APPDATA%\AndBible`, configuration in its `config` subdi
 ## Known limitations {#known-limitations}
 
 - Printing is not available.
+- There is no Speak (text to speech), no *Keep screen on* and no tilt to scroll; see
+    [Platform differences](platform_differences.md). The Memorize view therefore has no *Listen in Loop* here.
 - There is no find in the current page. Use the search in the app to search in a Bible instead.
 - Your reading position is saved when you close the window. A forced kill (SIGKILL or *End process*) or a power cut can lose changes since the previous save.
 

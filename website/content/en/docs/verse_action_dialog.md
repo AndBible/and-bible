@@ -28,12 +28,15 @@ selected verse, **+** and **−** extend or shrink the selected range, and **Ctr
 
 ## Bookmark
 
-The bookmark icon creates a new bookmark and opens the *Bookmark labels* sheet.
+The bookmark icon creates a new bookmark and opens the *Bookmark labels* sheet. If the workspace has
+[auto-assign labels](labels.md#change-label-settings), the bookmark is created with those labels instead and the
+sheet does not open.
 See [Adding a bookmark](bookmarks.md#creating-a-bookmark) for more information.
 
 ## Note
 
-The note icon creates a new bookmark with the ‘Unlabelled’ label and opens its note for editing.
+The note icon creates a new bookmark and opens its note for editing. The bookmark has the ‘Unlabeled’ label, or
+the workspace’s auto-assign labels if there are any.
 You can immediately start entering your note or change the label from the *Bookmark labels* sheet.
 See [Creating a note](notes.md#creating-notes) for more information.
 

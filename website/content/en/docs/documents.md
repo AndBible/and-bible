@@ -8,9 +8,9 @@ documents, and [Load Documents](#load-documents) from your device’s filesystem
 
 ## Document Library
 
-The *Document Library* contains the list of all Bibles, commentaries, dictionaries,
-books, and other modules that have been download.
-The *Document Library* can be accessed in a few different ways:
+The *Document Library* is the list of all Bibles, commentaries, dictionaries,
+books, and other modules that have been downloaded. In the app the screen is titled
+*Document*. It can be opened in a few different ways:
 
 > - Click the top left main menu (☰).
 > - Click *Choose Document*.
@@ -96,12 +96,16 @@ in Strong’s enabled document modules (like KJV, BSB, NASB, NET, etc):
 2. In the *Dictionaries* section, click on *Strongs Greek dictionary* to select the Strong’s Greek dictionary you want to use.
 3. Click on *Strongs Hebrew dictionary* to select the Strong’s Hebrew dictionary you want to use.
 4. Click on *Robinson Greek morphology* to select the Robinson Greek dictionary you want to use.
-5. In the toolbar at the top, click the Greek/Hebrew icon until dotted lines appear
-    below the words.
+5. In the toolbar at the top, press the *Strong’s numbers* button (the Greek/Hebrew icon)
+    until dotted lines appear below the words.
 
-To view the Strong’s definition for a word, simply click on a word in a Strong’s
-enabled Bible module. This also works in non-English modules such as SpaRV1909;
-install and select the Greek and Hebrew dictionaries you want to use.
+To view the Strong’s definition for a word, tap the word in a Strong’s enabled Bible
+module. Depending on the Strong’s mode and on whether the word has other actions (for
+example a bookmark), the definition either opens straight away, or a menu appears where
+you choose *Definition & Morphology*. The definition page has a *Find all occurrences*
+link, which searches for every verse that uses the same Strong’s number. This also works
+in non-English modules such as SpaRV1909; install and select the Greek and Hebrew
+dictionaries you want to use.
 
 To display the Strong’s numbers in the Bible instead of underlines,
 click on the Greek or Hebrew icon on the top menu bar (For books in Hebrew,
@@ -139,14 +143,19 @@ Various book formats are supported by *AndBible*. Sword modules, EPUB, and
 repositories (Sword) or directly loaded from your device’s filesystem.
 
 Since version 5.0, *AndBible* also supports ePub digital books, which can be loaded from
-your device’s filesystem and read as generic books.
+your device’s filesystem and read as generic books. An EPUB appears in the document
+list under the *Book* group. Its table of contents (the list of its chapters) opens from the title at the
+top of the screen. EPUBs have their own search modes, including *Raw query syntax*; see
+[Searching EPUB books](search.md#searching-epub-books).
 
-When a link action menu appears, links to another location within an EPUB or to
+The link action menu appears only when a tap has several possible actions; a plain tap
+on a link simply follows it. In that menu, links to another location within an EPUB or to
 other content inside *AndBible* are labeled **Open internal link**. Links that open
-outside the app, such as web or email links, are labeled **Open external link**.
+outside the app, such as web or email links, are labeled **Open external link**; on
+Android you are asked to confirm before a web link opens in your browser.
 
-There is also experimental support for MyBible and MySword format modules, which can
-be loaded from your device’s filesystem.
+There is also experimental support for MyBible, MySword and e-Sword (`.bblx`, `.bbli`)
+format modules, which can be loaded from your device’s filesystem.
 
 For newly imported MyBible Bibles, *AndBible* selects the closest supported chapter
 and verse numbering from the module's contents and remembers that choice. For example,
@@ -186,7 +195,24 @@ To download a document from the provided repositories:
 
 1. Click on the top left main menu (☰).
 2. Click *Download Documents*.
-3. Search for, and click on a document to install it.
+3. If *AndBible* asks *Do you want to proceed to download documents?*, answer *Yes*
+    (*Yes, do not ask again* skips the question in the future, *Cancel* returns).
+4. Search for a document and tap it, or tap the download arrow on its row. *AndBible*
+    asks *Download* followed by the document name; confirm with *OK*. A progress bar
+    with a cross appears on the row while the download runs; the cross cancels it.
+
+The list has two chips at the top: the language chip (the globe) and the document type
+chip (*All types*, *Bible*, *Commentary*, *Dictionary*, *Book*, *Map*, *Add-ons*). A line
+under them tells how many documents match. The *More filters* button opens *Filter and
+sort*, where you can choose the *Repository*, the *Sort order* and *Group by*, tick
+*Remember these settings* to keep them, or use *Reset to defaults*. Pull down on the list
+to refresh the catalogue.
+
+A document that is already installed shows a check mark. When a newer version is in the
+catalogue the row shows an upward arrow, and with the default sort the status
+*Update available* is listed near the top. Tap the row to update it. If you have bookmarks
+or notes for that document, *AndBible* warns you (*There are bookmarks and/or notes for
+this document.*) and recommends a backup before you continue.
 
 The language filter starts with your last picked language when it is available in
 the catalogue, otherwise your system language. If neither is available, it shows
@@ -194,8 +220,9 @@ the catalogue, otherwise your system language. If neither is available, it shows
 Use the language filter to choose another language or *All*; refreshing the
 catalogue keeps your current choice.
 
-Tap the information icon next to a document to view its description and module
-version history, when provided. Version history is listed newest first, using
+To view a document’s description and module version history, when provided,
+press and hold the document to select it and tap the information (*About*) icon in the
+bar that appears. Version history is listed newest first, using
 numeric version order (for example, 1.10 comes before 1.9).
 
 Repository and module downloads require HTTPS. A repository must not redirect a
@@ -214,10 +241,26 @@ running for a short while after you switch to another app.
 To load a document from your device’s filesystem:
 
 1. Click on the top left main menu (☰).
-2. Click *Download Documents*.
+2. Click *Choose Document* (or *Download Documents*).
 3. Click the three vertical dot menu on the right of the top menu bar.
 4. Click *Load Documents From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
+
+*Load Documents From Files* is in the three dot menu of both *Choose Document* and
+*Download Documents*. It is not shown in *Download Documents* while you are downloading
+your first document; the welcome screen has its own *Load Documents From Files* button.
+
+The dialog lists the file types that can be loaded:
+
+- a zip file containing SWORD module(s), or a documents backup file (`.abmd`) created by
+    *AndBible* (see [Backup and Restore](backup_restore.md))
+- MyBible documents (`*.SQLite3`)
+- MySword documents (`*.mybible`)
+- e-Sword documents (`*.bblx`, `*.bbli`)
+- EPUB documents (`*.epub`)
+- TTF fonts (`*.ttf`)
+- AI prompt add-ons (`*.csv`, see [AI](ai.md))
+- Study Pads from *AndBible* databases (`*.abdb`)
 
 On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
 
@@ -250,4 +293,7 @@ To delete any of the above module types:
 2. Search for the document you want to delete, or filter by the document type.
 3. Click and hold on the document you want to delete.
 4. Once highlighted, click on the trash can icon in the top menu.
-5. Click “Yes” to confirm deletion.
+5. Click *Delete* to confirm deletion (the question reads *Delete <name>?*, or *Delete
+    these documents?* when several are selected).
+
+Documents can be deleted the same way from *Download Documents*.
