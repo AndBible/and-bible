@@ -26,6 +26,7 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
@@ -37,6 +38,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BibleViewDoubleTapEventTest {
     private lateinit var repository: WindowRepository
+    private lateinit var controller: ActivityController<NavHostComposeActivity>
     private lateinit var activity: NavHostComposeActivity
     private lateinit var factory: BibleViewFactory
     private lateinit var parent: FrameLayout
@@ -47,10 +49,11 @@ class BibleViewDoubleTapEventTest {
         repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
         repository.initializeAtEdge()
-        activity = Robolectric.buildActivity(
+        controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).get()
+        )
+        activity = controller.get()
         activity.readingAppBootstrap.windowRepository = repository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(activity)
@@ -69,6 +72,7 @@ class BibleViewDoubleTapEventTest {
             activity.lifecycleScope.cancel()
             CurrentActivityHolder.deactivate(activity)
         }
+        if (::controller.isInitialized) controller.close()
         if (::repository.isInitialized) DatabaseResetter.resetDatabase(repository.scope)
     }
 
