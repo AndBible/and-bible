@@ -121,6 +121,23 @@ class SwordContentFacade(
         }
 
         private val dashesRe = Regex("""\p{Pd}""")
+
+        /**
+         * A book name (one word, optionally numbered) followed by a chapter AND a verse: "1 joh 3 16", "revel 3:20".
+         * Only such a query may resolve its book name by prefix (#4089): a number pair after a word is a reference
+         * in practice, while a word alone or with one number must stay a word search (#2380).
+         */
+        private val chapterAndVerseRe = Regex(
+            """^\s*(?:[1-3]|i{1,3})?\s*\p{L}[\p{L}.]*\s*\d+\s*[:.\s]\s*\d+(?:\s*-\s*\d+)?\s*$""",
+            RegexOption.IGNORE_CASE,
+        )
+
+        /**
+         * The passage [searchRef_] names, or null when it is not a reference (then Find runs it as a word search).
+         * Book names are matched exactly in the UI language, then in [lang]; a query shaped like
+         * book-chapter-verse ([chapterAndVerseRe]) then also matches abbreviated book names by prefix.
+         * A key that names only a book (chapter 0) is not a reference.
+         */
         fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
             val searchRef = searchRef_.replace(dashesRe, "-")
             val bibleNames = BibleNames.instance()
@@ -142,27 +159,32 @@ class SwordContentFacade(
                 return k
             }
 
-            val key =
-                withMonitor(bibleNames) {
-                    val orig = bibleNames.enableFuzzy
-                    bibleNames.enableFuzzy = false
-                    val k = getKey()
+            fun getKey(fuzzy: Boolean, language: String?): Key? = withMonitor(bibleNames) {
+                val provider = LocaleProviderManager.getLocaleProvider() as? OverridableLocaleProvider
+                if (language != null) provider?.override = KLocale(language)
+                val orig = bibleNames.enableFuzzy
+                bibleNames.enableFuzzy = fuzzy
+                try {
+                    getKey()
+                } finally {
                     bibleNames.enableFuzzy = orig
-                    k
-                } ?:
-                if (lang != LocaleProviderManager.getLocale().language) {
-                    withMonitor(bibleNames) {
-                        (LocaleProviderManager.getLocaleProvider() as? OverridableLocaleProvider)?.override = KLocale(lang)
-                        val orig = bibleNames.enableFuzzy
-                        bibleNames.enableFuzzy = false
-                        val k = getKey()
-                        bibleNames.enableFuzzy = orig
-                        (LocaleProviderManager.getLocaleProvider() as? OverridableLocaleProvider)?.override = null
-                        k
-                    }
-                } else null
+                    if (language != null) provider?.override = null
+                }
+            }
 
-            return key
+            val otherLanguage = lang.takeIf { it != LocaleProviderManager.getLocale().language }
+            val attempts = buildList {
+                add(false to null)
+                if (otherLanguage != null) add(false to otherLanguage)
+                if (chapterAndVerseRe.matches(searchRef)) {
+                    add(true to null)
+                    if (otherLanguage != null) add(true to otherLanguage)
+                }
+            }
+            for ((fuzzy, language) in attempts) {
+                getKey(fuzzy, language)?.let { return it }
+            }
+            return null
         }
         /**
          * Render-cache key. An EPUB key also names its module owner: a render of a replaced owner that finishes
