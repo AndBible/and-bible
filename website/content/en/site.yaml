@@ -141,3 +141,18 @@ videos:
     StudyPads, search, sync and customisation.
   intro: >-
     Video tutorials from the AndBible YouTube channel.
+  tutorials:
+    title: Video tutorials (AndBible 6.0)
+    intro: >-
+      A short video for each part of the app, in the order we suggest watching them. Each one has a
+      matching page in the user documentation, which is also where its video is embedded.
+    preview_note: >-
+      The tutorials are being published one by one. Until a video is out, its entry says "Coming soon".
+    docs_link: Read the docs page
+    video_tutorial: "Video tutorial: {title}"
+    coming_soon: Coming soon
+    watch_preview: Watch the preview video
+    episode: "Episode {n}"
+  archive:
+    title: Earlier videos
+    intro: Videos from before AndBible 6.0. The app has changed since, but the basic ideas still apply.

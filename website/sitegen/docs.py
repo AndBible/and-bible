@@ -23,6 +23,7 @@ from sitegen import channel, github, home, paths
 from sitegen.home import asset_hashes
 from sitegen.render import thumbnail_path
 from sitegen.i18n import languages, prefix, resolve, strings
+from sitegen.tutorials import Series, docs_block, insert_after_title
 from sitegen.youtube import embed_html, expand_lines
 
 UNPUBLISHED: set[str] = set()  # every migrated page is published, so legacy URLs keep working
@@ -47,7 +48,8 @@ def published_pages(config: Path) -> list[str]:
 
 def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
           related: dict[str, list[tuple[str, str]]], media_dir: Path = paths.MEDIA,
-          release: channel.Release = channel.Release()) -> None:
+          release: channel.Release = channel.Release(), tutorials: Series = Series(None, ()),
+          site: dict[str, Any] | None = None) -> None:
     """Stage `pages` for Zensical; a video id (embedded or related) without a local thumbnail raises ValueError.
 
     Each page's release-channel blocks and link placeholders are resolved for `release` first.
@@ -60,11 +62,16 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
     for page in pages:
         source = resolve(content, lang, f"docs/{page}")
         text, embedded = expand_lines(channel.apply(source.read_text(encoding="utf-8"), release, str(source)))
-        videos = [(vid, title) for vid, title in related.get(Path(page).with_suffix("").as_posix(), [])
-                  if vid not in embedded]  # never repeat a video the page already embeds
-        for vid in [*embedded, *(vid for vid, _ in videos)]:
+        stem = Path(page).with_suffix("").as_posix()
+        episodes = tutorials.by_docs().get(stem, [])
+        shown = {*embedded, *(e.youtube for e in episodes if e.youtube)}
+        videos = [(vid, title) for vid, title in related.get(stem, [])
+                  if vid not in shown]  # never repeat a video the page already embeds
+        for vid in [*embedded, *(e.youtube for e in episodes if e.youtube), *(vid for vid, _ in videos)]:
             if not (media_dir / thumbnail_path(vid)).is_file():
                 raise ValueError(f"docs page {page}: missing thumbnail for {vid}; run `make site-thumbs`")
+        if episodes:
+            text = insert_after_title(text, docs_block(episodes, tutorials, site))
         if videos:
             text = text.rstrip() + "\n\n## Related videos\n\n" + "\n\n".join(
                 embed_html(vid, "video", title) for vid, title in videos) + "\n"
@@ -158,7 +165,7 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
 
 
 def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]]],
-               release: dict[str, Any] | None = None) -> list[str]:
+               release: dict[str, Any] | None = None, tutorials: Series = Series(None, ())) -> list[str]:
     """Build every language's docs; `release` (tests) replaces site.yaml's `release:` section."""
     base = paths.WEBSITE / "zensical.toml"
     pages = published_pages(base)
@@ -169,7 +176,7 @@ def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]
         if release is not None:
             site = site | {"release": release}
         stage(content, lang, stage_dir, pages, related,
-              release=channel.settings(site, f"content/{lang}/site.yaml"))
+              release=channel.settings(site, f"content/{lang}/site.yaml"), tutorials=tutorials, site=site)
         # Build inside the config's directory, then copy to the real destination.
         built = paths.BUILD / lang / "site"
         config = paths.BUILD / lang / "zensical.toml"

@@ -157,6 +157,10 @@ def referenced_ids(content: Path, videos_yaml: Path) -> set[str]:
         data = yaml.safe_load(videos_yaml.read_text(encoding="utf-8")) or []
         entries = data.get("videos", []) if isinstance(data, dict) else data
         ids.update(str(e["id"]) for e in entries if isinstance(e, dict) and "id" in e)
+    tutorials = videos_yaml.with_name("tutorials.yaml")
+    if tutorials.is_file():  # the 6.0 series: the placeholder and every published episode
+        data = yaml.safe_load(tutorials.read_text(encoding="utf-8")) or {}
+        ids.update(i for i in [data.get("placeholder"), *(e.get("youtube") for e in data.get("episodes", []))] if i)
     return ids
 
 
@@ -171,7 +175,7 @@ def resolve_ids(values: Iterable[str], known: set[str]) -> list[str]:
         except NewVideoError as exc:
             raise ValueError(str(exc)) from exc
         if video_id not in known:
-            raise ValueError(f"YouTube video {video_id} is not in videos.yaml or any content page")
+            raise ValueError(f"YouTube video {video_id} is not in videos.yaml, tutorials.yaml or any content page")
         ids.append(video_id)
     return ids
 

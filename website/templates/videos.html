@@ -3,9 +3,38 @@
 <section class="videos">
   <h1>{{ strings.videos.title }}</h1>
   <p class="videos__intro">{{ strings.videos.intro }}</p>
+  {% if series %}
+  <section class="videos__topic tutorials" aria-labelledby="tutorials-title">
+    <h2 id="tutorials-title">{{ strings.videos.tutorials.title }}</h2>
+    <p class="videos__intro">{{ strings.videos.tutorials.intro }}</p>
+    {% if series.preview %}
+    <div class="tutorials__preview">
+      {{ series.preview }}
+      <p class="tutorials__preview-note">{{ strings.videos.tutorials.preview_note }}</p>
+    </div>
+    {% endif %}
+    <ol class="tutorial-list">
+      {% for row in series.rows %}
+      <li class="tutorial-list__item">
+        <div class="tutorial-list__head">
+          {% if row.label %}<span class="tutorial-list__num">{{ row.number }}</span>{% else %}<span class="tutorial-list__num tutorial-list__num--new" aria-hidden="true">★</span>{% endif %}
+          <div>
+            <span class="tutorial-list__title">{{ row.title }}</span>
+            <a class="tutorial-list__docs" href="{{ row.docs_url }}">{{ strings.videos.tutorials.docs_link }}</a>
+          </div>
+          {% if not row.embed %}<span class="tutorial-note__badge">{{ series.labels.coming_soon }}</span>{% endif %}
+        </div>
+        {% if row.embed %}<div class="tutorial-list__video">{{ row.embed }}</div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  <h2 class="videos__archive-title" id="archive-title">{{ strings.videos.archive.title }}</h2>
+  <p class="videos__intro">{{ strings.videos.archive.intro }}</p>
+  {% endif %}
   {% for topic, embeds in sections %}
   <section class="videos__topic" aria-labelledby="topic-{{ loop.index }}">
-    <h2 id="topic-{{ loop.index }}">{{ topic }}</h2>
+    <{{ "h3" if series else "h2" }} id="topic-{{ loop.index }}" class="videos__topic-title">{{ topic }}</{{ "h3" if series else "h2" }}>
     <div class="video-grid">
       {% for embed in embeds %}<div>{{ embed }}</div>{% endfor %}
     </div>

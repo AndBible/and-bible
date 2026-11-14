@@ -13,6 +13,7 @@ from jinja2 import Environment
 from markupsafe import Markup, escape
 
 from sitegen.paths import BASE_URL
+from sitegen.tutorials import Series, videos_section
 from sitegen.youtube import embed_html
 
 TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "Search & study tools",
@@ -128,7 +129,8 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
     return result
 
 
-def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path) -> list[str]:
+def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path,
+                  tutorials: Series = Series(None, ())) -> list[str]:
     def embeds(topic: str) -> list[Markup]:
         """One ordered list per topic: clips and shorts together, in catalog order."""
         return [card(v, strings, show_version=True) for v in videos if v.topic == topic]
@@ -139,6 +141,7 @@ def render_videos(env: Environment, strings: dict, videos: list[Video], out: Pat
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("videos.html").render(
         lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1]],
+        series=videos_section(tutorials, strings) if tutorials.episodes else None,
         title=page["title"], description=page["description"], canonical=f"{BASE_URL}/videos/",
         og_type="website"), encoding="utf-8")
     return ["/videos/"]
