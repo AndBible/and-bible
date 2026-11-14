@@ -178,8 +178,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
-    override fun multiSearchResults(total: Int, selectedCount: Int): String =
-        context.getString(R.string.multi_search_results, total, selectedCount)
+    override fun multiSearchResults(verses: String, translations: String): String =
+        context.getString(R.string.multi_search_count_summary, verses, translations)
+    override fun multiSearchVerseCount(count: Int): String =
+        context.resources.getQuantityString(R.plurals.multi_search_verse_count, count, count)
+    override fun multiSearchTranslationCount(count: Int): String =
+        context.resources.getQuantityString(R.plurals.multi_search_translation_count, count, count)
     override val errorExecutingSearch: String get() = context.getString(R.string.error_executing_search)
     override val backgroundImageChange: String get() = context.getString(R.string.background_image_change)
     override val backgroundImageDay: String get() = context.getString(R.string.background_image_day)
