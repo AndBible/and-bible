@@ -115,3 +115,37 @@ fun termHighlightPattern(originalTerm: String): String? {
         "$start$word$end"
     }
 }
+
+/** Longest search result excerpt (in characters, ellipses excluded) cut from a long non-Bible entry. */
+const val SEARCH_EXCERPT_LENGTH: Int = 200
+
+private val whitespaceRun = Regex("""\s+""")
+
+/**
+ * At most [maxLength] characters of [text] around the first match of any of [terms] (the user's search words, as
+ * passed to [termHighlightPattern]), cut at word boundaries and marked with `…` where text was left out. Whitespace
+ * runs collapse to one space (as the rendered preview shows them). Without a visible match the excerpt is the start.
+ */
+fun searchExcerpt(text: String, terms: List<String>, maxLength: Int = SEARCH_EXCERPT_LENGTH): String {
+    val plain = text.replace(whitespaceRun, " ").trim()
+    if (plain.length <= maxLength) return plain
+    val match = terms.asSequence()
+        .mapNotNull { termHighlightPattern(it) }
+        .mapNotNull { pattern -> runCatching { Regex(pattern, RegexOption.IGNORE_CASE).find(plain)?.range }.getOrNull() }
+        .minByOrNull { it.first }
+    val matchStart = match?.first ?: 0
+    val matchEnd = match?.let { it.last + 1 } ?: 0
+
+    var start = (matchStart - maxLength / 3).coerceAtLeast(0).coerceAtMost(plain.length - maxLength)
+    if (start > 0 && plain[start - 1] != ' ') {
+        val space = plain.indexOf(' ', start)
+        if (space in 0 until matchStart) start = space + 1
+    }
+    var end = (start + maxLength).coerceAtMost(plain.length)
+    if (end < plain.length && plain[end] != ' ') {
+        val space = plain.lastIndexOf(' ', end - 1)
+        if (space > start && space >= matchEnd) end = space
+    }
+    val excerpt = plain.substring(start, end).trim()
+    return (if (start > 0) "…" else "") + excerpt + (if (end < plain.length) "…" else "")
+}

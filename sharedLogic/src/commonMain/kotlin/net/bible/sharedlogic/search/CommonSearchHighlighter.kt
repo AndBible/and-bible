@@ -7,6 +7,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.strongsHighlightPatterns
+import net.bible.sharedcore.search.searchExcerpt
 import net.bible.sharedcore.search.termHighlightPattern
 
 /**
@@ -25,12 +26,12 @@ object CommonSearchHighlighter : SearchTextHighlighter {
     private const val CLOSE = "</b>"
     private val elementsToExclude = listOf("note", "reference")
 
-    override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>): StyledText {
+    override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>, excerptLength: Int?): StyledText {
         val isStrongsSearch = lemmaTerms.isNotEmpty()
         val strongsPatterns = lemmaTerms.flatMap { strongsHighlightPatterns(it) }
             .map { Regex(it, RegexOption.IGNORE_CASE) }
         val verseString = StringBuilder()
-        for (verse in osis.getChildren("verse")) {
+        for (verse in osis.getChildren("verse").ifEmpty { listOf(osis) }) {
             if (isStrongsSearch) {
                 verseString.append(processElementChildrenWithLemmaHighlight(verse, strongsPatterns, false))
             } else {
@@ -39,7 +40,9 @@ object CommonSearchHighlighter : SearchTextHighlighter {
         }
 
         // Strip our own bold markers, recording the bold ranges in plain-text coordinates.
-        val marked = verseString.toString()
+        val marked = verseString.toString().let {
+            if (excerptLength != null && !isStrongsSearch) searchExcerpt(it, terms, excerptLength) else it
+        }
         val plain = StringBuilder()
         val bold = ArrayList<Boolean>()
         var inBold = false

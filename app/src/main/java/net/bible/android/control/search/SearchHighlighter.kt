@@ -24,6 +24,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.strongsHighlightPatterns
+import net.bible.sharedcore.search.searchExcerpt
 import net.bible.sharedcore.search.termHighlightPattern
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
@@ -48,13 +49,14 @@ object SearchHighlighter : SearchTextHighlighter {
     private const val TAG = "SearchHighlighter"
     private val elementsToExclude = listOf("note", "reference")
 
-    override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>): StyledText {
+    override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>, excerptLength: Int?): StyledText {
         val isStrongsSearch = lemmaTerms.isNotEmpty()
         val strongsPatterns = lemmaTerms.flatMap { strongsHighlightPatterns(it) }
             .map { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
         val verseString = StringBuilder()
 
-        val verses = osis.getChildren("verse")
+        // A commentary entry from readOsisFragment has no <verse> wrapper: its text is the whole fragment (#4092).
+        val verses = osis.getChildren("verse").ifEmpty { listOf(osis) }
         for (verse in verses) {
             if (isStrongsSearch) {
                 verseString.append(processElementChildrenWithLemmaHighlight(verse, strongsPatterns, false))
@@ -63,7 +65,11 @@ object SearchHighlighter : SearchTextHighlighter {
             }
         }
 
-        val spanned: Spanned = htmlToSpan(verseString.toString())
+        // Cut before htmlToSpan: a commentary entry can be tens of kilobytes (#4092).
+        val marked = verseString.toString().let {
+            if (excerptLength != null && !isStrongsSearch) searchExcerpt(it, terms, excerptLength) else it
+        }
+        val spanned: Spanned = htmlToSpan(marked)
         val text = spanned.toString()
         val length = text.length
 
