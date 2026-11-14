@@ -21,20 +21,22 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Candidate built-in default themes, inspired by andbible.org (warm paper, ink, amber/gold).
+ * Built-in default themes, inspired by andbible.org (warm paper, ink, amber/gold).
  *
  * A proposal replaces ONLY the scheme used in [net.bible.service.common.DisplayColorMode.NORMAL]
  * when the workspace colour is not set (the user's Settings > Colors workspace colour always wins,
- * and BW / MONOCHROME / COLOR_EINK never see a proposal). [CURRENT] is today's stock Material 3
- * baseline and stays the default until the maintainer picks one.
+ * and BW / MONOCHROME / COLOR_EINK never see a proposal). The maintainer chose [INK] (proposal C,
+ * round 2) as the shipped default, [DEFAULT]. The other proposals, and [VIOLET] (the stock
+ * Material 3 baseline that was the default before), stay selectable through the dev switch
+ * (`-PdefaultThemeProposal=...`, debug sysprop `debug.andbible.theme_proposal`) for comparison.
  *
  * Site tokens (website/assets/css/site.css): light ground #F7F1E3, surface #FFFAF0, surface-2
  * #F3EAD7, ink #2A2620, accent #D99A2B, accent-ink #9A5B10; dark ground #161616, surface #1C1C1B,
  * ink #EFE9DD, accent #FEBA2A. Logo (ic_logo.xml): #7B4639 bronze, #D97E35, #DF983B, #FEBA2A.
  */
 enum class DefaultThemeProposal {
-    /** Today's stock Material 3 light/dark scheme (baseline violet). */
-    CURRENT,
+    /** The stock Material 3 light/dark scheme (baseline violet); the default before [INK]. */
+    VIOLET,
 
     /** A: the site's amber/gold. Gold toolbar on warm paper; amber-ink buttons. */
     AMBER,
@@ -42,7 +44,7 @@ enum class DefaultThemeProposal {
     /** B: the logo's bronze brown as a strong toolbar; warm paper surfaces. */
     BRONZE,
 
-    /** C: the site's ink-on-paper look. Paper toolbar, ink buttons, amber selection accent. */
+    /** C: the site's ink-on-paper look. Paper toolbar, ink buttons, amber selection accent. The default. */
     INK,
 
     /** D: the site accent #D99A2B through the same seeded TonalSpot path as a user workspace colour. */
@@ -58,7 +60,7 @@ enum class DefaultThemeProposal {
     /** D2 (round 2): D's TonalSpot path with a bronze seed #B5652A (hue ~45 instead of ~70). */
     SEEDED_BRONZE,
 
-    /** E (round 2): CURRENT's calm Material 3 feel with a light silvery blue (seed #6F87AE) instead of violet. */
+    /** E (round 2): VIOLET's calm Material 3 feel with a light silvery blue (seed #6F87AE) instead of violet. */
     SILVER_BLUE,
 
     /** F (round 2): graphite with a slate hint (seed #5A5E65, chroma ~7): nearly neutral blue-grey, the quietest coloured option. */
@@ -67,9 +69,9 @@ enum class DefaultThemeProposal {
     /** G (round 2): muted sage green (seed #66845F): a calm natural hue outside the logo's brown/orange range. */
     SAGE;
 
-    /** The proposal's scheme, or null for [CURRENT] (the caller then uses the stock scheme). */
+    /** The proposal's scheme, or null for [VIOLET] (the caller then uses the stock scheme). */
     fun scheme(dark: Boolean): ColorScheme? = when (this) {
-        CURRENT -> null
+        VIOLET -> null
         AMBER -> if (dark) amberDark() else amberLight()
         BRONZE -> if (dark) bronzeDark() else bronzeLight()
         INK -> if (dark) inkDark() else inkLight()
@@ -82,17 +84,39 @@ enum class DefaultThemeProposal {
     }
 
     companion object {
-        /** Parses a build/debug switch value; anything unknown falls back to [CURRENT]. */
-        fun parse(value: String?): DefaultThemeProposal =
-            entries.firstOrNull { it.name.equals(value?.trim(), ignoreCase = true) } ?: CURRENT
+        /** The shipped default theme: C, "Ink on paper". */
+        val DEFAULT: DefaultThemeProposal = INK
+
+        /**
+         * Parses a build/debug switch value; blank or unknown values fall back to [DEFAULT].
+         * `CURRENT`, the old name of [VIOLET], is still accepted so earlier capture scripts keep working.
+         */
+        fun parse(value: String?): DefaultThemeProposal {
+            val v = value?.trim()
+            if (v.equals("CURRENT", ignoreCase = true)) return VIOLET
+            return entries.firstOrNull { it.name.equals(v, ignoreCase = true) } ?: DEFAULT
+        }
+
+        /**
+         * The host's startup choice. [buildValue] is the build switch (`-PdefaultThemeProposal`, blank
+         * when not given); [debugOverride] the debug-only system property, honoured only in a
+         * debuggable build that is not a video-look capture build: a sysprop left on a reused
+         * emulator must never leak a proposal into a video capture, while an explicit build switch
+         * still applies.
+         */
+        fun resolve(buildValue: String?, debugOverride: String?, debuggable: Boolean, videoLook: Boolean): DefaultThemeProposal {
+            val override = debugOverride?.takeIf { debuggable && !videoLook && it.isNotBlank() }
+            return parse(override ?: buildValue)
+        }
     }
 }
 
 /**
- * The proposal used for unset workspace colours. Set once by the host at startup (Android: from
- * `BuildConfig.DEFAULT_THEME_PROPOSAL`, debug builds may override it); defaults to current behaviour.
+ * The proposal used for unset workspace colours: [DefaultThemeProposal.DEFAULT] unless the host
+ * picks another at startup (Android: `BuildConfig.DEFAULT_THEME_PROPOSAL`, debug builds may
+ * override it). iOS and desktop do not set it and so use the default.
  */
-var activeDefaultThemeProposal: DefaultThemeProposal = DefaultThemeProposal.CURRENT
+var activeDefaultThemeProposal: DefaultThemeProposal = DefaultThemeProposal.DEFAULT
 
 internal const val SITE_ACCENT = 0xFFD99A2B.toInt()
 private const val LOGO_BRONZE = 0xFF7B4639.toInt()

@@ -2,8 +2,6 @@ package net.bible.sharedui.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
@@ -13,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import net.bible.service.common.DisplayColorMode
+import net.bible.sharedui.theme.DefaultThemeProposal
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.ColorsSnapshot
@@ -24,10 +23,10 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class WorkspaceColorSwatchTest {
     @Test
-    fun unsetLightSwatchShowsStockPrimary() = assertUnsetSwatch(dark = false)
+    fun unsetLightSwatchShowsDefaultThemePrimary() = assertUnsetSwatch(dark = false)
 
     @Test
-    fun unsetDarkSwatchShowsStockPrimary() = assertUnsetSwatch(dark = true)
+    fun unsetDarkSwatchShowsDefaultThemePrimary() = assertUnsetSwatch(dark = true)
 
     @Test
     fun detachedUnsetWorkspaceDoesNotBorrowActiveWorkspaceColor() =
@@ -73,9 +72,10 @@ class WorkspaceColorSwatchTest {
         // Sample inside the circle, away from its border and the adjacent label (density-independent).
         val pixels = row.toPixelMap()
         val radius = row.height / 4
-        val stock = if (dark) darkColorScheme() else lightColorScheme()
+        // The built-in default theme ("Ink on paper"), never the stock Material violet.
+        val default = DefaultThemeProposal.DEFAULT.scheme(dark)!!
         val expected = if (mode == DisplayColorMode.NORMAL && workspaceColor == DEFAULT_WORKSPACE_COLOR_ARGB)
-            stock.primary else Color(workspaceColor)
+            default.primary else Color(workspaceColor)
         assertEquals(expected, pixels[radius, row.height / 2])
     }
 }

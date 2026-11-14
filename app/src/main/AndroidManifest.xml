@@ -60,6 +60,7 @@
             android:required="false" />
 
         <activity android:name=".StartupActivity"
+            android:theme="@style/Theme.AbStartup"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:icon="@mipmap/ic_launcher" />
 

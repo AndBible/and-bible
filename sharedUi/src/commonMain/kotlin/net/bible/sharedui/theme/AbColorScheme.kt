@@ -122,12 +122,13 @@ internal fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  * call sites must remember to write.
  *
  * - **NORMAL** -> an unset workspace colour (null or the stored `#444444` sentinel; see
- *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme, unless the host
- *   selected a candidate default via [activeDefaultThemeProposal] (opt-in; CURRENT = stock).
- *   With [useSystemColors] on and a platform [systemColorSchemeProvider] (Android 12+), the
- *   system's dynamic "Material You" scheme replaces both; elsewhere the flag is ignored.
+ *   [isWorkspaceColorSet]) uses the built-in default theme, [activeDefaultThemeProposal]
+ *   ([DefaultThemeProposal.INK], "Ink on paper", unless a dev switch picked another; VIOLET =
+ *   Compose's stock Material 3 scheme). With [useSystemColors] on and a platform
+ *   [systemColorSchemeProvider] (Android 12+), the system's dynamic "Material You" scheme
+ *   replaces it; elsewhere the flag is ignored.
  *   A chosen colour always uses [greySafeTonalSpot], keeping low-chroma seeds muted.
- *   Unseeded goldens and previews render the same stock baseline-violet theme as the app.
+ *   Unseeded goldens and previews render the same default theme as the app.
  * - **MONOCHROME, COLOR_EINK** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
  *   COLOR_EINK differs only in the bookmark highlight colours, which are not scheme roles (#4069).
  * - **BW** -> the seed is ignored: the stock scheme is greyscaled so contrast is

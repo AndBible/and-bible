@@ -19,6 +19,13 @@
 <resources>
 	<color name="ic_launcher_background">#373737</color>
 
+	<!-- The built-in default theme "Ink on paper" (DefaultThemeProposal.INK in :sharedUi) for the
+	     few XML-themed surfaces left: the startup screen, the Android 12+ splash screen and AppCompat
+	     widget tints. Night values are in values-night/colors.xml. Kept to ink and paper (no amber)
+	     because these surfaces show before the colour mode is known, also on e-ink devices. -->
+	<color name="default_theme_ink">#2A2620</color>
+	<color name="default_theme_ground">#F7F1E3</color>
+
 	<color name="bible_background_day">#ffffff</color>
 	<color name="bible_background_night">#000000</color>
 

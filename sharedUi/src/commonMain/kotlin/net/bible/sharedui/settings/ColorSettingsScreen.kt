@@ -39,8 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +60,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.abColorScheme
 import net.bible.sharedui.theme.LocalIsDarkTheme
 
 /**
@@ -206,14 +205,15 @@ fun ColorSettingsContent(
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {
-            // Detached workspace editors can inherit a different workspace's active theme.
-            val stock = if (LocalIsDarkTheme.current) darkColorScheme() else lightColorScheme()
+            // Detached workspace editors can inherit a different workspace's active theme, so the
+            // unset swatch derives the built-in default theme itself rather than reading MaterialTheme.
+            val defaultScheme = abColorScheme(null, LocalIsDarkTheme.current, DisplayColorMode.NORMAL)
             ColorSwatchRow(
                 label = labels.workspaceColor,
                 // The stored default is an unset sentinel, not the visible theme colour.
                 color = if (LocalDisplayColorMode.current == DisplayColorMode.NORMAL &&
                     !isWorkspaceColorSet(colors.workspaceColor)
-                ) stock.primary.toArgb() else colors.workspaceColor,
+                ) defaultScheme.primary.toArgb() else colors.workspaceColor,
                 onClick = onWorkspaceColorClick,
             )
         }

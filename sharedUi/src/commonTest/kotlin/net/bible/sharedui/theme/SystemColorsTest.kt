@@ -33,7 +33,7 @@ class SystemColorsTest {
     private val fakeDark = darkColorScheme(primary = Color(0xFF88FF99), surface = Color(0xFF001100))
     private val requested = mutableListOf<Boolean>()
 
-    private fun <T> withProvider(provider: ((Boolean) -> ColorScheme)?, proposal: DefaultThemeProposal = DefaultThemeProposal.CURRENT, block: () -> T): T {
+    private fun <T> withProvider(provider: ((Boolean) -> ColorScheme)?, proposal: DefaultThemeProposal = DefaultThemeProposal.DEFAULT, block: () -> T): T {
         val savedProvider = systemColorSchemeProvider
         val savedProposal = activeDefaultThemeProposal
         systemColorSchemeProvider = provider

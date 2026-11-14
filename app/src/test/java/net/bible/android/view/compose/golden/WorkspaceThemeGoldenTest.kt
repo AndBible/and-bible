@@ -171,8 +171,8 @@ class WorkspaceThemeGoldenTest {
     // --- Derived toolbar with NO workspace colour at all (follow-up: derived became the default, --
     // --- 2026-08-01 commit 6aedac195) -------------------------------------------------------------
 
-    // No seedArgb (AbTheme renders the stock Material 3 scheme) AND no workspaceColorArgb.
-    // The derived bar uses the stock baseline-violet primaryContainer.
+    // No seedArgb (AbTheme renders the built-in "Ink on paper" default scheme) AND no workspaceColorArgb.
+    // The derived bar uses the default theme's paper primaryContainer.
     // Same base toolbarState as
     // toolbar_derived/toolbar_literal (only workspaceColorArgb and deriveToolbarFromTheme differ), so
     // this is a clean "seed present vs. absent" comparison against toolbar_derived, not a

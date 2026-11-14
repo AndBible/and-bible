@@ -102,21 +102,21 @@ are searched by `Look up in dictionaries` in the text selection menu.
 **Workspace theme.** In *Normal* color mode, the app automatically derives
 soft tones from your workspace color, keeping grey and black colors grey
 and muted colors muted. Without a workspace color (or after resetting it
-to default), the app uses the standard Material 3 violet theme in both
-light and dark mode. There is no setting for choosing a palette style.
+to default), the app uses its built-in *Ink on paper* theme: dark ink on warm
+paper in light mode and light ink on a near-black background in dark mode,
+with amber accents. There is no setting for choosing a palette style.
 If you previously chose another Theme style, upgrading switches to this
 fixed soft palette; restoring an old backup does not restore that style.
 Reading-view controls also follow the workspace theme,
 including bookmark editing buttons, note separators, editor selections,
 study-pad drag highlights, and page and reading-progress badges. The active
-window is marked by rounded corners in the theme color; without a workspace
-theme, the corners remain blue. Bookmark colors and correctness/error colors
+window is marked by rounded corners in the theme color. Bookmark colors and correctness/error colors
 keep their own meaning.
 
 <a id="system-colors"></a>
 **Use system colors (Material You).** On Android 12 and newer, turn this on
 to use the colors your phone derives from your wallpaper instead of the
-standard violet theme, in both light and dark mode. Change the wallpaper and
+built-in *Ink on paper* theme, in both light and dark mode. Change the wallpaper and
 AndBible follows it. It is off by default. A workspace color still takes
 precedence: the system colors apply only to workspaces without one. The
 *Black & white*, *Color e-ink* and *Monochrome* color modes also ignore it.
