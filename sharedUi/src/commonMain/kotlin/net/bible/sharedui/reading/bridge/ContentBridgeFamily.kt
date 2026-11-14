@@ -28,7 +28,7 @@ import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.IdType
-import net.bible.service.common.bookmarksMyNotesPlaylist
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.service.common.displayName
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
@@ -172,7 +172,7 @@ internal class ContentBridgeFamily(
     fun helpBookmarks() {
         if (session.isDisposed) return
         val s = strings()
-        val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${s.watchTutorialVideo}</a></i>" +
+        val message = "<i><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS)}\">${s.watchTutorialVideo}</a></i>" +
             "<br><br><b>${s.verseTip}</b><br><br>${s.helpBookmarksText}"
         session.hostSheets?.showHelp(s.bookmarksAndMyNotesTitle, message)
     }

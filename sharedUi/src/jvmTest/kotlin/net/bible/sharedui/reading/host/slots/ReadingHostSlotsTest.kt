@@ -70,7 +70,7 @@ import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingModelVd
-import net.bible.sharedcore.docs.HelpVideos
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorField
@@ -725,14 +725,14 @@ class ReadingHostSlotsTest {
         slots.showSpeakHelp()
         val speakHtml = slots.speakHelp.value
         assertTrue(
-            speakHtml != null && speakHtml.contains("<a href=\"${HelpVideos.SPEAK}\">${strings.watchTutorialVideo}</a>"),
-            "speak help must link the exact Speak playlist, was: $speakHtml",
+            speakHtml != null && speakHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${strings.watchTutorialVideo}</a>"),
+            "speak help must link the Speak tutorial, was: $speakHtml",
         )
         slots.showAdvancedSpeakHelp()
         val advancedHtml = slots.speakHelp.value
         assertTrue(
             advancedHtml != null &&
-                advancedHtml.contains("<a href=\"${HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING}\">${strings.watchTutorialVideo}</a>") &&
+                advancedHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${strings.watchTutorialVideo}</a>") &&
                 advancedHtml.contains(strings.speakHelpAutoBookmark) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettings) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettingsExample),

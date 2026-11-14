@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
-import net.bible.sharedcore.docs.HelpVideos
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
@@ -111,7 +111,7 @@ internal class SpeakSettingsState(
     fun showHelp() {
         val s = strings()
         help.value = "<b>${s.speakTitle}</b><br><br>" +
-            "<b><a href=\"${HelpVideos.SPEAK}\">${s.watchTutorialVideo}</a></b>"
+            "<b><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${s.watchTutorialVideo}</a></b>"
     }
 
     /**
@@ -121,7 +121,7 @@ internal class SpeakSettingsState(
     fun showAdvancedHelp() {
         val s = strings()
         help.value = "<b>${s.confSpeakAutoBookmark}</b><br><br>" +
-            "<b><a href=\"${HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING}\">${s.watchTutorialVideo}</a></b><br><br>" +
+            "<b><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${s.watchTutorialVideo}</a></b><br><br>" +
             s.speakHelpAutoBookmark +
             "<br><br><b>${s.confSavePlaybackSettingsToBookmarks}</b><br><br>" +
             s.speakHelpPlaybackSettings +

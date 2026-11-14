@@ -104,6 +104,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.TutorialVideos.Episode
 import net.bible.sharedcore.platform.AppJson
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.getEnumSet
@@ -208,23 +210,6 @@ fun htmlToSpan(html: String?): Spanned {
     }
     return spanned
 }
-
-const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?v=f2cf6-7liMo&list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a&index=1"
-// "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
-
-const val windowsAndWorkspacesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ" // 4.0 (Window's and workspaces playlist)
-const val labelsAndBookmarksPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks playlist)
-const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
-const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
-
-const val windowPinningVideo = windowsAndWorkspacesPlaylist
-const val studyPadsVideo = notesAndStudyPadsPlayList
-const val workspacesVideo = windowsAndWorkspacesPlaylist
-
-
-const val speakHelpVideo = net.bible.sharedcore.docs.HelpVideos.SPEAK
-const val automaticSpeakBookmarkingVideo = net.bible.sharedcore.docs.HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING
-
 
 open class CommonUtilsBase : KoinComponent {
     // Resolved on every read, not cached with `by inject()`: this lives in an `object` that outlives the Koin
@@ -821,13 +806,15 @@ object CommonUtils : CommonUtilsBase() {
         data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docUrl: String? = null)
 
         val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docUrl = DocsLinks.page("navigation")),
-            HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docUrl = DocsLinks.page("windows")),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docUrl = DocsLinks.page("bookmarks")), // beta video
-            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docUrl = DocsLinks.page("study_pads")), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text2, docUrl = DocsLinks.page("search")),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docUrl = DocsLinks.page("workspaces")),
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text, TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY), docUrl = DocsLinks.page("navigation")),
+            HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text, TutorialVideos.url(Episode.TUTORIAL_03_VERSE_MENU)),
+            HelpItem(R.string.help_study_tools_title, R.string.help_study_tools_text, TutorialVideos.url(Episode.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS), docUrl = DocsLinks.page("documents")),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, TutorialVideos.url(Episode.TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS), docUrl = DocsLinks.page("windows")),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, TutorialVideos.url(Episode.TUTORIAL_08_BOOKMARKS), docUrl = DocsLinks.page("bookmarks")),
+            HelpItem(R.string.studypads, R.string.help_studypads_text, TutorialVideos.url(Episode.TUTORIAL_11_STUDY_PADS), docUrl = DocsLinks.page("study_pads")),
+            HelpItem(R.string.help_search_title, R.string.help_search_text2, TutorialVideos.url(Episode.TUTORIAL_12_SEARCH_1_BASICS), docUrl = DocsLinks.page("search")),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, TutorialVideos.url(Episode.TUTORIAL_07_WORKSPACES), docUrl = DocsLinks.page("workspaces")),
+            HelpItem(R.string.help_look_and_feel_title, R.string.help_look_and_feel_text, TutorialVideos.url(Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS), docUrl = DocsLinks.page("look_and_feel")),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -861,14 +848,16 @@ object CommonUtils : CommonUtilsBase() {
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
      * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
+     * @param videoUrl Optional tutorial video, from `TutorialVideos`; shown as a second link.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
         helpUrl: String,
+        videoUrl: String? = null,
     ) {
-        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl))
+        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl, videoUrl))
     }
 
     /**

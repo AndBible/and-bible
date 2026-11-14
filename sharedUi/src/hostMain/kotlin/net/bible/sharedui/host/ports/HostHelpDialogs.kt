@@ -2,6 +2,7 @@
 package net.bible.sharedui.host.ports
 
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.ports.DocumentDialogsCore
@@ -24,7 +25,7 @@ class HostHelpDialogs(
             when (topic) {
                 HelpTopic.WORKSPACES -> core.helpNotice(listOf(DocumentDialogsCore.HelpItem(
                     t.text("help_workspaces_title"), t.text("help_workspaces_text"),
-                    "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ", DocsLinks.page("workspaces"),
+                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLinks.page("workspaces"),
                 )))
                 HelpTopic.HELP_AND_TIPS -> core.helpNotice(
                     HelpAndTips.items.map { item ->
@@ -37,8 +38,10 @@ class HostHelpDialogs(
                     title = t.text("app_licence_title"), message = bundleHtml("license"),
                     confirmText = t.text("okay"), cancellable = true,
                 )
-                HelpTopic.READING_PROGRESS -> core.helpDialog(t.text("help"), t.text("help_reading_progress_text"), DocsLinks.page("reading_progress"))
-                HelpTopic.DOCUMENT_SYNC -> core.helpDialog(t.text("help"), t.text("help_document_sync_text"), DocsLinks.page("document_sync"))
+                HelpTopic.READING_PROGRESS -> core.helpDialog(t.text("help"), t.text("help_reading_progress_text"), DocsLinks.page("reading_progress"),
+                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS))
+                HelpTopic.DOCUMENT_SYNC -> core.helpDialog(t.text("help"), t.text("help_document_sync_text"), DocsLinks.page("document_sync"),
+                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS))
                 HelpTopic.AI_CONNECTION -> core.helpDialog(t.text("help"), t.text("help_ai_connection_text"), DocsLinks.page("ai", "getting-started"))
             }
         })
@@ -54,5 +57,7 @@ private fun helpPage(page: String?): String? = when (page) {
     "study_pads" -> DocsLinks.page("study_pads")
     "search" -> DocsLinks.page("search")
     "workspaces" -> DocsLinks.page("workspaces")
+    "documents" -> DocsLinks.page("documents")
+    "look_and_feel" -> DocsLinks.page("look_and_feel")
     else -> error("Unknown help page: $page")
 }

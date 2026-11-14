@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.sharedcore.docs.TutorialVideos
 import android.app.Activity
 import android.content.Intent
 import com.nhaarman.mockitokotlin2.any
@@ -359,7 +360,7 @@ class ReadingBridgeContentFamilyTest {
         bridge.helpBookmarks()
         val (title, html) = sheets.helps.single()
         assertEquals(testCoreStrings().bookmarksAndMyNotesTitle, title)
-        assertTrue(html.contains("youtube.com/playlist"))
+        assertTrue(html.contains(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS)))
         assertTrue(html.contains(testCoreStrings().verseTip))
     }
 

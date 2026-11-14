@@ -67,6 +67,7 @@ fun AbInfoDialog(
     confirmLabel: String = LocalStrings.current.okay,
     readMoreLabel: String? = null,
     readMoreUrl: String? = null,
+    videoUrl: String? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
@@ -91,6 +92,15 @@ fun AbInfoDialog(
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
+                    )
+                }
+                if (videoUrl != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = LocalStrings.current.watchTutorialVideo,
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable { linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl) },
                     )
                 }
             }

@@ -180,8 +180,12 @@ class DocumentDialogsCore(
         return false
     }
 
-    fun helpDialog(title: String, message: String, url: String) = AppDialogRequest.Message(
-        title, message + "<br><br><i><a href=\"$url\">${table().text("help_read_more_link")}</a></i>", table().text("okay"), cancellable = true,
+    /** A short help [message] with its "read more" docs link and, when [videoUrl] is given, a tutorial video link. */
+    fun helpDialog(title: String, message: String, url: String, videoUrl: String? = null) = AppDialogRequest.Message(
+        title,
+        message + "<br><br><i><a href=\"$url\">${table().text("help_read_more_link")}</a></i>" +
+            (videoUrl?.let { "<br><i><a href=\"$it\">${table().text("watch_tutorial_video")}</a></i>" } ?: ""),
+        table().text("okay"), cancellable = true,
     )
     suspend fun confirmUpgrade(): Boolean = await {
         val t = table()

@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedui.components.AbWatchVideoOverflowMenu
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
@@ -201,6 +203,9 @@ fun TextDisplaySettingsScreen(
                 IconButton(onClick = { showResetConfirm = true }) {
                     Icon(Icons.Filled.RestartAlt, contentDescription = dialogLabels.resetContentDescription)
                 }
+                AbWatchVideoOverflowMenu(
+                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS),
+                )
             },
         )
     }

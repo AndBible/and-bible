@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedui.components.AbWatchVideoOverflowMenu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -61,7 +63,11 @@ fun SyncSettingsScreen(
     val strings = LocalStrings.current
     val editor = remember { SettingsEditorStack() }
     val editorPages by editor.pages.collectAsState()
-    AbScaffold(title = uiState.screen.title, onNavigateUp = onUp) { padding ->
+    AbScaffold(
+        title = uiState.screen.title,
+        onNavigateUp = onUp,
+        actions = { AbWatchVideoOverflowMenu(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_17_SYNC_1_GOOGLE_DRIVE)) },
+    ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AbSettingsContent(
                 state = uiState.screen,
