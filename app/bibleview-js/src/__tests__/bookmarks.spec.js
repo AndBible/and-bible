@@ -19,7 +19,8 @@ import {useBookmarks, useGlobalBookmarks, verseHighlighting, bookmarkHighlightCo
 import {ref, defineComponent, h, nextTick} from "vue";
 import {mount} from "@vue/test-utils";
 import Color from "color";
-import {useConfig} from "@/composables/config";
+import {useConfig, bibleViewRootClasses} from "@/composables/config";
+import {readFileSync} from "fs";
 import {abbreviated} from "@/utils";
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {EditActionMode} from "@/types/client-objects";
@@ -814,5 +815,63 @@ describe("pure monochrome bookmark DOM", () => {
         config.showBookmarks = false;
         await nextTick();
         expect(bold()).toHaveLength(0);
+    });
+});
+
+describe("strong highlights (video look)", () => {
+    const label = {color: 0xFF91A7FF}; // the default label colour, BookmarkStyle.BLUE_HIGHLIGHT
+    const base = {monochromeMode: false, colorEinkMode: false};
+
+    it("is off by default: the normal alphas stay 0.3 (day) and 0.4 (night)", () => {
+        expect(bookmarkHighlightColor(label, 1, {...base, nightMode: false}).alpha()).toBeCloseTo(0.3);
+        expect(bookmarkHighlightColor(label, 1, {...base, nightMode: true}).alpha()).toBeCloseTo(0.4);
+        expect(useConfig().appSettings.strongHighlights).toBe(false);
+    });
+
+    it("makes the highlight clearly stronger in day and night mode, same hue", () => {
+        for (const nightMode of [false, true]) {
+            const normal = bookmarkHighlightColor(label, 1, {...base, nightMode});
+            const strong = bookmarkHighlightColor(label, 1, {...base, nightMode, strongHighlights: true});
+            // Day carries the videos; night stays moderate so red-letter text keeps its contrast.
+            expect(strong.alpha()).toBeGreaterThanOrEqual(normal.alpha() + (nightMode ? 0.1 : 0.2));
+            expect(strong.alpha(1).hex()).toEqual(normal.alpha(1).hex());
+        }
+    });
+
+    it("keeps stacking: two bookmarks of the label are stronger still", () => {
+        const one = bookmarkHighlightColor(label, 1, {...base, nightMode: false, strongHighlights: true});
+        const two = bookmarkHighlightColor(label, 2, {...base, nightMode: false, strongHighlights: true});
+        expect(two.alpha()).toBeGreaterThan(one.alpha());
+    });
+
+    it("does not touch the monochrome grey", () => {
+        const bw = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: false, nightMode: false, strongHighlights: true});
+        expect(bw.hex()).toEqual("#D2D2D2");
+    });
+});
+
+describe("strong selection highlight (video look)", () => {
+    it("adds the strongHighlights root class only when the flag is on", () => {
+        const {appSettings} = useConfig();
+        expect(bibleViewRootClasses(appSettings).strongHighlights).toBe(false);
+        appSettings.strongHighlights = true;
+        expect(bibleViewRootClasses(appSettings).strongHighlights).toBe(true);
+    });
+
+    it("keeps the other root classes as before", () => {
+        const {appSettings} = useConfig();
+        appSettings.nightMode = true;
+        appSettings.disableAnimations = true;
+        expect(bibleViewRootClasses(appSettings)).toEqual({
+            night: true, noAnimation: true, monochrome: false, colorEink: false, pureMonochrome: false,
+            strongHighlights: false,
+        });
+    });
+
+    it("has a stronger .isHighlighted rule under .strongHighlights, day and night", () => {
+        const scss = readFileSync("src/common.scss", "utf8");
+        const block = scss.slice(scss.indexOf(".isHighlighted {"), scss.indexOf(".one-liner"));
+        expect(block).toMatch(/\.strongHighlights:not\(\.monochrome\) & \{\s*background-color: rgba\(var\(--accent-rgb\), 0\.3\)/);
+        expect(block).toMatch(/\.night\.strongHighlights:not\(\.monochrome\) & \{\s*background-color: rgba\(var\(--accent-rgb\), 0\.5\)/);
     });
 });
