@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity
 
+import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.android.platform.AndroidBackupHost
 
 import android.app.Activity
@@ -64,7 +65,16 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
                     "$zip, ${host.getString(R.string.format_mybible)}, ${host.getString(R.string.format_mysword)}, ${host.getString(R.string.format_epub)}")
             },
             language = { Locale.getDefault().language }, isDiscrete = { CommonUtils.isDiscrete },
-            knownInstalled = { withContext(Dispatchers.IO) { docsDao.getKnownInstalled() } },
+            knownInstalled = {
+                try {
+                    withContext(Dispatchers.IO) { docsDao.getKnownInstalled() }
+                } catch (e: Exception) {
+                    // #4112: a restored WELCOME host opening damaged user data goes to the startup's recovery question.
+                    e.corruptDatabasesOrNull() ?: throw e
+                    withContext(Dispatchers.Main) { host.routeToDamagedDataRecovery() }
+                    emptyList()
+                }
+            },
             megabytesFree = { CommonUtils.megabytesFree },
             refuseDownload = { Dialogs.showErrorMsg(host.getString(R.string.storage_space_warning)) { host.finish() } },
             initialise = { host.initialiseLeavingWelcome() },

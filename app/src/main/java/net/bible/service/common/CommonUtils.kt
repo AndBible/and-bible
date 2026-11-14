@@ -125,6 +125,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
+import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
@@ -949,7 +950,14 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             DatabaseContainer.ready = true
-            DatabaseContainer.instance
+            try {
+                DatabaseContainer.instance
+            } catch (e: Exception) {
+                // #4112: damaged user data (or any open failure) leaves the app uninitialised with the databases
+                // "not ready", so settings reads answer defaults instead of throwing the damage again.
+                DatabaseContainer.ready = false
+                throw e
+            }
             loadSnapshotStoresInBackground()
             startPlatformServices()
 
@@ -983,6 +991,21 @@ object CommonUtils : CommonUtilsBase() {
             // Never on Main: readers of enciphered books await it (ReadingAppInit.awaitCipherUnlock).
             ReadingAppInit.unlockStoredCipherKeysInBackground()
         }
+    }
+
+    /**
+     * [initializeApp] for an entry point without a screen of its own (speak widget, TTS notification, media button):
+     * damaged user-data databases (#4112) end it quietly with false instead of crashing the process. The damage is
+     * remembered ([DatabaseContainer.forgetCorruption]), so repeated broadcasts do not check the files again; the user
+     * meets the recovery question at the next start of the app. Any other failure propagates as before.
+     */
+    fun initializeAppForHeadlessEntry(): Boolean = try {
+        initializeApp()
+        true
+    } catch (e: Exception) {
+        val damaged = e.corruptDatabasesOrNull() ?: throw e
+        Log.w(TAG, "Damaged data (${damaged.databases.joinToString { it.fileName }}): headless entry skipped")
+        false
     }
 
     /**

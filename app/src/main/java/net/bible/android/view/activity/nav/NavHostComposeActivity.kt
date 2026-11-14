@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
@@ -2834,7 +2835,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     internal fun initialiseIfStartedUninitialised() {
         if (!doNotInitializeApp) return
-        CommonUtils.initializeApp(blockOnCipherUnlock = false)
+        try {
+            CommonUtils.initializeApp(blockOnCipherUnlock = false)
+        } catch (e: Exception) {
+            e.corruptDatabasesOrNull() ?: throw e
+            routeToDamagedDataRecovery() // #4112
+            return
+        }
         applyInitialisedWindowState()
         initialisedAfterStart = true
     }
@@ -2991,6 +2998,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // instant.
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
+        // #4112: damaged user data; the startup's recovery question has taken over and this host is finishing.
+        if (routedToDamagedDataRecovery) return
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
         // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
@@ -3515,6 +3524,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
+        if (routedToDamagedDataRecovery) {
+            super.onDestroy()
+            return
+        }
         ReadingViewVisibility.setActivityVisible(this, false)
         ReadingHostPresence.clearForeground(this)
         if (::appHosts.isInitialized) appHosts.onHostDestroy()

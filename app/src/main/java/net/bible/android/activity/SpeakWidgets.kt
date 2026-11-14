@@ -259,12 +259,12 @@ class SpeakWidgetManager : KoinComponent {
         val app by lazy {instance.app }
 
         override fun onReceive(context: Context?, intent: Intent?) {
-            CommonUtils.initializeApp()
+            if (!CommonUtils.initializeAppForHeadlessEntry()) return
             super.onReceive(context, intent)
         }
 
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            CommonUtils.initializeApp()
+            if (!CommonUtils.initializeAppForHeadlessEntry()) return
             Log.i(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
                 try {

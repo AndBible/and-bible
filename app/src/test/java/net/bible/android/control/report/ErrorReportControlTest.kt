@@ -196,4 +196,40 @@ class ErrorReportControlTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         answer.await()
     }
+
+    /**
+     * #4112 review: Backup & Restore from the damaged-data question returns RETRY when the user comes back, so the
+     * caller opens the databases again (a restored backup then opens normally) instead of showing the same question.
+     */
+    @Test
+    fun damagedDataBackupChoiceRetriesTheOpenAfterBackup() = runOnTestMain {
+        val activity = activity()
+        val damaged = net.bible.service.db.CorruptDatabasesException(
+            listOf(net.bible.service.db.CorruptDatabase("bookmarks.sqlite3", "/data/bookmarks.sqlite3")),
+        )
+        val answer = async { ErrorReportControl.showCorruptDatabaseDialog(activity, damaged) }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        assertTrue(head.message!!.contains("bookmarks.sqlite3"))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
+        advanceUntilIdle()
+        shadowOf(activity).callOnActivityResult(ASYNC_REQUEST_CODE_START, Activity.RESULT_CANCELED, null)
+        advanceUntilIdle()
+        assertEquals(net.bible.service.db.CorruptDatabaseChoice.RETRY, answer.await())
+        assertNull("the question is not shown again before the retry", dialogs.pending.value)
+    }
+
+    @Test
+    fun damagedDataResetFailureIsShownAsAMessage() = runOnTestMain {
+        val activity = activity()
+        val failure = net.bible.service.db.CorruptDatabaseResetException(
+            net.bible.service.db.CorruptDatabase("bookmarks.sqlite3", "/data/bookmarks.sqlite3"), null,
+        )
+        val shown = async { ErrorReportControl.showCorruptDatabaseResetFailed(activity, failure) }
+        advanceUntilIdle()
+        val message = dialogs.pending.value!!.request as AppDialogRequest.Message
+        assertTrue(message.message.contains("bookmarks.sqlite3"))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        shown.await()
+    }
 }

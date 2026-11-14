@@ -50,6 +50,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.StartupActivity
+import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -89,6 +90,25 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var wasPaused = false
     private var returningFromCalculator = false
 
+    /**
+     * True when [onCreate] found damaged user-data databases (#4112) and handed over to [StartupActivity]'s recovery
+     * question: the activity is finishing and nothing of it was set up, so a subclass's own `onCreate`/`onDestroy`
+     * returns at once.
+     */
+    protected var routedToDamagedDataRecovery = false
+        private set
+
+    /**
+     * Shows the damaged-data question (#4112) by restarting the app at [StartupActivity] in a fresh task, and finishes
+     * this screen.
+     */
+    fun routeToDamagedDataRecovery() {
+        startActivity(
+            Intent(this, StartupActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+        )
+        finish()
+    }
+
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +116,17 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
-            CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+            try {
+                CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+            } catch (e: Exception) {
+                e.corruptDatabasesOrNull() ?: throw e
+                // #4112: a screen started directly (restored after process death, a link, a notification) found
+                // damaged user data. Hand over to the startup's recovery question instead of crashing.
+                routedToDamagedDataRecovery = true
+                super.onCreate(savedInstanceState)
+                routeToDamagedDataRecovery()
+                return
+            }
         }
 
         if (allowThemeChange) {

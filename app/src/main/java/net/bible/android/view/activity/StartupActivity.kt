@@ -197,22 +197,22 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             open = { withContext(Dispatchers.IO) { DatabaseContainer.openForUse() } },
             ask = { ErrorReportControl.showCorruptDatabaseDialog(this, it) },
             reset = { withContext(Dispatchers.IO) { DatabaseContainer.resetCorruptDatabases(it) } },
+            resetFailed = { ErrorReportControl.showCorruptDatabaseResetFailed(this, it) },
         )
         if (opened == null) finish()
         return opened != null
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
-        if(!checkWebView()) return@withContext
-
-        if (!initializeDatabase()) return@withContext
-
-        // When enabled, go to the calculator first,
-        // even when there are no Bible documents already installed.
-        if(!checkCalculator()) return@withContext
-        if(BuildVariant.Appearance.isDiscrete) {
-            ErrorReportControl.checkCrash(this@StartupActivity)
-        }
+        val passed = runStartupGates(
+            webView = { checkWebView() },
+            calculator = { checkCalculator() },
+            databases = { initializeDatabase() },
+            discreteCrashCheck = {
+                if (BuildVariant.Appearance.isDiscrete) ErrorReportControl.checkCrash(this@StartupActivity)
+            },
+        )
+        if (!passed) return@withContext
         if (SwordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "No bibles: the handoff opens the first-run welcome")
             // only show the splash screen if user has no bibles
@@ -262,6 +262,25 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     companion object {
         private val TAG = "StartupActivity"
     }
+}
+
+/**
+ * The startup gates in their one order; false as soon as one of them ends the start (it finished the activity).
+ * The calculator (discrete flavour, or `show_calculator`) comes before the databases: nothing of the app, including
+ * the damaged-data question (#4112), may show before the PIN, just as the discrete crash check runs after it.
+ */
+internal suspend fun runStartupGates(
+    webView: suspend () -> Boolean,
+    calculator: suspend () -> Boolean,
+    databases: suspend () -> Boolean,
+    discreteCrashCheck: suspend () -> Unit,
+): Boolean {
+    if (!webView()) return false
+    // When enabled, go to the calculator first, even when there are no Bible documents already installed.
+    if (!calculator()) return false
+    if (!databases()) return false
+    discreteCrashCheck()
+    return true
 }
 
 /** Slice 8 §4 gate (a): the start route, from the one predicate. */
