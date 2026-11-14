@@ -47,6 +47,13 @@ interface DatabaseHost {
     /** Waits for queued workspace writes to reach the database. Lookup failures are swallowed. */
     suspend fun awaitWorkspacePersisted()
 
+    /**
+     * Saves the live window repository's unsaved state (reading position, windows, history) and waits until it is on
+     * disk. Called before a database replace freezes workspace saves, whose end reloads the workspace (#4101).
+     * Never throws.
+     */
+    suspend fun persistLiveWorkspace()
+
     /** Flushes [store] and the ordered write queues; never throws. */
     fun flushSettingsBeforeExit(store: net.bible.sharedcore.settings.store.SettingsStore?, timeoutMs: Long?)
 

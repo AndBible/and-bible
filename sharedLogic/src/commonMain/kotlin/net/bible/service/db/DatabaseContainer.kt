@@ -441,6 +441,11 @@ class DatabaseContainer private constructor() {
             block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T,
         ): T {
             aiLifetime.requireOwner(token)
+            // #4101: the epoch bump below freezes workspace saves and the replace ends in a workspace reload from the
+            // database, so state only in memory (the reading position after navigation) would be lost even when the
+            // replace never touches the workspaces database (a Bookmarks join, a single-database restore or reset).
+            // The outermost replace saves it first; a nested one runs with saves already frozen.
+            if (replaceDepth.value == 0) host.persistLiveWorkspace()
             replaceDepth.incrementAndGet()
             replaceEpochCounter.incrementAndGet()
             var completed = false

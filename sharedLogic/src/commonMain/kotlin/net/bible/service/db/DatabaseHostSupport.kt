@@ -17,6 +17,9 @@
 package net.bible.service.db
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.bible.android.control.page.window.WindowControl
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.control.page.window.WorkspacePersistence
 import net.bible.service.common.GlobalTextDisplaySettingsStore
@@ -40,6 +43,23 @@ object DatabaseHostSupport {
     suspend fun awaitWorkspacePersisted() {
         val persistence = runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<WorkspacePersistence>() }.getOrNull()
         persistence?.awaitPersisted()
+    }
+
+    /**
+     * [DatabaseHost.persistLiveWorkspace]: saves the held, loaded window repository on Main (its state is Main-confined)
+     * and waits for the write. Without a Koin context or a loaded repository there is nothing to save. A failed save is
+     * logged, not thrown: it must not stop the replace that asked for it.
+     */
+    suspend fun persistLiveWorkspace() {
+        val windowControl = runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<WindowControl>() }.getOrNull() ?: return
+        try {
+            withContext(Dispatchers.Main.immediate) { windowControl.saveLoadedRepository() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Saving the live workspace before a database replace failed", e)
+        }
+        awaitWorkspacePersisted()
     }
 
     /**

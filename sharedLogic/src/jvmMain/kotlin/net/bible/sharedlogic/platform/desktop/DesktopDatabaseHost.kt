@@ -96,6 +96,8 @@ class DesktopDatabaseHost(
 
     override suspend fun awaitWorkspacePersisted() = DatabaseHostSupport.awaitWorkspacePersisted()
 
+    override suspend fun persistLiveWorkspace() = DatabaseHostSupport.persistLiveWorkspace()
+
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {
         runBlocking { DatabaseHostSupport.flushOrderedWrites(store, timeoutMs) } // DatabaseHost sync contract, off the main thread
     }

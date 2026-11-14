@@ -61,6 +61,15 @@ open class WindowControl constructor() {
         if (_windowRepository === expected) _windowRepository = null
     }
 
+    /**
+     * Saves the held repository's unsaved state, without creating the lazy fallback; a repository that has not
+     * loaded, or is stale after a restore, is left alone by [WindowRepository.saveIntoDb] itself. Speech keeps
+     * playing. Must run on Main.
+     */
+    fun saveLoadedRepository() {
+        _windowRepository?.takeIf { it.initialized }?.saveIntoDb(false)
+    }
+
     open var windowRepository: WindowRepository
         get() = _windowRepository ?: WindowRepository(CoroutineScope(Dispatchers.Main)) .apply { _windowRepository = this }
         set(value) {
