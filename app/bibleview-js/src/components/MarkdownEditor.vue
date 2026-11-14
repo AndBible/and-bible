@@ -44,7 +44,7 @@
     <div ref="actionbarEl" class="pell-actionbar">
       <div ref="headingWrapperEl" class="md-popup-wrapper">
         <button class="pell-button" @click="toggleMenu('heading')"><FontAwesomeIcon :icon="faHeading"/></button>
-        <div v-if="showHeadingMenu" class="md-popup-menu">
+        <div v-if="showHeadingMenu" class="md-popup-menu" :style="popupMenuStyle">
           <button class="md-popup-option" @click="selectHeading(1)">H1</button>
           <button class="md-popup-option" @click="selectHeading(2)">H2</button>
           <button class="md-popup-option" @click="selectHeading(3)">H3</button>
@@ -52,7 +52,7 @@
       </div>
       <div ref="textStyleWrapperEl" class="md-popup-wrapper">
         <button class="pell-button" @click="toggleMenu('textStyle')"><FontAwesomeIcon :icon="faFont"/></button>
-        <div v-if="showTextStyleMenu" class="md-popup-menu">
+        <div v-if="showTextStyleMenu" class="md-popup-menu" :style="popupMenuStyle">
           <button class="md-popup-option" @click="applyTextStyle('**', '**')"><FontAwesomeIcon :icon="faBold"/></button>
           <button class="md-popup-option" @click="applyTextStyle('*', '*')"><FontAwesomeIcon :icon="faItalic"/></button>
           <button class="md-popup-option" @click="applyTextStyle('<u>', '</u>')"><FontAwesomeIcon :icon="faUnderline"/></button>
@@ -63,7 +63,7 @@
       <button class="pell-button" @click="toggleLinePrefix('- ')"><FontAwesomeIcon :icon="faListUl"/></button>
       <div ref="indentWrapperEl" class="md-popup-wrapper">
         <button class="pell-button" @click="toggleMenu('indent')"><FontAwesomeIcon :icon="faIndent"/></button>
-        <div v-if="showIndentMenu" class="md-popup-menu">
+        <div v-if="showIndentMenu" class="md-popup-menu" :style="popupMenuStyle">
           <button class="md-popup-option" @click="applyIndent(1)"><FontAwesomeIcon :icon="faIndent"/></button>
           <button class="md-popup-option" @click="applyIndent(-1)"><FontAwesomeIcon :icon="faOutdent"/></button>
         </div>
@@ -228,7 +228,38 @@ function toggleMenu(menu: 'heading' | 'textStyle' | 'indent') {
         if (menu === 'heading') showHeadingMenu.value = true;
         else if (menu === 'textStyle') showTextStyleMenu.value = true;
         else showIndentMenu.value = true;
+        nextTick(placeOpenMenu);
     }
+}
+
+// Viewport position of the open toolbar popup menu. The menus are position: fixed, not
+// absolute: the editor sits in scrolling containers (the bookmark panel's bounded editor
+// container, overflow-y: auto) that would clip a menu opening above the toolbar to the few
+// visible lines of a short note (#4094).
+const popupMenuStyle = ref<Record<string, string>>({});
+
+function openMenuWrapper(): HTMLElement | null {
+    if (showHeadingMenu.value) return headingWrapperEl.value;
+    if (showTextStyleMenu.value) return textStyleWrapperEl.value;
+    if (showIndentMenu.value) return indentWrapperEl.value;
+    return null;
+}
+
+/**
+ * Places the open popup menu against the viewport, above its toggle button, or below it when
+ * the space above is too small for the menu and the space below is larger.
+ */
+function placeOpenMenu() {
+    const wrapperEl = openMenuWrapper();
+    const menuEl = wrapperEl?.querySelector<HTMLElement>(".md-popup-menu");
+    if (!wrapperEl || !menuEl) return;
+    const anchor = wrapperEl.getBoundingClientRect();
+    const menuHeight = menuEl.getBoundingClientRect().height;
+    const viewportHeight = window.innerHeight;
+    const openBelow = anchor.top < menuHeight && viewportHeight - anchor.bottom > anchor.top;
+    popupMenuStyle.value = openBelow
+        ? {position: "fixed", left: `${anchor.left}px`, top: `${anchor.bottom}px`}
+        : {position: "fixed", left: `${anchor.left}px`, bottom: `${viewportHeight - anchor.top}px`};
 }
 
 function selectHeading(level: number) {
@@ -553,6 +584,13 @@ function scrollToCursor() {
 // toolbar may end up hidden behind the keyboard. Scroll to keep cursor and toolbar visible.
 function onViewportResize() {
     scrollToCursor();
+    placeOpenMenu();
+}
+
+// A scroll of any ancestor (the editor container, the modal, the document) moves the toggle
+// button; the fixed menu follows it.
+function onAnyScroll() {
+    placeOpenMenu();
 }
 
 function onDocumentClick(e: MouseEvent) {
@@ -569,12 +607,16 @@ onMounted(() => {
     editorMode.value++;
     window.visualViewport?.addEventListener("resize", onViewportResize);
     document.addEventListener("click", onDocumentClick, true);
+    document.addEventListener("scroll", onAnyScroll, true);
+    window.addEventListener("resize", onViewportResize);
 });
 
 onBeforeUnmount(() => {
     save();
     window.visualViewport?.removeEventListener("resize", onViewportResize);
     document.removeEventListener("click", onDocumentClick, true);
+    document.removeEventListener("scroll", onAnyScroll, true);
+    window.removeEventListener("resize", onViewportResize);
 });
 
 onUnmounted(() => {
@@ -595,9 +637,9 @@ const {sprintf} = useCommon();
 }
 
 .md-popup-menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
+  // Fixed, placed by placeOpenMenu(): an absolute menu is clipped by the scrolling editor
+  // container of the compact bookmark panel (#4094).
+  position: fixed;
   display: flex;
   flex-direction: column;
   background-color: var(--background-color);
