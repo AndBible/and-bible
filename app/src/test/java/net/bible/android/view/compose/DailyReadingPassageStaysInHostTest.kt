@@ -162,9 +162,16 @@ class DailyReadingPassageStaysInHostTest {
         assertEquals(NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'))
     }
 
+    /** #4098: Done with no next day to show (up to date) opens the plan's day list, still inside the host. */
     @Test
-    fun doneOnTheCurrentDayWithNoNextDayReturnsToTheReader() {
-        assertBackInTheReader(doneFrom(day = 5, daysAgo = 4))
+    fun doneOnTheCurrentDayWithNoNextDayShowsTheDayList() {
+        val activity = doneFrom(day = 5, daysAgo = 4)
+        net.bible.test.awaitHostCondition("Done without a next day shows the day list") {
+            activity.isFinishing || activity.currentRouteForTest()?.substringBefore('?') == NavRoutes.READING_PLAN_DAY_LIST
+        }
+        idleMain()
+        assertFalse(activity.isFinishing, "Done finished the host that owns the reading plan (SU-15g D1)")
+        assertEquals(NavRoutes.READING_PLAN_DAY_LIST, activity.currentRouteForTest()?.substringBefore('?'))
     }
 
     @Test
