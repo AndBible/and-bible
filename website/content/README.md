@@ -60,6 +60,26 @@ git -C website/media add videos && git -C website/media commit -m "thumbnails: r
 git add website/media && git commit -m "website: bump media (thumbnail refresh)"
 ```
 
+## Tutorial series (AndBible 6.0)
+
+`data/tutorials.yaml` is the public data of the 6.0 video series: the order, English title, docs page
+(+ optional heading `anchor`) and YouTube id of "What's new" and the 32 tutorials, plus the `placeholder`
+("videos coming soon") video. It is hand-maintainable, and the site build reads only this file, never
+`website/video/` (a private submodule is planned for that).
+
+- `/videos/` shows the series at the top in episode order, the older catalog (`videos.yaml`) below as an archive.
+- Each docs page that has an episode shows its video(s) under the page title, in episode order. An episode whose
+  `youtube` id is `null` shows a compact "Coming soon" note linking the placeholder video (the AI page has four
+  episodes; four identical placeholder thumbnails would look broken). Once the id is set, the embed (click-to-load,
+  `youtube-nocookie`) replaces the note. A video that is also in `videos.yaml` with the same `docs:` is not repeated
+  under "Related videos".
+- **Ids stay in sync by tooling:** `youtube_upload.py upload --execute` prints the `TutorialVideos.kt` line and also
+  writes the id into `tutorials.yaml` (a one-line edit; commit both). Run `make site-thumbs` afterwards to fetch the
+  thumbnail (commit it in `website/media` first, then the gitlink). `tests/test_tutorials.py` fails when the
+  episodes or ids of `tutorials.yaml` and `TutorialVideos.kt` differ.
+- New episode: add a line to `tutorials.yaml`, a `TutorialVideos.Episode` entry and the episode folder.
+- UI strings are `videos.tutorials.*` and `videos.archive.*` in `content/en/site.yaml`.
+
 ## New video -> blog post
 
 ```bash

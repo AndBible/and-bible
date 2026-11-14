@@ -129,3 +129,17 @@
   .md-nav--lifted .md-nav[data-md-level="1"] { grid-template-rows: minmax(.4rem, 1fr); visibility: visible; opacity: 1; }
   .md-nav--primary .md-nav__title[for=__drawer] { display: none; }
 }
+
+/* ---- Video tutorial embeds at the top of a docs page (sitegen/tutorials.py) ---- */
+.md-typeset .tutorial-videos { display: grid; gap: .5rem 1rem; margin: 0 0 1.25rem; }
+.md-typeset .tutorial-videos .yt { margin: 0; max-width: 560px; }
+.md-typeset .tutorial-videos .yt__title { display: block; margin-top: .4rem; font-weight: 600; }
+.md-typeset .tutorial-note { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; margin: 0; padding: .6rem .9rem;
+  border: 1px solid var(--ab-border); border-radius: var(--radius); background: var(--ab-surface); }
+.tutorial-note__icon { flex: none; position: relative; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--video-bg); }
+.tutorial-note__icon::after { content: ""; position: absolute; top: 50%; left: 50%; margin: -.4rem 0 0 -.25rem;
+  border-style: solid; border-width: .4rem 0 .4rem .65rem; border-color: transparent transparent transparent var(--video-fg); }
+.tutorial-note__title { font-weight: 600; }
+.md-typeset .tutorial-note__badge { padding: 0 .6rem; border: 1px solid var(--ab-border); border-radius: 999px; background: var(--ab-surface-2);
+  color: var(--ab-muted); font-size: .75rem; white-space: nowrap; }
+.tutorial-note__link { margin-left: auto; font-size: .85rem; }

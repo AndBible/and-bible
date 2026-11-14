@@ -14,7 +14,7 @@ Chat in Finnish; content English. Sources: `website/README.md`, `website/content
 
 **Map.** `website/content/en/` (source language): `site.yaml` (UI strings, nav, hero), `blog/`,
 `pages/`, `docs/` (Zensical, nav in `website/zensical.toml`). `content/<lang>/` mirrors it.
-`website/data/`: `videos.yaml`, `reviews.yaml`, `redirects.yaml`, `wp-uploads-redirects.yaml`.
+`website/data/`: `videos.yaml`, `tutorials.yaml` (the 6.0 series: ids, docs pages; see `content/README.md` "Tutorial series"), `reviews.yaml`, `redirects.yaml`, `wp-uploads-redirects.yaml`.
 `website/sitegen/` generator, `templates/`, `theme/`, `assets/` (css, js), `tests/` (pytest and
 `*.mjs`). `website/media` = submodule (images, `videos/<id>.webp`). `website/_site`, `_build` = generated.
 
