@@ -43,7 +43,9 @@ import net.bible.sharedlogic.util.currentTimeMillis
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "MyDocumentBookManager"
 
@@ -393,10 +395,11 @@ object MyDocumentBookManager {
         }
 
         // Create new AI Documents
+        val strings = KoinPlatform.getKoin().get<CoreStrings>()
         val aiDocument = MyDocument(
             id = dao.newMyDocumentId(AI_DOCUMENTS_INITIALS),
-            name = "AI Documents",
-            description = "Automatically generated documents from AI",
+            name = strings.aiDocumentsName,
+            description = strings.aiDocumentsDescription,
             initials = AI_DOCUMENTS_INITIALS,
             orderNumber = 0  // Always first in the list
         )

@@ -65,6 +65,8 @@ class ReadingPlanTextFileDaoTest {
         override val pause = "pause"
         override val stop = "stop"
         override val speakStatusStopped = "speakStatusStopped"
+        override val aiDocumentsName = "aiDocumentsName"
+        override val aiDocumentsDescription = "aiDocumentsDescription"
         override val installZipSuccessful = "installed"
         override val installZipCanceled = "canceled"
         override val invalidModule = "invalid"

@@ -78,6 +78,8 @@ internal class StubCoreStrings : CoreStrings {
     override val pause = "pause"
     override val stop = "stop"
     override val speakStatusStopped = "speakStatusStopped"
+    override val aiDocumentsName = "aiDocumentsName"
+    override val aiDocumentsDescription = "aiDocumentsDescription"
     override fun sleepTimerStarted(minutes: Int): String = "sleepTimerStarted ${minutes}"
     override val webDavUntrustedCertificateTitle = "webDavUntrustedCertificateTitle"
     override val webDavTrustCertificate = "webDavTrustCertificate"

@@ -119,6 +119,8 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val pause: String get() = t.text("pause")
     override val stop: String get() = t.text("stop")
     override val speakStatusStopped: String get() = t.text("speak_status_stopped")
+    override val aiDocumentsName: String get() = t.text("ai_documents_name")
+    override val aiDocumentsDescription: String get() = t.text("ai_documents_description")
     override fun sleepTimerStarted(minutes: Int): String = t.fmt("sleep_timer_started", minutes)
     override val webDavUntrustedCertificateTitle: String get() = t.text("webdav_untrusted_certificate_title")
     override val webDavTrustCertificate: String get() = t.text("webdav_trust_certificate")

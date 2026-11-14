@@ -57,7 +57,7 @@ class HostReadingNavigatorLinksTest {
             val request = (shown.request as? AppDialogRequest.Localized)?.resolve() ?: shown.request
             val confirm = assertIs<AppDialogRequest.Confirm>(request)
             assertEquals("External link", confirm.title)
-            assertEquals("This will open external link https://example.org/document in an browser application, do you wish to continue?", confirm.message)
+            assertEquals("This will open external link https://example.org/document in a browser application, do you wish to continue?", confirm.message)
             return shown
         }
     }

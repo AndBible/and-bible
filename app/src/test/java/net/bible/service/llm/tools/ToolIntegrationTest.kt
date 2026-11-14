@@ -794,6 +794,14 @@ class ToolIntegrationTest {
         assertEquals("AIDocuments", aiDoc!!.initials)
     }
 
+    @Test
+    fun aiDocument_nameAndDescriptionComeFromStringResources() = runBlocking {
+        val doc = MyDocumentBookManager.getOrCreateAIDocument()
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        assertEquals(app.getString(net.bible.android.activity.R.string.ai_documents_name), doc.name)
+        assertEquals(app.getString(net.bible.android.activity.R.string.ai_documents_description), doc.description)
+    }
+
     // === MyDocuments: CreateMyDocument ===
 
     @Test
