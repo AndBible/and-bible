@@ -17,7 +17,7 @@ from sitegen.tutorials import Series, videos_section
 from sitegen.youtube import embed_html
 
 TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "Search & study tools",
-          "Sync & backup", "Customisation", "Developer diaries")
+          "Sync & backup", "AI assistant", "Customisation", "Developer diaries")
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _VERSION = re.compile(r"\d+\.\d+")
 
