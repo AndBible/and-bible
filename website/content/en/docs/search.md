@@ -89,6 +89,11 @@ dialog from the burger menu. The search will be performed against the text of th
 commentary entries, even if you previously selected several Bible translations to search.
 Your saved Bible selection is kept for the next Bible search.
 
+The results header names the commentary and the number of results. Each result shows the
+verse reference and a short excerpt of the commentary entry around the matching words. A
+commentary entry often covers several verses, so the same excerpt can appear for each verse
+of the entry.
+
 ## Advanced Search
 
 It is possible to do advanced searches using the special syntax described below. This section describes
