@@ -511,13 +511,13 @@ androidComponents {
     if (videoLook && project.findProperty("versionNameSuffix") == null) {
         // A production release has no "-beta" suffix (scripts/increment-version.sh); without it
         // the debug build also stops counting as beta (no beta notice, no beta-only settings).
-        val betaSuffix = (rootProject.file("version.properties").let { f ->
-            Properties().apply { f.inputStream().use { load(it) } }.getProperty("versionNameSuffix")
-        } ?: "").trim()
+        val versionProps = Properties().apply {
+            rootProject.file("version.properties").inputStream().use { load(it) }
+        }
+        val productionVersionName =
+            "${versionProps.getProperty("versionMajorMinor").trim()}.${versionProps.getProperty("versionCode").trim()}"
         onVariants(selector().withBuildType("debug")) { variant ->
-            variant.outputs.forEach { output ->
-                output.versionName.set(output.versionName.map { it.removeSuffix(betaSuffix) })
-            }
+            variant.outputs.forEach { it.versionName.set(productionVersionName) }
         }
     }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
