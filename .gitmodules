@@ -23,3 +23,8 @@
 	url = https://github.com/AndBible/and-bible-store-screenshots.git
 	branch = master
 	update = none
+[submodule "website/video"]
+	path = website/video
+	url = https://github.com/AndBible/and-bible-videos.git
+	branch = master
+	update = none

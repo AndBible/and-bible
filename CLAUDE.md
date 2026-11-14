@@ -195,6 +195,10 @@ Internal releases (Google Play internal + TestFlight internal, one YubiKey touch
 - Roborazzi goldens live in `AndBible/and-bible-goldens`, checked out at
   `app/src/test/roborazzi` (`git submodule update --init`). Blessing goldens is two commits:
   record, commit the PNGs **inside** the submodule, then commit the gitlink bump here.
+- The video production (pipeline, episode scripts, scenes, storyboards, YouTube tooling, its tests under `tests/`
+  and the `making-videos` skill, symlinked from `.claude/skills/making-videos`) lives in the private
+  `AndBible/and-bible-videos`, mounted at `website/video` with `update = none`. Fetch it with
+  `git submodule update --init --checkout website/video`. The public site reads only `website/data/`.
 - Specs, plans and history live in the private `AndBible/and-bible-superpowers`, mounted at
   `docs/superpowers` with `update = none` (CI and contributors skip it). Fetch it with
   `git submodule update --init --checkout docs/superpowers`.

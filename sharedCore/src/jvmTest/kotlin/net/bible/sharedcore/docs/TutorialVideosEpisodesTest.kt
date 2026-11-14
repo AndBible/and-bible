@@ -7,18 +7,24 @@ import kotlin.test.assertNotNull
 
 /** Keeps the registry and the episode folders under `website/video/episodes/` in step. */
 class TutorialVideosEpisodesTest {
-    private fun episodesDir(): File {
+    /**
+     * `website/video` is a private submodule (`update = none`): CI and contributors do not check it out, so these
+     * checks run only where it is present. The public side is covered by website/tests/test_tutorials.py
+     * (tutorials.yaml against this registry).
+     */
+    private fun episodesDir(): File? {
         var dir: File? = File(System.getProperty("user.dir")).absoluteFile
         while (dir != null) {
             File(dir, "website/video/episodes").takeIf { it.isDirectory }?.let { return it }
             dir = dir.parentFile
         }
-        error("website/video/episodes not found above ${System.getProperty("user.dir")}")
+        return null
     }
 
     @Test
     fun everyPublishableEpisodeFolderHasARegistryEntryAndViceVersa() {
-        val folders = episodesDir().listFiles { f -> f.isDirectory && File(f, "youtube.yaml").isFile }!!
+        val episodes = episodesDir() ?: return
+        val folders = episodes.listFiles { f -> f.isDirectory && File(f, "youtube.yaml").isFile }!!
             .map { it.name }
             // The placeholder has its own constant, and the PoC is not part of the series.
             .filter { it != "placeholder-coming-soon" && it != "poc-title-bar-search" }
@@ -29,6 +35,7 @@ class TutorialVideosEpisodesTest {
 
     @Test
     fun placeholderEpisodeFolderExists() {
-        assertNotNull(File(episodesDir(), "placeholder-coming-soon").takeIf { it.isDirectory })
+        val episodes = episodesDir() ?: return
+        assertNotNull(File(episodes, "placeholder-coming-soon").takeIf { it.isDirectory })
     }
 }
