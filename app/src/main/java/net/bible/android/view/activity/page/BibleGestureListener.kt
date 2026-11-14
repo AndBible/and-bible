@@ -29,6 +29,7 @@ import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
 import net.bible.sharedcore.reading.reanchoredTracking
 import net.bible.sharedcore.reading.shouldReanchor
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.settings.doubleTapToFullscreen
 import kotlin.math.abs
 
@@ -204,13 +205,20 @@ class BibleGestureListener(
 
     private val doubleTapToFullscreen get() = CommonUtils.settings.doubleTapToFullscreen()
 
+    /**
+     * Toggles full screen. When it does, the page is told (`double_tap`): both taps also reach it as clicks, and a
+     * page turn they made in a margin must not move the text (#4083).
+     */
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (mainBibleActivity.fullScreen) {
             mainBibleActivity.fullScreen = false
-        } else if(!mainBibleActivity.fullScreen && doubleTapToFullscreen){
+        } else if(doubleTapToFullscreen){
             mainBibleActivity.fullScreen = true
-			lastFullScreenByDoubleTap = true
+            lastFullScreenByDoubleTap = true
+        } else {
+            return true
         }
+        bibleView.emit(BibleViewEvents.doubleTap())
         return true
     }
 

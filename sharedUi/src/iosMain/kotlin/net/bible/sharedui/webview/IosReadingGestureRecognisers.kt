@@ -39,6 +39,7 @@ import platform.UIKit.UIPanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
 import platform.UIKit.UITouch
 import platform.UIKit.UIUserInterfaceLayoutDirection
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedui.HostBackDispatcher
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
 import platform.UIKit.UISwipeGestureRecognizerDirectionRight
@@ -162,8 +163,11 @@ internal class IosReadingGestureRecognisers(
         !(gestureRecognizer is UISwipeGestureRecognizer && swipeTouchAtScreenEdge &&
             HostBackDispatcher.hasEnabledHandler())
 
+    /** A double tap that toggled full screen is reported to the page, which undoes its margin page turns (#4083). */
     @ObjCAction
-    fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()
+    fun doubleTapped(sender: UIGestureRecognizer) {
+        if (gestures.onDoubleTap()) webView.evaluateJavaScript(BibleViewEvents.doubleTap().js, null)
+    }
 
     @ObjCAction
     fun touched(sender: UIGestureRecognizer) {

@@ -28,6 +28,7 @@ class BibleViewEventsTest {
         assertEquals("bibleView.emit(\"remove_ranges\")", e.removeRanges().js)
         assertEquals("bibleView.emit(\"close_modals\")", e.closeModals().js)
         assertEquals("bibleView.emit(\"export_html\")", e.exportHtml().js)
+        assertEquals("bibleView.emit(\"double_tap\")", e.doubleTap().js)
         assertEquals("bibleView.emit(\"clear_document\")", e.clearDocument().js)
         assertEquals("bibleView.emit(\"clear_document\", 42)", e.clearDocument(42).js)
     }
@@ -122,8 +123,8 @@ class BibleViewEventsTest {
         assertEquals("bibleView.emit(\"clear_document\");\nbibleView.emit(\"scroll_up\")", (e.clearDocument() + e.scrollUp()).js)
     }
 
-    @Test fun namesListsExactlyTheThirtyOneEvents() {
-        assertEquals(31, BibleViewEvents.names.size)
+    @Test fun namesListsExactlyTheThirtyTwoEvents() {
+        assertEquals(32, BibleViewEvents.names.size)
         val emitted = listOf(
             e.setActionMode(true), e.scrollToVerse(null, true, true, null, null), e.setOffsets(0f, 0f, false, false),
             e.bookmarkClicked("b", null), e.updateLabels(JsExpr("[]")), e.updateChapterReadStatus(1, 1),
@@ -136,7 +137,7 @@ class BibleViewEventsTest {
             e.bookmarkNoteModified("b", 1, null), e.adjustLoadingCount(1),
             e.addOrUpdateStudyPad(JsExpr("null"), JsExpr("[]"), JsExpr("[]"), JsExpr("[]")),
             e.addOrUpdateBookmarks(JsExpr("[]")), e.addOrUpdateBookmarkToLabel(JsExpr("{}")),
-            e.addOrUpdateAiDocMarkers(JsExpr("[]")), e.addDocuments(JsExpr("{}")),
+            e.addOrUpdateAiDocMarkers(JsExpr("[]")), e.addDocuments(JsExpr("{}")), e.doubleTap(),
         ).map { Regex("^bibleView\\.emit\\(\"([a-z_]+)\"").find(it.js)!!.groupValues[1] }.toSet()
         assertEquals(BibleViewEvents.names, emitted)
     }

@@ -54,6 +54,7 @@ type EventTypeNames =
     | "delete_ai_doc_markers"
     | "update_reading_progress_settings"
     | "set_scroll_anchor"
+    | "double_tap"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 

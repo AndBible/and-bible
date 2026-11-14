@@ -28,7 +28,7 @@ object BibleViewEvents {
         "delete_bookmarks", "close_modals", "update_reading_progress_settings", "update_memorization_data",
         "setup_content", "set_title", "delete_study_pad_text_entry", "delete_ai_doc_markers", "clear_document",
         "bookmark_note_modified", "adjust_loading_count", "add_or_update_study_pad", "add_or_update_bookmarks",
-        "add_or_update_bookmark_to_label", "add_or_update_ai_doc_markers", "add_documents",
+        "add_or_update_bookmark_to_label", "add_or_update_ai_doc_markers", "add_documents", "double_tap",
     )
 
     private fun emit(event: String, vararg args: String): JsCall =
@@ -43,6 +43,12 @@ object BibleViewEvents {
 
     fun response(callId: Long, value: JsExpr?): JsCall = JsCall("bibleView.response($callId, ${value?.js ?: "null"})")
     fun responseString(callId: Long, value: String): JsCall = JsCall("bibleView.response($callId, ${jsString(value)})")
+
+    /**
+     * The host acted on a double tap on this pane (it toggled full screen). Both taps of the gesture also reached the
+     * page as clicks; the page undoes the page turns they made in a margin (#4083).
+     */
+    fun doubleTap() = emit("double_tap")
 
     fun setActionMode(enabled: Boolean) = emit("set_action_mode", enabled.toString())
 

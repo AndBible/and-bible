@@ -73,6 +73,16 @@ class DesktopReadingGesturesTest {
         assertFalse(fullScreen.state.value)
     }
 
+    /** #4083: only a double tap that toggled full screen is reported to the page, which then undoes its margin page turns. */
+    @Test fun doubleTapReportsWhetherItToggledFullScreen() {
+        assertFalse(real.onDoubleTap(), "setting off, not in full screen: nothing happened")
+        settings.setBoolean("double_tap_to_fullscreen", true)
+        assertTrue(real.onDoubleTap(), "entered full screen")
+        settings.setBoolean("double_tap_to_fullscreen", false)
+        assertTrue(real.onDoubleTap(), "left full screen, whatever the setting")
+        assertFalse(fullScreen.state.value)
+    }
+
     @Test fun fractionalWheelDeltasAccumulate() {
         settings.setBoolean("auto_fullscreen_pref", true)
         // 0.4 px per frame would round to nothing; 200 frames in under a second (the gesture rules cap accumulation to a rolling second) are 80 px, past the 56 point threshold.
