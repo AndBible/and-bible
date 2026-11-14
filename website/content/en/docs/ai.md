@@ -492,7 +492,14 @@ coarser ones:
     `Manage tool permissions`. This sets the default permission mode for
     all prompts.
 2. **Per-prompt** – When editing a custom prompt, you can set a permission
-    mode that overrides the global default for that prompt only.
+    mode that overrides the global default for that prompt only, and allow
+    individual write tools for it without asking. Only your own custom prompts
+    can allow write tools this way: built-in and add-on prompts, and prompts
+    you import from a CSV file, never run write tools without asking unless
+    you allowed them yourself. The mode of a built-in or add-on prompt can
+    only make your global mode stricter, never looser: if your global mode is
+    *Always ask*, a built-in prompt set to *Ask once per run* asks every time
+    too.
 3. **Per-tool override** – In the same tool permissions dialog, you can
     force individual write tools to **Always allow** or **Always deny**
     regardless of the current permission mode. Per-tool overrides are useful
@@ -534,6 +541,17 @@ and briefly emphasizes its row, including when animations are disabled.
 Your search and filters stay active if the copy matches them. If they would
 hide the copy, they are cleared so you can see it.
 
+A copy is a custom prompt like any other: it can use the same tools as the
+original, but its write tools ask for your permission (following the
+[permission mode](#permissions)) until you allow them in the copy's tool list
+or set the copy's permission mode. An add-on prompt's *Allow all* mode is not
+copied either. A copy of your own custom prompt keeps the permissions you gave
+the original.
+
+Prompts you copied or imported before this version keep the permissions they
+were saved with. Open such a prompt in the prompt editor to check its tool
+list and permission mode, and change them if needed.
+
 ### Prompt Template Tips
 
 - **Be specific** – Clearly describe what you want the AI to do and what
@@ -557,6 +575,15 @@ share your prompts with other *AndBible* users:
     will be asked whether to import the file as a *normal CSV import* (the
     prompts become regular, editable custom prompts) or as an *add-on prompt
     pack* (see below).
+- **Permissions are not imported** – A CSV file may come from someone else, so
+    importing it never lets its write tools run without asking: write tools the
+    file allows become "ask" and an *Allow all* mode becomes the default mode.
+    Everything else (text, contexts, read tools, denied tools) is imported as
+    is. When the file updates a prompt you already have (same id), that prompt
+    keeps the write tools and *Allow all* mode you allowed for it, unless the
+    file makes them stricter: a write tool the file denies stays denied, and a
+    permission mode set in the file replaces *Allow all*. A row with the id of
+    an installed add-on prompt is imported as a new custom prompt with a new id.
 
 ### Add-on Prompt Packs
 
@@ -568,6 +595,10 @@ add-on:
     showing where they came from.
 - The prompts are **read-only** – you cannot edit them, but you can copy
     them to customize.
+- Write tools used by add-on prompts always follow your
+    [permission](#permissions) settings; a pack cannot allow them on your
+    behalf, not even with the *Allow all* mode. The prompt editor shows them
+    the way they run: asking, not allowed.
 - Removing the add-on module removes all its prompts at once.
 - Add-on prompts are not synchronized via cloud sync; the underlying CSV
     file lives with the add-on module.
