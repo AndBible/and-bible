@@ -496,7 +496,10 @@ coarser ones:
     individual write tools for it without asking. Only your own custom prompts
     can allow write tools this way: built-in and add-on prompts, and prompts
     you import from a CSV file, never run write tools without asking unless
-    you allowed them yourself.
+    you allowed them yourself. The mode of a built-in or add-on prompt can
+    only make your global mode stricter, never looser: if your global mode is
+    *Always ask*, a built-in prompt set to *Ask once per run* asks every time
+    too.
 3. **Per-tool override** – In the same tool permissions dialog, you can
     force individual write tools to **Always allow** or **Always deny**
     regardless of the current permission mode. Per-tool overrides are useful
@@ -545,6 +548,10 @@ or set the copy's permission mode. An add-on prompt's *Allow all* mode is not
 copied either. A copy of your own custom prompt keeps the permissions you gave
 the original.
 
+Prompts you copied or imported before this version keep the permissions they
+were saved with. Open such a prompt in the prompt editor to check its tool
+list and permission mode, and change them if needed.
+
 ### Prompt Template Tips
 
 - **Be specific** – Clearly describe what you want the AI to do and what
@@ -573,7 +580,10 @@ share your prompts with other *AndBible* users:
     file allows become "ask" and an *Allow all* mode becomes the default mode.
     Everything else (text, contexts, read tools, denied tools) is imported as
     is. When the file updates a prompt you already have (same id), that prompt
-    keeps the write tools and *Allow all* mode you allowed for it.
+    keeps the write tools and *Allow all* mode you allowed for it, unless the
+    file makes them stricter: a write tool the file denies stays denied, and a
+    permission mode set in the file replaces *Allow all*. A row with the id of
+    an installed add-on prompt is imported as a new custom prompt with a new id.
 
 ### Add-on Prompt Packs
 
