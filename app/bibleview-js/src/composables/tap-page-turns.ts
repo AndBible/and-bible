@@ -34,27 +34,35 @@ export const DOUBLE_TAP_WINDOW_MS = 700;
  * native reports with `double_tap` that it acted on a double tap, the turns of the last [DOUBLE_TAP_WINDOW_MS] are
  * undone and the gesture's remaining tap turns nothing. Key and volume page scrolling never goes through here.
  *
- * @param turnPage turns one page up or down
+ * The undo is relative: each turn records how far it moved the page (it is instant), and the undo moves back by the
+ * sum of those distances from wherever the page is now. Between the tap and `double_tap` the page can move without
+ * the text moving on screen (infinite scroll inserting a chapter above, a toolbar offset change), so restoring the
+ * absolute position from before the tap would land elsewhere, at a top of chapter by a whole chapter.
+ *
+ * @param turnPage turns one page up or down, at once
  * @param scrollTo moves the page to a position at once
  */
 export function useTapPageTurns(turnPage: (up: boolean) => void, scrollTo: (y: number) => void) {
-    let turns: { fromY: number, at: number }[] = [];
+    let turns: { delta: number, at: number }[] = [];
     let ignoreUntil = 0;
 
     function tapPageTurn(up: boolean) {
         const now = Date.now();
         if (now < ignoreUntil) return;
         turns = turns.filter(t => now - t.at <= DOUBLE_TAP_WINDOW_MS);
-        turns.push({fromY: window.scrollY, at: now});
+        const fromY = window.scrollY;
         turnPage(up);
+        turns.push({delta: window.scrollY - fromY, at: now});
     }
 
     function onDoubleTap() {
         const now = Date.now();
-        const recent = turns.filter(t => now - t.at <= DOUBLE_TAP_WINDOW_MS);
+        const delta = turns
+            .filter(t => now - t.at <= DOUBLE_TAP_WINDOW_MS)
+            .reduce((sum, t) => sum + t.delta, 0);
         turns = [];
         ignoreUntil = now + DOUBLE_TAP_WINDOW_MS;
-        if (recent.length > 0) scrollTo(recent[0].fromY);
+        if (delta !== 0) scrollTo(window.scrollY - delta);
     }
 
     setupEventBusListener("double_tap", onDoubleTap);
