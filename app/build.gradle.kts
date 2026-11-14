@@ -256,6 +256,10 @@ android {
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
         buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
+        // Candidate default theme (net.bible.sharedui.theme.DefaultThemeProposal); CURRENT keeps
+        // today's stock Material 3 default. Try one with -PdefaultThemeProposal=AMBER.
+        buildConfigField("String", "DEFAULT_THEME_PROPOSAL",
+            "\"${project.findProperty("defaultThemeProposal") as String? ?: "CURRENT"}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
     }

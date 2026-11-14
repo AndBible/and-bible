@@ -90,7 +90,7 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  * keeping TonalSpot's normalised tones; for a seed with chroma >= 36 it is identical to TonalSpot.
  * Mirrors materialkolor's `SchemeTonalSpot` constructor (2.1.1) apart from the caps.
  */
-private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
+internal fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
     val seed = Hct.fromInt(seedArgb)
     fun palette(hue: Double, tonalSpotChroma: Double) =
         TonalPalette.fromHueAndChroma(hue, minOf(tonalSpotChroma, seed.chroma))
@@ -122,7 +122,8 @@ private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  * call sites must remember to write.
  *
  * - **NORMAL** -> an unset workspace colour (null or the stored `#444444` sentinel; see
- *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme.
+ *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme, unless the host
+ *   selected a candidate default via [activeDefaultThemeProposal] (opt-in; CURRENT = stock).
  *   A chosen colour always uses [greySafeTonalSpot], keeping low-chroma seeds muted.
  *   Unseeded goldens and previews render the same stock baseline-violet theme as the app.
  * - **MONOCHROME, COLOR_EINK** -> two-tone ink/paper scheme, with transparent scrim; seed ignored.
@@ -138,7 +139,7 @@ fun abColorScheme(
     val stock = if (dark) darkColorScheme() else lightColorScheme()
     return when (colorMode) {
         DisplayColorMode.NORMAL -> {
-            if (!isWorkspaceColorSet(seedArgb)) stock
+            if (!isWorkspaceColorSet(seedArgb)) activeDefaultThemeProposal.scheme(dark) ?: stock
             else greySafeTonalSpot(seedArgb!!, dark)
         }
         DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK -> monochromeScheme(dark)

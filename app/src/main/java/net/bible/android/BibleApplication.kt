@@ -101,6 +101,21 @@ open class BibleApplication : Application() {
         application = this
     }
 
+    /**
+     * The candidate default theme for unset workspace colours: `BuildConfig.DEFAULT_THEME_PROPOSAL`
+     * (CURRENT unless built with -PdefaultThemeProposal=...). Debug builds also honour the system
+     * property `debug.andbible.theme_proposal` (`adb shell setprop ...`, then restart the app) so one
+     * APK can be screenshotted with every proposal.
+     */
+    private fun resolveDefaultThemeProposal(): net.bible.sharedui.theme.DefaultThemeProposal {
+        val debugOverride = if (net.bible.android.activity.BuildConfig.DEBUG) runCatching {
+            @SuppressLint("PrivateApi")
+            val sp = Class.forName("android.os.SystemProperties")
+            sp.getMethod("get", String::class.java).invoke(null, "debug.andbible.theme_proposal") as String?
+        }.getOrNull()?.takeIf { it.isNotBlank() } else null
+        return net.bible.sharedui.theme.DefaultThemeProposal.parse(debugOverride ?: net.bible.android.activity.BuildConfig.DEFAULT_THEME_PROPOSAL)
+    }
+
     private var userMessagesSubscription: Subscription? = null
 
     open val isRunningTests: Boolean = false
@@ -115,6 +130,7 @@ open class BibleApplication : Application() {
         super.onCreate()
         // Before any Compose host is created: every Compose root then honours "Disable animations".
         net.bible.android.view.compose.AppWindowRecomposer.install()
+        net.bible.sharedui.theme.activeDefaultThemeProposal = resolveDefaultThemeProposal()
         CommonUtils.tmpDir.deleteRecursively()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
