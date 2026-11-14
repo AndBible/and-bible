@@ -23,6 +23,7 @@ import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import okio.FileSystem
@@ -30,6 +31,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import net.bible.sharedcore.log.Log
 import okio.IOException
+import kotlin.concurrent.Volatile
 
 private const val TAG = "AppDatabaseFiles"
 
@@ -124,8 +126,47 @@ internal fun confirmedCorruption(path: String, openConnection: (String) -> SQLit
     return corruptionError()
 }
 
+/**
+ * Whether [path] is damaged: [confirmedCorruption] (the schema read), or else `PRAGMA quick_check` reports a problem or
+ * fails with SQLITE_CORRUPT/NOTADB (#4112: damage in a table page, found by a later query in `create()`). A missing
+ * file, a healthy one, or any other error (busy, I/O) is not damage.
+ */
+internal fun isDamagedDatabase(path: String): Boolean {
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile != true) return false
+    if (confirmedCorruption(path) != null) return true
+    return try {
+        quickCheckProblems(path).isNotEmpty()
+    } catch (e: SQLiteException) {
+        isCorruptionError(e)
+    }
+}
+
+/** The rows of `PRAGMA quick_check` other than `ok` (empty for a healthy file). */
+private fun quickCheckProblems(path: String): List<String> = openSqlite(path).use { c ->
+    c.prepare("PRAGMA quick_check").use { st -> buildList { while (st.step()) add(st.getText(0)) } }.filter { it != "ok" }
+}
+
+/** A database file that must not be used: [requireIntactDatabase] found [detail] in [path]. */
+class DamagedDatabaseFileException(val path: String, val detail: String, cause: Throwable? = null) :
+    Exception("Damaged database file ${path.toPath().name}: $detail", cause)
+
+/**
+ * Throws [DamagedDatabaseFileException] unless [path] is a database whose schema reads and whose `PRAGMA quick_check`
+ * is `ok` (#4112: a downloaded sync file is checked before it replaces the local database, so damage in the download
+ * never costs the local data). Other errors (I/O, busy) propagate as they are.
+ */
+fun requireIntactDatabase(path: String) {
+    val problems = try {
+        quickCheckProblems(path)
+    } catch (e: SQLiteException) {
+        if (isCorruptionError(e)) throw DamagedDatabaseFileException(path, e.message.orEmpty(), e)
+        throw e
+    }
+    if (problems.isNotEmpty()) throw DamagedDatabaseFileException(path, problems.take(3).joinToString("; "))
+}
+
 /** Moves [path] and its siblings to `<name>.corrupt-<timestamp>[-n]`; the new name, or null if the move failed. */
-private fun moveCorruptAside(path: String, error: SQLiteException): String? {
+internal fun moveCorruptAside(path: String, error: Throwable? = null): String? {
     val fs = FileSystem.SYSTEM
     val target = corruptTarget(path)
     if (!renamed(path, target)) {
@@ -194,19 +235,30 @@ class CorruptDatabasesException(val databases: List<CorruptDatabase>, cause: Thr
 fun Throwable.corruptDatabasesOrNull(): CorruptDatabasesException? =
     generateSequence(this) { it.cause.takeIf { cause -> cause !== it } }.filterIsInstance<CorruptDatabasesException>().firstOrNull()
 
-/** The user's answer when damaged user-data databases were found (#4112); Backup & Restore and report are handled by the asking host. */
-enum class CorruptDatabaseChoice { RESET, CLOSE }
+/**
+ * The user's answer when damaged user-data databases were found (#4112): [RESET] the damaged data, [RETRY] the open
+ * (after Backup & Restore, where a backup may have been restored), or [CLOSE] the app. Sending a report is handled by
+ * the asking host.
+ */
+enum class CorruptDatabaseChoice { RESET, RETRY, CLOSE }
+
+/** The user's reset could not move [database] aside (#4112); nothing was emptied. The host tells the user. */
+class CorruptDatabaseResetException(val database: CorruptDatabase, cause: Throwable?) :
+    Exception("Could not move the damaged database ${database.fileName} aside", cause)
 
 /**
  * Runs [open] and, while it fails with damaged user-data databases, asks the user ([ask]): [CorruptDatabaseChoice.RESET]
- * moves the damaged files aside ([reset], keeping them) and retries; [CorruptDatabaseChoice.CLOSE] returns null with
- * nothing changed. [ask] also returns after a restore from Backup & Restore, which the retry then picks up. Any other
- * failure propagates. Android's `StartupActivity` uses it; desktop and iOS show `CorruptDatabaseRecovery`.
+ * moves the damaged files aside ([reset], keeping them) and retries; [CorruptDatabaseChoice.RETRY] (the user came back
+ * from Backup & Restore) retries as it is, so a restored backup opens normally; [CorruptDatabaseChoice.CLOSE] returns
+ * null with nothing changed. A failed [reset] goes to [resetFailed] (the host shows it) and the user is asked again.
+ * Every retry looks at the files again ([DatabaseContainer.forgetCorruption]). Any other failure propagates.
+ * Android's `StartupActivity` uses it; desktop and iOS show `CorruptDatabaseRecovery`.
  */
 suspend fun <T> openAskingOnCorruption(
     open: suspend () -> T,
     ask: suspend (CorruptDatabasesException) -> CorruptDatabaseChoice,
     reset: suspend (List<CorruptDatabase>) -> Unit = { DatabaseContainer.resetCorruptDatabases(it) },
+    resetFailed: suspend (Throwable) -> Unit = {},
 ): T? {
     while (true) {
         val corrupt = try {
@@ -215,8 +267,44 @@ suspend fun <T> openAskingOnCorruption(
             e.corruptDatabasesOrNull() ?: throw e
         }
         when (ask(corrupt)) {
-            CorruptDatabaseChoice.RESET -> reset(corrupt.databases)
+            CorruptDatabaseChoice.RESET -> try {
+                reset(corrupt.databases)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Resetting damaged databases failed", e)
+                resetFailed(e)
+            }
+            CorruptDatabaseChoice.RETRY -> Unit
             CorruptDatabaseChoice.CLOSE -> return null
         }
+        DatabaseContainer.forgetCorruption()
+    }
+}
+
+/**
+ * Where damaged user data found after the startup's own question goes (#4112): a headless entry, a restored screen or
+ * the Welcome flow opening the databases. Each host registers [route] to show its recovery (Android: the startup
+ * screen's question; desktop and iOS: the startup failure screen). [show] is false when no route is registered.
+ */
+object DamagedDataRecovery {
+    @Volatile var route: ((CorruptDatabasesException) -> Unit)? = null
+
+    fun show(error: CorruptDatabasesException): Boolean {
+        val r = route ?: return false
+        r(error)
+        return true
+    }
+
+    /**
+     * Runs [block]; damaged user data it meets goes to the registered [route] and [fallback] is returned instead. With
+     * no route registered (no host to show it) the error propagates.
+     */
+    suspend fun <T> orFallback(fallback: T, block: suspend () -> T): T = try {
+        block()
+    } catch (e: Exception) {
+        val damaged = e.corruptDatabasesOrNull() ?: throw e
+        if (!show(damaged)) throw e
+        fallback
     }
 }

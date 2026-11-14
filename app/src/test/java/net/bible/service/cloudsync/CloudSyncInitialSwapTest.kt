@@ -133,6 +133,34 @@ class CloudSyncInitialSwapTest {
         }
     }
 
+    /**
+     * #4112 review: a damaged download (here: a valid database with a garbage table page) is refused before the local
+     * database is closed or overwritten, so the local data stays and the app keeps working (no crash loop on the next
+     * start, no silently emptied data).
+     */
+    @Test fun aDamagedDownloadIsRefusedAndTheLocalDatabaseIsKept() {
+        val downloaded = downloadNamed("C")
+        val bytes = downloaded.readBytes()
+        val pageSize = 4096
+        // Every page after the first (the schema stays readable, the tables do not).
+        for (i in pageSize until bytes.size) bytes[i] = 0x5A
+        downloaded.writeBytes(bytes)
+        val localBefore = workspaces.localDbFile.readBytes().size
+
+        val failure = runCatching {
+            runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded.toOkioPath()) { error("must not run") } }
+        }.exceptionOrNull()
+
+        org.junit.Assert.assertTrue("refused: $failure", failure is net.bible.service.db.DamagedDatabaseFileException)
+        assertEquals("A", runBlocking { dao.workspace(repo.id) }!!.name)
+        assertEquals(localBefore, workspaces.localDbFile.readBytes().size)
+        repo.name = "E"
+        repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() }
+        assertEquals("saving was never frozen", "E", runBlocking { dao.workspace(repo.id) }!!.name)
+        downloaded.delete()
+    }
+
     /** The post is what triggers `loadFromDb` and ends the save freeze: a lone swap must release exactly once. */
     @Test fun aLoneSwapPostsTheRefreshExactlyOnce() {
         val streamed = mutableListOf<Unit>()

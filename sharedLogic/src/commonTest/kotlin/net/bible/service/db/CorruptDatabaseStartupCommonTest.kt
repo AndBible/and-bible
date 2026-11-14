@@ -28,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
@@ -208,21 +209,180 @@ class CorruptDatabaseStartupCommonTest {
         writeGarbage(bookmarks)
         var asks = 0
 
+        var resets = 0
+
         val container = openAskingOnCorruption(
             open = { DatabaseContainer.create() },
             ask = {
                 asks++
-                // The user restored a backup from Backup & Restore (here: the damaged file replaced by a healthy one)
-                // and then picked reset anyway: the healthy file is not moved aside.
+                // The user opened Backup & Restore from the question and restored a backup there (here: the damaged
+                // file replaced by a healthy one). Leaving Backup & Restore is the RETRY answer, never a reset.
                 fs.delete(bookmarks.toPath())
-                CorruptDatabaseChoice.RESET
+                openSqlite(bookmarks).use { it.execSQL("PRAGMA user_version = 0") }
+                CorruptDatabaseChoice.RETRY
             },
+            reset = { resets++ },
         )
         try {
-            assertEquals(1, asks)
+            assertEquals(1, asks, "the retry after Backup & Restore opened the restored data without asking again")
+            assertEquals(0, resets, "returning from Backup & Restore never resets")
+            assertTrue(container != null)
             assertTrue(corruptCopies(dir, BookmarkDatabase.dbFileName).isEmpty())
         } finally {
             container?.closeOwned()
+        }
+    }
+
+    @Test
+    fun openAskingOnCorruptionAsksAgainWhenTheRetryStillFindsDamage() = runTest(timeout = 10.minutes) {
+        val (_, host) = host()
+        writeGarbage(host.databasePath(BookmarkDatabase.dbFileName))
+        val answers = ArrayDeque(listOf(CorruptDatabaseChoice.RETRY, CorruptDatabaseChoice.CLOSE))
+        var asks = 0
+
+        val container = openAskingOnCorruption(open = { DatabaseContainer.create() }, ask = { asks++; answers.removeFirst() })
+
+        assertEquals(null, container)
+        assertEquals(2, asks, "a backup screen left without a restore brings the question back")
+    }
+
+    /** #4112 review: a reset that cannot move the file must not loop silently on the same question. */
+    @Test
+    fun aFailedResetIsReportedAndTheUserIsAskedAgain() = runTest(timeout = 10.minutes) {
+        val (_, host) = host()
+        writeGarbage(host.databasePath(BookmarkDatabase.dbFileName))
+        val failures = mutableListOf<Throwable>()
+        val answers = ArrayDeque(listOf(CorruptDatabaseChoice.RESET, CorruptDatabaseChoice.CLOSE))
+
+        val container = openAskingOnCorruption(
+            open = { DatabaseContainer.create() },
+            ask = { answers.removeFirst() },
+            reset = { throw CorruptDatabaseResetException(it.first(), null) },
+            resetFailed = { failures += it },
+        )
+
+        assertEquals(null, container)
+        assertEquals(1, failures.size)
+        assertIs<CorruptDatabaseResetException>(failures.single())
+        assertTrue(answers.isEmpty(), "asked again after the failed reset")
+    }
+
+    @Test
+    fun resetCorruptDatabasesThrowsWhenTheDamagedFileCannotBeMoved() = runTest(timeout = 10.minutes) {
+        val (dir, host) = host()
+        val bookmarks = host.databasePath(BookmarkDatabase.dbFileName)
+        writeGarbage(bookmarks)
+        val error = assertFailsWith<CorruptDatabasesException> { DatabaseContainer.create() }
+
+        val failure = assertFailsWith<CorruptDatabaseResetException> {
+            DatabaseContainer.resetCorruptDatabases(error.databases, moveAside = { null })
+        }
+
+        assertEquals(BookmarkDatabase.dbFileName, failure.database.fileName)
+        assertEquals(garbage, fs.read(bookmarks.toPath()) { readUtf8() })
+        assertTrue(corruptCopies(dir, BookmarkDatabase.dbFileName).isEmpty())
+    }
+
+    /**
+     * #4112 review: corruption that the schema read cannot see (a damaged table page) is found later in `create()`;
+     * it must reach the same recovery as [CorruptDatabasesException], and the reset must then move that file aside.
+     */
+    @Test
+    fun corruptionFoundLaterInCreateIsReportedAsDamagedDataAndCanBeReset() = runTest(timeout = 10.minutes) {
+        val (dir, host) = host()
+        DatabaseContainer.create().also {
+            it.settingsStore.setString("lost", "value")
+            it.settingsStore.flush()
+            it.closeOwned()
+        }
+        val settings = host.databasePath(net.bible.android.database.SettingsDatabase.dbFileName)
+        damageTablePage(settings, "room_master_table")
+        assertEquals(null, confirmedCorruption(settings), "precondition: the early schema read does not see this damage")
+
+        val error = assertFailsWith<CorruptDatabasesException> { DatabaseContainer.create() }
+
+        assertEquals(listOf(net.bible.android.database.SettingsDatabase.dbFileName), error.databases.map { it.fileName })
+        assertTrue(corruptCopies(dir, net.bible.android.database.SettingsDatabase.dbFileName).isEmpty())
+        DatabaseContainer.resetCorruptDatabases(error.databases)
+        assertEquals(1, corruptCopies(dir, net.bible.android.database.SettingsDatabase.dbFileName).size)
+        DatabaseContainer.create().closeOwned()
+    }
+
+    /** #4112 review: a downloaded sync file is checked before it replaces the local database. */
+    @Test
+    fun requireIntactDatabaseAcceptsOnlyAWholeDatabase() = runTest(timeout = 10.minutes) {
+        val (dir, _) = host()
+        val healthy = "$dir/download-ok.sqlite3"
+        openSqlite(healthy).use {
+            it.execSQL("CREATE TABLE t(a)")
+            repeat(50) { _ -> it.execSQL("INSERT INTO t VALUES(randomblob(500))") }
+        }
+        requireIntactDatabase(healthy)
+
+        val garbageFile = "$dir/download-garbage.sqlite3"
+        writeGarbage(garbageFile)
+        assertFailsWith<DamagedDatabaseFileException> { requireIntactDatabase(garbageFile) }
+
+        damageTablePage(healthy, "t")
+        assertFailsWith<DamagedDatabaseFileException> { requireIntactDatabase(healthy) }
+    }
+
+    /** Overwrites the root page of [table] in [path] with garbage, leaving the schema (`sqlite_master`) readable. */
+    private fun damageTablePage(path: String, table: String) {
+        val (pageSize, rootPage) = openSqlite(path).use {
+            it.queryLong("PRAGMA page_size")!! to it.queryLong("SELECT rootpage FROM sqlite_master WHERE name = ?", table)!!
+        }
+        val bytes = fs.read(path.toPath()) { readByteArray() }
+        val start = ((rootPage - 1) * pageSize).toInt()
+        for (i in start until start + pageSize.toInt()) bytes[i] = 0x5A
+        fs.write(path.toPath()) { write(bytes) }
+    }
+
+    /** #4112 review: a cold process without the UI (widget, media button) must not rescan up to 18 files per access. */
+    @Test
+    fun aFoundCorruptionIsRememberedUntilTheUserActs() = runTest(timeout = 10.minutes) {
+        host()
+        DatabaseContainer.detachInstanceForTest()?.closeOwned()
+        val wasReady = DatabaseContainer.ready
+        var opens = 0
+        val damaged = CorruptDatabasesException(listOf(CorruptDatabase("bookmarks.sqlite3", "/x/bookmarks.sqlite3")))
+        DatabaseContainer.containerFactory = { opens++; throw damaged }
+        DatabaseContainer.ready = true
+        try {
+            repeat(3) { assertSame(damaged, assertFailsWith<CorruptDatabasesException> { DatabaseContainer.instance }) }
+            assertEquals(1, opens, "the damage is remembered: no reopen per access")
+
+            DatabaseContainer.forgetCorruption()
+            assertFailsWith<CorruptDatabasesException> { DatabaseContainer.instance }
+            assertEquals(2, opens, "a retry looks again")
+
+            DatabaseContainer.resetCorruptDatabases(emptyList())
+            assertFailsWith<CorruptDatabasesException> { DatabaseContainer.instance }
+            assertEquals(3, opens, "a reset looks again")
+        } finally {
+            DatabaseContainer.ready = wasReady
+            DatabaseContainer.forgetReplacesForTest()
+        }
+    }
+
+    @Test
+    fun openAskingOnCorruptionLooksAgainOnEveryRetry() = runTest(timeout = 10.minutes) {
+        host()
+        DatabaseContainer.detachInstanceForTest()?.closeOwned()
+        val wasReady = DatabaseContainer.ready
+        var opens = 0
+        val damaged = CorruptDatabasesException(listOf(CorruptDatabase("bookmarks.sqlite3", "/x/bookmarks.sqlite3")))
+        DatabaseContainer.containerFactory = { opens++; if (opens < 3) throw damaged else error("opened") }
+        DatabaseContainer.ready = true
+        val answers = ArrayDeque(listOf(CorruptDatabaseChoice.RETRY, CorruptDatabaseChoice.RETRY))
+        try {
+            assertFailsWith<IllegalStateException> {
+                openAskingOnCorruption(open = { DatabaseContainer.instance }, ask = { answers.removeFirst() })
+            }
+            assertEquals(3, opens)
+        } finally {
+            DatabaseContainer.ready = wasReady
+            DatabaseContainer.forgetReplacesForTest()
         }
     }
 
