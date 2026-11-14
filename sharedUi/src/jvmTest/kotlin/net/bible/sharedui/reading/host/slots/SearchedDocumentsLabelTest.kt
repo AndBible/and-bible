@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import net.bible.sharedcore.search.BibleOption
+import org.crosswire.jsword.book.BookCategory
 
 /**
  * #4092: a commentary search names its document. The selector's candidates are Bibles only, so the chip used to be
@@ -28,7 +29,10 @@ import net.bible.sharedcore.search.BibleOption
 class SearchedDocumentsLabelTest {
     private val candidates = listOf(BibleOption("KJV", "KJV", true), BibleOption("BSB", "BSB", false))
     private val documents = mapOf("MHC" to "MHC", "KJV" to "KJV", "BSB" to "BSB", "TSK" to "TSK")
-    private val bibles = setOf("KJV", "BSB")
+    private val categories = mapOf(
+        "KJV" to BookCategory.BIBLE, "BSB" to BookCategory.BIBLE,
+        "MHC" to BookCategory.COMMENTARY, "TSK" to BookCategory.COMMENTARY,
+    )
 
     @Test fun aCommentaryIsNamedOnTheChip() {
         assertEquals("MHC", searchedDocumentsLabel(listOf("MHC"), candidates, documents::get))
@@ -43,12 +47,17 @@ class SearchedDocumentsLabelTest {
     }
 
     @Test fun aSingleNonBibleSearchIsCountedInItsDocument() {
-        assertEquals("MHC", singleNonBibleSearched(listOf("MHC"), isBible = { it in bibles }, documents::get))
+        assertEquals("MHC", singleNonBibleSearched(listOf("MHC"), categoryOf = categories::get, documents::get))
     }
 
     @Test fun bibleSearchesKeepTheTranslationCount() {
-        assertNull(singleNonBibleSearched(listOf("KJV"), isBible = { it in bibles }, documents::get))
-        assertNull(singleNonBibleSearched(listOf("KJV", "MHC"), isBible = { it in bibles }, documents::get))
-        assertNull(singleNonBibleSearched(emptyList(), isBible = { it in bibles }, documents::get))
+        assertNull(singleNonBibleSearched(listOf("KJV"), categoryOf = categories::get, documents::get))
+        assertNull(singleNonBibleSearched(listOf("KJV", "MHC"), categoryOf = categories::get, documents::get))
+        assertNull(singleNonBibleSearched(emptyList(), categoryOf = categories::get, documents::get))
+    }
+
+    @Test fun anUnresolvedDocumentIsNotCountedAsANonBible() {
+        // A Bible that is momentarily not found must keep the Bible count, not "N results in <initials>".
+        assertNull(singleNonBibleSearched(listOf("KJV"), categoryOf = { null }, abbreviationOf = { null }))
     }
 }

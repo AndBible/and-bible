@@ -25,6 +25,7 @@ import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.strongsHighlightPatterns
 import net.bible.sharedcore.search.searchExcerpt
+import net.bible.sharedcore.search.searchExcerptAtBold
 import net.bible.sharedcore.search.termHighlightPattern
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
@@ -67,7 +68,11 @@ object SearchHighlighter : SearchTextHighlighter {
 
         // Cut before htmlToSpan: a commentary entry can be tens of kilobytes (#4092).
         val marked = verseString.toString().let {
-            if (excerptLength != null && !isStrongsSearch) searchExcerpt(it, terms, excerptLength) else it
+            when {
+                excerptLength == null -> it
+                isStrongsSearch -> searchExcerptAtBold(it, excerptLength)
+                else -> searchExcerpt(it, terms, excerptLength)
+            }
         }
         val spanned: Spanned = htmlToSpan(marked)
         val text = spanned.toString()

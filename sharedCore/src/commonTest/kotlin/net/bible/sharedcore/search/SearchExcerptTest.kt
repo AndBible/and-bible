@@ -49,4 +49,55 @@ class SearchExcerptTest {
         val excerpt = searchExcerpt("x".repeat(500), listOf("vine"), 40)
         assertEquals("x".repeat(40) + "…", excerpt)
     }
+
+    @Test fun aStemmedTermLocatesTheInflectedWord() {
+        // Lucene stems "vines" to "vine": the text holds "vine" and the term "vines" has no literal match.
+        val text = "$filler the true vine and $filler"
+        assertTrue(searchExcerpt(text, listOf("vines"), 60).contains("the true vine and"))
+        // ... and the other way round: term "vine", text "vines" / "vineyard".
+        assertTrue(searchExcerpt("$filler many vines grow $filler", listOf("vine"), 60).contains("many vines grow"))
+    }
+
+    @Test fun matchIgnoresCaseAndAccents() {
+        assertTrue(searchExcerpt("$filler le Café du Roi $filler", listOf("cafe"), 50).contains("Café du Roi"))
+        assertTrue(searchExcerpt("$filler the cafe is open $filler", listOf("CAFÉ"), 50).contains("the cafe is open"))
+        assertTrue(searchExcerpt("$filler Ångström was here $filler", listOf("angstrom"), 50).contains("Ångström was here"))
+    }
+
+    @Test fun aLiteralMatchIsPreferredToAStemMatch() {
+        // The literal match is what gets highlighted, so the excerpt shows it rather than an earlier inflection.
+        val text = "$filler vines early. $filler the vine late $filler"
+        assertTrue(searchExcerpt(text, listOf("vine"), 50).contains("the vine late"))
+    }
+
+    @Test fun shortUnrelatedWordsAreNotTakenForAStem() {
+        // "a" is a prefix of the term "apple" but is not a stem of it.
+        val excerpt = searchExcerpt("a $filler $filler", listOf("apple"), 40)
+        assertTrue(excerpt.startsWith("a word1"), excerpt)
+    }
+
+    @Test fun anExcerptDoesNotSplitASurrogatePair() {
+        val emoji = "\uD83D\uDE00"
+        fun assertPaired(s: String) {
+            s.forEachIndexed { i, c ->
+                if (c.isHighSurrogate()) assertTrue(s.getOrNull(i + 1)?.isLowSurrogate() == true, "lone high surrogate in $s")
+                if (c.isLowSurrogate()) assertTrue(s.getOrNull(i - 1)?.isHighSurrogate() == true, "lone low surrogate in $s")
+            }
+        }
+        assertPaired(searchExcerpt(emoji.repeat(100), listOf("vine"), 41))
+        assertPaired(searchExcerpt(emoji.repeat(100) + "vine" + emoji.repeat(100), listOf("vine"), 40))
+        assertPaired(searchExcerpt(emoji.repeat(100) + "vine" + emoji.repeat(100), listOf("vine"), 41))
+    }
+
+    @Test fun aLemmaMarkedExcerptIsCutAroundTheFirstBoldRun() {
+        val text = "$filler <b>Lord</b> and <b>God</b> $filler"
+        val excerpt = searchExcerptAtBold(text, 50)
+        assertTrue(excerpt.startsWith("…") && excerpt.endsWith("…"), excerpt)
+        assertTrue(excerpt.contains("<b>Lord</b> and"), excerpt)
+    }
+
+    @Test fun withoutABoldRunTheLemmaExcerptIsTheStart() {
+        val excerpt = searchExcerptAtBold("$filler $filler", 40)
+        assertTrue(excerpt.startsWith("word1 word2") && excerpt.endsWith("…"), excerpt)
+    }
 }

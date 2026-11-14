@@ -166,7 +166,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
     val abbreviationOf = { id: String -> platform.documentByInitials(id)?.abbreviation }
     val nonBibleDocument = singleNonBibleSearched(
         selected,
-        isBible = { id -> platform.documentByInitials(id)?.bookCategory == BookCategory.BIBLE },
+        categoryOf = { id -> platform.documentByInitials(id)?.bookCategory },
         abbreviationOf = abbreviationOf,
     )
     SearchSheetContent(
@@ -277,11 +277,15 @@ internal fun searchedDocumentsLabel(
 }
 
 /**
- * The abbreviation of the one searched document when it is not a Bible (a commentary), else null. Its results are
- * counted as "N results in MHC": "verses in 1 translation" does not describe a commentary search (#4092).
+ * The abbreviation of the one searched document when it is known not to be a Bible (a commentary), else null. Its
+ * results are counted as "N results in MHC": "verses in 1 translation" does not describe a commentary search (#4092).
+ * A document [categoryOf] cannot resolve (null) is not taken for a non-Bible: a Bible that is momentarily unresolved
+ * keeps the Bible count.
  */
 internal fun singleNonBibleSearched(
     selected: List<String>,
-    isBible: (String) -> Boolean,
+    categoryOf: (String) -> BookCategory?,
     abbreviationOf: (String) -> String?,
-): String? = selected.singleOrNull()?.takeUnless(isBible)?.let { abbreviationOf(it) ?: it }
+): String? = selected.singleOrNull()
+    ?.takeIf { id -> categoryOf(id).let { it != null && it != BookCategory.BIBLE } }
+    ?.let { abbreviationOf(it) ?: it }
