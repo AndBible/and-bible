@@ -34,7 +34,10 @@ for sm in "$@"; do
 
     declare -A seen=()
     for c in "${new_commits[@]}"; do
-        sha=$(git rev-parse -q --verify "$c:$sm" 2>/dev/null) || continue
+        # only a gitlink (mode 160000): an older commit may hold a plain directory at that path (a submodule that
+        # replaced a directory, e.g. website/video), which is not a submodule commit to publish
+        sha=$(git ls-tree "$c" -- "$sm" | awk '$1 == "160000" { print $3 }')
+        [ -n "$sha" ] || continue
         [ -z "${seen[$sha]:-}" ] || continue
         seen[$sha]=1
         git -C "$sm" cat-file -e "$sha^{commit}" 2>/dev/null ||

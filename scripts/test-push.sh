@@ -54,4 +54,21 @@ g -C "$s" checkout -q main; g -C "$s" merge -q --no-edit side; g -C "$t/super" c
 out=$(cd "$t/super" && "$push" sub 2>&1) || fail "push failed: $out"
 [ -z "$(g -C "$t/sub.git" for-each-ref refs/heads/gitlink)" ] || fail "ancestor got a gitlink branch"
 
+# 5. A submodule that replaced a plain directory: the older commits hold a tree at that path, not a gitlink,
+#    and must be skipped (no "not in the local clone" refusal, no gitlink branch).
+rm -rf "$t"/*
+g init -q --bare "$t/vid.git"; g init -q --bare "$t/super.git"
+g clone -q "$t/vid.git" "$t/vid" 2>/dev/null
+g -C "$t/vid" commit -q --allow-empty -m V; g -C "$t/vid" push -q origin main
+g clone -q "$t/super.git" "$t/super" 2>/dev/null
+mkdir -p "$t/super/vid"; echo old > "$t/super/vid/file"; g -C "$t/super" add vid; g -C "$t/super" commit -q -m "plain dir"
+g -C "$t/super" push -q origin main
+echo more > "$t/super/vid/file"; g -C "$t/super" commit -q -am "unpublished change in the plain dir"
+g -C "$t/super" rm -q -r vid; g -C "$t/super" commit -q -m "remove dir"
+g -C "$t/super" submodule add -q "$t/vid.git" vid; g -C "$t/super" commit -q -m "dir becomes a submodule"
+V=$(g -C "$t/vid" rev-parse HEAD)
+out=$(cd "$t/super" && "$push" --dry-run vid 2>&1) || fail "dir-to-submodule dry run failed: $out"
+grep -q "\[dry-run\] git -C vid push origin $V:refs/heads/main" <<<"$out" || fail "dir-to-submodule: no HEAD gitlink push: $out"
+[ "$(grep -c '\[dry-run\] git -C vid push' <<<"$out")" = 1 ] || fail "dir-to-submodule: tree taken for a gitlink: $out"
+
 echo "PUSH TESTS OK"

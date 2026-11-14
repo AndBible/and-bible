@@ -95,10 +95,10 @@ accrescent-debug:
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
 # make push [DRY_RUN=1]: push the current branch, publishing our own submodules (jsword, goldens, superpowers, media,
-# kdom, store screenshots) first so no pushed gitlink points at an unpublished commit. Each submodule pushes the commit
+# kdom, store screenshots, private videos) first so no pushed gitlink points at an unpublished commit. Each submodule pushes the commit
 # HEAD's gitlink names to the superproject's branch name (fast-forward only), plus any gitlink of an intermediate
 # pushed commit that no origin branch contains (to gitlink/<sha>). Details: scripts/push.sh (tested by scripts/test-push.sh).
-PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media kdom store-screenshots
+PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media website/video kdom store-screenshots
 
 # andbible.org (website/): build into website/_site, then check it. CI runs both.
 site:
