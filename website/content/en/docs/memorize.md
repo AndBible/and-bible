@@ -5,7 +5,8 @@ exercises.
 
 ## Opening the Memorize view
 
-1. Select a Bible passage by long-pressing a word and extending the selection.
+1. Tap a verse, or select a passage by long-pressing a word and extending the
+    selection.
 2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
     **Memorize** button.
 3. A new window opens with the Memorize view.

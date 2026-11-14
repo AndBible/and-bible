@@ -4,7 +4,7 @@ In addition to syncing your data — bookmarks, workspaces, reading plans, My
 Documents, AI settings and reading progress (see [Cloud Sync](cloud_sync.md)) — *AndBible* can
 also synchronize your installed **documents** — Bibles, commentaries,
 dictionaries and other modules — across your devices, using the same cloud
-account (Google Drive or Nextcloud).
+account and whichever backend you have signed in to (Google Drive, iCloud Drive, Nextcloud or WebDAV).
 
 When a document is installed on one device — by *any* method (downloaded from a
 repository, sideloaded as a zip, or imported as a MyBible, MySword, e-Sword or
@@ -39,13 +39,13 @@ device background restrictions.
 ## Requirements
 
 - A cloud account already set up — see [Cloud Sync](cloud_sync.md) for how to sign in to
-    Google Drive or Nextcloud.
+    your backend.
 - Internet connection.
 
 ## Enabling Document Sync
 
 1. Open the top left main menu (☰).
-2. Tap `Sync settings`.
+2. Under *Administration*, tap `Device synchronization`.
 3. Make sure you are signed in to a cloud account.
 4. Under **Synchronization categories**, toggle on **Documents**.
 
@@ -88,8 +88,8 @@ guaranteed. If a transfer is interrupted, open AndBible and run sync again.
 
 ## Per-Device Settings
 
-While document sync is enabled, a **Document sync** section appears in Sync
-settings with the following per-device options. These settings are local to each
+While document sync is enabled, a **Document sync** section appears on the
+`Device synchronization` screen with the following per-device options. These settings are local to each
 device and are **not** themselves synced.
 
 **Download automatically**
@@ -121,7 +121,7 @@ device and are **not** themselves synced.
 
 ## Managing Synced Documents
 
-Tap **Synced documents** in Sync settings to open the management view — a unified
+Tap **Synced documents** in `Device synchronization` to open the management view — a unified
 list of the documents installed on this device together with those stored in the
 cloud. Each row shows the document’s type icon, name, version, size, and a status
 line such as:
@@ -154,17 +154,19 @@ shown:
 :   Upload this device’s copy to the cloud (available when the document is on this
     device only, or is newer here than in the cloud).
 
-**Remove**
-:   Remove the document from the cloud. With document sync **on**, this removes it
-    from *all* your devices (including this one). With document sync **off**, it
+**Remove from all devices** / **Remove from cloud**
+:   With document sync **on**, the action is called **Remove from all devices**: it
+    removes the document from the cloud and from *all* your devices (including this
+    one). With document sync **off**, it is called **Remove from cloud** and
     removes only the cloud copy and keeps the local one. *AndBible* never removes a
     document if it would leave you without a Bible.
 
-**Block / Do not sync to cloud**
-:   For a cloud-backed document, **Block** stops it from downloading to this
-    device. For a device-only document, **Do not sync to cloud** stops it from
-    being uploaded. Both use the same per-device block list; the wording just
-    adapts to the situation. Use **Unblock** / **Sync to cloud** to reverse it.
+**Don't sync to this device** / **Do not sync to cloud**
+:   For a cloud-backed document, **Don't sync to this device** stops it from
+    downloading to this device. For a device-only document, **Do not sync to
+    cloud** stops it from being uploaded. Both use the same per-device block
+    list; the wording just adapts to the situation. Use **Allow on this device** /
+    **Sync to cloud** to reverse it.
 
 Manual actions always work, regardless of the automatic toggles — they are
 explicit choices you are making.
@@ -217,7 +219,7 @@ authoritative list of everything in the cloud.
 ## Cloud Storage Used
 
 The space taken up by your synced document archives is included in the
-cloud-storage figure shown in Sync settings, alongside the space used by your
+cloud-storage figure shown in `Device synchronization` (the *Cloud information* row), alongside the space used by your
 synced bookmarks and workspaces. Because whole documents are stored, this can grow
 significantly with a large library.
 

@@ -2,7 +2,7 @@
 
 The look and feel of *AndBible* can be configured at several levels: for the entire
 application, as global defaults, for specific workspaces, for individual
-windows, or even for particular modules.
+windows, or, through the module's own CSS file, for particular modules.
 
 <span id="settings-hierarchy"></span>
 
@@ -30,17 +30,13 @@ example, if you set a workspace font size to 18 pt, changing the global font
 size will not affect that workspace. You can remove an override at any time to
 go back to inheriting from the parent level.
 
-**Visual indicators** in the text options screens show where each setting comes
-from:
+**Level labels** in the text options screens show where each setting comes
+from. A small text label next to a setting names the level it is inherited from:
 
-- ⚙ **Settings gear icon** – the setting is inherited from
-    global defaults.
-- ■ **Gray workspace icon** – you are editing a workspace
-    default (affects all its windows).
-- □ **Green workspace icon** – the window setting is using the
-    workspace default.
-- **No icon** – the setting has been explicitly changed at this level
-    (overrides the parent).
+- `Workspace` – the setting is inherited from the workspace settings.
+- `Global` – the setting is inherited from the global defaults.
+- **No label** – the setting has been explicitly changed at this level
+    (it overrides the parent).
 
 You can navigate between levels directly from the text options screen. At the
 window level, links to the workspace and global settings are shown at the top.
@@ -51,50 +47,74 @@ screen.
 ## Application settings
 
 To configure application-wide settings (which are not synced to other devices),
-navigate to the top left main menu (☰) and click `Settings`. These
+navigate to the top left main menu (☰) and click `Application preferences`. These
 settings apply to the local device only and are separate from the text display
 settings hierarchy described above.
+
+The screen has a search icon for finding a setting by its name, and a reset icon
+at the top right that restores all the settings shown on the screen to their
+defaults (after a confirmation).
+
+The settings are grouped into the categories `Dictionaries`, `Application behavior`,
+`Look & feel`, `E-ink settings`, `Settings for the persecuted`, `Features` and
+`Advanced settings`. The sections below follow the topics rather than the
+categories. Language, notes format, the font size multiplier, fullscreen and
+window display, one-tap actions and the Study Pad option are all in the
+`Look & feel` category.
 
 Single-choice settings such as **Color mode**, and the **Strong's numbers** options
 opened by long-pressing the reading toolbar button, show inset radio-button rows.
 Tap anywhere on an option's row, including the space beside the radio button, to
 select it.
 
-### General
+<a id="general"></a>
+### Application behavior
+
+- **Keep screen on:** Prevent the screen from sleeping while using the app. Not available on Windows and Linux; see [Platform differences](platform_differences.md).
+    Changes take effect when you return from settings to the reader; no app
+    restart is needed.
+- **Night mode switching:** Control when the dark theme is used:
+
+    - *System* (default) – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
+    - *Manual* – toggle dark mode with `Night mode` in the three-dot menu (⋮). The menu item is greyed out unless this setting is *Manual*.
+    - *Automatic* – on Android devices with a light sensor, switch based on
+      ambient light. Enabling this mode starts monitoring immediately; no app
+      restart is needed.
+
+### Dictionaries
+
+The `Dictionaries` category (shown once you have dictionaries installed) lets you choose
+which documents are used for `Strongs Greek dictionary`, `Strongs Hebrew dictionary`
+and `Robinson Greek morphology` definitions, and which `Word lookup dictionaries`
+are searched by `Look up in dictionaries` in the text selection menu.
+
+### Language, notes and theme
 
 - **Application language:** Choose the language for the application interface
     (dialogs, menus, settings). On iOS, formatted numeric values such as module
     sizes use the selected language's decimal separator and digits (for example,
     `1,5 MB` in Finnish). The file-installation instructions and supported-format
     list also follow language changes without restarting the app.
-- **Keep screen on:** Prevent the screen from sleeping while using the app. Not available on Windows and Linux; see [Platform differences](platform_differences.md).
-    Changes take effect when you return from settings to the reader; no app
-    restart is needed.
-- **Night mode:** Control when the dark theme is used:
-
-    - *Manual* (default) – toggle dark mode from the three-dot menu.
-    - *Automatic* – on Android devices with a light sensor, switch based on
-      ambient light. Enabling this mode starts monitoring immediately; no app
-      restart is needed.
-    - *System* – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
-- **Workspace theme:** In *Normal* color mode, the app automatically derives
-    soft tones from your workspace color, keeping grey and black colors grey
-    and muted colors muted. Without a workspace color (or after resetting it
-    to default), the app uses the standard Material 3 violet theme in both
-    light and dark mode. There is no separate palette-style selector.
-    If you previously chose another Theme style, upgrading switches to this
-    fixed soft palette; restoring an old backup does not restore that style.
-    Reading-view controls also follow the workspace theme,
-    including bookmark editing buttons, note separators, editor selections,
-    study-pad drag highlights, and page and reading-progress badges. The active
-    window is marked by rounded corners in the theme color; without a workspace
-    theme, the corners remain blue. Bookmark colors and correctness/error colors
-    keep their own meaning.
 - **Format for new bookmark notes:** Choose whether new [notes](notes.md)
-    are created with the **HTML** editor or the **Markdown** editor. Existing
+    are created as `Rich text (HTML)` or `Markdown`. Existing
     notes keep the format they were created with.
 
-### E-Ink Displays
+**Workspace theme.** In *Normal* color mode, the app automatically derives
+soft tones from your workspace color, keeping grey and black colors grey
+and muted colors muted. Without a workspace color (or after resetting it
+to default), the app uses the standard Material 3 violet theme in both
+light and dark mode. There is no setting for choosing a palette style.
+If you previously chose another Theme style, upgrading switches to this
+fixed soft palette; restoring an old backup does not restore that style.
+Reading-view controls also follow the workspace theme,
+including bookmark editing buttons, note separators, editor selections,
+study-pad drag highlights, and page and reading-progress badges. The active
+window is marked by rounded corners in the theme color; without a workspace
+theme, the corners remain blue. Bookmark colors and correctness/error colors
+keep their own meaning.
+
+<a id="e-ink-displays"></a>
+### E-ink settings
 
 - **Color mode:** Choose how colors are displayed throughout the application:
 
@@ -169,6 +189,10 @@ remain reachable on a phone.
 
 ### Fullscreen and Window Display
 
+- **Hide status bar:** (Android) Hides the Android status bar (clock,
+    notifications) while keeping AndBible's own toolbar visible. Useful for
+    distraction-free reading and e-ink devices. Swipe from the top edge to
+    reveal it temporarily. This is separate from fullscreen mode.
 - **Hide window button bar in fullscreen:** Hides the bottom window buttons
     when in fullscreen mode for a distraction-free view.
 - **Hide window buttons:** Hides the menu buttons at the top right of each
@@ -237,6 +261,22 @@ which buttons are shown in this bar:
     only be edited by tapping the edit button, not by clicking on the note text
     directly. This prevents accidental edits while reading.
 
+### Advanced settings
+
+- **Experimental features:** Choose which features still in development to
+    switch on. They may change or be removed:
+
+    - `Bookmark edit actions` – see [Bookmarks](bookmarks.md).
+    - `Add paragraph break bookmark` – adds a `Paragraph break` item to the
+      text selection menu and a `Paragraph` button to the verse menu.
+    - `Use the literal workspace colour for the reading toolbar (instead of the theme colour)`
+      – the reading toolbar uses the workspace colour as it is, rather than a tone derived from it.
+- **Import data from the previous app version:** (iOS only) Shown only when data
+    from the previous (pre-6.0) iOS app was found on the device. It replaces your
+    current workspaces, bookmarks and other data with that old data. A copy of
+    your current data is kept on the device. After you confirm, close the app and
+    open it again to run the import.
+
 [![Application look and feel](images/application-look-and-feel.png){ .align-center width="259" height="576" }](images/application-look-and-feel.png)
 
 <span id="id1"></span>
@@ -269,7 +309,7 @@ The available settings are the same as those described in the [<span id="id5"></
 
 To configure the look and feel of an individual workspace, click on the three
 dot kebab menu on the top right of your workspace. From there click on
-`All Text Options`.
+`All text options`.
 
 Workspace text options override the global defaults for that workspace and all
 its windows. These settings are synced across devices.
@@ -284,8 +324,8 @@ its windows. These settings are synced across devices.
 - **Verse numbers:** Show or hide chapter and verse numbers.
 - **Footnotes:** Show footnotes if available in the document. Optionally
     display them inline rather than in a popup.
-- **Cross references:** Show cross-reference markers. Optionally expand them
-    inline to see referenced text directly.
+- **Cross references:** Show cross-reference markers. With `Inline cross references`
+    on, the referenced text is shown inline instead of in a popup.
 - **Strong’s numbers:** Show links to Greek and Hebrew dictionary definitions.
 - **Morphological codes:** Show Robinson’s Greek morphology codes.
 - **Italicize added words:** Italicize words that do not have Strong’s numbers
@@ -338,6 +378,35 @@ including after restoring a database backup.
 - **Relative page number:** Show a page number overlay indicating your position
     relative to where you started reading.
 
+<span id="page-scrolling-options"></span>
+
+**Page Scrolling**
+
+- **Page scroll amount:** How much of the page to scroll with page up/down.
+- **Scroll helper lines:** Show horizontal guide lines at page scroll boundaries.
+- **Helper line style:** Choose between `Thin dotted line`, `Thin solid line` and `Thick solid line`.
+- **Page scroll buttons:** Show visible page up/down buttons on screen.
+- **Show ordinal numbers:** Show ordinal position markers in text.
+- **Reading progress:** Show how far through the book you are (percentage, page or chapter).
+
+<span id="bookmark-options"></span>
+
+**Bookmark & My Notes settings**
+
+- **Show bookmarks:** Untick to hide all bookmarks.
+- **Show My Note icons:** Show an icon in verses that have a My Note.
+- **Show AI document markers:** Show marker icons for AI-generated document
+    pages linked to verses.
+- **Hide specified labels:** Hide bookmarks that are marked with the chosen
+    label(s). It is a text display setting, so it can differ per window or workspace; the
+    per-label `Hidden` style is described in [Labels](labels.md).
+
+**Reading & Memorization**
+
+- **Mark as read button**, **Auto-track reading** and **Memorization indicators**
+    (colored margin indicators for memorized and target verses). See
+    [Reading progress](reading_progress.md) and [Memorize](memorize.md).
+
 [![Workspace appearance](images/workspace-appearance.png){ .align-center width="259" height="576" }](images/workspace-appearance.png)
 
 <span id="id3"></span>
@@ -350,12 +419,12 @@ options:
 
 > 1. Tap and hold the square window icon at the bottom for the window you
 >     would like to customize.
-> 2. Click `Text Options`, then click `All Text Options`.
+> 2. Click `Text options`, then click `All text options`.
 
 All of the same options that you could configure at the [workspace](#id2) level can be overridden for the selected window.
 In the screenshot below you can see that the window color settings are
-overriding the workspace color settings (indicated by the missing workspace
-icon). To reset all window settings back to the workspace defaults, you can
+overriding the workspace color settings (indicated by the missing `Workspace`
+label). To reset all window settings back to the workspace defaults, you can
 click the circular back arrow at the top right of the window settings screen.
 
 From the window text options screen you can also navigate directly to the
@@ -365,7 +434,8 @@ workspace or global text options using the links at the top of the screen.
 
 ## Module
 
-For things that can not be changed through global, workspace, or window
+There is no settings screen for an individual document. For things that can
+not be changed through global, workspace, or window
 settings, like the color of certain text within a module, e.g. Headings or
 Strong’s numbers, you can code the color in the style.css file located within
 the module’s zip package. You can see some examples of this being implemented here:

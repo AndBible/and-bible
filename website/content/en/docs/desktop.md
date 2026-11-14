@@ -54,6 +54,15 @@ Good to know:
 
 The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.
 
+## Keyboard and mouse {#keyboard-and-mouse}
+
+The desktop app can be used with the keyboard and the mouse. Among others: **Ctrl+F** searches, **Ctrl+B**
+or **Ctrl+L** opens the *Book Chooser*, **Ctrl+Tab** switches windows, **Ctrl+Plus**, **Ctrl+Minus**
+and **Ctrl+0** (or **Ctrl** and the mouse wheel) change the text size, **Ctrl+,** opens
+*Application preferences*, **F11** toggles fullscreen, and **Esc**, **Alt+Left** or the mouse back
+button go back. See the full list, with the Android and iOS keys, in
+[Keyboard Shortcuts](navigation.md#keyboard-shortcuts).
+
 ## Update checks
 
 Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub once a week by default. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. Use **Check for updates** in Settings to choose how often: daily, weekly, monthly or never. An earlier "yes" becomes weekly and an earlier "no" becomes never. When a newer version is found, AndBible can open its release page; you install it yourself. Instead of installing, you can choose **Remind me tomorrow**, **Remind me in a week** or **Remind me in a month**; AndBible then stays quiet until that time, even across restarts. **Skip this version** hides that release and offers only a newer one. To stop checking, select **Don't notify me about updates** before closing the offer, which sets **Check for updates** to never. You can turn checks back on using **Check for updates** in Settings. The update check never offers a release that is less stable than the one you have installed.
@@ -85,7 +94,7 @@ See also [Platform differences](platform_differences.md).
 
 ## Reporting a bug {#reporting-a-bug}
 
-In the app open the navigation menu, then *Feedback / bug report* (in its *Contact* group). Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
+In the app open the main menu (☰), then *Feedback / bug report* (in its *Contact* group). Please tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
 
 The app first asks you where to save the report file. A short dialog then always shows what to do next, whether or not an email program can be opened:
 

@@ -11,7 +11,8 @@ class AndroidAppEnvironment(context: Context) : AppEnvironment {
     override val deviceIdentifier get() = CommonUtils.deviceIdentifier
     override val isDiscrete get() = CommonUtils.isDiscrete
     override val isBeta get() = CommonUtils.isBeta
-    override val isDebugMode get() = CommonUtils.isDebugMode
+    // A video-look build (VideoLook) hides the debug-only behaviour, e.g. the test AI prompts.
+    override val isDebugMode get() = CommonUtils.showsDebugTraits
     override val applicationNameMedium get() = CommonUtils.applicationNameMedium
     override val packageName get() = application.packageName
     override val versionNumber get() = CommonUtils.applicationVersionNumber.toLong()

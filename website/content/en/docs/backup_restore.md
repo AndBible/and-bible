@@ -37,16 +37,17 @@ counted as another failed startup if the system closes the app while it is shown
 Opening and sharing files differs between platforms; see [Files and sharing](platform_differences.md#files-and-sharing).
 
 1. From the main menu tap *Backup & Restore*.
-2. Under *Backup* select the radio option for the type of data you would like
-    to backup:
+2. Under *Backup* switch on the kinds of data you would like to back up. The
+    switches are independent: you can switch on several at once, and
+    *Backup to…* then backs each one up in turn.
 
-    > - Choose *Database* to backup your Application Settings, Bookmarks, Labels,
+    > - *Database* backs up your Application Settings, Bookmarks, Labels,
     >     Notes, Study Pads, Reading Plans, Workspaces, etc.
-    > - Choose *Documents* to backup your Bibles, Dictionaries,
+    > - *Documents* backs up your Bibles, Dictionaries,
     >     Commentaries, Maps, etc. (You will be prompted which modules you
     >     want to backup)
-    > - Choose *Application* to backup the .apk file (Android only; the switch is not shown on iOS and desktop)
-3. Tap *Backup To…*.
+    > - *Application* backs up the .apk file (Android only; the switch is not shown on iOS and desktop)
+3. Tap *Backup to…*.
 4. Choose where you would like to send the backup:
 
     - *Phone Storage* (Android; you will be prompted to choose a folder on your device)
@@ -65,7 +66,7 @@ file is kept in the backup.
 NOTE: If your backups were saved to cloud storage, download the backups to your
 device before proceeding.
 
-On the welcome screen, you can also choose *Restore database*. If the selected
+On the welcome screen (the *Advanced* tab) you can also choose *Restore Database File*. If the selected
 file cannot be read or the backup is damaged, an error dialog appears. Dismiss
 it to stay on the welcome screen and try again with a readable backup file.
 
@@ -78,17 +79,21 @@ stopped or the device losing power.
 To restore your *AndBible* data:
 
 1. From the main menu, tap *Backup & Restore*.
-2. Under *Restore or Import* select the radio option for the type of data
-    you would like to restore:
+2. Under *Restore or Import* switch on the kind of data you would like to
+    restore (the switches are independent, so you can switch on both):
 
-    - Choose *Database* to restore your Application Settings, Bookmarks, Labels,
+    - *Database* restores your Application Settings, Bookmarks, Labels,
         Notes, Study Pads, Reading Plans, Workspaces, etc.
-    - Choose *Documents* to restore your Bibles, Dictionaries, Commentaries,
+    - *Documents* restores your Bibles, Dictionaries, Commentaries,
         Maps, etc.
-3. Tap *Restore or Import From…*.
-4. If prompted, tap *Proceed* on the next dialog which indicates supported
-    filetypes.
+3. Tap *Restore or Import from…*.
+4. For *Documents*, if prompted, tap *Proceed* on the next dialog which indicates
+    supported filetypes.
 5. Select the zipped backup file on your device to restore your *AndBible* data.
+6. For *Database*, AndBible asks which backup sections you want to restore. For
+    each section you can choose *Restore* (the existing data is removed and the
+    data from the backup is loaded) or *Import* (the data from the backup is
+    merged into your existing data).
 
 !!! note
 
@@ -105,6 +110,19 @@ will not be available after migration.
 For a legacy version-10 database with missing workspace tables, AndBible recreates
 those tables empty before continuing the upgrade. Existing tables and their data
 are preserved, but data from a missing table cannot be recovered this way.
+
+## Auto-Backups, Reset Databases and Last crash info
+
+Below the restore buttons the *Backup & Restore* screen may show more sections:
+
+- **Auto-Backups** lists the database backups AndBible has written automatically
+    (for example when it opens a database saved in an older format). Each entry
+    shows its date and the app version, with two buttons: *Export*, which saves
+    the file elsewhere, and *Restore*, which restores from that file.
+- **Reset Databases** has a button for each database that can be reset to its
+    initial empty state. This cannot be undone, so make a backup first.
+- **Last crash info** shows the details of the app's last crash, which is useful
+    when reporting a bug.
 
 To restore you *AndBible* apk file:
 

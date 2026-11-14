@@ -30,15 +30,15 @@ Errors raised during startup remain queued until the app can display them.
 ## Setting Up Sync
 
 1. Open the top left main menu (☰).
-2. Tap `Sync settings`.
-3. Choose your sync adapter: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**.
+2. Under *Administration*, tap `Device synchronization`. The screen has the sections `Info & general settings` and `Synchronization categories`.
+3. Choose your backend in the `Synchronization Backend` row: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Next Cloud** (Nextcloud) or **WebDAV**. The row is greyed out while you are signed in; tap `Sign Out` to change the backend.
     - Google Drive is also offered on iPhone, iPad, Mac, Windows and Linux.
     - Windows and Linux: signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder. Return to *AndBible* when the browser page says you are done.
     - iPhone, iPad and Mac: a Google sign-in sheet opens inside the app.
     - Android: Google Drive normally uses the Google account of your device. In the F-Droid build, and on devices without Google Play services (for example GrapheneOS without sandboxed Google Play, or /e/OS), signing in opens your browser instead: choose your Google account, allow *AndBible* to use its own app folder, and the browser returns you to *AndBible*. Once you have signed in this way, *AndBible* keeps using the browser sign-in on that device.
-4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
+4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)). Switching on the first category starts the sign-in to the backend.
 
-If a saved backend is unavailable on this platform (for example, after restoring an Android backup with Google Drive sync on Windows), synchronization is disabled. Sync settings explain that a supported backend needs to be chosen, and the sync switches show as off. No other backend is selected automatically, and neither manual nor background synchronization runs. The saved backend is kept unchanged until you choose a supported backend and configure synchronization for this device.
+If a saved backend is unavailable on this platform (for example, after restoring an Android backup with Google Drive sync on Windows), synchronization is disabled. the `Device synchronization` screen explains that a supported backend needs to be chosen, and the sync switches show as off. No other backend is selected automatically, and neither manual nor background synchronization runs. The saved backend is kept unchanged until you choose a supported backend and configure synchronization for this device.
 
 When enabling sync for the first time:
 
@@ -66,9 +66,9 @@ When enabling sync for the first time:
 
 If using Nextcloud instead of Google Drive:
 
-1. In Sync settings, change the `Sync adapter` to **Nextcloud**.
-2. Enter your Nextcloud server URL, username, and password.
-3. Optionally specify a folder path on the server.
+1. In `Device synchronization`, change the `Synchronization Backend` to **Next Cloud**.
+2. Enter your Nextcloud `Server URL`, `User name` and `Password`.
+3. Optionally specify a `Sync folder path` on the server (the parent folder for sync data; empty means the root).
 4. Toggle on the data categories you want to sync.
 
 When you open a text setting such as the server address, username or password,
@@ -93,8 +93,8 @@ WebDAV lets you synchronize with your own server, a NAS, or any server that
 supports WebDAV (RFC 4918), without needing an account with a third-party cloud
 service.
 
-1. In Sync settings, change the `Sync adapter` to **WebDAV**.
-2. Enter the server address, username, and password.
+1. In `Device synchronization`, change the `Synchronization Backend` to **WebDAV**.
+2. Enter the `Server URL`, `User name` and `Password`.
 3. Optionally specify a `Sync folder path`, a subfolder on the server under
     which *AndBible* stores its data. It is created if it does not exist.
 4. Toggle on the data categories you want to sync.
@@ -131,7 +131,7 @@ only if they match.
 - If the server's certificate changes later, sync pauses with a message. The
     prompt to confirm the new fingerprint appears the next time *AndBible* is opened
     or syncs in the foreground.
-- Whenever a certificate is trusted for the WebDAV provider, Sync settings shows a
+- Whenever a certificate is trusted for the WebDAV provider, the `Device synchronization` screen shows a
     **Server certificate** row where you can forget the trusted certificate. The
     row is disabled while you are signed in.
 
@@ -155,7 +155,7 @@ opportunity, but iOS decides when background work can actually run.
 
 ## What Gets Synced
 
-Each category has its own toggle in Sync settings and can be turned on or off
+Each category has its own toggle in `Device synchronization` and can be turned on or off
 independently.
 
 **Bookmarks** (toggle: Bookmarks)
@@ -173,7 +173,7 @@ independently.
 
 **AI Settings** (toggle: AI Settings)
 :   Custom AI prompts and provider configurations (provider type, model,
-    endpoint). API keys, cache, and usage data are **not** synced – you need
+    endpoint) and usage and cost statistics. API keys and the AI cache are **not** synced – you need
     to enter your API key on each device separately. See [AI Bible Study Assistant](ai.md) for details.
 
 **Reading Progress** (toggle: Reading Progress)
@@ -260,7 +260,7 @@ The shared folders are named `net.bible.android.activity-sync-…`.
 
 To disconnect from cloud sync:
 
-1. Open `Sync settings`.
+1. Open `Device synchronization`.
 2. Tap `Sign Out`.
 3. Confirm the reset.
 
@@ -275,7 +275,7 @@ Over time, the sync data in the cloud can grow as incremental change patches
 accumulate. To compact the cloud storage:
 
 1. Make a [backup](backup_restore.md) first, just in case.
-2. On one device, open `Sync settings` and tap `Sign Out`.
+2. On one device, open `Device synchronization` and tap `Sign Out`.
 3. Set up sync again and choose **Copy from this device to Cloud**. This
     replaces the accumulated patches in the cloud with a clean snapshot.
 4. On your other devices, sync will detect that the cloud data has changed.

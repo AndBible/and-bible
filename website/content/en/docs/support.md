@@ -16,13 +16,17 @@ Alternatively, you can reach out to our development team via
 [email](mailto:help.andbible%40gmail.com) or
 [GitHub](https://github.com/AndBible/and-bible/issues/new/choose)
 
+In the app, the main menu (☰) rows `Questions?` and `How to contribute?` (in the *Information*
+group) open the support and contribution pages in your browser; `Help & tips` shows short help
+topics. See [Main menu](getting_started.md#main-menu) for all rows.
+
 ## Reporting Issues
 
-Please report bugs via the *Feedback / bug report* option in the top left main menu (☰)
+Please report bugs via the `Feedback / bug report` option (in the *Contact* group) of the top left main menu (☰).
 Reporting bugs through the app provides us with more information to fix the issue. You can also report
 bugs directly via [GitHub Issues](https://github.com/AndBible/and-bible/issues/new/choose).
 
-On iOS the same *Feedback / bug report* item is in the drawer, as on every platform. The crash recovery screen also
+On iOS the same `Feedback / bug report` item is in the drawer, as on every platform. The crash recovery screen also
 has a report action that works before the app's databases open. Confirm before opening
 the Mail composer or, if Mail is not configured, the system share sheet. Nothing is
 sent automatically: review the report and attachments before sending, or cancel.

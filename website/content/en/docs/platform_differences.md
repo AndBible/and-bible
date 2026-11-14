@@ -31,7 +31,28 @@ On Windows and Linux, quitting shows a short "synchronizing" window while your c
 | Scroll with the volume keys | Yes | No | No |
 | Tilt to scroll | Yes | Yes | No |
 | Double-tap to full screen, default | On | On on iPhone and iPad, off on a Mac | Off |
-| Home-screen widgets | Yes | No | No |
+| Home-screen widgets | Yes, for [Speak](#speak-widgets) | No | No |
+
+### Speak widgets {#speak-widgets}
+
+On Android, the standard app (not the discrete calculator app) offers five home-screen widgets for [Speak](speak.md). To add one,
+press and hold an empty place on the home screen, open the widgets list, find AndBible and drag a widget to the screen. The widgets can be resized.
+The widget names below only describe the widgets by size and buttons; the widget picker lists them all as "AndBible" with a preview. Tapping the title or the background of a speak control widget opens AndBible.
+
+| Widget (descriptive name) | Buttons | Shows |
+|---|---|---|
+| Small speak control | Rewind, play/pause | No title |
+| Middle speak control | Rewind, fast-forward, play/pause, stop, sleep timer | Title and the progress in percent |
+| Large speak control | The middle widget's buttons plus previous and next | Title and a full status line |
+| Speak text control | Previous, next, play/pause, stop | Title and the text being spoken |
+| Speak bookmarks | One button per Speak bookmark | - |
+
+- The sleep timer button turns the [sleep timer](speak.md#sleep-timer) on and off; its icon shows which. When switched on, it uses the last time you set.
+- Previous and next move one verse.
+- The Speak bookmarks widget lists the bookmarks that have the special Speak label, sorted by verse, with the Bible reference and
+  the Bible shown on each button, plus a repeat symbol when the bookmark has a repeat range. Tap a button to start speaking from that bookmark.
+  Until bookmarks exist it says "Speak bookmarks shortcut buttons will appear here." If **Automatic bookmarking** is off and there are none, it says
+  "Autobookmarking disabled!". See [Text follows speech and bookmarks](speak.md#text-follows-speech-and-bookmarks).
 
 ## Files and sharing {#files-and-sharing}
 

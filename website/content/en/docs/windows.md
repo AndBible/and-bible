@@ -6,11 +6,12 @@ The ‘Bible Study App’ provides amazing window functionality.
 
 - Open as many windows as you need, showing ‘any’ document you want.
 - Show your ‘preferred’ bible, a translation with ‘Strongs’ numbers or ‘another’ language translation. You can also show cross-references, commentaries and dictionaries. You can ‘even’ show maps.
-- Each window has its ‘own’ button at the bottom of the screen. Use it to show or hide ‘that’ window. Or long press the button to access the ‘popup menu’.
-- You can also access the popup menu from the button at the ‘top right’ of each window. The appearance of each window can be configured from the ‘Text Options’ menu.
-- Windows can be synced so they ‘always’ show the same verse by setting the ‘Synchronise’ option. There are three types of windows. Pinned windows, Unpinned windows and the ‘Link’ window.
-- Any number of pinned windows can be shown at one time. Only one unpinned window can be shown at once.
-- Document links are always opened in the links window. Change a window type by changing the Pin setting.
+- Each window has its own button at the bottom of the screen. Use it to show or hide that window. Or long press the button to access the window menu.
+- You can also access the window menu from the button at the top right of each window. The appearance of each window can be configured from the `Text options` item of that menu.
+- Windows can be synchronised so they always show the same verse, with the `Synchronise` item of the window menu (see [Synchronising windows](#synchronising-windows)).
+- There are three types of windows: pinned windows, unpinned windows and the links window. Window pinning is on by default; see [Window pinning](#window-pinning).
+- With window pinning on, any number of pinned windows can be shown at one time, but only one unpinned window.
+- Document links are opened in the links window (the `Links window` setting is on by default).
 
 On desktop, click inside a reading window to make it active. The toolbar then
 controls that window, just as tapping a reading window does on Android. When you
@@ -33,9 +34,9 @@ Multiple windows makes it easy to compare and drill down into verses.
 
 There are three ways to create a new window.
 
-1. First, push the New Window button in the bottom right corner.
-2. Second, choose ‘New Window’ via the window button at the top right of any window.
-3. Third, long-press a window button at the bottom of the screen and choose ‘New Window’.
+1. First, push the `+` button in the bottom right corner. It is shown only while exactly one window is open. With several windows the same place holds an expand/collapse chevron for the window-button bar, and with a maximised window it is `Restore all windows`.
+2. Second, choose `New window` via the window button at the top right of any window.
+3. Third, long-press a window button at the bottom of the screen and choose `New window`.
    On desktop, you can also right-click a window button to open its menu.
 
 A new window starts with the source window's document and reading position, but
@@ -55,14 +56,14 @@ There are multiple ways to choose the document you want to show in the new windo
 2. Or you can choose a commentary by clicking the Commentary-button.
 3. Or you can choose any document from the application menu.
 
-A window can be maximised so it takes up the whole screen. Restore it to its original size by pushing the restore-window button in the bottom right of the screen.
+A window can be maximised (`Maximise` in the window menu) so it takes up the whole screen. Restore it to its original size by pushing the `Restore all windows` button in the bottom right of the screen.
 
-A window can be minimised so that is hidden from view. Show the window again by clicking it’s button in the window-button-bar at the bottom of the screen.
+A window can be minimised (`Minimise` in the window menu) so that it is hidden from view. Show the window again by clicking it’s button in the window-button-bar at the bottom of the screen.
 Minimised windows have a dashed outline around their bottom-bar button. In true
 monochrome mode, their text and outline stay black on white (or white on black in
 the dark theme), rather than fading to gray. Bottom-bar buttons have square bottom
 corners; pinned and links windows have more rounded top corners than unpinned
-windows. With automatic pinning enabled, all window buttons use the pinned shape.
+windows. While `Window pinning` is unticked, all window buttons use the pinned shape.
 
 The expanded window-button bar spans the full width of the reading area, with
 its buttons aligned to the end. In a side-by-side split, every window reserves
@@ -77,11 +78,54 @@ minimise it. If you open a link inside the links window, swiping down on (or
 long-pressing) the new links window's button closes that window instead, just
 like tapping its bottom-bar button. The first links window, and links windows
 with another links window opened from them, are minimised rather than closed.
-The "Minimise" item in the window menu always only minimises.
+The `Minimise` item in the window menu always only minimises.
 
-Reposition the window by using the ‘Move To’ menu option.
+Reposition the window by using the `Move to` menu option.
 
-A window has many customisation settings. The most recently used settings appear in the pop-up menu. But you can access all window settings via the ‘All-text-options’ menu item.
+## The window menu
+
+Long-press a window button at the bottom of the screen, or tap the button at the top right of a window, to open its menu. Which items you see depends on the window and its document:
+
+- `New window`, `Maximise` and `Minimise`: see above.
+- `Change to normal window`: shown for the links window; turns it into an ordinary window.
+- `Move to`: a list of the positions of the other windows of the same kind (pinned or unpinned).
+- `Pin`: see [Window pinning](#window-pinning). Shown only while `Window pinning` is on.
+- `Synchronise`: see [Synchronising windows](#synchronising-windows). Shown only for windows that can be synchronised.
+- `AI Actions`: shown when an AI provider is set up. See [AI](ai.md).
+- `Add bookmark for whole page`: for documents that are not Bibles, such as a commentary or book page, bookmarks the whole page.
+- `Export as HTML`, `Export Study Pad` and `Export Bookmarks as CSV`: shown for a Study Pad (the HTML export also for My Notes and multi-reference windows). See [Sharing](share.md) for what they produce.
+- `Text options`: a submenu with the most recently used settings, `All text options`, and `Copy settings to` (see below).
+- `Copy link to clipboard`: copies a link to the current passage.
+- `Open …` (headset icon): shown while speech is active; goes to the passage being spoken. See [Speak](speak.md). A second `Open …` item with the reference appears when you have copied one to the clipboard.
+- `Close`: closes the window.
+
+### Copy settings to
+
+In the `Text options` submenu, `Copy settings to` copies this window's text display settings to another window of the workspace (`Window N`), to the whole `Workspace`, or to `Global defaults`.
+
+### Window pinning
+
+`Window pinning` is a toggle in the three-dot menu (⋮) at the top right of the screen. It is on by default, so each ordinary window has a `Pin` item in its menu. Untick it to make every window act as pinned and hide the `Pin` item:
+
+- Pinned windows are displayed first. You can show any number of them.
+- Only one unpinned window is shown at once. Unpinned windows suit commentaries, maps and other extra material, while your Bibles stay pinned.
+
+### Synchronising windows
+
+`Synchronise` in the window menu is a submenu with `Group 1` to `Group 6` and, once the window is in a group, `Disable synchronize`. Windows in the same group always show the same verse. A window can be in one group at a time.
+
+### Other options in the three-dot menu
+
+These toggles in the ⋮ menu affect all windows of the workspace:
+
+- `Reversed split mode`: normally windows are side by side in landscape and stacked in portrait; this flips that. Shown only while more than one window is open.
+- `Tilt to scroll`: scrolls the text by tilting the device. Shown only on devices that have a motion sensor, so not on desktop.
+- `Window pinning`: see above.
+- `Workspaces` opens the [workspace selector](workspaces.md), and `Label settings` opens the [label settings](labels.md) for the workspace.
+
+Several other items of this menu are described in [Navigation](navigation.md).
+
+A window has many customisation settings. The most recently used settings appear in the `Text options` submenu. But you can access all window settings via the `All text options` menu item.
 
 Text display settings follow a three-level hierarchy: **global defaults →
 workspace settings → window settings**. Each level inherits from the one above
@@ -92,12 +136,11 @@ Here is a quick summary of the difference between the levels:
 - **Global settings** set the defaults for all workspaces and windows. Access
     them via the link at the top of any workspace or window text options screen.
 - **Workspace settings** override global defaults for one workspace and all its
-    windows. Access them via the dot menu at the top right of the screen. They
-    are shown with a gray workspace icon.
+    windows. Access them via the dot menu at the top right of the screen.
 - **Window settings** override the workspace setting for one specific window.
-    Access them via the window buttons. They show either a green workspace icon
-    (using workspace default), a settings gear icon (inherited from global), or
-    no icon (explicitly changed).
+    Access them via the window buttons. A setting inherited from a higher level
+    shows a small text label, `Workspace` or `Global`, naming the level it comes
+    from. A setting with no label has been changed at this level.
 
 So, if you want to change the appearance of all windows everywhere, change the
 global setting. If you want all windows in one workspace to look different,

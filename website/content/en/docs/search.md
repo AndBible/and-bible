@@ -34,9 +34,22 @@ being created, the progress sheet's **X** hides progress without cancelling inde
 
 ## Bible searches
 
-To search for a specific word in any Bible module tap on the burger menu located at the top left, then tap on "Find" . Then enter the word you are looking to find.
-Optionally you can limit your search to only the OT, NT, or the book you are currently viewing.
-If you enter multiple words, optionally you can also look for an exact match, as a phrase, or for any of the words appearing any where within a verse.
+To search for a specific word in any Bible module tap on the burger menu located at the top left, then tap on **Find**
+(or the Find button in the toolbar; on a computer with a keyboard, press Ctrl+F, or ⌘F on a Mac). A search bar opens
+on top of the reading text. Enter the word you are looking to find and press the search key on the keyboard.
+
+Tap the sliders button (**Search settings**) in the search bar to choose:
+
+- **Search Where**: `Whole Bible`, `Old Testament`, `New Testament` or the book you are currently viewing (shown by its name).
+- The search type: `All words` (every word must be in the verse), `Any word` (at least one of the words) or `Phrase`
+  (the words next to each other in that order). The search type is not used when you search for a Strong's number.
+- **Translations**: the Bible translations to search; see [Translation selection](#translation-selection).
+
+Tap **Show search results** (the list icon at the left of the search field) to return to the results of your last search.
+Tap **Close search** (the back arrow at the left of the search bar) to leave search mode.
+
+The search bar's ⋮ menu has **Rebuild index**, which creates the search index of the document again, and **Help**.
+**Help** explains the search syntax briefly and links to this page's [Advanced Search](#advanced-search) section.
 
 If you enter a Bible reference (for example "John 3:16" or "1 joh 3 16"), Find takes you to that passage instead of searching. A single word that is also a book name, such as "Job" or "Mark", is treated as a reference too.
 
@@ -50,6 +63,12 @@ Note: the word strong must be in lower case.
 strong:h3068
 
 strong:G11
+
+### Recent searches
+
+When the search field is empty and you have searched before, a history icon appears at the left of the search field.
+Tap it to see your **Recent searches** and tap one of them to search for it again. Once a search has results,
+the icon changes to **Show search results**. Clear the field with the **Clear search text** button (the X in the field).
 
 ## Translation selection
 
@@ -72,7 +91,8 @@ Your saved Bible selection is kept for the next Bible search.
 
 ## Advanced Search
 
-It is possible to do advanced searches using the special syntax described below.
+It is possible to do advanced searches using the special syntax described below. This section describes
+searching Bibles and commentaries. Searching an EPUB uses a different search engine; see [Searching EPUB books](#searching-epub-books).
 
 ### Wildcards
 
@@ -101,13 +121,15 @@ word must be present, and a `-` means it must not be present: `+grace -faith`.
 Put words in double quotes to search for them as a phrase, that is, next to each other in that
 order: `"hope of glory"`. (The 'Phrase' search mode does the same for everything you type.)
 
-### Search Option Compatibility
+### Which search type each syntax needs
 
-Some searches cannot be performed with other searches.
+The three search types treat what you type differently:
 
-1. 'All endings' is not compatible with a 'Fuzzy Search'
-2. 'All endings' is not compatible with a 'Proximity Search'
-3. 'Any word' / 'Phrase' is not compatible with 'Proximity'
+- `Any word` passes your text on unchanged, so all the syntax on this page works there: operators, parentheses,
+  quoted phrases, proximity (`"God light"~10`), fuzzy (`believe~0.6`) and wildcards.
+- `All words` makes every word you type required. Wildcards and a single fuzzy word still work, but operators,
+  quoted phrases and proximity searches do not behave as written, so use `Any word` for them.
+- `Phrase` searches everything you type as one phrase. Use it for plain words only.
 
 ### Proximity Search
 
@@ -157,6 +179,16 @@ translation by name and shows its progress. With several selected translations, 
 any remaining indexes before running the waiting search automatically. Hiding progress does
 not cancel indexing. A failed build stays in the search sheet so you can retry; cancelling an
 index prompt leaves search without opening a separate results screen.
+
+### Searching EPUB books
+
+When the open document is an EPUB, the search bar's settings have a **Search type** list with four choices:
+`All words`, `Any word`, `Phrase` and `Raw query syntax`. EPUB search uses SQLite's FTS5 engine, not the engine
+used for Bibles. `Raw query syntax` is **not** the same thing as the [Advanced Search](#advanced-search) section above: it passes
+your text to the search engine unchanged, so you can write your own query, for example `grace AND faith`,
+`grace OR faith`, `grace NOT faith`, `"hope of glory"`, `bless*`, or `grace NEAR faith` to find words close together.
+In the EPUB search bar, **Help** links to the SQLite *FTS5 Full-text Query Syntax* page. Bible searches have no
+`Raw query syntax` type.
 
 ### Not supported
 

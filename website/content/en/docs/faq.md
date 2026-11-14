@@ -136,8 +136,8 @@ Download the Windows and Linux versions from
 <!-- end -->
 
 You can share your notes and bookmarks between your devices with [Cloud Sync](cloud_sync.md).
-Nextcloud and WebDAV work on every platform; Google Drive is available on Android only, and iCloud
-Drive on iPhone, iPad and Mac.
+Nextcloud, WebDAV and Google Drive work on every platform, and iCloud Drive on iPhone, iPad and
+Mac.
 
 ## How do I download more Bibles, commentaries, etc.?
 
@@ -149,7 +149,7 @@ then search for and install the documents you need.
 ## How do I copy my notes and bookmarks to a new device? {#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone}
 
 To keep your devices in sync continuously, set up [Cloud Sync](cloud_sync.md): your notes,
-bookmarks and settings are then kept up to date on every device that uses the same sync account.
+bookmarks, workspaces and other synced data are then kept up to date on every device that uses the same sync account.
 
 Alternatively, back up on one device and restore on the other. See [Backup and Restore](backup_restore.md)
 for detailed instructions.
@@ -173,7 +173,7 @@ for distribution. They come from these sources:
     including the automatic backup that was created during the upgrade.
 
 1. Go to `Main menu > Backup & Restore`.
-2. Under `Import & Export`, select an earlier backup file to export
+2. Under `Auto-Backups`, tap the *Export* button of an earlier backup file
     (files named `dbBackup-57-*.db` for the pre-5.0 backup, or
     `dbBackup-33-*.db` for the pre-4.0 backup). Back it up somewhere safe.
 3. Optionally, also back up your documents.
@@ -182,7 +182,8 @@ for distribution. They come from these sources:
     [4.0](https://github.com/AndBible/and-bible/releases/tag/production-687) or
     [3.3](https://github.com/AndBible/and-bible/releases/tag/production-400)
     from GitHub Releases. You may need to allow installs from unknown sources.
-6. From `Main Menu > Backup & Restore`, restore the backup file.
+6. From `Main Menu > Backup & Restore`, switch on *Database* under *Restore or Import*, tap
+    `Restore or Import from…` and select the backup file.
 
 !!! note
 
@@ -195,8 +196,8 @@ for distribution. They come from these sources:
     at [bible.org](https://store.bible.org/store/product/108).
 2. You will receive an email with a download link and an unlock code.
 3. Download the SWORD module file from the linked page.
-4. In *AndBible*, use `Backup & Restore > Restore > Documents`, then tap
-    `Restore From` and select the downloaded file.
+4. In *AndBible*, use `Backup & Restore`, switch on *Documents* under *Restore or Import*, then tap
+    `Restore or Import from…` and select the downloaded file.
 5. Go to `Choose Document` in the main menu. You will see the module with
     a red lock icon. Tap on it and enter the unlock code from your email.
 
