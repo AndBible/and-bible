@@ -125,7 +125,7 @@ class AndroidReadingSearchPlatform(
         SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
             .map { it.initials to it.abbreviation }
 
-    override fun tryOpenReference(query: String): Boolean = linkControl().tryToOpenRef(query)
+    override fun tryOpenReference(query: String): Boolean = linkControl().tryToOpenRef(query, allowAbbreviatedBook = true)
 
     override fun showInActiveWindow(book: Book, key: Key) {
         windowControl().activeWindowPageManager.setCurrentDocumentAndKey(book, key)
