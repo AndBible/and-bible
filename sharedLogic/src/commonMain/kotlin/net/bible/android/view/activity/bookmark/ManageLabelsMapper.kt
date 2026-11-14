@@ -68,7 +68,6 @@ object ManageLabelsMapper {
      */
     fun newLabelPresets(mode: ManageLabelsContract.Mode): NewLabelPresets = when (mode) {
         ManageLabelsContract.Mode.ASSIGN -> NewLabelPresets(thisBookmarkSelected = true, thisBookmarkPrimary = true)
-        ManageLabelsContract.Mode.WORKSPACE -> NewLabelPresets(autoAssign = true, autoAssignPrimary = true)
         else -> NewLabelPresets()
     }
 
