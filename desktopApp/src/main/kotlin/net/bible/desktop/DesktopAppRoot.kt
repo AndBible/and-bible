@@ -16,6 +16,8 @@
  */
 package net.bible.desktop
 
+import net.bible.service.db.corruptDatabasesOrNull
+import net.bible.sharedui.host.startup.CorruptDatabaseRecovery
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -123,6 +125,17 @@ class DesktopStartupState(
         }
     }
 
+    /**
+     * Runs the normal startup again after it failed (#4112: after the user reset damaged databases or returned from
+     * Backup & Restore). Does nothing unless the last run failed.
+     */
+    fun retry(scope: CoroutineScope) {
+        if (_phase.value !is StartupPhase.Failed) return
+        _phase.value = StartupPhase.Starting
+        launched.set(false)
+        launch(scope)
+    }
+
     internal fun markCleanExit() = synchronized(lifecycleLock) {
         if (!cleanExit) {
             cleanExit = true
@@ -181,7 +194,21 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 val phase by state.phase.collectAsState()
                 when (val p = phase) {
                     StartupPhase.Starting -> StartupSplash(dark)
-                    is StartupPhase.Failed -> StartupFailed(dark, strings, p.error, state)
+                    is StartupPhase.Failed -> {
+                        val corrupt = p.error.corruptDatabasesOrNull()
+                        if (corrupt == null) StartupFailed(dark, strings, p.error, state)
+                        else CorruptDatabaseRecovery(corrupt, dark, strings, state.reportBug, onRetry = { state.retry(scope) }) { back ->
+                            // Backup & Restore with the databases closed, as the crash-recovery gate opens it.
+                            val recovery by produceState<StartupPhase>(StartupPhase.Starting) { value = state.startForRecovery() }
+                            when (val r = recovery) {
+                                StartupPhase.Starting -> StartupSplash(dark)
+                                is StartupPhase.Failed -> StartupFailed(dark, strings, r.error, state)
+                                StartupPhase.Ready -> AppProviders(state, layoutDirection) {
+                                    HostApp(state.platform(), NavRoutes.BACKUP, dark, back)
+                                }
+                            }
+                        }
+                    }
                     StartupPhase.Ready -> AppProviders(state, layoutDirection) { HostApp(state.platform()) }
                 }
             }

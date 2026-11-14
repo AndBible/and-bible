@@ -66,6 +66,17 @@ class HostAppStartupState(
         }
     }
 
+    /**
+     * Runs [open] again after a [StartupPhase.Failed] (#4112: after the user reset damaged databases or returned from
+     * Backup & Restore). Does nothing unless the last run failed.
+     */
+    fun retry(scope: CoroutineScope) {
+        if (_phase.value !is StartupPhase.Failed) return
+        _phase.value = StartupPhase.Starting
+        launched = false
+        launch(scope)
+    }
+
     /** For a failure before [launch] (the main-thread stage of the startup): shows the error instead of starting. */
     fun fail(error: Throwable) {
         launched = true

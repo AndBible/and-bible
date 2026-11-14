@@ -1,5 +1,7 @@
 package net.bible.sharedui
 
+import net.bible.service.db.corruptDatabasesOrNull
+import net.bible.sharedui.host.startup.CorruptDatabaseRecovery
 import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -230,7 +232,21 @@ fun MainViewController(): UIViewController {
             StartupPhase.Starting -> { StartupSplash(splashDark); return@app }
             is StartupPhase.Failed -> {
                 LaunchedEffect(p) { nsLog("startup failed: ${p.error.stackTraceToString()}") }
-                StartupFailed(splashDark, strings.errorOccurred)
+                val corrupt = p.error.corruptDatabasesOrNull()
+                if (corrupt == null) {
+                    StartupFailed(splashDark, strings.errorOccurred)
+                    return@app
+                }
+                // #4112: damaged user-data databases; nothing is emptied until the user chooses reset.
+                CorruptDatabaseRecovery(
+                    corrupt, splashDark, strings,
+                    onReport = { reporter.report(corrupt) },
+                    onRetry = { startupState.retry(startupScope) },
+                ) { back ->
+                    CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
+                        HostApp(IosAppHostPlatform, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark, back)
+                    }
+                }
                 return@app
             }
             StartupPhase.Ready -> Unit
