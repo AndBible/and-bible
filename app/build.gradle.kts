@@ -73,6 +73,23 @@ val keystoreProperties: Properties = Properties().apply {
     }
 }
 
+/**
+ * The "fake production" look for tutorial video captures: `-PvideoLook=true`, or `VIDEO_LOOK=true`
+ * in local.properties (like APP_SUFFIX). Debug builds only. It changes appearance alone: the
+ * release app name and icon (the src/debug resources and the generated "*Debug*" names are left
+ * out), no `-beta` version suffix (unless -PversionNameSuffix is given), and BuildConfig.VIDEO_LOOK,
+ * which hides the runtime debug traits (net.bible.service.common.VideoLook). The build stays
+ * debuggable (adb, WebView CDP) and keeps its applicationIdSuffix. Off by default.
+ */
+val videoLook: Boolean = run {
+    val explicit = providers.gradleProperty("videoLook").orNull
+    val fromLocal = rootProject.file("local.properties").takeIf { it.exists() }?.let { f ->
+        Properties().apply { f.inputStream().use { load(it) } }.getProperty("VIDEO_LOOK")
+    }
+    (explicit ?: fromLocal)?.trim()?.toBoolean() ?: false
+}
+if (videoLook) println("Video look: debug builds get the release name, icon and version string")
+
 fun expandUserHome(path: String): String =
     if (path.startsWith("~/")) System.getProperty("user.home") + path.substring(1) else path
 
@@ -256,6 +273,8 @@ android {
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
         buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
+        // VideoLook (net.bible.service.common): only the debug buildType can switch it on.
+        buildConfigField("boolean", "VIDEO_LOOK", "false")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
     }
@@ -318,9 +337,15 @@ android {
             val appLabelMarker = appSuffix.removePrefix(".")
                 .ifEmpty { "debug" }
                 .replaceFirstChar { it.uppercase() }
-            resValue("string", "app_name_short", "Bible Study *$appLabelMarker*")
-            resValue("string", "app_name_medium", "Bible Study (AndBible) *$appLabelMarker*")
-            resValue("string", "app_name_long", "AndBible: Bible Study *$appLabelMarker*")
+            if (videoLook) {
+                // Release name and icon: no generated "*Debug*" names, and the src/debug resources
+                // (violet icon background, wrench logo, "*Debug*" strings) are dropped below.
+                buildConfigField("boolean", "VIDEO_LOOK", "true")
+            } else {
+                resValue("string", "app_name_short", "Bible Study *$appLabelMarker*")
+                resValue("string", "app_name_medium", "Bible Study (AndBible) *$appLabelMarker*")
+                resValue("string", "app_name_long", "AndBible: Bible Study *$appLabelMarker*")
+            }
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -454,6 +479,11 @@ android {
     }
 
     namespace = "net.bible.android.activity"
+
+    if (videoLook) {
+        // The debug source set's res only carries the debug icon, logo and "*Debug*" strings.
+        sourceSets.getByName("debug").res.setSrcDirs(emptyList<String>())
+    }
 }
 
 kotlin {
@@ -476,6 +506,18 @@ androidComponents {
         variant.sources.assets?.apply {
             addGeneratedSourceDirectory(mainAssetsWithoutBibleView) { it.assetDirectory }
             addGeneratedSourceDirectory(jsBuilds.getValue(variant.buildType!!)) { it.assetDirectory }
+        }
+    }
+    if (videoLook && project.findProperty("versionNameSuffix") == null) {
+        // A production release has no "-beta" suffix (scripts/increment-version.sh); without it
+        // the debug build also stops counting as beta (no beta notice, no beta-only settings).
+        val betaSuffix = (rootProject.file("version.properties").let { f ->
+            Properties().apply { f.inputStream().use { load(it) } }.getProperty("versionNameSuffix")
+        } ?: "").trim()
+        onVariants(selector().withBuildType("debug")) { variant ->
+            variant.outputs.forEach { output ->
+                output.versionName.set(output.versionName.map { it.removeSuffix(betaSuffix) })
+            }
         }
     }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
