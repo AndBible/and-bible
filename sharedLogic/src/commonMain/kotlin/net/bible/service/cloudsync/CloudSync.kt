@@ -189,6 +189,11 @@ class CloudSync(
         var errorMessage: String? = null
         var cancelledByUser = false
         val success = try {
+            // #4102 one-time pin. Here and not in the constructor: Koin builds CloudSync on Main during startup
+            // (BackupControl), where reading settings cold-opens the database (CoreModuleResolveTest). Every sync
+            // signs in first, and this already reads the settings for adapterId; until it runs, effectiveAdapterId
+            // gives the same answer.
+            adapters.pinLegacyAdapterIfInUse(settings)
             _adapter = if (background) adapters.createForBackground(adapterId) else adapters.create(adapterId)
             try {
                 adapter.signIn()
@@ -778,10 +783,6 @@ class CloudSync(
         reportTransportErrors: Boolean = allowInteraction,
         includeDocuments: Boolean = true,
     ) = withContext(Dispatchers.IO) {
-        // #4102 one-time pin, here on IO and not in the constructor: the Koin graph builds CloudSync on Main during
-        // startup (BackupControl), where reading settings cold-opens the database (CoreModuleResolveTest). Until it
-        // runs, effectiveAdapterId already gives the same answer.
-        adapters.pinLegacyAdapterIfInUse(settings)
         if (!adapterAvailable) return@withContext
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
