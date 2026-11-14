@@ -251,7 +251,6 @@
   <string name="rdg_plan_day">Күн %s</string>
   <string name="rdg_plan_set_start_date">Басталу Күнін Орнату...</string>
   <string name="set_current_day">Ағымдағы күн ретінде орнату…</string>
-  <string name="msg_set_current_day_reading_plan">Жоспар бойынша бүгінгі күнді ағымдағы күн деп орнатып, алдыңғы күндерді оқылған деп белгілейді. Жалғастырайық па?</string>
   <string name="done">Орындалды</string>
   <string name="reset_plan_question">Осы жоспарды қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="import_reading_plan">Оқу жоспарын импорттау...</string>

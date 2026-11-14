@@ -411,7 +411,6 @@
   <string name="rdg_plan_day">일 %s</string>
   <string name="rdg_plan_set_start_date">시작일 설정…</string>
   <string name="set_current_day">오늘로 설정…</string>
-  <string name="msg_set_current_day_reading_plan">이 계획에서 오늘을 현재일로 설정하고 모든 지난 날은 읽은 것으로 표시합니다. 계속할까요?</string>
   <string name="done">완료</string>
   <string name="reset_plan_question">이 계획을 초기화하기 원하시나요?</string>
   <string name="import_reading_plan">읽기 계획 불러들이기...</string>

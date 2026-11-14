@@ -412,7 +412,6 @@
   <string name="rdg_plan_day">రోజు %s</string>
   <string name="rdg_plan_set_start_date">ప్రారంభ తేదీని సెట్ చేయండి...</string>
   <string name="set_current_day">ప్రస్తుత రోజుగా సెట్ చేయండి…</string>
-  <string name="msg_set_current_day_reading_plan">ఇది ఈ రోజును ఈ ప్లాన్‌లో ప్రస్తుత రోజుగా సెట్ చేస్తుంది మరియు మునుపటి రోజులన్నీ చదివినట్లుగా గుర్తు పెట్టబడుతుంది. కొనసాగించాలా?</string>
   <string name="done">పూర్తి అయింది</string>
   <string name="reset_plan_question">మీరు ఈ ప్లాన్‌ని రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="import_reading_plan">రీడింగ్ ప్లాన్‌ని దిగుమతి చేయండి...</string>

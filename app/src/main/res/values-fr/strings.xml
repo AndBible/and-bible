@@ -411,7 +411,6 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="rdg_plan_day">Jour %s</string>
   <string name="rdg_plan_set_start_date">Définir la date de début…</string>
   <string name="set_current_day">Définir comme le jour actuel...</string>
-  <string name="msg_set_current_day_reading_plan">Cela fera d’aujourd’hui le jour en cours dans ce plan et marquera tous les jours précédents comme lus. Continuer ?</string>
   <string name="done">Fait</string>
   <string name="reset_plan_question">Êtes-vous sûrs de redémarrer ce plan?</string>
   <string name="import_reading_plan">Importer le plan de lecture…</string>

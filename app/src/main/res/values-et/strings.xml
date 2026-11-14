@@ -411,8 +411,6 @@ Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
   <string name="rdg_plan_day">Päev %s</string>
   <string name="rdg_plan_set_start_date">Määra alguskuupäev...</string>
   <string name="set_current_day">Tõsta järg käeolevale päevale...</string>
-  <string name="msg_set_current_day_reading_plan">Tänane kuupäev määratakse käesolevaks lugemiskava päevaks. Kõik eelnevad päevad märgitakse tehtuks.
-Kas jätkame?</string>
   <string name="done">Valmis</string>
   <string name="reset_plan_question">Oled sa kindel, et soovid selle kava nullida?</string>
   <string name="import_reading_plan">Impordi lugemiskava...</string>

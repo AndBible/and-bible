@@ -412,7 +412,6 @@ Sva preuzimanja modula kroz repozitorij su šifrirana (HTTPS)</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Postavi datum početka...</string>
   <string name="set_current_day">Postaviti na trenutni dan...</string>
-  <string name="msg_set_current_day_reading_plan">Ovim ćete postaviti današnji dan kao trenutni u ovom planu i označiti sve prethodne dane kao pročitane. Želite li nastaviti dalje?</string>
   <string name="done">Gotovo</string>
   <string name="reset_plan_question">Jeste li sigurni da želite poništiti ovaj plan?</string>
   <string name="import_reading_plan">Uvezite plan čitanja...</string>

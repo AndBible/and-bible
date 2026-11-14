@@ -414,7 +414,6 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Nastavi datum začetka...</string>
   <string name="set_current_day">Nastavi kot trenuten dan…</string>
-  <string name="msg_set_current_day_reading_plan">S tem bo današnji dan v tem načrtu nastavljen na trenutni dan, vsi prejšnji dnevi pa bodo označeni kot prebrani. Želite nadaljevati?</string>
   <string name="done">Končano</string>
   <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
   <string name="import_reading_plan">Uvozi načrt branja...</string>

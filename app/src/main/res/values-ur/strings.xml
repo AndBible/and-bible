@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">دن %s</string>
   <string name="rdg_plan_set_start_date">شروع کی تاریخ سیٹ کریں…</string>
   <string name="set_current_day">موجودہ دن کے طور پر سیٹ کریں…</string>
-  <string name="msg_set_current_day_reading_plan">یہ آج کو اس منصوبے میں موجودہ دن کے طور پر سیٹ کرے گا اور تمام پچھلے دنوں کو پڑھا ہوا نشان لگائے گا۔ جاری رکھیں؟</string>
   <string name="done">مکمل</string>
   <string name="reset_plan_question">کیا آپ واقعی اس منصوبے کو ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="import_reading_plan">مطالعہ منصوبہ درآمد کریں…</string>

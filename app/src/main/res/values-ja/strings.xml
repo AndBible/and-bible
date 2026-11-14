@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">%s 日目</string>
   <string name="rdg_plan_set_start_date">開始日を設定…</string>
   <string name="set_current_day">今日に設定…</string>
-  <string name="msg_set_current_day_reading_plan">今日をこのプランの現在の日として設定し、以前のすべての日を既読にします。続けますか？</string>
   <string name="done">完了</string>
   <string name="reset_plan_question">このプランをリセットしてよろしいですか？</string>
   <string name="import_reading_plan">読書プランをインポート…</string>

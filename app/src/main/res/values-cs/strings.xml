@@ -410,7 +410,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="rdg_plan_day">Den %s</string>
   <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
   <string name="set_current_day">Nastavit aktuální den…</string>
-  <string name="msg_set_current_day_reading_plan">Nastaví dnešek jako aktuální den plánu čtení a označí předchozí dny, jako přečtené. Pokračovat?</string>
   <string name="done">Hotovo</string>
   <string name="reset_plan_question">Jste si jisti, že chcete tento plán resetovat?</string>
   <string name="import_reading_plan">Importovat plán čtení…</string>

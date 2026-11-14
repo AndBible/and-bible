@@ -410,7 +410,6 @@ Alle downloads van module servers zijn versleuteld (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
   <string name="set_current_day">Stel huidige dag in...</string>
-  <string name="msg_set_current_day_reading_plan">Hiermee zal vandaag worden ingesteld als de huidige dag in dit leesplan. Alle voorgaande dagen zullen als gelezen worden gemarkeerd. Doorgaan?</string>
   <string name="done">Klaar</string>
   <string name="reset_plan_question">Weet u zeker dat u dit plan wilt terugzetten?</string>
   <string name="import_reading_plan">Importeer leesplan</string>

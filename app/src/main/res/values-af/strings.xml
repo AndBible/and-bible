@@ -413,7 +413,6 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
   <string name="set_current_day">Stel as huidige dag... </string>
-  <string name="msg_set_current_day_reading_plan">Dit sal vandag as die huidige dag in hierdie plan stel en al die vorige dae as gelees merk. Gan voort?</string>
   <string name="done">Klaar</string>
   <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
   <string name="import_reading_plan">Voer leesplan in... </string>

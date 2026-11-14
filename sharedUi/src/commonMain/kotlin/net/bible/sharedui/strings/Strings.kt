@@ -440,7 +440,8 @@ interface Strings {
     val setCurrentDay: String
     val setStartDate: String
     val importReadingPlan: String
-    val setCurrentDayQuestion: String
+    /** [day] is the localized name of the day being viewed (e.g. "Day 10"); that day becomes the current one. */
+    fun setCurrentDayQuestion(day: String): String
     val selectPassage: String
     val speak: String
     val stop: String

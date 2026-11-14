@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">วันที่ %s</string>
   <string name="rdg_plan_set_start_date">ตั้งวันเริ่มต้น…</string>
   <string name="set_current_day">ตั้งเป็นวันปัจจุบัน…</string>
-  <string name="msg_set_current_day_reading_plan">การดำเนินการนี้จะตั้งให้วันนี้เป็นวันปัจจุบันในแผน และทำเครื่องหมายว่าอ่านแล้วสำหรับทุกวันก่อนหน้า ดำเนินการต่อ?</string>
   <string name="done">เสร็จสิ้น</string>
   <string name="reset_plan_question">คุณแน่ใจว่าต้องการรีเซ็ตแผนนี้?</string>
   <string name="import_reading_plan">นำเข้าแผนการอ่าน…</string>

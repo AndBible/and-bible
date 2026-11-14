@@ -58,7 +58,7 @@ to *AndBible*. To update the current reading plan day to today’s date:
 1. Open the *Reading Plan* screen for the reading plan you would like to adjust
 2. Go to the specific day of the reading plan you want to set to today’s date.
 3. Click the top right 3-dot menu
-4. Click *Set as current day…*. After you confirm, today becomes the current day of the plan and all earlier days are marked as read.
+4. Click *Set as current day…*. After you confirm, the day you are viewing (for example *Day 10*) becomes the current day of the plan and all earlier days are marked as read.
 
 Like *Set Start Date…*, this is not shown for date-based plans.
 
@@ -140,6 +140,9 @@ A few notes about the contents of this file:
     `AndBibleReadingPlanDateBased=true`
 
 ## The `.properties` file
+
+The `.properties` file is not imported on its own: *Import reading plan…* accepts only a module `.zip` as described above,
+with the `.properties` file inside it.
 
 You will need to create a `.properties` file similar to the examples
 [here](https://github.com/AndBible/and-bible/tree/master/app/src/main/assets/readingplan)

@@ -414,7 +414,6 @@
   <string name="rdg_plan_set_start_date">শুরুর তারিখ সেট করুন ...
  </string>
   <string name="set_current_day">বর্তমান দিন হিসাবে সেট করুন...</string>
-  <string name="msg_set_current_day_reading_plan">এটি এই প্ল্যানে আজকের দিনটিকে বর্তমান দিন হিসেবে সেট করবে এবং আগের দিনগুলিকে পাঠিত হিসাবে চিহ্নিত করবে ।চালিয়ে যান?</string>
   <string name="done">সম্পন্ন</string>
   <string name="reset_plan_question">আপনি কি নিশ্চিত যে আপনি এই পরিকল্পনাটি পুনরায় সেট করতে চান?</string>
   <string name="import_reading_plan">পড়ার পরিকল্পনা আমদানি করুন...</string>

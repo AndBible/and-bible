@@ -414,7 +414,6 @@
   <string name="rdg_plan_day">Ziua %s</string>
   <string name="rdg_plan_set_start_date">Alege data de începere…</string>
   <string name="set_current_day">Stabilește ca zi actuală…</string>
-  <string name="msg_set_current_day_reading_plan">Aceasta va stabili ziua de astăzi ca fiind ziua actuală în acest plan și va marca toate zilele anterioare ca fiind citite. Continui?</string>
   <string name="done">Gata</string>
   <string name="reset_plan_question">Sigur vrei să restabilești acest plan?</string>
   <string name="import_reading_plan">Importă planul de citire…</string>

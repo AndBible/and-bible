@@ -414,7 +414,6 @@
   <string name="rdg_plan_day">%s நாள்</string>
   <string name="rdg_plan_set_start_date">தொடக்க தேதியை அமைக்கவும்…</string>
   <string name="set_current_day">நடப்பு நாளாக அமைக்கவும்…</string>
-  <string name="msg_set_current_day_reading_plan">இந்தத் திட்டத்தில் இன்று நடப்பு நாளாக அமைக்கப்பட்டு முந்தைய நாட்களை படித்ததாகக் குறிக்கப்படும். தொடரவா?</string>
   <string name="done">முடிந்தது</string>
   <string name="reset_plan_question">இந்தத் திட்டத்தை மீளமைக்க விரும்புகிறீர்களா?</string>
   <string name="import_reading_plan">வாசிப்பு திட்டத்தை உள்ளேற்று…</string>

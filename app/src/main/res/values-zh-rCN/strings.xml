@@ -414,7 +414,6 @@
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">设定开始日期...</string>
   <string name="set_current_day">设定为目前日子...</string>
-  <string name="msg_set_current_day_reading_plan">这样会将今天设为目前日子，并将之前的日子设为已读。你确定继续吗？</string>
   <string name="done">完成</string>
   <string name="reset_plan_question">你确定要重设该计划吗？</string>
   <string name="import_reading_plan">汇入读经计划...</string>

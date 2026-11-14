@@ -407,7 +407,6 @@
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Estableix la data d\'inici…</string>
   <string name="set_current_day">Estableix com a dia actual…</string>
-  <string name="msg_set_current_day_reading_plan">Això establirà avui com el dia actual en aquest pla i marcarà tots els dies anteriors com a llegits. Voleu continuar?</string>
   <string name="done">Fet</string>
   <string name="reset_plan_question">Esteu segur que voleu restablir aquest pla?</string>
   <string name="import_reading_plan">Importa un pla de lectura…</string>

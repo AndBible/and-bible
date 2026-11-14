@@ -434,7 +434,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val setCurrentDay: String get() = context.getString(R.string.set_current_day)
     override val setStartDate: String get() = context.getString(R.string.rdg_plan_set_start_date)
     override val importReadingPlan: String get() = context.getString(R.string.import_reading_plan)
-    override val setCurrentDayQuestion: String get() = context.getString(R.string.msg_set_current_day_reading_plan)
+    override fun setCurrentDayQuestion(day: String): String = context.getString(R.string.msg_set_current_day_reading_plan, day)
     override val selectPassage: String get() = context.getString(R.string.selectPassage)
     override val speak: String get() = context.getString(R.string.speak)
     override val stop: String get() = context.getString(R.string.stop)

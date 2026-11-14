@@ -409,7 +409,6 @@ huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Ba
   <string name="rdg_plan_day">Siku %s</string>
   <string name="rdg_plan_set_start_date">Weka Tarehe ya Kuanza…</string>
   <string name="set_current_day">Weka kama siku ya sasa…</string>
-  <string name="msg_set_current_day_reading_plan">Hii itaweka leo kama siku ya sasa katika mpango huu na kuweka alama ya siku zote zilizopita kama zilizosomwa. Endelea?</string>
   <string name="done">Imekamilika</string>
   <string name="reset_plan_question">Je, una uhakika unataka kuweka upya mpango huu?</string>
   <string name="import_reading_plan">Ingiza mpango wa kusoma…</string>
