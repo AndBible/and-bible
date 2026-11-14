@@ -68,7 +68,11 @@ data class OpenAiTokenDetails(
 
 @Serializable
 data class AnthropicResponse(
-    val content: List<AnthropicContentBlock> = emptyList(),
+    /**
+     * Raw content blocks. Decoded one by one with [AnthropicContentBlock] for the known types;
+     * other types (thinking, redacted_thinking, ...) are skipped, not a parse error.
+     */
+    val content: List<JsonObject> = emptyList(),
     val usage: AnthropicUsage? = null
 )
 

@@ -201,7 +201,8 @@ class OpenAiApiAdapter(
             model = model,
             messages = wireMessages,
             tools = wireTools.ifEmpty { null },
-            temperature = temperature
+            temperature = temperature?.takeIf { ModelRequestRules.acceptsTemperature(model) },
+            reasoningEffort = ModelRequestRules.openAiReasoningEffort(model)
         )
         return llmJson.encodeToString(request)
     }
@@ -369,7 +370,8 @@ class AnthropicApiAdapter : LlmApiAdapter, KoinComponent {
             messages = wireMessages,
             maxTokens = DEFAULT_MAX_TOKENS,
             tools = wireTools.ifEmpty { null },
-            temperature = temperature
+            temperature = temperature?.takeIf { ModelRequestRules.acceptsTemperature(model) },
+            thinking = if (ModelRequestRules.anthropicDisableThinking(model)) AnthropicThinking("disabled") else null
         )
         return llmJson.encodeToString(request)
     }
@@ -430,7 +432,11 @@ class AnthropicApiAdapter : LlmApiAdapter, KoinComponent {
             val textParts = mutableListOf<String>()
             val toolCalls = mutableListOf<ToolCall>()
 
-            for (block in response.content) {
+            for (raw in response.content) {
+                val block = when (raw["type"]?.let { it as? JsonPrimitive }?.content) {
+                    "text", "tool_use" -> llmJson.decodeFromJsonElement(AnthropicContentBlock.serializer(), raw)
+                    else -> continue // thinking, redacted_thinking and future block types carry no answer
+                }
                 when (block) {
                     is AnthropicContentBlock.Text -> textParts.add(block.text)
                     is AnthropicContentBlock.ToolUse -> {

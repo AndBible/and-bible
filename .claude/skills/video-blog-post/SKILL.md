@@ -14,7 +14,7 @@ Never push.
 1. **Inputs.** Need the video URL and a 1-3 sentence description of what it shows. Missing? Ask
    with `AskUserQuestion`.
 2. **Topic.** One of `sitegen.videos.TOPICS` (Getting started, Navigation & windows, Bookmarks &
-   StudyPads, Search & study tools, Sync & backup, Customisation, Developer diaries). Add
+   StudyPads, Search & study tools, Sync & backup, AI assistant, Customisation, Developer diaries). Add
    `--docs <page>` only when the video covers a published page in `website/content/en/docs/`
    (never for shorts). Ask only if truly ambiguous.
 3. **Run the helper** (from `website/`; needs network for the title, publication date and thumbnail):
