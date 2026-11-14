@@ -198,7 +198,7 @@ class SessionEventRelayTest {
             js.any { it.startsWith("bibleView.emit(\"add_or_update_bookmark_to_label\",") }
         })
         val call = host.js.single { it.startsWith("bibleView.emit(\"add_or_update_bookmark_to_label\",") }
-        return Json.parseToJsonElement(call.substringAfter(", ").removeSuffix(")")).jsonObject
+        return Json.parseToJsonElement(call.substringAfter(", ").removeSuffix(");")).jsonObject
     }
 
     @Test fun bibleBookmarkCollapseAndIndentReachTheOpenStudyPad() {
