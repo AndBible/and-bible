@@ -174,6 +174,7 @@ type TranslatedStrings = {
     llmActionLong: string
     aiDocumentRegenerate: string
     aiDocumentDelete: string
+    aiDocumentsName: string
     aiGeneratedBy: string
     aiGeneratedByWithModel: string
 }
