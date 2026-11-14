@@ -76,6 +76,19 @@ class SearchControlFtsTest {
         assertEquals(1, key.getCardinality())
     }
 
+    /** #4093: unsupported syntax is reported, not swallowed as 0 results, whatever the search type and section. */
+    @Test fun unsupportedSyntaxIsReportedForEverySearchTypeAndSection() {
+        for (type in listOf(SearchType.ALL_WORDS, SearchType.ANY_WORDS)) {
+            for (section in listOf(SearchControl.SearchBibleSection.ALL, SearchControl.SearchBibleSection.NT)) {
+                for ((text, syntax) in listOf("[grace TO hope]" to "[a TO b]", "{grace TO hope}" to "{a TO b}", "grace^2" to "^")) {
+                    val q = control.decorateSearchString(text, type, section, null)
+                    val failure = runCatching { runBlocking { control.getMultiSearchResults(listOf("KJV"), q) } }.exceptionOrNull()
+                    assertEquals("$type $section '$q'", syntax, failure?.let { unsupportedSyntaxIn(it) }?.syntax)
+                }
+            }
+        }
+    }
+
     @Test fun sectionTermRestrictsTheSearch() {
         val nt = runBlocking {
             val q = control.decorateSearchString("beginning", SearchType.ALL_WORDS, SearchControl.SearchBibleSection.NT, null)
