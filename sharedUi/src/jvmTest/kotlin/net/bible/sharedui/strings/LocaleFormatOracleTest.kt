@@ -47,6 +47,6 @@ class LocaleFormatOracleTest {
         val generated = iosStrings(tag)
         assertEquals(String.format(locale, lookup(tag, "module_size_megabytes"), 1.5), generated.moduleSizeMb(1.5), "$tag generated size")
         assertEquals(String.format(locale, lookup(tag, "document_filter_results"), 1520), generated.docFilterResults(1520), "$tag generated count")
-        assertEquals(String.format(locale, lookup(tag, "multi_search_results"), 7, 2), generated.multiSearchResults(7, 2), "$tag generated positions")
+        assertEquals(String.format(locale, lookup(tag, "multi_search_count_summary"), "a", "b"), generated.multiSearchResults("a", "b"), "$tag generated positions")
     }
 }

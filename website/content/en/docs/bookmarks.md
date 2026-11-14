@@ -21,7 +21,9 @@ To create a bookmark:
 
 1. Click on the verse you want to bookmark.
 2. In the verse action dialog, click the *Bookmark* button. The *Bookmark labels*
-    sheet opens.
+    sheet opens, unless the workspace has [auto-assign labels](labels.md#change-label-settings).
+    In that case the bookmark is created straight away with those labels and no sheet
+    opens; click the bookmark to change its labels.
 3. Optionally, add [labels](labels.md)
     to your bookmark.
 

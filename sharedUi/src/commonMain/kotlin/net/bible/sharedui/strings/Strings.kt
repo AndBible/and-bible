@@ -24,6 +24,8 @@ interface Strings {
     val authFolderPath: String
     val authFolderPathSummary: String
     val authPassword: String
+    val showSecret: String   // R.string.show_secret
+    val hideSecret: String   // R.string.hide_secret
     val authServerUri: String
     val authUsername: String
     val autoFullscreen: String
@@ -186,7 +188,10 @@ interface Strings {
     val documentSyncAutoDeleteTitle: String
     val webdavHttpsRequired: String
     // Search cluster
-    fun multiSearchResults(total: Int, selectedCount: Int): String   // R.string.multi_search_results
+    /** "N verses in M translations": [verses]/[translations] are the already pluralised parts. */
+    fun multiSearchResults(verses: String, translations: String): String   // R.string.multi_search_count_summary
+    fun multiSearchVerseCount(count: Int): String                        // R.plurals.multi_search_verse_count
+    fun multiSearchTranslationCount(count: Int): String                  // R.plurals.multi_search_translation_count
     val errorExecutingSearch: String                                  // R.string.error_executing_search
     val backgroundImageChange: String
     val backgroundImageDay: String
@@ -412,6 +417,10 @@ interface Strings {
     val crashRecoveryMessage: String
     val crashRecoveryContinue: String
     val crashRecoveryReport: String
+    val corruptDatabaseTitle: String                // R.string.corrupt_database_title
+    fun corruptDatabaseMessage(databases: String): String // R.string.corrupt_database_message
+    val corruptDatabaseReset: String                // R.string.corrupt_database_reset
+    fun corruptDatabaseResetFailed(database: String): String // R.string.corrupt_database_reset_failed
     val startupLogFolder: String                    // R.string.startup_log_folder
     val openLogFolder: String                       // R.string.open_log_folder
     val startupReportBug: String                    // R.string.startup_report_bug
@@ -437,7 +446,8 @@ interface Strings {
     val setCurrentDay: String
     val setStartDate: String
     val importReadingPlan: String
-    val setCurrentDayQuestion: String
+    /** [day] is the localized name of the day being viewed (e.g. "Day 10"); that day becomes the current one. */
+    fun setCurrentDayQuestion(day: String): String
     val selectPassage: String
     val speak: String
     val stop: String
@@ -638,6 +648,9 @@ interface Strings {
     val renameTitle: String                 // R.string.my_document_rename_title
     val pageRenameTitle: String             // R.string.my_document_page_rename_title
     val contentTypeLabel: String            // R.string.my_document_content_type_label
+    val contentTypeMarkdown: String         // R.string.my_document_content_type_markdown
+    val contentTypeHtml: String             // R.string.my_document_content_type_html
+    val myDocumentPagesEmpty: String        // R.string.my_document_pages_empty
     val cannotDeleteAiDocuments: String     // R.string.my_document_cannot_delete_ai_documents
     fun newDocumentName(n: Int): String     // R.string.my_document_new_name
     fun newPageName(n: Int): String         // R.string.my_document_new_page_name

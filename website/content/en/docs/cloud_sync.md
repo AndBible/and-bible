@@ -31,7 +31,7 @@ Errors raised during startup remain queued until the app can display them.
 
 1. Open the top left main menu (☰).
 2. Under *Administration*, tap `Device synchronization`. The screen has the sections `Info & general settings` and `Synchronization categories`.
-3. Choose your backend in the `Synchronization Backend` row: **Google Drive** (default on Android), **iCloud Drive** (iPhone, iPad and Mac), **Next Cloud** (Nextcloud) or **WebDAV**. The row is greyed out while you are signed in; tap `Sign Out` to change the backend.
+3. Choose your backend in the `Synchronization Backend` row: **Google Drive** (the default on every platform where it is offered; an existing choice is kept), **iCloud Drive** (iPhone, iPad and Mac), **Nextcloud** or **WebDAV**. The row is greyed out while you are signed in; tap `Sign Out` to change the backend.
     - Google Drive is also offered on iPhone, iPad, Mac, Windows and Linux.
     - Windows and Linux: signing in to Google Drive opens your system browser, where you choose your Google account and allow *AndBible* to use its own app folder. Return to *AndBible* when the browser page says you are done.
     - iPhone, iPad and Mac: a Google sign-in sheet opens inside the app.
@@ -66,7 +66,7 @@ When enabling sync for the first time:
 
 If using Nextcloud instead of Google Drive:
 
-1. In `Device synchronization`, change the `Synchronization Backend` to **Next Cloud**.
+1. In `Device synchronization`, change the `Synchronization Backend` to **Nextcloud**.
 2. Enter your Nextcloud `Server URL`, `User name` and `Password`.
 3. Optionally specify a `Sync folder path` on the server (the parent folder for sync data; empty means the root).
 4. Toggle on the data categories you want to sync.
@@ -217,7 +217,7 @@ Each device is identified separately. When multiple devices are synced:
 All release versions of *AndBible* use the same synced data: the Android app
 from the Play Store, F-Droid, GitHub, and the other stores, the discrete
 (calculator) version, the Accrescent version, and the iOS app. The shared
-folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
+folder applies to every sync backend: Nextcloud, WebDAV, and Google Drive.
 Google Drive is also offered on iPhone, iPad, Mac, Windows and Linux, so signing in with the same Google account shares the data with Android. iCloud Drive is available only on iPhone, iPad and Mac; see [Platform differences](platform_differences.md).
 
 If you already use sync on the **standard Android** version, nothing changes

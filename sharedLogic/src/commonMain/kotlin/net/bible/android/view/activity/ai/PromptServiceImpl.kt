@@ -315,8 +315,15 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
 
     // --- PromptEdit support -----------------------------------------------------------------------
 
+    /**
+     * A prompt that is not a stored user prompt (built-in, add-on) is shown without grants
+     * ([PromptRepository.withoutGrants]): its write tools ask when it runs, so its read-only editor must not
+     * show them as "Allow", nor an add-on's ALLOW_ALL as its mode (#4108).
+     */
     override suspend fun prompt(id: String): PromptEditData? =
-        PromptRepository.promptById(IdType(id))?.let { toEditData(it) }
+        PromptRepository.promptById(IdType(id))?.let { p ->
+            toEditData(if (PromptRepository.isStoredUserPrompt(p)) p else PromptRepository.withoutGrants(p))
+        }
 
     override fun newPromptData(template: String?, defaultContext: String?): PromptEditData {
         val contexts = defaultContext

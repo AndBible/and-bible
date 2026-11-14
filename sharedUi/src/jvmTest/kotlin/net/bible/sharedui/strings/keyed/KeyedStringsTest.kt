@@ -198,6 +198,8 @@ class KeyedStringsTest {
         assertText("pause", core.pause, filled = false)
         assertText("stop", core.stop, filled = false)
         assertText("speakStatusStopped", core.speakStatusStopped, filled = false)
+        assertText("aiDocumentsName", core.aiDocumentsName, filled = false)
+        assertText("aiDocumentsDescription", core.aiDocumentsDescription, filled = false)
         assertText("sleepTimerStarted", core.sleepTimerStarted(3))
         assertText("signInFailed", core.signInFailed, filled = false)
         assertText("cloudSyncTitle", core.cloudSyncTitle, filled = false)

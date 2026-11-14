@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import net.bible.android.control.download.REQUIRED_MEGS_FOR_DOWNLOADS
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.service.db.DamagedDataHandedOver
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -14,13 +15,18 @@ class WelcomeFlowCoreTest {
         var language = "en"
         var space = 50L
         var books = emptyList<SwordDocumentInfo>()
+        var handOver = false
         val events = mutableListOf<String>()
         val core = WelcomeFlowCore(
             versionText = { "version" }, supportedFormatsText = { "formats" },
             language = { language }, isDiscrete = { false },
             knownInstalled = { books }, megabytesFree = { space },
             refuseDownload = { events += "storage warning" },
-            initialise = { events += "initialise" }, ensureSyncLoaded = { events += "sync" },
+            initialise = {
+                events += "initialise"
+                if (handOver) throw DamagedDataHandedOver()
+            },
+            ensureSyncLoaded = { events += "sync" },
             navigate = { events += it },
             bookLabel = { "${it.name} (${it.language})" },
         )
@@ -99,5 +105,14 @@ class WelcomeFlowCoreTest {
         val f = Fixture()
         f.core.leaveFor("destination")
         assertEquals(listOf("initialise", "sync", "destination"), f.events)
+    }
+
+    /** #4112: an initialisation that handed the damaged data over to the recovery screen stops the flow there. */
+    @Test fun handOverToRecoveryStopsLeavingWelcome() = runTest {
+        val f = Fixture()
+        f.handOver = true
+        f.core.onDownload()
+        f.core.initialiseThen { f.events += "picker" }
+        assertEquals(listOf("initialise", "initialise"), f.events)
     }
 }

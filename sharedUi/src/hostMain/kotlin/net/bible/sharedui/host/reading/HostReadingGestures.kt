@@ -70,13 +70,19 @@ class HostReadingGestures(
     /**
      * A double tap on a pane: leaves full screen when in it, otherwise enters it (locked, so scrolling does not undo it)
      * unless the "double tap to full screen" setting is off. Same as Android's `onDoubleTap`.
+     *
+     * @return whether it toggled full screen; the pane then tells its page (`double_tap`), which undoes the margin page
+     *   turns the two taps made as clicks (#4083)
      */
-    fun onDoubleTap() {
+    fun onDoubleTap(): Boolean {
         if (fullScreen.state.value) {
             setFullScreen(false, false)
         } else if (doubleTapToFullscreen) {
             setFullScreen(true, true)
+        } else {
+            return false
         }
+        return true
     }
 
     /** A finger touched a pane (tap or start of a drag). Never consumes the touch. */

@@ -43,11 +43,16 @@ private const val TAG = "InstallZip"
 @kotlin.native.HiddenFromObjC
 const val INSTALL_ZIP_ACTION_VIEW = "android.intent.action.VIEW"
 
+/** Android's `Intent.ACTION_SEND`, as carried by the route. */
+private const val INSTALL_ZIP_ACTION_SEND = "android.intent.action.SEND"
+
 /** What the destination does on entry, from the ROUTE arguments (the `Uri`-free twin of `InstallZipEntryDecision`). */
 @kotlin.native.HiddenFromObjC
 sealed interface InstallZipRouteDecision {
     data class ConfirmThenEnqueue(val uri: DocumentRef, val action: String) : InstallZipRouteDecision
     data class EnqueueNow(val uris: List<DocumentRef>, val action: String?) : InstallZipRouteDecision
+    /** A single file handed in from outside that is a database backup: restore it, as Backup & Restore > Restore does. */
+    data class RestoreBackup(val uri: DocumentRef) : InstallZipRouteDecision
     data object PickFile : InstallZipRouteDecision
     data object Invalid : InstallZipRouteDecision
 }
@@ -63,9 +68,13 @@ sealed interface InstallZipRouteDecision {
 suspend fun classifyInstallZipRoute(
     action: String?,
     uris: List<DocumentRef>,
+    isDatabaseBackup: suspend (DocumentRef) -> Boolean = { false },
     isStudyPadExport: suspend (DocumentRef) -> Boolean,
 ): InstallZipRouteDecision = when {
     uris.isEmpty() -> if (action == null) InstallZipRouteDecision.PickFile else InstallZipRouteDecision.Invalid
+    // A database backup is a zip of the module family; without this it would be offered as a module install (#4095).
+    uris.size == 1 && (action == INSTALL_ZIP_ACTION_VIEW || action == INSTALL_ZIP_ACTION_SEND) && isDatabaseBackup(uris.first()) ->
+        InstallZipRouteDecision.RestoreBackup(uris.first())
     action == INSTALL_ZIP_ACTION_VIEW -> {
         val uri = uris.first()
         if (isStudyPadExport(uri)) InstallZipRouteDecision.EnqueueNow(listOf(uri), INSTALL_ZIP_ACTION_VIEW)
@@ -123,6 +132,10 @@ class InstallZipFlow(
         /** The system file picker; null = the user cancelled. A throw other than cancellation means no picker app. */
         val pickFile: suspend () -> DocumentRef?,
         val enqueue: (List<DocumentRef>, String?) -> Unit,
+        /** Whether a file handed in from outside is a database backup (`*.abdb.zip`), which is restored, not installed. */
+        val isDatabaseBackup: suspend (DocumentRef) -> Boolean = { false },
+        /** Runs the same database restore as Backup & Restore > Restore; true when it restored. */
+        val restoreBackup: suspend (DocumentRef) -> Boolean = { false },
         val resolveDecision: (JobId, Boolean) -> Unit,
         val mapPhase: (InstallJobState) -> InstallUiState,
         val requestNotificationPermission: () -> Unit,
@@ -162,12 +175,13 @@ class InstallZipFlow(
     }
 
     private suspend fun dispatch() {
-        when (val decision = classifyInstallZipRoute(action, uris, seams.isStudyPadExport)) {
+        when (val decision = classifyInstallZipRoute(action, uris, seams.isDatabaseBackup, seams.isStudyPadExport)) {
             is InstallZipRouteDecision.EnqueueNow -> enqueue(decision.uris, decision.action)
             is InstallZipRouteDecision.ConfirmThenEnqueue -> {
                 pendingConfirm = decision.uri to decision.action
                 prelude.value = InstallUiState.ConfirmInstall(seams.displayName(decision.uri))
             }
+            is InstallZipRouteDecision.RestoreBackup -> restoreBackup(decision.uri)
             InstallZipRouteDecision.PickFile -> prelude.value = InstallUiState.FormatInfo(seams.formatsText())
             InstallZipRouteDecision.Invalid -> finish(InstallZipResult.CANCELED)
         }
@@ -224,6 +238,19 @@ class InstallZipFlow(
             }
             if (picked != null) enqueue(listOf(picked), null) else finish(InstallZipResult.CANCELED)
         }
+    }
+
+    /** The restore asks its own questions (which sections) in dialogs; this entry only waits for it and answers once. */
+    private suspend fun restoreBackup(uri: DocumentRef) {
+        val restored = try {
+            seams.restoreBackup(uri)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Database restore from an incoming file failed", e)
+            false
+        }
+        finish(if (restored) InstallZipResult.OK else InstallZipResult.CANCELED)
     }
 
     private fun enqueue(list: List<DocumentRef>, act: String?) {

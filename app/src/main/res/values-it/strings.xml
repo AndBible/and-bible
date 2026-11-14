@@ -128,7 +128,17 @@
   <string name="search_not_available">Impossibile cercare in questo documento</string>
   <string name="search_indexing_notification_title">Creazione dell\'indice di ricerca</string>
   <string name="choose_translations">Scegli traduzioni…</string>
-  <string name="multi_search_results">%1$d versetti in %2$d traduzioni</string>
+  <string name="multi_search_count_summary">%1$s in %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versetto</item>
+    <item quantity="many">%1$d di versetti</item>
+    <item quantity="other">%1$d versetti</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduzione</item>
+    <item quantity="many">%1$d di traduzioni</item>
+    <item quantity="other">%1$d traduzioni</item>
+  </plurals>
   <string name="search_index_not_created">nessun indice</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeri di capitolo e versetto</string>
@@ -320,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Crea un nuovo segnalibro con una nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
-  <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
-  <string name="workspace_color_settings_title">Impostazioni predefinite del colore dello spazio di lavoro</string>
+  <string name="global_color_settings_title">Impostazioni colore (Globale)</string>
+  <string name="window_color_settings_title">Impostazioni colore (Finestra)</string>
+  <string name="workspace_color_settings_title">Impostazioni colore (Spazio di lavoro)</string>
   <string name="color_workspace">Colore dello spazio di lavoro</string>
   <string name="color_text">Colore del testo</string>
   <string name="color_background">Colore di sfondo</string>
@@ -407,7 +418,7 @@
   <string name="rdg_plan_day">Giorno %s</string>
   <string name="rdg_plan_set_start_date">Imposta data di inizio...</string>
   <string name="set_current_day">Imposta come giorno corrente...</string>
-  <string name="msg_set_current_day_reading_plan">Stai impostando la data odierna come giorno corrente in questo piano, e segnando tutti i giorni precedenti come letti. Vuoi continuare?</string>
+  <string name="msg_set_current_day_reading_plan">Questo imposterà %1$s come giorno corrente in questo piano e segnerà come letti tutti i giorni precedenti. Continuare?</string>
   <string name="done">Fatto</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
   <string name="import_reading_plan">Importa piano di lettura...</string>
@@ -478,7 +489,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="auto_assign_labels_title">Impostazioni etichette</string>
   <string name="auto_assign_labels">Auto-assegna &amp; Etichette preferiti</string>
   <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
-  <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
+  <string name="auto_assign_labels_primary">Auto-assegna come etichetta principale</string>
   <!--can be removed-->
   <string name="bookmark_warning">Sono presenti segnalibri e/o note per questo documento.</string>
   <string name="bookmark_warning2">
@@ -759,6 +770,14 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="error_key_not_in_document2">%1$s non trovato nel documento %2$s.</string>
   <string name="empty_list">Niente da mostrare</string>
   <string name="error_skip">Salta</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Dati danneggiati</string>
+  <string name="corrupt_database_message">Alcuni dei tuoi dati non hanno potuto essere aperti perché il relativo file di database è danneggiato: %1$s.\n\nNiente è stato modificato o eliminato. Puoi inviare una segnalazione di errore per aiutarci a trovare la causa, aprire Backup e ripristino per fare un backup o ripristinarne uno precedente, oppure reimpostare i dati danneggiati.\n\nLa reimpostazione fa ripartire quei dati da zero. Il file danneggiato resta su questo dispositivo, rinominato con \".corrupt-\" e la data.</string>
+  <string name="corrupt_database_reset">Reimposta i dati danneggiati</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Non è stato possibile reimpostare i dati danneggiati: %1$s non ha potuto essere spostato. Niente è stato modificato. Puoi riprovare, inviare una segnalazione di errore o usare Backup e ripristino.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">I dati dell\'app richiedono attenzione. Tocca per aprire l\'app.</string>
   <string name="debug_test_error">Errore di prova (build di debug)</string>
   <string name="bug_report_prepare_failed">Impossibile preparare o condividere la segnalazione. Puoi riprovare oppure usare Backup e ripristino per salvare i tuoi dati.</string>
   <string name="bug_report_email_title">Invia segnalazione di errore via email</string>
@@ -869,6 +888,10 @@ Gli spazi di lavoro consentono di avere più ambienti di lavoro dipendenti dal c
 quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare i gesti di scorrimento verso sinistra e verso destra sulla barra degli strumenti
  per passare allo spazio di lavoro precedente / successivo.
 </string>
+  <string name="help_study_tools_title">Strumenti di studio</string>
+  <string name="help_study_tools_text">Tocca un numero di Strong per cercare in un dizionario la parola greca o ebraica che sta dietro a un versetto. Tocca un riferimento incrociato per leggerlo nella finestra dei collegamenti, senza perdere il punto in cui sei nel testo.</string>
+  <string name="help_look_and_feel_title">Aspetto</string>
+  <string name="help_look_and_feel_text">La modalità notte, la dimensione e il tipo di carattere, i colori e i margini si trovano in Opzioni testo nel menu delle opzioni (tre puntini, in alto a destra). Possono essere impostati per ogni spazio di lavoro, per uno solo o per una singola finestra.</string>
   <string name="help_hidden_features_title">Scorciatoie nascoste</string>
   <string name="help_hidden_features_text">
  Scorri verso il basso dalla barra degli strumenti per mostrare il selettore dell\'area di lavoro.
@@ -887,6 +910,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="welcome_restore_row_hint">File di database con segnalibri e annotazioni</string>
   <string name="welcome_link_website">Sito web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">È necessario scegliere il file da caricare su %s. </string>
@@ -1277,7 +1301,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="google_drive_signin_done">Accesso effettuato. Puoi chiudere questa scheda e tornare ad AndBible.</string>
   <string name="google_drive_signin_required">L\'accesso a Google Drive è scaduto o è stato revocato. Accedi di nuovo per continuare la sincronizzazione.</string>
   <string name="google_drive_signin_interrupted">L\'accesso a Google è stato interrotto. Riprova.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Indirizzo della cartella WebDAV, ad es. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronizzazione richiede un indirizzo https:// sicuro.</string>
@@ -1845,12 +1869,15 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="my_document_create_title">Crea nuovo documento</string>
   <string name="my_document_rename_title">Rinomina documento</string>
   <string name="my_document_delete_confirmation">Eliminare il documento \"%s\"?</string>
+  <string name="show_secret">Mostra</string>
+  <string name="hide_secret">Nascondi</string>
+  <string name="ai_documents_name">Documenti IA</string>
+  <string name="ai_documents_description">Documenti generati automaticamente dall\'IA</string>
   <string name="my_document_cannot_delete_ai_documents">I documenti IA non possono essere eliminati finché contengono pagine. Elimina prima le pagine.</string>
   <string name="my_document_save_changes">Salvare le modifiche?</string>
   <string name="my_document_no_description">Nessuna descrizione</string>
   <string name="my_document_edit_description">Modifica descrizione</string>
   <string name="my_document_pages_title">%s - Pagine</string>
-  <string name="my_document_pages_empty">Nessuna pagina in questo documento.</string>
   <string name="my_document_page_rename_title">Rinomina pagina</string>
   <string name="my_document_page_delete_confirmation">Eliminare la pagina \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Cancellare queste pagine?</string>
@@ -1858,6 +1885,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Nuova pagina</string>
   <string name="my_document_content_type_label">Tipo di contenuto</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Nessuna pagina in questo documento.</string>
   <string name="my_document_import_page">Importa Markdown/HTML</string>
   <string name="my_document_export_page">Esporta pagina</string>
   <string name="my_document_imported_page_name">Importata</string>

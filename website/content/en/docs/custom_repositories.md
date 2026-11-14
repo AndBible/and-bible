@@ -30,11 +30,27 @@ and module zip files at
 
 ## Usage
 
-In *AndBible*, you can paste either the full manifest URL or the repository root
-folder URL into the “Repository URL” field:
+Custom repositories are managed from the download screen:
+
+1. Open the top left main menu (☰) and click *Download Documents*.
+2. Click the three vertical dot menu and choose *Custom repositories*.
+3. Tap `+` to add a repository. Tap an existing repository in the list to edit it.
+4. To remove a repository, open it and tap the trash can icon; *AndBible* asks *Do you
+    want to remove custom repository …?* and you confirm with *Remove*.
+
+In the editor you can paste either the full manifest URL or the repository root
+folder URL into the “Repository URL” field (the clipboard icon at the end of the field
+pastes for you):
 
 - `https://andbible.github.io/data/andbible/test/manifest.json`
 - `https://andbible.github.io/data/andbible/test`
+
+While the address is checked a progress circle is shown; a check mark appears when it is
+valid, and the repository’s name and description are then shown under the field. The
+second field, *Packages directory (Zip files)*, holds the location of the module zip files;
+it is filled in for you when the manifest names it. Confirm with the check mark at the top
+right. An address that starts with `http://` is refused with the message *Custom
+repositories must use a secure https:// address.*
 
 ## Non-Manifest Repositories
 

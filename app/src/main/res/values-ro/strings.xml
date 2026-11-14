@@ -128,7 +128,17 @@
   <string name="search_not_available">Acest document nu poate fi căutat</string>
   <string name="search_indexing_notification_title">Se creează indexul de căutare</string>
   <string name="choose_translations">Alege traduceri…</string>
-  <string name="multi_search_results">%1$d versete în %2$d traduceri</string>
+  <string name="multi_search_count_summary">%1$s în %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verset</item>
+    <item quantity="few">%1$d versete</item>
+    <item quantity="other">%1$d de versete</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducere</item>
+    <item quantity="few">%1$d traduceri</item>
+    <item quantity="other">%1$d de traduceri</item>
+  </plurals>
   <string name="search_index_not_created">fără index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numărul capitolului și al versetului</string>
@@ -322,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Creează un nou semn de carte cu o notiță</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Culori</string>
-  <string name="window_color_settings_title">Culoarea ferestrei</string>
-  <string name="workspace_color_settings_title">Culoarea prestabilită a spațiului de studiu</string>
+  <string name="global_color_settings_title">Setări de culoare (Global)</string>
+  <string name="window_color_settings_title">Setări de culoare (Fereastră)</string>
+  <string name="workspace_color_settings_title">Setări de culoare (Spațiu de studiu)</string>
   <string name="color_workspace">Culoarea spațiului de studiu</string>
   <string name="color_text">Culoarea textului</string>
   <string name="color_background">Culoarea fondului</string>
@@ -414,7 +425,7 @@
   <string name="rdg_plan_day">Ziua %s</string>
   <string name="rdg_plan_set_start_date">Alege data de începere…</string>
   <string name="set_current_day">Stabilește ca zi actuală…</string>
-  <string name="msg_set_current_day_reading_plan">Aceasta va stabili ziua de astăzi ca fiind ziua actuală în acest plan și va marca toate zilele anterioare ca fiind citite. Continui?</string>
+  <string name="msg_set_current_day_reading_plan">Aceasta va seta %1$s ca zi curentă în acest plan și va marca toate zilele anterioare ca citite. Continuați?</string>
   <string name="done">Gata</string>
   <string name="reset_plan_question">Sigur vrei să restabilești acest plan?</string>
   <string name="import_reading_plan">Importă planul de citire…</string>
@@ -501,7 +512,7 @@
   <string name="auto_assign_labels_title">Etichete</string>
   <string name="auto_assign_labels">Pune automat și Etichete preferate</string>
   <string name="auto_assign_labels1">Pune automat etichete la noile semne de carte</string>
-  <string name="auto_assign_labels_primary">Pune automat ca principală</string>
+  <string name="auto_assign_labels_primary">Atribuie automat ca etichetă principală</string>
   <!--can be removed-->
   <string name="bookmark_warning">Există semne de carte și/sau notițe pentru acest document.</string>
   <string name="bookmark_warning2">
@@ -795,6 +806,14 @@
   <string name="error_key_not_in_document2">%1$s nu s-a găsit în documentul %2$s.</string>
   <string name="empty_list">Nimic de arătat</string>
   <string name="error_skip">Saltă</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Date deteriorate</string>
+  <string name="corrupt_database_message">Unele dintre datele dvs. nu au putut fi deschise deoarece fișierul lor de bază de date este deteriorat: %1$s.\n\nNimic nu a fost modificat sau șters. Puteți trimite un raport de eroare pentru a ne ajuta să găsim cauza, puteți deschide Copiere și Recuperare pentru a face o copie de rezervă sau a recupera una anterioară, ori puteți reseta datele deteriorate.\n\nResetarea pornește acele date goale. Fișierul deteriorat rămâne pe acest dispozitiv, redenumit cu \".corrupt-\" și data.</string>
+  <string name="corrupt_database_reset">Resetează datele deteriorate</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Datele deteriorate nu au putut fi resetate: %1$s nu a putut fi mutat deoparte. Nimic nu a fost modificat. Puteți încerca din nou, trimite un raport de eroare sau folosi Copiere și Recuperare.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Datele aplicației necesită atenție. Atingeți pentru a deschide aplicația.</string>
   <string name="debug_test_error">Eroare de test (versiune de depanare)</string>
   <string name="bug_report_prepare_failed">Raportul nu a putut fi pregătit sau trimis. Poți încerca din nou sau poți folosi Copie de siguranță și recuperare pentru a-ți salva datele.</string>
   <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
@@ -916,6 +935,10 @@
         Modalitatea rapidă de accesare a spațiilor de studiu este prin gestul de tragere în jos.
         Poți trece de la un spațiu de studiu la altul folosind simbolurile din dreapta jos.
     </string>
+  <string name="help_study_tools_title">Instrumente de studiu</string>
+  <string name="help_study_tools_text">Atingeți un număr Strong pentru a căuta într-un dicționar cuvântul grecesc sau evreiesc din spatele unui verset. Atingeți o trimitere încrucișată pentru a o citi în fereastra de legături, fără a vă pierde locul în text.</string>
+  <string name="help_look_and_feel_title">Aspect</string>
+  <string name="help_look_and_feel_text">Modul de noapte, mărimea și familia fontului, culorile și marginile se găsesc în Opțiuni text din meniul de opțiuni (trei puncte, colțul din dreapta sus). Se pot seta pentru toate spațiile de studiu, pentru un singur spațiu de studiu sau pentru o singură fereastră.</string>
   <string name="help_hidden_features_title">Scurtături ascunse</string>
   <string name="help_hidden_features_text">
         Trage cu degetul în jos pe ecran pentru a vedea simbolul spațiului de studiu.
@@ -940,6 +963,7 @@
   <string name="welcome_restore_row_hint">Fișier de bază de date cu semne de carte și notițe</string>
   <string name="welcome_link_website">Site web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Trebuie să alegi fișierul pe care vrei să-l încarci în %s. </string>
@@ -1330,7 +1354,7 @@
   <string name="google_drive_signin_done">Autentificat. Poți închide această filă și reveni la AndBible.</string>
   <string name="google_drive_signin_required">Autentificarea ta în Google Drive a expirat sau a fost revocată. Autentifică-te din nou pentru a continua sincronizarea.</string>
   <string name="google_drive_signin_interrupted">Autentificarea Google a fost întreruptă. Încearcă din nou.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa dosarului WebDAV, de exemplu https://nas.local/dav/ sau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sincronizarea necesită o adresă securizată https://.</string>
@@ -1898,12 +1922,15 @@
   <string name="my_document_create_title">Creează document nou</string>
   <string name="my_document_rename_title">Redenumește documentul</string>
   <string name="my_document_delete_confirmation">Șterge documentul \"%s\"?</string>
+  <string name="show_secret">Arată</string>
+  <string name="hide_secret">Ascunde</string>
+  <string name="ai_documents_name">Documente AI</string>
+  <string name="ai_documents_description">Documente generate automat de AI</string>
   <string name="my_document_cannot_delete_ai_documents">Documentele AI nu pot fi șterse cât timp conțin pagini. Ștergeți mai întâi paginile.</string>
   <string name="my_document_save_changes">Salvați modificările?</string>
   <string name="my_document_no_description">Fără descriere</string>
   <string name="my_document_edit_description">Modifică descrierea</string>
   <string name="my_document_pages_title">%s - Pagini</string>
-  <string name="my_document_pages_empty">Nicio pagină în acest document.</string>
   <string name="my_document_page_rename_title">Redenumește pagina</string>
   <string name="my_document_page_delete_confirmation">Șterge pagina \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Ștergi aceste pagini?</string>
@@ -1911,6 +1938,9 @@
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Pagină nouă</string>
   <string name="my_document_content_type_label">Tip de conținut</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Nicio pagină în acest document.</string>
   <string name="my_document_import_page">Importă Markdown/HTML</string>
   <string name="my_document_export_page">Exportă pagina</string>
   <string name="my_document_imported_page_name">Importat</string>

@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI செயல்
 aiDocumentRegenerate: மீண்டும் உருவாக்கு
 aiDocumentDelete: நீக்கு
+aiDocumentsName: AI ஆவணங்கள்
 aiGeneratedBy: "%s மூலம் உருவாக்கப்பட்டது"
 aiGeneratedByWithModel: "%s (%s) மூலம் உருவாக்கப்பட்டது"

@@ -128,7 +128,19 @@
   <string name="search_not_available">V tomto dokumente sa nedá vyhľadávať</string>
   <string name="search_indexing_notification_title">Vytváranie vyhľadávacieho indexu</string>
   <string name="choose_translations">Vyberte preklady…</string>
-  <string name="multi_search_results">%1$d veršov v %2$d prekladoch</string>
+  <string name="multi_search_count_summary">%1$s v %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verš</item>
+    <item quantity="few">%1$d verše</item>
+    <item quantity="many">%1$d verša</item>
+    <item quantity="other">%1$d veršov</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d preklade</item>
+    <item quantity="few">%1$d prekladoch</item>
+    <item quantity="many">%1$d preklade</item>
+    <item quantity="other">%1$d prekladoch</item>
+  </plurals>
   <string name="search_index_not_created">žiadny index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitola a číslo verša</string>
@@ -322,8 +334,9 @@
   <string name="create_bookmark_with_a_note">Vytvoriť novú záložku s poznámkou</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavenia farieb</string>
-  <string name="window_color_settings_title">Nastavenie farieb okna</string>
-  <string name="workspace_color_settings_title">Prednastavené farby pracovnej plochy</string>
+  <string name="global_color_settings_title">Nastavenia farieb (globálne)</string>
+  <string name="window_color_settings_title">Nastavenia farieb (okno)</string>
+  <string name="workspace_color_settings_title">Nastavenia farieb (pracovná plocha)</string>
   <string name="color_workspace">Farba pracovnej plochy</string>
   <string name="color_text">Farba textu</string>
   <string name="color_background">Farba pozadia</string>
@@ -414,7 +427,7 @@
   <string name="rdg_plan_day">Deň %s</string>
   <string name="rdg_plan_set_start_date">Zadať začiatočný deň…</string>
   <string name="set_current_day">Nastaviť ako dnešný deň…</string>
-  <string name="msg_set_current_day_reading_plan">Toto nastaví dnešok ako aktuálny deň v tomto pláne a všetky predchádzajúce dni sa označia ako prečítané. Pokračovať? </string>
+  <string name="msg_set_current_day_reading_plan">Týmto sa %1$s nastaví ako aktuálny deň v tomto pláne a všetky predchádzajúce dni sa označia ako prečítané. Pokračovať?</string>
   <string name="done">Hotovo</string>
   <string name="reset_plan_question">Ste si istý, že chcete resetovať tento plán? </string>
   <string name="import_reading_plan">Importovanie plánu čítania…</string>
@@ -501,7 +514,7 @@
   <string name="auto_assign_labels_title">Nastavenia štítkov</string>
   <string name="auto_assign_labels">Auto-priradenie a Obľúbené štítky</string>
   <string name="auto_assign_labels1">Automaticky priradiť štítok k novým záložkám</string>
-  <string name="auto_assign_labels_primary">Automaticky priradiť ako primárny</string>
+  <string name="auto_assign_labels_primary">Automaticky priradiť ako hlavný štítok</string>
   <!--can be removed-->
   <string name="bookmark_warning">Tento dokument obsahuje záložky a/alebo poznámky.</string>
   <string name="bookmark_warning2">
@@ -791,6 +804,14 @@ Režim opakovania bol vypnutý, pretože
   <string name="error_key_not_in_document2">%1$s nebolo nájdené v dokumente %2$s.</string>
   <string name="empty_list">Žiadne položky k zobrazeniu</string>
   <string name="error_skip">Preskočiť</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Poškodené údaje</string>
+  <string name="corrupt_database_message">Niektoré vaše údaje sa nepodarilo otvoriť, pretože súbor ich databázy je poškodený: %1$s.\n\nNič sa nezmenilo ani neodstránilo. Môžete odoslať hlásenie o chybe, aby ste nám pomohli nájsť príčinu, otvoriť Záloha a obnovenie na vytvorenie zálohy alebo obnovenie staršej, alebo poškodené údaje vynulovať.\n\nPo vynulovaní tieto údaje začnú prázdne. Poškodený súbor zostane v tomto zariadení, premenovaný s príponou \".corrupt-\" a dátumom.</string>
+  <string name="corrupt_database_reset">Vynulovať poškodené údaje</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Poškodené údaje sa nepodarilo vynulovať: %1$s sa nepodarilo odsunúť nabok. Nič sa nezmenilo. Môžete to skúsiť znova, odoslať hlásenie o chybe alebo použiť Záloha a obnovenie.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Údaje aplikácie vyžadujú pozornosť. Ťuknutím otvoríte aplikáciu.</string>
   <string name="debug_test_error">Testovacia chyba (ladiaca zostava)</string>
   <string name="bug_report_prepare_failed">Správu sa nepodarilo pripraviť alebo zdieľať. Môžete to skúsiť znova alebo použiť Zálohovanie a obnovenie na uloženie svojich údajov.</string>
   <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
@@ -912,6 +933,10 @@ Režim opakovania bol vypnutý, pretože
         cez gesto posunutia prsta nadol z panela s nástrojmi. Na panel nástrojov môžete tiež použiť gestá potiahnutia doľava a doprava
         prepnúť na predchádzajúci / nasledujúci pracovný priestor.
     </string>
+  <string name="help_study_tools_title">Nástroje na štúdium</string>
+  <string name="help_study_tools_text">Ťuknutím na Strongovo číslo vyhľadáte v slovníku grécke alebo hebrejské slovo, ktoré sa skrýva za veršom. Ťuknutím na odkaz na paralelné miesto si ho prečítate v okne odkazov bez straty miesta v texte.</string>
+  <string name="help_look_and_feel_title">Vzhľad a ovládanie</string>
+  <string name="help_look_and_feel_text">Nočný režim, veľkosť a typ písma, farby a okraje nájdete v Možnostiach textu v ponuke možností (tri bodky vpravo hore). Dajú sa nastaviť pre všetky pracovné plochy, pre jednu pracovnú plochu alebo pre jedno okno.</string>
   <string name="help_hidden_features_title">Skryté skratky</string>
   <string name="help_hidden_features_text">
         Potiahnutím prstom nadol z panela s nástrojmi zobrazíte výber pracovnej plochy.
@@ -936,6 +961,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="welcome_restore_row_hint">Súbor databázy so záložkami a poznámkami</string>
   <string name="welcome_link_website">Webová stránka</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Musíte vybrať súbor, ktorý chcete nahrať do %s. </string>
@@ -1087,7 +1113,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="display_mode_hidden">Skryté</string>
   <string name="display_mode_inherit">Rovnaké ako výber</string>
   <string name="workspace_override_indicator">Tento štítok má špecifický režim zobrazenia pre pracovnú plochu</string>
-  <string name="primary_label">Primárny štítok</string>
+  <string name="primary_label">Hlavný štítok</string>
   <string name="favourite_label">Obľúbený štítok</string>
   <string name="edit_label">Upraviť štítok</string>
   <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke. </string>
@@ -1325,7 +1351,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="google_drive_signin_done">Prihlásenie prebehlo úspešne. Túto kartu môžete zavrieť a vrátiť sa do AndBible.</string>
   <string name="google_drive_signin_required">Vaše prihlásenie do Google Drive vypršalo alebo bolo zrušené. Ak chcete pokračovať v synchronizácii, prihláste sa znova.</string>
   <string name="google_drive_signin_interrupted">Prihlásenie do Google bolo prerušené. Skúste to znova.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa priečinka WebDAV, napr. https://nas.local/dav/ alebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronizácia vyžaduje zabezpečenú adresu https://.</string>
@@ -1893,12 +1919,15 @@ Režim opakovania bol vypnutý, pretože
   <string name="my_document_create_title">Vytvoriť nový dokument</string>
   <string name="my_document_rename_title">Premenovať dokument</string>
   <string name="my_document_delete_confirmation">Vymazať dokument \"%s\"?</string>
+  <string name="show_secret">Zobraziť</string>
+  <string name="hide_secret">Skryť</string>
+  <string name="ai_documents_name">Dokumenty AI</string>
+  <string name="ai_documents_description">Automaticky vygenerované dokumenty od AI</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nie je možné vymazať, pokiaľ obsahujú stránky. Najprv vymažte stránky.</string>
   <string name="my_document_save_changes">Uložiť zmeny?</string>
   <string name="my_document_no_description">Bez popisu</string>
   <string name="my_document_edit_description">Upraviť popis</string>
   <string name="my_document_pages_title">%s – Stránky</string>
-  <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
   <string name="my_document_page_rename_title">Premenovať stránku</string>
   <string name="my_document_page_delete_confirmation">Vymazať stránku \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Vymazať tieto strany?</string>
@@ -1906,6 +1935,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
   <string name="my_document_import_page">Importovať Markdown/HTML</string>
   <string name="my_document_export_page">Exportovať stránku</string>
   <string name="my_document_imported_page_name">Importované</string>

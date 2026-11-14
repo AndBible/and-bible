@@ -15,12 +15,15 @@ import net.bible.sharedcore.webdav.WebDavClient
 import okio.Path
 
 /**
- * iOS and desktop cloud back ends (spec C9), in this order: iCloud Drive, Google Drive (only when [googleDrive] is
- * supplied), Nextcloud (a [WebDavCloudAdapter] preset), generic WebDAV.
+ * iOS and desktop cloud back ends (spec C9), in this order: Google Drive (only when [googleDrive] is
+ * supplied), iCloud Drive, Nextcloud (a [WebDavCloudAdapter] preset), generic WebDAV.
  *
  * [awaitReady] is awaited by the iCloud adapter's `signIn()` (the ubiquity container resolves
  * asynchronously and reads as null until then). The host binds ONE container and passes its
  * `awaitReady`; `iCloudStore` must reuse that same container on every call.
+ *
+ * The first entry is the default for a fresh install ([net.bible.service.cloudsync.CloudSync.adapterId]), so Google
+ * Drive leads wherever it is offered; a stored choice always wins.
  *
  * `NEXT_CLOUD` and `WEBDAV` share the one WebDAV state store ([SyncSettingsPlatform.webDavState]),
  * so switching between them recalibrates from `UNKNOWN` and one certificate pin serves both. Known
@@ -38,7 +41,10 @@ class HostCloudAdapterFactory(
     private val googleDrive: ((background: Boolean) -> CloudAdapter)? = null,
 ) : CloudAdapterFactory {
     override val available: List<String> =
-        listOf("ICLOUD_DRIVE") + listOfNotNull("GOOGLE_DRIVE".takeIf { googleDrive != null }) + listOf("NEXT_CLOUD", "WEBDAV")
+        listOfNotNull("GOOGLE_DRIVE".takeIf { googleDrive != null }) + listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
+
+    /** iCloud led the list before #4102, so it was the implicit choice of an install that never opened the picker. */
+    override val legacyDefaultId: String = "ICLOUD_DRIVE"
 
     override fun displayName(id: String): String = displayName.invoke(id)
 

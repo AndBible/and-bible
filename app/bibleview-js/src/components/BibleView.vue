@@ -60,8 +60,8 @@
       </div>
     </div>
     <template v-if="!modalOpen && !isDesktopHost">
-      <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
-      <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
+      <div class="prev-page-button" @click.stop="tapPageTurn(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
+      <div class="next-page-button" @click.stop="tapPageTurn(false)" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
     <div class="pagenumber"
          :style="{bottom: pageNumberBottom}"
@@ -82,10 +82,10 @@
       />
     </template>
     <div v-if="appSettings.einkMode && config.showPageButtons" class="page-buttons" :style="{bottom: `${(appSettings.isBottomWindow ? appSettings.bottomOffset : 0) + 12}px`}">
-      <button class="page-button" @click.stop="scrollUpDown(true)">
+      <button class="page-button" @click.stop="tapPageTurn(true)">
         <FontAwesomeIcon :icon="faChevronUp"/>
       </button>
-      <button class="page-button" @click.stop="scrollUpDown()">
+      <button class="page-button" @click.stop="tapPageTurn(false)">
         <FontAwesomeIcon :icon="faChevronDown"/>
       </button>
     </div>
@@ -122,6 +122,7 @@ import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
+import {useTapPageTurns} from "@/composables/tap-page-turns";
 import {clearLog, useAndroid} from "@/composables/android";
 import {cssFontFamily, Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox.vue";
@@ -489,6 +490,9 @@ const scrollAmount = computed(() =>
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
+
+// Taps on the margins and page buttons; a double tap (native full screen toggle) undoes them (#4083).
+const {tapPageTurn} = useTapPageTurns(scrollUpDown, y => doScrolling(y, 0));
 
 const helperLinePositions = computed(() =>
     calcHelperLinePositions(

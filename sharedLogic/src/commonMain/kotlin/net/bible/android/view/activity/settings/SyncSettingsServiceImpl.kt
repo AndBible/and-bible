@@ -237,6 +237,7 @@ class SyncSettingsServiceImpl(
     override fun setCategoryEnabled(key: String, enabled: Boolean) {
         if (enabled && !cloudSync.adapterAvailable) return
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
+        if (enabled) cloudSync.pinAdapterOnEnable()
         categories.setEnabled(cat, enabled)
         if (enabled) {
             notificationPermission?.let { permission -> writeScope.launchSettings { permission.ensureAsked() } }

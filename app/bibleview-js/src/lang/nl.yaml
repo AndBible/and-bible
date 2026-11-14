@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI-actie
 aiDocumentRegenerate: Opnieuw genereren
 aiDocumentDelete: Verwijderen
+aiDocumentsName: AI-documenten
 aiGeneratedBy: "Gegenereerd door %s"
 aiGeneratedByWithModel: "Gegenereerd door %s (%s)"

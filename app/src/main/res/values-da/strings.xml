@@ -128,7 +128,15 @@
   <string name="search_not_available">Dette dokument kan ikke søges i</string>
   <string name="search_indexing_notification_title">Opretter søgeindeks</string>
   <string name="choose_translations">Vælg oversættelser…</string>
-  <string name="multi_search_results">%1$d vers i %2$d oversættelser</string>
+  <string name="multi_search_count_summary">%1$s i %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d oversættelse</item>
+    <item quantity="other">%1$d oversættelser</item>
+  </plurals>
   <string name="search_index_not_created">intet indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- og versnumre</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Opret nyt bogmærke med en note</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farveindstillinger</string>
-  <string name="window_color_settings_title">Vindues-farveindstillinger</string>
-  <string name="workspace_color_settings_title">Standardfarveindstillinger for arbejdsområde</string>
+  <string name="global_color_settings_title">Farveindstillinger (globalt)</string>
+  <string name="window_color_settings_title">Farveindstillinger (vindue)</string>
+  <string name="workspace_color_settings_title">Farveindstillinger (arbejdsområde)</string>
   <string name="color_workspace">Arbejdsområdefarve</string>
   <string name="color_text">Tekstfarve</string>
   <string name="color_background">Baggrundsfarve</string>
@@ -407,7 +416,7 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Angiv startdato…</string>
   <string name="set_current_day">Sæt som aktuel dag…</string>
-  <string name="msg_set_current_day_reading_plan">Dette vil sætte i dag som den aktuelle dag i denne plan og markere alle tidligere dage som læst. Fortsæt?</string>
+  <string name="msg_set_current_day_reading_plan">Dette indstiller %1$s som den aktuelle dag i denne plan og markerer alle tidligere dage som læst. Fortsæt?</string>
   <string name="done">Færdig</string>
   <string name="reset_plan_question">Er du sikker på, at du vil nulstille denne plan?</string>
   <string name="import_reading_plan">Importér læseplan…</string>
@@ -470,7 +479,7 @@
   <string name="auto_assign_labels_title">Etiketindstillinger</string>
   <string name="auto_assign_labels">Automatisk tildeling og favorittetiketter</string>
   <string name="auto_assign_labels1">Tildel automatisk etiket til nye bogmærker</string>
-  <string name="auto_assign_labels_primary">Tildel automatisk som primær</string>
+  <string name="auto_assign_labels_primary">Tildel automatisk som primær etiket</string>
   <!--can be removed-->
   <string name="bookmark_warning">Der er bogmærker og/eller noter for dette dokument.</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen er ændret, kan en opdatering af dette dokument flytte placeringen af disse bogmærker/noter i dokumentet eller få dem til at forsvinde helt.</string>
@@ -726,6 +735,14 @@
   <string name="error_key_not_in_document2">%1$s blev ikke fundet i dokumentet %2$s.</string>
   <string name="empty_list">Ingen elementer at vise</string>
   <string name="error_skip">Spring over</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Beskadigede data</string>
+  <string name="corrupt_database_message">Nogle af dine data kunne ikke åbnes, fordi databasefilen er beskadiget: %1$s.\n\nIntet er blevet ændret eller slettet. Du kan sende en fejlrapport, så vi kan finde årsagen, åbne Sikkerhedskopi og gendannelse for at tage en sikkerhedskopi eller gendanne en tidligere, eller nulstille de beskadigede data.\n\nNulstilling starter disse data tomme. Den beskadigede fil beholdes på denne enhed, omdøbt med \".corrupt-\" og datoen.</string>
+  <string name="corrupt_database_reset">Nulstil beskadigede data</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">De beskadigede data kunne ikke nulstilles: %1$s kunne ikke flyttes til side. Intet er blevet ændret. Du kan prøve igen, sende en fejlrapport eller bruge Sikkerhedskopi og gendannelse.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Appens data kræver opmærksomhed. Tryk for at åbne appen.</string>
   <string name="debug_test_error">Testfejl (debug-build)</string>
   <string name="bug_report_prepare_failed">Rapporten kunne ikke forberedes eller deles. Du kan prøve igen eller bruge Sikkerhedskopiér og gendan til at gemme dine data.</string>
   <string name="bug_report_email_title">Send fejlrapport via e-mail</string>
@@ -823,6 +840,10 @@
   <string name="help_fts5">FTS5 fuldtekst-søgesyntaks</string>
   <string name="help_workspaces_title">Arbejdsområder</string>
   <string name="help_workspaces_text">Arbejdsområder giver mulighed for at have flere kontekstafhængige arbejdsmiljøer. Arbejdsområdefunktioner kan tilgås via punktet Arbejdsområder i indstillingsmenuen (øverste højre hjørne). En hurtig måde at tilgå arbejdsområder er ved at swipe ned fra værktøjslinjen. Du kan også bruge swipe-venstre og swipe-højre gestus over værktøjslinjen for at skifte til forrige/næste arbejdsområde.</string>
+  <string name="help_study_tools_title">Studieværktøjer</string>
+  <string name="help_study_tools_text">Tryk på et Strong\'s-nummer for at slå det græske eller hebraiske ord bag et vers op i en ordbog. Tryk på en krydshenvisning for at læse den i linksvinduet, uden at miste din plads i teksten.</string>
+  <string name="help_look_and_feel_title">Udseende</string>
+  <string name="help_look_and_feel_text">Nattilstand, skriftstørrelse og skrifttype, farver og margener findes under Tekstindstillinger i indstillingsmenuen (tre prikker, øverst til højre). De kan indstilles for alle arbejdsområder, for ét arbejdsområde eller for et enkelt vindue.</string>
   <string name="help_hidden_features_title">Skjulte genveje</string>
   <string name="help_hidden_features_text">Swipe ned fra værktøjslinjen for at vise arbejdsområdevælgeren. Langt tryk på vinduesknappen for hurtigt at minimere. Langt tryk på oplæsningsknappen i værktøjslinjen for hurtigt at gå til oplæsningsindstillinger. Langt tryk på verspositionstitlen i værktøjslinjen for at hoppe til dokumentvælgeren.</string>
   <string name="help_window_pinning_title">Fastgørelse af vinduer</string>
@@ -834,6 +855,7 @@
   <string name="welcome_restore_row_hint">Databasefil med bogmærker og noter</string>
   <string name="welcome_link_website">Websted</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du skal vælge den fil, du vil indlæse til %s.</string>
@@ -1180,7 +1202,7 @@
   <string name="google_drive_signin_done">Logget ind. Du kan lukke dette faneblad og vende tilbage til AndBible.</string>
   <string name="google_drive_signin_required">Dit Google Drive-login er udløbet eller blevet tilbagekaldt. Log ind igen for at fortsætte synkroniseringen.</string>
   <string name="google_drive_signin_interrupted">Google-login blev afbrudt. Prøv igen.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adressen på WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering kræver en sikker https://-adresse.</string>
@@ -1746,12 +1768,15 @@
   <string name="my_document_create_title">Opret nyt dokument</string>
   <string name="my_document_rename_title">Omdøb dokument</string>
   <string name="my_document_delete_confirmation">Slet dokument \"%s\"?</string>
+  <string name="show_secret">Vis</string>
+  <string name="hide_secret">Skjul</string>
+  <string name="ai_documents_name">AI-dokumenter</string>
+  <string name="ai_documents_description">Automatisk genererede dokumenter fra AI</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokumenter kan ikke slettes, så længe de indeholder sider. Slet siderne først.</string>
   <string name="my_document_save_changes">Gem ændringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
   <string name="my_document_edit_description">Redigér beskrivelse</string>
   <string name="my_document_pages_title">%s - Sider</string>
-  <string name="my_document_pages_empty">Ingen sider i dette dokument.</string>
   <string name="my_document_page_rename_title">Omdøb side</string>
   <string name="my_document_page_delete_confirmation">Slet side \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Slet disse sider?</string>
@@ -1759,6 +1784,9 @@
   <string name="my_document_new_page_name">Side %1$d</string>
   <string name="my_document_create_page_title">Ny side</string>
   <string name="my_document_content_type_label">Indholdstype</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Ingen sider i dette dokument.</string>
   <string name="my_document_import_page">Importér Markdown/HTML</string>
   <string name="my_document_export_page">Eksportér side</string>
   <string name="my_document_imported_page_name">Importeret</string>

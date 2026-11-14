@@ -167,6 +167,44 @@ class SearchHighlighterTest {
         assertParity(osisWith(Text("In the beginning")), listOf("Moses"), emptyList())
     }
 
+    /** #4092: a commentary entry from readOsisFragment has no <verse> wrapper. */
+    @Test
+    fun commonParity_fragmentWithoutVerseElement() {
+        val osis = Element("div").addContent(Element("p").addContent(Text("I am the vine"))).addContent(Text(", ye are"))
+        assertParity(osis, listOf("vine"), emptyList())
+        assertEquals("I am the vine, ye are", SearchHighlighter.highlight(osis, listOf("vine"), emptyList()).plainText())
+    }
+
+    @Test
+    fun commonParity_excerpt() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val osis = osisWith(Text("$filler the true\n vine $filler"))
+        val android = SearchHighlighter.highlight(osis, listOf("vine"), emptyList(), 40)
+        assertEquals(CommonSearchHighlighter.highlight(osis, listOf("vine"), emptyList(), 40), android)
+        assertTrue(android.plainText(), android.plainText().startsWith("…") && android.plainText().length <= 42)
+        assertTrue(android.runs.any { it.highlight && it.text == "vine" })
+    }
+
+    @Test
+    fun commonParity_strongsExcerptAroundTheFirstLemmaMatch() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val lemma = Element("w").apply { setAttribute("lemma", "strong:H0430"); addContent(Text("God")) }
+        val osis = osisWith(Text("$filler "), lemma, Text(" created $filler"))
+        val android = SearchHighlighter.highlight(osis, emptyList(), listOf("strong:h0430"), 40)
+        assertEquals(CommonSearchHighlighter.highlight(osis, emptyList(), listOf("strong:h0430"), 40), android)
+        assertTrue(android.plainText(), android.plainText().startsWith("…") && android.plainText().length <= 42)
+        assertTrue(android.runs.any { it.bold && it.text == "God" })
+    }
+
+    @Test
+    fun commonParity_stemmedTermExcerpt() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val osis = osisWith(Text("$filler the true vine $filler"))
+        val android = SearchHighlighter.highlight(osis, listOf("vines"), emptyList(), 40)
+        assertEquals(CommonSearchHighlighter.highlight(osis, listOf("vines"), emptyList(), 40), android)
+        assertTrue(android.plainText(), android.plainText().contains("true vine"))
+    }
+
     /** Intentional divergence: Android runs the verse through Html.fromHtml, Common treats kdom text as already decoded. */
     @Test
     fun commonKeepsEntitiesVerbatimWhereAndroidDecodesThem() {

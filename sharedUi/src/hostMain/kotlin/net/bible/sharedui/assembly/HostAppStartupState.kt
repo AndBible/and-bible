@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.assembly
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,12 +48,17 @@ class HostAppStartupState(
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
     val phase: StateFlow<StartupPhase> = _phase
 
+    /**
+     * Whether a run was started (or a failure shown). Read and written from Main and from any thread a
+     * [net.bible.service.db.DamagedDataRecovery] route call comes from, so only under [lock].
+     */
     private var launched = false
+    private val lock = SynchronizedObject()
 
     /** Starts [open] on [Dispatchers.Default]; a second call does nothing (the first run decides the phase). */
     fun launch(scope: CoroutineScope) {
-        if (launched) return
-        launched = true
+        val first = synchronized(lock) { (!launched).also { launched = true } }
+        if (!first) return
         scope.launch(Dispatchers.Default) {
             try {
                 open()
@@ -66,9 +73,40 @@ class HostAppStartupState(
         }
     }
 
+    /**
+     * Runs [open] again after a [StartupPhase.Failed] (#4112: after the user reset damaged databases or returned from
+     * Backup & Restore). Does nothing unless the last run failed.
+     */
+    fun retry(scope: CoroutineScope) {
+        synchronized(lock) {
+            if (_phase.value !is StartupPhase.Failed) return
+            _phase.value = StartupPhase.Starting
+            launched = false
+        }
+        net.bible.service.db.DatabaseContainer.forgetCorruption()
+        launch(scope)
+    }
+
+    /**
+     * #4112: damaged user data found after the start ([net.bible.service.db.DamagedDataRecovery], e.g. the Welcome flow
+     * opening the databases again): the app is replaced by the same recovery screen as a failed start, whose [retry]
+     * starts again.
+     */
+    fun showDamagedData(error: net.bible.service.db.CorruptDatabasesException) {
+        synchronized(lock) {
+            launched = true
+            _phase.value = StartupPhase.Failed(error)
+        }
+    }
+
+    /** Makes [showDamagedData] the app's [net.bible.service.db.DamagedDataRecovery] route. */
+    fun registerDamagedDataRoute() {
+        net.bible.service.db.DamagedDataRecovery.route = ::showDamagedData
+    }
+
     /** For a failure before [launch] (the main-thread stage of the startup): shows the error instead of starting. */
     fun fail(error: Throwable) {
-        launched = true
+        synchronized(lock) { launched = true }
         // A late failure report must not turn a successful start into an error screen.
         _phase.compareAndSet(StartupPhase.Starting, StartupPhase.Failed(error))
     }

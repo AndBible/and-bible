@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.assembly
 
+import net.bible.service.db.corruptDatabasesOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
@@ -349,21 +350,29 @@ class IosAssemblyTest {
     }
 
     @Test
-    fun aCorruptDatabaseFileIsMovedAsideAndRecreatedEmpty() {
+    fun aCorruptDatabaseFileFailsTheOpenUntilTheUserResetsIt() {
         startApp()
-        // Garbage in one database file: buildAppDatabase (recoverIfCorrupt) moves it to `<name>.corrupt-<ts>` and the
-        // container recreates the database, so the open SUCCEEDS (it does not report Failed).
+        // #4112: garbage in a user-data database is reported (the corrupt-database screen), never silently emptied.
         val victim = ALL_DB_FILENAMES.first()
+        val garbage = "this is not a sqlite database ".repeat(200)
         files.createDirectories(databaseDir)
-        files.write(databaseDir / victim) { writeUtf8("this is not a sqlite database ".repeat(200)) }
+        files.write(databaseDir / victim) { writeUtf8(garbage) }
 
+        val failure = runCatching { awaitStartupOnMain { IosAppStartup.openDatabases() } }.exceptionOrNull()
+        val corrupt = assertNotNull(failure?.corruptDatabasesOrNull(), "expected CorruptDatabasesException, got $failure")
+        assertEquals(listOf(victim), corrupt.databases.map { it.fileName })
+        assertFalse(IosAppStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready, "a failed open must not leave the databases marked ready")
+        assertEquals(garbage, files.read(databaseDir / victim) { readUtf8() }, "the damaged $victim stays untouched")
+
+        // The user's "reset damaged data": the file is kept as `<name>.corrupt-<ts>` and the retry opens.
+        DatabaseContainer.resetCorruptDatabases(corrupt.databases)
         openDatabasesDiagnosing()
 
         assertTrue(IosAppStartup.databasesOpen)
-        assertTrue(DatabaseContainer.ready)
         val movedAside = files.list(databaseDir).map { it.name }.filter { it.startsWith("$victim.corrupt-") }
-        assertEquals(1, movedAside.size, "the corrupt $victim was not moved aside: ${files.list(databaseDir).map { it.name }}")
-        assertTrue(files.metadata(databaseDir / victim).size!! > 0L, "$victim was not recreated")
+        assertEquals(1, movedAside.size, "the corrupt $victim was not kept: ${files.list(databaseDir).map { it.name }}")
+        assertEquals(garbage, files.read(databaseDir / movedAside.single()) { readUtf8() })
         assertTrue(
             files.read(databaseDir / victim) { readUtf8(15) } == "SQLite format 3",
             "the recreated $victim is not a SQLite database",

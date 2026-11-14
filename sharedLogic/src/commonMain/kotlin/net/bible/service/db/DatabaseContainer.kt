@@ -66,6 +66,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.settings.store.SettingsStore
 import okio.FileSystem
 import okio.Path
@@ -262,24 +264,115 @@ class DatabaseContainer private constructor() {
 
     companion object : SynchronizedObject() {
         /**
-         * Opens the container in the one order that matters: backup, orphan delete, legacy split, construct,
-         * trigger setup, settings load. Suspends instead of blocking; the host's `openContainer` bridges it.
+         * Opens the container in the one order that matters: corruption check, backup, orphan delete, legacy split,
+         * construct, trigger setup, settings load. Throws [CorruptDatabasesException] for damaged user-data files
+         * (#4112). Suspends instead of blocking; the host's `openContainer` bridges it.
          */
         suspend fun create(): DatabaseContainer {
-            backupDatabaseIfNeeded()
-            // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
-            if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
-            migrateOldDatabaseIfNeeded()
-            val container = DatabaseContainer()
-            if (!host.isRunningTests) {
-                for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
-                    dropTriggers(dbDef)
-                    createTriggers(dbDef)
+            // #4112: a damaged user-data file is reported before anything (backup, migration, Room) touches it.
+            checkForCorruptDatabases()
+            var container: DatabaseContainer? = null
+            try {
+                backupDatabaseIfNeeded()
+                // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
+                if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
+                migrateOldDatabaseIfNeeded()
+                container = DatabaseContainer()
+                if (!host.isRunningTests) {
+                    for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
+                        dropTriggers(dbDef)
+                        createTriggers(dbDef)
+                    }
+                }
+                container.settingsStore.load()
+                return container
+            } catch (e: Exception) {
+                // Nothing this failed open built may stay open: the recovery (reset, restore) and the checks below
+                // work on closed files, and a later open must not meet a second handle.
+                try { container?.let { synchronized(Companion) { it.closeDatabasesAfterFlush() } } } // L1-common-ok: atomicfu lock
+                catch (closeError: Exception) { Log.w(TAG, "Closing after a failed open failed", closeError) }
+                if (e is CancellationException) throw e
+                // The file checks read whole databases: never on the caller's (possibly Main) thread.
+                throw withContext(Dispatchers.IO) { damageFoundLater(e) } ?: e
+            }
+        }
+
+        /**
+         * #4112: SQLite corruption that the early schema read cannot see (a damaged table page or an index that
+         * disagrees with its table, found by a migration, the settings load or another query in [create]) as the same
+         * [CorruptDatabasesException], naming the user-data files that [isDamaged] (`PRAGMA integrity_check`) finds
+         * damaged. When no file can be named, every existing user-data file is a suspect
+         * ([CorruptDatabase.confirmed] false), so the recovery still appears. Null for any other failure.
+         */
+        @VisibleForTesting
+        internal fun damageFoundLater(e: Throwable, isDamaged: (String) -> Boolean = ::isDamagedDatabase): CorruptDatabasesException? {
+            if (e.corruptDatabasesOrNull() != null) return null
+            if (generateSequence(e) { it.cause.takeIf { c -> c !== it } }.none(::isCorruptionError)) return null
+            val damaged = USER_DATA_DB_FILENAMES.mapNotNull { name ->
+                host.databasePath(name).takeIf(isDamaged)?.let { CorruptDatabase(name, it) }
+            }.ifEmpty {
+                USER_DATA_DB_FILENAMES.mapNotNull { name ->
+                    host.databasePath(name).takeIf { FileSystem.SYSTEM.exists(it.toPath()) }
+                        ?.let { CorruptDatabase(name, it, confirmed = false) }
                 }
             }
-            container.settingsStore.load()
-            return container
+            if (damaged.isEmpty()) return null
+            return CorruptDatabasesException(damaged, e).also {
+                Log.e(TAG, "Damaged database file(s) found while opening: ${damaged.joinToString { d -> d.fileName + if (d.confirmed) "" else " (suspect)" }}", it)
+            }
         }
+
+        /**
+         * The damaged user-data databases ([USER_DATA_DB_FILENAMES]) in the database directory, or an empty list.
+         * Reads only; nothing is moved.
+         */
+        fun findCorruptDatabases(): List<Pair<CorruptDatabase, Throwable>> =
+            USER_DATA_DB_FILENAMES.mapNotNull { name ->
+                val path = host.databasePath(name)
+                confirmedCorruption(path)?.let { CorruptDatabase(name, path) to it }
+            }
+
+        private fun checkForCorruptDatabases() {
+            val corrupt = findCorruptDatabases()
+            if (corrupt.isEmpty()) return
+            val error = CorruptDatabasesException(corrupt.map { it.first }, corrupt.first().second)
+            Log.e(TAG, "Damaged database file(s): ${corrupt.joinToString { it.first.fileName }}", error)
+            throw error
+        }
+
+        /**
+         * The user's "reset damaged data" choice (#4112): each of [databases] that is still damaged is moved, with its
+         * siblings, to `<name>.corrupt-<timestamp>` (never deleted), so the next [create] recreates it empty. A file
+         * that is healthy again (restored meanwhile) or missing is left alone; a suspect ([CorruptDatabase.confirmed]
+         * false: no check could see its damage) is moved whenever it exists. Returns the new names of the moved files.
+         * Throws [CorruptDatabaseResetException] when a damaged file cannot be moved ([moveAside] is the test seam).
+         * Call with the databases closed (a failed [create] closes what it opened).
+         */
+        fun resetCorruptDatabases(
+            databases: List<CorruptDatabase>,
+            moveAside: (String) -> String? = { moveCorruptAside(it) },
+        ): List<String> {
+            forgetCorruption()
+            return databases.mapNotNull { db ->
+                val stillToMove = if (db.confirmed) isDamagedDatabase(db.path) else FileSystem.SYSTEM.exists(db.path.toPath())
+                if (!stillToMove) return@mapNotNull null
+                val moved = moveAside(db.path) ?: throw CorruptDatabaseResetException(db, null)
+                Log.w(TAG, "User reset damaged database ${db.fileName}; kept as $moved")
+                moved
+            }
+        }
+
+        /**
+         * The last [CorruptDatabasesException] that opening [instance] threw (#4112). Later accesses rethrow it instead
+         * of checking every file again (a cold widget or media-button process would otherwise re-scan the files on
+         * each access, some on Main), until [forgetCorruption]: a retry ([openAskingOnCorruption], the hosts' retry), a
+         * reset ([resetCorruptDatabases]) or a restore (every [replacingDatabases] block). Written only under the
+         * companion lock, like the open that sets it.
+         */
+        @Volatile private var corruptionFound: CorruptDatabasesException? = null
+
+        /** Lets the next [instance] access look at the files again (#4112: after a reset, a restore, or a retry). */
+        fun forgetCorruption() { synchronized(Companion) { corruptionFound = null } } // L1-common-ok: atomicfu lock
 
         private fun getOldDatabase(): OldMonolithicAppDatabase =
             buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
@@ -306,7 +399,7 @@ class DatabaseContainer private constructor() {
         private fun backupDatabaseIfNeeded() {
             if(host.isRunningTests) return
             val oldDb = host.databasePath(OLD_MONOLITHIC_DATABASE_NAME)
-            if(FileSystem.SYSTEM.exists(oldDb.toPath()) && recoverIfCorrupt(oldDb) == null) {
+            if(FileSystem.SYSTEM.exists(oldDb.toPath())) {
                 backupOldDatabase(oldDb)
             } else {
                 backupNewDatabaseIfNeeded()
@@ -323,7 +416,7 @@ class DatabaseContainer private constructor() {
 
         private fun backupNewDatabaseIfNeeded() {
             Log.i(TAG, "backupDatabaseIfNeeded")
-            val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(host.databasePath(it)) }
+            val versions = ALL_DB_FILENAMES.map { userVersionOrZero(host.databasePath(it)) }
 
             val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
             val needBackup = maxVersions != versions
@@ -417,8 +510,16 @@ class DatabaseContainer private constructor() {
         val replaceEpoch: Long get() = replaceEpochCounter.value
 
         /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
-        suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
-            aiLifetime.replace { replacingDatabasesOwned(it, block) }
+        suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T {
+            // #4101: the epoch bump of the replace freezes workspace saves and the replace ends in a workspace reload
+            // from the database, so state only in memory (the reading position after navigation) would be lost even
+            // when the replace never touches the workspaces database (a Bookmarks join, a single-database restore or
+            // reset). Save it first, BEFORE replacement admission: the save hops to Main, and Main may itself be
+            // blocked waiting for that admission (ReadingAppInit.hasStoredCipherKeyAtEdge). A replace already running
+            // has frozen saves; its reload brings the repository back, so there is nothing to save then.
+            if (!replacing) host.persistLiveWorkspace()
+            return aiLifetime.replace { replacingDatabasesOwned(it, block) }
+        }
 
         /** Test seam: called when a restore starts waiting for the workspace write queue. */
         @VisibleForTesting
@@ -460,6 +561,8 @@ class DatabaseContainer private constructor() {
                 try {
                     if (!completed) kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dropInstanceWithoutOpeningOwned(token) }
                 } finally {
+                    // #4112: the files may have been replaced (a restore), so remembered damage no longer holds.
+                    forgetCorruption()
                     try { if (gateClosed) writeGate.open() } finally { replaceDepth.decrementAndGet() }
                 }
             }
@@ -467,7 +570,7 @@ class DatabaseContainer private constructor() {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; writeGate.resetForTest(); replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
+        fun forgetReplacesForTest() { corruptionFound = null; onWorkspaceDrainEntered = null; writeGate.resetForTest(); replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting
@@ -521,14 +624,26 @@ class DatabaseContainer private constructor() {
          */
         fun openForUse(): DatabaseContainer {
             ready = true
-            return instance
+            return try {
+                instance
+            } catch (e: Throwable) {
+                // E.g. CorruptDatabasesException (#4112): the host's recovery (Backup & Restore) runs with the databases
+                // closed. The one place that clears [ready] after a failed open, under the lock that publishes an open
+                // container: an open that succeeded meanwhile on another thread is never undone.
+                synchronized(Companion) { if (_instance == null) ready = false } // L1-common-ok: atomicfu lock
+                throw e
+            }
         }
         @Volatile private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
             if(!ready && !host.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(Companion) { // L1-common-ok: atomicfu lock
-                _instance ?: try { containerFactory() } catch (e: Exception) {
-                    Log.e(TAG, "Can't open database", e)
+                _instance ?: try {
+                    corruptionFound?.let { throw it }
+                    containerFactory()
+                } catch (e: Exception) {
+                    if (e !== corruptionFound) Log.e(TAG, "Can't open database", e)
+                    e.corruptDatabasesOrNull()?.let { corruptionFound = it }
                     throw e
                 }
                     .also {

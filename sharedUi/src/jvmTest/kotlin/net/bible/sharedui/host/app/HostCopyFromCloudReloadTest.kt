@@ -18,12 +18,17 @@ package net.bible.sharedui.host.app
 
 import androidx.compose.ui.unit.IntSize
 import androidx.room3.useWriterConnection
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -57,6 +62,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * #3919: after "Copy from Cloud" (the initial-download join, [CloudSync.swapInInitialDb]) the host (desktop, iOS) must
@@ -136,7 +142,8 @@ class HostCopyFromCloudReloadTest {
         file.toString().toPath()
     }
 
-    @Test fun aWorkspaceChangeAfterCopyFromCloudIsSaved() {
+    /** Real desktop startup on a fresh profile, reading ready; returns the Koin context. */
+    private fun startDesktop(): org.koin.core.Koin {
         val paths = paths()
         // Reading needs a Bible (the first start's example bookmarks use the default one).
         StartupFixture.files.forEach { (name, bytes) ->
@@ -150,6 +157,98 @@ class HostCopyFromCloudReloadTest {
         )
         val koin = KoinPlatform.getKoin()
         runBlocking { HostReadingReady.ensure(HostStartup.stringTable) }
+        return koin
+    }
+
+    /** The subscription hops to Main and launches the reload on [hostScope]: drain both. */
+    private fun drainReload(hostScope: CoroutineScope) = runBlocking {
+        withTimeout(30_000) {
+            repeat(3) {
+                withContext(Dispatchers.Main) { }
+                hostScope.coroutineContext[Job]!!.children.toList().forEach { it.join() }
+            }
+        }
+    }
+
+    /** The current database file of [accessor], checkpointed and copied out (a cloud initial file of the same data). */
+    private fun copyOf(accessor: net.bible.service.cloudsync.SyncableDatabaseAccessor<*>): okio.Path = runBlocking {
+        accessor.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(FULL)") }
+        val file = Files.createTempFile(root, "initial", ".sqlite3")
+        Files.copy(Path.of(accessor.localDbPath), file, StandardCopyOption.REPLACE_EXISTING)
+        file.toString().toPath()
+    }
+
+    private fun activeVerse(repository: WindowRepository): String = runBlocking {
+        withContext(Dispatchers.Main) { repository.activeWindow.pageManager.currentBible.singleKey.getOsisID() }
+    }
+
+    /**
+     * #4101: the first-sync join of another category (here Bookmarks, swapped in like "Merge data" and "Fetch" do)
+     * bumps the restore epoch and makes the host reload its workspace from the database. A reading position that
+     * was only in memory (a fresh profile's first-use verse, or any navigation not yet saved) was lost: the reload
+     * showed the stored default, Genesis 1:1.
+     */
+    @Test fun theReadingPositionSurvivesAnotherCategorysJoinSwap() {
+        val koin = startDesktop()
+        val repository = koin.get<WindowControl>().windowRepository
+        // Navigate in memory only, as the reading view does; nothing saves the workspace before the sync settings.
+        runBlocking {
+            withContext(Dispatchers.Main) {
+                val bible = repository.activeWindow.pageManager.currentBible
+                bible.doSetKey(org.crosswire.jsword.passage.VerseFactory.fromString(bible.versification, "Rom.8.28"))
+            }
+        }
+        assertEquals("Rom.8.28", activeVerse(repository))
+
+        val hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val subscription = installRestoreReload(koin, hostScope)
+        try {
+            val bookmarks = DatabaseContainer.databaseAccessorsByCategory[SyncableDatabaseDefinition.BOOKMARKS]!!
+            runBlocking { koin.get<CloudSync>().swapInInitialDb(bookmarks, copyOf(bookmarks)) { } }
+            drainReload(hostScope)
+            assertFalse(repository.staleAfterRestore, "the host did not reload the repository after the join")
+            assertEquals("Rom.8.28", activeVerse(repository), "the join lost the in-memory reading position")
+        } finally {
+            subscription.cancel()
+            hostScope.cancel()
+        }
+    }
+
+    /**
+     * #4101 review: the pre-replace save hops to Main, so it must never wait on a Main that is itself blocked on the
+     * replace. Here Main blocks (as `ReadingAppInit.hasStoredCipherKeyAtEdge` does with `runBlocking`) until the replace
+     * holds the AI admission and then waits for that admission. Saving under the admission was a lock cycle; saving
+     * before it with an unbounded Main hop waits forever on the blocked Main. The replace must finish regardless.
+     */
+    @Test fun aReplaceFinishesWhileMainIsBlockedOnItsAdmission() {
+        val koin = startDesktop()
+        assertTrue(koin.get<WindowControl>().holdsLoadedRepository, "the save must have something to save")
+        val lifetime = DatabaseContainer.aiLifetime
+        // An owned job is cancelled by the replace right after it takes the admission: the signal Main waits for.
+        val admitted = CoroutineScope(Dispatchers.Default).launch(start = CoroutineStart.LAZY) { awaitCancellation() }
+        lifetime.ownUntilReplace(admitted)
+        admitted.start()
+        val mainBlocked = CompletableDeferred<Unit>()
+        val mainDone = CoroutineScope(Dispatchers.Main).launch {
+            mainBlocked.complete(Unit)
+            runBlocking {
+                admitted.join()
+                lifetime.use { }
+            }
+        }
+        runBlocking { mainBlocked.await() }
+        val bookmarks = DatabaseContainer.databaseAccessorsByCategory[SyncableDatabaseDefinition.BOOKMARKS]!!
+        val initial = copyOf(bookmarks)
+        // async + await, not withContext: a test whose replace hangs on Main must fail, not hang itself.
+        val swap = CoroutineScope(Dispatchers.IO).async { koin.get<CloudSync>().swapInInitialDb(bookmarks, initial) { } }
+        runBlocking {
+            withTimeout(30_000) { swap.await() }
+            withTimeout(30_000) { mainDone.join() }
+        }
+    }
+
+    @Test fun aWorkspaceChangeAfterCopyFromCloudIsSaved() {
+        val koin = startDesktop()
         val repository = koin.get<WindowControl>().windowRepository
         saveOnMain(repository, "A")
 
@@ -158,15 +257,7 @@ class HostCopyFromCloudReloadTest {
         try {
             val downloaded = downloadNamed(repository, "C")
             runBlocking { koin.get<CloudSync>().swapInInitialDb(workspaces, downloaded) { } }
-            // The subscription hops to Main and launches the reload on [hostScope]: drain both.
-            runBlocking {
-                withTimeout(30_000) {
-                    repeat(3) {
-                        withContext(Dispatchers.Main) { }
-                        hostScope.coroutineContext[Job]!!.children.toList().forEach { it.join() }
-                    }
-                }
-            }
+            drainReload(hostScope)
             assertFalse(repository.staleAfterRestore, "the host did not reload the repository after Copy from Cloud")
             assertEquals("C", repository.name, "the repository holds the downloaded workspace")
 

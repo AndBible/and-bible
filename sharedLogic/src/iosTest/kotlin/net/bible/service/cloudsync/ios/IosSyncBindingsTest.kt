@@ -108,7 +108,7 @@ class IosSyncBindingsTest {
         assertNotNull(koin.get<SyncSettingsPlatform>())
         val factory = koin.get<CloudAdapterFactory>()
         // GoogleOAuthClients.ios is configured, so the default bindings offer Google Drive.
-        assertEquals(listOf("ICLOUD_DRIVE", "GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), factory.available)
+        assertEquals(listOf("GOOGLE_DRIVE", "ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV"), factory.available)
         assertEquals("name-WEBDAV", factory.displayName("WEBDAV"))
         assertNotNull(koin.get<DocumentSyncStarter>())
         assertNotNull(koin.get<SyncScheduler>())

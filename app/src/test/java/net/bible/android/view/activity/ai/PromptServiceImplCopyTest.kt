@@ -28,7 +28,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AgentTool
+import net.bible.service.llm.BuiltInPrompts
+import net.bible.service.llm.PromptRepository
+import net.bible.service.llm.agent.PermissionMode
 
 /**
  * CR-7: "Copy to customize" of a prompt that no longer exists must report failure (null), not hand
@@ -43,5 +52,37 @@ class PromptServiceImplCopyTest {
     @Test
     fun copyingAPromptThatDoesNotExistReturnsNull() = runBlocking {
         assertNull(PromptServiceImpl(AndroidLlmStrings(BibleApplication.application)).copyPrompt(IdType().toString()))
+    }
+
+    /**
+     * #4108: the read-only editor of a built-in shows what a run does: its write tools are not "Allow" (they
+     * ask, so they show the default), its read tools stay enabled. Its "Copy to customize" result matches.
+     */
+    @Test
+    fun builtInEditorAndCopyShowWriteToolsAsAsking() = runBlocking {
+        val service = PromptServiceImpl(AndroidLlmStrings(BibleApplication.application))
+        val id = BuiltInPrompts.BOOKMARK_ANNOTATE_ID.toString()
+        val shown = assertNotNull(service.prompt(id))
+        assertTrue(shown.isReadOnly)
+        assertFalse(AgentTool.CREATE_BOOKMARK.name in shown.allowedTools, "built-in shows CREATE_BOOKMARK as Allow")
+        assertFalse(AgentTool.CREATE_BOOKMARK.name in shown.deniedTools)
+        assertTrue(AgentTool.GET_VERSE_CONTENT.name in shown.allowedTools)
+
+        val copy = assertNotNull(service.prompt(assertNotNull(service.copyPrompt(id))))
+        assertFalse(copy.isReadOnly)
+        assertFalse(AgentTool.CREATE_BOOKMARK.name in copy.allowedTools)
+        assertTrue(AgentTool.GET_VERSE_CONTENT.name in copy.allowedTools)
+    }
+
+    /** A user prompt's editor still shows the user's own grants. */
+    @Test
+    fun userPromptEditorShowsItsOwnGrants() = runBlocking {
+        val service = PromptServiceImpl(AndroidLlmStrings(BibleApplication.application))
+        val mine = AgentPrompt(name = "Mine", permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK), deniedTools = emptySet())
+        PromptRepository.insertPrompt(mine)
+        val shown = assertNotNull(service.prompt(mine.id.toString()))
+        assertEquals(PermissionMode.ALLOW_ALL.name, shown.permissionMode)
+        assertEquals(setOf(AgentTool.CREATE_BOOKMARK.name), shown.allowedTools)
     }
 }

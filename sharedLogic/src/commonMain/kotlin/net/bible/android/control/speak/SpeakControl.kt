@@ -427,19 +427,24 @@ class SpeakControl constructor(
         ttsServiceManager.speakTextLegacy(book, keyList, queue)
     }
 
-    fun rewind(amount: SpeakSettings.RewindAmount? = null) {
+    /**
+     * Moves speech backwards. [toast] names the media command ("Rewind"); the one-verse Previous
+     * step of the speak bar and notification passes false, as the toast would misname it (#4091).
+     */
+    fun rewind(amount: SpeakSettings.RewindAmount? = null, toast: Boolean = true) {
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
-            notifier.showInfo(strings.rewind)
+            if (toast) notifier.showInfo(strings.rewind)
         }
     }
 
-    fun forward(amount: SpeakSettings.RewindAmount? = null) {
+    /** Moves speech forwards; [toast] as for [rewind] ("Forward"). */
+    fun forward(amount: SpeakSettings.RewindAmount? = null, toast: Boolean = true) {
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
-            notifier.showInfo(strings.forward)
+            if (toast) notifier.showInfo(strings.forward)
         }
     }
 

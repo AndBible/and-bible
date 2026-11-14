@@ -93,6 +93,38 @@ class CommonSearchHighlighterTest {
             CommonSearchHighlighter.highlight(osis, listOf("Moses"), emptyList()))
     }
 
+    /** #4092: readOsisFragment returns a commentary entry without its <verse> wrapper. */
+    @Test fun fragmentWithoutVerseElementUsesItsWholeText() {
+        val osis = Element("div").addContent(Element("p").addContent(Text("I am the vine"))).addContent(Text(", ye are"))
+        assertEquals(StyledText(listOf(StyledRun("I am the "), StyledRun("vine", highlight = true), StyledRun(", ye are"))),
+            CommonSearchHighlighter.highlight(osis, listOf("vine"), emptyList()))
+    }
+
+    @Test fun excerptLengthCutsAroundTheMatch() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val osis = osisWith(Text("$filler the true vine $filler"))
+        val result = CommonSearchHighlighter.highlight(osis, listOf("vine"), emptyList(), 40)
+        val text = result.runs.joinToString("") { it.text }
+        kotlin.test.assertTrue(text.startsWith("…") && text.endsWith("…") && text.length <= 42, text)
+        kotlin.test.assertTrue(result.runs.any { it.highlight && it.text == "vine" }, text)
+    }
+
+    @Test fun strongsSearchExcerptIsCutAroundTheFirstLemmaMatch() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val osis = osisWith(Text("$filler "), lemmaWord("strong:H0430", "God"), Text(" created $filler"))
+        val result = CommonSearchHighlighter.highlight(osis, emptyList(), listOf("strong:h0430"), 40)
+        val text = result.runs.joinToString("") { it.text }
+        kotlin.test.assertTrue(text.startsWith("…") && text.endsWith("…") && text.length <= 42, text)
+        kotlin.test.assertTrue(result.runs.any { it.bold && it.text == "God" }, text)
+    }
+
+    @Test fun stemmedTermStillShowsTheInflectedWordInTheExcerpt() {
+        val filler = (1..40).joinToString(" ") { "word$it" }
+        val osis = osisWith(Text("$filler the true vine $filler"))
+        val text = CommonSearchHighlighter.highlight(osis, listOf("vines"), emptyList(), 40).runs.joinToString("") { it.text }
+        kotlin.test.assertTrue(text.contains("true vine"), text)
+    }
+
     @Test fun notesAndReferencesAreExcluded() {
         val note = Element("note").addContent(Text("footnote"))
         val osis = osisWith(Text("Text "), note, Text("end"))

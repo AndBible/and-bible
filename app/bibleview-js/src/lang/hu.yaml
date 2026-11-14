@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI-művelet
 aiDocumentRegenerate: Újragenerálás
 aiDocumentDelete: Törlés
+aiDocumentsName: MI-dokumentumok
 aiGeneratedBy: "Generálta: %s"
 aiGeneratedByWithModel: "Generálta: %s (%s)"

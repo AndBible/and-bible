@@ -133,7 +133,12 @@ class SpeakTransportServiceImpl(
     /** Rebuilds the cached state (status text is locale-dependent) after an in-app language change. */
     fun refreshForLocale() { refresh() }
 
-    private fun refresh() { _state.update { build(visible = it.visible) } }
+    /**
+     * Rebuilds the state. Live speech always shows the bar, whoever started it (verse menu, selection,
+     * Listen in Loop, media button), not only the toolbar/main-menu Speak entry (#4081). A refresh never
+     * hides the bar: only [stop] on an already stopped service does.
+     */
+    private fun refresh() { _state.update { build(visible = it.visible || !speakControl.isStopped) } }
 
     private fun build(visible: Boolean) = SpeakTransportStateVd(
         visible = visible,
@@ -181,8 +186,8 @@ class SpeakTransportServiceImpl(
 
     override fun rewind() = speakControl.rewind()
     override fun forward() = speakControl.forward()
-    override fun prevVerse() = speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-    override fun nextVerse() = speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+    override fun prevVerse() = speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
+    override fun nextVerse() = speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
 
     /** Classic sync side-effect (SpeakTransportWidget :163-167, :206-210). */
     private fun maybeSyncToFront() {

@@ -50,6 +50,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.StartupActivity
+import net.bible.service.db.corruptDatabasesOrNull
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -89,6 +90,24 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var wasPaused = false
     private var returningFromCalculator = false
 
+    /**
+     * True when [onCreate] found damaged user-data databases (#4112) and handed over to [StartupActivity]'s recovery
+     * question: the activity is finishing and nothing of it was set up, so a subclass's own `onCreate`/`onDestroy`
+     * returns at once.
+     */
+    protected var routedToDamagedDataRecovery = false
+        private set
+
+    /**
+     * Shows the damaged-data question (#4112) by restarting the app at [StartupActivity] in a fresh task, and finishes
+     * this screen. What this screen was started with ([damagedDataRecoveryIntent]) goes along, so a link that opened it
+     * is opened after the recovery as from the launcher.
+     */
+    fun routeToDamagedDataRecovery() {
+        startActivity(damagedDataRecoveryIntent(this, intent))
+        finish()
+    }
+
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +115,17 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
-            CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+            try {
+                CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
+            } catch (e: Exception) {
+                e.corruptDatabasesOrNull() ?: throw e
+                // #4112: a screen started directly (restored after process death, a link, a notification) found
+                // damaged user data. Hand over to the startup's recovery question instead of crashing.
+                routedToDamagedDataRecovery = true
+                super.onCreate(savedInstanceState)
+                routeToDamagedDataRecovery()
+                return
+            }
         }
 
         if (allowThemeChange) {
@@ -543,3 +572,21 @@ fun android.app.Activity.themePixelSize(@AttrRes attr: Int): Int {
         TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
     } else 0
 }
+
+/**
+ * The [StartupActivity] start that hands damaged user data (#4112) to the startup's recovery question: a fresh task,
+ * carrying [launching]'s action, data, type, extras, clip data and URI grants, so a VIEW link, a share or a search that
+ * opened the screen is not lost (StartupActivity hands it on after the recovery, see `bootHandoffIntent`).
+ */
+internal fun damagedDataRecoveryIntent(context: android.content.Context, launching: Intent?): Intent =
+    Intent(context, StartupActivity::class.java).apply {
+        if (launching != null) {
+            action = launching.action
+            setDataAndType(launching.data, launching.type)
+            launching.extras?.let { putExtras(it) }
+            clipData = launching.clipData
+            addFlags(launching.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+        }
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+

@@ -252,6 +252,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             onCleanExit = crashGate.onCleanExit,
             logDirectory = paths.data.resolve("logs"),
         )
+        state.registerDamagedDataRoute()
         shutdownEngine = {
             try {
                 webViews.disposeAll()

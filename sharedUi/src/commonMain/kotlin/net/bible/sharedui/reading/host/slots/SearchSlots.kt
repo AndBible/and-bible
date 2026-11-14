@@ -23,6 +23,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import net.bible.android.control.search.SearchControl
+import net.bible.sharedcore.search.BibleOption
+import org.crosswire.jsword.book.BookCategory
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.PollOutcome
 import net.bible.sharedcore.search.ReadingSearchPhase
@@ -161,8 +163,21 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
     val error by searchResults.error.collectAsState()
     val selected by searchResults.selectedTranslations.collectAsState()
     val candidates by searchResults.candidates.collectAsState()
+    val abbreviationOf = { id: String -> platform.documentByInitials(id)?.abbreviation }
+    val nonBibleDocument = singleNonBibleSearched(
+        selected,
+        categoryOf = { id -> platform.documentByInitials(id)?.bookCategory },
+        abbreviationOf = abbreviationOf,
+    )
     SearchSheetContent(
-        countLabel = strings.multiSearchResults(results.total, selected.size),
+        countLabel = if (nonBibleDocument != null) {
+            strings.searchWithResults2(results.total.toString(), nonBibleDocument)
+        } else {
+            strings.multiSearchResults(
+                strings.multiSearchVerseCount(results.total),
+                strings.multiSearchTranslationCount(selected.size),
+            )
+        },
         loading = loading,
         error = error,
         // "Nothing found" only once a search has actually finished: an empty list while loading is
@@ -175,9 +190,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             BibleResultsActions(
                 candidates = candidates,
                 selectedIds = selected,
-                selectedAbbreviations = selected
-                    .mapNotNull { id -> candidates.firstOrNull { it.id == id }?.abbreviation }
-                    .joinToString(", "),
+                selectedAbbreviations = searchedDocumentsLabel(selected, candidates, abbreviationOf),
                 scriptureToggleVisible = scriptureToggleVisible,
                 scriptureShown = scriptureShown,
                 onToggleScripture = searchResults::toggleScripture,
@@ -250,3 +263,29 @@ fun nextSelectorIndexPrompt(
     if (pendingIds == null || !indexDone) return null
     return unindexedAmong(pendingIds).firstOrNull()
 }
+
+/**
+ * The searched documents' abbreviations for the selector chip. The chip's candidates are Bibles only, so a searched
+ * commentary is named through [abbreviationOf] (its installed document), else by its initials (#4092: a blank chip).
+ */
+internal fun searchedDocumentsLabel(
+    selected: List<String>,
+    candidates: List<BibleOption>,
+    abbreviationOf: (String) -> String?,
+): String = selected.joinToString(", ") { id ->
+    candidates.firstOrNull { it.id == id }?.abbreviation ?: abbreviationOf(id) ?: id
+}
+
+/**
+ * The abbreviation of the one searched document when it is known not to be a Bible (a commentary), else null. Its
+ * results are counted as "N results in MHC": "verses in 1 translation" does not describe a commentary search (#4092).
+ * A document [categoryOf] cannot resolve (null) is not taken for a non-Bible: a Bible that is momentarily unresolved
+ * keeps the Bible count.
+ */
+internal fun singleNonBibleSearched(
+    selected: List<String>,
+    categoryOf: (String) -> BookCategory?,
+    abbreviationOf: (String) -> String?,
+): String? = selected.singleOrNull()
+    ?.takeIf { id -> categoryOf(id).let { it != null && it != BookCategory.BIBLE } }
+    ?.let { abbreviationOf(it) ?: it }

@@ -33,6 +33,15 @@ description: Use for AndBible issue and project-board work — creating, comment
   - Each `--set` is one action and each stage does a host read (slow: run a long list in the
     background).
   - Automation adds new issues as Needs triage and moves closed ones to Done; do not set Done by hand.
+  - **Every issue you create gets its board fields** (maintainer, 2026-11-14): the automation only puts it in
+    Needs triage with no Priority or Size. Publish the create first; once the issue has its number (the
+    automation has added it to the board by then), stage and publish `jailbee issue project <n> --project
+    AndBible/11 --set Status=<Backlog|Next up|In progress> --set Priority=<P0 Blocker|P1|P2|P3|Someday>
+    --set Size=<S|M|L>`. Do not stage `--add` or `--set` on an `@REF` in the create's own batch: the
+    automation adds the item between staging and publishing, so the actions' "not on the board" expectation
+    fails (2026-11-14). Status: Backlog for follow-ups and found bugs, Next up / In progress only for work
+    that is scheduled or already started. Leave an issue in Needs triage only when the maintainer has to
+    judge it; say so in the report.
 
 The tracker rules apply on both routes: labels from `docs/superpowers/triage/taxonomy.yaml`, one `Type:` and
 one `Area:` label, short specific English text, no hour estimates, close an issue as soon as its fix is merged

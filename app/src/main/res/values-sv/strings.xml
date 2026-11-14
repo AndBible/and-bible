@@ -128,7 +128,15 @@
   <string name="search_not_available">Det här dokumentet kan inte genomsökas</string>
   <string name="search_indexing_notification_title">Skapar sökindex</string>
   <string name="choose_translations">Välj översättningar…</string>
-  <string name="multi_search_results">%1$d verser i %2$d översättningar</string>
+  <string name="multi_search_count_summary">%1$s i %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verser</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d översättning</item>
+    <item quantity="other">%1$d översättningar</item>
+  </plurals>
   <string name="search_index_not_created">inget index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; versnummer</string>
@@ -322,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Skapa nytt bokmärke med anteckning</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Färginställningar</string>
-  <string name="window_color_settings_title">Fönsterfärg inställningar</string>
-  <string name="workspace_color_settings_title">Standardfärginställningar för arbetsyta</string>
+  <string name="global_color_settings_title">Färginställningar (globalt)</string>
+  <string name="window_color_settings_title">Färginställningar (fönster)</string>
+  <string name="workspace_color_settings_title">Färginställningar (arbetsyta)</string>
   <string name="color_workspace">Färg på arbetsyta</string>
   <string name="color_text">Textfärg</string>
   <string name="color_background">Bakgrundsfärg</string>
@@ -413,7 +422,7 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Välj startdatum...</string>
   <string name="set_current_day">Välj dagens datum...</string>
-  <string name="msg_set_current_day_reading_plan">Idag kommer att ställas in som nuvarande dag i planen och alla tidigare dagar kommer att markeras som lästa. Vill du fortsätta?</string>
+  <string name="msg_set_current_day_reading_plan">Detta gör %1$s till den aktuella dagen i planen och markerar alla tidigare dagar som lästa. Fortsätta?</string>
   <string name="done">Färdig</string>
   <string name="reset_plan_question">Är du säker på att du vill återställa denna plan?</string>
   <string name="import_reading_plan">Importera läsningsplan...</string>
@@ -500,7 +509,7 @@ i GT och NT varje dag.
   <string name="auto_assign_labels_title">Etikettinställningar</string>
   <string name="auto_assign_labels">Tilldela automatiskt &amp; Markera etiketter som favoriter</string>
   <string name="auto_assign_labels1">Tilldela etikett automatiskt till nya bokmärken</string>
-  <string name="auto_assign_labels_primary">Tilldela automatiskt som primär</string>
+  <string name="auto_assign_labels_primary">Tilldela automatiskt som primär etikett</string>
   <!--can be removed-->
   <string name="bookmark_warning">Det finns bokmärken och/eller anteckningar till detta dokument</string>
   <string name="bookmark_warning2">
@@ -793,6 +802,14 @@ i GT och NT varje dag.
   <string name="error_key_not_in_document2">%1$s hittades inte i dokument %2$s.</string>
   <string name="empty_list">Inga poster att visa</string>
   <string name="error_skip">Hoppa över</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Skadad data</string>
+  <string name="corrupt_database_message">Vissa av dina data kunde inte öppnas eftersom databasfilen är skadad: %1$s.\n\nInget har ändrats eller raderats. Du kan skicka en felrapport så att vi kan hitta orsaken, öppna Säkerhetskopiera &amp; återställ för att göra en säkerhetskopia eller återställa en tidigare, eller nollställa den skadade datan.\n\nNär du nollställer börjar datan om från tomt. Den skadade filen sparas på den här enheten, omdöpt med \".corrupt-\" och datumet.</string>
+  <string name="corrupt_database_reset">Nollställ skadad data</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Den skadade datan kunde inte nollställas: %1$s kunde inte flyttas åt sidan. Inget har ändrats. Du kan försöka igen, skicka en felrapport eller använda Säkerhetskopiera &amp; återställ.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Appens data behöver åtgärdas. Tryck för att öppna appen.</string>
   <string name="debug_test_error">Testfel (felsökningsbygge)</string>
   <string name="bug_report_prepare_failed">Rapporten kunde inte förberedas eller delas. Du kan försöka igen, eller använda Säkerhetskopiera och återställ för att spara dina data.</string>
   <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
@@ -914,6 +931,10 @@ i GT och NT varje dag.
         att svepa nedåt från verktygsfältet. Du kan också svepa till vänster/höger på verktygsfältet för att
         gå till föregående/nästa arbetsyta.
     </string>
+  <string name="help_study_tools_title">Studieverktyg</string>
+  <string name="help_study_tools_text">Tryck på ett Strong-nummer för att slå upp det grekiska eller hebreiska ordet bakom en vers i en ordbok. Tryck på en korsreferens för att läsa den i länkfönstret, utan att tappa din plats i texten.</string>
+  <string name="help_look_and_feel_title">Utseende</string>
+  <string name="help_look_and_feel_text">Nattläge, teckenstorlek och typsnitt, färger och marginaler finns under Textinställningar i alternativmenyn (tre punkter, uppe till höger). De kan ställas in för alla arbetsytor, för en arbetsyta eller för ett enskilt fönster.</string>
   <string name="help_hidden_features_title">Dolda genvägar</string>
   <string name="help_hidden_features_text">
         Svep nedåt från verktygsfältet för att välja arbetsyta.
@@ -938,6 +959,7 @@ i GT och NT varje dag.
   <string name="welcome_restore_row_hint">Databasfil med bokmärken och anteckningar</string>
   <string name="welcome_link_website">Webbplats</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>
@@ -1895,12 +1917,15 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_create_title">Skapa nytt dokument</string>
   <string name="my_document_rename_title">Byt namn på dokument</string>
   <string name="my_document_delete_confirmation">Ta bort dokumentet \"%s\"?</string>
+  <string name="show_secret">Visa</string>
+  <string name="hide_secret">Dölj</string>
+  <string name="ai_documents_name">AI-dokument</string>
+  <string name="ai_documents_description">Automatiskt genererade dokument från AI</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokument kan inte tas bort medan det innehåller sidor. Ta bort sidorna först.</string>
   <string name="my_document_save_changes">Spara ändringar?</string>
   <string name="my_document_no_description">Ingen beskrivning</string>
   <string name="my_document_edit_description">Redigera beskrivning</string>
   <string name="my_document_pages_title">%s - Sidor</string>
-  <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_page_rename_title">Byt namn på sida</string>
   <string name="my_document_page_delete_confirmation">Ta bort sidan \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Radera dessa sidor?</string>
@@ -1908,6 +1933,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_new_page_name">Sida %1$d</string>
   <string name="my_document_create_page_title">Ny sida</string>
   <string name="my_document_content_type_label">Innehållstyp</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_import_page">Importera Markdown/HTML</string>
   <string name="my_document_export_page">Exportera sida</string>
   <string name="my_document_imported_page_name">Importerad</string>

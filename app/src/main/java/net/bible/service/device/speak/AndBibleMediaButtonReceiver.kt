@@ -27,7 +27,7 @@ import net.bible.sharedcore.log.Log
 
 class AndBibleMediaButtonReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        CommonUtils.initializeApp()
+        if (!CommonUtils.initializeAppForHeadlessEntry()) return
         Log.i("MediaButtons", "MediaButtonReceiver onReceive")
         AndroidMediaSession.current?.let { MediaButtonReceiver.handleIntent(it.ms, intent) }
     }

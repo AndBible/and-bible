@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Add
 import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import net.bible.sharedui.components.AbSecretTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -229,11 +230,10 @@ private fun ProviderFormDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
+                AbSecretTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it; onField(AiProvidersController.Field.API_KEY, it) },
-                    singleLine = true,
-                    label = { Text(strings.providerApiKeyLabel) },
+                    label = strings.providerApiKeyLabel,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 val apiKeyUrl = state.apiKeyUrl

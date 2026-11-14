@@ -155,7 +155,15 @@
     <string name="search_not_available">This document cannot be searched</string>
     <string name="search_indexing_notification_title">Creating search index</string>
     <string name="choose_translations">Choose translations…</string>
-    <string name="multi_search_results">%1$d verses in %2$d translations</string>
+    <string name="multi_search_count_summary">%1$s in %2$s</string>
+    <plurals name="multi_search_verse_count">
+        <item quantity="one">%1$d verse</item>
+        <item quantity="other">%1$d verses</item>
+    </plurals>
+    <plurals name="multi_search_translation_count">
+        <item quantity="one">%1$d translation</item>
+        <item quantity="other">%1$d translations</item>
+    </plurals>
     <string name="search_index_not_created">no index</string>
 
     <!-- Preferences -->
@@ -382,8 +390,9 @@
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
-    <string name="window_color_settings_title">Window color settings</string>
-    <string name="workspace_color_settings_title">Workspace color setting defaults</string>
+    <string name="global_color_settings_title">Color settings (Global)</string>
+    <string name="window_color_settings_title">Color settings (Window)</string>
+    <string name="workspace_color_settings_title">Color settings (Workspace)</string>
 
     <string name="color_workspace">Workspace color</string>
     <string name="color_text">Text color</string>
@@ -482,7 +491,7 @@
     <string name="rdg_plan_day">Day %s</string>
     <string name="rdg_plan_set_start_date">Set Start Date…</string>
     <string name="set_current_day">Set as current day…</string>
-    <string name="msg_set_current_day_reading_plan">This will set today as the current day in this plan and mark all previous days as read. Continue?</string>
+    <string name="msg_set_current_day_reading_plan">This will set %1$s as the current day in this plan and mark all previous days as read. Continue?</string>
     <string name="done">Done</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
     <string name="import_reading_plan">Import reading plan…</string>
@@ -573,7 +582,7 @@
     <string name="auto_assign_labels_title">Label settings</string>
     <string name="auto_assign_labels">Auto-assign &amp; Favourite labels</string>
     <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
-    <string name="auto_assign_labels_primary">Auto-assign as primary</string>
+    <string name="auto_assign_labels_primary">Auto-assign as main label</string>
   <!-- can be removed -->
     <string name="bookmark_warning">There are bookmarks and/or notes for this document.</string>
     <string name="bookmark_warning2">
@@ -904,6 +913,14 @@
     <string name="error_key_not_in_document2">%1$s was not found in document %2$s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
+    <!-- #4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names. -->
+    <string name="corrupt_database_title">Damaged data</string>
+    <string name="corrupt_database_message">Some of your data could not be opened because its database file is damaged: %1$s.\n\nNothing has been changed or deleted. You can send an error report to help us find the cause, open Backup &amp; Restore to make a backup or to restore an earlier one, or reset the damaged data.\n\nResetting starts that data empty. The damaged file is kept on this device, renamed with \".corrupt-\" and the date.</string>
+    <string name="corrupt_database_reset">Reset damaged data</string>
+    <!-- #4112: the reset of damaged data failed. %1$s is the database file name. -->
+    <string name="corrupt_database_reset_failed">The damaged data could not be reset: %1$s could not be moved aside. Nothing was changed. You can try again, send an error report, or use Backup &amp; Restore.</string>
+    <!-- #4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged. -->
+    <string name="damaged_data_needs_attention">The app\'s data needs attention. Tap to open the app.</string>
     <string name="debug_test_error">Test error (debug build)</string>
     <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>
@@ -1223,7 +1240,7 @@
     <string name="display_mode_hidden">Hidden</string>
     <string name="display_mode_inherit">Same as selection</string>
     <string name="workspace_override_indicator">This label has workspace-specific display mode</string>
-    <string name="primary_label">Primary label</string>
+    <string name="primary_label">Main label</string>
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit label</string>
     <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
@@ -1330,7 +1347,7 @@
     <string name="labels_filter_favourite">Favourite labels only</string>
     <!-- Round 15a: the labels help legend. No %s placeholders — the icon is its own column. -->
     <string name="manage_labels_help_checkbox">Tick a label to assign it to this bookmark.</string>
-    <string name="manage_labels_help_primary">The primary label. Its colour and style are what the bookmark shows.</string>
+    <string name="manage_labels_help_primary">The main label. Its colour and style are what the bookmark shows.</string>
     <string name="manage_labels_help_autoassign">Assign this label automatically to every new bookmark. A hollow bolt means off.</string>
     <string name="manage_labels_help_favourite">Keep the label in your favourites for quick access.</string>
     <string name="manage_labels_help_styles">Under the name a small example shows the label\'s look: Selection for a text-selection bookmark, Whole verse for a whole-verse one, and a Workspace tag for a style this workspace overrides. A greyed example with no decoration means the label\'s bookmarks are not drawn. Hide the examples from the ⋮ menu.</string>
@@ -1474,7 +1491,7 @@
     <string name="google_drive_signin_done">Signed in. You can close this tab and return to AndBible.</string>
     <string name="google_drive_signin_required">Your Google Drive sign-in has expired or was revoked. Sign in again to continue synchronizing.</string>
     <string name="google_drive_signin_interrupted">Google sign-in was interrupted. Try again.</string>
-    <string name="adapters_next_cloud">Next Cloud</string>
+    <string name="adapters_next_cloud">Nextcloud</string>
     <string name="adapters_webdav">WebDAV</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
     <string name="webdav_https_required">Sync requires a secure https:// address.</string>
@@ -1522,7 +1539,7 @@
     <string name="app_opened_elsewhere">App opened elsewhere</string>
     <string name="open_here">Open here</string>
     <string name="external_link">External link</string>
-    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+    <string name="external_link_question">This will open external link %s in a browser application, do you wish to continue?</string>
     <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
@@ -2067,13 +2084,16 @@
     <string name="my_document_create_title">Create new document</string>
     <string name="my_document_rename_title">Rename document</string>
     <string name="my_document_delete_confirmation">Delete document \"%s\"?</string>
+    <string name="show_secret">Show</string>
+    <string name="hide_secret">Hide</string>
+    <string name="ai_documents_name">AI Documents</string>
+    <string name="ai_documents_description">Automatically generated documents from AI</string>
     <string name="my_document_cannot_delete_ai_documents">AI Documents cannot be deleted while it contains pages. Delete the pages first.</string>
     <string name="my_document_save_changes">Save changes?</string>
     <string name="my_document_no_description">No description</string>
     <string name="my_document_edit_description">Edit description</string>
 
     <string name="my_document_pages_title">%s - Pages</string>
-    <string name="my_document_pages_empty">No pages in this document.</string>
     <string name="my_document_page_rename_title">Rename page</string>
     <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
     <string name="my_document_pages_delete_confirmation">Delete these pages?</string>
@@ -2081,6 +2101,9 @@
     <string name="my_document_new_page_name">Page %1$d</string>
     <string name="my_document_create_page_title">New page</string>
     <string name="my_document_content_type_label">Content type</string>
+    <string name="my_document_content_type_markdown">Markdown</string>
+    <string name="my_document_content_type_html">HTML</string>
+    <string name="my_document_pages_empty">No pages yet. Tap + to add one.</string>
     <string name="my_document_import_page">Import Markdown/HTML</string>
     <string name="my_document_export_page">Export page</string>
     <string name="my_document_imported_page_name">Imported</string>

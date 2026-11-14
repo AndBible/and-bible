@@ -128,7 +128,15 @@
   <string name="search_not_available">इस दस्तावेज़ में खोज नहीं की जा सकती</string>
   <string name="search_indexing_notification_title">खोज सूचकांक बनाया जा रहा है</string>
   <string name="choose_translations">अनुवाद चुनें…</string>
-  <string name="multi_search_results">%2$d अनुवादों में %1$d छंद</string>
+  <string name="multi_search_count_summary">%2$s में %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d पद</item>
+    <item quantity="other">%1$d पद</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d अनुवाद</item>
+    <item quantity="other">%1$d अनुवाद</item>
+  </plurals>
   <string name="search_index_not_created">कोई सूचकांक नहीं</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">अध्याय &amp; छंद संख्या</string>
@@ -322,8 +330,9 @@
   <string name="create_bookmark_with_a_note">नोट के साथ नया बुकमार्क बनाएं</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle"> रंग के सेटिंग्स</string>
-  <string name="window_color_settings_title">  विंडो का रंगी के सेटिंग्स</string>
-  <string name="workspace_color_settings_title"> कार्यक्षेत्र रंग सेटिंग डिफ़ॉल्ट</string>
+  <string name="global_color_settings_title">रंग सेटिंग्स (ग्लोबल)</string>
+  <string name="window_color_settings_title">रंग सेटिंग्स (विंडो)</string>
+  <string name="workspace_color_settings_title">रंग सेटिंग्स (कार्यक्षेत्र)</string>
   <string name="color_workspace">कार्यक्षेत्र का रंग</string>
   <string name="color_text"> लिखावट का रंग</string>
   <string name="color_background">बैकग्राउंड का रंग</string>
@@ -414,7 +423,7 @@
   <string name="rdg_plan_day">दिवस %s</string>
   <string name="rdg_plan_set_start_date"> प्रारंभ तिथि निर्धारित करें ...</string>
   <string name="set_current_day">वर्तमान दिन के रूप में सेट करें…</string>
-  <string name="msg_set_current_day_reading_plan">यह इस योजना में आज के दिन को वर्तमान दिन के रूप में सेट करेगा और पिछले सभी दिनों को पढ़ा गया के रूप में चिह्नित करेगा। जारी रखें?</string>
+  <string name="msg_set_current_day_reading_plan">इससे %1$s इस योजना का वर्तमान दिन बन जाएगा और पिछले सभी दिन पढ़े हुए के रूप में चिह्नित हो जाएँगे। जारी रखें?</string>
   <string name="done">समाप्त</string>
   <string name="reset_plan_question"> क्या आप वाकई इस प्लान को रिसेट करना चाहते हैं?</string>
   <string name="import_reading_plan">पढ़ने की योजना आयात करें…</string>
@@ -499,7 +508,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="auto_assign_labels_title">लेबल सेटिंग्स</string>
   <string name="auto_assign_labels">ऑटो-असाइन करें &amp; पसंदीदा लेबल</string>
   <string name="auto_assign_labels1">नए बुकमार्क के लिए लेबल को ऑटो-असाइन करें</string>
-  <string name="auto_assign_labels_primary">प्राथमिक रूप में ऑटो-असाइन करें</string>
+  <string name="auto_assign_labels_primary">मुख्य लेबल के रूप में ऑटो-असाइन करें</string>
   <!--can be removed-->
   <string name="bookmark_warning">इस दस्तावेज़ के लिए बुकमार्क और/या नोट्स हैं।</string>
   <string name="bookmark_warning2">यदि दस्तावेज़ संरचना बदल गई है, तो इस दस्तावेज़ को अपडेट करने से इन बुकमार्क/नोट्स की स्थिति दस्तावेज़ के भीतर बदल सकती है या वे पूरी तरह गायब हो सकते हैं।</string>
@@ -786,6 +795,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error_key_not_in_document2">%1$s, %2$s दस्तावेज़ में नहीं मिली</string>
   <string name="empty_list">कुछ मौजूद नहीं</string>
   <string name="error_skip">छोड़ें</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">क्षतिग्रस्त डेटा</string>
+  <string name="corrupt_database_message">आपके कुछ डेटा को खोला नहीं जा सका क्योंकि उसकी डेटाबेस फ़ाइल क्षतिग्रस्त है: %1$s।\n\nकुछ भी बदला या हटाया नहीं गया है। आप कारण खोजने में हमारी मदद के लिए एरर रिपोर्ट भेज सकते हैं, बैकअप बनाने या पहले का बैकअप रिस्टोर करने के लिए बैकअप &amp; रिस्टोर खोल सकते हैं, या क्षतिग्रस्त डेटा रीसेट कर सकते हैं।\n\nरीसेट करने पर वह डेटा खाली अवस्था से शुरू होता है। क्षतिग्रस्त फ़ाइल इस डिवाइस पर रखी जाती है, जिसका नाम बदलकर \".corrupt-\" और तारीख जोड़ दी जाती है।</string>
+  <string name="corrupt_database_reset">क्षतिग्रस्त डेटा रीसेट करें</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">क्षतिग्रस्त डेटा रीसेट नहीं किया जा सका: %1$s को अलग नहीं किया जा सका। कुछ भी नहीं बदला गया। आप फिर से कोशिश कर सकते हैं, एरर रिपोर्ट भेज सकते हैं, या बैकअप &amp; रिस्टोर का उपयोग कर सकते हैं।</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">ऐप के डेटा पर ध्यान देने की ज़रूरत है। ऐप खोलने के लिए टैप करें।</string>
   <string name="debug_test_error">परीक्षण त्रुटि (डीबग बिल्ड)</string>
   <string name="bug_report_prepare_failed">रिपोर्ट तैयार या शेयर नहीं हो सकी। आप फिर कोशिश कर सकते हैं, या अपना डेटा सेव करने के लिए बैकअप और रीस्टोर का उपयोग करें।</string>
   <string name="bug_report_email_title">ईमेल द्वारा बग रिपोर्ट भेजें</string>
@@ -907,6 +924,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
  टूलबार से नीचे की ओर स्वाइप करें। आप टूलबार पर स्वाइप-लेफ्ट और स्वाइप-राइट जेस्चर का भी उपयोग कर सकते हैं
 पिछले / अगले कार्यक्षेत्र पर स्विच करने के लिए।
  </string>
+  <string name="help_study_tools_title">अध्ययन उपकरण</string>
+  <string name="help_study_tools_text">किसी पद के पीछे का यूनानी या इब्रानी शब्द शब्दकोश में देखने के लिए स्ट्रॉन्ग्स नंबर पर टैप करें। पाठ में अपनी जगह खोए बिना किसी संदर्भ को लिंक विंडो में पढ़ने के लिए क्रॉस-रेफ़रेंस पर टैप करें।</string>
+  <string name="help_look_and_feel_title">रूप और अनुभव</string>
+  <string name="help_look_and_feel_text">नाइट मोड, फ़ॉन्ट का आकार और परिवार, रंग और मार्जिन विकल्प मेनू (तीन बिंदु, ऊपर दाएँ कोने में) के टेक्स्ट विकल्पों में हैं। इन्हें सभी कार्यक्षेत्रों के लिए, किसी एक कार्यक्षेत्र के लिए या किसी एक विंडो के लिए सेट किया जा सकता है।</string>
   <string name="help_hidden_features_title"> छिपे हुए शॉर्टकट</string>
   <string name="help_hidden_features_text">
  कार्यक्षेत्र चयनकर्ता को दिखाने के लिए टूलबार से नीचे स्वाइप करें।
@@ -931,6 +952,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="welcome_restore_row_hint">बुकमार्क और टिप्पणियों वाली डेटाबेस फ़ाइल</string>
   <string name="welcome_link_website">वेबसाइट</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">वीडियो</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">आपको वह फ़ाइल चुननी होगी जिसे आप %s में लोड करना चाहते हैं। </string>
@@ -1079,7 +1101,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="display_mode_hidden">छुपा हुआ</string>
   <string name="display_mode_inherit">चयन के समान</string>
   <string name="workspace_override_indicator">इस लेबल का कार्यक्षेत्र-विशिष्ट प्रदर्शन मोड है</string>
-  <string name="primary_label">प्राथमिक लेबल</string>
+  <string name="primary_label">मुख्य लेबल</string>
   <string name="favourite_label">पसंदीदा लेबल</string>
   <string name="edit_label">लेबल संपादित करें</string>
   <string name="delete_label_confirmation">क्या आप बुकमार्क लेबल \"%s\" हटाना चाहते हैं? साथ ही सभी संबद्ध स्टडी पैड नोट हटा दिए जाएंगे।</string>
@@ -1295,7 +1317,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="google_drive_signin_done">साइन इन हो गया। आप इस टैब को बंद करके AndBible पर लौट सकते हैं।</string>
   <string name="google_drive_signin_required">आपका Google Drive साइन-इन समाप्त हो गया है या रद्द कर दिया गया है। सिंक्रनाइज़ करना जारी रखने के लिए फिर से साइन इन करें।</string>
   <string name="google_drive_signin_interrupted">Google साइन-इन बाधित हो गया। फिर से प्रयास करें।</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV फ़ोल्डर का पता, जैसे https://nas.local/dav/ या https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">सिंक के लिए सुरक्षित https:// पता आवश्यक है।</string>
@@ -1861,12 +1883,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="my_document_create_title">नया दस्तावेज़ बनाएं</string>
   <string name="my_document_rename_title">दस्तावेज़ का नाम बदलें</string>
   <string name="my_document_delete_confirmation">दस्तावेज़ \"%s\" हटाएं?</string>
+  <string name="show_secret">दिखाएँ</string>
+  <string name="hide_secret">छिपाएँ</string>
+  <string name="ai_documents_name">AI दस्तावेज़</string>
+  <string name="ai_documents_description">AI द्वारा स्वचालित रूप से बनाए गए दस्तावेज़</string>
   <string name="my_document_cannot_delete_ai_documents">AI दस्तावेज़ों को तब तक हटाया नहीं जा सकता जब तक उनमें पेज हों। पहले पेज हटाएं।</string>
   <string name="my_document_save_changes">बदलाव सहेजें?</string>
   <string name="my_document_no_description">कोई विवरण नहीं</string>
   <string name="my_document_edit_description">विवरण संपादित करें</string>
   <string name="my_document_pages_title">%s - पेज</string>
-  <string name="my_document_pages_empty">इस दस्तावेज़ में कोई पेज नहीं है।</string>
   <string name="my_document_page_rename_title">पेज का नाम बदलें</string>
   <string name="my_document_page_delete_confirmation">पेज \"%s\" हटाएं?</string>
   <string name="my_document_pages_delete_confirmation">इन पेजों को मिटाएँ?</string>
@@ -1874,6 +1899,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="my_document_new_page_name">पेज %1$d</string>
   <string name="my_document_create_page_title">नया पेज</string>
   <string name="my_document_content_type_label">सामग्री प्रकार</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">इस दस्तावेज़ में कोई पेज नहीं है।</string>
   <string name="my_document_import_page">Markdown/HTML आयात करें</string>
   <string name="my_document_export_page">पेज निर्यात करें</string>
   <string name="my_document_imported_page_name">आयात किया गया</string>

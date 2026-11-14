@@ -212,12 +212,20 @@ object PromptCsvUtils {
                             continue
                         }
 
-                        val existing = PromptRepository.promptById(prompt.id)
-                        if (existing != null && !BuiltInPrompts.isBuiltIn(existing.id)) {
-                            PromptRepository.updatePrompt(prompt)
+                        // #4108: a CSV file may come from someone else, so it carries no grants: its write
+                        // tools ask and its ALLOW_ALL falls back to the global mode. Updating an existing
+                        // user prompt keeps that prompt's own grants.
+                        val shared = PromptRepository.withoutGrants(prompt)
+                        val existing = PromptRepository.storedUserPromptById(prompt.id)
+                        if (existing != null) {
+                            PromptRepository.updatePrompt(withGrantsOf(shared, existing))
                             updated++
                         } else {
-                            PromptRepository.insertPrompt(prompt)
+                            // An add-on prompt's id gets a fresh one: no stored prompt may share an id with
+                            // a read-only (add-on) prompt, which promptById would resolve instead.
+                            PromptRepository.insertPrompt(
+                                if (PromptRepository.isAddon(shared.id)) shared.copy(id = IdType()) else shared
+                            )
                             created++
                         }
                     } catch (e: CancellationException) {
@@ -237,6 +245,26 @@ object PromptCsvUtils {
         }
 
         ImportResult(created, updated, errorMessages)
+    }
+
+    /**
+     * [imported] with the grants [existing] (a stored user prompt) already has: its write tools allowed without
+     * asking and its [PermissionMode.ALLOW_ALL]. [imported] itself must already be [PromptRepository.withoutGrants].
+     *
+     * The file can only tighten them: a granted write tool the file lists in [AgentPrompt.deniedTools] stays
+     * denied (never both allowed and denied), and a mode the file sets (stricter than ALLOW_ALL, which
+     * [PromptRepository.withoutGrants] already removed) replaces the existing ALLOW_ALL.
+     */
+    private fun withGrantsOf(imported: AgentPrompt, existing: AgentPrompt): AgentPrompt {
+        val grantedWriteTools = existing.allowedTools.orEmpty() -
+            PromptRepository.withoutGrants(existing).allowedTools.orEmpty() -
+            imported.deniedTools.orEmpty()
+        return imported.copy(
+            allowedTools = if (grantedWriteTools.isEmpty()) imported.allowedTools
+                else imported.allowedTools.orEmpty() + grantedWriteTools,
+            permissionMode = imported.permissionMode
+                ?: PermissionMode.ALLOW_ALL.takeIf { existing.permissionMode == it },
+        )
     }
 
     private fun parseCsvRowToPrompt(

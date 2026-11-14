@@ -15,9 +15,25 @@ On iPhone, iPad and Mac sharing uses the share sheet; on Windows and Linux you c
         in the specific note you would like to share. Keep *Show notes* enabled
         in the sharing options. If the bookmark is not tied to a particular Bible,
         the verse text comes from the current Bible.
-3. Toggle the items that you want to include in the shared text.
+3. In the *Share selection* sheet, check the preview and toggle the items that you
+    want to include in the shared text (see below).
 4. Click *Copy* to copy the text to your clipboard, or click *Share* to share
-    the text via another app.
+    the text via another app. Both close the sheet.
+
+The sheet has these switches, and the preview changes as you toggle them:
+
+- *Show reference*, *Abbreviate reference*, *Include version name* and *Show at front of verse*
+    control how the reference is written and where it goes.
+- *Show verse numbers*, *Show quotes* and *Separate verses with newlines* control the text.
+- *Show selected text only* and *Show ellipsis (…)* appear when only part of a verse is
+    selected; the ellipsis switch works together with *Show selected text only*.
+- *Show notes* appears when the bookmark has a note.
+- *Advertise app* adds a line telling where the text was shared from.
+
+The switches are remembered for the next time you share.
+
+In the Android text-selection menu (when you select text in the Bible) the corresponding
+items are *Share / Copy*, which opens the same sheet, and *Copy*.
 
 [![Share options](images/share-options.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
@@ -65,9 +81,12 @@ The placeholder remains visible in the Study Pad so you can add text later.
 
 ## Sharing Bibles/Documents {#sharing-bibles-documents}
 
-It is also possible to share other *AndBible* documents. See [Backup and Restore](backup_restore.md)
-for details on backing up documents that can then be shared with other
-*AndBible* users.
+It is also possible to share other *AndBible* documents. In *Choose Document*, open the three
+vertical dot menu and choose *Backup Documents to…*, pick the documents, and then either
+*Share* the backup file or save it to *Phone storage*. The file
+(`AndBibleModulesBackup.abmd.zip`) can be loaded on another device with *Load Documents From
+Files* (see [Load Documents](documents.md#load-documents)). See also
+[Backup and Restore](backup_restore.md) for more about backups.
 
 ## Sharing Bible Links
 

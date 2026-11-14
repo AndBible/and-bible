@@ -128,7 +128,19 @@
   <string name="search_not_available">Tega dokumenta ni mogoče iskati</string>
   <string name="search_indexing_notification_title">Ustvarjanje iskalnega indeksa</string>
   <string name="choose_translations">Izberi prevode …</string>
-  <string name="multi_search_results">%1$d vrstic v %2$d prevodih</string>
+  <string name="multi_search_count_summary">%1$s v %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vrstica</item>
+    <item quantity="two">%1$d vrstici</item>
+    <item quantity="few">%1$d vrstice</item>
+    <item quantity="other">%1$d vrstic</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d prevodu</item>
+    <item quantity="two">%1$d prevodih</item>
+    <item quantity="few">%1$d prevodih</item>
+    <item quantity="other">%1$d prevodih</item>
+  </plurals>
   <string name="search_index_not_created">ni kazala</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
@@ -322,8 +334,9 @@
   <string name="create_bookmark_with_a_note">Ustvarite nov zaznamek z opombo</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavitve barv</string>
-  <string name="window_color_settings_title">Nastavitve barv okna</string>
-  <string name="workspace_color_settings_title">Privzete nastavitve barv okna</string>
+  <string name="global_color_settings_title">Nastavitve barv (splošno)</string>
+  <string name="window_color_settings_title">Nastavitve barv (okno)</string>
+  <string name="workspace_color_settings_title">Nastavitve barv (delovni prostor)</string>
   <string name="color_workspace">Barva delovnega prostora</string>
   <string name="color_text">Barva besedila</string>
   <string name="color_background">Barva ozadja</string>
@@ -414,7 +427,7 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Nastavi datum začetka...</string>
   <string name="set_current_day">Nastavi kot trenuten dan…</string>
-  <string name="msg_set_current_day_reading_plan">S tem bo današnji dan v tem načrtu nastavljen na trenutni dan, vsi prejšnji dnevi pa bodo označeni kot prebrani. Želite nadaljevati?</string>
+  <string name="msg_set_current_day_reading_plan">S tem boste %1$s nastavili kot trenutni dan v tem načrtu in vse prejšnje dni označili kot prebrane. Nadaljujem?</string>
   <string name="done">Končano</string>
   <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
   <string name="import_reading_plan">Uvozi načrt branja...</string>
@@ -498,7 +511,7 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="auto_assign_labels_title">Nastavitve oznak</string>
   <string name="auto_assign_labels">Določene in priljubljene oznake</string>
   <string name="auto_assign_labels1">K novim zaznamkom samodejno dodaj oznako</string>
-  <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
+  <string name="auto_assign_labels_primary">Samodejno dodeli kot glavno oznako</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ta dokument vsebuje zaznamke in/ali opombe.</string>
   <string name="bookmark_warning2">
@@ -788,6 +801,14 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error_key_not_in_document2">%1$s ni mogoče najti v dokumentu %2$s.</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
   <string name="error_skip">Preskoči</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Poškodovani podatki</string>
+  <string name="corrupt_database_message">Nekaterih vaših podatkov ni bilo mogoče odpreti, ker je datoteka njihove zbirke podatkov poškodovana: %1$s.\n\nNič ni bilo spremenjeno ali izbrisano. Lahko pošljete poročilo o napaki, da nam pomagate najti vzrok, odprete Varnostna kopija &amp; Obnova, da naredite varnostno kopijo ali obnovite prejšnjo, ali pa ponastavite poškodovane podatke.\n\nPo ponastavitvi se ti podatki začnejo prazni. Poškodovana datoteka ostane v tej napravi, preimenovana z \".corrupt-\" in datumom.</string>
+  <string name="corrupt_database_reset">Ponastavi poškodovane podatke</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Poškodovanih podatkov ni bilo mogoče ponastaviti: %1$s ni bilo mogoče premakniti na stran. Nič ni bilo spremenjeno. Poskusite znova, pošljite poročilo o napaki ali uporabite Varnostna kopija &amp; Obnova.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Podatki aplikacije potrebujejo pozornost. Tapnite, da odprete aplikacijo.</string>
   <string name="debug_test_error">Testna napaka (razhroščevalna različica)</string>
   <string name="bug_report_prepare_failed">Poročila ni bilo mogoče pripraviti ali deliti. Poskusite znova ali uporabite Varnostno kopiranje in obnovitev za shranjevanje podatkov.</string>
   <string name="bug_report_email_title">Poročilo o napaki pošljite prek e-pošte</string>
@@ -900,6 +921,10 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="help_workspaces_title">Delovni prostori</string>
   <string name="help_workspaces_text">
         Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
+  <string name="help_study_tools_title">Orodja za preučevanje</string>
+  <string name="help_study_tools_text">Tapnite Strongovo številko, da v slovarju poiščete grško ali hebrejsko besedo za verzom. Tapnite navzkrižni sklic, da ga preberete v oknu povezav, ne da bi izgubili mesto v besedilu.</string>
+  <string name="help_look_and_feel_title">Videz in občutek</string>
+  <string name="help_look_and_feel_text">Nočni način, velikost in družina pisave, barve in robovi so v Možnostih besedila v meniju možnosti (tri pike, zgornji desni kot). Nastavite jih lahko za vse delovne prostore, za en delovni prostor ali za eno okno.</string>
   <string name="help_hidden_features_title">Skrite bližnjice</string>
   <string name="help_hidden_features_text">
         Povlecite navzdol z orodne vrstice, da se prikaže izbira delovnih prostorov.
@@ -923,6 +948,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="welcome_restore_row_hint">Datoteka zbirke podatkov z zaznamki in opombami</string>
   <string name="welcome_link_website">Spletna stran</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Izbrati morate datoteko, ki jo želite naložiti v %s.</string>
@@ -1074,7 +1100,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="display_mode_hidden">Skrito</string>
   <string name="display_mode_inherit">Enako kot izbor</string>
   <string name="workspace_override_indicator">Ta oznaka ima način prikazovanja, prilagojen delovnemu prostoru</string>
-  <string name="primary_label">Osnovna oznaka</string>
+  <string name="primary_label">Glavna oznaka</string>
   <string name="favourite_label">Priljubljena oznaka</string>
   <string name="edit_label">Uredi oznako</string>
   <string name="delete_label_confirmation">Ali želite odstraniti oznako zaznamka \"%s\"? Odstranjene bodo tudi vse povezane opombe!</string>
@@ -1178,7 +1204,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="labels_filter_favourite">Samo priljubljene oznake</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Označite oznako, da jo dodelite temu zaznamku.</string>
-  <string name="manage_labels_help_primary">Primarna oznaka. Njena barva in slog sta tisto, kar zaznamek prikazuje.</string>
+  <string name="manage_labels_help_primary">Glavna oznaka. Njena barva in slog sta tisto, kar zaznamek prikazuje.</string>
   <string name="manage_labels_help_autoassign">Samodejno dodeli to oznako vsakemu novemu zaznamku. Prazna strela pomeni izklopljeno.</string>
   <string name="manage_labels_help_favourite">Obdrži oznako med priljubljenimi za hiter dostop.</string>
   <string name="manage_labels_help_styles">Pod imenom majhen primer prikazuje videz oznake: Izbor za zaznamek izbranega besedila, Celotna vrstica za zaznamek celotne vrstice in oznaka Delovni prostor za slog, ki ga ta delovni prostor preglasi. Zatemnjen primer brez okraskov pomeni, da zaznamki te oznake niso izrisani. Primere skrijete v meniju ⋮.</string>
@@ -1309,7 +1335,7 @@ lahko.
   <string name="google_drive_signin_done">Prijavljeni ste. Ta zavihek lahko zaprete in se vrnete v AndBible.</string>
   <string name="google_drive_signin_required">Vaša prijava v Google Drive je potekla ali je bila preklicana. Za nadaljevanje sinhronizacije se prijavite znova.</string>
   <string name="google_drive_signin_interrupted">Prijava v Google je bila prekinjena. Poskusite znova.</string>
-  <string name="adapters_next_cloud">Naslednji oblak</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Naslov mape WebDAV, npr. https://nas.local/dav/ ali https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinhronizacija zahteva varen naslov https://.</string>
@@ -1878,12 +1904,15 @@ Tega sporočila ne prikaži več
   <string name="my_document_create_title">Ustvari nov dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
   <string name="my_document_delete_confirmation">Izbrišem dokument »%s«?</string>
+  <string name="show_secret">Pokaži</string>
+  <string name="hide_secret">Skrij</string>
+  <string name="ai_documents_name">Dokumenti AI</string>
+  <string name="ai_documents_description">Samodejno ustvarjeni dokumenti iz AI</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumentov AI ni mogoče izbrisati, dokler vsebuje strani. Najprej izbrišite strani.</string>
   <string name="my_document_save_changes">Shranim spremembe?</string>
   <string name="my_document_no_description">Ni opisa</string>
   <string name="my_document_edit_description">Uredi opis</string>
   <string name="my_document_pages_title">%s - Strani</string>
-  <string name="my_document_pages_empty">V tem dokumentu ni strani.</string>
   <string name="my_document_page_rename_title">Preimenujte stran</string>
   <string name="my_document_page_delete_confirmation">Izbrišem stran »%s«?</string>
   <string name="my_document_pages_delete_confirmation">Izbrišem te strani?</string>
@@ -1891,6 +1920,9 @@ Tega sporočila ne prikaži več
   <string name="my_document_new_page_name">Stran %1$d</string>
   <string name="my_document_create_page_title">Nova stran</string>
   <string name="my_document_content_type_label">Vrsta vsebine</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">V tem dokumentu ni strani.</string>
   <string name="my_document_import_page">Uvozi Markdown/HTML</string>
   <string name="my_document_export_page">Izvozi stran</string>
   <string name="my_document_imported_page_name">Uvoženo</string>

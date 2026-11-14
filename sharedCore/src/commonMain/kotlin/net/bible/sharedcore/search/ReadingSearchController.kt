@@ -104,7 +104,7 @@ class ReadingSearchController(
 
     /**
      * Phase transitions focus the field in [ReadingSearchPhase.Form] (the user is expected to type)
-     * and otherwise release it. [openFromShortcut] explicitly requests editing even over existing
+     * and under a Bible's index prompt on [open] (a reference can still be typed), and otherwise release it. [openFromShortcut] explicitly requests editing even over existing
      * results. Replacing the instruction prevents a stale opposite instruction from firing.
      */
     private fun requestFieldFocus() { _imeRequest.value = SearchFieldImeRequest.Focus }
@@ -200,7 +200,10 @@ class ReadingSearchController(
         when (kind) {
             is SearchKind.NeedsIndex -> {
                 _sheetVisible.value = true
-                requestFieldRelease()
+                // A Bible reference needs no index ([submit] tries it first), so the field stays focused under a
+                // Bible's index prompt: released, the typed keys would reach the reading view (#4089). An EPUB
+                // prompt has nothing to type for, and a seeded query is already a word search.
+                if (!kind.forEpub && seedQuery == null) requestFieldFocus() else requestFieldRelease()
                 if (isIndexing(kind.docId)) {
                     _phase.value = ReadingSearchPhase.Indexing(kind.docId, kind.forEpub)
                     interceptedSearchDocId = kind.docId

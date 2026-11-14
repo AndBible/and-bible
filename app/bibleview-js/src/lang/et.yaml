@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI toiming
 aiDocumentRegenerate: Taasloo
 aiDocumentDelete: Kustuta
+aiDocumentsName: AI dokumendid
 aiGeneratedBy: "Genereeritud rakendusega %s"
 aiGeneratedByWithModel: "Genereeritud rakendusega %s (%s)"

@@ -26,6 +26,7 @@ import {
     rangesOverlap
 } from "@/utils";
 import {setupEventBusListener} from "@/eventbus";
+import {useStrings} from "@/composables/strings";
 import {highlightRange} from "@/lib/highlight-range";
 import {Icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
@@ -224,7 +225,8 @@ export const AI_DOC_COLOR = 0xFF6464FF;
 
 const AI_DOC_LABEL_STYLE: LabelAndStyle = {
     id: AI_DOC_LABEL_ID,
-    name: "AI Documents",
+    // Getter: the translated name is only known once the language file has loaded.
+    get name() { return useStrings().aiDocumentsName },
     isRealLabel: false,
     style: {
         color: AI_DOC_COLOR,

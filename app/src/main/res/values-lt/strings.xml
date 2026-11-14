@@ -128,7 +128,19 @@
   <string name="search_not_available">Šiame dokumente ieškoti neįmanoma</string>
   <string name="search_indexing_notification_title">Kuriamas paieškos indeksas</string>
   <string name="choose_translations">Pasirinkti vertimus…</string>
-  <string name="multi_search_results">%1$d eilutės %2$d vertimuose</string>
+  <string name="multi_search_count_summary">%1$s, %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d eilutė</item>
+    <item quantity="few">%1$d eilutės</item>
+    <item quantity="many">%1$d eilutės</item>
+    <item quantity="other">%1$d eilučių</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertimas</item>
+    <item quantity="few">%1$d vertimai</item>
+    <item quantity="many">%1$d vertimo</item>
+    <item quantity="other">%1$d vertimų</item>
+  </plurals>
   <string name="search_index_not_created">indeksas nesukurtas</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
@@ -320,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Sukurti naują žymę su pastaba</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nustatymai</string>
-  <string name="window_color_settings_title">Lango spalvų nustatymai</string>
-  <string name="workspace_color_settings_title">Numatytieji darbo srities spalvų nustatymai</string>
+  <string name="global_color_settings_title">Spalvų nustatymai (visuotiniai)</string>
+  <string name="window_color_settings_title">Spalvų nustatymai (langas)</string>
+  <string name="workspace_color_settings_title">Spalvų nustatymai (darbo sritis)</string>
   <string name="color_workspace">Darbo srities spalva</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
@@ -410,7 +423,7 @@
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="set_current_day">Nustatyti kaip šią dieną...</string>
-  <string name="msg_set_current_day_reading_plan">Tai nustatys šiandieną šiame plane kaip dabartinę dieną ir pažymės visas ankstesnes dienas kaip skaitytas. Tęsti?</string>
+  <string name="msg_set_current_day_reading_plan">Tai nustatys %1$s kaip dabartinę šio plano dieną ir pažymės visas ankstesnes dienas kaip perskaitytas. Tęsti?</string>
   <string name="done">Atlikta</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
   <string name="import_reading_plan">Importuoti skaitymo planą…</string>
@@ -499,7 +512,7 @@
   <string name="auto_assign_labels_title">Etikečių nustatymai</string>
   <string name="auto_assign_labels">Automatinis priskyrimas ir mėgstamos etiketės</string>
   <string name="auto_assign_labels1">Automatiškai priskirti etiketę naujoms žymėms</string>
-  <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
+  <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pagrindinę etiketę</string>
   <!--can be removed-->
   <string name="bookmark_warning">Šis dokumentas turi žymių ir/arba pastabų</string>
   <string name="bookmark_warning2">
@@ -786,6 +799,14 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="error_key_not_in_document2">%1$s buvo nerastas dokumente %2$s.</string>
   <string name="empty_list">Nėra ko rodyti</string>
   <string name="error_skip">Praleisti</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Pažeisti duomenys</string>
+  <string name="corrupt_database_message">Dalies jūsų duomenų nepavyko atidaryti, nes jų duomenų bazės failas pažeistas: %1$s.\n\nNieko nepakeista ir neištrinta. Galite išsiųsti klaidos ataskaitą, kad padėtumėte mums rasti priežastį, atidaryti Atsarginės kopijos ir atkūrimas, kad sukurtumėte atsarginę kopiją arba atkurtumėte ankstesnę, arba atstatyti pažeistus duomenis.\n\nAtstačius šie duomenys pradedami tušti. Pažeistas failas lieka šiame įrenginyje, pervadintas pridėjus \".corrupt-\" ir datą.</string>
+  <string name="corrupt_database_reset">Atstatyti pažeistus duomenis</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Pažeistų duomenų atstatyti nepavyko: %1$s nepavyko perkelti į šalį. Nieko nepakeista. Galite bandyti dar kartą, išsiųsti klaidos ataskaitą arba naudoti Atsarginės kopijos ir atkūrimas.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Programėlės duomenims reikia dėmesio. Bakstelėkite, kad atidarytumėte programėlę.</string>
   <string name="debug_test_error">Bandomoji klaida (derinimo versija)</string>
   <string name="bug_report_prepare_failed">Nepavyko parengti ar bendrinti ataskaitos. Galite bandyti dar kartą arba naudoti Atsarginės kopijos kūrimą ir atkūrimą, kad išsaugotumėte duomenis.</string>
   <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
@@ -905,6 +926,10 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         perbraukę nuo įrankių juostos žemyn. Be to, perbraukę ant įrankių juostos kairėn ar dešinėn,
         galite perjungti į ankstesnę / kitą darbo sritį.
     </string>
+  <string name="help_study_tools_title">Studijų įrankiai</string>
+  <string name="help_study_tools_text">Bakstelėkite Strongo numerį, kad žodyne rastumėte graikišką ar hebrajišką žodį, slypintį už eilutės. Bakstelėkite kryžminę nuorodą, kad perskaitytumėte ją nuorodų lange, neprarasdami vietos tekste.</string>
+  <string name="help_look_and_feel_title">Išvaizda</string>
+  <string name="help_look_and_feel_text">Naktinis režimas, šrifto dydis ir šeima, spalvos ir paraštės yra Teksto parinktyse parinkčių meniu (trys taškai, viršutinis dešinysis kampas). Jas galima nustatyti visoms darbo sritims, vienai darbo sričiai arba vienam langui.</string>
   <string name="help_hidden_features_title">Paslėpti trumpiniai</string>
   <string name="help_hidden_features_text">Perbraukite nuo įrankių juostos žemyn, norėdami pasiekti darbo sričių pasirinkimo meniu.
 Paspauskite ir palaikykite lango mygtuką, norėdami greitai suskleisti.
@@ -926,6 +951,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="welcome_restore_row_hint">Duomenų bazės failas su žymėmis ir pastabomis</string>
   <string name="welcome_link_website">Svetainė</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Vaizdo įrašas</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Turite pasirinkti failą, kurį norite įkelti į %s.</string>
@@ -1078,7 +1104,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="display_mode_hidden">Paslėpta</string>
   <string name="display_mode_inherit">Kaip pasirinkimas</string>
   <string name="workspace_override_indicator">Ši etiketė turi darbo sričiai būdingą rodymo režimą</string>
-  <string name="primary_label">Pirminė etiketė</string>
+  <string name="primary_label">Pagrindinė etiketė</string>
   <string name="favourite_label">Mėgstama etiketė</string>
   <string name="edit_label">Taisyti etiketę</string>
   <string name="delete_label_confirmation">Ar norite pašalinti žymės etiketę „%s“? Tuo pačiu bus pašalintos ir visos susietos bloknoto pastabos.</string>
@@ -1885,12 +1911,15 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="my_document_create_title">Kurti naują dokumentą</string>
   <string name="my_document_rename_title">Pervadinti dokumentą</string>
   <string name="my_document_delete_confirmation">Ištrinti dokumentą \"%s\"?</string>
+  <string name="show_secret">Rodyti</string>
+  <string name="hide_secret">Slėpti</string>
+  <string name="ai_documents_name">DI dokumentai</string>
+  <string name="ai_documents_description">Automatiškai DI sukurti dokumentai</string>
   <string name="my_document_cannot_delete_ai_documents">DI dokumentų negalima ištrinti, kol juose yra puslapių. Pirmiausia ištrinkite puslapius.</string>
   <string name="my_document_save_changes">Išsaugoti pakeitimus?</string>
   <string name="my_document_no_description">Nėra aprašymo</string>
   <string name="my_document_edit_description">Redaguoti aprašymą</string>
   <string name="my_document_pages_title">%s – puslapiai</string>
-  <string name="my_document_pages_empty">Šiame dokumente nėra puslapių.</string>
   <string name="my_document_page_rename_title">Pervadinti puslapį</string>
   <string name="my_document_page_delete_confirmation">Ištrinti puslapį \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Ištrinti šiuos puslapius?</string>
@@ -1898,6 +1927,9 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="my_document_new_page_name">Puslapis %1$d</string>
   <string name="my_document_create_page_title">Naujas puslapis</string>
   <string name="my_document_content_type_label">Turinio tipas</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Šiame dokumente nėra puslapių.</string>
   <string name="my_document_import_page">Importuoti Markdown / HTML</string>
   <string name="my_document_export_page">Eksportuoti puslapį</string>
   <string name="my_document_imported_page_name">Importuota</string>

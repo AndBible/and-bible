@@ -123,5 +123,6 @@ llmAction: Tekoäly
 llmActionLong: Tekoälytoiminto
 aiDocumentRegenerate: Generoi uudelleen
 aiDocumentDelete: Poista
+aiDocumentsName: Tekoälydokumentit
 aiGeneratedBy: "Luonut %s"
 aiGeneratedByWithModel: "Luonut %s (%s)"

@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI dejanje
 aiDocumentRegenerate: Regeneriraj
 aiDocumentDelete: Izbriši
+aiDocumentsName: Dokumenti AI
 aiGeneratedBy: "Ustvaril %s"
 aiGeneratedByWithModel: "Ustvaril %s (%s)"

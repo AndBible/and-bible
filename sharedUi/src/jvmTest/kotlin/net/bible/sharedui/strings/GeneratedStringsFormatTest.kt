@@ -30,8 +30,14 @@ class GeneratedStringsFormatTest {
         assertEquals("1.5 MB", live.moduleSizeMb(1.5))
     }
 
+    private fun searchCount(total: Int, selected: Int) = strings.multiSearchResults(
+        strings.multiSearchVerseCount(total), strings.multiSearchTranslationCount(selected))
+
     @Test fun positionalAndUnpositionalResourcesBothSubstitute() {
-        assertEquals("7 verses in 2 translations", strings.multiSearchResults(7, 2))
+        assertEquals("7 verses in 2 translations", searchCount(7, 2))
+        assertEquals("1 verse in 1 translation", searchCount(1, 1))
+        assertEquals("2 verses in 3 translations", searchCount(2, 3))
+        assertEquals("0 verses in 1 translation", searchCount(0, 1))
         assertEquals("Find in X", strings.searchIn("X"))
     }
 

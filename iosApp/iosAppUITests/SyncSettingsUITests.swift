@@ -30,11 +30,11 @@ final class SyncSettingsUITests: RealAppUITestCase {
     private func chooseNextcloud(_ app: XCUIApplication) {
         _ = revealSettingsRow(app, "sync_adapter")
         settingsRow(app, "sync_adapter").tap()
-        let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "NextCloud")).firstMatch
+        let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Nextcloud")).firstMatch
         harnessRequire(choice.waitForExistence(timeout: 10), app, "NextCloud choice missing")
         choice.tap()
         harnessRequire(waitUntil(timeout: 15) {
-            self.settingsRow(app, "sync_adapter").label.contains("NextCloud")
+            self.settingsRow(app, "sync_adapter").label.contains("Nextcloud")
         }, app, "Adapter row did not show NextCloud after choosing it")
     }
 
@@ -89,7 +89,7 @@ final class SyncSettingsUITests: RealAppUITestCase {
         app = launch(["-h2SyncSettings"])
         awaitSyncScreen(app)
         harnessRequire(!element(app, "welcome-screen").exists, app, "Unexpected Welcome on relaunch")
-        harnessRequire(settingsRow(app, "sync_adapter").label.contains("NextCloud"), app, "Adapter choice did not persist")
+        harnessRequire(settingsRow(app, "sync_adapter").label.contains("Nextcloud"), app, "Adapter choice did not persist")
         harnessRequire(serverURLRowLabel(app).contains("127.0.0.1:8080/nc"), app, "Server URL did not persist")
         harnessRequire(bookmarksSwitchIsOff(app), app, "Bookmarks category is no longer off after relaunch")
         shot(app, "sync-settings-after-relaunch-direct-route")

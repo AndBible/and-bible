@@ -219,6 +219,8 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
+    /** False where the platform cannot speak (no TTS): hides speech-only features such as Listen in Loop. */
+    speakSupported: boolean,
     fontModuleNames: string[] | null,
     themeColors: ThemeColors | null,
     /**
@@ -337,6 +339,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
+        speakSupported: true,
         fontModuleNames: null,
         themeColors: null,
         strongHighlights: false,

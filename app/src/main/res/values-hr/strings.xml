@@ -128,7 +128,17 @@
   <string name="search_not_available">Ovaj dokument nije moguće pretraživati</string>
   <string name="search_indexing_notification_title">Izrada indeksa pretrage</string>
   <string name="choose_translations">Odaberi prijevode…</string>
-  <string name="multi_search_results">%1$d redaka u %2$d prijevoda</string>
+  <string name="multi_search_count_summary">%1$s u %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d stih</item>
+    <item quantity="few">%1$d stiha</item>
+    <item quantity="other">%1$d stihova</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d prijevod</item>
+    <item quantity="few">%1$d prijevoda</item>
+    <item quantity="other">%1$d prijevoda</item>
+  </plurals>
   <string name="search_index_not_created">nema indeksa</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Brojevi poglavlja i redaka</string>
@@ -321,8 +331,9 @@
   <string name="create_bookmark_with_a_note">Napravi novi straničnik sa bilješkom</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Postavke boja</string>
-  <string name="window_color_settings_title">Postavke boje prozora</string>
-  <string name="workspace_color_settings_title">Zadane postavke boja za radnu površinu</string>
+  <string name="global_color_settings_title">Postavke boja (globalno)</string>
+  <string name="window_color_settings_title">Postavke boja (prozor)</string>
+  <string name="workspace_color_settings_title">Postavke boja (radna površina)</string>
   <string name="color_workspace">Boja radne površine</string>
   <string name="color_text">Boja teksta</string>
   <string name="color_background">Boja pozadine</string>
@@ -412,7 +423,7 @@ Sva preuzimanja modula kroz repozitorij su šifrirana (HTTPS)</string>
   <string name="rdg_plan_day">Dan %s</string>
   <string name="rdg_plan_set_start_date">Postavi datum početka...</string>
   <string name="set_current_day">Postaviti na trenutni dan...</string>
-  <string name="msg_set_current_day_reading_plan">Ovim ćete postaviti današnji dan kao trenutni u ovom planu i označiti sve prethodne dane kao pročitane. Želite li nastaviti dalje?</string>
+  <string name="msg_set_current_day_reading_plan">Ovo će postaviti %1$s kao trenutni dan u ovom planu i označiti sve prethodne dane kao pročitane. Nastaviti?</string>
   <string name="done">Gotovo</string>
   <string name="reset_plan_question">Jeste li sigurni da želite poništiti ovaj plan?</string>
   <string name="import_reading_plan">Uvezite plan čitanja...</string>
@@ -493,7 +504,7 @@ Ljubaznošću Heartlight internet magazina,
   <string name="auto_assign_labels_title">Postavke oznaka</string>
   <string name="auto_assign_labels">Automatski dodijeli &amp; omiljene oznake</string>
   <string name="auto_assign_labels1">Automatski dodijeli oznaku novim straničnicima</string>
-  <string name="auto_assign_labels_primary">Automatski dodijeli kao glavnu</string>
+  <string name="auto_assign_labels_primary">Automatski dodijeli kao glavnu oznaku</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ima straničnika, odnosno bilješki za ovaj dokument</string>
   <string name="bookmark_warning2">
@@ -781,6 +792,14 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="error_key_not_in_document2">%1$s nije pronađen u dokumentu %2$s.</string>
   <string name="empty_list">Nema stavki za prikaz</string>
   <string name="error_skip">Preskoči</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Oštećeni podaci</string>
+  <string name="corrupt_database_message">Neke vaše podatke nije bilo moguće otvoriti jer je datoteka baze podataka oštećena: %1$s.\n\nNišta nije promijenjeno niti izbrisano. Možete poslati izvješće o pogrešci kako biste nam pomogli pronaći uzrok, otvoriti Sigurnosna kopija i vraćanje kako biste napravili sigurnosnu kopiju ili vratili raniju, ili poništiti oštećene podatke.\n\nPoništavanje započinje te podatke praznima. Oštećena datoteka ostaje na ovom uređaju, preimenovana s \".corrupt-\" i datumom.</string>
+  <string name="corrupt_database_reset">Poništi oštećene podatke</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Oštećene podatke nije bilo moguće poništiti: %1$s nije bilo moguće premjestiti sa strane. Ništa nije promijenjeno. Možete pokušati ponovno, poslati izvješće o pogrešci ili upotrijebiti Sigurnosna kopija i vraćanje.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Podaci aplikacije zahtijevaju pažnju. Dodirnite za otvaranje aplikacije.</string>
   <string name="debug_test_error">Testna pogreška (debug izdanje)</string>
   <string name="bug_report_prepare_failed">Izvješće nije moguće pripremiti ni podijeliti. Možete pokušati ponovno ili upotrijebiti Sigurnosno kopiranje i vraćanje za spremanje podataka.</string>
   <string name="bug_report_email_title">Pošaljite prijavu o pogrešci putem e-pošte</string>
@@ -897,6 +916,10 @@ Pored straničnika, moguće je i unijeti tekst po želji u radnoj bilježnici.</
         povlačenjem prema dolje od linije alata. Također se može koristiti povlačenje ulijevo i udesno preko linije alata kako biste se
         prebacili na prethodnu/sljedeću radnu površinu.
     </string>
+  <string name="help_study_tools_title">Alati za proučavanje</string>
+  <string name="help_study_tools_text">Dodirnite Strongov broj kako biste u rječniku potražili grčku ili hebrejsku riječ iza stiha. Dodirnite unakrsnu referencu kako biste je pročitali u prozoru sa poveznicama, bez gubitka mjesta u tekstu.</string>
+  <string name="help_look_and_feel_title">Izgled</string>
+  <string name="help_look_and_feel_text">Noćni način rada, veličina i vrsta fonta, boje i margine nalaze se u Opcije teksta u izborniku opcija (tri točke, gornji desni kut). Mogu se postaviti za sve radne površine, za jednu radnu površinu ili za pojedinačni prozor.</string>
   <string name="help_hidden_features_title">Skriveni prečaci</string>
   <string name="help_hidden_features_text">
         Prevucite prema dolje od naslovne trake da odaberete radnu površinu.
@@ -919,6 +942,7 @@ biblijske dokumente uvijek otvorene i brzo se prebacivati sa komentara i
   <string name="welcome_restore_row_hint">Datoteka baze podataka sa straničnicima i bilješkama</string>
   <string name="welcome_link_website">Web-stranica</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Morate odabrati datoteku koju želite učitati u %s</string>
@@ -1164,7 +1188,7 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="labels_filter_favourite">Samo omiljene oznake</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Označite oznaku da biste je dodijelili ovom straničniku.</string>
-  <string name="manage_labels_help_primary">Primarna oznaka. Njezina boja i stil prikazuju se na straničniku.</string>
+  <string name="manage_labels_help_primary">Glavna oznaka. Njezina boja i stil prikazuju se na straničniku.</string>
   <string name="manage_labels_help_autoassign">Automatski dodijeli ovu oznaku svakom novom straničniku. Prazna munja znači isključeno.</string>
   <string name="manage_labels_help_favourite">Zadržite oznaku među omiljenima za brzi pristup.</string>
   <string name="manage_labels_help_styles">Ispod naziva mali primjer prikazuje izgled oznake: Odabir za straničnik odabranog teksta, Cijeli redak za straničnik cijelog redka i oznaka Radna površina za stil koji ova radna površina nadjačava. Zasivljen primjer bez ukrasa znači da se straničnici oznake ne crtaju. Primjere možete sakriti iz izbornika ⋮.</string>
@@ -1288,7 +1312,7 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="google_drive_signin_done">Prijavljeni ste. Možete zatvoriti ovu karticu i vratiti se u AndBible.</string>
   <string name="google_drive_signin_required">Vaša prijava na Google Drive je istekla ili je opozvana. Prijavite se ponovno za nastavak sinkronizacije.</string>
   <string name="google_drive_signin_interrupted">Google prijava je prekinuta. Pokušajte ponovno.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa WebDAV mape, npr. https://nas.local/dav/ ili https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinkronizacija zahtijeva sigurnu https:// adresu.</string>
@@ -1856,12 +1880,15 @@ Ne prikazuj ovu poruku ponovno.
   <string name="my_document_create_title">Stvori novi dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
   <string name="my_document_delete_confirmation">Obrisati dokument \"%s\"?</string>
+  <string name="show_secret">Prikaži</string>
+  <string name="hide_secret">Sakrij</string>
+  <string name="ai_documents_name">AI dokumenti</string>
+  <string name="ai_documents_description">Automatski generirani dokumenti iz AI-ja</string>
   <string name="my_document_cannot_delete_ai_documents">AI dokumenti se ne mogu obrisati dok sadrže stranice. Najprije obrišite stranice.</string>
   <string name="my_document_save_changes">Spremiti promjene?</string>
   <string name="my_document_no_description">Nema opisa</string>
   <string name="my_document_edit_description">Uredi opis</string>
   <string name="my_document_pages_title">%s - Stranice</string>
-  <string name="my_document_pages_empty">Nema stranica u ovom dokumentu.</string>
   <string name="my_document_page_rename_title">Preimenuj stranicu</string>
   <string name="my_document_page_delete_confirmation">Obrisati stranicu \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Obrisati ove stranice?</string>
@@ -1869,6 +1896,9 @@ Ne prikazuj ovu poruku ponovno.
   <string name="my_document_new_page_name">Stranica %1$d</string>
   <string name="my_document_create_page_title">Nova stranica</string>
   <string name="my_document_content_type_label">Vrsta sadržaja</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Nema stranica u ovom dokumentu.</string>
   <string name="my_document_import_page">Uvezi Markdown/HTML</string>
   <string name="my_document_export_page">Izvezi stranicu</string>
   <string name="my_document_imported_page_name">Uvezeno</string>

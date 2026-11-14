@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Ενέργεια AI
 aiDocumentRegenerate: Αναδημιουργία
 aiDocumentDelete: Διαγραφή
+aiDocumentsName: Έγγραφα AI
 aiGeneratedBy: "Δημιουργήθηκε από %s"
 aiGeneratedByWithModel: "Δημιουργήθηκε από %s (%s)"

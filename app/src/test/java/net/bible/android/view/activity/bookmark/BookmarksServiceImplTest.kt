@@ -53,8 +53,27 @@ class BookmarksServiceImplTest {
     @Test
     fun `htmlToStyledText strips tags other than b`() {
         val result = htmlToStyledText("line1<br>line2<i>note</i>")
-        assertEquals("line1line2note", result.plainText())
+        assertEquals("line1\nline2note", result.plainText())
         assertFalse(result.runs.any { it.bold })
+    }
+
+    @Test
+    fun `htmlToStyledText keeps list item boundaries (issue 4082)`() {
+        val result = htmlToStyledText("<ul><li>do justice</li><li>love kindness</li><li>walk humbly with your God</li></ul>")
+        assertEquals("do justice\nlove kindness\nwalk humbly with your God", result.plainText())
+    }
+
+    @Test
+    fun `htmlToStyledText keeps paragraph and div boundaries without leading or trailing breaks`() {
+        val result = htmlToStyledText("<p>first</p><p>second</p><div>third</div>fourth<h2>head</h2>")
+        assertEquals("first\nsecond\nthird\nfourth\nhead", result.plainText())
+    }
+
+    @Test
+    fun `htmlToStyledText keeps bold runs across block boundaries`() {
+        val result = htmlToStyledText("<ol><li>a <b>b</b></li><li>c</li></ol>")
+        assertEquals("a b\nc", result.plainText())
+        assertTrue(result.runs.any { it.bold && it.text == "b" })
     }
 
     @Test

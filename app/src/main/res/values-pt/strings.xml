@@ -128,7 +128,17 @@
   <string name="search_not_available">Não é possível pesquisar neste documento</string>
   <string name="search_indexing_notification_title">A criar índice de pesquisa</string>
   <string name="choose_translations">Escolher traduções…</string>
-  <string name="multi_search_results">%1$d versículos em %2$d traduções</string>
+  <string name="multi_search_count_summary">%1$s em %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versículo</item>
+    <item quantity="many">%1$d de versículos</item>
+    <item quantity="other">%1$d versículos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d tradução</item>
+    <item quantity="many">%1$d de traduções</item>
+    <item quantity="other">%1$d traduções</item>
+  </plurals>
   <string name="search_index_not_created">sem índice</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo e versículos</string>
@@ -320,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Criar um novo Marcador com uma nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Configurações de cores</string>
-  <string name="window_color_settings_title">Configurações de cores das janelas</string>
-  <string name="workspace_color_settings_title">Configuração padrão das cores da área de trabalho</string>
+  <string name="global_color_settings_title">Configurações de cores (Global)</string>
+  <string name="window_color_settings_title">Configurações de cores (Janela)</string>
+  <string name="workspace_color_settings_title">Configurações de cores (Área de trabalho)</string>
   <string name="color_workspace">Cor da área de trabalho</string>
   <string name="color_text">Cor do texto</string>
   <string name="color_background">Cor de fundo</string>
@@ -412,7 +423,7 @@ Substituir?</string>
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Definir Data de Começo</string>
   <string name="set_current_day">Definir como dia atual ...</string>
-  <string name="msg_set_current_day_reading_plan">Isso definirá hoje como o dia atual neste plano e marcará todos os dias anteriores como lidos. Prosseguir?</string>
+  <string name="msg_set_current_day_reading_plan">Isto definirá %1$s como o dia atual neste plano e marcará todos os dias anteriores como lidos. Continuar?</string>
   <string name="done">Concluído</string>
   <string name="reset_plan_question">Tem certeza de que deseja redefinir este plano?</string>
   <string name="import_reading_plan">Importar plano de leitura ...</string>
@@ -492,7 +503,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="auto_assign_labels_title">Definições de etiquetas</string>
   <string name="auto_assign_labels">Auto-atribuir e Etiquetas favoritas</string>
   <string name="auto_assign_labels1">Auto-atribuir etiqueta a novos marcadores</string>
-  <string name="auto_assign_labels_primary">Auto-atribuir como principal</string>
+  <string name="auto_assign_labels_primary">Auto-atribuir como etiqueta principal</string>
   <!--can be removed-->
   <string name="bookmark_warning">Há marcadores e/ou notas para este documento</string>
   <string name="bookmark_warning2">
@@ -766,6 +777,14 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_key_not_in_document2">%1$s não foi encontrado no documento %2$s</string>
   <string name="empty_list">Sem itens para exibir</string>
   <string name="error_skip">Passar à frente</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Dados danificados</string>
+  <string name="corrupt_database_message">Não foi possível abrir alguns dos seus dados porque o ficheiro da base de dados está danificado: %1$s.\n\nNada foi alterado nem apagado. Pode enviar um relatório de erros para nos ajudar a encontrar a causa, abrir Backup e Restauro para fazer uma cópia de segurança ou restaurar uma anterior, ou repor os dados danificados.\n\nA reposição inicia esses dados vazios. O ficheiro danificado é mantido neste dispositivo, renomeado com \".corrupt-\" e a data.</string>
+  <string name="corrupt_database_reset">Repor dados danificados</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Não foi possível repor os dados danificados: não foi possível mover %1$s para o lado. Nada foi alterado. Pode tentar novamente, enviar um relatório de erros ou usar Backup e Restauro.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Os dados da aplicação precisam de atenção. Toque para abrir a aplicação.</string>
   <string name="debug_test_error">Erro de teste (versão de depuração)</string>
   <string name="bug_report_prepare_failed">Não foi possível preparar ou partilhar o relatório. Pode tentar novamente ou utilizar Cópia de segurança e restauro para guardar os seus dados.</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
@@ -882,6 +901,10 @@ Os espaços de trabalho permitem ter vários ambientes de trabalho dependentes d
 pode ser acessado através do item Áreas de trabalho no menu de opções (canto superior direito). A maneira rápida de acessar os ambientes de trabalho é
 pelo gesto deslizante da barra de ferramentas. Você também pode usar gestos deslizar para a esquerda e deslizar para a direita sobre a barra de ferramentas para
 alterne para o ambiente de trabalho anterior / seguinte.</string>
+  <string name="help_study_tools_title">Ferramentas de estudo</string>
+  <string name="help_study_tools_text">Toque num número de Strong para procurar num dicionário a palavra grega ou hebraica por trás de um versículo. Toque numa referência cruzada para a ler na janela de ligações, sem perder o seu lugar no texto.</string>
+  <string name="help_look_and_feel_title">Aspeto</string>
+  <string name="help_look_and_feel_text">O modo noturno, o tamanho e o tipo de letra, as cores e as margens estão em Opções de texto no menu de opções (três pontos, canto superior direito). Podem ser definidos para todas as áreas de trabalho, para uma área de trabalho ou para uma única janela.</string>
   <string name="help_hidden_features_title">Atalhos escondidos</string>
   <string name="help_hidden_features_text">
 Deslize para baixo na barra de ferramentas para mostrar o seletor de ambiente de trabalho.
@@ -904,6 +927,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="welcome_restore_row_hint">Ficheiro de base de dados com marcadores e notas</string>
   <string name="welcome_link_website">Website</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Vídeo</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Selecione um ficheiro para carregar em %s.</string>
@@ -1845,12 +1869,15 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="my_document_create_title">Criar novo documento</string>
   <string name="my_document_rename_title">Renomear documento</string>
   <string name="my_document_delete_confirmation">Eliminar documento \"%s\"?</string>
+  <string name="show_secret">Mostrar</string>
+  <string name="hide_secret">Ocultar</string>
+  <string name="ai_documents_name">Documentos de IA</string>
+  <string name="ai_documents_description">Documentos gerados automaticamente por IA</string>
   <string name="my_document_cannot_delete_ai_documents">Os Documentos de IA não podem ser eliminados enquanto contiverem páginas. Elimine as páginas primeiro.</string>
   <string name="my_document_save_changes">Guardar alterações?</string>
   <string name="my_document_no_description">Sem descrição</string>
   <string name="my_document_edit_description">Editar descrição</string>
   <string name="my_document_pages_title">%s - Páginas</string>
-  <string name="my_document_pages_empty">Nenhuma página neste documento.</string>
   <string name="my_document_page_rename_title">Renomear página</string>
   <string name="my_document_page_delete_confirmation">Eliminar página \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Apagar estas páginas?</string>
@@ -1858,6 +1885,9 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="my_document_new_page_name">Página %1$d</string>
   <string name="my_document_create_page_title">Nova página</string>
   <string name="my_document_content_type_label">Tipo de conteúdo</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Nenhuma página neste documento.</string>
   <string name="my_document_import_page">Importar Markdown/HTML</string>
   <string name="my_document_export_page">Exportar página</string>
   <string name="my_document_imported_page_name">Importado</string>

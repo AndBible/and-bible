@@ -52,6 +52,7 @@ import net.bible.service.llm.AiDatabaseLifetime
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
+import net.bible.service.db.requireIntactDatabase
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.settings.SettingsItem
@@ -96,11 +97,15 @@ class CloudSync(
 ) {
     var adapterId: String
         // An unavailable saved backend is disabled, never replaced by a different account/backend.
-        get() = settings.getString("sync_adapter")?.takeIf { it.isNotEmpty() } ?: adapters.available.firstOrNull().orEmpty()
+        get() = adapters.effectiveAdapterId(settings)
         set(value) {
             if (value != adapterId) _adapter = null
             settings.setString("sync_adapter", value)
         }
+    init { adapters.pinLegacyAdapterIfInUse(settings) }
+
+    /** Fixes the backend before the first category is enabled (see [pinAdapterOnEnable]). */
+    fun pinAdapterOnEnable() = adapters.pinAdapterOnEnable(settings)
     val adapterAvailable: Boolean get() = adapters.isAvailable(settings)
     val syncEnabled: Boolean get() = adapterAvailable && SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) }
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
@@ -527,13 +532,24 @@ class CloudSync(
         }
     }
 
-    /** The initial-download swap: close, copy the downloaded file over the local one, reopen. */
+    /**
+     * The initial-download swap: close, copy the downloaded file over the local one, reopen. A [downloaded] file that is
+     * not an intact database ([requireIntactDatabase]) is refused with [net.bible.service.db.DamagedDatabaseFileException]
+     * before the local database is touched (#4112: damage in a download must never replace the local data).
+     */
     @VisibleForTesting suspend fun swapInInitialDb(
         dbDef: SyncableDatabaseAccessor<*>,
         downloaded: Path,
         replacement: AiDatabaseLifetime.Replacement? = null,
         afterReset: suspend () -> Unit,
     ) {
+        try {
+            withContext(Dispatchers.IO) { requireIntactDatabase(downloaded.toString()) }
+        } catch (e: Exception) {
+            // The file is left where it is: for a merge's restore it is the durable pristine copy.
+            Log.e(TAG, "Refusing to swap in a damaged ${dbDef.categoryName} database; the local one is kept", e)
+            throw e
+        }
         try {
             // F113: the same race class as a backup restore. A save between the close and the live
             // repository's reload would write the pre-download windows over the downloaded file, and the

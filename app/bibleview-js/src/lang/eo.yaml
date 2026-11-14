@@ -42,9 +42,7 @@ referenceLink: Malfermi referencan ligilon
 openFootnote: Malfermi piednoton
 noMyNotesTitle: Neniu noto por tiu ĉi ĉapitro.
 noMyNotesDescription: Unue kreu legosignojn en la biblia dokumento. La kreotaj legosignoj aperos tie ĉi kaj vi povos aldoni al ili personajn notojn.
-
 emptyStudyPad: Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
-
 doYouWantToDeleteEntry: Ĉu forigi tiun ĉi enskribon en notbloko?
 removeStudyPadConfirmationTitle: Ĉu forigi enskribon en notbloko?
 dragHelp: Ŝovu por reordigi
@@ -125,5 +123,6 @@ llmAction: AI
 llmActionLong: AI-ago
 aiDocumentRegenerate: Regeneri
 aiDocumentDelete: Forigi
+aiDocumentsName: AI-dokumentoj
 aiGeneratedBy: "Generita de %s"
 aiGeneratedByWithModel: "Generita de %s (%s)"

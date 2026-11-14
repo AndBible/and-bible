@@ -1,0 +1,10 @@
+- Google Drive sync on every platform, also without Google Play services (F-Droid)
+- Swipe from the screen edge opens the main menu again, also on iPhone and iPad (#4074)
+- Tapping back twice quickly no longer exits the app (#4073)
+- iOS: bookmark markers sit at the right height in the text
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/

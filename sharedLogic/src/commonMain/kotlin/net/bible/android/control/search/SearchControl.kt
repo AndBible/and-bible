@@ -59,6 +59,26 @@ class MultiSearchResultsDto {
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+/** A closed `[...]` or `{...}` group: a term range, or a passage restriction. */
+// Every bracket escaped: Android's ICU regex rejects a bare `}` or `]` that the JVM accepts. Robolectric and JVM
+// unit tests run java.util.regex, so they cannot catch ICU syntax errors: only a device/emulator run does.
+// (Audit 2026-11-14: no other regex in sharedLogic/sharedCore/sharedUi/app uses a bare `}` or `]` outside a set.)
+private val bracketGroupRe = Regex("""\[[^\[\]\{\}]*\]|\{[^\[\]\{\}]*\}""")
+
+/** Stands in for a space inside a bracket group while the words are decorated; never typed in a query. */
+private const val GROUP_SPACE = '\u0000'
+
+/**
+ * [type]'s decoration of [text] with each closed `[...]`/`{...}` group kept as one word (#4093). The decorators
+ * split at spaces, so "All words" would turn `[grace TO hope]` into `+[grace +TO +hope]`: no longer a range, the
+ * query then failed as an invalid passage or a parse error and found nothing, instead of reporting the
+ * unsupported syntax.
+ */
+internal fun decorateSearchWords(text: String, type: SearchType): String {
+    val protected = bracketGroupRe.replace(text) { it.value.replace(' ', GROUP_SPACE) }
+    return type.decorate(protected).replace(GROUP_SPACE, ' ')
+}
+
 class SearchControl constructor(
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
     private val windowControl: WindowControl,
@@ -97,7 +117,7 @@ class SearchControl constructor(
         val cleanSearchString = cleanSearchString(searchString)
 
         // add search type (all/any/phrase) to search string
-        var decorated: String = searchType.decorate(cleanSearchString)
+        var decorated: String = decorateSearchWords(cleanSearchString, searchType)
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
@@ -113,7 +133,7 @@ class SearchControl constructor(
      * single-character regex matches by the highlighter.
      */
     fun highlightSearchString(searchString: String, searchType: SearchType): String =
-        searchType.decorate(cleanSearchString(searchString))
+        decorateSearchWords(cleanSearchString(searchString), searchType)
 
     /** Search translations and group results by verse
      */

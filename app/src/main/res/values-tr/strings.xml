@@ -128,7 +128,15 @@
   <string name="search_not_available">Bu belgede arama yapılamaz</string>
   <string name="search_indexing_notification_title">Arama dizini oluşturuluyor</string>
   <string name="choose_translations">Çeviriler seçin…</string>
-  <string name="multi_search_results">%2$d çeviride %1$d ayet</string>
+  <string name="multi_search_count_summary">%2$s içinde %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d ayet</item>
+    <item quantity="other">%1$d ayet</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d çeviri</item>
+    <item quantity="other">%1$d çeviri</item>
+  </plurals>
   <string name="search_index_not_created">dizin yok</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Bölüm ve ayet rakamları</string>
@@ -322,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Not içeren yeni bir Yer İmi oluşturun</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Renk ayarları</string>
-  <string name="window_color_settings_title">Pencere rengi ayarları</string>
-  <string name="workspace_color_settings_title">Çalışma alanının renk ayarı varsayılanları</string>
+  <string name="global_color_settings_title">Renk ayarları (Genel)</string>
+  <string name="window_color_settings_title">Renk ayarları (Pencere)</string>
+  <string name="workspace_color_settings_title">Renk ayarları (Çalışma alanı)</string>
   <string name="color_workspace">Çalışma alanı rengi</string>
   <string name="color_text">Metin rengi</string>
   <string name="color_background">Arka plan rengi</string>
@@ -414,7 +423,7 @@
   <string name="rdg_plan_day">%s. Gün</string>
   <string name="rdg_plan_set_start_date">Başlama Tarihini Seçin…</string>
   <string name="set_current_day">Bugünü seç…</string>
-  <string name="msg_set_current_day_reading_plan">Bu, bugünü bu plandaki geçerli gün olarak ayarlayacak ve önceki tüm günleri okundu olarak işaretleyecektir. Devam edilsin mi?</string>
+  <string name="msg_set_current_day_reading_plan">Bu işlem %1$s gününü bu planın geçerli günü yapar ve önceki tüm günleri okundu olarak işaretler. Devam edilsin mi?</string>
   <string name="done">Bitti</string>
   <string name="reset_plan_question">Bu planı sıfırlamak istediğinizden emin misiniz?</string>
   <string name="import_reading_plan">Okuma planını içe aktar…</string>
@@ -501,7 +510,7 @@
   <string name="auto_assign_labels_title">Etiket ayarları</string>
   <string name="auto_assign_labels">Oto-atamak &amp; Favori etiketler</string>
   <string name="auto_assign_labels1">Etiketi yeni yer imlerine otomatik atayın</string>
-  <string name="auto_assign_labels_primary">Birincil olarak otomatik ata</string>
+  <string name="auto_assign_labels_primary">Birincil etiket olarak otomatik ata</string>
   <!--can be removed-->
   <string name="bookmark_warning">Bu belge için yer imleri ve/veya notlar bulunmaktadır.</string>
   <string name="bookmark_warning2">
@@ -795,6 +804,14 @@
   <string name="error_key_not_in_document2">%1$s,  %2$s belgesinde bulunamadı.</string>
   <string name="empty_list">Öğe bulunmadı</string>
   <string name="error_skip">Atla</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Hasarlı veri</string>
+  <string name="corrupt_database_message">Veritabanı dosyası hasarlı olduğu için verilerinizin bir kısmı açılamadı: %1$s.\n\nHiçbir şey değiştirilmedi veya silinmedi. Nedenini bulmamıza yardımcı olmak için bir hata raporu gönderebilir, yedek almak ya da önceki bir yedeği geri yüklemek için Yedekle &amp; Geri Al bölümünü açabilir veya hasarlı veriyi sıfırlayabilirsiniz.\n\nSıfırlama, o veriyi boş olarak başlatır. Hasarlı dosya bu cihazda saklanır; adı \".corrupt-\" ve tarih eklenerek değiştirilir.</string>
+  <string name="corrupt_database_reset">Hasarlı veriyi sıfırla</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Hasarlı veri sıfırlanamadı: %1$s kenara taşınamadı. Hiçbir şey değiştirilmedi. Tekrar deneyebilir, bir hata raporu gönderebilir veya Yedekle &amp; Geri Al\'ı kullanabilirsiniz.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Uygulamanın verilerinin ilgilenilmesi gerekiyor. Uygulamayı açmak için dokunun.</string>
   <string name="debug_test_error">Test hatası (hata ayıklama sürümü)</string>
   <string name="bug_report_prepare_failed">Rapor hazırlanamadı veya paylaşılamadı. Yeniden deneyebilir veya verilerinizi kaydetmek için Yedekle ve Geri Yükle\'yi kullanabilirsiniz.</string>
   <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
@@ -916,6 +933,10 @@
     Çalışma alanlarına erişmenin hızlı yolu araç çubuğundan aşağı kaydırma hareketidir. Önceki / sonraki
     çalışma alanına geçmek için araç çubuğu üzerinde sola kaydırma ve sağa kaydırma hareketlerini de kullanabilirsiniz.
   </string>
+  <string name="help_study_tools_title">Çalışma araçları</string>
+  <string name="help_study_tools_text">Bir ayetin arkasındaki Yunanca veya İbranice kelimeyi sözlükte aramak için bir Strong numarasına dokunun. Metindeki yerinizi kaybetmeden bir çapraz referansı bağlantılar penceresinde okumak için ona dokunun.</string>
+  <string name="help_look_and_feel_title">Görünüm</string>
+  <string name="help_look_and_feel_text">Gece modu, yazı tipi boyutu ve ailesi, renkler ve kenar boşlukları seçenekler menüsündeki (sağ üst köşedeki üç nokta) Metin seçenekleri içindedir. Tüm çalışma alanları, tek bir çalışma alanı veya tek bir pencere için ayarlanabilir.</string>
   <string name="help_hidden_features_title">Gizli kısayollar</string>
   <string name="help_hidden_features_text">
     Çalışma alanı seçiciyi göstermek için araç çubuğundan aşağı kaydırın.
@@ -940,6 +961,7 @@
   <string name="welcome_restore_row_hint">Yer imleri ve notlar içeren veritabanı dosyası</string>
   <string name="welcome_link_website">Web sitesi</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s’ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
@@ -1330,7 +1352,7 @@
   <string name="google_drive_signin_done">Oturum açıldı. Bu sekmeyi kapatıp AndBible\'a dönebilirsiniz.</string>
   <string name="google_drive_signin_required">Google Drive oturumunuzun süresi doldu veya iptal edildi. Eşzamanlamaya devam etmek için yeniden oturum açın.</string>
   <string name="google_drive_signin_interrupted">Google oturum açma kesintiye uğradı. Tekrar deneyin.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV klasörünün adresi, örn. https://nas.local/dav/ veya https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Eşitleme için güvenli bir https:// adresi gerekir.</string>
@@ -1898,12 +1920,15 @@
   <string name="my_document_create_title">Yeni belge oluştur</string>
   <string name="my_document_rename_title">Belgeyi yeniden adlandır</string>
   <string name="my_document_delete_confirmation">\"%s\" belgesi silinsin mi?</string>
+  <string name="show_secret">Göster</string>
+  <string name="hide_secret">Gizle</string>
+  <string name="ai_documents_name">AI Belgeleri</string>
+  <string name="ai_documents_description">AI tarafından otomatik olarak oluşturulan belgeler</string>
   <string name="my_document_cannot_delete_ai_documents">AI Belgeleri, sayfa içerdiği sürece silinemez. Önce sayfaları silin.</string>
   <string name="my_document_save_changes">Değişiklikler kaydedilsin mi?</string>
   <string name="my_document_no_description">Açıklama yok</string>
   <string name="my_document_edit_description">Açıklamayı düzenle</string>
   <string name="my_document_pages_title">%s - Sayfalar</string>
-  <string name="my_document_pages_empty">Bu belgede sayfa yok.</string>
   <string name="my_document_page_rename_title">Sayfayı yeniden adlandır</string>
   <string name="my_document_page_delete_confirmation">\"%s\" sayfası silinsin mi?</string>
   <string name="my_document_pages_delete_confirmation">Bu sayfalar silinsin mi?</string>
@@ -1911,6 +1936,9 @@
   <string name="my_document_new_page_name">Sayfa %1$d</string>
   <string name="my_document_create_page_title">Yeni sayfa</string>
   <string name="my_document_content_type_label">İçerik türü</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Bu belgede sayfa yok.</string>
   <string name="my_document_import_page">Markdown/HTML içe aktar</string>
   <string name="my_document_export_page">Sayfayı dışa aktar</string>
   <string name="my_document_imported_page_name">İçe aktarıldı</string>

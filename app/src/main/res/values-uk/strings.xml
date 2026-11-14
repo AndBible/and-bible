@@ -128,7 +128,19 @@
   <string name="search_not_available">У цьому ресурсі не можна шукати</string>
   <string name="search_indexing_notification_title">Створення пошукового індексу</string>
   <string name="choose_translations">Вибрати переклади…</string>
-  <string name="multi_search_results">%1$d віршів у %2$d перекладах</string>
+  <string name="multi_search_count_summary">%1$s у %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d вірш</item>
+    <item quantity="few">%1$d вірші</item>
+    <item quantity="many">%1$d віршів</item>
+    <item quantity="other">%1$d вірша</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d переклад</item>
+    <item quantity="few">%1$d переклади</item>
+    <item quantity="many">%1$d перекладів</item>
+    <item quantity="other">%1$d перекладу</item>
+  </plurals>
   <string name="search_index_not_created">індекс відсутній</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
@@ -321,8 +333,9 @@
   <string name="create_bookmark_with_a_note">Створити нову закладку з приміткою</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Налаштування кольору</string>
-  <string name="window_color_settings_title">Налаштування кольору вікон</string>
-  <string name="workspace_color_settings_title">Налаштування кольору робочої області за замовчуванням </string>
+  <string name="global_color_settings_title">Налаштування кольору (глобальні)</string>
+  <string name="window_color_settings_title">Налаштування кольору (вікно)</string>
+  <string name="workspace_color_settings_title">Налаштування кольору (робоча область)</string>
   <string name="color_workspace">Колір робочої області</string>
   <string name="color_text">Колір тексту</string>
   <string name="color_background">Колір фону</string>
@@ -412,7 +425,7 @@
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Встановити дату початку…</string>
   <string name="set_current_day">Встановити як поточний день…</string>
-  <string name="msg_set_current_day_reading_plan">Це встановить сьогодні як поточний день у цьому плані та позначить усі попередні дні як прочитані. Продовжити?</string>
+  <string name="msg_set_current_day_reading_plan">Це зробить %1$s поточним днем цього плану та позначить усі попередні дні як прочитані. Продовжити?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Ви впевнені, що хочете скинути цей план?</string>
   <string name="import_reading_plan">Імпортувати план читання…</string>
@@ -498,7 +511,7 @@
   <string name="auto_assign_labels_title">Налаштування міток</string>
   <string name="auto_assign_labels">Автопризначення та улюблені мітки</string>
   <string name="auto_assign_labels1">Автоматично призначати мітку новим закладкам</string>
-  <string name="auto_assign_labels_primary">Автоматично призначити як основну</string>
+  <string name="auto_assign_labels_primary">Автоматично призначати як основну мітку</string>
   <!--can be removed-->
   <string name="bookmark_warning">В цьому ресурсі є закладки та/або примітки.</string>
   <string name="bookmark_warning2">
@@ -786,6 +799,14 @@
   <string name="error_key_not_in_document2">%1$s не знайдено в ресурсі %2$s.</string>
   <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Пошкоджені дані</string>
+  <string name="corrupt_database_message">Частину ваших даних не вдалося відкрити, бо файл їхньої бази даних пошкоджено: %1$s.\n\nНічого не змінено й не видалено. Ви можете надіслати звіт про помилку, щоб допомогти нам знайти причину, відкрити «Резервне копіювання та відновлення», щоб створити резервну копію або відновити попередню, або скинути пошкоджені дані.\n\nПісля скидання ці дані починаються з порожнього стану. Пошкоджений файл зберігається на цьому пристрої з назвою, зміненою на \".corrupt-\" і дату.</string>
+  <string name="corrupt_database_reset">Скинути пошкоджені дані</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Не вдалося скинути пошкоджені дані: не вдалося відсунути вбік %1$s. Нічого не змінено. Ви можете спробувати ще раз, надіслати звіт про помилку або скористатися «Резервним копіюванням та відновленням».</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Дані застосунку потребують уваги. Торкніться, щоб відкрити застосунок.</string>
   <string name="debug_test_error">Тестова помилка (збірка для налагодження)</string>
   <string name="bug_report_prepare_failed">Не вдалося підготувати або надіслати звіт. Можна спробувати знову або скористатися «Резервне копіювання й відновлення», щоб зберегти свої дані.</string>
   <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
@@ -902,6 +923,10 @@
 можна отримати через пункт «Робочі області» в меню параметрів (верхній правий кут). Швидкий спосіб отримати доступ до робочих областів можна через
 натискання пальцем вниз на панелі інструментів. Ви також можете використовувати рухи пальцем вліво та вправо над панеллю інструментів, щоб перейти до
 попередньої / наступньої робочої області.</string>
+  <string name="help_study_tools_title">Інструменти вивчення</string>
+  <string name="help_study_tools_text">Торкніться номера Стронга, щоб знайти у словнику грецьке чи єврейське слово, що стоїть за віршем. Торкніться перехресного посилання, щоб прочитати його у вікні посилань, не втрачаючи місця в тексті.</string>
+  <string name="help_look_and_feel_title">Вигляд</string>
+  <string name="help_look_and_feel_text">Нічний режим, розмір і гарнітура шрифту, кольори та поля містяться в розділі «Параметри тексту» меню параметрів (три крапки у верхньому правому куті). Їх можна задати для всіх робочих областей, для однієї робочої області або для окремого вікна.</string>
   <string name="help_hidden_features_title">Приховані ярлики</string>
   <string name="help_hidden_features_text">
        Проведіть пальцем вниз з панелі інструментів, щоб відобразити селектор робочої області.
@@ -924,6 +949,7 @@
   <string name="welcome_restore_row_hint">Файл бази даних із закладками та примітками</string>
   <string name="welcome_link_website">Вебсайт</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Відео</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Ви повинні вибрати файл, який ви хочете завантажити в %s.</string>
@@ -1311,7 +1337,7 @@
   <string name="google_drive_signin_done">Вхід виконано. Ви можете закрити цю вкладку та повернутися до AndBible.</string>
   <string name="google_drive_signin_required">Термін дії вашого входу в Google Drive сплив або його було скасовано. Увійдіть знову, щоб продовжити синхронізацію.</string>
   <string name="google_drive_signin_interrupted">Вхід у Google було перервано. Спробуйте ще раз.</string>
-  <string name="adapters_next_cloud">Наступна хмара</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Адреса теки WebDAV, наприклад https://nas.local/dav/ або https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронізації потрібна захищена адреса https://.</string>
@@ -1879,12 +1905,15 @@
   <string name="my_document_create_title">Створити новий ресурс</string>
   <string name="my_document_rename_title">Перейменувати ресурс</string>
   <string name="my_document_delete_confirmation">Видалити ресурс \"%s\"?</string>
+  <string name="show_secret">Показати</string>
+  <string name="hide_secret">Сховати</string>
+  <string name="ai_documents_name">Документи ШІ</string>
+  <string name="ai_documents_description">Документи, автоматично створені ШІ</string>
   <string name="my_document_cannot_delete_ai_documents">Ресурси ШІ не можна видалити, якщо вони містять сторінки. Спочатку видаліть сторінки.</string>
   <string name="my_document_save_changes">Зберегти зміни?</string>
   <string name="my_document_no_description">Немає опису</string>
   <string name="my_document_edit_description">Змінити опис</string>
   <string name="my_document_pages_title">%s - Сторінки</string>
-  <string name="my_document_pages_empty">У цьому ресурсі немає сторінок.</string>
   <string name="my_document_page_rename_title">Перейменувати сторінку</string>
   <string name="my_document_page_delete_confirmation">Видалити сторінку \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Видалити ці сторінки?</string>
@@ -1892,6 +1921,9 @@
   <string name="my_document_new_page_name">Сторінка %1$d</string>
   <string name="my_document_create_page_title">Нова сторінка</string>
   <string name="my_document_content_type_label">Тип вмісту</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">У цьому ресурсі немає сторінок.</string>
   <string name="my_document_import_page">Імпортувати Markdown/HTML</string>
   <string name="my_document_export_page">Експортувати сторінку</string>
   <string name="my_document_imported_page_name">Імпортовано</string>

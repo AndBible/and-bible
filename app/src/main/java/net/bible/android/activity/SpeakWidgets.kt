@@ -259,12 +259,22 @@ class SpeakWidgetManager : KoinComponent {
         val app by lazy {instance.app }
 
         override fun onReceive(context: Context?, intent: Intent?) {
-            CommonUtils.initializeApp()
+            if (!CommonUtils.initializeAppForHeadlessEntry()) {
+                // #4112: damaged data. A widget update still renders, in the harmless "open the app" state.
+                val ids = intent?.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+                if (context != null && intent?.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE && ids != null) {
+                    showDamagedDataState(context, AppWidgetManager.getInstance(context), ids)
+                }
+                return
+            }
             super.onReceive(context, intent)
         }
 
         override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            CommonUtils.initializeApp()
+            if (!CommonUtils.initializeAppForHeadlessEntry()) {
+                showDamagedDataState(context, appWidgetManager, appWidgetIds)
+                return
+            }
             Log.i(TAG, "onUpdate")
             for (appWidgetId in appWidgetIds) {
                 try {
@@ -276,6 +286,23 @@ class SpeakWidgetManager : KoinComponent {
         }
 
         protected abstract fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int)
+
+        /**
+         * #4112: while the app's data is damaged the widget shows only "the app's data needs attention"; a tap opens
+         * the startup's recovery question. No speak buttons, so nothing reaches the damaged databases.
+         */
+        private fun showDamagedDataState(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+            val views = RemoteViews(context.packageName, R.layout.speak_widget_attention).apply {
+                setOnClickPendingIntent(R.id.root, CommonUtils.damagedDataRecoveryPendingIntent(context))
+            }
+            for (appWidgetId in appWidgetIds) {
+                try {
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Widget updating failed!", e)
+                }
+            }
+        }
     }
 
     abstract class AbstractButtonSpeakWidget : AbstractSpeakWidget() {
@@ -354,8 +381,8 @@ class SpeakWidgetManager : KoinComponent {
                 ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_FAST_FORWARD -> speakControl.forward()
-                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
+                ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
                 ACTION_SLEEP_TIMER -> toggleSleepTimer()
                 ACTION_STOP -> speakControl.stop()
             }

@@ -117,6 +117,11 @@ that match the language and type filter you last used in the document list).
 Note: This will open the document in the currently active window. To open a
 document in a new window, see [Windows](windows.md).
 
+When you switch Bibles, the window keeps the current reference. If the selected
+Bible does not contain that book or chapter, a notice names the missing reference
+and the document (for example, "Romans 8 was not found in document OSHB."). Open
+the *Book Chooser* to select a reference available in that Bible.
+
 The Bible and Commentary toolbar buttons can also be customized. To customize the
 actions, go to the top left main menu (☰) and click *Application
 preferences*. Click *Action for toolbar button press* to configure the custom
@@ -315,6 +320,8 @@ again to exit fullscreen. Entering fullscreen this way is enabled by default on
 mobile, but disabled by default when running the iPad app on a Mac. Change it in
 `Settings` > `Application behavior` > `Double-tap to fullscreen`. Your saved
 choice is kept. Double-tapping still exits fullscreen when the setting is off.
+The text stays where it was when you enter or leave fullscreen, also when you
+double-tap the left or right margin, where a single tap scrolls one page.
 On iPhone and iPad, you can also tap the exit-fullscreen button at the upper right.
 
 In the desktop app, double-click does not toggle fullscreen and the double-tap

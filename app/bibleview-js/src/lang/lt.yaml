@@ -123,5 +123,6 @@ llmAction: DI
 llmActionLong: DI veiksmas
 aiDocumentRegenerate: Regeneruoti
 aiDocumentDelete: Ištrinti
+aiDocumentsName: DI dokumentai
 aiGeneratedBy: "Sugeneravo %s"
 aiGeneratedByWithModel: "Sugeneravo %s (%s)"

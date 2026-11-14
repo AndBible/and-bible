@@ -130,7 +130,19 @@
   <string name="search_not_available">לא ניתן לחפש במסמך זה</string>
   <string name="search_indexing_notification_title">יוצר אינדקס חיפוש</string>
   <string name="choose_translations">בחר תרגומים…</string>
-  <string name="multi_search_results">%1$d פסוקים ב-%2$d תרגומים</string>
+  <string name="multi_search_count_summary">%1$s ב-%2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">פסוק %1$d</item>
+    <item quantity="two">%1$d פסוקים</item>
+    <item quantity="many">%1$d פסוקים</item>
+    <item quantity="other">%1$d פסוקים</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">תרגום %1$d</item>
+    <item quantity="two">%1$d תרגומים</item>
+    <item quantity="many">%1$d תרגומים</item>
+    <item quantity="other">%1$d תרגומים</item>
+  </plurals>
   <string name="search_index_not_created">אין אינדקס</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">מספרי פרקים ופסוקים</string>
@@ -324,8 +336,9 @@
   <string name="create_bookmark_with_a_note">יצירת סימניה חדשה עם הערה</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">הגדרות צבע</string>
-  <string name="window_color_settings_title">הגדרות צבע חלון</string>
-  <string name="workspace_color_settings_title">צבע ברירת מחדל לסביבת עבודה</string>
+  <string name="global_color_settings_title">הגדרות צבע (גלובלי)</string>
+  <string name="window_color_settings_title">הגדרות צבע (חלון)</string>
+  <string name="workspace_color_settings_title">הגדרות צבע (סביבת עבודה)</string>
   <string name="color_workspace">צבע סביבת עבודה</string>
   <string name="color_text">צבע טקסט</string>
   <string name="color_background">צבע רקע</string>
@@ -411,7 +424,7 @@
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
   <string name="set_current_day">הגדר בתור היום הנוכחי....</string>
-  <string name="msg_set_current_day_reading_plan">להגדיר את היום בתור היום הנוכחי עבור תוכנית זו, ולסמן את כל הימים הקודמים כימים שנקראו?</string>
+  <string name="msg_set_current_day_reading_plan">פעולה זו תגדיר את %1$s כיום הנוכחי בתוכנית זו ותסמן את כל הימים הקודמים כנקראו. להמשיך?</string>
   <string name="done">סיום</string>
   <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="import_reading_plan">ייבוא תוכנית קריאה...</string>
@@ -494,7 +507,7 @@
   <string name="auto_assign_labels_title">הגדרות תגיות</string>
   <string name="auto_assign_labels">השמה אוטומטית ותגיות מועדפות</string>
   <string name="auto_assign_labels1">הוסף את התוית באופן אוטומטי לסימניות חדשות</string>
-  <string name="auto_assign_labels_primary">הוסף באופן אוטומטי כראשית</string>
+  <string name="auto_assign_labels_primary">הקצה אוטומטית כתגית ראשית</string>
   <!--can be removed-->
   <string name="bookmark_warning">ישנן סימניות ו/או הערות עבור מסמך זה.</string>
   <string name="bookmark_warning2">אם מבנה המסמך השתנה, עדכון המסמך עלול לגרום לסימניות/הערות לעבור מיקום בתוך המסמך או להיעלם לחלוטין.</string>
@@ -770,6 +783,14 @@
   <string name="error_key_not_in_document2">%1$s לא נמצא במסמך %2$s.</string>
   <string name="empty_list">אין פריטים</string>
   <string name="error_skip">דלג</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">נתונים פגומים</string>
+  <string name="corrupt_database_message">לא ניתן היה לפתוח חלק מהנתונים שלך מפני שקובץ מסד הנתונים פגום: %1$s.\n\nדבר לא שונה ולא נמחק. אפשר לשלוח דוח שגיאה כדי לעזור לנו למצוא את הסיבה, לפתוח את גיבוי ושחזור כדי ליצור גיבוי או לשחזר גיבוי קודם, או לאפס את הנתונים הפגומים.\n\nאיפוס מתחיל את הנתונים הללו מחדש כשהם ריקים. הקובץ הפגום נשמר במכשיר זה, ושמו משונה ל-\".corrupt-\" ולתאריך.</string>
+  <string name="corrupt_database_reset">איפוס הנתונים הפגומים</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">לא ניתן היה לאפס את הנתונים הפגומים: לא ניתן היה להזיז את %1$s הצידה. דבר לא שונה. אפשר לנסות שוב, לשלוח דוח שגיאה או להשתמש בגיבוי ושחזור.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">נתוני האפליקציה דורשים תשומת לב. הקש כדי לפתוח את האפליקציה.</string>
   <string name="debug_test_error">שגיאת בדיקה (גרסת ניפוי שגיאות)</string>
   <string name="bug_report_prepare_failed">לא ניתן היה להכין או לשתף את הדוח. אפשר לנסות שוב, או להשתמש בגיבוי ושחזור כדי לשמור את הנתונים.</string>
   <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
@@ -874,6 +895,10 @@
   <string name="help_fts5">תחביר שאילתת טקסט מלא FTS5</string>
   <string name="help_workspaces_title">סביבות עבודה</string>
   <string name="help_workspaces_text">ניתן לנהל סביבות עבודה מתוך תפריט האופציות - שלוש נקודות, פינה ימנית עליונה. החלקה שמאלה על סרגל הכלים מעבירה בין סביבות עבודה.</string>
+  <string name="help_study_tools_title">כלי לימוד</string>
+  <string name="help_study_tools_text">הקש על מספר סטרונג כדי לחפש במילון את המילה היוונית או העברית שמאחורי פסוק. הקש על הפניה צולבת כדי לקרוא אותה בחלון הקישורים, מבלי לאבד את מקומך בטקסט.</string>
+  <string name="help_look_and_feel_title">מראה ותחושה</string>
+  <string name="help_look_and_feel_text">מצב לילה, גודל וסוג גופן, צבעים ושוליים נמצאים באפשרויות טקסט בתפריט האפשרויות (שלוש נקודות, בפינה הימנית העליונה). אפשר להגדיר אותם לכל סביבות העבודה, לסביבת עבודה אחת או לחלון בודד.</string>
   <string name="help_hidden_features_title">קיצורים חבויים</string>
   <string name="help_hidden_features_text">
 החלקה מסרגל הכלים למטה לבחירת סביבת עבודה.
@@ -891,6 +916,7 @@
   <string name="welcome_restore_row_hint">קובץ מסד נתונים עם סימניות והערות</string>
   <string name="welcome_link_website">אתר</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">וידאו</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">אתה צריך לבחור את הקובץ כדי לטעון אותו אל %s. </string>
@@ -1134,7 +1160,7 @@
   <string name="labels_filter_favourite">רק תוויות מועדפות</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">סמנו תווית כדי להקצות אותה לסימנייה זו.</string>
-  <string name="manage_labels_help_primary">התווית הראשית. הצבע והסגנון שלה הם מה שהסימנייה מציגה.</string>
+  <string name="manage_labels_help_primary">התגית הראשית. הצבע והסגנון שלה הם מה שהסימנייה מציגה.</string>
   <string name="manage_labels_help_autoassign">הקצאת תווית זו אוטומטית לכל סימנייה חדשה. ברק חלול פירושו כבוי.</string>
   <string name="manage_labels_help_favourite">שמירת התווית במועדפים לגישה מהירה.</string>
   <string name="manage_labels_help_styles">מתחת לשם מוצגת דוגמה קטנה של מראה התווית: \"בחירה\" עבור סימניית בחירת טקסט, \"פסוק שלם\" עבור סימניית פסוק שלם, ותג \"סביבת עבודה\" עבור סגנון שסביבת עבודה זו עוקפת. דוגמה אפורה ללא עיטור פירושה שסימניות התווית אינן מצוירות. אפשר להסתיר את הדוגמאות מתפריט ⋮.</string>
@@ -1246,7 +1272,7 @@
   <string name="google_drive_signin_done">התחברת בהצלחה. ניתן לסגור לשונית זו ולחזור ל-AndBible.</string>
   <string name="google_drive_signin_required">ההתחברות שלך ל-Google Drive פגה או בוטלה. התחבר שוב כדי להמשיך בסנכרון.</string>
   <string name="google_drive_signin_interrupted">ההתחברות ל-Google הופסקה. נסה שוב.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">כתובת תיקיית ה-WebDAV, למשל https://nas.local/dav/ או https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">הסנכרון דורש כתובת מאובטחת מסוג https://.</string>
@@ -1814,12 +1840,15 @@
   <string name="my_document_create_title">צור מסמך חדש</string>
   <string name="my_document_rename_title">שנה שם מסמך</string>
   <string name="my_document_delete_confirmation">למחוק מסמך \"%s\"?</string>
+  <string name="show_secret">הצג</string>
+  <string name="hide_secret">הסתר</string>
+  <string name="ai_documents_name">מסמכי AI</string>
+  <string name="ai_documents_description">מסמכים שנוצרו אוטומטית על ידי AI</string>
   <string name="my_document_cannot_delete_ai_documents">לא ניתן למחוק מסמכי בינה מלאכותית כשהם מכילים עמודים. מחק את העמודים תחילה.</string>
   <string name="my_document_save_changes">לשמור שינויים?</string>
   <string name="my_document_no_description">אין תיאור</string>
   <string name="my_document_edit_description">ערוך תיאור</string>
   <string name="my_document_pages_title">%s - עמודים</string>
-  <string name="my_document_pages_empty">אין עמודים במסמך זה.</string>
   <string name="my_document_page_rename_title">שנה שם עמוד</string>
   <string name="my_document_page_delete_confirmation">למחוק עמוד \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">למחוק את העמודים האלה?</string>
@@ -1827,6 +1856,9 @@
   <string name="my_document_new_page_name">עמוד %1$d</string>
   <string name="my_document_create_page_title">עמוד חדש</string>
   <string name="my_document_content_type_label">סוג תוכן</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">אין עמודים במסמך זה.</string>
   <string name="my_document_import_page">ייבא Markdown/HTML</string>
   <string name="my_document_export_page">יצא עמוד</string>
   <string name="my_document_imported_page_name">מיובא</string>

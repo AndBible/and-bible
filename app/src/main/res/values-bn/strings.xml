@@ -128,7 +128,15 @@
   <string name="search_not_available">এই নথিতে অনুসন্ধান করা যায় না</string>
   <string name="search_indexing_notification_title">অনুসন্ধান সূচি তৈরি হচ্ছে</string>
   <string name="choose_translations">অনুবাদ চয়ন করুন…</string>
-  <string name="multi_search_results">%2$d অনুবাদে %1$d পদ</string>
+  <string name="multi_search_count_summary">%2$s-এ %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d পদ</item>
+    <item quantity="other">%1$d পদ</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d অনুবাদ</item>
+    <item quantity="other">%1$d অনুবাদ</item>
+  </plurals>
   <string name="search_index_not_created">কোনো সূচক নেই</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">অধ্যায় &amp; ্পদ সংখ্যা্গুলি</string>
@@ -322,9 +330,9 @@
   <string name="create_bookmark_with_a_note">একটি নোট দিয়ে একটি নতুন বুকমার্ক তৈরি করুন৷</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">কালার সেটিংস</string>
-  <string name="window_color_settings_title">উইন্ডো কালার সেটিংস </string>
-  <string name="workspace_color_settings_title">কর্মক্ষেত্রের রঙ সেটিংস ডিফল্ট
- </string>
+  <string name="global_color_settings_title">কালার সেটিংস (গ্লোবাল)</string>
+  <string name="window_color_settings_title">কালার সেটিংস (উইন্ডো)</string>
+  <string name="workspace_color_settings_title">কালার সেটিংস (ওয়ার্কস্পেস)</string>
   <string name="color_workspace">কর্মক্ষেত্রের রঙ</string>
   <string name="color_text">লেখার রঙ
  </string>
@@ -414,7 +422,7 @@
   <string name="rdg_plan_set_start_date">শুরুর তারিখ সেট করুন ...
  </string>
   <string name="set_current_day">বর্তমান দিন হিসাবে সেট করুন...</string>
-  <string name="msg_set_current_day_reading_plan">এটি এই প্ল্যানে আজকের দিনটিকে বর্তমান দিন হিসেবে সেট করবে এবং আগের দিনগুলিকে পাঠিত হিসাবে চিহ্নিত করবে ।চালিয়ে যান?</string>
+  <string name="msg_set_current_day_reading_plan">এটি %1$s-কে এই পরিকল্পনার বর্তমান দিন হিসেবে সেট করবে এবং আগের সব দিন পড়া হিসেবে চিহ্নিত করবে। চালিয়ে যাবেন?</string>
   <string name="done">সম্পন্ন</string>
   <string name="reset_plan_question">আপনি কি নিশ্চিত যে আপনি এই পরিকল্পনাটি পুনরায় সেট করতে চান?</string>
   <string name="import_reading_plan">পড়ার পরিকল্পনা আমদানি করুন...</string>
@@ -494,7 +502,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="auto_assign_labels_title">লেবেল সেটিংস</string>
   <string name="auto_assign_labels">স্বতঃ-অর্পণ &amp; প্রিয় লেবেল</string>
   <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
-  <string name="auto_assign_labels_primary">প্রাথমিক হিসাবে স্বয়ংক্রিয়ভাবে বরাদ্দ করুন</string>
+  <string name="auto_assign_labels_primary">প্রধান লেবেল হিসাবে স্বয়ংক্রিয়ভাবে বরাদ্দ করুন</string>
   <!--can be removed-->
   <string name="bookmark_warning">এই নথির জন্য বুকমার্ক এবং/অথবা নোট আছে।</string>
   <string name="bookmark_warning2">
@@ -780,6 +788,14 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="error_key_not_in_document2">%1$s নথিতে পাওয়া যায়নি %2$s</string>
   <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
   <string name="error_skip">এড়িয়ে যান</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">ক্ষতিগ্রস্ত ডেটা</string>
+  <string name="corrupt_database_message">ডেটাবেস ফাইল ক্ষতিগ্রস্ত হওয়ায় আপনার কিছু ডেটা খোলা যায়নি: %1$s।\n\nকিছুই পরিবর্তন বা মুছে ফেলা হয়নি। কারণ খুঁজে পেতে আমাদের সাহায্য করতে আপনি একটি ত্রুটির রিপোর্ট পাঠাতে পারেন, ব্যাকআপ নিতে বা আগের কোনো ব্যাকআপ পুনরুদ্ধার করতে ব্যাকআপ &amp; প্রত্যর্পণ করা খুলতে পারেন, অথবা ক্ষতিগ্রস্ত ডেটা রিসেট করতে পারেন।\n\nরিসেট করলে সেই ডেটা খালি অবস্থা থেকে শুরু হবে। ক্ষতিগ্রস্ত ফাইলটি এই ডিভাইসে রাখা হয়, নাম বদলে \".corrupt-\" ও তারিখ যোগ করে।</string>
+  <string name="corrupt_database_reset">ক্ষতিগ্রস্ত ডেটা রিসেট করুন</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">ক্ষতিগ্রস্ত ডেটা রিসেট করা যায়নি: %1$s সরানো যায়নি। কিছুই পরিবর্তন হয়নি। আপনি আবার চেষ্টা করতে পারেন, একটি ত্রুটির রিপোর্ট পাঠাতে পারেন, অথবা ব্যাকআপ &amp; প্রত্যর্পণ করা ব্যবহার করতে পারেন।</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">অ্যাপের ডেটায় মনোযোগ প্রয়োজন। অ্যাপ খুলতে ট্যাপ করুন।</string>
   <string name="debug_test_error">পরীক্ষামূলক ত্রুটি (ডিবাগ বিল্ড)</string>
   <string name="bug_report_prepare_failed">রিপোর্ট তৈরি বা শেয়ার করা যায়নি। আপনি আবার চেষ্টা করতে পারেন, অথবা আপনার তথ্য সংরক্ষণ করতে ব্যাকআপ ও পুনরুদ্ধার ব্যবহার করুন।</string>
   <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
@@ -895,6 +911,10 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 অপশন মেনুতে (শীর্ষে-ডানদিকে) ওয়ার্কস্পেস আইটেমের মাধ্যমে অ্যাক্সেস করা যায়। ওয়ার্কস্পেসগুলিতে অ্যাক্সেসের দ্রুত উপায়
 টুলবার থেকে সোয়াইপ-ডাউন অঙ্গভঙ্গি দ্বারা। আপনি সরঞ্জামদণ্ডের থেকে সোয়াইপ-বাম এবং সোয়াইপ-ডান অঙ্গভঙ্গিও ব্যবহার করতে পারেন
 পূর্ববর্তী / পরবর্তী ওয়ার্কস্পেসে স্যুইচ করুন।</string>
+  <string name="help_study_tools_title">অধ্যয়নের সরঞ্জাম</string>
+  <string name="help_study_tools_text">কোনো পদের পেছনের গ্রিক বা হিব্রু শব্দ অভিধানে দেখতে স্ট্রংসের নম্বরে ট্যাপ করুন। লেখার মধ্যে আপনার জায়গা না হারিয়ে লিঙ্ক উইন্ডোতে পড়তে একটি ক্রস-রেফারেন্সে ট্যাপ করুন।</string>
+  <string name="help_look_and_feel_title">চেহারা ও অনুভূতি</string>
+  <string name="help_look_and_feel_text">নাইট মোড, ফন্টের আকার ও ধরন, রঙ এবং মার্জিন অপশন মেনুর (উপরের ডান কোণে তিনটি ডট) পাঠ্য বিকল্পসমূহে আছে। এগুলো সব ওয়ার্কস্পেসের জন্য, একটি ওয়ার্কস্পেসের জন্য বা একটি একক উইন্ডোর জন্য সেট করা যায়।</string>
   <string name="help_hidden_features_title">লুকানো শর্টকাটগুলি</string>
   <string name="help_hidden_features_text">
 ওয়ার্কস্পেস নির্বাচনকারী দেখানোর জন্য সরঞ্জামদণ্ড থেকে নীচে সোয়াইপ করুন। দ্রুত কমানোর জন্য উইন্ডোতে দীর্ঘক্ষণ টিপুন। সেটিংগুলিতে স্পিক করতে দ্রুত স্পোক টুলবার বোতাম টিপুন। ডকুমেন্ট নির্বাচনকারীতে লাফিয়ে টানবারে পদের অবস্থানের শিরোনাম টিপুন।</string>
@@ -914,6 +934,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="welcome_restore_row_hint">বুকমার্ক ও নোটসহ ডাটাবেস ফাইল</string>
   <string name="welcome_link_website">ওয়েবসাইট</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">ভিডিও</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">আপনি যে ফাইলটি লোড করতে চান সেটি নির্বাচন করতে হবে%s</string>
@@ -1055,7 +1076,7 @@ Google Play এ এগিয়ে যান</string>
   <string name="display_mode_hidden">লুকানো</string>
   <string name="display_mode_inherit">নির্বাচনের মতোই</string>
   <string name="workspace_override_indicator">এই লেবেলে ওয়ার্কস্পেস-নির্দিষ্ট প্রদর্শন মোড আছে</string>
-  <string name="primary_label">প্রাথমিক লেবেল</string>
+  <string name="primary_label">প্রধান লেবেল</string>
   <string name="favourite_label">প্রিয় লেবেল</string>
   <string name="edit_label">লেবেল সম্পাদনা করুন</string>
   <string name="delete_label_confirmation">আপনি কি বুকমার্ক লেবেল \"%s\" সরাতে চান? এছাড়াও সমস্ত সম্পর্কিত স্টাডি প্যাড নোট মুছে ফেলা হবে।</string>
@@ -1283,7 +1304,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="google_drive_signin_done">সাইন ইন হয়েছে। আপনি এই ট্যাব বন্ধ করে AndBible-এ ফিরে যেতে পারেন।</string>
   <string name="google_drive_signin_required">আপনার Google Drive সাইন-ইনের মেয়াদ শেষ হয়ে গেছে বা প্রত্যাহার করা হয়েছে। সিঙ্ক্রোনাইজ করা চালিয়ে যেতে আবার সাইন ইন করুন।</string>
   <string name="google_drive_signin_interrupted">Google সাইন-ইন বাধাগ্রস্ত হয়েছে। আবার চেষ্টা করুন।</string>
-  <string name="adapters_next_cloud">পরবর্তী ক্লাউড</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV ফোল্ডারের ঠিকানা, যেমন https://nas.local/dav/ বা https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">সিঙ্কের জন্য নিরাপদ https:// ঠিকানা প্রয়োজন।</string>
@@ -1850,12 +1871,15 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="my_document_create_title">নতুন নথি তৈরি করুন</string>
   <string name="my_document_rename_title">নথি পুনরায় নামকরণ করুন</string>
   <string name="my_document_delete_confirmation">নথি \"%s\" মুছবেন?</string>
+  <string name="show_secret">দেখান</string>
+  <string name="hide_secret">লুকান</string>
+  <string name="ai_documents_name">AI ডকুমেন্ট</string>
+  <string name="ai_documents_description">AI দ্বারা স্বয়ংক্রিয়ভাবে তৈরি ডকুমেন্ট</string>
   <string name="my_document_cannot_delete_ai_documents">AI নথিতে পৃষ্ঠা থাকা অবস্থায় মুছে ফেলা যাবে না। প্রথমে পৃষ্ঠাগুলি মুছুন।</string>
   <string name="my_document_save_changes">পরিবর্তন সংরক্ষণ করবেন?</string>
   <string name="my_document_no_description">কোনো বিবরণ নেই</string>
   <string name="my_document_edit_description">বিবরণ সম্পাদনা করুন</string>
   <string name="my_document_pages_title">%s - পৃষ্ঠাসমূহ</string>
-  <string name="my_document_pages_empty">এই নথিতে কোনো পৃষ্ঠা নেই।</string>
   <string name="my_document_page_rename_title">পৃষ্ঠা পুনরায় নামকরণ করুন</string>
   <string name="my_document_page_delete_confirmation">পৃষ্ঠা \"%s\" মুছবেন?</string>
   <string name="my_document_pages_delete_confirmation">এই পৃষ্ঠাগুলো মুছে ফেলবেন?</string>
@@ -1863,6 +1887,9 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="my_document_new_page_name">পৃষ্ঠা %1$d</string>
   <string name="my_document_create_page_title">নতুন পৃষ্ঠা</string>
   <string name="my_document_content_type_label">বিষয়বস্তুর ধরন</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">এই নথিতে কোনো পৃষ্ঠা নেই।</string>
   <string name="my_document_import_page">মার্কডাউন/HTML আমদানি করুন</string>
   <string name="my_document_export_page">পৃষ্ঠা রপ্তানি করুন</string>
   <string name="my_document_imported_page_name">আমদানিকৃত</string>

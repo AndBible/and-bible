@@ -32,6 +32,11 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
+import net.bible.sharedcore.search.SEARCH_EXCERPT_LENGTH
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookData
+import fi.sykero.kdom.Element
+import net.bible.sharedlogic.sync.withMonitor
 import net.bible.sharedcore.search.prepareSearchTerms
 import net.bible.sharedcore.search.splitSearchTerms
 import org.crosswire.jsword.book.FeatureType
@@ -95,8 +100,9 @@ class BibleSearchServiceImpl(
             val unsupported = unsupportedSyntaxIn(e) ?: throw e
             throw SearchSyntaxException(strings.searchUnsupportedSyntax(unsupported.syntax), e)
         }
-        val main = dto.mainSearchResults.map { it.toRow(terms, lemmaTerms) }
-        val other = dto.otherSearchResults.map { it.toRow(terms, lemmaTerms) }
+        val previews = PreviewReader(terms, lemmaTerms)
+        val main = dto.mainSearchResults.map { it.toRow(previews) }
+        val other = dto.otherSearchResults.map { it.toRow(previews) }
         MultiSearchResults(main = main, other = other, total = dto.size)
     }
 
@@ -146,12 +152,12 @@ class BibleSearchServiceImpl(
         return book !is SwordBook || book.isEpub || hasUsableSearchIndex(book)
     }
 
-    private fun GroupedSearchResult.toRow(terms: List<String>, lemmaTerms: List<String>): SwordResultRow {
+    private fun GroupedSearchResult.toRow(previews: PreviewReader): SwordResultRow {
         val matches = translationMatches.map { tm ->
             TranslationMatchVd(
                 translationId = tm.book.initials,
                 abbreviation = tm.book.abbreviation,
-                preview = previewFor(tm.book, tm.key, terms, lemmaTerms),
+                preview = previews.previewFor(tm.book, tm.key),
             )
         }
         return SwordResultRow(
@@ -161,13 +167,52 @@ class BibleSearchServiceImpl(
         )
     }
 
-    private fun previewFor(book: SwordBook, key: Key, terms: List<String>, lemmaTerms: List<String>): StyledText =
-        try {
-            highlighter.highlight(SwordContentFacade.readOsisFragment(book, key, strings = strings), terms, lemmaTerms)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error reading verse preview", e)
-            StyledText.plain("")
+    /**
+     * The previews of one search. A Bible verse is shown whole. A hit in any other document is cut to an excerpt
+     * around the match. A commentary hit is also read once per entry: a commentary entry is linked to every verse it
+     * covers, and each of those verses is a hit with the same, often very long, text (#4092: Matthew Henry, "vine":
+     * 949 hits, 95 entries, 19.6 MB of text).
+     */
+    private inner class PreviewReader(private val terms: List<String>, private val lemmaTerms: List<String>) {
+        /** Keyed by a digest of the entry text, not the text itself: the keys of 95 entries would hold ~20 MB. */
+        private val byEntry = HashMap<Triple<String, Int, Long>, StyledText>()
+
+        fun previewFor(book: SwordBook, key: Key): StyledText = when (book.bookCategory) {
+            BookCategory.BIBLE -> highlighted { SwordContentFacade.readOsisFragment(book, key, strings = strings) to null }
+            BookCategory.COMMENTARY -> commentaryPreview(book, key)
+            // Dictionaries, general books, EPUB: their entries have their own installed/key checks in readOsisFragment,
+            // so they keep that path (the fast read below is verified for commentaries only), with an excerpt.
+            else -> highlighted { SwordContentFacade.readOsisFragment(book, key, strings = strings) to SEARCH_EXCERPT_LENGTH }
         }
+
+        private fun commentaryPreview(book: SwordBook, key: Key): StyledText {
+            // Not readOsisFragment: its reading-view preparation (sentence anchors over the whole entry) took ~85 %
+            // of the time of a commentary preview, and its cache would fill with entries nobody opened.
+            // The text the index was built from: the whole entry without generated titles (the reference heading),
+            // not only its <verse> element, because the "preverse" text before it (an introduction) is indexed with
+            // it and may hold the match. Wrapped, the fragment has no direct <verse> child, so all of it is read.
+            val read = {
+                val fragment = withMonitor(book) { BookData(book, key).getOsisFragment(false) }
+                Element("div").addContent(fragment) to SEARCH_EXCERPT_LENGTH
+            }
+            val raw = try {
+                book.getRawText(key)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading raw entry for preview", e)
+                return highlighted(read)
+            }
+            return byEntry.getOrPut(Triple(book.initials, raw.length, entryDigest(raw))) { highlighted(read) }
+        }
+
+        private fun highlighted(read: () -> Pair<Element, Int?>): StyledText =
+            try {
+                val (fragment, excerptLength) = read()
+                highlighter.highlight(fragment, terms, lemmaTerms, excerptLength)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading verse preview", e)
+                StyledText.plain("")
+            }
+    }
 
     private fun SharedSearchType.toClassic(): JSwordSearchType = when (this) {
         SharedSearchType.ALL_WORDS -> JSwordSearchType.ALL_WORDS
@@ -185,4 +230,16 @@ class BibleSearchServiceImpl(
     companion object {
         private const val TAG = "BibleSearchService"
     }
+}
+
+/**
+ * A 64-bit FNV-1a digest of an entry's text, to recognise the same entry reached through different verses without
+ * keeping the (possibly 200 KB) text itself as a key.
+ */
+internal fun entryDigest(text: String): Long {
+    var hash = -3750763034362895579L // FNV offset basis
+    for (c in text) {
+        hash = (hash xor c.code.toLong()) * 1099511628211L
+    }
+    return hash
 }

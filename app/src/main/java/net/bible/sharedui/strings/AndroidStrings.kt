@@ -19,6 +19,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val authFolderPath: String get() = context.getString(R.string.auth_folder_path)
     override val authFolderPathSummary: String get() = context.getString(R.string.auth_folder_path_summary)
     override val authPassword: String get() = context.getString(R.string.auth_password)
+    override val showSecret: String get() = context.getString(R.string.show_secret)
+    override val hideSecret: String get() = context.getString(R.string.hide_secret)
     override val authServerUri: String get() = context.getString(R.string.auth_server_uri)
     override val authUsername: String get() = context.getString(R.string.auth_username)
     override val autoFullscreen: String get() = context.getString(R.string.auto_fullscreen)
@@ -180,8 +182,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
-    override fun multiSearchResults(total: Int, selectedCount: Int): String =
-        context.getString(R.string.multi_search_results, total, selectedCount)
+    override fun multiSearchResults(verses: String, translations: String): String =
+        context.getString(R.string.multi_search_count_summary, verses, translations)
+    override fun multiSearchVerseCount(count: Int): String =
+        context.resources.getQuantityString(R.plurals.multi_search_verse_count, count, count)
+    override fun multiSearchTranslationCount(count: Int): String =
+        context.resources.getQuantityString(R.plurals.multi_search_translation_count, count, count)
     override val errorExecutingSearch: String get() = context.getString(R.string.error_executing_search)
     override val backgroundImageChange: String get() = context.getString(R.string.background_image_change)
     override val backgroundImageDay: String get() = context.getString(R.string.background_image_day)
@@ -407,6 +413,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val textCopiedToClipboard: String get() = context.getString(R.string.text_copied_to_clicpboard)
     // --- end I2 phase 2 R1 ---
     override val crashRecoveryMessage: String get() = context.getString(R.string.error_occurred_crash_last_time)
+    override val corruptDatabaseTitle: String get() = context.getString(R.string.corrupt_database_title)
+    override fun corruptDatabaseMessage(databases: String): String = context.getString(R.string.corrupt_database_message, databases)
+    override val corruptDatabaseReset: String get() = context.getString(R.string.corrupt_database_reset)
+    override fun corruptDatabaseResetFailed(database: String): String = context.getString(R.string.corrupt_database_reset_failed, database)
     override val crashRecoveryContinue: String get() = context.getString(R.string.crash_recovery_continue)
     override val crashRecoveryReport: String get() = context.getString(R.string.report_error)
     override val startupLogFolder: String get() = context.getString(R.string.startup_log_folder)
@@ -430,7 +440,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val setCurrentDay: String get() = context.getString(R.string.set_current_day)
     override val setStartDate: String get() = context.getString(R.string.rdg_plan_set_start_date)
     override val importReadingPlan: String get() = context.getString(R.string.import_reading_plan)
-    override val setCurrentDayQuestion: String get() = context.getString(R.string.msg_set_current_day_reading_plan)
+    override fun setCurrentDayQuestion(day: String): String = context.getString(R.string.msg_set_current_day_reading_plan, day)
     override val selectPassage: String get() = context.getString(R.string.selectPassage)
     override val speak: String get() = context.getString(R.string.speak)
     override val stop: String get() = context.getString(R.string.stop)
@@ -585,6 +595,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val renameTitle: String get() = context.getString(R.string.my_document_rename_title)
     override val pageRenameTitle: String get() = context.getString(R.string.my_document_page_rename_title)
     override val contentTypeLabel: String get() = context.getString(R.string.my_document_content_type_label)
+    override val contentTypeMarkdown: String get() = context.getString(R.string.my_document_content_type_markdown)
+    override val contentTypeHtml: String get() = context.getString(R.string.my_document_content_type_html)
+    override val myDocumentPagesEmpty: String get() = context.getString(R.string.my_document_pages_empty)
     override val cannotDeleteAiDocuments: String get() = context.getString(R.string.my_document_cannot_delete_ai_documents)
     override fun newDocumentName(n: Int): String = context.getString(R.string.my_document_new_name, n)
     override fun newPageName(n: Int): String = context.getString(R.string.my_document_new_page_name, n)

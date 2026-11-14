@@ -23,6 +23,7 @@ import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import okio.FileSystem
@@ -30,6 +31,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import net.bible.sharedcore.log.Log
 import okio.IOException
+import kotlin.concurrent.Volatile
 
 private const val TAG = "AppDatabaseFiles"
 
@@ -55,16 +57,18 @@ fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.
  * Builds an app database with [productionConfig] and [migrations]. [name] is a file name in the app's database
  * directory or an absolute path.
  *
- * For a file in the app's database directory, a file that is not a database or is corrupt is first moved aside by
- * [recoverIfCorrupt], so Room creates it empty instead of every access throwing (the old framework/requery error
- * handler deleted such a file; this keeps the bytes). Absolute paths (imported files, sync downloads and patches,
- * tests' temporary files) are never recovered: moving a user-chosen import file aside would silently import nothing,
- * so there the SQLite error propagates to the caller.
+ * For a regenerable cache in the app's database directory (anything not in [USER_DATA_DB_FILENAMES]), a file that is
+ * not a database or is corrupt is first moved aside by [recoverIfCorrupt], so Room creates it empty instead of every
+ * access throwing (the old framework/requery error handler deleted such a file; this keeps the bytes).
+ * User-data databases are never recovered here (#4112): [DatabaseContainer.create] reports a damaged one as
+ * [CorruptDatabasesException] and only the user's explicit reset ([DatabaseContainer.resetCorruptDatabases]) moves it
+ * aside. Absolute paths (imported files, sync downloads and patches, tests' temporary files) are never recovered either:
+ * moving a user-chosen import file aside would silently import nothing, so there the SQLite error propagates to the caller.
  */
 inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
     val absolute = name.toPath().isAbsolute
     val path = if (absolute) name else DatabaseContainer.host.databasePath(name)
-    if (!absolute) recoverIfCorrupt(path)
+    if (!absolute && name !in USER_DATA_DB_FILENAMES) recoverIfCorrupt(path)
     path.toPath().parent?.let { FileSystem.SYSTEM.createDirectories(it) }
     return Room.databaseBuilder<T>(name = path)
         .productionConfig()
@@ -100,8 +104,17 @@ fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { 
 fun recoverIfCorrupt(path: String): String? = recoverIfCorrupt(path) { openSqlite(it) }
 
 internal fun recoverIfCorrupt(path: String, openConnection: (String) -> SQLiteConnection): String? {
-    val fs = FileSystem.SYSTEM
-    if (fs.metadataOrNull(path.toPath())?.isRegularFile != true) return null
+    val error = confirmedCorruption(path, openConnection) ?: return null
+    return moveCorruptAside(path, error)
+}
+
+/**
+ * The corruption error of [path] when two schema reads on fresh connections both report SQLITE_CORRUPT/NOTADB, else
+ * null (missing file, healthy file, or any other error such as busy/locked or I/O). Never changes the file itself
+ * (SQLite's own open may still roll back or discard a `-journal`/`-wal`, see [recoverIfCorrupt]).
+ */
+internal fun confirmedCorruption(path: String, openConnection: (String) -> SQLiteConnection = { openSqlite(it) }): SQLiteException? {
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile != true) return null
     fun corruptionError(): SQLiteException? = try {
         openConnection(path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
         null
@@ -110,7 +123,56 @@ internal fun recoverIfCorrupt(path: String, openConnection: (String) -> SQLiteCo
     }
     val firstError = corruptionError() ?: return null
     Log.w(TAG, "Possible corruption in ${path.toPath().name}; confirming with a fresh connection", firstError)
-    val error = corruptionError() ?: return null
+    return corruptionError()
+}
+
+/**
+ * Whether [path] is damaged: [confirmedCorruption] (the schema read), or else `PRAGMA integrity_check` reports a problem
+ * or fails with SQLITE_CORRUPT/NOTADB (#4112: damage in a table page, or an index that disagrees with its table, found
+ * by a later query in `create()`; `quick_check` cannot see the latter). Only failure paths call it (an open that
+ * already failed, the user's reset), so the full check's cost is paid only there. A missing file, a healthy one, or
+ * any other error (busy, I/O) is not damage.
+ */
+internal fun isDamagedDatabase(path: String): Boolean {
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile != true) return false
+    if (confirmedCorruption(path) != null) return true
+    return try {
+        checkProblems(path, "integrity_check").isNotEmpty()
+    } catch (e: SQLiteException) {
+        isCorruptionError(e)
+    }
+}
+
+/** The rows of `PRAGMA quick_check` other than `ok` (empty for a healthy file). */
+private fun quickCheckProblems(path: String): List<String> = checkProblems(path, "quick_check")
+
+/** The rows of `PRAGMA <pragma>` (`quick_check` or `integrity_check`) other than `ok`. */
+private fun checkProblems(path: String, pragma: String): List<String> = openSqlite(path).use { c ->
+    c.prepare("PRAGMA $pragma").use { st -> buildList { while (st.step()) add(st.getText(0)) } }.filter { it != "ok" }
+}
+
+/** A database file that must not be used: [requireIntactDatabase] found [detail] in [path]. */
+class DamagedDatabaseFileException(val path: String, val detail: String, cause: Throwable? = null) :
+    Exception("Damaged database file ${path.toPath().name}: $detail", cause)
+
+/**
+ * Throws [DamagedDatabaseFileException] unless [path] is a database whose schema reads and whose `PRAGMA quick_check`
+ * is `ok` (#4112: a downloaded sync file is checked before it replaces the local database, so damage in the download
+ * never costs the local data). Other errors (I/O, busy) propagate as they are.
+ */
+fun requireIntactDatabase(path: String) {
+    val problems = try {
+        quickCheckProblems(path)
+    } catch (e: SQLiteException) {
+        if (isCorruptionError(e)) throw DamagedDatabaseFileException(path, e.message.orEmpty(), e)
+        throw e
+    }
+    if (problems.isNotEmpty()) throw DamagedDatabaseFileException(path, problems.take(3).joinToString("; "))
+}
+
+/** Moves [path] and its siblings to `<name>.corrupt-<timestamp>[-n]`; the new name, or null if the move failed. */
+internal fun moveCorruptAside(path: String, error: Throwable? = null): String? {
+    val fs = FileSystem.SYSTEM
     val target = corruptTarget(path)
     if (!renamed(path, target)) {
         Log.e(TAG, "Corrupt database $path could not be moved aside", error)
@@ -141,13 +203,13 @@ private fun corruptTarget(path: String): String {
 }
 
 /**
- * `PRAGMA user_version` of [path], 0 when it does not exist. A corrupt file is moved aside first ([recoverIfCorrupt],
- * then it counts as missing): the startup backup check reads every version before Room opens anything, and must not
- * crash on a file that the builders would recover anyway.
+ * `PRAGMA user_version` of [path], 0 when it does not exist. The startup backup check reads every version before Room
+ * opens anything; [DatabaseContainer.create] has already reported any damaged user-data file by then (#4112), so a
+ * read error here propagates instead of moving the file aside.
  */
 @VisibleForTesting
-fun userVersionRecoveringCorruption(path: String): Int =
-    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true && recoverIfCorrupt(path) == null) readUserVersion(path) else 0
+fun userVersionOrZero(path: String): Int =
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true) readUserVersion(path) else 0
 
 /** [android.content.Context.deleteDatabase], plus Room 3's `<name>.lck` lock file, which it does not know about. */
 fun deleteAppDatabase(name: String): Boolean {
@@ -155,4 +217,109 @@ fun deleteAppDatabase(name: String): Boolean {
     val deleted = host.deleteDatabase(name)
     try { FileSystem.SYSTEM.delete((host.databasePath(name) + ".lck").toPath(), mustExist = false) } catch (_: IOException) { }
     return deleted
+}
+
+/**
+ * The databases holding the user's own data (#4112): a damaged one is reported ([CorruptDatabasesException]) and only
+ * moved aside when the user chooses to reset it. Every other app database is a regenerable cache and is recovered
+ * silently by [buildAppDatabase].
+ */
+val USER_DATA_DB_FILENAMES: Set<String> by lazy { (ALL_DB_FILENAMES.toList() + OLD_MONOLITHIC_DATABASE_NAME).toSet() }
+
+/**
+ * One damaged database file found at startup: its file name in the database directory and its full path.
+ * [confirmed] is false for a suspect: opening failed with an SQLite corruption error that no check could pin on a
+ * file, so every existing user-data file is named (#4112); the user's reset then moves each suspect aside (kept).
+ */
+data class CorruptDatabase(val fileName: String, val path: String, val confirmed: Boolean = true)
+
+/**
+ * Opening the databases found damaged user-data files (#4112). Nothing has been moved or emptied: the host shows the
+ * error with "send report", "Backup & Restore" and "reset" ([DatabaseContainer.resetCorruptDatabases]) choices.
+ */
+class CorruptDatabasesException(val databases: List<CorruptDatabase>, cause: Throwable? = null) :
+    Exception("Damaged database file(s): " + databases.joinToString { it.fileName }, cause)
+
+/** The [CorruptDatabasesException] in this throwable's cause chain (hosts wrap startup failures), or null. */
+fun Throwable.corruptDatabasesOrNull(): CorruptDatabasesException? =
+    generateSequence(this) { it.cause.takeIf { cause -> cause !== it } }.filterIsInstance<CorruptDatabasesException>().firstOrNull()
+
+/**
+ * The user's answer when damaged user-data databases were found (#4112): [RESET] the damaged data, [RETRY] the open
+ * (after Backup & Restore, where a backup may have been restored), or [CLOSE] the app. Sending a report is handled by
+ * the asking host.
+ */
+enum class CorruptDatabaseChoice { RESET, RETRY, CLOSE }
+
+/**
+ * Thrown by a host's initialisation after it handed damaged user data over to its recovery screen (#4112): the screen
+ * that asked is going away, so its caller must stop instead of carrying on (navigating, loading more data).
+ */
+class DamagedDataHandedOver : Exception("Damaged user data was handed over to the recovery screen")
+
+/** The user's reset could not move [database] aside (#4112); nothing was emptied. The host tells the user. */
+class CorruptDatabaseResetException(val database: CorruptDatabase, cause: Throwable?) :
+    Exception("Could not move the damaged database ${database.fileName} aside", cause)
+
+/**
+ * Runs [open] and, while it fails with damaged user-data databases, asks the user ([ask]): [CorruptDatabaseChoice.RESET]
+ * moves the damaged files aside ([reset], keeping them) and retries; [CorruptDatabaseChoice.RETRY] (the user came back
+ * from Backup & Restore) retries as it is, so a restored backup opens normally; [CorruptDatabaseChoice.CLOSE] returns
+ * null with nothing changed. A failed [reset] goes to [resetFailed] (the host shows it) and the user is asked again.
+ * Every retry looks at the files again ([DatabaseContainer.forgetCorruption]). Any other failure propagates.
+ * Android's `StartupActivity` uses it; desktop and iOS show `CorruptDatabaseRecovery`.
+ */
+suspend fun <T> openAskingOnCorruption(
+    open: suspend () -> T,
+    ask: suspend (CorruptDatabasesException) -> CorruptDatabaseChoice,
+    reset: suspend (List<CorruptDatabase>) -> Unit = { DatabaseContainer.resetCorruptDatabases(it) },
+    resetFailed: suspend (Throwable) -> Unit = {},
+): T? {
+    while (true) {
+        val corrupt = try {
+            return open()
+        } catch (e: Exception) {
+            e.corruptDatabasesOrNull() ?: throw e
+        }
+        when (ask(corrupt)) {
+            CorruptDatabaseChoice.RESET -> try {
+                reset(corrupt.databases)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Resetting damaged databases failed", e)
+                resetFailed(e)
+            }
+            CorruptDatabaseChoice.RETRY -> Unit
+            CorruptDatabaseChoice.CLOSE -> return null
+        }
+        DatabaseContainer.forgetCorruption()
+    }
+}
+
+/**
+ * Where damaged user data found after the startup's own question goes (#4112): a headless entry, a restored screen or
+ * the Welcome flow opening the databases. Each host registers [route] to show its recovery (Android: the startup
+ * screen's question; desktop and iOS: the startup failure screen). [show] is false when no route is registered.
+ */
+object DamagedDataRecovery {
+    @Volatile var route: ((CorruptDatabasesException) -> Unit)? = null
+
+    fun show(error: CorruptDatabasesException): Boolean {
+        val r = route ?: return false
+        r(error)
+        return true
+    }
+
+    /**
+     * Runs [block]; damaged user data it meets goes to the registered [route] and [fallback] is returned instead. With
+     * no route registered (no host to show it) the error propagates.
+     */
+    suspend fun <T> orFallback(fallback: T, block: suspend () -> T): T = try {
+        block()
+    } catch (e: Exception) {
+        val damaged = e.corruptDatabasesOrNull() ?: throw e
+        if (!show(damaged)) throw e
+        fallback
+    }
 }

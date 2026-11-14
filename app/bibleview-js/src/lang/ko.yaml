@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI 작업
 aiDocumentRegenerate: 재생성
 aiDocumentDelete: 삭제
+aiDocumentsName: AI 문서
 aiGeneratedBy: "%s에서 생성됨"
 aiGeneratedByWithModel: "%s (%s)에서 생성됨"

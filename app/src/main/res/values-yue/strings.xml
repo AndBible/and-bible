@@ -252,7 +252,6 @@
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="set_current_day">設定為目前日子...</string>
-  <string name="msg_set_current_day_reading_plan">這樣會將今天設為目前日子，並將之前的日子設為已讀。你確定繼續嗎？</string>
   <string name="done">完成</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
   <string name="import_reading_plan">匯入讀經計劃...</string>
@@ -890,7 +889,7 @@ http://www.heartlight.org 准予使用
   <string name="sync_adapter">同步功能後端</string>
   <string name="sync_adapter_summary">現時：%s</string>
   <string name="adapters_google_drive">Google Drive</string>
-  <string name="adapters_next_cloud">下一個雲端</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_username">用戶名稱</string>
   <string name="auth_password">密碼</string>
   <string name="synchronization_categories">同步類別</string>

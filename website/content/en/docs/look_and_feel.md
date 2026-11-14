@@ -105,6 +105,10 @@ and muted colors muted. Without a workspace color (or after resetting it
 to default), the app uses its built-in *Ink on paper* theme: dark ink on warm
 paper in light mode and light ink on a near-black background in dark mode,
 with amber accents. There is no setting for choosing a palette style.
+The **Color settings** screen is titled with the level it was opened at:
+`Color settings (Global)`, `Color settings (Workspace)` or
+`Color settings (Window)`. The extra `Workspace color` row appears only at the
+workspace and global levels; it is the base color the theme above is derived from.
 If you previously chose another Theme style, upgrading switches to this
 fixed soft palette; restoring an old backup does not restore that style.
 Reading-view controls also follow the workspace theme,
@@ -373,7 +377,8 @@ including after restoring a database backup.
 - **Margin size:** Set the left and right margins independently, measured in
     millimeters. You can also set a maximum text width to prevent lines from
     becoming too long on wide screens. In the Android and iOS apps, tap the left
-    or right margin to scroll one page up or down. Desktop app margin clicks do not scroll.
+    or right margin to scroll one page up or down. A double tap in a margin that enters or
+    leaves fullscreen does not scroll. Desktop app margin clicks do not scroll.
 - **Top margin:** Add a margin at the top of the window (in millimeters). The
     reading position starts below this margin.
 - **Line spacing:** Adjust the space between lines (multiplier from 1.0x to

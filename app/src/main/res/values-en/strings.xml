@@ -176,7 +176,7 @@ The developers of this app are not responsible for maintaining documents (Bibles
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--Reading Progress Activity-->
-  <string name="adapters_next_cloud">NextCloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->

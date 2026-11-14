@@ -58,6 +58,9 @@ import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import net.bible.service.db.CorruptDatabaseChoice
+import net.bible.service.db.CorruptDatabasesException
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import androidx.core.content.edit
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -130,6 +133,61 @@ object ErrorReportControl {
                 }
             }
         }
+    }
+
+    private const val RESET_VALUE = "reset"
+
+    /**
+     * #4112: damaged user-data database files at startup. Shown before the databases are open, so the
+     * report and Backup & Restore choices work as in [checkCrash] (Backup opens uninitialised, where the user
+     * can back up the files as they are or restore an earlier backup). Returns [CorruptDatabaseChoice.RESET] for "reset
+     * damaged data", [CorruptDatabaseChoice.RETRY] when the user comes back from Backup & Restore (the caller opens the
+     * databases again: a restored backup then opens normally, damage still there brings this question back), and
+     * [CorruptDatabaseChoice.CLOSE] for "close". Nothing is moved or emptied here.
+     */
+    suspend fun showCorruptDatabaseDialog(context: ActivityBase, error: CorruptDatabasesException): CorruptDatabaseChoice =
+        withContext(Dispatchers.Main) {
+            val names = error.databases.joinToString { it.fileName }
+            var choice: CorruptDatabaseChoice? = null
+            while (choice == null) {
+                val dialogResult = dialogs.await(
+                    AppDialogRequest.Options(
+                        title = context.getString(R.string.corrupt_database_title),
+                        message = plainTextToHtml(context.getString(R.string.corrupt_database_message, names)),
+                        options = listOf(
+                            SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
+                            SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),
+                            SettingsItem.Choice(RESET_VALUE, context.getString(R.string.corrupt_database_reset)),
+                        ),
+                        dismissText = context.getString(R.string.close),
+                        asActionSheet = true,
+                        cancellable = false,
+                    ),
+                )
+                when ((dialogResult as? AppDialogResult.Selected)?.value) {
+                    REPORT_VALUE -> BugReport.reportBug(context, exception = error, source = "damaged database")
+                    BACKUP_VALUE -> {
+                        net.bible.android.view.activity.backup.BackupNavigation.backupPopup(context)
+                        choice = CorruptDatabaseChoice.RETRY
+                    }
+                    RESET_VALUE -> choice = CorruptDatabaseChoice.RESET
+                    else -> choice = CorruptDatabaseChoice.CLOSE
+                }
+            }
+            choice
+        }
+
+    /** #4112: the user's reset of damaged data failed ([error]); nothing was emptied. The question comes back after it. */
+    suspend fun showCorruptDatabaseResetFailed(context: ActivityBase, error: Throwable) = withContext(Dispatchers.Main) {
+        val name = (error as? net.bible.service.db.CorruptDatabaseResetException)?.database?.fileName ?: error.message.orEmpty()
+        dialogs.await(
+            AppDialogRequest.Message(
+                title = context.getString(R.string.corrupt_database_title),
+                message = plainTextToHtml(context.getString(R.string.corrupt_database_reset_failed, name)),
+                confirmText = context.getString(R.string.okay),
+                cancellable = false,
+            ),
+        )
     }
 
     private fun resetCrashCounts() {

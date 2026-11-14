@@ -81,7 +81,6 @@
   <!--Multi-translation search-->
   <string name="search_translations">Terjemahan</string>
   <string name="choose_translations">Pilih terjemahan…</string>
-  <string name="multi_search_results">%1$d ayat dalam %2$d terjemahan</string>
   <string name="search_index_not_created">tidak ada indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nomor ayat</string>
@@ -317,7 +316,6 @@
   <string name="rdg_plan_day">Hari %s</string>
   <string name="rdg_plan_set_start_date">Atur tanggal mulai..</string>
   <string name="set_current_day">Tetapkan sebagai hari ini…</string>
-  <string name="msg_set_current_day_reading_plan">Ini akan menetapkan hari ini sebagai hari saat ini dalam rencana ini dan menandai semua hari sebelumnya sebagai sudah dibaca. Lanjutkan?</string>
   <string name="done">Selesai</string>
   <string name="reset_plan_question">Apakah Anda yakin ingin mengatur ulang rencana ini?</string>
   <string name="import_reading_plan">Impor rencana bacaan…</string>
@@ -1018,7 +1016,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_adapter">Backend Sinkronisasi</string>
   <string name="sync_adapter_summary">Saat ini: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_server_uri">URL server</string>
   <string name="auth_username">Nama pengguna</string>
   <string name="auth_password">Kata sandi</string>

@@ -5,6 +5,7 @@ sharedLogic/src/commonMain/kotlin/net/bible/android/control/download/DownloadQue
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/ClientPageObjects.kt | 1 | BookName formatting flag must be restored atomically with reference formatting.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/CurrentPageBase.kt | 1 | Per-document render exclusion; same Book target as SwordContentFacade, no process-wide mutex.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/window/WindowRepository.kt | 1 | BookName formatting flag; page/document snapshot outside, only names formatted inside.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/search/BibleSearchServiceImpl.kt | 1 | Per-document read of one commentary entry (BookData.getOsisFragment); same Book target as SwordContentFacade, no process-wide mutex.
 sharedLogic/src/commonMain/kotlin/net/bible/android/control/versification/BookInstallWatcher.kt | 1 | Listener replacement serialization; JSword listener list add/remove are in-memory, not listener invocations.
 sharedLogic/src/commonMain/kotlin/net/bible/android/view/activity/page/BibleOverlayText.kt | 1 | BookName short-name scope; caller must not do I/O or invoke host callbacks.
 sharedLogic/src/commonMain/kotlin/net/bible/service/common/BookKeyExtensions.kt | 2 | Scoped BookName full/truncation flags with finally restore; reference formatting only.
@@ -13,7 +14,7 @@ sharedLogic/src/commonMain/kotlin/net/bible/service/download/DownloadManager.kt 
 sharedLogic/src/commonMain/kotlin/net/bible/service/download/GenericFileDownloader.kt | 3 | Per-set URI error membership; I/O and notifications outside.
 sharedLogic/src/commonMain/kotlin/net/bible/service/history/HistoryManager.kt | 9 | Per-manager history state; navigation and persistence outside; no other monitor users share it.
 sharedLogic/src/commonMain/kotlin/net/bible/service/readingplan/ReadingPlanTextFileDao.kt | 2 | Cache lookup/publication only; asset and user-file reads outside.
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordContentFacade.kt | 6 | Per-book rendering/plain-text cache; BibleNames parsing and BookName formatting have their own targets.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordContentFacade.kt | 5 | Per-book rendering/plain-text cache; BibleNames parsing and BookName formatting have their own targets.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordDocumentFacade.kt | 1 | Per-book index scheduling/status transition, not a process-wide monitor; legacy observer semantics retained.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBackendState.kt | 10 | Lifetime state/wait/notify only; close outside; metadata uses backend target, not lifetime/global lock.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBook.kt | 6 | Registry membership/owner lookup only; installation, deletion and retirement outside. EpubBackend.stateLock (2 sites): once-only state build cached with its failure (same scope as a synchronized lazy; the build runs under the lock so concurrent first users wait for one parse), and a read of the cached result.

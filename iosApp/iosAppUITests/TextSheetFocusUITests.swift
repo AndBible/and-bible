@@ -16,12 +16,12 @@ final class TextSheetFocusUITests: RealAppUITestCase {
 
     private func chooseNextcloud(_ app: XCUIApplication) {
         _ = revealSettingsRow(app, "sync_adapter")
-        if settingsRow(app, "sync_adapter").label.contains("NextCloud") { return }
+        if settingsRow(app, "sync_adapter").label.contains("Nextcloud") { return }
         settingsRow(app, "sync_adapter").tap()
-        let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "NextCloud")).firstMatch
+        let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Nextcloud")).firstMatch
         harnessRequire(choice.waitForExistence(timeout: 10), app, "NextCloud choice missing")
         choice.tap()
-        harnessRequire(waitUntil(timeout: 15) { self.settingsRow(app, "sync_adapter").label.contains("NextCloud") },
+        harnessRequire(waitUntil(timeout: 15) { self.settingsRow(app, "sync_adapter").label.contains("Nextcloud") },
                        app, "Adapter row did not show NextCloud after choosing it")
     }
 

@@ -128,7 +128,15 @@
   <string name="search_not_available">ఈ పత్రంలో వెతకడం సాధ్యం కాదు</string>
   <string name="search_indexing_notification_title">వెతుకు సూచికను సృష్టిస్తోంది</string>
   <string name="choose_translations">అనువాదాలను ఎంచుకోండి…</string>
-  <string name="multi_search_results">%2$d అనువాదాల్లో %1$d వచనాలు</string>
+  <string name="multi_search_count_summary">%2$s %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d వచనం</item>
+    <item quantity="other">%1$d వచనాలు</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d అనువాదంలో</item>
+    <item quantity="other">%1$d అనువాదాల్లో</item>
+  </plurals>
   <string name="search_index_not_created">సూచిక లేదు</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">చాప్టర్ &amp; వచనం సంఖ్యలు</string>
@@ -321,8 +329,9 @@
   <string name="create_bookmark_with_a_note">నోట్ ద్వారా కొత్త బుక్‌మార్క్‌ని సృష్టించండి</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">రంగు సెట్టింగులు</string>
-  <string name="window_color_settings_title">విండో రంగు సెట్టింగులు</string>
-  <string name="workspace_color_settings_title">కార్యస్థలం రంగు సెట్టింగ్‌లు డిఫాల్ట్</string>
+  <string name="global_color_settings_title">రంగు సెట్టింగులు (సార్వత్రికం)</string>
+  <string name="window_color_settings_title">రంగు సెట్టింగులు (విండో)</string>
+  <string name="workspace_color_settings_title">రంగు సెట్టింగులు (కార్యస్థలం)</string>
   <string name="color_workspace">వర్క్ స్పేస్ రంగు</string>
   <string name="color_text">వచన రంగు</string>
   <string name="color_background">నేపథ్య రంగు</string>
@@ -412,7 +421,7 @@
   <string name="rdg_plan_day">రోజు %s</string>
   <string name="rdg_plan_set_start_date">ప్రారంభ తేదీని సెట్ చేయండి...</string>
   <string name="set_current_day">ప్రస్తుత రోజుగా సెట్ చేయండి…</string>
-  <string name="msg_set_current_day_reading_plan">ఇది ఈ రోజును ఈ ప్లాన్‌లో ప్రస్తుత రోజుగా సెట్ చేస్తుంది మరియు మునుపటి రోజులన్నీ చదివినట్లుగా గుర్తు పెట్టబడుతుంది. కొనసాగించాలా?</string>
+  <string name="msg_set_current_day_reading_plan">ఇది %1$s ను ఈ ప్రణాళికలో ప్రస్తుత రోజుగా సెట్ చేసి, అంతకుముందు రోజులన్నింటినీ చదివినట్లు గుర్తిస్తుంది. కొనసాగించాలా?</string>
   <string name="done">పూర్తి అయింది</string>
   <string name="reset_plan_question">మీరు ఈ ప్లాన్‌ని రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="import_reading_plan">రీడింగ్ ప్లాన్‌ని దిగుమతి చేయండి...</string>
@@ -492,7 +501,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="auto_assign_labels_title">లేబుల్ సెట్టింగ్‌లు</string>
   <string name="auto_assign_labels">స్వయంచాలకంగా కేటాయించి &amp; ఇష్టమైన లేబుల్స్</string>
   <string name="auto_assign_labels1">కొత్త బుక్‌మార్క్‌లకు లేబుల్‌ని స్వయంచాలకంగా కేటాయించండి</string>
-  <string name="auto_assign_labels_primary">ప్రాథమికంగా స్వయంచాలకంగా కేటాయించండి</string>
+  <string name="auto_assign_labels_primary">ప్రధాన లేబుల్‌గా స్వయంచాలకంగా కేటాయించు</string>
   <!--can be removed-->
   <string name="bookmark_warning">ఈ పత్రం కోసం బుక్‌మార్క్‌లు మరియు/లేదా గమనికలు ఉన్నాయి.</string>
   <string name="bookmark_warning2">
@@ -781,6 +790,14 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="error_key_not_in_document2">పత్రం %2$sలో %1$s కనుగొనబడలేదు.</string>
   <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <string name="error_skip">దాటవేయండి</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">దెబ్బతిన్న డేటా</string>
+  <string name="corrupt_database_message">మీ డేటాలో కొంత తెరవలేకపోయింది, ఎందుకంటే దాని డేటాబేస్ ఫైల్ దెబ్బతింది: %1$s.\n\nఏదీ మార్చబడలేదు, తొలగించబడలేదు. కారణం కనుగొనడంలో సహాయపడటానికి దోష నివేదికను పంపవచ్చు, బ్యాకప్ చేయడానికి లేదా మునుపటిదాన్ని పునరుద్ధరించడానికి బ్యాకప్ &amp; పునరుద్ధరించు తెరవవచ్చు, లేదా దెబ్బతిన్న డేటాను రీసెట్ చేయవచ్చు.\n\nరీసెట్ చేస్తే ఆ డేటా ఖాళీగా మొదలవుతుంది. దెబ్బతిన్న ఫైల్ ఈ పరికరంలోనే \".corrupt-\" మరియు తేదీతో పేరు మార్చబడి ఉంటుంది.</string>
+  <string name="corrupt_database_reset">దెబ్బతిన్న డేటాను రీసెట్ చేయండి</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">దెబ్బతిన్న డేటాను రీసెట్ చేయలేకపోయింది: %1$s ను పక్కకు తరలించలేకపోయింది. ఏదీ మార్చబడలేదు. మళ్లీ ప్రయత్నించవచ్చు, దోష నివేదికను పంపవచ్చు లేదా బ్యాకప్ &amp; పునరుద్ధరించు ఉపయోగించవచ్చు.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">యాప్ డేటాకు శ్రద్ధ అవసరం. యాప్‌ను తెరవడానికి నొక్కండి.</string>
   <string name="debug_test_error">పరీక్ష లోపం (డీబగ్ బిల్డ్)</string>
   <string name="bug_report_prepare_failed">నివేదికను సిద్ధం చేయడం లేదా షేర్ చేయడం సాధ్యం కాలేదు. మీరు మళ్లీ ప్రయత్నించవచ్చు, లేదా మీ డేటాను సేవ్ చేయడానికి బ్యాకప్ మరియు పునరుద్ధరణను ఉపయోగించండి.</string>
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
@@ -897,6 +914,10 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
 ఎంపికల మెనులో (ఎగువ-కుడి మూలలో) వర్క్‌స్పేస్ ఐటెమ్ ద్వారా యాక్సెస్ చేయవచ్చు. వర్క్‌స్పేస్‌లను యాక్సెస్ చేయడానికి త్వరిత మార్గం
 టూల్‌బార్ నుండి స్వైప్-డౌన్ సంజ్ఞ ద్వారా. మీరు టూల్‌బార్‌పై స్వైప్-ఎడమ మరియు స్వైప్-కుడి సంజ్ఞలను కూడా ఉపయోగించవచ్చు
 మునుపటి / తదుపరి కార్యస్థలానికి మారండి.</string>
+  <string name="help_study_tools_title">అధ్యయన సాధనాలు</string>
+  <string name="help_study_tools_text">ఒక వచనం వెనుక ఉన్న గ్రీకు లేదా హీబ్రూ పదాన్ని నిఘంటువులో చూడటానికి స్ట్రాంగ్స్ సంఖ్యను నొక్కండి. వచనంలో మీ స్థానాన్ని కోల్పోకుండా లింకుల విండోలో చదవడానికి క్రాస్-రెఫరెన్స్‌ను నొక్కండి.</string>
+  <string name="help_look_and_feel_title">రూపం మరియు అనుభూతి</string>
+  <string name="help_look_and_feel_text">రాత్రి మోడ్, ఫాంట్ పరిమాణం మరియు కుటుంబం, రంగులు మరియు మార్జిన్లు ఎంపికల మెనూలో (మూడు చుక్కలు, పైన కుడి మూల) టెక్స్ట్ ఎంపికలలో ఉన్నాయి. వీటిని అన్ని కార్యస్థలాలకు, ఒక కార్యస్థలానికి లేదా ఒకే విండోకు సెట్ చేయవచ్చు.</string>
   <string name="help_hidden_features_title">దాచిన సత్వరమార్గాలు</string>
   <string name="help_hidden_features_text">
 వర్క్‌స్పేస్ సెలెక్టర్‌ని చూపడానికి టూల్‌బార్ నుండి క్రిందికి స్వైప్ చేయండి.
@@ -919,6 +940,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="welcome_restore_row_hint">బుక్ మార్క్‌స్ మరియు నోట్స్ ఉన్న డేటాబేస్ ఫైల్</string>
   <string name="welcome_link_website">వెబ్‌సైట్</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">వీడియో</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">మీరు %s కు లోడ్ చేయాలనుకుంటున్న ఫైల్‌ను ఎంచుకోవాలి.</string>
@@ -1061,7 +1083,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="display_mode_hidden">దాచబడింది</string>
   <string name="display_mode_inherit">ఎంపిక వలెనే</string>
   <string name="workspace_override_indicator">ఈ లేబుల్‌కు వర్క్‌స్పేస్-నిర్దిష్ట ప్రదర్శన మోడ్ ఉంది</string>
-  <string name="primary_label">ప్రాథమిక లేబుల్</string>
+  <string name="primary_label">ప్రధాన లేబుల్</string>
   <string name="favourite_label">ఇష్టమైన లేబుల్</string>
   <string name="edit_label">లేబుల్‌ని సవరించండి</string>
   <string name="delete_label_confirmation">మీరు బుక్‌మార్క్ లేబుల్ \"%s\"ని తీసివేయాలనుకుంటున్నారా? అలాగే అన్ని అనుబంధిత స్టడీ ప్యాడ్ నోట్‌లు తీసివేయబడతాయి.</string>
@@ -1165,7 +1187,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="labels_filter_favourite">ఇష్టమైన లేబుల్స్ మాత్రమే</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">ఈ బుక్ మార్క్‌కు లేబుల్‌ను కేటాయించడానికి దానిని టిక్ చేయండి.</string>
-  <string name="manage_labels_help_primary">ప్రాథమిక లేబుల్. బుక్ మార్క్ చూపించే రంగు మరియు శైలి దీనివే.</string>
+  <string name="manage_labels_help_primary">ప్రధాన లేబుల్. బుక్ మార్క్ చూపించే రంగు మరియు శైలి దీనివే.</string>
   <string name="manage_labels_help_autoassign">ఈ లేబుల్‌ను ప్రతి కొత్త బుక్ మార్క్‌కు స్వయంచాలకంగా కేటాయించండి. ఖాళీ మెరుపు గుర్తు అంటే ఆఫ్.</string>
   <string name="manage_labels_help_favourite">త్వరగా చేరుకోవడానికి లేబుల్‌ను మీ ఇష్టమైన వాటిలో ఉంచండి.</string>
   <string name="manage_labels_help_styles">పేరు కింద ఒక చిన్న ఉదాహరణ లేబుల్ రూపాన్ని చూపుతుంది: పాఠ్య ఎంపిక బుక్ మార్క్ కోసం ఎంపిక, మొత్తం వచనపు బుక్ మార్క్ కోసం మొత్తం వచనం, మరియు ఈ కార్యస్థలం మార్చిన శైలి కోసం కార్యస్థలం ట్యాగ్. అలంకరణ లేని బూడిద రంగు ఉదాహరణ అంటే ఆ లేబుల్ బుక్ మార్క్‌స్ చూపబడవు. ఉదాహరణలను ⋮ మెనూ నుండి దాచవచ్చు.</string>
@@ -1299,7 +1321,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="google_drive_signin_done">సైన్ ఇన్ అయ్యారు. మీరు ఈ ట్యాబ్‌ను మూసివేసి AndBible కి తిరిగి వెళ్లవచ్చు.</string>
   <string name="google_drive_signin_required">మీ Google Drive సైన్-ఇన్ గడువు ముగిసింది లేదా రద్దు చేయబడింది. సింక్రొనైజ్ చేయడం కొనసాగించడానికి మళ్లీ సైన్ ఇన్ చేయండి.</string>
   <string name="google_drive_signin_interrupted">Google సైన్-ఇన్ అంతరాయం కలిగింది. మళ్లీ ప్రయత్నించండి.</string>
-  <string name="adapters_next_cloud">నెక్స్ట్ క్లౌడ్</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV ఫోల్డర్ చిరునామా, ఉదా. https://nas.local/dav/ లేదా https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">సింక్ కోసం సురక్షితమైన https:// చిరునామా అవసరం.</string>
@@ -1867,12 +1889,15 @@ Don\'t show this message again
   <string name="my_document_create_title">కొత్త పత్రం సృష్టించు</string>
   <string name="my_document_rename_title">పత్రం పేరు మార్చు</string>
   <string name="my_document_delete_confirmation">పత్రం \"%s\" తొలగించాలా?</string>
+  <string name="show_secret">చూపించు</string>
+  <string name="hide_secret">దాచు</string>
+  <string name="ai_documents_name">AI పత్రాలు</string>
+  <string name="ai_documents_description">AI ద్వారా స్వయంచాలకంగా రూపొందించబడిన పత్రాలు</string>
   <string name="my_document_cannot_delete_ai_documents">AI పత్రాల్లో పేజీలు ఉన్నప్పుడు తొలగించలేరు. ముందు పేజీలు తొలగించండి.</string>
   <string name="my_document_save_changes">మార్పులు సేవ్ చేయాలా?</string>
   <string name="my_document_no_description">వివరణ లేదు</string>
   <string name="my_document_edit_description">వివరణ సవరించు</string>
   <string name="my_document_pages_title">%s - పేజీలు</string>
-  <string name="my_document_pages_empty">ఈ పత్రంలో పేజీలు లేవు.</string>
   <string name="my_document_page_rename_title">పేజీ పేరు మార్చు</string>
   <string name="my_document_page_delete_confirmation">పేజీ \"%s\" తొలగించాలా?</string>
   <string name="my_document_pages_delete_confirmation">ఈ పేజీలను తొలగించాలా?</string>
@@ -1880,6 +1905,9 @@ Don\'t show this message again
   <string name="my_document_new_page_name">పేజీ %1$d</string>
   <string name="my_document_create_page_title">కొత్త పేజీ</string>
   <string name="my_document_content_type_label">కంటెంట్ రకం</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">ఈ పత్రంలో పేజీలు లేవు.</string>
   <string name="my_document_import_page">మార్క్‌డౌన్/HTML దిగుమతి చేయండి</string>
   <string name="my_document_export_page">పేజీ ఎగుమతి చేయండి</string>
   <string name="my_document_imported_page_name">దిగుమతి చేయబడింది</string>

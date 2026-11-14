@@ -35,6 +35,18 @@ import org.robolectric.annotation.Config
 class ManageLabelsMapperTest {
 
     @Test
+    fun `a label created on the Label settings screen starts plain`() {
+        val presets = ManageLabelsMapper.newLabelPresets(ManageLabelsContract.Mode.WORKSPACE)
+        assertEquals(ManageLabelsMapper.NewLabelPresets(), presets)
+    }
+
+    @Test
+    fun `a label created from a bookmark's label sheet starts selected and primary on that bookmark only`() {
+        val presets = ManageLabelsMapper.newLabelPresets(ManageLabelsContract.Mode.ASSIGN)
+        assertEquals(ManageLabelsMapper.NewLabelPresets(thisBookmarkSelected = true, thisBookmarkPrimary = true), presets)
+    }
+
+    @Test
     fun `toMode maps all four classic modes`() {
         assertEquals(ManageLabelsMode.STUDYPAD, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.STUDYPAD))
         assertEquals(ManageLabelsMode.WORKSPACE, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.WORKSPACE))

@@ -8,25 +8,33 @@ exercises.
 1. Tap a verse, or select a passage by long-pressing a word and extending the
     selection.
 2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
-    **Memorize** button.
+    **Memorize** button. On a narrow screen the button may be under **More**.
 3. A new window opens with the Memorize view.
 
+Opening the Memorize view on a passage also adds it as a memorization goal (if it is not one already),
+since tapping **Memorize** means you want to learn it. To drop the goal, choose **Remove from Goals** in the
+view's menu (see [Menu actions](#menu-actions)); the verse menu also offers **Goal -** for a passage that
+is already a goal.
+
 The Memorize view offers four study modes that you can switch between using
-the tabs at the top of the window.
+the tabs at the top of the window: **Blur**, **Scramble**, **Type** and **Order**.
+The sections below call them Word Blur, Word Scramble, Word Type and Word Order.
 
 ## Study modes
 
 ### Word Blur
 
 Words in the passage are progressively hidden. Try to recall the hidden
-words from memory. Each tap of the **+** button increases the blur level
-(more words are hidden); use the controls to reveal them again as needed.
+words from memory. The buttons above the text have icons but no text labels:
 
-- **Eye (Reveal)** – temporarily reveal all hidden words while held.
-- **Back-step (Reveal last level)** – undo the most recent blur step,
-    bringing back the words hidden last.
-- **+ (Increase blur level)** – hide more words.
-- **Undo (Reset)** – start over with all words visible.
+- **Eye** – hold it to reveal all hidden words temporarily.
+- **Back-step** – hold it to reveal only the words hidden at the latest blur
+    level temporarily. It does not undo a blur step.
+- **+** – increase the blur level (more words are hidden, up to level 5). A small
+    badge shows the current level.
+- **Undo arrow** – start over with all words visible.
+
+You can also tap a single hidden word to reveal it for a couple of seconds.
 
 Word Blur does not save progress automatically; it is a free-form
 self-test.
@@ -37,8 +45,12 @@ The words of the passage are scrambled and displayed as buttons below the
 text. Select the correct words in order to reconstruct the passage.
 
 - Blanks (`___`) show where the next word should go.
-- Hold the **Peek** button to temporarily see the full text.
-- Tap **Reset** to start over.
+- A word that occurs several times in the passage has a single button with a count,
+    for example `word (2)`.
+- Hold the **eye** button to temporarily see the full text.
+- Tap the **round arrow** button to start over.
+- The gear button opens an option, **Hide used word buttons**, that removes the
+    buttons of words you have already placed.
 
 When you finish the passage correctly, the verses are saved as memorized
 (see *Saving progress* below).
@@ -47,7 +59,8 @@ When you finish the passage correctly, the verses are saved as memorized
 
 The passage is shown with words to type. Use your keyboard to enter the
 text one word (or one letter) at a time. The behavior depends on the
-**Type full words** setting (in Settings > Progress & memorization):
+**Type full words** setting (in `Application preferences` > `Features` > `Progress & memorization`, or in the gear
+button of the **Type** tab):
 
 - *Off* (default) – you only need to type the first letter of each word
     to advance.
@@ -58,16 +71,21 @@ and editorial signs such as * and /, is skipped automatically in both typing
 modes and is never offered as a word in Scramble or Order. Start with the
 first letter of the word, even when a verse begins with one of these markers.
 
-Other Word Type settings include word visibility (light hint / dim /
-hidden) and an error heat-map that highlights words you mistype most
-often.
+Other Word Type settings, also in the gear button, include **Word visibility** (**Light** /
+**Dim** / **Hidden**) and an **Error heatmap** that highlights words you mistype most
+often. Tap *Tap here to start typing* to bring up the keyboard.
+
+The setting **Include verse reference** (in `Progress & memorization`) adds the verse
+reference as the last item to memorize in every mode.
 
 When you complete the passage, the verses are saved as memorized.
 
 ### Word Order
 
 The words of the passage are displayed out of order. Drag them into the
-correct sequence to reconstruct the passage.
+correct sequence to reconstruct the passage. A tile that is in the right place is marked
+while you drag. Hold the **eye** button to see the correct text, or tap the **round arrow** to
+shuffle again.
 
 When you complete the passage, the verses are saved as memorized.
 
@@ -75,21 +93,25 @@ When you complete the passage, the verses are saved as memorized.
 
 Tap the three-dot menu (top right of the Memorize view) to access:
 
-- **Mark as memorized** / **Marked as memorized** – manually mark the
-    selected verses as memorized, or remove the mark.
-- **Add memorization target** / **Remove from targets** – toggle the
-    selected passage as one of your active memorization targets. Targets are
-    passages you are actively working on memorizing.
-- **View reading progress** – open the [Reading Progress](reading_progress.md) view.
-- **View reading progress settings** – open the **Progress &
+- **Mark as memorized** / **Memorized** – manually mark the
+    selected verses as memorized (this also makes the passage a goal, if it is not one yet),
+    or, when the row reads **Memorized**, remove the mark.
+- **Goal +** / **Remove from Goals** – toggle the
+    selected passage as one of your memorization goals. Goals are
+    passages you are actively working on memorizing. **Remove from Goals** is offered only
+    while the passage is a goal that is not yet memorized.
+- **Read/Memory Progress** – open the [Reading Progress](reading_progress.md) view.
+- **Read/Memory Settings** – open the **Progress &
     memorization** settings page where Memorize and reading-tracker
     behavior is configured.
-- **Listen in loop** – play the passage repeatedly with text-to-speech
-    to help with auditory memorization.
+- **Listen in Loop** – play the passage repeatedly with text-to-speech
+    to help with auditory memorization. It is shown only on platforms that support Speak
+    (not on Windows and Linux).
+- **View help** – open a short help dialog about Memorize.
 
 ## Memorized state
 
-A **green border** is drawn around the Memorize view whenever the
+A **green border** (grey in monochrome mode) is drawn around the Memorize view whenever the
 selected verses are already marked as memorized in your
 [Reading Progress](reading_progress.md). The border is a global
 indicator – it is not limited to a particular study mode, and it remains
@@ -112,8 +134,8 @@ There are two kinds of progress in the Memorize view:
     reflected in the progress indicators on the book and chapter grids,
     and shown as the green border the next time you view the passage.
 
-    This automatic marking can be turned off (Settings > Progress &
-    memorization > *Auto-mark as memorized*) if you prefer to mark verses
+    This automatic marking can be turned off (`Application preferences` > `Features` >
+    `Progress & memorization` > *Auto-mark as memorized*) if you prefer to mark verses
     manually using the menu action above.
 
     Word Blur does not produce an automatic marking, because it has no

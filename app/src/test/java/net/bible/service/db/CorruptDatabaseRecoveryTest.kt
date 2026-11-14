@@ -40,8 +40,8 @@ import java.io.File
 
 /**
  * Corrupt-database recovery of [buildAppDatabase] / [recoverIfCorrupt] (D1 Task 17 fix round 1) for a regenerable
- * database, and what it must leave alone. The user-database case (bookmarks, real fixture) is
- * `RealFileFixturesTest.corruptedFixtureIsMovedAsideAndRecreatedEmpty`.
+ * database, and what it must leave alone. User-data databases are reported instead (#4112):
+ * `RealFileFixturesTest.corruptedFixtureIsReportedAndOnlyAnExplicitResetRecreatesItEmpty`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
@@ -139,15 +139,16 @@ class CorruptDatabaseRecoveryTest {
         assertFalse("the .lck must not be orphaned", File(db.path + ".lck").exists())
     }
 
-    @Test fun theStartupVersionCheckRecoversInsteadOfThrowing() {
+    /** #4112: the startup version read never moves a file aside; `create()` reports damaged user data first. */
+    @Test fun theStartupVersionReadNeverMovesAFileAside() {
         val file = application.getDatabasePath("versioned.sqlite3").also { it.parentFile!!.mkdirs(); it.delete() }
+        assertEquals(0, userVersionOrZero(file.path))
         openSqlite(file.path).use { it.execSQL("PRAGMA user_version = 7") }
-        assertEquals(7, userVersionRecoveringCorruption(file.path))
+        assertEquals(7, userVersionOrZero(file.path))
         file.writeBytes(garbage)
-        assertEquals(0, userVersionRecoveringCorruption(file.path))
-        assertFalse(file.exists())
-        assertEquals(1, corruptCopies(file).size)
-        assertEquals(0, userVersionRecoveringCorruption(file.path))
+        assertTrue(runCatching { userVersionOrZero(file.path) }.isFailure)
+        assertTrue(file.exists())
+        assertTrue(corruptCopies(file).isEmpty())
     }
 
     @Test fun corruptTargetNameUsesLatinDigitsInPersianLocale() {

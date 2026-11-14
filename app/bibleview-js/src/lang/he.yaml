@@ -123,5 +123,6 @@ llmAction: בינה מלאכותית
 llmActionLong: פעולת בינה מלאכותית
 aiDocumentRegenerate: חדש
 aiDocumentDelete: מחק
+aiDocumentsName: מסמכי AI
 aiGeneratedBy: "נוצר על ידי %s"
 aiGeneratedByWithModel: "נוצר על ידי %s (%s)"

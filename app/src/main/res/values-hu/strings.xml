@@ -128,7 +128,15 @@
   <string name="search_not_available">Ebben a dokumentumban nem lehet keresni</string>
   <string name="search_indexing_notification_title">Keresési index létrehozása</string>
   <string name="choose_translations">Fordítások kiválasztása…</string>
-  <string name="multi_search_results">%1$d vers %2$d fordításban</string>
+  <string name="multi_search_count_summary">%1$s, %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d fordítás</item>
+    <item quantity="other">%1$d fordítás</item>
+  </plurals>
   <string name="search_index_not_created">nincs index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Fejezet- és versszámok</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Új könyvjelző jegyzettel</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
-  <string name="window_color_settings_title">Ablak színeinek beállítása</string>
-  <string name="workspace_color_settings_title">Munkaterület színeinek beállítása</string>
+  <string name="global_color_settings_title">Színbeállítások (globális)</string>
+  <string name="window_color_settings_title">Színbeállítások (ablak)</string>
+  <string name="workspace_color_settings_title">Színbeállítások (munkaterület)</string>
   <string name="color_workspace">Munkaterület színe</string>
   <string name="color_text">Szöveg színe</string>
   <string name="color_background">Háttér színe</string>
@@ -411,7 +420,7 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <string name="rdg_plan_day">%s. nap</string>
   <string name="rdg_plan_set_start_date">Kezdési dátum beállítása…</string>
   <string name="set_current_day">Beállítás aktuális napként…</string>
-  <string name="msg_set_current_day_reading_plan">Ez a mai napot fogja aktuális napként beállítani ebben az olvasási tervben és minden korábbi napot olvasottként fog megjelölni. Folytatja?</string>
+  <string name="msg_set_current_day_reading_plan">Ez a(z) %1$s napot állítja be ennek a tervnek az aktuális napjaként, és az összes korábbi napot olvasottnak jelöli. Folytatod?</string>
   <string name="done">Kész</string>
   <string name="reset_plan_question">Biztos, hogy űjrakezdi ezt az olvasási tervet?</string>
   <string name="import_reading_plan">Olvasási terv importálása…</string>
@@ -488,7 +497,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="auto_assign_labels_title">Címke beállítások</string>
   <string name="auto_assign_labels">Automatikus hozzárendelés és Kedvenc címkék</string>
   <string name="auto_assign_labels1">Címkék automatikus hozzárendelése új könyvjelzőkhöz</string>
-  <string name="auto_assign_labels_primary">Automatikus hozzárendelés mint elsődleges címke</string>
+  <string name="auto_assign_labels_primary">Automatikus hozzárendelés elsődleges címkeként</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ehhez a dokumentumhoz könyvjelzők és/vagy jegyzetek tartoznak.</string>
   <string name="bookmark_warning2">
@@ -772,6 +781,14 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="error_key_not_in_document2">%1$s nem található %2$s dokumentumban.</string>
   <string name="empty_list">Nincs megtekinthető elem</string>
   <string name="error_skip">Kihagyás</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Sérült adatok</string>
+  <string name="corrupt_database_message">Az adataid egy részét nem sikerült megnyitni, mert az adatbázisfájl sérült: %1$s.\n\nSemmi sem változott vagy törlődött. Küldhetsz hibajelentést, hogy segíts megtalálni az okot, megnyithatod a Biztonsági mentés és helyreállítás részt, hogy mentést készíts vagy egy korábbit visszaállíts, vagy alaphelyzetbe állíthatod a sérült adatokat.\n\nAz alaphelyzetbe állítás után ezek az adatok üresen indulnak. A sérült fájl megmarad ezen az eszközön, átnevezve \".corrupt-\" előtaggal és a dátummal.</string>
+  <string name="corrupt_database_reset">Sérült adatok alaphelyzetbe állítása</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">A sérült adatokat nem sikerült alaphelyzetbe állítani: a(z) %1$s fájlt nem sikerült félretenni. Semmi sem változott. Próbálkozhatsz újra, küldhetsz hibajelentést, vagy használhatod a Biztonsági mentés és helyreállítás funkciót.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Az alkalmazás adatai figyelmet igényelnek. Koppints az alkalmazás megnyitásához.</string>
   <string name="debug_test_error">Tesztelési hiba (hibakeresési verzió)</string>
   <string name="bug_report_prepare_failed">A jelentést nem sikerült előkészíteni vagy megosztani. Próbálja újra, vagy használja a Mentés és visszaállítás funkciót az adatai mentéséhez.</string>
   <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
@@ -888,6 +905,10 @@ A munkamenentek lehetővé teszik, hogy több egymással párhuzamos munkakörny
 A munkamenetkez kapcsolódó funkciók a jobb felső sarokban található menüben érhetőek el.
 A munkameneteket legygyorsabban úgy éri el, ha az ujját lefelé húzza a felső eszköztáron.
 Ha az ujját jobbra vagy balra húzza az eszköztáron, a következő vagy előző munkamentet tudja előhívni.</string>
+  <string name="help_study_tools_title">Tanulmányozó eszközök</string>
+  <string name="help_study_tools_text">Koppints egy Strong-számra, hogy szótárban megnézd a vers mögötti görög vagy héber szót. Koppints egy kereszthivatkozásra, hogy a hivatkozások ablakában olvasd el, anélkül, hogy elvesztenéd a helyed a szövegben.</string>
+  <string name="help_look_and_feel_title">Megjelenés</string>
+  <string name="help_look_and_feel_text">Az éjszakai mód, a betűméret és betűtípus, a színek és a margók a beállítások menü (három pont, jobb felső sarok) Szövegbeállítások pontjában találhatók. Beállíthatók minden munkaterületre, egy munkaterületre vagy egyetlen ablakra.</string>
   <string name="help_hidden_features_title">Rejtett navigálási lehetőségek</string>
   <string name="help_hidden_features_text">
 Húzza lefelé az ujját az eszköztáron a munkamentváltó megjelenítéséhez.
@@ -910,6 +931,7 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
   <string name="welcome_restore_row_hint">Könyvjelzőket és jegyzeteket tartalmazó adatbázisfájl</string>
   <string name="welcome_link_website">Weboldal</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Videó</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Ki kell választania a fájlt, amelyet be szeretne tölteni a %s-be.</string>
@@ -1289,7 +1311,7 @@ jelentse be az észlelt problémát</string>
   <string name="google_drive_signin_done">Sikeresen bejelentkeztél. Bezárhatod ezt a lapot, és visszatérhetsz az AndBible alkalmazásba.</string>
   <string name="google_drive_signin_required">A Google Drive-bejelentkezésed lejárt vagy visszavonták. A szinkronizálás folytatásához jelentkezz be újra.</string>
   <string name="google_drive_signin_interrupted">A Google-bejelentkezés megszakadt. Próbáld újra.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">A WebDAV-mappa címe, pl. https://nas.local/dav/ vagy https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">A szinkronizáláshoz biztonságos https:// cím szükséges.</string>
@@ -1857,12 +1879,15 @@ jelentse be az észlelt problémát</string>
   <string name="my_document_create_title">Új dokumentum létrehozása</string>
   <string name="my_document_rename_title">Dokumentum átnevezése</string>
   <string name="my_document_delete_confirmation">Törli a(z) \"%s\" dokumentumot?</string>
+  <string name="show_secret">Megjelenítés</string>
+  <string name="hide_secret">Elrejtés</string>
+  <string name="ai_documents_name">MI-dokumentumok</string>
+  <string name="ai_documents_description">Mesterséges intelligencia által automatikusan létrehozott dokumentumok</string>
   <string name="my_document_cannot_delete_ai_documents">Az AI dokumentumok nem törölhetők, amíg oldalakat tartalmaznak. Először törölje az oldalakat.</string>
   <string name="my_document_save_changes">Menti a módosításokat?</string>
   <string name="my_document_no_description">Nincs leírás</string>
   <string name="my_document_edit_description">Leírás szerkesztése</string>
   <string name="my_document_pages_title">%s – Oldalak</string>
-  <string name="my_document_pages_empty">Nincsenek oldalak ebben a dokumentumban.</string>
   <string name="my_document_page_rename_title">Oldal átnevezése</string>
   <string name="my_document_page_delete_confirmation">Törli a(z) \"%s\" oldalt?</string>
   <string name="my_document_pages_delete_confirmation">Törli ezeket az oldalakat?</string>
@@ -1870,6 +1895,9 @@ jelentse be az észlelt problémát</string>
   <string name="my_document_new_page_name">%1$d. oldal</string>
   <string name="my_document_create_page_title">Új oldal</string>
   <string name="my_document_content_type_label">Tartalomtípus</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Nincsenek oldalak ebben a dokumentumban.</string>
   <string name="my_document_import_page">Markdown/HTML importálása</string>
   <string name="my_document_export_page">Oldal exportálása</string>
   <string name="my_document_imported_page_name">Importált</string>

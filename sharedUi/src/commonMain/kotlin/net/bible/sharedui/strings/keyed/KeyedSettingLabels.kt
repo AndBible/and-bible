@@ -91,6 +91,7 @@ fun textDisplayStringKey(key: TextDisplayString): String = when (key) {
     TextDisplayString.GLOBAL_TITLE -> "global_text_display_settings_title"
     TextDisplayString.WORKSPACE_TITLE -> "workspace_text_display_settings_title"
     TextDisplayString.WINDOW_TITLE -> "window_text_display_settings_title"
+    TextDisplayString.GLOBAL_COLOR_TITLE -> "global_color_settings_title"
     TextDisplayString.WINDOW_COLOR_TITLE -> "window_color_settings_title"
     TextDisplayString.WORKSPACE_COLOR_TITLE -> "workspace_color_settings_title"
     TextDisplayString.BACKGROUND_IMAGE_NONE -> "background_image_none"

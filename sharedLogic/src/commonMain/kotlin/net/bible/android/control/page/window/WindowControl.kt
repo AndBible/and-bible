@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.concurrent.Volatile
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
@@ -46,7 +47,8 @@ import org.crosswire.jsword.passage.VerseKey
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class WindowControl constructor() {
-    private var _windowRepository: WindowRepository? = null
+    // Volatile: [holdsLoadedRepository] reads it off Main (a database replace on IO).
+    @Volatile private var _windowRepository: WindowRepository? = null
 
     /**
      * Read-only peek at the repository currently held, without creating one (unlike [windowRepository]'s
@@ -59,6 +61,19 @@ open class WindowControl constructor() {
     @VisibleForTesting
     fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
         if (_windowRepository === expected) _windowRepository = null
+    }
+
+    /** Whether a repository is held and has loaded: only then is there live state to save (volatile reads, any thread). */
+    val holdsLoadedRepository: Boolean get() = _windowRepository?.initialized == true
+
+    /**
+     * Saves the held repository's unsaved state, without creating the lazy fallback; a repository that has not
+     * loaded, or is stale after a restore, is left alone by [WindowRepository.saveIntoDb] itself. Speech keeps
+     * playing. Must run on Main.
+     */
+    fun saveLoadedRepository() {
+        if (!holdsLoadedRepository) return
+        _windowRepository?.takeIf { it.initialized }?.saveIntoDb(false)
     }
 
     open var windowRepository: WindowRepository

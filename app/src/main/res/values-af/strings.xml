@@ -128,7 +128,15 @@
   <string name="search_not_available">Hierdie dokument kan nie deursoek word nie</string>
   <string name="search_indexing_notification_title">Skep soekindeks</string>
   <string name="choose_translations">Kies vertalings…</string>
-  <string name="multi_search_results">%1$d verse in %2$d vertalings</string>
+  <string name="multi_search_count_summary">%1$s in %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verse</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertaling</item>
+    <item quantity="other">%1$d vertalings</item>
+  </plurals>
   <string name="search_index_not_created">geen indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
@@ -322,8 +330,9 @@ Woordafbreking</string>
   <string name="create_bookmark_with_a_note">Skep \'n nuwe Boekmerk met \'n nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
-  <string name="window_color_settings_title">Venster kleur instellings</string>
-  <string name="workspace_color_settings_title">Werkruimte kleur Standaard instellings</string>
+  <string name="global_color_settings_title">Kleurinstellings (Globaal)</string>
+  <string name="window_color_settings_title">Kleurinstellings (Venster)</string>
+  <string name="workspace_color_settings_title">Kleurinstellings (Werkruimte)</string>
   <string name="color_workspace">Werkspasie kleur</string>
   <string name="color_text">Teks kleur</string>
   <string name="color_background">Agtergrond kleur</string>
@@ -413,7 +422,7 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
   <string name="set_current_day">Stel as huidige dag... </string>
-  <string name="msg_set_current_day_reading_plan">Dit sal vandag as die huidige dag in hierdie plan stel en al die vorige dae as gelees merk. Gan voort?</string>
+  <string name="msg_set_current_day_reading_plan">Dit sal %1$s as die huidige dag in hierdie plan stel en al die vorige dae as gelees merk. Gaan voort?</string>
   <string name="done">Klaar</string>
   <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
   <string name="import_reading_plan">Voer leesplan in... </string>
@@ -498,7 +507,7 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="auto_assign_labels_title">Etiketteer instellings</string>
   <string name="auto_assign_labels">Outo-toewys &amp; Gunsteling etikette</string>
   <string name="auto_assign_labels1">Outo-toewys etiket aan nuwe boekmerke</string>
-  <string name="auto_assign_labels_primary">Outo-toewys as primêre</string>
+  <string name="auto_assign_labels_primary">Outo-toewys as primêre etiket</string>
   <!--can be removed-->
   <string name="bookmark_warning">Daar is boekmerke en/of notas vir hierdie dokument.</string>
   <string name="bookmark_warning2">
@@ -777,6 +786,14 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_key_not_in_document2">%1$s is nie in dokument %2$s gevind nie.</string>
   <string name="empty_list">Geen items om te wys</string>
   <string name="error_skip">Vermy</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Beskadigde data</string>
+  <string name="corrupt_database_message">Sommige van jou data kon nie oopgemaak word nie omdat die databasislêer beskadig is: %1$s.\n\nNiks is verander of uitgevee nie. Jy kan \'n foutverslag stuur om ons te help om die oorsaak te vind, Rugsteun &amp; herstel oopmaak om \'n rugsteun te maak of \'n vroeëre een te herstel, of die beskadigde data terugstel.\n\nTerugstelling begin daardie data leeg. Die beskadigde lêer word op hierdie toestel gehou, hernoem met \".corrupt-\" en die datum.</string>
+  <string name="corrupt_database_reset">Stel beskadigde data terug</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Die beskadigde data kon nie teruggestel word nie: %1$s kon nie eenkant toe geskuif word nie. Niks is verander nie. Jy kan weer probeer, \'n foutverslag stuur of Rugsteun &amp; herstel gebruik.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Die toepassing se data het aandag nodig. Tik om die toepassing oop te maak.</string>
   <string name="debug_test_error">Toetsfout (ontfoutingsbou)</string>
   <string name="bug_report_prepare_failed">Kon nie die verslag voorberei of deel nie. Jy kan weer probeer, of Rugsteun en Herstel gebruik om jou data te bêre.</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
@@ -894,6 +911,10 @@ verkry word via Werkruimte-item in die keusemenu (regs bo). Vinnige manier om to
 werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook vee-links-en-regs-gebare oor die werkbalk gebruik om oor te 
 skakel na vorige / volgende werkruimte.
 </string>
+  <string name="help_study_tools_title">Studiegereedskap</string>
+  <string name="help_study_tools_text">Tik op \'n Strong-nommer om die Griekse of Hebreeuse woord agter \'n vers in \'n woordeboek op te soek. Tik op \'n kruisverwysing om dit in die skakelvenster te lees, sonder om jou plek in die teks te verloor.</string>
+  <string name="help_look_and_feel_title">Voorkoms</string>
+  <string name="help_look_and_feel_text">Nagmodus, lettergrootte en -familie, kleure en kantlyne is onder Teks opsies in die opsiekieslys (drie kolletjies, regs bo). Dit kan vir elke werkruimte, vir een werkruimte of vir \'n enkele venster gestel word.</string>
   <string name="help_hidden_features_title">Verborge kortpaaie</string>
   <string name="help_hidden_features_text">
 Sweep afwards van die werkbalk om die werkruimte selector te wys.
@@ -917,6 +938,7 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="welcome_restore_row_hint">Databasislêer met boekmerke en notas</string>
   <string name="welcome_link_website">Webwerf</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>
@@ -1287,7 +1309,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="google_drive_signin_done">Aangemeld. Jy kan hierdie oortjie toemaak en na AndBible terugkeer.</string>
   <string name="google_drive_signin_required">Jou Google Drive-aanmelding het verval of is herroep. Meld weer aan om voort te gaan met sinchroniseer.</string>
   <string name="google_drive_signin_interrupted">Google-aanmelding is onderbreek. Probeer weer.</string>
-  <string name="adapters_next_cloud">Volgende Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adres van die WebDAV-gids, bv. https://nas.local/dav/ of https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinchronisasie vereis \'n veilige https://-adres.</string>
@@ -1854,12 +1876,15 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="my_document_create_title">Skep nuwe dokument</string>
   <string name="my_document_rename_title">Hernoem dokument</string>
   <string name="my_document_delete_confirmation">Verwyder dokument \"%s\"?</string>
+  <string name="show_secret">Wys</string>
+  <string name="hide_secret">Versteek</string>
+  <string name="ai_documents_name">KI-dokumente</string>
+  <string name="ai_documents_description">Outomaties gegenereerde dokumente van KI</string>
   <string name="my_document_cannot_delete_ai_documents">KI-dokumente kan nie verwyder word terwyl dit bladsye bevat nie. Verwyder eers die bladsye.</string>
   <string name="my_document_save_changes">Wysigings bêre?</string>
   <string name="my_document_no_description">Geen beskrywing</string>
   <string name="my_document_edit_description">Wysig beskrywing</string>
   <string name="my_document_pages_title">%s - Bladsye</string>
-  <string name="my_document_pages_empty">Geen bladsye in hierdie dokument nie.</string>
   <string name="my_document_page_rename_title">Hernoem bladsy</string>
   <string name="my_document_page_delete_confirmation">Verwyder bladsy \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Skrap hierdie bladsye?</string>
@@ -1867,6 +1892,9 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="my_document_new_page_name">Bladsy %1$d</string>
   <string name="my_document_create_page_title">Nuwe bladsy</string>
   <string name="my_document_content_type_label">Inhoudstipe</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Geen bladsye in hierdie dokument nie.</string>
   <string name="my_document_import_page">Voer Markdown/HTML in</string>
   <string name="my_document_export_page">Voer bladsy uit</string>
   <string name="my_document_imported_page_name">Ingevoer</string>

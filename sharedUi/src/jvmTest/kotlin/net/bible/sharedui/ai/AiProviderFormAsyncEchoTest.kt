@@ -76,7 +76,8 @@ class AiProviderFormAsyncEchoTest {
             node.performTextInput(second)
             runOnIdle { while (queue.isNotEmpty()) queue.removeFirst().let { (f, v) -> shown = shown.with(f, v) } }
             waitForIdle()
-            result = node.fetchSemanticsNode().config[SemanticsProperties.EditableText].text
+            // InputText is the raw value: the API key field is masked, so EditableText shows bullets.
+            result = node.fetchSemanticsNode().config[SemanticsProperties.InputText].text
         }
         return result to received
     }

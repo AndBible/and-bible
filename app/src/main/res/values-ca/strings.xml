@@ -128,7 +128,17 @@
   <string name="search_not_available">No es pot cercar en aquest document</string>
   <string name="search_indexing_notification_title">Creació de l\'índex de cerca</string>
   <string name="choose_translations">Trieu traduccions…</string>
-  <string name="multi_search_results">%1$d versets en %2$d traduccions</string>
+  <string name="multi_search_count_summary">%1$s en %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="many">%1$d de versos</item>
+    <item quantity="other">%1$d versos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducció</item>
+    <item quantity="many">%1$d de traduccions</item>
+    <item quantity="other">%1$d traduccions</item>
+  </plurals>
   <string name="search_index_not_created">sense índex</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítol i verset</string>
@@ -320,8 +330,9 @@
   <string name="create_bookmark_with_a_note">Crea un nou marcador amb una nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Configuració de colors</string>
-  <string name="window_color_settings_title">Configuració de colors de la finestra</string>
-  <string name="workspace_color_settings_title">Valors per defecte de colors de l\'espai de treball</string>
+  <string name="global_color_settings_title">Configuració de colors (global)</string>
+  <string name="window_color_settings_title">Configuració de colors (finestra)</string>
+  <string name="workspace_color_settings_title">Configuració de colors (espai de treball)</string>
   <string name="color_workspace">Color de l\'espai de treball</string>
   <string name="color_text">Color del text</string>
   <string name="color_background">Color del fons</string>
@@ -407,7 +418,7 @@
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Estableix la data d\'inici…</string>
   <string name="set_current_day">Estableix com a dia actual…</string>
-  <string name="msg_set_current_day_reading_plan">Això establirà avui com el dia actual en aquest pla i marcarà tots els dies anteriors com a llegits. Voleu continuar?</string>
+  <string name="msg_set_current_day_reading_plan">Això establirà %1$s com a dia actual d\'aquest pla i marcarà tots els dies anteriors com a llegits. Vols continuar?</string>
   <string name="done">Fet</string>
   <string name="reset_plan_question">Esteu segur que voleu restablir aquest pla?</string>
   <string name="import_reading_plan">Importa un pla de lectura…</string>
@@ -470,7 +481,7 @@
   <string name="auto_assign_labels_title">Configuració d\'etiquetes</string>
   <string name="auto_assign_labels">Etiquetes d\'assignació automàtica i preferides</string>
   <string name="auto_assign_labels1">Assigna automàticament una etiqueta als marcadors nous</string>
-  <string name="auto_assign_labels_primary">Assigna automàticament com a primària</string>
+  <string name="auto_assign_labels_primary">Assigna automàticament com a etiqueta principal</string>
   <!--can be removed-->
   <string name="bookmark_warning">Hi ha marcadors i/o notes per a aquest document.</string>
   <string name="bookmark_warning2">Si l\'estructura del document ha canviat, actualitzar aquest document podria fer que les ubicacions d\'aquests marcadors/notes es moguin dins del document o desapareguin completament.</string>
@@ -726,6 +737,14 @@
   <string name="error_key_not_in_document2">No s\'ha trobat %1$s al document %2$s.</string>
   <string name="empty_list">No hi ha elements per mostrar</string>
   <string name="error_skip">Omet</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Dades danyades</string>
+  <string name="corrupt_database_message">No s\'han pogut obrir algunes de les teves dades perquè el fitxer de la base de dades està danyat: %1$s.\n\nNo s\'ha canviat ni esborrat res. Pots enviar un informe d\'error perquè ens ajudi a trobar-ne la causa, obrir Còpia de seguretat i restauració per fer una còpia o restaurar-ne una d\'anterior, o restablir les dades danyades.\n\nEl restabliment torna a començar aquestes dades en blanc. El fitxer danyat es conserva en aquest dispositiu, amb el nom canviat afegint-hi \".corrupt-\" i la data.</string>
+  <string name="corrupt_database_reset">Restableix les dades danyades</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">No s\'han pogut restablir les dades danyades: no s\'ha pogut apartar %1$s. No s\'ha canviat res. Pots tornar-ho a provar, enviar un informe d\'error o utilitzar Còpia de seguretat i restauració.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Les dades de l\'aplicació necessiten atenció. Toca per obrir l\'aplicació.</string>
   <string name="debug_test_error">Error de prova (compilació de depuració)</string>
   <string name="bug_report_prepare_failed">No s\'ha pogut preparar ni compartir l\'informe. Pots tornar-ho a provar, o utilitzar Còpia de seguretat i restauració per desar les teves dades.</string>
   <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
@@ -823,6 +842,10 @@
   <string name="help_fts5">Sintaxi de consulta de text complet FTS5</string>
   <string name="help_workspaces_title">Espais de treball</string>
   <string name="help_workspaces_text">Els espais de treball permeten tenir múltiples entorns de treball dependents del context. Les funcions dels espais de treball són accessibles a través de l\'element Espais de treball al menú d\'opcions (cantonada superior dreta). Una manera ràpida d\'accedir als espais de treball és amb el gest de lliscar cap avall des de la barra d\'eines. També pots usar els gestos de lliscar a l\'esquerra i a la dreta sobre la barra d\'eines per canviar a l\'espai de treball anterior o al següent.</string>
+  <string name="help_study_tools_title">Eines d\'estudi</string>
+  <string name="help_study_tools_text">Toca un número de Strong\'s per consultar en un diccionari la paraula grega o hebrea que hi ha darrere d\'un vers. Toca una referència creuada per llegir-la a la finestra d\'enllaços, sense perdre el lloc al text.</string>
+  <string name="help_look_and_feel_title">Aspecte</string>
+  <string name="help_look_and_feel_text">El mode nocturn, la mida i el tipus de lletra, els colors i els marges són a Opcions de text, al menú d\'opcions (tres punts, cantonada superior dreta). Es poden definir per a tots els espais de treball, per a un espai de treball o per a una sola finestra.</string>
   <string name="help_hidden_features_title">Dreceres ocultes</string>
   <string name="help_hidden_features_text">Llisca cap avall des de la barra d\'eines per mostrar el selector d\'espais de treball. Mantén premut el botó de finestra per minimitzar-la ràpidament. Mantén premut el botó de la barra d\'eines de parla per anar ràpidament a la configuració de parla. Mantén premut el títol de la ubicació del verset a la barra d\'eines per saltar al selector de documents.</string>
   <string name="help_window_pinning_title">Fixació de finestres</string>
@@ -834,6 +857,7 @@
   <string name="welcome_restore_row_hint">Fitxer de base de dades amb marcadors i notes</string>
   <string name="welcome_link_website">Lloc web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Vídeo</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Has de triar el fitxer que vols carregar a %s.</string>
@@ -1180,7 +1204,7 @@
   <string name="google_drive_signin_done">Sessió iniciada. Pots tancar aquesta pestanya i tornar a AndBible.</string>
   <string name="google_drive_signin_required">L\'inici de sessió a Google Drive ha caducat o s\'ha revocat. Torna a iniciar la sessió per continuar sincronitzant.</string>
   <string name="google_drive_signin_interrupted">L\'inici de sessió a Google s\'ha interromput. Torna-ho a provar.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adreça de la carpeta WebDAV, p. ex. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronització requereix una adreça segura https://.</string>
@@ -1746,12 +1770,15 @@
   <string name="my_document_create_title">Crea un document nou</string>
   <string name="my_document_rename_title">Reanomena el document</string>
   <string name="my_document_delete_confirmation">Suprimeix el document \"%s\"?</string>
+  <string name="show_secret">Mostra</string>
+  <string name="hide_secret">Amaga</string>
+  <string name="ai_documents_name">Documents d\'IA</string>
+  <string name="ai_documents_description">Documents generats automàticament per la IA</string>
   <string name="my_document_cannot_delete_ai_documents">Els documents de la IA no es poden suprimir mentre contenen pàgines. Suprimeix primer les pàgines.</string>
   <string name="my_document_save_changes">Desa els canvis?</string>
   <string name="my_document_no_description">Sense descripció</string>
   <string name="my_document_edit_description">Edita la descripció</string>
   <string name="my_document_pages_title">%s - Pàgines</string>
-  <string name="my_document_pages_empty">No hi ha pàgines en aquest document.</string>
   <string name="my_document_page_rename_title">Reanomena la pàgina</string>
   <string name="my_document_page_delete_confirmation">Suprimeix la pàgina \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Vols suprimir aquestes pàgines?</string>
@@ -1759,6 +1786,9 @@
   <string name="my_document_new_page_name">Pàgina %1$d</string>
   <string name="my_document_create_page_title">Pàgina nova</string>
   <string name="my_document_content_type_label">Tipus de contingut</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">No hi ha pàgines en aquest document.</string>
   <string name="my_document_import_page">Importa Markdown/HTML</string>
   <string name="my_document_export_page">Exporta la pàgina</string>
   <string name="my_document_imported_page_name">Importada</string>

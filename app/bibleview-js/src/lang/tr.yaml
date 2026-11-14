@@ -123,5 +123,6 @@ llmAction: Yapay Zeka
 llmActionLong: Yapay Zeka Eylemi
 aiDocumentRegenerate: Yeniden oluştur
 aiDocumentDelete: Sil
+aiDocumentsName: AI Belgeleri
 aiGeneratedBy: "%s tarafından oluşturuldu"
 aiGeneratedByWithModel: "%s (%s) tarafından oluşturuldu"

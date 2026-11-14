@@ -190,14 +190,14 @@ class DesktopPortContractTest {
             assertEquals(emptyList(), koin.get<net.bible.sharedui.app.ports.DocumentPicker>().openDocuments(listOf("*/*"), true))
             assertEquals(null, koin.get<net.bible.sharedui.app.ports.ImagePicker>().pickImage())
             assertEquals(null, koin.get<net.bible.sharedcore.platform.files.FilePicker>().pickBackupFile())
-            // Google Drive is listed last, and only when the desktop Drive client is configured (it is in these bindings).
-            assertEquals(listOf("NEXT_CLOUD", "WEBDAV", "GOOGLE_DRIVE"), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
+            // Google Drive is listed first (the fresh-install default), and only when the desktop Drive client is configured (it is in these bindings).
+            assertEquals(listOf("GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV"), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
             assertNotEquals("adapters_next_cloud", koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().displayName("NEXT_CLOUD"), "the real string table resolves")
         }
         // CloudSync reads adapterId (available.first()) and builds an adapter: neither may throw. No sign-in is attempted:
         // with the real bindings it would reach the WebDAV stack or wait for a dialog only a user can dismiss.
         val cloud = koin.get<net.bible.service.cloudsync.CloudSync>()
-        assertEquals("NEXT_CLOUD", cloud.adapterId)
+        assertEquals("GOOGLE_DRIVE", cloud.adapterId)
         val adapter = koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().create(cloud.adapterId)
         assertEquals(false, adapter.signedIn)
         assertEquals(false, cloud.signedIn)

@@ -123,5 +123,6 @@ llmAction: VI
 llmActionLong: VI radnja
 aiDocumentRegenerate: Regeneriši
 aiDocumentDelete: Obriši
+aiDocumentsName: VI dokumenti
 aiGeneratedBy: "Generisano od strane %s"
 aiGeneratedByWithModel: "Generisano od strane %s (%s)"

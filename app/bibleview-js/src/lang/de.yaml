@@ -123,5 +123,6 @@ llmAction: KI
 llmActionLong: KI-Aktion
 aiDocumentRegenerate: Neu generieren
 aiDocumentDelete: Löschen
+aiDocumentsName: KI-Dokumente
 aiGeneratedBy: "Generiert von %s"
 aiGeneratedByWithModel: "Generiert von %s (%s)"

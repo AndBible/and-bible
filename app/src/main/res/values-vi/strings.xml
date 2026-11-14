@@ -128,7 +128,13 @@
   <string name="search_not_available">Không thể tìm kiếm trong tài liệu này</string>
   <string name="search_indexing_notification_title">Đang tạo chỉ mục tìm kiếm</string>
   <string name="choose_translations">Chọn bản dịch…</string>
-  <string name="multi_search_results">%1$d câu trong %2$d bản dịch</string>
+  <string name="multi_search_count_summary">%1$s trong %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d câu</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d bản dịch</item>
+  </plurals>
   <string name="search_index_not_created">chưa có chỉ mục</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Số chương &amp; câu</string>
@@ -320,8 +326,9 @@
   <string name="create_bookmark_with_a_note">Tạo đánh dấu mới kèm ghi chú</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Cài đặt màu sắc</string>
-  <string name="window_color_settings_title">Cài đặt màu cửa sổ</string>
-  <string name="workspace_color_settings_title">Giá trị mặc định cài đặt màu không gian làm việc</string>
+  <string name="global_color_settings_title">Cài đặt màu sắc (Toàn cục)</string>
+  <string name="window_color_settings_title">Cài đặt màu sắc (Cửa sổ)</string>
+  <string name="workspace_color_settings_title">Cài đặt màu sắc (Không gian làm việc)</string>
   <string name="color_workspace">Màu không gian làm việc</string>
   <string name="color_text">Màu văn bản</string>
   <string name="color_background">Màu nền</string>
@@ -407,7 +414,7 @@
   <string name="rdg_plan_day">Ngày %s</string>
   <string name="rdg_plan_set_start_date">Đặt Ngày Bắt Đầu…</string>
   <string name="set_current_day">Đặt làm ngày hiện tại…</string>
-  <string name="msg_set_current_day_reading_plan">Thao tác này sẽ đặt hôm nay làm ngày hiện tại trong kế hoạch và đánh dấu tất cả các ngày trước là đã đọc. Tiếp tục?</string>
+  <string name="msg_set_current_day_reading_plan">Thao tác này sẽ đặt %1$s làm ngày hiện tại trong kế hoạch này và đánh dấu tất cả các ngày trước đó là đã đọc. Tiếp tục?</string>
   <string name="done">Hoàn thành</string>
   <string name="reset_plan_question">Bạn có chắc muốn đặt lại kế hoạch này không?</string>
   <string name="import_reading_plan">Nhập kế hoạch đọc…</string>
@@ -726,6 +733,14 @@
   <string name="error_key_not_in_document2">%1$s không được tìm thấy trong tài liệu %2$s.</string>
   <string name="empty_list">Không có mục nào để hiển thị</string>
   <string name="error_skip">Bỏ qua</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Dữ liệu bị hỏng</string>
+  <string name="corrupt_database_message">Một số dữ liệu của bạn không thể mở được vì tệp cơ sở dữ liệu bị hỏng: %1$s.\n\nKhông có gì bị thay đổi hay xóa. Bạn có thể gửi báo cáo lỗi để giúp chúng tôi tìm nguyên nhân, mở Sao lưu &amp; Khôi phục để sao lưu hoặc khôi phục bản trước đó, hoặc đặt lại dữ liệu bị hỏng.\n\nĐặt lại sẽ bắt đầu dữ liệu đó từ trạng thái trống. Tệp bị hỏng được giữ lại trên thiết bị này, được đổi tên với \".corrupt-\" và ngày tháng.</string>
+  <string name="corrupt_database_reset">Đặt lại dữ liệu bị hỏng</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Không thể đặt lại dữ liệu bị hỏng: không thể di chuyển %1$s sang một bên. Không có gì bị thay đổi. Bạn có thể thử lại, gửi báo cáo lỗi hoặc dùng Sao lưu &amp; Khôi phục.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Dữ liệu của ứng dụng cần được xử lý. Chạm để mở ứng dụng.</string>
   <string name="debug_test_error">Lỗi thử nghiệm (bản gỡ lỗi)</string>
   <string name="bug_report_prepare_failed">Không thể chuẩn bị hoặc chia sẻ báo cáo. Bạn có thể thử lại, hoặc dùng Sao lưu &amp; Khôi phục để lưu dữ liệu của mình.</string>
   <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
@@ -823,6 +838,10 @@
   <string name="help_fts5">Cú pháp truy vấn toàn văn bản FTS5</string>
   <string name="help_workspaces_title">Không gian làm việc</string>
   <string name="help_workspaces_text">Không gian làm việc cho phép có nhiều môi trường làm việc phụ thuộc vào ngữ cảnh. Các chức năng không gian làm việc có thể được truy cập qua mục Không gian làm việc trong menu tùy chọn (góc trên bên phải). Cách nhanh để truy cập không gian làm việc là vuốt xuống từ thanh công cụ. Bạn cũng có thể sử dụng thao tác vuốt trái và vuốt phải trên thanh công cụ để chuyển sang không gian làm việc trước / tiếp theo.</string>
+  <string name="help_study_tools_title">Công cụ nghiên cứu</string>
+  <string name="help_study_tools_text">Chạm vào một số Strong để tra từ Hy Lạp hoặc Hê-bơ-rơ đằng sau một câu trong từ điển. Chạm vào một tham chiếu chéo để đọc nó trong cửa sổ liên kết mà không mất vị trí đang đọc trong văn bản.</string>
+  <string name="help_look_and_feel_title">Giao diện</string>
+  <string name="help_look_and_feel_text">Chế độ ban đêm, cỡ chữ và phông chữ, màu sắc và lề nằm trong Tùy chọn văn bản trong menu tùy chọn (ba chấm, góc trên bên phải). Có thể đặt cho mọi không gian làm việc, cho một không gian làm việc hoặc cho một cửa sổ riêng.</string>
   <string name="help_hidden_features_title">Phím tắt ẩn</string>
   <string name="help_hidden_features_text">Vuốt xuống từ thanh công cụ để hiển thị bộ chọn không gian làm việc. Nhấn giữ nút cửa sổ để thu nhỏ nhanh. Nhấn giữ nút đọc trên thanh công cụ để nhanh chóng vào cài đặt đọc. Nhấn giữ tiêu đề vị trí câu trên thanh công cụ để chuyển đến bộ chọn tài liệu.</string>
   <string name="help_window_pinning_title">Ghim cửa sổ</string>
@@ -834,6 +853,7 @@
   <string name="welcome_restore_row_hint">Tệp cơ sở dữ liệu chứa đánh dấu và ghi chú</string>
   <string name="welcome_link_website">Trang web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Bạn phải chọn tệp muốn tải vào %s.</string>
@@ -1180,7 +1200,7 @@
   <string name="google_drive_signin_done">Đã đăng nhập. Bạn có thể đóng thẻ này và quay lại AndBible.</string>
   <string name="google_drive_signin_required">Phiên đăng nhập Google Drive của bạn đã hết hạn hoặc bị thu hồi. Hãy đăng nhập lại để tiếp tục đồng bộ hóa.</string>
   <string name="google_drive_signin_interrupted">Đăng nhập Google bị gián đoạn. Hãy thử lại.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Địa chỉ của thư mục WebDAV, ví dụ https://nas.local/dav/ hoặc https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Đồng bộ hóa yêu cầu địa chỉ https:// an toàn.</string>
@@ -1746,12 +1766,15 @@
   <string name="my_document_create_title">Tạo tài liệu mới</string>
   <string name="my_document_rename_title">Đổi tên tài liệu</string>
   <string name="my_document_delete_confirmation">Xóa tài liệu \"%s\"?</string>
+  <string name="show_secret">Hiện</string>
+  <string name="hide_secret">Ẩn</string>
+  <string name="ai_documents_name">Tài liệu AI</string>
+  <string name="ai_documents_description">Tài liệu do AI tự động tạo</string>
   <string name="my_document_cannot_delete_ai_documents">Không thể xóa tài liệu AI khi còn chứa trang. Hãy xóa các trang trước.</string>
   <string name="my_document_save_changes">Lưu thay đổi?</string>
   <string name="my_document_no_description">Không có mô tả</string>
   <string name="my_document_edit_description">Chỉnh sửa mô tả</string>
   <string name="my_document_pages_title">%s - Trang</string>
-  <string name="my_document_pages_empty">Tài liệu này chưa có trang nào.</string>
   <string name="my_document_page_rename_title">Đổi tên trang</string>
   <string name="my_document_page_delete_confirmation">Xóa trang \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Xóa các trang này?</string>
@@ -1759,6 +1782,9 @@
   <string name="my_document_new_page_name">Trang %1$d</string>
   <string name="my_document_create_page_title">Trang mới</string>
   <string name="my_document_content_type_label">Loại nội dung</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Tài liệu này chưa có trang nào.</string>
   <string name="my_document_import_page">Nhập Markdown/HTML</string>
   <string name="my_document_export_page">Xuất trang</string>
   <string name="my_document_imported_page_name">Đã nhập</string>

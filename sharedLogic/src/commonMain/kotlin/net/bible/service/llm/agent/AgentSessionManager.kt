@@ -36,7 +36,6 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmRawLogRecord
@@ -631,15 +630,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return SelectionContent(verseRange, selectedText, osisContent)
     }
 
-    private suspend fun buildAgentContext(
+    @VisibleForTesting
+    suspend fun buildAgentContext(
         prompt: AgentPrompt,
         selection: LlmSelection,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
         userSpecification: String? = null
     ): AgentContext {
-        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
-
         // Workspace-level prompt: no specific verse/document selected
         if (selection.bookInitials == null && selection.startOrdinal < 0
             && selection.noteEditorEntityType == null) {
@@ -650,9 +648,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 promptId = prompt.id,
                 workspaceId = windowControl.windowRepository.id,
                 windowId = windowControl.activeWindow.id,
-                promptPermissionMode = prompt.permissionMode,
+                promptPermissionMode = PromptRepository.effectivePermissionMode(prompt),
                 promptAvailableTools = prompt.allowedTools,
-                promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
+                promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
                 promptDeniedTools = prompt.deniedTools,
                 noDocumentCreation = prompt.noDocumentCreation,
                 previousResponse = previousResponse,
@@ -685,9 +683,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             highlightedText = highlightedText,
             selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
             selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
-            promptPermissionMode = prompt.permissionMode,
+            promptPermissionMode = PromptRepository.effectivePermissionMode(prompt),
             promptAvailableTools = prompt.allowedTools,
-            promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
+            promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
             promptDeniedTools = prompt.deniedTools,
             noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,

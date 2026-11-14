@@ -128,7 +128,17 @@
   <string name="search_not_available">Овај документ се не може претраживати</string>
   <string name="search_indexing_notification_title">Прављење индекса претраге</string>
   <string name="choose_translations">Изаберите преводе…</string>
-  <string name="multi_search_results">%1$d стихова у %2$d превода</string>
+  <string name="multi_search_count_summary">%1$s у %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d стих</item>
+    <item quantity="few">%1$d стиха</item>
+    <item quantity="other">%1$d стихова</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d преводу</item>
+    <item quantity="few">%1$d превода</item>
+    <item quantity="other">%1$d превода</item>
+  </plurals>
   <string name="search_index_not_created">нема индекса</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Бројеви поглавља и стихова</string>
@@ -322,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Направи нови Обележивач са белешком</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Поставке боја</string>
-  <string name="window_color_settings_title">Поставке боје прозора</string>
-  <string name="workspace_color_settings_title">Подразумеване поставке боја за радну површ</string>
+  <string name="global_color_settings_title">Поставке боја (глобално)</string>
+  <string name="window_color_settings_title">Поставке боја (прозор)</string>
+  <string name="workspace_color_settings_title">Поставке боја (радна површ)</string>
   <string name="color_workspace">Боја радне површине</string>
   <string name="color_text">Боја текста</string>
   <string name="color_background">Боја позадине</string>
@@ -414,7 +425,7 @@
   <string name="rdg_plan_day">Дан %s</string>
   <string name="rdg_plan_set_start_date">Постави датум почетка...</string>
   <string name="set_current_day">Подесити на тренутни дан...</string>
-  <string name="msg_set_current_day_reading_plan">Овим ће те подесити данашњи дан као тренутни у овом плану и означити све претходне дане као прочитане. Да ли желите да наставите даље?</string>
+  <string name="msg_set_current_day_reading_plan">Ово ће поставити %1$s као текући дан у овом плану и означити све претходне дане као прочитане. Наставити?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Да ли сте сигурни да желите ресетовати овај план?</string>
   <string name="import_reading_plan">Увезите план читања...</string>
@@ -501,7 +512,7 @@
   <string name="auto_assign_labels_title">Поставке Ознака</string>
   <string name="auto_assign_labels">Ауто-додели &amp; Омиљене ознаке</string>
   <string name="auto_assign_labels1">Ауто-додели ознаку новим обележивачима</string>
-  <string name="auto_assign_labels_primary">Ауто-додели као главну</string>
+  <string name="auto_assign_labels_primary">Ауто-додели као главну ознаку</string>
   <!--can be removed-->
   <string name="bookmark_warning">Има обележивача, односно белешки за овај документ.</string>
   <string name="bookmark_warning2">
@@ -793,6 +804,14 @@
   <string name="error_key_not_in_document2">%1$s није пронађен у документу %2$s.</string>
   <string name="empty_list">Нема ставки за приказ</string>
   <string name="error_skip">Прескочи</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Оштећени подаци</string>
+  <string name="corrupt_database_message">Неки од ваших података нису могли да се отворе јер је датотека њихове базе података оштећена: %1$s.\n\nНишта није измењено нити обрисано. Можете послати извештај о грешци да нам помогнете да пронађемо узрок, отворити Резервна копија и враћање да направите резервну копију или вратите ранију, или ресетовати оштећене податке.\n\nРесетовање започиње те податке празне. Оштећена датотека остаје на овом уређају, преименована са \".corrupt-\" и датумом.</string>
+  <string name="corrupt_database_reset">Ресетуј оштећене податке</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Оштећени подаци нису могли да се ресетују: %1$s није могао да се премести. Ништа није измењено. Можете покушати поново, послати извештај о грешци или користити Резервна копија и враћање.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Подацима апликације је потребна пажња. Додирните да отворите апликацију.</string>
   <string name="debug_test_error">Тестна грешка (debug верзија)</string>
   <string name="bug_report_prepare_failed">Извештај није могао да се припреми или подели. Можете поново покушати или користити Резервну копију и враћање да сачувате своје податке.</string>
   <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
@@ -911,6 +930,10 @@
         повлачењем надоле од линије алатки. Такође се може користити повлачење налево и надесно преко линије алатки како би се
         пребацили на претходну / следећу радну површину.
     </string>
+  <string name="help_study_tools_title">Алати за проучавање</string>
+  <string name="help_study_tools_text">Додирните Стронгов број да у речнику потражите грчку или хебрејску реч иза стиха. Додирните унакрсну референцу да је прочитате у прозору веза, без губљења места у тексту.</string>
+  <string name="help_look_and_feel_title">Изглед и осећај</string>
+  <string name="help_look_and_feel_text">Ноћни режим, величина и врста фонта, боје и маргине налазе се у Опцијама текста у менију опција (три тачке, горњи десни угао). Могу се подесити за све радне површи, за једну радну површ или за један прозор.</string>
   <string name="help_hidden_features_title">Скривене пречице</string>
   <string name="help_hidden_features_text">
         Превуците надоле од насловне траке да одаберете радну површ.
@@ -935,6 +958,7 @@
   <string name="welcome_restore_row_hint">Датотека базе са обележивачима и белешкама</string>
   <string name="welcome_link_website">Веб-сајт</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Видео</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Морате изабрати фајл који желите очитати у %s.</string>
@@ -1180,7 +1204,7 @@
   <string name="labels_filter_favourite">Само омиљене ознаке</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Означите ознаку да бисте је доделили овом обележивачу.</string>
-  <string name="manage_labels_help_primary">Примарна ознака. Њена боја и стил су оно што обележивач приказује.</string>
+  <string name="manage_labels_help_primary">Главна ознака. Њена боја и стил су оно што обележивач приказује.</string>
   <string name="manage_labels_help_autoassign">Аутоматски додели ову ознаку сваком новом обележивачу. Празна муња значи искључено.</string>
   <string name="manage_labels_help_favourite">Задржи ознаку међу омиљенима ради брзог приступа.</string>
   <string name="manage_labels_help_styles">Испод имена мали пример приказује изглед ознаке: Избор за обележивач избора текста, Цео стих за обележивач целог стиха и ознака Радна површ за стил који ова радна површ преписује. Засивљен пример без украса значи да се обележивачи те ознаке не цртају. Сакријте примере из менија ⋮.</string>
@@ -1305,7 +1329,7 @@
   <string name="google_drive_signin_done">Пријављени сте. Можете затворити ову картицу и вратити се у AndBible.</string>
   <string name="google_drive_signin_required">Ваша пријава на Google Drive је истекла или је опозвана. Пријавите се поново да наставите синхронизацију.</string>
   <string name="google_drive_signin_interrupted">Google пријава је прекинута. Покушајте поново.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Адреса WebDAV фасцикле, нпр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Синхронизација захтева безбедну https:// адресу.</string>
@@ -1872,12 +1896,15 @@
   <string name="my_document_create_title">Направи нови документ</string>
   <string name="my_document_rename_title">Преименуј документ</string>
   <string name="my_document_delete_confirmation">Обрисати документ „%s\"?</string>
+  <string name="show_secret">Прикажи</string>
+  <string name="hide_secret">Сакриј</string>
+  <string name="ai_documents_name">ВИ документи</string>
+  <string name="ai_documents_description">Документи које аутоматски генерише ВИ</string>
   <string name="my_document_cannot_delete_ai_documents">АИ документи не могу бити обрисани док садрже странице. Прво обриши странице.</string>
   <string name="my_document_save_changes">Сачувати измене?</string>
   <string name="my_document_no_description">Нема описа</string>
   <string name="my_document_edit_description">Уреди опис</string>
   <string name="my_document_pages_title">%s — Странице</string>
-  <string name="my_document_pages_empty">Нема страница у овом документу.</string>
   <string name="my_document_page_rename_title">Преименуј страницу</string>
   <string name="my_document_page_delete_confirmation">Обрисати страницу „%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Обрисати ове странице?</string>
@@ -1885,6 +1912,9 @@
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Врста садржаја</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Нема страница у овом документу.</string>
   <string name="my_document_import_page">Увези Markdown/HTML</string>
   <string name="my_document_export_page">Извези страницу</string>
   <string name="my_document_imported_page_name">Увезено</string>

@@ -128,7 +128,15 @@
   <string name="search_not_available">Ĉi tiun dokumenton ne eblas serĉi</string>
   <string name="search_indexing_notification_title">Kreado de serĉindekso</string>
   <string name="choose_translations">Elekti tradukojn…</string>
-  <string name="multi_search_results">%1$d versoj en %2$d traduko(j)</string>
+  <string name="multi_search_count_summary">%1$s en %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verso</item>
+    <item quantity="other">%1$d versoj</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduko</item>
+    <item quantity="other">%1$d tradukoj</item>
+  </plurals>
   <string name="search_index_not_created">neniu indekso</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Krei novan legosignon kun noto</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
-  <string name="window_color_settings_title">Koloro de fenestroj</string>
-  <string name="workspace_color_settings_title">Implicitaj koloroj de laborspaco</string>
+  <string name="global_color_settings_title">Agordoj pri koloroj (Tutmonda)</string>
+  <string name="window_color_settings_title">Agordoj pri koloroj (Fenestro)</string>
+  <string name="workspace_color_settings_title">Agordoj pri koloroj (Laborspaco)</string>
   <string name="color_workspace">Koloro de laborspaco</string>
   <string name="color_text">Koloro de teksto</string>
   <string name="color_background">Koloro de fono</string>
@@ -407,7 +416,7 @@
   <string name="rdg_plan_day">%s-a tago</string>
   <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
   <string name="set_current_day">Agordi kiel nunan tagon…</string>
-  <string name="msg_set_current_day_reading_plan">Tio ĉi markos la hodiaŭon kiel la nunan tagon en tiu ĉi plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu pluigi?</string>
+  <string name="msg_set_current_day_reading_plan">Ĉi tio agordos %1$s kiel la nunan tagon en ĉi tiu plano kaj markos ĉiujn antaŭajn tagojn kiel legitajn. Ĉu daŭrigi?</string>
   <string name="done">Farita</string>
   <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
   <string name="import_reading_plan">Enportado de legplano…</string>
@@ -486,7 +495,7 @@ laŭ ilia permeso.</string>
   <string name="auto_assign_labels_title">Agordi etikedojn</string>
   <string name="auto_assign_labels">Aŭtomate etikedi</string>
   <string name="auto_assign_labels1">Aŭtomate atribui la etikedon al novaj legosignoj</string>
-  <string name="auto_assign_labels_primary">Atribui kiel ĉefan</string>
+  <string name="auto_assign_labels_primary">Aŭtomate atribui kiel ĉefan etikedon</string>
   <!--can be removed-->
   <string name="bookmark_warning">Estas legosignoj aŭ notoj por tiu ĉi dokumento.</string>
   <string name="bookmark_warning2">Se strukturo de dokumento ŝanĝiĝos, ĝisdatigo de la dokumento povos movi legosignojn/notojn ene la dokumento aŭ eĉ tute malaperigi ilin.</string>
@@ -760,6 +769,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_key_not_in_document2">Ne trovis “%1$s” en %2$s.</string>
   <string name="empty_list">Neniu elemento por montri</string>
   <string name="error_skip">Preterlasi</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Difektitaj datumoj</string>
+  <string name="corrupt_database_message">Kelkaj el viaj datumoj ne povis esti malfermitaj, ĉar ilia datumbaza dosiero estas difektita: %1$s.\n\nNenio estis ŝanĝita aŭ forigita. Vi povas sendi erarraporton por helpi nin trovi la kaŭzon, malfermi Sekurkopion por fari sekurkopion aŭ restarigi pli fruan, aŭ reagordi la difektitajn datumojn.\n\nReagordo komencas tiujn datumojn malplenaj. La difektita dosiero restas en ĉi tiu aparato, renomita per \".corrupt-\" kaj la dato.</string>
+  <string name="corrupt_database_reset">Reagordi difektitajn datumojn</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">La difektitaj datumoj ne povis esti reagorditaj: %1$s ne povis esti flankenmovita. Nenio estis ŝanĝita. Vi povas reprovi, sendi erarraporton aŭ uzi Sekurkopion.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">La datumoj de la apliko bezonas atenton. Tuŝetu por malfermi la aplikon.</string>
   <string name="debug_test_error">Provo-eraro (sencimiga versio)</string>
   <string name="bug_report_prepare_failed">Ne eblis prepari aŭ kunhavigi la raporton. Vi povas reprovi, aŭ uzi Sekurkopio kaj restarigo por konservi viajn datumojn.</string>
   <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
@@ -866,6 +883,10 @@ Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ p
   <string name="help_workspaces_title">Laborspacoj</string>
   <string name="help_workspaces_text">
 Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuligi inter antaŭa/sekva laborspacoj.</string>
+  <string name="help_study_tools_title">Studiloj</string>
+  <string name="help_study_tools_text">Tuŝetu Strong-numeron por serĉi en vortaro la grekan aŭ hebrean vorton malantaŭ verso. Tuŝetu internan referencon por legi ĝin en la fenestro de ligiloj, sen perdi vian lokon en la teksto.</string>
+  <string name="help_look_and_feel_title">Aspekto</string>
+  <string name="help_look_and_feel_text">Nokta reĝimo, grando kaj familio de tiparo, koloroj kaj marĝenoj troviĝas en Tekstaj opcioj en la menuo de opcioj (tri punktoj, supra dekstra angulo). Ili povas esti agordataj por ĉiu laborspaco, por unu laborspaco aŭ por unu fenestro.</string>
   <string name="help_hidden_features_title">Gestoj</string>
   <string name="help_hidden_features_text">
 Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
@@ -882,6 +903,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="welcome_restore_row_hint">Datumbaza dosiero kun legosignoj kaj notoj</string>
   <string name="welcome_link_website">Retejo</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Elektu dosieron por aldoni al %s.</string>
@@ -1816,12 +1838,15 @@ Ne montri tion ĉi denove</string>
   <string name="my_document_create_title">Krei novan dokumenton</string>
   <string name="my_document_rename_title">Renomi dokumenton</string>
   <string name="my_document_delete_confirmation">Ĉu forigi la dokumenton “%s”?</string>
+  <string name="show_secret">Montri</string>
+  <string name="hide_secret">Kaŝi</string>
+  <string name="ai_documents_name">AI-dokumentoj</string>
+  <string name="ai_documents_description">Aŭtomate generitaj dokumentoj de AI</string>
   <string name="my_document_cannot_delete_ai_documents">Ne eblas forigi AI-dokumentojn, kiuj enhavas paĝojn.. Unue forigu la paĝojn.</string>
   <string name="my_document_save_changes">Ĉu konservi ŝanĝojn?</string>
   <string name="my_document_no_description">Neniu priskribo</string>
   <string name="my_document_edit_description">Redakti priskribon</string>
   <string name="my_document_pages_title">%s - paĝoj</string>
-  <string name="my_document_pages_empty">Neniu paĝo en tiu ĉi dokumento.</string>
   <string name="my_document_page_rename_title">Renomi paĝon</string>
   <string name="my_document_page_delete_confirmation">Ĉu forigi la paĝon “%s”?</string>
   <string name="my_document_pages_delete_confirmation">Ĉu forigi ĉi tiujn paĝojn?</string>
@@ -1829,6 +1854,9 @@ Ne montri tion ĉi denove</string>
   <string name="my_document_new_page_name">Paĝo %1$d</string>
   <string name="my_document_create_page_title">Nova paĝo</string>
   <string name="my_document_content_type_label">Enhavtipo</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Neniu paĝo en tiu ĉi dokumento.</string>
   <string name="my_document_import_page">Enporti Markdown/HTML</string>
   <string name="my_document_export_page">Elporti paĝon</string>
   <string name="my_document_imported_page_name">Enportita</string>

@@ -78,6 +78,7 @@ fun appMain() {
         bibleWebView = webViews.factory,
         onExit = { exitRequested.value = true },
     )
+    state.registerDamagedDataRoute()
     state.launch(CoroutineScope(SupervisorJob() + Dispatchers.IO))
     val persistence = DesktopExitPersistence(persist = {
         if (runBlocking { state.awaitStartupSettled(10_000) }) DesktopAppStartup.persistBeforeExit()

@@ -25,6 +25,7 @@ import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.corruptDatabasesOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -267,11 +268,13 @@ class RealFileFixturesTest {
     }
 
     /**
-     * A corrupt file must neither crash every start nor be lost: the container moves it aside to
-     * `<name>.corrupt-<timestamp>` (bytes intact) and Room recreates the database empty (D1 Task 17 fix round 1;
-     * before, the framework/requery handler deleted it; a bare Room 3 throws SQLITE_NOTADB on every access).
+     * #4112: a corrupt user-data file must neither be emptied silently nor be lost. Opening reports it
+     * ([net.bible.service.db.CorruptDatabasesException], which the startup shows with report / Backup & Restore /
+     * reset choices) and leaves it untouched; only the user's reset moves it aside to `<name>.corrupt-<timestamp>`
+     * (bytes intact), after which Room recreates the database empty. (Before #4112 it was moved aside silently;
+     * classic's framework/requery handler deleted it.)
      */
-    @Test fun corruptedFixtureIsMovedAsideAndRecreatedEmpty() {
+    @Test fun corruptedFixtureIsReportedAndOnlyAnExplicitResetRecreatesItEmpty() {
         // Control: the very same open path on the intact file serves the 3 bookmarks, so the 0 below
         // cannot pass vacuously (e.g. a broken open path that always yields 0).
         install(BookmarkDatabase.dbFileName)
@@ -279,9 +282,17 @@ class RealFileFixturesTest {
         val file = application.getDatabasePath(BookmarkDatabase.dbFileName)
         val garbage = ByteArray(4096) { 7 }
         replaceFixture { file.writeBytes(garbage) }
-        assertEquals("a corrupt file is recreated empty", 0, openBookmarkCount().getOrThrow())
+        fun asideCopies() = file.parentFile!!.listFiles()!!.filter { Regex(Regex.escape(file.name) + "\\.corrupt-[0-9-]+").matches(it.name) }
 
-        val aside = file.parentFile!!.listFiles()!!.filter { Regex(Regex.escape(file.name) + "\\.corrupt-[0-9-]+").matches(it.name) }
+        val failure = runCatching { DatabaseContainer.instance }.exceptionOrNull()
+        val corrupt = failure?.corruptDatabasesOrNull() ?: throw AssertionError("expected CorruptDatabasesException, got $failure")
+        assertEquals(listOf(BookmarkDatabase.dbFileName), corrupt.databases.map { it.fileName })
+        assertTrue("the damaged file stays untouched", garbage.contentEquals(file.readBytes()))
+        assertTrue("nothing is moved before the user decides", asideCopies().isEmpty())
+
+        DatabaseContainer.resetCorruptDatabases(corrupt.databases)
+        assertEquals("after the reset the database is recreated empty", 0, openBookmarkCount().getOrThrow())
+        val aside = asideCopies()
         assertEquals("exactly one moved-aside copy: ${aside.map { it.name }}", 1, aside.size)
         assertTrue("the moved-aside copy keeps the corrupt bytes", garbage.contentEquals(aside.single().readBytes()))
         assertFalse("the recreated file is a real database", garbage.contentEquals(file.readBytes()))

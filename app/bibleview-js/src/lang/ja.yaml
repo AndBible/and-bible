@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AIアクション
 aiDocumentRegenerate: 再生成
 aiDocumentDelete: 削除
+aiDocumentsName: AIドキュメント
 aiGeneratedBy: "%s によって生成"
 aiGeneratedByWithModel: "%s（%s）によって生成"

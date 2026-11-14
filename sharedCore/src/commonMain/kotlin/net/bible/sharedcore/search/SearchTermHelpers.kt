@@ -115,3 +115,109 @@ fun termHighlightPattern(originalTerm: String): String? {
         "$start$word$end"
     }
 }
+
+/** Longest search result excerpt (in characters, ellipses excluded) cut from a long non-Bible entry. */
+const val SEARCH_EXCERPT_LENGTH: Int = 200
+
+private val whitespaceRun = Regex("""\s+""")
+
+/**
+ * At most [maxLength] characters of [text] around the first match of any of [terms] (the user's search words, as
+ * passed to [termHighlightPattern]), cut at word boundaries and marked with `…` where text was left out. Whitespace
+ * runs collapse to one space (as the rendered preview shows them).
+ *
+ * The match is first looked for literally (as the highlighter does). The index matches more than that, though: it
+ * ignores case and accents and stems words ("vines" finds "vine"), so when no term matches literally, a word that
+ * matches a term case- and accent-insensitively, by stem, is used. Only without any match is the excerpt the start.
+ */
+fun searchExcerpt(text: String, terms: List<String>, maxLength: Int = SEARCH_EXCERPT_LENGTH): String {
+    val plain = text.replace(whitespaceRun, " ").trim()
+    if (plain.length <= maxLength) return plain
+    val literal = terms.asSequence()
+        .mapNotNull { termHighlightPattern(it) }
+        .mapNotNull { pattern -> runCatching { Regex(pattern, RegexOption.IGNORE_CASE).find(plain)?.range }.getOrNull() }
+        .minByOrNull { it.first }
+    val match = literal ?: firstStemMatch(plain, terms)
+    return cutExcerpt(plain, match?.first ?: 0, match?.let { it.last + 1 } ?: 0, maxLength)
+}
+
+/**
+ * Like [searchExcerpt], around the first `<b>…</b>` run: the highlighters mark the lemma matches of a Strong's search
+ * so, and there are no search words to look for in the text. The start of the text when it has no such run.
+ */
+fun searchExcerptAtBold(text: String, maxLength: Int = SEARCH_EXCERPT_LENGTH): String {
+    val plain = text.replace(whitespaceRun, " ").trim()
+    if (plain.length <= maxLength) return plain
+    val open = plain.indexOf("<b>")
+    if (open < 0) return cutExcerpt(plain, 0, 0, maxLength)
+    val close = plain.indexOf("</b>", open)
+    return cutExcerpt(plain, open, if (close < 0) open + 3 else close + 4, maxLength)
+}
+
+/** The range of the first word of [plain] that one of [terms] matches by stem, ignoring case and accents. */
+private fun firstStemMatch(plain: String, terms: List<String>): IntRange? {
+    val stems = terms.flatMap { term -> wordRuns(term).map { foldForMatch(it) } }
+        .filter { it.length >= MIN_STEM_WORD }
+        .map { it to stemOf(it) }
+    if (stems.isEmpty()) return null
+    val folded = foldForMatch(plain)
+    var i = 0
+    while (i < folded.length) {
+        if (!isWordChar(folded[i])) { i++; continue }
+        var j = i
+        while (j < folded.length && isWordChar(folded[j])) j++
+        val word = folded.substring(i, j)
+        if (word.length >= MIN_STEM_WORD && stems.any { (term, stem) -> word.startsWith(stem) || term.startsWith(word) }) {
+            return i until j
+        }
+        i = j
+    }
+    return null
+}
+
+private const val MIN_STEM_WORD = 3
+
+private fun isWordChar(c: Char) = c.isLetterOrDigit() || c == '\'' || c == '-'
+
+private fun wordRuns(term: String): List<String> =
+    term.split(Regex("[^\\p{L}\\p{N}'\\-]+")).filter { it.isNotEmpty() }
+
+/** The term without an inflectional ending: one trailing character, two for a long term ("vines" -> "vine"). */
+private fun stemOf(term: String): String = term.dropLast(if (term.length >= 6) 2 else if (term.length >= 4) 1 else 0)
+
+private val accentGroups = mapOf(
+    'a' to "àáâãäåāăą", 'c' to "çćč", 'd' to "ďđ", 'e' to "èéêëēėęě", 'g' to "ğ", 'i' to "ìíîïīįı", 'l' to "ł",
+    'n' to "ñńň", 'o' to "òóôõöøōő", 'r' to "ŕř", 's' to "śšş", 't' to "ť", 'u' to "ùúûüūůűų", 'y' to "ýÿ", 'z' to "źżž",
+)
+private val accentFold: Map<Char, Char> = accentGroups.flatMap { (base, accented) -> accented.map { it to base } }.toMap()
+
+/** Lower case with accents removed, one character for one: indexes in the result are indexes in [s]. */
+private fun foldForMatch(s: String): String {
+    val out = StringBuilder(s.length)
+    for (c in s) {
+        val lower = c.lowercaseChar()
+        out.append(accentFold[lower] ?: lower)
+    }
+    return out.toString()
+}
+
+/**
+ * [maxLength] characters of [plain] around the match at [matchStart] until [matchEnd], cut at spaces where there is
+ * one, and never in the middle of a surrogate pair.
+ */
+private fun cutExcerpt(plain: String, matchStart: Int, matchEnd: Int, maxLength: Int): String {
+    var start = (matchStart - maxLength / 3).coerceAtLeast(0).coerceAtMost(plain.length - maxLength)
+    if (start > 0 && plain[start - 1] != ' ') {
+        val space = plain.indexOf(' ', start)
+        if (space in 0 until matchStart) start = space + 1
+    }
+    var end = (start + maxLength).coerceAtMost(plain.length)
+    if (end < plain.length && plain[end] != ' ') {
+        val space = plain.lastIndexOf(' ', end - 1)
+        if (space > start && space >= matchEnd) end = space
+    }
+    if (start > 0 && plain[start].isLowSurrogate() && plain[start - 1].isHighSurrogate()) start++
+    if (end < plain.length && plain[end].isLowSurrogate() && plain[end - 1].isHighSurrogate()) end--
+    val excerpt = plain.substring(start, end).trim()
+    return (if (start > 0) "…" else "") + excerpt + (if (end < plain.length) "…" else "")
+}

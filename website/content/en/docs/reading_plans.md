@@ -14,7 +14,9 @@ declare (KJV for built-in plans), so a reading may span different chapters in yo
 the plan's Joel 3 reading appears as Joel 4 in Bibles with four chapters in Joel;
 KJV Joel 2 also includes their short Joel 3 chapter.
 
-Clicking the *Done* button will take you to the next day’s reading schedule.
+Clicking the *Done* button will take you to the next day’s reading schedule. If there is no
+next day to read (you are up to date, or you marked an earlier day as done), *Done* takes you to the list of
+days instead of back to the Bible.
 Note: The *Done* button will only be enabled after pressing either the *Speak*
 or *Passage* buttons for each passage that is listed (*Speak* is available only on
 platforms that support [speaking](speak.md); there is also an *All* row with a *Speak* button for the whole day). Alternatively, you can tap
@@ -36,13 +38,15 @@ resetting. A date-based plan opens at today's scheduled reading.
 From the *Reading Plan* screen, tap the plan name in the title.
 This will open *Choose a Reading Plan*, where you can select a different reading plan. You can return to
 the original reading plan and your progress will remain where you left it.
+*Back* from the plan you chose returns to *Choose a Reading Plan*.
 In other words, it is possible to use several reading plans simultaneously.
 
 ## Preview Reading Plans or Go To Specific Day
 
 When in the *Reading Plan* screen, tap the day line (for example *Day 3*) below the plan name.
 You will see a list of daily readings. Clicking on a daily reading
-will bring you to *Reading Plan* screen for that specific day.
+will bring you to *Reading Plan* screen for that specific day. *Back* from that day returns to the list of days.
+Only when you opened the *Reading Plan* screen directly from the menu does *Back* return to the Bible.
 
 ## Changing Reading Plan Start Date
 
@@ -58,7 +62,7 @@ to *AndBible*. To update the current reading plan day to today’s date:
 1. Open the *Reading Plan* screen for the reading plan you would like to adjust
 2. Go to the specific day of the reading plan you want to set to today’s date.
 3. Click the top right 3-dot menu
-4. Click *Set as current day…*. After you confirm, today becomes the current day of the plan and all earlier days are marked as read.
+4. Click *Set as current day…*. After you confirm, the day you are viewing (for example *Day 10*) becomes the current day of the plan and all earlier days are marked as read.
 
 Like *Set Start Date…*, this is not shown for date-based plans.
 
@@ -140,6 +144,9 @@ A few notes about the contents of this file:
     `AndBibleReadingPlanDateBased=true`
 
 ## The `.properties` file
+
+The `.properties` file is not imported on its own: *Import reading plan…* accepts only a module `.zip` as described above,
+with the `.properties` file inside it.
 
 You will need to create a `.properties` file similar to the examples
 [here](https://github.com/AndBible/and-bible/tree/master/app/src/main/assets/readingplan)

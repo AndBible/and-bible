@@ -128,7 +128,15 @@
   <string name="search_not_available">Det er ikke mulig å søke i dette dokumentet</string>
   <string name="search_indexing_notification_title">Lager søkeregister</string>
   <string name="choose_translations">Velg oversettelser…</string>
-  <string name="multi_search_results">%1$d vers i %2$d oversettelser</string>
+  <string name="multi_search_count_summary">%1$s i %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d oversettelse</item>
+    <item quantity="other">%1$d oversettelser</item>
+  </plurals>
   <string name="search_index_not_created">ingen indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapittel- og versnummer</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Lag et nytt bokmerke med et notat</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Fargeinnstillinger</string>
-  <string name="window_color_settings_title">Fargeinnstillinger for vindu</string>
-  <string name="workspace_color_settings_title">Standard fargeinnstillinger for arbeidsområde</string>
+  <string name="global_color_settings_title">Fargeinnstillinger (globale)</string>
+  <string name="window_color_settings_title">Fargeinnstillinger (vindu)</string>
+  <string name="workspace_color_settings_title">Fargeinnstillinger (arbeidsområde)</string>
   <string name="color_workspace">Arbeidsområdefarge</string>
   <string name="color_text">Tekstfarge</string>
   <string name="color_background">Bakgrunnsfarge</string>
@@ -411,7 +420,7 @@
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato…</string>
   <string name="set_current_day">Sett som gjeldende dag…</string>
-  <string name="msg_set_current_day_reading_plan">Dette vil sette dagen i dag som gjeldende dag i denne leseplanen, og merke alle tidligere dager som lest. Forsette?</string>
+  <string name="msg_set_current_day_reading_plan">Dette setter %1$s som gjeldende dag i denne planen og markerer alle tidligere dager som lest. Fortsette?</string>
   <string name="done">Ferdig</string>
   <string name="reset_plan_question">Er du sikker på at du vil tilbakestille denne planen?</string>
   <string name="import_reading_plan">Laste inn leseplan…</string>
@@ -485,7 +494,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="auto_assign_labels_title">Gruppeinnstillinger</string>
   <string name="auto_assign_labels">Auto-tilordne og favoritgrupper</string>
   <string name="auto_assign_labels1">Auto-tilordne gruppe til nye bokmerker</string>
-  <string name="auto_assign_labels_primary">Auto-tilordne som primær</string>
+  <string name="auto_assign_labels_primary">Auto-tilordne som hovedgruppe</string>
   <!--can be removed-->
   <string name="bookmark_warning">Det eksisterer bokmerker og/eller notater for dette dokumentet</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen har endret seg, kan oppdatering av dette dokumentet gjøre at plasseringen av disse bokmerkene/notatene flyttes inne i dokumentet eller forsvinner helt.</string>
@@ -762,6 +771,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="error_key_not_in_document2">%1$s ble ikke funnet i dokumentet %2$s.</string>
   <string name="empty_list">Ingen data å vise</string>
   <string name="error_skip">Hopp over</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Skadede data</string>
+  <string name="corrupt_database_message">Noen av dataene dine kunne ikke åpnes fordi databasefilen er skadet: %1$s.\n\nIngenting er endret eller slettet. Du kan sende en feilrapport for å hjelpe oss med å finne årsaken, åpne Sikkerhetskopiering for å ta en sikkerhetskopi eller gjenopprette en tidligere, eller tilbakestille de skadede dataene.\n\nTilbakestilling starter disse dataene tomme. Den skadede filen beholdes på denne enheten, omdøpt med \".corrupt-\" og datoen.</string>
+  <string name="corrupt_database_reset">Tilbakestill skadede data</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">De skadede dataene kunne ikke tilbakestilles: %1$s kunne ikke flyttes til side. Ingenting er endret. Du kan prøve igjen, sende en feilrapport eller bruke Sikkerhetskopiering.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Appens data trenger oppmerksomhet. Trykk for å åpne appen.</string>
   <string name="debug_test_error">Testfeil (feilsøkingsbygg)</string>
   <string name="bug_report_prepare_failed">Kunne ikke forberede eller dele rapporten. Du kan prøve på nytt, eller bruke Sikkerhetskopiering og gjenoppretting for å lagre dataene dine.</string>
   <string name="bug_report_email_title">Send feilrapport via e-post</string>
@@ -864,6 +881,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="help_fts5">FTS5 fulltekstspørringssyntaks</string>
   <string name="help_workspaces_title">Arbeidsområder</string>
   <string name="help_workspaces_text">Arbeidsområder gjør det mulig å ha flere kontekstavhengige arbeidsmiljøer. Arbeidsområdefunksjoner kan nås via Arbeidsområder i alternativmenyen (øverst til høyre). En rask måte å åpne arbeidsområder er å sveipe ned fra verktøylinjen. Du kan også bruke sveip til venstre og høyre over verktøylinjen for å bytte til forrige/neste arbeidsområde.</string>
+  <string name="help_study_tools_title">Studieverktøy</string>
+  <string name="help_study_tools_text">Trykk på et Strong-nummer for å slå opp det greske eller hebraiske ordet bak et vers i en ordbok. Trykk på en kryssreferanse for å lese den i lenkevinduet, uten å miste plassen din i teksten.</string>
+  <string name="help_look_and_feel_title">Utseende og følelse</string>
+  <string name="help_look_and_feel_text">Nattmodus, skriftstørrelse og skrifttype, farger og marger finner du under Tekstalternativer i alternativmenyen (tre prikker, øverst til høyre). De kan settes for alle arbeidsområder, for ett arbeidsområde eller for ett enkelt vindu.</string>
   <string name="help_hidden_features_title">Skjulte snarveier</string>
   <string name="help_hidden_features_text">Sveip ned fra verktøylinjen for å vise arbeidsområdevelger. Langt trykk på vindusknappen for å minimere raskt. Langt trykk på høytlesingsknappen i verktøylinjen for å gå raskt til høytlesingsinnstillinger. Langt trykk på plasseringstittelen i verktøylinjen for å hoppe til dokumentvelger.</string>
   <string name="help_window_pinning_title">Feste vindu</string>
@@ -875,6 +896,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="welcome_restore_row_hint">Databasefil med bokmerker og notater</string>
   <string name="welcome_link_website">Nettsted</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du må velge filen du vil laste inn i %s.</string>
@@ -1021,7 +1043,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="display_mode_hidden">Skjult</string>
   <string name="display_mode_inherit">Samme som utvalget</string>
   <string name="workspace_override_indicator">Denne gruppen har arbeidsområdespesifikk visningsmodus</string>
-  <string name="primary_label">Primærgruppe</string>
+  <string name="primary_label">Hovedgruppe</string>
   <string name="favourite_label">Favorittgruppe</string>
   <string name="edit_label">Rediger gruppe</string>
   <string name="delete_label_confirmation">Ønsker du å slette bokmerket \"%s\"? Alle notater i tilknyttede studiebrett vil også slettes.</string>
@@ -1237,7 +1259,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="google_drive_signin_done">Logget inn. Du kan lukke denne fanen og gå tilbake til AndBible.</string>
   <string name="google_drive_signin_required">Google Drive-innloggingen din har utløpt eller er trukket tilbake. Logg inn på nytt for å fortsette synkroniseringen.</string>
   <string name="google_drive_signin_interrupted">Google-innloggingen ble avbrutt. Prøv igjen.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adressen til WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering krever en sikker https://-adresse.</string>
@@ -1803,12 +1825,15 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="my_document_create_title">Opprett nytt dokument</string>
   <string name="my_document_rename_title">Gi dokumentet nytt navn</string>
   <string name="my_document_delete_confirmation">Slette dokumentet \"%s\"?</string>
+  <string name="show_secret">Vis</string>
+  <string name="hide_secret">Skjul</string>
+  <string name="ai_documents_name">KI-dokumenter</string>
+  <string name="ai_documents_description">Automatisk genererte dokumenter fra KI</string>
   <string name="my_document_cannot_delete_ai_documents">KI-dokumenter kan ikke slettes mens det inneholder sider. Slett sidene først.</string>
   <string name="my_document_save_changes">Lagre endringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
   <string name="my_document_edit_description">Rediger beskrivelse</string>
   <string name="my_document_pages_title">%s - Sider</string>
-  <string name="my_document_pages_empty">Ingen sider i dette dokumentet.</string>
   <string name="my_document_page_rename_title">Gi siden nytt navn</string>
   <string name="my_document_page_delete_confirmation">Slette siden \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Slette disse sidene?</string>
@@ -1816,6 +1841,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="my_document_new_page_name">Side %1$d</string>
   <string name="my_document_create_page_title">Ny side</string>
   <string name="my_document_content_type_label">Innholdstype</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Ingen sider i dette dokumentet.</string>
   <string name="my_document_import_page">Importer Markdown/HTML</string>
   <string name="my_document_export_page">Eksporter side</string>
   <string name="my_document_imported_page_name">Importert</string>
