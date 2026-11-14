@@ -1,0 +1,11 @@
+- Opt-in Material You colour setting (4e88fec6cb)
+- Ink on paper is the new default theme (901e1718e2)
+- Renamed a main label and added an Arabic translation (#4104, #4105, #4109)
+- Legacy cloud sync adapter stays pinned when signing in (#4102)
+- Reading plan: Done on a day with no next day opens the day list instead of the reader (#4098)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
