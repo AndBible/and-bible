@@ -52,7 +52,7 @@ apply different styling to the label and make assigning it easier. You can:
 
 > - Change the name, colour and custom marker icon of a label by clicking the row
 >     with the colour circle and the name at the top. (The custom icon will be
->     used as the bookmark icon if the label is the primary label on the bookmark)
+>     used as the bookmark icon if the label is the main label on the bookmark)
 > - Favourite a label with the heart button, to make it easier to select when
 >     assigning bookmark labels.
 > - Choose the style of text selection bookmarks: *Highlight*, *Underline*,
@@ -62,13 +62,13 @@ apply different styling to the label and make assigning it easier. You can:
 >     shows what the styles look like.
 > - Under *This workspace*, switch on *Auto-assign label to new bookmarks*.
 >     (This applies to the active workspace)
-> - Set the label as the **Primary label** for new bookmarks
->     (*Auto-assign as primary*). The primary label is the label that is
+> - Set the label as the **Main label** for new bookmarks
+>     (*Auto-assign as main label*). The main label is the label that is
 >     listed first and determines the style of the bookmark. You can also make a label
->     primary on a single bookmark, under *This bookmark*.
+>     the main label on a single bookmark, under *This bookmark*.
 
 In the label list the lightning bolt marks auto-assign labels, the heart
-favourites and the bookmark icon primary labels. The ⋮ menu also has *Re-order*
+favourites and the bookmark icon main labels. The ⋮ menu also has *Re-order*
 for changing the order of the labels.
 
 ## Override Label Style per Workspace
