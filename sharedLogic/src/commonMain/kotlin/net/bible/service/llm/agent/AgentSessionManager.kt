@@ -630,7 +630,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return SelectionContent(verseRange, selectedText, osisContent)
     }
 
-    private suspend fun buildAgentContext(
+    @VisibleForTesting
+    suspend fun buildAgentContext(
         prompt: AgentPrompt,
         selection: LlmSelection,
         additionalInstructions: String? = null,
@@ -647,7 +648,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 promptId = prompt.id,
                 workspaceId = windowControl.windowRepository.id,
                 windowId = windowControl.activeWindow.id,
-                promptPermissionMode = prompt.permissionMode,
+                promptPermissionMode = PromptRepository.effectivePermissionMode(prompt),
                 promptAvailableTools = prompt.allowedTools,
                 promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
                 promptDeniedTools = prompt.deniedTools,
@@ -682,7 +683,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             highlightedText = highlightedText,
             selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
             selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
-            promptPermissionMode = prompt.permissionMode,
+            promptPermissionMode = PromptRepository.effectivePermissionMode(prompt),
             promptAvailableTools = prompt.allowedTools,
             promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
             promptDeniedTools = prompt.deniedTools,

@@ -28,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PromptRepositoryFavoriteCopyTest {
@@ -122,13 +123,112 @@ class PromptRepositoryFavoriteCopyTest {
         assertEquals(PermissionCheckResult.Allowed, decide(AgentTool.CREATE_BOOKMARK, copy))
     }
 
+    /** #4108 review: an add-on pack's permissionMode=ALLOW_ALL is not the user's choice either. */
+    @Test
+    fun addonAllowAllModeDoesNotSkipTheDialog() {
+        val csvDir = newTestDir()
+        val csv = File(csvDir, "prompts.csv").apply {
+            writeText(
+                "name;promptTemplate;showIn;permissionMode;allowedTools;deniedTools;id\n" +
+                    "Addon wipe;Delete them;VERSE_SELECTION;ALLOW_ALL;GET_VERSE_CONTENT;;" +
+                    "0b2c4d6e-1111-2222-3333-444455557777\n"
+            )
+        }
+        PromptRepository.clearAddonCache()
+        try {
+            withFixture(addonPacks = listOf(PromptPackRef("AddonMod", csv.path))) { _, _ ->
+                val addon = assertNotNull(PromptRepository.allPrompts().find { it.name == "Addon wipe" })
+                for (tool in listOf(AgentTool.DELETE_BOOKMARK, AgentTool.CREATE_BOOKMARK)) {
+                    assertEquals(PermissionCheckResult.NeedsDialog, decide(tool, addon), "$tool of the add-on")
+                }
+                val copy = assertNotNull(PromptRepository.promptById(assertNotNull(PromptRepository.copyPrompt(addon.id))))
+                assertNull(copy.permissionMode, "a copy must not inherit the pack's ALLOW_ALL")
+                assertEquals(PermissionCheckResult.NeedsDialog, decide(AgentTool.DELETE_BOOKMARK, copy), "copy of add-on")
+            }
+        } finally {
+            PromptRepository.clearAddonCache()
+            File(csvDir).deleteRecursively()
+        }
+    }
+
+    /**
+     * Grants apply only to user prompts stored in the DB (positive condition). An add-on row without an id
+     * gets a random id per parse, and a pack reload empties the add-on cache, so a prompt object a run holds
+     * may no longer look like an add-on; it must still not count as a user prompt.
+     */
+    @Test
+    fun addonPromptAfterPackReloadGetsNoGrants() {
+        val csvDir = newTestDir()
+        val csv = File(csvDir, "prompts.csv").apply {
+            writeText(
+                "name;promptTemplate;showIn;permissionMode;allowedTools;deniedTools\n" +
+                    "Addon noid;Bookmark it;VERSE_SELECTION;ALLOW_ALL;CREATE_BOOKMARK;\n"
+            )
+        }
+        PromptRepository.clearAddonCache()
+        try {
+            withFixture(addonPacks = listOf(PromptPackRef("AddonMod", csv.path))) { _, _ ->
+                val addon = assertNotNull(PromptRepository.allPrompts().find { it.name == "Addon noid" })
+                PromptRepository.clearAddonCache() // what PromptPackSource.reloaded does
+                assertNull(PromptRepository.autoAllowedTools(addon))
+                assertNull(PromptRepository.effectivePermissionMode(addon))
+                assertEquals(PermissionCheckResult.NeedsDialog, decide(AgentTool.CREATE_BOOKMARK, addon))
+            }
+        } finally {
+            PromptRepository.clearAddonCache()
+            File(csvDir).deleteRecursively()
+        }
+    }
+
+    /** A prompt that is not stored in the DB (e.g. built in memory) carries no user grants. */
+    @Test
+    fun unstoredPromptGetsNoGrants() = withFixture { _, _ ->
+        val prompt = AgentPrompt(
+            name = "Not stored",
+            permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            deniedTools = emptySet(),
+        )
+        assertNull(PromptRepository.autoAllowedTools(prompt))
+        assertNull(PromptRepository.effectivePermissionMode(prompt))
+        // A stricter mode than the global one still applies: it takes nothing from the user.
+        assertEquals(PermissionMode.DENY_ALL, PromptRepository.effectivePermissionMode(prompt.copy(permissionMode = PermissionMode.DENY_ALL)))
+    }
+
+    @Test
+    fun userAllowAllModeIsKept() = withFixture { _, _ ->
+        val prompt = AgentPrompt(name = "Mine all", permissionMode = PermissionMode.ALLOW_ALL, allowedTools = null, deniedTools = emptySet())
+        PromptRepository.insertPrompt(prompt)
+        val stored = assertNotNull(PromptRepository.promptById(prompt.id))
+        assertEquals(PermissionCheckResult.Allowed, decide(AgentTool.DELETE_BOOKMARK, stored))
+        val copy = assertNotNull(PromptRepository.promptById(assertNotNull(PromptRepository.copyPrompt(prompt.id))))
+        assertEquals(PermissionMode.ALLOW_ALL, copy.permissionMode)
+    }
+
+    @Test
+    fun withoutGrantsStripsWriteToolsAndAllowAll() {
+        val prompt = AgentPrompt(
+            name = "Shared",
+            permissionMode = PermissionMode.ALLOW_ALL,
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.GET_VERSE_CONTENT),
+            deniedTools = setOf(AgentTool.DELETE_BOOKMARK),
+        )
+        val stripped = PromptRepository.withoutGrants(prompt)
+        assertEquals(setOf(AgentTool.GET_VERSE_CONTENT), stripped.allowedTools)
+        assertNull(stripped.permissionMode)
+        assertEquals(setOf(AgentTool.DELETE_BOOKMARK), stripped.deniedTools)
+        assertEquals(prompt.id, stripped.id)
+        assertEquals(PermissionMode.ALWAYS_ASK,
+            PromptRepository.withoutGrants(prompt.copy(permissionMode = PermissionMode.ALWAYS_ASK)).permissionMode)
+    }
+
     /** The decision AgentSessionManager/AgentExecutor make for [tool] in a fresh run of [prompt]. */
-    private fun decide(tool: AgentTool, prompt: AgentPrompt) = checkPermission(
+    private suspend fun decide(tool: AgentTool, prompt: AgentPrompt) = checkPermission(
         tool = tool,
         settings = PermissionSettings(PermissionMode.ASK_ONCE_PER_RUN, emptySet(), emptySet()),
         promptAllowedTools = PromptRepository.autoAllowedTools(prompt),
         promptDeniedTools = prompt.deniedTools,
-        promptPermissionMode = prompt.permissionMode,
+        promptPermissionMode = PromptRepository.effectivePermissionMode(prompt),
         grantedWritePermission = false,
         grantedAllToolsPermission = false,
     )

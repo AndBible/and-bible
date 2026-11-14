@@ -27,6 +27,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.tools.ToolRegistry
+import net.bible.service.llm.agent.PermissionMode
 import net.bible.sharedlogic.platform.PromptPackSource
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -147,40 +148,74 @@ object PromptRepository : KoinComponent {
      */
     fun isBuiltIn(id: IdType): Boolean = BuiltInPrompts.isBuiltIn(id)
 
+    /** The user prompt stored in the DB under [id], or null (always null for a built-in id). */
+    suspend fun storedUserPromptById(id: IdType): AgentPrompt? = if (isBuiltIn(id)) null else dao.promptById(id)
+
+    /**
+     * True only for a user prompt stored in the DB: the only kind whose [AgentPrompt.allowedTools] and
+     * [AgentPrompt.permissionMode] are grants the user made in the prompt editor (#4108).
+     *
+     * A positive condition on purpose: an add-on row without an id gets a new random id on every parse, and a
+     * pack reload empties the add-on cache, so "not built-in and not a cached add-on" would let a prompt object
+     * a run still holds pass as a user prompt.
+     */
+    suspend fun isStoredUserPrompt(prompt: AgentPrompt): Boolean =
+        prompt.sourceModule == null && storedUserPromptById(prompt.id) != null
+
     /**
      * The tools [prompt] may run without the permission dialog (`promptAllowedTools` of
      * [net.bible.service.llm.agent.checkPermission], step 3.6), or null for none.
      *
-     * Only a user prompt's [AgentPrompt.allowedTools] is a grant the user made in the prompt editor.
-     * For read-only prompts (built-in and add-on) it only lists the tools the prompt may use, so
-     * their write tools still follow the permission mode (#4108).
+     * Only a stored user prompt's [AgentPrompt.allowedTools] is a grant (see [isStoredUserPrompt]). For built-in
+     * and add-on prompts it only lists the tools the prompt may use, so their write tools still follow the
+     * permission mode (#4108).
      */
-    fun autoAllowedTools(prompt: AgentPrompt): Set<AgentTool>? =
-        if (isReadOnly(prompt.id)) null else prompt.allowedTools
+    suspend fun autoAllowedTools(prompt: AgentPrompt): Set<AgentTool>? =
+        if (isStoredUserPrompt(prompt)) prompt.allowedTools else null
+
+    /**
+     * The per-prompt permission mode a run of [prompt] uses (`promptPermissionMode` of
+     * [net.bible.service.llm.agent.checkPermission], step 5). A prompt that is not a stored user prompt
+     * (see [isStoredUserPrompt]) keeps a stricter mode but not [PermissionMode.ALLOW_ALL]: an add-on pack must
+     * not allow write tools on the user's behalf (#4108).
+     */
+    suspend fun effectivePermissionMode(prompt: AgentPrompt): PermissionMode? =
+        if (isStoredUserPrompt(prompt)) prompt.permissionMode else withoutAllowAll(prompt.permissionMode)
+
+    private fun withoutAllowAll(mode: PermissionMode?): PermissionMode? = mode.takeUnless { it == PermissionMode.ALLOW_ALL }
+
+    /**
+     * [prompt] without anything that grants write tools: the write tools ([ToolRegistry] `requiresPermission`)
+     * are removed from [AgentPrompt.allowedTools] (they stay usable and ask) and [PermissionMode.ALLOW_ALL]
+     * becomes null (the global mode). Used where a prompt comes from someone else (a copy of a built-in or
+     * add-on prompt, a CSV import) and so carries no grant of the user's (#4108).
+     */
+    fun withoutGrants(prompt: AgentPrompt): AgentPrompt = prompt.copy(
+        allowedTools = prompt.allowedTools?.filterNot { ToolRegistry.get(it)?.requiresPermission == true }?.toSet(),
+        permissionMode = withoutAllowAll(prompt.permissionMode),
+    ).also { it.sourceModule = prompt.sourceModule }
 
     /**
      * Copy a prompt (built-in, add-on, or user) into the DB as a new user prompt with a new ID.
      * Returns the new prompt's ID, or null if the source prompt was not found.
      *
-     * A copy of a read-only prompt drops the write tools from [AgentPrompt.allowedTools]: there they
-     * only mark tools the prompt may use, while in a user prompt they mean "allowed without asking"
-     * (see [autoAllowedTools]). The copy can still use them (they stay out of
-     * [AgentPrompt.deniedTools]); it asks for permission like any user prompt (#4108).
+     * A copy of a prompt that is not a stored user prompt carries no grants ([withoutGrants]): there
+     * [AgentPrompt.allowedTools] only marks tools the prompt may use, while in a user prompt it means "allowed
+     * without asking" (see [autoAllowedTools]), and an add-on's ALLOW_ALL is not the user's choice. The copy can
+     * still use the write tools (they stay out of [AgentPrompt.deniedTools]); it asks for permission like any
+     * user prompt (#4108). Copies of user prompts keep the user's grants.
      */
     suspend fun copyPrompt(id: IdType): IdType? {
         val source = promptById(id) ?: return null
         val effectiveCategoryId = getCategoryForPrompt(source)?.id
         val newOrder = source.orderNumber + 1
-        val allowedTools = if (isReadOnly(source.id)) {
-            source.allowedTools?.filterNot { ToolRegistry.get(it)?.requiresPermission == true }?.toSet()
-        } else source.allowedTools
-        val newPrompt = source.copy(
+        val granted = if (isStoredUserPrompt(source)) source else withoutGrants(source)
+        val newPrompt = granted.copy(
             id = IdType(),
             name = source.name + " (copy)",
             createdAt = currentTimeMillis(),
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
-            allowedTools = allowedTools,
         ).also { it.sourceModule = null }
         run {
             dao.shiftOrderNumbersAfter(source.orderNumber)
