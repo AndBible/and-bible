@@ -101,8 +101,11 @@ class UnavailableSyncAdapterTest {
             assertEquals(true, f.cloud.start().await())
             assertEquals(1, f.scheduled)
         }
+        // A fresh install (nothing chosen, no category enabled): reading the default must not persist it. With a
+        // category enabled the sign-in pins the implicit backend instead (#4102, the empty-id case below).
         Fixture().use { f ->
             f.values.remove("sync_adapter")
+            f.values["sync_enable_bookmarks"] = false
             assertEquals(true, f.cloud.signIn(background = true))
             assertEquals(1, f.backgroundCreates)
             assertNull(f.values["sync_adapter"], "Reading the default must not persist it")
