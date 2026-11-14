@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">Logget ind. Du kan lukke dette faneblad og vende tilbage til AndBible.</string>
   <string name="google_drive_signin_required">Dit Google Drive-login er udløbet eller blevet tilbagekaldt. Log ind igen for at fortsætte synkroniseringen.</string>
   <string name="google_drive_signin_interrupted">Google-login blev afbrudt. Prøv igen.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adressen på WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering kræver en sikker https://-adresse.</string>

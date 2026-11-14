@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">سائن اِن ہو گیا۔ آپ یہ ٹیب بند کر کے AndBible پر واپس جا سکتے ہیں۔</string>
   <string name="google_drive_signin_required">آپ کا Google Drive سائن اِن ختم ہو گیا ہے یا منسوخ کر دیا گیا ہے۔ ہم آہنگی جاری رکھنے کے لیے دوبارہ سائن اِن کریں۔</string>
   <string name="google_drive_signin_interrupted">Google سائن اِن میں خلل پڑا۔ دوبارہ کوشش کریں۔</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV فولڈر کا پتہ، مثلاً https://nas.local/dav/ یا https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">مطابقت پذیری کے لیے محفوظ https:// پتہ درکار ہے۔</string>

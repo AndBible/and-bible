@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">ลงชื่อเข้าใช้แล้ว คุณสามารถปิดแท็บนี้และกลับไปที่ AndBible ได้</string>
   <string name="google_drive_signin_required">การลงชื่อเข้าใช้ Google Drive ของคุณหมดอายุหรือถูกเพิกถอน ลงชื่อเข้าใช้อีกครั้งเพื่อซิงโครไนซ์ต่อ</string>
   <string name="google_drive_signin_interrupted">การลงชื่อเข้าใช้ Google ถูกขัดจังหวะ ลองอีกครั้ง</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">ที่อยู่ของโฟลเดอร์ WebDAV เช่น https://nas.local/dav/ หรือ https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">การซิงค์ต้องใช้ที่อยู่ https:// ที่ปลอดภัย</string>

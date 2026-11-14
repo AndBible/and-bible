@@ -1329,7 +1329,7 @@
   <string name="google_drive_signin_done">Autentificat. Poți închide această filă și reveni la AndBible.</string>
   <string name="google_drive_signin_required">Autentificarea ta în Google Drive a expirat sau a fost revocată. Autentifică-te din nou pentru a continua sincronizarea.</string>
   <string name="google_drive_signin_interrupted">Autentificarea Google a fost întreruptă. Încearcă din nou.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa dosarului WebDAV, de exemplu https://nas.local/dav/ sau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sincronizarea necesită o adresă securizată https://.</string>

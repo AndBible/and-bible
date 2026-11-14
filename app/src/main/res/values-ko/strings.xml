@@ -1325,7 +1325,7 @@
   <string name="google_drive_signin_done">로그인되었습니다. 이 탭을 닫고 AndBible로 돌아가세요.</string>
   <string name="google_drive_signin_required">Google 드라이브 로그인이 만료되었거나 취소되었습니다. 동기화를 계속하려면 다시 로그인하세요.</string>
   <string name="google_drive_signin_interrupted">Google 로그인이 중단되었습니다. 다시 시도하세요.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV 폴더의 주소(예: https://nas.local/dav/ 또는 https://cloud.example.com/remote.php/dav/files/USERNAME/)</string>
   <string name="webdav_https_required">동기화에는 보안 https:// 주소가 필요합니다.</string>

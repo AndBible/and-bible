@@ -1308,7 +1308,7 @@ lahko.
   <string name="google_drive_signin_done">Prijavljeni ste. Ta zavihek lahko zaprete in se vrnete v AndBible.</string>
   <string name="google_drive_signin_required">Vaša prijava v Google Drive je potekla ali je bila preklicana. Za nadaljevanje sinhronizacije se prijavite znova.</string>
   <string name="google_drive_signin_interrupted">Prijava v Google je bila prekinjena. Poskusite znova.</string>
-  <string name="adapters_next_cloud">Naslednji oblak</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Naslov mape WebDAV, npr. https://nas.local/dav/ ali https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinhronizacija zahteva varen naslov https://.</string>

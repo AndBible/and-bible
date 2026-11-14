@@ -1276,7 +1276,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="google_drive_signin_done">Accesso effettuato. Puoi chiudere questa scheda e tornare ad AndBible.</string>
   <string name="google_drive_signin_required">L\'accesso a Google Drive è scaduto o è stato revocato. Accedi di nuovo per continuare la sincronizzazione.</string>
   <string name="google_drive_signin_interrupted">L\'accesso a Google è stato interrotto. Riprova.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Indirizzo della cartella WebDAV, ad es. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">La sincronizzazione richiede un indirizzo https:// sicuro.</string>

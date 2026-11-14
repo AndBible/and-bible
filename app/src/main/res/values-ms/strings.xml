@@ -1179,7 +1179,7 @@
   <string name="google_drive_signin_done">Telah log masuk. Anda boleh menutup tab ini dan kembali ke AndBible.</string>
   <string name="google_drive_signin_required">Log masuk Google Drive anda telah tamat tempoh atau dibatalkan. Log masuk semula untuk terus menyegerak.</string>
   <string name="google_drive_signin_interrupted">Log masuk Google terganggu. Cuba lagi.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Alamat folder WebDAV, cth. https://nas.local/dav/ atau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Penyegerakan memerlukan alamat https:// yang selamat.</string>

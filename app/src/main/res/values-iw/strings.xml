@@ -1245,7 +1245,7 @@
   <string name="google_drive_signin_done">התחברת בהצלחה. ניתן לסגור לשונית זו ולחזור ל-AndBible.</string>
   <string name="google_drive_signin_required">ההתחברות שלך ל-Google Drive פגה או בוטלה. התחבר שוב כדי להמשיך בסנכרון.</string>
   <string name="google_drive_signin_interrupted">ההתחברות ל-Google הופסקה. נסה שוב.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">כתובת תיקיית ה-WebDAV, למשל https://nas.local/dav/ או https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">הסנכרון דורש כתובת מאובטחת מסוג https://.</string>

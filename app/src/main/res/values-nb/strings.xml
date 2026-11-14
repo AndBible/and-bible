@@ -1236,7 +1236,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="google_drive_signin_done">Logget inn. Du kan lukke denne fanen og gå tilbake til AndBible.</string>
   <string name="google_drive_signin_required">Google Drive-innloggingen din har utløpt eller er trukket tilbake. Logg inn på nytt for å fortsette synkroniseringen.</string>
   <string name="google_drive_signin_interrupted">Google-innloggingen ble avbrutt. Prøv igjen.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adressen til WebDAV-mappen, f.eks. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synkronisering krever en sikker https://-adresse.</string>

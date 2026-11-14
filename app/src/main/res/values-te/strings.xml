@@ -1298,7 +1298,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="google_drive_signin_done">సైన్ ఇన్ అయ్యారు. మీరు ఈ ట్యాబ్‌ను మూసివేసి AndBible కి తిరిగి వెళ్లవచ్చు.</string>
   <string name="google_drive_signin_required">మీ Google Drive సైన్-ఇన్ గడువు ముగిసింది లేదా రద్దు చేయబడింది. సింక్రొనైజ్ చేయడం కొనసాగించడానికి మళ్లీ సైన్ ఇన్ చేయండి.</string>
   <string name="google_drive_signin_interrupted">Google సైన్-ఇన్ అంతరాయం కలిగింది. మళ్లీ ప్రయత్నించండి.</string>
-  <string name="adapters_next_cloud">నెక్స్ట్ క్లౌడ్</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">WebDAV ఫోల్డర్ చిరునామా, ఉదా. https://nas.local/dav/ లేదా https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">సింక్ కోసం సురక్షితమైన https:// చిరునామా అవసరం.</string>

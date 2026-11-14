@@ -853,7 +853,7 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="sync_adapter">Синхрондау сервері</string>
   <string name="sync_adapter_summary">Ағымдағы: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
-  <string name="adapters_next_cloud">Келесі бұлт</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_username">Пайдаланушы аты</string>
   <string name="auth_password">Құпия сөз</string>
   <string name="synchronization_categories">Синхрондау категориялары</string>

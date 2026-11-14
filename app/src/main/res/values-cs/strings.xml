@@ -1320,7 +1320,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="google_drive_signin_done">Přihlášeno. Tuto kartu můžete zavřít a vrátit se do AndBible.</string>
   <string name="google_drive_signin_required">Vaše přihlášení ke Google Drive vypršelo nebo bylo zrušeno. Přihlaste se znovu, aby synchronizace mohla pokračovat.</string>
   <string name="google_drive_signin_interrupted">Přihlášení ke Googlu bylo přerušeno. Zkuste to znovu.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa složky WebDAV, např. https://nas.local/dav/ nebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Synchronizace vyžaduje zabezpečenou adresu https://.</string>

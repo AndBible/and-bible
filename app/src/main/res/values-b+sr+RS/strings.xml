@@ -1304,7 +1304,7 @@
   <string name="google_drive_signin_done">Пријављени сте. Можете затворити ову картицу и вратити се у AndBible.</string>
   <string name="google_drive_signin_required">Ваша пријава на Google Drive је истекла или је опозвана. Пријавите се поново да наставите синхронизацију.</string>
   <string name="google_drive_signin_interrupted">Google пријава је прекинута. Покушајте поново.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Адреса WebDAV фасцикле, нпр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Синхронизација захтева безбедну https:// адресу.</string>

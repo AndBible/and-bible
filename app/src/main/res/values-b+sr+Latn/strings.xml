@@ -1302,7 +1302,7 @@ Baza podataka sadrži %s. Kako želite da postupite?</string>
   <string name="google_drive_signin_done">Prijavljeni ste. Možete zatvoriti ovu karticu i vratiti se u AndBible.</string>
   <string name="google_drive_signin_required">Vaša prijava na Google Drive je istekla ili je opozvana. Prijavite se ponovo da biste nastavili sinhronizaciju.</string>
   <string name="google_drive_signin_interrupted">Google prijava je prekinuta. Pokušajte ponovo.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Adresa WebDAV fascikle, npr. https://nas.local/dav/ ili https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Sinhronizacija zahteva bezbednu https:// adresu.</string>

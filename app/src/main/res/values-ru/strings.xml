@@ -1317,7 +1317,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="google_drive_signin_done">Вход выполнен. Вы можете закрыть эту вкладку и вернуться в AndBible.</string>
   <string name="google_drive_signin_required">Срок действия входа в Google Drive истёк или он был отозван. Войдите снова, чтобы продолжить синхронизацию.</string>
   <string name="google_drive_signin_interrupted">Вход в Google был прерван. Повторите попытку.</string>
-  <string name="adapters_next_cloud">Следующее облако</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Адрес папки WebDAV, например https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Для синхронизации требуется защищённый адрес https://.</string>

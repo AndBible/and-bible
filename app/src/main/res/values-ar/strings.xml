@@ -1257,7 +1257,7 @@
   <string name="google_drive_signin_done">تم تسجيل الدخول. يمكنك إغلاق هذا التبويب والعودة إلى AndBible.</string>
   <string name="google_drive_signin_required">انتهت صلاحية تسجيل دخولك إلى Google Drive أو تم إلغاؤه. سجّل الدخول مرة أخرى لمتابعة المزامنة.</string>
   <string name="google_drive_signin_interrupted">انقطع تسجيل الدخول إلى Google. حاول مرة أخرى.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">عنوان مجلد WebDAV، مثل https://nas.local/dav/ أو https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">تتطلب المزامنة عنوان https:// آمنًا.</string>

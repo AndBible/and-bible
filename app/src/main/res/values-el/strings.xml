@@ -1273,7 +1273,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="google_drive_signin_done">Έγινε σύνδεση. Μπορείτε να κλείσετε αυτήν την καρτέλα και να επιστρέψετε στο AndBible.</string>
   <string name="google_drive_signin_required">Η σύνδεσή σας στο Google Drive έληξε ή ανακλήθηκε. Συνδεθείτε ξανά για να συνεχίσετε τον συγχρονισμό.</string>
   <string name="google_drive_signin_interrupted">Η σύνδεση στο Google διακόπηκε. Δοκιμάστε ξανά.</string>
-  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
   <string name="adapters_webdav">WebDAV</string>
   <string name="webdav_server_url_hint">Διεύθυνση του φακέλου WebDAV, π.χ. https://nas.local/dav/ ή https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
   <string name="webdav_https_required">Ο συγχρονισμός απαιτεί ασφαλή διεύθυνση https://.</string>
