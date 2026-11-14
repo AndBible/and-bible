@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -75,7 +76,17 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
 class ReadingPlanJourneyTest {
-    @Test fun selectingTickingAndReopeningUsesHostAndRealServices() {
+    /** Mutable handles the harness exposes to a scenario. */
+    private class Journey {
+        var host by mutableStateOf<ReadingPlanHost?>(null)
+        var generation by mutableStateOf(0)
+        var language by mutableStateOf("en")
+        var nav: androidx.navigation.NavHostController? = null
+        val route get() = nav?.currentBackStackEntry?.destination?.route?.substringBefore('?')
+    }
+
+    private fun runJourney(withReading: Boolean = false, body: androidx.compose.ui.test.ComposeUiTest.(Journey) -> Unit) {
+        val journey = Journey()
         val main = object : CoroutineDispatcher() {
             override fun isDispatchNeeded(context: CoroutineContext) = !EventQueue.isDispatchThread()
             override fun dispatch(context: CoroutineContext, block: Runnable) = EventQueue.invokeLater(block)
@@ -129,25 +140,23 @@ class ReadingPlanJourneyTest {
             AdvancedSpeakSettings(settings), OrderedLauncher(scope), fakeBooks)
         speakToRelease = speak
         val repo = ReadingPlanRepository({ plans }, scope, calendar, today = { DbDate(1_800_000_000_000L - 7 * 86_400_000L) })
-        var language by mutableStateOf("en")
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("plan")
             override fun openBuiltInPlan(code: String) = "# Plan\n1=Gen.1,Matt.1\n2=Gen.2,Matt.2\n3=Gen.3,Matt.3\n"
         }
         val textDao = ReadingPlanTextFileDao(source, repo, strings, calendar,
             userPlanFolder = { "/nonexistent-reading-plans".toPath() }, providedPlans = { emptyMap() },
-            distributedPlans = { listOf(DistributedPlanDetails("plan", if (language == "en") "1-Year through Bible" else "Vuodessa läpi Raamatun", "")) })
+            distributedPlans = { listOf(DistributedPlanDetails("plan", if (journey.language == "en") "1-Year through Bible" else "Vuodessa läpi Raamatun", "")) })
         val control = ReadingPlanControl(speak, windowControl, repo, textDao, settings, calendar)
         val window = Window(WorkspaceEntities.Window(IdType(), false, false, windowLayout = WorkspaceEntities.WindowLayout("VISIBLE")), pageManager, windowRepository)
         try {
             windowControl.windowRepository = windowRepository
             windowRepository.activeWindow = window
             runComposeUiTest {
-                var host by mutableStateOf<ReadingPlanHost?>(null)
-                var generation by mutableStateOf(0)
                 setContent {
                     val uiScope = rememberCoroutineScope()
                     val nav = rememberNavController()
+                    journey.nav = nav
                     val shell = remember { object : HostShell {
                         override val hostScope = uiScope
                         override fun exitHost() = Unit
@@ -159,7 +168,7 @@ class ReadingPlanJourneyTest {
                         override fun goBackInHistory() = false
                         override fun navigate(route: String) { nav.navigate(route) }
                     } }
-                    val current = remember(generation) {
+                    val current = remember(journey.generation) {
                         ReadingPlanHost(shell, iosStrings("en"), object : ReadingPlanHostPlatform {
                             override val isPortrait = true
                             override fun localYmd(epochMs: Long): Triple<Int, Int, Int> = Instant.ofEpochMilli(epochMs).atZone(ZoneOffset.UTC).toLocalDate().let { Triple(it.year, it.monthValue, it.dayOfMonth) }
@@ -170,44 +179,21 @@ class ReadingPlanJourneyTest {
                             override suspend fun openDocumentTree(): DocumentRef? = null
                         }, { control }, { speak }, { scope })
                     }
-                    host = current
+                    journey.host = current
                     val deps = remember(current, nav) { current.navDeps(nav) }
-                    CompositionLocalProvider(LocalStrings provides iosStrings(language), LocalLiveSettingsLanguage provides true) {
-                        androidx.compose.runtime.key(generation) {
-                            NavHost(nav, startDestination = NavRoutes.dailyReading()) { readingPlanNavGraph(nav, deps) }
+                    CompositionLocalProvider(LocalStrings provides iosStrings(journey.language), LocalLiveSettingsLanguage provides true) {
+                        androidx.compose.runtime.key(journey.generation) {
+                            NavHost(nav, startDestination = if (withReading) NavRoutes.READING else NavRoutes.dailyReading()) {
+                                composable(NavRoutes.READING) { androidx.compose.material3.Text("READING-VIEW") }
+                                readingPlanNavGraph(nav, deps)
+                            }
                         }
                     }
                 }
-                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("1-Year through Bible")).fetchSemanticsNodes().isNotEmpty() }
-                onNodeWithText("1-Year through Bible").performClick()
-                waitUntil(timeoutMillis = 10_000) { host?.dayLoaded == 1 }
-                onNodeWithText("Day 1").assertExists()
-                runOnIdle { language = "fi" }
-                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("Vuodessa läpi Raamatun")).fetchSemanticsNodes().isNotEmpty() }
-                onNodeWithText("1-Year through Bible").assertDoesNotExist()
-                onNodeWithText(iosStrings("fi").done).assertIsNotEnabled()
-                runOnIdle { language = "en" }
-                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("1-Year through Bible")).fetchSemanticsNodes().isNotEmpty() }
-                onNodeWithText(iosStrings("en").done).assertIsNotEnabled()
-                onNodeWithContentDescription("Gen 1").assertIsOff().performClick()
-                waitUntil(timeoutMillis = 10_000) { host?.dailyReadingController?.ui?.value?.readings?.firstOrNull()?.isRead == true }
-                onNodeWithText(iosStrings("en").done).assertIsNotEnabled()
-                val previousHost = host
-                runOnIdle { generation++ }
-                waitUntil(timeoutMillis = 10_000) { host !== previousHost && host?.dailyReadingController?.ui?.value?.readings?.firstOrNull()?.isRead == true }
-                onNodeWithContentDescription("Gen 1").assertIsOn()
-                onNodeWithContentDescription("Mat 1").performClick()
-                waitUntil(timeoutMillis = 10_000) { host?.dailyReadingController?.ui?.value?.allRead == true }
-                onNodeWithText(iosStrings("en").done).assertIsEnabled().performClick()
-                waitUntil(timeoutMillis = 10_000) { host?.dayLoaded == 2 }
-                onNodeWithText("Day 2").assertExists()
-                onNodeWithContentDescription("Gen 2").assertIsOff()
-                val secondDayHost = host
-                runOnIdle { generation++ }
-                waitUntil(timeoutMillis = 10_000) { host !== secondDayHost && host?.dayLoaded == 2 }
-                onNodeWithText("Day 2").assertExists()
-                onNodeWithContentDescription("Gen 2").assertIsOff()
-                assertEquals(2, host!!.dayLoaded)
+                body(journey)
+                // close the screens above the reader before the scene closes: closing the scene with a list entry
+                // still stacked trips the lifecycle check in navigation's own teardown
+                if (withReading) { runOnUiThread { journey.nav!!.popBackStack(NavRoutes.READING, inclusive = false) }; waitForIdle() }
             }
         } finally {
             window.destroy()
@@ -221,6 +207,106 @@ class ReadingPlanJourneyTest {
             stopKoin()
             Dispatchers.resetMain()
         }
+    }
+
+    @Test fun selectingTickingAndReopeningUsesHostAndRealServices() = runJourney { journey ->
+                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("1-Year through Bible")).fetchSemanticsNodes().isNotEmpty() }
+                onNodeWithText("1-Year through Bible").performClick()
+                waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == 1 }
+                onNodeWithText("Day 1").assertExists()
+                runOnIdle { journey.language = "fi" }
+                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("Vuodessa läpi Raamatun")).fetchSemanticsNodes().isNotEmpty() }
+                onNodeWithText("1-Year through Bible").assertDoesNotExist()
+                onNodeWithText(iosStrings("fi").done).assertIsNotEnabled()
+                runOnIdle { journey.language = "en" }
+                waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("1-Year through Bible")).fetchSemanticsNodes().isNotEmpty() }
+                onNodeWithText(iosStrings("en").done).assertIsNotEnabled()
+                onNodeWithContentDescription("Gen 1").assertIsOff().performClick()
+                waitUntil(timeoutMillis = 10_000) { journey.host?.dailyReadingController?.ui?.value?.readings?.firstOrNull()?.isRead == true }
+                onNodeWithText(iosStrings("en").done).assertIsNotEnabled()
+                val previousHost = journey.host
+                runOnIdle { journey.generation++ }
+                waitUntil(timeoutMillis = 10_000) { journey.host !== previousHost && journey.host?.dailyReadingController?.ui?.value?.readings?.firstOrNull()?.isRead == true }
+                onNodeWithContentDescription("Gen 1").assertIsOn()
+                onNodeWithContentDescription("Mat 1").performClick()
+                waitUntil(timeoutMillis = 10_000) { journey.host?.dailyReadingController?.ui?.value?.allRead == true }
+                onNodeWithText(iosStrings("en").done).assertIsEnabled().performClick()
+                waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == 2 }
+                onNodeWithText("Day 2").assertExists()
+                onNodeWithContentDescription("Gen 2").assertIsOff()
+                val secondDayHost = journey.host
+                runOnIdle { journey.generation++ }
+                waitUntil(timeoutMillis = 10_000) { journey.host !== secondDayHost && journey.host?.dayLoaded == 2 }
+                onNodeWithText("Day 2").assertExists()
+                onNodeWithContentDescription("Gen 2").assertIsOff()
+                assertEquals(2, journey.host!!.dayLoaded)
+    }
+
+    private fun androidx.compose.ui.test.ComposeUiTest.openPlanFromReading(journey: Journey) {
+        waitUntil(timeoutMillis = 10_000) { journey.nav != null }
+        runOnUiThread { journey.nav!!.navigate(NavRoutes.dailyReading()) }
+        waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("1-Year through Bible")).fetchSemanticsNodes().isNotEmpty() }
+        onNodeWithText("1-Year through Bible").performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == 1 && journey.route == NavRoutes.dailyReading().substringBefore('?') }
+    }
+
+    private fun androidx.compose.ui.test.ComposeUiTest.openDayFromList(journey: Journey, day: Int) {
+        onNodeWithText("Day ${journey.host!!.dayLoaded}").assertExists()
+        // the harness runs a click on the test thread, but navigation must be driven from the UI thread
+        runOnUiThread { journey.host!!.dailyReadingController!!.changeDay() }
+        waitUntil(timeoutMillis = 10_000) { journey.route == NavRoutes.READING_PLAN_DAY_LIST }
+        waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("Day $day")).fetchSemanticsNodes().isNotEmpty() }
+        onAllNodes(androidx.compose.ui.test.hasText("Day $day"))[0].performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == day && journey.route == NavRoutes.dailyReading().substringBefore('?') }
+    }
+
+    private fun androidx.compose.ui.test.ComposeUiTest.back(journey: Journey) { runOnUiThread { journey.nav!!.popBackStack() }; waitForIdle() }
+
+    @Test fun backFromDayOpenedViaTheListReturnsToTheList() = runJourney(withReading = true) { journey ->
+        openPlanFromReading(journey)
+        openDayFromList(journey, 3)
+        back(journey)
+        assertEquals(NavRoutes.READING_PLAN_DAY_LIST, journey.route)
+        waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("Day 2")).fetchSemanticsNodes().isNotEmpty() } // list settled
+    }
+
+    @Test fun backFromPlanChosenInTheSelectorReturnsToTheSelector() = runJourney(withReading = true) { journey ->
+        openPlanFromReading(journey)
+        back(journey)
+        assertEquals(NavRoutes.READING_PLAN_SELECTOR, journey.route)
+    }
+
+    @Test fun backFromDayOpenedDirectlyReturnsToTheReader() = runJourney(withReading = true) { journey ->
+        openPlanFromReading(journey)
+        // reopen the plan with one already selected, as from the reader's menu (nothing plan-internal beneath)
+        runOnUiThread { journey.nav!!.popBackStack(NavRoutes.READING, inclusive = false) }
+        waitForIdle()
+        runOnUiThread { journey.nav!!.navigate(NavRoutes.dailyReading()) }
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == 1 && journey.route == NavRoutes.dailyReading().substringBefore('?') }
+        back(journey)
+        assertEquals(NavRoutes.READING, journey.route)
+    }
+
+    @Test fun doneMovesToTheNextDayWithinThePlan() = runJourney(withReading = true) { journey ->
+        openPlanFromReading(journey)
+        onNodeWithContentDescription("Gen 1").performClick()
+        onNodeWithContentDescription("Mat 1").performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dailyReadingController?.ui?.value?.allRead == true }
+        onNodeWithText(iosStrings("en").done).performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dayLoaded == 2 }
+        assertEquals(NavRoutes.dailyReading().substringBefore('?'), journey.route)
+    }
+
+    @Test fun doneWithoutANextUnreadDayShowsTheDayList() = runJourney(withReading = true) { journey ->
+        openPlanFromReading(journey)
+        openDayFromList(journey, 3) // the last day, not the plan's current day: Done has no next day
+        onNodeWithContentDescription("Gen 3").performClick()
+        onNodeWithContentDescription("Mat 3").performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.host?.dailyReadingController?.ui?.value?.allRead == true }
+        onNodeWithText(iosStrings("en").done).performClick()
+        waitUntil(timeoutMillis = 10_000) { journey.route != NavRoutes.dailyReading().substringBefore('?') }
+        assertEquals(NavRoutes.READING_PLAN_DAY_LIST, journey.route)
+        waitUntil(timeoutMillis = 10_000) { onAllNodes(androidx.compose.ui.test.hasText("Day 2")).fetchSemanticsNodes().isNotEmpty() } // list settled
     }
 
     private inline fun <reified T> proxy(crossinline call: (String, Array<out Any?>) -> Any?): T =
