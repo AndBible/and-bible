@@ -917,6 +917,8 @@
     <string name="corrupt_database_reset">Reset damaged data</string>
     <!-- #4112: the reset of damaged data failed. %1$s is the database file name. -->
     <string name="corrupt_database_reset_failed">The damaged data could not be reset: %1$s could not be moved aside. Nothing was changed. You can try again, send an error report, or use Backup &amp; Restore.</string>
+    <!-- #4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged. -->
+    <string name="damaged_data_needs_attention">The app\'s data needs attention. Tap to open the app.</string>
     <string name="debug_test_error">Test error (debug build)</string>
     <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>

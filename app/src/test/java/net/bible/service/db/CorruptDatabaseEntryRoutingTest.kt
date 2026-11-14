@@ -16,7 +16,14 @@
  */
 package net.bible.service.db
 
+import android.app.Notification
+import android.app.NotificationManager
+import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.os.Looper
+import net.bible.test.resetComposeUiDispatcher
+import net.bible.android.activity.R
+import net.bible.android.activity.SpeakWidgetManager
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
@@ -50,7 +57,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CorruptDatabaseEntryRoutingTest {
     private val app get() = ApplicationProvider.getApplicationContext<BibleApplication>()
-    private val damaged = CorruptDatabasesException(listOf(CorruptDatabase(BookmarkDatabaseName, "/data/$BookmarkDatabaseName")))
+    private fun damaged() = CorruptDatabasesException(listOf(CorruptDatabase(BookmarkDatabaseName, "/data/$BookmarkDatabaseName")))
     private var opens = 0
     private var wasInitialized = false
     private var wasReady = false
@@ -61,7 +68,7 @@ class CorruptDatabaseEntryRoutingTest {
         wasReady = DatabaseContainer.ready
         CommonUtils.initialized = false
         DatabaseContainer.ready = false
-        DatabaseContainer.containerFactory = { opens++; throw damaged }
+        DatabaseContainer.containerFactory = { opens++; throw damaged() }
     }
 
     @After fun tearDown() {
@@ -78,6 +85,89 @@ class CorruptDatabaseEntryRoutingTest {
         assertEquals("the damage is remembered, not re-checked per broadcast", 1, opens)
         assertFalse(CommonUtils.initialized)
         assertFalse("settings reads answer defaults instead of throwing", DatabaseContainer.ready)
+    }
+
+    /** #4112 review 2: the user learns why the widget, notification or media button did nothing. */
+    @Test fun headlessEntryPostsANotificationThatOpensTheStartupRecovery() {
+        AndBibleMediaButtonReceiver().onReceive(app, Intent(Intent.ACTION_MEDIA_BUTTON))
+
+        val notifications = shadowOf(app.getSystemService(NotificationManager::class.java)).allNotifications
+        assertEquals(1, notifications.size)
+        val opens = shadowOf(notifications.single().contentIntent).savedIntent
+        assertEquals(StartupActivity::class.java.name, opens.component?.className)
+        assertEquals(app.getString(R.string.damaged_data_needs_attention), notifications.single().extras.getCharSequence(Notification.EXTRA_TEXT)?.toString())
+    }
+
+    /** #4112 review 2: a widget update renders a harmless "open the app" state instead of nothing. */
+    @Test fun aSpeakWidgetUpdateRendersTheAttentionState() {
+        val widgets = shadowOf(AppWidgetManager.getInstance(app))
+        val id = widgets.createWidget(SpeakWidgetManager.SmallSpeakControlWidget::class.java, R.layout.speak_widget)
+
+        val shown = widgets.getViewFor(id) as android.view.ViewGroup
+        assertEquals("only the attention text, no speak buttons", 1, shown.childCount)
+        assertEquals(app.getString(R.string.damaged_data_needs_attention), (shown.getChildAt(0) as android.widget.TextView).text.toString())
+    }
+
+    /**
+     * #4112 review 2: a WELCOME host (restored, never through StartupActivity) that meets damaged data while leaving
+     * Welcome or coming back from a welcome flow hands over and stops: no navigation, no further loads, no crash.
+     */
+    @Test fun aWelcomeHostThatHandsOverStopsTheFlow() {
+        resetComposeUiDispatcher()
+        // Built on healthy data (under isRunningTests the instance ignores `ready`, so a host cannot even be created on
+        // damaged data here); the damage appears when the flow leaves Welcome, as on a restored, uninitialised host.
+        DatabaseContainer.forgetReplacesForTest()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(app, NavRoutes.WELCOME),
+        )
+        var detached: DatabaseContainer? = null
+        try {
+            controller.create().start().resume().visible()
+            shadowOf(Looper.getMainLooper()).idle()
+            val host = controller.get()
+            val routeBefore = host.currentRouteForTest()
+            assertFalse("precondition: the host has not initialised the app", host.isFinishing)
+            detached = DatabaseContainer.detachInstanceForTest()
+            CommonUtils.initialized = false
+            DatabaseContainer.containerFactory = { opens++; throw damaged() }
+
+            host.welcomeFlow.leaveFor(NavRoutes.download(firstDownload = true))
+            shadowOf(Looper.getMainLooper()).idle()
+
+            assertEquals("no navigation from a host that handed over", routeBefore, host.currentRouteForTest())
+            assertTrue(host.isFinishing)
+            assertEquals(StartupActivity::class.java.name, shadowOf(app).nextStartedActivity?.component?.className)
+
+            host.welcomeAfterFlow()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals("no navigation from a host that handed over", routeBefore, host.currentRouteForTest())
+            assertEquals(StartupActivity::class.java.name, shadowOf(app).nextStartedActivity?.component?.className)
+        } finally {
+            controller.close()
+            detached?.let { c -> kotlinx.coroutines.runBlocking { DatabaseContainer.aiLifetime.replace { c.closeAllOwned(it) } } }
+        }
+    }
+
+    /** #4112 review 2: the link, share or search that opened the screen goes along to the recovery. */
+    @Test fun aScreenStartedByALinkPassesTheLinkToTheStartupRecovery() {
+        val link = NavHostComposeActivity.intentFor(app, NavRoutes.READING).apply {
+            action = Intent.ACTION_VIEW
+            data = android.net.Uri.parse("https://andbible.org/bible/John.3.16")
+            putExtra("openLink", "https://andbible.org/bible/John.3.16")
+        }
+        val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java, link)
+        try {
+            controller.create()
+            val next = shadowOf(app).nextStartedActivity
+            assertEquals(StartupActivity::class.java.name, next.component?.className)
+            assertEquals(Intent.ACTION_VIEW, next.action)
+            assertEquals(link.data, next.data)
+            assertEquals("https://andbible.org/bible/John.3.16", next.getStringExtra("openLink"))
+            assertTrue(next.flags and Intent.FLAG_ACTIVITY_CLEAR_TASK != 0)
+        } finally {
+            controller.close()
+        }
     }
 
     @Test fun aScreenStartedDirectlyHandsOverToTheStartupRecovery() {

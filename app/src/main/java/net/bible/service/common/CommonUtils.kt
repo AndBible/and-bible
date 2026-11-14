@@ -29,6 +29,7 @@ import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -949,15 +950,10 @@ object CommonUtils : CommonUtilsBase() {
                 Log.w(TAG, "Logcat could not be run")
             }
 
-            DatabaseContainer.ready = true
-            try {
-                DatabaseContainer.instance
-            } catch (e: Exception) {
-                // #4112: damaged user data (or any open failure) leaves the app uninitialised with the databases
-                // "not ready", so settings reads answer defaults instead of throwing the damage again.
-                DatabaseContainer.ready = false
-                throw e
-            }
+            // #4112: damaged user data (or any open failure) leaves the app uninitialised with the databases "not
+            // ready", so settings reads answer defaults instead of throwing the damage again. openForUse owns that
+            // transition, so a failure here never undoes an open that succeeded meanwhile on another thread.
+            DatabaseContainer.openForUse()
             loadSnapshotStoresInBackground()
             startPlatformServices()
 
@@ -996,8 +992,9 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * [initializeApp] for an entry point without a screen of its own (speak widget, TTS notification, media button):
      * damaged user-data databases (#4112) end it quietly with false instead of crashing the process. The damage is
-     * remembered ([DatabaseContainer.forgetCorruption]), so repeated broadcasts do not check the files again; the user
-     * meets the recovery question at the next start of the app. Any other failure propagates as before.
+     * remembered ([DatabaseContainer.forgetCorruption]), so repeated broadcasts do not check the files again. A
+     * notification tells the user that the app's data needs attention; tapping it opens the startup's recovery
+     * question. Any other failure propagates as before.
      */
     fun initializeAppForHeadlessEntry(): Boolean = try {
         initializeApp()
@@ -1005,7 +1002,44 @@ object CommonUtils : CommonUtilsBase() {
     } catch (e: Exception) {
         val damaged = e.corruptDatabasesOrNull() ?: throw e
         Log.w(TAG, "Damaged data (${damaged.databases.joinToString { it.fileName }}): headless entry skipped")
+        notifyDamagedDataNeedsAttention()
         false
+    }
+
+    /** Opens [net.bible.android.view.activity.StartupActivity] in a fresh task: its recovery question (#4112). */
+    fun damagedDataRecoveryPendingIntent(context: Context): PendingIntent = PendingIntent.getActivity(
+        context, DAMAGED_DATA_NOTIFICATION_ID,
+        Intent(context, net.bible.android.view.activity.StartupActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+
+    /**
+     * Tells the user, from a headless entry that met damaged data (#4112), that the app needs to be opened: one
+     * notification (re-posted, not stacked, by later entries) whose tap opens the startup's recovery question. A
+     * discrete build posts it on its neutral calculator channel under the calculator name. Never throws: a missing
+     * notification permission only means the user meets the question at the next app start.
+     */
+    private fun notifyDamagedDataNeedsAttention() {
+        try {
+            val text = application.getString(R.string.damaged_data_needs_attention)
+            val discrete = BuildVariant.Appearance.isDiscrete
+            val notification = androidx.core.app.NotificationCompat.Builder(
+                application, if (discrete) CALC_NOTIFICATION_CHANNEL else "generic-notifications",
+            )
+                .setSmallIcon(if (discrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys)
+                .setContentTitle(application.getString(if (discrete) R.string.app_name_calculator else R.string.app_name_medium))
+                .setContentText(text)
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(text))
+                .setContentIntent(damagedDataRecoveryPendingIntent(application))
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build()
+            val manager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.notify(DAMAGED_DATA_NOTIFICATION_ID, notification)
+        } catch (e: Exception) {
+            Log.w(TAG, "Damaged-data notification could not be posted", e)
+        }
     }
 
     /**
@@ -1481,6 +1515,9 @@ object CommonUtils : CommonUtilsBase() {
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
+
+/** The one "damaged data needs attention" notification (#4112); unique among the app's notification ids. */
+const val DAMAGED_DATA_NOTIFICATION_ID = 4112
 
 @Serializable
 data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisplaySettings.Types>) {

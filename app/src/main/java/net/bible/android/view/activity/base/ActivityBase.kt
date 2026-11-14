@@ -100,12 +100,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     /**
      * Shows the damaged-data question (#4112) by restarting the app at [StartupActivity] in a fresh task, and finishes
-     * this screen.
+     * this screen. What this screen was started with ([damagedDataRecoveryIntent]) goes along, so a link that opened it
+     * is opened after the recovery as from the launcher.
      */
     fun routeToDamagedDataRecovery() {
-        startActivity(
-            Intent(this, StartupActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
-        )
+        startActivity(damagedDataRecoveryIntent(this, intent))
         finish()
     }
 
@@ -573,3 +572,21 @@ fun android.app.Activity.themePixelSize(@AttrRes attr: Int): Int {
         TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
     } else 0
 }
+
+/**
+ * The [StartupActivity] start that hands damaged user data (#4112) to the startup's recovery question: a fresh task,
+ * carrying [launching]'s action, data, type, extras, clip data and URI grants, so a VIEW link, a share or a search that
+ * opened the screen is not lost (StartupActivity hands it on after the recovery, see `bootHandoffIntent`).
+ */
+internal fun damagedDataRecoveryIntent(context: android.content.Context, launching: Intent?): Intent =
+    Intent(context, StartupActivity::class.java).apply {
+        if (launching != null) {
+            action = launching.action
+            setDataAndType(launching.data, launching.type)
+            launching.extras?.let { putExtras(it) }
+            clipData = launching.clipData
+            addFlags(launching.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+        }
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+
