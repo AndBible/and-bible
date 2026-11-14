@@ -5,6 +5,7 @@ package net.bible.sharedui.theme
 import androidx.compose.runtime.Composable
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.resolveDisableAnimations
+import net.bible.sharedcore.platform.resolveUseSystemColors
 import net.bible.sharedcore.platform.resolveDisplayColorMode
 
 /**
@@ -34,6 +35,7 @@ fun AbHostTheme(
         darkTheme = darkTheme,
         colorMode = settings.resolveDisplayColorMode(isOnyx),
         disableAnimations = settings.resolveDisableAnimations(isOnyx),
+        useSystemColors = settings.resolveUseSystemColors(),
         content = content,
     )
 }

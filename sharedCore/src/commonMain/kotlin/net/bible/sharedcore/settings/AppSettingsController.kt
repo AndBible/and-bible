@@ -1,5 +1,6 @@
 package net.bible.sharedcore.settings
 
+import net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -235,6 +236,14 @@ class AppSettingsController(
                 key = "display_category",
                 title = labels.displayCat,
                 visible = true,
+            ),
+            SettingsItem.SwitchRow(
+                key = USE_SYSTEM_COLORS_KEY,
+                title = labels.useSystemColorsTitle,
+                summary = labels.useSystemColorsSummary,
+                checked = s.useSystemColors,
+                visible = s.systemColorsAvailable,
+                iconKey = USE_SYSTEM_COLORS_KEY,
             ),
             SettingsItem.NavigationRow(
                 key = AppSettingsNav.TEXT_DISPLAY,

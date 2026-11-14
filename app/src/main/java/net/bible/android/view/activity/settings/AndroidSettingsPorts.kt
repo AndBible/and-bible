@@ -25,6 +25,7 @@ class AndroidSettingsPlatformFlags : SettingsPlatformFlags {
     override val debugToolsVisible get() = VideoLook.showsDebugTraits(BuildConfig.DEBUG)
     override val autoNightModeAvailable get() = ScreenSettings.autoModeAvailable
     override val isOnyx get() = CommonUtils.isOnyxDevice
+    override val systemColorsAvailable get() = net.bible.android.view.compose.SystemDynamicColors.available
     override val isDiscreteBuild get() = BuildVariant.Appearance.isDiscrete
     override val isBeta get() = CommonUtils.isBeta
     override fun onSystemBarSettingChanged() = SystemBarSettingChanges.notifyChanged()

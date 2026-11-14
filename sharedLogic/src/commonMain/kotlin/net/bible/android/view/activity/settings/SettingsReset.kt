@@ -52,6 +52,7 @@ object SettingsReset {
         "disable_bible_bookmark_modal_buttons",
         "disable_gen_bookmark_modal_buttons",
         "display_color_mode",
+        "use_system_colors",
         "theme_palette_style",
         "disable_animations",
         "disable_click_to_edit",

@@ -18,6 +18,7 @@ package net.bible.android.view.activity.settings
 
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.SystemNotificationsPreference
+import net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
@@ -258,6 +259,8 @@ class AppSettingsServiceImpl(
             ),
             bibleBookmarkModalOptions = bibleBookmarkModalOptions,
             genBookmarkModalOptions = genBookmarkModalOptions,
+            useSystemColors = readBool(USE_SYSTEM_COLORS_KEY, false),
+            systemColorsAvailable = platform.systemColorsAvailable,
             // E-ink
             displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(platform.isOnyx).value),
             einkMode = readBool("eink_mode", false),

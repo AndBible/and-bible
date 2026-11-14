@@ -33,6 +33,8 @@ class AppSettingsControllerTest {
         legacyImportVisible: Boolean = false,
         showSystemNotifications: Boolean = false,
         systemNotificationsVisible: Boolean = false,
+        useSystemColors: Boolean = false,
+        systemColorsAvailable: Boolean = false,
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -61,11 +63,32 @@ class AppSettingsControllerTest {
         legacyImportVisible = legacyImportVisible,
         showSystemNotifications = showSystemNotifications,
         systemNotificationsVisible = systemNotificationsVisible,
+        useSystemColors = useSystemColors,
+        systemColorsAvailable = systemColorsAvailable,
     )
 
     private fun controller(s: AppSettingsService) =
         AppSettingsController(s, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined),
             AppSettingsLabels.forTest(), onNavigate = {})
+
+    /** Material You: first row of Display (right after Night mode's Behavior block), hidden unless the platform offers it. */
+    @Test fun useSystemColorsRowOpensDisplayAndIsHiddenWhereUnsupported() {
+        val items = controller(FakeAppSettingsService(snap())).state.value.items
+        assertEquals(items.indexOfFirst { it.key == "display_category" } + 1, items.indexOfFirst { it.key == "use_system_colors" })
+        val hidden = items.single { it.key == "use_system_colors" } as SettingsItem.SwitchRow
+        assertFalse(hidden.visible)
+        assertFalse(hidden.checked)
+    }
+
+    @Test fun useSystemColorsRowIsVisibleMirrorsSnapshotAndWritesItsKey() {
+        val svc = FakeAppSettingsService(snap(useSystemColors = true, systemColorsAvailable = true))
+        val c = controller(svc)
+        val row = c.state.value.items.single { it.key == "use_system_colors" } as SettingsItem.SwitchRow
+        assertTrue(row.visible)
+        assertTrue(row.checked)
+        c.onSwitch(row.key, false)
+        assertEquals(listOf("use_system_colors" to false), svc.boolWrites)
+    }
 
     @Test fun systemNotificationsRowFollowsActivityMenuRowAndIsHiddenByDefault() {
         val items = controller(FakeAppSettingsService(snap())).state.value.items
@@ -227,13 +250,14 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyFiveRowsCarryAnIconKey() {
+    @Test fun fortySixRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(45, items.count { it.iconKeyOrNull() != null })
+        // 45 classic icon rows + "use_system_colors" (Compose-only, Material You).
+        assertEquals(46, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -265,6 +289,7 @@ class AppSettingsControllerTest {
             "volume_keys_scroll",
             "night_mode_pref3",
             "display_category",
+            "use_system_colors",
             "global_text_display_settings",
             "locale_pref",
             "disable_click_to_edit",

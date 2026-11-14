@@ -56,6 +56,10 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     nightModeTitle = prefsNightModeTitle,
     nightModeSummary = prefsNightModeSummary,
 
+    useSystemColorsTitle = prefsUseSystemColorsTitle,
+
+    useSystemColorsSummary = prefsUseSystemColorsSummary,
+
     localeTitle = prefsInterfaceLocaleTitle,
     localeSummary = prefsInterfaceLocaleSummary,
     disableClickToEditTitle = prefsDisableClickToEditTitle,

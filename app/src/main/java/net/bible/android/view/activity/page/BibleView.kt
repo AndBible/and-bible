@@ -119,6 +119,7 @@ import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.currentWorkspaceThemeSeedArgb
 import net.bible.sharedui.theme.themeColorsJson
+import net.bible.sharedcore.platform.resolveUseSystemColors
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
@@ -1338,6 +1339,7 @@ class BibleView(
             seedArgb = currentWorkspaceThemeSeedArgb(),
             dark = nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
+            useSystemColors = CommonUtils.settings.resolveUseSystemColors(),
         ),
         disableClickToEdit = CommonUtils.settings.disableClickToEdit,
         llmConfigured = CommonUtils.settings.llmConfigured,

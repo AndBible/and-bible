@@ -86,7 +86,13 @@ class DefaultThemeProposalTest {
                 "onSecondaryContainer/secondaryContainer" to (s.onSecondaryContainer to s.secondaryContainer),
                 "onSurface/surface" to (s.onSurface to s.surface),
                 "primary/surface" to (s.primary to s.surface),
+                "onSurfaceVariant/surfaceVariant" to (s.onSurfaceVariant to s.surfaceVariant),
+                "onBackground/background" to (s.onBackground to s.background),
+                "secondary/surface" to (s.secondary to s.surface),
             )
+            println("SCHEME $p dark=$dark primary=${s.primary.hex()} onPrimary=${s.onPrimary.hex()} " +
+                "primaryContainer=${s.primaryContainer.hex()} secondaryContainer=${s.secondaryContainer.hex()} " +
+                "surface=${s.surface.hex()} onSurface=${s.onSurface.hex()} background=${s.background.hex()}")
             for ((name, pair) in pairs) {
                 val ratio = contrast(pair.first, pair.second)
                 println("CONTRAST $p dark=$dark $name ${pair.first.hex()} on ${pair.second.hex()} = ${(ratio * 100).toInt() / 100f}")
@@ -94,6 +100,27 @@ class DefaultThemeProposalTest {
             }
             if (p != DefaultThemeProposal.CURRENT) assertNotEquals(abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), s.toString())
         }
+    }
+
+    /**
+     * Round 2 seeds land in the hue family they are named for (HCT hue): E is blue, not teal
+     * (teal sits around 180-220) or violet (CURRENT, ~280+); F is a near-neutral slate; G is green.
+     * Seeds with chroma below TonalSpot's 36 stay muted through [greySafeTonalSpot]'s cap.
+     */
+    @Test
+    fun roundTwoSeedsAreInTheirHueFamilies() {
+        fun hct(argb: Int) = com.materialkolor.hct.Hct.fromInt(argb)
+        for ((name, seed) in listOf("SITE_ACCENT" to SITE_ACCENT, "BRONZE" to BRONZE_SEED, "SILVER_BLUE" to SILVER_BLUE_SEED,
+            "SLATE" to SLATE_SEED, "SAGE" to SAGE_SEED)) {
+            println("SEED $name hue=${hct(seed).hue.toInt()} chroma=${hct(seed).chroma.toInt()} tone=${hct(seed).tone.toInt()}")
+        }
+        assertTrue(hct(SILVER_BLUE_SEED).hue in 235.0..275.0, "silver blue hue ${hct(SILVER_BLUE_SEED).hue}")
+        assertTrue(hct(SILVER_BLUE_SEED).chroma in 15.0..36.0, "silver blue chroma ${hct(SILVER_BLUE_SEED).chroma}")
+        assertTrue(hct(SLATE_SEED).chroma < 10.0, "slate chroma ${hct(SLATE_SEED).chroma}")
+        assertTrue(hct(SAGE_SEED).hue in 115.0..160.0, "sage hue ${hct(SAGE_SEED).hue}")
+        assertTrue(hct(SAGE_SEED).chroma < 30.0, "sage chroma ${hct(SAGE_SEED).chroma}")
+        // D2 must be a different hue from D, not just a darker tone of it (TonalSpot normalises tone away).
+        assertTrue(hct(SITE_ACCENT).hue - hct(BRONZE_SEED).hue >= 15.0)
     }
 
     private fun Color.hex() = "#" + (0xFFFFFF and toArgb()).toString(16).uppercase().padStart(6, '0')

@@ -7,6 +7,8 @@ interface SettingsPlatformFlags {
     val debugToolsVisible: Boolean
     val autoNightModeAvailable: Boolean
     val isOnyx: Boolean
+    /** Whether the platform offers dynamic system colours (Material You, Android 12+). */
+    val systemColorsAvailable: Boolean get() = false
     val doubleTapFullscreenAvailable: Boolean get() = true
     val isDiscreteBuild: Boolean get() = false
     val isBeta: Boolean get() = false

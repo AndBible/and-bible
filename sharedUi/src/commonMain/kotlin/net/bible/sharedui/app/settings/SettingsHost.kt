@@ -45,6 +45,7 @@ internal val RECREATE_ON_CHANGE_KEYS = setOf(
     "night_mode_pref3",
     "display_color_mode",
     "discrete_mode",
+    net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY,
 )
 
 /** The persisted tab of the reading-progress screen (0 = reading, 1 = memorize). */
