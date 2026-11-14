@@ -60,7 +60,8 @@ class MultiSearchResultsDto {
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 /** A closed `[...]` or `{...}` group: a term range, or a passage restriction. */
-private val bracketGroupRe = Regex("""\[[^\[\]{}]*]|\{[^\[\]{}]*}""")
+// Every bracket escaped: Android's ICU regex rejects a bare `}` or `]` that the JVM accepts.
+private val bracketGroupRe = Regex("""\[[^\[\]\{\}]*\]|\{[^\[\]\{\}]*\}""")
 
 /** Stands in for a space inside a bracket group while the words are decorated; never typed in a query. */
 private const val GROUP_SPACE = '\u0000'
