@@ -96,11 +96,15 @@ class CloudSync(
 ) {
     var adapterId: String
         // An unavailable saved backend is disabled, never replaced by a different account/backend.
-        get() = settings.getString("sync_adapter")?.takeIf { it.isNotEmpty() } ?: adapters.available.firstOrNull().orEmpty()
+        get() = adapters.effectiveAdapterId(settings)
         set(value) {
             if (value != adapterId) _adapter = null
             settings.setString("sync_adapter", value)
         }
+    init { adapters.pinLegacyAdapterIfInUse(settings) }
+
+    /** Fixes the backend before the first category is enabled (see [pinAdapterOnEnable]). */
+    fun pinAdapterOnEnable() = adapters.pinAdapterOnEnable(settings)
     val adapterAvailable: Boolean get() = adapters.isAvailable(settings)
     val syncEnabled: Boolean get() = adapterAvailable && SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) }
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }

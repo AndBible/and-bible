@@ -24,6 +24,7 @@ class DefaultSyncAdapterTest {
         if (stored != null) values["sync_adapter"] = stored
         val settings = object : AppSettings by stub<AppSettings>() {
             override fun getString(key: String, default: String?) = values[key] ?: default
+            override fun getBoolean(key: String, default: Boolean) = default
             override fun setString(key: String, value: String?) { if (value == null) values.remove(key) else values[key] = value }
         }
         val factory = object : CloudAdapterFactory {

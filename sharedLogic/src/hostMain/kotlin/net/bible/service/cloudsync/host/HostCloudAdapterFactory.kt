@@ -43,6 +43,9 @@ class HostCloudAdapterFactory(
     override val available: List<String> =
         listOfNotNull("GOOGLE_DRIVE".takeIf { googleDrive != null }) + listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
 
+    /** iCloud led the list before #4102, so it was the implicit choice of an install that never opened the picker. */
+    override val legacyDefaultId: String = "ICLOUD_DRIVE"
+
     override fun displayName(id: String): String = displayName.invoke(id)
 
     override fun create(id: String): CloudAdapter = create(id, signInUi, false)

@@ -28,6 +28,9 @@ class DesktopCloudAdapterFactory(private val inner: HostCloudAdapterFactory) : C
     override val available: List<String> =
         listOfNotNull("GOOGLE_DRIVE".takeIf { it in inner.available }) + listOf("NEXT_CLOUD", "WEBDAV")
 
+    /** Nextcloud led the desktop list before #4102. */
+    override val legacyDefaultId: String = "NEXT_CLOUD"
+
     override fun create(id: String): CloudAdapter = inner.create(checked(id))
     override fun createForBackground(id: String): CloudAdapter = inner.createForBackground(checked(id))
 

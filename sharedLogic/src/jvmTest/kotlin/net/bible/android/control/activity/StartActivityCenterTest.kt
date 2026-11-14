@@ -70,7 +70,16 @@ class StartActivityCenterTest {
                 single<AppEnvironment> { stub() }
                 single<ReadingPlanSource> { stub() }
                 single<net.bible.sharedlogic.platform.LocalCalendar> { stub() }
-                single<AppSettings> { stub() }
+                // CloudSync reads the adapter/enable settings on construction (#4102 pin): a fresh install has none.
+                single<AppSettings> {
+                    Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf<Class<*>>(AppSettings::class.java)) { _, m, args ->
+                        when (m.name) {
+                            "getString" -> args[1]
+                            "getBoolean" -> args[1]
+                            else -> error("unexpected call of AppSettings.${m.name}")
+                        }
+                    } as AppSettings
+                }
                 single<UserNotifier> { stub() }
                 single<SpeakPlatform> { stub() }
                 single<net.bible.service.cloudsync.CloudAdapterFactory> { stub() }
