@@ -5,8 +5,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.nav.subscribeToBookmarkSync
-import net.bible.service.common.labelsAndBookmarksPlaylist
-import net.bible.service.common.studyPadsVideo
 import net.bible.sharedui.app.bookmark.BookmarkDocumentsRecreation
 import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
 import org.koin.java.KoinJavaComponent.get
@@ -27,9 +25,6 @@ class AndroidBookmarkHostPlatform(private val activity: NavHostComposeActivity) 
     override suspend fun importBookmarksCsv() {
         BookmarkCsvFlow(bookmarkControl).importBookmarksFromCSV(activity)
     }
-
-    override fun helpReadMoreUrl(studyPad: Boolean): String =
-        if (studyPad) studyPadsVideo else labelsAndBookmarksPlaylist
 
     override fun documentsRecreation(): BookmarkDocumentsRecreation = activity.bookmarkDocumentsRecreation()
 }

@@ -20,6 +20,7 @@ package net.bible.sharedui.app.notice
 
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.docs.SiteLinks
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -50,7 +51,7 @@ object ReleaseNotice {
      * installation guide and the computer row its start. Null for Share and Sponsor, which the host handles itself.
      */
     fun linkFor(action: ReleaseNoticeAction): String? = when (action) {
-        ReleaseNoticeAction.VIDEO -> SiteLinks.WHATS_NEW_VIDEO_URL
+        ReleaseNoticeAction.VIDEO -> TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0)
         ReleaseNoticeAction.WEBSITE -> SiteLinks.HOME_URL
         ReleaseNoticeAction.COMPUTER -> DocsLinks.page("getting_started", "installation")
         ReleaseNoticeAction.INSTALL_ANDROID -> DocsLinks.page("getting_started", "android")

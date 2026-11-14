@@ -7,8 +7,4 @@ object SiteLinks {
 
     /** The AndBible home page. */
     const val HOME_URL = "https://andbible.org"
-
-    // TODO(6.0 release): set the 6.0 video URL
-    /** The "what's new in 6.0" video. */
-    const val WHATS_NEW_VIDEO_URL = "https://youtu.be/TODO-6-0"
 }

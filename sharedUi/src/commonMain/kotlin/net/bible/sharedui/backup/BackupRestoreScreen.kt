@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.backup
 
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedui.components.AbWatchVideoOverflowMenu
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -80,7 +82,11 @@ fun BackupRestoreScreen(
 ) {
     val strings = LocalStrings.current
 
-    AbScaffold(title = strings.backupAndRestoreTitle, onNavigateUp = onUp) { padding ->
+    AbScaffold(
+        title = strings.backupAndRestoreTitle,
+        onNavigateUp = onUp,
+        actions = { AbWatchVideoOverflowMenu(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_16_BACKUP_AND_RESTORE)) },
+    ) { padding ->
         Column(
             modifier = modifier
                 .fillMaxSize()

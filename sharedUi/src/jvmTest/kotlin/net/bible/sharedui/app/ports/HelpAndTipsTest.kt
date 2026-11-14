@@ -1,5 +1,6 @@
 package net.bible.sharedui.app.ports
 
+import net.bible.sharedcore.docs.TutorialVideos
 import java.io.File
 import kotlin.test.*
 import net.bible.sharedcore.docs.DocsLinks
@@ -15,17 +16,21 @@ class HelpAndTipsTest {
             .substringAfter("fun showHelp(").substringBefore("fun showHelpDialog(")
         val pairs = Regex("HelpItem\\(R\\.string\\.(\\w+), R\\.string\\.(\\w+)")
             .findAll(source).map { it.groupValues[1] to it.groupValues[2] }.toList()
-        assertEquals(8, pairs.size, "Android extraction must not pass vacuously")
+        assertEquals(10, pairs.size, "Android extraction must not pass vacuously")
         assertEquals(pairs, HelpAndTips.items.map { it.titleKey to it.textKey })
     }
 
     @Test fun helpItemsRetainManualPagesAndTutorialTargets() {
-        assertEquals(listOf("navigation", null, "windows", "bookmarks", "study_pads", "search", "workspaces", null),
+        assertEquals(
+            listOf("navigation", null, "documents", "windows", "bookmarks", "study_pads", "search", "workspaces", "look_and_feel", null),
             HelpAndTips.items.map { it.docPage })
-        val windows = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ"
-        assertEquals(listOf(null, null, windows,
-            "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden",
-            "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m", null, windows, null),
+        val e = TutorialVideos.Episode
+        // Every video link comes from the registry (a published episode's own URL, else the placeholder).
+        assertEquals(
+            listOf(e.TUTORIAL_02_FINDING_YOUR_WAY, e.TUTORIAL_03_VERSE_MENU, e.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS,
+                e.TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS, e.TUTORIAL_08_BOOKMARKS, e.TUTORIAL_11_STUDY_PADS,
+                e.TUTORIAL_12_SEARCH_1_BASICS, e.TUTORIAL_07_WORKSPACES, e.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS, null)
+                .map { ep -> ep?.let(TutorialVideos::url) },
             HelpAndTips.items.map { it.videoLink })
     }
 

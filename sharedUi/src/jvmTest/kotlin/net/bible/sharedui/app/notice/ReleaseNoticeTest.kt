@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.app.notice
 
+import net.bible.sharedcore.docs.TutorialVideos
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.docs.SiteLinks
@@ -226,7 +227,7 @@ class ReleaseNoticeTest {
             ReleaseNoticeAction.INSTALL_MAC to DocsLinks.page("getting_started", "mac"),
             ReleaseNoticeAction.INSTALL_LINUX to DocsLinks.page("getting_started", "linux"),
             ReleaseNoticeAction.COMPUTER to DocsLinks.page("getting_started", "installation"),
-            ReleaseNoticeAction.VIDEO to SiteLinks.WHATS_NEW_VIDEO_URL,
+            ReleaseNoticeAction.VIDEO to TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0),
             ReleaseNoticeAction.WEBSITE to SiteLinks.HOME_URL,
         )
         for ((action, url) in expected) assertEquals(url, ReleaseNotice.linkFor(action), "$action")

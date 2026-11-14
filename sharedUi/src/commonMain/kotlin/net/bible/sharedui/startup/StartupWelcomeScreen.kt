@@ -16,6 +16,10 @@
  */
 package net.bible.sharedui.startup
 
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedui.components.LocalAbLinkOpener
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -97,6 +101,8 @@ fun StartupWelcomeScreen(
     onOpenGithub: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val uriHandler = LocalUriHandler.current
+    val linkOpener = LocalAbLinkOpener.current
     // The footer (version + links) is pinned to the bottom edge; only the content above it scrolls.
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp).testTag("welcome-screen"),
@@ -177,6 +183,10 @@ fun StartupWelcomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FooterLink(Icons.Outlined.Language, strings.welcomeHomepageLabel, onOpenHomepage)
                 FooterLink(Icons.Outlined.Code, strings.welcomeGithubLabel, onOpenGithub)
+                val videoUrl = TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)
+                FooterLink(Icons.Outlined.PlayCircle, strings.welcomeVideoLabel) {
+                    linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl)
+                }
             }
         }
     }

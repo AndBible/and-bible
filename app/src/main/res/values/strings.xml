@@ -1032,6 +1032,10 @@
         by swipe-down gesture from toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
         switch to previous / next workspace.
     </string>
+    <string name="help_study_tools_title">Study tools</string>
+    <string name="help_study_tools_text">Tap a Strong\'s number to look up the Greek or Hebrew word behind a verse in a dictionary. Tap a cross-reference to read it in the links window, without losing your place in the text.</string>
+    <string name="help_look_and_feel_title">Look and feel</string>
+    <string name="help_look_and_feel_text">Night mode, font size and family, colours and margins are in Text options in the options menu (three dots, top-right corner). They can be set for every workspace, for one workspace or for a single window.</string>
     <string name="help_hidden_features_title">Hidden shortcuts</string>
     <string name="help_hidden_features_text">
         Swipe down from toolbar to show workspace selector.
@@ -1057,6 +1061,7 @@
     <string name="welcome_restore_row_hint">Database file with bookmarks and notes</string>
     <string name="welcome_link_website">Website</string>
     <string name="welcome_link_github">GitHub</string>
+    <string name="welcome_link_video">Video</string>
     <!-- Supported file formats for documents -->
     <!-- argument is app_name_andbible (AndBible). -->
     <string name="choose_file">You have to choose the file that you want to load to %s. </string>
