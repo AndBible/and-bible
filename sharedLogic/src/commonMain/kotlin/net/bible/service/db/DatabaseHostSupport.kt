@@ -17,10 +17,12 @@
 package net.bible.service.db
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.bible.android.control.page.window.WindowControl
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspacePersistence
 import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.ReadingProgressSettingsStore
@@ -30,6 +32,13 @@ import net.bible.sharedcore.settings.store.SettingsStore
 import org.koin.mp.KoinPlatform
 
 private const val TAG = "DbContainer"
+
+/**
+ * Bound for the Main hop of [DatabaseHostSupport.persistLiveWorkspace]. A Main that cannot run the save in this time is
+ * blocked (possibly on the very replace that asked, e.g. a `runBlocking` caller on Main): the save is skipped, the
+ * replace goes on. Main busy this long would be an ANR anyway.
+ */
+private const val PERSIST_LIVE_WORKSPACE_MAIN_WAIT_MS = 2_000L
 
 /** Bound for the ordered store write queues when the caller gave no timeout. */
 private const val ORDERED_WRITES_EXIT_WAIT_MS = 5_000L
@@ -48,19 +57,24 @@ object DatabaseHostSupport {
     /**
      * [DatabaseHost.persistLiveWorkspace]: saves the held, loaded window repository on Main (its state is Main-confined)
      * and waits for the write. Without a Koin context or a loaded repository there is nothing to save. A failed save is
-     * logged, not thrown: it must not stop the replace that asked for it.
+     * logged, not thrown: it must not stop the replace that asked for it. The Main hop is bounded by
+     * [PERSIST_LIVE_WORKSPACE_MAIN_WAIT_MS], so a blocked Main skips the save instead of deadlocking the replace (a
+     * `runBlocking` caller on Main whose replace runs on IO); a caller already on Main saves inline.
      */
     suspend fun persistLiveWorkspace() {
         val windowControl = runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<WindowControl>() }.getOrNull() ?: return
         // No hop to Main when there is nothing to save: a replace must not wait on a Main that cannot run (a test's
         // unadvanced dispatcher, a host that has not started reading).
         if (!windowControl.holdsLoadedRepository) return
-        try {
-            withContext(Dispatchers.Main.immediate) { windowControl.saveLoadedRepository() }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.e(TAG, "Saving the live workspace before a database replace failed", e)
+        // Not withContext(Main): a cancelled withContext still waits for its block to be dispatched on Main, so a
+        // timeout around it cannot free the replace from a blocked Main. A launched save is joined with a timeout and,
+        // on expiry, cancelled before it starts.
+        val logFailure = CoroutineExceptionHandler { _, e -> Log.e(TAG, "Saving the live workspace before a database replace failed", e) }
+        val save = CoroutineScope(Dispatchers.Main.immediate + logFailure).launch { windowControl.saveLoadedRepository() }
+        if (withTimeoutOrNull(PERSIST_LIVE_WORKSPACE_MAIN_WAIT_MS) { save.join() } == null) {
+            save.cancel()
+            Log.w(TAG, "Main did not run the live workspace save within $PERSIST_LIVE_WORKSPACE_MAIN_WAIT_MS ms; replacing without it")
+            return
         }
         awaitWorkspacePersisted()
     }

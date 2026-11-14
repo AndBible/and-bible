@@ -18,12 +18,17 @@ package net.bible.sharedui.host.app
 
 import androidx.compose.ui.unit.IntSize
 import androidx.room3.useWriterConnection
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -57,6 +62,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * #3919: after "Copy from Cloud" (the initial-download join, [CloudSync.swapInInitialDb]) the host (desktop, iOS) must
@@ -205,6 +211,39 @@ class HostCopyFromCloudReloadTest {
         } finally {
             subscription.cancel()
             hostScope.cancel()
+        }
+    }
+
+    /**
+     * #4101 review: the pre-replace save hops to Main, so it must never wait on a Main that is itself blocked on the
+     * replace. Here Main blocks (as `ReadingAppInit.hasStoredCipherKeyAtEdge` does with `runBlocking`) until the replace
+     * holds the AI admission and then waits for that admission. Saving under the admission was a lock cycle; saving
+     * before it with an unbounded Main hop waits forever on the blocked Main. The replace must finish regardless.
+     */
+    @Test fun aReplaceFinishesWhileMainIsBlockedOnItsAdmission() {
+        val koin = startDesktop()
+        assertTrue(koin.get<WindowControl>().holdsLoadedRepository, "the save must have something to save")
+        val lifetime = DatabaseContainer.aiLifetime
+        // An owned job is cancelled by the replace right after it takes the admission: the signal Main waits for.
+        val admitted = CoroutineScope(Dispatchers.Default).launch(start = CoroutineStart.LAZY) { awaitCancellation() }
+        lifetime.ownUntilReplace(admitted)
+        admitted.start()
+        val mainBlocked = CompletableDeferred<Unit>()
+        val mainDone = CoroutineScope(Dispatchers.Main).launch {
+            mainBlocked.complete(Unit)
+            runBlocking {
+                admitted.join()
+                lifetime.use { }
+            }
+        }
+        runBlocking { mainBlocked.await() }
+        val bookmarks = DatabaseContainer.databaseAccessorsByCategory[SyncableDatabaseDefinition.BOOKMARKS]!!
+        val initial = copyOf(bookmarks)
+        // async + await, not withContext: a test whose replace hangs on Main must fail, not hang itself.
+        val swap = CoroutineScope(Dispatchers.IO).async { koin.get<CloudSync>().swapInInitialDb(bookmarks, initial) { } }
+        runBlocking {
+            withTimeout(30_000) { swap.await() }
+            withTimeout(30_000) { mainDone.join() }
         }
     }
 

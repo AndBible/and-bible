@@ -417,8 +417,16 @@ class DatabaseContainer private constructor() {
         val replaceEpoch: Long get() = replaceEpochCounter.value
 
         /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
-        suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
-            aiLifetime.replace { replacingDatabasesOwned(it, block) }
+        suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T {
+            // #4101: the epoch bump of the replace freezes workspace saves and the replace ends in a workspace reload
+            // from the database, so state only in memory (the reading position after navigation) would be lost even
+            // when the replace never touches the workspaces database (a Bookmarks join, a single-database restore or
+            // reset). Save it first, BEFORE replacement admission: the save hops to Main, and Main may itself be
+            // blocked waiting for that admission (ReadingAppInit.hasStoredCipherKeyAtEdge). A replace already running
+            // has frozen saves; its reload brings the repository back, so there is nothing to save then.
+            if (!replacing) host.persistLiveWorkspace()
+            return aiLifetime.replace { replacingDatabasesOwned(it, block) }
+        }
 
         /** Test seam: called when a restore starts waiting for the workspace write queue. */
         @VisibleForTesting
@@ -441,11 +449,6 @@ class DatabaseContainer private constructor() {
             block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T,
         ): T {
             aiLifetime.requireOwner(token)
-            // #4101: the epoch bump below freezes workspace saves and the replace ends in a workspace reload from the
-            // database, so state only in memory (the reading position after navigation) would be lost even when the
-            // replace never touches the workspaces database (a Bookmarks join, a single-database restore or reset).
-            // The outermost replace saves it first; a nested one runs with saves already frozen.
-            if (replaceDepth.value == 0) host.persistLiveWorkspace()
             replaceDepth.incrementAndGet()
             replaceEpochCounter.incrementAndGet()
             var completed = false
