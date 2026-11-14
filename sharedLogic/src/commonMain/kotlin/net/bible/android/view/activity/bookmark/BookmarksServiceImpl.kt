@@ -211,6 +211,7 @@ fun htmlToStyledText(html: String): StyledText {
     val runs = mutableListOf<StyledRun>()
     var i = 0
     var bold = false
+    var pendingBreak = false
     val buf = StringBuilder()
     fun flush() {
         if (buf.isNotEmpty()) {
@@ -218,17 +219,37 @@ fun htmlToStyledText(html: String): StyledText {
             buf.clear()
         }
     }
+    // A block boundary becomes one newline, but only between two pieces of text: none at the start or
+    // the end, and none after a newline that is already there (<br> or an earlier block).
+    fun startText() {
+        if (pendingBreak) {
+            pendingBreak = false
+            if (runs.lastOrNull()?.text?.endsWith('\n') == false) runs.add(StyledRun("\n", bold = false))
+        }
+    }
     while (i < html.length) {
         when {
             html.startsWith("<b>", i) -> { flush(); bold = true; i += 3 }
             html.startsWith("</b>", i) -> { flush(); bold = false; i += 4 }
             html[i] == '<' -> {
-                // Strip any other tag (e.g. a literal <i>/<br> a user typed into a note) — StyledText
-                // has no run kind for it.
+                // Strip any other tag (e.g. a literal <i> a user typed into a note) — StyledText has no
+                // run kind for it. Line and block boundaries survive as a newline, or list items and
+                // paragraphs would run together ("do justicelove kindness", issue #4082).
                 val gt = html.indexOf('>', i)
-                i = if (gt > i) gt + 1 else i + 1
+                if (gt > i) {
+                    val name = html.substring(i + 1, gt).removePrefix("/").trimStart()
+                        .takeWhile { it.isLetterOrDigit() }.lowercase()
+                    when {
+                        name == "br" -> { flush(); runs.add(StyledRun("\n", bold = bold)) }
+                        name in BLOCK_TAGS -> { flush(); pendingBreak = runs.isNotEmpty() }
+                    }
+                    i = gt + 1
+                } else {
+                    i++
+                }
             }
             html[i] == '&' -> {
+                if (buf.isEmpty()) startText()
                 val semi = html.indexOf(';', i)
                 if (semi > i) {
                     when (html.substring(i, semi + 1)) {
@@ -244,10 +265,16 @@ fun htmlToStyledText(html: String): StyledText {
                     buf.append(html[i]); i++
                 }
             }
-            else -> { buf.append(html[i]); i++ }
+            else -> { if (buf.isEmpty()) startText(); buf.append(html[i]); i++ }
         }
     }
     flush()
     if (runs.isEmpty()) runs.add(StyledRun(""))
     return StyledText(runs)
 }
+
+/** Tags whose boundaries [htmlToStyledText] turns into a line break (`Html.fromHtml` breaks on the same ones). */
+private val BLOCK_TAGS = setOf(
+    "p", "div", "li", "ul", "ol", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "pre", "table", "tr",
+    "section", "article", "header", "footer", "dl", "dt", "dd",
+)
