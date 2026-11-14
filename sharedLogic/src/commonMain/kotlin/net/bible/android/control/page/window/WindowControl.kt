@@ -61,12 +61,16 @@ open class WindowControl constructor() {
         if (_windowRepository === expected) _windowRepository = null
     }
 
+    /** Whether a repository is held and has loaded: only then is there live state to save (a plain read, any thread). */
+    val holdsLoadedRepository: Boolean get() = _windowRepository?.initialized == true
+
     /**
      * Saves the held repository's unsaved state, without creating the lazy fallback; a repository that has not
      * loaded, or is stale after a restore, is left alone by [WindowRepository.saveIntoDb] itself. Speech keeps
      * playing. Must run on Main.
      */
     fun saveLoadedRepository() {
+        if (!holdsLoadedRepository) return
         _windowRepository?.takeIf { it.initialized }?.saveIntoDb(false)
     }
 

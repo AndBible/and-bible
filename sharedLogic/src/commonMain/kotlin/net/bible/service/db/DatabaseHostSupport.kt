@@ -52,6 +52,9 @@ object DatabaseHostSupport {
      */
     suspend fun persistLiveWorkspace() {
         val windowControl = runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<WindowControl>() }.getOrNull() ?: return
+        // No hop to Main when there is nothing to save: a replace must not wait on a Main that cannot run (a test's
+        // unadvanced dispatcher, a host that has not started reading).
+        if (!windowControl.holdsLoadedRepository) return
         try {
             withContext(Dispatchers.Main.immediate) { windowControl.saveLoadedRepository() }
         } catch (e: CancellationException) {
