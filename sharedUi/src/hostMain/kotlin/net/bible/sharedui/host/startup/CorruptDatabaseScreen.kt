@@ -28,6 +28,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.db.CorruptDatabase
+import net.bible.service.db.CorruptDatabaseResetException
 import net.bible.service.db.CorruptDatabasesException
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.log.Log
@@ -41,7 +42,8 @@ import net.bible.sharedui.theme.AbTheme
  * emptied. The user can send a report ([onReport], one at a time), open Backup & Restore ([backupContent], shown in
  * place of this screen with the databases closed; its back call retries the startup, which opens normally when a
  * backup was restored), or reset the damaged data ([reset], default [DatabaseContainer.resetCorruptDatabases], which
- * keeps the damaged files as `<name>.corrupt-<timestamp>`), after which [onRetry] runs the startup again.
+ * keeps the damaged files as `<name>.corrupt-<timestamp>`), after which [onRetry] runs the startup again. A failed reset
+ * shows its message on the screen and changes nothing.
  */
 @Composable
 @kotlin.native.HiddenFromObjC
@@ -64,7 +66,8 @@ fun CorruptDatabaseRecovery(
     }
     val scope = rememberCoroutineScope()
     var busy by remember(error) { mutableStateOf(false) }
-    fun runAction(action: suspend () -> Unit, after: () -> Unit = {}) {
+    var resetFailure by remember(error) { mutableStateOf<String?>(null) }
+    fun runAction(action: suspend () -> Unit, failed: (Exception) -> Unit = {}, after: () -> Unit = {}) {
         if (busy) return
         busy = true
         scope.launch {
@@ -75,6 +78,7 @@ fun CorruptDatabaseRecovery(
                 throw e
             } catch (e: Exception) {
                 Log.e("CorruptDatabaseRecovery", "Recovery action failed", e)
+                failed(e)
                 false
             } finally {
                 busy = false
@@ -89,7 +93,18 @@ fun CorruptDatabaseRecovery(
                 busy = busy,
                 onReport = { runAction(onReport) },
                 onBackup = { if (!busy) showBackup = true },
-                onReset = { runAction({ withContext(Dispatchers.IO) { reset(error.databases) } }, after = onRetry) },
+                resetFailure = resetFailure,
+                onReset = {
+                    runAction(
+                        action = { resetFailure = null; withContext(Dispatchers.IO) { reset(error.databases) } },
+                        failed = { e ->
+                            val name = (e as? CorruptDatabaseResetException)?.database?.fileName
+                                ?: error.databases.joinToString { it.fileName }
+                            resetFailure = strings.corruptDatabaseResetFailed(name)
+                        },
+                        after = onRetry,
+                    )
+                },
             )
         }
     }
@@ -106,6 +121,7 @@ internal fun CorruptDatabaseScreen(
     onReport: () -> Unit,
     onBackup: () -> Unit,
     onReset: () -> Unit,
+    resetFailure: String? = null,
 ) {
     val strings = LocalStrings.current
     Column(
@@ -118,6 +134,9 @@ internal fun CorruptDatabaseScreen(
             strings.corruptDatabaseMessage(databases.joinToString { it.fileName }),
             color = MaterialTheme.colorScheme.onBackground,
         )
+        if (resetFailure != null) {
+            Text(resetFailure, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("corrupt-database-reset-failed"))
+        }
         Button(onClick = onReport, enabled = !busy, modifier = Modifier.testTag("corrupt-database-report")) {
             Text(strings.crashRecoveryReport)
         }

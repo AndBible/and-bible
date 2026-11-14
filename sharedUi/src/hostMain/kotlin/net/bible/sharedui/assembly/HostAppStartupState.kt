@@ -72,9 +72,25 @@ class HostAppStartupState(
      */
     fun retry(scope: CoroutineScope) {
         if (_phase.value !is StartupPhase.Failed) return
+        net.bible.service.db.DatabaseContainer.forgetCorruption()
         _phase.value = StartupPhase.Starting
         launched = false
         launch(scope)
+    }
+
+    /**
+     * #4112: damaged user data found after the start ([net.bible.service.db.DamagedDataRecovery], e.g. the Welcome flow
+     * opening the databases again): the app is replaced by the same recovery screen as a failed start, whose [retry]
+     * starts again.
+     */
+    fun showDamagedData(error: net.bible.service.db.CorruptDatabasesException) {
+        launched = true
+        _phase.value = StartupPhase.Failed(error)
+    }
+
+    /** Makes [showDamagedData] the app's [net.bible.service.db.DamagedDataRecovery] route. */
+    fun registerDamagedDataRoute() {
+        net.bible.service.db.DamagedDataRecovery.route = ::showDamagedData
     }
 
     /** For a failure before [launch] (the main-thread stage of the startup): shows the error instead of starting. */

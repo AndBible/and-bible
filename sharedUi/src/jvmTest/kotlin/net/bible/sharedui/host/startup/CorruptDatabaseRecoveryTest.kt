@@ -17,6 +17,8 @@ import net.bible.sharedui.assembly.HostAppStartupState
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.strings.iosStrings
 import kotlin.test.Test
+import net.bible.service.db.CorruptDatabaseResetException
+import androidx.compose.ui.test.assertIsEnabled
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.seconds
@@ -63,14 +65,41 @@ class CorruptDatabaseRecoveryTest {
             CorruptDatabaseRecovery(
                 damaged, dark = true, strings = iosStrings("en"),
                 onReport = {}, onRetry = { retries++ },
-                reset = { attempts++; throw okio.IOException("read-only file system") },
+                reset = { attempts++; throw CorruptDatabaseResetException(it.single(), okio.IOException("read-only file system")) },
             ) { _ -> error("backup not opened") }
         }
+        onNodeWithTag("corrupt-database-reset-failed").assertDoesNotExist()
         onNodeWithTag("corrupt-database-reset").performClick()
         waitUntil(timeoutMillis = 5_000) { attempts == 1 }
         waitForIdle()
         runOnIdle { assertEquals(0, retries) }
         onNodeWithTag("corrupt-database").assertExists()
+        // #4112 review: the failure is told, not silent; the choices stay usable.
+        onNodeWithTag("corrupt-database-reset-failed").assertExists()
+        onNodeWithText(iosStrings("en").corruptDatabaseResetFailed("bookmarks.sqlite3")).assertExists()
+        onNodeWithTag("corrupt-database-reset").assertIsEnabled()
+    }
+
+    @Test
+    fun damagedDataFoundAfterTheStartShowsTheRecoveryAndARetryStartsAgain() = runTest(timeout = 30.seconds) {
+        var opens = 0
+        val state = HostAppStartupState(open = { opens++ })
+        val previousRoute = net.bible.service.db.DamagedDataRecovery.route
+        try {
+            state.registerDamagedDataRoute()
+            state.launch(this)
+            assertEquals(StartupPhase.Ready, state.phase.first { it !is StartupPhase.Starting })
+
+            val fallback = net.bible.service.db.DamagedDataRecovery.orFallback(emptyList<String>()) { throw damaged }
+
+            assertEquals(emptyList(), fallback)
+            assertEquals(StartupPhase.Failed(damaged), state.phase.value)
+            state.retry(this)
+            assertEquals(StartupPhase.Ready, state.phase.first { it !is StartupPhase.Starting })
+            assertEquals(2, opens)
+        } finally {
+            net.bible.service.db.DamagedDataRecovery.route = previousRoute
+        }
     }
 
     @Test

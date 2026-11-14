@@ -54,7 +54,10 @@ class HostWelcomeHostPlatform(
             },
             language = { koin.getOrNull<HostStringTableHolder>()?.current?.tag ?: table.tag }, isDiscrete = { discrete },
             knownInstalled = {
-                withContext(Dispatchers.Default) { DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao().getKnownInstalled() }
+                // #4112: damaged user data goes to the startup's recovery screen instead of crashing the Welcome flow.
+                net.bible.service.db.DamagedDataRecovery.orFallback(emptyList()) {
+                    withContext(Dispatchers.Default) { DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao().getKnownInstalled() }
+                }
             },
             // IosAppEnvironment uses NSURLVolumeAvailableCapacityForImportantUsageKey.
             megabytesFree = { environment.megabytesFree },
