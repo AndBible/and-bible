@@ -96,9 +96,9 @@ class DocumentControlVerseTest {
         install(book("OldTestamentOnly", "Gen.1.1"))
         install(book("FullBible", "Gen.1.1", "Rom.8.1"))
         manager.currentBible.doSetKey(Verse(kjv, BibleBook.ROM, 8, 1))
-        assertEquals(listOf("FullBible"), control.biblesForVerse.map { it.initials })
+        assertEquals(listOf("FullBible"), control.biblesContainingVerse.map { it.initials })
         manager.currentBible.doSetKey(Verse(kjv, BibleBook.GEN, 1, 1))
-        assertEquals(setOf("OldTestamentOnly", "FullBible"), control.biblesForVerse.map { it.initials }.toSet())
+        assertEquals(setOf("OldTestamentOnly", "FullBible"), control.biblesContainingVerse.map { it.initials }.toSet())
     }
 
     @Test
@@ -106,7 +106,7 @@ class DocumentControlVerseTest {
         install(book("HebrewBible", "Gen.1.1", versification = "Leningrad"))
         install(book("FullBible", "Rom.8.1"))
         manager.currentBible.doSetKey(Verse(kjv, BibleBook.ROM, 8, 1))
-        assertEquals(listOf("FullBible"), control.biblesForVerse.map { it.initials })
+        assertEquals(listOf("FullBible"), control.biblesContainingVerse.map { it.initials })
     }
 
     @Test
@@ -114,7 +114,7 @@ class DocumentControlVerseTest {
         install(book("OtherVerse", "Rom.8.2"))
         install(book("ThisVerse", "Rom.8.1"))
         manager.currentBible.doSetKey(Verse(kjv, BibleBook.ROM, 8, 1))
-        assertEquals(listOf("ThisVerse"), control.biblesForVerse.map { it.initials })
+        assertEquals(listOf("ThisVerse"), control.biblesContainingVerse.map { it.initials })
     }
 
     @Test
@@ -122,10 +122,25 @@ class DocumentControlVerseTest {
         install(book("OtherCommentary", "Gen.1.1", category = "Commentaries"))
         install(book("ThisCommentary", "Rom.8.1", category = "Commentaries"))
         manager.currentBible.doSetKey(Verse(kjv, BibleBook.ROM, 8, 1))
-        val rows = control.commentariesForVerse
+        val rows = control.commentariesContainingVerse
         assertEquals(listOf("ThisCommentary"), rows.filter { it in added }.map { it.initials })
         // The pseudo-documents do not use a SWORD verse index and must remain available.
         assertEquals(true, rows.any { it.initials == "Compare" })
+    }
+
+    @Test
+    fun unfilteredListsKeepEveryDocumentWithVerseHoldersFirst() {
+        install(book("OldTestamentOnly", "Gen.1.1"))
+        install(book("FullBible", "Gen.1.1", "Rom.8.1"))
+        install(book("OtherCommentary", "Gen.1.1", category = "Commentaries"))
+        install(book("ThisCommentary", "Rom.8.1", category = "Commentaries"))
+        manager.currentBible.doSetKey(Verse(kjv, BibleBook.ROM, 8, 1))
+        val bibles = control.biblesForVerse.map { it.initials }
+        assertEquals(true, "OldTestamentOnly" in bibles)
+        assertEquals(true, bibles.indexOf("FullBible") < bibles.indexOf("OldTestamentOnly"))
+        val commentaries = control.commentariesForVerse.map { it.initials }
+        assertEquals(true, "OtherCommentary" in commentaries)
+        assertEquals(true, commentaries.indexOf("ThisCommentary") < commentaries.indexOf("OtherCommentary"))
     }
 
     private fun install(book: Book) {

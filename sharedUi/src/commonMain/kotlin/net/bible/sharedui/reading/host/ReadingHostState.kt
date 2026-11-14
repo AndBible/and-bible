@@ -319,9 +319,9 @@ class ReadingHostState(
         // the Commentary sheet, both for the title sheet.
         val forVerseIds = hooks.forVerseInitials?.invoke(scope) ?: run {
             val forVerseBooks = when (scope) {
-                DocumentSheetScope.BIBLE -> documentControl.biblesForVerse
-                DocumentSheetScope.COMMENTARY -> documentControl.commentariesForVerse
-                DocumentSheetScope.ALL -> documentControl.biblesForVerse + documentControl.commentariesForVerse
+                DocumentSheetScope.BIBLE -> documentControl.biblesContainingVerse
+                DocumentSheetScope.COMMENTARY -> documentControl.commentariesContainingVerse
+                DocumentSheetScope.ALL -> documentControl.biblesContainingVerse + documentControl.commentariesContainingVerse
             }
             forVerseBooks.map { it.initials }.toSet()
         }

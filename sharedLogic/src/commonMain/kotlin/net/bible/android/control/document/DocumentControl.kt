@@ -126,17 +126,40 @@ class DocumentControl constructor(
         }
     }
 
-    /** Unlocked Bibles that actually contain the current verse (#4085); `sortedBy` here once only reordered the list. */
+    /**
+     * All unlocked Bibles, those containing the current verse FIRST. Intentionally NOT filtered (#578): the
+     * toolbar must keep offering every document (sparse commentaries such as Quoting Passages would
+     * vanish otherwise), and its show/hide and direct-switch logic counts these lists. For a list of only
+     * the documents that have the verse use [biblesContainingVerse].
+     */
     val biblesForVerse : List<Book>
+        get () = SwordDocumentFacade.unlockedBibles.sortedByDescending { bookFilter.test(it) }
+
+    /** Unlocked Bibles that actually contain the current verse (#4085); used by the "This verse" tab only. */
+    val biblesContainingVerse : List<Book>
         get () = SwordDocumentFacade.unlockedBibles.filter { bookFilter.test(it) }
 
-    /** Unlocked commentaries that contain the current verse, plus the pseudo-documents (My Notes, Journal, ...). */
+    /**
+     * All unlocked commentaries, those containing the current verse FIRST, plus the pseudo-documents
+     * (My Notes, Journal, ...). Intentionally NOT filtered (#578); see [biblesForVerse].
+     */
     val commentariesForVerse: List<Book>
         get () {
-            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked && commentaryFilter.test(it) }.toMutableList()
-            docs.addAll(fakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY && !it.hideFromSelector })
+            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedByDescending { commentaryFilter.test(it) }.toMutableList()
+            docs.addAll(pseudoCommentaries())
             return docs
         }
+
+    /** Unlocked commentaries that contain the current verse, plus the pseudo-documents (they have no verse index); "This verse" tab only (#4085). */
+    val commentariesContainingVerse: List<Book>
+        get () {
+            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked && commentaryFilter.test(it) }.toMutableList()
+            docs.addAll(pseudoCommentaries())
+            return docs
+        }
+
+    private fun pseudoCommentaries() =
+        fakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY && !it.hideFromSelector }
 
     val isBibleBook: Boolean
         get () = currentDocument?.bookCategory == BookCategory.BIBLE
