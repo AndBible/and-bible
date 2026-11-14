@@ -66,6 +66,7 @@ import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * Stateless page editor for one document. Sibling of [MyDocumentsScreen] minus the description; rows
@@ -151,7 +152,7 @@ fun MyDocumentPagesScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (pages.isEmpty()) {
                     Text(
-                        s.myDocumentsEmpty,
+                        s.myDocumentPagesEmpty,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                     )
@@ -210,7 +211,7 @@ fun MyDocumentPagesScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(item.name, style = MaterialTheme.typography.bodyLarge)
                                     Text(
-                                        item.contentType.name,
+                                        s.contentTypeName(item.contentType),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -249,7 +250,7 @@ fun MyDocumentPagesScreen(
                 AbDropdownField(
                     label = s.contentTypeLabel, selected = createType,
                     options = listOf(ContentType.MARKDOWN, ContentType.HTML),
-                    optionLabel = { it.name }, onSelect = { createType = it },
+                    optionLabel = { s.contentTypeName(it) }, onSelect = { createType = it },
                 )
             },
         )
@@ -302,4 +303,10 @@ private fun PageOverflow(onRename: () -> Unit, onExport: () -> Unit, onDelete: (
             )
         }
     }
+}
+
+/** Translated label of a page content type; never the raw enum name. */
+private fun Strings.contentTypeName(type: ContentType): String = when (type) {
+    ContentType.MARKDOWN -> contentTypeMarkdown
+    ContentType.HTML -> contentTypeHtml
 }

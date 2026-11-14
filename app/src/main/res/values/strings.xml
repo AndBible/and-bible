@@ -2082,6 +2082,9 @@
     <string name="my_document_new_page_name">Page %1$d</string>
     <string name="my_document_create_page_title">New page</string>
     <string name="my_document_content_type_label">Content type</string>
+    <string name="my_document_content_type_markdown">Markdown</string>
+    <string name="my_document_content_type_html">HTML</string>
+    <string name="my_document_pages_empty">No pages yet. Tap + to add one.</string>
     <string name="my_document_import_page">Import Markdown/HTML</string>
     <string name="my_document_export_page">Export page</string>
     <string name="my_document_imported_page_name">Imported</string>

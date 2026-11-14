@@ -639,6 +639,9 @@ interface Strings {
     val renameTitle: String                 // R.string.my_document_rename_title
     val pageRenameTitle: String             // R.string.my_document_page_rename_title
     val contentTypeLabel: String            // R.string.my_document_content_type_label
+    val contentTypeMarkdown: String         // R.string.my_document_content_type_markdown
+    val contentTypeHtml: String             // R.string.my_document_content_type_html
+    val myDocumentPagesEmpty: String        // R.string.my_document_pages_empty
     val cannotDeleteAiDocuments: String     // R.string.my_document_cannot_delete_ai_documents
     fun newDocumentName(n: Int): String     // R.string.my_document_new_name
     fun newPageName(n: Int): String         // R.string.my_document_new_page_name
