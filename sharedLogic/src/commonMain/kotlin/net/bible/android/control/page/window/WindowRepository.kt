@@ -199,12 +199,22 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         // initialisation has finished, and a cold start loads the workspace before that (an early reader
         // such as the TTS service manager reads activeWindow from platformStart()). Through it every cold
         // start looked like the first one and reset the active window to the first Bible (#4056).
+        //
+        // The flag alone does not prove a first run: a settings database that this app did not write (a backup from
+        // another exporter, the legacy iOS migration, seeded demo data) has no "first-time" row, while its workspace
+        // has saved positions. Android loads the workspace before prepareData() marks existing data as not
+        // first-time, so only a window with no saved Bible page gets the first-use default (#4079).
         val store = DatabaseContainer.instance.settingsStore
         if(store.getBoolean("first-time", true)) {
-            activeWindow.pageManager.setFirstUseDefaultVerse()
+            if(activeWindow.id !in windowsWithSavedBiblePage) {
+                activeWindow.pageManager.setFirstUseDefaultVerse()
+            }
             store.setBoolean("first-time", false)
         }
     }
+
+    /** Ids of the windows the last load restored with a saved Bible document (see [finishInitialize]). */
+    private var windowsWithSavedBiblePage: Set<IdType> = emptySet()
 
     /**
      * The synchronous entry to the first load, for the callers that cannot suspend: the host bootstrap
@@ -601,6 +611,9 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
+        windowsWithSavedBiblePage = loaded.windows
+            .filter { it.pageManager?.biblePage?.document != null }
+            .mapTo(HashSet()) { it.entity.id }
         val historyManager = get<HistoryManager>()
         for (loadedWindow in loaded.windows) {
             val it = loadedWindow.entity
