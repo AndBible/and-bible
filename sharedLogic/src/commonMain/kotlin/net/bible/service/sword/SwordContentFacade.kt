@@ -135,10 +135,12 @@ class SwordContentFacade(
         /**
          * The passage [searchRef_] names, or null when it is not a reference (then Find runs it as a word search).
          * Book names are matched exactly in the UI language, then in [lang]; a query shaped like
-         * book-chapter-verse ([chapterAndVerseRe]) then also matches abbreviated book names by prefix.
+         * book-chapter-verse ([chapterAndVerseRe]) then also matches abbreviated book names by prefix, but only when the
+         * caller opts in with [allowAbbreviatedBook] (Find's reference path). Prefix matching also matches reverse
+         * prefixes ("Michael 3:5" -> Micah), so EPUB auto-linking and other callers keep exact matching.
          * A key that names only a book (chapter 0) is not a reference.
          */
-        fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
+        fun resolveRef(searchRef_: String, lang: String, v11n: Versification, allowAbbreviatedBook: Boolean = false): Key? {
             val searchRef = searchRef_.replace(dashesRe, "-")
             val bibleNames = BibleNames.instance()
 
@@ -176,7 +178,7 @@ class SwordContentFacade(
             val attempts = buildList {
                 add(false to null)
                 if (otherLanguage != null) add(false to otherLanguage)
-                if (chapterAndVerseRe.matches(searchRef)) {
+                if (allowAbbreviatedBook && chapterAndVerseRe.matches(searchRef)) {
                     add(true to null)
                     if (otherLanguage != null) add(true to otherLanguage)
                 }

@@ -358,13 +358,13 @@ class LinkControl constructor(
         if (!platform.openSearchInReadingView(request)) platform.openRoute(NavRoutes.readingSearch(request))
     }
 
-    fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
+    fun resolveRef(searchRef: String, doc: SwordBook? = null, allowAbbreviatedBook: Boolean = false): Key? {
         val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
-        return SwordContentFacade.resolveRef(searchRef, searchDoc.language.code, searchDoc.versification)
+        return SwordContentFacade.resolveRef(searchRef, searchDoc.language.code, searchDoc.versification, allowAbbreviatedBook)
     }
 
-    fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {
-        val key = resolveRef(searchRef, doc)
+    fun tryToOpenRef(searchRef: String, doc: SwordBook? = null, allowAbbreviatedBook: Boolean = false): Boolean {
+        val key = resolveRef(searchRef, doc, allowAbbreviatedBook)
         if (key != null) {
             showLink(doc, key, forceOpenHere = true)
             return true

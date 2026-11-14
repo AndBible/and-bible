@@ -60,7 +60,9 @@ class MultiSearchResultsDto {
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 /** A closed `[...]` or `{...}` group: a term range, or a passage restriction. */
-// Every bracket escaped: Android's ICU regex rejects a bare `}` or `]` that the JVM accepts.
+// Every bracket escaped: Android's ICU regex rejects a bare `}` or `]` that the JVM accepts. Robolectric and JVM
+// unit tests run java.util.regex, so they cannot catch ICU syntax errors: only a device/emulator run does.
+// (Audit 2026-11-14: no other regex in sharedLogic/sharedCore/sharedUi/app uses a bare `}` or `]` outside a set.)
 private val bracketGroupRe = Regex("""\[[^\[\]\{\}]*\]|\{[^\[\]\{\}]*\}""")
 
 /** Stands in for a space inside a bracket group while the words are decorated; never typed in a query. */

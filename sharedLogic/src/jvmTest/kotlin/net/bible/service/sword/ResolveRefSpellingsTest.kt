@@ -45,7 +45,9 @@ class ResolveRefSpellingsTest {
         LocaleProviderManager.setLocaleProvider(previousProvider)
     }
 
-    private fun resolve(query: String) = SwordContentFacade.resolveRef(query, "en", kjv)?.getOsisRef()
+    private fun resolve(query: String) =
+        SwordContentFacade.resolveRef(query, "en", kjv, allowAbbreviatedBook = true)?.getOsisRef()
+    private fun resolveExact(query: String) = SwordContentFacade.resolveRef(query, "en", kjv)?.getOsisRef()
 
     @Test fun referenceSpellingsJumpToThePassage() {
         val expected = mapOf(
@@ -86,5 +88,26 @@ class ResolveRefSpellingsTest {
     @Test fun theFuzzyLookupIsRestored() {
         resolve("1 joh 3 16")
         assertEquals(true, BibleNames.instance().enableFuzzy)
+    }
+
+    @Test fun abbreviatedBookIsOptInOnly() {
+        // EPUB auto-linking, selection menus and link resolution use the default: prose must not become links.
+        for (q in listOf("Michael 3:5", "Isaac 2:4", "General 1:3", "Matter 5:6", "1 joh 3 16", "revel 3:20")) {
+            assertNull(resolveExact(q), q)
+        }
+        assertEquals("John.3.16", resolveExact("John 3:16"))
+        assertEquals("1John.3.16", resolveExact("1 jn 3 16"))
+    }
+
+    @Test fun prefixChoiceIsPinned() {
+        // Book-order changes in jsword would silently move these.
+        assertEquals("John.3.16", resolve("jo 3 16"))
+        assertEquals("1John.3.16", resolve("1 jo 3 16"))
+    }
+
+    @Test fun outOfRangeVerseIsNotClamped() {
+        for (q in listOf("h1234 5", "john 3 99", "john 99 1", "1 joh 3 99")) {
+            assertNull(resolve(q), q)
+        }
     }
 }
