@@ -136,7 +136,8 @@ class HostCopyFromCloudReloadTest {
         file.toString().toPath()
     }
 
-    @Test fun aWorkspaceChangeAfterCopyFromCloudIsSaved() {
+    /** Real desktop startup on a fresh profile, reading ready; returns the Koin context. */
+    private fun startDesktop(): org.koin.core.Koin {
         val paths = paths()
         // Reading needs a Bible (the first start's example bookmarks use the default one).
         StartupFixture.files.forEach { (name, bytes) ->
@@ -150,6 +151,65 @@ class HostCopyFromCloudReloadTest {
         )
         val koin = KoinPlatform.getKoin()
         runBlocking { HostReadingReady.ensure(HostStartup.stringTable) }
+        return koin
+    }
+
+    /** The subscription hops to Main and launches the reload on [hostScope]: drain both. */
+    private fun drainReload(hostScope: CoroutineScope) = runBlocking {
+        withTimeout(30_000) {
+            repeat(3) {
+                withContext(Dispatchers.Main) { }
+                hostScope.coroutineContext[Job]!!.children.toList().forEach { it.join() }
+            }
+        }
+    }
+
+    /** The current database file of [accessor], checkpointed and copied out (a cloud initial file of the same data). */
+    private fun copyOf(accessor: net.bible.service.cloudsync.SyncableDatabaseAccessor<*>): okio.Path = runBlocking {
+        accessor.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(FULL)") }
+        val file = Files.createTempFile(root, "initial", ".sqlite3")
+        Files.copy(Path.of(accessor.localDbPath), file, StandardCopyOption.REPLACE_EXISTING)
+        file.toString().toPath()
+    }
+
+    private fun activeVerse(repository: WindowRepository): String = runBlocking {
+        withContext(Dispatchers.Main) { repository.activeWindow.pageManager.currentBible.singleKey.getOsisID() }
+    }
+
+    /**
+     * #4101: the first-sync join of another category (here Bookmarks, swapped in like "Merge data" and "Fetch" do)
+     * bumps the restore epoch and makes the host reload its workspace from the database. A reading position that
+     * was only in memory (a fresh profile's first-use verse, or any navigation not yet saved) was lost: the reload
+     * showed the stored default, Genesis 1:1.
+     */
+    @Test fun theReadingPositionSurvivesAnotherCategorysJoinSwap() {
+        val koin = startDesktop()
+        val repository = koin.get<WindowControl>().windowRepository
+        // Navigate in memory only, as the reading view does; nothing saves the workspace before the sync settings.
+        runBlocking {
+            withContext(Dispatchers.Main) {
+                val bible = repository.activeWindow.pageManager.currentBible
+                bible.doSetKey(org.crosswire.jsword.passage.VerseFactory.fromString(bible.versification, "Rom.8.28"))
+            }
+        }
+        assertEquals("Rom.8.28", activeVerse(repository))
+
+        val hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val subscription = installRestoreReload(koin, hostScope)
+        try {
+            val bookmarks = DatabaseContainer.databaseAccessorsByCategory[SyncableDatabaseDefinition.BOOKMARKS]!!
+            runBlocking { koin.get<CloudSync>().swapInInitialDb(bookmarks, copyOf(bookmarks)) { } }
+            drainReload(hostScope)
+            assertFalse(repository.staleAfterRestore, "the host did not reload the repository after the join")
+            assertEquals("Rom.8.28", activeVerse(repository), "the join lost the in-memory reading position")
+        } finally {
+            subscription.cancel()
+            hostScope.cancel()
+        }
+    }
+
+    @Test fun aWorkspaceChangeAfterCopyFromCloudIsSaved() {
+        val koin = startDesktop()
         val repository = koin.get<WindowControl>().windowRepository
         saveOnMain(repository, "A")
 
@@ -158,15 +218,7 @@ class HostCopyFromCloudReloadTest {
         try {
             val downloaded = downloadNamed(repository, "C")
             runBlocking { koin.get<CloudSync>().swapInInitialDb(workspaces, downloaded) { } }
-            // The subscription hops to Main and launches the reload on [hostScope]: drain both.
-            runBlocking {
-                withTimeout(30_000) {
-                    repeat(3) {
-                        withContext(Dispatchers.Main) { }
-                        hostScope.coroutineContext[Job]!!.children.toList().forEach { it.join() }
-                    }
-                }
-            }
+            drainReload(hostScope)
             assertFalse(repository.staleAfterRestore, "the host did not reload the repository after Copy from Cloud")
             assertEquals("C", repository.name, "the repository holds the downloaded workspace")
 
