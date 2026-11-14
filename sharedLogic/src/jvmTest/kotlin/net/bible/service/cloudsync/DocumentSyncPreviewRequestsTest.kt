@@ -70,7 +70,7 @@ class DocumentSyncPreviewRequestsTest {
                 return if (name == documentsFolderName()) listOf(CloudFile("docs", name, 0L, 1_000L, "")) else emptyList()
             }
             return parentsIds.filter { it.startsWith("docs/") }.map {
-                CloudFile("$it/meta.json", DOCUMENT_META_FILENAME, 100L, 5_000L, it, etag = "\"$it-1\"")
+                CloudFile("$it/meta.json", DOCUMENT_META_FILENAME, 100L, 5_000L, it, etag = "\"$it-1\"", serverModifiedTime = 5_000L)
             }.filter { it.createdTime >= (createdTimeAtLeast ?: 0L) }
         }
         override suspend fun getFolders(parentId: String) = initials.map { CloudFile("docs/$it", it, 0L, 5_000L, "docs") }
@@ -90,7 +90,7 @@ class DocumentSyncPreviewRequestsTest {
         override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>) = emptyList<SyncConfiguration>()
     }
 
-    private class Fixture(val documents: DocumentSync, val adapter: Adapter)
+    private class Fixture(val documents: DocumentSync, val cloud: CloudSync, val adapter: Adapter, val otherAdapter: Adapter)
 
     private fun withFixture(block: suspend (Fixture) -> Unit) = runTest {
         val hostField = DatabaseContainer::class.java.getDeclaredField("_host").apply { isAccessible = true }
@@ -118,14 +118,16 @@ class DocumentSyncPreviewRequestsTest {
                 override fun stop() {}
             }
             lateinit var cloud: CloudSync
-            val adapter = Adapter({ cloud.syncFolderName(cloud.DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX) },
-                listOf("BSB", "KJV", "NASB", "MHC", "TSK", "StrongsRealGreek"))
+            val docs = listOf("BSB", "KJV", "NASB", "MHC", "TSK", "StrongsRealGreek")
+            val adapter = Adapter({ cloud.syncFolderName(cloud.DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX) }, docs)
+            // A second backend (or server, or account) with the very same file ids, etags, sizes and times.
+            val otherAdapter = Adapter({ cloud.syncFolderName(cloud.DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX) }, docs)
             lateinit var documents: DocumentSync
             val provider = DocumentSyncProvider { documents }
             cloud = CloudSync(AppDialogController(), StubCoreStrings(), env, settings, object : CloudAdapterFactory {
-                override val available = listOf("test")
+                override val available = listOf("test", "other")
                 override fun displayName(id: String) = id
-                override fun create(id: String) = adapter
+                override fun create(id: String) = if (id == "other") otherAdapter else adapter
             }, SyncScheduler { error("not scheduled") }, starter, provider, docSettings)
             val watcher = BookInstallWatcher(launcher, starter, provider, docSettings, object : AddonCatalog {
                 override fun clearCaches() {}
@@ -133,7 +135,7 @@ class DocumentSyncPreviewRequestsTest {
             })
             documents = DocumentSync(env, CloudSyncProvider { cloud }, starter, watcher, docSettings, { error("no backup") })
             assertEquals(true, cloud.signIn())
-            block(Fixture(documents, adapter))
+            block(Fixture(documents, cloud, adapter, otherAdapter))
         } finally {
             try {
                 DatabaseContainer.detachInstanceForTest()
@@ -165,5 +167,37 @@ class DocumentSyncPreviewRequestsTest {
 
         assertEquals(emptyList(), f.adapter.downloads)
         assertEquals(6, f.documents.scanCached().count { it.cloudVersion == "1.0" }, "the cache still holds every cloud meta")
+    }
+
+    @Test fun signOutForgetsTheMetaReads() = withFixture { f ->
+        f.documents.scan()
+        f.adapter.downloads.clear()
+
+        f.documents.onSignOut()
+        f.documents.computeSyncPlan(download = true, upload = true, delete = true)
+
+        assertEquals(6, f.adapter.downloads.size, "after a sign-out every meta is read from the cloud again")
+    }
+
+    @Test fun listingResetForgetsTheMetaReads() = withFixture { f ->
+        f.documents.scan()
+        f.adapter.downloads.clear()
+
+        f.documents.resetListingCache()
+        f.documents.computeSyncPlan(download = true, upload = true, delete = true)
+
+        assertEquals(6, f.adapter.downloads.size, "after a rescan reset every meta is read from the cloud again")
+    }
+
+    /** Review of #4103: the reads are keyed on ids that repeat across clouds, so a backend switch must not reuse them. */
+    @Test fun aBackendSwitchNeverReusesTheMetaReads() = withFixture { f ->
+        f.documents.scan()
+        assertEquals(6, f.adapter.downloads.size)
+
+        f.cloud.adapterId = "other"
+        assertEquals(true, f.cloud.signIn())
+        f.documents.computeSyncPlan(download = true, upload = true, delete = true)
+
+        assertEquals(6, f.otherAdapter.downloads.size, "the other backend's metas must be read from it")
     }
 }

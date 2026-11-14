@@ -51,7 +51,12 @@ class DocumentStoreMetaReuseTest {
     private class Adapter(initials: List<String>) : CloudAdapter {
         val etags = initials.associateWith<String, String?> { "\"$it-1\"" }.toMutableMap()
         val versions = initials.associateWith { "1.0" }.toMutableMap()
+        val sizes = initials.associateWith { 120L }.toMutableMap()
+        /** Server-clock modification times as listed; the device-clock createdTime equals them (no offset). */
+        val mtimes = initials.associateWith<String, Long?> { META_MTIME }.toMutableMap()
         val downloads = java.util.concurrent.CopyOnWriteArrayList<String>()
+        /** Runs inside each download, after the listing: a concurrent sign-out or reset lands here. */
+        var duringDownload: () -> Unit = {}
         override val signedIn = true
         override suspend fun signIn() = true
         override suspend fun signOut() {}
@@ -61,10 +66,12 @@ class DocumentStoreMetaReuseTest {
             parentsIds.orEmpty().map { folder ->
                 val initials = folder.substringAfter("root/")
                 // Every meta sits inside the listing overlap: it is matched again on every listing.
-                CloudFile("$folder/meta.json", DOCUMENT_META_FILENAME, 120L, 2_000L, folder, etag = etags[initials])
+                CloudFile("$folder/meta.json", DOCUMENT_META_FILENAME, sizes.getValue(initials), mtimes[initials] ?: META_MTIME, folder,
+                    etag = etags[initials], serverModifiedTime = mtimes[initials])
             }
         override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
             downloads += id
+            duringDownload()
             val initials = id.substringAfter("root/").substringBefore('/')
             val meta = DocumentSyncMeta(initials = initials, name = initials, documentType = DocumentType.SWORD,
                 version = versions.getValue(initials), size = 10L, language = "en", sourceDevice = "other", timestamp = 2_000L)
@@ -81,9 +88,13 @@ class DocumentStoreMetaReuseTest {
 
     private val docs = listOf("BSB", "KJV", "NASB", "MHC", "TSK", "StrongsRealGreek")
 
+    /** The device clock, long after every meta was written: reads are settled and may be reused. */
+    private var now = META_MTIME + 60_000L
+    private fun reads() = DocumentMetaReads { now }
+
     @Test fun unchangedMetasAreNotDownloadedAgain() = runBlocking {
         val adapter = Adapter(docs)
-        val reads = DocumentMetaReads()
+        val reads = reads()
         val first = DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(watermark = 1_000L)
         assertEquals(6, adapter.downloads.size)
 
@@ -98,7 +109,7 @@ class DocumentStoreMetaReuseTest {
 
     @Test fun aChangedMetaIsDownloadedAgain() = runBlocking {
         val adapter = Adapter(docs)
-        val reads = DocumentMetaReads()
+        val reads = reads()
         DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
         adapter.downloads.clear()
         adapter.etags["KJV"] = "\"KJV-2\""; adapter.versions["KJV"] = "2.0"
@@ -112,7 +123,7 @@ class DocumentStoreMetaReuseTest {
     @Test fun aMetaWithoutVersionTokenIsAlwaysDownloaded() = runBlocking {
         val adapter = Adapter(docs)
         adapter.etags.keys.forEach { adapter.etags[it] = null }
-        val reads = DocumentMetaReads()
+        val reads = reads()
         DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
         DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
         assertEquals(12, adapter.downloads.size)
@@ -120,10 +131,116 @@ class DocumentStoreMetaReuseTest {
 
     @Test fun clearedReadsDownloadEverythingAgain() = runBlocking {
         val adapter = Adapter(docs)
-        val reads = DocumentMetaReads()
+        val reads = reads()
         DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
         reads.clear()
         DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
         assertEquals(12, adapter.downloads.size)
     }
+
+    @Test fun aMetaWithTheSameEtagButAnotherSizeIsDownloadedAgain() = runBlocking {
+        val adapter = Adapter(docs)
+        val reads = reads()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        adapter.downloads.clear()
+        adapter.sizes["KJV"] = 121L; adapter.versions["KJV"] = "2.0"
+
+        val listing = DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(listOf("root/KJV/meta.json"), adapter.downloads)
+        assertEquals("2.0", listing.changedMetas.single { it.initials == "KJV" }.version)
+    }
+
+    /** A server whose etag is a hash of inode, size and mtime can repeat the etag of a rewritten file; its mtime moves. */
+    @Test fun aMetaWithTheSameEtagAndSizeButAnotherServerTimeIsDownloadedAgain() = runBlocking {
+        val adapter = Adapter(docs)
+        val reads = reads()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        adapter.downloads.clear()
+        adapter.mtimes["KJV"] = META_MTIME + 1_000L; adapter.versions["KJV"] = "2.0"
+
+        val listing = DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(listOf("root/KJV/meta.json"), adapter.downloads)
+        assertEquals("2.0", listing.changedMetas.single { it.initials == "KJV" }.version)
+    }
+
+    /**
+     * A meta read in the same second it was written may be rewritten within that second with the same length:
+     * etag (mtime in seconds + size + a reused inode), size and mtime all repeat. Such a read is never reused.
+     */
+    @Test fun aMetaReadRightAfterItsServerTimeIsNotReused() = runBlocking {
+        val adapter = Adapter(docs)
+        now = META_MTIME + 500L
+        val reads = reads()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        adapter.downloads.clear()
+        // Device A rewrites KJV's meta in the same second, with the same length: nothing in the listing changes.
+        adapter.versions["KJV"] = "2.0"
+        now = META_MTIME + 60_000L
+
+        val listing = DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(6, adapter.downloads.size, "reads taken within the settle window must be downloaded again")
+        assertEquals("2.0", listing.changedMetas.single { it.initials == "KJV" }.version)
+
+        // Read again long after the write: settled, so the next listing reuses it.
+        adapter.downloads.clear()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        assertEquals(emptyList(), adapter.downloads)
+    }
+
+    @Test fun aMetaWithoutServerTimeIsAlwaysDownloaded() = runBlocking {
+        val adapter = Adapter(docs)
+        adapter.mtimes.keys.forEach { adapter.mtimes[it] = null }
+        val reads = reads()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        assertEquals(12, adapter.downloads.size)
+    }
+
+    /** WebDAV ids are paths below the server base: identical on every server, account and backend (review of #4103). */
+    @Test fun anotherAdapterNeverReusesAnEntry() = runBlocking {
+        val old = Adapter(docs)
+        val reads = reads()
+        DocumentStore(old, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        // The same ids, etags, sizes and times, on another server (or backend, or account): different content.
+        val other = Adapter(docs).apply { versions.keys.forEach { versions[it] = "9.0" } }
+
+        val listing = DocumentStore(other, "root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(6, other.downloads.size)
+        assertEquals(setOf("9.0"), listing.changedMetas.map { it.version }.toSet())
+        // Back on the first adapter, its earlier reads are gone too: the cache follows one cloud at a time.
+        old.downloads.clear()
+        DocumentStore(old, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        assertEquals(6, old.downloads.size)
+    }
+
+    @Test fun anotherRootFolderNeverReusesAnEntry() = runBlocking {
+        val adapter = Adapter(docs)
+        val reads = reads()
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        adapter.downloads.clear()
+
+        DocumentStore(adapter, "other-root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(6, adapter.downloads.size)
+    }
+
+    /** A sign-out or reset while a listing downloads must not let that listing put the old cloud's reads back. */
+    @Test fun aReadFinishingAfterAClearIsNotRemembered() = runBlocking {
+        val adapter = Adapter(docs)
+        val reads = reads()
+        adapter.duringDownload = { reads.clear() }
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+        adapter.duringDownload = {}
+        adapter.downloads.clear()
+
+        DocumentStore(adapter, "root", Env(dir), reads).listChangedDocuments(1_000L)
+
+        assertEquals(6, adapter.downloads.size)
+    }
+
+    private companion object { const val META_MTIME = 2_000L }
 }

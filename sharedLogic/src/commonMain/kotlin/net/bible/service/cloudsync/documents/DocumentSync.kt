@@ -92,7 +92,12 @@ class DocumentSync(
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }
 
-    /** Meta reads shared by the per-operation [DocumentStore]s, so an unchanged meta.json is not re-downloaded (#4103). */
+    /**
+     * Meta reads shared by the per-operation [DocumentStore]s, so an unchanged meta.json is not re-downloaded (#4103).
+     * They follow one cloud at a time (adapter instance + documents folder; a backend, server or account switch
+     * signs in a new adapter and so forgets them) and are cleared on sign-out and on the listing reset. A database
+     * restore needs no clear: a read describes a cloud file version, not local state.
+     */
     private val metaReads = DocumentMetaReads()
 
     private suspend fun store(): DocumentStore? {
