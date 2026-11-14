@@ -200,10 +200,13 @@ class SessionEventRelay(
             }
             is BookmarkChange.BookmarkToLabelUpserted -> {
                 val doc = firstDocument
-                if(doc !is StudyPadDocument || doc.label.id != change.bookmarkToLabel.labelId) return
-                val bookmarkToLabelStr = when(change.bookmarkToLabel) {
-                    is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), change.bookmarkToLabel)
-                    is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), change.bookmarkToLabel)
+                // A local val: `change.bookmarkToLabel` is a property from another module, so it is never smart-cast,
+                // and serializer() would resolve the (unserializable) interface instead of the concrete subclass (#4088).
+                val bookmarkToLabel = change.bookmarkToLabel
+                if(doc !is StudyPadDocument || doc.label.id != bookmarkToLabel.labelId) return
+                val bookmarkToLabelStr = when(bookmarkToLabel) {
+                    is BookmarkEntities.BibleBookmarkToLabel -> json.encodeToString(serializer(), bookmarkToLabel)
+                    is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), bookmarkToLabel)
                     else -> throw RuntimeException("Illegal type")
                 }
                 emit(BibleViewEvents.addOrUpdateBookmarkToLabel(JsExpr(bookmarkToLabelStr)))

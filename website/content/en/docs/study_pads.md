@@ -52,6 +52,9 @@ Each entry has a toolbar with these buttons:
 - **Info:** for a Bible reference, open the bookmark's details.
 - **Trash can:** delete the entry.
 
+Indentation and collapse/expand changes appear immediately in the open Study Pad
+and are saved automatically; you do not need to close and reopen it.
+
 ## Moving entries
 
 Drag an entry by its drag handle to move it. A Bible reference moves together
