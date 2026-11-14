@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Akcia AI
 aiDocumentRegenerate: Znovu vygenerovať
 aiDocumentDelete: Odstrániť
+aiDocumentsName: Dokumenty AI
 aiGeneratedBy: "Vygenerované pomocou %s"
 aiGeneratedByWithModel: "Vygenerované pomocou %s (%s)"

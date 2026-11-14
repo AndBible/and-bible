@@ -128,7 +128,19 @@
   <string name="search_not_available">В этом ресурсе нельзя выполнять поиск</string>
   <string name="search_indexing_notification_title">Создание поискового индекса</string>
   <string name="choose_translations">Выбрать переводы…</string>
-  <string name="multi_search_results">%1$d стихов в %2$d переводах</string>
+  <string name="multi_search_count_summary">%1$s в %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d стих</item>
+    <item quantity="few">%1$d стиха</item>
+    <item quantity="many">%1$d стихов</item>
+    <item quantity="other">%1$d стиха</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d переводе</item>
+    <item quantity="few">%1$d переводах</item>
+    <item quantity="many">%1$d переводах</item>
+    <item quantity="other">%1$d переводах</item>
+  </plurals>
   <string name="search_index_not_created">индекс не создан</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
@@ -321,8 +333,9 @@
   <string name="create_bookmark_with_a_note">Создать новую закладку с заметкой</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
-  <string name="window_color_settings_title">Настройки цвета окна</string>
-  <string name="workspace_color_settings_title">Настройки цвета рабочей области по умолчанию</string>
+  <string name="global_color_settings_title">Настройки цвета (глобальные)</string>
+  <string name="window_color_settings_title">Настройки цвета (окно)</string>
+  <string name="workspace_color_settings_title">Настройки цвета (рабочая область)</string>
   <string name="color_workspace">Цвет рабочей области</string>
   <string name="color_text">Цвет текста</string>
   <string name="color_background">Фоновый цвет</string>
@@ -412,6 +425,7 @@
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Установить дату начала...</string>
   <string name="set_current_day">Установить как текущий день...</string>
+  <string name="msg_set_current_day_reading_plan">Это установит %1$s текущим днём в этом плане и отметит все предыдущие дни как прочитанные. Продолжить?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Вы уверены, что хотите сбросить этот план?</string>
   <string name="import_reading_plan">Импортировать план чтения…</string>
@@ -497,7 +511,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="auto_assign_labels_title">Настройки ярлыка</string>
   <string name="auto_assign_labels">Автоматическое назначение и любимые якрлыки</string>
   <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
-  <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
+  <string name="auto_assign_labels_primary">Автоматически назначать основной меткой</string>
   <!--can be removed-->
   <string name="bookmark_warning">В этом ресурсе есть закладки и/или примечания.</string>
   <string name="bookmark_warning2">
@@ -789,6 +803,14 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>
   <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Повреждённые данные</string>
+  <string name="corrupt_database_message">Часть ваших данных не удалось открыть, потому что файл их базы данных повреждён: %1$s.\n\nНичего не было изменено или удалено. Вы можете отправить отчёт об ошибке, чтобы помочь нам найти причину, открыть «Бэкап &amp; Восстановление», чтобы сделать резервную копию или восстановить прежнюю, либо сбросить повреждённые данные.\n\nПосле сброса эти данные начинаются с чистого листа. Повреждённый файл остаётся на этом устройстве, его имя дополняется «.corrupt-» и датой.</string>
+  <string name="corrupt_database_reset">Сбросить повреждённые данные</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Не удалось сбросить повреждённые данные: не удалось переместить %1$s. Ничего не было изменено. Вы можете повторить попытку, отправить отчёт об ошибке или воспользоваться «Бэкап &amp; Восстановление».</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Данные приложения требуют внимания. Нажмите, чтобы открыть приложение.</string>
   <string name="debug_test_error">Тестовая ошибка (отладочная сборка)</string>
   <string name="bug_report_prepare_failed">Не удалось подготовить или отправить отчёт. Можно повторить попытку или сохранить данные через «Резервное копирование и восстановление».</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
@@ -905,6 +927,10 @@ http://www.heartlight.org, разрешение предоставлено
 доступны через пункт «Рабочие области» в меню параметров (в верхнем правом углу). Быстрый способ доступа к рабочим областям,
 проведением пальцем вниз от панели инструментов. Вы также можете использовать жесты влево и вправо на панели инструментов, чтобы
 переключиться на предыдущее / следующее рабочие области.</string>
+  <string name="help_study_tools_title">Инструменты изучения</string>
+  <string name="help_study_tools_text">Нажмите на номер Стронга, чтобы найти в словаре греческое или еврейское слово, стоящее за стихом. Нажмите на перекрёстную ссылку, чтобы прочитать её в окне ссылок, не теряя своего места в тексте.</string>
+  <string name="help_look_and_feel_title">Внешний вид</string>
+  <string name="help_look_and_feel_text">Ночной режим, размер и семейство шрифта, цвета и поля находятся в разделе «Параметры текста» меню параметров (три точки в правом верхнем углу). Их можно задать для всех рабочих областей, для одной рабочей области или для отдельного окна.</string>
   <string name="help_hidden_features_title">Скрытые ярлыки</string>
   <string name="help_hidden_features_text">
 Проведите пальцем вниз от панели инструментов, чтобы показать селектор рабочей области.
@@ -927,6 +953,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="welcome_restore_row_hint">Файл базы данных с закладками и заметками</string>
   <string name="welcome_link_website">Сайт</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Видео</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Вам нужно выбрать файл, который вы хотите загрузить в %s.</string>
@@ -1079,7 +1106,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="display_mode_hidden">Скрытый</string>
   <string name="display_mode_inherit">Как при выборе</string>
   <string name="workspace_override_indicator">У этой метки есть режим отображения для конкретной рабочей области</string>
-  <string name="primary_label">Первичный ярлык</string>
+  <string name="primary_label">Основная метка</string>
   <string name="favourite_label">Любимый ярлык</string>
   <string name="edit_label">Изменить ярлык</string>
   <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
@@ -1885,12 +1912,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="my_document_create_title">Создать новый документ</string>
   <string name="my_document_rename_title">Переименовать документ</string>
   <string name="my_document_delete_confirmation">Удалить документ \"%s\"?</string>
+  <string name="show_secret">Показать</string>
+  <string name="hide_secret">Скрыть</string>
+  <string name="ai_documents_name">Документы ИИ</string>
+  <string name="ai_documents_description">Автоматически созданные ИИ документы</string>
   <string name="my_document_cannot_delete_ai_documents">AI-документы нельзя удалить, пока они содержат страницы. Сначала удалите страницы.</string>
   <string name="my_document_save_changes">Сохранить изменения?</string>
   <string name="my_document_no_description">Нет описания</string>
   <string name="my_document_edit_description">Изменить описание</string>
   <string name="my_document_pages_title">%s — Страницы</string>
-  <string name="my_document_pages_empty">В этом документе нет страниц.</string>
   <string name="my_document_page_rename_title">Переименовать страницу</string>
   <string name="my_document_page_delete_confirmation">Удалить страницу \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Удалить эти страницы?</string>
@@ -1898,6 +1928,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Новая страница</string>
   <string name="my_document_content_type_label">Тип содержимого</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">В этом документе нет страниц.</string>
   <string name="my_document_import_page">Импортировать Markdown/HTML</string>
   <string name="my_document_export_page">Экспортировать страницу</string>
   <string name="my_document_imported_page_name">Импортировано</string>

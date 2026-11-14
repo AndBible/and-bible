@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI عمل
 aiDocumentRegenerate: دوبارہ بنائیں
 aiDocumentDelete: حذف کریں
+aiDocumentsName: AI دستاویزات
 aiGeneratedBy: "%s کی طرف سے بنایا گیا"
 aiGeneratedByWithModel: "%s (%s) کی طرف سے بنایا گیا"

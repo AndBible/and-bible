@@ -128,7 +128,15 @@
   <string name="search_not_available">Hindi mahahanap sa dokumentong ito</string>
   <string name="search_indexing_notification_title">Ginagawa ang search index</string>
   <string name="choose_translations">Pumili ng mga salin…</string>
-  <string name="multi_search_results">%1$d mga talata sa %2$d mga salin</string>
+  <string name="multi_search_count_summary">%1$s sa %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d talata</item>
+    <item quantity="other">%1$d mga talata</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d salin</item>
+    <item quantity="other">%1$d mga salin</item>
+  </plurals>
   <string name="search_index_not_created">walang index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Mga numero ng kabanata at talata</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Lumikha ng bagong Bookmark na may tala</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Mga setting ng kulay</string>
-  <string name="window_color_settings_title">Mga setting ng kulay ng window</string>
-  <string name="workspace_color_settings_title">Mga default na setting ng kulay ng workspace</string>
+  <string name="global_color_settings_title">Mga setting ng kulay (Global)</string>
+  <string name="window_color_settings_title">Mga setting ng kulay (Window)</string>
+  <string name="workspace_color_settings_title">Mga setting ng kulay (Workspace)</string>
   <string name="color_workspace">Kulay ng workspace</string>
   <string name="color_text">Kulay ng teksto</string>
   <string name="color_background">Kulay ng background</string>
@@ -407,6 +416,7 @@
   <string name="rdg_plan_day">Araw %s</string>
   <string name="rdg_plan_set_start_date">Itakda ang Petsa ng Pagsisimula…</string>
   <string name="set_current_day">Itakda bilang kasalukuyang araw…</string>
+  <string name="msg_set_current_day_reading_plan">Itatakda nito ang %1$s bilang kasalukuyang araw sa planong ito at mamarkahan ang lahat ng nakaraang araw bilang nabasa na. Magpatuloy?</string>
   <string name="done">Tapos na</string>
   <string name="reset_plan_question">Sigurado ka bang nais mong i-reset ang planong ito?</string>
   <string name="import_reading_plan">Mag-import ng plano sa pagbabasa…</string>
@@ -469,7 +479,7 @@
   <string name="auto_assign_labels_title">Mga setting ng label</string>
   <string name="auto_assign_labels">Awtomatikong-italaga at Mga Paboritong Label</string>
   <string name="auto_assign_labels1">Awtomatikong italaga ang label sa mga bagong bookmark</string>
-  <string name="auto_assign_labels_primary">Awtomatikong italaga bilang pangunahin</string>
+  <string name="auto_assign_labels_primary">Awtomatikong italaga bilang pangunahing label</string>
   <!--can be removed-->
   <string name="bookmark_warning">Mayroong mga bookmark at/o tala para sa dokumentong ito.</string>
   <string name="bookmark_warning2">Kung nagbago ang istraktura ng dokumento, ang pag-update ng dokumentong ito ay maaaring magpagalaw ng mga lokasyon ng mga bookmark/tala sa loob ng dokumento o mawala nang tuluyan.</string>
@@ -725,6 +735,14 @@
   <string name="error_key_not_in_document2">Hindi nahanap ang %1$s sa dokumento %2$s.</string>
   <string name="empty_list">Walang mga item na ipapakita</string>
   <string name="error_skip">Laktawan</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Nasirang data</string>
+  <string name="corrupt_database_message">Hindi mabuksan ang ilan sa iyong data dahil nasira ang database file nito: %1$s.\n\nWalang binago o binura. Maaari kang magpadala ng ulat ng error para matulungan kaming hanapin ang sanhi, buksan ang Backup at I-restore para gumawa ng backup o mag-restore ng mas naunang bersyon, o i-reset ang nasirang data.\n\nAng pag-reset ay magsisimula sa data na iyon nang walang laman. Mananatili sa device na ito ang nasirang file, na may bagong pangalang may \".corrupt-\" at ang petsa.</string>
+  <string name="corrupt_database_reset">I-reset ang nasirang data</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Hindi na-reset ang nasirang data: hindi mailipat sa tabi ang %1$s. Walang binago. Maaari mong subukan muli, magpadala ng ulat ng error, o gamitin ang Backup at I-restore.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Kailangan ng atensyon ang data ng app. I-tap para buksan ang app.</string>
   <string name="debug_test_error">Test error (debug build)</string>
   <string name="bug_report_prepare_failed">Hindi naihanda o naibahagi ang ulat. Maaari kang subukang muli, o gamitin ang Backup at Restore para i-save ang iyong data.</string>
   <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
@@ -822,6 +840,10 @@
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Mga Workspace</string>
   <string name="help_workspaces_text">Ang mga workspace ay nagbibigay-daan sa pagkakaroon ng maraming context-dependent na kapaligiran sa pagtatrabaho. Ang mga function ng workspace ay maa-access sa pamamagitan ng item na Mga Workspace sa options menu (kanang sulok sa itaas). Mabilis na paraan para ma-access ang mga workspace ay ang pag-swipe-down na kilos mula sa toolbar. Maaari ka ring gumamit ng mga kilos na swipe-left at swipe-right sa toolbar para lumipat sa nakaraan / susunod na workspace.</string>
+  <string name="help_study_tools_title">Mga study tool</string>
+  <string name="help_study_tools_text">I-tap ang numero ng Strong para hanapin sa diksyonaryo ang salitang Griyego o Hebreo sa likod ng isang talata. I-tap ang isang cross-reference para basahin ito sa window ng mga link, nang hindi nawawala ang kinaroroonan mo sa teksto.</string>
+  <string name="help_look_and_feel_title">Hitsura at pakiramdam</string>
+  <string name="help_look_and_feel_text">Ang night mode, laki at uri ng font, mga kulay at mga margin ay nasa Mga opsyon sa teksto sa menu ng mga opsyon (tatlong tuldok, kanang itaas na sulok). Maitatakda ang mga ito para sa bawat workspace, para sa isang workspace, o para sa isang window.</string>
   <string name="help_hidden_features_title">Mga nakatagong shortcut</string>
   <string name="help_hidden_features_text">Mag-swipe pababa mula sa toolbar para ipakita ang workspace selector. Matagal na pindutin ang window button para mabilis na i-minimize. Matagal na pindutin ang speak toolbar button para mabilis na pumunta sa mga setting ng pagsasalita. Matagal na pindutin ang pamagat ng lokasyon ng talata sa toolbar para lumukso sa document selector.</string>
   <string name="help_window_pinning_title">Pag-pin ng window</string>
@@ -833,6 +855,7 @@
   <string name="welcome_restore_row_hint">Database file na may mga bookmark at tala</string>
   <string name="welcome_link_website">Website</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Kailangan mong piliin ang file na gusto mong i-load sa %s.</string>
@@ -1745,12 +1768,15 @@
   <string name="my_document_create_title">Lumikha ng bagong dokumento</string>
   <string name="my_document_rename_title">Palitan ang pangalan ng dokumento</string>
   <string name="my_document_delete_confirmation">Tanggalin ang dokumentong \"%s\"?</string>
+  <string name="show_secret">Ipakita</string>
+  <string name="hide_secret">Itago</string>
+  <string name="ai_documents_name">Mga AI Document</string>
+  <string name="ai_documents_description">Mga dokumentong awtomatikong binuo ng AI</string>
   <string name="my_document_cannot_delete_ai_documents">Hindi matatanggal ang Mga AI Document habang mayroon itong mga pahina. Tanggalin muna ang mga pahina.</string>
   <string name="my_document_save_changes">I-save ang mga pagbabago?</string>
   <string name="my_document_no_description">Walang paglalarawan</string>
   <string name="my_document_edit_description">I-edit ang paglalarawan</string>
   <string name="my_document_pages_title">%s - Mga Pahina</string>
-  <string name="my_document_pages_empty">Walang pahina sa dokumentong ito.</string>
   <string name="my_document_page_rename_title">Palitan ang pangalan ng pahina</string>
   <string name="my_document_page_delete_confirmation">Tanggalin ang pahinang \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Tanggalin ang mga pahinang ito?</string>
@@ -1758,6 +1784,9 @@
   <string name="my_document_new_page_name">Pahina %1$d</string>
   <string name="my_document_create_page_title">Bagong pahina</string>
   <string name="my_document_content_type_label">Uri ng nilalaman</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Walang pahina sa dokumentong ito.</string>
   <string name="my_document_import_page">Mag-import ng Markdown/HTML</string>
   <string name="my_document_export_page">I-export ang pahina</string>
   <string name="my_document_imported_page_name">Na-import</string>

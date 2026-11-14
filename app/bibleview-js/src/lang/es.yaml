@@ -123,5 +123,6 @@ llmAction: IA
 llmActionLong: Acción de IA
 aiDocumentRegenerate: Regenerar
 aiDocumentDelete: Eliminar
+aiDocumentsName: Documentos de IA
 aiGeneratedBy: "Generado por %s"
 aiGeneratedByWithModel: "Generado por %s (%s)"

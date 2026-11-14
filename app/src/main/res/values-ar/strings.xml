@@ -128,7 +128,23 @@
   <string name="search_not_available">لا يمكن البحث في هذا المستند</string>
   <string name="search_indexing_notification_title">جارٍ إنشاء فهرس البحث</string>
   <string name="choose_translations">اختر الترجمات…</string>
-  <string name="multi_search_results">%1$d آية في %2$d ترجمات</string>
+  <string name="multi_search_count_summary">%1$s في %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="zero">%1$d آية</item>
+    <item quantity="one">%1$d آية</item>
+    <item quantity="two">%1$d آيتان</item>
+    <item quantity="few">%1$d آيات</item>
+    <item quantity="many">%1$d آية</item>
+    <item quantity="other">%1$d آية</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="zero">%1$d ترجمة</item>
+    <item quantity="one">%1$d ترجمة</item>
+    <item quantity="two">%1$d ترجمتان</item>
+    <item quantity="few">%1$d ترجمات</item>
+    <item quantity="many">%1$d ترجمة</item>
+    <item quantity="other">%1$d ترجمة</item>
+  </plurals>
   <string name="search_index_not_created">لا يوجد فهرس</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">الإصحاح وأعداد الآية</string>
@@ -321,8 +337,9 @@
   <string name="create_bookmark_with_a_note">أنشئ إشارة مرجعية جديدة مع ملاحظة </string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">إعدادات الألوان</string>
-  <string name="window_color_settings_title">إعدادات لون النافذة</string>
-  <string name="workspace_color_settings_title">الإعدادات الافتراضية لإعدادات مساحة العمل</string>
+  <string name="global_color_settings_title">إعدادات الألوان (عامة)</string>
+  <string name="window_color_settings_title">إعدادات الألوان (النافذة)</string>
+  <string name="workspace_color_settings_title">إعدادات الألوان (مساحة العمل)</string>
   <string name="color_workspace">لَون مساحة العمل</string>
   <string name="color_text">لون الخط</string>
   <string name="color_background">لون الخلفية</string>
@@ -412,6 +429,7 @@
   <string name="rdg_plan_day">يوم %s</string>
   <string name="rdg_plan_set_start_date">تعيين تاريخ البدء...</string>
   <string name="set_current_day">تعيين كاليوم الحالي...</string>
+  <string name="msg_set_current_day_reading_plan">سيؤدي هذا إلى تعيين %1$s كاليوم الحالي في هذه الخطة ووضع علامة \"مقروء\" على جميع الأيام السابقة. هل تريد المتابعة؟</string>
   <string name="done">تم</string>
   <string name="reset_plan_question">هل أنت متأكد أنك تريد إعادة تعيين هذه الخطة؟</string>
   <string name="import_reading_plan">استيراد خطة قراءة…</string>
@@ -487,7 +505,7 @@
   <string name="auto_assign_labels_title">إعدادات الملصقات</string>
   <string name="auto_assign_labels">التعيين التلقائي و الملصقات المفضلة</string>
   <string name="auto_assign_labels1">عيّن ملصق تلقائياً لعلامة مرجعية جديدة</string>
-  <string name="auto_assign_labels_primary">التعيين التلقائي كأساسي</string>
+  <string name="auto_assign_labels_primary">التعيين التلقائي كتسمية رئيسية</string>
   <!--can be removed-->
   <string name="bookmark_warning">لا يوجد علامات مرجعية و/أو ملاحظات لهذا المستند</string>
   <string name="bookmark_warning2">
@@ -775,6 +793,14 @@
   <string name="error_key_not_in_document2">%1$s غير موجود في المستند %2$s.</string>
   <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">بيانات تالفة</string>
+  <string name="corrupt_database_message">تعذّر فتح بعض بياناتك لأن ملف قاعدة البيانات تالف: %1$s.\n\nلم يتم تغيير أي شيء أو حذفه. يمكنك إرسال تقرير خطأ لمساعدتنا في معرفة السبب، أو فتح النسخ الاحتياطي والاستعادة لإنشاء نسخة احتياطية أو استعادة نسخة سابقة، أو إعادة تعيين البيانات التالفة.\n\nتبدأ إعادة التعيين بتلك البيانات فارغة. يُحتفظ بالملف التالف على هذا الجهاز بعد إعادة تسميته بإضافة \".corrupt-\" والتاريخ.</string>
+  <string name="corrupt_database_reset">إعادة تعيين البيانات التالفة</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">تعذّرت إعادة تعيين البيانات التالفة: لم يمكن نقل %1$s جانبًا. لم يتم تغيير أي شيء. يمكنك المحاولة مرة أخرى أو إرسال تقرير خطأ أو استخدام النسخ الاحتياطي والاستعادة.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">بيانات التطبيق تحتاج إلى اهتمام. اضغط لفتح التطبيق.</string>
   <string name="debug_test_error">خطأ تجريبي (إصدار تصحيح)</string>
   <string name="bug_report_prepare_failed">تعذّر إعداد التقرير أو مشاركته. يمكنك إعادة المحاولة، أو استخدام النسخ الاحتياطي والاستعادة لحفظ بياناتك.</string>
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
@@ -876,6 +902,10 @@
   <string name="help_fts5">صيغة استعلام النص الكامل FTS5</string>
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_workspaces_text">تتيح مساحات العمل الحصول على بيئات عمل متعددة تعتمد على السياق. يمكن الوصول إلى وظائف مساحات العمل عبر عنصر \"مساحات العمل\" في قائمة الخيارات (الزاوية العلوية اليمنى). الطريقة السريعة للوصول إلى مساحات العمل هي بالتمرير للأسفل من شريط الأدوات. يمكنك أيضاً استخدام إيماءتي التمرير للوصول إلى مساحة العمل السابقة أو التالية.</string>
+  <string name="help_study_tools_title">أدوات الدراسة</string>
+  <string name="help_study_tools_text">اضغط على رقم Strong\'s للبحث في قاموس عن الكلمة اليونانية أو العبرية الكامنة وراء الآية. اضغط على مرجع متقاطع لقراءته في نافذة الروابط دون أن تفقد موضعك في النص.</string>
+  <string name="help_look_and_feel_title">المظهر</string>
+  <string name="help_look_and_feel_text">الوضع الليلي وحجم الخط ونوعه والألوان والهوامش موجودة في خيارات النصوص في قائمة الخيارات (النقاط الثلاث في الزاوية العلوية). يمكن ضبطها لكل مساحات العمل أو لمساحة عمل واحدة أو لنافذة واحدة.</string>
   <string name="help_hidden_features_title">الاختصارات المخفية</string>
   <string name="help_hidden_features_text">مرّر للأسفل من شريط الأدوات لإظهار محدد مساحة العمل. اضغط مطوّلاً على زر النافذة لتصغيرها بسرعة. اضغط مطوّلاً على زر التشغيل في شريط الأدوات للانتقال السريع لإعدادات التشغيل. اضغط مطوّلاً على عنوان موقع الآية في شريط الأدوات للقفز إلى محدد المستند.</string>
   <string name="help_window_pinning_title">تثبيت النافذة</string>
@@ -887,6 +917,7 @@
   <string name="welcome_restore_row_hint">ملف قاعدة بيانات يحتوي على الإشارات المرجعية والملاحظات</string>
   <string name="welcome_link_website">الموقع الإلكتروني</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">فيديو</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">عليك أن تختار الملف الذي تريد تحميله إلى %s. </string>
@@ -1036,7 +1067,7 @@
   <string name="display_mode_hidden">مخفي</string>
   <string name="display_mode_inherit">مثل التحديد</string>
   <string name="workspace_override_indicator">هذه التسمية لها وضع عرض خاص بمساحة العمل</string>
-  <string name="primary_label">ملصق أساسي</string>
+  <string name="primary_label">تسمية رئيسية</string>
   <string name="favourite_label">ملصق مفضل</string>
   <string name="edit_label">تحرير ملصق</string>
   <string name="delete_label_confirmation">هل تريد إزالة تسمية الإشارة المرجعية \"%s\"؟ ستُزال أيضاً جميع ملاحظات لوحة الدراسة المرتبطة بها.</string>
@@ -1140,7 +1171,7 @@
   <string name="labels_filter_favourite">التسميات المفضلة فقط</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">ضع علامة على تسمية لتعيينها لهذه الإشارة المرجعية.</string>
-  <string name="manage_labels_help_primary">التسمية الأساسية. لونها ونمطها هما ما تعرضه الإشارة المرجعية.</string>
+  <string name="manage_labels_help_primary">التسمية الرئيسية. لونها ونمطها هما ما تعرضه الإشارة المرجعية.</string>
   <string name="manage_labels_help_autoassign">تعيين هذه التسمية تلقائيًا لكل إشارة مرجعية جديدة. الصاعقة المفرغة تعني الإيقاف.</string>
   <string name="manage_labels_help_favourite">إبقاء التسمية في مفضلتك للوصول السريع.</string>
   <string name="manage_labels_help_styles">تحت الاسم يظهر مثال صغير لشكل التسمية: تحديد لإشارة تحديد نص، وآية كاملة لإشارة آية كاملة، ووسم مساحة العمل لنمط تتجاوزه مساحة العمل هذه. المثال الرمادي بلا زخرفة يعني أن إشارات التسمية المرجعية لا تُرسم. أخفِ الأمثلة من القائمة ⋮.</string>
@@ -1823,12 +1854,15 @@
   <string name="my_document_create_title">إنشاء مستند جديد</string>
   <string name="my_document_rename_title">إعادة تسمية المستند</string>
   <string name="my_document_delete_confirmation">حذف المستند \"%s\"؟</string>
+  <string name="show_secret">إظهار</string>
+  <string name="hide_secret">إخفاء</string>
+  <string name="ai_documents_name">مستندات الذكاء الاصطناعي</string>
+  <string name="ai_documents_description">مستندات يتم إنشاؤها تلقائيًا بواسطة الذكاء الاصطناعي</string>
   <string name="my_document_cannot_delete_ai_documents">لا يمكن حذف مستندات الذكاء الاصطناعي بينما تحتوي على صفحات. احذف الصفحات أولاً.</string>
   <string name="my_document_save_changes">حفظ التغييرات؟</string>
   <string name="my_document_no_description">بدون وصف</string>
   <string name="my_document_edit_description">تعديل الوصف</string>
   <string name="my_document_pages_title">%s - الصفحات</string>
-  <string name="my_document_pages_empty">لا توجد صفحات في هذا المستند.</string>
   <string name="my_document_page_rename_title">إعادة تسمية الصفحة</string>
   <string name="my_document_page_delete_confirmation">حذف الصفحة \"%s\"؟</string>
   <string name="my_document_pages_delete_confirmation">هل تريد حذف هذه الصفحات؟</string>
@@ -1836,6 +1870,9 @@
   <string name="my_document_new_page_name">صفحة %1$d</string>
   <string name="my_document_create_page_title">صفحة جديدة</string>
   <string name="my_document_content_type_label">نوع المحتوى</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">لا توجد صفحات في هذا المستند.</string>
   <string name="my_document_import_page">استيراد Markdown/HTML</string>
   <string name="my_document_export_page">تصدير الصفحة</string>
   <string name="my_document_imported_page_name">مستورد</string>

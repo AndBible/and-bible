@@ -128,7 +128,15 @@
   <string name="search_not_available">இந்தக் கோப்பில் தேட முடியாது</string>
   <string name="search_indexing_notification_title">தேடல் குறியீட்டை உருவாக்குகிறது</string>
   <string name="choose_translations">மொழிபெயர்ப்புகளை தேர்ந்தெடு…</string>
-  <string name="multi_search_results">%2$d மொழிபெயர்ப்புகளில் %1$d வசனங்கள்</string>
+  <string name="multi_search_count_summary">%2$s %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d வசனம்</item>
+    <item quantity="other">%1$d வசனங்கள்</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d மொழிபெயர்ப்பில்</item>
+    <item quantity="other">%1$d மொழிபெயர்ப்புகளில்</item>
+  </plurals>
   <string name="search_index_not_created">அட்டவணை இல்லை</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">அதிகாரம் &amp; வசன எண்கள்</string>
@@ -322,8 +330,9 @@
   <string name="create_bookmark_with_a_note">குறிப்போடு புது புக் மார்க் உருவாக்கு</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">நிற அமைப்புகள்</string>
-  <string name="window_color_settings_title">சாரல நிற அமைப்புகள்</string>
-  <string name="workspace_color_settings_title">இயல்பு நிலை பணியிட நிற அமைப்புகள்</string>
+  <string name="global_color_settings_title">நிற அமைப்புகள் (பொது)</string>
+  <string name="window_color_settings_title">நிற அமைப்புகள் (சாளரம்)</string>
+  <string name="workspace_color_settings_title">நிற அமைப்புகள் (பணியிடம்)</string>
   <string name="color_workspace">பணியிட நிறம்</string>
   <string name="color_text">உரை நிறம்</string>
   <string name="color_background">பின்னணி நிறம்</string>
@@ -414,6 +423,7 @@
   <string name="rdg_plan_day">%s நாள்</string>
   <string name="rdg_plan_set_start_date">தொடக்க தேதியை அமைக்கவும்…</string>
   <string name="set_current_day">நடப்பு நாளாக அமைக்கவும்…</string>
+  <string name="msg_set_current_day_reading_plan">இது %1$s ஐ இந்தத் திட்டத்தின் தற்போதைய நாளாக அமைத்து, முந்தைய அனைத்து நாட்களையும் படித்ததாகக் குறிக்கும். தொடரவா?</string>
   <string name="done">முடிந்தது</string>
   <string name="reset_plan_question">இந்தத் திட்டத்தை மீளமைக்க விரும்புகிறீர்களா?</string>
   <string name="import_reading_plan">வாசிப்பு திட்டத்தை உள்ளேற்று…</string>
@@ -498,7 +508,7 @@
   <string name="auto_assign_labels_title">லேபிள் அமைப்புகள்</string>
   <string name="auto_assign_labels">தானாக சேர் &amp; விருப்ப லேபில்கள்</string>
   <string name="auto_assign_labels1">புதிய புக்மார்க்குகளுக்கு தானாக லேபிலை சேர்</string>
-  <string name="auto_assign_labels_primary">முதன்மையானதாக தானாக குறி</string>
+  <string name="auto_assign_labels_primary">முதன்மை லேபிளாக தானாக ஒதுக்கு</string>
   <!--can be removed-->
   <string name="bookmark_warning">இந்த ஆவணத்திற்கு புக் மார்க்குகள் அல்லது/மற்றும் குறிப்புகள் உள்ளன</string>
   <string name="bookmark_warning2">
@@ -791,6 +801,14 @@
   <string name="error_key_not_in_document2">%1$s, ஆவணம் %2$s இல் இல்லை.</string>
   <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
   <string name="error_skip">தவிர்க்க</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">சேதமடைந்த தரவு</string>
+  <string name="corrupt_database_message">உங்கள் தரவில் சிலவற்றைத் திறக்க முடியவில்லை, ஏனெனில் அதன் தரவுத்தளக் கோப்பு சேதமடைந்துள்ளது: %1$s.\n\nஎதுவும் மாற்றப்படவில்லை, நீக்கப்படவில்லை. காரணத்தைக் கண்டறிய உதவ பிழை அறிக்கையை அனுப்பலாம், காப்புப்பிரதி எடுக்க அல்லது முந்தையதை மீட்டெடுக்க காப்பு நகல் &amp; மீட்டமைத்தல் பகுதியைத் திறக்கலாம், அல்லது சேதமடைந்த தரவை மீட்டமைக்கலாம்.\n\nமீட்டமைத்தால் அந்தத் தரவு காலியாகத் தொடங்கும். சேதமடைந்த கோப்பு இந்தச் சாதனத்திலேயே \".corrupt-\" மற்றும் தேதியுடன் பெயர் மாற்றப்பட்டு வைக்கப்படும்.</string>
+  <string name="corrupt_database_reset">சேதமடைந்த தரவை மீட்டமை</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">சேதமடைந்த தரவை மீட்டமைக்க முடியவில்லை: %1$s ஐ ஒதுக்கி வைக்க முடியவில்லை. எதுவும் மாற்றப்படவில்லை. மீண்டும் முயலலாம், பிழை அறிக்கையை அனுப்பலாம், அல்லது காப்பு நகல் &amp; மீட்டமைத்தல் பகுதியைப் பயன்படுத்தலாம்.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">பயன்பாட்டின் தரவுக்குக் கவனம் தேவை. பயன்பாட்டைத் திறக்கத் தட்டவும்.</string>
   <string name="debug_test_error">சோதனைப் பிழை (டீபக் பதிப்பு)</string>
   <string name="bug_report_prepare_failed">அறிக்கையைத் தயார்செய்ய அல்லது பகிர முடியவில்லை. மீண்டும் முயலலாம், அல்லது உங்கள் தரவைச் சேமிக்க காப்புப்பிரதி &amp; மீட்டமைப்பைப் பயன்படுத்தலாம்.</string>
   <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
@@ -911,6 +929,10 @@
         கருவி பட்டியில்லிருந்து ஸ்வைப்-டவுன் சைகை பணியிடங்களை அணுகுவதற்கான விரைவான வழி.
         முந்தைய / அடுத்த பணியிடத்திற்கு மாற, கருவிப்பட்டியில் இடது மற்றும் வலது ஸ்வைப் சைகைகளை பயன்படுத்தலாம்..
     </string>
+  <string name="help_study_tools_title">ஆய்வுக் கருவிகள்</string>
+  <string name="help_study_tools_text">ஒரு வசனத்தின் பின்னணியில் உள்ள கிரேக்க அல்லது எபிரேய சொல்லை அகராதியில் பார்க்க Strong\'s எண்ணைத் தட்டவும். உரையில் உங்கள் இடத்தை இழக்காமல் இணைப்புகள் சாளரத்தில் படிக்க குறுக்குக் குறிப்பைத் தட்டவும்.</string>
+  <string name="help_look_and_feel_title">தோற்றமும் உணர்வும்</string>
+  <string name="help_look_and_feel_text">இரவு முறை, எழுத்துரு அளவு மற்றும் குடும்பம், நிறங்கள் மற்றும் ஓரங்கள் விருப்பங்கள் மெனுவில் (மேல் வலது மூலையில் மூன்று புள்ளிகள்) உரை விருப்பத்தேர்வுகளில் உள்ளன. அவற்றை எல்லாப் பணியிடங்களுக்கும், ஒரு பணியிடத்திற்கும் அல்லது ஒற்றைச் சாளரத்திற்கும் அமைக்கலாம்.</string>
   <string name="help_hidden_features_title">மறைக்கப்பட்ட குறுக்கு வழிகள்</string>
   <string name="help_hidden_features_text">
         பணியிடத்தினை தேர்வு செய்ய கருவிப்பட்டியில் இருந்து கீழே ஸ்வைப் செய்யவும்..
@@ -935,6 +957,7 @@
   <string name="welcome_restore_row_hint">புக்மார்க்குகள் மற்றும் குறிப்புகளுடன் தரவுத்தளக் கோப்பு</string>
   <string name="welcome_link_website">இணையதளம்</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">வீடியோ</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%sக்கு ஏற்ற விரும்பும் கோப்பை நீங்கள் தெரிவு செய்ய வேண்டும்.</string>
@@ -1893,12 +1916,15 @@
   <string name="my_document_create_title">புதிய ஆவணம் உருவாக்கு</string>
   <string name="my_document_rename_title">ஆவணத்தை மறுபெயரிடு</string>
   <string name="my_document_delete_confirmation">\"%s\" ஆவணத்தை நீக்கவா?</string>
+  <string name="show_secret">காட்டு</string>
+  <string name="hide_secret">மறை</string>
+  <string name="ai_documents_name">AI ஆவணங்கள்</string>
+  <string name="ai_documents_description">AI இலிருந்து தானாக உருவாக்கப்பட்ட ஆவணங்கள்</string>
   <string name="my_document_cannot_delete_ai_documents">பக்கங்கள் இருக்கும் போது AI ஆவணங்களை நீக்க முடியாது. முதலில் பக்கங்களை நீக்கவும்.</string>
   <string name="my_document_save_changes">மாற்றங்களை சேமிக்கவா?</string>
   <string name="my_document_no_description">விவரம் இல்லை</string>
   <string name="my_document_edit_description">விவரத்தை திருத்து</string>
   <string name="my_document_pages_title">%s - பக்கங்கள்</string>
-  <string name="my_document_pages_empty">இந்த ஆவணத்தில் பக்கங்கள் இல்லை.</string>
   <string name="my_document_page_rename_title">பக்கத்தை மறுபெயரிடு</string>
   <string name="my_document_page_delete_confirmation">\"%s\" பக்கத்தை நீக்கவா?</string>
   <string name="my_document_pages_delete_confirmation">இந்தப் பக்கங்களை நீக்கவா?</string>
@@ -1906,6 +1932,9 @@
   <string name="my_document_new_page_name">பக்கம் %1$d</string>
   <string name="my_document_create_page_title">புதிய பக்கம்</string>
   <string name="my_document_content_type_label">உள்ளடக்க வகை</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">இந்த ஆவணத்தில் பக்கங்கள் இல்லை.</string>
   <string name="my_document_import_page">Markdown/HTML இறக்குமதி</string>
   <string name="my_document_export_page">பக்கத்தை ஏற்றுமதி</string>
   <string name="my_document_imported_page_name">இறக்குமதி செய்யப்பட்டது</string>

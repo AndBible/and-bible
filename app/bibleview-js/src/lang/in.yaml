@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Tindakan AI
 aiDocumentRegenerate: Buat ulang
 aiDocumentDelete: Hapus
+aiDocumentsName: Dokumen AI
 aiGeneratedBy: "Dibuat oleh %s"
 aiGeneratedByWithModel: "Dibuat oleh %s (%s)"

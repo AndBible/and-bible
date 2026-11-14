@@ -123,5 +123,6 @@ llmAction: KI
 llmActionLong: KI-aksie
 aiDocumentRegenerate: Hergenereer
 aiDocumentDelete: Verwyder
+aiDocumentsName: KI-dokumente
 aiGeneratedBy: "Gegenereer deur %s"
 aiGeneratedByWithModel: "Gegenereer deur %s (%s)"

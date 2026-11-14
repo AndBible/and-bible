@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Aksyon ng AI
 aiDocumentRegenerate: Muling buuin
 aiDocumentDelete: Tanggalin
+aiDocumentsName: Mga AI Document
 aiGeneratedBy: "Ginawa ng %s"
 aiGeneratedByWithModel: "Ginawa ng %s (%s)"

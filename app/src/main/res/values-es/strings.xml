@@ -128,7 +128,17 @@
   <string name="search_not_available">No se puede buscar en este documento</string>
   <string name="search_indexing_notification_title">Creando índice de búsqueda</string>
   <string name="choose_translations">Elegir traducciones…</string>
-  <string name="multi_search_results">%1$d versículos en %2$d traducciones</string>
+  <string name="multi_search_count_summary">%1$s en %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versículo</item>
+    <item quantity="many">%1$d de versículos</item>
+    <item quantity="other">%1$d versículos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducción</item>
+    <item quantity="many">%1$d de traducciones</item>
+    <item quantity="other">%1$d traducciones</item>
+  </plurals>
   <string name="search_index_not_created">sin índice</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
@@ -322,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Crear un nuevo Marcador con una Nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ajustes de color</string>
-  <string name="window_color_settings_title">Ajustes de color de ventana</string>
-  <string name="workspace_color_settings_title">Ajustes predeterminada del color del espacio</string>
+  <string name="global_color_settings_title">Ajustes de color (global)</string>
+  <string name="window_color_settings_title">Ajustes de color (ventana)</string>
+  <string name="workspace_color_settings_title">Ajustes de color (espacio de trabajo)</string>
   <string name="color_workspace">Color del Espacio</string>
   <string name="color_text">Color de texto</string>
   <string name="color_background">Color de fondo</string>
@@ -414,6 +425,7 @@
   <string name="rdg_plan_day">Día %s</string>
   <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
   <string name="set_current_day">Establecer como día actual…</string>
+  <string name="msg_set_current_day_reading_plan">Esto establecerá %1$s como el día actual de este plan y marcará como leídos todos los días anteriores. ¿Continuar?</string>
   <string name="done">Hecho</string>
   <string name="reset_plan_question">¿Seguro que quiere restablecer este plan?</string>
   <string name="import_reading_plan">Importar plan de lectura…</string>
@@ -500,7 +512,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="auto_assign_labels_title">Configurar etiquetas</string>
   <string name="auto_assign_labels">Auto-asignar &amp; etiquetas favoritas</string>
   <string name="auto_assign_labels1">Auto-asignar etiqueta a nuevos marcadores</string>
-  <string name="auto_assign_labels_primary">Auto-asignar como principal</string>
+  <string name="auto_assign_labels_primary">Asignar automáticamente como etiqueta principal</string>
   <!--can be removed-->
   <string name="bookmark_warning">Hay marcadores y/o notas para este documento.</string>
   <string name="bookmark_warning2">
@@ -788,6 +800,14 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="error_key_not_in_document2">%1$s no se encontró en el documento %2$s.</string>
   <string name="empty_list">No hay ítems para mostrar</string>
   <string name="error_skip">Saltar</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Datos dañados</string>
+  <string name="corrupt_database_message">No se pudieron abrir algunos de tus datos porque su archivo de base de datos está dañado: %1$s.\n\nNo se ha cambiado ni borrado nada. Puedes enviar un informe de error para ayudarnos a encontrar la causa, abrir Copia de seguridad y restauración para hacer una copia o restaurar una anterior, o restablecer los datos dañados.\n\nAl restablecer, esos datos empiezan vacíos. El archivo dañado se conserva en este dispositivo, con el nombre cambiado a \".corrupt-\" y la fecha.</string>
+  <string name="corrupt_database_reset">Restablecer datos dañados</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">No se pudieron restablecer los datos dañados: no se pudo apartar %1$s. No se ha cambiado nada. Puedes intentarlo de nuevo, enviar un informe de error o usar Copia de seguridad y restauración.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Los datos de la aplicación necesitan atención. Toca para abrir la aplicación.</string>
   <string name="debug_test_error">Error de prueba (versión de depuración)</string>
   <string name="bug_report_prepare_failed">No se pudo preparar o compartir el informe. Puedes reintentarlo, o usar Copia de seguridad y restauración para guardar tus datos.</string>
   <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
@@ -909,6 +929,10 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
         por deslizar hacia abajo desde la barra de herramientas. También puede usar gestos deslizar hacia la izquierda y deslizar hacia la derecha sobre la barra de herramientas para
         cambiar al espacio anterior / siguiente.
 </string>
+  <string name="help_study_tools_title">Herramientas de estudio</string>
+  <string name="help_study_tools_text">Toca un número de Strong para buscar en un diccionario la palabra griega o hebrea que hay detrás de un versículo. Toca una referencia cruzada para leerla en la ventana de enlaces, sin perder tu lugar en el texto.</string>
+  <string name="help_look_and_feel_title">Aspecto</string>
+  <string name="help_look_and_feel_text">El modo nocturno, el tamaño y la familia de la fuente, los colores y los márgenes están en Opciones de texto, en el menú de opciones (tres puntos, esquina superior derecha). Se pueden definir para todos los espacios de trabajo, para uno o para una sola ventana.</string>
   <string name="help_hidden_features_title">Atajos ocultos</string>
   <string name="help_hidden_features_text">        Deslice hacia abajo desde la barra de herramientas para mostrar el selector de espacio.
         Mantenga presionado el botón de la ventana para minimizar rápidamente.
@@ -932,6 +956,7 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <string name="welcome_restore_row_hint">Archivo de base de datos con marcadores y notas</string>
   <string name="welcome_link_website">Sitio web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Vídeo</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Tiene que seleccionar el archivo que quiere cargar en %s. </string>
@@ -1890,12 +1915,15 @@ informe los problemas a los mantenedores de texto
   <string name="my_document_create_title">Crear nuevo documento</string>
   <string name="my_document_rename_title">Renombrar documento</string>
   <string name="my_document_delete_confirmation">¿Eliminar el documento \"%s\"?</string>
+  <string name="show_secret">Mostrar</string>
+  <string name="hide_secret">Ocultar</string>
+  <string name="ai_documents_name">Documentos de IA</string>
+  <string name="ai_documents_description">Documentos generados automáticamente por IA</string>
   <string name="my_document_cannot_delete_ai_documents">Los documentos de IA no se pueden eliminar mientras contengan páginas. Elimina primero las páginas.</string>
   <string name="my_document_save_changes">¿Guardar cambios?</string>
   <string name="my_document_no_description">Sin descripción</string>
   <string name="my_document_edit_description">Editar descripción</string>
   <string name="my_document_pages_title">%s - Páginas</string>
-  <string name="my_document_pages_empty">No hay páginas en este documento.</string>
   <string name="my_document_page_rename_title">Renombrar página</string>
   <string name="my_document_page_delete_confirmation">¿Eliminar la página \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">¿Borrar estas páginas?</string>
@@ -1903,6 +1931,9 @@ informe los problemas a los mantenedores de texto
   <string name="my_document_new_page_name">Página %1$d</string>
   <string name="my_document_create_page_title">Nueva página</string>
   <string name="my_document_content_type_label">Tipo de contenido</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">No hay páginas en este documento.</string>
   <string name="my_document_import_page">Importar Markdown/HTML</string>
   <string name="my_document_export_page">Exportar página</string>
   <string name="my_document_imported_page_name">Importado</string>

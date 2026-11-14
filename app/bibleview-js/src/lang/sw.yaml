@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Kitendo cha AI
 aiDocumentRegenerate: Zalisha upya
 aiDocumentDelete: Futa
+aiDocumentsName: Hati za AI
 aiGeneratedBy: "Imeundwa na %s"
 aiGeneratedByWithModel: "Imeundwa na %s (%s)"

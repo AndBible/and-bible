@@ -128,7 +128,19 @@
   <string name="search_not_available">Tego dokumentu nie można przeszukiwać</string>
   <string name="search_indexing_notification_title">Tworzenie indeksu wyszukiwania</string>
   <string name="choose_translations">Wybierz tłumaczenia…</string>
-  <string name="multi_search_results">%1$d wersetów w %2$d tłumaczeniach</string>
+  <string name="multi_search_count_summary">%1$s w %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d werset</item>
+    <item quantity="few">%1$d wersety</item>
+    <item quantity="many">%1$d wersetów</item>
+    <item quantity="other">%1$d wersetu</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d przekładzie</item>
+    <item quantity="few">%1$d przekładach</item>
+    <item quantity="many">%1$d przekładach</item>
+    <item quantity="other">%1$d przekładu</item>
+  </plurals>
   <string name="search_index_not_created">brak indeksu</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numery wersetów i rozdziałów</string>
@@ -320,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Utwórz nową zakładkę z notatką</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ustawienia kolorów</string>
-  <string name="window_color_settings_title">Kolor okien</string>
-  <string name="workspace_color_settings_title">Domyślne kolory obszaru roboczego</string>
+  <string name="global_color_settings_title">Ustawienia kolorów (globalne)</string>
+  <string name="window_color_settings_title">Ustawienia kolorów (okno)</string>
+  <string name="workspace_color_settings_title">Ustawienia kolorów (obszar roboczy)</string>
   <string name="color_workspace">Kolor obszaru roboczego</string>
   <string name="color_text">Kolor tekstu</string>
   <string name="color_background">Kolor tła</string>
@@ -407,6 +420,7 @@
   <string name="rdg_plan_day">Dzień %s</string>
   <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
   <string name="set_current_day">Ustaw jako obecny dzień…</string>
+  <string name="msg_set_current_day_reading_plan">Spowoduje to ustawienie %1$s jako bieżącego dnia w tym planie i oznaczenie wszystkich wcześniejszych dni jako przeczytanych. Kontynuować?</string>
   <string name="done">Gotowe</string>
   <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
   <string name="import_reading_plan">Importowanie planu czytania…</string>
@@ -479,7 +493,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="auto_assign_labels_title">Ustawienia etykiet</string>
   <string name="auto_assign_labels">Automatycznie przypisuj etykietę</string>
   <string name="auto_assign_labels1">Automatycznie przypisuj etykietę do nowych zakładek</string>
-  <string name="auto_assign_labels_primary">Przypisuj jako główną</string>
+  <string name="auto_assign_labels_primary">Przypisuj automatycznie jako etykietę główną</string>
   <!--can be removed-->
   <string name="bookmark_warning">Ten dokument zawiera zakładki lub notatki.</string>
   <string name="bookmark_warning2">
@@ -754,6 +768,14 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="error_key_not_in_document2">Nie znaleziono „%1$s” w dokumencie: %2$s.</string>
   <string name="empty_list">Brak elementów do wyświetlenia</string>
   <string name="error_skip">Pomiń</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Uszkodzone dane</string>
+  <string name="corrupt_database_message">Nie udało się otworzyć części Twoich danych, ponieważ plik ich bazy danych jest uszkodzony: %1$s.\n\nNic nie zostało zmienione ani usunięte. Możesz wysłać raport o błędzie, aby pomóc nam znaleźć przyczynę, otworzyć Kopię zapasową, aby wykonać kopię lub przywrócić wcześniejszą, albo zresetować uszkodzone dane.\n\nResetowanie rozpoczyna te dane od zera. Uszkodzony plik pozostaje na tym urządzeniu, ze zmienioną nazwą zawierającą \".corrupt-\" i datę.</string>
+  <string name="corrupt_database_reset">Zresetuj uszkodzone dane</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Nie udało się zresetować uszkodzonych danych: nie można było odsunąć na bok %1$s. Nic nie zostało zmienione. Możesz spróbować ponownie, wysłać raport o błędzie lub skorzystać z Kopii zapasowej.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Dane aplikacji wymagają uwagi. Dotknij, aby otworzyć aplikację.</string>
   <string name="debug_test_error">Błąd testowy (wersja debugowa)</string>
   <string name="bug_report_prepare_failed">Nie udało się przygotować lub udostępnić raportu. Możesz spróbować ponownie lub użyć opcji Kopia zapasowa i przywracanie, aby zapisać swoje dane.</string>
   <string name="bug_report_email_title">Wyślij raport o błędach e-pocztą</string>
@@ -858,6 +880,10 @@ Bloczki notatek mają na celu ułatwić pisanie kazań lub tworzenie osobistych 
   <string name="help_workspaces_title">Obszary robocze</string>
   <string name="help_workspaces_text">
 Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
+  <string name="help_study_tools_title">Narzędzia do studiowania</string>
+  <string name="help_study_tools_text">Dotknij numeru Stronga, aby w słowniku sprawdzić greckie lub hebrajskie słowo stojące za wersetem. Dotknij odnośnika, aby przeczytać go w oknie odnośników, nie tracąc miejsca w tekście.</string>
+  <string name="help_look_and_feel_title">Wygląd</string>
+  <string name="help_look_and_feel_text">Tryb nocny, rozmiar i rodzaj czcionki, kolory i marginesy znajdziesz w Opcjach tekstu w menu opcji (trzy kropki w prawym górnym rogu). Można je ustawić dla wszystkich obszarów roboczych, dla jednego obszaru roboczego lub dla pojedynczego okna.</string>
   <string name="help_hidden_features_title">Skróty</string>
   <string name="help_hidden_features_text">
 Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
@@ -874,6 +900,7 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="welcome_restore_row_hint">Plik bazy danych z zakładkami i notatkami</string>
   <string name="welcome_link_website">Strona internetowa</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Wideo</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Wybierz plik do załadowania w aplikację %s.</string>
@@ -1014,7 +1041,7 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="display_mode_hidden">Ukryty</string>
   <string name="display_mode_inherit">Tak samo jak zaznaczenie</string>
   <string name="workspace_override_indicator">Ta etykieta ma tryb wyświetlania specyficzny dla obszaru roboczego</string>
-  <string name="primary_label">Główna etykieta</string>
+  <string name="primary_label">Etykieta główna</string>
   <string name="favourite_label">Ulubiona etykieta</string>
   <string name="edit_label">Edytuj etykietę</string>
   <string name="delete_label_confirmation">Czy usunąć etykietę zakładek „%s”? Wszystkie powiązane notatki w bloczku notatek zostaną usunięte.</string>
@@ -1806,12 +1833,15 @@ Nie wyświetlaj tego ponownie</string>
   <string name="my_document_create_title">Utwórz nowy dokument</string>
   <string name="my_document_rename_title">Zmień nazwę dokumentu</string>
   <string name="my_document_delete_confirmation">Usunąć dokument „%s\"?</string>
+  <string name="show_secret">Pokaż</string>
+  <string name="hide_secret">Ukryj</string>
+  <string name="ai_documents_name">Dokumenty AI</string>
+  <string name="ai_documents_description">Automatycznie generowane dokumenty z AI</string>
   <string name="my_document_cannot_delete_ai_documents">Nie można usunąć dokumentów AI, gdy zawierają strony. Najpierw usuń strony.</string>
   <string name="my_document_save_changes">Zapisać zmiany?</string>
   <string name="my_document_no_description">Brak opisu</string>
   <string name="my_document_edit_description">Edytuj opis</string>
   <string name="my_document_pages_title">%s - Strony</string>
-  <string name="my_document_pages_empty">Brak stron w tym dokumencie.</string>
   <string name="my_document_page_rename_title">Zmień nazwę strony</string>
   <string name="my_document_page_delete_confirmation">Usunąć stronę „%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Usunąć te strony?</string>
@@ -1819,6 +1849,9 @@ Nie wyświetlaj tego ponownie</string>
   <string name="my_document_new_page_name">Strona %1$d</string>
   <string name="my_document_create_page_title">Nowa strona</string>
   <string name="my_document_content_type_label">Typ zawartości</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Brak stron w tym dokumencie.</string>
   <string name="my_document_import_page">Importuj Markdown/HTML</string>
   <string name="my_document_export_page">Eksportuj stronę</string>
   <string name="my_document_imported_page_name">Zaimportowane</string>

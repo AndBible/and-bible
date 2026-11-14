@@ -128,7 +128,13 @@
   <string name="search_not_available">この文書は検索できません</string>
   <string name="search_indexing_notification_title">検索インデックスを作成中</string>
   <string name="choose_translations">翻訳版を選択…</string>
-  <string name="multi_search_results">%2$d 翻訳版で %1$d 節</string>
+  <string name="multi_search_count_summary">%2$sで%1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d節</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d訳</item>
+  </plurals>
   <string name="search_index_not_created">インデックスなし</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">章と節の番号</string>
@@ -320,8 +326,9 @@
   <string name="create_bookmark_with_a_note">ノート付きの新しいブックマークを作成</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">色の設定</string>
-  <string name="window_color_settings_title">ウィンドウの色設定</string>
-  <string name="workspace_color_settings_title">ワークスペースの色設定のデフォルト</string>
+  <string name="global_color_settings_title">色の設定（全体）</string>
+  <string name="window_color_settings_title">色の設定（ウィンドウ）</string>
+  <string name="workspace_color_settings_title">色の設定（ワークスペース）</string>
   <string name="color_workspace">ワークスペースの色</string>
   <string name="color_text">テキストの色</string>
   <string name="color_background">背景色</string>
@@ -407,6 +414,7 @@
   <string name="rdg_plan_day">%s 日目</string>
   <string name="rdg_plan_set_start_date">開始日を設定…</string>
   <string name="set_current_day">今日に設定…</string>
+  <string name="msg_set_current_day_reading_plan">このプランの現在の日を%1$sに設定し、それ以前の日をすべて既読にします。続行しますか？</string>
   <string name="done">完了</string>
   <string name="reset_plan_question">このプランをリセットしてよろしいですか？</string>
   <string name="import_reading_plan">読書プランをインポート…</string>
@@ -469,7 +477,7 @@
   <string name="auto_assign_labels_title">ラベル設定</string>
   <string name="auto_assign_labels">自動割り当てとお気に入りラベル</string>
   <string name="auto_assign_labels1">新しいブックマークにラベルを自動割り当て</string>
-  <string name="auto_assign_labels_primary">プライマリとして自動割り当て</string>
+  <string name="auto_assign_labels_primary">メインラベルとして自動割り当て</string>
   <!--can be removed-->
   <string name="bookmark_warning">このドキュメントにはブックマークやノートがあります。</string>
   <string name="bookmark_warning2">ドキュメントの構造が変更されている場合、このドキュメントを更新すると ブックマークやノートの位置がドキュメント内で移動したり、完全に消えたりする可能性があります。</string>
@@ -725,6 +733,14 @@
   <string name="error_key_not_in_document2">%1$s は文書 %2$s 内に見つかりませんでした。</string>
   <string name="empty_list">表示するアイテムがありません</string>
   <string name="error_skip">スキップ</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">破損したデータ</string>
+  <string name="corrupt_database_message">データベースファイルが破損しているため、一部のデータを開けませんでした: %1$s。\n\n何も変更または削除されていません。エラーレポートを送信して原因の調査にご協力いただくか、「バックアップと復元」を開いてバックアップを作成したり以前のバックアップから復元したりできます。または、破損したデータをリセットできます。\n\nリセットすると、そのデータは空の状態から始まります。破損したファイルはこのデバイスに残り、名前に \".corrupt-\" と日付が付きます。</string>
+  <string name="corrupt_database_reset">破損したデータをリセット</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">破損したデータをリセットできませんでした: %1$sを移動できませんでした。何も変更されていません。もう一度試すか、エラーレポートを送信するか、「バックアップと復元」をご利用ください。</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">アプリのデータに対応が必要です。タップしてアプリを開いてください。</string>
   <string name="debug_test_error">テストエラー（デバッグビルド）</string>
   <string name="bug_report_prepare_failed">レポートを準備または共有できませんでした。再試行するか、「バックアップと復元」を使ってデータを保存してください。</string>
   <string name="bug_report_email_title">メールでバグ報告を送信</string>
@@ -822,6 +838,10 @@
   <string name="help_fts5">FTS5 全文検索クエリ構文</string>
   <string name="help_workspaces_title">ワークスペース</string>
   <string name="help_workspaces_text">ワークスペースにより、複数のコンテキスト依存の作業環境を持つことができます。ワークスペース機能には、オプションメニュー（右上隅）の「ワークスペース」項目からアクセスできます。ツールバーから下方向にスワイプすると素早くアクセスできます。ツールバー上で左右にスワイプすると、前後のワークスペースに切り替えることもできます。</string>
+  <string name="help_study_tools_title">学習ツール</string>
+  <string name="help_study_tools_text">ストロング番号をタップすると、節の背後にあるギリシア語またはヘブライ語の単語を辞書で調べられます。相互参照をタップすると、本文の位置を失わずにリンクウィンドウで読めます。</string>
+  <string name="help_look_and_feel_title">外観</string>
+  <string name="help_look_and_feel_text">ナイトモード、フォントのサイズと種類、色、余白は、オプションメニュー（右上の三点）のテキストオプションにあります。すべてのワークスペース、1つのワークスペース、または1つのウィンドウごとに設定できます。</string>
   <string name="help_hidden_features_title">隠しショートカット</string>
   <string name="help_hidden_features_text">ツールバーから下にスワイプしてワークスペースセレクターを表示します。 ウィンドウボタンをロングプレスすると素早く最小化できます。 読み上げツールバーボタンをロングプレスすると読み上げ設定に素早くアクセスできます。 ツールバーの節位置タイトルをロングプレスすると文書セレクターにジャンプします。</string>
   <string name="help_window_pinning_title">ウィンドウのピン留め</string>
@@ -833,6 +853,7 @@
   <string name="welcome_restore_row_hint">ブックマークとノートを含むデータベースファイル</string>
   <string name="welcome_link_website">ウェブサイト</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">動画</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s に読み込むファイルを選択してください。</string>
@@ -963,7 +984,7 @@
   <string name="display_mode_hidden">非表示</string>
   <string name="display_mode_inherit">選択と同じ</string>
   <string name="workspace_override_indicator">このラベルにはワークスペース固有の表示モードがあります</string>
-  <string name="primary_label">プライマリラベル</string>
+  <string name="primary_label">メインラベル</string>
   <string name="favourite_label">お気に入りラベル</string>
   <string name="edit_label">ラベルを編集</string>
   <string name="delete_label_confirmation">ブックマークラベル「%s」を削除しますか？関連するすべてのスタディパッドのノートも削除されます。</string>
@@ -1067,7 +1088,7 @@
   <string name="labels_filter_favourite">お気に入りラベルのみ</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">ラベルにチェックを入れると、このブックマークに割り当てられます。</string>
-  <string name="manage_labels_help_primary">プライマリラベルです。ブックマークにはこのラベルの色とスタイルが表示されます。</string>
+  <string name="manage_labels_help_primary">メインラベルです。ブックマークにはこのラベルの色とスタイルが表示されます。</string>
   <string name="manage_labels_help_autoassign">このラベルを、新しいブックマークすべてに自動的に割り当てます。中抜きの稲妻はオフを意味します。</string>
   <string name="manage_labels_help_favourite">すばやくアクセスできるよう、ラベルをお気に入りに保持します。</string>
   <string name="manage_labels_help_styles">名前の下に、ラベルの見た目を示す小さな例が表示されます。「選択」はテキスト選択ブックマーク、「節全体」は節全体のブックマーク、「ワークスペース」タグはこのワークスペースで上書きされているスタイルを表します。装飾のないグレーの例は、そのラベルのブックマークが描画されないことを意味します。例は⋮メニューから非表示にできます。</string>
@@ -1745,12 +1766,15 @@
   <string name="my_document_create_title">新しいドキュメントを作成</string>
   <string name="my_document_rename_title">ドキュメント名を変更</string>
   <string name="my_document_delete_confirmation">ドキュメント\"%s\"を削除しますか？</string>
+  <string name="show_secret">表示</string>
+  <string name="hide_secret">非表示</string>
+  <string name="ai_documents_name">AIドキュメント</string>
+  <string name="ai_documents_description">AIによって自動生成されたドキュメント</string>
   <string name="my_document_cannot_delete_ai_documents">AIドキュメントにページが含まれている間は削除できません。先にページを削除してください。</string>
   <string name="my_document_save_changes">変更を保存しますか？</string>
   <string name="my_document_no_description">説明なし</string>
   <string name="my_document_edit_description">説明を編集</string>
   <string name="my_document_pages_title">%s - ページ</string>
-  <string name="my_document_pages_empty">このドキュメントにページはありません。</string>
   <string name="my_document_page_rename_title">ページ名を変更</string>
   <string name="my_document_page_delete_confirmation">ページ\"%s\"を削除しますか？</string>
   <string name="my_document_pages_delete_confirmation">これらのページを削除しますか？</string>
@@ -1758,6 +1782,9 @@
   <string name="my_document_new_page_name">ページ %1$d</string>
   <string name="my_document_create_page_title">新しいページ</string>
   <string name="my_document_content_type_label">コンテンツの種類</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">このドキュメントにページはありません。</string>
   <string name="my_document_import_page">Markdown/HTMLをインポート</string>
   <string name="my_document_export_page">ページをエクスポート</string>
   <string name="my_document_imported_page_name">インポート済み</string>

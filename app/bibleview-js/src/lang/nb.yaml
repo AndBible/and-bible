@@ -123,5 +123,6 @@ llmAction: KI
 llmActionLong: KI-handling
 aiDocumentRegenerate: Regenerer
 aiDocumentDelete: Slett
+aiDocumentsName: KI-dokumenter
 aiGeneratedBy: "Generert av %s"
 aiGeneratedByWithModel: "Generert av %s (%s)"

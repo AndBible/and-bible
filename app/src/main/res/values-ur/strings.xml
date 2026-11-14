@@ -128,7 +128,15 @@
   <string name="search_not_available">اس دستاویز میں تلاش نہیں کی جا سکتی</string>
   <string name="search_indexing_notification_title">تلاش کا انڈیکس بنایا جا رہا ہے</string>
   <string name="choose_translations">تراجم منتخب کریں…</string>
-  <string name="multi_search_results">%2$d تراجم میں %1$d آیات</string>
+  <string name="multi_search_count_summary">%2$s میں %1$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d آیت</item>
+    <item quantity="other">%1$d آیات</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d ترجمہ</item>
+    <item quantity="other">%1$d تراجم</item>
+  </plurals>
   <string name="search_index_not_created">کوئی انڈیکس نہیں</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">باب اور آیت نمبر</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">ایک نوٹ کے ساتھ نیا بک مارک بنائیں</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">رنگ ترتیبات</string>
-  <string name="window_color_settings_title">ونڈو رنگ ترتیبات</string>
-  <string name="workspace_color_settings_title">ورک اسپیس رنگ ترتیبات ڈیفالٹ</string>
+  <string name="global_color_settings_title">رنگ ترتیبات (عمومی)</string>
+  <string name="window_color_settings_title">رنگ ترتیبات (ونڈو)</string>
+  <string name="workspace_color_settings_title">رنگ ترتیبات (ورک اسپیس)</string>
   <string name="color_workspace">ورک اسپیس رنگ</string>
   <string name="color_text">متن کا رنگ</string>
   <string name="color_background">پس منظر کا رنگ</string>
@@ -407,6 +416,7 @@
   <string name="rdg_plan_day">دن %s</string>
   <string name="rdg_plan_set_start_date">شروع کی تاریخ سیٹ کریں…</string>
   <string name="set_current_day">موجودہ دن کے طور پر سیٹ کریں…</string>
+  <string name="msg_set_current_day_reading_plan">اس سے %1$s اس منصوبے کا موجودہ دن مقرر ہو جائے گا اور پچھلے تمام دن پڑھے ہوئے کے طور پر نشان زد ہو جائیں گے۔ جاری رکھیں؟</string>
   <string name="done">مکمل</string>
   <string name="reset_plan_question">کیا آپ واقعی اس منصوبے کو ری سیٹ کرنا چاہتے ہیں؟</string>
   <string name="import_reading_plan">مطالعہ منصوبہ درآمد کریں…</string>
@@ -469,7 +479,7 @@
   <string name="auto_assign_labels_title">لیبل ترتیبات</string>
   <string name="auto_assign_labels">خودکار تفویض اور پسندیدہ لیبل</string>
   <string name="auto_assign_labels1">نئے بک مارکس کو خودکار لیبل تفویض کریں</string>
-  <string name="auto_assign_labels_primary">بنیادی کے طور پر خودکار تفویض کریں</string>
+  <string name="auto_assign_labels_primary">مرکزی لیبل کے طور پر خودکار تفویض کریں</string>
   <!--can be removed-->
   <string name="bookmark_warning">اس دستاویز کے لیے بک مارکس اور/یا نوٹس ہیں۔</string>
   <string name="bookmark_warning2">اگر دستاویز کا ڈھانچہ بدل گیا ہو تو اس دستاویز کو اپ ڈیٹ کرنے سے یہ بک مارکس/نوٹس دستاویز کے اندر ادھر ادھر ہو سکتے ہیں یا مکمل طور پر غائب ہو سکتے ہیں۔</string>
@@ -725,6 +735,14 @@
   <string name="error_key_not_in_document2">%1$s دستاویز %2$s میں نہیں ملا۔</string>
   <string name="empty_list">دکھانے کے لیے کوئی آئٹم نہیں</string>
   <string name="error_skip">چھوڑیں</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">خراب ڈیٹا</string>
+  <string name="corrupt_database_message">آپ کے کچھ ڈیٹا کو کھولا نہیں جا سکا کیونکہ اس کی ڈیٹابیس فائل خراب ہے: %1$s۔\n\nکچھ بھی تبدیل یا حذف نہیں کیا گیا۔ وجہ تلاش کرنے میں ہماری مدد کے لیے آپ ایرر رپورٹ بھیج سکتے ہیں، بیک اپ بنانے یا پچھلا بیک اپ بحال کرنے کے لیے بیک اپ اور بحالی کھول سکتے ہیں، یا خراب ڈیٹا ری سیٹ کر سکتے ہیں۔\n\nری سیٹ کرنے پر وہ ڈیٹا خالی شروع ہوگا۔ خراب فائل اسی ڈیوائس پر \".corrupt-\" اور تاریخ کے ساتھ نام بدل کر محفوظ رہے گی۔</string>
+  <string name="corrupt_database_reset">خراب ڈیٹا ری سیٹ کریں</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">خراب ڈیٹا ری سیٹ نہیں ہو سکا: %1$s کو ایک طرف منتقل نہیں کیا جا سکا۔ کچھ بھی تبدیل نہیں ہوا۔ آپ دوبارہ کوشش کر سکتے ہیں، ایرر رپورٹ بھیج سکتے ہیں، یا بیک اپ اور بحالی استعمال کر سکتے ہیں۔</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">ایپ کے ڈیٹا پر توجہ درکار ہے۔ ایپ کھولنے کے لیے ٹیپ کریں۔</string>
   <string name="debug_test_error">ٹیسٹ ایرر (ڈیبگ بلڈ)</string>
   <string name="bug_report_prepare_failed">رپورٹ تیار یا شیئر نہیں ہو سکی۔ آپ دوبارہ کوشش کر سکتے ہیں، یا اپنا ڈیٹا محفوظ کرنے کے لیے بیک اپ اور بحالی استعمال کریں۔</string>
   <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
@@ -822,6 +840,10 @@
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">ورک اسپیسز</string>
   <string name="help_workspaces_text">ورک اسپیسز متعدد سیاق و سباق پر منحصر کام کرنے کے ماحول رکھنے کی اجازت دیتی ہیں۔ ورک اسپیس افعال آپشنز مینو (اوپری دائیں کونے) میں ورک اسپیسز آئٹم کے ذریعے رسائی کیے جا سکتے ہیں۔ ورک اسپیسز تک فوری رسائی ٹول بار سے نیچے سوائپ کر کے ہو سکتی ہے۔ آپ ٹول بار پر بائیں اور دائیں سوائپ جیسچر بھی استعمال کر کے پچھلی/اگلی ورک اسپیس پر جا سکتے ہیں۔</string>
+  <string name="help_study_tools_title">مطالعہ کے اوزار</string>
+  <string name="help_study_tools_text">کسی آیت کے پیچھے موجود یونانی یا عبرانی لفظ کو لغت میں دیکھنے کے لیے Strong کے نمبر پر ٹیپ کریں۔ متن میں اپنی جگہ کھوئے بغیر حوالہ جاتی لنک کو لنکس ونڈو میں پڑھنے کے لیے اس پر ٹیپ کریں۔</string>
+  <string name="help_look_and_feel_title">ظاہری شکل اور احساس</string>
+  <string name="help_look_and_feel_text">نائٹ موڈ، فونٹ کا سائز اور فیملی، رنگ اور حاشیے اختیارات مینو (تین نقطے، اوپر دائیں کونا) میں متن کے اختیارات کے تحت ہیں۔ انہیں تمام ورک اسپیسز، ایک ورک اسپیس یا ایک ونڈو کے لیے سیٹ کیا جا سکتا ہے۔</string>
   <string name="help_hidden_features_title">پوشیدہ شارٹ کٹس</string>
   <string name="help_hidden_features_text">ورک اسپیس سلیکٹر دکھانے کے لیے ٹول بار سے نیچے سوائپ کریں۔ جلدی چھوٹا کرنے کے لیے ونڈو بٹن طویل دبائیں۔ جلدی بولنے کی ترتیبات پر جانے کے لیے Speak ٹول بار بٹن طویل دبائیں۔ دستاویز سلیکٹر پر جانے کے لیے ٹول بار میں آیت مقام عنوان طویل دبائیں۔</string>
   <string name="help_window_pinning_title">ونڈو پننگ</string>
@@ -833,6 +855,7 @@
   <string name="welcome_restore_row_hint">بک مارکس اور نوٹس والی ڈیٹا بیس فائل</string>
   <string name="welcome_link_website">ویب سائٹ</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">ویڈیو</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">آپ کو وہ فائل منتخب کرنی ہے جو آپ %s میں لوڈ کرنا چاہتے ہیں۔</string>
@@ -963,7 +986,7 @@
   <string name="display_mode_hidden">پوشیدہ</string>
   <string name="display_mode_inherit">انتخاب کے مطابق</string>
   <string name="workspace_override_indicator">اس لیبل کا ورک اسپیس مخصوص ڈسپلے موڈ ہے</string>
-  <string name="primary_label">بنیادی لیبل</string>
+  <string name="primary_label">مرکزی لیبل</string>
   <string name="favourite_label">پسندیدہ لیبل</string>
   <string name="edit_label">لیبل ترمیم کریں</string>
   <string name="delete_label_confirmation">کیا آپ بک مارک لیبل \"%s\" ہٹانا چاہتے ہیں؟ اس سے منسلک تمام مطالعہ پیڈ نوٹس بھی ہٹ جائیں گے۔</string>
@@ -1067,7 +1090,7 @@
   <string name="labels_filter_favourite">صرف پسندیدہ لیبل</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">اس بک مارک کو لیبل تفویض کرنے کے لیے اس پر نشان لگائیں۔</string>
-  <string name="manage_labels_help_primary">بنیادی لیبل۔ بک مارک اسی کا رنگ اور انداز دکھاتا ہے۔</string>
+  <string name="manage_labels_help_primary">مرکزی لیبل۔ بک مارک اسی کا رنگ اور انداز دکھاتا ہے۔</string>
   <string name="manage_labels_help_autoassign">یہ لیبل ہر نئے بک مارک کو خود بخود تفویض کریں۔ خالی بجلی کا نشان بند کا مطلب ہے۔</string>
   <string name="manage_labels_help_favourite">لیبل کو فوری رسائی کے لیے اپنے پسندیدہ میں رکھیں۔</string>
   <string name="manage_labels_help_styles">نام کے نیچے ایک چھوٹی مثال لیبل کی شکل دکھاتی ہے: متن کے انتخاب والے بک مارک کے لیے انتخاب، پوری آیت والے کے لیے پوری آیت، اور اس انداز کے لیے ورک اسپیس کا ٹیگ جسے یہ ورک اسپیس بدلتا ہے۔ بغیر آرائش کے دھندلی مثال کا مطلب ہے کہ لیبل کے بک مارکس نہیں دکھائے جاتے۔ مثالیں ⋮ مینو سے چھپائیں۔</string>
@@ -1745,12 +1768,15 @@
   <string name="my_document_create_title">نئی دستاویز بنائیں</string>
   <string name="my_document_rename_title">دستاویز کا نام بدلیں</string>
   <string name="my_document_delete_confirmation">دستاویز \"%s\" حذف کریں؟</string>
+  <string name="show_secret">دکھائیں</string>
+  <string name="hide_secret">چھپائیں</string>
+  <string name="ai_documents_name">AI دستاویزات</string>
+  <string name="ai_documents_description">AI سے خودکار طور پر بنائی گئی دستاویزات</string>
   <string name="my_document_cannot_delete_ai_documents">AI دستاویزات کو حذف نہیں کیا جا سکتا جب تک صفحات موجود ہوں۔ پہلے صفحات حذف کریں۔</string>
   <string name="my_document_save_changes">تبدیلیاں محفوظ کریں؟</string>
   <string name="my_document_no_description">کوئی تفصیل نہیں</string>
   <string name="my_document_edit_description">تفصیل ترمیم کریں</string>
   <string name="my_document_pages_title">%s - صفحات</string>
-  <string name="my_document_pages_empty">اس دستاویز میں کوئی صفحہ نہیں۔</string>
   <string name="my_document_page_rename_title">صفحے کا نام بدلیں</string>
   <string name="my_document_page_delete_confirmation">صفحہ \"%s\" حذف کریں؟</string>
   <string name="my_document_pages_delete_confirmation">ان صفحات کو حذف کریں؟</string>
@@ -1758,6 +1784,9 @@
   <string name="my_document_new_page_name">صفحہ %1$d</string>
   <string name="my_document_create_page_title">نیا صفحہ</string>
   <string name="my_document_content_type_label">مواد کی قسم</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">اس دستاویز میں کوئی صفحہ نہیں۔</string>
   <string name="my_document_import_page">Markdown/HTML درآمد کریں</string>
   <string name="my_document_export_page">صفحہ برآمد کریں</string>
   <string name="my_document_imported_page_name">درآمد شدہ</string>

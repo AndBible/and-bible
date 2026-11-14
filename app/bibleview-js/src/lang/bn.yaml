@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI অ্যাকশন
 aiDocumentRegenerate: পুনরুৎপাদন করুন
 aiDocumentDelete: মুছুন
+aiDocumentsName: AI ডকুমেন্ট
 aiGeneratedBy: "%s দ্বারা তৈরি"
 aiGeneratedByWithModel: "%s দ্বারা তৈরি (%s)"

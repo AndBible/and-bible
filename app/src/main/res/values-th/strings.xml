@@ -128,7 +128,13 @@
   <string name="search_not_available">ไม่สามารถค้นหาเอกสารนี้ได้</string>
   <string name="search_indexing_notification_title">กำลังสร้างดัชนีการค้นหา</string>
   <string name="choose_translations">เลือกฉบับแปล…</string>
-  <string name="multi_search_results">%1$d ข้อใน %2$d ฉบับแปล</string>
+  <string name="multi_search_count_summary">%1$s ใน %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d ข้อ</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d ฉบับแปล</item>
+  </plurals>
   <string name="search_index_not_created">ไม่มีดัชนี</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">เลขบทและข้อ</string>
@@ -320,8 +326,9 @@
   <string name="create_bookmark_with_a_note">สร้างที่คั่นหน้าใหม่พร้อมบันทึก</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">การตั้งค่าสี</string>
-  <string name="window_color_settings_title">การตั้งค่าสีหน้าต่าง</string>
-  <string name="workspace_color_settings_title">ค่าเริ่มต้นการตั้งค่าสีพื้นที่ทำงาน</string>
+  <string name="global_color_settings_title">การตั้งค่าสี (ทั่วโลก)</string>
+  <string name="window_color_settings_title">การตั้งค่าสี (หน้าต่าง)</string>
+  <string name="workspace_color_settings_title">การตั้งค่าสี (พื้นที่ทำงาน)</string>
   <string name="color_workspace">สีพื้นที่ทำงาน</string>
   <string name="color_text">สีข้อความ</string>
   <string name="color_background">สีพื้นหลัง</string>
@@ -407,6 +414,7 @@
   <string name="rdg_plan_day">วันที่ %s</string>
   <string name="rdg_plan_set_start_date">ตั้งวันเริ่มต้น…</string>
   <string name="set_current_day">ตั้งเป็นวันปัจจุบัน…</string>
+  <string name="msg_set_current_day_reading_plan">การดำเนินการนี้จะตั้ง %1$s เป็นวันปัจจุบันของแผนนี้ และทำเครื่องหมายว่าอ่านแล้วสำหรับทุกวันก่อนหน้า ดำเนินการต่อหรือไม่?</string>
   <string name="done">เสร็จสิ้น</string>
   <string name="reset_plan_question">คุณแน่ใจว่าต้องการรีเซ็ตแผนนี้?</string>
   <string name="import_reading_plan">นำเข้าแผนการอ่าน…</string>
@@ -469,7 +477,7 @@
   <string name="auto_assign_labels_title">การตั้งค่าป้ายกำกับ</string>
   <string name="auto_assign_labels">กำหนดอัตโนมัติ &amp; ป้ายกำกับโปรด</string>
   <string name="auto_assign_labels1">กำหนดป้ายกำกับอัตโนมัติสำหรับที่คั่นหน้าใหม่</string>
-  <string name="auto_assign_labels_primary">กำหนดเป็นหลักอัตโนมัติ</string>
+  <string name="auto_assign_labels_primary">กำหนดเป็นป้ายกำกับหลักอัตโนมัติ</string>
   <!--can be removed-->
   <string name="bookmark_warning">มีที่คั่นหน้าและ/หรือบันทึกสำหรับเอกสารนี้</string>
   <string name="bookmark_warning2">หากโครงสร้างเอกสารมีการเปลี่ยนแปลง การอัปเดตเอกสารนี้อาจทำให้ ตำแหน่งของที่คั่นหน้า/บันทึกเหล่านี้เคลื่อนไปในเอกสาร หรือหายไปโดยสิ้นเชิง</string>
@@ -725,6 +733,14 @@
   <string name="error_key_not_in_document2">ไม่พบ %1$s ในเอกสาร %2$s</string>
   <string name="empty_list">ไม่มีรายการที่จะแสดง</string>
   <string name="error_skip">ข้าม</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">ข้อมูลเสียหาย</string>
+  <string name="corrupt_database_message">ไม่สามารถเปิดข้อมูลบางส่วนของคุณได้ เนื่องจากไฟล์ฐานข้อมูลเสียหาย: %1$s\n\nยังไม่มีการเปลี่ยนแปลงหรือลบสิ่งใด คุณสามารถส่งรายงานข้อผิดพลาดเพื่อช่วยให้เราหาสาเหตุ เปิดสำรองและกู้คืนเพื่อสำรองข้อมูลหรือกู้คืนข้อมูลก่อนหน้า หรือรีเซ็ตข้อมูลที่เสียหาย\n\nการรีเซ็ตจะเริ่มข้อมูลนั้นใหม่ให้ว่างเปล่า ไฟล์ที่เสียหายจะถูกเก็บไว้ในอุปกรณ์นี้ โดยเปลี่ยนชื่อเป็น \".corrupt-\" ตามด้วยวันที่</string>
+  <string name="corrupt_database_reset">รีเซ็ตข้อมูลที่เสียหาย</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">ไม่สามารถรีเซ็ตข้อมูลที่เสียหายได้: ไม่สามารถย้าย %1$s ออกไปได้ ยังไม่มีการเปลี่ยนแปลงใดๆ คุณสามารถลองอีกครั้ง ส่งรายงานข้อผิดพลาด หรือใช้สำรองและกู้คืน</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">ข้อมูลของแอปต้องได้รับการตรวจสอบ แตะเพื่อเปิดแอป</string>
   <string name="debug_test_error">ข้อผิดพลาดทดสอบ (บิลด์ดีบัก)</string>
   <string name="bug_report_prepare_failed">ไม่สามารถเตรียมหรือแชร์รายงานได้ คุณสามารถลองอีกครั้ง หรือใช้การสำรองและกู้คืนเพื่อบันทึกข้อมูลของคุณ</string>
   <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
@@ -822,6 +838,10 @@
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">พื้นที่ทำงาน</string>
   <string name="help_workspaces_text">พื้นที่ทำงานช่วยให้มีสภาพแวดล้อมการทำงานหลายอย่างที่ขึ้นอยู่กับบริบท ฟังก์ชันพื้นที่ทำงาน สามารถเข้าถึงได้ผ่านรายการพื้นที่ทำงานในเมนูตัวเลือก (มุมขวาบน) วิธีลัดในการเข้าถึงพื้นที่ทำงานคือ การปัดลงจากแถบเครื่องมือ คุณยังสามารถใช้การปัดซ้ายและปัดขวาบนแถบเครื่องมือเพื่อ สลับไปยังพื้นที่ทำงานก่อนหน้า / ถัดไป</string>
+  <string name="help_study_tools_title">เครื่องมือศึกษา</string>
+  <string name="help_study_tools_text">แตะหมายเลข Strong เพื่อค้นหาคำภาษากรีกหรือฮีบรูที่อยู่เบื้องหลังข้อพระคัมภีร์ในพจนานุกรม แตะการอ้างอิงโยงเพื่ออ่านในหน้าต่างลิงก์ โดยไม่เสียตำแหน่งที่อ่านอยู่ในข้อความ</string>
+  <string name="help_look_and_feel_title">รูปลักษณ์และการใช้งาน</string>
+  <string name="help_look_and_feel_text">โหมดกลางคืน ขนาดและตระกูลแบบอักษร สี และระยะขอบ อยู่ในตัวเลือกข้อความในเมนูตัวเลือก (จุดสามจุด มุมขวาบน) ตั้งค่าได้สำหรับทุกพื้นที่ทำงาน สำหรับพื้นที่ทำงานเดียว หรือสำหรับหน้าต่างเดียว</string>
   <string name="help_hidden_features_title">ทางลัดที่ซ่อนอยู่</string>
   <string name="help_hidden_features_text">ปัดลงจากแถบเครื่องมือเพื่อแสดงตัวเลือกพื้นที่ทำงาน กดค้างที่ปุ่มหน้าต่างเพื่อย่อขนาดอย่างรวดเร็ว กดค้างที่ปุ่มแถบเครื่องมืออ่านออกเสียงเพื่อไปยังการตั้งค่าการอ่านออกเสียงอย่างรวดเร็ว กดค้างที่หัวข้อตำแหน่งข้อในแถบเครื่องมือเพื่อไปยังตัวเลือกเอกสาร</string>
   <string name="help_window_pinning_title">การตรึงหน้าต่าง</string>
@@ -833,6 +853,7 @@
   <string name="welcome_restore_row_hint">ไฟล์ฐานข้อมูลที่มีที่คั่นหน้าและบันทึก</string>
   <string name="welcome_link_website">เว็บไซต์</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">วิดีโอ</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">คุณต้องเลือกไฟล์ที่ต้องการโหลดไปยัง %s</string>
@@ -1745,12 +1766,15 @@
   <string name="my_document_create_title">สร้างเอกสารใหม่</string>
   <string name="my_document_rename_title">เปลี่ยนชื่อเอกสาร</string>
   <string name="my_document_delete_confirmation">ลบเอกสาร \"%s\"?</string>
+  <string name="show_secret">แสดง</string>
+  <string name="hide_secret">ซ่อน</string>
+  <string name="ai_documents_name">เอกสาร AI</string>
+  <string name="ai_documents_description">เอกสารที่สร้างโดย AI โดยอัตโนมัติ</string>
   <string name="my_document_cannot_delete_ai_documents">ไม่สามารถลบเอกสาร AI ได้ในขณะที่มีหน้าอยู่ กรุณาลบหน้าก่อน</string>
   <string name="my_document_save_changes">บันทึกการเปลี่ยนแปลง?</string>
   <string name="my_document_no_description">ไม่มีคำอธิบาย</string>
   <string name="my_document_edit_description">แก้ไขคำอธิบาย</string>
   <string name="my_document_pages_title">%s - หน้า</string>
-  <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
   <string name="my_document_page_rename_title">เปลี่ยนชื่อหน้า</string>
   <string name="my_document_page_delete_confirmation">ลบหน้า \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">ลบหน้าเหล่านี้หรือไม่?</string>
@@ -1758,6 +1782,9 @@
   <string name="my_document_new_page_name">หน้า %1$d</string>
   <string name="my_document_create_page_title">หน้าใหม่</string>
   <string name="my_document_content_type_label">ประเภทเนื้อหา</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
   <string name="my_document_import_page">นำเข้า Markdown/HTML</string>
   <string name="my_document_export_page">ส่งออกหน้า</string>
   <string name="my_document_imported_page_name">นำเข้าแล้ว</string>

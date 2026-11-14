@@ -123,5 +123,6 @@ llmAction: الذكاء الاصطناعي
 llmActionLong: إجراء الذكاء الاصطناعي
 aiDocumentRegenerate: إعادة الإنشاء
 aiDocumentDelete: حذف
+aiDocumentsName: مستندات الذكاء الاصطناعي
 aiGeneratedBy: "أُنشئ بواسطة %s"
 aiGeneratedByWithModel: "أُنشئ بواسطة %s (%s)"

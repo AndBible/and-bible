@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Akce AI
 aiDocumentRegenerate: Regenerovat
 aiDocumentDelete: Smazat
+aiDocumentsName: AI dokumenty
 aiGeneratedBy: "Vygenerováno pomocí %s"
 aiGeneratedByWithModel: "Vygenerováno pomocí %s (%s)"

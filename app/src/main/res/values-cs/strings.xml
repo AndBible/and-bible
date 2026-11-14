@@ -128,7 +128,19 @@
   <string name="search_not_available">V tomto dokumentu nelze hledat</string>
   <string name="search_indexing_notification_title">Vytváření vyhledávacího indexu</string>
   <string name="choose_translations">Vybrat překlady…</string>
-  <string name="multi_search_results">%1$d veršů v %2$d překladech</string>
+  <string name="multi_search_count_summary">%1$s v %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verš</item>
+    <item quantity="few">%1$d verše</item>
+    <item quantity="many">%1$d verše</item>
+    <item quantity="other">%1$d veršů</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d překlad</item>
+    <item quantity="few">%1$d překlady</item>
+    <item quantity="many">%1$d překladu</item>
+    <item quantity="other">%1$d překladů</item>
+  </plurals>
   <string name="search_index_not_created">žádný index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitoly a čísla veršů</string>
@@ -320,8 +332,9 @@
   <string name="create_bookmark_with_a_note">Vytvořit novou záložku s poznámkou</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavení barev</string>
-  <string name="window_color_settings_title">Nastavení barev okna</string>
-  <string name="workspace_color_settings_title">Výchozí hodnoty nastavení barev pracovní plochy</string>
+  <string name="global_color_settings_title">Nastavení barev (globální)</string>
+  <string name="window_color_settings_title">Nastavení barev (okno)</string>
+  <string name="workspace_color_settings_title">Nastavení barev (pracovní plocha)</string>
   <string name="color_workspace">Barva pracovní plochy</string>
   <string name="color_text">Barva textu</string>
   <string name="color_background">Barva pozadí</string>
@@ -410,6 +423,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="rdg_plan_day">Den %s</string>
   <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
   <string name="set_current_day">Nastavit aktuální den…</string>
+  <string name="msg_set_current_day_reading_plan">Tím se %1$s nastaví jako aktuální den tohoto plánu a všechny předchozí dny se označí jako přečtené. Pokračovat?</string>
   <string name="done">Hotovo</string>
   <string name="reset_plan_question">Jste si jisti, že chcete tento plán resetovat?</string>
   <string name="import_reading_plan">Importovat plán čtení…</string>
@@ -496,7 +510,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="auto_assign_labels_title">Nastavení štítků</string>
   <string name="auto_assign_labels">Automatické a oblíbené štítky</string>
   <string name="auto_assign_labels1">Automaticky přidávat k novým záložkám</string>
-  <string name="auto_assign_labels_primary">Automaticky značit jako primární</string>
+  <string name="auto_assign_labels_primary">Automaticky přiřadit jako hlavní štítek</string>
   <!--can be removed-->
   <string name="bookmark_warning">Pro tento dokument existují záložky/poznámky</string>
   <string name="bookmark_warning2">
@@ -786,6 +800,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="error_key_not_in_document2">%1$s se v dokumentu %2$s nenachází.</string>
   <string name="empty_list">Žádné položky k zobrazení</string>
   <string name="error_skip">Přeskočit</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Poškozená data</string>
+  <string name="corrupt_database_message">Některá vaše data se nepodařilo otevřít, protože soubor databáze je poškozený: %1$s.\n\nNic nebylo změněno ani smazáno. Můžete odeslat hlášení o chybě, které nám pomůže zjistit příčinu, otevřít Zálohu a obnovu a vytvořit zálohu nebo obnovit dřívější, nebo poškozená data resetovat.\n\nPo resetu tato data začínají prázdná. Poškozený soubor zůstane v tomto zařízení, přejmenovaný s příponou \".corrupt-\" a datem.</string>
+  <string name="corrupt_database_reset">Resetovat poškozená data</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Poškozená data se nepodařilo resetovat: soubor %1$s nešlo přesunout stranou. Nic nebylo změněno. Můžete to zkusit znovu, odeslat hlášení o chybě nebo použít Zálohu a obnovu.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Data aplikace vyžadují pozornost. Klepnutím aplikaci otevřete.</string>
   <string name="debug_test_error">Testovací chyba (ladicí sestavení)</string>
   <string name="bug_report_prepare_failed">Hlášení se nepodařilo připravit nebo sdílet. Můžete to zkusit znovu nebo použít Zálohu a obnovení k uložení svých dat.</string>
   <string name="bug_report_email_title">Nahlášení chyby emailem</string>
@@ -906,6 +928,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
        potažením nástrojové lišty dolů. Také můžete na nástrojové liště potáhnout doleva nebo doprava,
        tím přejdete na předchozí/další pracovní plochu.
 </string>
+  <string name="help_study_tools_title">Nástroje ke studiu</string>
+  <string name="help_study_tools_text">Klepnutím na Strongovo číslo vyhledáte ve slovníku řecké nebo hebrejské slovo, které stojí za veršem. Klepnutím na křížový odkaz si jej přečtete v okně odkazů, aniž byste ztratili své místo v textu.</string>
+  <string name="help_look_and_feel_title">Vzhled</string>
+  <string name="help_look_and_feel_text">Noční režim, velikost a typ písma, barvy a okraje najdete v Nastavení textu v nabídce možností (tři tečky v pravém horním rohu). Lze je nastavit pro všechny pracovní plochy, pro jednu pracovní plochu nebo pro jedno okno.</string>
   <string name="help_hidden_features_title">Skryté zkratky</string>
   <string name="help_hidden_features_text">
         Potažením nástrojové lišty dolů zobrazíte výběr pracovní plochy.
@@ -930,6 +956,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="welcome_restore_row_hint">Soubor databáze se záložkami a poznámkami</string>
   <string name="welcome_link_website">Web</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Je nutné vybrat soubor, který se má nahrát do %s. </string>
@@ -1082,7 +1109,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="display_mode_hidden">Skryté</string>
   <string name="display_mode_inherit">Stejné jako výběr</string>
   <string name="workspace_override_indicator">Tento štítek má režim zobrazení specifický pro pracovní plochu</string>
-  <string name="primary_label">Primární štítek</string>
+  <string name="primary_label">Hlavní štítek</string>
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
@@ -1186,7 +1213,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="labels_filter_favourite">Pouze oblíbené štítky</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Zaškrtnutím štítku jej přiřadíte k této záložce.</string>
-  <string name="manage_labels_help_primary">Primární štítek. Jeho barva a styl určují, jak se záložka zobrazuje.</string>
+  <string name="manage_labels_help_primary">Hlavní štítek. Jeho barva a styl určují, jak se záložka zobrazuje.</string>
   <string name="manage_labels_help_autoassign">Přiřadit tento štítek automaticky ke každé nové záložce. Prázdný blesk znamená vypnuto.</string>
   <string name="manage_labels_help_favourite">Ponechat štítek v oblíbených pro rychlý přístup.</string>
   <string name="manage_labels_help_styles">Pod názvem se zobrazuje malá ukázka vzhledu štítku: Výběr pro záložku výběru textu, Celý verš pro záložku celého verše a značka Pracovní plocha pro styl, který tato pracovní plocha přepisuje. Zašedlá ukázka bez dekorace znamená, že záložky tohoto štítku se nevykreslují. Ukázky můžete skrýt v nabídce ⋮.</string>
@@ -1888,12 +1915,15 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="my_document_create_title">Vytvořit nový dokument</string>
   <string name="my_document_rename_title">Přejmenovat dokument</string>
   <string name="my_document_delete_confirmation">Smazat dokument \"%s\"?</string>
+  <string name="show_secret">Zobrazit</string>
+  <string name="hide_secret">Skrýt</string>
+  <string name="ai_documents_name">AI dokumenty</string>
+  <string name="ai_documents_description">Automaticky generované dokumenty od AI</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nelze smazat, pokud obsahují stránky. Nejprve smažte stránky.</string>
   <string name="my_document_save_changes">Uložit změny?</string>
   <string name="my_document_no_description">Bez popisu</string>
   <string name="my_document_edit_description">Upravit popis</string>
   <string name="my_document_pages_title">%s – Stránky</string>
-  <string name="my_document_pages_empty">V tomto dokumentu nejsou žádné stránky.</string>
   <string name="my_document_page_rename_title">Přejmenovat stránku</string>
   <string name="my_document_page_delete_confirmation">Smazat stránku \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Smazat tyto stránky?</string>
@@ -1901,6 +1931,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">V tomto dokumentu nejsou žádné stránky.</string>
   <string name="my_document_import_page">Importovat Markdown/HTML</string>
   <string name="my_document_export_page">Exportovat stránku</string>
   <string name="my_document_imported_page_name">Importováno</string>

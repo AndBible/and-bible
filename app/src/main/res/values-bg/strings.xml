@@ -128,7 +128,15 @@
   <string name="search_not_available">В този ресурс не може да се търси</string>
   <string name="search_indexing_notification_title">Създаване на индекс за търсене</string>
   <string name="choose_translations">Избери преводи…</string>
-  <string name="multi_search_results">%1$d стиха в %2$d превода</string>
+  <string name="multi_search_count_summary">%1$s в %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d стих</item>
+    <item quantity="other">%1$d стиха</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d превод</item>
+    <item quantity="other">%1$d превода</item>
+  </plurals>
   <string name="search_index_not_created">няма индекс</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера на глави и стихове</string>
@@ -320,8 +328,9 @@
   <string name="create_bookmark_with_a_note">Създай нова отметка с бележка</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Настройки на цветовете</string>
-  <string name="window_color_settings_title">Настройки на цветовете на прозореца</string>
-  <string name="workspace_color_settings_title">Настройки по подразбиране за цветовете на работното пространство</string>
+  <string name="global_color_settings_title">Настройки на цветовете (Глобални)</string>
+  <string name="window_color_settings_title">Настройки на цветовете (Прозорец)</string>
+  <string name="workspace_color_settings_title">Настройки на цветовете (Работно пространство)</string>
   <string name="color_workspace">Цвят на работното пространство</string>
   <string name="color_text">Цвят на текста</string>
   <string name="color_background">Цвят на фона</string>
@@ -407,6 +416,7 @@
   <string name="rdg_plan_day">Ден %s</string>
   <string name="rdg_plan_set_start_date">Задай начална дата…</string>
   <string name="set_current_day">Задай като текущ ден…</string>
+  <string name="msg_set_current_day_reading_plan">Това ще зададе %1$s като текущ ден в този план и ще отбележи всички предишни дни като прочетени. Продължаване?</string>
   <string name="done">Готово</string>
   <string name="reset_plan_question">Сигурни ли сте, че искате да изчистите този план?</string>
   <string name="import_reading_plan">Импортирай план за четене…</string>
@@ -469,7 +479,7 @@
   <string name="auto_assign_labels_title">Настройки на етикети</string>
   <string name="auto_assign_labels">Автоматично присвояване и любими етикети</string>
   <string name="auto_assign_labels1">Автоматично присвояване на етикет към нови отметки</string>
-  <string name="auto_assign_labels_primary">Автоматично присвояване като основен</string>
+  <string name="auto_assign_labels_primary">Автоматично присвояване като основен етикет</string>
   <!--can be removed-->
   <string name="bookmark_warning">За този ресурс има отметки и/или бележки.</string>
   <string name="bookmark_warning2">Ако структурата на документа се е променила, актуализирането на този документ може да доведе до преместване на местоположенията на тези отметки/бележки в документа или до пълното им изчезване.</string>
@@ -725,6 +735,14 @@
   <string name="error_key_not_in_document2">%1$s не е намерен в ресурса %2$s.</string>
   <string name="empty_list">Нищо за показване</string>
   <string name="error_skip">Пропусни</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Повредени данни</string>
+  <string name="corrupt_database_message">Някои от вашите данни не можаха да бъдат отворени, защото файлът на базата данни е повреден: %1$s.\n\nНищо не е променено или изтрито. Можете да изпратите отчет за грешка, за да ни помогнете да открием причината, да отворите Резервно копие, за да направите резервно копие или да възстановите по-ранно, или да нулирате повредените данни.\n\nНулирането започва тези данни празни. Повреденият файл се запазва на това устройство, преименуван с \".corrupt-\" и датата.</string>
+  <string name="corrupt_database_reset">Нулиране на повредените данни</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">Повредените данни не можаха да бъдат нулирани: %1$s не можа да бъде преместен настрана. Нищо не е променено. Можете да опитате отново, да изпратите отчет за грешка или да използвате Резервно копие.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">Данните на приложението изискват внимание. Докоснете, за да отворите приложението.</string>
   <string name="debug_test_error">Тестова грешка (дебъг версия)</string>
   <string name="bug_report_prepare_failed">Отчетът не можа да бъде подготвен или споделен. Можете да опитате отново или да използвате Резервно копие и възстановяване, за да запазите данните си.</string>
   <string name="bug_report_email_title">Изпрати доклад за грешка по имейл</string>
@@ -822,6 +840,10 @@
   <string name="help_fts5">Синтаксис на пълнотекстовото търсене FTS5</string>
   <string name="help_workspaces_title">Работни пространства</string>
   <string name="help_workspaces_text">Работните пространства позволяват наличието на множество работни среди в зависимост от контекста. Функциите на работното пространство са достъпни чрез елемента „Работни пространства\" в менюто с опции (горен десен ъгъл). Бърз начин за достъп до работните пространства е чрез плъзгане надолу от лентата с инструменти. Можете също да използвате жестове за плъзгане наляво и надясно върху лентата с инструменти, за да превключите към предишното / следващото работно пространство.</string>
+  <string name="help_study_tools_title">Инструменти за изследване</string>
+  <string name="help_study_tools_text">Докоснете номер на Strong\'s, за да потърсите в речник гръцката или еврейската дума зад стиха. Докоснете препратка, за да я прочетете в прозореца за връзки, без да изгубите мястото си в текста.</string>
+  <string name="help_look_and_feel_title">Външен вид</string>
+  <string name="help_look_and_feel_text">Нощният режим, размерът и семейството на шрифта, цветовете и полетата са в Текстови опции в менюто с опции (трите точки, горния десен ъгъл). Могат да се задават за всички работни пространства, за едно работно пространство или за един прозорец.</string>
   <string name="help_hidden_features_title">Скрити клавишни комбинации</string>
   <string name="help_hidden_features_text">Плъзнете надолу от лентата с инструменти, за да покажете селектора на работното пространство. Натиснете продължително бутона на прозореца, за да го минимизирате бързо. Натиснете продължително бутона на лентата с инструменти за четене, за да отидете бързо към настройките за четене. Натиснете продължително заглавието на местоположението на стиха в лентата с инструменти, за да преминете към селектора на документи.</string>
   <string name="help_window_pinning_title">Закрепване на прозорец</string>
@@ -833,6 +855,7 @@
   <string name="welcome_restore_row_hint">Файл с база данни с отметки и бележки</string>
   <string name="welcome_link_website">Уебсайт</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Видео</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Трябва да изберете файла, който искате да заредите в %s.</string>
@@ -1745,12 +1768,15 @@
   <string name="my_document_create_title">Създай нов документ</string>
   <string name="my_document_rename_title">Преименувай документ</string>
   <string name="my_document_delete_confirmation">Изтрий документа \"%s\"?</string>
+  <string name="show_secret">Показване</string>
+  <string name="hide_secret">Скриване</string>
+  <string name="ai_documents_name">AI документи</string>
+  <string name="ai_documents_description">Автоматично генерирани документи от AI</string>
   <string name="my_document_cannot_delete_ai_documents">AI документите не могат да бъдат изтрити, докато съдържат страници. Изтрийте първо страниците.</string>
   <string name="my_document_save_changes">Запази промените?</string>
   <string name="my_document_no_description">Няма описание</string>
   <string name="my_document_edit_description">Редактирай описание</string>
   <string name="my_document_pages_title">%s – Страници</string>
-  <string name="my_document_pages_empty">Няма страници в този документ.</string>
   <string name="my_document_page_rename_title">Преименувай страница</string>
   <string name="my_document_page_delete_confirmation">Изтрий страницата \"%s\"?</string>
   <string name="my_document_pages_delete_confirmation">Да се изтрият ли тези страници?</string>
@@ -1758,6 +1784,9 @@
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Тип съдържание</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Няма страници в този документ.</string>
   <string name="my_document_import_page">Импортирай Markdown/HTML</string>
   <string name="my_document_export_page">Експортирай страница</string>
   <string name="my_document_imported_page_name">Импортирано</string>

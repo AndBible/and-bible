@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: AI 操作
 aiDocumentRegenerate: 重新生成
 aiDocumentDelete: 删除
+aiDocumentsName: AI 文档
 aiGeneratedBy: "由 %s 生成"
 aiGeneratedByWithModel: "由 %s（%s）生成"

@@ -128,7 +128,15 @@
   <string name="search_not_available">Dit document kan niet worden doorzocht</string>
   <string name="search_indexing_notification_title">Zoekindex wordt aangemaakt</string>
   <string name="choose_translations">Kies vertalingen…</string>
-  <string name="multi_search_results">%1$d verzen in %2$d vertalingen</string>
+  <string name="multi_search_count_summary">%1$s in %2$s</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verzen</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertaling</item>
+    <item quantity="other">%1$d vertalingen</item>
+  </plurals>
   <string name="search_index_not_created">geen index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
@@ -321,8 +329,9 @@
   <string name="create_bookmark_with_a_note">Maak een nieuwe bladwijzer met een notitie</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
-  <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
-  <string name="workspace_color_settings_title">Standaard kleurinstellingen voor werkblad</string>
+  <string name="global_color_settings_title">Kleurinstellingen (globaal)</string>
+  <string name="window_color_settings_title">Kleurinstellingen (venster)</string>
+  <string name="workspace_color_settings_title">Kleurinstellingen (werkblad)</string>
   <string name="color_workspace">Werkblad kleur</string>
   <string name="color_text">Tekstkleur</string>
   <string name="color_background">Achtergrondkleur</string>
@@ -410,6 +419,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
   <string name="set_current_day">Stel huidige dag in...</string>
+  <string name="msg_set_current_day_reading_plan">Hiermee wordt %1$s als huidige dag in dit plan ingesteld en worden alle voorgaande dagen als gelezen gemarkeerd. Doorgaan?</string>
   <string name="done">Klaar</string>
   <string name="reset_plan_question">Weet u zeker dat u dit plan wilt terugzetten?</string>
   <string name="import_reading_plan">Importeer leesplan</string>
@@ -488,7 +498,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="auto_assign_labels_title">Labelinstellingen</string>
   <string name="auto_assign_labels">Auto-toewijzen &amp; Favoriete labels</string>
   <string name="auto_assign_labels1">Automatisch toewijzen label aan nieuwe bladwijzers</string>
-  <string name="auto_assign_labels_primary">Auto-toewijzen als primair</string>
+  <string name="auto_assign_labels_primary">Automatisch toewijzen als hoofdlabel</string>
   <!--can be removed-->
   <string name="bookmark_warning">Er zijn bladwijzers en/of notities voor dit document</string>
   <string name="bookmark_warning2">
@@ -777,6 +787,14 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="error_key_not_in_document2">%1$s is niet gevonden in document %2$s.</string>
   <string name="empty_list">Geen te tonen items</string>
   <string name="error_skip">Overslaan</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <string name="corrupt_database_title">Beschadigde gegevens</string>
+  <string name="corrupt_database_message">Een deel van je gegevens kon niet worden geopend omdat het databasebestand beschadigd is: %1$s.\n\nEr is niets gewijzigd of verwijderd. Je kunt een foutrapport sturen om ons te helpen de oorzaak te vinden, Back-up en herstel openen om een back-up te maken of een eerdere terug te zetten, of de beschadigde gegevens opnieuw instellen.\n\nBij opnieuw instellen beginnen die gegevens leeg. Het beschadigde bestand blijft op dit apparaat bewaard, hernoemd met \".corrupt-\" en de datum.</string>
+  <string name="corrupt_database_reset">Beschadigde gegevens opnieuw instellen</string>
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <string name="corrupt_database_reset_failed">De beschadigde gegevens konden niet opnieuw worden ingesteld: %1$s kon niet opzij worden gezet. Er is niets gewijzigd. Je kunt het opnieuw proberen, een foutrapport sturen of Back-up en herstel gebruiken.</string>
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
+  <string name="damaged_data_needs_attention">De gegevens van de app hebben aandacht nodig. Tik om de app te openen.</string>
   <string name="debug_test_error">Testfout (debugbuild)</string>
   <string name="bug_report_prepare_failed">Het rapport kon niet worden voorbereid of gedeeld. U kunt het opnieuw proberen, of Back-up en herstel gebruiken om uw gegevens op te slaan.</string>
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
@@ -890,6 +908,10 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
         Werkbladen geven de mogelijkheid om verschillende context-specifieke werk omgevingen te hebben. Werkblad functies kunnen gevonden worden via de Werkbladen knop in het optie-menu (rechtsboven). 
         Snelle toegang tot werkbladen: veeg naar beneden vanaf de taakbalk.
         Naar volgende of vorige werkblad gaan: veeg naar links of rechts op de taakbalk.</string>
+  <string name="help_study_tools_title">Studiehulpmiddelen</string>
+  <string name="help_study_tools_text">Tik op een Strong-nummer om het Griekse of Hebreeuwse woord achter een vers in een woordenboek op te zoeken. Tik op een kruisverwijzing om die in het linkvenster te lezen, zonder je plaats in de tekst kwijt te raken.</string>
+  <string name="help_look_and_feel_title">Uiterlijk</string>
+  <string name="help_look_and_feel_text">Nachtmodus, lettergrootte en lettertype, kleuren en marges vind je onder Tekstopties in het optiemenu (drie puntjes, rechtsboven). Ze kunnen worden ingesteld voor alle werkbladen, voor één werkblad of voor één venster.</string>
   <string name="help_hidden_features_title">Verborgen snelkoppelingen</string>
   <string name="help_hidden_features_text">
         Veeg naar beneden vanaf de taakbalk om de werkblad kiezer te openen.
@@ -908,6 +930,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="welcome_restore_row_hint">Databasebestand met bladwijzers en notities</string>
   <string name="welcome_link_website">Website</string>
   <string name="welcome_link_github">GitHub</string>
+  <string name="welcome_link_video">Video</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Selecteer het bestand dat u wilt laden in %s</string>
@@ -1058,7 +1081,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="display_mode_hidden">Verborgen</string>
   <string name="display_mode_inherit">Zelfde als selectie</string>
   <string name="workspace_override_indicator">Dit label heeft een werkblad-specifieke weergavemodus</string>
-  <string name="primary_label">Primaire label</string>
+  <string name="primary_label">Hoofdlabel</string>
   <string name="favourite_label">Favouriet label</string>
   <string name="edit_label">Label bewerken</string>
   <string name="delete_label_confirmation">Wilt u bladwijzer label \"%s\" verwijderen? Ook alle gekoppelde Studeermap notities worden verwijderd.</string>
@@ -1162,7 +1185,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="labels_filter_favourite">Alleen favoriete labels</string>
   <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="manage_labels_help_checkbox">Vink een label aan om het aan deze bladwijzer toe te wijzen.</string>
-  <string name="manage_labels_help_primary">Het primaire label. De kleur en stijl ervan worden door de bladwijzer getoond.</string>
+  <string name="manage_labels_help_primary">Het hoofdlabel. De kleur en stijl ervan zijn wat de bladwijzer toont.</string>
   <string name="manage_labels_help_autoassign">Dit label automatisch toewijzen aan elke nieuwe bladwijzer. Een holle bliksemschicht betekent uit.</string>
   <string name="manage_labels_help_favourite">Bewaar het label in uw favorieten voor snelle toegang.</string>
   <string name="manage_labels_help_styles">Onder de naam toont een klein voorbeeld het uiterlijk van het label: Selectie voor een bladwijzer van een tekstselectie, Heel vers voor een bladwijzer van een heel vers, en een Werkblad-tag voor een stijl die dit werkblad overschrijft. Een grijs voorbeeld zonder opmaak betekent dat de bladwijzers van het label niet worden getekend. Verberg de voorbeelden via het ⋮-menu.</string>
@@ -1855,12 +1878,15 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="my_document_create_title">Nieuw document aanmaken</string>
   <string name="my_document_rename_title">Document hernoemen</string>
   <string name="my_document_delete_confirmation">Document \"%s\" verwijderen?</string>
+  <string name="show_secret">Tonen</string>
+  <string name="hide_secret">Verbergen</string>
+  <string name="ai_documents_name">AI-documenten</string>
+  <string name="ai_documents_description">Automatisch door AI gegenereerde documenten</string>
   <string name="my_document_cannot_delete_ai_documents">AI-documenten kunnen niet worden verwijderd zolang ze pagina\'s bevatten. Verwijder eerst de pagina\'s.</string>
   <string name="my_document_save_changes">Wijzigingen opslaan?</string>
   <string name="my_document_no_description">Geen beschrijving</string>
   <string name="my_document_edit_description">Beschrijving bewerken</string>
   <string name="my_document_pages_title">%s - Pagina\'s</string>
-  <string name="my_document_pages_empty">Geen pagina\'s in dit document.</string>
   <string name="my_document_page_rename_title">Pagina hernoemen</string>
   <string name="my_document_page_delete_confirmation">Pagina \"%s\" verwijderen?</string>
   <string name="my_document_pages_delete_confirmation">Deze pagina\'s verwijderen?</string>
@@ -1868,6 +1894,9 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Nieuwe pagina</string>
   <string name="my_document_content_type_label">Inhoudstype</string>
+  <string name="my_document_content_type_markdown">Markdown</string>
+  <string name="my_document_content_type_html">HTML</string>
+  <string name="my_document_pages_empty">Geen pagina\'s in dit document.</string>
   <string name="my_document_import_page">Markdown/HTML importeren</string>
   <string name="my_document_export_page">Pagina exporteren</string>
   <string name="my_document_imported_page_name">Geïmporteerd</string>

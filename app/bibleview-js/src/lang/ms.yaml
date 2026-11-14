@@ -123,5 +123,6 @@ llmAction: AI
 llmActionLong: Tindakan AI
 aiDocumentRegenerate: Jana semula
 aiDocumentDelete: Padamkan
+aiDocumentsName: Dokumen AI
 aiGeneratedBy: "Dijana oleh %s"
 aiGeneratedByWithModel: "Dijana oleh %s (%s)"
