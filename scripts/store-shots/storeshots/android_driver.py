@@ -38,6 +38,7 @@ UI_TEXT = {
     "more_options": "More options",            # reading_toolbar_options (content-desc)
     "workspaces_entry": r"Workspaces.*",       # menu entry "Workspaces …"
     "beta_dismiss": "Dismiss until next update",  # beta_notice_dismiss_until_update
+    "release_dismiss": "Don't show again",     # release_notice_dont_show_again (video-look builds)
     "close": "Close",                          # content-desc of sheet close buttons
     "edit_labels": "Select or edit labels…",   # bibleview-js assignLabelsMenuEntry1
     "menu": "Menu",                            # drawer button (content-desc)
@@ -192,19 +193,30 @@ def node_bounds(xml: str, text_re: str) -> tuple[int, int, int, int]:
 
 def open_app(dev: Device) -> None:
     """Launch and wait until the reading toolbar shows with no dialog over it in two dumps 3 s apart (the beta
-    notice of debug builds appears a moment after the toolbar)."""
+    notice of debug builds, or the release notice of a `-PvideoLook=true` build, appears a moment after the
+    toolbar)."""
     dev.shell(f"monkey -p {dev.pkg} -c android.intent.category.LAUNCHER 1", check=False)
     end = time.monotonic() + 90
     calm = 0
     while time.monotonic() < end:
         xml = dev.dump()
+        dismissed = False
         try:
             dev.tap(*find_node(xml, text=UI_TEXT["beta_dismiss"]))
+            dismissed = True
+        except NodeNotFound:
+            pass
+        try:
+            # The release notice: its "Don't show again" is a checkbox; its text button "Close" closes it.
+            find_node(xml, text=UI_TEXT["release_dismiss"])
+            dev.tap(*find_node(xml, text=UI_TEXT["close"]))
+            dismissed = True
+        except NodeNotFound:
+            pass
+        if dismissed:
             calm = 0
             time.sleep(1.5)
             continue
-        except NodeNotFound:
-            pass
         try:
             find_node(xml, desc=UI_TEXT["more_options"])
             calm += 1

@@ -832,7 +832,8 @@ describe("strong highlights (video look)", () => {
         for (const nightMode of [false, true]) {
             const normal = bookmarkHighlightColor(label, 1, {...base, nightMode});
             const strong = bookmarkHighlightColor(label, 1, {...base, nightMode, strongHighlights: true});
-            expect(strong.alpha()).toBeGreaterThanOrEqual(normal.alpha() + 0.2);
+            // Day carries the videos; night stays moderate so red-letter text keeps its contrast.
+            expect(strong.alpha()).toBeGreaterThanOrEqual(normal.alpha() + (nightMode ? 0.1 : 0.2));
             expect(strong.alpha(1).hex()).toEqual(normal.alpha(1).hex());
         }
     });
