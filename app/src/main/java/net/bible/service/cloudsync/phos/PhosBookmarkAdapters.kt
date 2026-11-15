@@ -94,8 +94,18 @@ class PhosLabelAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAdapte
     override val ownedFields = PhosBookmarkCodec.labelFields
 
     override fun enumerate(): List<PhosItem> {
-        val idx = LabelIndex(db())
-        return idx.byId.values.filter { it.name.isNotEmpty() && !idx.isSpecial(it.name) }
+        val d = db()
+        val idx = LabelIndex(d)
+        // AndBible's example labels travel only once a bookmark of the user's own uses them
+        val used = HashSet<String>()
+        for (t in listOf("BibleBookmarkToLabel" to "BibleBookmark", "GenericBookmarkToLabel" to "GenericBookmark")) {
+            val typeFilter = if (t.second == "BibleBookmark") " WHERE b.type IS NULL OR b.type != 'EXAMPLE'" else ""
+            d.rows("SELECT DISTINCT t.labelId FROM ${t.first} t JOIN ${t.second} b ON b.id=t.bookmarkId$typeFilter") { c ->
+                c.hexId(0)?.let { used += it }
+            }
+        }
+        d.rows("SELECT DISTINCT labelId FROM StudyPadTextEntry") { c -> c.hexId(0)?.let { used += it } }
+        return idx.byId.values.filter { it.name.isNotEmpty() && !idx.isSpecial(it.name) && (it.type != "EXAMPLE" || it.idHex in used) }
             .sortedBy { it.name }
             .map { PhosItem("label:" + it.name, PhosBookmarkCodec.labelToJson(it)) }
     }
@@ -164,7 +174,8 @@ class PhosBookmarkAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAda
         val where = if (only != null) " WHERE b.id=?" else ""
         d.rows("SELECT b.id, b.v11n, b.ordinalStart, b.ordinalEnd, b.book, b.startOffset, b.endOffset, b.wholeVerse, " +
             "b.createdAt, b.lastUpdatedOn, b.customIcon, b.primaryLabelId, n.notes, n.contentType " +
-            "FROM BibleBookmark b LEFT JOIN BibleBookmarkNotes n ON n.bookmarkId=b.id$where",
+            "FROM BibleBookmark b LEFT JOIN BibleBookmarkNotes n ON n.bookmarkId=b.id$where" +
+            (if (only == null) " WHERE b.type IS NULL OR b.type != 'EXAMPLE'" else ""),
             if (only != null) arrayOf<Any?>(blob(only)) else emptyArray()) { c ->
             val id = c.hexId(0) ?: return@rows
             out += AbBibleBookmark(id, c.str(1).orEmpty(), c.getInt(2), c.getInt(3), c.str(4), c.intOrNull(5), c.intOrNull(6),
