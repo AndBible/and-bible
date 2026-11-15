@@ -275,6 +275,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
+        PhosSyncPreferences.setup(this)
     }
 
     private fun showEnableDocumentsDialog(summary: DocumentSyncSummary) {

@@ -1716,4 +1716,13 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="document_sync_started">Dokumentsynchronisierung gestartet</string>
   <string name="document_sync_enable_dialog_title">Dokumentsynchronisierung starten?</string>
   <string name="document_sync_enable_dialog_nothing">Noch keine Dokumente zu übertragen. Neu installierte Dokumente werden automatisch synchronisiert.</string>
+    <string name="phos_sync_title">Phos Nextcloud</string>
+    <string name="phos_sync_enable">Mit der Phos-App synchronisieren</string>
+    <string name="phos_sync_enable_summary">Synchronisiert Lesezeichen, Arbeitsbereiche und Lesepläne mit der Phos-App auf einem Nextcloud-Server, zusätzlich zur Cloud-Synchronisierung oben. Andere Phos-Geräte (Desktop, Web, Mobil) sehen dieselben Daten.</string>
+    <string name="phos_sync_password_summary">Ein Nextcloud-App-Passwort oder dein Anmeldepasswort (es wird einmalig gegen ein App-Passwort getauscht).</string>
+    <string name="phos_sync_now">Jetzt synchronisieren</string>
+    <string name="phos_sync_never">Noch nicht synchronisiert</string>
+    <string name="phos_sync_last">Zuletzt %1$s: %2$s</string>
+    <string name="phos_sync_reset">Serverstand vergessen</string>
+    <string name="phos_sync_reset_summary">Beginnt neu mit dem Server (z. B. nach einem Kontowechsel). Lokale Daten bleiben erhalten.</string>
 </resources>

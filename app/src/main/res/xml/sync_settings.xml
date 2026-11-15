@@ -146,4 +146,53 @@
 			android:summary="@string/document_sync_manage_summary"
 			android:icon="@drawable/ic_baseline_cloud_24" />
 	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="phos_sync_category"
+		android:title="@string/phos_sync_title"
+		>
+		<SwitchPreferenceCompat
+			android:key="phos_sync_enabled"
+			android:defaultValue="false"
+			android:title="@string/phos_sync_enable"
+			android:summary="@string/phos_sync_enable_summary"
+			android:icon="@drawable/ic_syncdb_24dp" />
+		<EditTextPreference
+			android:key="phos_sync_server_url"
+			android:title="@string/auth_server_uri"
+			android:icon="@drawable/outline_shield_24" />
+		<EditTextPreference
+			android:key="phos_sync_username"
+			android:title="@string/auth_username"
+			android:icon="@drawable/outline_shield_24" />
+		<EditTextPreference
+			android:key="phos_sync_password"
+			android:title="@string/auth_password"
+			android:summary="@string/phos_sync_password_summary"
+			android:icon="@drawable/outline_shield_24" />
+		<SwitchPreferenceCompat
+			android:key="phos_sync_bookmarks"
+			android:defaultValue="true"
+			android:title="@string/bookmarks"
+			android:icon="@drawable/ic_bookmark_24dp" />
+		<SwitchPreferenceCompat
+			android:key="phos_sync_workspaces"
+			android:defaultValue="true"
+			android:title="@string/help_workspaces_title"
+			android:icon="@drawable/ic_baseline_workspace_24" />
+		<SwitchPreferenceCompat
+			android:key="phos_sync_readingplans"
+			android:defaultValue="true"
+			android:title="@string/reading_plans_plural"
+			android:icon="@drawable/ic_reading_plan_24dp" />
+		<Preference
+			android:key="phos_sync_now"
+			android:title="@string/phos_sync_now"
+			android:icon="@drawable/ic_syncdb_24dp" />
+		<Preference
+			android:key="phos_sync_reset"
+			android:title="@string/phos_sync_reset"
+			android:summary="@string/phos_sync_reset_summary"
+			android:icon="@drawable/baseline_logout_24" />
+	</PreferenceCategory>
 </PreferenceScreen>

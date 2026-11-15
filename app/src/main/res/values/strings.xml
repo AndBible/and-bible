@@ -1991,4 +1991,13 @@
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
     <string name="background_image_opacity_night">Background image opacity (night)</string>
+    <string name="phos_sync_title">Phos Nextcloud</string>
+    <string name="phos_sync_enable">Sync with the Phos app</string>
+    <string name="phos_sync_enable_summary">Synchronizes bookmarks, workspaces and reading plans with the Phos app on a Nextcloud server, in addition to the cloud sync above. Other Phos devices (desktop, web, mobile) see the same data.</string>
+    <string name="phos_sync_password_summary">A Nextcloud app password, or your login password (it is exchanged for an app password once).</string>
+    <string name="phos_sync_now">Synchronize now</string>
+    <string name="phos_sync_never">Not synchronized yet</string>
+    <string name="phos_sync_last">Last run %1$s: %2$s</string>
+    <string name="phos_sync_reset">Forget server state</string>
+    <string name="phos_sync_reset_summary">Starts over with the server (e.g. after changing account). Local data stays.</string>
 </resources>

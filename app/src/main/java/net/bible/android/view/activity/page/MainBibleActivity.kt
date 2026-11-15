@@ -153,6 +153,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.cloudsync.phos.PhosSync
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
@@ -1608,7 +1609,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var syncJob: Job? = null
 
     private suspend fun startSync() {
-        if(CommonUtils.isCloudSyncEnabled) {
+        if(CommonUtils.isCloudSyncEnabled || PhosSync.enabled) {
             synchronize(true)
             if(syncJob != null) {
                 Log.e(TAG, "syncJob already exists")
@@ -1620,7 +1621,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private suspend fun periodicSync() {
         Log.i(TAG, "Periodic sync starting")
-        while (CommonUtils.isCloudSyncEnabled && syncJob?.isCancelled == false) {
+        while ((CommonUtils.isCloudSyncEnabled || PhosSync.enabled) && syncJob?.isCancelled == false) {
             delay(60*1000) // 1 minute
             if(syncJob?.isCancelled == false) synchronize()
         }
@@ -1638,6 +1639,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
+        if(PhosSync.enabled && networkAvailable) {
+            windowRepository.saveIntoDb(false)
+            PhosSync.synchronize(force, syncInterval)
+        }
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
