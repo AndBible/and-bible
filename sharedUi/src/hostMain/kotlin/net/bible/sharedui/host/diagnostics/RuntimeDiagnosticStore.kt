@@ -7,6 +7,7 @@ import kotlinx.serialization.json.longOrNull
 import okio.FileSystem
 import okio.Path
 import okio.buffer
+import okio.use
 
 /** Two alternating complete snapshots; usable history is at most one 512 KiB file. */
 internal class RuntimeDiagnosticStore(private val directory: Path, private val fileSystem: FileSystem, private val nowMillis: () -> Long) {

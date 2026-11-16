@@ -28,6 +28,7 @@ object IosPlatformBootstrap {
      */
     fun installLogSink(sink: (String) -> Unit) {
         net.bible.sharedcore.log.IosLogSink.install(sink)
+        net.bible.sharedui.ios.diagnostics.IosRuntimeDiagnostics.install()
         net.bible.sharedui.ios.report.startIosReportLog()
     }
 
