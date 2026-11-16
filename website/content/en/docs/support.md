@@ -32,8 +32,16 @@ the Mail composer or, if Mail is not configured, the system share sheet. Nothing
 sent automatically: review the report and attachments before sending, or cancel.
 Reports include device/app details, a compressed recent log from the current process,
 and the last captured Kotlin crash stack when available. The recent log is kept in
-memory, so it does not contain logs from a previous app launch. AI bug reports attach
-the selected conversation log instead; these logs may contain private information.
+memory, so it does not contain logs from a previous app launch. iOS reports can also
+include `ios_runtime_diagnostics.txt.gz`, a separate technical history of recent app,
+scene, window and reading-pane lifecycle events, including events from earlier launches.
+This history uses an allowlist of technical fields, not Bible text, notes, account details,
+paths, URLs or arbitrary JavaScript. It is kept for up to seven days in two files of at
+most 512 KiB each; because they are recoverable generations of the same history, the
+effective distinct history is about 512 KiB. Events waiting to be written may be lost
+if the app is forcibly terminated. A recorded event alone cannot establish the cause of
+a hang. Review all attachments before sending. AI bug reports attach the selected
+conversation log instead; these logs may contain private information.
 
 An iOS error dialog offers *Send Report*, *Backup & Restore*, and *Skip*. Choosing
 Backup & Restore opens the backup screen without sending a report.
