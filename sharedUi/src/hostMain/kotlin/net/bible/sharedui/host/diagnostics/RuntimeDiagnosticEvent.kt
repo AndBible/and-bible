@@ -5,7 +5,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 internal enum class DiagnosticSource { APPLICATION, SCENE, HOST, WINDOW, PANE, WEB_VIEW }
-internal enum class DiagnosticState { ACTIVE, INACTIVE, BACKGROUND, FOREGROUND, STARTED, STOPPED, SUCCEEDED, FAILED }
+internal enum class DiagnosticState { ACTIVE, INACTIVE, BACKGROUND, FOREGROUND, INITIALIZED, CREATED, STARTED, RESUMED, DESTROYED, STOPPED, SUCCEEDED, FAILED, UNKNOWN }
 internal enum class DiagnosticReason { BUSY, NOT_READY, TIMEOUT, CANCELLED, UNAVAILABLE, NO_HANDLER, NO_URL, NO_WINDOW, STALE_IDENTITY, OTHER }
 internal enum class ProbeTrigger { STARTUP, LIFECYCLE, RECOVERY, MANUAL }
 internal enum class ProbeOutcome { ALIVE, LOADING, DEAD, UNRESPONSIVE }
