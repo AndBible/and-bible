@@ -57,13 +57,28 @@ internal object IosRuntimeDiagnosticsHarness {
             .map { it.getValue("runId").jsonPrimitive.content }.distinct()
         val current = IosRuntimeDiagnostics.testRunId
         val currentRecords = records.filter { it["runId"]?.jsonPrimitive?.content == current }
-        fun sequence(type: String, source: String? = null, state: String? = null): String =
-            currentRecords.firstOrNull {
-                val event = it["event"]?.jsonObject
-                event?.get("type")?.jsonPrimitive?.content == type &&
-                    (source == null || event["source"]?.jsonPrimitive?.content == source) &&
-                    (state == null || event["state"]?.jsonPrimitive?.content == state)
-            }?.get("sequence")?.jsonPrimitive?.content ?: "missing"
+        fun field(record: kotlinx.serialization.json.JsonObject, name: String) =
+            record["event"]?.jsonObject?.get(name)?.jsonPrimitive?.content.orEmpty()
+        fun seq(record: kotlinx.serialization.json.JsonObject?) = record?.get("sequence")?.jsonPrimitive?.content ?: "missing"
+        fun number(record: kotlinx.serialization.json.JsonObject?) = seq(record).toLongOrNull() ?: Long.MAX_VALUE
+        val background = currentRecords.firstOrNull { field(it, "type") == "LifecycleObserved" &&
+            field(it, "source") == "APPLICATION" && field(it, "state") == "BACKGROUND" }
+        val foreground = currentRecords.firstOrNull { field(it, "type") == "LifecycleObserved" &&
+            field(it, "source") == "APPLICATION" && field(it, "state") == "FOREGROUND" && number(it) > number(background) }
+        val active = currentRecords.firstOrNull { field(it, "type") == "LifecycleObserved" &&
+            field(it, "source") == "APPLICATION" && field(it, "state") == "ACTIVE" && number(it) > number(foreground) }
+        fun attached(record: kotlinx.serialization.json.JsonObject) = field(record, "type") == "OwnershipObserved" &&
+            field(record, "attached") == "true" && listOf("hostId", "windowId", "sceneId").all {
+                field(record, it).isNotEmpty() && field(record, it) != "none"
+            }
+        val host = currentRecords.firstOrNull(::attached)
+        val hostActive = currentRecords.firstOrNull { attached(it) && field(it, "hostId") == host?.let { h -> field(h, "hostId") } &&
+            field(it, "windowId") == host?.let { h -> field(h, "windowId") } &&
+            field(it, "sceneId") == host?.let { h -> field(h, "sceneId") } &&
+            field(it, "applicationState") == "ACTIVE" && number(it) > number(active) }
+        val pane = currentRecords.firstOrNull { field(it, "type") == "ClientReady" && field(it, "paneId").isNotEmpty() }
+        val probe = currentRecords.firstOrNull { field(it, "type") == "ProbeResult" &&
+            field(it, "paneId") == pane?.let { p -> field(p, "paneId") } && number(it) > number(active) }
         val identities = records.mapNotNull { record ->
             val run = record["runId"]?.jsonPrimitive?.content ?: return@mapNotNull null
             val seq = record["sequence"]?.jsonPrimitive?.content ?: return@mapNotNull null
@@ -71,7 +86,7 @@ internal object IosRuntimeDiagnosticsHarness {
         }.joinToString(",")
         return "attachment=true runs=${if (runs.size >= 2) "2+" else runs.size} " +
             "current=${current in runs} run=$current records=$identities " +
-            "host=${sequence("OwnershipObserved")} pane=${sequence("ClientReady")} " +
-            "probe=${sequence("ProbeResult")} background=${sequence("LifecycleObserved", "APPLICATION", "BACKGROUND")}"
+            "host=${seq(host)} pane=${seq(pane)} probe=${seq(probe)} background=${seq(background)} " +
+            "foreground=${seq(foreground)} active=${seq(active)} hostactive=${seq(hostActive)}"
     }
 }

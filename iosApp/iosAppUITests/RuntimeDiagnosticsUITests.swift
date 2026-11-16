@@ -1,7 +1,10 @@
 import XCTest
 
 final class RuntimeDiagnosticsUITests: RealAppUITestCase {
-    func testReportContainsPersistedLifecycleAcrossRelaunch() {
+    func testReportContainsPersistedLifecycleAcrossRelaunch() throws {
+        #if !DEBUG
+        throw XCTSkip("Runtime diagnostics proof requires a debug test build")
+        #else
         ensureKJVInstalled()
         let args = ["-standardTestFixture", "-runtimeDiagnosticsTest", "-openDocument", "KJV", "-openRef", "John.3.16"]
         let app = launch(args)
@@ -15,7 +18,7 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
         let result = element(app, "runtime-diagnostics-result")
         XCTAssertTrue(result.waitForExistence(timeout: 30))
         for _ in 0..<10 {
-            if result.exists && !result.label.contains("probe=missing") && !result.label.contains("pane=missing") { break }
+            if result.exists && !result.label.contains("=missing") { break }
             let previous = result.label
             probe.tap()
             _ = waitUntil(timeout: 3) { result.label != previous }
@@ -30,7 +33,7 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
             text.split(separator: " ").first(where: { $0.hasPrefix(name + "=") }).map { String($0.dropFirst(name.count + 1)) }
         }
         var priorRecords: [String] = []
-        for kind in ["host", "pane", "probe", "background"] {
+        for kind in ["host", "pane", "probe", "background", "foreground", "active", "hostactive"] {
             guard let sequence = field(first, kind), sequence != "missing" else {
                 XCTFail("Missing \(kind) event: \(first)")
                 return
@@ -62,5 +65,6 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
         XCTAssertTrue(second.contains("attachment=true"), second)
         XCUIDevice.shared.press(.home)
         app.terminate()
+        #endif
     }
 }

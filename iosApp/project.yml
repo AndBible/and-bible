@@ -152,6 +152,9 @@ targets:
     sources: [iosAppUITests]
     dependencies: [{target: iosApp}]
     settings:
+      configs:
+        Debug:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG"
       base:
         TEST_TARGET_NAME: iosApp
         PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.uitests
