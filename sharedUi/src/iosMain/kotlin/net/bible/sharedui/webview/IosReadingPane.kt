@@ -28,6 +28,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.host.reading.HostReadingGestures
 import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.host.reading.HostSelectionMenu
+import net.bible.sharedui.ios.diagnostics.IosRuntimeDiagnostics
 import net.bible.sharedui.ios.reading.IosSelectionMessageHandler
 import net.bible.sharedui.host.reading.SELECTION_HANDLER_NAME
 import net.bible.sharedui.host.reading.SELECTION_USER_SCRIPT
@@ -169,6 +170,7 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
 
 /** One reading window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
 internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosNavDelegate) {
+    val diagnosticIdentity = PaneDiagnosticIdentity().newEntry()
     var handler: IosBridgeMessageHandler? = null
 
     /** The window's session once wired ([IosReadingWebViews.attachSession]); native events reach the page through it. */
@@ -228,6 +230,16 @@ object IosReadingWebViews {
     private val liveness = IosPaneLiveness(
         panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null && it.webView.window != null }.mapValues { it.value.webView } },
         recover = { windowId -> HostReadingWindows.rebuild(windowId) },
+        diagnostic = { IosRuntimeDiagnostics.emit(it) },
+        identities = { windowId, view -> entries[windowId]?.takeIf { it.webView === view }?.diagnosticIdentity?.let { it.paneId to it.webViewId } },
+        observeCandidates = { trigger ->
+            val candidates = entries.values.map { entry ->
+                PaneDiagnosticCandidate(entry.diagnosticIdentity.paneId, entry.diagnosticIdentity.webViewId,
+                    entry.handlerCount > 0, entry.webView.URL != null, entry.webView.window != null)
+            }
+            observePaneCandidates(candidates, trigger) { IosRuntimeDiagnostics.emit(it) }
+            candidates.size
+        },
     )
 
     /** The installed Bibles' languages as a JSON list, read when a window's WebView is created (set by the reading assembly). */
@@ -360,6 +372,8 @@ object IosReadingWebViews {
             )
             webView.configuration.userContentController.addScriptMessageHandler(sharedReadingEscapeHandler, READING_ESCAPE_HANDLER_NAME)
             ReadingEntry(webView, navDelegate).also {
+                val identity = it.diagnosticIdentity
+                navDelegate.onTerminationObserved = { identity.terminated { event -> IosRuntimeDiagnostics.emit(event) } }
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.
                 applyBackground(it, HostReadingWindows.pageBackgroundArgb(windowId))
@@ -389,7 +403,8 @@ object IosReadingWebViews {
             { callId -> session.emit(BibleViewEvents.response(callId, null)) },
             log,
         )
-        val handler = IosBridgeMessageHandler(dispatcher)
+        val identity = entry.diagnosticIdentity
+        val handler = IosBridgeMessageHandler(dispatcher) { identity.clientReady { event -> IosRuntimeDiagnostics.emit(event) } }
         entry.webView.onAttached = { session.jsChannel.flush() }
         entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).

@@ -23,6 +23,8 @@ internal sealed interface RuntimeDiagnosticEvent {
     data class ProbeContext(val trigger: ProbeTrigger, val probeId: String, val paneId: String, val webViewId: String, val candidateCount: Int, val eligibleCount: Int) : RuntimeDiagnosticEvent
     data class ProbeResult(val probeId: String, val paneId: String, val webViewId: String, val outcome: ProbeOutcome, val staleIdentity: Boolean, val durationMillis: Long) : RuntimeDiagnosticEvent
     data class RecoveryResult(val paneId: String, val action: RecoveryAction, val failure: RecoveryFailure) : RuntimeDiagnosticEvent
+    data class PaneCandidates(val trigger: ProbeTrigger, val candidateCount: Int, val eligibleCount: Int) : RuntimeDiagnosticEvent
+    data class PaneSkipped(val trigger: ProbeTrigger, val paneId: String, val webViewId: String, val reason: DiagnosticReason) : RuntimeDiagnosticEvent
     data class ClientReady(val paneId: String) : RuntimeDiagnosticEvent
     data class ContentTerminated(val id: String) : RuntimeDiagnosticEvent
     data class EventsDropped(val count: Long) : RuntimeDiagnosticEvent
@@ -49,6 +51,8 @@ private fun RuntimeDiagnosticEvent.json(): JsonObject = buildJsonObject {
         is RuntimeDiagnosticEvent.ProbeContext -> { put("type", "ProbeContext"); put("trigger", event.trigger.name); put("probeId", event.probeId); put("paneId", event.paneId); put("webViewId", event.webViewId); put("candidateCount", event.candidateCount); put("eligibleCount", event.eligibleCount) }
         is RuntimeDiagnosticEvent.ProbeResult -> { put("type", "ProbeResult"); put("probeId", event.probeId); put("paneId", event.paneId); put("webViewId", event.webViewId); put("outcome", event.outcome.name); put("staleIdentity", event.staleIdentity); put("durationMillis", event.durationMillis) }
         is RuntimeDiagnosticEvent.RecoveryResult -> { put("type", "RecoveryResult"); put("paneId", event.paneId); put("action", event.action.name); put("failure", event.failure.name) }
+        is RuntimeDiagnosticEvent.PaneCandidates -> { put("type", "PaneCandidates"); put("trigger", event.trigger.name); put("candidateCount", event.candidateCount); put("eligibleCount", event.eligibleCount) }
+        is RuntimeDiagnosticEvent.PaneSkipped -> { put("type", "PaneSkipped"); put("trigger", event.trigger.name); put("paneId", event.paneId); put("webViewId", event.webViewId); put("reason", event.reason.name) }
         is RuntimeDiagnosticEvent.ClientReady -> { put("type", "ClientReady"); put("paneId", event.paneId) }
         is RuntimeDiagnosticEvent.ContentTerminated -> { put("type", "ContentTerminated"); put("id", event.id) }
         is RuntimeDiagnosticEvent.EventsDropped -> { put("type", "EventsDropped"); put("count", event.count) }

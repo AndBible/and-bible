@@ -34,6 +34,20 @@ import net.bible.sharedui.host.diagnostics.*
 @OptIn(ExperimentalForeignApi::class)
 class IosPaneLivenessTest {
     @Test
+    fun injectedIdentitiesAndCandidateCountReachProbeContext() {
+        val view = webView()
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        IosPaneLiveness(panes = { mapOf("private" to view) }, recover = {},
+            identities = { _, _ -> "pane" to "view" }, observeCandidates = { 4 },
+            evaluate = { _, _, done -> done("object", false) }, diagnostic = { events += it }, log = {}).checkAll()
+        val context = events.filterIsInstance<RuntimeDiagnosticEvent.ProbeContext>().single()
+        assertEquals("pane", context.paneId)
+        assertEquals("view", context.webViewId)
+        assertEquals(4, context.candidateCount)
+        assertEquals(1, context.eligibleCount)
+    }
+
+    @Test
     fun observationsSettleOnceAndPreserveRecovery() {
         val view = webView()
         val events = mutableListOf<RuntimeDiagnosticEvent>()

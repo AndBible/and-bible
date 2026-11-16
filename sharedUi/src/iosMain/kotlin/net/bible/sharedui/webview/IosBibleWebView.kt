@@ -76,6 +76,7 @@ internal class IosNavDelegate(
      * view can arrive after the window was rebuilt under the same id; it must not touch the new session.
      */
     var released: Boolean = false
+    var onTerminationObserved: (() -> Unit)? = null
 
     override fun webView(
         webView: WKWebView,
@@ -106,6 +107,7 @@ internal class IosNavDelegate(
 
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
         if (released) return
+        try { onTerminationObserved?.invoke() } catch (_: Throwable) { }
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")
             webView.reload()

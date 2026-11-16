@@ -32,9 +32,15 @@ class IosNavDelegateTerminationTest {
         val delegate = IosNavDelegate("w1", openLink = { false }, onPageRestart = { restarts++ })
         val webView = WKWebView(CGRectMake(0.0, 0.0, 320.0, 480.0), WKWebViewConfiguration())
 
+        var observations = 0
+        delegate.onTerminationObserved = { observations++ }
         delegate.webViewWebContentProcessDidTerminate(webView)
 
+        assertEquals(1, observations)
         assertEquals(1, restarts)
+        delegate.released = true
+        delegate.webViewWebContentProcessDidTerminate(webView)
+        assertEquals(1, observations)
     }
 
     /** A failing restart hook must not escape into WebKit's delegate callback. */

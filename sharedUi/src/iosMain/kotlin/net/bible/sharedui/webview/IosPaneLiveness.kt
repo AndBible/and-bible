@@ -94,6 +94,8 @@ internal class IosPaneLiveness(
     /** Consecutive liveness rebuilds of one window after which it is left alone (desktop's `MAX_RENDERER_DEATHS`). */
     private val maxRebuilds: Int = MAX_LIVENESS_REBUILDS,
     private val diagnostic: (RuntimeDiagnosticEvent) -> Unit = {},
+    private val identities: ((String, WKWebView) -> Pair<String, String>?)? = null,
+    private val observeCandidates: (ProbeTrigger) -> Int? = { null },
     private val isLoading: (WKWebView) -> Boolean = { it.loading },
     private val scheduleTimeout: (Long, () -> Unit) -> Unit = { delay, action ->
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue(), action)
@@ -125,19 +127,21 @@ internal class IosPaneLiveness(
     fun checkAll() = checkAll(ProbeTrigger.MANUAL)
 
     private fun checkAll(trigger: ProbeTrigger) {
+        val candidateCount = try { observeCandidates(trigger) } catch (_: Throwable) { null }
         val current = panes()
         paneIds.keys.retainAll(current.keys)
-        for ((windowId, webView) in current) check(windowId, webView, trigger, current.size)
+        for ((windowId, webView) in current) check(windowId, webView, trigger, current.size, candidateCount ?: current.size)
     }
 
-    fun check(windowId: String, webView: WKWebView) = check(windowId, webView, ProbeTrigger.MANUAL, 1)
+    fun check(windowId: String, webView: WKWebView) = check(windowId, webView, ProbeTrigger.MANUAL, 1, 1)
 
-    private fun check(windowId: String, webView: WKWebView, trigger: ProbeTrigger, count: Int) {
+    private fun check(windowId: String, webView: WKWebView, trigger: ProbeTrigger, count: Int, candidates: Int) {
         val probeId = id()
-        val paneId = paneId(windowId)
-        val viewId = viewId(webView)
+        val mapped = try { identities?.invoke(windowId, webView) } catch (_: Throwable) { null }
+        val paneId = mapped?.first ?: paneId(windowId)
+        val viewId = mapped?.second ?: viewId(webView)
         val started = TimeSource.Monotonic.markNow()
-        emit(RuntimeDiagnosticEvent.ProbeContext(trigger, probeId, paneId, viewId, count, count))
+        emit(RuntimeDiagnosticEvent.ProbeContext(trigger, probeId, paneId, viewId, candidates, count))
         var settled = false
         fun settle(health: PaneHealth) {
             if (settled) return
