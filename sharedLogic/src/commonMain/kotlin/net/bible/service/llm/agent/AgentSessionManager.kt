@@ -932,6 +932,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 wasError = wasError,
             )
             DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to persist raw log", e)
         }
