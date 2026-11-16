@@ -19,6 +19,7 @@ package net.bible.android.view.activity.settings
 
 import android.text.InputType
 import android.webkit.URLUtil
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
@@ -39,10 +40,10 @@ import java.util.Date
 private class PhosPrefsDataStore : PreferenceDataStore() {
     private val prefs get() = CommonUtils.realSharedPreferences
     override fun putString(key: String, value: String?) {
-        if (value == null) prefs.edit().remove(key).apply() else prefs.edit().putString(key, value.trim()).apply()
+        prefs.edit { if (value == null) remove(key) else putString(key, value.trim()) }
     }
     override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
-    override fun putBoolean(key: String, value: Boolean) = prefs.edit().putBoolean(key, value).apply()
+    override fun putBoolean(key: String, value: Boolean) = prefs.edit { putBoolean(key, value) }
     override fun getBoolean(key: String, defValue: Boolean): Boolean = prefs.getBoolean(key, defValue)
 }
 

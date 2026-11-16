@@ -19,12 +19,14 @@ package net.bible.service.cloudsync.phos
 
 import android.os.Build
 import android.util.Log
+import androidx.core.content.edit
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.LogEntry
 import net.bible.android.database.LogEntryTypes
@@ -54,21 +56,21 @@ object PhosSyncSettings {
 
     var enabled: Boolean
         get() = prefs.getBoolean(ENABLED, false)
-        set(v) = prefs.edit().putBoolean(ENABLED, v).apply()
+        set(v) = prefs.edit { putBoolean(ENABLED, v) }
     val server: String get() = prefs.getString(SERVER, null).orEmpty()
     val user: String get() = prefs.getString(USER, null).orEmpty()
     var password: String
         get() = prefs.getString(PASSWORD, null).orEmpty()
-        set(v) = prefs.edit().putString(PASSWORD, v).apply()
+        set(v) = prefs.edit { putString(PASSWORD, v) }
     val bookmarks: Boolean get() = prefs.getBoolean(BOOKMARKS, true)
     val workspaces: Boolean get() = prefs.getBoolean(WORKSPACES, true)
     val readingPlans: Boolean get() = prefs.getBoolean(READING_PLANS, true)
     var lastRun: Long
         get() = prefs.getLong(LAST_RUN, 0L)
-        set(v) = prefs.edit().putLong(LAST_RUN, v).apply()
+        set(v) = prefs.edit { putLong(LAST_RUN, v) }
     var lastResult: String
         get() = prefs.getString(LAST_RESULT, null).orEmpty()
-        set(v) = prefs.edit().putString(LAST_RESULT, v).apply()
+        set(v) = prefs.edit { putString(LAST_RESULT, v) }
 
     val configured: Boolean get() = enabled && server.isNotEmpty() && user.isNotEmpty() && password.isNotEmpty()
 }
@@ -131,7 +133,8 @@ object PhosSync {
                     runOnce()
                 } catch (e: Exception) {
                     Log.w(TAG, "Phos sync failed", e)
-                    PhosSyncSettings.lastResult = e.message ?: e.javaClass.simpleName
+                    PhosSyncSettings.lastResult = BibleApplication.application.getString(R.string.phos_sync_failed,
+                        e.message ?: e.javaClass.simpleName)
                     null
                 }
             }
@@ -161,11 +164,15 @@ object PhosSync {
             appVersion = CommonUtils.applicationVersionName, platform = "andbible", log = { Log.i(TAG, it) })
         val result = engine.run()
         PhosSyncSettings.lastRun = System.currentTimeMillis()
-        PhosSyncSettings.lastResult = "pushed ${result.pushed}, pulled ${result.pulled}" +
-            (if (result.conflicts > 0) ", conflicts ${result.conflicts}" else "") +
-            (if (result.heldDeletes > 0) ", ${result.heldDeletes} deletions held back" else "") +
-            (if (result.problems.isNotEmpty()) ", problems: " + result.problems.take(3).joinToString("; ") else "")
-        Log.i(TAG, PhosSyncSettings.lastResult)
+        val app = BibleApplication.application
+        PhosSyncSettings.lastResult = buildList {
+            add(app.getString(R.string.phos_sync_result, result.pushed, result.pulled))
+            if (result.conflicts > 0) add(app.getString(R.string.phos_sync_result_conflicts, result.conflicts))
+            if (result.heldDeletes > 0) add(app.getString(R.string.phos_sync_result_held, result.heldDeletes))
+            addAll(result.problems.take(3))
+        }.joinToString(", ")
+        Log.i(TAG, "pushed ${result.pushed}, pulled ${result.pulled}, conflicts ${result.conflicts}, " +
+            "held ${result.heldDeletes}, problems ${result.problems}")
         if (result.appliedKeys.isNotEmpty()) announce(result.appliedKeys.keys, started - 1)
         return result
     }

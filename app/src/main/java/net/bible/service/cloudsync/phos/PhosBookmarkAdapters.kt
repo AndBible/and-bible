@@ -65,7 +65,7 @@ internal class LabelIndex(db: SupportSQLiteDatabase) {
             val l = AbLabel(id, c.str(1).orEmpty(), c.getInt(2), c.getInt(3) != 0, c.getInt(4) != 0, c.getInt(5) != 0,
                 c.getInt(6) != 0, c.getInt(7) != 0, c.getInt(8) != 0, c.getInt(9) != 0, c.str(10), c.str(11))
             byId[id] = l
-            byName.putIfAbsent(l.name, l)
+            if (l.name !in byName) byName[l.name] = l
         }
     }
 

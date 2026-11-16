@@ -2000,4 +2000,8 @@
     <string name="phos_sync_last">Last run %1$s: %2$s</string>
     <string name="phos_sync_reset">Forget server state</string>
     <string name="phos_sync_reset_summary">Starts over with the server (e.g. after changing account). Local data stays.</string>
+    <string name="phos_sync_result">%1$d sent, %2$d received</string>
+    <string name="phos_sync_result_conflicts">%1$d conflicts</string>
+    <string name="phos_sync_result_held">%1$d deletions held back</string>
+    <string name="phos_sync_failed">Failed: %1$s</string>
 </resources>

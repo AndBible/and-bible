@@ -1725,4 +1725,8 @@ Diese Nachricht nicht mehr anzeigen</string>
     <string name="phos_sync_last">Zuletzt %1$s: %2$s</string>
     <string name="phos_sync_reset">Serverstand vergessen</string>
     <string name="phos_sync_reset_summary">Beginnt neu mit dem Server (z. B. nach einem Kontowechsel). Lokale Daten bleiben erhalten.</string>
+    <string name="phos_sync_result">%1$d gesendet, %2$d empfangen</string>
+    <string name="phos_sync_result_conflicts">%1$d Konflikte</string>
+    <string name="phos_sync_result_held">%1$d Löschungen zurückgehalten</string>
+    <string name="phos_sync_failed">Fehlgeschlagen: %1$s</string>
 </resources>
