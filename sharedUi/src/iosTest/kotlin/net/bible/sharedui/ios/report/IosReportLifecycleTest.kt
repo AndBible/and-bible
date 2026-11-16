@@ -13,6 +13,9 @@ import okio.Path.Companion.toPath
 import platform.Foundation.*
 import platform.UIKit.*
 import kotlin.test.*
+import net.bible.sharedui.host.diagnostics.DiagnosticRecord
+import net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent
+import net.bible.sharedui.ios.diagnostics.diagnosticStore
 import net.bible.sharedui.host.report.Attachment
 import net.bible.sharedui.host.report.ReportDevice
 import net.bible.sharedcore.log.Log
@@ -94,7 +97,7 @@ class IosReportLifecycleTest {
     @Test fun emptySnapshotUsesUnknownForBlankAndMissingFacts() = awaitOnMain {
         var text: String? = null
         IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
-            crashDiagnostic = { null }, logSnapshot = { "" },
+            crashDiagnostic = { null }, diagnosticSnapshot = { "" }, logSnapshot = { "" },
             reportDevice = { ReportDevice("", "  ", "", "", listOf("Build" to " ", "Platform" to "")) },
             send = { _, _, _, attachments -> text = gunzip(attachments.single().bytes) }).report()
         assertEquals("AndBible diagnostic log\nVersion: unknown\nBuild: unknown\nCommit: unknown\nOS: unknown\nPlatform: unknown\n\nRecent log history (bounded):\n", text)
@@ -106,7 +109,7 @@ class IosReportLifecycleTest {
         val exports = mutableListOf<String>()
         val bodies = mutableListOf<String>()
         val reporter = IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
-            crashDiagnostic = { null }, logSnapshot = { snapshot }, reportDevice = { device },
+            crashDiagnostic = { null }, diagnosticSnapshot = { "" }, logSnapshot = { snapshot }, reportDevice = { device },
             send = { _, _, body, attachments -> bodies += body; exports += gunzip(attachments.single().bytes) })
         reporter.report()
         snapshot = "second history\n"
@@ -125,7 +128,7 @@ class IosReportLifecycleTest {
         val mainThreadCalls = mutableListOf<Boolean>()
         val messages = mutableListOf<Triple<String, String, String>>()
         val reporter = IosBugReport(hostStringTable("en"), confirm = { true }, failure = { throw it },
-            crashDiagnostic = { null }, logSnapshot = { "" },
+            crashDiagnostic = { null }, diagnosticSnapshot = { "" }, logSnapshot = { "" },
             reportDevice = {
                 mainThreadCalls += NSThread.isMainThread
                 val version = "snapshot-${++calls}"
@@ -147,6 +150,78 @@ class IosReportLifecycleTest {
             assertTrue("Version: $version" in body)
             assertTrue(heading.startsWith("AndBible diagnostic log\nVersion: $version\n"))
         }
+    }
+
+    @Test fun reportIncludesPriorAndCurrentDiagnosticRun() = awaitOnMain {
+        val directory = (NSTemporaryDirectory() + NSUUID().UUIDString).toPath()
+        try {
+            val clock = { 1000L }
+            diagnosticStore(directory, clock).append(DiagnosticRecord("previous", 1, 1000, RuntimeDiagnosticEvent.ClientReady("old-pane")))
+            val current = diagnosticStore(directory, clock)
+            current.append(DiagnosticRecord("current", 1, 1000, RuntimeDiagnosticEvent.ClientReady("new-pane")))
+            var sent: List<Attachment>? = null
+            IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { null },
+                diagnosticSnapshot = { current.snapshot() }, send = { _, _, _, attachments -> sent = attachments },
+                failure = { throw it }).report()
+            val attachment = assertNotNull(sent).last()
+            assertEquals("ios_runtime_diagnostics.txt.gz", attachment.name)
+            assertEquals("application/gzip", attachment.mime)
+            val text = gunzip(attachment.bytes)
+            assertTrue(text.contains("old-pane"))
+            assertTrue(text.contains("new-pane"))
+            assertTrue(text.indexOf("previous") < text.indexOf("current"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(directory, mustExist = false) }
+    }
+
+    @Test fun existingAttachmentsRemain() = awaitOnMain {
+        val extra = Attachment("extra", "text/plain", byteArrayOf(1))
+        val crash = Attachment("crash", "text/plain", byteArrayOf(2))
+        var sent: List<Attachment>? = null
+        IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { crash },
+            diagnosticSnapshot = { "history" }, send = { _, _, _, attachments -> sent = attachments },
+            failure = { throw it }).report(extraAttachments = listOf(extra))
+        val attachments = assertNotNull(sent)
+        assertEquals(listOf("app_log.txt.gz", "extra", "crash", "ios_runtime_diagnostics.txt.gz"), attachments.map { it.name })
+        assertEquals(extra, attachments[1]); assertEquals(crash, attachments[2])
+        assertEquals("history", gunzip(attachments.last().bytes))
+    }
+
+    @Test fun diagnosticsFailureDoesNotBlockReport() = awaitOnMain {
+        for (snapshot in listOf<suspend () -> String>({ error("unreadable") }, { awaitCancellation() }, { "" })) {
+            var sent: List<Attachment>? = null
+            IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { null },
+                diagnosticSnapshot = snapshot, send = { _, _, _, attachments -> sent = attachments },
+                failure = { throw it }).report()
+            assertEquals(listOf("app_log.txt.gz"), assertNotNull(sent).map { it.name })
+        }
+    }
+
+    @Test fun cancelledReportDoesNotSnapshotOrSend() = awaitOnMain {
+        var snapshots = 0
+        IosBugReport(hostStringTable("en"), confirm = { false }, diagnosticSnapshot = { snapshots++; "history" },
+            send = { _, _, _, _ -> fail("sent") }).report()
+        assertEquals(0, snapshots)
+    }
+
+    @Test fun cancellationPropagatesAndDoesNotSend() = awaitOnMain {
+        val started = CompletableDeferred<Unit>()
+        val job = launch {
+            IosBugReport(hostStringTable("en"), confirm = { true }, diagnosticSnapshot = { started.complete(Unit); awaitCancellation() },
+                send = { _, _, _, _ -> fail("sent") }, failure = { fail("cancellation swallowed") }).report()
+        }
+        started.await()
+        job.cancelAndJoin()
+        assertTrue(job.isCancelled)
+    }
+
+    @Test fun snapshotRunsOffMain() = awaitOnMain {
+        var onMain: Boolean? = null
+        var sent = false
+        IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { null },
+            diagnosticSnapshot = { onMain = NSThread.isMainThread; "history" },
+            send = { _, _, _, _ -> sent = true }, failure = { throw it }).report()
+        assertEquals(false, onMain)
+        assertTrue(sent)
     }
 
     @Test fun envelopeWrittenBySwiftEncoderIsAttachedGzipped() = awaitOnMain {
