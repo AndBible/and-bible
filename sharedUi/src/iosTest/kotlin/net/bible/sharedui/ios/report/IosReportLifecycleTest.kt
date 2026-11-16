@@ -214,6 +214,35 @@ class IosReportLifecycleTest {
         assertTrue(job.isCancelled)
     }
 
+    @Test fun snapshotCancellationExceptionPropagatesWithoutPresentingOrSending() = awaitOnMain {
+        val cancellation = CancellationException("snapshot cancelled")
+        var sent = false
+        var presented = false
+        val thrown = try {
+            IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { null },
+                diagnosticSnapshot = { throw cancellation }, send = { _, _, _, _ -> sent = true },
+                failure = { presented = true }).report()
+            null
+        } catch (e: CancellationException) { e }
+        assertSame(cancellation, thrown)
+        assertFalse(sent)
+        assertFalse(presented)
+    }
+
+    @Test fun nestedSnapshotTimeoutPropagatesWithoutPresentingOrSending() = awaitOnMain {
+        var sent = false
+        var presented = false
+        val thrown = try {
+            IosBugReport(hostStringTable("en"), confirm = { true }, crashDiagnostic = { null },
+                diagnosticSnapshot = { withTimeout(50) { awaitCancellation() } },
+                send = { _, _, _, _ -> sent = true }, failure = { presented = true }).report()
+            null
+        } catch (e: CancellationException) { e }
+        assertIs<TimeoutCancellationException>(thrown)
+        assertFalse(sent)
+        assertFalse(presented)
+    }
+
     @Test fun snapshotRunsOffMain() = awaitOnMain {
         var onMain: Boolean? = null
         var sent = false
