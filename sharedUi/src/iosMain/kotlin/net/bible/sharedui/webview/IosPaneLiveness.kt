@@ -94,6 +94,10 @@ internal class IosPaneLiveness(
     /** Consecutive liveness rebuilds of one window after which it is left alone (desktop's `MAX_RENDERER_DEATHS`). */
     private val maxRebuilds: Int = MAX_LIVENESS_REBUILDS,
     private val diagnostic: (RuntimeDiagnosticEvent) -> Unit = {},
+    private val isLoading: (WKWebView) -> Boolean = { it.loading },
+    private val scheduleTimeout: (Long, () -> Unit) -> Unit = { delay, action ->
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue(), action)
+    },
 ) {
     private fun emit(event: RuntimeDiagnosticEvent) { try { diagnostic(event) } catch (_: Throwable) { } }
     private fun id() = NSUUID().UUIDString
@@ -140,7 +144,10 @@ internal class IosPaneLiveness(
             settled = true
             if (health == PaneHealth.Alive) rebuilds.remove(windowId)
             val needsRecovery = health == PaneHealth.Dead || health == PaneHealth.Unresponsive
-            val stale = needsRecovery && panes()[windowId] !== webView
+            val stale = try { panes()[windowId] !== webView } catch (t: Throwable) {
+                if (needsRecovery) throw t
+                false
+            }
             emit(RuntimeDiagnosticEvent.ProbeResult(probeId, paneId, viewId, when (health) {
                 PaneHealth.Alive -> ProbeOutcome.ALIVE
                 PaneHealth.Loading -> ProbeOutcome.LOADING
@@ -166,15 +173,15 @@ internal class IosPaneLiveness(
             }
         }
         try {
-            evaluate(webView, PANE_PROBE_JS) { result, failed -> settle(paneHealth(true, result, failed, webView.loading)) }
+            evaluate(webView, PANE_PROBE_JS) { result, failed -> settle(paneHealth(true, result, failed, isLoading(webView))) }
         } catch (t: Throwable) {
             emit(RuntimeDiagnosticEvent.ProbeSkipped(probeId, DiagnosticReason.OTHER))
             log("bridge[$windowId]: liveness probe failure $t")
             return
         }
         val delay = (timeoutSeconds * 1_000_000_000.0).toLong()
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue()) {
-            settle(paneHealth(answered = false, result = null, failed = false, loading = webView.loading))
+        scheduleTimeout(delay) {
+            settle(paneHealth(answered = false, result = null, failed = false, loading = isLoading(webView)))
         }
     }
 }

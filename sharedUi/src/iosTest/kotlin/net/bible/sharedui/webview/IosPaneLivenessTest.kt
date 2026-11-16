@@ -72,6 +72,54 @@ class IosPaneLivenessTest {
     }
 
     @Test
+    fun replacedViewReportsStaleAliveAndLoadingWithoutRecovery() {
+        for ((loading, expected) in listOf(false to ProbeOutcome.ALIVE, true to ProbeOutcome.LOADING)) {
+            var current = webView()
+            var callback: ((Any?, Boolean) -> Unit)? = null
+            val events = mutableListOf<RuntimeDiagnosticEvent>()
+            var recoveries = 0
+            val liveness = IosPaneLiveness(
+                panes = { mapOf("w" to current) }, recover = { recoveries++ },
+                evaluate = { _, _, done -> callback = done }, isLoading = { loading },
+                diagnostic = { events += it }, log = {},
+            )
+            liveness.checkAll()
+            current = webView()
+            callback!!("object", false)
+            val result = events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().single()
+            assertEquals(expected, result.outcome)
+            assertTrue(result.staleIdentity)
+            assertEquals(0, recoveries)
+        }
+    }
+
+    @Test
+    fun timeoutWaitsForDeadlineAndIgnoresLateAnswer() {
+        val view = webView()
+        var callback: ((Any?, Boolean) -> Unit)? = null
+        var scheduled: (() -> Unit)? = null
+        var delayNanos = -1L
+        var recoveries = 0
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        val liveness = IosPaneLiveness(
+            panes = { mapOf("w" to view) }, recover = { recoveries++ }, timeoutSeconds = 10.0,
+            evaluate = { _, _, done -> callback = done },
+            scheduleTimeout = { delay, action -> delayNanos = delay; scheduled = action },
+            diagnostic = { events += it }, log = {},
+        )
+        liveness.checkAll()
+        assertEquals(10_000_000_000L, delayNanos)
+        assertEquals(0, recoveries)
+        assertTrue(events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().isEmpty())
+        scheduled!!()
+        assertEquals(1, recoveries)
+        callback!!("object", false)
+        scheduled!!()
+        assertEquals(1, recoveries)
+        assertEquals(listOf(ProbeOutcome.UNRESPONSIVE), events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().map { it.outcome })
+    }
+
+    @Test
     fun observationsReportStaleGiveUpAndRecoveryFailure() {
         val old = webView()
         var current = old
