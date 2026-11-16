@@ -61,8 +61,10 @@ private fun excludeFromBackup(path: Path) {
 
 internal object IosRuntimeDiagnostics {
     private val clock: () -> Long = { (NSDate().timeIntervalSince1970 * 1000).toLong() }
+    private val runId = NSUUID().UUIDString
+    internal val testRunId: String get() = runId
     private val writer by lazy {
-        IosDiagnosticWriter(NSUUID().UUIDString, clock, Dispatchers.Default, {
+        IosDiagnosticWriter(runId, clock, Dispatchers.Default, {
             val root = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first() as String
             diagnosticStore(root.toPath() / "AndBible" / "Diagnostics", clock)
         }) { IosLogSink.current()?.invoke(it) }

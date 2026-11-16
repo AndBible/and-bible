@@ -35,7 +35,6 @@ internal object IosRuntimeDiagnosticsHarness {
         var result by remember { mutableStateOf<String?>(null) }
         Column {
             Button(onClick = {
-                result = null
                 scope.launch {
                     result = try { inspectReport() } catch (_: Exception) { "error" }
                 }
@@ -56,19 +55,23 @@ internal object IosRuntimeDiagnosticsHarness {
         }.toList()
         val runs = records.filter { it["event"]?.jsonObject?.get("type")?.jsonPrimitive?.content == "RunStarted" }
             .map { it.getValue("runId").jsonPrimitive.content }.distinct()
-        val current = runs.lastOrNull().orEmpty()
+        val current = IosRuntimeDiagnostics.testRunId
         val currentRecords = records.filter { it["runId"]?.jsonPrimitive?.content == current }
-        fun hasType(type: String) = currentRecords.any { it["event"]?.jsonObject?.get("type")?.jsonPrimitive?.content == type }
-        fun hasLifecycle(source: String, state: String? = null) = currentRecords.any {
-            val event = it["event"]?.jsonObject
-            event?.get("type")?.jsonPrimitive?.content == "LifecycleObserved" &&
-                event["source"]?.jsonPrimitive?.content == source &&
-                (state == null || event["state"]?.jsonPrimitive?.content == state)
-        }
-        return "attachment=true runs=${if (runs.size >= 2) "2+" else runs.size} current=${current.isNotEmpty()} " +
-            "prior=${runs.size >= 2} run=$current previous=${runs.dropLast(1).joinToString(",")} " +
-            "host=${hasLifecycle("HOST") || hasType("OwnershipObserved")} " +
-            "pane=${hasType("ClientReady")} probe=${hasType("ProbeContext")} " +
-            "background=${hasLifecycle("APPLICATION", "BACKGROUND")}"
+        fun sequence(type: String, source: String? = null, state: String? = null): String =
+            currentRecords.firstOrNull {
+                val event = it["event"]?.jsonObject
+                event?.get("type")?.jsonPrimitive?.content == type &&
+                    (source == null || event["source"]?.jsonPrimitive?.content == source) &&
+                    (state == null || event["state"]?.jsonPrimitive?.content == state)
+            }?.get("sequence")?.jsonPrimitive?.content ?: "missing"
+        val identities = records.mapNotNull { record ->
+            val run = record["runId"]?.jsonPrimitive?.content ?: return@mapNotNull null
+            val seq = record["sequence"]?.jsonPrimitive?.content ?: return@mapNotNull null
+            "$run:$seq"
+        }.joinToString(",")
+        return "attachment=true runs=${if (runs.size >= 2) "2+" else runs.size} " +
+            "current=${current in runs} run=$current records=$identities " +
+            "host=${sequence("OwnershipObserved")} pane=${sequence("ClientReady")} " +
+            "probe=${sequence("ProbeResult")} background=${sequence("LifecycleObserved", "APPLICATION", "BACKGROUND")}"
     }
 }
