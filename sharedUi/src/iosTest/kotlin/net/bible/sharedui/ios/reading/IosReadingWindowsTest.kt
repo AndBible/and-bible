@@ -472,6 +472,19 @@ class IosReadingWindowsTest {
         assertFalse(HostReadingWindows.rebuild(IdType().toString()), "a window without an assembly is ignored")
     }
 
+    @Test
+    fun productionCallbacksEmitCorrelatedReadyAndTermination() = withWindows { id ->
+        val events = mutableListOf<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent>()
+        IosReadingWebViews.diagnosticSink = { events += it }
+        attach(id)
+        val entry = IosReadingWebViews.entry(id)
+        val identity = entry.diagnosticIdentity
+        entry.handler!!.dispatchText("""{"method":"setClientReady","args":[]}""")
+        entry.navDelegate.webViewWebContentProcessDidTerminate(entry.webView)
+        assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ClientReady(identity.paneId)))
+        assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ContentTerminated(identity.webViewId)))
+    }
+
     /**
      * A late termination callback of the OLD web view (arriving after the window was rebuilt under the same id) must not
      * mark the NEW session's page as restarting, or its JS calls would be dropped for good.

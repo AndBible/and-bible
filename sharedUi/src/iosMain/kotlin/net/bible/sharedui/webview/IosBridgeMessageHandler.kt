@@ -22,6 +22,8 @@ import platform.darwin.NSObject
  */
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher, private val onClientReady: () -> Unit = {}) : NSObject(), WKScriptMessageHandlerProtocol {
+    internal fun dispatchText(text: String) = dispatchIosBridgeMessage(dispatcher, text, onClientReady)
+
     override fun userContentController(userContentController: WKUserContentController, didReceiveScriptMessage: WKScriptMessage) {
         try {
             // dataWithJSONObject raises an ObjC exception (fatal in K/N) on invalid input, so guard first.
@@ -31,7 +33,7 @@ class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher, private 
             }
             val data = NSJSONSerialization.dataWithJSONObject(didReceiveScriptMessage.body, 0u, null) ?: return
             val text = NSString.create(data = data, encoding = NSUTF8StringEncoding)?.toString() ?: return
-            dispatchIosBridgeMessage(dispatcher, text, onClientReady)
+            dispatchText(text)
         } catch (t: Throwable) {
             nsLog("bridge: handler failure $t")
         }

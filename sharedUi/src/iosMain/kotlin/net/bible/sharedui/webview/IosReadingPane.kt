@@ -193,6 +193,11 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
     var backgroundArgb: Int? = null
 }
 
+internal fun ReadingEntry.diagnosticCandidate() = PaneDiagnosticCandidate(
+    diagnosticIdentity.paneId, diagnosticIdentity.webViewId,
+    handlerCount > 0, webView.URL != null, webView.window != null,
+)
+
 /** The [UIColor] for an ARGB int (alpha in the top byte, as Android's `Color` ints and `TextDisplaySettings.Colors` hold it). */
 internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
     red = ((argb shr 16) and 0xFF) / 255.0,
@@ -214,6 +219,7 @@ internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
 @OptIn(ExperimentalForeignApi::class)
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
+    internal var diagnosticSink: (net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent) -> Unit = { IosRuntimeDiagnostics.emit(it) }
 
     /**
      * Bumped when a window's web view is dropped ([release]); read by the pane factory, so a pane whose window was rebuilt
@@ -230,14 +236,11 @@ object IosReadingWebViews {
     private val liveness = IosPaneLiveness(
         panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null && it.webView.window != null }.mapValues { it.value.webView } },
         recover = { windowId -> HostReadingWindows.rebuild(windowId) },
-        diagnostic = { IosRuntimeDiagnostics.emit(it) },
+        diagnostic = { diagnosticSink(it) },
         identities = { windowId, view -> entries[windowId]?.takeIf { it.webView === view }?.diagnosticIdentity?.let { it.paneId to it.webViewId } },
         observeCandidates = { trigger ->
-            val candidates = entries.values.map { entry ->
-                PaneDiagnosticCandidate(entry.diagnosticIdentity.paneId, entry.diagnosticIdentity.webViewId,
-                    entry.handlerCount > 0, entry.webView.URL != null, entry.webView.window != null)
-            }
-            observePaneCandidates(candidates, trigger) { IosRuntimeDiagnostics.emit(it) }
+            val candidates = entries.values.map { it.diagnosticCandidate() }
+            observePaneCandidates(candidates, trigger) { diagnosticSink(it) }
             candidates.size
         },
     )
@@ -342,6 +345,7 @@ object IosReadingWebViews {
         for (id in entries.keys.toList()) release(id)
         bundleLoader = { webView, lang, dark -> loadBibleBundle(webView, lang, dark) }
         activeLanguages = { "[\"en\"]" }
+        diagnosticSink = { IosRuntimeDiagnostics.emit(it) }
     }
 
     private fun checkMain() = check(NSThread.isMainThread) { "IosReadingWebViews is main-thread only" }
@@ -373,7 +377,7 @@ object IosReadingWebViews {
             webView.configuration.userContentController.addScriptMessageHandler(sharedReadingEscapeHandler, READING_ESCAPE_HANDLER_NAME)
             ReadingEntry(webView, navDelegate).also {
                 val identity = it.diagnosticIdentity
-                navDelegate.onTerminationObserved = { identity.terminated { event -> IosRuntimeDiagnostics.emit(event) } }
+                navDelegate.onTerminationObserved = { identity.terminated { event -> diagnosticSink(event) } }
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.
                 applyBackground(it, HostReadingWindows.pageBackgroundArgb(windowId))
@@ -404,7 +408,7 @@ object IosReadingWebViews {
             log,
         )
         val identity = entry.diagnosticIdentity
-        val handler = IosBridgeMessageHandler(dispatcher) { identity.clientReady { event -> IosRuntimeDiagnostics.emit(event) } }
+        val handler = IosBridgeMessageHandler(dispatcher) { identity.clientReady { event -> diagnosticSink(event) } }
         entry.webView.onAttached = { session.jsChannel.flush() }
         entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).

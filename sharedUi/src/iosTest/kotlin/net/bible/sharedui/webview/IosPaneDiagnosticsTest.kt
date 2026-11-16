@@ -7,6 +7,39 @@ import kotlin.test.assertNotEquals
 
 class IosPaneDiagnosticsTest {
     @Test
+    fun bridgeRoutesOnlySuccessfulClientReadyToDiagnosticCallback() {
+        var ready = 0
+        var observed = 0
+        val bridge = object : net.bible.sharedcore.bibleview.UnimplementedBibleBridge({}, {}) {
+            override fun setClientReady() { ready++ }
+        }
+        val dispatcher = net.bible.sharedcore.bibleview.BridgeDispatcher(bridge, {}, {})
+        val handler = IosBridgeMessageHandler(dispatcher) { observed++ }
+        handler.dispatchText("""{"method":"setClientReady","args":[]}""")
+        handler.dispatchText("""{"method":"unknown","args":[]}""")
+        handler.dispatchText("not json")
+        assertEquals(1, ready)
+        assertEquals(1, observed)
+    }
+
+    @Test
+    fun productionCandidateMappingUsesLiveEntryState() {
+        val entry = IosReadingWebViews.entry("diagnostic-private-window")
+        try {
+            val first = entry.diagnosticCandidate()
+            assertEquals(false, first.hasHandler)
+            assertEquals(false, first.hasUrl)
+            assertEquals(false, first.hasWindow)
+            assertEquals(entry.diagnosticIdentity.paneId, first.paneId)
+            assertEquals(entry.diagnosticIdentity.webViewId, first.webViewId)
+            entry.handlerCount = 1
+            assertEquals(true, entry.diagnosticCandidate().hasHandler)
+        } finally {
+            entry.handlerCount = 0
+            IosReadingWebViews.release("diagnostic-private-window")
+        }
+    }
+    @Test
     fun eligibilityReportsCountsAndAllSkipReasons() {
         val events = mutableListOf<RuntimeDiagnosticEvent>()
         val candidates = listOf(
