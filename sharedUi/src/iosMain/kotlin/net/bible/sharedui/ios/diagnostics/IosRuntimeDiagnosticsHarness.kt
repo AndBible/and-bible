@@ -76,9 +76,22 @@ internal object IosRuntimeDiagnosticsHarness {
             field(it, "windowId") == host?.let { h -> field(h, "windowId") } &&
             field(it, "sceneId") == host?.let { h -> field(h, "sceneId") } &&
             field(it, "applicationState") == "ACTIVE" && number(it) > number(active) }
-        val pane = currentRecords.firstOrNull { field(it, "type") == "ClientReady" && field(it, "paneId").isNotEmpty() }
-        val probe = currentRecords.firstOrNull { field(it, "type") == "ProbeResult" &&
-            field(it, "paneId") == pane?.let { p -> field(p, "paneId") } && number(it) > number(active) }
+        fun paneOwner(probe: kotlinx.serialization.json.JsonObject) = currentRecords.lastOrNull {
+            field(it, "type") == "PaneOwnershipObserved" && number(it) < number(probe) &&
+                field(it, "paneId") == field(probe, "paneId") && field(it, "webViewId") == field(probe, "webViewId")
+        }
+        fun ready(probe: kotlinx.serialization.json.JsonObject) = currentRecords.firstOrNull {
+            field(it, "type") == "ClientReady" && field(it, "paneId") == field(probe, "paneId") && number(it) < number(probe)
+        }
+        val probe = currentRecords.firstOrNull { record ->
+            field(record, "type") == "ProbeResult" && number(record) > number(active) && ready(record) != null &&
+                paneOwner(record)?.let { owner ->
+                    field(owner, "attached") == "true" && host != null &&
+                        field(owner, "windowId") == field(host, "windowId") && field(owner, "sceneId") == field(host, "sceneId")
+                } == true
+        }
+        val pane = probe?.let(::ready)
+        val paneOwnership = probe?.let(::paneOwner)
         val identities = records.mapNotNull { record ->
             val run = record["runId"]?.jsonPrimitive?.content ?: return@mapNotNull null
             val seq = record["sequence"]?.jsonPrimitive?.content ?: return@mapNotNull null
@@ -86,7 +99,7 @@ internal object IosRuntimeDiagnosticsHarness {
         }.joinToString(",")
         return "attachment=true runs=${if (runs.size >= 2) "2+" else runs.size} " +
             "current=${current in runs} run=$current records=$identities " +
-            "host=${seq(host)} pane=${seq(pane)} probe=${seq(probe)} background=${seq(background)} " +
+            "host=${seq(host)} pane=${seq(pane)} paneowner=${seq(paneOwnership)} probe=${seq(probe)} background=${seq(background)} " +
             "foreground=${seq(foreground)} active=${seq(active)} hostactive=${seq(hostActive)}"
     }
 }

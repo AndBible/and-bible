@@ -1,11 +1,81 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package net.bible.sharedui.webview
 
+import net.bible.sharedui.ios.diagnostics.IosLifecycleDiagnostics
+import platform.CoreGraphics.CGRectMake
+import platform.UIKit.UIViewController
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import kotlin.test.assertTrue
 import net.bible.sharedui.host.diagnostics.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class IosPaneDiagnosticsTest {
+    private class OwnerWindow(private val ownerScene: UIWindowScene) : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
+        override fun windowScene(): UIWindowScene? = ownerScene
+    }
+
+    @Test
+    fun productionPaneOwnershipFollowsActualWindowsAndReparenting() {
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        val lifecycle = IosLifecycleDiagnostics(events::add)
+        val firstWindow = OwnerWindow(UIWindowScene())
+        val secondWindow = OwnerWindow(UIWindowScene())
+        val firstHost = UIViewController()
+        val secondHost = UIViewController()
+        firstWindow.rootViewController = firstHost
+        secondWindow.rootViewController = secondHost
+        firstWindow.addSubview(firstHost.view)
+        secondWindow.addSubview(secondHost.view)
+        val first = IosReadingWebViews.entry("private-first-window")
+        val second = IosReadingWebViews.entry("private-second-window")
+        val previousSink = IosReadingWebViews.diagnosticSink
+        IosReadingWebViews.diagnosticSink = events::add
+        try {
+            lifecycle.attachHost("first-host", firstHost)
+            lifecycle.attachHost("second-host", secondHost)
+            val hosts = events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>()
+            assertNotEquals(hosts[0].windowId, hosts[1].windowId)
+            assertNotEquals(hosts[0].sceneId, hosts[1].sceneId)
+            firstHost.view.addSubview(first.webView)
+            secondHost.view.addSubview(second.webView)
+            fun ownership(paneId: String) = events.filterIsInstance<RuntimeDiagnosticEvent.PaneOwnershipObserved>()
+                .last { it.paneId == paneId }
+            val firstAttached = ownership(first.diagnosticIdentity.paneId)
+            val secondAttached = ownership(second.diagnosticIdentity.paneId)
+            assertEquals(first.diagnosticIdentity.webViewId, firstAttached.webViewId)
+            assertEquals(hosts[0].windowId, firstAttached.windowId)
+            assertEquals(hosts[0].sceneId, firstAttached.sceneId)
+            assertEquals(hosts[1].windowId, secondAttached.windowId)
+            assertEquals(hosts[1].sceneId, secondAttached.sceneId)
+            assertTrue(firstAttached.attached && secondAttached.attached)
+
+            first.webView.removeFromSuperview()
+            val detached = ownership(first.diagnosticIdentity.paneId)
+            assertEquals("none", detached.windowId)
+            assertEquals("none", detached.sceneId)
+            assertEquals(false, detached.attached)
+            secondHost.view.addSubview(first.webView)
+            val moved = ownership(first.diagnosticIdentity.paneId)
+            assertEquals(firstAttached.paneId, moved.paneId)
+            assertEquals(firstAttached.webViewId, moved.webViewId)
+            assertEquals(hosts[1].windowId, moved.windowId)
+            assertEquals(hosts[1].sceneId, moved.sceneId)
+            assertTrue(moved.attached)
+            assertEquals(secondAttached, ownership(second.diagnosticIdentity.paneId))
+        } finally {
+            IosReadingWebViews.release("private-first-window")
+            IosReadingWebViews.release("private-second-window")
+            IosReadingWebViews.diagnosticSink = previousSink
+            lifecycle.close()
+            firstWindow.rootViewController = null
+            secondWindow.rootViewController = null
+        }
+    }
+
     @Test
     fun bridgeRoutesOnlySuccessfulClientReadyToDiagnosticCallback() {
         var ready = 0

@@ -51,16 +51,30 @@ internal fun snapshotHost(controller: UIViewController, access: HostOwnershipAcc
     return HostSnapshot(window, scene, appState, sceneState, uiWindow?.hidden ?: true, uiWindow?.keyWindow ?: false)
 }
 
+/** Shared by lifecycle and pane observations so actual UIKit owners join across event types. Main-thread-only. */
+internal object NativeDiagnosticIdentities {
+    private val identities = mutableListOf<Pair<WeakReference<Any>, String>>()
+
+    fun identity(value: Any?): String {
+        if (value == null) return "none"
+        identities.removeAll { it.first.get() == null }
+        return identities.firstOrNull { it.first.get() === value }?.second
+            ?: NSUUID().UUIDString.also { identities += WeakReference(value) to it }
+    }
+}
+
 /** Main-thread-only; neither hosts nor UIKit objects used as identities are retained. */
 internal class IosLifecycleDiagnostics(
     private val emit: (RuntimeDiagnosticEvent) -> Unit,
     private val readHost: (UIViewController) -> HostSnapshot = { snapshotHost(it, UIKitHostOwnership) },
 ) {
-    private data class Host(val controller: WeakReference<UIViewController>, var state: Lifecycle.State)
+    private data class Host(
+        val controller: WeakReference<UIViewController>, var state: Lifecycle.State,
+        var windowId: String = "none", var sceneId: String = "none",
+    )
     private val center = NSNotificationCenter.defaultCenter
     private val observers = mutableListOf<NSObjectProtocol>()
     private val hosts = mutableMapOf<String, Host>()
-    private val identities = mutableListOf<Pair<WeakReference<Any>, String>>()
     val observerCount get() = observers.size
     fun attachedHost(id: String) = hosts[id]?.controller?.get()
 
@@ -90,7 +104,11 @@ internal class IosLifecycleDiagnostics(
         if (hosts[id]?.controller?.get() !== controller) hosts[id] = Host(WeakReference(controller), Lifecycle.State.INITIALIZED)
         snapshot(id)
     }
-    fun detachHost(id: String) { hosts.remove(id) }
+    fun detachHost(id: String) {
+        val host = hosts[id] ?: return
+        emit(RuntimeDiagnosticEvent.HostTrackingDetached(id, host.windowId, host.sceneId))
+        hosts.remove(id)
+    }
     fun observeLifecycle(id: String, owner: LifecycleOwner): () -> Unit {
         val observer = LifecycleEventObserver { _, _ -> composeState(id, owner.lifecycle.currentState) }
         owner.lifecycle.addObserver(observer)
@@ -101,12 +119,7 @@ internal class IosLifecycleDiagnostics(
         hosts[id]?.state = value
         snapshot(id)
     }
-    private fun identity(value: Any?): String {
-        if (value == null) return "none"
-        identities.removeAll { it.first.get() == null }
-        return identities.firstOrNull { it.first.get() === value }?.second
-            ?: NSUUID().UUIDString.also { identities += WeakReference(value) to it }
-    }
+    private fun identity(value: Any?): String = NativeDiagnosticIdentities.identity(value)
     private fun snapshot(id: String) {
         val host = hosts[id] ?: return
         val controller = host.controller.get() ?: run { hosts.remove(id); return }
@@ -118,13 +131,18 @@ internal class IosLifecycleDiagnostics(
             Lifecycle.State.RESUMED -> DiagnosticState.RESUMED
             Lifecycle.State.DESTROYED -> DiagnosticState.DESTROYED
         }
-        emit(RuntimeDiagnosticEvent.OwnershipObserved(id, identity(observed.window), identity(observed.scene), observed.applicationState, observed.sceneState, compose, observed.hidden, observed.key, observed.window != null))
+        val windowId = identity(observed.window)
+        val sceneId = identity(observed.scene)
+        if (observed.window != null) {
+            host.windowId = windowId
+            host.sceneId = sceneId
+        }
+        emit(RuntimeDiagnosticEvent.OwnershipObserved(id, windowId, sceneId, observed.applicationState, observed.sceneState, compose, observed.hidden, observed.key, observed.window != null))
     }
     fun close() {
         observers.forEach { center.removeObserver(it) }
         observers.clear()
         hosts.clear()
-        identities.clear()
     }
 }
 

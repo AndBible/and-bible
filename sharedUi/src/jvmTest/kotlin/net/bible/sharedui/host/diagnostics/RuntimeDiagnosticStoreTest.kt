@@ -15,6 +15,38 @@ import java.io.IOException
 import okio.Path.Companion.toOkioPath
 
 class RuntimeDiagnosticStoreTest {
+    @Test fun persistedOwnershipAndTrackingDetachKeepTypedJoinFields() {
+        val dir = Files.createTempDirectory("diagnostics-ownership").toOkioPath()
+        try {
+            val store = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }
+            val events = listOf(
+                RuntimeDiagnosticEvent.OwnershipObserved("host", "window", "scene", DiagnosticState.BACKGROUND,
+                    DiagnosticState.BACKGROUND, DiagnosticState.STARTED, false, false, true),
+                RuntimeDiagnosticEvent.PaneOwnershipObserved("pane", "view", "window", "scene", true),
+                RuntimeDiagnosticEvent.ProbeResult("probe", "pane", "view", ProbeOutcome.ALIVE, false, 7),
+                RuntimeDiagnosticEvent.HostTrackingDetached("host", "window", "scene"),
+            )
+            events.forEachIndexed { index, event -> store.append(DiagnosticRecord("run", index.toLong(), 1000, event)) }
+            val records = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }.snapshot().lineSequence()
+                .filter { it.isNotBlank() }.map { kotlinx.serialization.json.Json.parseToJsonElement(it) }.toList()
+            fun event(index: Int) = (records[index] as kotlinx.serialization.json.JsonObject).getValue("event") as kotlinx.serialization.json.JsonObject
+            fun field(index: Int, name: String) = (event(index).getValue(name) as kotlinx.serialization.json.JsonPrimitive).content
+            assertEquals("PaneOwnershipObserved", field(1, "type"))
+            assertEquals("window", field(1, "windowId"))
+            assertEquals("scene", field(1, "sceneId"))
+            assertEquals("true", field(1, "attached"))
+            assertEquals(field(0, "windowId"), field(1, "windowId"))
+            assertEquals(field(0, "sceneId"), field(1, "sceneId"))
+            assertEquals(field(1, "paneId"), field(2, "paneId"))
+            assertEquals(field(1, "webViewId"), field(2, "webViewId"))
+            assertEquals("HostTrackingDetached", field(3, "type"))
+            assertEquals("host", field(3, "hostId"))
+            assertEquals("window", field(3, "windowId"))
+            assertEquals("scene", field(3, "sceneId"))
+            assertEquals(setOf("type", "hostId", "windowId", "sceneId"), event(3).keys)
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
     @Test fun interruptedOpenKeepsCompletedHistory() {
         val dir = Files.createTempDirectory("diagnostics").toOkioPath()
         try {

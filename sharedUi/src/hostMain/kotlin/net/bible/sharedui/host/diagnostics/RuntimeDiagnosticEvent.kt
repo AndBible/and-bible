@@ -20,6 +20,9 @@ internal sealed interface RuntimeDiagnosticEvent {
     data class ProbeSettled(val id: String, val state: DiagnosticState, val durationMillis: Long) : RuntimeDiagnosticEvent
     data class RecoveryObserved(val source: DiagnosticSource, val state: DiagnosticState, val id: String) : RuntimeDiagnosticEvent
     data class OwnershipObserved(val hostId: String, val windowId: String, val sceneId: String, val applicationState: DiagnosticState, val sceneState: DiagnosticState, val composeState: DiagnosticState, val hidden: Boolean, val key: Boolean, val attached: Boolean) : RuntimeDiagnosticEvent
+    data class PaneOwnershipObserved(val paneId: String, val webViewId: String, val windowId: String, val sceneId: String, val attached: Boolean) : RuntimeDiagnosticEvent
+    /** Tracking ended; IDs describe the last observed owner, not a new UIKit or lifecycle state. */
+    data class HostTrackingDetached(val hostId: String, val windowId: String, val sceneId: String) : RuntimeDiagnosticEvent
     data class ProbeContext(val trigger: ProbeTrigger, val probeId: String, val paneId: String, val webViewId: String, val candidateCount: Int, val eligibleCount: Int) : RuntimeDiagnosticEvent
     data class ProbeResult(val probeId: String, val paneId: String, val webViewId: String, val outcome: ProbeOutcome, val staleIdentity: Boolean, val durationMillis: Long) : RuntimeDiagnosticEvent
     data class RecoveryResult(val paneId: String, val action: RecoveryAction, val failure: RecoveryFailure) : RuntimeDiagnosticEvent
@@ -48,6 +51,8 @@ private fun RuntimeDiagnosticEvent.json(): JsonObject = buildJsonObject {
         is RuntimeDiagnosticEvent.ProbeSettled -> { put("type", "ProbeSettled"); put("id", event.id); put("state", event.state.name); put("durationMillis", event.durationMillis) }
         is RuntimeDiagnosticEvent.RecoveryObserved -> { put("type", "RecoveryObserved"); put("source", event.source.name); put("state", event.state.name); put("id", event.id) }
         is RuntimeDiagnosticEvent.OwnershipObserved -> { put("type", "OwnershipObserved"); put("hostId", event.hostId); put("windowId", event.windowId); put("sceneId", event.sceneId); put("applicationState", event.applicationState.name); put("sceneState", event.sceneState.name); put("composeState", event.composeState.name); put("hidden", event.hidden); put("key", event.key); put("attached", event.attached) }
+        is RuntimeDiagnosticEvent.PaneOwnershipObserved -> { put("type", "PaneOwnershipObserved"); put("paneId", event.paneId); put("webViewId", event.webViewId); put("windowId", event.windowId); put("sceneId", event.sceneId); put("attached", event.attached) }
+        is RuntimeDiagnosticEvent.HostTrackingDetached -> { put("type", "HostTrackingDetached"); put("hostId", event.hostId); put("windowId", event.windowId); put("sceneId", event.sceneId) }
         is RuntimeDiagnosticEvent.ProbeContext -> { put("type", "ProbeContext"); put("trigger", event.trigger.name); put("probeId", event.probeId); put("paneId", event.paneId); put("webViewId", event.webViewId); put("candidateCount", event.candidateCount); put("eligibleCount", event.eligibleCount) }
         is RuntimeDiagnosticEvent.ProbeResult -> { put("type", "ProbeResult"); put("probeId", event.probeId); put("paneId", event.paneId); put("webViewId", event.webViewId); put("outcome", event.outcome.name); put("staleIdentity", event.staleIdentity); put("durationMillis", event.durationMillis) }
         is RuntimeDiagnosticEvent.RecoveryResult -> { put("type", "RecoveryResult"); put("paneId", event.paneId); put("action", event.action.name); put("failure", event.failure.name) }

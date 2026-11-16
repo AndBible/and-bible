@@ -33,7 +33,7 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
             text.split(separator: " ").first(where: { $0.hasPrefix(name + "=") }).map { String($0.dropFirst(name.count + 1)) }
         }
         var priorRecords: [String] = []
-        for kind in ["host", "pane", "probe", "background", "foreground", "active", "hostactive"] {
+        for kind in ["host", "pane", "paneowner", "probe", "background", "foreground", "active", "hostactive"] {
             guard let sequence = field(first, kind), sequence != "missing" else {
                 XCTFail("Missing \(kind) event: \(first)")
                 return

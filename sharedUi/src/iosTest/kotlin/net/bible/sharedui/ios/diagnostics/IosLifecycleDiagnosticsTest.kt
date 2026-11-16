@@ -108,6 +108,45 @@ class IosLifecycleDiagnosticsTest {
     }
 
     @Test
+    fun trackingDetachRecordsLastObservedOwnershipWithoutInventingUIKitState() {
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        val diagnostics = IosLifecycleDiagnostics(events::add)
+        val window = FixtureWindow(UIWindowScene())
+        val host = UIViewController()
+        window.rootViewController = host
+        window.addSubview(host.view)
+        try {
+            diagnostics.install()
+            diagnostics.attachHost("host", host)
+            val last = events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().last()
+            assertTrue(last.attached)
+            // UIKit may already have detached the view before Compose disposes its tracking.
+            host.view.removeFromSuperview()
+            diagnostics.composeState("host", Lifecycle.State.CREATED)
+            val unattached = events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().last()
+            assertEquals(false, unattached.attached)
+            assertEquals("none", unattached.windowId)
+            diagnostics.detachHost("host")
+            val detached = events.filterIsInstance<RuntimeDiagnosticEvent.HostTrackingDetached>().single()
+            assertEquals("host", detached.hostId)
+            assertEquals(last.windowId, detached.windowId)
+            assertEquals(last.sceneId, detached.sceneId)
+            assertEquals(unattached, events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().last())
+            assertNull(diagnostics.attachedHost("host"))
+            val count = events.size
+            diagnostics.detachHost("host")
+            diagnostics.composeState("host", Lifecycle.State.DESTROYED)
+            assertEquals(count, events.size)
+            NSNotificationCenter.defaultCenter.postNotificationName(UIApplicationDidBecomeActiveNotification, null)
+            assertEquals(2, events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().size)
+            assertEquals(1, events.filterIsInstance<RuntimeDiagnosticEvent.HostTrackingDetached>().size)
+        } finally {
+            diagnostics.close()
+            window.rootViewController = null
+        }
+    }
+
+    @Test
     fun detachedControllerIsNotRetained() {
         val diagnostics = IosLifecycleDiagnostics(emit = { })
         fun attachAndDetach(): kotlin.native.ref.WeakReference<UIViewController> {

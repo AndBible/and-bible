@@ -155,8 +155,11 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     /** Set by the pane composable that hosts this view now: refreshes its accessibility element (issue #3949). */
     var onWindowAttachForAccessibility: (() -> Unit)? = null
 
+    internal var onWindowOwnershipObserved: (() -> Unit)? = null
+
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+        try { onWindowOwnershipObserved?.invoke() } catch (_: Throwable) { }
         if (window != null) {
             try {
                 onAttached?.invoke()
@@ -216,7 +219,7 @@ internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
  * pane factory ([iosReadingPaneFactory]) wires the bridge handler once it can ask `sessionFor`.
  */
 @kotlin.native.HiddenFromObjC
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, kotlin.experimental.ExperimentalNativeApi::class)
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
     internal var diagnosticSink: (net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent) -> Unit = { IosRuntimeDiagnostics.emit(it) }
@@ -239,7 +242,10 @@ object IosReadingWebViews {
         diagnostic = { diagnosticSink(it) },
         identities = { windowId, view -> entries[windowId]?.takeIf { it.webView === view }?.diagnosticIdentity?.let { it.paneId to it.webViewId } },
         observeCandidates = { trigger ->
-            val candidates = entries.values.map { it.diagnosticCandidate() }
+            val candidates = entries.values.map {
+                it.diagnosticIdentity.observeOwnership(it.webView) { event -> diagnosticSink(event) }
+                it.diagnosticCandidate()
+            }
             observePaneCandidates(candidates, trigger) { diagnosticSink(it) }
             candidates.size
         },
@@ -337,6 +343,7 @@ object IosReadingWebViews {
         entry.webView.navigationDelegate = null
         entry.webView.stopLoading()
         entry.webView.removeFromSuperview()
+        entry.webView.onWindowOwnershipObserved = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
         entry.webView.isEditing = { false }
@@ -379,6 +386,12 @@ object IosReadingWebViews {
             webView.configuration.userContentController.addScriptMessageHandler(sharedReadingEscapeHandler, READING_ESCAPE_HANDLER_NAME)
             ReadingEntry(webView, navDelegate).also {
                 val identity = it.diagnosticIdentity
+                // Do not capture the entry/view strongly in a callback retained by the view itself.
+                val weakView = kotlin.native.ref.WeakReference(webView)
+                webView.onWindowOwnershipObserved = {
+                    weakView.get()?.let { view -> identity.observeOwnership(view) { event -> diagnosticSink(event) } }
+                }
+                identity.observeOwnership(webView) { event -> diagnosticSink(event) }
                 navDelegate.onTerminationObserved = { identity.terminated { event -> diagnosticSink(event) } }
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.

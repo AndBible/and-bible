@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -511,6 +512,12 @@ class IosReadingWindowsTest {
             assertEquals(1, context.eligibleCount)
             assertEquals(eligible.diagnosticIdentity.paneId, context.paneId)
             assertEquals(eligible.diagnosticIdentity.webViewId, context.webViewId)
+            val owner = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.PaneOwnershipObserved>()
+                .last { it.paneId == context.paneId && it.webViewId == context.webViewId }
+            assertTrue(owner.attached)
+            assertNotEquals("none", owner.windowId)
+            assertEquals("none", owner.sceneId, "this fixture window has no owning scene")
+            assertTrue(events.indexOf(owner) < events.indexOf(context))
             eligible.navDelegate.webViewWebContentProcessDidTerminate(eligible.webView)
             assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ClientReady(context.paneId)))
             assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ContentTerminated(context.webViewId)))
