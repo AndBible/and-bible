@@ -21,29 +21,40 @@ internal data class HostSnapshot(
 )
 
 /** Reads only the actual controller's already-loaded view and owning window. */
-private fun snapshotHost(controller: UIViewController): HostSnapshot {
-    val window = controller.viewIfLoaded?.window
-    val scene = window?.windowScene
+internal interface HostOwnershipAccess {
+    fun window(controller: UIViewController): Any?
+    fun scene(window: Any): Any?
+}
+
+private object UIKitHostOwnership : HostOwnershipAccess {
+    override fun window(controller: UIViewController): Any? = controller.viewIfLoaded?.window
+    override fun scene(window: Any): Any? = (window as UIWindow).windowScene
+}
+
+internal fun snapshotHost(controller: UIViewController, access: HostOwnershipAccess): HostSnapshot {
+    val window = access.window(controller)
+    val scene = window?.let(access::scene)
     val appState = when (UIApplication.sharedApplication.applicationState) {
         UIApplicationState.UIApplicationStateActive -> DiagnosticState.ACTIVE
         UIApplicationState.UIApplicationStateInactive -> DiagnosticState.INACTIVE
         UIApplicationState.UIApplicationStateBackground -> DiagnosticState.BACKGROUND
         else -> DiagnosticState.UNKNOWN
     }
-    val sceneState = when (scene?.activationState) {
+    val sceneState = when ((scene as? UIWindowScene)?.activationState) {
         UISceneActivationStateForegroundActive -> DiagnosticState.ACTIVE
         UISceneActivationStateForegroundInactive -> DiagnosticState.INACTIVE
         UISceneActivationStateBackground -> DiagnosticState.BACKGROUND
         UISceneActivationStateUnattached -> DiagnosticState.STOPPED
         else -> DiagnosticState.UNKNOWN
     }
-    return HostSnapshot(window, scene, appState, sceneState, window?.hidden ?: true, window?.keyWindow ?: false)
+    val uiWindow = window as? UIWindow
+    return HostSnapshot(window, scene, appState, sceneState, uiWindow?.hidden ?: true, uiWindow?.keyWindow ?: false)
 }
 
 /** Main-thread-only; neither hosts nor UIKit objects used as identities are retained. */
 internal class IosLifecycleDiagnostics(
     private val emit: (RuntimeDiagnosticEvent) -> Unit,
-    private val readHost: (UIViewController) -> HostSnapshot = ::snapshotHost,
+    private val readHost: (UIViewController) -> HostSnapshot = { snapshotHost(it, UIKitHostOwnership) },
 ) {
     private data class Host(val controller: WeakReference<UIViewController>, var state: Lifecycle.State)
     private val center = NSNotificationCenter.defaultCenter

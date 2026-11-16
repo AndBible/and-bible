@@ -30,9 +30,13 @@ class IosLifecycleDiagnosticsTest {
         val secondWindow = NSObject()
         val firstScene = NSObject()
         val secondScene = NSObject()
-        val diagnostics = IosLifecycleDiagnostics(events::add) { host ->
-            if (host === first) fixture(firstWindow, firstScene) else fixture(secondWindow, secondScene)
+        val access = object : HostOwnershipAccess {
+            override fun window(controller: UIViewController): Any? = if (controller === first) firstWindow else secondWindow
+            override fun scene(window: Any): Any? = if (window === firstWindow) firstScene else secondScene
         }
+        val diagnostics = IosLifecycleDiagnostics(events::add) { host -> snapshotHost(host, access) }
+        assertTrue(snapshotHost(first, access).scene === firstScene)
+        assertTrue(snapshotHost(second, access).scene === secondScene)
         diagnostics.attachHost("first", first)
         diagnostics.attachHost("second", second)
         val observations = events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>()
