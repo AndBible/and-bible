@@ -28,10 +28,95 @@ import platform.WebKit.WKWebViewConfiguration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.diagnostics.*
 
 /** Issue #4004: a pane whose page is dead or hung without a reported termination is rebuilt when the app becomes active. */
 @OptIn(ExperimentalForeignApi::class)
 class IosPaneLivenessTest {
+    @Test
+    fun observationsSettleOnceAndPreserveRecovery() {
+        val view = webView()
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        var answer: String? = "object"
+        var callback: ((Any?, Boolean) -> Unit)? = null
+        var recoveries = 0
+        val liveness = IosPaneLiveness(
+            panes = { mapOf("private-window" to view) }, recover = { recoveries++ }, timeoutSeconds = 0.02,
+            evaluate = { _, _, done -> if (answer == null) callback = done else done(answer, false) },
+            diagnostic = { events += it }, log = {},
+        )
+        liveness.checkAll()
+        answer = "undefined"
+        liveness.checkAll()
+        answer = null
+        liveness.checkAll()
+        spin(0.2)
+        callback?.invoke("object", false)
+        val results = events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>()
+        assertEquals(listOf(ProbeOutcome.ALIVE, ProbeOutcome.DEAD, ProbeOutcome.UNRESPONSIVE), results.map { it.outcome })
+        assertEquals(2, recoveries)
+        assertEquals(3, events.filterIsInstance<RuntimeDiagnosticEvent.ProbeContext>().size)
+        assertTrue(results.all { it.durationMillis >= 0 && it.paneId != "private-window" })
+    }
+
+    @Test
+    fun loadingAnswerIsObservedWithoutRecovery() {
+        val view = webView().apply { loadHTMLString("<p>loading</p>", baseURL = null) }
+        assertTrue(view.loading)
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        var calls = 0
+        IosPaneLiveness(panes = { mapOf("w" to view) }, recover = { calls++ },
+            evaluate = { _, _, done -> done("undefined", false) }, diagnostic = { events += it }, log = {}).checkAll()
+        assertEquals(ProbeOutcome.LOADING, events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().single().outcome)
+        assertEquals(0, calls)
+    }
+
+    @Test
+    fun observationsReportStaleGiveUpAndRecoveryFailure() {
+        val old = webView()
+        var current = old
+        var callback: ((Any?, Boolean) -> Unit)? = null
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        var calls = 0
+        val liveness = IosPaneLiveness(
+            panes = { mapOf("w" to current) }, recover = { calls++; error("private failure") },
+            maxRebuilds = 1, timeoutSeconds = 10.0,
+            evaluate = { _, _, done -> callback = done }, diagnostic = { events += it }, log = {},
+        )
+        liveness.checkAll()
+        current = webView()
+        callback!!(null, true)
+        assertTrue(events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().single().staleIdentity)
+        liveness.checkAll(); callback!!(null, true)
+        liveness.checkAll(); callback!!(null, true)
+        assertEquals(1, calls)
+        val recovery = events.filterIsInstance<RuntimeDiagnosticEvent.RecoveryResult>()
+        assertEquals(listOf(RecoveryAction.REQUESTED, RecoveryAction.FAILED, RecoveryAction.GIVE_UP), recovery.map { it.action })
+        assertEquals(RecoveryFailure.OTHER, recovery[1].failure)
+    }
+
+    @Test
+    fun evaluationThrowIsReportedWithoutRecoveryOrTimeout() {
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        var calls = 0
+        val view = webView()
+        IosPaneLiveness(panes = { mapOf("w" to view) }, recover = { calls++ }, timeoutSeconds = 0.02,
+            evaluate = { _, _, _ -> error("private error") }, diagnostic = { events += it }, log = {}).checkAll()
+        spin(0.2)
+        assertEquals(0, calls)
+        assertTrue(events.filterIsInstance<RuntimeDiagnosticEvent.ProbeResult>().isEmpty())
+        assertEquals(DiagnosticReason.OTHER, events.filterIsInstance<RuntimeDiagnosticEvent.ProbeSkipped>().single().reason)
+    }
+
+    @Test
+    fun observerFailureDoesNotPreventRecovery() {
+        val view = webView()
+        var calls = 0
+        IosPaneLiveness(panes = { mapOf("w" to view) }, recover = { calls++ },
+            evaluate = { _, _, done -> done(null, true) }, diagnostic = { error("observer") }, log = {}).checkAll()
+        assertEquals(1, calls)
+    }
+
     private fun webView() = WKWebView(CGRectMake(0.0, 0.0, 320.0, 480.0), WKWebViewConfiguration())
 
     private fun spin(seconds: Double) {
