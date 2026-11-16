@@ -3,6 +3,7 @@ package net.bible.sharedui.host.diagnostics
 import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 import okio.buffer
 import okio.FileSystem
 import okio.ForwardingFileSystem
@@ -27,6 +28,57 @@ class RuntimeDiagnosticStoreTest {
             } catch (_: IOException) { }
             assertTrue(RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }.snapshot().contains("first"))
         } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun multiBufferInterruptedWritesPreserveExactPreviousGeneration() {
+        val fixture = Files.createTempDirectory("diagnostics-fixture").toOkioPath()
+        try {
+            val fs = FileSystem.SYSTEM
+            val store = RuntimeDiagnosticStore(fixture, fs) { 1000L }
+            repeat(135) { n -> store.append(DiagnosticRecord("ä".repeat(1900), n.toLong(), 1000, RuntimeDiagnosticEvent.ClientReady("pane"))) }
+            val before = store.snapshot()
+            val marker = DiagnosticRecord("new-marker", 1, 1000, RuntimeDiagnosticEvent.ClientReady("pane"))
+            val nextNumber = fs.list(fixture).map { path ->
+                fs.source(path).buffer().use { it.readUtf8LineStrict().substringAfter(':').substringBefore('}').toLong() }
+            }.max() + 1
+            val headerBytes = "{\"generation\":$nextNumber}\n".encodeToByteArray().size
+            val bodyBytes = before.encodeToByteArray().size + (marker.encode() + "\n").encodeToByteArray().size
+            val preFooter = headerBytes + bodyBytes
+            assertTrue(preFooter > 500_000)
+            for (cutoff in listOf(1, headerBytes - 1, 8192, 16384, preFooter - 1, preFooter, preFooter + 5)) {
+                val dir = Files.createTempDirectory("diagnostics-interruption").toOkioPath()
+                try {
+                    fs.list(fixture).forEach { source -> fs.copy(source, dir / source.name) }
+                    var failed = false
+                    val failing = object : ForwardingFileSystem(fs) {
+                        override fun sink(file: Path, mustCreate: Boolean): Sink = object : ForwardingSink(super.sink(file, mustCreate)) {
+                            var remaining = cutoff.toLong()
+                            override fun write(source: Buffer, byteCount: Long) {
+                                val count = minOf(remaining, byteCount)
+                                if (count > 0) { super.write(source, count); remaining -= count }
+                                if (count < byteCount) { failed = true; throw IOException("injected write") }
+                            }
+                        }
+                    }
+                    try { RuntimeDiagnosticStore(dir, failing) { 1000L }.append(marker) } catch (_: IOException) { }
+                    assertTrue(failed, "fault not triggered at $cutoff")
+                    assertEquals(before, RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot(), "cutoff=$cutoff")
+                } finally { fs.deleteRecursively(dir) }
+            }
+            val dir = Files.createTempDirectory("diagnostics-close").toOkioPath()
+            try {
+                fs.list(fixture).forEach { source -> fs.copy(source, dir / source.name) }
+                var failed = false
+                val failing = object : ForwardingFileSystem(fs) {
+                    override fun sink(file: Path, mustCreate: Boolean): Sink = object : ForwardingSink(super.sink(file, mustCreate)) {
+                        override fun close() { super.close(); failed = true; throw IOException("injected close") }
+                    }
+                }
+                try { RuntimeDiagnosticStore(dir, failing) { 1000L }.append(marker) } catch (_: IOException) { }
+                assertTrue(failed)
+                assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("new-marker"))
+            } finally { fs.deleteRecursively(dir) }
+        } finally { FileSystem.SYSTEM.deleteRecursively(fixture) }
     }
 
     @Test fun interruptedSnapshotWritesKeepCompletedHistory() {
@@ -80,8 +132,10 @@ class RuntimeDiagnosticStoreTest {
         val dir = Files.createTempDirectory("diagnostics").toOkioPath()
         try {
             val fs = FileSystem.SYSTEM
-            val store = RuntimeDiagnosticStore(dir, fs) { 1L }
+            var now = 1000L
+            val store = RuntimeDiagnosticStore(dir, fs) { now }
             repeat(180) { n ->
+                if (n == 90) now = 1L
                 store.append(DiagnosticRecord("ä".repeat(1900), n.toLong(), Long.MAX_VALUE, RuntimeDiagnosticEvent.ClientReady("pane")))
             }
             val files = fs.list(dir)
@@ -124,6 +178,90 @@ class RuntimeDiagnosticStoreTest {
         } finally {
             FileSystem.SYSTEM.deleteRecursively(dir)
         }
+    }
+
+    @Test fun retentionRemovesExpiredBytesFromBothGenerationsOnReopen() {
+        val dir = Files.createTempDirectory("diagnostics").toOkioPath()
+        try {
+            var now = 1_000_000_000L
+            val fs = FileSystem.SYSTEM
+            val store = RuntimeDiagnosticStore(dir, fs) { now }
+            store.append(DiagnosticRecord("expired-marker", 1, now, RuntimeDiagnosticEvent.ClientReady("pane")))
+            store.append(DiagnosticRecord("fresh-marker", 1, now + 1, RuntimeDiagnosticEvent.ClientReady("pane")))
+            now += 604800001L
+            val reopened = RuntimeDiagnosticStore(dir, fs) { now }
+            assertTrue(reopened.snapshot().contains("fresh-marker"))
+            fs.list(dir).forEach { path ->
+                assertTrue(!fs.source(path).buffer().use { it.readUtf8() }.contains("expired-marker"), "expired bytes in $path")
+            }
+            now -= 604800001L
+            assertTrue(!RuntimeDiagnosticStore(dir, fs) { now }.snapshot().contains("expired-marker"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun interruptedPruningLeavesFreshHistoryRecoverable() {
+        for (failDelete in listOf(false, true)) {
+            val dir = Files.createTempDirectory("diagnostics").toOkioPath()
+            try {
+                var now = 1_000_000_000L
+                val fs = FileSystem.SYSTEM
+                val store = RuntimeDiagnosticStore(dir, fs) { now }
+                store.append(DiagnosticRecord("expired-marker", 1, now, RuntimeDiagnosticEvent.ClientReady("pane")))
+                store.append(DiagnosticRecord("fresh-marker", 1, now + 1, RuntimeDiagnosticEvent.ClientReady("pane")))
+                now += 604800001L
+                var failed = false
+                val failing = object : ForwardingFileSystem(fs) {
+                    override fun sink(file: Path, mustCreate: Boolean): Sink {
+                        if (!failDelete) { failed = true; throw IOException("write failure") }
+                        return super.sink(file, mustCreate)
+                    }
+                    override fun delete(path: Path, mustExist: Boolean) {
+                        if (failDelete) { failed = true; throw IOException("delete failure") }
+                        super.delete(path, mustExist)
+                    }
+                }
+                try { RuntimeDiagnosticStore(dir, failing) { now } } catch (_: IOException) { }
+                assertTrue(failed)
+                val reopened = RuntimeDiagnosticStore(dir, fs) { now }
+                assertTrue(reopened.snapshot().contains("fresh-marker"))
+                fs.list(dir).forEach { path -> assertTrue(!fs.source(path).buffer().use { it.readUtf8() }.contains("expired-marker")) }
+            } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+        }
+    }
+
+    @Test fun rejectedOversizeAppendStillPrunesPhysicalHistory() {
+        val dir = Files.createTempDirectory("diagnostics").toOkioPath()
+        try {
+            var now = 1_000_000_000L
+            val fs = FileSystem.SYSTEM
+            val store = RuntimeDiagnosticStore(dir, fs) { now }
+            store.append(DiagnosticRecord("expired-marker", 1, now, RuntimeDiagnosticEvent.ClientReady("pane")))
+            store.append(DiagnosticRecord("fresh-marker", 1, now + 1, RuntimeDiagnosticEvent.ClientReady("pane")))
+            now += 604800001L
+            store.append(DiagnosticRecord("x".repeat(5000), 1, now, RuntimeDiagnosticEvent.ClientReady("pane")))
+            assertEquals(1L, store.takeOmittedCount())
+            fs.list(dir).forEach { path -> assertTrue(!fs.source(path).buffer().use { it.readUtf8() }.contains("expired-marker")) }
+            assertTrue(store.snapshot().contains("fresh-marker"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun exactUtf8RecordBoundaryIsEnforced() {
+        val dir = Files.createTempDirectory("diagnostics").toOkioPath()
+        try {
+            val store = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }
+            val blank = DiagnosticRecord("", 1, 1000, RuntimeDiagnosticEvent.ClientReady("pane"))
+            val overhead = (blank.encode() + "\n").encodeToByteArray().size
+            val ascii = blank.copy(runId = "a".repeat(4096 - overhead))
+            val multi = blank.copy(runId = "ä".repeat((4096 - overhead) / 2) + "a".repeat((4096 - overhead) % 2))
+            val tooLarge = multi.copy(runId = multi.runId + "a")
+            assertEquals(4096, (ascii.encode() + "\n").encodeToByteArray().size)
+            assertEquals(4096, (multi.encode() + "\n").encodeToByteArray().size)
+            assertEquals(4097, (tooLarge.encode() + "\n").encodeToByteArray().size)
+            assertTrue(tooLarge.encode().length < 4096)
+            store.append(ascii); store.append(multi); store.append(tooLarge)
+            assertEquals(1L, store.takeOmittedCount())
+            assertEquals(2, store.snapshot().lines().count { it.isNotEmpty() })
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
     }
 
     @Test fun retentionKeepsBoundaryAndFutureButDropsOlderRecords() {

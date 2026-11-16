@@ -19,11 +19,11 @@ internal class RuntimeDiagnosticStore(private val directory: Path, private val f
     init {
         fileSystem.createDirectories(directory)
         generation = files.indices.mapNotNull(::readGeneration).maxByOrNull { it.number }
-        val current = generation
-        if (current != null && live(current.lines).size != current.lines.size) write(live(current.lines))
+        prune()
     }
 
     fun append(record: DiagnosticRecord) {
+        prune()
         val encoded = record.encode()
         if (encoded.length >= 4096 || (encoded + "\n").encodeToByteArray().size > 4096) {
             if (omitted < Long.MAX_VALUE) omitted++
@@ -46,6 +46,17 @@ internal class RuntimeDiagnosticStore(private val directory: Path, private val f
         val now = nowMillis()
         val cutoff = if (now < Long.MIN_VALUE + 604800000L) Long.MIN_VALUE else now - 604800000L
         return lines.filter { it.time >= cutoff }
+    }
+
+    private fun prune() {
+        val current = generation ?: return
+        val retained = live(current.lines)
+        if (retained.size != current.lines.size) write(retained)
+        val inactive = 1 - generation!!.index
+        val previous = readGeneration(inactive)
+        if (previous == null || live(previous.lines).size != previous.lines.size) {
+            fileSystem.delete(files[inactive], mustExist = false)
+        }
     }
 
     private fun write(input: List<Line>) {
