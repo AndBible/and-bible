@@ -22,6 +22,7 @@ import net.bible.sharedui.ios.report.IosBugReport
 import okio.Buffer
 import okio.GzipSource
 import okio.buffer
+import okio.use
 import platform.Foundation.NSProcessInfo
 import kotlin.native.Platform
 
