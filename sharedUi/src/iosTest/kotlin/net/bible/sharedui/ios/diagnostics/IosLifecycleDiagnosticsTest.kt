@@ -1,4 +1,4 @@
-@file:OptIn(kotlin.experimental.ExperimentalNativeApi::class, kotlin.native.runtime.NativeRuntimeApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalNativeApi::class, kotlin.native.runtime.NativeRuntimeApi::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.sharedui.ios.diagnostics
 
@@ -12,6 +12,9 @@ import platform.Foundation.NSNotificationCenter
 import platform.darwin.NSObject
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIViewController
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import platform.CoreGraphics.CGRectMake
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -20,6 +23,24 @@ import kotlin.test.assertTrue
 
 class IosLifecycleDiagnosticsTest {
     private fun fixture(window: Any, scene: Any) = HostSnapshot(window, scene, DiagnosticState.BACKGROUND, DiagnosticState.BACKGROUND, false, true)
+
+    private class FixtureWindow(private val scene: UIWindowScene) : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
+        override fun windowScene(): UIWindowScene? = scene
+    }
+
+    @Test
+    fun uiKitAdapterUsesWindowOwningScene() {
+        val firstScene = UIWindowScene()
+        val secondScene = UIWindowScene()
+        val firstWindow = FixtureWindow(firstScene)
+        val secondWindow = FixtureWindow(secondScene)
+        val first = UIViewController()
+        val second = UIViewController()
+        firstWindow.rootViewController = first
+        secondWindow.rootViewController = second
+        assertTrue(snapshotHost(first, UIKitHostOwnership).scene === firstScene)
+        assertTrue(snapshotHost(second, UIKitHostOwnership).scene === secondScene)
+    }
 
     @Test
     fun hostSnapshotUsesOwningSceneNotFirstScene() {

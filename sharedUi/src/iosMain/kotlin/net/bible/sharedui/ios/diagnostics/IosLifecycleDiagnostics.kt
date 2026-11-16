@@ -26,7 +26,7 @@ internal interface HostOwnershipAccess {
     fun scene(window: Any): Any?
 }
 
-private object UIKitHostOwnership : HostOwnershipAccess {
+internal object UIKitHostOwnership : HostOwnershipAccess {
     override fun window(controller: UIViewController): Any? = controller.viewIfLoaded?.window
     override fun scene(window: Any): Any? = (window as UIWindow).windowScene
 }
