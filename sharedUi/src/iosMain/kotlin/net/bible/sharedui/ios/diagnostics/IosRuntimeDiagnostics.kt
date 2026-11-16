@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.sharedui.host.diagnostics.DiagnosticRecord
 import net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent
@@ -86,41 +87,74 @@ internal class IosDiagnosticWriter(
     private val clock: () -> Long,
     dispatcher: CoroutineDispatcher,
     storeFactory: () -> DiagnosticWriterStore,
+    scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher),
     private val mirror: (String) -> Unit = {},
 ) {
     private sealed interface Request {
         class Append(val record: DiagnosticRecord, val encoded: String) : Request
-        class Snapshot(val result: CompletableDeferred<String>) : Request
+        class Snapshot(val sequence: Long, val time: Long, val dropped: Long) : Request {
+            val result = CompletableDeferred<String>()
+        }
     }
 
-    private val queue = Channel<Request>(256)
+    private val queue = ArrayDeque<Request.Append>()
+    private val wake = Channel<Unit>(Channel.CONFLATED)
     private val lock = NSLock()
     private var sequence = 0L
-    private val dropped = atomic(0L)
-    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
+    private var dropped = 0L
+    private var barrier: Request.Snapshot? = null
 
     init {
         scope.launch {
             val store = try { storeFactory() } catch (_: Exception) { null }
-            for (request in queue) {
+            var writerDropped = 0L
+            while (isActive) {
+                val request = locked {
+                    // A marker is admitted at the tail, never ahead of already accepted records.
+                    // While a barrier is pending its loss belongs to that reserved sequence instead.
+                    if (barrier == null && queue.size < 256 && (dropped > 0 || writerDropped > 0)) {
+                        val count = saturatedAdd(dropped, writerDropped)
+                        val record = DiagnosticRecord(runId, ++sequence, clock(), RuntimeDiagnosticEvent.EventsDropped(count))
+                        queue.addLast(Request.Append(record, record.encode()))
+                        dropped = 0L
+                        writerDropped = 0L
+                    }
+                    val control = barrier
+                    if (control != null && (queue.isEmpty() || queue.first().record.sequence > control.sequence)) control
+                    else queue.removeFirstOrNull()
+                }
                 when (request) {
+                    null -> wake.receive()
                     is Request.Append -> {
                         try { mirror(request.encoded) } catch (_: Exception) { }
                         if (store != null) {
-                            try {
+                            val omitted = try {
                                 store.append(request.record)
-                                addDropped(store.takeOmittedCount())
-                            } catch (_: Exception) {
-                                if (request.record.event !is RuntimeDiagnosticEvent.EventsDropped) addDropped(1)
+                                store.takeOmittedCount()
+                            } catch (_: Exception) { 1L }
+                            // A failed loss indication must never generate another indication.
+                            if (request.record.event !is RuntimeDiagnosticEvent.EventsDropped) {
+                                writerDropped = saturatedAdd(writerDropped, omitted)
                             }
                         }
-                        if (request.record.event !is RuntimeDiagnosticEvent.EventsDropped) enqueueDrops()
                     }
                     is Request.Snapshot -> {
-                        enqueueDrops()
-                        request.result.complete(
-                            try { store?.snapshot() ?: UNAVAILABLE } catch (_: Exception) { UNAVAILABLE }
-                        )
+                        val count = saturatedAdd(request.dropped, writerDropped)
+                        writerDropped = 0L
+                        val snapshot = try {
+                            if (store == null) UNAVAILABLE else {
+                                if (count > 0) {
+                                    val marker = DiagnosticRecord(runId, request.sequence, request.time, RuntimeDiagnosticEvent.EventsDropped(count))
+                                    try { mirror(marker.encode()) } catch (_: Exception) { }
+                                    store.append(marker)
+                                    // Do not recursively report loss of this marker or claim it persisted.
+                                    if (store.takeOmittedCount() > 0) error("diagnostic marker omitted")
+                                }
+                                store.snapshot()
+                            }
+                        } catch (_: Exception) { UNAVAILABLE }
+                        locked { barrier = null }
+                        request.result.complete(snapshot)
                     }
                 }
             }
@@ -128,43 +162,41 @@ internal class IosDiagnosticWriter(
     }
 
     fun emit(event: RuntimeDiagnosticEvent) {
-        lock.lock()
-        try {
-            val record = DiagnosticRecord(runId, ++sequence, clock(), event)
-            val encoded = record.encode()
-            if (encoded.length >= 4096 || (encoded + "\n").encodeToByteArray().size > 4096 ||
-                queue.trySend(Request.Append(record, encoded)).isFailure) addDropped(1)
-        } catch (_: Exception) { addDropped(1) }
-        finally { lock.unlock() }
-    }
-
-    suspend fun snapshot(): String {
-        val result = CompletableDeferred<String>()
-        return withTimeoutOrNull(1000) {
-            queue.send(Request.Snapshot(result))
-            result.await()
-        } ?: UNAVAILABLE
-    }
-
-    private fun enqueueDrops() {
-        lock.lock()
-        var count = 0L
-        try {
-            count = dropped.getAndSet(0)
-            if (count == 0L) return
-            val record = DiagnosticRecord(runId, ++sequence, clock(), RuntimeDiagnosticEvent.EventsDropped(count))
-            if (queue.trySend(Request.Append(record, record.encode())).isFailure) addDropped(count)
-        } catch (_: Exception) { addDropped(count) }
-        finally { lock.unlock() }
-    }
-
-    private fun addDropped(count: Long) {
-        while (true) {
-            val current = dropped.value
-            val next = if (count > Long.MAX_VALUE - current) Long.MAX_VALUE else current + count
-            if (dropped.compareAndSet(current, next)) return
+        locked {
+            try {
+                val record = DiagnosticRecord(runId, ++sequence, clock(), event)
+                val encoded = record.encode()
+                if (encoded.length >= 4096 || (encoded + "\n").encodeToByteArray().size > 4096 || queue.size == 256) {
+                    dropped = saturatedAdd(dropped, 1L)
+                } else queue.addLast(Request.Append(record, encoded))
+            } catch (_: Exception) { dropped = saturatedAdd(dropped, 1L) }
         }
+        wake.trySend(Unit)
     }
+
+    suspend fun snapshot(): String = withTimeoutOrNull(1000) {
+        val request = locked {
+            // A full data queue cannot delay control admission. Reserving its sequence now
+            // prevents later accepted events from preceding the barrier's loss marker.
+            if (barrier != null) null else {
+                Request.Snapshot(++sequence, clock(), dropped).also {
+                    dropped = 0L
+                    barrier = it
+                }
+            }
+        } ?: return@withTimeoutOrNull UNAVAILABLE
+        wake.trySend(Unit)
+        // Timeout/cancellation leaves this one bounded control slot owned by the writer.
+        request.result.await()
+    } ?: UNAVAILABLE
+
+    private inline fun <T> locked(block: () -> T): T {
+        lock.lock()
+        try { return block() } finally { lock.unlock() }
+    }
+
+    private fun saturatedAdd(current: Long, count: Long): Long =
+        if (count > Long.MAX_VALUE - current) Long.MAX_VALUE else current + count
 
     companion object { const val UNAVAILABLE = "diagnostics unavailable\n" }
 }
