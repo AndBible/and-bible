@@ -43,6 +43,16 @@ class IosNavDelegateTerminationTest {
         assertEquals(1, observations)
     }
 
+    @Test
+    fun failingDiagnosticDoesNotPreventRestart() {
+        var restarts = 0
+        val delegate = IosNavDelegate("w1", onPageRestart = { restarts++ })
+        delegate.onTerminationObserved = { error("sink failed") }
+        val webView = WKWebView(CGRectMake(0.0, 0.0, 320.0, 480.0), WKWebViewConfiguration())
+        delegate.webViewWebContentProcessDidTerminate(webView)
+        assertEquals(1, restarts)
+    }
+
     /** A failing restart hook must not escape into WebKit's delegate callback. */
     @Test
     fun failingRestartHookIsContained() {

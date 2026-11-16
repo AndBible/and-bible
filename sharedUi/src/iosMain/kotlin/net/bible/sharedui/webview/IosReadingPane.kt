@@ -245,6 +245,8 @@ object IosReadingWebViews {
         },
     )
 
+    internal fun checkLivenessForTest() = liveness.checkAll()
+
     /** The installed Bibles' languages as a JSON list, read when a window's WebView is created (set by the reading assembly). */
     internal var activeLanguages: () -> String = { "[\"en\"]" }
 

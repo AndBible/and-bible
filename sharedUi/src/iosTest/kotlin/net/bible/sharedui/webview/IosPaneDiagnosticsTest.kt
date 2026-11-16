@@ -20,6 +20,9 @@ class IosPaneDiagnosticsTest {
         handler.dispatchText("not json")
         assertEquals(1, ready)
         assertEquals(1, observed)
+        val throwingHandler = IosBridgeMessageHandler(dispatcher) { error("sink failed") }
+        throwingHandler.dispatchText("""{"method":"setClientReady","args":[]}""")
+        assertEquals(2, ready)
     }
 
     @Test
