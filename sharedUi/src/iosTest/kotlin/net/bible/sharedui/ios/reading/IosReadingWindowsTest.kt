@@ -57,6 +57,7 @@ import platform.Foundation.NSRunLoop
 import platform.Foundation.NSURL
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.Foundation.runUntilDate
+import platform.Foundation.timeIntervalSinceDate
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
@@ -472,6 +473,7 @@ class IosReadingWindowsTest {
         assertFalse(HostReadingWindows.rebuild(IdType().toString()), "a window without an assembly is ignored")
     }
 
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     @Test
     fun productionLivenessReportsRealWebViewEligibilityAndCorrelatesCallbacks() = withWindows { id ->
         val events = mutableListOf<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent>()
@@ -490,7 +492,7 @@ class IosReadingWindowsTest {
             eligible.webView.loadHTMLString("<html></html>", baseURL = base)
             noWindow.webView.loadHTMLString("<html></html>", baseURL = base)
             val deadline = NSDate.dateWithTimeIntervalSinceNow(5.0)
-            while ((eligible.webView.URL == null || noWindow.webView.URL == null) && deadline.timeIntervalSinceNow > 0) {
+            while ((eligible.webView.URL == null || noWindow.webView.URL == null) && deadline.timeIntervalSinceDate(NSDate()) > 0) {
                 NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
             }
             assertTrue(eligible.webView.URL != null && eligible.webView.window != null)
