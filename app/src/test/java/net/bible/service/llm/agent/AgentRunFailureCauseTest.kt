@@ -19,6 +19,7 @@ package net.bible.service.llm.agent
 
 import android.os.Looper
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.withTimeout
+import net.bible.android.database.AiSettingsDatabase
+import net.bible.service.llm.LlmRawLogRecord
+import net.bible.service.llm.LlmRawLogRecordDao
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmConfiguredModel
@@ -197,6 +203,47 @@ class AgentRunFailureCauseTest {
         assertFalse(session.isRunning)
         assertEquals(null, session.job)
         assertTrue("completion must release the start gate", session.tryStart(AgentContext(promptId = IdType())))
+    }
+
+    @Test fun cancellationDuringHistoryPersistenceDoesNotPublishSuccessfulCompletion() {
+        val container = DatabaseContainer.instance
+        val original = container.aiSettingsDb
+        val real = original.llmRawLogRecordDao()
+        val inserting = CompletableDeferred<Unit>()
+        val held = object : LlmRawLogRecordDao by real {
+            override suspend fun insert(record: LlmRawLogRecord) {
+                inserting.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        val db = org.mockito.Mockito.mock(AiSettingsDatabase::class.java)
+        org.mockito.Mockito.`when`(db.llmProviderConfigDao()).thenReturn(original.llmProviderConfigDao())
+        org.mockito.Mockito.`when`(db.llmConfiguredModelDao()).thenReturn(original.llmConfiguredModelDao())
+        org.mockito.Mockito.`when`(db.llmRawLogRecordDao()).thenReturn(held)
+        val terminal = mutableListOf<AgentStopReason>()
+        val subscription = AgentSessionManager.changes.subscribe { change ->
+            if (change is AgentSessionChange.StatusChanged && change.workspaceId == ws) {
+                change.stopReason?.let { terminal += it }
+            }
+        }
+        container.aiSettingsDb = db
+        var run: Deferred<Unit>? = null
+        try {
+            val owner = completedRun()
+            run = owner
+            // This handshake cancels at insert, not during an earlier pricing/provider lookup.
+            runBlocking { withTimeout(30_000) { inserting.await() } }
+            owner.cancel()
+            awaitCompletion(owner)
+            assertEquals("cancellation at persistence must remain cancellation", listOf(AgentStopReason.CANCELLED), terminal)
+            assertEquals("an interrupted insert must not forge a history row", 0, runBlocking { real.getCount() })
+            assertFalse(AgentSessionManager.getSession(ws)!!.isRunning)
+        } finally {
+            run?.cancel()
+            run?.let { runBlocking { withTimeout(30_000) { it.join() } } }
+            subscription.cancel()
+            container.aiSettingsDb = original
+        }
     }
 
     @Test fun anErrorEventsCauseReachesTheReportableActivityItem() {
