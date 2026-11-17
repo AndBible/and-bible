@@ -31,9 +31,6 @@ enum class HelpTopic {
     /** The AI connection settings overflow help (`help_ai_connection_text`). */
     AI_CONNECTION,
 
-    /** The drawer's "Help & tips": all help items and the version line. */
-    HELP_AND_TIPS,
-
     /** The drawer's licence dialog (license.html). */
     LICENCE,
 }

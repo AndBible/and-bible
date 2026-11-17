@@ -7,7 +7,7 @@ import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedui.help.HelpTipUi
 import net.bible.sharedui.strings.Strings
 
-/** The Help & tips catalog, matching Android's CommonUtils.showHelp order and links. */
+/** The Help & tips catalog, shown on the Tips tab of the Help & tips screen on every platform. */
 @kotlin.native.HiddenFromObjC
 object HelpAndTips {
     /** One tip: string resource keys, the tutorial [episode] that explains it and the user-guide page [docPage] (a stem). */

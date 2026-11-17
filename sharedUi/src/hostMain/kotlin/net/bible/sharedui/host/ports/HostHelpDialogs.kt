@@ -6,7 +6,6 @@ import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.ports.DocumentDialogsCore
-import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.strings.keyed.StringTable
@@ -31,13 +30,6 @@ class HostHelpDialogs(
                     t.text("help_workspaces_title"), t.text("help_workspaces_text"),
                     TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLinks.page("workspaces"),
                 )))
-                HelpTopic.HELP_AND_TIPS -> core.helpNotice(
-                    HelpAndTips.items.map { item ->
-                        DocumentDialogsCore.HelpItem(t.text(item.titleKey), t.text(item.textKey), HelpAndTips.videoUrl(item), HelpAndTips.docUrl(item.docPage))
-                    },
-                    versionMsg = t.fmt("version_text", versionName()),
-                    includeSponsor = false,
-                )
                 HelpTopic.LICENCE -> AppDialogRequest.Message(
                     title = t.text("app_licence_title"), message = bundleHtml("license"),
                     confirmText = t.text("okay"), cancellable = true,

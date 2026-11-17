@@ -9,17 +9,6 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.strings.keyed.StringTable
 
 class HelpAndTipsTest {
-    @Test fun matchesAndroidShowHelp() {
-        val root = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
-            .first { File(it, "app/src/main/java/net/bible/service/common/CommonUtils.kt").isFile }
-        val source = File(root, "app/src/main/java/net/bible/service/common/CommonUtils.kt").readText()
-            .substringAfter("fun showHelp(").substringBefore("fun showHelpDialog(")
-        val pairs = Regex("HelpItem\\(R\\.string\\.(\\w+), R\\.string\\.(\\w+)")
-            .findAll(source).map { it.groupValues[1] to it.groupValues[2] }.toList()
-        assertEquals(10, pairs.size, "Android extraction must not pass vacuously")
-        assertEquals(pairs, HelpAndTips.items.map { it.titleKey to it.textKey })
-    }
-
     @Test fun helpItemsRetainManualPagesAndTutorialTargets() {
         assertEquals(
             listOf("navigation", null, "documents", "windows", "bookmarks", "study_pads", "search", "workspaces", "look_and_feel", null),

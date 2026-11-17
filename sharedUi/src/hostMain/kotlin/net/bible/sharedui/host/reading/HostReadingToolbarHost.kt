@@ -63,6 +63,7 @@ import net.bible.sharedui.host.app.HostNavShell
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.toolbar.KeyChooserOpening
+import net.bible.sharedui.reading.toolbar.ReadingDrawerMenu
 import net.bible.sharedui.reading.toolbar.ReadingDrawerHost
 import net.bible.sharedui.reading.toolbar.ReadingOverflowHost
 import net.bible.sharedui.reading.toolbar.ReadingToolbarHost
@@ -405,8 +406,9 @@ internal class HostReadingToolbarHost(
         scope.launch { navigator.openStudyPads() }
     }
 
-    override fun extraRowOffered(id: String): Boolean = id in extras.offeredRows
-    override fun runExtraRow(id: String) = extras.runRow(id)
+    // Help & tips is a full-screen route of the shared nav graph, so it does not depend on the platform extras.
+    override fun extraRowOffered(id: String): Boolean = id == ReadingDrawerMenu.ID_HELP || id in extras.offeredRows
+    override fun runExtraRow(id: String) = if (id == ReadingDrawerMenu.ID_HELP) navigator.openHelp() else extras.runRow(id)
     override fun openUrl(url: String) = externalLinks.open(url)
 
     override fun searchable(): Boolean = activePageManager.currentPage.isSearchable

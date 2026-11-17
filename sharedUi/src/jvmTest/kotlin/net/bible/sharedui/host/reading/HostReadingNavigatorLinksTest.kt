@@ -62,6 +62,35 @@ class HostReadingNavigatorLinksTest {
         }
     }
 
+    @Test fun openHelpNavigatesToTheHelpRoute() = runTest {
+        val routes = mutableListOf<String>()
+        val shell = HostNavShell(this, object : HostNavigator {
+            override fun navigate(route: String) { routes += route }
+            override fun popBackStack() = false
+            override fun popBackStackTo(route: String, inclusive: Boolean) = false
+        })
+        val navigator = HostReadingNavigator(
+            shell = shell,
+            hostState = unusedState(),
+            links = Links(false),
+            dialogs = AppDialogController(),
+            strings = { iosStrings("en") },
+            labelResults = NavResultChannel<ManageLabelsResult> {},
+            downloadControl = { error("Unused download control") },
+            fakeBooks = { error("Unused book factory") },
+            mainContext = kotlinx.coroutines.Dispatchers.Unconfined,
+        )
+        navigator.openHelp()
+        assertEquals(listOf(net.bible.sharedcore.nav.NavRoutes.HELP), routes)
+    }
+
+    private fun unusedState(): ReadingHostState {
+        val field = Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe").apply { isAccessible = true }
+        val unsafe = field.get(null)
+        return unsafe.javaClass.getMethod("allocateInstance", Class::class.java)
+            .invoke(unsafe, ReadingHostState::class.java) as ReadingHostState
+    }
+
     @Test fun documentLinkOpensOnlyAfterConfirmation() = runTest {
         for (discrete in listOf(false, true)) {
             val f = Fixture(this, discrete)
