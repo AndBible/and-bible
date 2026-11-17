@@ -442,6 +442,43 @@ class ReadingHostBackChainTest {
         assertEquals(Verse(v11n, BibleBook.PS, 23, 1), bibleWindow.pageManager.currentBible.singleKey)
     }
 
+    /**
+     * #4141, links window ON. A passage opened INSIDE the maximised links window (here "open here") is history of the
+     * links window: BACK walks that history first and returns to the window maximised before only after it.
+     */
+    @Test
+    fun backWalksTheMaximisedLinksWindowsOwnHistoryBeforeReturning() = withLinksWindowSetting(on = true) {
+        val activity = host()
+        val windowControl = CommonUtils.windowControl
+        val repository = windowControl.windowRepository
+        val linkControl = GlobalContext.get().get<LinkControl>()
+        val bibleWindow = windowControl.activeWindow
+        bibleWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(v11n, BibleBook.PS, 23, 1))
+        windowControl.maximiseWindow(bibleWindow)
+        val first = Verse(v11n, BibleBook.JOHN, 10, 11)
+        val second = Verse(v11n, BibleBook.ROM, 8, 28)
+        linkControl.showLink(null, first)
+        val links = repository.maximizedWindow!!
+        assertTrue(links.isLinksWindow)
+
+        // As the reading screen does on a page change (recordIfCreated); this host records nothing by itself.
+        historyManager().addHistoryItem(links)
+        linkControl.showLink(null, second, forceOpenHere = true)
+        assertEquals("fixture: the follow-up passage opened in the links window", second, links.pageManager.currentBible.singleKey)
+        assertEquals(links.id, repository.maximizedWindowId)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals("BACK first walks the links window's own history", links.id, repository.maximizedWindowId)
+        assertEquals(first, links.pageManager.currentBible.singleKey)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals("then returns to the window maximised before", bibleWindow.id, repository.maximizedWindowId)
+        assertEquals(Verse(v11n, BibleBook.PS, 23, 1), bibleWindow.pageManager.currentBible.singleKey)
+        assertFalse(activity.isFinishing)
+    }
+
     /** Links window OFF: a link from a maximised window still opens in that window (unchanged behaviour). */
     @Test
     fun withTheLinksWindowOffALinkOpensInTheMaximisedWindowItself() = withLinksWindowSetting(on = false) {

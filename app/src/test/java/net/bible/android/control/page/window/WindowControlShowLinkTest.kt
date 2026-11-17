@@ -212,6 +212,47 @@ class WindowControlShowLinkTest {
     }
 
     @Test
+    fun aClosedWindowOnTheReturnStackIsSkipped() {
+        val (source, links) = showLinkFromMaximisedSource()
+        windowControl.showLink(kjv, verse(3, 17))
+        val chained = links.targetLinksWindow
+        assertEquals(chained.id, repo.maximizedWindowId)
+        repo.close(links)
+
+        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+
+        assertEquals(source.id, repo.maximizedWindowId, "the closed links window is skipped")
+        assertEquals(source, windowControl.activeWindow)
+    }
+
+    @Test
+    fun aMaximisedLinksWindowWhoseReturnWindowIsGoneUnMaximises() {
+        val (source, links) = showLinkFromMaximisedSource()
+        repo.close(source)
+
+        assertTrue(windowControl.returnFromMaximisedLinksWindow(), "Back is consumed instead of leaving the user stuck")
+
+        assertNull(repo.maximizedWindowId)
+        assertTrue(links in repo.visibleWindows)
+        assertFalse(windowControl.returnFromMaximisedLinksWindow())
+    }
+
+    @Test
+    fun closingTheMaximisedLinksWindowWhoseReturnWindowIsGoneLeavesMaximisedMode() {
+        val first = repo.activeWindow
+        val other = repo.addNewWindow(first)
+        repo.activeWindow = first
+        val (source, links) = showLinkFromMaximisedSource()
+        repo.close(source)
+        assertTrue(windowControl.isWindowRemovable(links), "fixture: another window remains")
+
+        windowControl.closeWindow(links)
+
+        assertNull(repo.maximizedWindowId)
+        assertEquals(listOf(other), repo.visibleWindows)
+    }
+
+    @Test
     fun maximisingAnotherWindowForgetsTheReturnPoint() {
         val (_, links) = showLinkFromMaximisedSource()
         windowControl.unMaximise()
