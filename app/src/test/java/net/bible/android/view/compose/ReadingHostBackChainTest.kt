@@ -266,9 +266,9 @@ class ReadingHostBackChainTest {
     fun theChainIsClassicsSixBranchesInClassicsOrder() {
         val names = host().readingBackChain.map { it.name }
         assertEquals(
-            "the chain must mirror MainBibleActivity.onBackPressed's branch order (plus #4118's step " +
-                "before history); the double-back exit warning is handled after the loop, not as a step",
-            listOf("drawer", "search", "fullscreen", "webViewModal", "maximisedMemorize", "history"),
+            "the chain must mirror MainBibleActivity.onBackPressed's branch order (plus the maximised-window " +
+                "step before history, #4118/#4141); the double-back exit warning is handled after the loop, not as a step",
+            listOf("drawer", "search", "fullscreen", "webViewModal", "maximised", "history"),
             names,
         )
     }
@@ -278,9 +278,9 @@ class ReadingHostBackChainTest {
         val clearing = host().readingBackChain.filter { it.clearsExitWarning }.map { it.name }
         assertEquals(
             "classic clears lastBackPressed only after the WebView-modal and history branches; its " +
-                "drawer/search/fullscreen branches return before that assignment; #4118's maximised-Memorize " +
-                "step stands in for a history step and clears it too",
-            listOf("webViewModal", "maximisedMemorize", "history"),
+                "drawer/search/fullscreen branches return before that assignment; the maximised-window " +
+                "step (#4118/#4141) stands in for a history step and clears it too",
+            listOf("webViewModal", "maximised", "history"),
             clearing,
         )
     }
@@ -338,25 +338,40 @@ class ReadingHostBackChainTest {
         )
     }
 
+    private val linksPref = "open_links_in_special_window_pref"
+
+    /** Runs [block] with "Open links in a separate window" set to [on], restoring the previous value. */
+    private fun withLinksWindowSetting(on: Boolean, block: () -> Unit) {
+        val settings = CommonUtils.settings
+        val previous = settings.getBoolean(linksPref, true)
+        settings.setBoolean(linksPref, on)
+        try { block() } finally { settings.setBoolean(linksPref, previous) }
+    }
+
+    private val kjv get() = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
+    private val v11n get() = Versifications.instance().getVersification("KJV")
+
+    private fun openMemorizeOfJohn316() {
+        GlobalContext.get().get<LinkControl>().openMemorize(
+            BookAndKey(VerseRange(v11n, Verse(v11n, BibleBook.JOHN, 3, 16), Verse(v11n, BibleBook.JOHN, 3, 17)), kjv),
+        )
+    }
+
     /**
-     * #4118. In a maximised window the links window is not used, so Memorize replaces the maximised window's Bible
-     * and the window history's previous entry is that Bible. BACK there must leave the maximised view and keep the
-     * Memorize exercise, not swap the window back to the Bible.
+     * #4118, links window OFF. Memorize replaces the maximised window's Bible and the window history's previous entry
+     * is that Bible. BACK there must leave the maximised view and keep the Memorize exercise, not swap the window back
+     * to the Bible.
      */
     @Test
-    fun backInAMaximisedMemorizeWindowUnMaximisesAndKeepsMemorize() {
+    fun backInAMaximisedMemorizeWindowUnMaximisesAndKeepsMemorize() = withLinksWindowSetting(on = false) {
         val activity = host()
         pushTwoReadingPositions()
         val windowControl = CommonUtils.windowControl
         val window = windowControl.activeWindow
         windowControl.maximiseWindow(window)
-        val kjv = requireNotNull(Books.installed().getBook("KJV"))
-        val v11n = Versifications.instance().getVersification("KJV")
         val memorize = GlobalContext.get().get<FakeBookFactory>().memorizeDocument
-        GlobalContext.get().get<LinkControl>().openMemorize(
-            BookAndKey(VerseRange(v11n, Verse(v11n, BibleBook.JOHN, 3, 16), Verse(v11n, BibleBook.JOHN, 3, 17)), kjv),
-        )
-        // Fixture check: maximised, the Memorize document opened in this window, not in the links window.
+        openMemorizeOfJohn316()
+        // Fixture check: links window off, the Memorize document opened in this window, not in the links window.
         assertEquals(memorize, window.pageManager.currentPage.currentDocument)
         historyManager().addHistoryItem(window)
         val depth = historyDepth()
@@ -371,6 +386,76 @@ class ReadingHostBackChainTest {
         // Not maximised any more: the next BACK walks the history as usual.
         activity.onBackPressedDispatcher.onBackPressed()
         assertTrue(historyDepth() < depth)
+    }
+
+    /**
+     * #4141, links window ON. Memorize from a maximised window opens in the links window, maximised in its place; the
+     * maximised Bible window keeps its passage. BACK returns to that Bible window, still maximised, at its position.
+     */
+    @Test
+    fun backFromAMaximisedLinksWindowReturnsToThePreviouslyMaximisedWindow() = withLinksWindowSetting(on = true) {
+        val activity = host()
+        pushTwoReadingPositions()
+        val windowControl = CommonUtils.windowControl
+        val repository = windowControl.windowRepository
+        val bibleWindow = windowControl.activeWindow
+        val position = bibleWindow.pageManager.currentBible.singleKey
+        windowControl.maximiseWindow(bibleWindow)
+        val memorize = GlobalContext.get().get<FakeBookFactory>().memorizeDocument
+
+        openMemorizeOfJohn316()
+
+        val links = repository.maximizedWindow!!
+        assertTrue("Memorize opened in the links window", links.isLinksWindow)
+        assertEquals(memorize, links.pageManager.currentPage.currentDocument)
+        assertEquals("the maximised Bible window kept its passage", position, bibleWindow.pageManager.currentBible.singleKey)
+        assertEquals(listOf(links), repository.visibleWindows)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals("BACK returns to the window maximised before", bibleWindow.id, repository.maximizedWindowId)
+        assertEquals(bibleWindow, windowControl.activeWindow)
+        assertEquals(position, bibleWindow.pageManager.currentBible.singleKey)
+        assertFalse(activity.isFinishing)
+    }
+
+    /** #4141 for any link (here a cross reference), links window ON: the same return path. */
+    @Test
+    fun aCrossReferenceFromAMaximisedWindowOpensInTheMaximisedLinksWindow() = withLinksWindowSetting(on = true) {
+        val activity = host()
+        val windowControl = CommonUtils.windowControl
+        val repository = windowControl.windowRepository
+        val bibleWindow = windowControl.activeWindow
+        bibleWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(v11n, BibleBook.PS, 23, 1))
+        windowControl.maximiseWindow(bibleWindow)
+        val target = Verse(v11n, BibleBook.JOHN, 10, 11)
+
+        GlobalContext.get().get<LinkControl>().showLink(null, target)
+
+        val links = repository.maximizedWindow!!
+        assertTrue(links.isLinksWindow)
+        assertEquals(target, links.pageManager.currentBible.singleKey)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals(bibleWindow.id, repository.maximizedWindowId)
+        assertEquals(Verse(v11n, BibleBook.PS, 23, 1), bibleWindow.pageManager.currentBible.singleKey)
+    }
+
+    /** Links window OFF: a link from a maximised window still opens in that window (unchanged behaviour). */
+    @Test
+    fun withTheLinksWindowOffALinkOpensInTheMaximisedWindowItself() = withLinksWindowSetting(on = false) {
+        host()
+        val windowControl = CommonUtils.windowControl
+        val bibleWindow = windowControl.activeWindow
+        bibleWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(v11n, BibleBook.PS, 23, 1))
+        windowControl.maximiseWindow(bibleWindow)
+        val target = Verse(v11n, BibleBook.JOHN, 10, 11)
+
+        GlobalContext.get().get<LinkControl>().showLink(null, target)
+
+        assertEquals(bibleWindow.id, windowControl.windowRepository.maximizedWindowId)
+        assertEquals(target, bibleWindow.pageManager.currentBible.singleKey)
     }
 
     /** #4118's step is for Memorize only: a maximised Bible window still walks its history. */

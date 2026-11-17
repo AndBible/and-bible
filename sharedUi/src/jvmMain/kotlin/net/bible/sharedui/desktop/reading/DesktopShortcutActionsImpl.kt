@@ -38,8 +38,8 @@ class DesktopShortcutActionsImpl(
     private val canGoBackInHistory: () -> Boolean = { KoinPlatform.getKoin().get<HistoryManager>().canGoBack() },
     private val goBackInHistory: () -> Unit = { KoinPlatform.getKoin().get<HistoryManager>().goBack() },
     closeModals: ((String?) -> Boolean)? = null,
-    /** #4118: Back in a maximised Memorize window un-maximises instead of stepping the history. */
-    private val unMaximiseMemorize: () -> Boolean = { KoinPlatform.getKoin().get<LinkControl>().unMaximiseMemorizeOnBack() },
+    /** Back in a maximised window before the history: [LinkControl.backInMaximisedWindow] (#4118, #4141). */
+    private val maximisedBack: () -> Boolean = { KoinPlatform.getKoin().get<LinkControl>().backInMaximisedWindow() },
 ) : DesktopShortcutActions {
     private val closeModalsSeam: (String?) -> Boolean = closeModals ?: { closePageModals(it) }
 
@@ -60,14 +60,14 @@ class DesktopShortcutActionsImpl(
 
     override fun back(historyFallback: Boolean) {
         if (dispatchBack()) return
-        if (historyFallback && !unMaximiseMemorize() && canGoBackInHistory()) goBackInHistory()
+        if (historyFallback && !maximisedBack() && canGoBackInHistory()) goBackInHistory()
     }
 
     override fun navigateBack(windowId: String?) {
         // A Compose overlay (settings, a sheet) on top owns Back; the reading screen passes it through to the page modals.
         if (dispatchBack()) return
         if (closeModalsSeam(windowId)) return
-        if (unMaximiseMemorize()) return
+        if (maximisedBack()) return
         if (canGoBackInHistory()) goBackInHistory()
     }
 

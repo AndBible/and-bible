@@ -24,14 +24,14 @@ class DesktopShortcutActionsImplTest {
     private var overlay = false
     private var modal = false
     private var history = true
-    private var maximisedMemorize = false
+    private var maximisedBack = false
 
     private val actions = DesktopShortcutActionsImpl(
         dispatchBack = { log += "dispatch"; overlay },
         canGoBackInHistory = { history },
         goBackInHistory = { log += "history" },
         closeModals = { log += "modals:${it ?: "active"}"; modal },
-        unMaximiseMemorize = { if (maximisedMemorize) log += "unmaximise"; maximisedMemorize },
+        maximisedBack = { if (maximisedBack) log += "maximised"; maximisedBack },
     )
 
     @Test fun anOverlayOwnsBackBeforeThePageModalsAndHistory() {
@@ -53,17 +53,17 @@ class DesktopShortcutActionsImplTest {
         assertEquals(listOf("dispatch", "modals:active", "history", "dispatch", "modals:active"), log)
     }
 
-    /** #4118: a maximised Memorize window un-maximises; stepping its history would swap it back to the Bible. */
-    @Test fun backInAMaximisedMemorizeWindowUnMaximisesInsteadOfGoingBackInHistory() {
-        maximisedMemorize = true
+    /** #4118/#4141: the maximised-window step (links window return, Memorize un-maximise) comes before the history. */
+    @Test fun theMaximisedWindowStepConsumesBackBeforeTheHistory() {
+        maximisedBack = true
         actions.navigateBack("w1")
         actions.back(historyFallback = true)
-        assertEquals(listOf("dispatch", "modals:w1", "unmaximise", "dispatch", "unmaximise"), log)
+        assertEquals(listOf("dispatch", "modals:w1", "maximised", "dispatch", "maximised"), log)
     }
 
-    @Test fun anOpenPageModalClosesBeforeTheMaximisedMemorizeWindowUnMaximises() {
+    @Test fun anOpenPageModalClosesBeforeTheMaximisedWindowStep() {
         modal = true
-        maximisedMemorize = true
+        maximisedBack = true
         actions.navigateBack("w1")
         assertEquals(listOf("dispatch", "modals:w1"), log)
     }

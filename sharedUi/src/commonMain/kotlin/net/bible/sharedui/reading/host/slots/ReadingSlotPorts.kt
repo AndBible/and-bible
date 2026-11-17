@@ -115,12 +115,12 @@ interface ReadingSearchPlatform {
     fun showInLinksWindow(list: BookAndKeyList)
 }
 
-/** Opens an explicit result in a visible links window even when another window is maximized. */
+/**
+ * Opens an explicit result in the links window; from a maximised window the links window takes the maximised place and
+ * Back returns (#4141).
+ */
 @kotlin.native.HiddenFromObjC
-fun WindowControl.showSearchResultInLinksWindow(book: Book, key: Key) {
-    if (windowRepository.isMaximized) unMaximise()
-    showLink(book, key)
-}
+fun WindowControl.showSearchResultInLinksWindow(book: Book, key: Key) = showLink(book, key)
 
 /**
  * The index-build job feed: JSword's global `JobManager` on Android. [subscribe] registers ONE
