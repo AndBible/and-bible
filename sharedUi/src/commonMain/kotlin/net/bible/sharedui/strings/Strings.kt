@@ -1211,6 +1211,17 @@ interface Strings {
     val hideLabelsHelpIntro: String                   // R.string.bookmark_settings_hide_labels_summary
     val studyPadsHelpText: String                     // R.string.help_studypads_text
     val watchTutorialVideo: String                    // R.string.watch_tutorial_video
+    val watchTutorialVideoPlain: String               // R.string.watch_tutorial_video_plain
+
+    // Help & tips screen (#4134)
+    val helpAndTips: String                           // R.string.help_and_tips
+    val helpFullDocumentationLink: String             // R.string.help_full_documentation_link
+    val helpTabTips: String                           // R.string.help_tab_tips
+    val helpTabUserGuide: String                      // R.string.help_tab_user_guide
+    val helpUserGuideIntro: String                    // R.string.help_user_guide_intro
+    val helpUserGuideHome: String                     // R.string.help_user_guide_home
+    val helpTutorialVideos: String                    // R.string.help_tutorial_videos
+    fun helpPlayVideo(title: String): String          // R.string.help_play_video
 
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now

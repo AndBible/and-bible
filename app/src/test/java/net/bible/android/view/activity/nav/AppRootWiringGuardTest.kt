@@ -38,7 +38,7 @@ class AppRootWiringGuardTest {
         val deps = listOf(
             "AiNavDeps(", "BookmarkNavDeps(", "ReadingPlanNavDeps(", "SearchNavDeps(", "SettingsNavDeps(",
             "DownloadNavDeps(", "MyDocumentsNavDeps(", "ChooserNavDeps(", "WorkspaceNavDeps(", "BackupNavDeps(",
-            "InstallZipNavDeps(", "WelcomeNavDeps(",
+            "InstallZipNavDeps(", "WelcomeNavDeps(", "HelpNavDeps(",
         )
         assertTrue(code.contains("ReadingNavDeps("), "scan reads the wrong text: the reading slot's deps are missing")
         val found = deps.filter { Regex("""(?<![A-Za-z])${Regex.escape(it.removeSuffix("("))}\s*\(""").containsMatchIn(code) }

@@ -778,6 +778,7 @@ object CommonUtils : CommonUtilsBase() {
         "buy_development" to R.string.buy_development,
         "buy_development2" to R.string.buy_development2,
         "watch_tutorial_video" to R.string.watch_tutorial_video,
+        "watch_tutorial_video_plain" to R.string.watch_tutorial_video_plain,
         "help_full_documentation_link" to R.string.help_full_documentation_link,
         "help" to R.string.help,
     )
@@ -795,41 +796,38 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     /**
-     * Ported from a platform `AlertDialog.Builder` to [AppDialogController.post] (Task 28) -- a
-     * fire-and-forget notice (no caller waits on its single OK button), same texts/links, now
-     * structured as [AppDialogRequest.Notice] blocks: the per-item help text (`Html`), the full-docs
-     * link (`Html`), the sponsor line (`IconLine`, the money icon that used to be an `ImageSpan`),
-     * and the version line (`Html`, only when [showVersion]) -- matching the brief's block order.
+     * Shows one shared [net.bible.sharedui.app.ports.HelpAndTips.Item] as a fire-and-forget notice (the single
+     * OK button, the full-docs link and the sponsor line). The whole tip list lives in the full-screen Help & tips
+     * screen; this is for the contextual single-tip dialogs (the workspace selector's help).
      */
-    fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
+    fun showTipDialog(item: net.bible.sharedui.app.ports.HelpAndTips.Item) {
         val app = application
-        val versionMsg = app.getString(R.string.version_text, applicationVersionName)
-
-        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docUrl: String? = null)
-
-        val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text, TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY), docUrl = DocsLinks.page("navigation")),
-            HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text, TutorialVideos.url(Episode.TUTORIAL_03_VERSE_MENU)),
-            HelpItem(R.string.help_study_tools_title, R.string.help_study_tools_text, TutorialVideos.url(Episode.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS), docUrl = DocsLinks.page("documents")),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, TutorialVideos.url(Episode.TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS), docUrl = DocsLinks.page("windows")),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, TutorialVideos.url(Episode.TUTORIAL_08_BOOKMARKS), docUrl = DocsLinks.page("bookmarks")),
-            HelpItem(R.string.studypads, R.string.help_studypads_text, TutorialVideos.url(Episode.TUTORIAL_11_STUDY_PADS), docUrl = DocsLinks.page("study_pads")),
-            HelpItem(R.string.help_search_title, R.string.help_search_text2, TutorialVideos.url(Episode.TUTORIAL_12_SEARCH_1_BASICS), docUrl = DocsLinks.page("search")),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, TutorialVideos.url(Episode.TUTORIAL_07_WORKSPACES), docUrl = DocsLinks.page("workspaces")),
-            HelpItem(R.string.help_look_and_feel_title, R.string.help_look_and_feel_text, TutorialVideos.url(Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS), docUrl = DocsLinks.page("look_and_feel")),
-            HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
-        ).run {
-            if(filterItems != null) {
-                filter { filterItems.contains(it.title) }
-            } else this
-        }
-
+        val lang = appLanguageTag(app)
         dialogs.post(documentDialogsCore(app).helpNotice(
-            help.map { net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(app.getString(it.title), app.getString(it.text), it.videoLink, it.docUrl) },
-            versionMsg = if (showVersion) versionMsg else null,
+            listOf(net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(
+                app.getString(helpTipStringIds.getValue(item.titleKey)),
+                app.getString(helpTipStringIds.getValue(item.textKey)),
+                net.bible.sharedui.app.ports.HelpAndTips.videoUrl(item, lang),
+                net.bible.sharedui.app.ports.HelpAndTips.docUrl(item.docPage),
+                net.bible.sharedui.app.ports.HelpAndTips.plainVideoLabel(item, lang),
+            )),
             okText = app.getString(android.R.string.ok),
         ))
     }
+
+    /** Resource lookup for the keys of [net.bible.sharedui.app.ports.HelpAndTips.items] (explicit, so resource shrinking is safe). */
+    val helpTipStringIds: Map<String, Int> = mapOf(
+        "help_nav_title" to R.string.help_nav_title, "help_nav_text" to R.string.help_nav_text,
+        "help_contextmenus_title" to R.string.help_contextmenus_title, "help_contextmenus_text" to R.string.help_contextmenus_text,
+        "help_study_tools_title" to R.string.help_study_tools_title, "help_study_tools_text" to R.string.help_study_tools_text,
+        "help_window_pinning_title" to R.string.help_window_pinning_title, "help_window_pinning_text" to R.string.help_window_pinning_text,
+        "help_bookmarks_title" to R.string.help_bookmarks_title, "help_bookmarks_text" to R.string.help_bookmarks_text,
+        "studypads" to R.string.studypads, "help_studypads_text" to R.string.help_studypads_text,
+        "help_search_title" to R.string.help_search_title, "help_search_text2" to R.string.help_search_text2,
+        "help_workspaces_title" to R.string.help_workspaces_title, "help_workspaces_text" to R.string.help_workspaces_text,
+        "help_look_and_feel_title" to R.string.help_look_and_feel_title, "help_look_and_feel_text" to R.string.help_look_and_feel_text,
+        "help_hidden_features_title" to R.string.help_hidden_features_title, "help_hidden_features_text" to R.string.help_hidden_features_text,
+    )
 
     fun showLicence(activity: ActivityBase) {
         val html = application.resources.openRawResource(R.raw.license).use { it.readBytes().decodeToString() }
@@ -850,17 +848,26 @@ object CommonUtils : CommonUtilsBase() {
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
      * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
-     * @param videoUrl Optional tutorial video, from `TutorialVideos`; shown as a second link.
+     * @param videoEpisode Optional tutorial video; shown as a second link that opens with captions in the app language when available.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
         helpUrl: String,
-        videoUrl: String? = null,
+        videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
     ) {
-        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl, videoUrl))
+        val lang = appLanguageTag(activity)
+        dialogs.post(documentDialogsCore(activity).helpDialog(
+            activity.getString(titleResId), activity.getString(messageResId), helpUrl,
+            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.url(it, lang) },
+            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.hasPlainLabel(it, lang) } ?: false,
+        ))
     }
+
+    /** The BCP-47 tag of the language the app's strings resolve to (the context's first locale). */
+    fun appLanguageTag(context: Context): String =
+        context.resources.configuration.locales.get(0).toLanguageTag()
 
     /**
      * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`

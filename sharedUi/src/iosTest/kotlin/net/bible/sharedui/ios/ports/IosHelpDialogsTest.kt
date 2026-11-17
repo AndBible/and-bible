@@ -22,62 +22,6 @@ internal fun AppDialogController.task4Request(): AppDialogRequest {
 }
 
 class IosHelpDialogsTest {
-    @Test fun helpAndTipsPostsAllEightItemsWithVersionAndWithoutShopSponsor() {
-        val dialogs = AppDialogController()
-        try {
-            HostHelpDialogs(dialogs, { task4Table() }, ::iosBundledHtml, ::iosBundleVersionName).show(HelpTopic.HELP_AND_TIPS)
-            val notice = assertIs<AppDialogRequest.Notice>(dialogs.task4Request())
-            assertEquals("en:help", notice.title)
-            assertEquals("en:okay", notice.confirmText)
-            assertTrue(notice.showTitleLogo)
-            assertFalse(notice.blocks.any { it is AppDialogRequest.NoticeBlock.IconLine })
-            val blocks = notice.blocks.map { assertIs<AppDialogRequest.NoticeBlock.Html>(it).html }
-            assertEquals(3, blocks.size)
-            val pairs = listOf(
-                "help_nav_title" to "help_nav_text",
-                "help_contextmenus_title" to "help_contextmenus_text",
-                "help_study_tools_title" to "help_study_tools_text",
-                "help_window_pinning_title" to "help_window_pinning_text",
-                "help_bookmarks_title" to "help_bookmarks_text",
-                "studypads" to "help_studypads_text",
-                "help_search_title" to "help_search_text2",
-                "help_workspaces_title" to "help_workspaces_text",
-                "help_look_and_feel_title" to "help_look_and_feel_text",
-                "help_hidden_features_title" to "help_hidden_features_text",
-            )
-            var previous = -1
-            pairs.forEach { (title, body) ->
-                val position = blocks[0].indexOf("<b>en:$title</b>")
-                assertTrue(position > previous, "Missing or reordered $title")
-                assertContains(blocks[0], "en:$body")
-                previous = position
-            }
-            listOf(DocsLinks.page("navigation"), DocsLinks.page("windows"), DocsLinks.page("bookmarks"),
-                DocsLinks.page("study_pads"), DocsLinks.page("search"), DocsLinks.page("workspaces"),
-                DocsLinks.page("documents"), DocsLinks.page("look_and_feel"),
-                TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS),
-            ).forEach { assertContains(blocks[0], "href=\"$it\"") }
-            assertContains(blocks[1], DocsLinks.BASE_URL)
-            val version = NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
-            assertEquals("<i>en:version_text($version)</i>", blocks[2])
-            assertFalse(blocks.joinToString().contains("shop.andbible.org"))
-        } finally { dialogs.cancelAll() }
-    }
-
-    @Test fun retainedHelpReadsCurrentTableWhenResolvedAgain() {
-        val dialogs = AppDialogController()
-        var table = task4Table("en")
-        try {
-            HostHelpDialogs(dialogs, { table }, ::iosBundledHtml, ::iosBundleVersionName).show(HelpTopic.HELP_AND_TIPS)
-            assertEquals("en:help", assertIs<AppDialogRequest.Notice>(dialogs.task4Request()).title)
-            table = task4Table("fi")
-            val refreshed = assertIs<AppDialogRequest.Notice>(dialogs.task4Request())
-            assertEquals("fi:help", refreshed.title)
-            assertContains(assertIs<AppDialogRequest.NoticeBlock.Html>(refreshed.blocks.first()).html, "fi:help_nav_text")
-            assertContains(assertIs<AppDialogRequest.NoticeBlock.Html>(refreshed.blocks.last()).html, "fi:version_text(")
-        } finally { dialogs.cancelAll() }
-    }
-
     @Test fun licenceShowsEntireBundledHtmlWithOneOkButton() {
         val dialogs = AppDialogController()
         val reads = mutableListOf<String>()

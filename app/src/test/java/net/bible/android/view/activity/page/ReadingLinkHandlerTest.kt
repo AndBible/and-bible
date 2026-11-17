@@ -78,6 +78,7 @@ class ReadingLinkHandlerTest {
         override fun openDownloadSearch(initials: String?) { downloadSearches += initials }
         override fun openReadingProgress(tab: Int) = error("unexpected")
         override fun openReadingProgressSettings() = error("unexpected")
+        override fun openHelp() = error("unexpected")
         override fun openWorkspaceSelector() = error("unexpected")
         override fun openChooseDocument(type: String?) = error("unexpected")
         override fun openSearch(document: Book?) = error("unexpected")

@@ -20,6 +20,7 @@ from sitegen.youtube import embed_html
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 _ANCHOR = re.compile(r"[A-Za-z0-9_-]+")
+_LANG = re.compile(r"[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?")
 DEFAULT_LABELS = {
     "video_tutorial": "Video tutorial: {title}",
     "coming_soon": "Coming soon",
@@ -36,6 +37,7 @@ class Episode:
     docs: str  # docs page stem, e.g. "search" or "releases/release_6_0"
     anchor: str | None = None
     youtube: str | None = None
+    subtitles: tuple[str, ...] = ()  # YouTube caption languages besides English, sorted BCP-47 codes
 
     @property
     def docs_path(self) -> str:
@@ -67,6 +69,21 @@ def _video_id(path: Path, what: str, raw: object) -> str | None:
     if not isinstance(raw, str) or not _ID.fullmatch(raw):
         raise ValueError(f"{path}: {what} must be an 11-character YouTube id or null (got {raw!r})")
     return raw
+
+
+def _subtitles(path: Path, slug: str, raw: object) -> tuple[str, ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, list):
+        raise ValueError(f"{path}: episode {slug} subtitles must be a list of language codes")
+    for code in raw:
+        if not isinstance(code, str) or not _LANG.fullmatch(code):
+            raise ValueError(f"{path}: episode {slug} has a bad subtitle language {code!r}")
+        if code == "en" or code.startswith("en-"):
+            raise ValueError(f"{path}: episode {slug} lists English; subtitles are the languages besides English")
+    if raw != sorted(set(raw)):
+        raise ValueError(f"{path}: episode {slug} subtitles must be sorted and unique (got {raw!r})")
+    return tuple(raw)
 
 
 def load(path: Path, docs_pages: set[str]) -> Series:
@@ -109,7 +126,7 @@ def load(path: Path, docs_pages: set[str]) -> Series:
             if youtube in ids or youtube == placeholder:
                 raise ValueError(f"{path}: episode {slug} reuses YouTube id {youtube}")
             ids.add(youtube)
-        episodes.append(Episode(slug, number, title, docs, anchor, youtube))
+        episodes.append(Episode(slug, number, title, docs, anchor, youtube, _subtitles(path, slug, entry.get("subtitles"))))
     return Series(placeholder, tuple(episodes))
 
 

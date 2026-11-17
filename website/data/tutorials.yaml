@@ -5,40 +5,42 @@
 # - youtube: null until the episode is published. `youtube_upload.py` fills it in after an upload (and prints the
 #   TutorialVideos.kt line). While null, the docs page shows a "Coming soon" note and /videos/ the placeholder.
 # - placeholder: the unlisted "videos coming soon" video (same id as TutorialVideos.PLACEHOLDER_VIDEO_ID).
+# - subtitles: YouTube caption languages uploaded for the episode, besides English (sorted BCP-47 codes such as fi, pt-BR);
+#   filled by `youtube_upload.py`, mirrored in TutorialVideos.kt (`X("id", setOf("fi"))`) and used to open videos with captions.
 # - docs / anchor: the docs page stem (relative to docs/, no .md) the episode is embedded in, and an optional heading anchor.
 # website/tests/test_tutorials.py keeps this file in step with TutorialVideos.kt.
 placeholder: RlLkpKZZwTg
 episodes:
-  - {slug: whats-new-6-0, number: null, title: "What's new in AndBible 6.0", docs: releases/release_6_0, anchor: null, youtube: null}
-  - {slug: tutorial-01-getting-started, number: 1, title: "Getting started: install and your first Bibles", docs: getting_started, anchor: null, youtube: null}
-  - {slug: tutorial-02-finding-your-way, number: 2, title: "Finding your way", docs: navigation, anchor: null, youtube: null}
-  - {slug: tutorial-03-verse-menu, number: 3, title: "The verse menu", docs: verse_action_dialog, anchor: null, youtube: null}
-  - {slug: tutorial-04-strongs-dictionaries-crossrefs, number: 4, title: "Strong's numbers, dictionaries and cross-references", docs: documents, anchor: null, youtube: null}
-  - {slug: tutorial-05-windows-1-open-and-arrange, number: 5, title: "Windows, part 1: open and arrange", docs: windows, anchor: null, youtube: null}
-  - {slug: tutorial-06-windows-2-pin-sync-links, number: 6, title: "Windows, part 2: pin, sync and links", docs: windows, anchor: null, youtube: null}
-  - {slug: tutorial-07-workspaces, number: 7, title: "Workspaces", docs: workspaces, anchor: null, youtube: null}
-  - {slug: tutorial-08-bookmarks, number: 8, title: "Bookmarks", docs: bookmarks, anchor: null, youtube: null}
-  - {slug: tutorial-09-labels-and-highlights, number: 9, title: "Labels and highlights", docs: labels, anchor: null, youtube: null}
-  - {slug: tutorial-10-notes, number: 10, title: "Notes", docs: notes, anchor: null, youtube: null}
-  - {slug: tutorial-11-study-pads, number: 11, title: "Study pads", docs: study_pads, anchor: null, youtube: null}
-  - {slug: tutorial-12-search-1-basics, number: 12, title: "Search, part 1: the basics", docs: search, anchor: null, youtube: null}
-  - {slug: tutorial-13-search-2-advanced, number: 13, title: "Search, part 2: phrases, wildcards and AND/OR", docs: search, anchor: advanced-search, youtube: null}
-  - {slug: tutorial-14-speak, number: 14, title: "Speak: listen to the Bible", docs: speak, anchor: null, youtube: null}
-  - {slug: tutorial-15-reading-plans-and-progress, number: 15, title: "Reading plans and reading progress", docs: reading_plans, anchor: null, youtube: null}
-  - {slug: tutorial-16-backup-and-restore, number: 16, title: "Backup and restore", docs: backup_restore, anchor: null, youtube: null}
-  - {slug: tutorial-17-sync-1-google-drive, number: 17, title: "Sync, part 1: Google Drive", docs: cloud_sync, anchor: null, youtube: null}
-  - {slug: tutorial-18-sync-2-more-backends-and-documents, number: 18, title: "Sync, part 2: Nextcloud, WebDAV and documents", docs: cloud_sync, anchor: null, youtube: null}
-  - {slug: tutorial-19-appearance-1-night-mode-fonts-colours, number: 19, title: "Appearance, part 1: night mode, fonts and colours", docs: look_and_feel, anchor: null, youtube: null}
-  - {slug: tutorial-20-appearance-2-global-workspace-window, number: 20, title: "Appearance, part 2: global, workspace and window settings", docs: look_and_feel, anchor: settings-hierarchy, youtube: null}
-  - {slug: tutorial-21-document-library, number: 21, title: "The document library", docs: documents, anchor: null, youtube: null}
-  - {slug: tutorial-22-load-files-and-custom-repositories, number: 22, title: "Files and custom repositories", docs: custom_repositories, anchor: null, youtube: null}
-  - {slug: tutorial-23-my-documents-and-epub, number: 23, title: "My Documents and EPUB books", docs: my_documents, anchor: null, youtube: null}
-  - {slug: tutorial-24-sharing-and-bible-links, number: 24, title: "Sharing verses, study pads and Bible links", docs: share, anchor: null, youtube: null}
-  - {slug: tutorial-25-memorize, number: 25, title: "Memorize: learn verses by heart", docs: memorize, anchor: null, youtube: null}
-  - {slug: tutorial-26-desktop, number: 26, title: "AndBible on the desktop", docs: desktop, anchor: null, youtube: null}
-  - {slug: tutorial-27-study-workflows-1-topical-and-sermon, number: 27, title: "Study workflows, part 1: topical study and sermon notes", docs: usage, anchor: null, youtube: null}
-  - {slug: tutorial-28-study-workflows-2-word-study-and-devotions, number: 28, title: "Study workflows, part 2: word study and devotions", docs: usage, anchor: null, youtube: null}
-  - {slug: tutorial-29-ai-1-getting-started, number: 29, title: "AI assistant, part 1: getting started", docs: ai, anchor: null, youtube: null}
-  - {slug: tutorial-30-ai-2-prompts, number: 30, title: "AI assistant, part 2: running prompts", docs: ai, anchor: null, youtube: null}
-  - {slug: tutorial-31-ai-3-tools-data-permissions, number: 31, title: "AI assistant, part 3: tools, your data and permissions", docs: ai, anchor: null, youtube: null}
-  - {slug: tutorial-32-ai-4-custom-prompts-costs-sync, number: 32, title: "AI assistant, part 4: your own prompts, costs and sync", docs: ai, anchor: null, youtube: null}
+  - {slug: whats-new-6-0, number: null, title: "What's new in AndBible 6.0", docs: releases/release_6_0, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-01-getting-started, number: 1, title: "Getting started: install and your first Bibles", docs: getting_started, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-02-finding-your-way, number: 2, title: "Finding your way", docs: navigation, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-03-verse-menu, number: 3, title: "The verse menu", docs: verse_action_dialog, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-04-strongs-dictionaries-crossrefs, number: 4, title: "Strong's numbers, dictionaries and cross-references", docs: documents, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-05-windows-1-open-and-arrange, number: 5, title: "Windows, part 1: open and arrange", docs: windows, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-06-windows-2-pin-sync-links, number: 6, title: "Windows, part 2: pin, sync and links", docs: windows, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-07-workspaces, number: 7, title: "Workspaces", docs: workspaces, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-08-bookmarks, number: 8, title: "Bookmarks", docs: bookmarks, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-09-labels-and-highlights, number: 9, title: "Labels and highlights", docs: labels, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-10-notes, number: 10, title: "Notes", docs: notes, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-11-study-pads, number: 11, title: "Study pads", docs: study_pads, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-12-search-1-basics, number: 12, title: "Search, part 1: the basics", docs: search, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-13-search-2-advanced, number: 13, title: "Search, part 2: phrases, wildcards and AND/OR", docs: search, anchor: advanced-search, youtube: null, subtitles: []}
+  - {slug: tutorial-14-speak, number: 14, title: "Speak: listen to the Bible", docs: speak, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-15-reading-plans-and-progress, number: 15, title: "Reading plans and reading progress", docs: reading_plans, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-16-backup-and-restore, number: 16, title: "Backup and restore", docs: backup_restore, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-17-sync-1-google-drive, number: 17, title: "Sync, part 1: Google Drive", docs: cloud_sync, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-18-sync-2-more-backends-and-documents, number: 18, title: "Sync, part 2: Nextcloud, WebDAV and documents", docs: cloud_sync, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-19-appearance-1-night-mode-fonts-colours, number: 19, title: "Appearance, part 1: night mode, fonts and colours", docs: look_and_feel, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-20-appearance-2-global-workspace-window, number: 20, title: "Appearance, part 2: global, workspace and window settings", docs: look_and_feel, anchor: settings-hierarchy, youtube: null, subtitles: []}
+  - {slug: tutorial-21-document-library, number: 21, title: "The document library", docs: documents, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-22-load-files-and-custom-repositories, number: 22, title: "Files and custom repositories", docs: custom_repositories, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-23-my-documents-and-epub, number: 23, title: "My Documents and EPUB books", docs: my_documents, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-24-sharing-and-bible-links, number: 24, title: "Sharing verses, study pads and Bible links", docs: share, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-25-memorize, number: 25, title: "Memorize: learn verses by heart", docs: memorize, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-26-desktop, number: 26, title: "AndBible on the desktop", docs: desktop, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-27-study-workflows-1-topical-and-sermon, number: 27, title: "Study workflows, part 1: topical study and sermon notes", docs: usage, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-28-study-workflows-2-word-study-and-devotions, number: 28, title: "Study workflows, part 2: word study and devotions", docs: usage, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-29-ai-1-getting-started, number: 29, title: "AI assistant, part 1: getting started", docs: ai, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-30-ai-2-prompts, number: 30, title: "AI assistant, part 2: running prompts", docs: ai, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-31-ai-3-tools-data-permissions, number: 31, title: "AI assistant, part 3: tools, your data and permissions", docs: ai, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-32-ai-4-custom-prompts-costs-sync, number: 32, title: "AI assistant, part 4: your own prompts, costs and sync", docs: ai, anchor: null, youtube: null, subtitles: []}

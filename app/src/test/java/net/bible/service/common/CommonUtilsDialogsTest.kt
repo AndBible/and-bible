@@ -281,9 +281,10 @@ class CommonUtilsDialogsTest {
      * `blocks[0]` don't have to match every help topic's text.
      */
     @Test
-    fun showHelpPostsANoticeWithTodaysBlocksAndAnOkOnlyButton() {
+    fun showTipDialogPostsANoticeWithTodaysBlocksAndAnOkOnlyButton() {
+        val workspacesTip = net.bible.sharedui.app.ports.HelpAndTips.items.first { it.titleKey == "help_workspaces_title" }
         val activity = activity()
-        CommonUtils.showHelp(activity, filterItems = listOf(R.string.help_workspaces_title), showVersion = false)
+        CommonUtils.showTipDialog(workspacesTip)
         idle()
 
         val request = dialogs.pending.value!!.request as AppDialogRequest.Notice
@@ -306,18 +307,6 @@ class CommonUtilsDialogsTest {
         assertEquals(application.getString(android.R.string.ok), request.confirmText)
         assertNull("only one button today", request.dismissText)
         assertNull("only one button today", request.neutralText)
-    }
-
-    @Test
-    fun showHelpWithShowVersionAppendsAVersionBlock() {
-        val activity = activity()
-        CommonUtils.showHelp(activity, filterItems = listOf(R.string.help_workspaces_title), showVersion = true)
-        idle()
-
-        val request = dialogs.pending.value!!.request as AppDialogRequest.Notice
-        assertEquals(4, request.blocks.size)
-        val versionBlock = request.blocks[3] as AppDialogRequest.NoticeBlock.Html
-        assertTrue(versionBlock.html.contains(CommonUtils.applicationVersionName))
     }
 
     // -- checkPoorTranslations --

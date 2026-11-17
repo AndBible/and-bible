@@ -130,6 +130,8 @@ class HostReadingNavigator(
 
     override fun openReadingProgressSettings() = onMain { shell.navigate(NavRoutes.READING_PROGRESS_SETTINGS) }
 
+    override fun openHelp() = onMain { shell.navigate(NavRoutes.HELP) }
+
     override fun openWorkspaceSelector() {
         // Its save / pick answer applies to the reading view as a whole (Android's Workspace collector).
         onMain {

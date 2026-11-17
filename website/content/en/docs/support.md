@@ -17,8 +17,21 @@ Alternatively, you can reach out to our development team via
 [GitHub](https://github.com/AndBible/and-bible/issues/new/choose)
 
 In the app, the main menu (☰) rows `Questions?` and `How to contribute?` (in the *Information*
-group) open the support and contribution pages in your browser; `Help & tips` shows short help
-topics. See [Main menu](getting_started.md#main-menu) for all rows.
+group) open the support and contribution pages in your browser; `Help & tips` opens the help screen
+(described below). See [Main menu](getting_started.md#main-menu) for all rows.
+
+### Help & tips
+
+`Help & tips` is a full screen with two tabs:
+
+- **Tips** has short help topics, each with a link to its tutorial video and to the matching page of this
+  manual, and a link to the full documentation.
+- **User guide** is the table of contents of this manual: pick a page to open it in your browser. A page that
+  has a tutorial video shows a play button, and the **Tutorial videos** list at the end has the published
+  videos in order.
+
+Tutorial videos open on YouTube. When a video has subtitles in the language of the app, they are turned on
+for you; otherwise the video is in English and the link says so.
 
 ## Reporting Issues
 

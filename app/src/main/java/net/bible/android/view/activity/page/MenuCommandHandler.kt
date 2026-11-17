@@ -302,7 +302,7 @@ class MenuCommandHandler(
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {
-                    CommonUtils.showHelp(hostActivity, showVersion = true)
+                    handlerIntent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.HELP)
                     isHandled = true
                 }
                 R.id.appLicence -> {

@@ -93,6 +93,12 @@ class AndroidReadingNavigator(
         activity.startActivityForResult(ScreenLauncher.intentFor(activity, Screen.ReadingProgressSettings), STD_REQUEST_CODE)
     }
 
+    /** No result is produced, so a plain start. */
+    override fun openHelp() = onMain {
+        val activity = host()
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.HELP))
+    }
+
     override fun openWorkspaceSelector() {
         val activity = host()
         val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.WORKSPACE_SELECTOR)

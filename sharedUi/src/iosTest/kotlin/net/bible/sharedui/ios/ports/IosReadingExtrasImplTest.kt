@@ -40,17 +40,16 @@ class IosReadingExtrasImplTest {
             )
     }
 
-    @Test fun offersHelpLicenceBugReportTellFriendOnly() = runTest {
-        assertEquals(setOf("helpButton", "appLicence", "bugReport", "tellFriend"), Boundary().extras(this).offeredRows)
+    @Test fun offersLicenceBugReportTellFriendOnly() = runTest {
+        assertEquals(setOf("appLicence", "bugReport", "tellFriend"), Boundary().extras(this).offeredRows)
     }
 
-    @Test fun runRowDispatchesHelpAndLicenceWithoutSharingOrReporting() = runTest {
+    @Test fun runRowDispatchesLicenceWithoutSharingOrReporting() = runTest {
         val boundary = Boundary()
         val extras = boundary.extras(this)
-        extras.runRow("helpButton")
         extras.runRow("appLicence")
         runCurrent()
-        assertEquals(listOf(HelpTopic.HELP_AND_TIPS, HelpTopic.LICENCE), boundary.help)
+        assertEquals(listOf(HelpTopic.LICENCE), boundary.help)
         assertTrue(boundary.shared.isEmpty())
         assertTrue(boundary.causes.isEmpty())
     }

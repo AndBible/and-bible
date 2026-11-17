@@ -35,43 +35,29 @@ class AndroidHelpDialogsTest {
         }
     }
 
-    @Test fun helpAndTipsDispatchesAllItemsWithRealVersionAndKeepsAndroidSponsor() = withHost { activity, dialogs ->
-        AndroidHelpDialogs(activity).show(HelpTopic.HELP_AND_TIPS)
+    @Test fun workspacesTopicStillShowsItsSingleTipWithSponsor() = withHost { activity, dialogs ->
+        AndroidHelpDialogs(activity).show(HelpTopic.WORKSPACES)
         val notice = assertIs<AppDialogRequest.Notice>(assertNotNull(dialogs.pending.value).request)
-        assertEquals(activity.getString(R.string.help), notice.title)
-        assertEquals(activity.getString(android.R.string.ok), notice.confirmText)
-        assertTrue(notice.showTitleLogo)
         val html = assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks.first()).html
-        val pairs = listOf(
-            R.string.help_nav_title to R.string.help_nav_text,
-            R.string.help_contextmenus_title to R.string.help_contextmenus_text,
-            R.string.help_study_tools_title to R.string.help_study_tools_text,
-            R.string.help_window_pinning_title to R.string.help_window_pinning_text,
-            R.string.help_bookmarks_title to R.string.help_bookmarks_text,
-            R.string.studypads to R.string.help_studypads_text,
-            R.string.help_search_title to R.string.help_search_text2,
-            R.string.help_workspaces_title to R.string.help_workspaces_text,
-            R.string.help_look_and_feel_title to R.string.help_look_and_feel_text,
-            R.string.help_hidden_features_title to R.string.help_hidden_features_text,
-        )
-        var previous = -1
-        pairs.forEach { (title, text) ->
-            val position = html.indexOf("<b>${activity.getString(title)}</b>")
-            assertTrue(position > previous, "Missing/reordered help item $title")
-            assertContains(html, activity.getString(text).replace("\n", "<br>"))
-            previous = position
+        assertContains(html, "<b>${activity.getString(R.string.help_workspaces_title)}</b>")
+        assertContains(html, "href=\"${DocsLinks.page("workspaces")}\"")
+        assertContains(html, "href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, "en")}\"")
+        // English app: the video label carries no "(English)" qualifier.
+        assertContains(html, ">${activity.getString(R.string.watch_tutorial_video_plain)}</a>")
+        assertIs<AppDialogRequest.NoticeBlock.IconLine>(notice.blocks.last())
+    }
+
+    @Test fun appLanguageIsTheUiLocaleTag() = withHost { activity, _ ->
+        assertEquals(activity.resources.configuration.locales.get(0).toLanguageTag(), AndroidHelpDialogs(activity).appLanguage())
+    }
+
+    @Test fun everyTipKeyResolvesToAnAndroidString() = withHost { activity, _ ->
+        val help = AndroidHelpDialogs(activity)
+        net.bible.sharedui.app.ports.HelpAndTips.items.forEach {
+            assertTrue(help.tipText(it.titleKey).isNotBlank(), it.titleKey)
+            assertTrue(help.tipText(it.textKey).isNotBlank(), it.textKey)
         }
-        listOf(DocsLinks.page("navigation"), DocsLinks.page("windows"), DocsLinks.page("bookmarks"),
-            DocsLinks.page("study_pads"), DocsLinks.page("search"), DocsLinks.page("workspaces"),
-            DocsLinks.page("documents"), DocsLinks.page("look_and_feel"),
-            TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS),
-        ).forEach { assertContains(html, "href=\"$it\"") }
-        assertEquals(9, Regex(Regex.escape(activity.getString(R.string.watch_tutorial_video))).findAll(html).count())
-        assertEquals(4, notice.blocks.size)
-        assertContains(assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks[1]).html, DocsLinks.BASE_URL)
-        assertIs<AppDialogRequest.NoticeBlock.IconLine>(notice.blocks[2])
-        val version = activity.getString(R.string.version_text, CommonUtils.applicationVersionName)
-        assertEquals("<i>$version</i>", assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks.last()).html)
+        assertEquals(CommonUtils.applicationVersionName, help.versionName())
     }
 
     @Test fun licenceDispatchesEntireRealHtmlWithOneOkButton() = withHost { activity, dialogs ->

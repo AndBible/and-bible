@@ -20,11 +20,10 @@ internal class HostReadingExtrasImpl(
     private val textShare: TextShare,
     private val report: suspend (Throwable?) -> Unit,
 ) : HostReadingExtras {
-    override val offeredRows = setOf("helpButton", "appLicence", "bugReport", "tellFriend")
+    override val offeredRows = setOf("appLicence", "bugReport", "tellFriend")
 
     override fun runRow(id: String) {
         when (id) {
-            "helpButton" -> helpDialogs.show(HelpTopic.HELP_AND_TIPS)
             "appLicence" -> helpDialogs.show(HelpTopic.LICENCE)
             "tellFriend" -> scope.launch { RecommendApp.run(strings(), ask, textShare::shareText) }
             "bugReport" -> scope.launch { report(null) }

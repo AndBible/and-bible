@@ -100,6 +100,16 @@ class AndroidReadingNavigatorTest {
         assertEquals(STD_REQUEST_CODE, started.requestCode)
     }
 
+    @Test fun openHelpStartsTheHelpRouteWithoutAwaitingAResult() {
+        val activity = activity()
+        AndroidReadingNavigator({ activity }).openHelp()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull("no activity was started", started)
+        assertSameRoute(NavHostComposeActivity.intentFor(activity, NavRoutes.HELP), started)
+    }
+
     @Test fun openWorkspaceSelectorUsesWorkspaceChangedRequestCode() {
         val activity = activity()
         AndroidReadingNavigator({ activity }).openWorkspaceSelector()

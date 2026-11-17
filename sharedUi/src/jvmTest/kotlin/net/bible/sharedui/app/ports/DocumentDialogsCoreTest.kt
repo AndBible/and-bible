@@ -169,6 +169,14 @@ class DocumentDialogsCoreTest {
         assertEquals("SourceRepository", net.bible.service.download.DownloadManager.REPOSITORY_KEY)
         assertEquals("<i>Version 1</i>", (request.blocks[3] as AppDialogRequest.NoticeBlock.Html).html)
     }
+    @Test fun helpNoticeAndDialogUseThePlainVideoLabelOnlyWhenAsked() {
+        fun noticeHtml(plain: Boolean) = (core().helpNotice(listOf(DocumentDialogsCore.HelpItem("T", "x", "https://video", null, plain)))
+            .blocks[0] as AppDialogRequest.NoticeBlock.Html).html
+        assertContains(noticeHtml(false), ">watch_tutorial_video</a>")
+        assertContains(noticeHtml(true), ">watch_tutorial_video_plain</a>")
+        assertContains(core().helpDialog("H", "B", "https://m", "https://v", plainVideoLabel = true).message, ">watch_tutorial_video_plain</a>")
+        assertContains(core().helpDialog("H", "B", "https://m", "https://v").message, ">watch_tutorial_video</a>")
+    }
     @Test fun cancelUnlockLeavesTheBookLocked() = runTest {
         var stored = false
         val task = async { core().unlockDocument(book()) { stored = true } }

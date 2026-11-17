@@ -6,7 +6,6 @@ import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.ports.DocumentDialogsCore
-import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.strings.keyed.StringTable
@@ -18,46 +17,36 @@ class HostHelpDialogs(
     private val bundleHtml: (String) -> String,
     private val versionName: () -> String,
 ) : HelpDialogs {
+    override fun tipText(key: String): String = table().text(key)
+
+    override fun appLanguage(): String = table().tag
+
+    override fun versionName(): String = versionName.invoke()
+
     override fun show(topic: HelpTopic) {
         val core = DocumentDialogsCore(dialogs, table)
         dialogs.post(AppDialogRequest.Localized {
             val t = table()
+            val lang = t.tag
+            fun video(episode: TutorialVideos.Episode) = TutorialVideos.url(episode, lang)
             when (topic) {
                 HelpTopic.WORKSPACES -> core.helpNotice(listOf(DocumentDialogsCore.HelpItem(
                     t.text("help_workspaces_title"), t.text("help_workspaces_text"),
-                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLinks.page("workspaces"),
+                    video(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLinks.page("workspaces"),
+                    TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, lang),
                 )))
-                HelpTopic.HELP_AND_TIPS -> core.helpNotice(
-                    HelpAndTips.items.map { item ->
-                        DocumentDialogsCore.HelpItem(t.text(item.titleKey), t.text(item.textKey), item.videoLink, helpPage(item.docPage))
-                    },
-                    versionMsg = t.fmt("version_text", versionName()),
-                    includeSponsor = false,
-                )
                 HelpTopic.LICENCE -> AppDialogRequest.Message(
                     title = t.text("app_licence_title"), message = bundleHtml("license"),
                     confirmText = t.text("okay"), cancellable = true,
                 )
                 HelpTopic.READING_PROGRESS -> core.helpDialog(t.text("help"), t.text("help_reading_progress_text"), DocsLinks.page("reading_progress"),
-                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS))
+                    video(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS),
+                    TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS, lang))
                 HelpTopic.DOCUMENT_SYNC -> core.helpDialog(t.text("help"), t.text("help_document_sync_text"), DocsLinks.page("document_sync"),
-                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS))
+                    video(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS),
+                    TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS, lang))
                 HelpTopic.AI_CONNECTION -> core.helpDialog(t.text("help"), t.text("help_ai_connection_text"), DocsLinks.page("ai", "getting-started"))
             }
         })
     }
-}
-
-// Literal calls keep the app-to-documentation link scanner authoritative.
-private fun helpPage(page: String?): String? = when (page) {
-    null -> null
-    "navigation" -> DocsLinks.page("navigation")
-    "windows" -> DocsLinks.page("windows")
-    "bookmarks" -> DocsLinks.page("bookmarks")
-    "study_pads" -> DocsLinks.page("study_pads")
-    "search" -> DocsLinks.page("search")
-    "workspaces" -> DocsLinks.page("workspaces")
-    "documents" -> DocsLinks.page("documents")
-    "look_and_feel" -> DocsLinks.page("look_and_feel")
-    else -> error("Unknown help page: $page")
 }

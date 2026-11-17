@@ -42,6 +42,9 @@ interface ReadingNavigator {
 
     fun openReadingProgressSettings()
 
+    /** The full-screen Help & tips (tips and user guide index), [net.bible.sharedcore.nav.NavRoutes.HELP]. */
+    fun openHelp()
+
     fun openWorkspaceSelector()
 
     /**
