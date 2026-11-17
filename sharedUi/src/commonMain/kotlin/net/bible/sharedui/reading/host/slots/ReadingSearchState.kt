@@ -61,9 +61,15 @@ class ReadingSearchState(
     }
 
     private var activeId = windowState?.layout?.value?.activeWindowId.orEmpty()
-    internal var session by mutableStateOf(sessions.getOrPut(activeId) { createSession(activeId) }.state)
-        private set
-    private val activeSession = MutableStateFlow(session)
+    private var selectedSession by mutableStateOf(sessions.getOrPut(activeId) { createSession(activeId) }.state)
+    internal val session: ReadingSearchSession
+        get() {
+            // Window notifications may be queued onto Main while a result opens a links window.
+            // Entry points and synchronous key handlers must see the new owner immediately.
+            activeWindowChanged()
+            return selectedSession
+        }
+    private val activeSession = MutableStateFlow(selectedSession)
 
     private fun <T> follow(initial: T, read: (ReadingSearchSession) -> StateFlow<T>): StateFlow<T> {
         val updates = activeSession.flatMapLatest(read).stateIn(scope, SharingStarted.Eagerly, initial)
@@ -97,16 +103,16 @@ class ReadingSearchState(
     private fun applyLayout(layout: net.bible.sharedcore.window.WindowLayoutState) {
         val liveIds = layout.windows.filter { it.state != WindowStateValue.CLOSED }.map { it.id }.toSet()
         sessions.keys.toList().filter { it !in liveIds && it != "" }.forEach(::discard)
-        if (activeId != layout.activeWindowId || sessions[activeId]?.state !== session) {
-            session.searchFieldFocused.value = false
-            session.searchRecentMenuOpen.value = false
-            session.searchSettingsOpen.value = false
+        if (activeId != layout.activeWindowId || sessions[activeId]?.state !== selectedSession) {
+            selectedSession.searchFieldFocused.value = false
+            selectedSession.searchRecentMenuOpen.value = false
+            selectedSession.searchSettingsOpen.value = false
             // Returning restores content, not keyboard ownership in a WebView editor.
-            session.controller.imeRequestHandled()
+            selectedSession.controller.imeRequestHandled()
             activeId = layout.activeWindowId
-            session = sessions.getOrPut(activeId) { createSession(activeId) }.state
-            session.controller.imeRequestHandled()
-            activeSession.value = session
+            selectedSession = sessions.getOrPut(activeId) { createSession(activeId) }.state
+            selectedSession.controller.imeRequestHandled()
+            activeSession.value = selectedSession
         }
     }
 
