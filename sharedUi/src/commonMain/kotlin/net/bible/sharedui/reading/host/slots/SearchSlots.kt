@@ -126,7 +126,8 @@ internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: String
     }
     val resultsPhase = phase as? ReadingSearchPhase.Results ?: return
     // The scaffold keeps hidden sheet content mounted; hidden results must not retain keyboard focus.
-    if (!sheetVisible) return
+    // While the close animation still shows the sheet they stay composed, but unfocusable.
+    if (!sheetVisible && !LocalSearchSheetOnScreen.current) return
     val openResultInLinksWindow by state.openResultInLinksWindow.collectAsState()
     if (resultsPhase.forEpub) {
         val loading by state.epubSearchResults.loading.collectAsState()
@@ -305,3 +306,10 @@ internal fun singleNonBibleSearched(
 ): String? = selected.singleOrNull()
     ?.takeIf { id -> categoryOf(id).let { it != null && it != BookCategory.BIBLE } }
     ?.let { abbreviationOf(it) ?: it }
+
+/**
+ * Whether the search sheet is still on screen (not settled Hidden), provided by the reading host's
+ * scaffold. Results stay composed until the sheet's close animation ends instead of blanking it.
+ */
+@kotlin.native.HiddenFromObjC
+val LocalSearchSheetOnScreen = androidx.compose.runtime.compositionLocalOf { false }

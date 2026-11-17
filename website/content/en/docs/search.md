@@ -12,9 +12,14 @@ Find becomes available again.
 Find belongs to the window where you opened it. Selecting another window hides that
 window's search bar and results; returning restores its query, results and position.
 You can start a separate Find in each window. Closing Find or closing its window
-discards that window's search.
+discards that window's search, and so does switching to another workspace: a Find
+left open in the workspace you leave is not there when you come back.
 
-With a hardware keyboard, the results list receives focus when results appear. The
+When a result opens in the links window, Find stays with the window you searched
+from: its search bar remains, and Back reopens the results.
+
+When you type your search on a hardware keyboard, the results list receives focus
+when results appear (with touch input, focus stays where it was). The
 first result is highlighted; use Up and Down to move through results and Enter to
 open the highlighted passage. Press Up at the first result or Ctrl+F (Command+F on
 Apple hardware) to return to the query. Typing a character in the results starts a

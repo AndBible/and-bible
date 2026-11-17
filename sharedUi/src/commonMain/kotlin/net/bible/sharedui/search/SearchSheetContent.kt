@@ -46,6 +46,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.InputMode
@@ -162,7 +163,9 @@ fun SearchSheetContent(
                 state = listState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.focusRequester(focusRequester).onFocusChanged { listFocused = it.isFocused }.onPreviewKeyEvent { event ->
+                // Results being closed (still sliding out) must neither keep nor take focus.
+                modifier = Modifier.focusProperties { canFocus = requestResultsFocus }
+                    .focusRequester(focusRequester).onFocusChanged { listFocused = it.isFocused }.onPreviewKeyEvent { event ->
                     // Only the list itself: a focused row (Tab into a card or its expand button) keeps its keys.
                     if (!listFocused) return@onPreviewKeyEvent false
                     if (event.type == KeyEventType.KeyDown && isHardwareKeyEvent(event)) FindKeyboardInput.lastWasHardwareKey = true

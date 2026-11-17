@@ -91,4 +91,45 @@ class SearchSheetHiddenFocusTest {
             fixture.scope.cancel()
         }
     }
+
+    /** Closing results keeps them on the sliding-out sheet, but they let go of the keyboard at once. */
+    @Test fun closingResultsStayComposedUntilTheSheetIsHiddenWithoutKeyboardFocus() = runComposeUiTest {
+        val fixture = SearchFixture()
+        val cache = SearchResultsCache()
+        val state = ReadingSearchState(
+            fixture.settings, fixture.scope, fixture.platform, fixture.jobs,
+            ReadingSearchServices(fixture.bible, FakeEpubSearch(), cache, fixture.index),
+            onLeaveFullScreen = {},
+        )
+        val session = state.session
+        val onScreen = androidx.compose.runtime.mutableStateOf(true)
+        try {
+            fixture.platform.documents["KJV"] = fixture.platform.current!!
+            state.openSearch("light")
+            cache.put(assertNotNull(session.lastSearchRequestForTest), MultiSearchResults(
+                listOf("Gen.1.1", "Gen.1.2").map { SwordResultRow(it, emptyList(), StyledText.plain("light")) }, emptyList(), 2))
+            session.runSearch("KJV", "light")
+            val strings = iosStrings("en")
+            setContent {
+                CompositionLocalProvider(LocalStrings provides strings, LocalSearchSheetOnScreen provides onScreen.value) {
+                    SearchSheetSlotContent(session, strings)
+                }
+            }
+            onRoot().performKeyInput { pressKey(Key.DirectionDown) }
+            runOnIdle { assertEquals(1, session.resultKeyboardSelection.value) }
+            runOnIdle { session.controller.closeSheet() }
+            onNodeWithText("Gen.1.1").assertExists()
+            onRoot().performKeyInput { pressKey(Key.DirectionUp); pressKey(Key.Enter) }
+            runOnIdle {
+                assertEquals(1, session.resultKeyboardSelection.value, "closing results must not take keys")
+                assertEquals(emptyList(), fixture.platform.shown)
+            }
+            runOnIdle { onScreen.value = false }
+            onNodeWithText("Gen.1.1").assertDoesNotExist()
+        } finally {
+            state.dispose()
+            fixture.state.dispose()
+            fixture.scope.cancel()
+        }
+    }
 }

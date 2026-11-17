@@ -464,7 +464,12 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                                 min = 1.dp,
                                 max = maxHeight * SearchSheetMaxHeightFraction,
                             )
-                    ) { deps.searchSheetSlot() }
+                    ) {
+                        val onScreen = searchSheetState.bottomSheetState.currentValue != SheetValue.Hidden
+                        androidx.compose.runtime.CompositionLocalProvider(
+                            net.bible.sharedui.reading.host.slots.LocalSearchSheetOnScreen provides onScreen,
+                        ) { deps.searchSheetSlot() }
+                    }
                 }
             },
         ) { _ ->
