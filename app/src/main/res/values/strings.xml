@@ -78,6 +78,12 @@
     <string name="other">Other</string>
     <string name="contact">Contact</string>
     <string name="help_and_tips">Help &amp; tips</string>
+    <string name="help_tab_tips">Tips</string>
+    <string name="help_tab_user_guide">User guide</string>
+    <string name="help_user_guide_intro">The full user guide is on andbible.org. Pages open in your browser.</string>
+    <string name="help_user_guide_home">User guide home</string>
+    <string name="help_tutorial_videos">Tutorial videos</string>
+    <string name="help_play_video">Play video: %1$s</string>
     <string name="administration">Administration</string>
     <string name="rate_application">Rate &amp; Review</string>
     <string name="chooce_document">Choose Document</string>

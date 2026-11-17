@@ -1136,6 +1136,16 @@ class AndroidStrings(private val context: Context) : Strings {
     override val studyPadsHelpText: String get() = context.getString(R.string.help_studypads_text)
     override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
 
+    // Help & tips screen (#4134)
+    override val helpAndTips: String get() = context.getString(R.string.help_and_tips)
+    override val helpFullDocumentationLink: String get() = context.getString(R.string.help_full_documentation_link)
+    override val helpTabTips: String get() = context.getString(R.string.help_tab_tips)
+    override val helpTabUserGuide: String get() = context.getString(R.string.help_tab_user_guide)
+    override val helpUserGuideIntro: String get() = context.getString(R.string.help_user_guide_intro)
+    override val helpUserGuideHome: String get() = context.getString(R.string.help_user_guide_home)
+    override val helpTutorialVideos: String get() = context.getString(R.string.help_tutorial_videos)
+    override fun helpPlayVideo(title: String): String = context.getString(R.string.help_play_video, title)
+
     // Round 14a — dialog-to-sheet conversions
     override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
 
