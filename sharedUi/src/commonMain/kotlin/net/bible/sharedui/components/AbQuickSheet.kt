@@ -18,6 +18,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -101,6 +103,7 @@ fun AbQuickSheet(
     onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
+    bodyMaxHeightFraction: Float? = null,
     body: @Composable () -> Unit,
 ) {
     if (!open) return
@@ -141,6 +144,7 @@ fun AbQuickSheet(
             onTabSelected = onTabSelected,
             footer = footer,
             canScrollForward = canScrollForward,
+            bodyMaxHeightFraction = bodyMaxHeightFraction,
             body = body,
         )
     }
@@ -158,6 +162,11 @@ data class AbQuickSheetTab(val id: String, val label: String)
 /**
  * [AbQuickSheet]'s body. Stateless and free of any sheet container, which is what makes it
  * capturable — and what `SettingsEditorSheetGuardTest` requires of every sheet body.
+ *
+ * [bodyMaxHeightFraction]: null keeps the fixed [AbSheetContentMaxHeight] body bound. A fraction
+ * bounds the body by that share of the height the sheet offers its content instead, for a body
+ * that sizes itself to its content and should get more room on a tall screen without ever
+ * covering the whole window (the grid key chooser, #4133).
  */
 @Composable
 fun AbQuickSheetContent(
@@ -171,6 +180,36 @@ fun AbQuickSheetContent(
     onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
+    bodyMaxHeightFraction: Float? = null,
+    body: @Composable () -> Unit,
+) {
+    if (bodyMaxHeightFraction == null) {
+        QuickSheetColumn(title, onClose, canGoBack, onBack, actions, tabs, selectedTabId, onTabSelected, footer,
+            canScrollForward, AbSheetContentMaxHeight, body)
+    } else {
+        // The sheet hands its content the window's usable height; a fraction of it keeps the
+        // reading view visible above the sheet. Unbounded (a content-only test) -> the fixed bound.
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val bodyMax = if (maxHeight == Dp.Infinity) AbSheetContentMaxHeight else maxHeight * bodyMaxHeightFraction
+            QuickSheetColumn(title, onClose, canGoBack, onBack, actions, tabs, selectedTabId, onTabSelected, footer,
+                canScrollForward, bodyMax, body)
+        }
+    }
+}
+
+@Composable
+private fun QuickSheetColumn(
+    title: String,
+    onClose: () -> Unit,
+    canGoBack: () -> Boolean,
+    onBack: () -> Unit,
+    actions: (@Composable RowScope.() -> Unit)?,
+    tabs: List<AbQuickSheetTab>,
+    selectedTabId: String?,
+    onTabSelected: (String) -> Unit,
+    footer: (@Composable () -> Unit)?,
+    canScrollForward: () -> Boolean,
+    bodyMaxHeight: Dp,
     body: @Composable () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
@@ -193,7 +232,7 @@ fun AbQuickSheetContent(
                 }
             }
         }
-        AbSheetScrollBound(canScrollForward = canScrollForward) { body() }
+        AbSheetScrollBound(canScrollForward = canScrollForward, maxHeight = bodyMaxHeight) { body() }
         if (footer != null) {
             HorizontalDivider()
             footer()
