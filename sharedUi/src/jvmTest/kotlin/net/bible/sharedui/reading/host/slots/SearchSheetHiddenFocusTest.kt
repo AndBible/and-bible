@@ -73,7 +73,7 @@ class SearchSheetHiddenFocusTest {
             onRoot().performKeyInput { pressKey(Key.DirectionUp); pressKey(Key.Enter) }
             runOnIdle {
                 assertEquals(0, session.resultKeyboardSelection.value)
-                assertEquals("Gen.1.1", fixture.platform.shown.single().second.name)
+                assertEquals("Gen.1.1", fixture.platform.shown.single().second.getName())
             }
         } finally {
             state.dispose()
