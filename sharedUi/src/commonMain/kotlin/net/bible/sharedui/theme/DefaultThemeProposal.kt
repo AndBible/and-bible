@@ -134,6 +134,9 @@ private val Muted = Color(0xFF5D5546)
 private val Faint = Color(0xFF8A806D)
 private val AccentInk = Color(0xFF9A5B10)
 private val Gold = Color(0xFFFEBA2A)
+// INK's Honey accents soften selection fills and night accents without changing brand gold.
+private val HoneyTint = Color(0xFFFFE0A3)
+private val NightHoney = Color(0xFFE9BC6A)
 private val NightGround = Color(0xFF161616)
 private val NightSurface = Color(0xFF1C1C1B)
 private val NightSurface2 = Color(0xFF242320)
@@ -199,7 +202,7 @@ private fun inkLight() = greySafeTonalSpot(SITE_ACCENT, false).sitePaper().copy(
     primaryContainer = Paper2, onPrimaryContainer = Ink,
     inversePrimary = Gold,
     secondary = AccentInk, onSecondary = Color.White,
-    secondaryContainer = Gold, onSecondaryContainer = Ink,
+    secondaryContainer = HoneyTint, onSecondaryContainer = Ink,
     tertiary = AccentInk, onTertiary = Color.White,
 )
 
@@ -207,9 +210,9 @@ private fun inkDark() = greySafeTonalSpot(SITE_ACCENT, true).siteNight().copy(
     primary = NightInk, onPrimary = NightGround,
     primaryContainer = NightSurface3, onPrimaryContainer = NightInk,
     inversePrimary = Ink,
-    secondary = Gold, onSecondary = Ink,
+    secondary = NightHoney, onSecondary = Ink,
     secondaryContainer = Color(0xFF4A3812), onSecondaryContainer = Color(0xFFFFDFA0),
-    tertiary = Gold, onTertiary = Ink,
+    tertiary = NightHoney, onTertiary = Ink,
 )
 
 /** C2's cool neutral paper: the same structure as [sitePaper] with the yellow taken out. */
