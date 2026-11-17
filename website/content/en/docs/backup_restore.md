@@ -19,8 +19,10 @@ opened (for example in one table) is reported in the same way.
 If a database holding your own data (bookmarks, notes, StudyPads, workspaces,
 reading plans, My Documents, settings, AI settings, reading progress or
 repositories) is damaged, AndBible does not open and shows a **Damaged data**
-message naming the damaged database file. Nothing has been changed or deleted
-at that point. You can choose:
+message naming the damaged database file. Filenames are displayed as text,
+including any ampersands or angle brackets in their names. The explanation is
+split into paragraphs above the recovery actions. Nothing has been changed or
+deleted at that point. You can choose:
 
 - **Send Report**: send us an error report so that we can look for the cause.
 - **Backup & Restore**: opens Backup & Restore without opening the databases.

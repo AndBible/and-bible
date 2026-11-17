@@ -64,6 +64,8 @@ import androidx.compose.ui.unit.dp
  * (`AbMenu.kt:91`), which is what lets `:app` pass a `painterResource` drawable from `commonMain`-safe
  * code.
  *
+ * [message] is HTML, matching `AppDialogRequest.Options` and `AbOptionsDialog`.
+ *
  * [skipPartiallyExpanded] is `true` per spec §7.a. No `LaunchedEffect(sheetState.isVisible)` re-show
  * — see [AbChoiceSheet]'s kdoc.
  *
@@ -124,10 +126,9 @@ fun AbActionSheetContent(
         val body: @Composable () -> Unit = {
             Column {
                 if (message != null) {
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    AbHtmlText(
+                        html = message,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
