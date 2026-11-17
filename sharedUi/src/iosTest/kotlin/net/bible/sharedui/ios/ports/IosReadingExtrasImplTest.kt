@@ -119,6 +119,8 @@ class IosReadingExtrasImplTest {
         val attachmentNames = mutableListOf<List<String>>()
         val report = IosBugReport(
             table = task4Table(),
+            diagnosticSnapshot = { "" },
+            crashDiagnostic = { null },
             confirm = { ai -> confirmations += ai; consent },
             send = { recipient, subject, body, attachments ->
                 recipients += recipient
