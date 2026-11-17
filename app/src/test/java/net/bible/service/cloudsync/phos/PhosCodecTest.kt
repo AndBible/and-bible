@@ -105,6 +105,31 @@ class PhosCodecTest {
     }
 
     @Test
+    fun layoutReconciliationFollowsARemoteOrderIndentEdit() {
+        val original = buildJsonObject {
+            put("labelNames", JsonArray(listOf(JsonPrimitive("Trost"), JsonPrimitive("Other"))))
+            put("sortOrder", 4); put("indent", 1)
+            put("ab", buildJsonObject {
+                put("primaryLabel", "Trost")
+                put("labels", buildJsonObject {
+                    put("Trost", JsonArray(listOf(JsonPrimitive(4), JsonPrimitive(1), JsonPrimitive(true))))
+                    put("Other", JsonArray(listOf(JsonPrimitive(5), JsonPrimitive(0), JsonPrimitive(true))))
+                })
+            })
+        }
+        assertEquals(listOf(AbLink("Trost", 4, 1, true), AbLink("Other", 5, 0, true)), PhosBookmarkCodec.linksFromJson(original))
+
+        // another client reorders/indents the bookmark without touching "ab.labels" at all, since it does
+        // not understand that vendor field
+        val edited = JsonObject(original + ("sortOrder" to JsonPrimitive(10)) + ("indent" to JsonPrimitive(2)))
+        val links = PhosBookmarkCodec.linksFromJson(edited)
+        assertEquals("the primary label's layout follows the remote edit", AbLink("Trost", 10, 2, true),
+            links.first { it.labelName == "Trost" })
+        assertEquals("a non-primary label's cached layout is left alone", AbLink("Other", 5, 0, true),
+            links.first { it.labelName == "Other" })
+    }
+
+    @Test
     fun desktopBookmarkWithoutAbFields() {
         val p = buildJsonObject {
             put("id", "6A168692-F30E62E0"); put("kind", "range"); put("module", "KJV"); put("bookOsis", "Ps")

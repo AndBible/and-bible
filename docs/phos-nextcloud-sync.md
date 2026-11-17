@@ -35,8 +35,17 @@ Code: `app/src/main/java/net/bible/service/cloudsync/phos/`.
 - Bookmark ids of other clients that are not UUIDs are mapped to a UUID derived from them
   (`md5("phos-bookmark" + NUL + id)` with version/variant bits), the same one every Phos client
   derives; changes go back under the original key.
+- `label` and `workspace` records also carry the sending AndBible device's own `Label.id` /
+  `Window.id` as `abId` inside the `ab` object. An importing AndBible device reuses that id
+  instead of deriving its own from the name/position, so it converges with the classic file
+  based sync (which carries the true id) on one row instead of creating a duplicate once that
+  sync catches up. Other Phos clients ignore the field.
 - Applied records are written with plain SQL, so the sync triggers log them and the file based
   sync, when enabled, passes them on to other AndBible devices.
+- A sync that would delete more than 10 records, and more than a third of that record type, is
+  held back instead of sent (`PhosSyncEngine.run(confirmDeletes = true)` sends it anyway). The
+  settings screen offers to confirm it, both right after a manual "Synchronize now" and whenever
+  the screen is opened while a hold is still pending.
 
 ## Tests
 

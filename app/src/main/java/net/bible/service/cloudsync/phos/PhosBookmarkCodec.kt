@@ -260,19 +260,36 @@ object PhosBookmarkCodec {
         })
     }
 
-    /** Label links of a record: names from "labelNames", layout from "ab" where this device left it. */
+    /**
+     * Label links of a record: names from "labelNames", layout from "ab" where this device left it. A
+     * client that only understands the top-level sortOrder/indent (the primary label's own layout) can
+     * reorder or indent the bookmark without touching "ab.labels" at all, since it doesn't know about it;
+     * that edit is reconciled into the primary label's cached layout instead of being silently discarded.
+     * Every other label's cached layout is kept as this device last wrote it.
+     */
     fun linksFromJson(p: JsonObject): List<AbLink> {
         val names = (p["labelNames"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.contentOrNull }.distinct()
-        val layout = (p["ab"] as? JsonObject)?.get("labels") as? JsonObject
+        val ab = p["ab"] as? JsonObject
+        val layout = ab?.get("labels") as? JsonObject
+        val primary = ab?.str("primaryLabel")?.takeIf { it in names } ?: names.firstOrNull()
         val sortOrder = (p["sortOrder"] as? JsonPrimitive)?.intOrNull ?: -1
         val indent = (p["indent"] as? JsonPrimitive)?.intOrNull ?: 0
         return names.map { n ->
             val a = layout?.get(n) as? JsonArray
-            if (a != null && a.size >= 3) {
+            val cached = if (a != null && a.size >= 3) {
                 AbLink(n, (a[0] as? JsonPrimitive)?.intOrNull ?: -1, (a[1] as? JsonPrimitive)?.intOrNull ?: 0,
                     (a[2] as? JsonPrimitive)?.contentOrNull != "false")
+            } else null
+            if (n == primary) {
+                // -1 is this device's own sentinel for "no explicit order"; putCommon always clamps that
+                // down to 0 at the top level, so a top-level 0 against a cached -1 is not a real edit
+                val orderChanged = cached != null && cached.orderNumber != sortOrder &&
+                    !(cached.orderNumber == -1 && sortOrder == 0)
+                val indentChanged = cached != null && cached.indentLevel != indent
+                if (cached == null || orderChanged || indentChanged) AbLink(n, sortOrder, indent, cached?.expandContent ?: true)
+                else cached
             } else {
-                AbLink(n, sortOrder, indent, true)
+                cached ?: AbLink(n, sortOrder, indent, true)
             }
         }
     }
