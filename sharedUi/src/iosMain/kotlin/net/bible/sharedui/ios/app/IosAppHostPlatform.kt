@@ -153,6 +153,7 @@ object IosAppHostPlatform : AppHostPlatform {
 
     @Composable
     override fun DebugHarnessOverlays(strings: Strings, navController: NavHostController, navigate: (String) -> Unit) {
+        net.bible.sharedui.ios.diagnostics.IosRuntimeDiagnosticsHarness.Overlay()
         IosFilesRuntimeHarness.Overlay(strings) {
             navController.currentBackStackEntryFlow.first()
         }

@@ -17,6 +17,10 @@
 package net.bible.sharedui.webview
 
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedui.host.diagnostics.*
+import kotlin.time.TimeSource
+import kotlin.native.ref.WeakReference
+import platform.Foundation.NSUUID
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
@@ -62,6 +66,7 @@ private const val PANE_PROBE_ALIVE = "object"
 /** How long a page may take to answer the probe before it counts as hung. */
 internal const val PANE_PROBE_TIMEOUT_SECONDS = 10.0
 
+
 /**
  * Recovers reading panes whose page died without WebKit telling us (issue #4004). WebKit reports a killed content process
  * through `webViewWebContentProcessDidTerminate` ([IosNavDelegate] reloads then), but not every way a page dies while the
@@ -76,6 +81,7 @@ internal const val PANE_PROBE_TIMEOUT_SECONDS = 10.0
  * (`HostReadingWindows.rebuild`). A pane that is (re)loading is left alone. A pane whose web view changed while its
  * probe ran (released, re-keyed, rebuilt) is not recovered for the old one. Main thread.
  */
+@OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 internal class IosPaneLiveness(
     private val panes: () -> Map<String, WKWebView>,
     private val recover: (windowId: String) -> Unit,
@@ -87,7 +93,24 @@ internal class IosPaneLiveness(
     private val log: (String) -> Unit = { nsLog(it) },
     /** Consecutive liveness rebuilds of one window after which it is left alone (desktop's `MAX_RENDERER_DEATHS`). */
     private val maxRebuilds: Int = MAX_LIVENESS_REBUILDS,
+    private val diagnostic: (RuntimeDiagnosticEvent) -> Unit = {},
+    private val identities: ((String, WKWebView) -> Pair<String, String>?)? = null,
+    private val observeCandidates: (ProbeTrigger) -> Int? = { null },
+    private val isLoading: (WKWebView) -> Boolean = { it.loading },
+    private val scheduleTimeout: (Long, () -> Unit) -> Unit = { delay, action ->
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue(), action)
+    },
 ) {
+    private fun emit(event: RuntimeDiagnosticEvent) { try { diagnostic(event) } catch (_: Throwable) { } }
+    private fun id() = NSUUID().UUIDString
+    private val paneIds = mutableMapOf<String, String>()
+    private val viewIds = mutableListOf<Pair<WeakReference<WKWebView>, String>>()
+    private fun paneId(windowId: String) = paneIds.getOrPut(windowId) { id() }
+    private fun viewId(view: WKWebView): String {
+        viewIds.removeAll { it.first.get() == null }
+        return viewIds.firstOrNull { it.first.get() === view }?.second
+            ?: id().also { viewIds += WeakReference(view) to it }
+    }
     private var observer: Any? = null
 
     /** Consecutive rebuilds per window; reset when a probe finds the page alive. */
@@ -98,44 +121,71 @@ internal class IosPaneLiveness(
         if (observer != null) return
         observer = NSNotificationCenter.defaultCenter.addObserverForName(
             UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue,
-        ) { _ -> checkAll() }
+        ) { _ -> checkAll(ProbeTrigger.LIFECYCLE) }
     }
 
-    fun checkAll() {
-        for ((windowId, webView) in panes()) check(windowId, webView)
+    fun checkAll() = checkAll(ProbeTrigger.MANUAL)
+
+    private fun checkAll(trigger: ProbeTrigger) {
+        val candidateCount = try { observeCandidates(trigger) } catch (_: Throwable) { null }
+        val current = panes()
+        paneIds.keys.retainAll(current.keys)
+        for ((windowId, webView) in current) check(windowId, webView, trigger, current.size, candidateCount ?: current.size)
     }
 
-    fun check(windowId: String, webView: WKWebView) {
+    fun check(windowId: String, webView: WKWebView) = check(windowId, webView, ProbeTrigger.MANUAL, 1, 1)
+
+    private fun check(windowId: String, webView: WKWebView, trigger: ProbeTrigger, count: Int, candidates: Int) {
+        val probeId = id()
+        val mapped = try { identities?.invoke(windowId, webView) } catch (_: Throwable) { null }
+        val paneId = mapped?.first ?: paneId(windowId)
+        val viewId = mapped?.second ?: viewId(webView)
+        val started = TimeSource.Monotonic.markNow()
+        emit(RuntimeDiagnosticEvent.ProbeContext(trigger, probeId, paneId, viewId, candidates, count))
         var settled = false
         fun settle(health: PaneHealth) {
             if (settled) return
             settled = true
             if (health == PaneHealth.Alive) rebuilds.remove(windowId)
-            if (health != PaneHealth.Dead && health != PaneHealth.Unresponsive) return
-            if (panes()[windowId] !== webView) return
+            val needsRecovery = health == PaneHealth.Dead || health == PaneHealth.Unresponsive
+            val stale = try { panes()[windowId] !== webView } catch (t: Throwable) {
+                if (needsRecovery) throw t
+                false
+            }
+            emit(RuntimeDiagnosticEvent.ProbeResult(probeId, paneId, viewId, when (health) {
+                PaneHealth.Alive -> ProbeOutcome.ALIVE
+                PaneHealth.Loading -> ProbeOutcome.LOADING
+                PaneHealth.Dead -> ProbeOutcome.DEAD
+                PaneHealth.Unresponsive -> ProbeOutcome.UNRESPONSIVE
+            }, stale, started.elapsedNow().inWholeMilliseconds))
+            if (!needsRecovery || stale) return
             val count = (rebuilds[windowId] ?: 0) + 1
             if (count > maxRebuilds) {
                 if (count == maxRebuilds + 1) log("I0-WEBVIEW-DEAD $windowId: $health after $maxRebuilds rebuilds, giving up")
                 rebuilds[windowId] = count
+                emit(RuntimeDiagnosticEvent.RecoveryResult(paneId, RecoveryAction.GIVE_UP, RecoveryFailure.NONE))
                 return
             }
             rebuilds[windowId] = count
             log("I0-WEBVIEW-DEAD $windowId: $health, rebuilding the pane")
+            emit(RuntimeDiagnosticEvent.RecoveryResult(paneId, RecoveryAction.REQUESTED, RecoveryFailure.NONE))
             try {
                 recover(windowId)
             } catch (t: Throwable) {
+                emit(RuntimeDiagnosticEvent.RecoveryResult(paneId, RecoveryAction.FAILED, RecoveryFailure.OTHER))
                 log("bridge[$windowId]: pane rebuild failure $t")
             }
         }
         try {
-            evaluate(webView, PANE_PROBE_JS) { result, failed -> settle(paneHealth(true, result, failed, webView.loading)) }
+            evaluate(webView, PANE_PROBE_JS) { result, failed -> settle(paneHealth(true, result, failed, isLoading(webView))) }
         } catch (t: Throwable) {
+            emit(RuntimeDiagnosticEvent.ProbeSkipped(probeId, DiagnosticReason.OTHER))
             log("bridge[$windowId]: liveness probe failure $t")
             return
         }
         val delay = (timeoutSeconds * 1_000_000_000.0).toLong()
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue()) {
-            settle(paneHealth(answered = false, result = null, failed = false, loading = webView.loading))
+        scheduleTimeout(delay) {
+            settle(paneHealth(answered = false, result = null, failed = false, loading = isLoading(webView)))
         }
     }
 }

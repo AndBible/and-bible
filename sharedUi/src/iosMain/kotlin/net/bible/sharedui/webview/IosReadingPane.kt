@@ -28,6 +28,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.host.reading.HostReadingGestures
 import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.host.reading.HostSelectionMenu
+import net.bible.sharedui.ios.diagnostics.IosRuntimeDiagnostics
 import net.bible.sharedui.ios.reading.IosSelectionMessageHandler
 import net.bible.sharedui.host.reading.SELECTION_HANDLER_NAME
 import net.bible.sharedui.host.reading.SELECTION_USER_SCRIPT
@@ -154,8 +155,11 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     /** Set by the pane composable that hosts this view now: refreshes its accessibility element (issue #3949). */
     var onWindowAttachForAccessibility: (() -> Unit)? = null
 
+    internal var onWindowOwnershipObserved: (() -> Unit)? = null
+
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+        try { onWindowOwnershipObserved?.invoke() } catch (_: Throwable) { }
         if (window != null) {
             try {
                 onAttached?.invoke()
@@ -169,6 +173,7 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
 
 /** One reading window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
 internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosNavDelegate) {
+    val diagnosticIdentity = PaneDiagnosticIdentity().newEntry()
     var handler: IosBridgeMessageHandler? = null
 
     /** The window's session once wired ([IosReadingWebViews.attachSession]); native events reach the page through it. */
@@ -191,6 +196,11 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
     var backgroundArgb: Int? = null
 }
 
+internal fun ReadingEntry.diagnosticCandidate() = PaneDiagnosticCandidate(
+    diagnosticIdentity.paneId, diagnosticIdentity.webViewId,
+    handlerCount > 0, webView.URL != null, webView.window != null,
+)
+
 /** The [UIColor] for an ARGB int (alpha in the top byte, as Android's `Color` ints and `TextDisplaySettings.Colors` hold it). */
 internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
     red = ((argb shr 16) and 0xFF) / 255.0,
@@ -209,9 +219,10 @@ internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
  * pane factory ([iosReadingPaneFactory]) wires the bridge handler once it can ask `sessionFor`.
  */
 @kotlin.native.HiddenFromObjC
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, kotlin.experimental.ExperimentalNativeApi::class)
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
+    internal var diagnosticSink: (net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent) -> Unit = { IosRuntimeDiagnostics.emit(it) }
 
     /**
      * Bumped when a window's web view is dropped ([release]); read by the pane factory, so a pane whose window was rebuilt
@@ -228,7 +239,19 @@ object IosReadingWebViews {
     private val liveness = IosPaneLiveness(
         panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null && it.webView.window != null }.mapValues { it.value.webView } },
         recover = { windowId -> HostReadingWindows.rebuild(windowId) },
+        diagnostic = { diagnosticSink(it) },
+        identities = { windowId, view -> entries[windowId]?.takeIf { it.webView === view }?.diagnosticIdentity?.let { it.paneId to it.webViewId } },
+        observeCandidates = { trigger ->
+            val candidates = entries.values.map {
+                it.diagnosticIdentity.observeOwnership(it.webView) { event -> diagnosticSink(event) }
+                it.diagnosticCandidate()
+            }
+            observePaneCandidates(candidates, trigger) { diagnosticSink(it) }
+            candidates.size
+        },
     )
+
+    internal fun checkLivenessForTest() = liveness.checkAll()
 
     /** The installed Bibles' languages as a JSON list, read when a window's WebView is created (set by the reading assembly). */
     internal var activeLanguages: () -> String = { "[\"en\"]" }
@@ -320,6 +343,7 @@ object IosReadingWebViews {
         entry.webView.navigationDelegate = null
         entry.webView.stopLoading()
         entry.webView.removeFromSuperview()
+        entry.webView.onWindowOwnershipObserved = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
         entry.webView.isEditing = { false }
@@ -330,6 +354,7 @@ object IosReadingWebViews {
         for (id in entries.keys.toList()) release(id)
         bundleLoader = { webView, lang, dark -> loadBibleBundle(webView, lang, dark) }
         activeLanguages = { "[\"en\"]" }
+        diagnosticSink = { IosRuntimeDiagnostics.emit(it) }
     }
 
     private fun checkMain() = check(NSThread.isMainThread) { "IosReadingWebViews is main-thread only" }
@@ -360,6 +385,14 @@ object IosReadingWebViews {
             )
             webView.configuration.userContentController.addScriptMessageHandler(sharedReadingEscapeHandler, READING_ESCAPE_HANDLER_NAME)
             ReadingEntry(webView, navDelegate).also {
+                val identity = it.diagnosticIdentity
+                // Do not capture the entry/view strongly in a callback retained by the view itself.
+                val weakView = kotlin.native.ref.WeakReference(webView)
+                webView.onWindowOwnershipObserved = {
+                    weakView.get()?.let { view -> identity.observeOwnership(view) { event -> diagnosticSink(event) } }
+                }
+                identity.observeOwnership(webView) { event -> diagnosticSink(event) }
+                navDelegate.onTerminationObserved = { identity.terminated { event -> diagnosticSink(event) } }
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.
                 applyBackground(it, HostReadingWindows.pageBackgroundArgb(windowId))
@@ -389,7 +422,8 @@ object IosReadingWebViews {
             { callId -> session.emit(BibleViewEvents.response(callId, null)) },
             log,
         )
-        val handler = IosBridgeMessageHandler(dispatcher)
+        val identity = entry.diagnosticIdentity
+        val handler = IosBridgeMessageHandler(dispatcher) { identity.clientReady { event -> diagnosticSink(event) } }
         entry.webView.onAttached = { session.jsChannel.flush() }
         entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).

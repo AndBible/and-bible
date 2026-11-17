@@ -21,12 +21,15 @@ final class ReadingUITests: RealAppUITestCase {
         var app = launch(arguments)
         let noticeClose = app.buttons["Close"]
         if noticeClose.waitForExistence(timeout: 5) { noticeClose.tap() }
-        let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
-        let arrived = waitUntil(timeout: 60) {
-            // The first stable launch can cover the reading host with the release notice.
+        func dismissReleaseNotice(_ app: XCUIApplication) {
             if app.staticTexts["Your Bible, now on every device"].exists && app.buttons["Close"].exists {
                 app.buttons["Close"].tap()
             }
+        }
+        let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
+        let arrived = waitUntil(timeout: 60) {
+            // The first stable launch can cover the reading host with the release notice.
+            dismissReleaseNotice(app)
             return welcome.exists || host.exists
         }
         XCTAssertTrue(arrived, "neither Welcome nor reading shown")
@@ -37,7 +40,11 @@ final class ReadingUITests: RealAppUITestCase {
             ensureKJVInstalled()
             app = launch(arguments)
         }
-        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown")
+        let hostShown = waitUntil(timeout: 60) {
+            dismissReleaseNotice(app)
+            return element(app, "reading-host").exists
+        }
+        XCTAssertTrue(hostShown, "reading host not shown")
         let fixtureShown = kjvJohn3Shown(app, timeout: 60)
         if !fixtureShown { attachTree(app, "reading-fixture-not-kjv-john3") }
         XCTAssertTrue(fixtureShown, "KJV John 3 must be active before using KJV rail tabs or Strong's links")
@@ -1236,24 +1243,23 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertNotNil(overlayLabel.range(of: "^KJV:Joh 3:[0-9]+$", options: .regularExpression),
                         "the overlay text '\(overlayLabel)' is not of the form 'KJV:Joh 3:<verse>'")
 
-        // Full-screen content stays below the top safe area: a tap shows the window buttons, and the pane's
-        // window-menu button starts at least 40 pt down on an iPhone (status bar / Dynamic Island inset 47-59 pt).
-        // iPad has no such inset in this layout, so only a sanity check there.
+        // iOS replaces the pane buttons with a persistent fullscreen exit control. Its top edge must
+        // remain below the iPhone status bar / Dynamic Island; iPad gets a nonnegative sanity check.
         paneMargin(app).tap()
-        let windowMenuButton = byLabel(app, "Window menu")
-        if windowMenuButton.waitForExistence(timeout: 3) {
-            let minY = windowMenuButton.frame.minY
+        let exitButton = byLabel(app, "Exit fullscreen")
+        if exitButton.waitForExistence(timeout: 3) {
+            let minY = exitButton.frame.minY
             shot(app, "fullscreen-safe-area")
             if isPad {
-                XCTAssertGreaterThanOrEqual(minY, 0, "the window menu button is above the screen: \(windowMenuButton.frame)")
+                XCTAssertGreaterThanOrEqual(minY, 0, "the fullscreen exit button is above the screen: \(exitButton.frame)")
             } else {
-                XCTAssertGreaterThanOrEqual(minY, 40, "the window menu button (frame \(windowMenuButton.frame)) is inside the top safe area in full screen")
+                XCTAssertGreaterThanOrEqual(minY, 40, "the fullscreen exit button (frame \(exitButton.frame)) is inside the top safe area")
                 // The web view's own frame starts at 0 by design; the content offset below the safe area is applied inside the
                 // page and is covered by `ReadingSessionSupportTest.topOffsetIsTheSafeAreaOnlyWhenReported`.
             }
         } else {
-            attachTree(app, "fullscreen-safe-area-no-window-menu"); shot(app, "fullscreen-safe-area")
-            XCTFail("no 'Window menu' button in full screen to check the safe area with")
+            attachTree(app, "fullscreen-safe-area-no-exit-button"); shot(app, "fullscreen-safe-area")
+            XCTFail("no 'Exit fullscreen' button to check the safe area with")
         }
         XCTAssertFalse(toolbarShown(app), "a single tap left full screen")
 

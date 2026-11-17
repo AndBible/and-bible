@@ -306,8 +306,24 @@ fun MainViewController(): UIViewController {
             IosPocApp(scenario, documentJson, darkTheme = dark)
         }
     }
-    // The iOS app on a Mac: no phantom keyboard inset, no window-controls band in the top insets.
-    return ComposeUIViewController { ProvideIosAppOnMacInsets(app) }
+    // Observe above every startup gate, without loading the controller's view to inspect it.
+    val hostId = platform.Foundation.NSUUID().UUIDString
+    var controller: kotlin.native.ref.WeakReference<UIViewController>? = null
+    val result = ComposeUIViewController {
+        val owner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        DisposableEffect(owner) {
+            controller?.get()?.let { net.bible.sharedui.ios.diagnostics.iosLifecycleDiagnostics.attachHost(hostId, it) }
+            val stopObserving = net.bible.sharedui.ios.diagnostics.iosLifecycleDiagnostics.observeLifecycle(hostId, owner)
+            onDispose {
+                stopObserving()
+                net.bible.sharedui.ios.diagnostics.iosLifecycleDiagnostics.detachHost(hostId)
+            }
+        }
+        ProvideIosAppOnMacInsets(app)
+    }
+    controller = kotlin.native.ref.WeakReference(result)
+    net.bible.sharedui.ios.diagnostics.iosLifecycleDiagnostics.attachHost(hostId, result)
+    return result
 }
 
 @Composable

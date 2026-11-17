@@ -2,6 +2,9 @@
 
 package net.bible.sharedui.ios.report
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.sharedui.ios.diagnostics.IosRuntimeDiagnostics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.log.iosRecentLogSnapshot
@@ -47,6 +50,7 @@ internal class IosBugReport(
     private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
     private val crashDiagnostic: () -> Attachment? = ::recentCrashDiagnostic,
     private val logSnapshot: () -> String = ::iosRecentLogSnapshot,
+    private val diagnosticSnapshot: suspend () -> String = IosRuntimeDiagnostics::snapshot,
     private val reportDevice: () -> ReportDevice = ::device,
 ) {
     /** [extraAttachments] are sent after the app log, e.g. the legacy migration report. */
@@ -57,8 +61,17 @@ internal class IosBugReport(
             val details = details(cause, device)
             val log = diagnosticLog(device, logSnapshot())
             val crash = crashDiagnostic()
+            val runtime = try {
+                withTimeoutOrNull(1000) { diagnosticSnapshot() }?.takeIf { it.isNotEmpty() }?.let {
+                    Attachment("ios_runtime_diagnostics.txt.gz", "application/gzip", RawLlmLog.gzipCompress(it))
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
             (table.text("report_bug_line_1") + "\n\n" + details) to reportAttachments(
-                RawLlmLog.gzipCompress(log), extraAttachments + listOfNotNull(crash))
+                RawLlmLog.gzipCompress(log), extraAttachments + listOfNotNull(crash, runtime))
         }
         send(RECIPIENT, "Bug Report v${device.version}", body, attachments)
     }

@@ -36,8 +36,19 @@ extension RealAppUITestCase {
         target.tap()
     }
 
+    /// Release notices are not the subject of module provisioning and can cover every relaunch.
+    func dismissProvisioningReleaseNotice(_ app: XCUIApplication) {
+        let notice = app.staticTexts.matching(NSPredicate(format:
+            "label CONTAINS %@ OR label == %@", "See what's new in 6.0", "Your Bible, now on every device")).firstMatch
+        if notice.exists {
+            let close = app.buttons["Close"].firstMatch
+            if close.exists && close.isHittable { close.tap() }
+        }
+    }
+
     /// The single real chooser toolbar title "Document" above the filter buttons (empty when the chooser is not current).
     func harnessChooserTitles(_ app: XCUIApplication) -> [XCUIElement] {
+        dismissProvisioningReleaseNotice(app)
         let language = app.buttons["Language, All"].firstMatch
         let type = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Document type,'")).firstMatch
         guard language.exists && type.exists else { return [] }
@@ -64,6 +75,7 @@ extension RealAppUITestCase {
         let errorOk = app.alerts.buttons["OK"].firstMatch
         let missingData = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Missing data files'")).firstMatch
         harnessRequire(waitUntil(timeout: 90) {
+            self.dismissProvisioningReleaseNotice(app)
             if missingData.exists {
                 self.attachTree(app, "purge-missing-data-files-dialog")
                 let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).allElementsBoundByIndex

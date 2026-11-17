@@ -20,7 +20,7 @@ saved automatically.
         ‘Unlabeled’, or with the workspace’s
         [auto-assign labels](labels.md#change-label-settings) if there are any.
 
-> [![Verse action dialog note button](images/verse-action-dialog-note-button.png){ .align-left width="340" height="110" }](images/verse-action-dialog-note-button.png)
+> [![Verse action dialog note button](/media/docs/images/verse-action-dialog-note-button.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/verse-action-dialog-note-button.png)
 
 ### [Add a note to an existing bookmark:](videos/note_add_to_existing_bookmark.md)
 
@@ -35,7 +35,7 @@ saved automatically.
 3. Click the pencil icon on the bookmark card in the verse action dialog to add a
     note to the bookmark.
 
-> [![Bookmark dialog note button](images/bookmark-dialog-note-button.png){ .align-left width="291" height="218" }](images/bookmark-dialog-note-button.png)
+> [![Bookmark dialog note button](/media/docs/images/bookmark-dialog-note-button.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/bookmark-dialog-note-button.png)
 
 ### Add a note to a study pad:
 
@@ -50,7 +50,7 @@ This note will *not* be linked to a specific document or verse.
 The note can be re-located in the study pad by dragging it by its drag handle
 to the position where you would like to locate it.
 
-> [![Study pad notes](images/study-pad-notes.png){ .align-left width="488" height="211" }](images/study-pad-notes.png)
+> [![Study pad notes](/media/docs/images/study-pad-notes.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/study-pad-notes.png)
 
 ## Viewing notes
 
@@ -59,12 +59,12 @@ to the position where you would like to locate it.
 Once a note has been added to a bookmark, a note icon will be displayed at the
 end of the bookmark in the document text. To view the note, click the note icon.
 
-> [![Verse note icon](images/verse-note-icon.png){ .align-left width="432" height="104" }](images/verse-note-icon.png)
+> [![Verse note icon](/media/docs/images/verse-note-icon.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/verse-note-icon.png)
 
 Alternatively, click the bookmark and then click the note icon in the bookmark that
 is displayed in the verse action dialog.
 
-> [![Verse action dialog bookmark note icon](images/verse-action-dialog-bookmark-note-icon.png){ .align-left width="407" height="265" }](images/verse-action-dialog-bookmark-note-icon.png)
+> [![Verse action dialog bookmark note icon](/media/docs/images/verse-action-dialog-bookmark-note-icon.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/verse-action-dialog-bookmark-note-icon.png)
 
 ### Viewing notes as a commentary:
 
@@ -72,7 +72,7 @@ To view all notes for the active Bible chapter, open the *My Notes* “document�
 You can reach it from the *My Notes* button of the verse action dialog or from
 the *Commentary* sheet:
 
-> [![Open my notes](images/open-my-notes.png){ .align-left width="411" height="211" }](images/open-my-notes.png)
+> [![Open my notes](/media/docs/images/open-my-notes.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/open-my-notes.png)
 
 ### Viewing all notes:
 
@@ -121,7 +121,7 @@ To add a Bible reference link:
 > - Alternatively, you can click the Bible icon and click the “pointing hand” icon
 >     to use the verse picker to choose the verse you want to link to.
 >
-> [![Note editing](images/note-editing.png){ .align-left width="443" height="221" }](images/note-editing.png)
+> [![Note editing](/media/docs/images/note-editing.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/note-editing.png)
 
 The **RefParser** add-on enables reference recognition in additional languages,
 including on iOS. Install it from the document downloader to use the languages

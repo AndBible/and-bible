@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -57,6 +58,7 @@ import platform.Foundation.NSRunLoop
 import platform.Foundation.NSURL
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.Foundation.runUntilDate
+import platform.Foundation.timeIntervalSinceDate
 import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
@@ -470,6 +472,76 @@ class IosReadingWindowsTest {
             window.windowState = before
         }
         assertFalse(HostReadingWindows.rebuild(IdType().toString()), "a window without an assembly is ignored")
+    }
+
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    @Test
+    fun productionLivenessReportsRealWebViewEligibilityAndCorrelatesCallbacks() = withWindows { id ->
+        val events = mutableListOf<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent>()
+        IosReadingWebViews.diagnosticSink = { events += it }
+        attach(id)
+        val eligible = IosReadingWebViews.entry(id)
+        val noHandler = IosReadingWebViews.entry("diagnostic-no-handler")
+        val noUrl = IosReadingWebViews.entry("diagnostic-no-url")
+        val noWindow = IosReadingWebViews.entry("diagnostic-no-window")
+        noUrl.handlerCount = 1
+        noWindow.handlerCount = 1
+        val window = platform.UIKit.UIWindow(frame = platform.CoreGraphics.CGRectMake(0.0, 0.0, 320.0, 480.0))
+        try {
+            window.addSubview(eligible.webView)
+            val base = NSURL.URLWithString("https://example.invalid/")!!
+            eligible.webView.loadHTMLString("<html></html>", baseURL = base)
+            noWindow.webView.loadHTMLString("<html></html>", baseURL = base)
+            val deadline = NSDate.dateWithTimeIntervalSinceNow(5.0)
+            while ((eligible.webView.URL == null || noWindow.webView.URL == null) && deadline.timeIntervalSinceDate(NSDate()) > 0) {
+                NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
+            }
+            assertTrue(eligible.webView.URL != null && eligible.webView.window != null)
+            assertTrue(noWindow.webView.URL != null && noWindow.webView.window == null)
+            eligible.handler!!.dispatchText("""{"method":"setClientReady","args":[]}""")
+            IosReadingWebViews.checkLivenessForTest()
+            val count = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.PaneCandidates>().last()
+            assertEquals(4, count.candidateCount)
+            assertEquals(1, count.eligibleCount)
+            val skips = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.PaneSkipped>().associate { it.paneId to it.reason }
+            assertEquals(net.bible.sharedui.host.diagnostics.DiagnosticReason.NO_HANDLER, skips[noHandler.diagnosticIdentity.paneId])
+            assertEquals(net.bible.sharedui.host.diagnostics.DiagnosticReason.NO_URL, skips[noUrl.diagnosticIdentity.paneId])
+            assertEquals(net.bible.sharedui.host.diagnostics.DiagnosticReason.NO_WINDOW, skips[noWindow.diagnosticIdentity.paneId])
+            val context = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ProbeContext>().single()
+            assertEquals(4, context.candidateCount)
+            assertEquals(1, context.eligibleCount)
+            assertEquals(eligible.diagnosticIdentity.paneId, context.paneId)
+            assertEquals(eligible.diagnosticIdentity.webViewId, context.webViewId)
+            val owner = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.PaneOwnershipObserved>()
+                .last { it.paneId == context.paneId && it.webViewId == context.webViewId }
+            assertTrue(owner.attached)
+            assertEquals(net.bible.sharedui.ios.diagnostics.NativeDiagnosticIdentities.identity(window), owner.windowId)
+            assertEquals(net.bible.sharedui.ios.diagnostics.NativeDiagnosticIdentities.identity(window.windowScene), owner.sceneId)
+            assertTrue(events.indexOf(owner) < events.indexOf(context))
+            eligible.navDelegate.webViewWebContentProcessDidTerminate(eligible.webView)
+            assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ClientReady(context.paneId)))
+            assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ContentTerminated(context.webViewId)))
+        } finally {
+            noUrl.handlerCount = 0
+            noWindow.handlerCount = 0
+            eligible.webView.removeFromSuperview()
+            IosReadingWebViews.release("diagnostic-no-handler")
+            IosReadingWebViews.release("diagnostic-no-url")
+            IosReadingWebViews.release("diagnostic-no-window")
+        }
+    }
+
+    @Test
+    fun productionCallbacksEmitCorrelatedReadyAndTermination() = withWindows { id ->
+        val events = mutableListOf<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent>()
+        IosReadingWebViews.diagnosticSink = { events += it }
+        attach(id)
+        val entry = IosReadingWebViews.entry(id)
+        val identity = entry.diagnosticIdentity
+        entry.handler!!.dispatchText("""{"method":"setClientReady","args":[]}""")
+        entry.navDelegate.webViewWebContentProcessDidTerminate(entry.webView)
+        assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ClientReady(identity.paneId)))
+        assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ContentTerminated(identity.webViewId)))
     }
 
     /**

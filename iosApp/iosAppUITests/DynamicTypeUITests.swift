@@ -17,7 +17,11 @@ final class DynamicTypeUITests: RealAppUITestCase {
             "-debugFontScaleProbe"
         ])
         let probe = element(app, "ab-font-scale")
-        XCTAssertTrue(probe.waitForExistence(timeout: 60), "debug font-scale probe must appear")
+        let probeShown = waitUntil(timeout: 60) {
+            dismissProvisioningReleaseNotice(app)
+            return probe.exists
+        }
+        XCTAssertTrue(probeShown, "debug font-scale probe must appear")
         attachTree(app, "font-scale-XXXL")
         let raw = probe.value as? String ?? ""
         let result = XCTAttachment(string: "category=UICTContentSizeCategoryXXXL fontScale=\(raw) label=\(probe.label)")

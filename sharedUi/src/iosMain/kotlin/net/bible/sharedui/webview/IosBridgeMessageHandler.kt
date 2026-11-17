@@ -3,6 +3,8 @@ package net.bible.sharedui.webview
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.bibleview.BridgeDispatcher
+import net.bible.sharedcore.bibleview.BridgeResult
+import net.bible.sharedcore.bibleview.parseBridgeMessage
 import net.bible.sharedcore.log.nsLog
 import platform.Foundation.NSJSONSerialization
 import platform.Foundation.NSString
@@ -19,7 +21,9 @@ import platform.darwin.NSObject
  * with `removeScriptMessageHandlerForName("bridge")` on dispose (rule 3). Never throws (rule 5).
  */
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher) : NSObject(), WKScriptMessageHandlerProtocol {
+class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher, private val onClientReady: () -> Unit = {}) : NSObject(), WKScriptMessageHandlerProtocol {
+    internal fun dispatchText(text: String) = dispatchIosBridgeMessage(dispatcher, text, onClientReady)
+
     override fun userContentController(userContentController: WKUserContentController, didReceiveScriptMessage: WKScriptMessage) {
         try {
             // dataWithJSONObject raises an ObjC exception (fatal in K/N) on invalid input, so guard first.
@@ -29,10 +33,22 @@ class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher) : NSObje
             }
             val data = NSJSONSerialization.dataWithJSONObject(didReceiveScriptMessage.body, 0u, null) ?: return
             val text = NSString.create(data = data, encoding = NSUTF8StringEncoding)?.toString() ?: return
-            dispatcher.dispatch(text)
+            dispatchText(text)
         } catch (t: Throwable) {
             nsLog("bridge: handler failure $t")
         }
+    }
+}
+
+internal fun dispatchIosBridgeMessage(dispatcher: BridgeDispatcher, text: String, onClientReady: () -> Unit) {
+    val message = parseBridgeMessage(text).getOrNull()
+    if (message == null) {
+        dispatcher.dispatch(text)
+        return
+    }
+    val result = dispatcher.dispatch(message)
+    if (message.method == "setClientReady" && result == BridgeResult.Handled) {
+        try { onClientReady() } catch (_: Throwable) { }
     }
 }
 
