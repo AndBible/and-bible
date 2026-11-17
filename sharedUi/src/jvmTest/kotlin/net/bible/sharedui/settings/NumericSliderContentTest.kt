@@ -114,6 +114,44 @@ class NumericSliderContentTest {
     @Test
     fun lineSpacingSampleFollowsSliderWithoutChangingFontSize() = assertLiveSample(TextSettingType.LINE_SPACING, 23)
 
+    @Test
+    fun largestSampleKeepsControlsVisibleOnSmallPhoneAcrossDisplayModes() {
+        for (dark in listOf(false, true)) {
+            for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.MONOCHROME)) {
+                runComposeUiTest {
+                    setContent {
+                        CompositionLocalProvider(LocalStrings provides strings) {
+                            AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
+                                Column(Modifier.size(320.dp, 360.dp)) {
+                                    NumericTextSettingContent(
+                                        type = TextSettingType.FONTSIZE,
+                                        numeric = net.bible.sharedcore.settings.TextSettingRowValue.Numeric(60, 1, 60, "60 pt"),
+                                        fontSize = 60, lineSpacing = 30,
+                                        font = SettingsItem.ChoiceFont.Family("monospace"),
+                                        onValueChange = {},
+                                    )
+                                    SheetResetConfirmRow(strings.resetGeneric, strings.okay, strings.cancel, {}, {}, {})
+                                }
+                            }
+                        }
+                    }
+                    onNodeWithText(strings.okay).assertIsDisplayed()
+                    onNodeWithText(strings.cancel).assertIsDisplayed()
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    onNodeWithText("For God so loved", substring = true)
+                        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    val style = layouts.single().layoutInput.style
+                    assertEquals(60.sp, style.fontSize)
+                    assertEquals(FontFamily.Monospace, style.fontFamily)
+                    if (mode == DisplayColorMode.MONOCHROME) {
+                        assertEquals(style.color.red, style.color.green)
+                        assertEquals(style.color.green, style.color.blue)
+                    }
+                }
+            }
+        }
+    }
+
     private fun assertLiveSample(type: TextSettingType, next: Int) = runComposeUiTest {
         val bundle = SettingsBundle(level = SettingsLevel.WORKSPACE)
         val rows = TextDisplaySettingsServiceImpl(DetachedWorkspaceEdit(bundle))

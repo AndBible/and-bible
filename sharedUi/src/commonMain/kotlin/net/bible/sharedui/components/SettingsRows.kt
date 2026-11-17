@@ -328,7 +328,8 @@ internal fun SettingsRowBadgeChip(text: String, modifier: Modifier = Modifier) {
  *
  *  While dragging, the readout updates live from the local value using [valueLabelFor] if provided;
  *  callers without a formatter keep showing the static [valueLabel] (which refreshes once the
- *  persisted [value] comes back).
+ *  persisted [value] comes back). [onPreviewValueChange] optionally observes the uncommitted
+ *  value during a drag; use it for local previews only, never for persistence.
  *
  *  [iconKey] resolves a host drawable through [LocalSettingsIcon] exactly as `AbSwitchRow`/
  *  `AbSettingsRow` do, and [leadingIcon] remains for `ImageVector`s that cannot go through the seam. */
@@ -342,6 +343,7 @@ fun AbSliderRow(
     valueLabel: String,
     onValueChangeFinished: (() -> Unit)? = null,
     valueLabelFor: ((Int) -> String)? = null,
+    onPreviewValueChange: ((Int) -> Unit)? = null,
     iconKey: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
@@ -367,7 +369,7 @@ fun AbSliderRow(
         }
         Slider(
             value = dragValue,
-            onValueChange = { dragValue = it },
+            onValueChange = { dragValue = it; onPreviewValueChange?.invoke(it.roundToInt()) },
             valueRange = valueRange,
             onValueChangeFinished = {
                 onValueChange(dragValue.roundToInt())

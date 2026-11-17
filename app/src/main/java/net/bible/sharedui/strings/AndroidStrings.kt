@@ -208,6 +208,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val colorsDayModeTitle: String get() = context.getString(R.string.colors_day_mode_title)
     override val colorsNightModeTitle: String get() = context.getString(R.string.colors_night_mode_title)
     override val fontSizeTitle: String get() = context.getString(R.string.font_size_title)
+    override val fontPreviewVerseNumber: String get() = context.getString(R.string.font_preview_verse_number)
+    override val fontPreviewVerse: String get() = context.getString(R.string.font_preview_verse)
     override val globalTextOptionsLink: String get() = context.getString(R.string.global_text_options_link)
     override val globalTextOptionsLinkSummary: String get() = context.getString(R.string.global_text_options_link_summary)
     override val lineSpacingSummary: String get() = context.getString(R.string.line_spacing_summary)
