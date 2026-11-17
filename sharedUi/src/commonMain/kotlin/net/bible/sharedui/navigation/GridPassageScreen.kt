@@ -48,6 +48,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -181,6 +183,23 @@ fun GridChoosePassageContent(
         gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = ui.minRows)
     } else {
         gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
+    }
+    // A new grid (another step, or another book's chapters) opens at the top (#4117). The same
+    // LazyGridState survives the step change whenever the next step builds before the next frame,
+    // and always in the quick sheet, which hoists it. The lazy grid would then keep "the first
+    // visible item" by KEY, and the steps' keys collide: book cells are keyed by BibleBook.ordinal
+    // (Genesis = 2), chapter and verse cells by their number, so the chapter grid followed key 2 to
+    // chapter 2 -- the second row in portrait column order, hiding chapters 1, 11, 21, ...
+    // requestScrollToItem resets the position AND forgets the remembered key; issued from a
+    // SideEffect it lands before this frame's measure, so the wrong position is never drawn.
+    // Not reset on first composition, so a restored (saveable) position survives.
+    val gridIdentity = ui.step to ui.title
+    val shownIdentity = remember(state) { arrayOf<Any?>(gridIdentity) }
+    SideEffect {
+        if (shownIdentity[0] != gridIdentity) {
+            shownIdentity[0] = gridIdentity
+            state.requestScrollToItem(0)
+        }
     }
     BoxWithConstraints(modifier = modifier) {
         // Fill the viewport height like the classic grid: divide the available height by the
