@@ -15,8 +15,9 @@ screenshots. First publication still takes place in Partner Center. Import and
 acceptance have not been verified.
 
 Before import, validate the CSV with a standard-library CSV reader: check the
-header and row widths, exported Field/ID/Type values and order, unique nonempty
-IDs, empty default cells, text limits, and intentionally empty release notes,
+header and row widths, exported Field/ID/Type values and order, uniqueness of
+populated IDs, preservation of blank source rows, empty default cells, text limits,
+and intentionally empty release notes,
 asset paths and hardware fields. Check the description survives CSV roundtrip
 with its paragraphs intact.
 
