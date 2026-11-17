@@ -70,6 +70,23 @@ class DefaultThemeProposalTest {
     }
 
     @Test
+    fun defaultSelectionAndNightAccentsUseHoneyWithoutChangingBrandGold() = withProposal(DefaultThemeProposal.INK) {
+        val light = abColorScheme(null, false, DisplayColorMode.NORMAL)
+        val dark = abColorScheme(null, true, DisplayColorMode.NORMAL)
+        assertEquals(Color(0xFFFFE0A3), light.secondaryContainer)
+        assertEquals(Color(0xFFE9BC6A), dark.secondary)
+        assertEquals(Color(0xFFE9BC6A), dark.tertiary)
+        assertEquals(Color(0xFF2A2620), light.onSecondaryContainer)
+        assertEquals(Color(0xFF2A2620), dark.onSecondary)
+        assertEquals(Color(0xFF2A2620), dark.onTertiary)
+        assertEquals(Color(0xFF4A3812), dark.secondaryContainer)
+        assertEquals(Color(0xFFFEBA2A), light.inversePrimary)
+        assertEquals(Color(0xFFFEBA2A), DefaultThemeProposal.AMBER.scheme(true)!!.primary)
+        assertEquals(Color(0xFFFEBA2A), DefaultThemeProposal.INK_COOL.scheme(false)!!.secondaryContainer)
+        assertEquals(Color(0xFFFEBA2A), DefaultThemeProposal.INK_COOL.scheme(true)!!.secondary)
+    }
+
+    @Test
     fun resolveHonoursTheDebugOverrideOnlyInDebuggableNonVideoBuilds() {
         val r = DefaultThemeProposal.Companion::resolve
         // No switches: the default.
@@ -120,7 +137,9 @@ class DefaultThemeProposalTest {
             val pairs = mapOf(
                 "onPrimary/primary" to (s.onPrimary to s.primary),
                 "onPrimaryContainer/primaryContainer" to (s.onPrimaryContainer to s.primaryContainer),
+                "onSecondary/secondary" to (s.onSecondary to s.secondary),
                 "onSecondaryContainer/secondaryContainer" to (s.onSecondaryContainer to s.secondaryContainer),
+                "onTertiary/tertiary" to (s.onTertiary to s.tertiary),
                 "onSurface/surface" to (s.onSurface to s.surface),
                 "primary/surface" to (s.primary to s.surface),
                 "onSurfaceVariant/surfaceVariant" to (s.onSurfaceVariant to s.surfaceVariant),
