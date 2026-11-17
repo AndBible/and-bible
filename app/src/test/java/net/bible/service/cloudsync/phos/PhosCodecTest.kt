@@ -195,4 +195,27 @@ class PhosCodecTest {
         assertEquals(listOf(true, false), PhosReadingPlanCodec.parseStatus(
             """{"chapterReadArray":[{"readingNumber":1,"isRead":true},{"readingNumber":2}]}"""))
     }
+
+    @Test
+    fun importingDoneDaysBeforeCurrentKeepsTheirExplicitStatus() {
+        // doneDays=[1] alone advances "current" to 2, but day 1's own status must not be discarded: a
+        // date-based plan does not treat days before "current" as implicitly read
+        val json = buildJsonObject {
+            put("startDate", "2026-01-05")
+            put("doneDays", JsonArray(listOf(JsonPrimitive(1))))
+        }
+        val p = PhosReadingPlanCodec.fromJson("plan", json, null) { 1 }
+        assertEquals(2, p.currentDay)
+        assertEquals(listOf(true), p.status[1])
+    }
+
+    @Test
+    fun partialReadingIsPaddedBeforeBeingTreatedAsFullyRead() {
+        // only reading 1 of a 4-reading day was touched: padTouched must not let it look fully read
+        val padded = PhosReadingPlanCodec.padTouched(listOf(true), 4)
+        assertEquals(listOf(true, false, false, false), padded)
+        assertFalse(padded.all { it })
+        // a day whose touched readings already cover (or exceed) the real count is left alone
+        assertEquals(listOf(true, true), PhosReadingPlanCodec.padTouched(listOf(true, true), 2))
+    }
 }

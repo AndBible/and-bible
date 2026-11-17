@@ -75,6 +75,11 @@ object PhosReadingPlanCodec {
         return (1..max).map { read[it] == true }
     }
 
+    /** [parsed] only carries readings the user has touched; pad with false up to the day's real reading
+     *  count so an untouched reading doesn't make the day look fully read. */
+    fun padTouched(parsed: List<Boolean>, readingCount: Int): List<Boolean> =
+        if (parsed.size < readingCount) parsed + List(readingCount - parsed.size) { false } else parsed
+
     fun statusString(flags: List<Boolean>): String = Json.encodeToString(JsonObject.serializer(), buildJsonObject {
         put("chapterReadArray", buildJsonArray {
             flags.forEachIndexed { i, r -> add(buildJsonObject { put("readingNumber", i + 1); put("isRead", r) }) }
@@ -107,8 +112,10 @@ object PhosReadingPlanCodec {
         var current = 1
         while (current in done) current++
         val status = HashMap<Int, List<Boolean>>()
-        for ((d, flags) in checks) if (d >= current) status[d] = flags
-        for (d in done) if (d >= current) {
+        // keep every explicit status, not just the ones at or after the first incomplete day: a date-based
+        // plan does not treat days before "current" as implicitly read the way a day-number plan does
+        for ((d, flags) in checks) status[d] = flags
+        for (d in done) {
             val n = maxOf(readings(d), status[d]?.size ?: 0, 1)
             status[d] = List(n) { true }
         }
@@ -130,7 +137,9 @@ class PhosReadingPlanAdapter(
         return plans.map { (code, start, current) ->
             val status = HashMap<Int, List<Boolean>>()
             d.rows("SELECT planDay, readingStatus FROM ReadingPlanStatus WHERE planCode=?", arrayOf<Any?>(code)) { c ->
-                status[c.getInt(0)] = PhosReadingPlanCodec.parseStatus(c.getString(1))
+                val day = c.getInt(0)
+                val parsed = PhosReadingPlanCodec.parseStatus(c.getString(1))
+                status[day] = PhosReadingPlanCodec.padTouched(parsed, readings(code, day))
             }
             AbPlanProgress(code, start, current, status)
         }

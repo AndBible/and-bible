@@ -202,6 +202,7 @@ object PhosBookmarkCodec {
         put("color", colorToHex(l.color))
         put("favorite", l.favourite)
         put("ab", buildJsonObject {
+            put("abId", l.idHex)
             put("markerStyle", l.markerStyle)
             put("markerStyleWholeVerse", l.markerStyleWholeVerse)
             put("underlineStyle", l.underlineStyle)

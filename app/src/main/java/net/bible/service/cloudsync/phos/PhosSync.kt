@@ -121,7 +121,7 @@ object PhosSync {
      * One run: push local changes, pull the server's. With [force] false it only runs when
      * something changed locally or [intervalMs] has passed (to see what other devices did).
      */
-    suspend fun synchronize(force: Boolean = false, intervalMs: Long = 5 * 60 * 1000L): PhosRunResult? {
+    suspend fun synchronize(force: Boolean = false, confirmDeletes: Boolean = false, intervalMs: Long = 5 * 60 * 1000L): PhosRunResult? {
         if (!enabled) return null
         return withContext(Dispatchers.IO) {
             mutex.withLock {
@@ -130,7 +130,7 @@ object PhosSync {
                     return@withLock null
                 }
                 try {
-                    runOnce()
+                    runOnce(confirmDeletes)
                 } catch (e: Exception) {
                     Log.w(TAG, "Phos sync failed", e)
                     PhosSyncSettings.lastResult = BibleApplication.application.getString(R.string.phos_sync_failed,
@@ -141,7 +141,7 @@ object PhosSync {
         }
     }
 
-    private fun runOnce(): PhosRunResult {
+    private fun runOnce(confirmDeletes: Boolean = false): PhosRunResult {
         if (!looksLikeAppPassword(PhosSyncSettings.password)) {
             PhosSyncSettings.password = PhosHttpClient.appPassword(PhosSyncSettings.server, PhosSyncSettings.user,
                 PhosSyncSettings.password, userAgent)
@@ -162,7 +162,7 @@ object PhosSync {
         val started = System.currentTimeMillis()
         val engine = PhosSyncEngine(http, FileStateStore(stateFile), adapters, deviceName = Build.MODEL ?: "Android",
             appVersion = CommonUtils.applicationVersionName, platform = "andbible", log = { Log.i(TAG, it) })
-        val result = engine.run()
+        val result = engine.run(confirmDeletes)
         PhosSyncSettings.lastRun = System.currentTimeMillis()
         val app = BibleApplication.application
         PhosSyncSettings.lastResult = buildList {
@@ -205,10 +205,12 @@ object PhosSync {
     }
 
     /** Forget the server state (other server or account). Local data stays. */
-    fun reset() {
-        stateFile.delete()
-        PhosSyncSettings.lastRun = 0L
-        PhosSyncSettings.lastResult = ""
+    suspend fun reset() = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            stateFile.delete()
+            PhosSyncSettings.lastRun = 0L
+            PhosSyncSettings.lastResult = ""
+        }
     }
 }
 
@@ -229,10 +231,10 @@ private open class PlainTransactionalAdapter(private val inner: PhosAdapter, pri
         inner.beginApply()
     }
 
-    override fun endApply() {
+    override fun endApply(success: Boolean) {
         try {
-            inner.endApply()
-            if (inTx) db().setTransactionSuccessful()
+            inner.endApply(success)
+            if (inTx && success) db().setTransactionSuccessful()
         } finally {
             if (inTx) db().endTransaction()
             inTx = false

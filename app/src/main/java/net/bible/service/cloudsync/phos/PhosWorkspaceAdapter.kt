@@ -212,6 +212,12 @@ class PhosWorkspaceAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAd
             if (w == null) insertWindow(d, id, i, p, current) else if (w.panel != p) updateWindow(d, w, p)
         }
         for (w in current.drop(panels.size)) d.execSQL("DELETE FROM Window WHERE id=?", arrayOf<Any?>(blob(w.idHex)))
+        if (panels.size > current.size) {
+            // a brand-new Window's id was never seen before, so the sync event handler's "is this an
+            // existing window?" check can't recognize it; a Workspace-table UPSERT log entry is what makes
+            // onEventMainThread(WorkspacesUpdatedViaSyncEvent) reload the active workspace in that case
+            d.execSQL("UPDATE Workspace SET name=? WHERE id=?", arrayOf<Any?>(newName, blob(id)))
+        }
         return true
     }
 

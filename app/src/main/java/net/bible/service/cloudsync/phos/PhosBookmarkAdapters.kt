@@ -53,6 +53,17 @@ internal fun SupportSQLiteDatabase.rows(sql: String, args: Array<Any?> = emptyAr
 
 internal fun blob(hex: String): ByteArray = ByteArray(16) { i -> hex.substring(i * 2, i * 2 + 2).toInt(16).toByte() }
 
+/** Re-keys a label row (and everything that points at it) onto a different id. */
+internal fun relabelId(d: SupportSQLiteDatabase, oldId: String, newId: String) {
+    for (table in listOf("BibleBookmarkToLabel", "GenericBookmarkToLabel", "StudyPadTextEntry")) {
+        d.execSQL("UPDATE $table SET labelId=? WHERE labelId=?", arrayOf<Any?>(blob(newId), blob(oldId)))
+    }
+    for (table in listOf("BibleBookmark", "GenericBookmark")) {
+        d.execSQL("UPDATE $table SET primaryLabelId=? WHERE primaryLabelId=?", arrayOf<Any?>(blob(newId), blob(oldId)))
+    }
+    d.execSQL("DELETE FROM Label WHERE id=?", arrayOf<Any?>(blob(oldId)))
+}
+
 /** Labels of the bookmark database, by id and by name. */
 internal class LabelIndex(db: SupportSQLiteDatabase) {
     val byId = HashMap<String, AbLabel>()
@@ -115,12 +126,31 @@ class PhosLabelAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAdapte
         if (name.isEmpty() || name in SPECIAL_LABELS) return false
         val d = db()
         val idx = LabelIndex(d)
-        val existing = idx.byName[name]
+        var existing = idx.byName[name]
         if (deleted) {
             if (existing != null) d.execSQL("DELETE FROM Label WHERE id=?", arrayOf<Any?>(blob(existing.idHex)))
             return true
         }
-        val l = PhosBookmarkCodec.labelFromJson(name, payload ?: return false, existing, DEFAULT_LABEL_COLOR)
+        val p = payload ?: return false
+        // the sender's own AndBible Label.id, if it sent one: lets two AndBible devices converge on the
+        // originating id instead of each deriving their own from the name, which would otherwise race with
+        // the classic file-based sync (which does carry the true id) and create a duplicate label
+        val abId = ((p["ab"] as? JsonObject)?.str("abId"))?.takeIf { PhosIds.isUuidHex(it) }
+        if (abId != null && idx.byId[abId] == null) {
+            if (existing != null && existing.idHex != abId) {
+                relabelId(d, existing.idHex, abId)
+                existing = existing.copy(idHex = abId)
+            } else if (existing == null) {
+                existing = AbLabel(abId, name, DEFAULT_LABEL_COLOR)
+            }
+        }
+        var l = PhosBookmarkCodec.labelFromJson(name, p, existing, DEFAULT_LABEL_COLOR)
+        if (existing == null) {
+            // no originating id to go by: derive one, guarding against a collision with an unrelated label's
+            // id the same way ensureLabel() does for new local labels (e.g. that id was freed by a rename)
+            val taken = idx.byId[l.idHex]
+            if (taken != null && taken.name != name) l = l.copy(idHex = PhosIds.derivedUuidHex("phos-label-" + System.nanoTime(), name))
+        }
         if (l != existing) writeLabel(d, l)
         return true
     }

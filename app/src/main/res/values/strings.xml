@@ -2003,5 +2003,6 @@
     <string name="phos_sync_result">%1$d sent, %2$d received</string>
     <string name="phos_sync_result_conflicts">%1$d conflicts</string>
     <string name="phos_sync_result_held">%1$d deletions held back</string>
+    <string name="phos_sync_confirm_deletes">Some deletions were held back because they looked unusually large. Synchronize again to confirm and send them?</string>
     <string name="phos_sync_failed">Failed: %1$s</string>
 </resources>

@@ -85,7 +85,9 @@ interface PhosAdapter {
     fun overlay(server: JsonObject?, mine: JsonObject): JsonObject? = null
 
     fun beginApply() {}
-    fun endApply() {}
+
+    /** [success] false means this record's own write threw partway through and must not be committed. */
+    fun endApply(success: Boolean = true) {}
 }
 
 /** Hybrid logical clock `<ms:13>-<counter:4 hex>-<device:16 hex>`. */
@@ -299,7 +301,7 @@ class PhosSyncEngine(
         save()
         val pushStats = push(problems)
         save()
-        val pulled = pull()
+        val pulled = pull(problems)
         save()
         val conflicts = try {
             (http.get("/conflicts")["conflicts"] as? JsonArray)?.size ?: 0
@@ -323,8 +325,13 @@ class PhosSyncEngine(
                 // a key mapped by a PhosKeyMapper goes back under the server's own key
                 val serverKey = if (a is PhosKeyMapper) sh?.k?.takeIf { it.isNotEmpty() } ?: item.key else item.key
                 val (coll, rkey, rpayload) = outgoing(a.type, serverKey, item.payload)
-                if (sh != null && sh.h == h && sh.c == coll) continue
                 val q = outbox.indexOfFirst { it.sk == key }
+                // clean against the shadow and nothing queued: truly nothing to do. If something is still
+                // queued (an edit the user has since reverted, or a delete-then-recreate of the same content),
+                // fall through and resend the current state instead of leaving the stale mutation queued or
+                // silently dropping it: that also covers the case where the queued request's response was lost
+                // after the server actually applied it, since this resend supersedes that stale server state.
+                if (sh != null && sh.h == h && sh.c == coll && q < 0) continue
                 if (q >= 0 && outbox[q].h == h && outbox[q].change.str("collection") == coll) continue
                 val payload = a.overlay(sh?.p, rpayload) ?: overlay(sh?.p, rpayload, a.ownedFields)
                 val change = buildJsonObject {
@@ -381,8 +388,12 @@ class PhosSyncEngine(
 
     private fun push(problems: MutableList<String>): Int {
         var sent = 0
-        while (outbox.isNotEmpty()) {
-            val batch = outbox.take(500)
+        while (true) {
+            // entries for a type that got disabled since they were queued stay in the outbox, unsent,
+            // until that type is enabled again
+            val sendable = outbox.filter { it.change.str("type") in byType.keys }
+            if (sendable.isEmpty()) break
+            val batch = sendable.take(500)
             val res = http.post("/push", buildJsonObject {
                 put("device", device)
                 put("changes", JsonArray(batch.map { it.change }))
@@ -406,20 +417,33 @@ class PhosSyncEngine(
                 val rec = r["record"] as? JsonObject ?: continue
                 rec.str("hlc")?.let { hlc.observe(it) }
                 val deleted = rec.bool("deleted")
-                val sameAsSent = status == "accepted" || status == "duplicate"
+                // a "duplicate" response means the server already had this changeId (e.g. a retry after a lost
+                // response), but its current record may have moved on since: apply it like merged/superseded,
+                // not like a confirmed echo of what was sent.
+                val sameAsSent = status == "accepted"
                 if (status == "conflict" || status == "forbidden") problems += "$type $localKey: $status"
                 if (sameAsSent) {
                     if (deleted) shadow.remove(q.sk)
                     else shadow[q.sk] = Shadow(rec.str("collection").orEmpty(), rec.str("key").orEmpty(), rec.long("rev"), q.h, rec["payload"] as? JsonObject)
                 } else {
-                    // merged / superseded / conflict / forbidden: the server's version is the one
+                    // merged / superseded / conflict / forbidden: the server's version is the one. Applied
+                    // one record at a time so a write failure here rolls back only that record, not its
+                    // batch-mates, and never gets a permanent "unrepresentable" shadow entry.
                     val a = byType[type] ?: continue
-                    val keys = applied.getOrPut(a) { a.beginApply(); mutableSetOf() }
-                    applyRecord(a, rec, localKey)?.let { keys += it }
+                    a.beginApply()
+                    var ok = false
+                    try {
+                        applyRecord(a, rec, localKey)?.let { applied.getOrPut(a) { mutableSetOf() } += it }
+                        ok = true
+                    } catch (t: Throwable) {
+                        problems += "$type $localKey: ${t.message}"
+                        log("applying $type $localKey failed: ${t.message}")
+                    } finally {
+                        a.endApply(ok)
+                    }
                 }
             }
             for ((a, keys) in applied) {
-                a.endApply()
                 rehash(a, keys)
             }
             val ids = batch.map { it.change.str("changeId") }.toSet()
@@ -431,10 +455,11 @@ class PhosSyncEngine(
 
     // ---------------- pull ----------------
 
-    private fun pull(): Int {
+    private fun pull(problems: MutableList<String>): Int {
         val types = adapters.joinToString(",") { it.type }
         val records = mutableListOf<JsonObject>()
         var readable: Set<String>? = null
+        var wasReset = false
         var c = cursor
         val newTypes = adapters.map { it.type }.filter { it !in pulledTypes }
         if (c > 0 && newTypes.isNotEmpty()) {
@@ -450,6 +475,7 @@ class PhosSyncEngine(
         while (true) {
             val r = http.get("/changes", mapOf("cursor" to c.toString(), "limit" to "1000", "types" to types, "device" to device))
             if (r.bool("resetRequired")) {
+                wasReset = true
                 c = 0L
                 records.clear()
                 continue
@@ -481,31 +507,53 @@ class PhosSyncEngine(
             if (!r.bool("hasMore")) break
         }
         readable?.let { revoke(it) }
+        if (wasReset) reconcileAfterReset(records, readable)
         var applied = 0
         for (a in adapters) {
             val mine = records.filter { it.str("type") == a.type }
             if (mine.isEmpty()) continue
-            a.beginApply()
+            // the current local state, snapshotted once up front, so a record is only overwritten when it is
+            // still as clean as detect() last found it (see applyIfNewer)
+            val live = a.enumerate().associateBy { it.key }
+            // the shadow hash as it stood before any record of this batch was applied, frozen per key so a
+            // second historical revision of the same key (e.g. during a backfill) isn't confused by the "?"
+            // placeholder the first one's applyRecord() just left in the (otherwise live) shadow map
+            val baseline = mutableMapOf<String, String?>()
+            for (rec in mine) {
+                val lk = localKeyOf(a, rec) ?: continue
+                if (lk !in baseline) baseline[lk] = shadow[sk(a.type, lk)]?.h
+            }
             val keys = mutableSetOf<String>()
-            try {
-                for (rec in mine) {
-                    rec.str("hlc")?.let { hlc.observe(it) }
-                    val k = applyIfNewer(a, rec) ?: continue
-                    keys += k
-                    applied++
+            for (rec in mine) {
+                rec.str("hlc")?.let { hlc.observe(it) }
+                // applied one record at a time: a write failure here rolls back only that record, and never
+                // gets a permanent "unrepresentable" shadow entry
+                a.beginApply()
+                var ok = false
+                try {
+                    val k = applyIfNewer(a, rec, live, baseline)
+                    ok = true
+                    if (k != null) { keys += k; applied++ }
+                } catch (t: Throwable) {
+                    val localKey = rec.str("key").orEmpty()
+                    problems += "${a.type} $localKey: ${t.message}"
+                    log("applying ${a.type} $localKey failed: ${t.message}")
+                } finally {
+                    a.endApply(ok)
                 }
-            } finally {
-                a.endApply()
             }
             rehash(a, keys)
         }
         cursor = c
+        // exactly the currently active types: a type disabled and later re-enabled drops out of this set
+        // while it's off, so re-enabling it is treated as new again and triggers the newTypes backfill above
+        pulledTypes.clear()
         pulledTypes += adapters.map { it.type }
         return applied
     }
 
     /** Applies a pulled record unless the shadow already has it or the item waits to be pushed. */
-    private fun applyIfNewer(a: PhosAdapter, rec: JsonObject): String? {
+    private fun applyIfNewer(a: PhosAdapter, rec: JsonObject, live: Map<String, PhosItem>, baseline: Map<String, String?>): String? {
         val coll = rec.str("collection").orEmpty()
         val localKey = localKeyOf(a, rec) ?: return null
         val key = sk(a.type, localKey)
@@ -515,6 +563,18 @@ class PhosSyncEngine(
         // the old half of a move: the item lives in another collection now
         if (rec.bool("deleted") && sh != null && sh.c != coll) return null
         if (rec.bool("deleted") && sh == null) return null
+        // a confirmed shadow already existed before this pull began (baseline[localKey] != null): if the
+        // live local content no longer matches it, an edit landed after detect() snapshotted the outbox for
+        // this run (while push/pull were in flight). Keep that edit, just adopt the new revision/payload so
+        // the next detect() rebases on the correct baseRev, instead of overwriting it and rehashing it "clean"
+        val confirmed = baseline[localKey]
+        if (confirmed != null) {
+            val liveHash = live[localKey]?.let { phosHash(it.payload) } ?: "-"
+            if (liveHash != confirmed) {
+                shadow[key] = Shadow(coll, rec.str("key").orEmpty(), rec.long("rev"), confirmed, rec["payload"] as? JsonObject)
+                return null
+            }
+        }
         return applyRecord(a, rec, localKey)
     }
 
@@ -529,12 +589,9 @@ class PhosSyncEngine(
             shadow[key] = Shadow(coll, rec.str("key").orEmpty(), rec.long("rev"), "-", null)
             return null
         }
-        val ok = try {
-            a.apply(localKey, payload, deleted)
-        } catch (t: Throwable) {
-            log("applying ${a.type} $localKey failed: ${t.message}")
-            false
-        }
+        // an exception here propagates to the caller, which runs this record in its own transaction: no
+        // partial commit, and no shadow entry gets written below, so it is never permanently blacklisted
+        val ok = a.apply(localKey, payload, deleted)
         if (ok) appliedKeys.getOrPut(a.type) { mutableSetOf() } += localKey
         if (deleted) {
             shadow.remove(key)
@@ -562,18 +619,59 @@ class PhosSyncEngine(
         val byAdapter = lost.groupBy { it.key.substringBefore('\u0001') }
         for ((type, entries) in byAdapter) {
             val a = byType[type] ?: continue
-            a.beginApply()
-            try {
-                for ((key, s) in entries) {
-                    val own = colls[s.c]?.owner == me && me.isNotEmpty()
-                    if (!own && s.h != "-") a.apply(key.substringAfter('\u0001'), null, true)
-                    shadow.remove(key)
+            for ((key, s) in entries) {
+                val own = colls[s.c]?.owner == me && me.isNotEmpty()
+                if (!own && s.h != "-") {
+                    val localKey = key.substringAfter('\u0001')
+                    a.beginApply()
+                    var ok = false
+                    try {
+                        if (a.apply(localKey, null, true)) appliedKeys.getOrPut(type) { mutableSetOf() } += localKey
+                        ok = true
+                    } catch (t: Throwable) {
+                        log("revoking ${a.type} $localKey failed: ${t.message}")
+                    } finally {
+                        a.endApply(ok)
+                    }
                 }
-            } finally {
-                a.endApply()
+                shadow.remove(key)
             }
         }
         labels.entries.removeAll { it.value.c !in readable }
+    }
+
+    /**
+     * After a resetRequired snapshot: the feed only carries what currently exists, so a shadow entry whose
+     * item is genuinely gone (its tombstone was already purged) will never be seen as a delete again. Clean
+     * those up now; an item with a pending local change is left alone so it can still be pushed.
+     */
+    private fun reconcileAfterReset(records: List<JsonObject>, readable: Set<String>?) {
+        val seen = mutableSetOf<String>()
+        for (rec in records) {
+            val a = byType[rec.str("type").orEmpty()] ?: continue
+            val localKey = localKeyOf(a, rec) ?: continue
+            seen += sk(a.type, localKey)
+        }
+        val covered = (readable ?: emptySet()) + personal
+        for (a in adapters) {
+            val gone = shadow.entries.filter { (k, s) ->
+                k.startsWith(a.type + "\u0001") && k !in seen && s.h != "-" && s.c in covered && outbox.none { it.sk == k }
+            }
+            for ((key, _) in gone) {
+                val localKey = key.substringAfter('\u0001')
+                a.beginApply()
+                var ok = false
+                try {
+                    a.apply(localKey, null, true)
+                    ok = true
+                } catch (t: Throwable) {
+                    log("reconciling ${a.type} $localKey after reset failed: ${t.message}")
+                } finally {
+                    a.endApply(ok)
+                }
+                if (ok) shadow.remove(key)
+            }
+        }
     }
 
     // ---------------- shared collections (labels decide where a bookmark lives) ----------------

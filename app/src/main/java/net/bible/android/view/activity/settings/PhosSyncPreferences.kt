@@ -40,7 +40,8 @@ import java.util.Date
 private class PhosPrefsDataStore : PreferenceDataStore() {
     private val prefs get() = CommonUtils.realSharedPreferences
     override fun putString(key: String, value: String?) {
-        prefs.edit { if (value == null) remove(key) else putString(key, value.trim()) }
+        // a Nextcloud password may legitimately have leading/trailing spaces; only the other fields are trimmed
+        prefs.edit { if (value == null) remove(key) else putString(key, if (key == PhosSyncSettings.PASSWORD) value else value.trim()) }
     }
     override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
     override fun putBoolean(key: String, value: Boolean) = prefs.edit { putBoolean(key, value) }
@@ -91,19 +92,27 @@ object PhosSyncPreferences {
             }
         }
         showLast()
-        now?.setOnPreferenceClickListener {
+        fun syncNow(confirmDeletes: Boolean) {
             fragment.lifecycleScope.launch {
                 val hourglass = Hourglass(fragment.requireContext())
                 hourglass.show(R.string.synchronizing)
-                PhosSync.synchronize(force = true)
+                val result = PhosSync.synchronize(force = true, confirmDeletes = confirmDeletes)
                 hourglass.dismiss()
                 showLast()
+                if (!confirmDeletes && (result?.heldDeletes ?: 0) > 0) {
+                    Dialogs.showMsg(R.string.phos_sync_confirm_deletes, isCancelable = true) { syncNow(confirmDeletes = true) }
+                }
             }
+        }
+        now?.setOnPreferenceClickListener {
+            syncNow(confirmDeletes = false)
             true
         }
         screen.findPreference<Preference>("phos_sync_reset")?.setOnPreferenceClickListener {
-            PhosSync.reset()
-            showLast()
+            fragment.lifecycleScope.launch {
+                PhosSync.reset()
+                showLast()
+            }
             true
         }
     }

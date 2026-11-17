@@ -1641,7 +1641,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private suspend fun synchronize(force: Boolean = false) {
         if(PhosSync.enabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
-            PhosSync.synchronize(force, syncInterval)
+            PhosSync.synchronize(force, intervalMs = syncInterval)
         }
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
