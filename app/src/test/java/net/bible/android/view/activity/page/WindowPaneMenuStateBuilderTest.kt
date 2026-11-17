@@ -18,6 +18,8 @@ package net.bible.android.view.activity.page
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.Window
@@ -25,11 +27,28 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.platform.AndroidAppEnvironment
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.epub.EpubBackendStateTest
+import net.bible.service.sword.epub.addEpubBook
+import net.bible.service.sword.epub.deleteEpubModule
+import net.bible.service.sword.epub.epubBackend
+import net.bible.service.sword.epub.epubInitials
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedui.textOptionDrawableRes
 import net.bible.test.DatabaseResetter
+import net.bible.test.testCoreStrings
+import okio.Path.Companion.toOkioPath
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.BookName
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -37,6 +56,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -171,6 +191,70 @@ class WindowPaneMenuStateBuilderTest {
         assertTrue(moveMenu.submenu.all { it.id.startsWith("moveItem:") })
         // sanity: w2 exists and shares w1's pin-mode bucket (autoPin=true -> both pinned)
         assertEquals(w1.isPinMode, w2.isPinMode)
+    }
+
+    @Test
+    fun epubPaneMenuNamesAnotherWindowsBookOutsideItsVersification() {
+        val fixture = EpubBackendStateTest()
+        val originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
+        val originalFullNames = BookName.isFullBookName()
+        val epubDir = File(SharedConstants.modulesDir, "epub/ticket-3539-pane-menu")
+        try {
+            fixture.setUp()
+            BookName.setFullBookName(false)
+            val dir = fixture.buildEpub(epubDir.name)
+            addEpubBook(dir.toOkioPath(), testCoreStrings(), AndroidAppEnvironment(application))
+            val epub = Books.installed().getBook(epubInitials(dir.name))!!
+            val epubWindow = windowRepository.activeWindow
+            val epubKey = epub.epubBackend!!.state.keys.first()
+            epubWindow.pageManager.setCurrentDocumentAndKey(epub, epubKey)
+            assertFalse(epubWindow.pageManager.isBibleShown)
+            assertEquals(epubKey, epubWindow.pageManager.currentPage.key)
+            assertTrue(epubKey.getOsisRef().toIntOrNull() != null, "EPUB fragment keys are numeric, not verses")
+
+            val bibleWindow = windowRepository.addNewWindow(epubWindow)
+            val otOnly = GlobalContext.get().get<FakeBookFactory>().createFakeRepoBook(
+                "Ticket3539OtOnly",
+                """[Ticket3539OtOnly]
+Description=Old Testament only test Bible
+Category=Biblical Texts
+Versification=Leningrad
+Encoding=UTF-8
+Lang=en""",
+                "",
+                BookCategory.BIBLE,
+            ) as SwordBook
+            Books.installed().addBook(otOnly)
+            assertFalse(otOnly.versification.containsBook(BibleBook.JOHN))
+            val kjv = Books.installed().getBook("KJV") as SwordBook
+            bibleWindow.pageManager.setCurrentDocumentAndKey(
+                kjv, Verse(kjv.versification, BibleBook.JOHN, 1, 2),
+            )
+            bibleWindow.pageManager.textDisplaySettings.showSectionTitles = true
+            bibleWindow.pageManager.setCurrentDocument(otOnly)
+            assertEquals(otOnly, bibleWindow.pageManager.currentPage.currentDocument)
+            val range = bibleWindow.pageManager.currentPage.key as VerseRange
+            // The retained John 1 reference has no ordinals in Leningrad. wholeChapter's
+            // 0-1 range collapses to 0:0, taking doGetName's whole-book branch, whose
+            // null name was asserted before #4084 (ticket 3539).
+            assertTrue(range.isWholeBook)
+
+            val built = items(epubWindow)
+            val order = windowRepository.windowList.indexOf(bibleWindow)
+            val moveLabel = findInSubmenus(built, WindowPaneMenuStateBuilder.idForMoveItem(order))!!.label
+            val copyOrder = windowRepository.visibleWindows.indexOf(bibleWindow)
+            val copyLabel = findInSubmenus(built, WindowPaneMenuStateBuilder.idForCopySettingsToWindow(copyOrder))!!.label
+            assertTrue(moveLabel.endsWith(":Joh)"), moveLabel)
+            assertTrue(copyLabel.endsWith(": Joh)"), copyLabel)
+        } finally {
+            BookName.setFullBookName(originalFullNames)
+            Books.installed().getBook("Ticket3539OtOnly")?.let { Books.installed().removeBook(it) }
+            try {
+                deleteEpubModule(epubDir.toOkioPath())
+            } finally {
+                SwordBookPathJvm.setDownloadDir(originalDownloadDir)
+            }
+        }
     }
 
     @Test
