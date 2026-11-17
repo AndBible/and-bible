@@ -5,6 +5,7 @@ package net.bible.sharedui.ios.diagnostics
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.cinterop.objcPtr
 import net.bible.sharedui.host.diagnostics.DiagnosticSource
 import net.bible.sharedui.host.diagnostics.DiagnosticState
 import net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent
@@ -58,7 +59,9 @@ internal object NativeDiagnosticIdentities {
     fun identity(value: Any?): String {
         if (value == null) return "none"
         identities.removeAll { it.first.get() == null }
-        return identities.firstOrNull { it.first.get() === value }?.second
+        // ObjC weak reads can create a fresh Kotlin wrapper for the same live native object.
+        // Compare only live referents; storing raw addresses would alias owners after address reuse.
+        return identities.firstOrNull { it.first.get()?.objcPtr() == value.objcPtr() }?.second
             ?: NSUUID().UUIDString.also { identities += WeakReference(value) to it }
     }
 }
@@ -101,7 +104,9 @@ internal class IosLifecycleDiagnostics(
     }
 
     fun attachHost(id: String, controller: UIViewController) {
-        if (hosts[id]?.controller?.get() !== controller) hosts[id] = Host(WeakReference(controller), Lifecycle.State.INITIALIZED)
+        if (hosts[id]?.controller?.get()?.objcPtr() != controller.objcPtr()) {
+            hosts[id] = Host(WeakReference(controller), Lifecycle.State.INITIALIZED)
+        }
         snapshot(id)
     }
     fun detachHost(id: String) {

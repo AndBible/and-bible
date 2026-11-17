@@ -3,9 +3,8 @@
 package net.bible.sharedui.webview
 
 import net.bible.sharedui.ios.diagnostics.IosLifecycleDiagnostics
-import platform.CoreGraphics.CGRectMake
+import net.bible.sharedui.ios.diagnostics.DiagnosticOwnerWindows
 import platform.UIKit.UIViewController
-import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
 import kotlin.test.assertTrue
 import net.bible.sharedui.host.diagnostics.*
@@ -14,16 +13,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class IosPaneDiagnosticsTest {
-    private class OwnerWindow(private val ownerScene: UIWindowScene) : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
-        override fun windowScene(): UIWindowScene? = ownerScene
-    }
-
     @Test
     fun productionPaneOwnershipFollowsActualWindowsAndReparenting() {
         val events = mutableListOf<RuntimeDiagnosticEvent>()
         val lifecycle = IosLifecycleDiagnostics(events::add)
-        val firstWindow = OwnerWindow(UIWindowScene())
-        val secondWindow = OwnerWindow(UIWindowScene())
+        val (firstWindow, secondWindow) = DiagnosticOwnerWindows.create(UIWindowScene(), UIWindowScene())
         val firstHost = UIViewController()
         val secondHost = UIViewController()
         firstWindow.rootViewController = firstHost
@@ -71,8 +65,7 @@ class IosPaneDiagnosticsTest {
             IosReadingWebViews.release("private-second-window")
             IosReadingWebViews.diagnosticSink = previousSink
             lifecycle.close()
-            firstWindow.rootViewController = null
-            secondWindow.rootViewController = null
+            DiagnosticOwnerWindows.dispose(firstWindow, secondWindow)
         }
     }
 

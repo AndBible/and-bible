@@ -1,14 +1,17 @@
-@file:OptIn(kotlin.experimental.ExperimentalNativeApi::class, kotlin.native.runtime.NativeRuntimeApi::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalNativeApi::class, kotlin.native.runtime.NativeRuntimeApi::class, kotlinx.cinterop.ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
 
 package net.bible.sharedui.ios.diagnostics
 
 import androidx.lifecycle.Lifecycle
+import kotlinx.cinterop.objcPtr
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import net.bible.sharedui.host.diagnostics.DiagnosticSource
 import net.bible.sharedui.host.diagnostics.DiagnosticState
 import net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent
 import platform.Foundation.NSNotificationCenter
+import platform.Foundation.dateWithTimeIntervalSinceNow
+import platform.Foundation.runUntilDate
 import platform.darwin.NSObject
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIViewController
@@ -16,30 +19,108 @@ import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
 import platform.CoreGraphics.CGRectMake
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+/** UIKit calls windowScene during UIWindow dealloc, after its Kotlin peer has gone away.
+ * These overrides must never access receiver state, even after fixture disposal. */
+internal object DiagnosticOwnerWindows {
+    private var firstScene: UIWindowScene? = null
+    private var secondScene: UIWindowScene? = null
+    private var inUse = false
+
+    private class FirstWindow : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
+        override fun windowScene(): UIWindowScene? = firstScene
+    }
+    private class SecondWindow : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
+        override fun windowScene(): UIWindowScene? = secondScene
+    }
+
+    fun create(first: UIWindowScene, second: UIWindowScene): Pair<UIWindow, UIWindow> {
+        check(platform.Foundation.NSThread.isMainThread)
+        check(!inUse)
+        inUse = true
+        firstScene = first
+        secondScene = second
+        return try {
+            FirstWindow() to SecondWindow()
+        } catch (failure: Throwable) {
+            firstScene = null
+            secondScene = null
+            inUse = false
+            throw failure
+        }
+    }
+
+    fun dispose(vararg windows: UIWindow) {
+        check(platform.Foundation.NSThread.isMainThread)
+        firstScene = null
+        secondScene = null
+        try {
+            windows.forEach { window ->
+                window.subviews.forEach { (it as platform.UIKit.UIView).removeFromSuperview() }
+                window.rootViewController = null
+            }
+        } finally {
+            inUse = false
+        }
+    }
+}
+
 class IosLifecycleDiagnosticsTest {
     private fun fixture(window: Any, scene: Any) = HostSnapshot(window, scene, DiagnosticState.BACKGROUND, DiagnosticState.BACKGROUND, false, true)
 
-    private class FixtureWindow(private val scene: UIWindowScene) : UIWindow(frame = CGRectMake(0.0, 0.0, 320.0, 480.0)) {
-        override fun windowScene(): UIWindowScene? = scene
+    @Test
+    fun nativeOwnerKeepsDiagnosticIdAcrossWeakReads() {
+        val owner = NSObject()
+        val weak = kotlin.native.ref.WeakReference(owner)
+        val recovered = weak.get()!!
+        assertEquals(owner.objcPtr(), recovered.objcPtr())
+        assertEquals(NativeDiagnosticIdentities.identity(owner), NativeDiagnosticIdentities.identity(recovered))
+        assertNotEquals(NativeDiagnosticIdentities.identity(owner), NativeDiagnosticIdentities.identity(NSObject()))
+        assertEquals("none", NativeDiagnosticIdentities.identity(null))
     }
 
     @Test
     fun uiKitAdapterUsesWindowOwningScene() {
         val firstScene = UIWindowScene()
         val secondScene = UIWindowScene()
-        val firstWindow = FixtureWindow(firstScene)
-        val secondWindow = FixtureWindow(secondScene)
+        val (firstWindow, secondWindow) = DiagnosticOwnerWindows.create(firstScene, secondScene)
         val first = UIViewController()
         val second = UIViewController()
-        firstWindow.rootViewController = first
-        secondWindow.rootViewController = second
-        assertTrue(snapshotHost(first, UIKitHostOwnership).scene === firstScene)
-        assertTrue(snapshotHost(second, UIKitHostOwnership).scene === secondScene)
+        try {
+            firstWindow.rootViewController = first
+            secondWindow.rootViewController = second
+            firstWindow.addSubview(first.view)
+            secondWindow.addSubview(second.view)
+            val firstSnapshot = snapshotHost(first, UIKitHostOwnership)
+            val secondSnapshot = snapshotHost(second, UIKitHostOwnership)
+            assertEquals(firstWindow.objcPtr(), firstSnapshot.window?.objcPtr())
+            assertEquals(secondWindow.objcPtr(), secondSnapshot.window?.objcPtr())
+            assertEquals(firstScene.objcPtr(), firstSnapshot.scene?.objcPtr())
+            assertEquals(secondScene.objcPtr(), secondSnapshot.scene?.objcPtr())
+        } finally {
+            DiagnosticOwnerWindows.dispose(firstWindow, secondWindow)
+        }
+    }
+
+    @Test
+    fun disposedUIKitOwnershipFixturesSurviveNativeFinalization() {
+        kotlinx.cinterop.autoreleasepool {
+            uiKitAdapterUsesWindowOwningScene()
+        }
+        // A later test that pumps the main loop must not inherit unsafe UIKit teardown.
+        repeat(3) {
+            kotlinx.cinterop.autoreleasepool {
+                kotlin.native.runtime.GC.collect()
+                platform.Foundation.NSRunLoop.mainRunLoop.runUntilDate(
+                    platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(0.02)
+                )
+            }
+        }
     }
 
     @Test
@@ -52,12 +133,12 @@ class IosLifecycleDiagnosticsTest {
         val firstScene = NSObject()
         val secondScene = NSObject()
         val access = object : HostOwnershipAccess {
-            override fun window(controller: UIViewController): Any? = if (controller === first) firstWindow else secondWindow
-            override fun scene(window: Any): Any? = if (window === firstWindow) firstScene else secondScene
+            override fun window(controller: UIViewController): Any? = if (controller.objcPtr() == first.objcPtr()) firstWindow else secondWindow
+            override fun scene(window: Any): Any? = if (window.objcPtr() == firstWindow.objcPtr()) firstScene else secondScene
         }
         val diagnostics = IosLifecycleDiagnostics(events::add) { host -> snapshotHost(host, access) }
-        assertTrue(snapshotHost(first, access).scene === firstScene)
-        assertTrue(snapshotHost(second, access).scene === secondScene)
+        assertEquals(firstScene.objcPtr(), snapshotHost(first, access).scene?.objcPtr())
+        assertEquals(secondScene.objcPtr(), snapshotHost(second, access).scene?.objcPtr())
         diagnostics.attachHost("first", first)
         diagnostics.attachHost("second", second)
         val observations = events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>()
@@ -67,6 +148,22 @@ class IosLifecycleDiagnosticsTest {
         diagnostics.composeState("second", Lifecycle.State.STARTED)
         assertEquals(observations[1].sceneId, events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().last().sceneId)
         diagnostics.close()
+    }
+
+    @Test
+    fun reattachingSameNativeHostPreservesComposeState() {
+        val events = mutableListOf<RuntimeDiagnosticEvent>()
+        val diagnostics = IosLifecycleDiagnostics(events::add)
+        val controller = UIViewController()
+        try {
+            diagnostics.attachHost("host", controller)
+            diagnostics.composeState("host", Lifecycle.State.RESUMED)
+            diagnostics.attachHost("host", kotlin.native.ref.WeakReference(controller).get()!!)
+            assertEquals(DiagnosticState.RESUMED,
+                events.filterIsInstance<RuntimeDiagnosticEvent.OwnershipObserved>().last().composeState)
+        } finally {
+            diagnostics.close()
+        }
     }
 
     @Test
@@ -111,7 +208,7 @@ class IosLifecycleDiagnosticsTest {
     fun trackingDetachRecordsLastObservedOwnershipWithoutInventingUIKitState() {
         val events = mutableListOf<RuntimeDiagnosticEvent>()
         val diagnostics = IosLifecycleDiagnostics(events::add)
-        val window = FixtureWindow(UIWindowScene())
+        val (window, unusedWindow) = DiagnosticOwnerWindows.create(UIWindowScene(), UIWindowScene())
         val host = UIViewController()
         window.rootViewController = host
         window.addSubview(host.view)
@@ -142,8 +239,36 @@ class IosLifecycleDiagnosticsTest {
             assertEquals(1, events.filterIsInstance<RuntimeDiagnosticEvent.HostTrackingDetached>().size)
         } finally {
             diagnostics.close()
-            window.rootViewController = null
+            DiagnosticOwnerWindows.dispose(window, unusedWindow)
         }
+    }
+
+    private fun assertNativeReleased(weak: kotlin.native.ref.WeakReference<*>) {
+        val deadline = kotlin.time.TimeSource.Monotonic.markNow()
+        do {
+            // GC schedules ObjC releases on Main once its finalizer processor is active.
+            // Do not hold a weak.get() result across collection or the run-loop drain.
+            kotlinx.cinterop.autoreleasepool {
+                kotlin.native.runtime.GC.collect()
+                platform.Foundation.NSRunLoop.mainRunLoop.runUntilDate(
+                    platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(0.02)
+                )
+            }
+            val released = kotlinx.cinterop.autoreleasepool { weak.get() == null }
+            if (released) return
+        } while (deadline.elapsedNow() < 5.seconds)
+        assertNull(weak.get(), "Native owner remains retained after GC and main-thread finalization")
+    }
+
+    @Test
+    fun nativeIdentityRegistryDoesNotRetainOwners() {
+        fun identify(): kotlin.native.ref.WeakReference<NSObject> {
+            val owner = NSObject()
+            NativeDiagnosticIdentities.identity(owner)
+            return kotlin.native.ref.WeakReference(owner)
+        }
+        val weak = kotlinx.cinterop.autoreleasepool { identify() }
+        assertNativeReleased(weak)
     }
 
     @Test
@@ -156,10 +281,12 @@ class IosLifecycleDiagnosticsTest {
             diagnostics.detachHost("host")
             return weak
         }
-        val weak = attachAndDetach()
-        repeat(3) { kotlin.native.runtime.GC.collect() }
-        assertNull(weak.get())
-        diagnostics.close()
+        val weak = kotlinx.cinterop.autoreleasepool { attachAndDetach() }
+        try {
+            assertNativeReleased(weak)
+        } finally {
+            diagnostics.close()
+        }
     }
 
     @Test
