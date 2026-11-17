@@ -9,6 +9,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.geometry.Offset
+import kotlin.test.assertTrue
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontFamily
@@ -22,6 +25,11 @@ import net.bible.android.view.activity.settings.DetachedWorkspaceEdit
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.settings.SettingsEditorPage
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextSettingType
@@ -135,6 +143,16 @@ class NumericSliderContentTest {
         assertEquals(16.sp, layout().layoutInput.style.fontSize)
         assertEquals(FontFamily.Serif, layout().layoutInput.style.fontFamily)
         assertEquals(25.6f, layout().layoutInput.style.lineHeight.value, 0.01f)
+        if (type == TextSettingType.FONTSIZE) {
+            val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            slider.performTouchInput {
+                down(center)
+                moveTo(Offset(width * 0.75f, centerY))
+            }
+            assertTrue(layout().layoutInput.style.fontSize.value > 16f, "Preview must update while the pointer is still down")
+            assertNull(committed)
+            slider.performTouchInput { up() }
+        }
         onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(next.toFloat()) }
         val after = layout().layoutInput.style
