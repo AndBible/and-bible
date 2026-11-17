@@ -191,7 +191,8 @@ object InstanceHandOff {
                     }
                     connected = true
                     fun writeInt(n: Int) { val b = ByteBuffer.allocate(4).putInt(n); b.flip(); transfer(peer, b, false, deadline) }
-                    writeInt(ACTIVATE)
+                    // Keep the wire format readable by an older instance still running after an update.
+                    // A zero count also activates a new receiver; the explicit frame remains receive-only.
                     writeInt(bytes.size)
                     bytes.forEach { writeInt(it.size); transfer(peer, ByteBuffer.wrap(it), false, deadline) }
                     val ack = ByteBuffer.allocate(4)

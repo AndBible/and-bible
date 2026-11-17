@@ -61,6 +61,45 @@ class InstanceHandOffTest {
         }
     }
 
+    @Test fun newLauncherCanHandOffToLegacyCountFirstReceiver() {
+        for (withFile in listOf(false, true)) {
+            val dir = Files.createTempDirectory("handoff-old-peer")
+            val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+            try {
+                ServerSocketChannel.open(StandardProtocolFamily.UNIX).use { server ->
+                    server.bind(UnixDomainSocketAddress.of(dir.resolve("instance.sock")))
+                    val received = executor.submit<List<Path>> {
+                        server.accept().use { peer ->
+                            fun readInt(): Int {
+                                val b = java.nio.ByteBuffer.allocate(4)
+                                while (b.hasRemaining()) check(peer.read(b) >= 0)
+                                b.flip()
+                                return b.int
+                            }
+                            // The pre-activation protocol rejects negative counts and closes without ACK.
+                            val count = readInt()
+                            if (count !in 0..128) return@submit emptyList()
+                            val paths = (0 until count).map {
+                                val b = java.nio.ByteBuffer.allocate(readInt())
+                                while (b.hasRemaining()) check(peer.read(b) >= 0)
+                                Paths.get(String(b.array(), Charsets.UTF_8))
+                            }
+                            val ack = java.nio.ByteBuffer.allocate(4).putInt(0x41434b31).flip() as java.nio.ByteBuffer
+                            while (ack.hasRemaining()) peer.write(ack)
+                            paths
+                        }
+                    }
+                    val files = if (withFile) listOf(dir.resolve("book.epub")) else emptyList()
+                    assertTrue(InstanceHandOff.send(dir, files), "An updated launcher must work with an older running instance")
+                    assertEquals(files, received.get(3, TimeUnit.SECONDS))
+                }
+            } finally {
+                executor.shutdownNow()
+                dir.toFile().deleteRecursively()
+            }
+        }
+    }
+
     @Test fun acknowledgementWaitsForAcceptance() {
         val dir = Files.createTempDirectory("handoff-ack")
         val entered = java.util.concurrent.CountDownLatch(1)

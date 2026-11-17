@@ -34,7 +34,7 @@ class SecondLaunchTest {
                     }
                 }
                 assertEquals(0, handOffSecondLaunch(dir, emptyList()) { error("Successful activation reported as failure") })
-                assertEquals(listOf(-1, 0), request.get(3, TimeUnit.SECONDS))
+                assertEquals(listOf(0), request.get(3, TimeUnit.SECONDS))
             }
         } finally {
             executor.shutdownNow()
