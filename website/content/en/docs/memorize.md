@@ -8,7 +8,8 @@ exercises.
 1. Tap a verse, or select a passage by long-pressing a word and extending the
     selection.
 2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
-    **Memorize** button. On a narrow screen the button may be under **More**.
+    **Memorize** button, after **Bookmark**, **Note** and **AI** (when configured).
+    Actions that do not fit on a narrow screen are under **More**.
 3. The verse menu closes and a new window opens with the Memorize view. When a
     window is maximized, the Memorize view opens in that window instead.
 
@@ -19,7 +20,12 @@ Memorize view open; only a further Back returns to what the window showed before
 Opening the Memorize view on a passage also adds it as a memorization goal (if it is not one already),
 since tapping **Memorize** means you want to learn it. To drop the goal, choose **Remove from Goals** in the
 view's menu (see [Menu actions](#menu-actions)); the verse menu also offers **Goal -** for a passage that
-is already a goal.
+is already a goal. **Goal -** takes the last visible action slot before **More**, moving the displaced
+action into **More**, keeping **Memorize** visible whenever at least two actions fit. If only one
+action fits, it shows **Goal -** and **Memorize** is under **More**. When all actions fit, **Goal -** is last in
+the row. The base Bible action order is **Bookmark**, **Note**, **AI** (when configured),
+**Memorize**, **Share**, **Compare**, **My Notes**, **Speak**, and the experimental **Paragraph**
+action (when enabled).
 
 The Memorize view offers four study modes that you can switch between using
 the tabs at the top of the window: **Blur**, **Scramble**, **Type** and **Order**.
