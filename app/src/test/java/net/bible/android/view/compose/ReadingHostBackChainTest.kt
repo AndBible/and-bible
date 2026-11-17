@@ -23,13 +23,17 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.control.link.LinkControl
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.BookAndKey
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
@@ -262,9 +266,9 @@ class ReadingHostBackChainTest {
     fun theChainIsClassicsSixBranchesInClassicsOrder() {
         val names = host().readingBackChain.map { it.name }
         assertEquals(
-            "the chain must mirror MainBibleActivity.onBackPressed's branch order; the double-back " +
-                "exit warning is handled after the loop, not as a step",
-            listOf("drawer", "search", "fullscreen", "webViewModal", "history"),
+            "the chain must mirror MainBibleActivity.onBackPressed's branch order (plus #4118's step " +
+                "before history); the double-back exit warning is handled after the loop, not as a step",
+            listOf("drawer", "search", "fullscreen", "webViewModal", "maximisedMemorize", "history"),
             names,
         )
     }
@@ -274,8 +278,9 @@ class ReadingHostBackChainTest {
         val clearing = host().readingBackChain.filter { it.clearsExitWarning }.map { it.name }
         assertEquals(
             "classic clears lastBackPressed only after the WebView-modal and history branches; its " +
-                "drawer/search/fullscreen branches return before that assignment",
-            listOf("webViewModal", "history"),
+                "drawer/search/fullscreen branches return before that assignment; #4118's maximised-Memorize " +
+                "step stands in for a history step and clears it too",
+            listOf("webViewModal", "maximisedMemorize", "history"),
             clearing,
         )
     }
@@ -331,6 +336,55 @@ class ReadingHostBackChainTest {
             "and the history stack must have shrunk -- not finishing is only half the assertion",
             historyDepth() < depthBeforeTheBackPress,
         )
+    }
+
+    /**
+     * #4118. In a maximised window the links window is not used, so Memorize replaces the maximised window's Bible
+     * and the window history's previous entry is that Bible. BACK there must leave the maximised view and keep the
+     * Memorize exercise, not swap the window back to the Bible.
+     */
+    @Test
+    fun backInAMaximisedMemorizeWindowUnMaximisesAndKeepsMemorize() {
+        val activity = host()
+        pushTwoReadingPositions()
+        val windowControl = CommonUtils.windowControl
+        val window = windowControl.activeWindow
+        windowControl.maximiseWindow(window)
+        val kjv = requireNotNull(Books.installed().getBook("KJV"))
+        val v11n = Versifications.instance().getVersification("KJV")
+        val memorize = GlobalContext.get().get<FakeBookFactory>().memorizeDocument
+        GlobalContext.get().get<LinkControl>().openMemorize(
+            BookAndKey(VerseRange(v11n, Verse(v11n, BibleBook.JOHN, 3, 16), Verse(v11n, BibleBook.JOHN, 3, 17)), kjv),
+        )
+        // Fixture check: maximised, the Memorize document opened in this window, not in the links window.
+        assertEquals(memorize, window.pageManager.currentPage.currentDocument)
+        historyManager().addHistoryItem(window)
+        val depth = historyDepth()
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertFalse("BACK leaves the maximised view", windowControl.windowRepository.isMaximized)
+        assertEquals("the window still shows Memorize", memorize, window.pageManager.currentPage.currentDocument)
+        assertEquals("and the history was not stepped", depth, historyDepth())
+        assertFalse(activity.isFinishing)
+
+        // Not maximised any more: the next BACK walks the history as usual.
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertTrue(historyDepth() < depth)
+    }
+
+    /** #4118's step is for Memorize only: a maximised Bible window still walks its history. */
+    @Test
+    fun backInAMaximisedBibleWindowStillWalksTheHistory() {
+        val activity = host()
+        pushTwoReadingPositions()
+        val windowControl = CommonUtils.windowControl
+        windowControl.maximiseWindow(windowControl.activeWindow)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertTrue(windowControl.windowRepository.isMaximized)
+        assertTrue(historyDepth() < depthBeforeTheBackPress)
     }
 
     @Test
