@@ -51,6 +51,7 @@ class ReadingSearchWindowsTest {
             val owner = state.controller
             windows.activate("b")
             state.openSearch()
+            fixture.platform.documentInfos["BOOK_A"] = fixture.platform.documentInfos.getValue("BOOK_A").copy(indexDone = true)
             owner.onIndexingFinished(true)
             assertEquals(net.bible.sharedcore.search.ReadingSearchPhase.NeedsIndex("BOOK_B", false), state.controller.phase.value)
             windows.activate("a")
@@ -75,6 +76,7 @@ class ReadingSearchWindowsTest {
             val rowsA = state.searchResults
             val positionA = state.searchResultsListState.value
             state.searchResultsExpanded["Gen.1.1"] = true
+            state.session.resultKeyboardSelection.value = 4
             state.controller.closeSheet()
             windows.activate("b")
             assertNull(state.searchBar.value, "another window must not inherit Find")
@@ -89,6 +91,7 @@ class ReadingSearchWindowsTest {
             assertSame(rowsA, state.searchResults)
             assertSame(positionA, state.searchResultsListState.value)
             assertEquals(true, state.searchResultsExpanded["Gen.1.1"])
+            assertEquals(4, state.session.resultKeyboardSelection.value)
             assertFalse(state.searchSheetVisible.value, "returning must preserve whether results were dismissed")
             windows.activate("b")
             assertEquals("hope refined", state.searchBar.value?.query)

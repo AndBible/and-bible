@@ -14,6 +14,12 @@ window's search bar and results; returning restores its query, results and posit
 You can start a separate Find in each window. Closing Find or closing its window
 discards that window's search.
 
+With a hardware keyboard, the results list receives focus when results appear. The
+first result is highlighted; use Up and Down to move through results and Enter to
+open the highlighted passage. Press Up at the first result or Ctrl+F (Command+F on
+Apple hardware) to return to the query. Typing a character in the results starts a
+replacement query in the field.
+
 All searches open their results in the reading view's search sheet, including searches
 started from selected text, a Strong's link, or another screen. There is no separate
 full-screen results screen. The sheet appears on top of the reading text, like a dialog;

@@ -98,6 +98,7 @@ class ReadingSearchState(
             session.controller.imeRequestHandled()
             activeId = layout.activeWindowId
             session = sessions.getOrPut(activeId) { createSession(activeId) }.state
+            session.controller.imeRequestHandled()
             activeSession.value = session
         }
     }

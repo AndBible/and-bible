@@ -193,7 +193,10 @@ class ReadingHostSlots(
 
     /** The search sheet: the index prompt/progress panel or the results, per search phase. */
     @Composable
-    fun SearchSheet() = SearchSheetSlotContent(searchState.session, strings())
+    fun SearchSheet() {
+        val session = searchState.session
+        androidx.compose.runtime.key(session) { SearchSheetSlotContent(session, strings()) }
+    }
 
     /**
      * The quick sheet [sheet]: History, Workspaces, Documents, Share, ReadHistory or a key chooser

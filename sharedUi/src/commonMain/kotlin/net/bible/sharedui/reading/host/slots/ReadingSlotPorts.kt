@@ -84,7 +84,7 @@ interface ReadingSearchPlatform {
     /** Binds document lookups to a session's window, including asynchronous index continuations. */
     fun forWindow(windowId: String): ReadingSearchPlatform = this
 
-    /** The document the active window shows, or null (an error page). Read fresh on every call. */
+    /** The owning window's document, or null (an error page). Read fresh on every call. */
     fun currentDocument(): Book?
 
     /** The active window's book name for the search request (`SearchControl.currentBookName`). */
@@ -119,6 +119,7 @@ interface ReadingSearchPlatform {
 }
 
 /** The same Bible-section name as SearchControl, bound to the session's window rather than the active one. */
+@kotlin.native.HiddenFromObjC
 fun searchWindowBookName(window: net.bible.android.control.page.window.Window): String = try {
     val page = window.pageManager.currentBible
     val v11n = (page.currentDocument as org.crosswire.jsword.book.sword.SwordBook).versification
