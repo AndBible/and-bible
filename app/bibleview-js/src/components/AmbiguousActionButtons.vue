@@ -247,16 +247,20 @@ function addBookmark() {
     emit("close");
 }
 
+// Compare, Memorize and My Notes open another view, usually in the links window, which leaves this page and its
+// verse menu in place: close the menu as Bookmark and Note do (#4123).
 function compare() {
     if(verseInfo.value) {
         android.compare(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
+    emit("close");
 }
 
 function memorize() {
     if(verseInfo.value) {
         android.memorize(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
+    emit("close");
 }
 
 function removeMemorizationTarget() {
@@ -279,6 +283,7 @@ function openMyNotes() {
     if(verseInfo.value) {
         android.openMyNotes(verseInfo.value.v11n!, startOrdinal.value);
     }
+    emit("close");
 }
 
 function speak() {

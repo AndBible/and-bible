@@ -9,6 +9,7 @@ import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -127,5 +128,49 @@ class ReloadAfterRestoreTest {
         repo.saveIntoDb(false)
         runBlocking { repo.persistence.awaitPersisted() }
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
+    }
+
+    /** Makes a second workspace "B" (after "A" in the database) the repository's current one; returns its id. */
+    private fun switchToSecondWorkspace(): net.bible.android.database.IdType {
+        val b = net.bible.android.database.WorkspaceEntities.Workspace("B", orderNumber = 1)
+        runBlocking {
+            dao.insertWorkspace(b)
+            repo.loadFromDb(b.id)
+        }
+        assertEquals("sanity: B is current", b.id, repo.id)
+        return b.id
+    }
+
+    /** #4115: a whole-database replace that still contains the current workspace reopens it, not the first one. */
+    @Test fun aReplaceReopensTheCurrentWorkspaceWhenItStillExists() {
+        val firstId = runBlocking { dao.firstWorkspace() }!!.id
+        val b = switchToSecondWorkspace()
+        assertNotEquals("sanity: B is not the first workspace", firstId, b)
+        runBlocking { DatabaseContainer.replacingDatabases { token -> DatabaseContainer.resetOwned(token) } }
+
+        var stored: String? = null
+        runBlocking { reloadAfterRestore(restoreReloadTarget(repo), { }, { stored = it }) }
+
+        assertEquals(b, repo.id)
+        assertEquals(b.toString(), stored)
+        assertFalse(repo.staleAfterRestore)
+    }
+
+    /** #4115 fallback: when the replacing database lacks the current workspace, the first one opens. */
+    @Test fun aReplaceWithoutTheCurrentWorkspaceFallsBackToTheFirst() {
+        val firstId = runBlocking { dao.firstWorkspace() }!!.id
+        val b = switchToSecondWorkspace()
+        runBlocking {
+            DatabaseContainer.replacingDatabases { token ->
+                dao.deleteWorkspace(b)
+                DatabaseContainer.resetOwned(token)
+            }
+        }
+
+        var stored: String? = null
+        runBlocking { reloadAfterRestore(restoreReloadTarget(repo), { }, { stored = it }) }
+
+        assertEquals(firstId, repo.id)
+        assertEquals(firstId.toString(), stored)
     }
 }

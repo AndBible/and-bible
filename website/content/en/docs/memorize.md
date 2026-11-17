@@ -10,7 +10,12 @@ exercises.
 2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
     **Memorize** button near the start of the button row. It keeps its position even when
     the passage is already a memorization goal.
-3. A new window opens with the Memorize view.
+3. The verse menu closes and a new window opens with the Memorize view. When a
+    window is maximized, the Memorize view opens in that window instead.
+
+Pressing **Back** in the Memorize view first closes an open menu or gear popup. In a
+maximized window that shows Memorize, Back then restores the other windows and keeps the
+Memorize view open; only a further Back returns to what the window showed before.
 
 Opening the Memorize view on a passage also adds it as a memorization goal (if it is not one already),
 since tapping **Memorize** means you want to learn it. To drop the goal, choose **Remove from Goals** in the

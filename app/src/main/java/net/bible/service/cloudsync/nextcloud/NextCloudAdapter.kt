@@ -418,7 +418,10 @@ private fun RemoteFile.toSyncFile(): CloudFile {
         name = name,
         size = length,
         createdTime = modifiedTimestamp,
-        parentId = parent
+        parentId = parent,
+        // The version token and raw server time let document sync reuse an unchanged meta.json read (#4132).
+        etag = etag?.takeIf { it.isNotBlank() },
+        serverModifiedTime = modifiedTimestamp.takeIf { it > 0 },
     )
 }
 

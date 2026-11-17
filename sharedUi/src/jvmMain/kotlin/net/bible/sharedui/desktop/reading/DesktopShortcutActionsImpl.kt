@@ -18,6 +18,7 @@ package net.bible.sharedui.desktop.reading
 
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.SelectionMenuItem
+import net.bible.android.control.link.LinkControl
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.nav.NavRoutes
@@ -37,6 +38,8 @@ class DesktopShortcutActionsImpl(
     private val canGoBackInHistory: () -> Boolean = { KoinPlatform.getKoin().get<HistoryManager>().canGoBack() },
     private val goBackInHistory: () -> Unit = { KoinPlatform.getKoin().get<HistoryManager>().goBack() },
     closeModals: ((String?) -> Boolean)? = null,
+    /** #4118: Back in a maximised Memorize window un-maximises instead of stepping the history. */
+    private val unMaximiseMemorize: () -> Boolean = { KoinPlatform.getKoin().get<LinkControl>().unMaximiseMemorizeOnBack() },
 ) : DesktopShortcutActions {
     private val closeModalsSeam: (String?) -> Boolean = closeModals ?: { closePageModals(it) }
 
@@ -57,13 +60,14 @@ class DesktopShortcutActionsImpl(
 
     override fun back(historyFallback: Boolean) {
         if (dispatchBack()) return
-        if (historyFallback && canGoBackInHistory()) goBackInHistory()
+        if (historyFallback && !unMaximiseMemorize() && canGoBackInHistory()) goBackInHistory()
     }
 
     override fun navigateBack(windowId: String?) {
         // A Compose overlay (settings, a sheet) on top owns Back; the reading screen passes it through to the page modals.
         if (dispatchBack()) return
         if (closeModalsSeam(windowId)) return
+        if (unMaximiseMemorize()) return
         if (canGoBackInHistory()) goBackInHistory()
     }
 

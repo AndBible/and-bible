@@ -282,7 +282,7 @@ class DesktopReadingInputImplTest {
 
     @Test fun backFallsBackToHistoryOnlyWhenAsked() {
         val log = mutableListOf<String>()
-        val a = DesktopShortcutActionsImpl({ false }, { true }, { log += "history" })
+        val a = DesktopShortcutActionsImpl({ false }, { true }, { log += "history" }, unMaximiseMemorize = { false })
         a.back(historyFallback = false)
         assertEquals(emptyList(), log)
         a.back(historyFallback = true)

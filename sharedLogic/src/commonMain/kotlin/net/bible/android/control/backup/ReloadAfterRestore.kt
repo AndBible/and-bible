@@ -1,7 +1,6 @@
 package net.bible.android.control.backup
 
 import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.database.IdType
 
 /**
  * The narrow slice of the reading state that [reloadAfterRestore] drives. [WindowRepository] is adapted by
@@ -15,8 +14,8 @@ interface RestoreReloadTarget {
     fun setResyncRequired()
 
     /**
-     * Reloads the repository from the (restored) database, letting it pick the restored current workspace
-     * (the empty workspace id). This lifts the restore-epoch save freeze.
+     * Reloads the repository from the (restored) database, reopening the workspace it held before the replace
+     * when the new database still has it, else the first workspace (#4115). This lifts the restore-epoch save freeze.
      */
     suspend fun reloadFromDatabase()
 
@@ -34,7 +33,8 @@ interface RestoreReloadTarget {
 fun restoreReloadTarget(repository: WindowRepository): RestoreReloadTarget = object : RestoreReloadTarget {
     override fun windowIds() = repository.windowList.map { it.id.toString() }
     override fun setResyncRequired() = repository.windowSync.setResyncRequired()
-    override suspend fun reloadFromDatabase() = repository.loadFromDb(IdType.empty())
+    // The in-memory id is still the pre-replace workspace; the loader falls back to the first one when it is gone.
+    override suspend fun reloadFromDatabase() = repository.loadFromDb(repository.id)
     override fun loadedWorkspaceId() = repository.id.toString()
     override fun reloadAllWindows(force: Boolean) = repository.windowSync.reloadAllWindows(force)
     override fun updateAllWindowsTextDisplaySettings() = repository.updateAllWindowsTextDisplaySettings()
@@ -47,7 +47,8 @@ fun restoreReloadTarget(repository: WindowRepository): RestoreReloadTarget = obj
  * Order (each step after the previous one):
  *  1. capture the old window ids (the load destroys the old Window objects);
  *  2. `setResyncRequired()`;
- *  3. reload from the database with the empty workspace id (lifts the epoch save freeze);
+ *  3. reload from the database, reopening the current workspace when it still exists, else the first one
+ *     (lifts the epoch save freeze);
  *  4. when a workspace is held, pass its id to [setCurrentWorkspaceId] (skipped for an empty id);
  *  5. [releaseWindow] for every OLD id, so hosts re-assemble on the new Window objects;
  *  6. `reloadAllWindows(true)`;

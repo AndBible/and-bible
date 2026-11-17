@@ -1316,15 +1316,21 @@ class ReadingCommands(
      * Classic `MainBibleActivity`'s restore subscription, verbatim (now fed by `DatabaseContainer.databaseRestored`) (slice 8 final
      * review, Important 1). A database restore replaced the workspace database under the live
      * repository: drop every cached `BibleView`, force a full resync, and reload the workspace from the
-     * RESTORED database -- `IdType.empty()` makes `loadFromDb` pick the restored current workspace.
-     * Without it the live repository's next `saveIntoDb` overwrites what was just restored.
+     * RESTORED database. Without it the live repository's next `saveIntoDb` overwrites what was just restored.
+     * The workspace the user was in reopens when the restored database still has it, else the first one (#4115).
      */
     internal suspend fun applyRestoredDatabase() {
         bookmarkControl.reset()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        switchWorkspace(IdType.empty())
+        reopenCurrentWorkspaceAfterReplace()
     }
+
+    /**
+     * After a whole-database replace: reload the current workspace from the new database. The in-memory id is still
+     * the pre-replace one, and `loadFromDb` falls back to the first workspace when the new database lacks it (#4115).
+     */
+    private suspend fun reopenCurrentWorkspaceAfterReplace() = switchWorkspace(currentWorkspaceId)
 
     /**
      * Classic `MainBibleActivity`'s cloud-sync subscription, verbatim (now fed by `DatabaseContainer.workspacesSynced`) (slice 8
@@ -1357,9 +1363,12 @@ class ReadingCommands(
         }
     }
 
-    /** Classic `MainBibleActivity`'s refresh subscription, verbatim (now fed by `CloudSync.workspaceRefreshRequired`). */
+    /**
+     * Classic `MainBibleActivity`'s refresh subscription (now fed by `CloudSync.workspaceRefreshRequired`, a sync join's
+     * database swap). Classic switched to the first workspace; since #4115 the current one reopens when it still exists.
+     */
     internal suspend fun applyWorkspaceRefreshRequired() {
-        switchToFirstWorkspace()
+        reopenCurrentWorkspaceAfterReplace()
     }
 
     internal suspend fun cycleWorkspace(forward: Boolean) = countedAsSwitch {

@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.UserMessage
@@ -254,12 +255,58 @@ class ReadingHostSyncAndRestoreEventsTest {
     }
 
     @Test
-    fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
+    fun aWorkspaceRefreshRequiredReloadsTheWorkspace() {
         readingHost()
         countToasts()
         org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
         idleMain()
-        assertTrue(toasts > 0, "workspaceRefreshRequired must switch to the first workspace, as classic's did")
+        assertTrue(toasts > 0, "workspaceRefreshRequired must reload the workspace")
+    }
+
+    /** Inserts a second workspace after the first one, switches [activity] to it and returns its id. */
+    private fun switchToSecondWorkspace(activity: NavHostComposeActivity): IdType {
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val second = net.bible.android.database.WorkspaceEntities.Workspace("Second", orderNumber = 1)
+        kotlinx.coroutines.runBlocking { dao.insertWorkspace(second) }
+        activity.lifecycleScope.launch { activity.readingCommands.switchToWorkspace(second.id.toString()) }
+        idleMain()
+        assertEquals(second.id, activity.hostWindowRepository.id, "sanity: the host switched to the second workspace")
+        assertNotEquals(kotlinx.coroutines.runBlocking { dao.allWorkspaces() }.first().id, second.id, "sanity: not the first")
+        return second.id
+    }
+
+    /** #4115: a sync join's database swap keeps the user in the workspace they were in. */
+    @Test
+    fun aWorkspaceRefreshRequiredReopensTheCurrentWorkspace() {
+        val activity = readingHost().get()
+        val second = switchToSecondWorkspace(activity)
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
+        idleMain()
+        assertEquals(second, activity.hostWindowRepository.id, "the swap must reopen the current workspace, not the first")
+        assertEquals(second.toString(), CommonUtils.settings.getString("current_workspace_id"))
+    }
+
+    /** #4115: a restore whose database still holds the current workspace reopens it. */
+    @Test
+    fun aRestoreReopensTheCurrentWorkspace() {
+        val activity = readingHost().get()
+        val second = switchToSecondWorkspace(activity)
+        DatabaseContainer.notifyDatabaseRestored()
+        idleMain()
+        assertEquals(second, activity.hostWindowRepository.id, "the restore must reopen the current workspace, not the first")
+    }
+
+    /** #4115 fallback: the replacing database lacks the current workspace, so the first one opens. */
+    @Test
+    fun aWorkspaceRefreshWithoutTheCurrentWorkspaceOpensTheFirst() {
+        val activity = readingHost().get()
+        val second = switchToSecondWorkspace(activity)
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        kotlinx.coroutines.runBlocking { dao.deleteWorkspace(second) }
+        val first = kotlinx.coroutines.runBlocking { dao.allWorkspaces() }.first().id
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
+        idleMain()
+        assertEquals(first, activity.hostWindowRepository.id, "a missing current workspace falls back to the first one")
     }
 
     @Test

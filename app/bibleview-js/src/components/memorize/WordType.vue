@@ -88,7 +88,7 @@
 import {ref, computed, onMounted, onBeforeUnmount, watch, nextTick, inject} from "vue";
 import {useCommon} from "@/composables";
 import {MemorizeTextItem, WordVisibility} from "@/types/documents";
-import {readingProgressSettingsKey} from "@/types/constants";
+import {modalKey, readingProgressSettingsKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faGear, faUndo} from "@fortawesome/free-solid-svg-icons";
 import {isMemorizePunctuation, tokenizeMemorizeText} from "@/utils/memorize-text";
@@ -127,6 +127,8 @@ const isFocused = ref(false);
 const hiddenInput = ref<HTMLInputElement | null>(null);
 const wordRefs = ref<Record<number, Element | null>>({});
 const settingsOpen = ref(false);
+// Back closes the open popup instead of leaving the window (#4118). No registry in isolated component tests.
+inject(modalKey, null)?.registerPopup(settingsOpen);
 const settingsWrapper = ref<HTMLElement | null>(null);
 
 const visibilityOptions = computed(() => [
