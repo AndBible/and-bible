@@ -111,7 +111,8 @@ private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (Stri
                     Text(tip.title, style = MaterialTheme.typography.titleMedium)
                     Text(tip.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
                     if (tip.videoUrl != null || tip.docUrl != null) {
-                        Row {
+                        // Stacked, not side by side: translated labels are long and a Row squeezed the second one.
+                        Column {
                             tip.videoUrl?.let { TextButton({ onOpenUrl(it) }) { Text(tip.videoLabel) } }
                             tip.docUrl?.let { TextButton({ onOpenUrl(it) }) { Text(strings.helpReadMoreLink) } }
                         }
