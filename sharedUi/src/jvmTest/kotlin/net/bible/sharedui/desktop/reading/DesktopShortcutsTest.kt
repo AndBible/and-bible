@@ -57,6 +57,13 @@ class DesktopShortcutsTest {
     private fun ctrl(key: String, fromPane: Boolean = false, shift: Boolean = false, selection: String? = null) =
         Chord(key, ctrl = true, shift = shift, fromPane = fromPane, selection = selection)
 
+    @Test fun ctrlSIsLeftToPageEditorsAndIme() {
+        assertFalse(shortcuts.onChord(Chord("s", ctrl = true, fromPane = true, editable = true), "w1"))
+        assertFalse(shortcuts.onChord(Chord("s", ctrl = true, composing = true), null))
+        assertFalse(shortcuts.onChord(Chord("s", ctrl = true, alt = true), null))
+        assertEquals(emptyList(), actions.log)
+    }
+
     @Test fun ctrlFSearchesTheActiveWindowFromCompose() {
         assertTrue(shortcuts.onChord(ctrl("f"), null))
         assertEquals(listOf("search:active"), actions.log)
