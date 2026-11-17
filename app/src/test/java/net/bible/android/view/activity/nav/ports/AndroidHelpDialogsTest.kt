@@ -41,8 +41,14 @@ class AndroidHelpDialogsTest {
         val html = assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks.first()).html
         assertContains(html, "<b>${activity.getString(R.string.help_workspaces_title)}</b>")
         assertContains(html, "href=\"${DocsLinks.page("workspaces")}\"")
-        assertContains(html, "href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES)}\"")
+        assertContains(html, "href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, "en")}\"")
+        // English app: the video label carries no "(English)" qualifier.
+        assertContains(html, ">${activity.getString(R.string.watch_tutorial_video_plain)}</a>")
         assertIs<AppDialogRequest.NoticeBlock.IconLine>(notice.blocks.last())
+    }
+
+    @Test fun appLanguageIsTheUiLocaleTag() = withHost { activity, _ ->
+        assertEquals(activity.resources.configuration.locales.get(0).toLanguageTag(), AndroidHelpDialogs(activity).appLanguage())
     }
 
     @Test fun everyTipKeyResolvesToAnAndroidString() = withHost { activity, _ ->

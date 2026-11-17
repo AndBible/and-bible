@@ -778,6 +778,7 @@ object CommonUtils : CommonUtilsBase() {
         "buy_development" to R.string.buy_development,
         "buy_development2" to R.string.buy_development2,
         "watch_tutorial_video" to R.string.watch_tutorial_video,
+        "watch_tutorial_video_plain" to R.string.watch_tutorial_video_plain,
         "help_full_documentation_link" to R.string.help_full_documentation_link,
         "help" to R.string.help,
     )
@@ -801,12 +802,14 @@ object CommonUtils : CommonUtilsBase() {
      */
     fun showTipDialog(item: net.bible.sharedui.app.ports.HelpAndTips.Item) {
         val app = application
+        val lang = appLanguageTag(app)
         dialogs.post(documentDialogsCore(app).helpNotice(
             listOf(net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(
                 app.getString(helpTipStringIds.getValue(item.titleKey)),
                 app.getString(helpTipStringIds.getValue(item.textKey)),
-                net.bible.sharedui.app.ports.HelpAndTips.videoUrl(item),
+                net.bible.sharedui.app.ports.HelpAndTips.videoUrl(item, lang),
                 net.bible.sharedui.app.ports.HelpAndTips.docUrl(item.docPage),
+                net.bible.sharedui.app.ports.HelpAndTips.plainVideoLabel(item, lang),
             )),
             okText = app.getString(android.R.string.ok),
         ))
@@ -845,17 +848,26 @@ object CommonUtils : CommonUtilsBase() {
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
      * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
-     * @param videoUrl Optional tutorial video, from `TutorialVideos`; shown as a second link.
+     * @param videoEpisode Optional tutorial video; shown as a second link that opens with captions in the app language when available.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
         helpUrl: String,
-        videoUrl: String? = null,
+        videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
     ) {
-        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl, videoUrl))
+        val lang = appLanguageTag(activity)
+        dialogs.post(documentDialogsCore(activity).helpDialog(
+            activity.getString(titleResId), activity.getString(messageResId), helpUrl,
+            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.url(it, lang) },
+            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.hasPlainLabel(it, lang) } ?: false,
+        ))
     }
+
+    /** The BCP-47 tag of the language the app's strings resolve to (the context's first locale). */
+    fun appLanguageTag(context: Context): String =
+        context.resources.configuration.locales.get(0).toLanguageTag()
 
     /**
      * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`

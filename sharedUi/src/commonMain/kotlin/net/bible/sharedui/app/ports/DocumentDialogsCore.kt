@@ -181,10 +181,10 @@ class DocumentDialogsCore(
     }
 
     /** A short help [message] with its "read more" docs link and, when [videoUrl] is given, a tutorial video link. */
-    fun helpDialog(title: String, message: String, url: String, videoUrl: String? = null) = AppDialogRequest.Message(
+    fun helpDialog(title: String, message: String, url: String, videoUrl: String? = null, plainVideoLabel: Boolean = false) = AppDialogRequest.Message(
         title,
         message + "<br><br><i><a href=\"$url\">${table().text("help_read_more_link")}</a></i>" +
-            (videoUrl?.let { "<br><i><a href=\"$it\">${table().text("watch_tutorial_video")}</a></i>" } ?: ""),
+            (videoUrl?.let { "<br><i><a href=\"$it\">${videoLabel(plainVideoLabel)}</a></i>" } ?: ""),
         table().text("okay"), cancellable = true,
     )
     suspend fun confirmUpgrade(): Boolean = await {
@@ -192,8 +192,12 @@ class DocumentDialogsCore(
         AppDialogRequest.Confirm(t.text("bookmark_warning"), "${t.text("bookmark_warning2")}<br><br>${t.text("bookmark_warning4")}<br><br>${t.text("bookmark_warning3")}", t.text("yes"), t.text("cancel"), cancellable = false)
     } == AppDialogResult.Ok
 
+    /** The tutorial video link text: plain when the video is captioned in the app language (or the app is English), else with "(English)". */
+    private fun videoLabel(plain: Boolean) = table().text(if (plain) "watch_tutorial_video_plain" else "watch_tutorial_video")
+
+    /** [plainVideoLabel]: drop the "(English)" qualifier of the [videoLink] label (see [TutorialVideos.hasPlainLabel]). */
     @kotlin.native.HiddenFromObjC
-    data class HelpItem(val title: String, val text: String, val videoLink: String? = null, val docUrl: String? = null)
+    data class HelpItem(val title: String, val text: String, val videoLink: String? = null, val docUrl: String? = null, val plainVideoLabel: Boolean = false)
 
     fun helpNotice(help: List<HelpItem>, versionMsg: String? = null, okText: String = table().text("okay"), includeSponsor: Boolean = true): AppDialogRequest.Notice {
         val buyMessage = "<b>${table().text("buy_development2")}</b>: <a href=\"${SiteLinks.SHOP_URL}\">${table().text("buy_development")}</a>"
@@ -204,7 +208,7 @@ class DocumentDialogsCore(
 
             val links = mutableListOf<String>()
             if(helpItem.videoLink != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${table().text("watch_tutorial_video")}</a></i>")
+                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${videoLabel(helpItem.plainVideoLabel)}</a></i>")
             }
             if(helpItem.docUrl != null) {
                 links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${table().text("help_read_more_link")}</a></i>")

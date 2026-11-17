@@ -1135,6 +1135,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val hideLabelsHelpIntro: String get() = context.getString(R.string.bookmark_settings_hide_labels_summary)
     override val studyPadsHelpText: String get() = context.getString(R.string.help_studypads_text)
     override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
+    override val watchTutorialVideoPlain: String get() = context.getString(R.string.watch_tutorial_video_plain)
 
     // Help & tips screen (#4134)
     override val helpAndTips: String get() = context.getString(R.string.help_and_tips)

@@ -41,17 +41,21 @@ object HelpAndTips {
         else -> error("Unknown help page: $page")
     }
 
-    /** The video link of [item] (until the language-aware links of the subtitle work, the episode's own or the placeholder URL). */
-    fun videoUrl(item: Item): String? = item.episode?.let(TutorialVideos::url)
+    /** The video link of [item] for an app in [appLanguage]: with captions in that language when the episode has them. */
+    fun videoUrl(item: Item, appLanguage: String): String? = item.episode?.let { TutorialVideos.url(it, appLanguage) }
+
+    /** True when [item]'s video label needs no "(English)" qualifier in [appLanguage]. */
+    fun plainVideoLabel(item: Item, appLanguage: String): Boolean =
+        item.episode?.let { TutorialVideos.hasPlainLabel(it, appLanguage) } ?: false
 
     /** Builds the screen's tip rows; [text] resolves a string resource key (the keyed string table of the host). */
-    fun toUi(strings: Strings, text: (String) -> String, items: List<Item> = HelpAndTips.items): List<HelpTipUi> =
+    fun toUi(strings: Strings, text: (String) -> String, items: List<Item> = HelpAndTips.items, appLanguage: String = "en"): List<HelpTipUi> =
         items.map { item ->
             HelpTipUi(
                 title = text(item.titleKey),
                 text = text(item.textKey),
-                videoUrl = videoUrl(item),
-                videoLabel = strings.watchTutorialVideo,
+                videoUrl = videoUrl(item, appLanguage),
+                videoLabel = if (plainVideoLabel(item, appLanguage)) strings.watchTutorialVideoPlain else strings.watchTutorialVideo,
                 docUrl = docUrl(item.docPage),
             )
         }

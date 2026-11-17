@@ -24,7 +24,7 @@ class HelpHost(
     fun navDeps(navController: NavHostController): HelpNavDeps = HelpNavDeps(
         exitHost = { shell.exitHost() },
         setWindowTitle = { shell.setWindowTitle(it) },
-        tips = { HelpAndTips.toUi(strings, helpDialogs::tipText) },
+        tips = { HelpAndTips.toUi(strings, helpDialogs::tipText, appLanguage = helpDialogs.appLanguage()) },
         versionText = { strings.versionText(helpDialogs.versionName()) },
         onOpenUrl = { links.confirmAndOpen(it, dialogs) { strings } },
     )

@@ -21,7 +21,7 @@ class HelpAndTipsTest {
                 ,
             HelpAndTips.items.map { it.episode })
         // Every video link comes from the registry (a published episode's own URL, else the placeholder).
-        assertEquals(HelpAndTips.items.map { it.episode?.let(TutorialVideos::url) }, HelpAndTips.items.map { HelpAndTips.videoUrl(it) })
+        assertEquals(HelpAndTips.items.map { it.episode?.let(TutorialVideos::url) }, HelpAndTips.items.map { HelpAndTips.videoUrl(it, "en") })
     }
 
     @Test fun optionalSponsorDoesNotRemoveHelpDocsOrVersionAndDefaultsToAndroidBehavior() {
@@ -39,6 +39,16 @@ class HelpAndTipsTest {
         assertContains(html[1], DocsLinks.BASE_URL)
         assertEquals("<i>Version 1</i>", html[2])
         assertFalse(html.joinToString().contains("shop.andbible.org"))
+    }
+
+    @Test fun videoLabelIsPlainForEnglishAndKeepsEnglishQualifierWithoutMatchingCaptions() {
+        val strings = net.bible.sharedui.strings.iosStrings("en")
+        val labels = { lang: String -> HelpAndTips.toUi(strings, { it }, appLanguage = lang).filter { it.videoUrl != null }.map { it.videoLabel }.distinct() }
+        assertEquals(listOf(strings.watchTutorialVideoPlain), labels("en-GB"))
+        // No real episode has captions yet, so a non-English app keeps "(English)".
+        assertEquals(listOf(strings.watchTutorialVideo), labels("fi"))
+        assertNotEquals(strings.watchTutorialVideo, strings.watchTutorialVideoPlain)
+        assertFalse(strings.watchTutorialVideoPlain.contains("English"))
     }
 
     @Test fun docUrlMapsEveryItemPageAndRejectsUnknown() {

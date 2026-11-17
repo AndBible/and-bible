@@ -73,6 +73,23 @@ object TutorialVideos {
     /** The video to open for [episode]: its own watch URL when published, else the [placeholderUrl]. */
     fun url(episode: Episode): String = resolve(episode.youtubeId, PLACEHOLDER_VIDEO_ID)
 
+    /**
+     * The YouTube caption language to request for an app in [appLanguage], or null when none applies: the
+     * episode's [Episode.subtitles] are matched by exact tag (case-insensitive, `_` read as `-`), then by the
+     * app tag's primary subtag (app `pt-BR` finds subtitle `pt`; app `pt` does not find `pt-BR`). English never
+     * matches, because the video's own audio and captions are English.
+     */
+    fun subtitleLanguage(episode: Episode, appLanguage: String): String? = matchSubtitle(episode.subtitles, appLanguage)
+
+    /**
+     * The video to open for [episode] from an app in [appLanguage]: with a matching caption track the watch URL
+     * asks YouTube for those captions and interface language, otherwise it is [url].
+     */
+    fun url(episode: Episode, appLanguage: String): String = buildUrl(episode.youtubeId, episode.subtitles, appLanguage)
+
+    /** True when the "(English)" qualifier of the video label is not needed: English app, or captions in the app language. */
+    fun hasPlainLabel(episode: Episode, appLanguage: String): Boolean = plainLabel(episode.subtitles, appLanguage)
+
     /** The tutorials playlist when it is public, else the [placeholderUrl]. */
     fun playlistUrl(): String = resolvePlaylist(TUTORIAL_PLAYLIST_ID, PLACEHOLDER_VIDEO_ID)
 
@@ -82,6 +99,36 @@ object TutorialVideos {
 
     internal fun resolvePlaylist(playlistId: String?, placeholderId: String?, channel: String = CHANNEL_URL): String =
         playlistId?.let { "https://www.youtube.com/playlist?list=$it" } ?: resolve(null, placeholderId, channel)
+
+    internal fun plainLabel(subtitles: Set<String>, appLanguage: String): Boolean =
+        isEnglish(appLanguage) || matchSubtitle(subtitles, appLanguage) != null
+
+    internal fun buildUrl(youtubeId: String?, subtitles: Set<String>, appLanguage: String): String {
+        val match = matchSubtitle(subtitles, appLanguage)
+        if (youtubeId == null || match == null) return resolve(youtubeId, PLACEHOLDER_VIDEO_ID)
+        return "${watchUrl(youtubeId)}&cc_load_policy=1&cc_lang_pref=${encode(match)}&hl=${encode(normalise(appLanguage))}"
+    }
+
+    internal fun matchSubtitle(subtitles: Set<String>, appLanguage: String): String? {
+        val app = normalise(appLanguage)
+        if (app.isEmpty() || isEnglish(app)) return null
+        val primary = app.substringBefore('-')
+        return subtitles.firstOrNull { it.replace('_', '-').equals(app, ignoreCase = true) }
+            ?: subtitles.firstOrNull { it.replace('_', '-').equals(primary, ignoreCase = true) }
+    }
+
+    private fun normalise(tag: String) = tag.trim().replace('_', '-')
+
+    private fun isEnglish(tag: String) = normalise(tag).substringBefore('-').equals("en", ignoreCase = true)
+
+    /** Percent-encodes everything but the unreserved characters (tags are ASCII, but stay safe in a URL). */
+    private fun encode(value: String): String = buildString {
+        for (b in value.encodeToByteArray()) {
+            val c = b.toInt().toChar()
+            if (b >= 0 && (c.isLetterOrDigit() || c in "-._~")) append(c)
+            else append('%').append((b.toInt() and 0xFF).toString(16).uppercase().padStart(2, '0'))
+        }
+    }
 
     private fun watchUrl(id: String) = "https://www.youtube.com/watch?v=$id"
 }

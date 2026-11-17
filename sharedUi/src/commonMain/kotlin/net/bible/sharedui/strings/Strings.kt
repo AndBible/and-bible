@@ -1209,6 +1209,7 @@ interface Strings {
     val hideLabelsHelpIntro: String                   // R.string.bookmark_settings_hide_labels_summary
     val studyPadsHelpText: String                     // R.string.help_studypads_text
     val watchTutorialVideo: String                    // R.string.watch_tutorial_video
+    val watchTutorialVideoPlain: String               // R.string.watch_tutorial_video_plain
 
     // Help & tips screen (#4134)
     val helpAndTips: String                           // R.string.help_and_tips
