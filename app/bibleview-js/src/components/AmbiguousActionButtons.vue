@@ -92,9 +92,9 @@ const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
          // Keep Memorize ahead of conditional goal actions so adding a goal cannot push it into More.
-         allButtons = ["BOOKMARK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         allButtons = ["BOOKMARK", "MEMORIZE", "LLM_ACTION", "REMOVE_MEMORIZATION_TARGET", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "ADD_PARAGRAPH_BREAK"];
     } else {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         allButtons = ["BOOKMARK", "LLM_ACTION", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK"];
     }
     if (!isExperimentalFeatureEnabled("add_paragraph_break")) {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");

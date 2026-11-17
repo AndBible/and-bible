@@ -33,21 +33,22 @@ afterEach(() => {
     document.body.innerHTML = "";
 });
 
-function mountButtons(targets) {
+function mountButtons(targets, settings = {}, selectionInfo = {
+    verseInfo: {bookInitials: "KJV", v11n: "KJV"},
+    startOrdinal: 1000, endOrdinal: 1000,
+}) {
     const memorization = {memorized: reactive(new Set()), targets};
     const strings = new Proxy({}, {get: (_, key) => String(key)});
     const appSettings = reactive({
         enabledExperimentalFeatures: [], llmConfigured: false,
         disableBibleModalButtons: [], disableGenericModalButtons: [],
+        ...settings,
     });
     return mount(AmbiguousActionButtons, {
         attachTo: document.body,
         props: {
             hasActions: false,
-            selectionInfo: {
-                verseInfo: {bookInitials: "KJV", v11n: "KJV"},
-                startOrdinal: 1000, endOrdinal: 1000,
-            },
+            selectionInfo,
         },
         global: {
             provide: {
@@ -66,6 +67,50 @@ function mountButtons(targets) {
 const primaryCount = (w) => w.findAll(".horizontal > .large-action").length - (w.find(".horizontal > .more-action").exists() ? 1 : 0);
 const hasMore = (w) => w.find(".horizontal > .more-action").exists();
 const primaryLabels = (w) => w.findAll(".horizontal > .large-action:not(.more-action) .title").map(b => b.text());
+
+describe("AI action priority (#4121)", () => {
+    it.each([false, true])("keeps configured AI visible on a narrow phone (goal: %s)", async (isGoal) => {
+        containerWidth = 320;
+        buttonWidth = 70;
+        const w = mountButtons(reactive(new Set(isGoal ? [1000] : [])), {llmConfigured: true});
+        try {
+            await flushPromises();
+            expect(hasMore(w)).toBe(true);
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseMemorize", "llmAction"]);
+            expect(primaryCount(w) * buttonWidth + 70).toBeLessThanOrEqual(containerWidth);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("keeps AI reachable in non-Bible menus without a Memorize action", async () => {
+        containerWidth = 320;
+        buttonWidth = 70;
+        const w = mountButtons(reactive(new Set()), {
+            llmConfigured: true, enabledExperimentalFeatures: ["add_paragraph_break"],
+        }, {ordinalInfo: {bookInitials: "Dictionary", osisRef: "word"}});
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toContain("llmAction");
+            expect(primaryLabels(w)).not.toContain("verseMemorize");
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("does not show AI when it is unconfigured or disabled", async () => {
+        for (const settings of [{llmConfigured: false}, {llmConfigured: true, disableBibleModalButtons: ["LLM_ACTION"]}]) {
+            const w = mountButtons(reactive(new Set()), settings);
+            try {
+                await flushPromises();
+                if (hasMore(w)) await w.find(".more-action").trigger("click");
+                expect(w.findAll(".title").map(b => b.text())).not.toContain("llmAction");
+            } finally {
+                w.unmount();
+            }
+        }
+    });
+});
 
 describe("verse menu button strip (#4106, #4116)", () => {
     it("keeps Memorize directly accessible for an existing goal on a narrow phone", async () => {

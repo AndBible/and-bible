@@ -8,6 +8,8 @@ under a **More** button:
 
 - [Bookmark](#bookmark)
 - [Memorize](#memorize), kept near the start so it remains directly accessible on phones even for existing goals.
+- **AI**, shown directly after **Memorize** when an AI provider is set up, ahead of **Goal -** and secondary actions.
+    See [AI](ai.md).
 - **Goal -**, shown when all the selected verses are memorization goals: removes them from the
     goals. See [Memorize](memorize.md).
 - [Note](#note)
@@ -15,7 +17,6 @@ under a **More** button:
 - [Share](#share)
 - [Compare](#comparing-verses)
 - [Speak](#speak)
-- **AI**, shown when an AI provider is set up. See [AI](ai.md).
 - **Paragraph**, shown only when the experimental *Add paragraph break bookmark* feature is on
     (see [Bookmarks](bookmarks.md#experimental-features)).
 
