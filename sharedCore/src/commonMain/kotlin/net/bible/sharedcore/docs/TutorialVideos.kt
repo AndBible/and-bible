@@ -61,6 +61,9 @@ object TutorialVideos {
         val slug: String get() = name.lowercase().replace('_', '-')
     }
 
+    /** The episodes that have a YouTube id, in series order. */
+    fun published(): List<Episode> = Episode.entries.filter { it.youtubeId != null }
+
     /** The video to open for the placeholder: its own watch URL, else the channel. */
     fun placeholderUrl(): String = resolve(null, PLACEHOLDER_VIDEO_ID)
 
