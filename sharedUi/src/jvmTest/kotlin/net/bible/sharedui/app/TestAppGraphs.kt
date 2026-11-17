@@ -32,5 +32,6 @@ object TestAppGraphs {
         backup = blank(net.bible.sharedui.backup.nav.BackupNavDeps::class.java),
         installZip = blank(net.bible.sharedui.installzip.nav.InstallZipNavDeps::class.java),
         welcome = blank(net.bible.sharedui.startup.nav.WelcomeNavDeps::class.java),
+        help = blank(net.bible.sharedui.help.nav.HelpNavDeps::class.java),
     )
 }

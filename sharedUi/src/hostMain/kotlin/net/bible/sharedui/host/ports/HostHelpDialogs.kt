@@ -18,6 +18,10 @@ class HostHelpDialogs(
     private val bundleHtml: (String) -> String,
     private val versionName: () -> String,
 ) : HelpDialogs {
+    override fun tipText(key: String): String = table().text(key)
+
+    override fun versionName(): String = versionName.invoke()
+
     override fun show(topic: HelpTopic) {
         val core = DocumentDialogsCore(dialogs, table)
         dialogs.post(AppDialogRequest.Localized {
@@ -29,7 +33,7 @@ class HostHelpDialogs(
                 )))
                 HelpTopic.HELP_AND_TIPS -> core.helpNotice(
                     HelpAndTips.items.map { item ->
-                        DocumentDialogsCore.HelpItem(t.text(item.titleKey), t.text(item.textKey), item.videoLink, helpPage(item.docPage))
+                        DocumentDialogsCore.HelpItem(t.text(item.titleKey), t.text(item.textKey), HelpAndTips.videoUrl(item), HelpAndTips.docUrl(item.docPage))
                     },
                     versionMsg = t.fmt("version_text", versionName()),
                     includeSponsor = false,
@@ -46,18 +50,4 @@ class HostHelpDialogs(
             }
         })
     }
-}
-
-// Literal calls keep the app-to-documentation link scanner authoritative.
-private fun helpPage(page: String?): String? = when (page) {
-    null -> null
-    "navigation" -> DocsLinks.page("navigation")
-    "windows" -> DocsLinks.page("windows")
-    "bookmarks" -> DocsLinks.page("bookmarks")
-    "study_pads" -> DocsLinks.page("study_pads")
-    "search" -> DocsLinks.page("search")
-    "workspaces" -> DocsLinks.page("workspaces")
-    "documents" -> DocsLinks.page("documents")
-    "look_and_feel" -> DocsLinks.page("look_and_feel")
-    else -> error("Unknown help page: $page")
 }

@@ -5,6 +5,15 @@ package net.bible.sharedui.app.ports
 @kotlin.native.HiddenFromObjC
 interface HelpDialogs {
     fun show(topic: HelpTopic)
+
+    /** The localized text of a help string resource [key] (`help_nav_text`...); the key itself where a host has no table. */
+    fun tipText(key: String): String = key
+
+    /** The app version name for the Help screen's version line; empty where unknown. */
+    fun versionName(): String = ""
+
+    /** The app's UI language tag, for language-aware video links. */
+    fun appLanguage(): String = "en"
 }
 
 /** The help topics lifted call sites use; each lifting task adds its constants. */

@@ -51,6 +51,7 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedui.app.ai.AiHost
 import net.bible.sharedui.app.backup.BackupFeatureHost
+import net.bible.sharedui.app.help.HelpHost
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.download.CloudDocumentsHost
@@ -60,6 +61,7 @@ import net.bible.sharedui.app.installzip.InstallZipOpener
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.DocumentInstallStarter
 import net.bible.sharedui.app.ports.DebugActions
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.PlatformText
@@ -283,6 +285,11 @@ class AppHosts(
         )
     }
 
+    /** The Help & tips destination's deps builder; built on first use, touches no database. */
+    val help: HelpHost by lazy {
+        HelpHost(shell = shell, strings = strings, helpDialogs = ports.helpDialogs, links = koin.get<ExternalLinks>(), dialogs = koin.get<AppDialogController>())
+    }
+
     /**
      * The InstallZip destination's deps builder, its opener and its host-level answer collector. Built on first use;
      * InstallZip starts uninitialised from Backup, so this touches no database.
@@ -414,11 +421,12 @@ class AppHosts(
         val backup = backup.navDeps(navController)
         val installZip = installZip.navDeps(navController, channels.installZip)
         val welcome = welcome.navDeps(navController)
+        val help = help.navDeps(navController)
         val workspace = workspace.navDeps(navController, channels.workspace, channels.textSettings, channels.manageLabels)
         return AppGraphs(
             ai = ai, bookmark = bookmark, readingPlan = readingPlan, search = search, settings = settings,
             download = download, myDocuments = myDocuments, chooser = chooser, workspace = workspace,
-            backup = backup, installZip = installZip, welcome = welcome,
+            backup = backup, installZip = installZip, welcome = welcome, help = help,
         )
     }
 

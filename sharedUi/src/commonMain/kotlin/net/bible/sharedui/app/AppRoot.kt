@@ -18,6 +18,8 @@ import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
 import net.bible.sharedui.download.nav.DownloadNavDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
+import net.bible.sharedui.help.nav.HelpNavDeps
+import net.bible.sharedui.help.nav.helpNavGraph
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
 import net.bible.sharedui.installzip.nav.installZipNavGraph
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
@@ -50,6 +52,7 @@ class AppGraphs(
     val backup: BackupNavDeps,
     val installZip: InstallZipNavDeps,
     val welcome: WelcomeNavDeps,
+    val help: HelpNavDeps,
 )
 
 /**
@@ -91,6 +94,7 @@ fun AppRoot(
         backupNavGraph(navController, graphs.backup)
         installZipNavGraph(navController, graphs.installZip)
         welcomeNavGraph(graphs.welcome)
+        helpNavGraph(navController, graphs.help)
         readingGraph()
     }
     overlays()

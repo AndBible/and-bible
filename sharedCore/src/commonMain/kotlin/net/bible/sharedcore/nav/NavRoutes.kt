@@ -512,6 +512,9 @@ object NavRoutes {
     /** Backup & restore (formerly `BackupComposeActivity`). */
     const val BACKUP: String = "backup/restore"
 
+    /** The full-screen Help & tips (tips and the user guide index). */
+    const val HELP: String = "help"
+
     const val ARG_INSTALL_ACTION: String = "installAction"
     const val ARG_INSTALL_URIS: String = "installUris"
 
