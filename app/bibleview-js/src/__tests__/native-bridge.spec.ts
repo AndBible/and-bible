@@ -13,7 +13,7 @@ function reset() {
     delete w.androidBridge;
     delete w.webkit;
     delete w.__activeLanguages__;
-    document.documentElement.classList.remove("desktop-host");
+    document.documentElement.classList.remove("desktop-host", "ios-host");
 }
 
 describe("native bridge", () => {
@@ -42,6 +42,23 @@ describe("native bridge", () => {
         w.androidBridge = {postMessage: () => {}, getActiveLanguages: () => '["en"]', desktop: true};
         installNativeBridge(w);
         expect(root.classList.contains("desktop-host")).toBe(true);
+    });
+
+    it("marks the document as ios-host only for the WKWebView transport", () => {
+        const root = document.documentElement;
+        w.webkit = {messageHandlers: {bridge: {postMessage: () => {}}}};
+        installNativeBridge(w);
+        expect(root.classList.contains("ios-host")).toBe(true);
+
+        reset();
+        w.androidBridge = {postMessage: () => {}, getActiveLanguages: () => '["en"]'};
+        installNativeBridge(w);
+        expect(root.classList.contains("ios-host")).toBe(false);
+
+        reset();
+        w.androidBridge = {postMessage: () => {}, getActiveLanguages: () => '["en"]', desktop: true};
+        installNativeBridge(w);
+        expect(root.classList.contains("ios-host")).toBe(false);
     });
 
     it("posts objects to webkit.messageHandlers.bridge on iOS", () => {

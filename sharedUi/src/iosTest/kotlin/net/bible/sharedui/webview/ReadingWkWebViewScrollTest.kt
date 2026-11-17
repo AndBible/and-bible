@@ -20,4 +20,16 @@ class ReadingWkWebViewScrollTest {
 
         assertFalse(webView.scrollView.scrollsToTop, "scroll-to-top must not move the saved reading position")
     }
+
+    /**
+     * BibleView-JS draws the iOS scrollbar itself (OverlayScrollbar.vue, issue #4137): a persistent thumb that the
+     * native indicator cannot be (it only flashes during a touch drag, and never for the Mac wheel path). Leaving the
+     * native one on would show two bars side by side while a finger scrolls.
+     */
+    @Test
+    fun readingWebViewHidesNativeVerticalIndicator() {
+        val webView = ReadingWkWebView(CGRectMake(0.0, 0.0, 320.0, 480.0), WKWebViewConfiguration())
+
+        assertFalse(webView.scrollView.showsVerticalScrollIndicator, "the page draws its own scrollbar")
+    }
 }
