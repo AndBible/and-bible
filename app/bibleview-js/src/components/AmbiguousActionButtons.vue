@@ -171,7 +171,9 @@ const primaryButtons = computed<ModalButtonId[]>(() => {
     const primary = baseButtons.slice(0, Math.max(0, count - 1));
     // Protect Memorize whenever two actions fit; preserve Bookmark as well when three fit.
     if (primary.length > 0 && baseButtons.includes("MEMORIZE") && !primary.includes("MEMORIZE")) {
-        const earlierAction = primary.findLastIndex(button => button !== "BOOKMARK");
+        // A loop instead of findLastIndex (ES2023), which older Android WebViews lack.
+        let earlierAction = primary.length - 1;
+        while (earlierAction >= 0 && primary[earlierAction] === "BOOKMARK") earlierAction--;
         primary.splice(earlierAction >= 0 ? earlierAction : 0, 1, "MEMORIZE");
     }
     return [...primary, "REMOVE_MEMORIZATION_TARGET"];
