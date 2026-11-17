@@ -31,6 +31,16 @@ class AwtWindowHandleTest {
         assertEquals(null, AwtWindowHandle.initialPositionDp(null, IntSize(1200, 800)))
     }
 
+    @Test fun activationBeforeWindowAttachmentIsAcceptedWithoutWaitingForColdStartup() {
+        val handle = AwtWindowHandle()
+        val started = System.nanoTime()
+        handle.activate()
+        kotlin.test.assertTrue(
+            java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started) < 1000,
+            "Activation must be queued, not wait for a cold window to attach",
+        )
+    }
+
     @Test fun restoredExtendedStateClearsOnlyTheIconifiedBit() {
         assertEquals(java.awt.Frame.NORMAL, AwtWindowHandle.restoredExtendedState(java.awt.Frame.ICONIFIED))
         assertEquals(

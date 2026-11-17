@@ -36,12 +36,14 @@ internal class HandOffPlatform(
     val windows: Boolean get() = osName.lowercase().startsWith("windows")
 }
 
-/** Bounded, acknowledged local hand-off; a callback owns the files before the acknowledgement is sent. */
+/** Bounded local activation/file hand-off; the receiver accepts activation and owns any files before acknowledging. */
 object InstanceHandOff {
     private const val MAX_FILES = 128
     private const val MAX_PATH = 8192
     private const val TIMEOUT_MS = 2000L
     private const val ACK = 0x41434b31
+    private const val ACTIVATE = -1
+    private const val SEND_TIMEOUT_MS = 3000L
 
     /** sun_path is about 108 bytes (NUL included); stay clear of it. Measured in UTF-8, the safe reading for non-ASCII. */
     private const val MAX_SOCKET_PATH_BYTES = 100
@@ -61,6 +63,7 @@ object InstanceHandOff {
 
     private fun address(path: Path) = UnixDomainSocketAddress.of(path)
 
+    /** [onFiles] accepts an activation request, even for an empty list, before the peer is acknowledged. */
     fun listen(dataDir: Path, onFiles: (List<Path>) -> Unit): AutoCloseable = listen(dataDir, HandOffPlatform(), onFiles)
 
     internal fun listen(dataDir: Path, platform: HandOffPlatform, onFiles: (List<Path>) -> Unit): AutoCloseable {
@@ -137,7 +140,10 @@ object InstanceHandOff {
                         it.configureBlocking(false)
                         val deadline = System.nanoTime() + TIMEOUT_MS * 1_000_000
                         fun readInt(): Int = ByteBuffer.allocate(4).also { b -> transfer(it, b, true, deadline); b.flip() }.int
-                        val count = readInt()
+                        // New launchers explicitly request activation, with an optional file payload. Accept the
+                        // original count-first frame too, so an older launcher can still hand files to this process.
+                        val message = readInt()
+                        val count = if (message == ACTIVATE) readInt() else message
                         require(count in 0..MAX_FILES)
                         val files = (0 until count).map {
                             val n = readInt()
@@ -172,7 +178,7 @@ object InstanceHandOff {
             require(files.size <= MAX_FILES)
             files.map { it.toAbsolutePath().normalize().toString().toByteArray(StandardCharsets.UTF_8).also { b -> require(b.size in 1..MAX_PATH) } }
         } catch (_: Exception) { return false }
-        val end = System.nanoTime() + 8_000_000_000L
+        val end = System.nanoTime() + SEND_TIMEOUT_MS * 1_000_000
         do {
             var connected = false
             try {
@@ -185,6 +191,8 @@ object InstanceHandOff {
                     }
                     connected = true
                     fun writeInt(n: Int) { val b = ByteBuffer.allocate(4).putInt(n); b.flip(); transfer(peer, b, false, deadline) }
+                    // Keep the wire format readable by an older instance still running after an update.
+                    // A zero count also activates a new receiver; the explicit frame remains receive-only.
                     writeInt(bytes.size)
                     bytes.forEach { writeInt(it.size); transfer(peer, ByteBuffer.wrap(it), false, deadline) }
                     val ack = ByteBuffer.allocate(4)

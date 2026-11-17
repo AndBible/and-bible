@@ -35,9 +35,37 @@ class AwtWindowHandle(
     private val factor: Double = 1.0,
 ) : DesktopWindowHandle {
     @Volatile private var window: Window? = null
+    private var restore: () -> Unit = {}
+    private val activationLock = Any()
+    private var pendingActivation = false
 
-    fun attach(window: Window) {
-        this.window = window
+    fun attach(window: Window, restore: () -> Unit = {}) {
+        val activate = synchronized(activationLock) {
+            this.restore = restore
+            this.window = window
+            pendingActivation.also { pendingActivation = false }
+        }
+        if (activate) toFront()
+    }
+
+    /** Cold-start requests are replayed on attach; an attached but frozen UI still fails within a bounded time. */
+    fun activate() {
+        synchronized(activationLock) {
+            if (window == null) {
+                pendingActivation = true
+                return
+            }
+        }
+        if (SwingUtilities.isEventDispatchThread()) {
+            raiseWindow()
+            return
+        }
+        val activated = java.util.concurrent.CompletableFuture<Unit>()
+        SwingUtilities.invokeLater {
+            try { raiseWindow(); activated.complete(Unit) }
+            catch (e: Exception) { activated.completeExceptionally(e) }
+        }
+        activated.get(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
     }
 
     override val sizeDp: IntSize
@@ -60,15 +88,18 @@ class AwtWindowHandle(
         }
 
     override fun toFront() {
+        SwingUtilities.invokeLater { raiseWindow() }
+    }
+
+    private fun raiseWindow() {
         val w = window ?: return
-        SwingUtilities.invokeLater {
-            (w as? Frame)?.let { frame ->
-                val restored = restoredExtendedState(frame.extendedState)
-                if (restored != frame.extendedState) frame.extendedState = restored
-            }
-            w.toFront()
-            w.requestFocus()
+        restore()
+        (w as? Frame)?.let { frame ->
+            val restored = restoredExtendedState(frame.extendedState)
+            if (restored != frame.extendedState) frame.extendedState = restored
         }
+        w.toFront()
+        w.requestFocus()
     }
 
     companion object {

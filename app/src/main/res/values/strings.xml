@@ -2370,4 +2370,5 @@
     <string name="recommend_get_it">Get it here: %s</string>
     <string name="recommend_share_link">Share a link</string>
     <string name="recommend_qr_caption">Scan to get AndBible for your phone, tablet or computer.</string>
+    <string name="desktop_activation_failed">AndBible is already running, but its window did not respond. Switch to the running instance and try again. Any incoming files were not confirmed as delivered.</string>
 </resources>

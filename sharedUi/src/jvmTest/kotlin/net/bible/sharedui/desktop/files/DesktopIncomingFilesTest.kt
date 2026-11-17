@@ -162,6 +162,66 @@ class DesktopIncomingFilesTest {
         }
     }
 
+    @Test fun earlyListenerActivatesBeforeAcknowledgingWithoutAnAppGraph() {
+        val dir = java.nio.file.Files.createTempDirectory("incoming-gate-activate")
+        var activations = 0
+        try {
+            requireNotNull(DesktopEarlyIncomingFiles.install(dir, activate = { activations++ }))
+            assertTrue(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, emptyList()))
+            assertEquals(1, activations)
+            val file = dir.resolve("book.zip")
+            assertTrue(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, listOf(file)))
+            assertEquals(2, activations)
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
+            dir.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun failedEarlyActivationIsNotAcknowledged() {
+        val dir = java.nio.file.Files.createTempDirectory("incoming-gate-stuck")
+        try {
+            requireNotNull(DesktopEarlyIncomingFiles.install(dir, activate = { error("UI did not respond") }))
+            kotlin.test.assertFalse(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, emptyList()))
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
+            dir.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun filesAreOwnedBeforeActivationAndSurviveItsFailure() {
+        val dir = java.nio.file.Files.createTempDirectory("incoming-before-activation")
+        val received = mutableListOf<java.nio.file.Path>()
+        var early: DesktopEarlyIncomingFiles? = null
+        try {
+            early = requireNotNull(DesktopEarlyIncomingFiles.install(dir, activate = {
+                // Simulate the graph attaching while activation runs, then a stuck UI.
+                early!!.listen(dir) { received.addAll(it) }
+                error("UI did not respond")
+            }))
+            val file = dir.resolve("book.epub")
+            kotlin.test.assertFalse(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, listOf(file)))
+            assertEquals(listOf(file), received, "Activation failure must not discard the accepted file")
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
+            dir.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun emptyHandOffDuringStartupIsNotLost() {
+        val dir = java.nio.file.Files.createTempDirectory("incoming-activate")
+        try {
+            val early = requireNotNull(DesktopEarlyIncomingFiles.install(dir))
+            assertTrue(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, emptyList()))
+            val received = mutableListOf<List<java.nio.file.Path>>()
+            early.listen(dir) { received.add(it) }
+            assertEquals(listOf(emptyList()), received, "The activation must survive until the receiver attaches")
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
+            dir.toFile().deleteRecursively()
+        }
+    }
+
     /** A connection arriving while listen() is still returning must not hit an uninitialised instance. */
     @Test fun aFileArrivingBeforeListenReturnsIsQueued() {
         val file = Paths.get("/tmp/early.zip")
