@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.search
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,14 +35,34 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.reading.readingShortcut
+import net.bible.sharedui.reading.searchFieldUsesCommandKeys
+import net.bible.sharedui.reading.searchResultKeyCharacter
 
 /**
  * What goes **inside** the reading view's search sheet: a header row (result count on the left, a
@@ -80,10 +101,28 @@ fun SearchSheetContent(
     listState: LazyListState,
     onDismissError: () -> Unit,
     onClose: () -> Unit,
+    resultCount: Int = 0,
+    requestResultsFocus: Boolean = true,
+    selection: MutableState<Int>? = null,
+    onOpenResult: (Int) -> Unit = {},
+    onEditQuery: (String?) -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    listContent: LazyListScope.() -> Unit,
+    listContent: LazyListScope.(Int) -> Unit,
 ) {
     val strings = LocalStrings.current
+    val focusRequester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
+    val localSelection = remember(listState) { mutableStateOf(listState.firstVisibleItemIndex) }
+    var selected by (selection ?: localSelection)
+    var listFocused by remember { mutableStateOf(false) }
+    LaunchedEffect(requestResultsFocus, loading, empty, listState, resultCount) {
+        if (requestResultsFocus && !loading && !empty && resultCount > 0) {
+            selected = selected.coerceIn(0, resultCount - 1)
+            // The toolbar may release its field in the same composition as cached results appear.
+            withFrameNanos { }
+            focusRequester.requestFocus()
+        }
+    }
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
@@ -113,7 +152,37 @@ fun SearchSheetContent(
                 state = listState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = listContent,
+                modifier = Modifier.focusRequester(focusRequester).onFocusChanged { listFocused = it.isFocused }.onPreviewKeyEvent { event ->
+                    val character = searchResultKeyCharacter(event)
+                    when {
+                        event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown && resultCount > 0 -> {
+                            selected = (selected + 1).coerceAtMost(resultCount - 1)
+                            scope.launch { listState.scrollToItem(selected) }
+                            true
+                        }
+                        event.type == KeyEventType.KeyDown && event.key == Key.DirectionUp && resultCount > 0 -> {
+                            if (selected == 0) onEditQuery(null) else {
+                                selected--
+                                scope.launch { listState.scrollToItem(selected) }
+                            }
+                            true
+                        }
+                        event.type == KeyEventType.KeyDown && event.key == Key.Enter && resultCount > 0 -> {
+                            onOpenResult(selected)
+                            true
+                        }
+                        readingShortcut(event, iosCommandKeys = searchFieldUsesCommandKeys) == "CtrlKeyF" -> {
+                            onEditQuery(null)
+                            true
+                        }
+                        character != null -> {
+                            onEditQuery(character)
+                            true
+                        }
+                        else -> false
+                    }
+                }.focusable(),
+                content = { listContent(if (listFocused) selected else -1) },
             )
         }
     }

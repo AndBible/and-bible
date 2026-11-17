@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.search
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -187,9 +188,11 @@ fun LazyListScope.bibleResultRows(
     expanded: MutableMap<String, Boolean>,
     labelSingleMatchTranslation: Boolean,
     onSelect: (referenceName: String, translationId: String?) -> Unit,
+    selectedIndex: Int = -1,
 ) {
-    items(rows, key = { it.referenceName }) { row ->
+    itemsIndexed(rows, key = { _, row -> row.referenceName }) { index, row ->
         BibleResultCard(
+            selected = index == selectedIndex,
             row = row,
             expanded = expanded[row.referenceName] == true,
             onToggleExpand = { expanded[row.referenceName] = !(expanded[row.referenceName] == true) },
@@ -207,10 +210,14 @@ internal fun BibleResultCard(
     onToggleExpand: () -> Unit,
     onSelect: (referenceName: String, translationId: String?) -> Unit,
     labelSingleMatchTranslation: Boolean = false,
+    selected: Boolean = false,
 ) {
     val strings = LocalStrings.current
     val multi = row.matches.size > 1
-    val cardModifier = Modifier.fillMaxWidth().let {
+    val outline = MaterialTheme.colorScheme.onSurface
+    val cardModifier = Modifier.fillMaxWidth().then(
+        if (selected) Modifier.border(2.dp, outline, MaterialTheme.shapes.medium) else Modifier,
+    ).let {
         if (!multi) it.clickable { onSelect(row.referenceName, row.matches.firstOrNull()?.translationId) } else it
     }
     Card(cardModifier) {

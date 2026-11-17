@@ -224,6 +224,12 @@ class ReadingSearchController(
         }
     }
 
+    /** Return to the query from the results, optionally replacing it with a typed character. */
+    fun editQuery(text: String? = null) {
+        if (text != null) queries.setQuery(text)
+        requestFieldFocus()
+    }
+
     /** The hardware find shortcut edits the query rather than reopening old results. */
     fun openFromShortcut() {
         val wasActive = _searchModeActive.value

@@ -47,7 +47,7 @@ class SearchSettingsSlotTest {
             CompositionLocalProvider(LocalStrings provides strings) {
                 MaterialTheme {
                     SearchSettingsSlotContent(
-                        f.state, f.state::searchSettingsForEpub, f.state::currentBookName, onClosed,
+                        f.state.session, f.state::searchSettingsForEpub, f.state::currentBookName, onClosed,
                     )
                 }
             }
