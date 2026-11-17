@@ -255,12 +255,12 @@ class ReadingHostSyncAndRestoreEventsTest {
     }
 
     @Test
-    fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
+    fun aWorkspaceRefreshRequiredReloadsTheWorkspace() {
         readingHost()
         countToasts()
         org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
         idleMain()
-        assertTrue(toasts > 0, "workspaceRefreshRequired must switch to the first workspace, as classic's did")
+        assertTrue(toasts > 0, "workspaceRefreshRequired must reload the workspace")
     }
 
     /** Inserts a second workspace after the first one, switches [activity] to it and returns its id. */
