@@ -6,9 +6,9 @@ import UIKit
 /// H/R feature navigation is outside this native-port suite.
 /// Harness contract: -filesPortTest selects the actual production port with its default presenter;
 /// files-port-open triggers it and files-port-idle returns only after the presentation has ended.
-final class FilesUITests: XCTestCase {
+final class FilesUITests: RealAppUITestCase {
     override func setUp() {
-        continueAfterFailure = false
+        super.setUp()
         addUIInterruptionMonitor(withDescription: "Notification permission only") { alert in
             guard alert.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'notifications'")).count > 0,
                   alert.buttons["Don't Allow"].exists else { return false }
@@ -27,17 +27,17 @@ final class FilesUITests: XCTestCase {
         }
     }
 
-    private func element(_ app: XCUIApplication, _ id: String) -> XCUIElement {
-        app.descendants(matching: .any).matching(identifier: id).firstMatch
-    }
-
     private func launchPort(_ port: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
                                "-filesPortTest", port, "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissNotificationPermissionIfPresent()
-        XCTAssertTrue(element(app, "files-port-idle").waitForExistence(timeout: 60), "Debug port harness not ready")
+        let ready = waitUntil(timeout: 60) {
+            dismissProvisioningReleaseNotice(app)
+            return element(app, "files-port-idle").exists
+        }
+        XCTAssertTrue(ready, "Debug port harness not ready")
         XCTAssertTrue(element(app, "files-port-open").isHittable, "Production-port trigger is not usable")
         return app
     }
@@ -143,7 +143,7 @@ final class FilesUITests: XCTestCase {
 
     // Folder selection must use actual IosDocumentPicker.openDocumentTree. The returned folder ref,
     // not Documents or an injected filesystem URL, is the independent destination oracle for both modes.
-    private func localRoot(_ app: XCUIApplication) -> XCUIElement {
+    private func filesLocalRoot(_ app: XCUIApplication) -> XCUIElement {
         // Files can retain the previous folder in its root accessibility identifier after navigating up.
         return app.otherElements.matching(NSPredicate(format:
             "identifier BEGINSWITH 'DOC.browsingRoot Source: com.apple.FileProvider.LocalStorage,'")).firstMatch
@@ -155,7 +155,7 @@ final class FilesUITests: XCTestCase {
         XCTAssertTrue(select.isHittable)
         select.tap()
         navigateToLocalRoot(app)
-        let root = localRoot(app)
+        let root = filesLocalRoot(app)
         if UIDevice.current.userInterfaceIdiom == .pad {
             let newFolders = root.navigationBars["FullDocumentManagerViewControllerNavigationBar"].buttons.matching(identifier: "New Folder")
             waitForSystemControl(newFolders.firstMatch, app: app, name: "folder-picker-new", message: "Folder picker cannot create local folder")
@@ -195,7 +195,7 @@ final class FilesUITests: XCTestCase {
     }
 
     private func navigateToLocalRoot(_ app: XCUIApplication) {
-        let root = localRoot(app)
+        let root = filesLocalRoot(app)
         let localName = UIDevice.current.userInterfaceIdiom == .pad ? "On My iPad" : "On My iPhone"
         let navigation = root.navigationBars["FullDocumentManagerViewControllerNavigationBar"]
         let rootTitle = navigation.staticTexts.matching(NSPredicate(format:
@@ -253,8 +253,8 @@ final class FilesUITests: XCTestCase {
         let opened = app.navigationBars["FullDocumentManagerViewControllerNavigationBar"]
             .buttons.matching(NSPredicate(format: "label == %@", "\(folderName), Actions Menu")).firstMatch
         if !opened.exists {
-            let folder = localRoot(app).cells.matching(identifier: "\(folderName), Folder").firstMatch
-            let grid = localRoot(app).collectionViews["File View"].firstMatch
+            let folder = filesLocalRoot(app).cells.matching(identifier: "\(folderName), Folder").firstMatch
+            let grid = filesLocalRoot(app).collectionViews["File View"].firstMatch
             waitForSystemControl(grid, app: app, name: "save-folder-grid", message: "Actual Files folder grid is missing")
             // "On My iPhone" can hold dozens of leftover folders and a blind full-height swipeDown at the list top pulls
             // the picker sheet down (the grid then vanishes). Find the uniquely named folder through the picker's own
@@ -265,7 +265,7 @@ final class FilesUITests: XCTestCase {
                 var search = app.searchFields.firstMatch
                 if !search.exists {
                     // iPad (run 7): the picker has no inline Search field; it sits behind the toolbar magnifier button.
-                    let magnifier = localRoot(app).buttons.matching(
+                    let magnifier = filesLocalRoot(app).buttons.matching(
                         NSPredicate(format: "label == 'Search' OR identifier == 'Search'")).firstMatch
                     if magnifier.exists && magnifier.isHittable {
                         magnifier.tap()
@@ -310,7 +310,7 @@ final class FilesUITests: XCTestCase {
             }
             if foundBySearch {
                 if folder.exists {
-                    XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
+                    XCTAssertEqual(filesLocalRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
                                    "Cannot uniquely identify the exact UI-created folder in the search results")
                     XCTAssertTrue(searchedCellSettled(app, folder), "Searched folder cell did not settle")
                 }
@@ -353,7 +353,7 @@ final class FilesUITests: XCTestCase {
                 if !drag(up: false) { return }
             }
             evidence(app, "save-unique-folder-scrolled")
-            let matches = localRoot(app).cells.matching(identifier: "\(folderName), Folder")
+            let matches = filesLocalRoot(app).cells.matching(identifier: "\(folderName), Folder")
             XCTAssertEqual(matches.count, 1, "Cannot uniquely identify the exact UI-created folder")
             guard matches.count == 1 else { return }
             var previousSnapshot: [String] = []
