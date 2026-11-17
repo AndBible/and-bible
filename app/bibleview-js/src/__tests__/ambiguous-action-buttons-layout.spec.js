@@ -67,16 +67,145 @@ function mountButtons(targets, settings = {}, selectionInfo = {
 const primaryCount = (w) => w.findAll(".horizontal > .large-action").length - (w.find(".horizontal > .more-action").exists() ? 1 : 0);
 const hasMore = (w) => w.find(".horizontal > .more-action").exists();
 const primaryLabels = (w) => w.findAll(".horizontal > .large-action:not(.more-action) .title").map(b => b.text());
+const secondaryLabels = (w) => w.findAll(".dropdown-menu .title").map(b => b.text());
+
+// Five 50px actions plus the estimated 70px More button fit at these phone widths.
+describe("base order and dynamic Goal - slot (#4116, #4121)", () => {
+    it.each([320, 350, 360])("puts Goal - last in the primary row at %s px and moves Share to the front of More", async (width) => {
+        containerWidth = width;
+        const w = mountButtons(reactive(new Set([1000])), {llmConfigured: true});
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseMemorize", "removeMemorizationTarget"]);
+            expect(primaryCount(w) * buttonWidth + 70).toBeLessThanOrEqual(containerWidth);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(["verseShare", "verseCompare", "verseMyNotes", "verseSpeak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it.each([320, 350, 360])("uses the base order without a goal at %s px", async (width) => {
+        containerWidth = width;
+        const w = mountButtons(reactive(new Set()), {llmConfigured: true});
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseMemorize", "verseShare"]);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(["verseCompare", "verseMyNotes", "verseSpeak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("appends Goal - after all base actions when everything fits", async () => {
+        containerWidth = 600;
+        const w = mountButtons(reactive(new Set([1000])), {
+            llmConfigured: true, enabledExperimentalFeatures: ["add_paragraph_break"],
+        });
+        try {
+            await flushPromises();
+            expect(hasMore(w)).toBe(false);
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseMemorize", "verseShare", "verseCompare", "verseMyNotes", "verseSpeak", "verseParagraphBreak", "removeMemorizationTarget"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("keeps the non-Bible base order without Bible-only actions", async () => {
+        const w = mountButtons(reactive(new Set([1000])), {
+            llmConfigured: true, enabledExperimentalFeatures: ["add_paragraph_break"],
+        }, {ordinalInfo: {bookInitials: "Dictionary", osisRef: "word"}, startOrdinal: 1000});
+        try {
+            await flushPromises();
+            expect(hasMore(w)).toBe(false);
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseSpeak", "verseParagraphBreak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it.each([
+        {width: 210, primary: ["verseMemorize", "removeMemorizationTarget"], secondary: ["addBookmark", "verseNote", "llmAction", "verseShare", "verseCompare", "verseMyNotes", "verseSpeak"]},
+        {width: 140, primary: ["removeMemorizationTarget"], secondary: ["addBookmark", "verseNote", "llmAction", "verseMemorize", "verseShare", "verseCompare", "verseMyNotes", "verseSpeak"]},
+    ])("handles the minimum measured capacity at $width px", async ({width, primary, secondary}) => {
+        containerWidth = width;
+        buttonWidth = 70;
+        const w = mountButtons(reactive(new Set([1000])), {llmConfigured: true});
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(primary);
+            expect(primaryCount(w) * buttonWidth + 70).toBeLessThanOrEqual(containerWidth);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(secondary);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("displaces AI rather than Memorize when the last ordinary slot is Memorize", async () => {
+        containerWidth = 350;
+        buttonWidth = 70;
+        const w = mountButtons(reactive(new Set([1000])), {llmConfigured: true});
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "verseMemorize", "removeMemorizationTarget"]);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(["llmAction", "verseShare", "verseCompare", "verseMyNotes", "verseSpeak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it.each([
+        {targets: [1000], settings: {}},
+        {targets: [1000, 1001], settings: {disableBibleModalButtons: ["REMOVE_MEMORIZATION_TARGET"]}},
+    ])("does not reserve a goal slot for a partial selection or a disabled goal action: %j", async ({targets, settings}) => {
+        const w = mountButtons(reactive(new Set(targets)), {llmConfigured: true, ...settings}, {
+            verseInfo: {bookInitials: "KJV", v11n: "KJV"}, startOrdinal: 1000, endOrdinal: 1001,
+        });
+        try {
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseMemorize", "verseShare"]);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(["verseCompare", "verseMyNotes", "verseSpeak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+
+    it("repositions Goal - when the measured capacity changes", async () => {
+        containerWidth = 320;
+        const w = mountButtons(reactive(new Set([1000])), {llmConfigured: true});
+        try {
+            await flushPromises();
+            containerWidth = 420;
+            window.dispatchEvent(new Event("resize"));
+            await flushPromises();
+            expect(primaryLabels(w)).toEqual(["addBookmark", "verseNote", "llmAction", "verseMemorize", "verseShare", "verseCompare", "removeMemorizationTarget"]);
+            await w.find(".more-action").trigger("click");
+            expect(secondaryLabels(w)).toEqual(["verseMyNotes", "verseSpeak"]);
+        } finally {
+            w.unmount();
+        }
+    });
+});
 
 describe("AI action priority (#4121)", () => {
-    it.each([false, true])("keeps configured AI visible on a narrow phone (goal: %s)", async (isGoal) => {
+    it.each([false, true])("handles three measured slots without displacing Memorize for a goal (goal: %s)", async (isGoal) => {
         containerWidth = 320;
         buttonWidth = 70;
         const w = mountButtons(reactive(new Set(isGoal ? [1000] : [])), {llmConfigured: true});
         try {
             await flushPromises();
             expect(hasMore(w)).toBe(true);
-            expect(primaryLabels(w)).toEqual(["addBookmark", "verseMemorize", "llmAction"]);
+            expect(primaryLabels(w)).toEqual(isGoal
+                ? ["addBookmark", "verseMemorize", "removeMemorizationTarget"]
+                : ["addBookmark", "verseNote", "llmAction"]);
+            if (isGoal) {
+                await w.find(".more-action").trigger("click");
+                expect(secondaryLabels(w)).toEqual(["verseNote", "llmAction", "verseShare", "verseCompare", "verseMyNotes", "verseSpeak"]);
+            }
             expect(primaryCount(w) * buttonWidth + 70).toBeLessThanOrEqual(containerWidth);
         } finally {
             w.unmount();

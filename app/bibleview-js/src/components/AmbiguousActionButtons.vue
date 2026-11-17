@@ -91,10 +91,9 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         // Keep Memorize ahead of conditional goal actions so adding a goal cannot push it into More.
-         allButtons = ["BOOKMARK", "MEMORIZE", "LLM_ACTION", "REMOVE_MEMORIZATION_TARGET", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "ADD_PARAGRAPH_BREAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "LLM_ACTION", "MEMORIZE", "SHARE", "COMPARE", "MY_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "REMOVE_MEMORIZATION_TARGET"];
     } else {
-         allButtons = ["BOOKMARK", "LLM_ACTION", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "LLM_ACTION", "SPEAK", "ADD_PARAGRAPH_BREAK"];
     }
     if (!isExperimentalFeatureEnabled("add_paragraph_break")) {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
@@ -161,23 +160,25 @@ async function recalculateVisibleButtons() {
     }
 }
 
-// Primary buttons are shown directly
+// Reserve the last measured slot for Goal -, keeping the other actions in base order.
 const primaryButtons = computed<ModalButtonId[]>(() => {
-    if (modalButtons.value.length <= visibleButtonCount.value) {
-        return modalButtons.value;
-    } else {
-        return modalButtons.value.slice(0, visibleButtonCount.value);
+    const buttons = modalButtons.value;
+    const count = visibleButtonCount.value;
+    if (buttons.length <= count) return buttons;
+    if (!buttons.includes("REMOVE_MEMORIZATION_TARGET")) return buttons.slice(0, count);
+
+    const baseButtons = buttons.filter(button => button !== "REMOVE_MEMORIZATION_TARGET");
+    const primary = baseButtons.slice(0, Math.max(0, count - 1));
+    // Protect Memorize whenever two actions fit; preserve Bookmark as well when three fit.
+    if (primary.length > 0 && baseButtons.includes("MEMORIZE") && !primary.includes("MEMORIZE")) {
+        const earlierAction = primary.findLastIndex(button => button !== "BOOKMARK");
+        primary.splice(earlierAction >= 0 ? earlierAction : 0, 1, "MEMORIZE");
     }
+    return [...primary, "REMOVE_MEMORIZATION_TARGET"];
 });
 
-// Secondary buttons are shown in the dropdown
-const secondaryButtons = computed(() => {
-    if (modalButtons.value.length <= visibleButtonCount.value) {
-        return [];
-    } else {
-        return modalButtons.value.slice(visibleButtonCount.value);
-    }
-});
+// Filtering preserves base order, including the displaced action at the front of More.
+const secondaryButtons = computed(() => modalButtons.value.filter(button => !primaryButtons.value.includes(button)));
 
 // Recalculate visible buttons when component mounts and whenever the window resizes
 onMounted(() => {

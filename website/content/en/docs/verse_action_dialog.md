@@ -3,22 +3,30 @@
 Tap a verse to select it and open the verse action dialog. The selection highlight
 covers the whole verse, including text in bulleted lists.
 
-The dialog has these buttons. When there is not enough width for all of them, the last ones move
-under a **More** button:
+For Bible verses, the dialog uses this button order. When there is not enough width for all of
+them, the last ones move under a **More** button:
 
 - [Bookmark](#bookmark)
-- [Memorize](#memorize), kept near the start so it remains directly accessible on phones even for existing goals.
-- **AI**, shown directly after **Memorize** when an AI provider is set up, ahead of **Goal -** and secondary actions.
-    See [AI](ai.md).
-- **Goal -**, shown when all the selected verses are memorization goals: removes them from the
-    goals. See [Memorize](memorize.md).
 - [Note](#note)
-- [My Notes](#my-notes)
+- **AI**, shown when an AI provider is set up. See [AI](ai.md).
+- [Memorize](#memorize)
 - [Share](#share)
 - [Compare](#comparing-verses)
+- [My Notes](#my-notes)
 - [Speak](#speak)
 - **Paragraph**, shown only when the experimental *Add paragraph break bookmark* feature is on
     (see [Bookmarks](bookmarks.md#experimental-features)).
+
+When all selected verses are memorization goals, **Goal -** removes them from the goals. It takes
+the last visible action slot, just before **More**, moving the displaced action to the front of
+**More**. It keeps **Memorize** visible whenever at least two actions fit: on a very narrow row an
+earlier action moves to **More** instead, with the overflow actions kept in their original order.
+If only one action fits, the row shows **Goal -** and the other actions are under **More**.
+If every action fits without
+**More**, **Goal -** comes last in the row. See [Memorize](memorize.md).
+
+For non-Bible documents, the order is **Bookmark**, **Note**, **AI** (when configured), **Speak**,
+and **Paragraph** (when enabled). Actions disabled in preferences are omitted.
 
 At the top of the dialog there is a **+** button that adds the following verse to the selection
 (see [Adding a bookmark](bookmarks.md#creating-a-bookmark)), a button that expands or collapses
