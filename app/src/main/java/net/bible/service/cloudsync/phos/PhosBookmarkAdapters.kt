@@ -53,15 +53,20 @@ internal fun SupportSQLiteDatabase.rows(sql: String, args: Array<Any?> = emptyAr
 
 internal fun blob(hex: String): ByteArray = ByteArray(16) { i -> hex.substring(i * 2, i * 2 + 2).toInt(16).toByte() }
 
-/** Re-keys a label row (and everything that points at it) onto a different id. */
-internal fun relabelId(d: SupportSQLiteDatabase, oldId: String, newId: String) {
+/**
+ * Re-keys a label row (and everything that points at it) onto a different id. The destination row is
+ * inserted first (its fields get overwritten by the caller's own upsert right after anyway) so moving the
+ * foreign-key references never points them at an id with no Label row yet.
+ */
+internal fun relabelId(d: SupportSQLiteDatabase, old: AbLabel, newId: String) {
+    writeLabel(d, old.copy(idHex = newId))
     for (table in listOf("BibleBookmarkToLabel", "GenericBookmarkToLabel", "StudyPadTextEntry")) {
-        d.execSQL("UPDATE $table SET labelId=? WHERE labelId=?", arrayOf<Any?>(blob(newId), blob(oldId)))
+        d.execSQL("UPDATE $table SET labelId=? WHERE labelId=?", arrayOf<Any?>(blob(newId), blob(old.idHex)))
     }
     for (table in listOf("BibleBookmark", "GenericBookmark")) {
-        d.execSQL("UPDATE $table SET primaryLabelId=? WHERE primaryLabelId=?", arrayOf<Any?>(blob(newId), blob(oldId)))
+        d.execSQL("UPDATE $table SET primaryLabelId=? WHERE primaryLabelId=?", arrayOf<Any?>(blob(newId), blob(old.idHex)))
     }
-    d.execSQL("DELETE FROM Label WHERE id=?", arrayOf<Any?>(blob(oldId)))
+    d.execSQL("DELETE FROM Label WHERE id=?", arrayOf<Any?>(blob(old.idHex)))
 }
 
 /** Labels of the bookmark database, by id and by name. */
@@ -136,12 +141,21 @@ class PhosLabelAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAdapte
         // originating id instead of each deriving their own from the name, which would otherwise race with
         // the classic file-based sync (which does carry the true id) and create a duplicate label
         val abId = ((p["ab"] as? JsonObject)?.str("abId"))?.takeIf { PhosIds.isUuidHex(it) }
-        if (abId != null && idx.byId[abId] == null) {
-            if (existing != null && existing.idHex != abId) {
-                relabelId(d, existing.idHex, abId)
-                existing = existing.copy(idHex = abId)
-            } else if (existing == null) {
-                existing = AbLabel(abId, name, DEFAULT_LABEL_COLOR)
+        var isNewRow = false
+        if (abId != null) {
+            val byAbId = idx.byId[abId]
+            when {
+                // the id already exists locally, under whatever name it currently has: this is the same
+                // label (possibly renamed since), not a new one to create alongside it
+                byAbId != null -> existing = byAbId
+                existing != null && existing.idHex != abId -> {
+                    // this device already created the label under a derived id (e.g. Phos delivered it
+                    // before the classic file-based sync caught up): merge onto the originating id so both
+                    // paths converge
+                    relabelId(d, existing, abId)
+                    existing = existing.copy(idHex = abId)
+                }
+                existing == null -> { existing = AbLabel(abId, name, DEFAULT_LABEL_COLOR); isNewRow = true }
             }
         }
         var l = PhosBookmarkCodec.labelFromJson(name, p, existing, DEFAULT_LABEL_COLOR)
@@ -150,8 +164,11 @@ class PhosLabelAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAdapte
             // id the same way ensureLabel() does for new local labels (e.g. that id was freed by a rename)
             val taken = idx.byId[l.idHex]
             if (taken != null && taken.name != name) l = l.copy(idHex = PhosIds.derivedUuidHex("phos-label-" + System.nanoTime(), name))
+            isNewRow = true
         }
-        if (l != existing) writeLabel(d, l)
+        // a brand-new row (no existing local row read from the database) must be written even if its
+        // computed fields happen to equal the placeholder used only for comparison, or it never gets inserted
+        if (isNewRow || l != existing) writeLabel(d, l)
         return true
     }
 }
@@ -186,9 +203,10 @@ class PhosBookmarkAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAda
 
     // ---------------- reading ----------------
 
-    private fun links(d: SupportSQLiteDatabase, table: String, labels: LabelIndex): Map<String, List<AbLink>> {
+    private fun links(d: SupportSQLiteDatabase, table: String, labels: LabelIndex, only: String? = null): Map<String, List<AbLink>> {
         val out = HashMap<String, MutableList<AbLink>>()
-        d.rows("SELECT bookmarkId, labelId, orderNumber, indentLevel, expandContent FROM $table") { c ->
+        d.rows("SELECT bookmarkId, labelId, orderNumber, indentLevel, expandContent FROM $table" + (if (only != null) " WHERE bookmarkId=?" else ""),
+            if (only != null) arrayOf<Any?>(blob(only)) else emptyArray()) { c ->
             val b = c.hexId(0) ?: return@rows
             val l = labels.byId[c.hexId(1) ?: return@rows] ?: return@rows
             if (labels.isSpecial(l.name)) return@rows
@@ -199,7 +217,7 @@ class PhosBookmarkAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAda
     }
 
     internal fun readBible(d: SupportSQLiteDatabase, labels: LabelIndex, only: String? = null): List<AbBibleBookmark> {
-        val links = links(d, "BibleBookmarkToLabel", labels)
+        val links = links(d, "BibleBookmarkToLabel", labels, only)
         val out = mutableListOf<AbBibleBookmark>()
         val where = if (only != null) " WHERE b.id=?" else ""
         d.rows("SELECT b.id, b.v11n, b.ordinalStart, b.ordinalEnd, b.book, b.startOffset, b.endOffset, b.wholeVerse, " +
@@ -217,7 +235,7 @@ class PhosBookmarkAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAda
     }
 
     internal fun readGeneric(d: SupportSQLiteDatabase, labels: LabelIndex, only: String? = null): List<AbGenericBookmark> {
-        val links = links(d, "GenericBookmarkToLabel", labels)
+        val links = links(d, "GenericBookmarkToLabel", labels, only)
         val out = mutableListOf<AbGenericBookmark>()
         val where = if (only != null) " WHERE g.id=?" else ""
         d.rows("SELECT g.id, g.`key`, g.bookInitials, g.ordinalStart, g.ordinalEnd, g.startOffset, g.endOffset, g.wholeVerse, " +

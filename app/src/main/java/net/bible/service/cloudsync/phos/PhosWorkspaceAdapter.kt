@@ -45,10 +45,14 @@ data class PhosPanel(
     val chapIndex: Int,
     val verseIndex: Int,
     val dictKey: String?,
+    /** The sending AndBible device's own Window.id, so an importing AndBible device can reuse it instead of
+     *  deriving a different one, which would otherwise duplicate the window once the classic file-based
+     *  sync (which does carry the true id) catches up. Other Phos clients ignore this field. */
+    val abWindowId: String? = null,
 )
 
 object PhosWorkspaceCodec {
-    val panelFields = setOf("module", "kind", "width", "groupId", "strongsAsTag", "bookIndex", "chapIndex", "verseIndex", "dictKey")
+    val panelFields = setOf("module", "kind", "width", "groupId", "strongsAsTag", "bookIndex", "chapIndex", "verseIndex", "dictKey", "abId")
 
     fun kindOf(category: String): String = when (category) {
         "BIBLE" -> "Bible"
@@ -87,6 +91,7 @@ object PhosWorkspaceCodec {
         o["chapIndex"] = JsonPrimitive(p.chapIndex)
         o["verseIndex"] = JsonPrimitive(p.verseIndex)
         p.dictKey?.takeIf { it.isNotEmpty() }?.let { o["dictKey"] = JsonPrimitive(it) }
+        p.abWindowId?.let { o["abId"] = JsonPrimitive(it) }
         return JsonObject(o)
     }
 
@@ -100,6 +105,7 @@ object PhosWorkspaceCodec {
         chapIndex = o.intOr("chapIndex", 0),
         verseIndex = o.intOr("verseIndex", 1),
         dictKey = o.str("dictKey") ?: o.str("entryKey"),
+        abWindowId = o.str("abId"),
     )
 
     fun workspaceToJson(idHex: String, name: String, panels: List<PhosPanel>): JsonObject = JsonObject(mapOf(
@@ -165,6 +171,7 @@ class PhosWorkspaceAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAd
                 chapIndex = if (versed) maxOf(0, c.getInt(7) - 1) else 0,
                 verseIndex = if (versed) c.getInt(8) else 1,
                 dictKey = key,
+                abWindowId = id,
             ), strongs)
         }
         return out
@@ -209,7 +216,8 @@ class PhosWorkspaceAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAd
         val current = windows(d, id)
         panels.forEachIndexed { i, p ->
             val w = current.getOrNull(i)
-            if (w == null) insertWindow(d, id, i, p, current) else if (w.panel != p) updateWindow(d, w, p)
+            // abWindowId is the sender's own window id, not this window's: never itself a reason to update
+            if (w == null) insertWindow(d, id, i, p, current) else if (w.panel.copy(abWindowId = p.abWindowId) != p) updateWindow(d, w, p)
         }
         for (w in current.drop(panels.size)) d.execSQL("DELETE FROM Window WHERE id=?", arrayOf<Any?>(blob(w.idHex)))
         if (panels.size > current.size) {
@@ -224,11 +232,19 @@ class PhosWorkspaceAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAd
     private fun v11nName(module: String): String =
         try { (Books.installed().getBook(module) as? AbstractPassageBook)?.versification?.name } catch (e: Exception) { null } ?: "KJVA"
 
+    private fun taken(d: SupportSQLiteDatabase, id: String): Boolean {
+        var t = false
+        d.rows("SELECT 1 FROM Window WHERE id=?", arrayOf<Any?>(blob(id))) { t = true }
+        return t
+    }
+
     private fun insertWindow(d: SupportSQLiteDatabase, wsHex: String, index: Int, p: PhosPanel, current: List<WindowRow>) {
-        var winId = PhosIds.windowUuidHex(wsHex, index)
-        var taken = false
-        d.rows("SELECT 1 FROM Window WHERE id=?", arrayOf<Any?>(blob(winId))) { taken = true }
-        if (taken) winId = PhosIds.derivedUuidHex("phos-ab-window", "$wsHex#$index#${System.nanoTime()}")
+        // reuse the originating device's own window id when it sent one and it is free locally, so two
+        // AndBible devices converge on the same id instead of each deriving their own and racing the
+        // classic file-based sync (which does carry the true id) into a duplicate window
+        val winId = p.abWindowId?.takeIf { PhosIds.isUuidHex(it) && !taken(d, it) }
+            ?: PhosIds.windowUuidHex(wsHex, index).takeIf { !taken(d, it) }
+            ?: PhosIds.derivedUuidHex("phos-ab-window", "$wsHex#$index#${System.nanoTime()}")
         val order = (current.maxOfOrNull { it.orderNumber } ?: -1) + 1 + (index - current.size)
         d.execSQL("INSERT INTO Window (workspaceId, isSynchronized, isPinMode, isLinksWindow, id, orderNumber, syncGroup, " +
             "window_layout_state, window_layout_weight) VALUES (?,1,0,0,?,?,?,'VISIBLE',?)",
@@ -244,7 +260,7 @@ class PhosWorkspaceAdapter(private val db: () -> SupportSQLiteDatabase) : PhosAd
             d.execSQL("UPDATE Window SET syncGroup=?, window_layout_weight=? WHERE id=?",
                 arrayOf<Any?>(p.groupId, p.width.takeIf { it > 0 } ?: 1.0, blob(w.idHex)))
         }
-        val samePage = w.panel.copy(groupId = p.groupId, width = p.width) == p
+        val samePage = w.panel.copy(groupId = p.groupId, width = p.width, abWindowId = p.abWindowId) == p
         if (!samePage) writePage(d, w.idHex, p, w.strongsMode)
     }
 

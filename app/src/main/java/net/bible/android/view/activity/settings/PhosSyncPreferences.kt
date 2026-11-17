@@ -92,22 +92,33 @@ object PhosSyncPreferences {
             }
         }
         showLast()
-        fun syncNow(confirmDeletes: Boolean) {
-            fragment.lifecycleScope.launch {
-                val hourglass = Hourglass(fragment.requireContext())
-                hourglass.show(R.string.synchronizing)
-                val result = PhosSync.synchronize(force = true, confirmDeletes = confirmDeletes)
-                hourglass.dismiss()
-                showLast()
-                if (!confirmDeletes && (result?.heldDeletes ?: 0) > 0) {
-                    Dialogs.showMsg(R.string.phos_sync_confirm_deletes, isCancelable = true) { syncNow(confirmDeletes = true) }
+        fun offerConfirmDeletesIfHeld() {
+            if (PhosSyncSettings.heldDeletes > 0) {
+                Dialogs.showMsg(R.string.phos_sync_confirm_deletes, isCancelable = true) {
+                    fragment.lifecycleScope.launch {
+                        val hourglass = Hourglass(fragment.requireContext())
+                        hourglass.show(R.string.synchronizing)
+                        PhosSync.synchronize(force = true, confirmDeletes = true)
+                        hourglass.dismiss()
+                        showLast()
+                    }
                 }
             }
         }
         now?.setOnPreferenceClickListener {
-            syncNow(confirmDeletes = false)
+            fragment.lifecycleScope.launch {
+                val hourglass = Hourglass(fragment.requireContext())
+                hourglass.show(R.string.synchronizing)
+                PhosSync.synchronize(force = true)
+                hourglass.dismiss()
+                showLast()
+                offerConfirmDeletesIfHeld()
+            }
             true
         }
+        // held-back deletions from an earlier (e.g. automatic) sync are offered here too, not only right
+        // after a manual "Synchronize now" click, so they are never silently stuck
+        offerConfirmDeletesIfHeld()
         screen.findPreference<Preference>("phos_sync_reset")?.setOnPreferenceClickListener {
             fragment.lifecycleScope.launch {
                 PhosSync.reset()

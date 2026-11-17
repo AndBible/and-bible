@@ -131,6 +131,28 @@ private class FailingHttp(private val inner: PhosHttp, private val failPath: Str
     }
 }
 
+/** A [PhosHttp] that lets [inner] actually process the call (so the server's state really changes), then
+ *  throws instead of returning the result, once — like a request that succeeded but whose response was lost. */
+private class LostResponseHttp(private val inner: PhosHttp, private val failPath: String) : PhosHttp {
+    var failed = false
+    override fun get(path: String, params: Map<String, String>) = inner.get(path, params)
+    override fun post(path: String, body: JsonObject): JsonObject {
+        val result = inner.post(path, body)
+        if (path == failPath && !failed) { failed = true; throw PhosHttpException(0, "simulated lost response") }
+        return result
+    }
+}
+
+/** A [PhosHttp] that runs [onPush] right before delegating a "/push" call to [inner], to simulate a local
+ *  edit landing while that HTTP call is in flight. */
+private class EditDuringPushHttp(private val inner: PhosHttp, private val onPush: () -> Unit) : PhosHttp {
+    override fun get(path: String, params: Map<String, String>) = inner.get(path, params)
+    override fun post(path: String, body: JsonObject): JsonObject {
+        if (path == "/push") onPush()
+        return inner.post(path, body)
+    }
+}
+
 class PhosSyncEngineTest {
     private fun obj(vararg p: Pair<String, Any>) = JsonObject(p.associate { (k, v) ->
         k to when (v) { is Int -> JsonPrimitive(v); is Boolean -> JsonPrimitive(v); else -> JsonPrimitive(v.toString()) }
@@ -378,5 +400,71 @@ class PhosSyncEngineTest {
         engine(server, store, a).run()
 
         assertEquals("#111111", server.records.values.single { it.type == "label" }.payload!!.str("color"))
+    }
+
+    @Test
+    fun deletingAnUnconfirmedItemBeforeRetryDoesNotResurrectIt() {
+        val server = FakeServer()
+        val a = MapAdapter("bookmark")
+        a.items["bm:1"] = obj("id" to "1")
+        val store = MemStore()
+        val lossyHttp = LostResponseHttp(server.http(), "/push")
+        try {
+            PhosSyncEngine(lossyHttp, store, listOf(a), "test", now = { 1_700_000_100_000L }).run()
+        } catch (e: PhosHttpException) {
+            // expected: the server actually stored it, but this device never saw the confirmation, so there
+            // is no shadow entry for it
+        }
+        assertEquals(1, server.records.size)
+
+        a.items.remove("bm:1")   // the user deletes it locally before any retry happens
+        engine(server, store, a).run()
+
+        assertTrue("the stale, never-confirmed upsert must not resurrect the deleted bookmark",
+            server.records.values.all { it.deleted })
+        assertTrue(a.items.isEmpty())
+    }
+
+    @Test
+    fun pushMergedResponseDoesNotOverwriteAConcurrentLocalEdit() {
+        val server = FakeServer()
+        val a = MapAdapter("label")
+        a.items["label:A"] = obj("name" to "A", "color" to "#111111")
+        val store = MemStore()
+        engine(server, store, a).run()   // baseline, so there is a confirmed shadow to compare against
+
+        a.items["label:A"] = obj("name" to "A", "color" to "#222222")   // queues an upsert for "#222222"
+        // the server answers with something other than "accepted" (duplicate/merged/...), carrying a
+        // record this device never asked for
+        server.forceDuplicate = { ch -> buildJsonObject {
+            put("collection", "p1"); put("type", "label"); put("key", ch.str("key")!!); put("rev", 9L); put("hlc", "x")
+            put("device", "other"); put("deleted", false); put("payload", obj("name" to "A", "color" to "#333333"))
+        } }
+        // the user edits again while that push's HTTP call is in flight
+        val http = EditDuringPushHttp(server.http()) { a.items["label:A"] = obj("name" to "A", "color" to "#444444") }
+        PhosSyncEngine(http, store, listOf(a), "test", now = { 1_700_000_200_000L }).run()
+
+        assertEquals("the concurrent edit must survive the stale push response", "#444444", a.items["label:A"]!!.str("color"))
+    }
+
+    @Test
+    fun pendingRetryAppliesOnALaterRunEvenAfterTheCursorHasMovedOn() {
+        val server = FakeServer()
+        val remote = MapAdapter("label")
+        remote.items["label:A"] = obj("name" to "A")
+        remote.items["label:B"] = obj("name" to "B")
+        engine(server, MemStore(), remote).run()
+
+        val local = MapAdapter("label")
+        local.failOnce += "label:A"
+        val store = MemStore()
+        engine(server, store, local).run()
+        assertEquals(1, local.items.size)   // "A" failed to apply, "B" did not
+
+        // nothing new on the server; the cursor has already moved past both records, so only the stashed
+        // pending retry can bring "A" back
+        engine(server, store, local).run()
+        assertEquals(2, local.items.size)
+        assertEquals("A", local.items["label:A"]!!.str("name"))
     }
 }

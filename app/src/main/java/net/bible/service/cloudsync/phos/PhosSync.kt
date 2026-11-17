@@ -51,6 +51,7 @@ object PhosSyncSettings {
     const val READING_PLANS = "phos_sync_readingplans"
     const val LAST_RUN = "phos_sync_last_run"
     const val LAST_RESULT = "phos_sync_last_result"
+    const val HELD_DELETES = "phos_sync_held_deletes"
 
     private val prefs get() = CommonUtils.realSharedPreferences
 
@@ -71,6 +72,11 @@ object PhosSyncSettings {
     var lastResult: String
         get() = prefs.getString(LAST_RESULT, null).orEmpty()
         set(v) = prefs.edit { putString(LAST_RESULT, v) }
+    /** Deletions the mass-delete guard is holding back, so the settings screen can keep offering to confirm
+     *  them even when the user did not just trigger the sync that found them (e.g. an automatic sync). */
+    var heldDeletes: Int
+        get() = prefs.getInt(HELD_DELETES, 0)
+        set(v) = prefs.edit { putInt(HELD_DELETES, v) }
 
     val configured: Boolean get() = enabled && server.isNotEmpty() && user.isNotEmpty() && password.isNotEmpty()
 }
@@ -164,6 +170,7 @@ object PhosSync {
             appVersion = CommonUtils.applicationVersionName, platform = "andbible", log = { Log.i(TAG, it) })
         val result = engine.run(confirmDeletes)
         PhosSyncSettings.lastRun = System.currentTimeMillis()
+        PhosSyncSettings.heldDeletes = result.heldDeletes
         val app = BibleApplication.application
         PhosSyncSettings.lastResult = buildList {
             add(app.getString(R.string.phos_sync_result, result.pushed, result.pulled))

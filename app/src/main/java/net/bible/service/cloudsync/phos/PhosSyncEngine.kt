@@ -196,6 +196,9 @@ class PhosSyncEngine(
     private val pulledTypes = mutableSetOf<String>()
     private val shadow = mutableMapOf<String, Shadow>()
     private val outbox = mutableListOf<Queued>()
+    /** Pulled records whose local write failed and must be retried, since the feed's cursor has moved past
+     *  them and won't deliver them again on its own. */
+    private val pendingRetry = mutableMapOf<String, JsonObject>()
     private val labels = mutableMapOf<String, Binding>()
     private val colls = mutableMapOf<String, CollInfo>()
     private val appliedKeys = mutableMapOf<String, MutableSet<String>>()
@@ -232,6 +235,7 @@ class PhosSyncEngine(
             val ch = o["change"] as? JsonObject ?: return@forEach
             outbox += Queued(o.str("sk").orEmpty(), o.str("h").orEmpty(), ch)
         }
+        (root["pending"] as? JsonObject)?.forEach { (k, v) -> (v as? JsonObject)?.let { pendingRetry[k] = it } }
         (root["labels"] as? JsonObject)?.forEach { (k, v) ->
             val o = v as? JsonObject ?: return@forEach
             labels[k] = Binding(o.str("c").orEmpty(), o.str("r").orEmpty())
@@ -260,6 +264,7 @@ class PhosSyncEngine(
             put("outbox", buildJsonArray {
                 for (q in outbox) add(buildJsonObject { put("sk", q.sk); put("h", q.h); put("change", q.change) })
             })
+            put("pending", buildJsonObject { for ((k, v) in pendingRetry) put(k, v) })
             put("labels", buildJsonObject {
                 for ((k, b) in labels) put(k, buildJsonObject { put("c", b.c); put("r", b.r) })
             })
@@ -273,7 +278,7 @@ class PhosSyncEngine(
     /** Forget everything about the server (other account, "start over"). Local data stays. */
     fun reset() {
         personal = ""; me = ""; cursor = 0L; pulledTypes.clear()
-        shadow.clear(); outbox.clear(); labels.clear(); colls.clear()
+        shadow.clear(); outbox.clear(); pendingRetry.clear(); labels.clear(); colls.clear()
         save()
     }
 
@@ -347,6 +352,25 @@ class PhosSyncEngine(
                 }
                 if (q >= 0) outbox[q] = Queued(key, h, change) else outbox += Queued(key, h, change)
             }
+            // outbox-only keys: a first push whose response was lost leaves no shadow entry at all. If the
+            // item is then deleted locally before the retry, the stale queued upsert must become a delete
+            // instead of surviving — a "duplicate" response to it would otherwise resurrect the item locally.
+            val outboxOnly = outbox.filter {
+                it.sk.startsWith(a.type + "\u0001") && it.change.str("op") == "upsert" && it.sk !in present && it.sk !in shadow
+            }
+            for (q in outboxOnly) {
+                val change = buildJsonObject {
+                    put("changeId", newChangeId())
+                    put("collection", q.change.str("collection").orEmpty())
+                    put("type", a.type)
+                    put("key", q.change.str("key").orEmpty())
+                    put("op", "delete")
+                    put("hlc", hlc.tick())
+                    put("baseRev", 0L)
+                }
+                outbox.removeAll { it.sk == q.sk }
+                outbox += Queued(q.sk, "deleted", change)
+            }
             // gone here: in the shadow, not local, not remote-only
             val gone = shadow.entries.filter { (k, s) ->
                 k.startsWith(a.type + "\u0001") && k !in present && s.h != "-"
@@ -401,6 +425,9 @@ class PhosSyncEngine(
             val results = (res["results"] as? JsonArray).orEmpty().mapNotNull { it as? JsonObject }
             val byId = results.associateBy { it.str("changeId") }
             val applied = mutableMapOf<PhosAdapter, MutableSet<String>>()
+            // the local rendering of each touched type, snapshotted once per batch, to tell whether the user
+            // edited an item again after detect() queued the push that is about to be answered for it
+            val liveByType = mutableMapOf<String, Map<String, PhosItem>>()
             for (q in batch) {
                 val r = byId[q.change.str("changeId")] ?: continue
                 val status = r.str("status").orEmpty()
@@ -426,20 +453,29 @@ class PhosSyncEngine(
                     if (deleted) shadow.remove(q.sk)
                     else shadow[q.sk] = Shadow(rec.str("collection").orEmpty(), rec.str("key").orEmpty(), rec.long("rev"), q.h, rec["payload"] as? JsonObject)
                 } else {
-                    // merged / superseded / conflict / forbidden: the server's version is the one. Applied
-                    // one record at a time so a write failure here rolls back only that record, not its
-                    // batch-mates, and never gets a permanent "unrepresentable" shadow entry.
                     val a = byType[type] ?: continue
-                    a.beginApply()
-                    var ok = false
-                    try {
-                        applyRecord(a, rec, localKey)?.let { applied.getOrPut(a) { mutableSetOf() } += it }
-                        ok = true
-                    } catch (t: Throwable) {
-                        problems += "$type $localKey: ${t.message}"
-                        log("applying $type $localKey failed: ${t.message}")
-                    } finally {
-                        a.endApply(ok)
+                    val live = liveByType.getOrPut(type) { a.enumerate().associateBy { it.key } }
+                    val liveHash = live[localKey]?.let { phosHash(it.payload) } ?: "-"
+                    if (liveHash != q.h) {
+                        // the user edited this item again after detect() queued this push: keep that edit,
+                        // just adopt the new revision/payload so the next detect() rebases on the correct
+                        // baseRev, instead of overwriting it with the server's answer to the stale push
+                        shadow[q.sk] = Shadow(rec.str("collection").orEmpty(), rec.str("key").orEmpty(), rec.long("rev"), q.h, rec["payload"] as? JsonObject)
+                    } else {
+                        // merged / superseded / conflict / forbidden: the server's version is the one.
+                        // Applied one record at a time so a write failure here rolls back only that record,
+                        // not its batch-mates, and never gets a permanent "unrepresentable" shadow entry.
+                        a.beginApply()
+                        var ok = false
+                        try {
+                            applyRecord(a, rec, localKey)?.let { applied.getOrPut(a) { mutableSetOf() } += it }
+                            ok = true
+                        } catch (t: Throwable) {
+                            problems += "$type $localKey: ${t.message}"
+                            log("applying $type $localKey failed: ${t.message}")
+                        } finally {
+                            a.endApply(ok)
+                        }
                     }
                 }
             }
@@ -510,7 +546,15 @@ class PhosSyncEngine(
         if (wasReset) reconcileAfterReset(records, readable)
         var applied = 0
         for (a in adapters) {
-            val mine = records.filter { it.str("type") == a.type }
+            // upserts before deletes: a key that both leaves (delete) and arrives (upsert, e.g. a rename
+            // keyed by name) in the same batch must never be deleted after it has already been re-created,
+            // or the delete silently removes what the upsert just (re)wrote
+            val fresh = records.filter { it.str("type") == a.type }.sortedBy { it.bool("deleted") }
+            for (rec in fresh) localKeyOf(a, rec)?.let { pendingRetry.remove(sk(a.type, it)) }
+            // records whose write failed on an earlier run: retried here, since the live feed's cursor has
+            // already moved past them and won't deliver them again on its own
+            val retried = pendingRetry.filterKeys { it.startsWith(a.type + "\u0001") }.values.toList()
+            val mine = fresh + retried
             if (mine.isEmpty()) continue
             // the current local state, snapshotted once up front, so a record is only overwritten when it is
             // still as clean as detect() last found it (see applyIfNewer)
@@ -534,9 +578,11 @@ class PhosSyncEngine(
                     val k = applyIfNewer(a, rec, live, baseline)
                     ok = true
                     if (k != null) { keys += k; applied++ }
+                    localKeyOf(a, rec)?.let { pendingRetry.remove(sk(a.type, it)) }
                 } catch (t: Throwable) {
                     val localKey = rec.str("key").orEmpty()
                     problems += "${a.type} $localKey: ${t.message}"
+                    localKeyOf(a, rec)?.let { pendingRetry[sk(a.type, it)] = rec }
                     log("applying ${a.type} $localKey failed: ${t.message}")
                 } finally {
                     a.endApply(ok)
@@ -662,7 +708,7 @@ class PhosSyncEngine(
                 a.beginApply()
                 var ok = false
                 try {
-                    a.apply(localKey, null, true)
+                    if (a.apply(localKey, null, true)) appliedKeys.getOrPut(a.type) { mutableSetOf() } += localKey
                     ok = true
                 } catch (t: Throwable) {
                     log("reconciling ${a.type} $localKey after reset failed: ${t.message}")
@@ -686,11 +732,30 @@ class PhosSyncEngine(
                 val names = (payload["labelNames"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
                 // the first shared label decides the collection; members see its labels only
                 val coll = names.firstNotNullOfOrNull { labels[it]?.c } ?: return Triple(personal, key, payload)
-                val remote = names.mapNotNull { n -> labels[n]?.takeIf { it.c == coll }?.r }
-                return Triple(coll, key, JsonObject(payload + ("labelNames" to JsonArray(remote.map { JsonPrimitive(it) }))))
+                val remoteByLocal = names.mapNotNull { n -> labels[n]?.takeIf { it.c == coll }?.let { n to it.r } }.toMap()
+                val newPayload = JsonObject(payload +
+                    ("labelNames" to JsonArray(remoteByLocal.values.map { JsonPrimitive(it) })) +
+                    ("ab" to (filterAbForSharing(payload["ab"] as? JsonObject, remoteByLocal) ?: JsonObject(emptyMap()))))
+                return Triple(coll, key, newPayload)
             }
         }
         return Triple(personal, key, payload)
+    }
+
+    /**
+     * The "ab" object of a bookmark payload with only the shared-collection label names kept (remapped to
+     * their remote names), so a bookmark tagged with both a shared and a private label never leaks the
+     * private label's name or per-label layout to the collection's other members.
+     */
+    private fun filterAbForSharing(ab: JsonObject?, remoteByLocal: Map<String, String>): JsonObject? {
+        if (ab == null) return null
+        val out = LinkedHashMap<String, JsonElement>(ab)
+        (ab["labels"] as? JsonObject)?.let { layout ->
+            out["labels"] = JsonObject(remoteByLocal.mapNotNull { (local, remote) -> layout[local]?.let { remote to it } }.toMap())
+        }
+        val remotePrimary = ab.str("primaryLabel")?.let { remoteByLocal[it] }
+        if (remotePrimary != null) out["primaryLabel"] = JsonPrimitive(remotePrimary) else out.remove("primaryLabel")
+        return JsonObject(out)
     }
 
     /**
