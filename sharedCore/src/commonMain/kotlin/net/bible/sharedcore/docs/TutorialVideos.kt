@@ -21,8 +21,11 @@ object TutorialVideos {
     /** Id of the tutorials playlist ("AndBible tutorials"); null until the playlist is public. */
     val TUTORIAL_PLAYLIST_ID: String? = null
 
-    /** One video of the series; [youtubeId] is null until it is published. */
-    enum class Episode(val youtubeId: String?) {
+    /**
+     * One video of the series; [youtubeId] is null until it is published. [subtitles] are the YouTube caption
+     * languages (BCP-47, sorted) uploaded besides English; `youtube_upload.py` prints the matching `setOf(...)`.
+     */
+    enum class Episode(val youtubeId: String?, val subtitles: Set<String> = emptySet()) {
         WHATS_NEW_6_0(null),
         TUTORIAL_01_GETTING_STARTED(null),
         TUTORIAL_02_FINDING_YOUR_WAY(null),

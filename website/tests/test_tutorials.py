@@ -42,6 +42,13 @@ def test_load(tmp_path):
     assert [e.slug for e in series.by_docs()["search"]] == ["whats-new-6-0", "tutorial-01-a", "tutorial-02-b"]
 
 
+def test_subtitles_are_loaded_and_default_to_none(tmp_path):
+    text = GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [de, fi, pt-BR, zh-Hans-CN]}")
+    series = load(write(tmp_path, text), {"search"})
+    assert series.episodes[2].subtitles == ("de", "fi", "pt-BR", "zh-Hans-CN")
+    assert series.episodes[0].subtitles == ()
+
+
 def test_missing_file_is_an_empty_series(tmp_path):
     assert load(tmp_path / "none.yaml", set()) == Series(None, ())
 
@@ -54,6 +61,11 @@ def test_missing_file_is_an_empty_series(tmp_path):
     (GOOD.replace("abcDEF12345", PLACEHOLDER), "reuses"),
     (GOOD.replace("advanced-search", "bad anchor"), "anchor"),
     (GOOD.replace("title: One", "title: ''"), "no title"),
+    (GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [fi, de]}"), "sorted"),
+    (GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [en]}"), "English"),
+    (GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [fi, fi]}"), "sorted"),
+    (GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [FI]}"), "subtitle"),
+    (GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: fi}"), "list"),
 ])
 def test_invalid_series_rejected(tmp_path, bad, message):
     with pytest.raises(ValueError, match=message):
@@ -117,12 +129,15 @@ def test_stage_requires_a_thumbnail_for_a_published_episode(tmp_path):
 
 # --- The real file ---------------------------------------------------------------------------------
 
-def _kotlin_episodes() -> dict[str, str | None]:
+def _kotlin_episodes() -> dict[str, tuple[str | None, tuple[str, ...]]]:
+    """Episode slug to (youtube id, sorted subtitle languages) as written in the enum."""
     text = KOTLIN.read_text(encoding="utf-8")
     block = text.split("enum class Episode", 1)[1].split(";", 1)[0]
     found = {}
-    for name, ident in re.findall(r"^\s*([A-Z0-9_]+)\((null|\"[A-Za-z0-9_-]{11}\")\)", block, re.M):
-        found[name.lower().replace("_", "-")] = None if ident == "null" else ident.strip('"')
+    pattern = r"^\s*([A-Z0-9_]+)\((null|\"[A-Za-z0-9_-]{11}\")(?:,\s*setOf\(([^)]*)\))?\)"
+    for name, ident, langs in re.findall(pattern, block, re.M):
+        subtitles = tuple(re.findall(r'"([^"]+)"', langs))
+        found[name.lower().replace("_", "-")] = (None if ident == "null" else ident.strip('"'), subtitles)
     return found
 
 
@@ -137,7 +152,7 @@ def test_real_file_is_valid():
 
 def test_tutorials_yaml_and_the_app_registry_agree():
     data = yaml.safe_load(DATA.read_text(encoding="utf-8"))
-    assert {e["slug"]: e["youtube"] for e in data["episodes"]} == _kotlin_episodes()
+    assert {e["slug"]: (e["youtube"], tuple(e["subtitles"])) for e in data["episodes"]} == _kotlin_episodes()
     placeholder = re.search(r'PLACEHOLDER_VIDEO_ID: String\? = (null|"([^"]+)")', KOTLIN.read_text()).group(2)
     assert data["placeholder"] == placeholder
 
@@ -146,6 +161,11 @@ def test_tutorials_yaml_and_the_app_registry_agree():
 def test_episode_folders_and_tutorials_yaml_agree():
     folders = {d.name for d in EPISODES.iterdir() if d.name.startswith("tutorial-") or d.name == "whats-new-6-0"}
     assert folders == {e["slug"] for e in yaml.safe_load(DATA.read_text())["episodes"]}
+
+
+def test_every_real_episode_declares_its_subtitles():
+    data = yaml.safe_load(DATA.read_text(encoding="utf-8"))
+    assert all("subtitles" in e for e in data["episodes"])
 
 
 def test_the_site_build_never_reads_website_video():
