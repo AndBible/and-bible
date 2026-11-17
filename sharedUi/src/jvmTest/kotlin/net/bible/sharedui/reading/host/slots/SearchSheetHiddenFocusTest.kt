@@ -72,6 +72,9 @@ class SearchSheetHiddenFocusTest {
             // The headless test host does not perform the native window's Tab traversal.
             runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
             onNodeWithTag("reader").assertIsFocused()
+            // The click above was a pointer press; typing the query (a hardware key in the real Find
+            // field) makes reopened results keyboard-focused again. Touch users keep their focus.
+            runOnIdle { net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = true }
 
             runOnIdle { session.controller.showResults() }
             onNodeWithText("Gen.1.2").assertExists()
@@ -82,6 +85,7 @@ class SearchSheetHiddenFocusTest {
                 assertEquals("Gen.1.1", fixture.platform.shown.single().second.getName())
             }
         } finally {
+            net.bible.sharedui.search.FindKeyboardInput.lastWasHardwareKey = false
             state.dispose()
             fixture.state.dispose()
             fixture.scope.cancel()

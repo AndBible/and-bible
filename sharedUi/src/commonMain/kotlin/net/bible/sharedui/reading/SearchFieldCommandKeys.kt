@@ -7,3 +7,6 @@ internal expect val searchFieldUsesCommandKeys: Boolean
 
 /** A committed printable character; platform key-down and text events differ. */
 internal expect fun searchResultKeyCharacter(event: KeyEvent): String?
+
+/** False for key events an on-screen keyboard synthesizes (Android IMEs send some keys as events). */
+internal expect fun isHardwareKeyEvent(event: KeyEvent): Boolean

@@ -48,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -62,6 +64,7 @@ import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.reading.readingShortcut
 import net.bible.sharedui.reading.searchFieldUsesCommandKeys
+import net.bible.sharedui.reading.isHardwareKeyEvent
 import net.bible.sharedui.reading.searchResultKeyCharacter
 
 /**
@@ -115,8 +118,15 @@ fun SearchSheetContent(
     val localSelection = remember(listState) { mutableStateOf(listState.firstVisibleItemIndex) }
     var selected by (selection ?: localSelection)
     var listFocused by remember { mutableStateOf(false) }
-    LaunchedEffect(requestResultsFocus, loading, empty, listState, resultCount) {
-        if (requestResultsFocus && !loading && !empty && resultCount > 0) {
+    val inputModeManager = LocalInputModeManager.current
+    fun keyboardUser() = inputModeManager.inputMode == InputMode.Keyboard || FindKeyboardInput.lastWasHardwareKey
+    val keyboardMode = keyboardUser()
+    val hasResults = requestResultsFocus && !loading && !empty && resultCount > 0
+    // Once per shown result set (a new search passes through loading; reopening recomposes this),
+    // not on every count change, which would pull focus back from the query while the user types.
+    // Touch users keep their focus: only keyboard mode moves it into the list.
+    LaunchedEffect(hasResults, listState) {
+        if (hasResults && keyboardUser()) {
             selected = selected.coerceIn(0, resultCount - 1)
             // The toolbar may release its field in the same composition as cached results appear.
             withFrameNanos { }
@@ -153,7 +163,11 @@ fun SearchSheetContent(
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.focusRequester(focusRequester).onFocusChanged { listFocused = it.isFocused }.onPreviewKeyEvent { event ->
-                    val character = searchResultKeyCharacter(event)
+                    // Only the list itself: a focused row (Tab into a card or its expand button) keeps its keys.
+                    if (!listFocused) return@onPreviewKeyEvent false
+                    if (event.type == KeyEventType.KeyDown && isHardwareKeyEvent(event)) FindKeyboardInput.lastWasHardwareKey = true
+                    // Space is no query text: it would replace the query with a blank.
+                    val character = searchResultKeyCharacter(event)?.takeIf { it.isNotBlank() }
                     when {
                         event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown && resultCount > 0 -> {
                             selected = (selected + 1).coerceAtMost(resultCount - 1)
@@ -167,7 +181,7 @@ fun SearchSheetContent(
                             }
                             true
                         }
-                        event.type == KeyEventType.KeyDown && event.key == Key.Enter && resultCount > 0 -> {
+                        event.type == KeyEventType.KeyDown && (event.key == Key.Enter || event.key == Key.NumPadEnter) && resultCount > 0 -> {
                             onOpenResult(selected)
                             true
                         }
@@ -182,7 +196,7 @@ fun SearchSheetContent(
                         else -> false
                     }
                 }.focusable(),
-                content = { listContent(if (listFocused) selected else -1) },
+                content = { listContent(if (listFocused && keyboardMode) selected else -1) },
             )
         }
     }

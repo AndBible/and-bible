@@ -17,3 +17,5 @@ internal actual fun searchResultKeyCharacter(event: KeyEvent): String? {
     val char = event.utf16CodePoint
     return if (char in 32 until 0xffff && char != 127) char.toChar().toString() else null
 }
+
+internal actual fun isHardwareKeyEvent(event: KeyEvent): Boolean = true

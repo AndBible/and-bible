@@ -14,3 +14,9 @@ internal actual fun searchResultKeyCharacter(event: KeyEvent): String? {
     val code = event.utf16CodePoint
     return if (code in 32 until 0xffff && code != 127) code.toChar().toString() else null
 }
+
+internal actual fun isHardwareKeyEvent(event: KeyEvent): Boolean {
+    val native = event.nativeKeyEvent
+    return native.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD == 0 &&
+        native.deviceId != android.view.KeyCharacterMap.VIRTUAL_KEYBOARD
+}
