@@ -171,10 +171,7 @@ open class WindowControl constructor() {
             linksWindow.windowState = WindowState.VISIBLE
         }
         if (replacedMaximised != null) {
-            windowRepository.maximizedReturnWindowIds.apply {
-                remove(replacedMaximised.id)
-                add(replacedMaximised.id)
-            }
+            windowRepository.maximizedReturnPoints.removeAll { it.returnWindowId == replacedMaximised.id }
             windowRepository.maximizedWindowId = linksWindow.id
             windowRepository.activeWindow = linksWindow
         }
@@ -195,6 +192,12 @@ open class WindowControl constructor() {
         linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
 
         if (replacedMaximised != null) {
+            // Measured after the link is shown: the links window's own history starts here.
+            windowRepository.maximizedReturnPoints.add(
+                WindowRepository.MaximisedReturnPoint(
+                    replacedMaximised.id, linksWindow.id, windowRepository.historyDepth(linksWindow.id),
+                )
+            )
             windowSync.reloadAllWindows()
             windowRepository.notifyWindowsChanged()
         } else if (!linksWindowWasVisible) {
@@ -251,7 +254,7 @@ open class WindowControl constructor() {
         if (isWindowRemovable(window)) {
             Log.i(TAG, "Closing window " + window.id)
             val returnsToReplacedMaximised = window.id == windowRepository.maximizedWindowId &&
-                windowRepository.maximizedReturnWindowIds.isNotEmpty()
+                windowRepository.maximizedReturnPoints.isNotEmpty()
             windowRepository.close(window)
             // #4141: closing the maximised links window brings back the maximised window it replaced.
             if (returnsToReplacedMaximised && maximisePreviousReturnWindow()) return
@@ -345,7 +348,7 @@ open class WindowControl constructor() {
     }
 
     fun maximiseWindow(window: Window) {
-        windowRepository.maximizedReturnWindowIds.clear()
+        windowRepository.maximizedReturnPoints.clear()
         windowRepository.maximizedWindowId = window.id
         windowSync.reloadAllWindows()
         windowRepository.notifyWindowsChanged()
@@ -353,20 +356,38 @@ open class WindowControl constructor() {
 
     /**
      * #4141: when a link from a maximised window replaced it with the maximised links window, maximises the replaced
-     * window again (at the position it kept) and returns true; otherwise changes nothing and returns false.
+     * window again (at the position it kept) and returns true. When every replaced window has been closed since, leaves
+     * maximised mode instead (true), so the links window does not stay maximised with no way back. Otherwise changes
+     * nothing and returns false.
      */
     fun returnFromMaximisedLinksWindow(): Boolean {
         if (!windowRepository.isMaximized) {
-            windowRepository.maximizedReturnWindowIds.clear()
+            windowRepository.maximizedReturnPoints.clear()
             return false
         }
-        return maximisePreviousReturnWindow()
+        val hadReturnPoints = windowRepository.maximizedReturnPoints.isNotEmpty()
+        if (maximisePreviousReturnWindow()) return true
+        if (!hadReturnPoints) return false
+        unMaximise()
+        return true
+    }
+
+    /**
+     * #4141: whether the maximised links window has history of its own since it took the maximised place (a passage
+     * opened in it); Back then walks that history before [returnFromMaximisedLinksWindow].
+     */
+    fun maximisedLinksWindowHasOwnHistory(): Boolean {
+        val point = windowRepository.maximizedReturnPoints.lastOrNull() ?: return false
+        val maximised = windowRepository.maximizedWindow ?: return false
+        if (point.linksWindowId != maximised.id) return false
+        return windowRepository.historyDepth(maximised.id) > point.linksHistoryDepth
     }
 
     private fun maximisePreviousReturnWindow(): Boolean {
-        val returnIds = windowRepository.maximizedReturnWindowIds
-        while (returnIds.isNotEmpty()) {
-            val previous = windowRepository.getWindow(returnIds.removeAt(returnIds.lastIndex)) ?: continue
+        val returnPoints = windowRepository.maximizedReturnPoints
+        while (returnPoints.isNotEmpty()) {
+            val point = returnPoints.removeAt(returnPoints.lastIndex)
+            val previous = windowRepository.getWindow(point.returnWindowId) ?: continue
             windowRepository.maximizedWindowId = previous.id
             windowRepository.activeWindow = previous
             windowSync.reloadAllWindows()
@@ -377,7 +398,7 @@ open class WindowControl constructor() {
     }
 
     fun unMaximise() {
-        windowRepository.maximizedReturnWindowIds.clear()
+        windowRepository.maximizedReturnPoints.clear()
         windowRepository.maximizedWindowId = null
         windowSync.reloadAllWindows()
         windowRepository.notifyWindowsChanged()
