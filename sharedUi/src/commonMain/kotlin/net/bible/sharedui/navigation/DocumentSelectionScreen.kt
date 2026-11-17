@@ -255,7 +255,7 @@ fun DocumentSelectionScreen(
         // true, unlike ConfirmDownload's setCancelable(false).
         DocumentSelectionDialog.ProceedWithDownload -> AbOptionsDialog(
             title = strings.downloadQuestionTitle,
-            message = strings.downloadQuestionMessage,
+            message = strings.downloadQuestionMessage(strings.installZipTitle),
             options = listOf(
                 SettingsItem.Choice(value = "yes", label = strings.yes),
                 SettingsItem.Choice(value = "dont_ask_again", label = strings.doNotAskAgain),

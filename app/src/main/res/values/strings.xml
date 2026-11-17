@@ -458,7 +458,7 @@
     <string name="download_question_message">If you live in a persecuted country,
         you might need to be careful about downloading christian material via Internet.
         Instead, you might want to obtain module zip files more securely and install them
-        via "Load Documents From Zip". Are you sure you want to proceed with downloading?
+        via "%1$s". Are you sure you want to proceed with downloading?
         All downloads from module servers are encrypted (HTTPS).
     </string>
     <string name="do_not_ask_again">Yes, do not ask any more</string>

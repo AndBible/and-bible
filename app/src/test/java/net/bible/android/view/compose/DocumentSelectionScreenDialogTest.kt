@@ -220,6 +220,9 @@ class DocumentSelectionScreenDialogTest {
     @Test fun proceedWithDownload_showsTitleAndOptions_yesAnswersConfirmProceedYes() {
         show(DocumentSelectionDialog.ProceedWithDownload)
         compose.onNodeWithText(androidString(net.bible.android.activity.R.string.download_question_title)).assertExists()
+        compose.onNodeWithText(
+            androidString(net.bible.android.activity.R.string.install_zip), substring = true,
+        ).assertExists()
         compose.onNodeWithText("Yes").performClick()
         assertEquals(ProceedAnswer.YES, confirmProceedAnswer)
         assertEquals(0, dismissProceedCalls)

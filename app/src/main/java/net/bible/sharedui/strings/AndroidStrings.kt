@@ -1191,7 +1191,8 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question
     override val downloadQuestionTitle: String get() = context.getString(R.string.download_question_title)
-    override val downloadQuestionMessage: String get() = context.getString(R.string.download_question_message)
+    override fun downloadQuestionMessage(installAction: String): String =
+        context.getString(R.string.download_question_message, installAction)
     override val doNotAskAgain: String get() = context.getString(R.string.do_not_ask_again)
 
     // Task 26 — platform-dialog removal: the verse-share quick sheet
