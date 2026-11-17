@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
@@ -47,7 +50,9 @@ class SearchSheetHiddenFocusTest {
             cache.put(request, MultiSearchResults(rows, emptyList(), 2))
             session.runSearch("KJV", "light")
             val strings = iosStrings("en")
+            lateinit var focusManager: FocusManager
             setContent {
+                focusManager = LocalFocusManager.current
                 CompositionLocalProvider(LocalStrings provides strings) {
                     Column {
                         BasicTextField("query", {}, Modifier.testTag("query"))
@@ -64,7 +69,8 @@ class SearchSheetHiddenFocusTest {
             runOnIdle { assertEquals(1, session.resultKeyboardSelection.value) }
             onNodeWithText("Gen.1.1").assertDoesNotExist()
             onNodeWithTag("query").performClick()
-            onRoot().performKeyInput { pressKey(Key.Tab) }
+            // The headless test host does not perform the native window's Tab traversal.
+            runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
             onNodeWithTag("reader").assertIsFocused()
 
             runOnIdle { session.controller.showResults() }
