@@ -9,7 +9,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.geometry.Offset
+import kotlin.test.assertTrue
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
@@ -19,6 +25,11 @@ import net.bible.android.view.activity.settings.DetachedWorkspaceEdit
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.settings.SettingsEditorPage
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextSettingType
@@ -96,6 +107,99 @@ class NumericSliderContentTest {
     @Test
     fun lineSpacingLabelUsesTenthsBeforeOk() =
         assertLiveLabel(TextSettingType.LINE_SPACING, "Line spacing 1.6x", 23, "Line spacing 2.3x")
+
+    @Test
+    fun fontSampleSizeFollowsSliderWithoutCommitting() = assertLiveSample(TextSettingType.FONTSIZE, 24)
+
+    @Test
+    fun lineSpacingSampleFollowsSliderWithoutChangingFontSize() = assertLiveSample(TextSettingType.LINE_SPACING, 23)
+
+    @Test
+    fun largestSampleKeepsControlsVisibleOnSmallPhoneAcrossDisplayModes() {
+        for (dark in listOf(false, true)) {
+            for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.MONOCHROME)) {
+                runComposeUiTest {
+                    setContent {
+                        CompositionLocalProvider(LocalStrings provides strings) {
+                            AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
+                                Column(Modifier.size(320.dp, 360.dp)) {
+                                    NumericTextSettingContent(
+                                        type = TextSettingType.FONTSIZE,
+                                        numeric = net.bible.sharedcore.settings.TextSettingRowValue.Numeric(60, 1, 60, "60 pt"),
+                                        fontSize = 60, lineSpacing = 30,
+                                        font = SettingsItem.ChoiceFont.Family("monospace"),
+                                        onValueChange = {},
+                                    )
+                                    SheetResetConfirmRow(strings.resetGeneric, strings.okay, strings.cancel, {}, {}, {})
+                                }
+                            }
+                        }
+                    }
+                    onNodeWithText(strings.okay).assertIsDisplayed()
+                    onNodeWithText(strings.cancel).assertIsDisplayed()
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    onNodeWithText("For God so loved", substring = true)
+                        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    val style = layouts.single().layoutInput.style
+                    assertEquals(60.sp, style.fontSize)
+                    assertEquals(FontFamily.Monospace, style.fontFamily)
+                    if (mode == DisplayColorMode.MONOCHROME) {
+                        assertEquals(style.color.red, style.color.green)
+                        assertEquals(style.color.green, style.color.blue)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun assertLiveSample(type: TextSettingType, next: Int) = runComposeUiTest {
+        val bundle = SettingsBundle(level = SettingsLevel.WORKSPACE)
+        val rows = TextDisplaySettingsServiceImpl(DetachedWorkspaceEdit(bundle))
+            .loadText(SettingsScope.Workspace(bundle.workspaceId.toString())).rows
+        var committed: Int? = null
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) {
+                    TextSettingRowEditorSheet(
+                        pages = listOf(SettingsEditorPage.Row(type.name)),
+                        rows = rows, dialogLabels = strings.buildTextDisplayScreenLabels(),
+                        onNumericChange = { _, value -> committed = value },
+                        onMarginsChange = { _, _, _, _ -> }, onRevert = {}, onPop = {}, onClose = {},
+                    )
+                }
+            }
+        }
+        // Inspect the Text layout, not a parallel test-only semantics value: this catches a
+        // missing preview, an unwired slider, and a preview using the UI font instead of the window font.
+        val sample = onNodeWithText("For God so loved", substring = true)
+        fun layout(): TextLayoutResult {
+            val results = mutableListOf<TextLayoutResult>()
+            sample.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
+            return results.single()
+        }
+        sample.assertIsDisplayed()
+        assertEquals(16.sp, layout().layoutInput.style.fontSize)
+        assertEquals(FontFamily.Serif, layout().layoutInput.style.fontFamily)
+        assertEquals(25.6f, layout().layoutInput.style.lineHeight.value, 0.01f)
+        if (type == TextSettingType.FONTSIZE) {
+            val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            slider.performTouchInput {
+                down(center)
+                moveTo(Offset(width * 0.75f, centerY))
+            }
+            assertTrue(layout().layoutInput.style.fontSize.value > 16f, "Preview must update while the pointer is still down")
+            assertNull(committed)
+            slider.performTouchInput { up() }
+        }
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(next.toFloat()) }
+        val after = layout().layoutInput.style
+        assertEquals((if (type == TextSettingType.FONTSIZE) 24 else 16).sp, after.fontSize)
+        assertEquals(if (type == TextSettingType.FONTSIZE) 38.4f else 36.8f, after.lineHeight.value, 0.01f)
+        assertNull(committed)
+        onNodeWithText(strings.buildTextDisplayScreenLabels().okLabel).performClick()
+        assertEquals(next, committed)
+    }
 
     private fun assertLiveLabel(type: TextSettingType, initial: String, next: Int, expected: String) = runComposeUiTest {
         val bundle = SettingsBundle(level = SettingsLevel.WORKSPACE)

@@ -212,6 +212,8 @@ interface Strings {
     val colorsDayModeTitle: String
     val colorsNightModeTitle: String
     val fontSizeTitle: String
+    val fontPreviewVerseNumber: String
+    val fontPreviewVerse: String
     val globalTextOptionsLink: String
     val globalTextOptionsLinkSummary: String
     val lineSpacingSummary: String

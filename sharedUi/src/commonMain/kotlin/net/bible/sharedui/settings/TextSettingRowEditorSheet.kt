@@ -116,7 +116,17 @@ fun TextSettingRowEditorSheet(
                 // press.
                 val numeric = pageRow.value as? TextSettingRowValue.Numeric ?: return@SettingsEditorSheet
                 var current by remember(numeric.value, numeric.min, numeric.max) { mutableIntStateOf(numeric.value) }
-                NumericSliderContent(numeric = numeric, onValueChange = { current = it })
+                val fontChoice = rows[TextSettingType.FONTFAMILY]?.value as? TextSettingRowValue.Choice
+                val font = fontChoice?.entries?.firstOrNull { it.value == fontChoice.selectedValue }?.font
+                    ?: fontChoice?.selectedValue?.let { net.bible.sharedcore.settings.SettingsItem.ChoiceFont.Family(it) }
+                NumericTextSettingContent(
+                    type = pageType,
+                    numeric = numeric,
+                    fontSize = (rows[TextSettingType.FONTSIZE]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
+                    lineSpacing = (rows[TextSettingType.LINE_SPACING]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
+                    font = font,
+                    onValueChange = { current = it },
+                )
                 SheetResetConfirmRow(
                     resetLabel = dialogLabels.resetToInheritedLabel,
                     confirmLabel = dialogLabels.okLabel,
