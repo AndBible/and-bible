@@ -9,14 +9,24 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
         let args = ["-standardTestFixture", "-runtimeDiagnosticsTest", "-openDocument", "KJV", "-openRef", "John.3.16"]
         let app = launch(args)
         let probe = element(app, "runtime-diagnostics-probe")
-        XCTAssertTrue(probe.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitUntil(timeout: 90) {
+            self.dismissProvisioningReleaseNotice(app)
+            return probe.exists
+        })
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 90))
         XCTAssertTrue(john3Shown(app, timeout: 90), "KJV reading pane must load before lifecycle probe")
         XCUIDevice.shared.press(.home)
         app.activate()
         probe.tap()
         let result = element(app, "runtime-diagnostics-result")
-        XCTAssertTrue(result.waitForExistence(timeout: 30))
+        guard result.waitForExistence(timeout: 30) else {
+            XCTFail("Probe tap did not produce a result state; button label: \(probe.label)")
+            return
+        }
+        guard waitUntil(timeout: 30, { result.label != "running" }) else {
+            XCTFail("Diagnostic report did not complete")
+            return
+        }
         for _ in 0..<10 {
             if result.exists && !result.label.contains("=missing") { break }
             let previous = result.label
@@ -45,7 +55,10 @@ final class RuntimeDiagnosticsUITests: RealAppUITestCase {
         app.terminate()
         app.launch()
         let secondProbe = element(app, "runtime-diagnostics-probe")
-        XCTAssertTrue(secondProbe.waitForExistence(timeout: 90))
+        XCTAssertTrue(waitUntil(timeout: 90) {
+            self.dismissProvisioningReleaseNotice(app)
+            return secondProbe.exists
+        })
         secondProbe.tap()
         let secondResult = element(app, "runtime-diagnostics-result")
         XCTAssertTrue(secondResult.waitForExistence(timeout: 30))

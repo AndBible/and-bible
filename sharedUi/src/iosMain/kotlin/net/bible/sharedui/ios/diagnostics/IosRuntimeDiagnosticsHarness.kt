@@ -2,7 +2,11 @@
 
 package net.bible.sharedui.ios.diagnostics
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,13 +37,26 @@ internal object IosRuntimeDiagnosticsHarness {
         if (!Platform.isDebugBinary || !NSProcessInfo.processInfo.arguments.contains("-runtimeDiagnosticsTest")) return
         val scope = rememberCoroutineScope()
         var result by remember { mutableStateOf<String?>(null) }
-        Column {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+          Surface {
+           Column {
             Button(onClick = {
+                net.bible.sharedcore.log.nsLog("RuntimeDiagnosticsHarness: tap delivered")
+                result = "running"
                 scope.launch {
-                    result = try { inspectReport() } catch (_: Exception) { "error" }
+                    println("RuntimeDiagnosticsHarness: report started")
+                    result = try {
+                        inspectReport().also { println("RuntimeDiagnosticsHarness: report completed") }
+                    } catch (_: Exception) {
+                        println("RuntimeDiagnosticsHarness: report failed")
+                        "error"
+                    }
+                    println("RuntimeDiagnosticsHarness: result assigned")
                 }
-            }, modifier = Modifier.testTag("runtime-diagnostics-probe")) { Text("Inspect diagnostics") }
+            }, modifier = Modifier.testTag("runtime-diagnostics-probe")) { Text(if (result == null) "Inspect diagnostics" else "Diagnostics tapped") }
             result?.let { Text(it, Modifier.testTag("runtime-diagnostics-result")) }
+           }
+          }
         }
     }
 
