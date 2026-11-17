@@ -70,6 +70,7 @@ class NextCloudSearchMethod(
                       <oc:size/>
                       <d:getcontenttype/>
                       <d:getlastmodified/>
+                      <d:getetag/>
                     </d:prop>
                 </d:select>
                 <d:from>
