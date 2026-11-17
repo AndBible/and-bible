@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="overlay-scrollbar" aria-hidden="true">
+  <div v-if="finePointer" class="overlay-scrollbar" aria-hidden="true">
     <div
         v-if="thumb"
         class="overlay-scrollbar-thumb"
@@ -30,8 +30,8 @@
 <script setup lang="ts">
 // Thin document scrollbar for the iOS host (iPhone, iPad, iOS on Mac), the counterpart of the desktop host's
 // ::-webkit-scrollbar rules that WKWebView does not honour (issue #4137). It only shows position; a touch passes
-// through to the page (CSS keeps the thumb inert on touch screens, and touches are ignored here), while a mouse or
-// trackpad pointer can drag it.
+// through to the page, and it is shown only while a fine pointer (mouse, trackpad) is available: touch-only devices
+// keep the native indicator. A mouse or trackpad pointer can drag it.
 import {onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {ScrollbarInput, scrollTopForThumbTop, ThumbGeometry, thumbGeometry} from "@/code/overlay-scrollbar";
 
@@ -39,7 +39,8 @@ const props = withDefaults(defineProps<{ topInset?: number; bottomInset?: number
 
 const MIN_THUMB = 24;
 const thumb = ref<ThumbGeometry | null>(null);
-const dragStart = ref<{ pointerId: number; clientY: number; thumbTop: number } | null>(null);
+const finePointer = ref(false);
+const dragStart = ref<{ pointerId: number; target: Element; clientY: number; thumbTop: number } | null>(null);
 
 function input(): ScrollbarInput {
     const viewportHeight = window.innerHeight;
@@ -65,10 +66,46 @@ function scheduleUpdate() {
     });
 }
 
+let savedUserSelect: [string, string] | null = null;
+
+function suppressSelection() {
+    const style = document.body.style as CSSStyleDeclaration & { webkitUserSelect: string };
+    savedUserSelect = [style.userSelect, style.webkitUserSelect];
+    style.userSelect = "none";
+    style.webkitUserSelect = "none";
+}
+
+function restoreSelection() {
+    if (!savedUserSelect) return;
+    const style = document.body.style as CSSStyleDeclaration & { webkitUserSelect: string };
+    [style.userSelect, style.webkitUserSelect] = savedUserSelect;
+    savedUserSelect = null;
+}
+
+function endDrag() {
+    const start = dragStart.value;
+    dragStart.value = null;
+    restoreSelection();
+    if (start) {
+        try {
+            start.target.releasePointerCapture?.(start.pointerId);
+        } catch {
+            // capture already gone
+        }
+    }
+}
+
 function onPointerDown(e: PointerEvent) {
     if (e.pointerType !== "mouse" || e.button !== 0 || !thumb.value) return;
     e.preventDefault();
-    dragStart.value = {pointerId: e.pointerId, clientY: e.clientY, thumbTop: thumb.value.top};
+    const target = e.currentTarget as Element;
+    try {
+        target.setPointerCapture?.(e.pointerId);
+    } catch {
+        // pointer already gone; window listeners still follow the drag
+    }
+    suppressSelection();
+    dragStart.value = {pointerId: e.pointerId, target, clientY: e.clientY, thumbTop: thumb.value.top};
 }
 
 function onPointerMove(e: PointerEvent) {
@@ -80,12 +117,22 @@ function onPointerMove(e: PointerEvent) {
 }
 
 function onPointerUp(e: PointerEvent) {
-    if (dragStart.value && e.pointerId === dragStart.value.pointerId) dragStart.value = null;
+    if (dragStart.value && e.pointerId === dragStart.value.pointerId) endDrag();
 }
 
 let resizeObserver: ResizeObserver | null = null;
+let fineQuery: MediaQueryList | null = null;
+
+function onFinePointerChange() {
+    finePointer.value = !!fineQuery?.matches;
+    if (!finePointer.value) endDrag();
+    else scheduleUpdate();
+}
 
 onMounted(() => {
+    fineQuery = typeof window.matchMedia === "function" ? window.matchMedia("(any-pointer: fine)") : null;
+    fineQuery?.addEventListener?.("change", onFinePointerChange);
+    finePointer.value = !!fineQuery?.matches;
     window.addEventListener("scroll", scheduleUpdate, {passive: true});
     window.addEventListener("resize", scheduleUpdate);
     window.addEventListener("pointermove", onPointerMove);
@@ -102,6 +149,8 @@ onMounted(() => {
 watch(() => [props.topInset, props.bottomInset], update);
 
 onBeforeUnmount(() => {
+    fineQuery?.removeEventListener?.("change", onFinePointerChange);
+    endDrag();
     window.removeEventListener("scroll", scheduleUpdate);
     window.removeEventListener("resize", scheduleUpdate);
     window.removeEventListener("pointermove", onPointerMove);

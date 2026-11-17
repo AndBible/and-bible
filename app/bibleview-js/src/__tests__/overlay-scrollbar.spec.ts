@@ -64,8 +64,18 @@ describe("OverlayScrollbar.vue", () => {
     let scrollHeight = 4000;
     const scrolls: number[] = [];
     const originalScrollTo = window.scrollTo;
+    let fine = true;
+    let changeListeners: Array<() => void> = [];
 
     beforeEach(() => {
+        fine = true;
+        changeListeners = [];
+        window.matchMedia = ((q: string) => ({
+            get matches() { return q === "(any-pointer: fine)" && fine; },
+            media: q,
+            addEventListener: (_: string, l: () => void) => changeListeners.push(l),
+            removeEventListener: (_: string, l: () => void) => { changeListeners = changeListeners.filter(x => x !== l); },
+        })) as unknown as typeof window.matchMedia;
         scrollHeight = 4000;
         scrolls.length = 0;
         Object.defineProperty(document.documentElement, "scrollHeight", {configurable: true, get: () => scrollHeight});
@@ -80,6 +90,8 @@ describe("OverlayScrollbar.vue", () => {
     afterEach(() => {
         window.scrollTo = originalScrollTo;
         delete (document.documentElement as any).scrollHeight;
+        delete (window as any).matchMedia;
+        document.body.style.userSelect = "";
     });
 
     /** jsdom has no PointerEvent; a plain Event with the pointer fields is what the component reads. */
@@ -137,6 +149,53 @@ describe("OverlayScrollbar.vue", () => {
         expect(down.defaultPrevented).toBe(false);
         window.dispatchEvent(pointer("pointermove", {clientY: 300, pointerId: 2}));
         expect(scrolls).toEqual([]);
+        wrapper.unmount();
+    });
+
+    it("is hidden without a fine pointer and appears when one connects", async () => {
+        fine = false;
+        const wrapper = mount(OverlayScrollbar, {props: {topInset: 0, bottomInset: 0}, attachTo: document.body});
+        await nextTick();
+        expect(wrapper.find(".overlay-scrollbar").exists()).toBe(false);
+        expect(wrapper.find(".overlay-scrollbar-thumb").exists()).toBe(false);
+
+        fine = true;
+        changeListeners.forEach(l => l());
+        await nextTick();
+        expect(wrapper.find(".overlay-scrollbar-thumb").exists()).toBe(true);
+        wrapper.unmount();
+    });
+
+    it("captures the pointer and suppresses text selection during a drag, then restores both", async () => {
+        const wrapper = mount(OverlayScrollbar, {props: {topInset: 0, bottomInset: 0}, attachTo: document.body});
+        await nextTick();
+        const thumb = wrapper.find(".overlay-scrollbar-thumb").element as HTMLElement;
+        const captured: number[] = [];
+        const released: number[] = [];
+        thumb.setPointerCapture = (id: number) => { captured.push(id); };
+        thumb.releasePointerCapture = (id: number) => { released.push(id); };
+        document.body.style.userSelect = "text";
+
+        thumb.dispatchEvent(pointer("pointerdown", {pointerType: "mouse", button: 0, clientY: 100, pointerId: 7}));
+        expect(captured).toEqual([7]);
+        expect(document.body.style.userSelect).toBe("none");
+
+        window.dispatchEvent(pointer("pointerup", {pointerId: 7}));
+        expect(released).toEqual([7]);
+        expect(document.body.style.userSelect).toBe("text");
+        wrapper.unmount();
+    });
+
+    it("releases capture and selection when the drag is cancelled", async () => {
+        const wrapper = mount(OverlayScrollbar, {props: {topInset: 0, bottomInset: 0}, attachTo: document.body});
+        await nextTick();
+        const thumb = wrapper.find(".overlay-scrollbar-thumb").element as HTMLElement;
+        const released: number[] = [];
+        thumb.releasePointerCapture = (id: number) => { released.push(id); };
+        thumb.dispatchEvent(pointer("pointerdown", {pointerType: "mouse", button: 0, clientY: 100, pointerId: 3}));
+        window.dispatchEvent(pointer("pointercancel", {pointerId: 3}));
+        expect(released).toEqual([3]);
+        expect(document.body.style.userSelect).toBe("");
         wrapper.unmount();
     });
 });

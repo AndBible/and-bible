@@ -1,9 +1,11 @@
 package net.bible.sharedui.webview
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedui.components.IosAppOnMac
 import platform.CoreGraphics.CGRectMake
 import platform.WebKit.WKWebViewConfiguration
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 @OptIn(ExperimentalForeignApi::class)
@@ -22,14 +24,13 @@ class ReadingWkWebViewScrollTest {
     }
 
     /**
-     * BibleView-JS draws the iOS scrollbar itself (OverlayScrollbar.vue, issue #4137): a persistent thumb that the
-     * native indicator cannot be (it only flashes during a touch drag, and never for the Mac wheel path). Leaving the
-     * native one on would show two bars side by side while a finger scrolls.
+     * BibleView-JS draws the scrollbar itself only for fine pointers (OverlayScrollbar.vue, issue #4137), so the native
+     * indicator is hidden only for the iOS app on a Mac (two bars otherwise); iPhone and iPad keep it for touch.
      */
     @Test
-    fun readingWebViewHidesNativeVerticalIndicator() {
+    fun readingWebViewHidesNativeVerticalIndicatorOnlyOnMac() {
         val webView = ReadingWkWebView(CGRectMake(0.0, 0.0, 320.0, 480.0), WKWebViewConfiguration())
 
-        assertFalse(webView.scrollView.showsVerticalScrollIndicator, "the page draws its own scrollbar")
+        assertEquals(!IosAppOnMac.isMac, webView.scrollView.showsVerticalScrollIndicator)
     }
 }

@@ -31,7 +31,7 @@ On Windows and Linux, quitting shows a short "synchronizing" window while your c
 | Keep the screen on while reading | Yes | Yes | No |
 | Scroll with the volume keys | Yes | No | No |
 | Tilt to scroll | Yes | Yes | No |
-| Scrollbar in the text | The system scrollbar while scrolling; hidden in Monochrome and Color e-ink | A thin bar, always shown; drag it with a mouse or trackpad | A thin bar, always shown; drag it with the mouse |
+| Scrollbar in the text | The system scrollbar while scrolling; hidden in Monochrome and Color e-ink | The system scrollbar while scrolling on iPhone and iPad; a thin bar, always shown, on a Mac or with an iPad mouse or trackpad (drag it) | A thin bar, always shown; drag it with the mouse |
 | Double-tap to full screen, default | On | On on iPhone and iPad, off on a Mac | Off |
 | Home-screen widgets | Yes, for [Speak](#speak-widgets) | No | No |
 

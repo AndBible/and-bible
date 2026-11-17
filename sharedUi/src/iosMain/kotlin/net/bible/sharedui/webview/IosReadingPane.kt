@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.platform.testTag
+import net.bible.sharedui.components.IosAppOnMac
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
@@ -138,9 +139,10 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
         // prepending chapters and the position notifier saved John 1:1 as the reading position. Off on every
         // device: the reading position moves only by the user's own scroll. Android has no such gesture.
         scrollView.scrollsToTop = false
-        // BibleView-JS draws a persistent thin scrollbar for the iOS host (OverlayScrollbar.vue, issue #4137); the
-        // native indicator would add a second bar during a touch drag (and never shows for the Mac wheel path).
-        scrollView.showsVerticalScrollIndicator = false
+        // iOS on a Mac: BibleView-JS draws a persistent thin scrollbar there (OverlayScrollbar.vue, issue #4137; the
+        // native indicator never shows for the Mac wheel path), so the native one is hidden to avoid two bars.
+        // iPhone and iPad keep the native indicator, which is what touch users expect while flicking.
+        scrollView.showsVerticalScrollIndicator = !IosAppOnMac.isMac
     }
 
     /** Adds the AndBible rows to the system edit menu (see [insertSelectionMenu]); null leaves the menu as WebKit builds it. */
