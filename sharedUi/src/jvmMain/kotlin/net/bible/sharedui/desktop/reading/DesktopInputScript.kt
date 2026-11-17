@@ -79,6 +79,7 @@ window.addEventListener('keydown', function (e) {
   var hit = false, selection = null;
   if (ctrl && !e.altKey) {
     if (kk === 'l' || kk === '+' || kk === '=' || kk === '-' || kk === '_' || kk === '0' || kk === 'Tab' || kk === ',') hit = true;
+    else if (kk === 's' && !ed && !e.shiftKey) hit = true;
     else if (kk === 'b' && !ed) {
       try {
         var s = window.bibleView && window.bibleView.querySelection ? window.bibleView.querySelection() : null;

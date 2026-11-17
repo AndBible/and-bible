@@ -63,6 +63,11 @@ and **Ctrl+0** (or **Ctrl** and the mouse wheel) change the text size, **Ctrl+,*
 button go back. **Ctrl+=** also enlarges the text. See the full list, with the Android and iOS keys, in
 [Keyboard Shortcuts](navigation.md#keyboard-shortcuts).
 
+In the reading view, **Ctrl+S** (**Cmd+S** on macOS) runs **Sync now**, using the same
+synchronization and status feedback as the menu action. If synchronization is not set up, it opens
+*Device synchronization* settings instead. This shortcut is not intercepted while a StudyPad or note editor
+has focus, or on the AI prompt editor screen.
+
 Some of those keys (**Ctrl+W**, **Alt+M**, **Alt+O** and **Alt+Up**/**Alt+Down**) are handled by the
 reading page itself, so the keyboard focus must be in a reading window for them to work.
 

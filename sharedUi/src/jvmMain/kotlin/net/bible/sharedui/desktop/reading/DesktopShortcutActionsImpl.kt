@@ -97,6 +97,11 @@ class DesktopShortcutActionsImpl(
 
     override fun openSettings() = HostRootLinks.openRoute(NavRoutes.SETTINGS)
 
+    override fun syncNow() {
+        val sync = koin().get<net.bible.service.cloudsync.SyncNow>()
+        if (sync.available()) sync.start() else HostRootLinks.openRoute(NavRoutes.SYNC_SETTINGS)
+    }
+
     override fun escapeAllowed(windowId: String): Boolean =
         !HostReadingWindows.hasAssembly(windowId) || !HostReadingWindows.sessionFor(windowId).editingTextInJs
 

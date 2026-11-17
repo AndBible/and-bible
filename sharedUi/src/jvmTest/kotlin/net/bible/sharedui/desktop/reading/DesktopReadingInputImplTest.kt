@@ -50,6 +50,7 @@ class DesktopReadingInputImplTest {
             return true
         }
         override fun openSettings() { log += "settings" }
+        override fun syncNow() { log += "sync" }
         override fun escapeAllowed(windowId: String) = true
         override fun closePageModals(windowId: String?): Boolean { modalChecks += windowId; return false }
     }
@@ -110,6 +111,58 @@ class DesktopReadingInputImplTest {
         } finally {
             readingEngine.release("w2")
         }
+    }
+
+    @Test fun ctrlAndCommandSReachSyncButPlainAndAltGrSDoNot() {
+        for (meta in listOf(false, true)) {
+            val event = KeyEvent(Key.S, KeyEventType.KeyDown, isCtrlPressed = !meta, isMetaPressed = meta)
+            assertEquals("s", DesktopReadingInputImpl.composeChord(event)?.key)
+            assertTrue(input.onPreviewKeyEvent(event))
+        }
+        assertFalse(input.onPreviewKeyEvent(ev(Key.S)))
+        assertFalse(input.onPreviewKeyEvent(ev(Key.S, ctrl = true, alt = true)))
+        assertEquals(listOf("sync", "sync"), rec.log)
+    }
+
+    @Test fun pageSyncChordYieldsToEditorsForControlAndCommand() {
+        val harness = """
+            const listeners = [];
+            const posts = [];
+            global.window = {
+              addEventListener: (name, fn) => { if (name === 'keydown') listeners.push(fn); },
+              androidBridge: {postMessage: text => posts.push(JSON.parse(text).desktopInput)}
+            };
+            ${DesktopInputScript.PREAMBLE}
+            ${DesktopInputScript.KEY_PART}
+            for (const meta of [false, true]) {
+              for (const tag of ['DIV', 'TEXTAREA', 'INPUT', 'CONTENTEDITABLE']) {
+                const e = {
+                  key: 's', code: 'KeyS', ctrlKey: !meta, metaKey: meta,
+                  target: {nodeType: 1, tagName: tag, isContentEditable: tag === 'CONTENTEDITABLE'},
+                  preventDefault() { this.prevented = true; }, stopPropagation() {},
+                };
+                const before = posts.length;
+                listeners.forEach(fn => fn(e));
+                console.log(JSON.stringify({tag, meta, prevented: !!e.prevented, posts: posts.length - before}));
+              }
+            }
+            console.log(JSON.stringify(posts));
+        """.trimIndent()
+        val process = ProcessBuilder("node", "-e", harness).redirectErrorStream(true).start()
+        val lines = process.inputStream.bufferedReader().readLines()
+        assertEquals(0, process.waitFor(), lines.joinToString("\n"))
+        for ((i, tag) in listOf("DIV", "TEXTAREA", "INPUT", "CONTENTEDITABLE").withIndex()) {
+            for (meta in listOf(false, true)) {
+                assertEquals(
+                    "{\"tag\":\"$tag\",\"meta\":$meta,\"prevented\":${i == 0},\"posts\":${if (i == 0) 1 else 0}}",
+                    lines[i + if (meta) 4 else 0],
+                )
+            }
+        }
+        // Feed the actual script payloads through the native dispatcher too.
+        val messages = kotlinx.serialization.json.Json.parseToJsonElement(lines.last()) as kotlinx.serialization.json.JsonArray
+        messages.forEach { input.handleMessage("w1", msg(it.toString())) }
+        assertEquals(listOf("sync", "sync"), rec.log)
     }
 
     @Test fun onlyTheEnvelopeIsConsumed() {

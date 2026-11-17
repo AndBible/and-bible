@@ -199,6 +199,7 @@ class DesktopSelectionMenuTest {
         override fun focusPreviousWindow() {}
         override fun toggleFullScreen() {}
         override fun openSettings() {}
+        override fun syncNow() {}
         override fun escapeAllowed(windowId: String) = true
     }
 }
