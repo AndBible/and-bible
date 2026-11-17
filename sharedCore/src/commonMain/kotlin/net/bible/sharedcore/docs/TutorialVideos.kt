@@ -84,6 +84,11 @@ object TutorialVideos {
     /**
      * The video to open for [episode] from an app in [appLanguage]: with a matching caption track the watch URL
      * asks YouTube for those captions and interface language, otherwise it is [url].
+     *
+     * The form stays `watch?v=`: the caption spike (2026-11-17, Android emulator) found the `/embed/<id>` form unusable as
+     * a top-level link (YouTube player error 153), while the `watch` form is accepted by the YouTube app and by Chrome
+     * (which turns `cc_lang_pref=fi` into its own `pp` parameter). That no captions appeared is inconclusive: the
+     * test video had no translated track. Not verified on iOS or desktop.
      */
     fun url(episode: Episode, appLanguage: String): String = buildUrl(episode.youtubeId, episode.subtitles, appLanguage)
 
