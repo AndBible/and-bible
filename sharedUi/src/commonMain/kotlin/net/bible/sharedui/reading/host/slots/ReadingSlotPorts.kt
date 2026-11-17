@@ -81,6 +81,9 @@ interface ReadingKeyChooserPage {
  */
 @kotlin.native.HiddenFromObjC
 interface ReadingSearchPlatform {
+    /** Binds document lookups to a session's window, including asynchronous index continuations. */
+    fun forWindow(windowId: String): ReadingSearchPlatform = this
+
     /** The document the active window shows, or null (an error page). Read fresh on every call. */
     fun currentDocument(): Book?
 
@@ -113,6 +116,17 @@ interface ReadingSearchPlatform {
 
     /** Shows [list] (the "open results in a window" multi-document). */
     fun showInLinksWindow(list: BookAndKeyList)
+}
+
+/** The same Bible-section name as SearchControl, bound to the session's window rather than the active one. */
+fun searchWindowBookName(window: net.bible.android.control.page.window.Window): String = try {
+    val page = window.pageManager.currentBible
+    val v11n = (page.currentDocument as org.crosswire.jsword.book.sword.SwordBook).versification
+    val book = page.singleKey.book
+    val longName = v11n.getLongName(book)
+    if (!longName.isNullOrBlank() && longName.length < 14) longName else v11n.getShortName(book)
+} catch (_: Exception) {
+    "-"
 }
 
 /** Opens an explicit result in a visible links window even when another window is maximized. */

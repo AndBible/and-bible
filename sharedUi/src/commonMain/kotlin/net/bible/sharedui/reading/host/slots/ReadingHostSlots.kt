@@ -187,13 +187,13 @@ class ReadingHostSlots(
      */
     @Composable
     fun SearchSettings() = SearchSettingsSlotContent(
-        searchState, searchState::searchSettingsForEpub, searchState::currentBookName,
-        searchState.controller::settingsClosed,
+        searchState.session, searchState::searchSettingsForEpub, searchState::currentBookName,
+        { searchState.controller.settingsClosed() },
     )
 
     /** The search sheet: the index prompt/progress panel or the results, per search phase. */
     @Composable
-    fun SearchSheet() = SearchSheetSlotContent(searchState, strings())
+    fun SearchSheet() = SearchSheetSlotContent(searchState.session, strings())
 
     /**
      * The quick sheet [sheet]: History, Workspaces, Documents, Share, ReadHistory or a key chooser

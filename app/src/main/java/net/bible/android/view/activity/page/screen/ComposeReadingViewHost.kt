@@ -619,6 +619,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         services = ReadingSearchServices(bibleSearchService, epubSearchService, searchResultsCache, searchIndexService),
         onLeaveFullScreen = { activity.fullScreen = false },
         resultsScope = activity.lifecycleScope,
+        windowState = windowState,
     )
 
     private val textDisplaySettingsService: TextDisplaySettingsService by inject()
@@ -1141,7 +1142,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             if (change is WindowChange.ActiveWindowChanged) {
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
-                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
+                searchState.activeWindowChanged()
                 searchController.activeDocumentChanged()
             }
         })
@@ -1559,7 +1560,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // guards.
         searchBar = searchState.searchBar,
         searchBarCallbacks = searchState.searchBarCallbacks,
-        searchSheetVisible = searchController.sheetVisible,
+        searchSheetVisible = searchState.searchSheetVisible,
         onSearchSheetDismissed = { searchController.closeSheet() },
         // Task 10: the "<document> cannot be searched" snackbar.
         searchUnavailableDocName = searchUnavailableDocName,

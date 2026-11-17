@@ -877,24 +877,20 @@ class ReadingSearchHostTest {
 
     // ---- Task 5 (F44/B3b): the host tells the controller when the active document changes -------
 
-    /**
-     * `ReadingSearchController.activeDocumentChanged()` (Task 4) is only useful once something
-     * actually calls it. This drives the REAL `WindowChange.ActiveWindowChanged` through `WindowStateServiceImpl.windowChanges` with
-     * the real host subscribed (same idiom as `ComposeReadingViewHostTest.currentBibleVerseChangedTriggersARefresh`),
-     * and proves the effect end to end: switching the active window to one showing a DIFFERENT
-     * document must move the search session's target with it, not leave it pinned to the document
-     * that was active when search opened.
-     */
+    /** Real window events must select an independent Find session, not retarget the old one. */
     @Test
-    fun activeWindowChangedRefreshesTheSearchTargetToTheNewActiveWindowsDocument() {
+    fun activeWindowChangedHidesFindAndReturningRestoresItsQuery() {
         val other = unindexedFakeBible("HostWinSwap")
         Books.installed().addBook(other)
         try {
             val host = host()
+            val source = windowRepository.activeWindow
             host.openSearch()
+            host.searchController.queries.setQuery("light")
+            val original = host.searchController
             assertEquals(
                 ReadingSearchPhase.NeedsIndex("KJV", forEpub = false),
-                host.searchController.phase.value,
+                original.phase.value,
                 "sanity: search opened on the active window's KJV",
             )
 
@@ -904,11 +900,16 @@ class ReadingSearchHostTest {
 
             windowControl.activeWindow = window2
 
-            assertEquals(
-                ReadingSearchPhase.NeedsIndex("HostWinSwap", forEpub = false),
-                host.searchController.phase.value,
-                "WindowChange.ActiveWindowChanged must refresh the search target to the new active window's document",
-            )
+            assertEquals(ReadingSearchPhase.Closed, host.searchController.phase.value)
+            assertEquals("", host.searchController.queries.query.value)
+            host.openSearch()
+            host.searchController.queries.setQuery("hope")
+            assertEquals(ReadingSearchPhase.NeedsIndex("HostWinSwap", forEpub = false), host.searchController.phase.value)
+            windowControl.activeWindow = source
+            assertEquals(original, host.searchController)
+            assertEquals("light", host.searchController.queries.query.value)
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value)
+            host.searchState.dispose()
         } finally {
             Books.installed().removeBook(other)
         }

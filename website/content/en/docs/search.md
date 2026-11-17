@@ -9,6 +9,11 @@ Its availability follows the active window's document. If Find is greyed out for
 non-searchable document, select a Bible window or choose a searchable document;
 Find becomes available again.
 
+Find belongs to the window where you opened it. Selecting another window hides that
+window's search bar and results; returning restores its query, results and position.
+You can start a separate Find in each window. Closing Find or closing its window
+discards that window's search.
+
 All searches open their results in the reading view's search sheet, including searches
 started from selected text, a Strong's link, or another screen. There is no separate
 full-screen results screen. The sheet appears on top of the reading text, like a dialog;
