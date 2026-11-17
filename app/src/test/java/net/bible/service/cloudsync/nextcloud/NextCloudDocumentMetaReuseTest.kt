@@ -107,7 +107,11 @@ class NextCloudDocumentMetaReuseTest {
                 """<d:response><d:href>/remote.php/dav/files/me/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype><d:getcontenttype>httpd/unix-directory</d:getcontenttype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>""")
             return when (request.method) {
                 "PROPFIND" -> multistatus(folder(root) + docs.joinToString("") { folder("$root/$it") })
-                "SEARCH" -> multistatus(docs.joinToString("") { meta(it) })
+                "SEARCH" -> {
+                    // Like a real Nextcloud, report the etag only when the SEARCH selected it.
+                    val selectsEtag = request.body?.utf8()?.contains("<d:getetag/>") == true
+                    multistatus(docs.joinToString("") { meta(it, selectsEtag) })
+                }
                 "GET" -> {
                     val file = path.substringAfter("/files/me")
                     gets += file
@@ -128,12 +132,12 @@ class NextCloudDocumentMetaReuseTest {
             </d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>
         """.trimIndent()
 
-        private fun meta(initials: String) = """
+        private fun meta(initials: String, selectsEtag: Boolean) = """
             <d:response><d:href>/remote.php/dav/files/me$root/$initials/meta.json</d:href><d:propstat><d:prop>
             <oc:fileid>42</oc:fileid><d:displayname>meta.json</d:displayname><d:resourcetype/>
             <d:getcontenttype>application/json</d:getcontenttype><oc:size>120</oc:size>
             <d:getlastmodified>$MODIFIED</d:getlastmodified>
-            ${if (reportEtags) "<d:getetag>${etags.getValue(initials)}</d:getetag>" else ""}
+            ${if (reportEtags && selectsEtag) "<d:getetag>${etags.getValue(initials)}</d:getetag>" else ""}
             </d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>
         """.trimIndent()
     }
