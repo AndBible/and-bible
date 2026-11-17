@@ -53,7 +53,9 @@ class HelpAndTipsTest {
 
     @Test fun docUrlMapsEveryItemPageAndRejectsUnknown() {
         HelpAndTips.items.forEach { item ->
-            assertEquals(item.docPage?.let { DocsLinks.page(it) }, HelpAndTips.docUrl(item.docPage))
+            // Compared against the stem-built URL by hand (the link scanner only accepts literal DocsLinks.page calls).
+            val expected = item.docPage?.let { DocsLinks.BASE_URL + it + "/" }
+            assertEquals(expected, HelpAndTips.docUrl(item.docPage))
         }
         assertFailsWith<IllegalStateException> { HelpAndTips.docUrl("nope") }
     }
