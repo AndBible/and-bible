@@ -290,7 +290,7 @@ which buttons are shown in this bar:
     your current data is kept on the device. After you confirm, close the app and
     open it again to run the import.
 
-[![Application look and feel](images/application-look-and-feel.png){ .align-center width="259" height="576" }](images/application-look-and-feel.png)
+[![Application look and feel](/media/docs/images/application-look-and-feel.png){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/application-look-and-feel.png)
 
 <span id="id1"></span>
 
@@ -421,7 +421,7 @@ including after restoring a database backup.
     (colored margin indicators for memorized and target verses). See
     [Reading progress](reading_progress.md) and [Memorize](memorize.md).
 
-[![Workspace appearance](images/workspace-appearance.png){ .align-center width="259" height="576" }](images/workspace-appearance.png)
+[![Workspace appearance](/media/docs/images/workspace-appearance.png){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/workspace-appearance.png)
 
 <span id="id3"></span>
 
@@ -444,7 +444,7 @@ click the circular back arrow at the top right of the window settings screen.
 From the window text options screen you can also navigate directly to the
 workspace or global text options using the links at the top of the screen.
 
-[![Window appearance](images/window-appearance.png){ .align-center width="259" height="576" }](images/window-appearance.png)
+[![Window appearance](/media/docs/images/window-appearance.png){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/window-appearance.png)
 
 ## Module
 

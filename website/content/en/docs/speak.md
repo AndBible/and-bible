@@ -117,7 +117,7 @@ The Speak bookmarks can also be reached from the Android [home-screen widgets](p
 4. Confirm with **OK**. The range is now shown under **Set repeat passage range**; the trash button clears it.
 5. Push the play `▶` button in the playback bar to start playback.
 
-[![Speak Settings](images/speak-page.jpg){ .align-center style="width: 300px" }](images/speak-page.jpg)
+[![Speak Settings](/media/docs/images/speak-page.jpg){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/speak-page.jpg)
 
 ## Earcon Sounds
 
