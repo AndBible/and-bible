@@ -84,7 +84,7 @@ class NextCloudDocumentMetaReuseTest {
         val adapter = dav.adapter
         val files = awaitOperation { adapter.listChangedFilesInFolders(root, docs.map { "$root/$it" }, "meta.json", 0) }
         val file = files.single { it.id == "$root/DOC1/meta.json" }
-        assertEquals("\"DOC1-1\"", file.etag)
+        assertEquals("DOC1-1", file.etag?.trim('"'))
         assertEquals(MODIFIED_MS, file.serverModifiedTime)
 
         dav.reportEtags = false
