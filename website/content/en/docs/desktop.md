@@ -22,6 +22,17 @@ The 6.0 beta for iPhone, iPad and Mac is coming soon through TestFlight; until t
 <!-- end -->
 <!-- end -->
 
+## Opening AndBible again
+
+Launching AndBible while it is already running asks the existing window to come to the front,
+restoring it if it is minimized. Files passed to the second launch are sent to the running app too.
+This also works while the startup recovery screen is open.
+
+If the running instance does not respond within a few seconds, the second launch exits with an error
+and writes a message to standard error instead of silently reporting success. Switch to the running
+instance and try again; any incoming files have not been confirmed as delivered. Your window manager
+may restrict whether an application can take focus or switch workspaces automatically.
+
 ## Windows reading engine
 
 On Windows x64, AndBible uses the system **Microsoft Edge WebView2 Evergreen Runtime** for document text. Windows normally keeps this runtime up to date independently of AndBible. The MSI includes the small WebView2 loader, not a bundled Chromium browser.

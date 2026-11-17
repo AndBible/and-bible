@@ -35,9 +35,25 @@ class AwtWindowHandle(
     private val factor: Double = 1.0,
 ) : DesktopWindowHandle {
     @Volatile private var window: Window? = null
+    private var restore: () -> Unit = {}
+    private val attached = java.util.concurrent.CountDownLatch(1)
 
-    fun attach(window: Window) {
+    fun attach(window: Window, restore: () -> Unit = {}) {
+        this.restore = restore
         this.window = window
+        attached.countDown()
+    }
+
+    /** A second launch is acknowledged only after the UI thread responds, including before app startup completes. */
+    fun activate() {
+        val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(1500)
+        check(attached.await(1500, java.util.concurrent.TimeUnit.MILLISECONDS)) { "Main window is not ready" }
+        val activated = java.util.concurrent.CompletableFuture<Unit>()
+        SwingUtilities.invokeLater {
+            try { raiseWindow(); activated.complete(Unit) }
+            catch (e: Exception) { activated.completeExceptionally(e) }
+        }
+        activated.get((deadline - System.nanoTime()).coerceAtLeast(1), java.util.concurrent.TimeUnit.NANOSECONDS)
     }
 
     override val sizeDp: IntSize
@@ -60,15 +76,18 @@ class AwtWindowHandle(
         }
 
     override fun toFront() {
+        SwingUtilities.invokeLater { raiseWindow() }
+    }
+
+    private fun raiseWindow() {
         val w = window ?: return
-        SwingUtilities.invokeLater {
-            (w as? Frame)?.let { frame ->
-                val restored = restoredExtendedState(frame.extendedState)
-                if (restored != frame.extendedState) frame.extendedState = restored
-            }
-            w.toFront()
-            w.requestFocus()
+        restore()
+        (w as? Frame)?.let { frame ->
+            val restored = restoredExtendedState(frame.extendedState)
+            if (restored != frame.extendedState) frame.extendedState = restored
         }
+        w.toFront()
+        w.requestFocus()
     }
 
     companion object {

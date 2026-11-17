@@ -48,6 +48,19 @@ class InstanceHandOffTest {
         }
     }
 
+    @Test fun legacyCountFirstMessageStillActivates() {
+        val dir = Files.createTempDirectory("handoff-legacy")
+        val received = LinkedBlockingQueue<List<Path>>()
+        InstanceHandOff.listen(dir) { received.add(it) }.use {
+            java.nio.channels.SocketChannel.open(StandardProtocolFamily.UNIX).use { peer ->
+                peer.connect(UnixDomainSocketAddress.of(dir.resolve("instance.sock")))
+                val message = java.nio.ByteBuffer.allocate(4).putInt(0).flip() as java.nio.ByteBuffer
+                while (message.hasRemaining()) peer.write(message)
+                assertEquals(emptyList(), received.poll(3, TimeUnit.SECONDS))
+            }
+        }
+    }
+
     @Test fun acknowledgementWaitsForAcceptance() {
         val dir = Files.createTempDirectory("handoff-ack")
         val entered = java.util.concurrent.CountDownLatch(1)

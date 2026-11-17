@@ -31,7 +31,6 @@ import net.bible.sharedcore.platform.desktop.AlreadyRunningException
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedcore.platform.desktop.InstanceLock
-import net.bible.sharedcore.platform.desktop.files.InstanceHandOff
 import java.nio.file.Paths
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
@@ -162,7 +161,7 @@ internal fun createDesktopEngine(
 ) = provider.create(bundleDir, paths, log)
 
 /**
- * The real app, in this order: instance lock (a second instance prints one line and exits 0 before anything else);
+ * The real app, in this order: instance lock (a second instance requests activation and exits, reporting any failure);
  * the log file in `<data>/logs` (when the data directory is usable); display check; the crash gate
  * (`desktopCrashGate`, D3d); the CEF cache directory check; CEF natives and `KcefWebEngine.init` (CEF cache in `<cache>/cef`); `DesktopAppStartup.ensureStarted`
  * off the UI thread; the window ([DesktopAppRoot]); window activation, deactivation and close wired to
@@ -179,9 +178,10 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             System.err.println("AndBible could not resolve incoming files: ${e.message}")
             exitProcess(1)
         }
-        if (InstanceHandOff.send(paths.data, files)) exitProcess(0)
-        System.err.println("AndBible is already running, but incoming files could not be delivered")
-        exitProcess(1)
+        exitProcess(handOffSecondLaunch(paths.data, files) {
+            val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
+            System.err.println(net.bible.sharedui.assembly.hostStringTable(language).text("desktop_activation_failed"))
+        })
     }
     val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
         val identity = if (lockFailure == null) {
@@ -201,12 +201,11 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
             net.bible.sharedcore.log.ReportFacts.global.set("Display scale", line.removePrefix("display scale "))
         }
     }
-    // Before the crash gate and the app graph: a second launch during the gate hands its files over and they are queued.
-    if (lockFailure == null) DesktopEarlyIncomingFiles.install(paths.data)
-    requireDisplay()
-
     val scaleFactor = DesktopDisplayScale.composeFactor
     val windowHandle = AwtWindowHandle(factor = scaleFactor)
+    // Activation is available at the crash gate too, independently of the app graph's incoming-file facade.
+    if (lockFailure == null) DesktopEarlyIncomingFiles.install(paths.data, activate = windowHandle::activate)
+    requireDisplay()
     val lifecycle = DesktopHostLifecycle()
     val exitRequested = mutableStateOf(false)
     var shutdownEngine: () -> Unit = {}
@@ -295,17 +294,17 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
         val defaultSize = AwtWindowHandle.initialSizeDp(null, scaleFactor)
         val workArea = remember { AwtWindowHandle.screenWorkArea() }
         val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea, scaleFactor) }
+        // Shrunk to the work area when the default does not fit, keeping the title bar on screen.
+        val mainWindowState = rememberWindowState(
+            size = initialSize.let { DpSize(it.width.dp, it.height.dp) },
+            position = AwtWindowHandle.initialPositionDp(workArea, initialSize)
+                ?.takeIf { initialSize != defaultSize }
+                ?.let { WindowPosition(it.x.dp, it.y.dp) } ?: WindowPosition.PlatformDefault,
+        )
         Window(
             title = "AndBible",
             icon = painterResource("andbible.png"),
-            // Shrunk to the work area when the default does not fit (HiDPI laptops), and then placed on it with the title
-            // bar on screen.
-            state = rememberWindowState(
-                size = initialSize.let { DpSize(it.width.dp, it.height.dp) },
-                position = AwtWindowHandle.initialPositionDp(workArea, initialSize)
-                    ?.takeIf { initialSize != defaultSize }
-                    ?.let { WindowPosition(it.x.dp, it.y.dp) } ?: WindowPosition.PlatformDefault,
-            ),
+            state = mainWindowState,
             onCloseRequest = requestClose,
             // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
             // An off-screen web pane that has focus takes every key itself (the page's script owns the shortcuts).
@@ -318,7 +317,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
                     AwtWindowHandle.minSize(AwtWindowHandle.MIN_WIDTH_DP, scaleFactor),
                     AwtWindowHandle.minSize(AwtWindowHandle.MIN_HEIGHT_DP, scaleFactor),
                 )
-                windowHandle.attach(awtWindow)
+                windowHandle.attach(awtWindow) { mainWindowState.isMinimized = false }
                 // Active / ResignActive for the app as a whole: a Compose dialog or popup is a window of its own
                 // owned by this one in windowed mode (layers=WINDOW; in-window and no window at all in off-screen mode), so moving the focus into it is not leaving the app.
                 val tracker = DesktopAppFocusTracker(

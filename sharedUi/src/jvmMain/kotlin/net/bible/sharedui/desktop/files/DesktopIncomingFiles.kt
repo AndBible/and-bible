@@ -80,18 +80,25 @@ internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
  * [DesktopIncomingFilesImpl] attaches later through [listen] and receives them all. [DesktopIncomingFilesImpl] then
  * hands them to the shared receive path (`AppHostPlatform.receiveIncomingFiles`).
  */
-class DesktopEarlyIncomingFiles private constructor() : AutoCloseable {
+class DesktopEarlyIncomingFiles private constructor(private val activate: (() -> Unit)?) : AutoCloseable {
     private var listener: AutoCloseable = AutoCloseable {}
     private val lock = Any()
     private var pending = ArrayList<Path>()
+    private var pendingActivation = false
     private var sink: ((List<Path>) -> Unit)? = null
 
     // Delivery happens under [lock] (the sinks only enqueue), so files queued before attaching are always handed over
     // before any file accepted afterwards: FIFO across the hand-over.
     private fun accept(files: List<Path>) {
+        // Main's window handle is available even at the crash gate, before the app graph attaches.
+        // It returns only after the UI thread has accepted activation, so a stuck UI cannot acknowledge success.
+        activate?.invoke()
         synchronized(lock) {
             val target = sink
-            if (target == null) pending.addAll(files) else target(files)
+            if (target == null) {
+                pending.addAll(files)
+                pendingActivation = true
+            } else target(files)
         }
     }
 
@@ -101,7 +108,9 @@ class DesktopEarlyIncomingFiles private constructor() : AutoCloseable {
             sink = onFiles
             val queued = pending
             pending = ArrayList()
-            if (queued.isNotEmpty()) onFiles(queued)
+            val activation = pendingActivation
+            pendingActivation = false
+            if (queued.isNotEmpty() || activation) onFiles(queued)
         }
         return AutoCloseable { synchronized(lock) { if (sink === onFiles) sink = null } }
     }
@@ -121,10 +130,11 @@ class DesktopEarlyIncomingFiles private constructor() : AutoCloseable {
          */
         fun install(
             dataDir: Path,
+            activate: (() -> Unit)? = null,
             listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = InstanceHandOff::listen,
         ): DesktopEarlyIncomingFiles? {
             // Created before listening: a connection that arrives as listen() returns always has a queue to land in.
-            val early = DesktopEarlyIncomingFiles()
+            val early = DesktopEarlyIncomingFiles(activate)
             early.listener = try {
                 listen(dataDir) { files -> early.accept(files) }
             } catch (e: Exception) {
