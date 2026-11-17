@@ -20,6 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** Exercise the real desktop action and SyncNow, stopping only at the cloud/network boundary. */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DesktopSyncShortcutTest {
     private class Cloud : CloudSyncPort {
         override val signedIn = true

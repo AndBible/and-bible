@@ -45,6 +45,7 @@ class DesktopShortcutsTest {
             return true
         }
         override fun openSettings() { log += "settings" }
+        override fun syncNow() { log += "sync" }
         override fun escapeAllowed(windowId: String) = escapeAllowed
         var modalOpen = false
         override fun closePageModals(windowId: String?): Boolean { if (modalOpen) log += "closeModals:${windowId ?: "active"}"; return modalOpen }
@@ -61,6 +62,7 @@ class DesktopShortcutsTest {
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, fromPane = true, editable = true), "w1"))
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, composing = true), null))
         assertFalse(shortcuts.onChord(Chord("s", ctrl = true, alt = true), null))
+        assertFalse(shortcuts.onChord(Chord("s", ctrl = true, shift = true), null))
         assertEquals(emptyList(), actions.log)
     }
 

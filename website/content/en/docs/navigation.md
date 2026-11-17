@@ -250,6 +250,7 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0** | Larger text, smaller text, default text size | Desktop |
 | **Ctrl + mouse wheel** | Larger or smaller text | Desktop |
 | **Ctrl+,** | Open *Application preferences* | Desktop |
+| **Ctrl+S** (**Cmd+S** on macOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop |
 | **F11** | Toggle fullscreen | Desktop |
 | **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
 | **Up / Down** | Scroll the text | All |

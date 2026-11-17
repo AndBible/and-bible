@@ -50,6 +50,7 @@ class DesktopReadingInputImplTest {
             return true
         }
         override fun openSettings() { log += "settings" }
+        override fun syncNow() { log += "sync" }
         override fun escapeAllowed(windowId: String) = true
         override fun closePageModals(windowId: String?): Boolean { modalChecks += windowId; return false }
     }

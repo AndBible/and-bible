@@ -199,7 +199,7 @@ class DesktopReadingInputImpl(
         /** The shortcut chord of a Compose key event; null for keys the table does not use. */
         internal fun composeChord(event: KeyEvent): Chord? {
             val key = when (event.key) {
-                Key.F -> "f"; Key.L -> "l"; Key.B -> "b"
+                Key.F -> "f"; Key.L -> "l"; Key.B -> "b"; Key.S -> "s"
                 Key.C -> "c"; Key.V -> "v"; Key.X -> "x"; Key.A -> "a"; Key.Z -> "z"
                 Key.Plus, Key.NumPadAdd -> "+"
                 Key.Equals -> "="
