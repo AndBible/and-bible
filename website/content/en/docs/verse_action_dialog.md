@@ -65,7 +65,7 @@ See [Memorize](memorize.md) for more information.
 3. Hide translations by clicking the *hidden eye* button.
 4. Show translations by clicking the translation title at the bottom of the list.
 
-https://www.youtube.com/watch?v=wFG-vlSow6E
+[![Compare Jeremiah 9:23 in KJV and NASB, with BSB hidden and available to show again](/media/docs/images/compare-verses.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/compare-verses.png)
 
 ## Text selection menu {#text-selection-menu}
 

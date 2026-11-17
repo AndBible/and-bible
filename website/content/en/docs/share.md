@@ -2,7 +2,7 @@
 
 With *AndBible*, you can easily share verses, notes, and study pads.
 
-[![Share verse](images/share-verse.png){ height="400" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
+[![Share verse](/media/docs/images/share-verse.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/share-verse.png)
 
 ## Sharing A Verse
 
@@ -35,7 +35,7 @@ The switches are remembered for the next time you share.
 In the Android text-selection menu (when you select text in the Bible) the corresponding
 items are *Share / Copy*, which opens the same sheet, and *Copy*.
 
-[![Share options](images/share-options.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
+[![Share selection options at two scroll positions, with the conditional Show notes switch below](/media/docs/images/share-options.png){ .align-center style="width: 800px; max-width: 100%; height: auto" }](/media/docs/images/share-options.png)
 
 ## Copying Footnote Text
 
@@ -77,7 +77,7 @@ the same ⋮ menu. See [Study Pads](study_pads.md#exporting-and-importing-study-
 Empty text entries do not include the "Tap to edit text" placeholder in HTML exports.
 The placeholder remains visible in the Study Pad so you can add text later.
 
-[![Share studypad](images/share-studypad.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
+[![Share studypad](/media/docs/images/share-studypad.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/share-studypad.png)
 
 ## Sharing Bibles/Documents {#sharing-bibles-documents}
 
