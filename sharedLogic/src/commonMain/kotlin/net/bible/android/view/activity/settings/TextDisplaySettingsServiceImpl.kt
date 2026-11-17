@@ -196,6 +196,7 @@ class TextDisplaySettingsServiceImpl(
             showParentCategory = scope !is SettingsScope.Global,
             showWorkspaceLink = scope is SettingsScope.Window,
             showGlobalLink = scope !is SettingsScope.Global,
+            fontSizeMultiplierPercent = koin.getOrNull<net.bible.sharedcore.platform.AppSettings>()?.getInt("font_size_multiplier", 100) ?: 100,
         )
     }
 

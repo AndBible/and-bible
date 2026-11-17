@@ -155,6 +155,7 @@ internal class TextSettingsEditorState(
                         onRevert = { key -> controller.onRevert(key); onReady() },
                         onPop = { editor.pop() },
                         onClose = { editor.close() },
+                        fontSizeMultiplierPercent = state.fontSizeMultiplierPercent,
                     )
                 }
             }

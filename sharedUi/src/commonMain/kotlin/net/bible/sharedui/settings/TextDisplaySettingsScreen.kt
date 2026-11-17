@@ -219,6 +219,7 @@ fun TextDisplaySettingsScreen(
         onRevert = onRevert,
         onPop = { editor.pop() },
         onClose = { editor.close() },
+        fontSizeMultiplierPercent = state.fontSizeMultiplierPercent,
     )
 
     val pendingRevertKey = revertKey

@@ -58,6 +58,7 @@ fun TextSettingRowEditorSheet(
     onRevert: (String) -> Unit,
     onPop: () -> Unit,
     onClose: () -> Unit,
+    fontSizeMultiplierPercent: Int = 100,
 ) {
     val editorPage = pages.lastOrNull()
     val rowPage = editorPage as? SettingsEditorPage.Row
@@ -125,6 +126,7 @@ fun TextSettingRowEditorSheet(
                     fontSize = (rows[TextSettingType.FONTSIZE]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
                     lineSpacing = (rows[TextSettingType.LINE_SPACING]?.value as? TextSettingRowValue.Numeric)?.value ?: 16,
                     font = font,
+                    fontSizeMultiplierPercent = fontSizeMultiplierPercent,
                     onValueChange = { current = it },
                 )
                 SheetResetConfirmRow(

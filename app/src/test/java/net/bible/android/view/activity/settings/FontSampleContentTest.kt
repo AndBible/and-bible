@@ -10,6 +10,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.settings.SettingsItem
@@ -59,5 +61,47 @@ class FontSampleContentTest {
             .performSemanticsAction(SemanticsActions.SetProgress) { it(32f) }
         assertEquals(32.sp, style().fontSize)
         assertEquals(51.2f, style().lineHeight.value, 0.01f)
+    }
+
+    private fun sampleSizePx(multiplier: Int, fontScale: Float): Float {
+        val strings = AndroidStrings(RuntimeEnvironment.getApplication())
+        compose.setContent {
+            val base = LocalDensity.current
+            CompositionLocalProvider(
+                LocalStrings provides strings,
+                LocalDensity provides Density(base.density, fontScale),
+            ) {
+                AbTheme(darkTheme = false) {
+                    NumericTextSettingContent(
+                        type = TextSettingType.FONTSIZE,
+                        numeric = TextSettingRowValue.Numeric(16, 1, 60, "16 pt"),
+                        fontSize = 16, lineSpacing = 16,
+                        font = null,
+                        onValueChange = {},
+                        fontSizeMultiplierPercent = multiplier,
+                    )
+                }
+            }
+        }
+        val layouts = mutableListOf<TextLayoutResult>()
+        compose.onNodeWithText(strings.fontPreviewVerse, substring = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        val style = layouts.single().layoutInput.style
+        val density = layouts.single().layoutInput.density
+        // Rendered size in px: sp -> px through the density that laid the text out.
+        return with(density) { style.fontSize.toPx() }
+    }
+
+    private val screenDensity get() = RuntimeEnvironment.getApplication().resources.displayMetrics.density
+
+    /** BibleView-JS renders fontSize * multiplier CSS px (= dp): 16 * 150% = 24 dp. */
+    @Test fun multiplierScalesTheSampleLikeTheBibleView() {
+        assertEquals(24f * screenDensity, sampleSizePx(150, 1f), 0.01f)
+    }
+
+    @Test fun systemFontScaleDoesNotChangeTheSampleSize() {
+        val px = sampleSizePx(100, 2f)
+        // 16 CSS px = 16 dp, whatever the system font scale: 16 * density px.
+        assertEquals(16f * screenDensity, px, 0.01f)
     }
 }

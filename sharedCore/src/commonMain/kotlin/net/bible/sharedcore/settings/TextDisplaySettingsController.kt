@@ -61,6 +61,8 @@ data class TextDisplaySettingsScreenState(
     val items: List<SettingsItem>,
     /** Raw values for the screen's numeric/margin dialogs + badge (inherited-from) lookup. */
     val rows: Map<TextSettingType, TextSettingRow>,
+    /** The app-wide font size multiplier in percent (the font sample applies it, as the Bible view does). */
+    val fontSizeMultiplierPercent: Int = 100,
 )
 
 /** Drill-up navigation key: opens the enclosing workspace's text-display-settings screen. */
@@ -176,7 +178,8 @@ class TextDisplaySettingsController(
                 TextSettingType.AUTO_TRACK_READING,
             )).toTypedArray(),
         )
-        return TextDisplaySettingsScreenState(title = snapshot.screenTitle, items = items, rows = snapshot.rows)
+        return TextDisplaySettingsScreenState(title = snapshot.screenTitle, items = items, rows = snapshot.rows,
+            fontSizeMultiplierPercent = snapshot.fontSizeMultiplierPercent)
     }
 
     private fun buildRow(row: TextSettingRow): SettingsItem {

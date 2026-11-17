@@ -72,6 +72,8 @@ data class TextSettingsSnapshot(
     val showParentCategory: Boolean,   // WINDOW or WORKSPACE
     val showWorkspaceLink: Boolean,    // WINDOW only
     val showGlobalLink: Boolean,       // WINDOW or WORKSPACE
+    /** The app-wide `font_size_multiplier` setting in percent; the Bible view scales the font size by it. */
+    val fontSizeMultiplierPercent: Int = 100,
 )
 
 /** The new value submitted by the UI for a [TextSettingType]; shape depends on the setting's row type. */
