@@ -90,9 +90,6 @@ class DesktopEarlyIncomingFiles private constructor(private val activate: (() ->
     // Delivery happens under [lock] (the sinks only enqueue), so files queued before attaching are always handed over
     // before any file accepted afterwards: FIFO across the hand-over.
     private fun accept(files: List<Path>) {
-        // Main's window handle is available even at the crash gate, before the app graph attaches.
-        // It returns only after the UI thread has accepted activation, so a stuck UI cannot acknowledge success.
-        activate?.invoke()
         synchronized(lock) {
             val target = sink
             if (target == null) {
@@ -100,6 +97,9 @@ class DesktopEarlyIncomingFiles private constructor(private val activate: (() ->
                 pendingActivation = true
             } else target(files)
         }
+        // Own files before touching AWT: a cold window queues activation until attach, while a frozen
+        // attached window may fail without losing files that the app graph still needs to receive.
+        activate?.invoke()
     }
 
     /** The `listen` seam of [DesktopIncomingFilesImpl]: attaches [onFiles], first handing it everything queued so far. */

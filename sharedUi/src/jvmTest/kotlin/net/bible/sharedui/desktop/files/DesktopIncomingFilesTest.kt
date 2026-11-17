@@ -189,6 +189,25 @@ class DesktopIncomingFilesTest {
         }
     }
 
+    @Test fun filesAreOwnedBeforeActivationAndSurviveItsFailure() {
+        val dir = java.nio.file.Files.createTempDirectory("incoming-before-activation")
+        val received = mutableListOf<java.nio.file.Path>()
+        var early: DesktopEarlyIncomingFiles? = null
+        try {
+            early = requireNotNull(DesktopEarlyIncomingFiles.install(dir, activate = {
+                // Simulate the graph attaching while activation runs, then a stuck UI.
+                early!!.listen(dir) { received.addAll(it) }
+                error("UI did not respond")
+            }))
+            val file = dir.resolve("book.epub")
+            kotlin.test.assertFalse(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, listOf(file)))
+            assertEquals(listOf(file), received, "Activation failure must not discard the accepted file")
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
+            dir.toFile().deleteRecursively()
+        }
+    }
+
     @Test fun emptyHandOffDuringStartupIsNotLost() {
         val dir = java.nio.file.Files.createTempDirectory("incoming-activate")
         try {

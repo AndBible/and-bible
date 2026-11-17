@@ -36,24 +36,36 @@ class AwtWindowHandle(
 ) : DesktopWindowHandle {
     @Volatile private var window: Window? = null
     private var restore: () -> Unit = {}
-    private val attached = java.util.concurrent.CountDownLatch(1)
+    private val activationLock = Any()
+    private var pendingActivation = false
 
     fun attach(window: Window, restore: () -> Unit = {}) {
-        this.restore = restore
-        this.window = window
-        attached.countDown()
+        val activate = synchronized(activationLock) {
+            this.restore = restore
+            this.window = window
+            pendingActivation.also { pendingActivation = false }
+        }
+        if (activate) toFront()
     }
 
-    /** A second launch is acknowledged only after the UI thread responds, including before app startup completes. */
+    /** Cold-start requests are replayed on attach; an attached but frozen UI still fails within a bounded time. */
     fun activate() {
-        val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(1500)
-        check(attached.await(1500, java.util.concurrent.TimeUnit.MILLISECONDS)) { "Main window is not ready" }
+        synchronized(activationLock) {
+            if (window == null) {
+                pendingActivation = true
+                return
+            }
+        }
+        if (SwingUtilities.isEventDispatchThread()) {
+            raiseWindow()
+            return
+        }
         val activated = java.util.concurrent.CompletableFuture<Unit>()
         SwingUtilities.invokeLater {
             try { raiseWindow(); activated.complete(Unit) }
             catch (e: Exception) { activated.completeExceptionally(e) }
         }
-        activated.get((deadline - System.nanoTime()).coerceAtLeast(1), java.util.concurrent.TimeUnit.NANOSECONDS)
+        activated.get(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
     }
 
     override val sizeDp: IntSize
