@@ -515,8 +515,8 @@ class IosReadingWindowsTest {
             val owner = events.filterIsInstance<net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.PaneOwnershipObserved>()
                 .last { it.paneId == context.paneId && it.webViewId == context.webViewId }
             assertTrue(owner.attached)
-            assertNotEquals("none", owner.windowId)
-            assertEquals("none", owner.sceneId, "this fixture window has no owning scene")
+            assertEquals(net.bible.sharedui.ios.diagnostics.NativeDiagnosticIdentities.identity(window), owner.windowId)
+            assertEquals(net.bible.sharedui.ios.diagnostics.NativeDiagnosticIdentities.identity(window.windowScene), owner.sceneId)
             assertTrue(events.indexOf(owner) < events.indexOf(context))
             eligible.navDelegate.webViewWebContentProcessDidTerminate(eligible.webView)
             assertTrue(events.contains(net.bible.sharedui.host.diagnostics.RuntimeDiagnosticEvent.ClientReady(context.paneId)))
