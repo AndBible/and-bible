@@ -98,7 +98,7 @@ class InstallInspector(private val determineFileType: suspend (Path) -> BackupFi
             // the [Epub] branch above, not commit unconditionally.
             scan.isEpub -> InstallPlan.EpubFromZip(displayName, epubUpgradeCheck(displayName))
             scan.invalid -> InstallPlan.Invalid(displayName)
-            else -> InstallPlan.SwordZip(scan.existingFiles, scan.totalEntries)
+            else -> InstallPlan.SwordZip(scan.existingFiles, scan.totalEntries, scan.isModuleBackup)
         }
     }
 
@@ -147,5 +147,6 @@ class InstallInspector(private val determineFileType: suspend (Path) -> BackupFi
         val totalEntries: Int,
         val isEpub: Boolean,      // otherFiles contained META-INF/container.xml
         val invalid: Boolean,     // otherFiles present but not epub, or no mods/modules
+        val isModuleBackup: Boolean = false,
     )
 }

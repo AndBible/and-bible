@@ -321,6 +321,7 @@ class DocumentInstallService : Service() {
 
     private fun decisionText(request: DecisionRequest): String = when (request) {
         is DecisionRequest.Overwrite -> BibleApplication.application.getString(R.string.overwrite_files_title)
+        DecisionRequest.ModuleBackupRestore -> BibleApplication.application.getString(R.string.module_backup_restore)
         is DecisionRequest.EpubUpgrade -> BibleApplication.application.getString(R.string.bookmark_warning)
         is DecisionRequest.StudyPadImport -> request.statsText
     }

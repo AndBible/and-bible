@@ -273,6 +273,9 @@ The dialog lists the file types that can be loaded:
 
 On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
 
+When you select an AndBible documents backup, confirm that you want to restore its
+documents. If any files already exist, AndBible also asks before overwriting them.
+
 Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or
 document sync makes the new text available for subsequent reads without restarting
 the app. The old search index is removed; rebuild the index to search the new version.

@@ -26,6 +26,8 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.ArchiveUtils.unzip
 import net.bible.service.common.createTempFile
@@ -137,6 +139,10 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
     var modsDirFound = false
     var modulesFound = false
     var totalEntries = 0
+    var isModuleBackup = false
+    var hasManifest = false
+    var backupPayload = false
+    val backupEntries = mutableListOf<String>()
 
     ZipReader(FileSystem.SYSTEM.source(localFile)).use { zin ->
         var entry: ZipReader.Entry? = try {
@@ -152,6 +158,7 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
                 return InstallInspector.SwordZipScan(emptyList(), 0, isEpub = false, invalid = true)
             }
             val name = entry.name.replace('\\', '/')
+            if (!entry.isDirectory && name != ANDBIBLE_BACKUP_MANIFEST_FILENAME) backupPayload = true
             val targetFile = targetDirectory / moduleArchiveTargetName(name)
             // A name the file system rejects (for example a NUL char) cannot exist there: File.exists() said false.
             val exists = !entry.isDirectory && try {
@@ -171,7 +178,32 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
                     modulesFound = true
                     modsDirFound = true
                 }
-                name == ANDBIBLE_BACKUP_MANIFEST_FILENAME -> Unit
+                name == ANDBIBLE_BACKUP_MANIFEST_FILENAME -> {
+                    if (hasManifest || entry.isDirectory) return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
+                    hasManifest = true
+                    val manifest = try {
+                        val input = zin.entry.buffer()
+                        if (input.request(64 * 1024L + 1)) return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
+                        AndBibleBackupManifest.fromJson(input.readUtf8())
+                    } catch (e: Exception) {
+                        return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
+                    }
+                    if (manifest.backupType != BackupType.MODULE_BACKUP) {
+                        return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
+                    }
+                    isModuleBackup = true
+                }
+                name.startsWith("ttf/") || name.startsWith("background/") || name.startsWith("prompts/") -> {
+                    val extension = name.substringAfterLast('.', "").lowercase()
+                    val valid = entry.isDirectory || when {
+                        name.startsWith("ttf/") -> extension == "ttf"
+                        name.startsWith("background/") -> extension in setOf("jpg", "jpeg", "png", "webp")
+                        else -> extension == "csv"
+                    }
+                    if (!valid) otherFiles.add(name) else {
+                        backupEntries.add(name)
+                    }
+                }
                 // A MyBible module (plus auxiliary SQLite files) at the archive root; installed under mybible/.
                 isRootSqliteEntry(name) && currentEntryIsMyBible(zin) -> {
                     modulesFound = true
@@ -187,14 +219,15 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
         }
     }
 
+    if (!isModuleBackup) otherFiles.addAll(backupEntries)
     if (otherFiles.isNotEmpty()) {
-        val isEpub = otherFiles.any { it == "META-INF/container.xml" }
+        val isEpub = !isModuleBackup && otherFiles.any { it == "META-INF/container.xml" }
         return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = isEpub, invalid = !isEpub)
     }
-    if (!(modsDirFound && modulesFound)) {
+    if ((isModuleBackup && !backupPayload) || (!(modsDirFound && modulesFound) && !(isModuleBackup && backupPayload))) {
         return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = true)
     }
-    return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = false)
+    return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = false, isModuleBackup = isModuleBackup)
 }
 
 /**
