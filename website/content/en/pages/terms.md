@@ -2,14 +2,9 @@
 title: AndBible Terms of Service
 ---
 
-- AndBible is an open-source application. Use app with your own risk. Developers do not take responsibility of any harm, data loss etc that might take place.
-- AndBible has optional Google Drive synchronization feature, which is disabled by default. If this feature is enabled, then:
-  - AndBible uses Google Drive API to synchronize their data (Bookmarks, Workspaces, Reading plans and related entities) with users own Google Drive account.
-  - AndBible can and will access only it's own data in Google Drive. Only data that is used to implement synchronization feature is stored in or retrieved from Google Drive.
-  - AndBible stores Googles authentication that are keys needed for Google Drive access only in the device that Google Drive access was granted. They will never leave the device and are held in app private storage. They are not included in any backup files.
-  - AndBible will not share any Google user data with anyone.
-  - AndBible developers will not take responsibility of any data loss or damage that may occur during the synchronization process.
-  - Any information or data stored on the user's Google Drive account is subject to Google's own privacy policy.
-- Apart from the above mentioned exception, AndBible does not collect or store any personal information from users.
+- AndBible is an open-source application. Use the app at your own risk. The developers do not take responsibility for any harm, data loss or other damage that might occur, including during cloud synchronization.
+- How AndBible handles your data (cloud sync with Google Drive, iCloud Drive or Nextcloud/WebDAV, the AI assistant, bug reports and document downloads) is described in the [Privacy Policy](/privacy/).
+- **AI assistant.** The AI features are optional and off until you set up a provider with your own API key. Requests go directly from your device to the provider you chose, under that provider's own terms and privacy policy, and any costs are between you and the provider. AI answers can be wrong or incomplete: check them against the Bible text and other trustworthy sources, and do not rely on them as authoritative.
+- Data you store in a third-party service (Google Drive, iCloud, a Nextcloud/WebDAV server or an AI provider) is also subject to that service's own terms and privacy policy.
 
-Permanent location to this Terms of Service document: [http://andbible.org/terms.html](/terms.html)
+Permanent location to this Terms of Service document: [https://andbible.org/terms.html](/terms.html)
