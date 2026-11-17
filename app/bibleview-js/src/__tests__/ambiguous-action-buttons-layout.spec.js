@@ -2,11 +2,13 @@ import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
 import {mount, flushPromises} from "@vue/test-utils";
 import {reactive, nextTick} from "vue";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons.vue";
-import {appSettingsKey, configKey, androidKey, stringsKey, modalKey, keyboardKey, locateTopKey, memorizationKey} from "@/types/constants";
+import {appSettingsKey, configKey, calculatedConfigKey, androidKey, stringsKey, modalKey, keyboardKey, locateTopKey, memorizationKey} from "@/types/constants";
 
 // jsdom has no layout: give the button strip a fixed width and every button a fixed width.
 const CONTAINER_WIDTH = 350;
 const BUTTON_WIDTH = 50;
+let containerWidth = CONTAINER_WIDTH;
+let buttonWidth = BUTTON_WIDTH;
 
 let restore = [];
 function stubLayout(proto, prop, getter) {
@@ -16,11 +18,13 @@ function stubLayout(proto, prop, getter) {
 }
 
 beforeEach(() => {
+    containerWidth = CONTAINER_WIDTH;
+    buttonWidth = BUTTON_WIDTH;
     stubLayout(HTMLElement.prototype, "clientWidth", function () {
-        return this.classList.contains("horizontal") ? CONTAINER_WIDTH : 0;
+        return this.classList.contains("horizontal") ? containerWidth : 0;
     });
     stubLayout(HTMLElement.prototype, "offsetWidth", function () {
-        return this.classList.contains("large-action") ? BUTTON_WIDTH : 0;
+        return this.classList.contains("large-action") ? buttonWidth : 0;
     });
 });
 afterEach(() => {
@@ -39,6 +43,7 @@ function mountButtons(targets) {
     return mount(AmbiguousActionButtons, {
         attachTo: document.body,
         props: {
+            hasActions: false,
             selectionInfo: {
                 verseInfo: {bookInitials: "KJV", v11n: "KJV"},
                 startOrdinal: 1000, endOrdinal: 1000,
@@ -46,7 +51,7 @@ function mountButtons(targets) {
         },
         global: {
             provide: {
-                [appSettingsKey]: appSettings, [configKey]: {}, [stringsKey]: strings,
+                [appSettingsKey]: appSettings, [configKey]: {}, [calculatedConfigKey]: {}, [stringsKey]: strings,
                 [androidKey]: {memorize: vi.fn()},
                 [modalKey]: {closeModals() {}},
                 [keyboardKey]: {setupKeyboardListener() {}},
@@ -60,8 +65,24 @@ function mountButtons(targets) {
 
 const primaryCount = (w) => w.findAll(".horizontal > .large-action").length - (w.find(".horizontal > .more-action").exists() ? 1 : 0);
 const hasMore = (w) => w.find(".horizontal > .more-action").exists();
+const primaryLabels = (w) => w.findAll(".horizontal > .large-action:not(.more-action) .title").map(b => b.text());
 
-describe("verse menu button strip (#4106)", () => {
+describe("verse menu button strip (#4106, #4116)", () => {
+    it("keeps Memorize directly accessible for an existing goal on a narrow phone", async () => {
+        containerWidth = 320;
+        buttonWidth = 70;
+        const w = mountButtons(reactive(new Set([1000])));
+        try {
+            await flushPromises();
+            expect(hasMore(w)).toBe(true);
+            expect(primaryLabels(w)).toContain("verseMemorize");
+            expect(primaryLabels(w)).toContain("removeMemorizationTarget");
+            expect(primaryCount(w) * buttonWidth + 70).toBeLessThanOrEqual(containerWidth);
+        } finally {
+            w.unmount();
+        }
+    });
+
     it("shows every button when they all fit", async () => {
         const w = mountButtons(reactive(new Set()));
         await flushPromises();
@@ -85,6 +106,7 @@ describe("verse menu button strip (#4106)", () => {
         expect(hasMore(w)).toBe(true);
         // Primary buttons plus More (~70px) must fit in one row of 350px.
         expect(primaryCount(w) * BUTTON_WIDTH + 70).toBeLessThanOrEqual(CONTAINER_WIDTH);
+        expect(primaryLabels(w)).toContain("verseMemorize");
         w.unmount();
     });
 });

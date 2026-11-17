@@ -7,14 +7,14 @@ The dialog has these buttons. When there is not enough width for all of them, th
 under a **More** button:
 
 - [Bookmark](#bookmark)
+- [Memorize](#memorize), kept near the start so it remains directly accessible on phones even for existing goals.
+- **Goal -**, shown when all the selected verses are memorization goals: removes them from the
+    goals. See [Memorize](memorize.md).
 - [Note](#note)
 - [My Notes](#my-notes)
 - [Share](#share)
 - [Compare](#comparing-verses)
 - [Speak](#speak)
-- [Memorize](#memorize)
-- **Goal -**, shown when all the selected verses are memorization goals: removes them from the
-    goals. See [Memorize](memorize.md).
 - **AI**, shown when an AI provider is set up. See [AI](ai.md).
 - **Paragraph**, shown only when the experimental *Add paragraph break bookmark* feature is on
     (see [Bookmarks](bookmarks.md#experimental-features)).

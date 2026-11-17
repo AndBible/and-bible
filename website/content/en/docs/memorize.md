@@ -8,7 +8,8 @@ exercises.
 1. Tap a verse, or select a passage by long-pressing a word and extending the
     selection.
 2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
-    **Memorize** button. On a narrow screen the button may be under **More**.
+    **Memorize** button near the start of the button row. It keeps its position even when
+    the passage is already a memorization goal.
 3. A new window opens with the Memorize view.
 
 Opening the Memorize view on a passage also adds it as a memorization goal (if it is not one already),

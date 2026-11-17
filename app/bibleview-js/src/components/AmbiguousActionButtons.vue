@@ -91,7 +91,8 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         // Keep Memorize ahead of conditional goal actions so adding a goal cannot push it into More.
+         allButtons = ["BOOKMARK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     } else {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     }
