@@ -180,7 +180,7 @@ private fun runApp(args: List<String>, provider: DesktopEngineProvider) {
         }
         exitProcess(handOffSecondLaunch(paths.data, files) {
             val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
-            System.err.println(net.bible.sharedui.assembly.hostStringTable(language).text("desktop_activation_failed"))
+            reportSecondLaunchFailure(net.bible.sharedui.assembly.hostStringTable(language))
         })
     }
     val notifierSource = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {

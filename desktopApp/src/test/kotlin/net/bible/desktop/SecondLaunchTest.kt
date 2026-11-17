@@ -42,6 +42,29 @@ class SecondLaunchTest {
         }
     }
 
+    @Test fun graphicalFailureIsVisibleInADialogAndStderr() {
+        val strings = net.bible.sharedui.assembly.hostStringTable("en")
+        val errors = mutableListOf<String>()
+        val dialogs = mutableListOf<Pair<String, String>>()
+        reportSecondLaunchFailure(strings, headless = false, stderr = errors::add, present = { title, text -> dialogs.add(title to text) })
+        assertEquals(listOf(strings.text("desktop_activation_failed")), errors)
+        assertEquals(listOf(strings.text("error_occurred") to errors.single()), dialogs)
+    }
+
+    @Test fun headlessFailureStillReportsToStderrWithoutOpeningADialog() {
+        val errors = mutableListOf<String>()
+        reportSecondLaunchFailure(net.bible.sharedui.assembly.hostStringTable("en"), headless = true,
+            stderr = errors::add, present = { _, _ -> error("No dialogs in headless mode") })
+        assertEquals(1, errors.size)
+    }
+
+    @Test fun dialogFailureDoesNotHideTheOriginalFailure() {
+        val errors = mutableListOf<String>()
+        reportSecondLaunchFailure(net.bible.sharedui.assembly.hostStringTable("en"), headless = false,
+            stderr = errors::add, present = { _, _ -> error("Display unavailable") })
+        assertEquals(1, errors.size)
+    }
+
     @Test fun missingListenerReportsFailureWithinAFewSeconds() {
         val dir = Files.createTempDirectory("second-launch-missing")
         var reports = 0
