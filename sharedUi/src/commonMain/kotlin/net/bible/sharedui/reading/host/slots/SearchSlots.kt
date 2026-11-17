@@ -125,6 +125,8 @@ internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: String
         return
     }
     val resultsPhase = phase as? ReadingSearchPhase.Results ?: return
+    // The scaffold keeps hidden sheet content mounted; hidden results must not retain keyboard focus.
+    if (!sheetVisible) return
     val openResultInLinksWindow by state.openResultInLinksWindow.collectAsState()
     if (resultsPhase.forEpub) {
         val loading by state.epubSearchResults.loading.collectAsState()
