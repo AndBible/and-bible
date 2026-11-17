@@ -252,6 +252,35 @@ class AppDialogHostTest {
         compose.onNodeWithText("a\nbold").assertExists()
     }
 
+    @Test fun damagedDataActionSheetRendersParagraphsAndPreservesFilename() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val filename = "bookmarks<&>.db"
+        val plain = context.getString(R.string.corrupt_database_message, filename)
+        show(ShownDialog(41, AppDialogRequest.Options(
+            title = context.getString(R.string.corrupt_database_title),
+            message = net.bible.sharedcore.ui.dialog.plainTextToHtml(plain),
+            options = listOf(SettingsItem.Choice("reset", context.getString(R.string.corrupt_database_reset))),
+            dismissText = context.getString(R.string.close), asActionSheet = true, cancellable = false,
+        )))
+        compose.onNodeWithText(plain).assertExists()
+        compose.onNodeWithText("<br>", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("&amp;", substring = true).assertDoesNotExist()
+    }
+
+    @Test fun crashReportActionSheetRendersHtmlLikeMessageDialogs() {
+        // ErrorReportControl.showErrorDialog accepts HTML directly, unlike the escaped damaged-data message.
+        show(ShownDialog(42, AppDialogRequest.Options(
+            title = null, message = "Failed<br><br><b>Backup &amp; Restore</b>",
+            options = listOf(SettingsItem.Choice("report", "Send report")),
+            dismissText = "Skip", asActionSheet = true, cancellable = false,
+        )))
+        compose.onNodeWithText("Failed\n\nBackup & Restore").assertExists()
+        compose.onNodeWithText("<br>", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("&amp;", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("Send report").performClick()
+        assertEquals(listOf(42L to AppDialogResult.Selected("report")), answers)
+    }
+
     @Test fun optionsCheckboxIsReturnedWithTheSelectedValue() {
         show(ShownDialog(42, AppDialogRequest.Options(
             title = "Question", message = null,
