@@ -18,7 +18,9 @@
 
 package net.bible.sharedui.reading.host.slots
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -33,6 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.page.screen.chapterReadHistoryRow
@@ -128,6 +133,12 @@ private fun GridKeyChooserSheet(slots: ReadingHostSlots, sheet: ReadingQuickShee
 }
 
 /**
+ * The grid key-chooser sheet's body bound, as a share of the height the sheet offers its content
+ * (#4133): enough for the 11-row book list on a phone, while the reading view stays visible above.
+ */
+internal const val GRID_SHEET_BODY_FRACTION = 0.7f
+
+/**
  * The grid key-chooser sheet around an existing [controller]: [fallbackTitle] shows until the first
  * step has built, [onClose] runs when the sheet is dismissed (swipe, scrim, the close button, system
  * back at the book step, or back past the last grid step). Public (and objc-hidden) so a platform test
@@ -140,8 +151,8 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
     val rendered = ui
     val step by controller.step.collectAsState()
     val options by controller.options.collectAsState()
-    // The grid always overflows its 400dp bound, so it most needs the bottom fade; the fade must
-    // read the grid's own LazyGridState.
+    // A long grid (Psalms) still overflows its bound and needs the bottom fade; the fade must read
+    // the grid's own LazyGridState.
     val gridState = rememberLazyGridState()
     AbQuickSheet(
         open = true,
@@ -152,6 +163,7 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         canGoBack = { step != GridStep.BOOK },
         onBack = { if (!controller.back()) onClose() },
         canScrollForward = { gridState.canScrollForward },
+        bodyMaxHeightFraction = GRID_SHEET_BODY_FRACTION,
         dismissRoutesToBack = false,
         // Captures this composition's value: the lambda may run in another composition (a separate popup window
         // under desktop `compose.layers.type=WINDOW`) after `ui` went null for the next step's build, before this
@@ -164,9 +176,21 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         },
     ) {
         PlatformBackHandler(enabled = step != GridStep.BOOK) { controller.back() }
-        GridChoosePassageContent(
-            rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize(), state = gridState,
-        )
+        // The sheet follows the grid's own height (#4133): the grid is content-fitted, under a
+        // body bound of GRID_SHEET_BODY_FRACTION of the window. While the next step builds (ui is
+        // null) the gap keeps the last grid's height, so the sheet does not collapse and regrow.
+        val density = LocalDensity.current
+        var lastGridHeight by remember { mutableStateOf(0.dp) }
+        if (rendered == null) {
+            Box(Modifier.fillMaxWidth().height(lastGridHeight))
+        } else {
+            GridChoosePassageContent(
+                rendered, { id -> controller.pick(id, rendered) },
+                Modifier.fillMaxWidth().onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
+                state = gridState,
+                fitContentHeight = true,
+            )
+        }
     }
 }
 

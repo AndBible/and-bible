@@ -48,6 +48,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,6 +86,9 @@ import net.bible.sharedui.theme.isPureMonochrome
  * the earlier literal 7.sp so the goldens do not shift for this reason alone.
  */
 private const val LONG_NAME_MIN_FONT_SIZE_FRACTION = 0.65f
+
+/** A content-fitted grid's preferred cell height: a 48dp row pitch with the cell's 2dp padding. */
+private val FITTED_CELL_HEIGHT = 44.dp
 
 @Composable
 fun GridChoosePassageScreen(
@@ -159,6 +164,12 @@ fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption)
  * `canScrollForward` lambda it is handed, so the host has to read the grid's OWN scroll state or
  * the fade can never appear. The full screen passes nothing, which is behaviour-identical to the
  * `LazyVerticalGrid` creating its own state internally (the previous default).
+ *
+ * [fitContentHeight] (sheets, #4133): instead of filling [modifier]'s height with a fixed
+ * classic row count, the grid takes only the height its real rows need at a preferred cell
+ * height, capped by the incoming max height (cells shrink to the 40dp floor before it scrolls).
+ * A sheet then grows and shrinks with the step: a one-chapter book is one row, the book list
+ * gets all its rows when the bound allows. Safe under an unbounded height, too.
  */
 @Composable
 fun GridChoosePassageContent(
@@ -166,6 +177,7 @@ fun GridChoosePassageContent(
     onPick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
+    fitContentHeight: Boolean = false,
 ) {
     if (ui == null) {
         Box(modifier)
@@ -177,20 +189,53 @@ fun GridChoosePassageContent(
     val spacerCount = if (sections != null) (sections.size - 1).coerceAtLeast(0) else 0
     // Content rows: each section starts on a fresh row (a full-span spacer forces the break),
     // so count rows per section, not across the whole list.
+    // A content-fitted grid (sheet) counts only the rows it really has; the full screen keeps the
+    // classic fixed row count (GridUi.minRows), so a short book gets normal-sized cells, not huge ones.
+    val minRows = if (fitContentHeight) 1 else ui.minRows
     val contentRows = if (sections != null) {
-        gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = ui.minRows)
+        gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = minRows)
     } else {
-        gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
+        gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = minRows)
+    }
+    // A new grid (another step, or another book's chapters) opens at the top (#4117). The same
+    // LazyGridState survives the step change whenever the next step builds before the next frame,
+    // and always in the quick sheet, which hoists it. The lazy grid would then keep "the first
+    // visible item" by KEY, and the steps' keys collide: book cells are keyed by BibleBook.ordinal
+    // (Genesis = 2), chapter and verse cells by their number, so the chapter grid followed key 2 to
+    // chapter 2 -- the second row in portrait column order, hiding chapters 1, 11, 21, ...
+    // requestScrollToItem resets the position AND forgets the remembered key; issued from a
+    // SideEffect it lands before this frame's measure, so the wrong position is never drawn.
+    // Not reset on first composition, so a restored (saveable) position survives.
+    val gridIdentity = ui.step to ui.title
+    val shownIdentity = remember(state) { arrayOf<Any?>(gridIdentity) }
+    SideEffect {
+        if (shownIdentity[0] != gridIdentity) {
+            shownIdentity[0] = gridIdentity
+            state.requestScrollToItem(0)
+        }
     }
     BoxWithConstraints(modifier = modifier) {
         // Fill the viewport height like the classic grid: divide the available height by the
         // row count. contentPadding is 4dp each side (=8dp) and each spacer is 8dp tall.
         val available = maxHeight - 8.dp - (spacerCount * 8).dp
         val minCell = 40.dp // below this we stop growing and let long (verse) lists scroll instead
-        val cellHeight = (available / contentRows).coerceAtLeast(minCell)
+        val gridModifier: Modifier
+        val cellHeight: Dp
+        if (fitContentHeight) {
+            // Sized to the content (#4133): rows of FITTED_CELL_HEIGHT, shrunk towards minCell
+            // when the bound is short, and scrolling only below that. Each cell's own 2dp padding
+            // (GridCell) is part of the row pitch, so it is counted here.
+            val fitted = if (maxHeight == Dp.Infinity) FITTED_CELL_HEIGHT else available / contentRows - 4.dp
+            cellHeight = fitted.coerceIn(minCell, FITTED_CELL_HEIGHT)
+            val contentHeight = (cellHeight + 4.dp) * contentRows + 8.dp + (spacerCount * 8).dp
+            gridModifier = Modifier.fillMaxWidth().height(contentHeight.coerceAtMost(maxHeight))
+        } else {
+            cellHeight = (available / contentRows).coerceAtLeast(minCell)
+            gridModifier = Modifier.fillMaxSize()
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(cols),
-            modifier = Modifier.fillMaxSize().volumeScrollTarget(state),
+            modifier = gridModifier.volumeScrollTarget(state),
             state = state,
             contentPadding = PaddingValues(4.dp),
         ) {
