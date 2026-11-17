@@ -204,9 +204,18 @@ To download a document from the provided repositories:
 The list has two chips at the top: the language chip (the globe) and the document type
 chip (*All types*, *Bible*, *Commentary*, *Dictionary*, *Book*, *Map*, *Add-ons*). A line
 under them tells how many documents match. The *More filters* button opens *Filter and
-sort*, where you can choose the *Repository*, the *Sort order* and *Group by*, tick
-*Remember these settings* to keep them, or use *Reset to defaults*. Pull down on the list
-to refresh the catalogue.
+sort*:
+
+- *Repository*: show documents from *All repositories* or choose one repository.
+- *Sort order*: drag the criteria into priority order, with the most important first.
+    The choices are *Status*, *Recommended first*, *Document type*, *Name*, *Language*,
+    *Repository* and *Size*. Tap the arrow beside a criterion to switch between
+    ascending and descending order. Later criteria break ties in earlier ones.
+- *Group by*: choose *No grouping*, *Document type*, *Language* or *Repository*.
+    Grouping divides the list into sections; the sort order applies within each section.
+
+Tick *Remember these settings* to keep your choices, or use *Reset to defaults*.
+Pull down on the list to refresh the catalogue.
 
 A document that is already installed shows a check mark. When a newer version is in the
 catalogue the row shows an upward arrow, and with the default sort the status
