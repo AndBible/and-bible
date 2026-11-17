@@ -37,26 +37,30 @@ internal object IosRuntimeDiagnosticsHarness {
         if (!Platform.isDebugBinary || !NSProcessInfo.processInfo.arguments.contains("-runtimeDiagnosticsTest")) return
         val scope = rememberCoroutineScope()
         var result by remember { mutableStateOf<String?>(null) }
+        var request by remember { mutableStateOf(0) }
+        var busy by remember { mutableStateOf(false) }
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-          Surface {
-           Column {
-            Button(onClick = {
-                net.bible.sharedcore.log.nsLog("RuntimeDiagnosticsHarness: tap delivered")
-                result = "running"
-                scope.launch {
-                    println("RuntimeDiagnosticsHarness: report started")
-                    result = try {
-                        inspectReport().also { println("RuntimeDiagnosticsHarness: report completed") }
-                    } catch (_: Exception) {
-                        println("RuntimeDiagnosticsHarness: report failed")
-                        "error"
+            Surface {
+                Column {
+                    Button(onClick = {
+                        val id = ++request
+                        busy = true
+                        result = "running request=$id"
+                        scope.launch {
+                            result = try {
+                                "${inspectReport()} request=$id"
+                            } catch (_: Exception) {
+                                "error request=$id"
+                            } finally {
+                                busy = false
+                            }
+                        }
+                    }, enabled = !busy, modifier = Modifier.testTag("runtime-diagnostics-probe")) {
+                        Text("Inspect diagnostics")
                     }
-                    println("RuntimeDiagnosticsHarness: result assigned")
+                    result?.let { Text(it, Modifier.testTag("runtime-diagnostics-result")) }
                 }
-            }, modifier = Modifier.testTag("runtime-diagnostics-probe")) { Text(if (result == null) "Inspect diagnostics" else "Diagnostics tapped") }
-            result?.let { Text(it, Modifier.testTag("runtime-diagnostics-result")) }
-           }
-          }
+            }
         }
     }
 
