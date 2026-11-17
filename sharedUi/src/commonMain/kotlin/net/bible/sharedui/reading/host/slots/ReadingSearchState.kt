@@ -65,8 +65,15 @@ class ReadingSearchState(
         private set
     private val activeSession = MutableStateFlow(session)
 
-    private fun <T> follow(initial: T, read: (ReadingSearchSession) -> StateFlow<T>): StateFlow<T> =
-        activeSession.flatMapLatest(read).stateIn(scope, SharingStarted.Eagerly, initial)
+    private fun <T> follow(initial: T, read: (ReadingSearchSession) -> StateFlow<T>): StateFlow<T> {
+        val updates = activeSession.flatMapLatest(read).stateIn(scope, SharingStarted.Eagerly, initial)
+        // Hosts also read .value synchronously in Back/key handlers. A second stateIn hop can
+        // otherwise report the previous sheet/window until Main processes the next continuation.
+        return object : StateFlow<T> by updates {
+            override val value: T get() = read(activeSession.value).value
+            override val replayCache: List<T> get() = listOf(value)
+        }
+    }
 
     val searchBar = follow<ReadingSearchBarState?>(null) { it.searchBar }
     val searchSheetVisible = follow(false) { it.searchSheetVisible }

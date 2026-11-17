@@ -178,8 +178,16 @@ class WorkspaceSwitchContentTest {
                     search.searchResultsExpanded["Gen.1.2"] = true
                     search.onSearchResultSelected("Gen.1.2", "K4RawText")
                     assertFalse(search.searchSheetVisible.value)
-                    if (links) assertTrue(source.targetLinksWindow.isLinksWindow)
-                    else assertEquals("Gen.1.2", source.pageManager.currentBible.singleKey.getOsisRef())
+                    if (links) {
+                        assertTrue(source.targetLinksWindow.isLinksWindow)
+                        // A newly shown links window becomes active. Find stays with the source,
+                        // rather than travelling to that result window (#4136).
+                        if (repository.activeWindow != source) {
+                            assertFalse(search.controller.searchModeActive.value)
+                            repository.activeWindow = source
+                            kotlinx.coroutines.withTimeout(5_000) { search.searchBar.first { it?.query == "light" } }
+                        }
+                    } else assertEquals("Gen.1.2", source.pageManager.currentBible.singleKey.getOsisRef())
                     var passed = false
                     host.backChain.onBack { passed = true }
                     assertFalse(passed)
