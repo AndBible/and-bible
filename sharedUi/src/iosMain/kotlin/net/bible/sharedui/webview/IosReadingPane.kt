@@ -138,6 +138,9 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
         // prepending chapters and the position notifier saved John 1:1 as the reading position. Off on every
         // device: the reading position moves only by the user's own scroll. Android has no such gesture.
         scrollView.scrollsToTop = false
+        // BibleView-JS draws a persistent thin scrollbar for the iOS host (OverlayScrollbar.vue, issue #4137); the
+        // native indicator would add a second bar during a touch drag (and never shows for the Mac wheel path).
+        scrollView.showsVerticalScrollIndicator = false
     }
 
     /** Adds the AndBible rows to the system edit menu (see [insertSelectionMenu]); null leaves the menu as WebKit builds it. */

@@ -71,6 +71,7 @@
         {{ pageNumber }}/{{ pageCount }}
       </div>
     </div>
+    <OverlayScrollbar v-if="isIosHost" :top-inset="appSettings.topOffset" :bottom-inset="appSettings.bottomOffset"/>
     <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
     <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
@@ -169,11 +170,13 @@ import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import ReadingProgress from "@/components/ReadingProgress.vue";
+import OverlayScrollbar from "@/components/OverlayScrollbar.vue";
 import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
 import {backgroundImageLayer} from "@/code/background-image";
 import {adoptDocumentGeneration} from "@/bridge/document-generation";
 
 const isDesktopHost = document.documentElement.classList.contains("desktop-host");
+const isIosHost = document.documentElement.classList.contains("ios-host");
 console.log("BibleView setup");
 useAddonFonts();
 useFontAwesome();
