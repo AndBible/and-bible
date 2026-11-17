@@ -8,6 +8,12 @@ import kotlin.test.assertEquals
 class GeneratedStringsFormatTest {
     private val strings = iosStrings("en")
 
+    @Test fun downloadWarningUsesTheSuppliedImportAction() {
+        val action = "Renamed import action"
+        kotlin.test.assertTrue(strings.downloadQuestionMessage(action).contains(action))
+        kotlin.test.assertTrue(strings.downloadQuestionMessage(strings.installZipTitle).contains(strings.installZipTitle))
+    }
+
     @Test fun documentCountSubstitutesTheUnpositionalDecimal() {
         assertEquals("5 documents", strings.docFilterResults(5))
         assertEquals("1520 documents", strings.docFilterResults(1520))

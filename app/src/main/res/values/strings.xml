@@ -458,7 +458,7 @@
     <string name="download_question_message">If you live in a persecuted country,
         you might need to be careful about downloading christian material via Internet.
         Instead, you might want to obtain module zip files more securely and install them
-        via "Load Documents From Zip". Are you sure you want to proceed with downloading?
+        via "%1$s". Are you sure you want to proceed with downloading?
         All downloads from module servers are encrypted (HTTPS).
     </string>
     <string name="do_not_ask_again">Yes, do not ask any more</string>
@@ -1685,7 +1685,7 @@
     <string name="ai_settings">AI Settings</string>
     <string name="ai_connection_settings">Connection settings</string>
     <string name="ai_setup_title">Configure AI</string>
-    <string name="ai_setup_description">AndBible can use AI to translate Bible text, explain verses, create summaries, and more. To get started, configure a connection to an OpenAI-compatible API provider.</string>
+    <string name="ai_setup_description">AndBible can use AI to translate Bible text, explain verses, create summaries, and more. To get started, configure a connection to an AI provider, such as OpenAI, Anthropic or Google Gemini.</string>
     <string name="ai_configure_button">Configure Connection</string>
     <string name="ai_settings_shortcut_summary">AI connection and prompt settings</string>
     <string name="ai_provider_tier_recommended">Recommended</string>

@@ -1270,7 +1270,7 @@ interface Strings {
     // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question (classic
     // askIfWantToProceed(), now DocumentSelectionDialog.ProceedWithDownload/AbOptionsDialog)
     val downloadQuestionTitle: String            // R.string.download_question_title
-    val downloadQuestionMessage: String          // R.string.download_question_message
+    fun downloadQuestionMessage(installAction: String): String // R.string.download_question_message
     val doNotAskAgain: String                    // R.string.do_not_ask_again
 
     // Task 26 — platform-dialog removal: the verse-share quick sheet (classic ShareWidget's
