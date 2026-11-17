@@ -58,6 +58,8 @@ There are multiple ways to choose the document you want to show in the new windo
 
 A window can be maximised (`Maximise` in the window menu) so it takes up the whole screen. Restore it to its original size by pushing the `Restore all windows` button in the bottom right of the screen.
 
+When you open a link (a cross reference, Strong's, Compare, Memorize, My Notes, a StudyPad, a search result) in a maximised window and the `Links window` setting is on, the link opens in the links window, which is shown maximised in its place. Back, closing the links window or the `Restore all windows` button returns to the window that was maximised before, at the same place. With the setting off, links open in the maximised window itself.
+
 A window can be minimised (`Minimise` in the window menu) so that it is hidden from view. Show the window again by clicking it’s button in the window-button-bar at the bottom of the screen.
 Minimised windows have a dashed outline around their bottom-bar button. In true
 monochrome mode, their text and outline stay black on white (or white on black in

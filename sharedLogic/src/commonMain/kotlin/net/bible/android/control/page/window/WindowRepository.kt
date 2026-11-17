@@ -89,6 +89,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null
+
+    /**
+     * #4141: the windows a link from a maximised window replaced with the maximised links window, most recent last.
+     * `WindowControl.returnFromMaximisedLinksWindow` maximises them again in reverse order. In memory only: a restart
+     * keeps the links window maximised but forgets where it came from.
+     */
+    val maximizedReturnWindowIds: MutableList<IdType> = mutableListOf()
     var primaryTargetLinksWindowId: IdType? = null
 
     val primaryTargetLinksWindow: Window get() =
@@ -635,6 +642,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         Log.i(TAG, "clear $destroy")
         _activeWindow = null
         maximizedWindowId = null
+        maximizedReturnWindowIds.clear()
         unPinnedWeight = null
         orderNumber = 0
         id = IdType.empty()

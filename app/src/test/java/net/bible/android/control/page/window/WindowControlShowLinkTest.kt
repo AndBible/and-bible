@@ -32,6 +32,8 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -108,5 +110,116 @@ class WindowControlShowLinkTest {
 
         assertTrue(WindowChange.WindowsChanged !in seen, "nothing about the window set changed, got $seen")
         assertEquals(links, repo.windowList.single { it.isLinksWindow })
+    }
+    // ---- #4141: a link from a maximised window opens in the links window, maximised in its place ----
+
+    private val kjv get() = Books.installed().getBook("KJV") as SwordBook
+    private fun verse(chapter: Int, verse: Int) = Verse(kjv.versification, BibleBook.JOHN, chapter, verse)
+
+    /** A maximised source window showing John 1:1, and a link (John 3:16) shown from it. */
+    private fun showLinkFromMaximisedSource(): Pair<Window, Window> {
+        val source = repo.activeWindow
+        source.pageManager.setCurrentDocumentAndKey(kjv, verse(1, 1))
+        windowControl.maximiseWindow(source)
+        windowControl.showLink(kjv, verse(3, 16))
+        return source to repo.windowList.single { it.isLinksWindow }
+    }
+
+    @Test
+    fun aLinkFromAMaximisedWindowIsShownInTheLinksWindowMaximisedInItsPlace() {
+        val (source, links) = showLinkFromMaximisedSource()
+
+        assertEquals(links.id, repo.maximizedWindowId, "the links window takes the maximised place")
+        assertEquals(listOf(links), repo.visibleWindows)
+        assertEquals(links, windowControl.activeWindow)
+        assertEquals(verse(3, 16), links.pageManager.currentBible.singleKey)
+        assertEquals(verse(1, 1), source.pageManager.currentBible.singleKey, "the source keeps its position")
+        assertEquals(links.id.toString(), windowState.layout.value.maximizedWindowId)
+    }
+
+    @Test
+    fun returningFromTheMaximisedLinksWindowMaximisesThePreviousWindowAgain() {
+        val (source, _) = showLinkFromMaximisedSource()
+
+        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+
+        assertEquals(source.id, repo.maximizedWindowId)
+        assertEquals(listOf(source), repo.visibleWindows)
+        assertEquals(source, windowControl.activeWindow)
+        assertEquals(verse(1, 1), source.pageManager.currentBible.singleKey)
+        assertFalse(windowControl.returnFromMaximisedLinksWindow(), "nothing more to return to")
+        assertEquals(source.id, repo.maximizedWindowId)
+    }
+
+    @Test
+    fun aMaximisedWindowTheUserMaximisedHasNothingToReturnTo() {
+        val source = repo.activeWindow
+        windowControl.maximiseWindow(source)
+
+        assertFalse(windowControl.returnFromMaximisedLinksWindow())
+        assertEquals(source.id, repo.maximizedWindowId)
+    }
+
+    @Test
+    fun chainedLinksReturnOneStepAtATime() {
+        val (source, links) = showLinkFromMaximisedSource()
+        // A link tapped in the links window opens in its own (chained) links window (#2469).
+        windowControl.showLink(kjv, verse(3, 17))
+        val chained = links.targetLinksWindow
+        assertEquals(chained.id, repo.maximizedWindowId)
+        assertEquals(verse(3, 17), chained.pageManager.currentBible.singleKey)
+
+        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+        assertEquals(links.id, repo.maximizedWindowId)
+        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+        assertEquals(source.id, repo.maximizedWindowId)
+    }
+
+    @Test
+    fun aSecondLinkFromTheSourceReusesTheReturnPoint() {
+        val (source, links) = showLinkFromMaximisedSource()
+        windowControl.returnFromMaximisedLinksWindow()
+        windowControl.showLink(kjv, verse(3, 17))
+
+        assertEquals(links.id, repo.maximizedWindowId)
+        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+        assertEquals(source.id, repo.maximizedWindowId)
+        assertFalse(windowControl.returnFromMaximisedLinksWindow())
+    }
+
+    @Test
+    fun closingTheMaximisedLinksWindowReturnsToThePreviousMaximisedWindow() {
+        val (source, links) = showLinkFromMaximisedSource()
+        assertEquals(links.id, repo.maximizedWindowId, "premise: the links window is maximised")
+
+        windowControl.closeWindow(links)
+
+        assertEquals(source.id, repo.maximizedWindowId)
+        assertEquals(listOf(source), repo.visibleWindows)
+        assertEquals(source, windowControl.activeWindow)
+    }
+
+    @Test
+    fun unMaximiseFromTheRailReturnsToThePreviousMaximisedWindowFirst() {
+        val (source, _) = showLinkFromMaximisedSource()
+        val commands = WindowCommandsImpl(windowControl)
+
+        commands.unMaximise()
+        assertEquals(source.id, repo.maximizedWindowId, "the rail's un-maximise leaves the links window first")
+
+        commands.unMaximise()
+        assertNull(repo.maximizedWindowId)
+    }
+
+    @Test
+    fun maximisingAnotherWindowForgetsTheReturnPoint() {
+        val (_, links) = showLinkFromMaximisedSource()
+        windowControl.unMaximise()
+        assertNull(repo.maximizedWindowId)
+
+        windowControl.maximiseWindow(links)
+
+        assertFalse(windowControl.returnFromMaximisedLinksWindow())
+        assertEquals(links.id, repo.maximizedWindowId)
     }
 }

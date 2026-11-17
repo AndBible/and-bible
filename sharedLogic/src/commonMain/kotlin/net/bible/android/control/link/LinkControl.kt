@@ -113,12 +113,15 @@ class LinkControl constructor(
     }
 
     /**
-     * The Back step for a maximised window that shows Memorize (#4118). Maximised, [showLink] opens Memorize in the
-     * maximised window itself, not in the links window, so that window's history steps back to the Bible it came from.
-     * Back un-maximises instead and keeps the exercise on screen; the next Back walks the history as usual.
-     * Returns whether it consumed the press.
+     * The Back step for a maximised window, before the history; returns whether it consumed the press.
+     *
+     * - A maximised links window that a link put in place of a maximised window (#4141) gives the place back to it.
+     * - A maximised window that shows Memorize in place (#4118: links window setting off, or "open here") un-maximises
+     *   and keeps the exercise on screen, because its history would step back to the Bible it came from; the next Back
+     *   walks the history as usual.
      */
-    fun unMaximiseMemorizeOnBack(): Boolean {
+    fun backInMaximisedWindow(): Boolean {
+        if (windowControl.returnFromMaximisedLinksWindow()) return true
         val window = windowControl.windowRepository.maximizedWindow ?: return false
         val document = window.pageManager.currentPage.currentDocument ?: return false
         if (document.initials != fakeBookFactory.memorizeDocument.initials) return false
@@ -413,7 +416,6 @@ class LinkControl constructor(
     }
 
     private fun checkIfOpenLinksInDedicatedWindow(windowMode: WindowMode): Boolean {
-        if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
             WindowMode.WINDOW_MODE_SPECIAL -> true
             WindowMode.WINDOW_MODE_THIS -> false

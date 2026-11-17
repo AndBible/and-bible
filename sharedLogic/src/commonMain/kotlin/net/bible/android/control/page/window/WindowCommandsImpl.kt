@@ -28,7 +28,8 @@ class WindowCommandsImpl(private val windowControl: WindowControl) : WindowComma
     override fun close(windowId: String) { window(windowId)?.let { windowControl.closeWindow(it) } }
     override fun restore(windowId: String) { window(windowId)?.let { windowControl.restoreWindow(it) } }
     override fun maximise(windowId: String) { window(windowId)?.let { windowControl.maximiseWindow(it) } }
-    override fun unMaximise() { windowControl.unMaximise() }
+    /** The rail's un-maximise: a maximised links window first gives the place back to the window it replaced (#4141). */
+    override fun unMaximise() { if (!windowControl.returnFromMaximisedLinksWindow()) windowControl.unMaximise() }
     override fun setPin(windowId: String, value: Boolean) { window(windowId)?.let { windowControl.setPinMode(it, value) } }
     override fun move(windowId: String, position: Int) { window(windowId)?.let { windowControl.moveWindow(it, position) } }
     override fun setSynchronised(windowId: String, value: Boolean) { window(windowId)?.let { windowControl.setSynchronised(it, value) } }
