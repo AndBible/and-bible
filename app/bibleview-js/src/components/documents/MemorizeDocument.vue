@@ -127,7 +127,7 @@ import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faBrain, faChartLine, faCheck, faCog, faEllipsisV, faEyeSlash, faKeyboard, faQuestionCircle, faRandom, faSort, faTimes, faVolumeUp} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
-import {memorizationKey, readingProgressSettingsKey} from "@/types/constants";
+import {memorizationKey, modalKey, readingProgressSettingsKey} from "@/types/constants";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -255,6 +255,8 @@ const bibleUrl = computed(() => {
 });
 
 const menuOpen = ref(false);
+// Back closes the open popup instead of leaving the window (#4118). No registry in isolated component tests.
+inject(modalKey, null)?.registerPopup(menuOpen);
 const menuWrapper = ref<HTMLElement | null>(null);
 
 function toggleMenu() {
