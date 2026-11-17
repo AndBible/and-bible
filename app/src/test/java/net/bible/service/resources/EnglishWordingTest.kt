@@ -31,6 +31,17 @@ class EnglishWordingTest {
     }
 
     @Test
+    fun englishMainLabelSwitchDescribesAutomaticAssignment() {
+        val app = ApplicationProvider.getApplicationContext<Context>()
+        val context = app.createConfigurationContext(Configuration(app.resources.configuration).apply {
+            setLocale(Locale.ENGLISH)
+        })
+        val label = AndroidStrings(context).autoAssignPrimaryLabelSwitchLabel
+        assertTrue("Switch must describe future automatic assignment: $label", label.contains("Auto-assign"))
+        assertTrue("Switch must identify the main label: $label", label.contains("main label"))
+    }
+
+    @Test
     fun downloadWarningNamesTheFileImportMenuItem() {
         val app = ApplicationProvider.getApplicationContext<Context>()
         val context = app.createConfigurationContext(Configuration(app.resources.configuration).apply {
