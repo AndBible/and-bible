@@ -591,6 +591,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             BackStep("webViewModal", clearsExitWarning = true) {
                 composeReadingViewHost != null && documentViewManager.documentView.backButtonPressed()
             },
+            // #4118: a maximised Memorize window un-maximises; stepping its history would swap it back to the Bible.
+            BackStep("maximisedMemorize", clearsExitWarning = true) { linkControl.unMaximiseMemorizeOnBack() },
             // Classic :806, `historyTraversal.goBack()` -- see goBackInReadingHistory.
             BackStep("history", clearsExitWarning = true) { goBackInReadingHistory() },
         )

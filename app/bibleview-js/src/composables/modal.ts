@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {computed, onUnmounted, reactive, watch} from "vue";
+import {computed, onUnmounted, reactive, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {useAndroid} from "@/composables/android";
 
@@ -46,9 +46,36 @@ export function useModal(android: ReturnType<typeof useAndroid>) {
             close();
     }
 
-    setupEventBusListener("close_modals", closeModals)
+    // Popups inside a document (e.g. Memorize's overflow menu and settings gear) that Back closes (#4118). They are kept
+    // apart from the modals: a tap in the document closes the modals (AmbiguousSelection), but a tap inside such a
+    // popup must not close it; each popup closes itself on a tap outside.
+    const popupCloseArray: (() => void)[] = reactive([]);
 
-    watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
+    function removePopup(close: () => void) {
+        const idx = popupCloseArray.indexOf(close);
+        if (idx >= 0) popupCloseArray.splice(idx, 1);
+    }
 
-    return {register, closeModals, modalOpen}
+    /**
+     * Registers a popup whose visibility is [open]. While it is open the page reports a modal to native, so Back
+     * (and desktop Escape) closes the popup through close_modals instead of navigating away.
+     */
+    function registerPopup(open: Ref<boolean>) {
+        const close = () => { open.value = false };
+        watch(open, isOpen => isOpen ? popupCloseArray.push(close) : removePopup(close), {flush: "sync"});
+        onUnmounted(() => removePopup(close));
+    }
+
+    function closePopups() {
+        for (const close of [...popupCloseArray]) close();
+    }
+
+    setupEventBusListener("close_modals", () => {
+        closeModals();
+        closePopups();
+    })
+
+    watch(() => modalOpen.value || popupCloseArray.length > 0, v => android.reportModalState(v), {flush: "sync"})
+
+    return {register, registerPopup, closeModals, modalOpen}
 }

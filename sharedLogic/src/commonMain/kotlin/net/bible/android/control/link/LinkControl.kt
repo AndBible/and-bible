@@ -112,6 +112,20 @@ class LinkControl constructor(
         return true
     }
 
+    /**
+     * The Back step for a maximised window that shows Memorize (#4118). Maximised, [showLink] opens Memorize in the
+     * maximised window itself, not in the links window, so that window's history steps back to the Bible it came from.
+     * Back un-maximises instead and keeps the exercise on screen; the next Back walks the history as usual.
+     * Returns whether it consumed the press.
+     */
+    fun unMaximiseMemorizeOnBack(): Boolean {
+        val window = windowControl.windowRepository.maximizedWindow ?: return false
+        val document = window.pageManager.currentPage.currentDocument ?: return false
+        if (document.initials != fakeBookFactory.memorizeDocument.initials) return false
+        windowControl.unMaximise()
+        return true
+    }
+
     fun loadApplicationUrl(link: BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {
