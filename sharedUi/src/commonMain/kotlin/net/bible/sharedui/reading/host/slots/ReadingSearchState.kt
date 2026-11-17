@@ -54,21 +54,50 @@ class ReadingSearchState(
         val resultLifetime = SupervisorJob(resultsScope.coroutineContext[Job])
         val resultScope = CoroutineScope(resultsScope.coroutineContext + resultLifetime)
         return OwnedSession(
-            ReadingSearchSession(settings, sessionScope, platform.forWindow(id), indexJobs, services,
+            ReadingSearchSession(settings, sessionScope, linksResultsKeepOwner(id, platform.forWindow(id)), indexJobs, services,
                 onLeaveFullScreen, resultScope, pollPause, indexValidationDispatcher),
             lifetime, resultLifetime,
         )
     }
 
+    /**
+     * The window whose Find opened its last result in a links window. Showing a result there makes
+     * the links window active (`WindowControl.showLink`), but the source window's session stays in
+     * charge (Find bar stays, the first Back reopens its results) while a links window is active.
+     * Cleared once another window is activated or that session leaves Find.
+     */
+    private var linksResultOwner: String? = null
+
+    private fun linksResultsKeepOwner(id: String, platform: ReadingSearchPlatform) = object : ReadingSearchPlatform by platform {
+        override fun showInLinksWindow(book: org.crosswire.jsword.book.Book, key: org.crosswire.jsword.passage.Key) {
+            linksResultOwner = id
+            platform.showInLinksWindow(book, key)
+            activeWindowChanged()
+        }
+
+        override fun showInLinksWindow(list: net.bible.service.sword.BookAndKeyList) {
+            linksResultOwner = id
+            platform.showInLinksWindow(list)
+            activeWindowChanged()
+        }
+    }
+
     private var activeId = windowState?.layout?.value?.activeWindowId.orEmpty()
     private var selectedSession by mutableStateOf(sessions.getOrPut(activeId) { createSession(activeId) }.state)
+
+    /**
+     * The owning session for entry points and synchronous key/Back handlers. Window notifications
+     * may still be queued onto Main (a result just activated a links window), so this first applies
+     * the current layout. Not for composition, which reads [composedSession].
+     */
     internal val session: ReadingSearchSession
         get() {
-            // Window notifications may be queued onto Main while a result opens a links window.
-            // Entry points and synchronous key handlers must see the new owner immediately.
             activeWindowChanged()
             return selectedSession
         }
+
+    /** The selected session as snapshot state, without applying the layout (no writes during composition). */
+    internal val composedSession: ReadingSearchSession get() = selectedSession
     private val activeSession = MutableStateFlow(selectedSession)
 
     private fun <T> follow(initial: T, read: (ReadingSearchSession) -> StateFlow<T>): StateFlow<T> {
@@ -100,16 +129,21 @@ class ReadingSearchState(
         windowState?.layout?.value?.let(::applyLayout)
     }
 
+    /** Main-thread only, like every caller: host window events, the layout collector and handlers. */
     private fun applyLayout(layout: net.bible.sharedcore.window.WindowLayoutState) {
         val liveIds = layout.windows.filter { it.state != WindowStateValue.CLOSED }.map { it.id }.toSet()
         sessions.keys.toList().filter { it !in liveIds && it != "" }.forEach(::discard)
-        if (activeId != layout.activeWindowId || sessions[activeId]?.state !== selectedSession) {
+        val ownerId = linksResultOwner?.takeIf { owner ->
+            owner in liveIds && sessions[owner]?.state?.controller?.searchModeActive?.value == true &&
+                (layout.activeWindowId == owner || layout.windows.any { it.id == layout.activeWindowId && it.isLinksWindow })
+        } ?: layout.activeWindowId.also { linksResultOwner = null }
+        if (activeId != ownerId || sessions[activeId]?.state !== selectedSession) {
             selectedSession.searchFieldFocused.value = false
             selectedSession.searchRecentMenuOpen.value = false
             selectedSession.searchSettingsOpen.value = false
             // Returning restores content, not keyboard ownership in a WebView editor.
             selectedSession.controller.imeRequestHandled()
-            activeId = layout.activeWindowId
+            activeId = ownerId
             selectedSession = sessions.getOrPut(activeId) { createSession(activeId) }.state
             selectedSession.controller.imeRequestHandled()
             activeSession.value = selectedSession

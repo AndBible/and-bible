@@ -64,6 +64,43 @@ class ReadingSearchWindowsTest {
         }
     }
 
+    /** A links-window result activates the links window; the source window's Find must stay in charge (#4136). */
+    @Test fun linksWindowResultKeepsTheSourceSessionUntilAnotherWindowIsActivated() {
+        val fixture = SearchFixture()
+        val layout = MutableStateFlow(linksSnapshot("a"))
+        val windows = object : WindowStateService { override val layout = layout }
+        val platform = object : ReadingSearchPlatform by fixture.platform {
+            override fun forWindow(windowId: String): ReadingSearchPlatform = object : ReadingSearchPlatform by fixture.platform {
+                // WindowControl.showLink makes the links window active synchronously.
+                override fun showInLinksWindow(list: net.bible.service.sword.BookAndKeyList) { layout.value = linksSnapshot("l") }
+            }
+        }
+        val state = ReadingSearchState(fixture.settings, fixture.scope, platform, fixture.jobs,
+            ReadingSearchServices(fixture.bible, FakeEpubSearch(), net.bible.sharedcore.search.SearchResultsCache(), fixture.index),
+            onLeaveFullScreen = {}, windowState = windows)
+        try {
+            state.openSearch("light")
+            val source = state.controller
+            state.openSearchResultsInWindow()
+            assertSame(source, state.controller, "the links window must not take over Find")
+            assertEquals("light", state.searchBar.value?.query)
+            layout.value = linksSnapshot("b")
+            assertNotSame(source, state.controller, "activating another window moves Find to that window")
+            assertNull(state.searchBar.value)
+            layout.value = linksSnapshot("l")
+            assertNotSame(source, state.controller, "the pin ends once another window was activated")
+        } finally {
+            state.dispose()
+            fixture.state.dispose()
+            fixture.scope.cancel()
+        }
+    }
+
+    private fun linksSnapshot(active: String) = WindowLayoutState(
+        windows = listOf("a", "b", "l").map { WindowSnapshot(it, WindowStateValue.VISIBLE, 1f, true, false, false, 0, it == "l") },
+        activeWindowId = active, maximizedWindowId = null, reverseSplitMode = false, restoreButtonsVisible = true,
+    )
+
     @Test fun findBelongsToWindowAndRestoresQueryResultsAndPosition() {
         val fixture = SearchFixture()
         val windows = Windows()

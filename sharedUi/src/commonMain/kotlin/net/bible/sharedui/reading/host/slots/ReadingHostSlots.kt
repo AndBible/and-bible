@@ -187,14 +187,14 @@ class ReadingHostSlots(
      */
     @Composable
     fun SearchSettings() = SearchSettingsSlotContent(
-        searchState.session, searchState::searchSettingsForEpub, searchState::currentBookName,
+        searchState.composedSession, searchState::searchSettingsForEpub, searchState::currentBookName,
         { searchState.controller.settingsClosed() },
     )
 
     /** The search sheet: the index prompt/progress panel or the results, per search phase. */
     @Composable
     fun SearchSheet() {
-        val session = searchState.session
+        val session = searchState.composedSession
         androidx.compose.runtime.key(session) { SearchSheetSlotContent(session, strings()) }
     }
 

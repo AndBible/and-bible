@@ -153,17 +153,8 @@ internal class HostReadingSearchPlatform(
     private val linkControl: () -> LinkControl,
     private val fakeBookFactory: () -> FakeBookFactory,
 ) : ReadingSearchPlatform {
-    override fun forWindow(windowId: String): ReadingSearchPlatform {
-        if (windowId.isBlank()) return this
-        val window = windowControl().windowRepository.getWindow(net.bible.android.database.IdType(windowId)) ?: return this
-        return object : ReadingSearchPlatform by this {
-            override fun currentDocument(): Book? = window.pageManager.currentPage.currentDocument
-            override fun currentBookName(): String = net.bible.sharedui.reading.host.slots.searchWindowBookName(window)
-            override fun showInActiveWindow(book: Book, key: Key) {
-                window.pageManager.setCurrentDocumentAndKey(book, key)
-            }
-        }
-    }
+    override fun forWindow(windowId: String): ReadingSearchPlatform =
+        net.bible.sharedui.reading.host.slots.windowBoundSearchPlatform(this, windowControl, windowId)
 
     override fun currentDocument(): Book? = currentDocument.invoke()
 

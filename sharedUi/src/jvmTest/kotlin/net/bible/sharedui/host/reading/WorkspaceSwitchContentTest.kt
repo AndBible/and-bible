@@ -108,9 +108,18 @@ class WorkspaceSwitchContentTest {
         }
     }
 
+    /** The real desktop host with one cached `light` result row, so selecting it needs no search index. */
+    private class ActualSearchHost(
+        val host: HostReadingHost,
+        val search: net.bible.sharedui.reading.host.slots.ReadingSearchState,
+        val repository: net.bible.android.control.page.window.WindowRepository,
+        val book: org.crosswire.jsword.book.Book,
+        val rows: net.bible.sharedcore.search.MultiSearchResults,
+        val openCachedResults: suspend (links: Boolean) -> Unit,
+    )
+
     @OptIn(org.koin.core.annotation.KoinInternalApi::class)
-    @Test fun finalFixActualHostBackReopensSameResultsForBothResultTargets() {
-        runBlocking {
+    private fun withActualSearchHost(body: suspend ActualSearchHost.() -> Unit): Unit = runBlocking {
         val paths = DesktopPaths(
             { name -> when (name) {
                 "XDG_DATA_HOME" -> root.resolve("data").toString()
@@ -153,7 +162,6 @@ class WorkspaceSwitchContentTest {
                 book.indexStatus = org.crosswire.jsword.index.IndexStatus.DONE
                 val repository = koin.get<WindowControl>().windowRepository
                 val cache = koin.get<net.bible.sharedcore.search.SearchResultsCache>()
-                val source = repository.activeWindow
                 val request = net.bible.sharedcore.search.SearchRequest(
                     "light", net.bible.sharedcore.search.SearchType.ANY_WORDS,
                     net.bible.sharedcore.search.SearchBibleSection.ALL, listOf("K4RawText"),
@@ -163,9 +171,7 @@ class WorkspaceSwitchContentTest {
                     listOf(net.bible.sharedcore.search.SwordResultRow("Gen.1.2", emptyList(), net.bible.sharedcore.search.StyledText.plain("light"))),
                     emptyList(), 1,
                 )
-                for (links in listOf(false, true)) {
-                    repository.activeWindow = source
-                    source.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+                val open: suspend (Boolean) -> Unit = { links ->
                     cache.put(request.copy(currentBookName = koin.get<net.bible.android.control.search.SearchControl>().currentBookName), rows)
                     host.openSearchRequest(net.bible.sharedcore.search.ReadingSearchRequest(
                         query = "light", documentId = "K4RawText", translationIds = listOf("K4RawText"), preDecorated = true,
@@ -174,36 +180,8 @@ class WorkspaceSwitchContentTest {
                     kotlinx.coroutines.withTimeout(5_000) { search.searchBar.first { it != null } }
                     assertEquals(net.bible.sharedcore.search.ReadingSearchPhase.Results("K4RawText", false), search.controller.phase.value)
                     assertEquals(rows, search.searchResults.results.value)
-                    val listState = search.searchResultsListState.value
-                    search.searchResultsExpanded["Gen.1.2"] = true
-                    search.onSearchResultSelected("Gen.1.2", "K4RawText")
-                    assertFalse(search.searchSheetVisible.value)
-                    if (links) {
-                        assertTrue(source.targetLinksWindow.isLinksWindow)
-                        // A newly shown links window becomes active. Find stays with the source,
-                        // rather than travelling to that result window (#4136).
-                        if (repository.activeWindow != source) {
-                            assertFalse(search.controller.searchModeActive.value)
-                            repository.activeWindow = source
-                            kotlinx.coroutines.withTimeout(5_000) { search.searchBar.first { it?.query == "light" } }
-                        }
-                    } else assertEquals("Gen.1.2", source.pageManager.currentBible.singleKey.getOsisRef())
-                    var passed = false
-                    host.backChain.onBack { passed = true }
-                    assertFalse(passed)
-                    assertTrue(search.searchSheetVisible.value, "first Back must reopen results (links=$links)")
-                    assertTrue(search.controller.searchModeActive.value)
-                    assertEquals("light", search.queries.query.value)
-                    assertEquals(rows, search.searchResults.results.value)
-                    assertSame(listState, search.searchResultsListState.value)
-                    assertEquals(true, search.searchResultsExpanded["Gen.1.2"])
-                    host.backChain.onBack { passed = true }
-                    assertFalse(search.searchSheetVisible.value)
-                    assertTrue(search.controller.searchModeActive.value)
-                    host.backChain.onBack { passed = true }
-                    assertFalse(search.controller.searchModeActive.value)
-                    assertFalse(passed)
                 }
+                ActualSearchHost(host, search, repository, book, rows, open).body()
             } finally {
                 host.dispose()
                 net.bible.sharedui.components.OverlayPresence.restoreAllowed = restoreAllowed
@@ -213,7 +191,54 @@ class WorkspaceSwitchContentTest {
             }
         }
         scope.coroutineContext[kotlinx.coroutines.Job]?.join()
+    }
+
+    @Test fun finalFixActualHostBackReopensSameResultsForBothResultTargets(): Unit = withActualSearchHost {
+        val source = repository.activeWindow
+        for (links in listOf(false, true)) {
+            repository.activeWindow = source
+            source.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+            openCachedResults(links)
+            val listState = search.searchResultsListState.value
+            search.searchResultsExpanded["Gen.1.2"] = true
+            search.onSearchResultSelected("Gen.1.2", "K4RawText")
+            assertFalse(search.searchSheetVisible.value)
+            if (links) {
+                assertTrue(source.targetLinksWindow.isLinksWindow)
+                // The links window shows the result, but the source window's Find stays in charge (#4136).
+                assertTrue(search.controller.searchModeActive.value, "Find must stay while the links window shows the result")
+                assertEquals("light", search.searchBar.value?.query)
+            } else assertEquals("Gen.1.2", source.pageManager.currentBible.singleKey.getOsisRef())
+            var passed = false
+            host.backChain.onBack { passed = true }
+            assertFalse(passed)
+            assertTrue(search.searchSheetVisible.value, "first Back must reopen results (links=$links)")
+            assertTrue(search.controller.searchModeActive.value)
+            assertEquals("light", search.queries.query.value)
+            assertEquals(rows, search.searchResults.results.value)
+            assertSame(listState, search.searchResultsListState.value)
+            assertEquals(true, search.searchResultsExpanded["Gen.1.2"])
+            host.backChain.onBack { passed = true }
+            assertFalse(search.searchSheetVisible.value)
+            assertTrue(search.controller.searchModeActive.value)
+            host.backChain.onBack { passed = true }
+            assertFalse(search.controller.searchModeActive.value)
+            assertFalse(passed)
         }
+    }
+
+    /** A DB reload (#4115, sync) rebuilds Window objects with the same ids; Find must address the live one. */
+    @Test fun resultAfterRepositoryReloadOpensInTheVisibleWindow(): Unit = withActualSearchHost {
+        val detached = repository.activeWindow
+        detached.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+        openCachedResults(false)
+        repository.saveIntoDb()
+        repository.loadFromDb(repository.id)
+        val live = repository.activeWindow
+        assertEquals(detached.id, live.id, "sanity: the reload keeps the window id")
+        assertTrue(live !== detached, "sanity: the reload rebuilds the Window object")
+        search.onSearchResultSelected("Gen.1.2", "K4RawText")
+        assertEquals("Gen.1.2", live.pageManager.currentBible.singleKey.getOsisRef(), "the visible window shows the result")
     }
 
     @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
