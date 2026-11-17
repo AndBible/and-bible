@@ -13,7 +13,9 @@ active window is a smaller commentary, it will only show the books that are
 available in that commentary.
 
 After you select the book, it will take you to the next screen where you can
-select the chapter:
+select the chapter. When you pick the book you are reading, the chapter you are
+reading (and, on the verse screen, the verse) is highlighted and scrolled into
+view, so a long book such as Psalms opens near your place:
 
 [![AndBible Chapter Chooser](images/book-chapter-chooser.png){ width="200" }](images/book-chapter-chooser.png)
 
