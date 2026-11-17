@@ -31,6 +31,23 @@ class InstanceHandOffTest {
         }
     }
 
+    @Test fun activateMessageWithoutFilesIsHandled() {
+        val dir = Files.createTempDirectory("handoff-activate")
+        val received = LinkedBlockingQueue<List<Path>>()
+        InstanceHandOff.listen(dir) { received.add(it) }.use {
+            java.nio.channels.SocketChannel.open(StandardProtocolFamily.UNIX).use { peer ->
+                peer.connect(UnixDomainSocketAddress.of(dir.resolve("instance.sock")))
+                val message = java.nio.ByteBuffer.allocate(8).putInt(-1).putInt(0).flip() as java.nio.ByteBuffer
+                while (message.hasRemaining()) peer.write(message)
+                assertEquals(emptyList(), received.poll(3, TimeUnit.SECONDS), "Activate must reach the receiver even without files")
+                val ack = java.nio.ByteBuffer.allocate(4)
+                while (ack.hasRemaining()) assertTrue(peer.read(ack) >= 0)
+                ack.flip()
+                assertEquals(0x41434b31, ack.int)
+            }
+        }
+    }
+
     @Test fun acknowledgementWaitsForAcceptance() {
         val dir = Files.createTempDirectory("handoff-ack")
         val entered = java.util.concurrent.CountDownLatch(1)
