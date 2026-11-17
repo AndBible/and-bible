@@ -1,5 +1,6 @@
 package net.bible.service.cloudsync.host
 
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.files.FileDelivery
@@ -38,7 +39,7 @@ class HostBackupHost(
 
     override suspend fun showErrorReport(message: String, cause: Throwable?) {
         if (cause != null) Log.w(TAG, "Error report: $message", cause)
-        val html = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        val html = plainTextToHtml(message)
         val result = dialogs().await(AppDialogRequest.Options(
             title = null, message = html,
             options = listOf(

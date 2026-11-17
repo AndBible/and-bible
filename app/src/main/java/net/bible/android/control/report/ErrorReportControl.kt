@@ -108,7 +108,7 @@ object ErrorReportControl {
                 val dialogResult = dialogs.await(
                     AppDialogRequest.Options(
                         title = null,
-                        message = msg,
+                        message = plainTextToHtml(msg), // msg is plain text; Options.message is HTML
                         options = listOf(
                             SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
                             SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),

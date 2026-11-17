@@ -268,7 +268,7 @@ class AppDialogHostTest {
     }
 
     @Test fun crashReportActionSheetRendersHtmlLikeMessageDialogs() {
-        // ErrorReportControl.showErrorDialog accepts HTML directly, unlike the escaped damaged-data message.
+        // Options.message has an HTML contract; showErrorDialog escapes its plain text before it gets here.
         show(ShownDialog(42, AppDialogRequest.Options(
             title = null, message = "Failed<br><br><b>Backup &amp; Restore</b>",
             options = listOf(SettingsItem.Choice("report", "Send report")),

@@ -107,7 +107,7 @@ class ErrorReportControlTest {
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         assertTrue(head.asActionSheet)
         assertFalse(head.cancellable)
-        assertEquals("boom <b>x</b>", head.message)
+        assertEquals("boom &lt;b&gt;x&lt;/b&gt;", head.message)
         assertEquals(
             listOf(activity.getString(R.string.report_error), activity.getString(R.string.backup_and_restore)),
             head.options.map { it.label },
@@ -117,6 +117,17 @@ class ErrorReportControlTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         answer.await()
         assertNull(dialogs.pending.value)
+    }
+
+    @Test
+    fun plainTextMessageIsEscapedForTheHtmlDialogPath() = runOnTestMain {
+        val activity = activity()
+        val answer = async { ErrorReportControl.showErrorDialog(activity, "Unexpected <html> & more\nsecond line") }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        assertEquals("Unexpected &lt;html&gt; &amp; more<br>second line", head.message)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
+        answer.await()
     }
 
     @Test
