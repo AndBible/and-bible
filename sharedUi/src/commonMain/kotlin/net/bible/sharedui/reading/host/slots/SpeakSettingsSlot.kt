@@ -18,7 +18,6 @@
 
 package net.bible.sharedui.reading.host.slots
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -42,7 +41,7 @@ import net.bible.sharedcore.speak.sleepTimerSelectionFor
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.components.AbLinkRouting
 import net.bible.sharedui.components.AbMessageDialog
-import net.bible.sharedui.navigation.GridChoosePassageContent
+import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.speak.AdvancedSpeakSettingsContent
 import net.bible.sharedui.speak.SleepTimerContent
@@ -274,10 +273,15 @@ internal class SpeakSettingsState(
             gridBack = controller::back
             onDispose { gridBack = null }
         }
-        val ui by controller.ui.collectAsState()
-        // The sheet shell bounds the body to 400dp, so `fillMaxSize()` here is bounded and safe --
-        // the grid sizes its cells against that height.
-        val rendered = ui
-        GridChoosePassageContent(rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize())
+        SpeakVersePickerGrid(controller)
     }
+}
+
+/** The Speak sheet verse picker's grid body around [controller]. */
+@Composable
+internal fun SpeakVersePickerGrid(controller: GridChoosePassageController) {
+    val ui by controller.ui.collectAsState()
+    // Content-fitted like the Choose Book sheet (#4143), under the Speak shell's 400dp body bound:
+    // a one-chapter book is one row, not a 400dp body.
+    FittedGridSheetBody(controller, ui)
 }

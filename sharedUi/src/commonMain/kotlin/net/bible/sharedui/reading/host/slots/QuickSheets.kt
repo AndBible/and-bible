@@ -21,6 +21,7 @@ package net.bible.sharedui.reading.host.slots
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.DocumentSheetScope
 import net.bible.sharedcore.navigation.GridChoosePassageController
+import net.bible.sharedcore.navigation.GridUi
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.reading.KeyChooserKind
@@ -176,21 +178,36 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         },
     ) {
         PlatformBackHandler(enabled = step != GridStep.BOOK) { controller.back() }
-        // The sheet follows the grid's own height (#4133): the grid is content-fitted, under a
-        // body bound of GRID_SHEET_BODY_FRACTION of the window. While the next step builds (ui is
-        // null) the gap keeps the last grid's height, so the sheet does not collapse and regrow.
-        val density = LocalDensity.current
-        var lastGridHeight by remember { mutableStateOf(0.dp) }
-        if (rendered == null) {
-            Box(Modifier.fillMaxWidth().height(lastGridHeight))
-        } else {
-            GridChoosePassageContent(
-                rendered, { id -> controller.pick(id, rendered) },
-                Modifier.fillMaxWidth().onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
-                state = gridState,
-                fitContentHeight = true,
-            )
-        }
+        // The sheet follows the grid's own height (#4133), under a body bound of
+        // GRID_SHEET_BODY_FRACTION of the window.
+        FittedGridSheetBody(controller, rendered, gridState)
+    }
+}
+
+/**
+ * A sheet's passage-grid body (the Choose Book sheet, the Speak sheet's verse picker, #4133/#4143):
+ * the grid is content-fitted under the sheet's own body bound, so the sheet grows and shrinks with
+ * the step. While the next step builds ([rendered] is null) the gap keeps the last grid's height,
+ * so the sheet does not collapse and regrow. [rendered] is the caller's collected
+ * [GridChoosePassageController.ui] value, picked against through [controller].
+ */
+@Composable
+internal fun FittedGridSheetBody(
+    controller: GridChoosePassageController,
+    rendered: GridUi?,
+    state: LazyGridState = rememberLazyGridState(),
+) {
+    val density = LocalDensity.current
+    var lastGridHeight by remember { mutableStateOf(0.dp) }
+    if (rendered == null) {
+        Box(Modifier.fillMaxWidth().height(lastGridHeight))
+    } else {
+        GridChoosePassageContent(
+            rendered, { id -> controller.pick(id, rendered) },
+            Modifier.fillMaxWidth().onSizeChanged { lastGridHeight = with(density) { it.height.toDp() } },
+            state = state,
+            fitContentHeight = true,
+        )
     }
 }
 

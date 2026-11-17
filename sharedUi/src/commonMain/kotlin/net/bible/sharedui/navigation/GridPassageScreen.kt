@@ -90,6 +90,49 @@ private const val LONG_NAME_MIN_FONT_SIZE_FRACTION = 0.65f
 /** A content-fitted grid's preferred cell height: a 48dp row pitch with the cell's 2dp padding. */
 private val FITTED_CELL_HEIGHT = 44.dp
 
+/** [GridCell]'s padding on each side; part of the row pitch. */
+private val CELL_PADDING = 2.dp
+
+/** The grid's content padding on each side. */
+private val GRID_PADDING = 4.dp
+
+/** The full-span spacer between grouped sections. */
+private val SPACER_HEIGHT = 8.dp
+
+/**
+ * The lazy-grid item index to scroll to when [ui] is shown in a viewport of [visibleRows] whole
+ * rows (#4143): 0 when the grid has no current cell or the current cell is on the first page,
+ * otherwise the first item of the row that puts the current cell's row in the middle of the
+ * viewport (no further than the last page). A grouped grid's section spacers are rows of their
+ * own here, as they are items of their own in the lazy grid; counting them at a full row's
+ * height only errs towards scrolling.
+ */
+internal fun currentCellScrollIndex(ui: GridUi, visibleRows: Int): Int {
+    val cols = ui.columns.coerceAtLeast(1)
+    val rowStarts = mutableListOf<Int>()
+    var currentRow = -1
+    val sections = ui.sections
+    if (sections != null) {
+        var lazyIndex = 0
+        sections.forEachIndexed { i, section ->
+            section.forEachIndexed { j, button ->
+                if (j % cols == 0) rowStarts += lazyIndex
+                if (button.isCurrent) currentRow = rowStarts.lastIndex
+                lazyIndex++
+            }
+            if (i < sections.lastIndex) { rowStarts += lazyIndex; lazyIndex++ }
+        }
+    } else {
+        ui.buttons.forEachIndexed { index, button ->
+            if (index % cols == 0) rowStarts += index
+            if (button?.isCurrent == true) currentRow = rowStarts.lastIndex
+        }
+    }
+    if (currentRow < visibleRows) return 0
+    val firstRow = (currentRow - (visibleRows - 1) / 2).coerceIn(0, (rowStarts.size - visibleRows).coerceAtLeast(0))
+    return rowStarts[firstRow]
+}
+
 @Composable
 fun GridChoosePassageScreen(
     ui: GridUi?,
@@ -197,47 +240,67 @@ fun GridChoosePassageContent(
     } else {
         gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = minRows)
     }
-    // A new grid (another step, or another book's chapters) opens at the top (#4117). The same
-    // LazyGridState survives the step change whenever the next step builds before the next frame,
-    // and always in the quick sheet, which hoists it. The lazy grid would then keep "the first
-    // visible item" by KEY, and the steps' keys collide: book cells are keyed by BibleBook.ordinal
-    // (Genesis = 2), chapter and verse cells by their number, so the chapter grid followed key 2 to
-    // chapter 2 -- the second row in portrait column order, hiding chapters 1, 11, 21, ...
-    // requestScrollToItem resets the position AND forgets the remembered key; issued from a
-    // SideEffect it lands before this frame's measure, so the wrong position is never drawn.
-    // Not reset on first composition, so a restored (saveable) position survives.
+    // A new grid (another step, or another book's chapters) opens at the top (#4117), or, when it
+    // has a current cell (the chapter or verse being read, #4143), scrolled so that cell is in view.
+    // The same LazyGridState survives the step change whenever the next step builds before the next
+    // frame, and always in the quick sheet, which hoists it. The lazy grid would then keep "the
+    // first visible item" by KEY, and the steps' keys collide: book cells are keyed by
+    // BibleBook.ordinal (Genesis = 2), chapter and verse cells by their number, so the chapter grid
+    // followed key 2 to chapter 2 -- the second row in portrait column order, hiding chapters 1, 11,
+    // 21, ... requestScrollToItem resets the position AND forgets the remembered key; issued from a
+    // SideEffect it lands before the grid's measure, so the wrong position is never drawn.
+    // On first composition only a state still at the top moves (to the current cell), so a
+    // restored (saveable) position survives.
     val gridIdentity = ui.step to ui.title
-    val shownIdentity = remember(state) { arrayOf<Any?>(gridIdentity) }
-    SideEffect {
-        if (shownIdentity[0] != gridIdentity) {
-            shownIdentity[0] = gridIdentity
-            state.requestScrollToItem(0)
-        }
-    }
+    val shownIdentity = remember(state) { arrayOf<Any?>(null) }
     BoxWithConstraints(modifier = modifier) {
+        val density = LocalDensity.current
         // Fill the viewport height like the classic grid: divide the available height by the
-        // row count. contentPadding is 4dp each side (=8dp) and each spacer is 8dp tall.
-        val available = maxHeight - 8.dp - (spacerCount * 8).dp
+        // row count. contentPadding is 4dp each side (=8dp) and each spacer is 8dp tall. Each
+        // cell's own 2dp padding (GridCell) is part of the row pitch, so it is counted too, and
+        // the arithmetic is in whole pixels as the layout rounds each cell and padding (#4143).
+        val cellPaddingPx = with(density) { CELL_PADDING.roundToPx() } * 2
+        val chromePx = with(density) { GRID_PADDING.roundToPx() * 2 + spacerCount * SPACER_HEIGHT.roundToPx() }
+        val boundedPx = if (constraints.hasBoundedHeight) constraints.maxHeight else null
+        val availablePx = boundedPx?.let { (it - chromePx).coerceAtLeast(0) }
         val minCell = 40.dp // below this we stop growing and let long (verse) lists scroll instead
         val gridModifier: Modifier
         val cellHeight: Dp
+        val viewportPx: Int?
         if (fitContentHeight) {
             // Sized to the content (#4133): rows of FITTED_CELL_HEIGHT, shrunk towards minCell
-            // when the bound is short, and scrolling only below that. Each cell's own 2dp padding
-            // (GridCell) is part of the row pitch, so it is counted here.
-            val fitted = if (maxHeight == Dp.Infinity) FITTED_CELL_HEIGHT else available / contentRows - 4.dp
+            // when the bound is short, and scrolling only below that.
+            val fitted = if (availablePx == null) FITTED_CELL_HEIGHT
+                else with(density) { (availablePx / contentRows - cellPaddingPx).toDp() }
             cellHeight = fitted.coerceIn(minCell, FITTED_CELL_HEIGHT)
-            val contentHeight = (cellHeight + 4.dp) * contentRows + 8.dp + (spacerCount * 8).dp
-            gridModifier = Modifier.fillMaxWidth().height(contentHeight.coerceAtMost(maxHeight))
+            val cellPx = with(density) { cellHeight.roundToPx() }
+            val contentPx = (cellPx + cellPaddingPx) * contentRows + chromePx
+            viewportPx = boundedPx?.let { contentPx.coerceAtMost(it) }
+            gridModifier = Modifier.fillMaxWidth().height(with(density) { (viewportPx ?: contentPx).toDp() })
         } else {
-            cellHeight = (available / contentRows).coerceAtLeast(minCell)
+            val cellPx = availablePx?.let { it / contentRows - cellPaddingPx }
+            cellHeight = (cellPx?.let { with(density) { it.toDp() } } ?: minCell).coerceAtLeast(minCell)
+            viewportPx = boundedPx
             gridModifier = Modifier.fillMaxSize()
+        }
+        val visibleRows = viewportPx?.let {
+            val pitchPx = with(density) { cellHeight.roundToPx() } + cellPaddingPx
+            ((it - chromePx) / pitchPx).coerceAtLeast(1)
+        } ?: Int.MAX_VALUE
+        val target = currentCellScrollIndex(ui, visibleRows)
+        SideEffect {
+            val firstComposition = shownIdentity[0] == null
+            if (shownIdentity[0] != gridIdentity) {
+                shownIdentity[0] = gridIdentity
+                val atTop = state.firstVisibleItemIndex == 0 && state.firstVisibleItemScrollOffset == 0
+                if (!firstComposition || (atTop && target != 0)) state.requestScrollToItem(target)
+            }
         }
         LazyVerticalGrid(
             columns = GridCells.Fixed(cols),
             modifier = gridModifier.volumeScrollTarget(state),
             state = state,
-            contentPadding = PaddingValues(4.dp),
+            contentPadding = PaddingValues(GRID_PADDING),
         ) {
             if (sections != null) {
                 sections.forEachIndexed { i, section ->
@@ -245,7 +308,7 @@ fun GridChoosePassageContent(
                         GridCell(section[idx], ui, cellHeight, onPick)
                     }
                     if (i < sections.lastIndex) {
-                        item(span = { GridItemSpan(maxLineSpan) }) { Box(Modifier.height(8.dp)) } // group row-break
+                        item(span = { GridItemSpan(maxLineSpan) }) { Box(Modifier.height(SPACER_HEIGHT)) } // group row-break
                     }
                 }
             } else {
@@ -253,7 +316,7 @@ fun GridChoosePassageContent(
                     val button = ui.buttons[idx]
                     if (button == null) {
                         // Reserve the grid slot without painting or exposing a focus/click target.
-                        Box(Modifier.padding(2.dp).fillMaxWidth().height(cellHeight))
+                        Box(Modifier.padding(CELL_PADDING).fillMaxWidth().height(cellHeight))
                     } else {
                         GridCell(button, ui, cellHeight, onPick)
                     }
@@ -279,7 +342,7 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
         b.isCurrent -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    Box(modifier = Modifier.padding(2.dp)) {
+    Box(modifier = Modifier.padding(CELL_PADDING)) {
         Surface(
             onClick = { onPick(b.id) },
             color = container,
