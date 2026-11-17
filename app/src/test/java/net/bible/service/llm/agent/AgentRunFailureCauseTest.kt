@@ -19,7 +19,9 @@ package net.bible.service.llm.agent
 
 import android.os.Looper
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -27,6 +29,17 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.withTimeout
+import net.bible.android.database.AiSettingsDatabase
+import net.bible.service.llm.LlmRawLogRecord
+import net.bible.service.llm.LlmRawLogRecordDao
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmUsage
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.activity.ActivityCenter
@@ -89,13 +102,148 @@ class AgentRunFailureCauseTest {
                 thrown.set(e)
             }
         }
+        awaitCompletion(d)
+        return thrown.get()
+    }
+
+    private fun awaitCompletion(run: Deferred<*>) {
         val deadline = System.currentTimeMillis() + 30_000
-        while (!d.isCompleted) {
+        while (!run.isCompleted) {
             check(System.currentTimeMillis() < deadline) { "collectAgentRun did not return in 30 s" }
             shadowOf(Looper.getMainLooper()).idle()
             Thread.sleep(10)
         }
-        return thrown.get()
+    }
+
+    /** Uses real Room pricing/provider lookups: completion must not cancel those suspensions. */
+    private fun completedRun(): Deferred<Unit> {
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "Completion fixture")
+        val model = LlmConfiguredModel(
+            providerConfigId = provider.id, modelId = "completion-fixture",
+            inputPricePerMillion = 2.0, outputPricePerMillion = 4.0,
+        )
+        runBlocking {
+            val db = DatabaseContainer.instance.aiSettingsDb
+            db.llmProviderConfigDao().insert(provider)
+            db.llmConfiguredModelDao().insert(model)
+        }
+        return CoroutineScope(Dispatchers.IO).async {
+            val job = currentCoroutineContext()[Job]!!
+            val prompt = AgentPrompt(name = "Successful completion")
+            val context = AgentContext(promptId = prompt.id)
+            val session = AgentSessionManager.getOrCreateSession(ws)
+            assertTrue(session.tryStart(context, job))
+            val usage = LlmUsage(inputTokens = 1000, outputTokens = 500)
+            session.rawLlmLog!!.apply {
+                addMessage("assistant", "Synthetic successful raw response")
+                addUsageForIteration(1, usage, model.modelId, model.id)
+            }
+            AgentSessionManager.collectAgentRun(
+                flowOf(AgentEvent.CompletedWithoutDocument(
+                    "Finished", totalIterations = 1, usage = usage,
+                    model = model.modelId, configuredModelId = model.id,
+                )),
+                session, prompt, context, CacheableContext.fromAgentContext(context),
+                atomic(false), null, job,
+            )
+            assertTrue("completion must leave its owning caller active", job.isActive)
+        }
+    }
+
+    @Test fun successfulCompletionPersistsHistoryAndTotalCostBeforeTerminalStatus() {
+        var countAtTerminal: Int? = null
+        var totalCostAtTerminal = false
+        var restartDuringCostUpdate: Boolean? = null
+        val subscription = AgentSessionManager.changes.subscribe { change ->
+            if (change.workspaceId == ws) {
+                val session = AgentSessionManager.getSession(ws)!!
+                if (change is AgentSessionChange.LogUpdated && change.entry.isTotalCost) {
+                    restartDuringCostUpdate = session.tryStart(AgentContext(promptId = IdType()))
+                }
+                if (change is AgentSessionChange.StatusChanged && change.stopReason == AgentStopReason.COMPLETED) {
+                    countAtTerminal = runBlocking {
+                        DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getCount()
+                    }
+                    totalCostAtTerminal = session.logEntries.last().isTotalCost
+                }
+            }
+        }
+        try {
+            val run = completedRun()
+            awaitCompletion(run)
+            val records = runBlocking {
+                val dao = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
+                dao.allSummaries().map { dao.getById(it.id)!! }
+            }
+            assertEquals("one successful history row must survive completion", 1, records.size)
+            val record = records.single()
+            assertFalse(record.wasError)
+            assertEquals("CUSTOM", record.providerType)
+            assertEquals("completion-fixture", record.modelName)
+            assertNotNull(record.configuredModelId)
+            assertEquals(1000L, record.totalInputTokens)
+            assertEquals(500L, record.totalOutputTokens)
+            assertEquals(0.004, record.estimatedCostUsd, 0.000001)
+            assertEquals(1, record.iterationCount)
+            assertTrue(RawLlmLog.gzipDecompress(record.logData).contains("Synthetic successful raw response"))
+            assertEquals("history must exist before terminal notification", 1, countAtTerminal)
+            assertTrue("total cost must exist on the terminal log entry before notification", totalCostAtTerminal)
+            assertEquals("a new run must not replace rawLlmLog during finalization", false, restartDuringCostUpdate)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test fun successfulCompletionReturnsNormallyWithoutCancellingItsOwningCoroutine() {
+        val run = completedRun()
+        awaitCompletion(run)
+        assertFalse("successful completion must not cancel its owning coroutine", run.isCancelled)
+        runBlocking { run.await() }
+        val session = AgentSessionManager.getSession(ws)!!
+        assertFalse(session.isRunning)
+        assertEquals(null, session.job)
+        assertTrue("completion must release the start gate", session.tryStart(AgentContext(promptId = IdType())))
+    }
+
+    @Test fun cancellationDuringHistoryPersistenceDoesNotPublishSuccessfulCompletion() {
+        val container = DatabaseContainer.instance
+        val original = container.aiSettingsDb
+        val real = original.llmRawLogRecordDao()
+        val inserting = CompletableDeferred<Unit>()
+        val held = object : LlmRawLogRecordDao by real {
+            override suspend fun insert(record: LlmRawLogRecord) {
+                inserting.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        val db = org.mockito.Mockito.mock(AiSettingsDatabase::class.java)
+        org.mockito.Mockito.`when`(db.llmProviderConfigDao()).thenReturn(original.llmProviderConfigDao())
+        org.mockito.Mockito.`when`(db.llmConfiguredModelDao()).thenReturn(original.llmConfiguredModelDao())
+        org.mockito.Mockito.`when`(db.llmRawLogRecordDao()).thenReturn(held)
+        val terminal = mutableListOf<AgentStopReason>()
+        val subscription = AgentSessionManager.changes.subscribe { change ->
+            if (change is AgentSessionChange.StatusChanged && change.workspaceId == ws) {
+                change.stopReason?.let { terminal += it }
+            }
+        }
+        container.aiSettingsDb = db
+        var run: Deferred<Unit>? = null
+        try {
+            val owner = completedRun()
+            run = owner
+            // This handshake cancels at insert, not during an earlier pricing/provider lookup.
+            runBlocking { withTimeout(30_000) { inserting.await() } }
+            owner.cancel()
+            awaitCompletion(owner)
+            assertEquals("cancellation at persistence must remain cancellation", listOf(AgentStopReason.CANCELLED), terminal)
+            assertEquals("an interrupted insert must not forge a history row", 0, runBlocking { real.getCount() })
+            assertFalse(AgentSessionManager.getSession(ws)!!.isRunning)
+        } finally {
+            run?.cancel()
+            run?.let { runBlocking { withTimeout(30_000) { it.join() } } }
+            subscription.cancel()
+            container.aiSettingsDb = original
+        }
     }
 
     @Test fun anErrorEventsCauseReachesTheReportableActivityItem() {

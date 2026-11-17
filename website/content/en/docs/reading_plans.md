@@ -23,7 +23,7 @@ platforms that support [speaking](speak.md); there is also an *All* row with a *
 the check next to each passage to enable the *Done* button (manually checking
 the check marks can be useful if you’re reading in a paper Bible).
 
-[![Choose a reading plan](images/reading-plan-list.png){ style="width: 32%" }](images/reading-plan-list.png) [![Daily readings for one day of a plan](images/reading-plan-daily-readings.png){ style="width: 32%" }](images/reading-plan-daily-readings.png) [![List of the days in a plan](images/reading-plan-days.png){ style="width: 32%" }](images/reading-plan-days.png)
+[![Choose a reading plan](/media/docs/images/reading-plan-list.png){ style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/reading-plan-list.png) [![Daily readings for one day of a plan](/media/docs/images/reading-plan-daily-readings.png){ style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/reading-plan-daily-readings.png) [![List of the days in a plan](/media/docs/images/reading-plan-days.png){ style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/reading-plan-days.png)
 
 ## Abandon Reading Plan
 

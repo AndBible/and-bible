@@ -97,7 +97,7 @@ The toolbar at the top of the reading screen has these parts, from left to right
 
 To open a document, click on either the Bible or Commentary icons in the top navigation bar.
 
-[![Book chooser icons](images/book-chooser-icons.png){ height="100" }](images/book-chooser-icons.png)
+[![Bible and Commentary buttons in the reading toolbar](/media/docs/images/book-chooser-icons.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/book-chooser-icons.png)
 > - Clicking on the Bible icon will show a list of installed Bibles that you can open.
 > - Clicking on the Commentary icon will show a list of other installed documents you can open (
 >     i.e. Commentaries, Dictionaries, Generic books, etc).
@@ -148,7 +148,7 @@ and clicking on a window that is minimized will maximize it. The window button o
 a minimized window has a dashed outline. The window button that is highlighted
 indicates the active window:
 
-[![Open the workspaces dialog](images/window-buttons.png){ height="100" }](images/window-buttons.png)
+[![Minimized NASB window on the left and active Study Pad window on the right](/media/docs/images/window-buttons.png){ .align-center style="width: 320px; max-width: 100%; height: auto" }](/media/docs/images/window-buttons.png)
 
 For more on managing windows, see [Windows](windows.md).
 

@@ -16,7 +16,7 @@ Alternatively, when creating a bookmark, you can assign and manage labels by
 clicking on the *Select or edit labels…* button on the bottom of the
 *Bookmark labels* sheet.
 
-[![Label Settings dialog](images/label-settings-dialog.png){ .align-center style="width: 200px" }](images/label-settings-dialog.png)
+[![Labels screen with favourite, auto-assign and main label controls](/media/docs/images/label-settings-dialog.png){ .align-center style="width: 400px; max-width: 100%; height: auto" }](/media/docs/images/label-settings-dialog.png)
 
 ## Searching for a Label
 

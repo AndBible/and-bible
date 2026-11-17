@@ -223,7 +223,8 @@ class AgentSession(
             // Reentrant starts and duplicate stops cannot publish before terminal delivery finishes.
             val stopped = this.job
             this.job = null
-            stopped?.cancel()
+            // Successful collection must return normally; only interrupted runs need cancellation.
+            if (reason != AgentStopReason.COMPLETED) stopped?.cancel()
             emit(AgentSessionChange.StatusChanged(workspaceId, false, reason, cause))
         } finally {
             kotlinx.atomicfu.locks.synchronized(lifecycleLock) { lifecycle = Lifecycle.IDLE }
@@ -877,10 +878,10 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
+    /** Finalizes cost and history before releasing the session for another run. */
     private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt, runJob: Job?) {
-
-        session.stop(strings.agentLogCompleted, AgentStopReason.COMPLETED, owner = runJob)
+        val hasRawLog = session.rawLlmLog?.isEmpty() == false
+        session.addLogEntry(AgentLogEntry.info(strings.agentLogCompleted, showRawLogLink = hasRawLog))
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
         persistRawLog(
             session, prompt,
@@ -890,6 +891,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             usage = event.usage,
             wasError = false
         )
+        session.stop(reason = AgentStopReason.COMPLETED, owner = runJob)
     }
 
     private suspend fun resolveProviderType(configuredModelId: IdType?): String {
@@ -930,6 +932,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 wasError = wasError,
             )
             DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to persist raw log", e)
         }
