@@ -121,6 +121,9 @@ class WindowPaneMenuStateBuilder(
 
     private fun buildAll(window: Window): List<WindowPaneMenuItem> {
         val isMaximised = windowRepository.isMaximized
+        // #4141: the links window shown beside a maximised window can be minimised or closed like in the split.
+        val isLinksPaneBesideMaximised = isMaximised && window.isLinksWindow &&
+            window.id != windowRepository.maximizedWindowId && window.isVisible
         val items = mutableListOf<WindowPaneMenuItem>()
 
         // iconKey values below are classic's own `android:icon` for the same item id in
@@ -149,7 +152,7 @@ class WindowPaneMenuStateBuilder(
         // SplitBibleArea.kt:970-973. Compose-specific choice: kept visible whenever not
         // maximised but DISABLED (rather than hidden) when not minimizable, so `enabled` directly
         // mirrors `WindowControl.isWindowMinimizable` (see WindowPaneMenuStateBuilderTest).
-        if (!isMaximised) {
+        if (!isMaximised || isLinksPaneBesideMaximised) {
             items += WindowPaneMenuItem(
                 id = ID_WINDOW_MINIMISE,
                 label = strings.windowMinimise,
@@ -159,7 +162,8 @@ class WindowPaneMenuStateBuilder(
         }
         // SplitBibleArea.kt:884-890 (compound action: add a new non-links window, close this one
         // — handled by the Task-5 dispatcher via the atomic addNewWindow+closeWindow seam calls)
-        if (window.isLinksWindow) {
+        // Not beside a maximised window: the new normal window would be hidden by the maximise.
+        if (window.isLinksWindow && !isLinksPaneBesideMaximised) {
             items += WindowPaneMenuItem(
                 id = ID_CHANGE_TO_NORMAL,
                 label = strings.changeToNormal,
@@ -296,7 +300,7 @@ class WindowPaneMenuStateBuilder(
         }
 
         // SplitBibleArea.kt:906-909
-        if (windowControl.isWindowRemovable(window) && !isMaximised) {
+        if (windowControl.isWindowRemovable(window) && (!isMaximised || isLinksPaneBesideMaximised)) {
             items += WindowPaneMenuItem(id = ID_WINDOW_CLOSE, label = strings.close, iconKey = "ic_close_white_24dp")
         }
 

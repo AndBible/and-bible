@@ -18,6 +18,9 @@ package net.bible.sharedui.reading.host
 
 import net.bible.sharedcore.platform.AppSettings
 import kotlin.test.Test
+import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.WindowStateValue
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -63,5 +66,37 @@ class ReadingPaneButtonsTest {
     fun maximisedWindowHidesTheRailWhateverThePref() {
         assertFalse(paneButtonsShown(MapSettings(), maximised = true))
         assertFalse(paneButtonsShown(MapSettings().apply { setBoolean("hide_window_buttons", false) }, maximised = true))
+    }
+
+    // #4141: maximised with the links window beside it, only the links pane has its button (to dismiss it).
+    private fun snapshot(id: String, links: Boolean, visible: Boolean) = WindowSnapshot(
+        id = id, state = if (visible) WindowStateValue.VISIBLE else WindowStateValue.MINIMISED, weight = 1f,
+        isVisible = visible, isPinMode = false, isSynchronised = false, syncGroup = 0, isLinksWindow = links,
+        isSyncable = !links,
+    )
+
+    private fun maximisedLayout(linksVisible: Boolean) = WindowLayoutState(
+        windows = listOf(snapshot("m", false, true), snapshot("o", false, false), snapshot("l", true, linksVisible)),
+        activeWindowId = "m", maximizedWindowId = "m", reverseSplitMode = false, restoreButtonsVisible = true,
+    )
+
+    @Test
+    fun maximisedOnlyTheLinksPaneBesideItHasAButton() {
+        val layout = maximisedLayout(linksVisible = true)
+        assertFalse(paneButtonShown(MapSettings(), layout, "m"), "the maximised window keeps no button")
+        assertFalse(paneButtonShown(MapSettings(), layout, "o"))
+        assertTrue(paneButtonShown(MapSettings(), layout, "l"), "the links pane can be dismissed")
+        assertTrue(
+            paneButtonShown(MapSettings().apply { setBoolean("hide_window_buttons", true) }, layout, "l"),
+            "links windows keep their button when window buttons are hidden, as in the classic split",
+        )
+        assertFalse(paneButtonShown(MapSettings(), maximisedLayout(linksVisible = false), "l"))
+    }
+
+    @Test
+    fun notMaximisedEveryPaneFollowsTheRailGate() {
+        val layout = maximisedLayout(linksVisible = true).copy(maximizedWindowId = null)
+        assertTrue(paneButtonShown(MapSettings(), layout, "m"))
+        assertFalse(paneButtonShown(MapSettings().apply { setBoolean("hide_window_buttons", true) }, layout, "m"))
     }
 }
