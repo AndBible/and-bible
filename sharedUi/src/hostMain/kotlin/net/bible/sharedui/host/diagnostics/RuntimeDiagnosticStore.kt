@@ -2,9 +2,10 @@ package net.bible.sharedui.host.diagnostics
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.buffer
 import okio.use
@@ -27,12 +28,17 @@ internal class RuntimeDiagnosticStore(
 
     init {
         fileSystem.createDirectories(directory)
-        val loaded = files.indices.mapNotNull(::readGeneration)
+        val loaded = files.indices.mapNotNull { index ->
+            try { readGeneration(index) } catch (_: IOException) { null }
+        }
         generation = loaded.maxByOrNull { it.number }
         val current = generation
         if (current != null && live(current.lines).size != current.lines.size) write(live(current.lines))
-        loaded.filter { it.index != generation?.index }.forEach {
-            if (live(it.lines).size != it.lines.size) fileSystem.delete(files[it.index], mustExist = false)
+        files.indices.filter { it != generation?.index }.forEach { index ->
+            val previous = loaded.find { it.index == index }
+            if (previous == null || live(previous.lines).size != previous.lines.size) {
+                fileSystem.delete(files[index], mustExist = false)
+            }
         }
     }
 
@@ -52,7 +58,8 @@ internal class RuntimeDiagnosticStore(
         // Leave room for the cumulative checksum footer; rotation retains headroom for many appends.
         if (current == null || rotateBeforeAppend || current.bytes + body.encodeToByteArray().size + 64 > MAX_BYTES) {
             val previous = current?.lines ?: emptyList()
-            write(live(previous + lines))
+            val fresh = live(lines)
+            write(live(previous) + fresh, fresh.size)
             if (current != null && live(current.lines).size != current.lines.size) {
                 fileSystem.delete(files[current.index], mustExist = false)
             }
@@ -85,7 +92,10 @@ internal class RuntimeDiagnosticStore(
         return lines.filter { it.time >= cutoff }
     }
 
-    private fun write(input: List<Line>) {
+    private fun write(input: List<Line>, newLineCount: Int = 0) {
+        // Even a failed close can leave a complete newer generation on disk.
+        // Never append to the older in-memory generation after any rotation failure.
+        rotateBeforeAppend = true
         val next = (generation?.number ?: -1L) + 1
         val index = generation?.let { 1 - it.index } ?: 0
         val header = "{\"generation\":$next}\n"
@@ -107,6 +117,9 @@ internal class RuntimeDiagnosticStore(
             if (created && fileSystem.exists(path)) onFileCreated(path)
         }
         generation = Generation(index, next, lines, (header + body + footer).encodeToByteArray().size, checksum(footer, hash))
+        // Evicting retained history is normal; losing records from this batch is reportable.
+        val lost = (newLineCount - lines.size).coerceAtLeast(0).toLong()
+        omitted += minOf(lost, Long.MAX_VALUE - omitted)
         rotateBeforeAppend = false
     }
 
@@ -122,28 +135,35 @@ internal class RuntimeDiagnosticStore(
         if ((fileSystem.metadata(path).size ?: 0L) > MAX_BYTES) return null
         val text = fileSystem.source(path).buffer().use { it.readUtf8() }
         val pieces = text.split('\n')
-        val number = parseObject(pieces[0])?.get("generation")?.jsonPrimitive?.longOrNull ?: return null
+        val number = (parseObject(pieces[0])?.get("generation") as? JsonPrimitive)?.longOrNull ?: return null
         var hash = checksum(pieces[0] + "\n")
         var bytes = (pieces[0] + "\n").encodeToByteArray().size
         val lines = mutableListOf<Line>()
-        var committed: Generation? = null
+        var committedCount = -1
+        var committedBytes = 0
+        var committedHash = 0L
         // Old single-footer files and new cumulative checkpoints use the same checksum format.
         // Only newline-terminated, verified prefixes are recoverable; ignore an interrupted tail.
         for (raw in pieces.drop(1).dropLast(1)) {
             val obj = parseObject(raw)
-            val expected = obj?.get("checksum")?.jsonPrimitive?.longOrNull
+            val expected = (obj?.get("checksum") as? JsonPrimitive)?.longOrNull
             val valid = expected != null && expected == hash
             if (expected == null && obj != null) {
-                val run = obj["runId"]?.jsonPrimitive?.content
-                val seq = obj["sequence"]?.jsonPrimitive?.longOrNull
-                val time = obj["epochMillis"]?.jsonPrimitive?.longOrNull
+                val run = (obj["runId"] as? JsonPrimitive)?.content
+                val seq = (obj["sequence"] as? JsonPrimitive)?.longOrNull
+                val time = (obj["epochMillis"] as? JsonPrimitive)?.longOrNull
                 if (run != null && seq != null && time != null) lines.add(Line(raw, run, seq, time))
             }
             hash = checksum(raw + "\n", hash)
             bytes += (raw + "\n").encodeToByteArray().size
-            if (valid) committed = Generation(index, number, lines.toList(), bytes, hash)
+            if (valid) {
+                committedCount = lines.size
+                committedBytes = bytes
+                committedHash = hash
+            }
         }
-        return committed
+        return if (committedCount < 0) null
+        else Generation(index, number, lines.take(committedCount), committedBytes, committedHash)
     }
 
     private fun parseObject(value: String) = try { Json.parseToJsonElement(value).jsonObject } catch (_: IllegalArgumentException) { null }
