@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import net.bible.android.TEST_SDK
 import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.help.HelpScreen
@@ -75,6 +74,15 @@ class HelpScreenGoldenTest {
     }
 
     @Test fun userGuideManyEpisodes_matrix() = captureMatrix("HelpScreen", "userGuideManyEpisodes", heightDp = 900, content = manyEpisodes())
+
+    private fun tutorialCatalog(): @Composable () -> Unit = {
+        HelpScreen(
+            tips = emptyList(), sections = emptyList(), tutorialVideos = catalog.tutorialVideos("en"),
+            versionText = "Version 6.0.0", initialTab = 1, onOpenUrl = {}, onUp = {},
+        )
+    }
+
+    @Test fun tutorialCatalog_matrix() = captureMatrix("HelpScreen", "tutorialCatalog", heightDp = 3300, content = tutorialCatalog())
 
     @Test fun tips_matrix() = captureMatrix("HelpScreen", "tips", heightDp = 2600, content = screen(0))
 

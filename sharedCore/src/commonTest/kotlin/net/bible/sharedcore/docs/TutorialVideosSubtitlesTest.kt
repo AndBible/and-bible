@@ -88,6 +88,25 @@ class TutorialVideosSubtitlesTest {
         assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.buildUrl(null, setOf("zxx"), "zxx"))
     }
 
+    @Test fun placeholderCaptionsMatchPlatformLanguageTags() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        val cases = mapOf(
+            "in" to "id", "id" to "id", "he" to "iw", "iw" to "iw",
+            "sr-Latn" to "sr-Latn", "sr-Latn-RS" to "sr-Latn", "sr-Cyrl-RS" to "sr", "sr-RS" to "sr",
+            "zh-Hans" to "zh-CN", "zh-Hans-SG" to "zh-CN", "zh-Hans-TW" to "zh-CN", "zh-CN" to "zh-CN", "zh-SG" to "zh-CN",
+            "zh-Hant" to "zh-TW", "zh-Hant-HK" to "zh-TW", "zh-Hant-CN" to "zh-TW", "zh-TW" to "zh-TW", "zh-HK" to "zh-TW",
+            "nb" to "nb", "no" to "nb", "no-NO" to "nb", "tl" to "fil", "fil" to "fil",
+        )
+        for ((app, caption) in cases) {
+            assertEquals(caption, TutorialVideos.subtitleLanguage(episode, app), app)
+            assertEquals(
+                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$caption&hl=$app",
+                TutorialVideos.url(episode, app), app,
+            )
+            assertTrue(TutorialVideos.hasPlainLabel(episode, app), app)
+        }
+    }
+
     @Test fun tagIsUrlEncoded() {
         val url = TutorialVideos.buildUrl("abc123", setOf("x&y=z"), "x&y=z")
         assertTrue("cc_lang_pref=x%26y%3Dz&hl=x%26y%3Dz" in url, url)

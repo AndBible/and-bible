@@ -143,13 +143,27 @@ object TutorialVideos {
         val rest = parts.drop(1)
         val script = rest.firstOrNull { it.length == 4 && it.all(Char::isLetter) }
         val region = rest.firstOrNull { it != script && (it.length == 2 && it.all(Char::isLetter) || it.length == 3 && it.all(Char::isDigit)) }
-        val tails = listOfNotNull(rest.joinToString("-"), script, region, "").distinct()
+        // YouTube uses regional Chinese tracks even when the app resolves a script-only locale.
+        // An explicit script wins over a conflicting region; exact/script tracks still win first.
+        val chineseRegion = if (lang.equals("zh", ignoreCase = true)) {
+            when {
+                script.equals("Hans", ignoreCase = true) -> "CN"
+                script.equals("Hant", ignoreCase = true) -> "TW"
+                region.equals("SG", ignoreCase = true) -> "CN"
+                region.equals("HK", ignoreCase = true) -> "TW"
+                else -> null
+            }
+        } else null
+        val tails = listOfNotNull(rest.joinToString("-"), script, chineseRegion, region, "").distinct()
         val langs = listOf(lang) + listOfNotNull(LANGUAGE_ALIASES[lang.lowercase()])
         return langs.flatMap { l -> tails.map { t -> if (t.isEmpty()) l else "$l-$t" } }.distinct()
     }
 
-    /** Old ISO 639 codes Android and the JDK still report, and their current YouTube forms (both directions). */
-    private val LANGUAGE_ALIASES = mapOf("iw" to "he", "he" to "iw", "in" to "id", "id" to "in", "ji" to "yi", "yi" to "ji")
+    /** Legacy and platform-specific language codes and their YouTube equivalents (both directions). */
+    private val LANGUAGE_ALIASES = mapOf(
+        "iw" to "he", "he" to "iw", "in" to "id", "id" to "in", "ji" to "yi", "yi" to "ji",
+        "no" to "nb", "nb" to "no", "tl" to "fil", "fil" to "tl",
+    )
 
     private fun normalise(tag: String) = tag.trim().replace('_', '-')
 
