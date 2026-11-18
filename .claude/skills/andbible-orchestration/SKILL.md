@@ -17,9 +17,11 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 ## Role and delegation
 
-- **Reviews run outside your own context:** review a child's `done` with a subagent (sonnet or opus) or a
-  fork of your session, given the issue and the diff, not your conclusion. You read the findings and
-  spot-check one. Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context.
+- **Reviews run outside your own context:** review every child's `done` before merging with the
+  `superpowers:requesting-code-review` skill, dispatching its reviewer subagent on **opus** (`model: "opus"`),
+  given the issue/spec and the diff range, not your conclusion. You read the findings and spot-check one.
+  Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context; the same day the
+  maintainer made the superpowers review on opus mandatory for every child.
 - **Review fixes never run in your tree**, not even ones found while resolving a conflicted merge: resolve
   only the conflict in the merge commit, then fix with a fork / worktree subagent (`isolation: "worktree"`,
   no runs needed) or a `fork` child (tests or builds needed). Only tiny one-line edits stay inline.
@@ -104,8 +106,8 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 ## Merging
 
-- Merge only after your independent (subagent/fork) review; a review the child ran itself does not
-  replace it.
+- Merge only after your independent review (`superpowers:requesting-code-review`, opus reviewer); a review the
+  child ran itself does not replace it.
 - `git merge --no-ff` with a message naming the child and the issue:
   `Merge <branch> (child <short>): <what> (#<n>)`.
 - **Submodule gitlink trap:** after a conflicted merge stage only the conflicted paths. `git add <submodule>`
