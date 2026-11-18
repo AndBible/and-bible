@@ -16,6 +16,7 @@ jobs:
   build:
     environment: And Bible Builds
     runs-on: ubuntu-24.04
+    permissions: {contents: write, id-token: write, attestations: write}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -94,6 +95,12 @@ jobs:
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/standardGithub/release/*-unsigned.apk
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calculator-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
+    - name: Attest signed release APKs
+      uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+      with:
+        subject-path: |
+          ./andbible-${{ steps.tag_name.outputs.TAG }}.apk
+          ./calculator-${{ steps.tag_name.outputs.TAG }}.apk
     # Releases are immutable: assets can only be added while the release is a draft. Always create a
     # draft. test-/beta-/production- tags also get desktop packages: the Desktop workflow's release-assets
     # job uploads them and publishes the draft. Other tags (alpha-) are published right here.

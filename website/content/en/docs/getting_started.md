@@ -93,8 +93,8 @@ AndBible for Windows is new in 6.0 and is in public beta.
     [latest release](https://github.com/AndBible/and-bible/releases/latest).
     It is for 64-bit Windows (x64).
 <!-- end -->
-2. Open it. The installer is not signed yet, so Windows SmartScreen may say
-    "Windows protected your PC". Choose **More info**, then **Run anyway**.
+2. Open it. Windows SmartScreen may show a warning for a new or unfamiliar download.
+    See the [code signing policy](/code-signing-policy/) for signature details.
 
 To uninstall, open Windows *Settings → Apps → Installed apps*, choose **AndBible** and then
 **Uninstall**. Your data in `%APPDATA%\AndBible` and the cache in `%LOCALAPPDATA%\AndBible`
@@ -119,6 +119,7 @@ Linux (amd64 / x86_64).
     `chmod +x andbible-desktop-*.AppImage`, then run it. If it does not start, install FUSE 2
     (`libfuse2`) first.
 
+See the [code signing policy](/code-signing-policy/) for how to verify GitHub downloads.
 See [AndBible on Windows and Linux](desktop.md) for details.
 
 ## First start
