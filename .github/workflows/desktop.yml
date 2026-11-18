@@ -154,6 +154,9 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 90
+    env:
+      # SignPath signing runs when the organization id variable is set, never for pull requests (no secrets there).
+      SIGNPATH_ENABLED: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' && github.event_name != 'pull_request' }}
     steps:
       # v4
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -198,30 +201,63 @@ jobs:
         env:
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
-          CERT_BASE64: ${{ secrets.ANDBIBLE_WIN_CERT }}
-          ANDBIBLE_WIN_CERT_PASSWORD: ${{ secrets.ANDBIBLE_WIN_CERT_PASSWORD }}
+          # Subject of the SignPath certificate; the MSIX manifest Publisher must equal it.
+          MSIX_PUBLISHER: ${{ vars.WINDOWS_MSIX_PUBLISHER }}
         run: |
-          $certPath = Join-Path $env:RUNNER_TEMP 'andbible-signing.pfx'
-          try {
-            if ($env:CERT_BASE64) {
-              [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:CERT_BASE64))
-              $env:ANDBIBLE_WIN_CERT = $certPath
-            }
-            $kind = 'dev'
-            if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'test-*') { $kind = 'test' }
-            if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'production-*') { $kind = 'production' }
-            if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'beta-*') { $kind = 'beta' }
-            .\gradlew.bat "-PdesktopReleaseKind=$kind" :desktopApp:packageWindowsZip :desktopApp:packageWindowsMsix :desktopApp:packageWindowsMsi
-            if ($LASTEXITCODE -ne 0) { throw "Windows packaging failed" }
-            foreach ($extension in @('zip', 'msix', 'msi')) {
-              $files = @(Get-ChildItem "desktopApp/build/compose/binaries/main/andbible-*-windows-x64.$extension")
-              if ($files.Count -ne 1) { throw "Expected exactly one Windows $extension artifact" }
-            }
-          } finally {
-            if (Test-Path -LiteralPath $certPath) {
-              Remove-Item -LiteralPath $certPath -Force -ErrorAction Stop
-              if (Test-Path -LiteralPath $certPath) { throw "Signing certificate cleanup failed" }
-            }
+          $kind = 'dev'
+          if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'test-*') { $kind = 'test' }
+          if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'production-*') { $kind = 'production' }
+          if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'beta-*') { $kind = 'beta' }
+          $gradleArgs = @("-PdesktopReleaseKind=$kind")
+          if ($env:MSIX_PUBLISHER) { $gradleArgs += "-PwindowsPublisher=$env:MSIX_PUBLISHER" }
+          .\gradlew.bat @gradleArgs :desktopApp:packageWindowsZip :desktopApp:packageWindowsMsix :desktopApp:packageWindowsMsi
+          if ($LASTEXITCODE -ne 0) { throw "Windows packaging failed" }
+          foreach ($extension in @('zip', 'msix', 'msi')) {
+            $files = @(Get-ChildItem "desktopApp/build/compose/binaries/main/andbible-*-windows-x64.$extension")
+            if ($files.Count -ne 1) { throw "Expected exactly one Windows $extension artifact" }
+          }
+      # v4; SignPath takes the packages from a GitHub artifact (see .signpath/artifact-configuration.xml).
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: upload-unsigned
+        if: env.SIGNPATH_ENABLED == 'true'
+        with:
+          name: andbible-desktop-windows-x64-unsigned
+          path: |
+            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.zip
+            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msix
+            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msi
+          if-no-files-found: error
+          retention-days: 1
+      # v3
+      - uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092
+        if: env.SIGNPATH_ENABLED == 'true'
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'and-bible' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: ${{ runner.temp }}/signed-windows
+      - name: Use signed packages
+        if: env.SIGNPATH_ENABLED == 'true'
+        shell: pwsh
+        run: |
+          $signed = Join-Path $env:RUNNER_TEMP 'signed-windows'
+          $out = 'desktopApp/build/compose/binaries/main'
+          foreach ($extension in @('zip', 'msix', 'msi')) {
+            $files = @(Get-ChildItem "$signed/andbible-*-windows-x64.$extension")
+            if ($files.Count -ne 1) { throw "Expected exactly one signed Windows $extension artifact" }
+            Copy-Item -LiteralPath $files[0].FullName -Destination $out -Force
+          }
+          # A self-signed test certificate is untrusted on the runner, so check that a signature is present, not its trust.
+          $msi = @(Get-ChildItem "$out/andbible-*-windows-x64.msi")[0]
+          $check = Join-Path $env:RUNNER_TEMP 'signed-zip-check'
+          Expand-Archive -LiteralPath @(Get-ChildItem "$out/andbible-*-windows-x64.zip")[0].FullName -DestinationPath $check -Force
+          foreach ($file in @($msi.FullName, (Join-Path $check 'AndBible/AndBible.exe'))) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $file
+            if (-not $signature.SignerCertificate) { throw "$file is not signed ($($signature.Status))" }
+            Write-Host "$file signed by $($signature.SignerCertificate.Subject) [$($signature.Status)]"
           }
       - name: Smoke test app image
         shell: pwsh
