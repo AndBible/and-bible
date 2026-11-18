@@ -56,6 +56,30 @@ def fix_xml_entities(value):
     return value
 
 
+BLOCK_TAGS = ('string-array', 'plurals')
+
+
+def extract_blocks(lines, tag):
+    """Return {name: [raw lines]} for every <tag name="..."> block (also one-liners)."""
+    blocks = {}
+    i = 0
+    while i < len(lines):
+        m = re.match(r'\s*<' + tag + r'\s+[^>]*?name="([^"]+)"', lines[i])
+        if m:
+            block = []
+            if re.search(r'/\s*>\s*$', lines[i].rstrip()) or ('</' + tag + '>') in lines[i]:
+                block.append(lines[i])
+            else:
+                while i < len(lines):
+                    block.append(lines[i])
+                    if ('</' + tag + '>') in lines[i]:
+                        break
+                    i += 1
+            blocks[m.group(1)] = block
+        i += 1
+    return blocks
+
+
 def load_translations_from_file(path):
     """Parse <string name="...">...</string> entries from a file.
 
@@ -98,6 +122,12 @@ def load_translations_from_file(path):
     return translations
 
 
+def load_plurals_from_file(path):
+    """Return {name: [raw lines]} for <plurals> blocks in a chunk file."""
+    with open(path, 'r') as f:
+        return extract_blocks(f.readlines(), 'plurals')
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: restructure.py LANG [NEW_TRANS_FILES...] [--keep-stale]", file=sys.stderr)
@@ -118,6 +148,7 @@ def main():
 
     # --- 1. Load new translations from all specified sources ---
     new_translations = {}
+    new_plurals = {}
     for path in trans_paths:
         if os.path.isdir(path):
             # Directory: glob *.xml files, filter to current language only
@@ -135,10 +166,12 @@ def main():
             for xml_file in xml_files:
                 loaded = load_translations_from_file(xml_file)
                 new_translations.update(loaded)
+                new_plurals.update(load_plurals_from_file(xml_file))
                 print(f"  Loaded {len(loaded)} strings from {os.path.basename(xml_file)}")
         elif os.path.isfile(path):
             loaded = load_translations_from_file(path)
             new_translations.update(loaded)
+            new_plurals.update(load_plurals_from_file(path))
         else:
             print(f"Warning: path not found: {path}", file=sys.stderr)
 
@@ -148,6 +181,7 @@ def main():
     # --- 2. Parse existing target translations (before overwriting!) ---
     existing = {}
     existing_string_arrays = {}  # name -> raw XML lines (for <string-array> preservation)
+    existing_plurals = {}  # name -> raw XML lines (for <plurals> preservation)
     try:
         target_tree = ET.parse(target_path)
         for e in target_tree.getroot():
@@ -157,29 +191,15 @@ def main():
                 start = text.index('>') + 1
                 end = text.rindex('</')
                 existing[name] = text[start:end]
-        # Also extract raw <string-array> blocks from target file
+        # Also extract raw <string-array> and <plurals> blocks from target file
         with open(target_path, 'r') as tf:
             target_lines = tf.readlines()
-        ti = 0
-        while ti < len(target_lines):
-            tline = target_lines[ti].strip()
-            sa_match = re.match(r'<string-array\s+name="([^"]+)"', tline)
-            if sa_match:
-                sa_name = sa_match.group(1)
-                sa_block = []
-                # Handle self-closing <string-array .../> on a single line
-                if re.search(r'/\s*>\s*$', target_lines[ti].rstrip()):
-                    sa_block.append(target_lines[ti])
-                else:
-                    while ti < len(target_lines):
-                        sa_block.append(target_lines[ti])
-                        if '</string-array>' in target_lines[ti]:
-                            break
-                        ti += 1
-                existing_string_arrays[sa_name] = sa_block
-            ti += 1
+        existing_string_arrays = extract_blocks(target_lines, 'string-array')
+        existing_plurals = extract_blocks(target_lines, 'plurals')
         if existing_string_arrays:
             print(f"Existing string-arrays preserved: {len(existing_string_arrays)}")
+        if existing_plurals:
+            print(f"Existing plurals preserved: {len(existing_plurals)}")
         print(f"Existing translations: {len(existing)}")
     except FileNotFoundError:
         print(f"Target file not found (creating new): {target_path}")
@@ -212,6 +232,7 @@ def main():
     output_lines.append("<?xml version='1.0' encoding='UTF-8'?>\n")
 
     emitted = set()
+    emitted_plurals = set()
     i = 0
     while i < len(base_lines):
         line = base_lines[i]
@@ -311,6 +332,23 @@ def main():
                     output_lines.append(sa_line)
             continue
 
+        # <plurals> — new translation if given, else preserve the target's block
+        pl_match = re.match(r'\s*<plurals\s+[^>]*?name="([^"]+)"', stripped)
+        if pl_match:
+            pl_name = pl_match.group(1)
+            if '</plurals>' not in base_lines[i] and not re.search(r'/\s*>\s*$', base_lines[i].rstrip()):
+                while i < len(base_lines) and '</plurals>' not in base_lines[i]:
+                    i += 1
+            i += 1
+            block = new_plurals.get(pl_name) or existing_plurals.get(pl_name)
+            if block:
+                for pl_line in block:
+                    output_lines.append(pl_line if pl_line.startswith(' ') else '  ' + pl_line.lstrip())
+                emitted_plurals.add(pl_name)
+            else:
+                print(f"WARNING: <plurals> '{pl_name}' has no translation (missing in target)", file=sys.stderr)
+            continue
+
         # Anything else — skip
         i += 1
 
@@ -338,6 +376,7 @@ def main():
     string_count = sum(1 for l in output_lines if '<string name=' in l)
     print(f"Strings: {string_count} (emitted: {len(emitted)})")
     print(f"Comments: {comment_count}")
+    print(f"Plurals: {len(emitted_plurals)}")
     print(f"Written to: {target_path}")
     for mirror in targets[1:]:
         print(f"Mirror written to: {mirror}")

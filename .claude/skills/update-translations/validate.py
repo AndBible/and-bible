@@ -18,6 +18,7 @@ Example:
 """
 import xml.etree.ElementTree as ET
 import re
+import subprocess
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +36,41 @@ def count_format_specifiers(s):
     if not isinstance(s, str):
         return []
     return re.findall(r'%(?:\d+\$)?[sdfe]', s)
+
+
+BLOCK_TAGS = ('plurals', 'string-array')
+
+
+def block_names(root):
+    """Return {tag: set(names)} for the structured resource elements."""
+    return {t: {e.get('name') for e in root if e.tag == t} for t in BLOCK_TAGS}
+
+
+def committed_block_names(path):
+    """Names of <plurals>/<string-array> in the committed (HEAD) version of path, or None."""
+    try:
+        top = subprocess.run(['git', 'rev-parse', '--show-toplevel'], cwd=os.path.dirname(os.path.abspath(path)),
+                             capture_output=True, text=True, check=True).stdout.strip()
+        rel = os.path.relpath(os.path.abspath(path), top)
+        out = subprocess.run(['git', 'show', 'HEAD:' + rel], cwd=top, capture_output=True, check=True).stdout
+        return block_names(ET.fromstring(out))
+    except (subprocess.CalledProcessError, OSError, ET.ParseError):
+        return None
+
+
+def check_blocks(base_root, target_root, previous, label='Android'):
+    """Errors for lost <plurals>/<string-array>: missing vs base, or fewer than the committed version."""
+    errors = []
+    base_b, target_b = block_names(base_root), block_names(target_root)
+    for tag in BLOCK_TAGS:
+        missing = sorted(base_b[tag] - target_b[tag])
+        if missing:
+            errors.append(f"{label}: {len(missing)} <{tag}> missing vs base: {missing[:10]}")
+        if previous is not None:
+            lost = sorted((previous[tag] & base_b[tag]) - target_b[tag])
+            if lost or len(target_b[tag]) < len(previous[tag] & base_b[tag]):
+                errors.append(f"{label}: <{tag}> count dropped vs committed version (lost: {lost[:10]})")
+    return errors
 
 
 def main():
@@ -132,6 +168,9 @@ def main():
                     f"Android: {len(unescaped)} string(s) with unescaped apostrophe "
                     f"(AAPT will reject): {unescaped[:10]}"
                 )
+
+            errors.extend(check_blocks(base_tree.getroot(), target_tree.getroot(),
+                                       committed_block_names(android_target)))
 
             print(f"  Strings: {len(target_strings)}/{len(base_strings)}")
 
