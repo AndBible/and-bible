@@ -26,8 +26,8 @@ group) open the support and contribution pages in your browser; `Help & tips` op
 
 - **Tips** has short help topics, each with a link to its tutorial video and to the matching page of this
   manual, and a link to the full documentation.
-- **User guide** is the table of contents of this manual. Select the document icon and **Read in the user
-  guide** to open a page in your browser. Where tutorial episodes are available, their video rows appear
+- **User guide** is the table of contents of this manual. Select a page row (document icon, *Read in the
+  user guide*) to open it in your browser. Where tutorial episodes are available, their video rows appear
   alongside the page link. The **Tutorial videos** list at the end shows every episode in order. Section,
   page, and episode titles are localized, but the manual pages and videos themselves are in English.
   Unpublished episodes open the "Videos coming soon" placeholder; published episodes open their own videos.
