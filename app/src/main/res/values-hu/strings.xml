@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">A teljes felhasználói kézikönyv az andbible.org oldalon található. Az oldalak a böngészőben nyílnak meg.</string>
   <string name="help_user_guide_home">Kézikönyv főoldala</string>
   <string name="help_read_in_user_guide">Olvasás a felhasználói útmutatóban</string>
+  <string name="help_read_page">Olvasás a felhasználói útmutatóban: %1$s</string>
   <string name="help_tutorial_videos">Oktatóvideók</string>
   <string name="help_play_video">Videó lejátszása: %1$s</string>
   <string name="administration">Kezelés</string>

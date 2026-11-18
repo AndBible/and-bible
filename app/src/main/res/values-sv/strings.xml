@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Den fullständiga användarguiden finns på andbible.org. Sidorna öppnas i webbläsaren.</string>
   <string name="help_user_guide_home">Användarguidens startsida</string>
   <string name="help_read_in_user_guide">Läs i användarhandboken</string>
+  <string name="help_read_page">Läs i användarhandboken: %1$s</string>
   <string name="help_tutorial_videos">Instruktionsvideor</string>
   <string name="help_play_video">Spela upp video: %1$s</string>
   <string name="administration">Administration</string>

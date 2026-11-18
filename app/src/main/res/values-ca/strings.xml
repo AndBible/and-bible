@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">El manual d\'usuari complet és a andbible.org. Les pàgines s\'obren al navegador.</string>
   <string name="help_user_guide_home">Inici del manual d\'usuari</string>
   <string name="help_read_in_user_guide">Llegeix-ho a la guia d\'usuari</string>
+  <string name="help_read_page">Llegeix-ho a la guia d\'usuari: %1$s</string>
   <string name="help_tutorial_videos">Vídeos tutorials</string>
   <string name="help_play_video">Reprodueix el vídeo: %1$s</string>
   <string name="administration">Administració</string>

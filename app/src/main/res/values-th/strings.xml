@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">คู่มือผู้ใช้ฉบับเต็มอยู่ที่ andbible.org หน้าต่าง ๆ จะเปิดในเบราว์เซอร์ของคุณ</string>
   <string name="help_user_guide_home">หน้าแรกของคู่มือผู้ใช้</string>
   <string name="help_read_in_user_guide">อ่านในคู่มือผู้ใช้</string>
+  <string name="help_read_page">อ่านในคู่มือผู้ใช้: %1$s</string>
   <string name="help_tutorial_videos">วิดีโอสอนใช้งาน</string>
   <string name="help_play_video">เล่นวิดีโอ: %1$s</string>
   <string name="administration">การจัดการ</string>

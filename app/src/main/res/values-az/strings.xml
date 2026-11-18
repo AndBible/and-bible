@@ -11,6 +11,7 @@
   <string name="help">Kömək</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_in_user_guide">İstifadəçi təlimatında oxuyun</string>
+  <string name="help_read_page">İstifadəçi təlimatında oxuyun: %1$s</string>
   <string name="administration">Mudiriyyət</string>
   <string name="chooce_document">Sənədi seçin</string>
   <!--Passage navigation-->

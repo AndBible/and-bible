@@ -21,6 +21,7 @@
   <string name="contact">聯絡</string>
   <string name="help_and_tips">說明與提示</string>
   <string name="help_read_in_user_guide">在使用者指南閱讀</string>
+  <string name="help_read_page">喺使用者指南閱讀：%1$s</string>
   <string name="administration">管理</string>
   <string name="rate_application">評分及評論</string>
   <string name="chooce_document">選擇文件</string>

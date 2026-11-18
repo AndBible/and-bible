@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Panduan pengguna penuh terdapat di andbible.org. Halaman dibuka dalam pelayar anda.</string>
   <string name="help_user_guide_home">Laman utama panduan pengguna</string>
   <string name="help_read_in_user_guide">Baca dalam panduan pengguna</string>
+  <string name="help_read_page">Baca dalam panduan pengguna: %1$s</string>
   <string name="help_tutorial_videos">Video tutorial</string>
   <string name="help_play_video">Main video: %1$s</string>
   <string name="administration">Pentadbiran</string>

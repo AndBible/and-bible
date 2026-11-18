@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Celoten uporabniški priročnik je na andbible.org. Strani se odprejo v brskalniku.</string>
   <string name="help_user_guide_home">Domača stran priročnika</string>
   <string name="help_read_in_user_guide">Preberite v uporabniškem priročniku</string>
+  <string name="help_read_page">Preberite v uporabniškem priročniku: %1$s</string>
   <string name="help_tutorial_videos">Videoposnetki z navodili</string>
   <string name="help_play_video">Predvajaj videoposnetek: %1$s</string>
   <string name="administration">Upravljanje</string>

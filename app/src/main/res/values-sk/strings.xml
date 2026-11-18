@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Úplná používateľská príručka je na andbible.org. Stránky sa otvoria vo vašom prehliadači.</string>
   <string name="help_user_guide_home">Úvod príručky</string>
   <string name="help_read_in_user_guide">Prečítať v používateľskej príručke</string>
+  <string name="help_read_page">Prečítať v používateľskej príručke: %1$s</string>
   <string name="help_tutorial_videos">Videá s návodmi</string>
   <string name="help_play_video">Prehrať video: %1$s</string>
   <string name="administration">Administrácia</string>

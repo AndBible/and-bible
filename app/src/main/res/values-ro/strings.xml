@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Ghidul complet al utilizatorului se află pe andbible.org. Paginile se deschid în browser.</string>
   <string name="help_user_guide_home">Pagina principală a ghidului</string>
   <string name="help_read_in_user_guide">Citește în ghidul utilizatorului</string>
+  <string name="help_read_page">Citește în ghidul utilizatorului: %1$s</string>
   <string name="help_tutorial_videos">Videoclipuri tutorial</string>
   <string name="help_play_video">Redă videoclipul: %1$s</string>
   <string name="administration">Administrare</string>

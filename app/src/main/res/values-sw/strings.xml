@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Mwongozo kamili wa mtumiaji uko kwenye andbible.org. Kurasa hufunguka kwenye kivinjari chako.</string>
   <string name="help_user_guide_home">Ukurasa mkuu wa mwongozo wa mtumiaji</string>
   <string name="help_read_in_user_guide">Soma katika mwongozo wa mtumiaji</string>
+  <string name="help_read_page">Soma katika mwongozo wa mtumiaji: %1$s</string>
   <string name="help_tutorial_videos">Video za mafunzo</string>
   <string name="help_play_video">Cheza video: %1$s</string>
   <string name="administration">Usimamizi</string>

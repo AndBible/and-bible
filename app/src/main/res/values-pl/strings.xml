@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Pełny podręcznik użytkownika znajduje się na andbible.org. Strony otwierają się w przeglądarce.</string>
   <string name="help_user_guide_home">Strona główna podręcznika</string>
   <string name="help_read_in_user_guide">Przeczytaj w podręczniku użytkownika</string>
+  <string name="help_read_page">Przeczytaj w podręczniku użytkownika: %1$s</string>
   <string name="help_tutorial_videos">Filmy instruktażowe</string>
   <string name="help_play_video">Odtwórz film: %1$s</string>
   <string name="administration">Zarządzanie</string>

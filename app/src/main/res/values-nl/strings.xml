@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">De volledige gebruikershandleiding staat op andbible.org. Pagina\'s openen in je browser.</string>
   <string name="help_user_guide_home">Startpagina van de handleiding</string>
   <string name="help_read_in_user_guide">Lees in de gebruikershandleiding</string>
+  <string name="help_read_page">Lees in de gebruikershandleiding: %1$s</string>
   <string name="help_tutorial_videos">Instructievideo\'s</string>
   <string name="help_play_video">Video afspelen: %1$s</string>
   <string name="administration">Administratie</string>

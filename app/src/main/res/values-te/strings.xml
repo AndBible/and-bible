@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">పూర్తి వినియోగదారు గైడ్ andbible.org లో ఉంది. పేజీలు మీ బ్రౌజర్‌లో తెరవబడతాయి.</string>
   <string name="help_user_guide_home">వినియోగదారు గైడ్ హోమ్</string>
   <string name="help_read_in_user_guide">వినియోగదారు గైడ్‌లో చదవండి</string>
+  <string name="help_read_page">వినియోగదారు గైడ్‌లో చదవండి: %1$s</string>
   <string name="help_tutorial_videos">ట్యుటోరియల్ వీడియోలు</string>
   <string name="help_play_video">వీడియో ప్లే చేయండి: %1$s</string>
   <string name="administration">అడ్మినిస్ట్రేషన్</string>

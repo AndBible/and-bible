@@ -11,6 +11,7 @@
   <string name="help">സഹായം</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_in_user_guide">ഉപയോക്തൃ ഗൈഡിൽ വായിക്കുക</string>
+  <string name="help_read_page">ഉപയോക്തൃ ഗൈഡിൽ വായിക്കുക: %1$s</string>
   <string name="administration">കാര്യനിര്‍വഹണം</string>
   <string name="chooce_document">ഡോക്കുമെന്റ് തിരഞ്ഞെടുക്കുക</string>
   <!--Passage navigation-->

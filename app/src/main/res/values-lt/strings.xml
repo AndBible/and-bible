@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Visas vartotojo vadovas yra svetainėje andbible.org. Puslapiai atidaromi naršyklėje.</string>
   <string name="help_user_guide_home">Vartotojo vadovo pradžia</string>
   <string name="help_read_in_user_guide">Skaityti naudotojo vadove</string>
+  <string name="help_read_page">Skaityti naudotojo vadove: %1$s</string>
   <string name="help_tutorial_videos">Mokomieji vaizdo įrašai</string>
   <string name="help_play_video">Leisti vaizdo įrašą: %1$s</string>
   <string name="administration">Valdymas</string>

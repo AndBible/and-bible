@@ -19,6 +19,7 @@
   <string name="contact">အဆက်အစပ်</string>
   <string name="help_and_tips">&amp; ကိုကူညီပါ; အကြံပြုချက်များ</string>
   <string name="help_read_in_user_guide">အသုံးပြုသူလမ်းညွှန်တွင် ဖတ်ပါ</string>
+  <string name="help_read_page">အသုံးပြုသူလမ်းညွှန်တွင် ဖတ်ပါ - %1$s</string>
   <string name="administration">အုပ်ချုပ်မှု</string>
   <string name="rate_application">&amp; အားအဆင့်သတ်မှတ်ပါ၊ သုံးသပ်ပါ</string>
   <string name="chooce_document">မှတ်တမ်းရွေးချယ်ပါ</string>

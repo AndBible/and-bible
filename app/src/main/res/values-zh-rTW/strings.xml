@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">完整的使用指南位於 andbible.org，頁面將在瀏覽器中開啟。</string>
   <string name="help_user_guide_home">使用指南首頁</string>
   <string name="help_read_in_user_guide">在使用指南中閱讀</string>
+  <string name="help_read_page">在使用指南中閱讀：%1$s</string>
   <string name="help_tutorial_videos">教學影片</string>
   <string name="help_play_video">播放影片：%1$s</string>
   <string name="administration">管理</string>

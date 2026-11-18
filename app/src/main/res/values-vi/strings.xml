@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Hướng dẫn sử dụng đầy đủ có trên andbible.org. Các trang sẽ mở trong trình duyệt của bạn.</string>
   <string name="help_user_guide_home">Trang chủ hướng dẫn sử dụng</string>
   <string name="help_read_in_user_guide">Đọc trong hướng dẫn sử dụng</string>
+  <string name="help_read_page">Đọc trong hướng dẫn sử dụng: %1$s</string>
   <string name="help_tutorial_videos">Video hướng dẫn</string>
   <string name="help_play_video">Phát video: %1$s</string>
   <string name="administration">Quản trị</string>

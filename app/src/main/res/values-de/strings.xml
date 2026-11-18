@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Das vollständige Benutzerhandbuch befindet sich auf andbible.org. Die Seiten werden in Ihrem Browser geöffnet.</string>
   <string name="help_user_guide_home">Startseite des Benutzerhandbuchs</string>
   <string name="help_read_in_user_guide">Im Benutzerhandbuch lesen</string>
+  <string name="help_read_page">Im Benutzerhandbuch lesen: %1$s</string>
   <string name="help_tutorial_videos">Anleitungsvideos</string>
   <string name="help_play_video">Video abspielen: %1$s</string>
   <string name="administration">Verwaltung</string>

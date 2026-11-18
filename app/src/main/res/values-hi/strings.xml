@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">पूरी उपयोगकर्ता मार्गदर्शिका andbible.org पर है। पृष्ठ आपके ब्राउज़र में खुलते हैं।</string>
   <string name="help_user_guide_home">उपयोगकर्ता मार्गदर्शिका का मुख्य पृष्ठ</string>
   <string name="help_read_in_user_guide">उपयोगकर्ता मार्गदर्शिका में पढ़ें</string>
+  <string name="help_read_page">उपयोगकर्ता मार्गदर्शिका में पढ़ें: %1$s</string>
   <string name="help_tutorial_videos">ट्यूटोरियल वीडियो</string>
   <string name="help_play_video">वीडियो चलाएँ: %1$s</string>
   <string name="administration"> प्रशासन</string>

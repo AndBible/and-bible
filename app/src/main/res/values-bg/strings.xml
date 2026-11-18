@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Пълното ръководство за потребителя е на andbible.org. Страниците се отварят в браузъра ви.</string>
   <string name="help_user_guide_home">Начало на ръководството</string>
   <string name="help_read_in_user_guide">Прочетете в ръководството за потребителя</string>
+  <string name="help_read_page">Прочетете в ръководството за потребителя: %1$s</string>
   <string name="help_tutorial_videos">Видео уроци</string>
   <string name="help_play_video">Пусни видеото: %1$s</string>
   <string name="administration">Управление...</string>

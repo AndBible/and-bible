@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Повний посібник користувача розміщено на andbible.org. Сторінки відкриваються у вашому браузері.</string>
   <string name="help_user_guide_home">Головна сторінка посібника</string>
   <string name="help_read_in_user_guide">Читати в посібнику користувача</string>
+  <string name="help_read_page">Читати в посібнику користувача: %1$s</string>
   <string name="help_tutorial_videos">Навчальні відео</string>
   <string name="help_play_video">Відтворити відео: %1$s</string>
   <string name="administration">Адміністрування</string>

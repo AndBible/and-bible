@@ -11,6 +11,7 @@
   <string name="help">Yordam</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_in_user_guide">Foydalanuvchi qo\'llanmasida o\'qish</string>
+  <string name="help_read_page">Foydalanuvchi qo\'llanmasida o\'qish: %1$s</string>
   <string name="administration">Sozlamalar</string>
   <string name="chooce_document">Faylni tanlang</string>
   <!--Passage navigation-->

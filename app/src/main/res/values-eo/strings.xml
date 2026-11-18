@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">La plena uzantogvidilo troviĝas en andbible.org. La paĝoj malfermiĝas en via retumilo.</string>
   <string name="help_user_guide_home">Hejmpaĝo de la uzantogvidilo</string>
   <string name="help_read_in_user_guide">Legi en la uzantgvidilo</string>
+  <string name="help_read_page">Legi en la uzantgvidilo: %1$s</string>
   <string name="help_tutorial_videos">Lernvideoj</string>
   <string name="help_play_video">Ludi videon: %1$s</string>
   <string name="administration">Administri</string>

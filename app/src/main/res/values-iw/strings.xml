@@ -62,6 +62,7 @@
   <string name="help_user_guide_intro">המדריך המלא למשתמש נמצא באתר andbible.org. הדפים נפתחים בדפדפן שלך.</string>
   <string name="help_user_guide_home">דף הבית של המדריך למשתמש</string>
   <string name="help_read_in_user_guide">קריאה במדריך למשתמש</string>
+  <string name="help_read_page">קריאה במדריך למשתמש: %1$s</string>
   <string name="help_tutorial_videos">סרטוני הדרכה</string>
   <string name="help_play_video">הפעלת סרטון: %1$s</string>
   <string name="administration">ניהול</string>

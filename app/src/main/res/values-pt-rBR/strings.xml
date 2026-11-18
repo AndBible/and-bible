@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">O guia do usuário completo está em andbible.org. As páginas abrem no seu navegador.</string>
   <string name="help_user_guide_home">Início do guia do usuário</string>
   <string name="help_read_in_user_guide">Leia no guia do usuário</string>
+  <string name="help_read_page">Leia no guia do usuário: %1$s</string>
   <string name="help_tutorial_videos">Vídeos tutoriais</string>
   <string name="help_play_video">Reproduzir vídeo: %1$s</string>
   <string name="administration">Administração</string>

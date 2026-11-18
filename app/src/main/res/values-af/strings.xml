@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Die volledige gebruikersgids is op andbible.org. Bladsye maak in jou blaaier oop.</string>
   <string name="help_user_guide_home">Gebruikersgids tuisblad</string>
   <string name="help_read_in_user_guide">Lees in die gebruikersgids</string>
+  <string name="help_read_page">Lees in die gebruikersgids: %1$s</string>
   <string name="help_tutorial_videos">Handleidingvideo\'s</string>
   <string name="help_play_video">Speel video: %1$s</string>
   <string name="administration">Administrasie</string>

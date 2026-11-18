@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Комплетно упутство за кориснике налази се на andbible.org. Странице се отварају у вашем прегледачу.</string>
   <string name="help_user_guide_home">Почетна страница упутства</string>
   <string name="help_read_in_user_guide">Прочитај у корисничком водичу</string>
+  <string name="help_read_page">Прочитај у корисничком водичу: %1$s</string>
   <string name="help_tutorial_videos">Видео упутства</string>
   <string name="help_play_video">Пусти видео: %1$s</string>
   <string name="administration">Управљање</string>

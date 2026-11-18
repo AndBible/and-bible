@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Ο πλήρης οδηγός χρήσης βρίσκεται στο andbible.org. Οι σελίδες ανοίγουν στο πρόγραμμα περιήγησής σας.</string>
   <string name="help_user_guide_home">Αρχική σελίδα οδηγού χρήσης</string>
   <string name="help_read_in_user_guide">Διαβάστε στον οδηγό χρήσης</string>
+  <string name="help_read_page">Διαβάστε στον οδηγό χρήσης: %1$s</string>
   <string name="help_tutorial_videos">Βίντεο οδηγιών</string>
   <string name="help_play_video">Αναπαραγωγή βίντεο: %1$s</string>
   <string name="administration">Διαχείριση</string>

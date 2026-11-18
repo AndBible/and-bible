@@ -21,6 +21,7 @@
   <string name="contact">Байланыс</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
   <string name="help_read_in_user_guide">Пайдаланушы нұсқаулығынан оқу</string>
+  <string name="help_read_page">Пайдаланушы нұсқаулығынан оқу: %1$s</string>
   <string name="administration">Басқару</string>
   <string name="rate_application">Бағалау мен Қайта шолу</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>

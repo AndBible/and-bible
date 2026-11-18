@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Cjeloviti korisnički priručnik nalazi se na andbible.org. Stranice se otvaraju u vašem pregledniku.</string>
   <string name="help_user_guide_home">Početna stranica priručnika</string>
   <string name="help_read_in_user_guide">Pročitajte u korisničkom priručniku</string>
+  <string name="help_read_page">Pročitajte u korisničkom priručniku: %1$s</string>
   <string name="help_tutorial_videos">Video upute</string>
   <string name="help_play_video">Pokreni video: %1$s</string>
   <string name="administration">Upravljanje</string>

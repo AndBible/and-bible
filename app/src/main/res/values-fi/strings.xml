@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">Täydellinen käyttöopas on osoitteessa andbible.org. Sivut avautuvat selaimessasi.</string>
   <string name="help_user_guide_home">Käyttöoppaan etusivu</string>
   <string name="help_read_in_user_guide">Lue käyttöoppaasta</string>
+  <string name="help_read_page">Lue käyttöoppaasta: %1$s</string>
   <string name="help_tutorial_videos">Opetusvideot</string>
   <string name="help_play_video">Toista video: %1$s</string>
   <string name="administration">Ylläpito</string>

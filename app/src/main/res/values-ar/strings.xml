@@ -60,6 +60,7 @@
   <string name="help_user_guide_intro">دليل المستخدم الكامل متوفر على andbible.org. تُفتح الصفحات في المتصفح.</string>
   <string name="help_user_guide_home">الصفحة الرئيسية لدليل المستخدم</string>
   <string name="help_read_in_user_guide">القراءة في دليل المستخدم</string>
+  <string name="help_read_page">اقرأ في دليل المستخدم: %1$s</string>
   <string name="help_tutorial_videos">فيديوهات تعليمية</string>
   <string name="help_play_video">تشغيل الفيديو: %1$s</string>
   <string name="administration">ادارة</string>
