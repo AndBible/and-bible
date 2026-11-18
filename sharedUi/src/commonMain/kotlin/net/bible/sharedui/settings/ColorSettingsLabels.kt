@@ -25,6 +25,7 @@ data class ColorSettingsLabels(
     val backgroundColor: String, // R.string.color_background
     val noise: String, // R.string.prefs_noise_title
     val workspaceColor: String, // R.string.color_workspace
+    val workspaceColorDefault: String, // R.string.color_workspace_default (swatch state when unset)
     val backgroundImageDay: String, // R.string.background_image_day
     val backgroundImageNight: String, // R.string.background_image_night
     val opacityDay: String, // R.string.background_image_opacity_day
@@ -40,6 +41,7 @@ data class ColorSettingsLabels(
             backgroundColor = "Background",
             noise = "Noise",
             workspaceColor = "Workspace color",
+            workspaceColorDefault = "Default",
             backgroundImageDay = "Background image (day)",
             backgroundImageNight = "Background image (night)",
             opacityDay = "Opacity (day)",

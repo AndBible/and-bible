@@ -205,6 +205,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val colorBackground: String get() = context.getString(R.string.color_background)
     override val colorText: String get() = context.getString(R.string.color_text)
     override val colorWorkspace: String get() = context.getString(R.string.color_workspace)
+    override val colorWorkspaceDefault: String get() = context.getString(R.string.color_workspace_default)
     override val colorsDayModeTitle: String get() = context.getString(R.string.colors_day_mode_title)
     override val colorsNightModeTitle: String get() = context.getString(R.string.colors_night_mode_title)
     override val fontSizeTitle: String get() = context.getString(R.string.font_size_title)

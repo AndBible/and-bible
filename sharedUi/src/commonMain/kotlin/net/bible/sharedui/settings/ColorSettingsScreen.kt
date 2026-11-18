@@ -46,9 +46,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
-import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.ColorSettingsUiState
@@ -59,9 +59,11 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
-import net.bible.sharedui.theme.LocalDisplayColorMode
-import net.bible.sharedui.theme.abColorScheme
 import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.WorkspaceColorCircle
+import net.bible.sharedui.theme.WorkspaceColorCircleStyle
+import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
+import net.bible.sharedui.theme.workspacePickerStartArgb
 
 /**
  * Stateless port of the classic colours editor (`ColorSettingsFragment`/`colors_settings.xml`):
@@ -140,9 +142,16 @@ fun ColorSettingsScreen(
     // WorkspaceChange.ColorEdited, re-deriving the whole seeded theme) fires once per edit, not per frame.
     // The cost is that there is no live preview of the workspace colour while picking.
     if (workspaceDialogOpen) {
+        // #4149: an unset colour opens on the theme colour it stands for; confirming that unchanged
+        // keeps "follow the theme" instead of storing the theme colour as a chosen one.
+        val shown = workspacePickerStartArgb(colors.workspaceColor, LocalIsDarkTheme.current)
         AbColorPickerDialog(
-            initialColor = colors.workspaceColor,
-            onConfirm = { onWorkspaceColorChange(it); workspaceDialogOpen = false },
+            initialColor = shown,
+            onConfirm = {
+                if (keepsDefaultWorkspaceColor(colors.workspaceColor, shown, it)) onWorkspaceColorReset()
+                else onWorkspaceColorChange(it)
+                workspaceDialogOpen = false
+            },
             onDismiss = { workspaceDialogOpen = false },
             onResetToDefault = { onWorkspaceColorReset(); workspaceDialogOpen = false },
         )
@@ -205,17 +214,16 @@ fun ColorSettingsContent(
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {
-            // Detached workspace editors can inherit a different workspace's active theme, so the
-            // unset swatch derives the built-in default theme itself rather than reading MaterialTheme.
-            val defaultScheme = abColorScheme(null, LocalIsDarkTheme.current, DisplayColorMode.NORMAL)
+            // The stored default is an unset sentinel, not the visible theme colour (#4149): it is
+            // drawn as the default toolbar colour with a dashed "follows the theme" ring.
+            // Screen readers get in words what the dashed ring shows.
             ColorSwatchRow(
                 label = labels.workspaceColor,
-                // The stored default is an unset sentinel, not the visible theme colour.
-                color = if (LocalDisplayColorMode.current == DisplayColorMode.NORMAL &&
-                    !isWorkspaceColorSet(colors.workspaceColor)
-                ) defaultScheme.primary.toArgb() else colors.workspaceColor,
                 onClick = onWorkspaceColorClick,
-            )
+                stateDescription = if (isWorkspaceColorSet(colors.workspaceColor)) null else labels.workspaceColorDefault,
+            ) {
+                WorkspaceColorCircle(colors.workspaceColor, size = 32.dp, style = WorkspaceColorCircleStyle.SWATCH)
+            }
         }
 
         SectionTitle(labels.dayMode)
@@ -301,20 +309,33 @@ private fun ColorModeSection(
 
 /** A clickable coloured circle + label; opens the caller's colour-picker dialog. */
 @Composable
-private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) =
+    ColorSwatchRow(label, onClick) {
         Box(
             modifier = Modifier
                 .size(32.dp)
                 .background(AbColor.toComposeColor(color), CircleShape)
                 .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant, CircleShape),
         )
+    }
+
+/** A clickable [circle] + label row; [stateDescription] is announced by screen readers. */
+@Composable
+private fun ColorSwatchRow(
+    label: String,
+    onClick: () -> Unit,
+    stateDescription: String? = null,
+    circle: @Composable () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .semantics { if (stateDescription != null) this.stateDescription = stateDescription }
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        circle()
         Spacer(Modifier.width(16.dp))
         Text(label, style = MaterialTheme.typography.bodyLarge)
     }

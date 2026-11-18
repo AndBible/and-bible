@@ -161,6 +161,7 @@ fun buildColorSettingsLabels(context: Context) = ColorSettingsLabels(
     backgroundColor = context.getString(R.string.color_background),
     noise = context.getString(R.string.prefs_noise_title),
     workspaceColor = context.getString(R.string.color_workspace),
+    workspaceColorDefault = context.getString(R.string.color_workspace_default),
     backgroundImageDay = context.getString(R.string.background_image_day),
     backgroundImageNight = context.getString(R.string.background_image_night),
     opacityDay = context.getString(R.string.background_image_opacity_day),

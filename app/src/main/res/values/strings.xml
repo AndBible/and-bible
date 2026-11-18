@@ -406,6 +406,8 @@
     <string name="workspace_color_settings_title">Color settings (Workspace)</string>
 
     <string name="color_workspace">Workspace color</string>
+    <!-- Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme -->
+    <string name="color_workspace_default">Default</string>
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Day mode</string>

@@ -50,6 +50,9 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.components.abBottomFade
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
+import net.bible.sharedui.theme.workspacePickerStartArgb
 
 /**
  * The whole colours editor as sheet pages: `Colors` → `ColorPick` → `BackgroundImage`, all pushed
@@ -188,7 +191,11 @@ fun ColorSettingsEditorSheet(
                 }
             }
             is SettingsEditorPage.ColorPick -> {
-                val initial = colorForPage(state, page.field)
+                // #4149: an unset workspace colour opens on the theme colour it stands for.
+                val stored = colorForPage(state, page.field)
+                val initial = if (page.field == ColorField.WORKSPACE) {
+                    workspacePickerStartArgb(stored, LocalIsDarkTheme.current)
+                } else stored
                 var working by remember(initial) { mutableStateOf(initial or (0xFF shl 24)) }
                 var presetsPage by remember { mutableStateOf(true) } // classic opens on presets
                 AbColorPickerContent(
@@ -212,7 +219,11 @@ fun ColorSettingsEditorSheet(
                     cancelLabel = strings.cancel,
                     onSwitchPage = { presetsPage = !presetsPage },
                     onConfirm = {
-                        if (page.field == ColorField.WORKSPACE) onWorkspaceColorChange(working)
+                        if (page.field == ColorField.WORKSPACE) {
+                            // Confirming the unchanged theme colour keeps "follow the theme".
+                            if (keepsDefaultWorkspaceColor(stored, initial, working)) onWorkspaceColorReset()
+                            else onWorkspaceColorChange(working)
+                        }
                         else onColorChange(page.field, working)
                         onPop()
                     },
