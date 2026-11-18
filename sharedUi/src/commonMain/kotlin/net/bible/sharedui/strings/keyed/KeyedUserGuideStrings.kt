@@ -9,10 +9,16 @@ import net.bible.sharedcore.docs.UserGuideToc
 class KeyedUserGuideStrings(private val t: StringTable) {
     fun section(section: UserGuideToc.Section): String = resolve(section.key, section.title)
     fun page(page: UserGuideToc.Page): String = resolve(page.key, page.title)
-    fun episode(episode: TutorialVideos.Episode): String = UserGuideToc.episodeTitles[episode]?.let {
-        val title = resolve(it.key, it.title)
-        if (it.number != null) "${it.number}. $title" else title
-    } ?: episode.slug
+    /** The episode title without its series number, for the table of contents. */
+    fun episode(episode: TutorialVideos.Episode): String = UserGuideToc.episodeTitles[episode]
+        ?.let { resolve(it.key, it.title) } ?: episode.slug
+
+    /** The episode title prefixed with its series number ("3. Title"); unnumbered episodes get no prefix. */
+    fun numberedEpisode(episode: TutorialVideos.Episode): String {
+        val title = episode(episode)
+        val number = UserGuideToc.episodeTitles[episode]?.number
+        return if (number != null) "$number. $title" else title
+    }
 
     private fun resolve(key: String, fallback: String): String = t.text(key).let { if (it == key) fallback else it }
 

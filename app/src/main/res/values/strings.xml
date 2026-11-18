@@ -85,6 +85,7 @@
     <string name="help_read_in_user_guide">Read in the user guide</string>
     <string name="help_read_page">Read in the user guide: %1$s</string>
     <string name="help_tutorial_videos">Tutorial videos</string>
+    <string name="help_watch_in_order">Watch the tutorial videos in order</string>
     <string name="help_play_video">Play video: %1$s</string>
     <string name="administration">Administration</string>
     <string name="rate_application">Rate &amp; Review</string>

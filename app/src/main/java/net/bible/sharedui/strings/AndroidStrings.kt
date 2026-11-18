@@ -1151,6 +1151,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val helpUserGuideHome: String get() = context.getString(R.string.help_user_guide_home)
     override val helpReadInUserGuide: String get() = context.getString(R.string.help_read_in_user_guide)
     override val helpTutorialVideos: String get() = context.getString(R.string.help_tutorial_videos)
+    override val helpWatchInOrder: String get() = context.getString(R.string.help_watch_in_order)
     override fun helpPlayVideo(title: String): String = context.getString(R.string.help_play_video, title)
     override fun helpReadPage(title: String): String = context.getString(R.string.help_read_page, title)
 

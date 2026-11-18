@@ -27,11 +27,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.docs.TutorialVideos
@@ -63,8 +65,9 @@ data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolea
 /**
  * The full-screen Help & tips: a "Tips" tab (the tip cards, a link to the full documentation and the version) and a
  * "User guide" tab (the documentation table of contents from [UserGuideToc], with a playable sibling row after
- * each page for each of its tutorial episodes, and the list of [tutorialVideos]). Stateless apart from the
- * selected tab:
+ * each page for each of its tutorial episodes). The tab's first row opens a sub-view listing [tutorialVideos] (the
+ * whole series, numbered, in order); Up and Back return from it to the tab. Stateless apart from the selected tab
+ * and the sub-view, which survive rotation:
  * every link goes through [onOpenUrl], so the host can confirm before leaving the app.
  *
  * All episodes are visible. Unpublished episodes open the placeholder; [TutorialVideos] chooses the URL and
@@ -81,12 +84,23 @@ fun HelpScreen(
     guideStrings: KeyedUserGuideStrings = KeyedUserGuideStrings.english(),
     appLanguage: String = "en",
     initialTab: Int = 0,
+    initialShowVideos: Boolean = false,
     onOpenUrl: (String) -> Unit,
     onUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
-    AbScaffold(title = strings.helpAndTips, onNavigateUp = onUp) { padding ->
+    var showVideos by rememberSaveable { mutableStateOf(initialShowVideos) }
+    val inVideos = showVideos && tab == 1
+    PlatformBackHandler(enabled = inVideos) { showVideos = false }
+    AbScaffold(
+        title = if (inVideos) strings.helpTutorialVideos else strings.helpAndTips,
+        onNavigateUp = if (inVideos) ({ showVideos = false }) else onUp,
+    ) { padding ->
+        if (inVideos) {
+            TutorialVideosList(tutorialVideos, onOpenUrl, Modifier.padding(padding))
+            return@AbScaffold
+        }
         Column(Modifier.padding(padding)) {
             CappedBarFontScale {
                 PrimaryTabRow(selectedTabIndex = tab) {
@@ -97,7 +111,7 @@ fun HelpScreen(
             if (tab == 0) {
                 TipsTab(tips, versionText, onOpenUrl)
             } else {
-                UserGuideTab(sections, tutorialVideos, guideStrings, appLanguage, onOpenUrl)
+                UserGuideTab(sections, guideStrings, appLanguage, onOpenUrl, onWatchInOrder = { showVideos = true })
             }
         }
     }
@@ -145,10 +159,10 @@ private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (Stri
 @Composable
 private fun UserGuideTab(
     sections: List<UserGuideToc.Section>,
-    tutorialVideos: List<VideoRowUi>,
     guideStrings: KeyedUserGuideStrings,
     appLanguage: String,
     onOpenUrl: (String) -> Unit,
+    onWatchInOrder: () -> Unit,
 ) {
     val strings = LocalStrings.current
     val listState = rememberLazyListState()
@@ -160,6 +174,7 @@ private fun UserGuideTab(
                 modifier = Modifier.padding(16.dp),
             )
         }
+        item { WatchInOrderRow(onWatchInOrder) }
         item { GuideRow(strings.helpUserGuideHome, { onOpenUrl(DocsLinks.BASE_URL) }) }
         for (section in sections) {
             item(key = "h:${section.title}") { SectionHeader(guideStrings.section(section)) }
@@ -175,13 +190,16 @@ private fun UserGuideTab(
                 }
             }
         }
-        if (tutorialVideos.isNotEmpty()) {
-            item(key = "h:videos") { SectionHeader(strings.helpTutorialVideos) }
-            // Several episodes can share the placeholder URL, so it cannot be a LazyColumn key.
-            items(tutorialVideos) { video ->
-                VideoRow(video.title, video.plainLabel, { onOpenUrl(video.url) })
-            }
-        }
+    }
+}
+
+/** The sub-view of the User guide tab: the whole tutorial series in order. */
+@Composable
+private fun TutorialVideosList(videos: List<VideoRowUi>, onOpenUrl: (String) -> Unit, modifier: Modifier) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
+        // Several episodes can share the placeholder URL, so it cannot be a LazyColumn key.
+        items(videos) { video -> VideoRow(video.title, video.plainLabel, { onOpenUrl(video.url) }) }
     }
 }
 
@@ -218,5 +236,16 @@ private fun VideoRow(title: String, plainLabel: Boolean, onClick: () -> Unit) {
         supportingContent = { Text(if (plainLabel) strings.watchTutorialVideoPlain else strings.watchTutorialVideo) },
         leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
         modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpPlayVideo(title), onClick = onClick),
+    )
+}
+
+/** The first row of the User guide tab: opens the in-order list of all tutorial videos. */
+@Composable
+private fun WatchInOrderRow(onClick: () -> Unit) {
+    val strings = LocalStrings.current
+    ListItem(
+        headlineContent = { Text(strings.helpWatchInOrder) },
+        leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
+        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
     )
 }

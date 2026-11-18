@@ -1225,6 +1225,7 @@ interface Strings {
     val buyDevelopment: String                        // R.string.buy_development
     val buyDevelopment2: String                 // R.string.buy_development2
     val helpTutorialVideos: String                    // R.string.help_tutorial_videos
+    val helpWatchInOrder: String                      // R.string.help_watch_in_order
     fun helpPlayVideo(title: String): String          // R.string.help_play_video
     fun helpReadPage(title: String): String           // R.string.help_read_page
 

@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Goldens of the full-screen Help & tips ([HelpScreen]): the Tips tab and the User guide tab.
+ * Goldens of the full-screen Help & tips ([HelpScreen]): the Tips tab, the User guide tab and its "tutorial videos in order" sub-view (`tutorialCatalog`).
  *
  * Uses the real guide and episode catalog, including unpublished episodes that open the placeholder.
  * Each page and its episodes are sibling link rows, without publication stand-ins.
@@ -78,7 +78,7 @@ class HelpScreenGoldenTest {
     private fun tutorialCatalog(): @Composable () -> Unit = {
         HelpScreen(
             tips = emptyList(), sections = emptyList(), tutorialVideos = catalog.tutorialVideos("en"),
-            versionText = "Version 6.0.0", initialTab = 1, onOpenUrl = {}, onUp = {},
+            versionText = "Version 6.0.0", initialTab = 1, initialShowVideos = true, onOpenUrl = {}, onUp = {},
         )
     }
 
