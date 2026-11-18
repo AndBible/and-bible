@@ -150,27 +150,88 @@ class RuntimeDiagnosticStoreTest {
     }
 
     @Test fun startupDeletesInvalidInactiveGenerationAndKeepsCommittedHistory() {
-        for (unreadable in listOf(false, true)) {
-            val dir = Files.createTempDirectory("diagnostics-invalid-inactive").toOkioPath()
-            try {
-                val fs = FileSystem.SYSTEM
-                RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
-                    DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("complete")))
-                val inactive = dir / "diagnostics.1.ndjson"
-                fs.sink(inactive).buffer().use { it.writeUtf8("{\"generation\":999}\n{half-written") }
-                val readingFs = object : ForwardingFileSystem(fs) {
-                    override fun source(file: Path): okio.Source {
-                        if (unreadable && file == inactive) throw IOException("injected unreadable inactive file")
-                        return super.source(file)
+        val dir = Files.createTempDirectory("diagnostics-invalid-inactive").toOkioPath()
+        try {
+            val fs = FileSystem.SYSTEM
+            RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("complete")))
+            val inactive = dir / "diagnostics.1.ndjson"
+            fs.sink(inactive).buffer().use { it.writeUtf8("{\"generation\":999}\n{half-written") }
+            val reopened = RuntimeDiagnosticStore(dir, fs) { 1000L }
+            assertTrue(reopened.snapshot().contains("complete"))
+            assertTrue(!fs.exists(inactive), "invalid inactive generation was not deleted")
+            reopened.append(DiagnosticRecord("run", 2, 1000, RuntimeDiagnosticEvent.ClientReady("continued")))
+            assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("continued"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun unreadableGenerationsSurviveStartupAndWritesUntilALaterStartCanRetry() {
+        for (unreadable in listOf(setOf(1), setOf(0), setOf(0, 1))) {
+            for (expired in listOf(false, true)) {
+                val dir = Files.createTempDirectory("diagnostics-unreadable").toOkioPath()
+                try {
+                    val fs = FileSystem.SYSTEM
+                    RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                        DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("older")))
+                    RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                        DiagnosticRecord("run", 2, 1000, RuntimeDiagnosticEvent.ClientReady("newest")))
+                    val before = fs.list(dir).associateWith { path -> fs.read(path) { readUtf8() } }
+                    val unreadablePaths = unreadable.map { dir / "diagnostics.$it.ndjson" }.toSet()
+                    val readingFs = object : ForwardingFileSystem(fs) {
+                        override fun source(file: Path): okio.Source {
+                            if (file in unreadablePaths) throw IOException("injected transient read failure")
+                            return super.source(file)
+                        }
                     }
-                }
-                val reopened = RuntimeDiagnosticStore(dir, readingFs) { 1000L }
-                assertTrue(reopened.snapshot().contains("complete"))
-                assertTrue(!fs.exists(inactive), "invalid inactive generation was not deleted (unreadable=$unreadable)")
-                reopened.append(DiagnosticRecord("run", 2, 1000, RuntimeDiagnosticEvent.ClientReady("continued")))
-                assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("continued"))
-            } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+                    val reopened = RuntimeDiagnosticStore(dir, readingFs) { if (expired) 604801001L else 1000L }
+                    unreadablePaths.forEach { path ->
+                        assertTrue(fs.exists(path), "unreadable generation was deleted: $path")
+                        assertEquals(before.getValue(path), fs.read(path) { readUtf8() })
+                    }
+                    if (expired || unreadable.size == 2) assertEquals("", reopened.snapshot())
+                    else {
+                        assertTrue(reopened.snapshot().contains("older"))
+                        assertEquals(1 !in unreadable, reopened.snapshot().contains("newest"))
+                    }
+                    kotlin.test.assertFailsWith<IOException> {
+                        reopened.append(DiagnosticRecord("run", 3, 1000, RuntimeDiagnosticEvent.ClientReady("continued")))
+                    }
+                    unreadablePaths.forEach { path ->
+                        assertEquals(before.getValue(path), fs.read(path) { readUtf8() }, "unreadable generation was overwritten")
+                    }
+                    val retried = RuntimeDiagnosticStore(dir, fs) { 1000L }
+                    assertTrue(retried.snapshot().contains("newest"), "later startup lost the newest generation")
+                    retried.append(DiagnosticRecord("run", 3, 1000, RuntimeDiagnosticEvent.ClientReady("continued")))
+                    assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("continued"))
+                } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+            }
         }
+    }
+
+    @Test fun nullRunIdIsNotRecoveredAsTheStringNull() {
+        val dir = Files.createTempDirectory("diagnostics-null-run").toOkioPath()
+        try {
+            val fs = FileSystem.SYSTEM
+            fs.write(dir / "diagnostics.0.ndjson") {
+                writeUtf8("{\"generation\":0}\n{\"runId\":null,\"sequence\":1,\"epochMillis\":1000}\n{\"checksum\":-8487182437364130778}\n")
+            }
+            assertEquals("", RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot())
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun stringChecksumDoesNotCommitAGeneration() {
+        val dir = Files.createTempDirectory("diagnostics-string-checksum").toOkioPath()
+        try {
+            val fs = FileSystem.SYSTEM
+            RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("uncommitted")))
+            val file = dir / "diagnostics.0.ndjson"
+            val text = fs.read(file) { readUtf8() }
+                .replace(Regex("\"checksum\":(-?\\d+)"), "\"checksum\":\"$1\"")
+            fs.write(file) { writeUtf8(text) }
+            assertEquals("", RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot())
+            assertTrue(!fs.exists(file), "generation with a string checksum was not deleted")
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
     }
 
     @Test fun startupDeletesInactiveGenerationsWithWrongTypedJsonFields() {
