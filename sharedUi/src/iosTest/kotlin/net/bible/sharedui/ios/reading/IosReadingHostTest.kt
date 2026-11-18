@@ -172,7 +172,8 @@ class IosReadingHostTest {
             // search: the field, the results sheet, the unavailable snackbar
             "searchBar" to (deps.searchBar === search.searchBar),
             "searchBarCallbacks" to (deps.searchBarCallbacks === search.searchBarCallbacks),
-            "searchSheetVisible" to (deps.searchSheetVisible === search.controller.sheetVisible),
+            // the per-window Find (#4136): the host passes the flow that follows the active window's session, not one controller's
+            "searchSheetVisible" to (deps.searchSheetVisible === search.searchSheetVisible),
             "onSearchSheetDismissed" to (deps.onSearchSheetDismissed !== d1.onSearchSheetDismissed),
             "searchUnavailableDocName" to (deps.searchUnavailableDocName === search.searchUnavailableDocName),
             "onSearchUnavailableMessageShown" to (deps.onSearchUnavailableMessageShown !== d1.onSearchUnavailableMessageShown),
