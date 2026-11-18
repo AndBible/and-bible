@@ -61,13 +61,12 @@ data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolea
 /**
  * The full-screen Help & tips: a "Tips" tab (the tip cards, a link to the full documentation and the version) and a
  * "User guide" tab (the documentation table of contents from [UserGuideToc], with an indented, playable row under
- * every page for each of its published tutorial episodes, and the list of [tutorialVideos]). Stateless apart from the
+ * every page for each of its tutorial episodes, and the list of [tutorialVideos]). Stateless apart from the
  * selected tab:
  * every link goes through [onOpenUrl], so the host can confirm before leaving the app.
  *
- * [isPublished] decides which of a page's episodes get a row; the default is "has a YouTube id" and a test can
- * substitute its own. The episode rows open [TutorialVideos.url] for [appLanguage] (captions in that language when
- * the episode has them, else "(English)" in the label).
+ * All episodes are visible. Unpublished episodes open the placeholder; [TutorialVideos] chooses the URL and
+ * label from the opened video's captions for [appLanguage].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +80,6 @@ fun HelpScreen(
     initialTab: Int = 0,
     onOpenUrl: (String) -> Unit,
     onUp: () -> Unit,
-    isPublished: (TutorialVideos.Episode) -> Boolean = { it.youtubeId != null },
 ) {
     val strings = LocalStrings.current
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
@@ -96,7 +94,7 @@ fun HelpScreen(
             if (tab == 0) {
                 TipsTab(tips, versionText, onOpenUrl)
             } else {
-                UserGuideTab(sections, tutorialVideos, appLanguage, onOpenUrl, isPublished)
+                UserGuideTab(sections, tutorialVideos, appLanguage, onOpenUrl)
             }
         }
     }
@@ -147,7 +145,6 @@ private fun UserGuideTab(
     tutorialVideos: List<VideoRowUi>,
     appLanguage: String,
     onOpenUrl: (String) -> Unit,
-    isPublished: (TutorialVideos.Episode) -> Boolean,
 ) {
     val strings = LocalStrings.current
     val listState = rememberLazyListState()
@@ -164,8 +161,8 @@ private fun UserGuideTab(
             item(key = "h:${section.title}") { SectionHeader(section.title) }
             for (page in section.pages) {
                 item(key = "p:${page.stem}") { GuideRow(page.title, { onOpenUrl(page.url) }) }
-                // One indented row per published episode: several identical icons in a trailing slot overflow a phone.
-                items(page.episodes.filter(isPublished), key = { "e:${page.stem}:${it.name}" }) { episode ->
+                // One indented row per episode: several identical icons in a trailing slot overflow a phone.
+                items(page.episodes, key = { "e:${page.stem}:${it.name}" }) { episode ->
                     VideoRow(
                         UserGuideToc.episodeTitles[episode] ?: episode.slug,
                         TutorialVideos.hasPlainLabel(episode, appLanguage),
@@ -177,7 +174,8 @@ private fun UserGuideTab(
         }
         if (tutorialVideos.isNotEmpty()) {
             item(key = "h:videos") { SectionHeader(strings.helpTutorialVideos) }
-            items(tutorialVideos, key = { "v:${it.url}" }) { video ->
+            // Several episodes can share the placeholder URL, so it cannot be a LazyColumn key.
+            items(tutorialVideos) { video ->
                 VideoRow(video.title, video.plainLabel, { onOpenUrl(video.url) })
             }
         }

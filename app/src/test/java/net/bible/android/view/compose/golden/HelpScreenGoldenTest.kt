@@ -21,12 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import net.bible.android.TEST_SDK
 import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.help.HelpScreen
-import net.bible.sharedui.help.VideoRowUi
+import net.bible.sharedui.help.nav.HelpNavDeps
 import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,19 +36,14 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Goldens of the full-screen Help & tips ([HelpScreen]): the Tips tab and the User guide tab.
  *
- * The real [UserGuideToc.sections] are used; a page's published episodes are indented rows below it. No episode is published yet, so the fixture's
- * **stand-in** [publishedStandIn] pretends that one episode is, to show the play button; the video
- * list uses [standInVideos] for the same reason.
+ * Uses the real guide and episode catalog, including unpublished episodes that open the placeholder.
+ * Every page's episodes are indented rows, without publication stand-ins.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class HelpScreenGoldenTest {
-    private val publishedStandIn = TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED
-    private val standInVideos = listOf(
-        VideoRowUi("1. Getting started", DocsLinks.page("getting_started")),
-        VideoRowUi("2. Finding your way", DocsLinks.page("navigation")),
-    )
+    private val catalog = HelpNavDeps({}, {}, { emptyList() }, { "Version 6.0.0" }, {})
 
     private fun screen(tab: Int): @Composable () -> Unit = {
         val context = LocalContext.current
@@ -57,16 +51,15 @@ class HelpScreenGoldenTest {
         HelpScreen(
             tips = HelpAndTips.toUi(strings, { context.getString(CommonUtils.helpTipStringIds.getValue(it)) }),
             sections = UserGuideToc.sections,
-            tutorialVideos = standInVideos,
+            tutorialVideos = catalog.tutorialVideos("en"),
             versionText = "Version 6.0.0",
             initialTab = tab,
             onOpenUrl = {},
             onUp = {},
-            isPublished = { it == publishedStandIn },
         )
     }
 
-    /** A page with 4 published episodes (the AI assistant) at the standard 320dp width: separate rows, no icon strip. */
+    /** A page with four episodes (the AI assistant) at 320dp: separate rows even before publication. */
     private fun manyEpisodes(): @Composable () -> Unit = {
         val aiPage = UserGuideToc.sections.flatMap { it.pages }.first { it.stem == "ai" }
         check(aiPage.episodes.size == 4) { "the ai page is expected to have 4 episodes" }
@@ -78,7 +71,6 @@ class HelpScreenGoldenTest {
             initialTab = 1,
             onOpenUrl = {},
             onUp = {},
-            isPublished = { true },
         )
     }
 

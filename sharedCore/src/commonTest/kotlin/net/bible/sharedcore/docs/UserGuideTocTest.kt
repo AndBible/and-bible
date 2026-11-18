@@ -19,7 +19,7 @@ class UserGuideTocTest {
     }
 
     @Test
-    fun unpublishedEpisodesAreHidden() {
+    fun publishedEpisodeFilterOnlyIncludesPublishedEpisodes() {
         val published = TutorialVideos.published().toSet()
         assertTrue(pages.all { page -> page.publishedEpisodes.all { it in published } })
         assertEquals(published.filter { e -> pages.any { e in it.episodes } }.toSet(), pages.flatMap { it.publishedEpisodes }.toSet())

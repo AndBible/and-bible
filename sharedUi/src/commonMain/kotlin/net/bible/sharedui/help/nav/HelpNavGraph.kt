@@ -32,9 +32,9 @@ class HelpNavDeps(
      * the one the app resolved, which falls back to English, and only a tag with a caption track changes the link.
      */
     val appLanguage: () -> String = { "en" },
-    /** The published episodes listed under "Tutorial videos" for an app in the given language; empty while none is uploaded. */
+    /** All episodes in series order; unpublished ones open the placeholder with its caption languages. */
     val tutorialVideos: (appLanguage: String) -> List<VideoRowUi> = { lang ->
-        TutorialVideos.published().map {
+        TutorialVideos.Episode.entries.map {
             VideoRowUi(UserGuideToc.episodeTitles[it] ?: it.slug, TutorialVideos.url(it, lang), TutorialVideos.hasPlainLabel(it, lang))
         }
     },

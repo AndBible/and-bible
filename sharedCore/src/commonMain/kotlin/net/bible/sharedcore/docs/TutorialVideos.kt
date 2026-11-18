@@ -1,12 +1,11 @@
 package net.bible.sharedcore.docs
 
 /**
- * The 6.0 video series ("What's new" and the 20 tutorials) and the one place the app learns where each video is.
+ * The 6.0 video series and the shared URL/caption policy for every in-app tutorial link.
  *
- * **After uploading an episode to YouTube**, replace its `null` below with the video id (the part after `v=` or
- * `youtu.be/`); `youtube_upload.py` prints the exact line to paste. Every link in the app goes through [url], so
- * nothing else changes. While an episode has no id, [url] returns the [placeholderUrl]: during the beta that is
- * the one "videos coming soon" video for every episode.
+ * Video ids and uploaded subtitle languages come from `website/data/tutorials.yaml`, through the generated
+ * [TutorialVideoCatalog]. After publishing, regenerate it with `cd website && uv run python -m sitegen.app_tutorials`.
+ * While an episode has no id, [url] opens the "videos coming soon" placeholder with its own subtitle tracks.
  *
  * The enum names are the episode folder names under `website/video/episodes/`, upper-cased with `_` for `-`
  * ([slug] gives the folder name back); `TutorialVideosEpisodesTest` keeps both sides in step.
@@ -15,53 +14,59 @@ object TutorialVideos {
     /** The AndBible YouTube channel: what the placeholder falls back to until its own video is uploaded. */
     const val CHANNEL_URL = "https://www.youtube.com/@AndBible"
 
-    /** Id of the "Videos coming soon" placeholder video (`placeholder-coming-soon` episode); null until uploaded. */
-    val PLACEHOLDER_VIDEO_ID: String? = "RlLkpKZZwTg"
+    /** Id of the "Videos coming soon" placeholder video; null until uploaded. */
+    val PLACEHOLDER_VIDEO_ID: String? = TutorialVideoCatalog.placeholderId
+
+    /** Uploaded translated captions of the placeholder, used until an episode is published. */
+    val PLACEHOLDER_SUBTITLES: Set<String> = TutorialVideoCatalog.placeholderSubtitles
 
     /** Id of the tutorials playlist ("AndBible tutorials"); null until the playlist is public. */
-    val TUTORIAL_PLAYLIST_ID: String? = null
+    val TUTORIAL_PLAYLIST_ID: String? = TutorialVideoCatalog.playlistId
 
     /**
      * One video of the series; [youtubeId] is null until it is published. [subtitles] are the YouTube caption
-     * languages (BCP-47, sorted) uploaded besides English; `youtube_upload.py` prints the matching `setOf(...)`.
+     * languages (BCP-47, sorted) uploaded besides English. Both are generated from the website catalog.
      */
-    enum class Episode(val youtubeId: String?, val subtitles: Set<String> = emptySet()) {
-        WHATS_NEW_6_0(null),
-        TUTORIAL_01_GETTING_STARTED(null),
-        TUTORIAL_02_FINDING_YOUR_WAY(null),
-        TUTORIAL_03_VERSE_MENU(null),
-        TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS(null),
-        TUTORIAL_05_WINDOWS_1_OPEN_AND_ARRANGE(null),
-        TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS(null),
-        TUTORIAL_07_WORKSPACES(null),
-        TUTORIAL_08_BOOKMARKS(null),
-        TUTORIAL_09_LABELS_AND_HIGHLIGHTS(null),
-        TUTORIAL_10_NOTES(null),
-        TUTORIAL_11_STUDY_PADS(null),
-        TUTORIAL_12_SEARCH_1_BASICS(null),
-        TUTORIAL_13_SEARCH_2_ADVANCED(null),
-        TUTORIAL_14_SPEAK(null),
-        TUTORIAL_15_READING_PLANS_AND_PROGRESS(null),
-        TUTORIAL_16_BACKUP_AND_RESTORE(null),
-        TUTORIAL_17_SYNC_1_GOOGLE_DRIVE(null),
-        TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS(null),
-        TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS(null),
-        TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW(null),
-        TUTORIAL_21_DOCUMENT_LIBRARY(null),
-        TUTORIAL_22_LOAD_FILES_AND_CUSTOM_REPOSITORIES(null),
-        TUTORIAL_23_MY_DOCUMENTS_AND_EPUB(null),
-        TUTORIAL_24_SHARING_AND_BIBLE_LINKS(null),
-        TUTORIAL_25_MEMORIZE(null),
-        TUTORIAL_26_DESKTOP(null),
-        TUTORIAL_27_STUDY_WORKFLOWS_1_TOPICAL_AND_SERMON(null),
-        TUTORIAL_28_STUDY_WORKFLOWS_2_WORD_STUDY_AND_DEVOTIONS(null),
-        TUTORIAL_29_AI_1_GETTING_STARTED(null),
-        TUTORIAL_30_AI_2_PROMPTS(null),
-        TUTORIAL_31_AI_3_TOOLS_DATA_PERMISSIONS(null),
-        TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC(null);
+    enum class Episode {
+        WHATS_NEW_6_0,
+        TUTORIAL_01_GETTING_STARTED,
+        TUTORIAL_02_FINDING_YOUR_WAY,
+        TUTORIAL_03_VERSE_MENU,
+        TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS,
+        TUTORIAL_05_WINDOWS_1_OPEN_AND_ARRANGE,
+        TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS,
+        TUTORIAL_07_WORKSPACES,
+        TUTORIAL_08_BOOKMARKS,
+        TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+        TUTORIAL_10_NOTES,
+        TUTORIAL_11_STUDY_PADS,
+        TUTORIAL_12_SEARCH_1_BASICS,
+        TUTORIAL_13_SEARCH_2_ADVANCED,
+        TUTORIAL_14_SPEAK,
+        TUTORIAL_15_READING_PLANS_AND_PROGRESS,
+        TUTORIAL_16_BACKUP_AND_RESTORE,
+        TUTORIAL_17_SYNC_1_GOOGLE_DRIVE,
+        TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS,
+        TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS,
+        TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW,
+        TUTORIAL_21_DOCUMENT_LIBRARY,
+        TUTORIAL_22_LOAD_FILES_AND_CUSTOM_REPOSITORIES,
+        TUTORIAL_23_MY_DOCUMENTS_AND_EPUB,
+        TUTORIAL_24_SHARING_AND_BIBLE_LINKS,
+        TUTORIAL_25_MEMORIZE,
+        TUTORIAL_26_DESKTOP,
+        TUTORIAL_27_STUDY_WORKFLOWS_1_TOPICAL_AND_SERMON,
+        TUTORIAL_28_STUDY_WORKFLOWS_2_WORD_STUDY_AND_DEVOTIONS,
+        TUTORIAL_29_AI_1_GETTING_STARTED,
+        TUTORIAL_30_AI_2_PROMPTS,
+        TUTORIAL_31_AI_3_TOOLS_DATA_PERMISSIONS,
+        TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC;
 
         /** The episode's folder name under `website/video/episodes/`. */
         val slug: String get() = name.lowercase().replace('_', '-')
+
+        val youtubeId: String? get() = TutorialVideoCatalog.episodes.getValue(slug).youtubeId
+        val subtitles: Set<String> get() = TutorialVideoCatalog.episodes.getValue(slug).subtitles
     }
 
     /** The episodes that have a YouTube id, in series order. */
@@ -75,11 +80,11 @@ object TutorialVideos {
 
     /**
      * The YouTube caption language to request for an app in [appLanguage], or null when none applies: the
-     * episode's [Episode.subtitles] are matched by exact tag (case-insensitive, `_` read as `-`), then by the
+     * opened video's subtitles (the placeholder's when unpublished) are matched by exact tag (case-insensitive, `_` read as `-`), then by the
      * app tag's primary subtag (app `pt-BR` finds subtitle `pt`; app `pt` does not find `pt-BR`). English never
      * matches, because the video's own audio and captions are English.
      */
-    fun subtitleLanguage(episode: Episode, appLanguage: String): String? = matchSubtitle(episode.subtitles, appLanguage)
+    fun subtitleLanguage(episode: Episode, appLanguage: String): String? = matchSubtitle(effectiveSubtitles(episode.youtubeId, episode.subtitles), appLanguage)
 
     /**
      * The video to open for [episode] from an app in [appLanguage]: with a matching caption track the watch URL
@@ -93,7 +98,8 @@ object TutorialVideos {
     fun url(episode: Episode, appLanguage: String): String = buildUrl(episode.youtubeId, episode.subtitles, appLanguage)
 
     /** True when the "(English)" qualifier of the video label is not needed: English app, or captions in the app language. */
-    fun hasPlainLabel(episode: Episode, appLanguage: String): Boolean = plainLabel(episode.subtitles, appLanguage)
+    fun hasPlainLabel(episode: Episode, appLanguage: String): Boolean =
+        plainLabel(effectiveSubtitles(episode.youtubeId, episode.subtitles), appLanguage)
 
     /** The tutorials playlist when it is public, else the [placeholderUrl]. */
     fun playlistUrl(): String = resolvePlaylist(TUTORIAL_PLAYLIST_ID, PLACEHOLDER_VIDEO_ID)
@@ -108,10 +114,14 @@ object TutorialVideos {
     internal fun plainLabel(subtitles: Set<String>, appLanguage: String): Boolean =
         isEnglish(appLanguage) || matchSubtitle(subtitles, appLanguage) != null
 
+    private fun effectiveSubtitles(youtubeId: String?, subtitles: Set<String>): Set<String> =
+        if (youtubeId == null) PLACEHOLDER_SUBTITLES else subtitles
+
     internal fun buildUrl(youtubeId: String?, subtitles: Set<String>, appLanguage: String): String {
-        val match = matchSubtitle(subtitles, appLanguage)
-        if (youtubeId == null || match == null) return resolve(youtubeId, PLACEHOLDER_VIDEO_ID)
-        return "${watchUrl(youtubeId)}&cc_load_policy=1&cc_lang_pref=${encode(match)}&hl=${encode(normalise(appLanguage))}"
+        val videoId = youtubeId ?: PLACEHOLDER_VIDEO_ID
+        val match = matchSubtitle(effectiveSubtitles(youtubeId, subtitles), appLanguage)
+        if (videoId == null || match == null) return resolve(youtubeId, PLACEHOLDER_VIDEO_ID)
+        return "${watchUrl(videoId)}&cc_load_policy=1&cc_lang_pref=${encode(match)}&hl=${encode(normalise(appLanguage))}"
     }
 
     internal fun matchSubtitle(subtitles: Set<String>, appLanguage: String): String? {

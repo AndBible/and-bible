@@ -14,6 +14,7 @@ from sitegen.tutorials import Episode, Series, docs_block, insert_after_title, l
 
 REPO = paths.WEBSITE.parent
 KOTLIN = REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/TutorialVideos.kt"
+CATALOG = REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/TutorialVideoCatalog.kt"
 DATA = paths.DATA / "tutorials.yaml"
 EPISODES = paths.WEBSITE / "video" / "episodes"
 PLACEHOLDER = "RlLkpKZZwTg"
@@ -130,14 +131,13 @@ def test_stage_requires_a_thumbnail_for_a_published_episode(tmp_path):
 # --- The real file ---------------------------------------------------------------------------------
 
 def _kotlin_episodes() -> dict[str, tuple[str | None, tuple[str, ...]]]:
-    """Episode slug to (youtube id, sorted subtitle languages) as written in the enum."""
-    text = KOTLIN.read_text(encoding="utf-8")
-    block = text.split("enum class Episode", 1)[1].split(";", 1)[0]
+    """Episode slug to (youtube id, sorted subtitle languages) from generated app data."""
+    text = CATALOG.read_text(encoding="utf-8")
     found = {}
-    pattern = r"^\s*([A-Z0-9_]+)\((null|\"[A-Za-z0-9_-]{11}\")(?:,\s*setOf\(([^)]*)\))?\)"
-    for name, ident, langs in re.findall(pattern, block, re.M):
+    pattern = r'"([a-z0-9-]+)" to Video\((null|"[A-Za-z0-9_-]{11}"),\s*setOf\(([^)]*)\)\)'
+    for slug, ident, langs in re.findall(pattern, text):
         subtitles = tuple(re.findall(r'"([^"]+)"', langs))
-        found[name.lower().replace("_", "-")] = (None if ident == "null" else ident.strip('"'), subtitles)
+        found[slug] = (None if ident == "null" else ident.strip('"'), subtitles)
     return found
 
 
@@ -153,8 +153,7 @@ def test_real_file_is_valid():
 def test_tutorials_yaml_and_the_app_registry_agree():
     data = yaml.safe_load(DATA.read_text(encoding="utf-8"))
     assert {e["slug"]: (e["youtube"], tuple(e["subtitles"])) for e in data["episodes"]} == _kotlin_episodes()
-    placeholder = re.search(r'PLACEHOLDER_VIDEO_ID: String\? = (null|"([^"]+)")', KOTLIN.read_text()).group(2)
-    assert data["placeholder"] == placeholder
+    assert data["placeholder"] == re.search(r'val placeholderId: String\? = "([^"]+)"', CATALOG.read_text()).group(1)
 
 
 @pytest.mark.skipif(not EPISODES.is_dir(), reason="website/video is not checked out (private submodule)")
