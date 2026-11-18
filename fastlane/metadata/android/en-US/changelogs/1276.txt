@@ -1,0 +1,7 @@
+- Added icons to Help & tips guide rows, with translated section, page, and video titles (c3fbe17)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
