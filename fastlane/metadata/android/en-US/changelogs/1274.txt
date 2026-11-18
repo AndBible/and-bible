@@ -1,0 +1,27 @@
+- Help & tips screen with tips, a user guide index, language-aware tutorial video links, and volume-key page turning (#4134, #4135)
+- Live font sample in the font size and line spacing sheet (#4140)
+- Find is per window, with keyboard navigation of Find results (#4136, #4139)
+- Desktop Ctrl/Cmd+S runs Sync now (#4138)
+- Opening a modules backup via Load Documents From Files offers to restore it (7123a0d1fa)
+- Thin overlay scrollbar in the iOS Bible view, with the native indicator on touch devices (#4137)
+- Chooser opens at the current chapter and verse, with a content-sized Speak verse picker and a grid that fits full screen (#4143)
+- Verse menu order puts AI and Memorize up front (#4116, #4121)
+- Nextcloud sync reuses unchanged meta.json reads via etag (#4132)
+- Softer gold accent in the default Ink theme (0cd285f50d)
+- Download warning names the correct menu item, with clearer AI setup and document library text (#4119, #4120, #4122, #4131)
+- A second desktop launch brings the running window to the front (#4142)
+- Translations updated for this round's new and changed strings (3f974113e3)
+- Links from a maximised window open in the links window, maximised in place, and Back walks its history (#4141)
+- Chooser grid opens at the top and the sheet sizes to its content (#4117, #4133)
+- Verse menu closes on Memorize, Compare and My Notes; Back un-maximises a maximised Memorize window (#4118, #4123)
+- The current workspace reopens after a database replace (#4115)
+- Action-sheet dialogs render their HTML message, and plain error messages are escaped (#4130)
+- Non-module backup manifests in ordinary install zips are ignored instead of rejecting the zip (7eef9313d1)
+- Agent conversation history is saved in full when a session finishes or is cancelled (0fbf468970)
+- Plural strings restored in 48 translations (26384486f8)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
