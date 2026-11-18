@@ -7,7 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -102,6 +105,14 @@ class WorkspaceColorSwatchTest {
                 }
             }
         }
+        // Screen readers get in words what the dashed ring shows.
+        onNodeWithText("Workspace color").assert(
+            if (workspaceColor == DEFAULT_WORKSPACE_COLOR_ARGB) {
+                SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Default")
+            } else {
+                SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription)
+            },
+        )
         val row = onNodeWithText("Workspace color").captureToImage()
         // Sample inside the circle, away from its ring and the adjacent label.
         val pixels = row.toPixelMap()

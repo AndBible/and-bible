@@ -35,6 +35,9 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.theme.toGrayscaleArgb
+import kotlin.math.PI
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 /** Test tag of the colour dot in workspace selector and quick-switch rows. */
 const val WORKSPACE_COLOR_DOT_TAG = "workspaceColorDot"
@@ -42,8 +45,9 @@ const val WORKSPACE_COLOR_DOT_TAG = "workspaceColorDot"
 /** Stroke width of the dashed ring that marks a default ("follows the theme") workspace colour. */
 val WORKSPACE_DEFAULT_RING_WIDTH: Dp = 1.5.dp
 
-private val RING_DASH: Dp = 3.dp
-private val RING_GAP: Dp = 2.dp
+/** Target length of one dash + gap period of the default ring; dash : gap = 3 : 2. */
+private val RING_PERIOD: Dp = 5.dp
+private const val RING_DASH_FRACTION: Float = 0.6f
 
 /**
  * The fill that stands for a workspace's colour wherever it is shown (workspace selector and quick
@@ -104,13 +108,21 @@ fun WorkspaceColorCircle(
         Box(
             modifier.size(size).drawBehind {
                 val stroke = WORKSPACE_DEFAULT_RING_WIDTH.toPx()
+                val radius = this.size.minDimension / 2 - stroke / 2
+                // A whole number of dash periods around the circle, so no short leftover dash merges
+                // with the first one into a visible seam.
+                val circumference = 2 * PI.toFloat() * radius
+                val periods = max(4, (circumference / RING_PERIOD.toPx()).roundToInt())
+                val period = circumference / periods
                 drawCircle(fill)
                 drawCircle(
                     ring,
-                    radius = this.size.minDimension / 2 - stroke / 2,
+                    radius = radius,
                     style = Stroke(
                         width = stroke,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(RING_DASH.toPx(), RING_GAP.toPx())),
+                        pathEffect = PathEffect.dashPathEffect(
+                            floatArrayOf(period * RING_DASH_FRACTION, period * (1 - RING_DASH_FRACTION)),
+                        ),
                     ),
                 )
             },
@@ -146,7 +158,8 @@ fun workspacePickerStartArgb(workspaceArgb: Int?, dark: Boolean): Int =
  * True only when the workspace had no colour of its own ([storedArgb] unset) and the user confirmed
  * the unchanged starting colour [shownArgb] (from [workspacePickerStartArgb]); the caller then resets
  * instead of storing that theme colour as a chosen one, which would stop the workspace following the
- * theme. Alpha is ignored, as the picker works on opaque colours.
+ * theme. Alpha is ignored, as the picker works on opaque colours. By design, entering exactly the
+ * start colour (e.g. #F3EAD7 in light mode) also keeps the default, as it is the same colour.
  */
 fun keepsDefaultWorkspaceColor(storedArgb: Int?, shownArgb: Int, pickedArgb: Int): Boolean =
     !isWorkspaceColorSet(storedArgb) && (pickedArgb or OPAQUE) == (shownArgb or OPAQUE)

@@ -46,7 +46,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.colorFor
@@ -56,11 +59,11 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
-import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
+import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.WorkspaceColorCircle
 import net.bible.sharedui.theme.WorkspaceColorCircleStyle
+import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
 import net.bible.sharedui.theme.workspacePickerStartArgb
-import net.bible.sharedui.theme.LocalIsDarkTheme
 
 /**
  * Stateless port of the classic colours editor (`ColorSettingsFragment`/`colors_settings.xml`):
@@ -213,7 +216,12 @@ fun ColorSettingsContent(
         if (colors.workspaceColorVisible) {
             // The stored default is an unset sentinel, not the visible theme colour (#4149): it is
             // drawn as the default toolbar colour with a dashed "follows the theme" ring.
-            ColorSwatchRow(label = labels.workspaceColor, onClick = onWorkspaceColorClick) {
+            // Screen readers get in words what the dashed ring shows.
+            ColorSwatchRow(
+                label = labels.workspaceColor,
+                onClick = onWorkspaceColorClick,
+                stateDescription = if (isWorkspaceColorSet(colors.workspaceColor)) null else labels.workspaceColorDefault,
+            ) {
                 WorkspaceColorCircle(colors.workspaceColor, size = 32.dp, style = WorkspaceColorCircleStyle.SWATCH)
             }
         }
@@ -311,13 +319,19 @@ private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) =
         )
     }
 
-/** A clickable [circle] + label row. */
+/** A clickable [circle] + label row; [stateDescription] is announced by screen readers. */
 @Composable
-private fun ColorSwatchRow(label: String, onClick: () -> Unit, circle: @Composable () -> Unit) {
+private fun ColorSwatchRow(
+    label: String,
+    onClick: () -> Unit,
+    stateDescription: String? = null,
+    circle: @Composable () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            .semantics { if (stateDescription != null) this.stateDescription = stateDescription }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

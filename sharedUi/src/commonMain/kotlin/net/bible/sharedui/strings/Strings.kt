@@ -209,6 +209,7 @@ interface Strings {
     val colorBackground: String
     val colorText: String
     val colorWorkspace: String
+    val colorWorkspaceDefault: String
     val colorsDayModeTitle: String
     val colorsNightModeTitle: String
     val fontSizeTitle: String

@@ -142,6 +142,7 @@ fun Strings.buildColorSettingsLabels() = ColorSettingsLabels(
     backgroundColor = colorBackground,
     noise = prefsNoiseTitle,
     workspaceColor = colorWorkspace,
+    workspaceColorDefault = colorWorkspaceDefault,
     backgroundImageDay = backgroundImageDay,
     backgroundImageNight = backgroundImageNight,
     opacityDay = backgroundImageOpacityDay,

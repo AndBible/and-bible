@@ -63,7 +63,9 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class WorkspaceDefaultColorDisplayTest {
     private val activeSeed = 0xFFFF8000.toInt()
-    private val chosen = 0xFF2E7D32.toInt()
+    // Amber: far from the default ring's (outline) colour in every mode, also as BW grey, so the
+    // "a chosen dot has no ring" check is not a near miss.
+    private val chosen = 0xFFFFC107.toInt()
     private val rows = listOf(
         WorkspaceRowVd("1", "Chosen", null, chosen, isCurrent = true),
         WorkspaceRowVd("2", "Default", null, DEFAULT_WORKSPACE_COLOR_ARGB, isCurrent = false),
@@ -155,11 +157,11 @@ class WorkspaceDefaultColorDisplayTest {
     @Test fun quickMonochromeLight() = assertQuick(dark = false, mode = DisplayColorMode.MONOCHROME)
 
     @Test
-    fun pickerStartsOnTheNormalThemeColourInEveryMode() {
-        for (mode in DisplayColorMode.entries) for (dark in listOf(false, true)) {
+    fun pickerStartsOnTheNormalThemeContainer() {
+        for (dark in listOf(false, true)) {
             assertEquals(
                 DefaultThemeProposal.DEFAULT.scheme(dark)!!.primaryContainer.toArgb(),
-                workspacePickerStartArgb(DEFAULT_WORKSPACE_COLOR_ARGB, dark), "$mode $dark",
+                workspacePickerStartArgb(DEFAULT_WORKSPACE_COLOR_ARGB, dark), "dark=$dark",
             )
         }
         assertEquals(chosen, workspacePickerStartArgb(chosen, dark = true))
