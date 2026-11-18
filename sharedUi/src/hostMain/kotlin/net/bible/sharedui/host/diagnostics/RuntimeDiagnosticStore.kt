@@ -25,16 +25,19 @@ internal class RuntimeDiagnosticStore(
     private var generation: Generation? = null
     private var rotateBeforeAppend = true
     private var omitted = 0L
+    private val unreadable = mutableSetOf<Int>()
 
     init {
         fileSystem.createDirectories(directory)
         val loaded = files.indices.mapNotNull { index ->
-            try { readGeneration(index) } catch (_: IOException) { null }
+            try { readGeneration(index) } catch (_: IOException) { unreadable.add(index); null }
         }
         generation = loaded.maxByOrNull { it.number }
         val current = generation
-        if (current != null && live(current.lines).size != current.lines.size) write(live(current.lines))
-        files.indices.filter { it != generation?.index }.forEach { index ->
+        if (current != null && 1 - current.index !in unreadable && live(current.lines).size != current.lines.size) {
+            write(live(current.lines))
+        }
+        files.indices.filter { it != generation?.index && it !in unreadable }.forEach { index ->
             val previous = loaded.find { it.index == index }
             if (previous == null || live(previous.lines).size != previous.lines.size) {
                 fileSystem.delete(files[index], mustExist = false)
@@ -45,6 +48,8 @@ internal class RuntimeDiagnosticStore(
     fun append(record: DiagnosticRecord) = appendBatch(listOf(record))
 
     fun appendBatch(records: List<DiagnosticRecord>) {
+        // Its generation number is unknown: do not overwrite it or commit a competing history.
+        if (unreadable.isNotEmpty()) throw IOException("diagnostic generation could not be read at startup")
         val lines = records.mapNotNull { record ->
             val encoded = record.encode()
             if (encoded.length >= 4096 || (encoded + "\n").encodeToByteArray().size > 4096) {
@@ -146,10 +151,10 @@ internal class RuntimeDiagnosticStore(
         // Only newline-terminated, verified prefixes are recoverable; ignore an interrupted tail.
         for (raw in pieces.drop(1).dropLast(1)) {
             val obj = parseObject(raw)
-            val expected = (obj?.get("checksum") as? JsonPrimitive)?.longOrNull
+            val expected = (obj?.get("checksum") as? JsonPrimitive)?.takeUnless { it.isString }?.longOrNull
             val valid = expected != null && expected == hash
             if (expected == null && obj != null) {
-                val run = (obj["runId"] as? JsonPrimitive)?.content
+                val run = (obj["runId"] as? JsonPrimitive)?.takeIf { it.isString }?.content
                 val seq = (obj["sequence"] as? JsonPrimitive)?.longOrNull
                 val time = (obj["epochMillis"] as? JsonPrimitive)?.longOrNull
                 if (run != null && seq != null && time != null) lines.add(Line(raw, run, seq, time))
