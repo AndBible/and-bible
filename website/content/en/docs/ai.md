@@ -328,8 +328,10 @@ The AI entries appear only after AI has been configured.
 3. Tap `AI Actions` in the selection menu, then choose `Word study`.
 
 **The result.** A prompt that produces a document saves it as a page of the
-*AI Documents* document (a [My Document](my_documents.md)) and opens it, normally in
-the links window. If you run the same prompt again on the same verses, the saved page
+*AI Documents* document and opens it, normally in the links window. *AI Documents* is an
+ordinary [My Document](my_documents.md) whose pages are Markdown, so you can edit a result,
+copy or share a page, or export it to a file; see
+[AI documents are My Documents](my_documents.md#ai-documents-are-my-documents). If you run the same prompt again on the same verses, the saved page
 opens instead of a new run. The page has a **Regenerate** action, which lets you add
 *Additional instructions (optional)* and choose **Keep previous version** or **Fresh run
 (ignore previous result)**.
@@ -358,6 +360,12 @@ Rate limits are shown as a log line (*Rate limited. Retrying in …*), and when 
 
 ### The Raw LLM Log
 
+!!! note "A developer and debugging tool"
+
+    The raw log is meant for bug reports and for developers who want to see exactly
+    what was sent. You do not need it to use AI prompts; the result document and the
+    agent log above are what you normally read.
+
 Under a finished step in the agent log, tap **View raw LLM log** to see exactly
 what was exchanged with the AI provider. The **Raw LLM Log** screen lists the
 system prompt, your message, the tool definitions, each tool call and its
@@ -371,7 +379,8 @@ and **Report AI bug**.
 
 ### AI Log History
 
-*AndBible* saves the raw logs of your AI conversations. To browse them, open
+*AndBible* saves the raw logs of your AI conversations, mainly so that you can attach one to
+a bug report. To browse them, open
 `AI Settings`, then the connection settings (the gear icon, *Connection settings*;
 `Configure Connection` while AI is not yet configured) and, under **Usage**, tap
 **AI Log History** (*View and manage saved AI conversation logs*). The list
@@ -415,8 +424,7 @@ bookmark read tools either globally or just for that one prompt.
 - **List all labels** – Get a list of all your labels.
 - **Read study pad content** – Read entries from a study pad.
 - **Search study pads** – Search study pad entries by keyword.
-- **List installed documents** – Get a list of installed Bibles, commentaries,
-    and dictionaries.
+- **List installed documents** – Get a list of installed documents.
 - **List My Documents** and **List My Document pages** – See your
     [My Documents](my_documents.md) and their pages.
 - **List general book keys** and **Read general book content** – Browse and
@@ -466,13 +474,10 @@ what data is available helps you write more effective prompts.
 
 The AI has access to **all installed modules** on your device:
 
-- **Bible translations** – Any installed Bible version (e.g. KJV, ESV, NIV).
-    The AI can read and compare text across multiple translations.
-- **Commentaries** – All installed commentary modules. The AI can look up
-    commentary entries for specific verses.
-- **Dictionaries and lexicons** – Including Strong’s concordance, Robinson’s
-    morphological codes, and any other installed dictionary modules. These
-    allow in-depth word studies.
+- **Bible translations** – The AI can read and compare text across them.
+- **Commentaries** – The AI can look up entries for specific verses.
+- **Dictionaries and lexicons** – Including Strong’s concordance and Robinson’s
+    morphological codes, for in-depth word studies.
 
 !!! tip
 
@@ -608,6 +613,14 @@ coarser ones:
 
 ## Custom Prompts
 
+The built-in prompts are examples, not a closed set. The best way to get a prompt that fits
+your own study is to start from one of them: open it, use `Copy to customize`, and change the
+copy until it does what you want (see [Editing Built-in Prompts](#editing-built-in-prompts)).
+Prompts are plain instructions in your own words, so almost anything you can describe to a
+study partner can become a prompt: a word study in your preferred style, a sermon outline in
+your church's format, or a question you ask every Sunday. Once you have a prompt you like, you
+can [share it](#sharing-prompts-csv) with others.
+
 ### Creating a Custom Prompt
 
 You can create your own prompts for specialized tasks:
@@ -679,7 +692,9 @@ list and permission mode, and change them if needed.
 ### Sharing Prompts (CSV)
 
 Custom prompts can be exported and imported as CSV files, making it easy to
-share your prompts with other *AndBible* users:
+share your prompts with other *AndBible* users. Good prompts and ideas are welcome in the
+[Telegram and Matrix user groups](support.md#general-questions) (the two are bridged), where
+you can post a CSV file or the text of a prompt, and pick up prompts that others have made:
 
 - **Export** – In the ⋮ menu of `AI Settings`, choose *Export prompts to CSV* to save your
     own custom prompts to a CSV file. Built-in prompts are not exported.
