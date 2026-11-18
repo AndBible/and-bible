@@ -1,7 +1,10 @@
 package net.bible.sharedui.help
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -17,6 +20,7 @@ import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class HelpScreenTest {
@@ -96,6 +100,30 @@ class HelpScreenTest {
         onNodeWithText("Tip title").assertDoesNotExist()
         onNodeWithText("Navigation page").performClick()
         assertEquals(listOf("https://x/navigation/"), opened)
+    }
+
+    @Test fun guidePageHasSupportingTextAndAccessibleClick() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        show(videos = emptyList(), opened = opened, initialTab = 1)
+        val page = onNodeWithText("Navigation page")
+        onAllNodesWithText("Read in the user guide").assertCountEquals(3)
+        val click = page.fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick)
+        assertTrue(!click?.label.isNullOrBlank())
+        page.performClick()
+        assertEquals(listOf("https://x/navigation/"), opened)
+    }
+
+    @Test fun guidePageAndEpisodesAreOrderedAndAligned() = runComposeUiTest {
+        val first = withVideo.copy(episodes = listOf(Episode.TUTORIAL_02_FINDING_YOUR_WAY, Episode.TUTORIAL_03_VERSE_MENU))
+        val second = noVideo.copy(episodes = emptyList())
+        show(videos = emptyList(), initialTab = 1, guideSections = listOf(UserGuideToc.Section("Section One", "section_key", listOf(first, second))))
+        val page = onNodeWithText("Navigation page", useUnmergedTree = true).getBoundsInRoot()
+        val episode1 = onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY), useUnmergedTree = true).getBoundsInRoot()
+        val episode2 = onNodeWithText(episodeTitle(Episode.TUTORIAL_03_VERSE_MENU), useUnmergedTree = true).getBoundsInRoot()
+        val next = onNodeWithText("Faq page", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue(page.top < episode1.top && episode1.top < episode2.top && episode2.top < next.top)
+        assertEquals(page.left, episode1.left)
+        assertEquals(page.left, episode2.left)
     }
 
     @Test fun unpublishedEpisodesGetPlayableRowsUnderTheirPages() = runComposeUiTest {
