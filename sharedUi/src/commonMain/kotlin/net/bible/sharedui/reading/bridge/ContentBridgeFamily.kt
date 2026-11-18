@@ -38,7 +38,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.positiveOrNull
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.JsExpr
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppJson
 import net.bible.sharedcore.platform.AppSettings
@@ -143,7 +143,7 @@ internal class ContentBridgeFamily(
         if (session.isDisposed) return
         val s = strings()
         val (title, message, helpUrl) = when (scopeKey) {
-            "memorize" -> Triple(s.help, s.helpMemorizeText, DocsLinks.page("memorize"))
+            "memorize" -> Triple(s.help, s.helpMemorizeText, DocsLink.MEMORIZE.url)
             else -> {
                 Log.w(TAG, "Unknown help scope: $scopeKey")
                 return

@@ -104,7 +104,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.TutorialVideos.Episode
 import net.bible.sharedcore.platform.AppJson
@@ -842,12 +842,12 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
      *
-     * The link opens [helpUrl], normally built with [DocsLinks.page].
+     * The link opens [helpUrl], normally taken from [DocsLink.url].
      *
      * @param activity Activity used to launch the dialog.
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
-     * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
+     * @param helpUrl Full docs URL, e.g. `DocsLink.AI_SETTING_PERMISSIONS.url`.
      * @param videoEpisode Optional tutorial video; shown as a second link that opens with captions in the app language when available.
      */
     fun showHelpDialog(

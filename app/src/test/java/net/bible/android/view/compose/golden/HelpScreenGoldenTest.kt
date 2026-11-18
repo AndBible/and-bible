@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import net.bible.android.TEST_SDK
 import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.app.ports.HelpAndTips
@@ -47,8 +47,8 @@ import org.robolectric.annotation.GraphicsMode
 class HelpScreenGoldenTest {
     private val publishedStandIn = TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED
     private val standInVideos = listOf(
-        VideoRowUi("1. Getting started", DocsLinks.page("getting_started")),
-        VideoRowUi("2. Finding your way", DocsLinks.page("navigation")),
+        VideoRowUi("1. Getting started", DocsLink.GETTING_STARTED.url),
+        VideoRowUi("2. Finding your way", DocsLink.NAVIGATION.url),
     )
 
     private fun screen(tab: Int): @Composable () -> Unit = {

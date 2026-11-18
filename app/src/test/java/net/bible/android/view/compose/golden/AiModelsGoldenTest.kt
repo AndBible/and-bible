@@ -6,7 +6,7 @@ import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.ModelEditState
 import net.bible.sharedcore.ai.ModelVd
 import net.bible.sharedcore.ai.ProviderVd
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.ai.AiModelsScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -89,7 +89,7 @@ class AiModelsGoldenTest {
             onSetShowUnsupported = {},
             onDismiss = {},
             helpBody = "AI Models lets you add and configure the specific models available from your providers.",
-            helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
+            helpReadMoreUrl = DocsLink.AI_AVAILABLE_MODELS.url,
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

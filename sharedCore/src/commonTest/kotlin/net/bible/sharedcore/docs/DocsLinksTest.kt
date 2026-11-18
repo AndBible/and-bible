@@ -6,9 +6,9 @@ import kotlin.test.assertEquals
 class DocsLinksTest {
     @Test
     fun pageWithoutAnchor() =
-        assertEquals("https://andbible.org/docs/study_pads/", DocsLinks.page("study_pads"))
+        assertEquals("https://andbible.org/docs/study_pads/", DocsLink.STUDY_PADS.url)
 
     @Test
     fun pageWithAnchor() =
-        assertEquals("https://andbible.org/docs/ai/#setting-permissions", DocsLinks.page("ai", "setting-permissions"))
+        assertEquals("https://andbible.org/docs/ai/#setting-permissions", DocsLink.AI_SETTING_PERMISSIONS.url)
 }

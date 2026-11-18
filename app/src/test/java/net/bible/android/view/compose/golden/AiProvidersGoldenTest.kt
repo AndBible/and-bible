@@ -4,7 +4,7 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ProviderEditState
 import net.bible.sharedcore.ai.ProviderTypeVd
 import net.bible.sharedcore.ai.ProviderVd
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.ai.AiProvidersScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,7 +99,7 @@ class AiProvidersGoldenTest {
             onDelete = {},
             onDismiss = {},
             helpBody = "AI Providers is where you connect the app to an AI service such as OpenAI or Anthropic.",
-            helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
+            helpReadMoreUrl = DocsLink.AI_CHOOSING_A_PROVIDER.url,
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             showAcceptDisclaimerDialog = showAcceptDisclaimerDialog,
             onAcceptDisclaimer = {},

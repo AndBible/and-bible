@@ -1,17 +1,13 @@
 package net.bible.sharedcore.docs
 
-/**
- * Links into the user documentation at https://andbible.org/docs/.
- *
- * Every app link into the docs goes through [page] so that
- * `website/tests/test_app_deep_links.py` can find each (page, anchor) pair
- * statically and check it against the built site. Keep calls literal:
- * `DocsLinks.page("ai", "setting-permissions")`, never computed strings.
- */
+/** Builds URLs for the app's [DocsLink] documentation catalog. */
 object DocsLinks {
     const val BASE_URL = "https://andbible.org/docs/"
 
-    /** URL of docs page [page] (file stem, e.g. "study_pads"), optionally at heading [anchor]. */
-    fun page(page: String, anchor: String? = null): String =
+    fun page(link: DocsLink): String = page(link.page, link.anchor)
+
+    // Kept for the generated UserGuideToc until its generator is migrated to DocsLink.
+    // The website gate requires all of its targets to exist in the catalog too.
+    internal fun page(page: String, anchor: String? = null): String =
         BASE_URL + page + "/" + (anchor?.let { "#$it" } ?: "")
 }

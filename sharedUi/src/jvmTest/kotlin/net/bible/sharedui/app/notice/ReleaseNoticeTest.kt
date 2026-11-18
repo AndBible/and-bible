@@ -18,7 +18,7 @@ package net.bible.sharedui.app.notice
 
 import net.bible.sharedcore.docs.TutorialVideos
 import kotlinx.coroutines.test.runTest
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -221,12 +221,12 @@ class ReleaseNoticeTest {
     @Test
     fun installLinksPointToEachPlatformSection() {
         val expected = mapOf(
-            ReleaseNoticeAction.INSTALL_ANDROID to DocsLinks.page("getting_started", "android"),
-            ReleaseNoticeAction.INSTALL_IOS to DocsLinks.page("getting_started", "iphone-and-ipad"),
-            ReleaseNoticeAction.INSTALL_WINDOWS to DocsLinks.page("getting_started", "windows"),
-            ReleaseNoticeAction.INSTALL_MAC to DocsLinks.page("getting_started", "mac"),
-            ReleaseNoticeAction.INSTALL_LINUX to DocsLinks.page("getting_started", "linux"),
-            ReleaseNoticeAction.COMPUTER to DocsLinks.page("getting_started", "installation"),
+            ReleaseNoticeAction.INSTALL_ANDROID to DocsLink.GETTING_STARTED_ANDROID.url,
+            ReleaseNoticeAction.INSTALL_IOS to DocsLink.GETTING_STARTED_IPHONE_AND_IPAD.url,
+            ReleaseNoticeAction.INSTALL_WINDOWS to DocsLink.GETTING_STARTED_WINDOWS.url,
+            ReleaseNoticeAction.INSTALL_MAC to DocsLink.GETTING_STARTED_MAC.url,
+            ReleaseNoticeAction.INSTALL_LINUX to DocsLink.GETTING_STARTED_LINUX.url,
+            ReleaseNoticeAction.COMPUTER to DocsLink.GETTING_STARTED_INSTALLATION.url,
             ReleaseNoticeAction.VIDEO to TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0),
             ReleaseNoticeAction.WEBSITE to SiteLinks.HOME_URL,
         )

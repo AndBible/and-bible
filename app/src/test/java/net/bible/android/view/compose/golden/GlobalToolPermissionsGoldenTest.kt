@@ -5,7 +5,7 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermGroupVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
 import net.bible.sharedui.ai.ToolPermissionList
 import org.junit.Test
@@ -69,7 +69,7 @@ class GlobalToolPermissionsGoldenTest {
             onResetAll = {},
             onSave = {},
             helpBody = "Set default read/write permissions for AI tools across all prompts.",
-            helpReadMoreUrl = DocsLinks.page("ai", "setting-permissions"),
+            helpReadMoreUrl = DocsLink.AI_SETTING_PERMISSIONS.url,
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

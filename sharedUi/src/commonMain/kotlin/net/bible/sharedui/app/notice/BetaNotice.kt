@@ -18,7 +18,7 @@
 
 package net.bible.sharedui.app.notice
 
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -52,7 +52,7 @@ object BetaNotice {
     /** The public TestFlight beta; keep equal to `ios_beta_link` in website/content/en/site.yaml. */
     const val TESTFLIGHT_LINK = "https://testflight.apple.com/join/sB7guYsk"
     const val PLAY_BETA_LINK = "https://play.google.com/apps/testing/net.bible.android.activity"
-    val INSTALLATION_GUIDE_LINK: String = DocsLinks.page("getting_started", "installation")
+    val INSTALLATION_GUIDE_LINK: String = DocsLink.GETTING_STARTED_INSTALLATION.url
 
     /** Whether to show the notice: a beta build, not discrete, and this [ANNOUNCE_VERSION] not dismissed yet. */
     fun shouldShow(isBeta: Boolean, discrete: Boolean, dismissedVersion: Int): Boolean =
