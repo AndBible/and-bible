@@ -91,7 +91,11 @@ are searched by `Look up in dictionaries` in the text selection menu.
 ### Language, notes and theme
 
 - **Application language:** Choose the language for the application interface
-    (dialogs, menus, settings). On iOS, formatted numeric values such as module
+    (dialogs, menus, settings), including controls inside the reading view.
+    Indonesian and both Serbian scripts (Cyrillic and Latin) are supported there;
+    Simplified and Traditional Chinese use their corresponding translations.
+    Any text not yet translated into the selected language falls back to English.
+    On iOS, formatted numeric values such as module
     sizes use the selected language's decimal separator and digits (for example,
     `1,5 MB` in Finnish). The file-installation instructions and supported-format
     list also follow language changes without restarting the app.
