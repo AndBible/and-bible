@@ -132,16 +132,20 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 ## Final gate
 
-Choose the gate set from the diff (`docs/superpowers/CLAUDE.md`, "Gate selection") and run it once at
-HEAD after the last merge, **in parallel**:
+Gates are tiered (`docs/superpowers/CLAUDE.md`, "Gate selection"): children run only the short child gate, so the
+**batch gate is yours** and is the only place the full `:app` suite runs. Brief children with the child tier, not
+"full verify". Run the batch gate once at HEAD after the last merge, **in parallel**:
 
-- Start `:app:verifyRoborazziStandardGoogleplayDebug` (45-80 min, the long pole) first, in this container.
+- Start `:app:verifyRoborazziStandardGoogleplayDebug` (30-50 min, the long pole) first, in this container.
 - Run the light non-Gradle steps (Vue `test:ci`/`lint`/`type-check`, `make site site-check`) here at the
   same time.
 - Never run a second Gradle build in this checkout while verify runs (same build dirs and locks). Give the
-  other Gradle steps (`assembleStandardGithubDebug`, shared `jvmTest` + iOS compiles, desktop tests) to a
-  light child: a `fork` of HEAD with `--autostart-profile none`, a bounded command and "report the result,
-  change nothing". The host's cores are shared, so do this when the load allows.
+  other Gradle steps (`assembleStandardGithubDebug`, `compileStandardGoogleplayDebugAndroidTestKotlin`, the changed
+  shared `jvmTest`s + iOS compiles, desktop tests) to a light child: a `fork` of HEAD with `--autostart-profile none`,
+  a bounded command and "report the result, change nothing". The host's cores are shared, so do this when the load
+  allows.
+- A red only the full run shows: bisect it to the merged child (revert-test or `--tests` the suspects), fix in a new
+  child, rerun the batch gate.
 
 ## Finishing
 
