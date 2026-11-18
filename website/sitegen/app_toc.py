@@ -179,7 +179,7 @@ def render_strings(toc: Toc) -> str:
         raise ValueError("duplicate user guide resource keys")
     lines = [BEGIN]
     for key, title in entries:
-        value = escape(title.replace("\\", "\\\\").replace("'", "\\'"))
+        value = escape(title.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"'))
         lines.append(f'    <string name="{key}">{value}</string>')
     return "\n".join(lines + [END])
 

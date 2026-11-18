@@ -101,13 +101,13 @@ def test_every_toc_page_stem_is_a_published_docs_page():
 
 def test_generated_keys_and_android_xml_escaping(tmp_path):
     toml, docs, yaml_ = make_site(tmp_path)
-    (docs / "a.md").write_text("# Strong's & Backup\n")
+    (docs / "a.md").write_text('# Strong\'s & "Backup"\n')
     toc = app_toc.build(toml, docs, yaml_)
     assert toc.sections[0].key == "user_guide_section_basics"
     assert toc.sections[0].pages[0].key == "user_guide_page_a"
     assert toc.episode_titles["TUTORIAL_01_FIRST"].key == "tutorial_title_01_first"
     block = app_toc.render_strings(toc)
-    assert "Strong\\'s &amp; Backup" in block
+    assert 'Strong\\\'s &amp; \\"Backup\\"' in block
     keys = [s.key for s in toc.sections] + [p.key for s in toc.sections for p in s.pages] + [e.key for e in toc.episode_titles.values()]
     assert len(keys) == len(set(keys))
     assert all(block.count(f'name="{key}"') == 1 for key in keys)
