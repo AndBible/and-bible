@@ -55,6 +55,12 @@
   <string name="other">อื่นๆ</string>
   <string name="contact">ติดต่อ</string>
   <string name="help_and_tips">ความช่วยเหลือและเคล็ดลับ</string>
+  <string name="help_tab_tips">เคล็ดลับ</string>
+  <string name="help_tab_user_guide">คู่มือผู้ใช้</string>
+  <string name="help_user_guide_intro">คู่มือผู้ใช้ฉบับเต็มอยู่ที่ andbible.org หน้าต่าง ๆ จะเปิดในเบราว์เซอร์ของคุณ</string>
+  <string name="help_user_guide_home">หน้าแรกของคู่มือผู้ใช้</string>
+  <string name="help_tutorial_videos">วิดีโอสอนใช้งาน</string>
+  <string name="help_play_video">เล่นวิดีโอ: %1$s</string>
   <string name="administration">การจัดการ</string>
   <string name="rate_application">ให้คะแนนและรีวิว</string>
   <string name="chooce_document">เลือกเอกสาร</string>
@@ -129,12 +135,6 @@
   <string name="search_indexing_notification_title">กำลังสร้างดัชนีการค้นหา</string>
   <string name="choose_translations">เลือกฉบับแปล…</string>
   <string name="multi_search_count_summary">%1$s ใน %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="other">%1$d ข้อ</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="other">%1$d ฉบับแปล</item>
-  </plurals>
   <string name="search_index_not_created">ไม่มีดัชนี</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">เลขบทและข้อ</string>
@@ -143,6 +143,8 @@
   <string name="prefs_eink_mode_summary">ใช้แอปพลิเคชันในโหมดโมโนโครม (ไม่มีสี) เหมาะสำหรับอุปกรณ์ E-ink</string>
   <string name="prefs_display_color_mode_title">โหมดสี</string>
   <string name="prefs_display_color_mode_summary">เลือกวิธีแสดงสี โหมดขาวดำใช้เฉพาะสีดำและสีขาว สำหรับหน้าจออีอิงก์ โดยบุ๊กมาร์กที่ไฮไลต์จะแสดงเป็นตัวหนา อีอิงก์สีมีลักษณะคล้ายโหมดขาวดำ แต่ยังคงสีไฮไลต์และสีขีดเส้นใต้ของบุ๊กมาร์กไว้ — สำหรับหน้าจออีอิงก์สี</string>
+  <string name="prefs_use_system_colors_title">ใช้สีของระบบ (Material You)</string>
+  <string name="prefs_use_system_colors_summary">ใช้สีตามภาพพื้นหลังของคุณ สีของพื้นที่ทำงานและโหมดสีสำหรับ e-ink ยังคงมีความสำคัญกว่า</string>
   <string name="prefs_display_color_mode_normal">ปกติ</string>
   <string name="prefs_display_color_mode_bw">ขาวดำ</string>
   <string name="prefs_display_color_mode_monochrome">โมโนโครม</string>
@@ -314,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">ไม่พบคำในพจนานุกรมใดๆ</string>
   <string name="prefs_top_margin_title_mm">ขอบบน (%d มม.)</string>
   <string name="font_size_title">ขนาดตัวอักษร</string>
+  <string name="font_preview_verse">เพราะว่าพระเจ้าทรงรักโลก จนได้ทรงประทานพระบุตรองค์เดียวของพระองค์ เพื่อทุกคนที่เชื่อในพระบุตรนั้นจะไม่พินาศ แต่มีชีวิตนิรันดร์</string>
   <string name="font_size_title_pt">ขนาดตัวอักษร (%d pt)</string>
   <string name="prefs_font_text_size_summary">ปรับขนาดตัวอักษรของข้อความหลัก</string>
   <string name="pref_font_family_label_name">ตระกูลแบบอักษร (%s)</string>
@@ -385,7 +388,7 @@
   <string name="activity_empty">ไม่มีงานที่กำลังทำงาน</string>
   <string name="activity_failed_toast">%1$s — ดูในเมนู</string>
   <string name="download_question_title">ต้องการดาวน์โหลดเอกสารหรือไม่?</string>
-  <string name="download_question_message">หากคุณอาศัยอยู่ในประเทศที่มีการข่มเหงทางศาสนา คุณอาจต้องระมัดระวังในการดาวน์โหลดสื่อคริสเตียนผ่านอินเทอร์เน็ต แต่ควรหาไฟล์ zip ของโมดูลในวิธีที่ปลอดภัยกว่าแล้วติดตั้งผ่าน \"โหลดเอกสารจาก Zip\" คุณแน่ใจว่าต้องการดาวน์โหลดหรือไม่? การดาวน์โหลดทั้งหมดจากเซิร์ฟเวอร์โมดูลนั้นเข้ารหัส (HTTPS)</string>
+  <string name="download_question_message">หากคุณอาศัยอยู่ในประเทศที่มีการข่มเหง คุณอาจต้องระมัดระวังในการดาวน์โหลดเนื้อหาคริสเตียนผ่านอินเทอร์เน็ต คุณอาจต้องการรับไฟล์ zip ของโมดูลด้วยวิธีที่ปลอดภัยกว่า แล้วติดตั้งผ่าน \"%1$s\" คุณแน่ใจหรือไม่ว่าต้องการดาวน์โหลดต่อ? การดาวน์โหลดทั้งหมดจากเซิร์ฟเวอร์โมดูลถูกเข้ารหัส (HTTPS)</string>
   <string name="do_not_ask_again">ใช่ ไม่ต้องถามอีก</string>
   <string name="recommended_document">แนะนำ!</string>
   <string name="about_version_history">ประวัติเวอร์ชัน: %s</string>
@@ -406,6 +409,7 @@
   <string name="overwrite_files">ไฟล์ต่อไปนี้มีอยู่แล้ว: %s เขียนทับ?</string>
   <string name="overwrite_files_title">เขียนทับไฟล์?</string>
   <string name="could_not_overwrite_files">ไม่สามารถเขียนทับไฟล์: %s นอกจากนั้นการติดตั้งสำเร็จแล้ว</string>
+  <string name="module_backup_restore">ไฟล์นี้คือข้อมูลสำรองเอกสารของ AndBible คุณต้องการกู้คืนเอกสารในไฟล์นี้หรือไม่?</string>
   <string name="install_do_you_want">ต้องการติดตั้งโมดูล (%s) หรือไม่?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">แผนการอ่าน</string>
@@ -720,6 +724,7 @@
   <string name="all">ทั้งหมด</string>
   <string name="reset_generic">รีเซ็ต</string>
   <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
+  <string name="watch_tutorial_video_plain">ดูวิดีโอสอนใช้งาน</string>
   <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
   <!--Errors-->
   <string name="crash_recovery_continue">ดำเนินการต่อ</string>
@@ -1386,7 +1391,7 @@
   <string name="ai_settings">การตั้งค่า AI</string>
   <string name="ai_connection_settings">การตั้งค่าการเชื่อมต่อ</string>
   <string name="ai_setup_title">กำหนดค่า AI</string>
-  <string name="ai_setup_description">AndBible สามารถใช้ AI เพื่อแปลข้อพระคัมภีร์ อธิบายข้อความ สร้างบทสรุป และอื่นๆ หากต้องการเริ่มต้น โปรดกำหนดค่าการเชื่อมต่อกับผู้ให้บริการ API ที่รองรับ OpenAI</string>
+  <string name="ai_setup_description">AndBible สามารถใช้ AI เพื่อแปลข้อความพระคัมภีร์ อธิบายข้อพระคัมภีร์ สร้างสรุป และอื่น ๆ หากต้องการเริ่มต้น ให้ตั้งค่าการเชื่อมต่อกับผู้ให้บริการ AI เช่น OpenAI, Anthropic หรือ Google Gemini</string>
   <string name="ai_configure_button">กำหนดค่าการเชื่อมต่อ</string>
   <string name="ai_settings_shortcut_summary">การตั้งค่าการเชื่อมต่อ AI และพรอมต์</string>
   <string name="ai_provider_tier_recommended">แนะนำ</string>
@@ -2009,4 +2014,5 @@
   <string name="recommend_get_it">รับได้ที่นี่: %s</string>
   <string name="recommend_share_link">แชร์ลิงก์</string>
   <string name="recommend_qr_caption">สแกนเพื่อรับ AndBible สำหรับโทรศัพท์ แท็บเล็ต หรือคอมพิวเตอร์ของคุณ</string>
+  <string name="desktop_activation_failed">AndBible กำลังทำงานอยู่แล้ว แต่หน้าต่างไม่ตอบสนอง โปรดสลับไปยังอินสแตนซ์ที่กำลังทำงานอยู่แล้วลองอีกครั้ง ไฟล์ที่ส่งเข้ามาไม่ได้รับการยืนยันว่าส่งถึงแล้ว</string>
 </resources>

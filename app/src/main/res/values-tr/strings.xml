@@ -55,6 +55,12 @@
   <string name="other">Diğer</string>
   <string name="contact">İletişim</string>
   <string name="help_and_tips">Yardım &amp; ipuçları</string>
+  <string name="help_tab_tips">İpuçları</string>
+  <string name="help_tab_user_guide">Kullanım kılavuzu</string>
+  <string name="help_user_guide_intro">Kullanım kılavuzunun tamamı andbible.org adresindedir. Sayfalar tarayıcınızda açılır.</string>
+  <string name="help_user_guide_home">Kullanım kılavuzu ana sayfası</string>
+  <string name="help_tutorial_videos">Eğitim videoları</string>
+  <string name="help_play_video">Videoyu oynat: %1$s</string>
   <string name="administration">Yönetici</string>
   <string name="rate_application">Puanla &amp; Değerlendir</string>
   <string name="chooce_document">Belge Seç</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Arama dizini oluşturuluyor</string>
   <string name="choose_translations">Çeviriler seçin…</string>
   <string name="multi_search_count_summary">%2$s içinde %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d ayet</item>
-    <item quantity="other">%1$d ayet</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d çeviri</item>
-    <item quantity="other">%1$d çeviri</item>
-  </plurals>
   <string name="search_index_not_created">dizin yok</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Bölüm ve ayet rakamları</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Uygulamayı tek renk kipinde (renksiz) kullan, bu seçenek e-mürekkep cihazlar için daha uygundur.</string>
   <string name="prefs_display_color_mode_title">Renk modu</string>
   <string name="prefs_display_color_mode_summary">Renklerin nasıl görüntüleneceğini seçin. Tek renkli mod yalnızca siyah ve beyaz kullanır, e-mürekkep ekranlar içindir; vurgulanan yer imleri kalın gösterilir. Renkli e-mürekkep, Tek renkli moda benzer ancak yer imi vurgu ve altı çizili renklerini korur — renkli e-mürekkep ekranlar için.</string>
+  <string name="prefs_use_system_colors_title">Sistem renklerini kullan (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Duvar kağıdınızın renklerini izleyin. Çalışma alanı rengi ve e-ink renk modları yine de önceliklidir.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Siyah beyaz</string>
   <string name="prefs_display_color_mode_monochrome">Tek renkli</string>
@@ -318,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">Sözcük hiçbir sözlükte bulunamadı</string>
   <string name="prefs_top_margin_title_mm">Üst kenar boşluğu (%d mm)</string>
   <string name="font_size_title">Yazı tipi boyutu</string>
+  <string name="font_preview_verse">Çünkü Tanrı dünyayı o kadar çok sevdi ki, biricik Oğlu\'nu verdi; öyle ki, O\'na iman eden hiçbir kimse mahvolmasın, ama sonsuz yaşama sahip olsun.</string>
   <string name="font_size_title_pt">Yazı tipi boyutu (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ana metin için yazı tipi boyutunu ayarlayın</string>
   <string name="pref_font_family_label_name">Yazı tipi ailesi (%s)</string>
@@ -389,12 +390,7 @@
   <string name="activity_empty">Çalışan bir şey yok</string>
   <string name="activity_failed_toast">%1$s — menüye bakın</string>
   <string name="download_question_title">Belgeleri indirmeye devam etmek istiyor musunuz?</string>
-  <string name="download_question_message">Zulme uğradığınız bir ülkede yaşıyorsanız,
-    Hristiyan materyallerini İnternet üzerinden indirirken dikkatli olmanız gerekebilir.
-    Bunun yerine, modül zip dosyalarını daha güvenli bir şekilde ederek onları kurmak isteyebilirsiniz.
-    “Dosyalardan Belge Yükle” aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
-    Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).
-  </string>
+  <string name="download_question_message">Zulüm gören bir ülkede yaşıyorsanız, İnternet üzerinden Hristiyan içeriği indirirken dikkatli olmanız gerekebilir. Bunun yerine modül zip dosyalarını daha güvenli bir yolla edinip \"%1$s\" üzerinden yüklemek isteyebilirsiniz. İndirmeye devam etmek istediğinizden emin misiniz? Modül sunucularından yapılan tüm indirmeler şifrelidir (HTTPS).</string>
   <string name="do_not_ask_again">Evet, tekrar sorma</string>
   <string name="recommended_document">Tavsiye edilir!</string>
   <string name="about_version_history">Sürüm geçmişi: %s</string>
@@ -415,6 +411,7 @@
   <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s üzerine yazılsın mı?</string>
   <string name="overwrite_files_title">Dosyaların üzerine yazılsın mı?</string>
   <string name="could_not_overwrite_files">Dosyaların üzerine yazılamadı: %s. Bunun dışında yükleme başarılı oldu.</string>
+  <string name="module_backup_restore">Bu dosya bir AndBible belge yedeğidir. Belgelerini geri yüklemek istiyor musunuz?</string>
   <string name="install_do_you_want">Modül (%s) yüklemek istiyor musunuz?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
@@ -791,6 +788,7 @@
   <string name="all">Hepsi</string>
   <string name="reset_generic">Sıfırla</string>
   <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
+  <string name="watch_tutorial_video_plain">Eğitim videosunu izle</string>
   <string name="verse_not_found">Ayet bulunamadı</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Devam</string>
@@ -1540,7 +1538,7 @@
   <string name="ai_settings">Yapay Zeka Ayarları</string>
   <string name="ai_connection_settings">Bağlantı ayarları</string>
   <string name="ai_setup_title">Yapay Zekayı Yapılandır</string>
-  <string name="ai_setup_description">AndBible, Kutsal Kitap metnini çevirmek, ayetleri açıklamak, özetler oluşturmak ve daha fazlası için yapay zekayı kullanabilir. Başlamak için OpenAI uyumlu bir API sağlayıcısına bağlantı yapılandırın.</string>
+  <string name="ai_setup_description">AndBible, Kutsal Kitap metnini çevirmek, ayetleri açıklamak, özetler oluşturmak ve daha fazlası için yapay zekayı kullanabilir. Başlamak için OpenAI, Anthropic veya Google Gemini gibi bir yapay zeka sağlayıcısına bağlantı yapılandırın.</string>
   <string name="ai_configure_button">Bağlantıyı Yapılandır</string>
   <string name="ai_settings_shortcut_summary">Yapay zeka bağlantısı ve istem ayarları</string>
   <string name="ai_provider_tier_recommended">Önerilen</string>
@@ -2163,4 +2161,5 @@
   <string name="recommend_get_it">Buradan edinin: %s</string>
   <string name="recommend_share_link">Bağlantı paylaş</string>
   <string name="recommend_qr_caption">AndBible\'ı telefonunuz, tabletiniz veya bilgisayarınız için edinmek üzere tarayın.</string>
+  <string name="desktop_activation_failed">AndBible zaten çalışıyor, ancak penceresi yanıt vermedi. Çalışan örneğe geçip yeniden deneyin. Gelen dosyaların teslim edildiği doğrulanmadı.</string>
 </resources>

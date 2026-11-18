@@ -55,6 +55,12 @@
   <string name="other">Iné</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoc a tipy</string>
+  <string name="help_tab_tips">Tipy</string>
+  <string name="help_tab_user_guide">Používateľská príručka</string>
+  <string name="help_user_guide_intro">Úplná používateľská príručka je na andbible.org. Stránky sa otvoria vo vašom prehliadači.</string>
+  <string name="help_user_guide_home">Úvod príručky</string>
+  <string name="help_tutorial_videos">Videá s návodmi</string>
+  <string name="help_play_video">Prehrať video: %1$s</string>
   <string name="administration">Administrácia</string>
   <string name="rate_application">Ohodnotiť a recenzovať</string>
   <string name="chooce_document">Zvoliť dokument</string>
@@ -129,18 +135,6 @@
   <string name="search_indexing_notification_title">Vytváranie vyhľadávacieho indexu</string>
   <string name="choose_translations">Vyberte preklady…</string>
   <string name="multi_search_count_summary">%1$s v %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d verš</item>
-    <item quantity="few">%1$d verše</item>
-    <item quantity="many">%1$d verša</item>
-    <item quantity="other">%1$d veršov</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d preklade</item>
-    <item quantity="few">%1$d prekladoch</item>
-    <item quantity="many">%1$d preklade</item>
-    <item quantity="other">%1$d prekladoch</item>
-  </plurals>
   <string name="search_index_not_created">žiadny index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitola a číslo verša</string>
@@ -149,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Používať aplikáciu v monochromatickom režime (bez farieb), vďaka čomu je vhodnejšia pre zariadenia s elektronickým atramentom. </string>
   <string name="prefs_display_color_mode_title">Farebný režim</string>
   <string name="prefs_display_color_mode_summary">Vyberte, ako sa zobrazujú farby. Monochromatický režim používa iba čiernu a bielu pre e-ink obrazovky; zvýraznené záložky sa zobrazujú tučným písmom. Farebný e-ink vyzerá ako Monochromatický, ale zachováva farby zvýraznenia a podčiarknutia záložiek — pre farebné e-ink obrazovky.</string>
+  <string name="prefs_use_system_colors_title">Použiť systémové farby (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Nasleduje farby vašej tapety. Farba pracovného priestoru a farebné režimy pre e-ink majú stále prednosť.</string>
   <string name="prefs_display_color_mode_normal">Normálny</string>
   <string name="prefs_display_color_mode_bw">Čiernobiely</string>
   <string name="prefs_display_color_mode_monochrome">Monochromatický</string>
@@ -322,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">Slovo sa nenašlo v žiadnom slovníku</string>
   <string name="prefs_top_margin_title_mm">Horný okraj (%d mm)</string>
   <string name="font_size_title">Veľkosť písmen</string>
+  <string name="font_preview_verse">Lebo Boh tak miloval svet, že dal svojho jednorodeného Syna, aby nezahynul nik, kto verí v neho, ale mal večný život.</string>
   <string name="font_size_title_pt">Veľkosť písmen (%d pt)</string>
   <string name="prefs_font_text_size_summary">Upraviť hlavnú veľkosť písmen</string>
   <string name="pref_font_family_label_name">Typ písma (%s)</string>
@@ -393,12 +390,7 @@
   <string name="activity_empty">Nič nebeží</string>
   <string name="activity_failed_toast">%1$s — pozri ponuku</string>
   <string name="download_question_title">Chcete pokračovať v sťahovaní dokumentov? </string>
-  <string name="download_question_message">Ak žijete v krajine, kde je prenasledovanie,
-    možno budete musieť dávať pozor na sťahovanie kresťanského materiálu cez internet. 
-    Namiesto toho môžete chcieť získať moduly bezpečnejšie  ako súbory zip
-    a nainštalovať ich prostredníctvom „Načítať Dokument z archívu ZIP“. Naozaj chcete pokračovať v sťahovaní?
-    Všetky sťahovania z modulových serverov sú šifrované (HTTPS).
-</string>
+  <string name="download_question_message">Ak žijete v krajine, kde sú kresťania prenasledovaní, mali by ste byť opatrní pri sťahovaní kresťanského materiálu cez internet. Možno by ste radšej chceli získať zip súbory modulov bezpečnejšie a nainštalovať ich cez \"%1$s\". Naozaj chcete pokračovať v sťahovaní? Všetky sťahovania zo serverov modulov sú šifrované (HTTPS).</string>
   <string name="do_not_ask_again">Áno, už sa viac nepýtať</string>
   <string name="recommended_document">Odporúčané!</string>
   <string name="about_version_history">História verzií: %s</string>
@@ -419,6 +411,7 @@
   <string name="overwrite_files">Nasledujúce súbory už existujú: %s Prepísať ich?</string>
   <string name="overwrite_files_title">Prepísať súbory? </string>
   <string name="could_not_overwrite_files">Nie je možné prepísať súbory: %s. Okrem toho bola inštalácia úspešná.</string>
+  <string name="module_backup_restore">Tento súbor je záloha dokumentov AndBible. Chcete obnoviť jej dokumenty?</string>
   <string name="install_do_you_want">Chcete nainštalovať modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
@@ -791,6 +784,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="all">Všetko</string>
   <string name="reset_generic">Resetovať</string>
   <string name="watch_tutorial_video">Pozri si ukážkové video (Anglicky)</string>
+  <string name="watch_tutorial_video_plain">Pozrieť video s návodom</string>
   <string name="verse_not_found">Verš nebol nájdený</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Pokračovať</string>
@@ -1539,7 +1533,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="ai_settings">Nastavenia AI</string>
   <string name="ai_connection_settings">Nastavenia pripojenia</string>
   <string name="ai_setup_title">Nastaviť AI</string>
-  <string name="ai_setup_description">AndBible môže využívať AI na preklad biblického textu, vysvetľovanie veršov, vytváranie zhrnutí a ďalšie funkcie. Začnite nastavením pripojenia k poskytovateľovi API kompatibilného s OpenAI.</string>
+  <string name="ai_setup_description">AndBible dokáže pomocou AI prekladať text Biblie, vysvetľovať verše, vytvárať zhrnutia a ďalšie. Na začiatok nastavte pripojenie k poskytovateľovi AI, napríklad OpenAI, Anthropic alebo Google Gemini.</string>
   <string name="ai_configure_button">Nastaviť pripojenie</string>
   <string name="ai_settings_shortcut_summary">Nastavenia AI pripojenia a promptov</string>
   <string name="ai_provider_tier_recommended">Odporúčané</string>
@@ -2162,4 +2156,5 @@ Režim opakovania bol vypnutý, pretože
   <string name="recommend_get_it">Stiahni si ju tu: %s</string>
   <string name="recommend_share_link">Zdieľať odkaz</string>
   <string name="recommend_qr_caption">Naskenujte a získajte AndBible pre telefón, tablet alebo počítač.</string>
+  <string name="desktop_activation_failed">AndBible už beží, ale jeho okno neodpovedalo. Prepnite sa na bežiacu inštanciu a skúste to znova. Prichádzajúce súbory neboli potvrdené ako doručené.</string>
 </resources>

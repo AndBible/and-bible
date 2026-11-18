@@ -55,6 +55,12 @@
   <string name="other">Altro</string>
   <string name="contact">Contatti</string>
   <string name="help_and_tips">Aiuto e suggerimenti</string>
+  <string name="help_tab_tips">Suggerimenti</string>
+  <string name="help_tab_user_guide">Guida utente</string>
+  <string name="help_user_guide_intro">La guida utente completa è su andbible.org. Le pagine si aprono nel browser.</string>
+  <string name="help_user_guide_home">Home della guida utente</string>
+  <string name="help_tutorial_videos">Video tutorial</string>
+  <string name="help_play_video">Riproduci video: %1$s</string>
   <string name="administration">Amministrazione </string>
   <string name="rate_application">Vota e recensisci</string>
   <string name="chooce_document">Scegli un documento</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Creazione dell\'indice di ricerca</string>
   <string name="choose_translations">Scegli traduzioni…</string>
   <string name="multi_search_count_summary">%1$s in %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d versetto</item>
-    <item quantity="many">%1$d di versetti</item>
-    <item quantity="other">%1$d versetti</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traduzione</item>
-    <item quantity="many">%1$d di traduzioni</item>
-    <item quantity="other">%1$d traduzioni</item>
-  </plurals>
   <string name="search_index_not_created">nessun indice</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeri di capitolo e versetto</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
   <string name="prefs_display_color_mode_title">Modalità colore</string>
   <string name="prefs_display_color_mode_summary">Scegli come vengono visualizzati i colori. Monocromatico usa solo bianco e nero, per gli schermi e-ink; i segnalibri evidenziati sono mostrati in grassetto. E-ink a colori è simile a Monocromatico ma mantiene i colori di evidenziazione e sottolineatura dei segnalibri — per gli schermi e-ink a colori.</string>
+  <string name="prefs_use_system_colors_title">Usa i colori di sistema (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Segui i colori dello sfondo. Il colore dello spazio di lavoro e le modalità colore e-ink hanno comunque la precedenza.</string>
   <string name="prefs_display_color_mode_normal">Normale</string>
   <string name="prefs_display_color_mode_bw">Bianco e nero</string>
   <string name="prefs_display_color_mode_monochrome">Monocromatico</string>
@@ -318,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Parola non trovata in nessun dizionario</string>
   <string name="prefs_top_margin_title_mm">Margine superiore (%d mm)</string>
   <string name="font_size_title">Dimensione del carattere</string>
+  <string name="font_preview_verse">Poiché Dio ha tanto amato il mondo, che ha dato il suo unigenito Figliuolo, affinché chiunque crede in lui non perisca, ma abbia vita eterna.</string>
   <string name="font_size_title_pt">Dimensione carattere (%d pt)</string>
   <string name="prefs_font_text_size_summary">Cambia la dimensione del carattere principale</string>
   <string name="pref_font_family_label_name">Famiglia di carattere (%s)</string>
@@ -389,7 +388,7 @@
   <string name="activity_empty">Niente in corso</string>
   <string name="activity_failed_toast">%1$s — vedi il menu</string>
   <string name="download_question_title">Vuoi procedere con lo scaricamento dei documenti?</string>
-  <string name="download_question_message">Se vivi in un paese perseguitato, potrebbe essere necessario fare attenzione a scaricare materiale cristiano via Internet. Invece, potresti voler ottenere i file zip dei moduli in modo più sicuro e installarli tramite \"Carica documenti dallo zip\". Sei sicuro di voler procedere con il download? Tutti i download dai server dei moduli sono criptati (HTTPS).</string>
+  <string name="download_question_message">Se vivi in un paese in cui i cristiani sono perseguitati, potresti dover fare attenzione a scaricare materiale cristiano via Internet. Potresti invece voler ottenere i file zip dei moduli in modo più sicuro e installarli tramite \"%1$s\". Sei sicuro di voler procedere con il download? Tutti i download dai server dei moduli sono crittografati (HTTPS).</string>
   <string name="do_not_ask_again">Sì, non chiedere più</string>
   <string name="recommended_document">Consigliato!</string>
   <string name="about_version_history">Cronologia delle versioni: %s</string>
@@ -410,6 +409,7 @@
   <string name="overwrite_files">Esistono già i seguenti file: %s Sovrascrivi?</string>
   <string name="overwrite_files_title">Sovrascrivi file?</string>
   <string name="could_not_overwrite_files">Impossibile sovrascrivere i file: %s. A parte questo, l\'installazione è andata a buon fine.</string>
+  <string name="module_backup_restore">Questo file è un backup dei documenti di AndBible. Vuoi ripristinarne i documenti?</string>
   <string name="install_do_you_want">Vuoi installare il modulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Piano di lettura</string>
@@ -757,6 +757,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="all">Tutto</string>
   <string name="reset_generic">Ripristina</string>
   <string name="watch_tutorial_video">Guarda il video tutorial (inglese)</string>
+  <string name="watch_tutorial_video_plain">Guarda il video tutorial</string>
   <string name="verse_not_found">Versetto non trovato</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Continua</string>
@@ -1489,7 +1490,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="ai_settings">Impostazioni IA</string>
   <string name="ai_connection_settings">Impostazioni di connessione</string>
   <string name="ai_setup_title">Configura IA</string>
-  <string name="ai_setup_description">AndBible può usare l\'IA per tradurre il testo biblico, spiegare versetti, creare riepiloghi e altro ancora. Per iniziare, configura una connessione a un fornitore API compatibile con OpenAI.</string>
+  <string name="ai_setup_description">AndBible può usare l\'IA per tradurre il testo biblico, spiegare i versetti, creare riassunti e altro. Per iniziare, configura una connessione a un fornitore di IA, come OpenAI, Anthropic o Google Gemini.</string>
   <string name="ai_configure_button">Configura connessione</string>
   <string name="ai_settings_shortcut_summary">Impostazioni di connessione e prompt IA</string>
   <string name="ai_provider_tier_recommended">Consigliato</string>
@@ -2112,4 +2113,5 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="recommend_get_it">Scaricala qui: %s</string>
   <string name="recommend_share_link">Condividi un link</string>
   <string name="recommend_qr_caption">Inquadra il codice per ottenere AndBible sul tuo telefono, tablet o computer.</string>
+  <string name="desktop_activation_failed">AndBible è già in esecuzione, ma la sua finestra non ha risposto. Passa all\'istanza in esecuzione e riprova. Non è stato confermato che i file in arrivo siano stati consegnati.</string>
 </resources>

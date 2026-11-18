@@ -55,6 +55,12 @@
   <string name="other">Andet</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hjælp og tips</string>
+  <string name="help_tab_tips">Tips</string>
+  <string name="help_tab_user_guide">Brugervejledning</string>
+  <string name="help_user_guide_intro">Den fulde brugervejledning findes på andbible.org. Siderne åbnes i din browser.</string>
+  <string name="help_user_guide_home">Forside for brugervejledningen</string>
+  <string name="help_tutorial_videos">Instruktionsvideoer</string>
+  <string name="help_play_video">Afspil video: %1$s</string>
   <string name="administration">Administration</string>
   <string name="rate_application">Bedøm og anmeld</string>
   <string name="chooce_document">Vælg dokument</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Opretter søgeindeks</string>
   <string name="choose_translations">Vælg oversættelser…</string>
   <string name="multi_search_count_summary">%1$s i %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="other">%1$d vers</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d oversættelse</item>
-    <item quantity="other">%1$d oversættelser</item>
-  </plurals>
   <string name="search_index_not_created">intet indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- og versnumre</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Brug programmet i monokrom tilstand (ingen farver), hvilket gør det mere egnet til e-ink-enheder.</string>
   <string name="prefs_display_color_mode_title">Farvetilstand</string>
   <string name="prefs_display_color_mode_summary">Vælg, hvordan farver vises. Monokrom bruger kun sort og hvid, til e-ink-skærme; fremhævede bogmærker vises med fed skrift. Farve-e-ink ligner Monokrom, men bevarer bogmærkers fremhævnings- og understregningsfarver — til farve-e-ink-skærme.</string>
+  <string name="prefs_use_system_colors_title">Brug systemfarver (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Følg farverne i dit baggrundsbillede. En arbejdsområdefarve og e-ink-farvetilstandene har stadig forrang.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Sort-hvid</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Ordet blev ikke fundet i nogen ordbog</string>
   <string name="prefs_top_margin_title_mm">Øverste margen (%d mm)</string>
   <string name="font_size_title">Skriftstørrelse</string>
+  <string name="font_preview_verse">Thi så højt har Gud elsket verden, at han gav sin enbårne Søn, for at hver den, som tror på ham, ikke skal fortabes, men have evigt liv.</string>
   <string name="font_size_title_pt">Skriftstørrelse (%d pt)</string>
   <string name="prefs_font_text_size_summary">Justér skriftstørrelsen for hovedteksten</string>
   <string name="pref_font_family_label_name">Skriftfamilie (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">Intet kører</string>
   <string name="activity_failed_toast">%1$s — se menuen</string>
   <string name="download_question_title">Vil du fortsætte med at hente dokumenter?</string>
-  <string name="download_question_message">Hvis du bor i et land med religiøs forfølgelse, skal du muligvis være forsigtig med at hente kristent materiale via internettet. I stedet kan du skaffe modul-zip-filer på en mere sikker måde og installere dem via \"Indlæs dokumenter fra Zip\". Er du sikker på, at du vil fortsætte med at hente? Alle downloads fra modulservere er krypterede (HTTPS).</string>
+  <string name="download_question_message">Hvis du bor i et land med kristenforfølgelse, bør du være forsigtig med at downloade kristent materiale via internettet. I stedet kan du hente modulernes zip-filer på en mere sikker måde og installere dem via \"%1$s\". Er du sikker på, at du vil fortsætte med at downloade? Alle downloads fra modulservere er krypterede (HTTPS).</string>
   <string name="do_not_ask_again">Ja, spørg ikke mere</string>
   <string name="recommended_document">Anbefalet!</string>
   <string name="about_version_history">Versionshistorik: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">Følgende filer eksisterer allerede: %s Overskriv?</string>
   <string name="overwrite_files_title">Overskriv filer?</string>
   <string name="could_not_overwrite_files">Kunne ikke overskrive filer: %s. Bortset fra det lykkedes installationen.</string>
+  <string name="module_backup_restore">Denne fil er en sikkerhedskopi af AndBible-dokumenter. Vil du gendanne dokumenterne?</string>
   <string name="install_do_you_want">Vil du installere modulet (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Læseplan</string>
@@ -722,6 +724,7 @@
   <string name="all">Alle</string>
   <string name="reset_generic">Nulstil</string>
   <string name="watch_tutorial_video">Se vejledningsvideo (engelsk)</string>
+  <string name="watch_tutorial_video_plain">Se instruktionsvideo</string>
   <string name="verse_not_found">Vers ikke fundet</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Fortsæt</string>
@@ -1388,7 +1391,7 @@
   <string name="ai_settings">AI-indstillinger</string>
   <string name="ai_connection_settings">Forbindelsesindstillinger</string>
   <string name="ai_setup_title">Konfigurér AI</string>
-  <string name="ai_setup_description">AndBible kan bruge AI til at oversætte bibeltekst, forklare vers, oprette resuméer og meget mere. For at komme i gang skal du konfigurere en forbindelse til en OpenAI-kompatibel API-udbyder.</string>
+  <string name="ai_setup_description">AndBible kan bruge AI til at oversætte bibeltekst, forklare vers, lave resuméer og meget mere. For at komme i gang skal du konfigurere en forbindelse til en AI-udbyder, f.eks. OpenAI, Anthropic eller Google Gemini.</string>
   <string name="ai_configure_button">Konfigurér forbindelse</string>
   <string name="ai_settings_shortcut_summary">AI-forbindelses- og promptindstillinger</string>
   <string name="ai_provider_tier_recommended">Anbefalet</string>
@@ -2011,4 +2014,5 @@
   <string name="recommend_get_it">Hent den her: %s</string>
   <string name="recommend_share_link">Del et link</string>
   <string name="recommend_qr_caption">Scan for at hente AndBible til din telefon, tablet eller computer.</string>
+  <string name="desktop_activation_failed">AndBible kører allerede, men vinduet svarede ikke. Skift til den kørende instans, og prøv igen. Det blev ikke bekræftet, at indkommende filer blev afleveret.</string>
 </resources>

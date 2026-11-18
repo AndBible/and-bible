@@ -55,6 +55,12 @@
   <string name="other">Ander</string>
   <string name="contact">Kontak</string>
   <string name="help_and_tips">Hulp &amp; wenke</string>
+  <string name="help_tab_tips">Wenke</string>
+  <string name="help_tab_user_guide">Gebruikersgids</string>
+  <string name="help_user_guide_intro">Die volledige gebruikersgids is op andbible.org. Bladsye maak in jou blaaier oop.</string>
+  <string name="help_user_guide_home">Gebruikersgids tuisblad</string>
+  <string name="help_tutorial_videos">Handleidingvideo\'s</string>
+  <string name="help_play_video">Speel video: %1$s</string>
   <string name="administration">Administrasie</string>
   <string name="rate_application">Beoordeel &amp; hersien</string>
   <string name="chooce_document">Kies Dokument</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Skep soekindeks</string>
   <string name="choose_translations">Kies vertalings…</string>
   <string name="multi_search_count_summary">%1$s in %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="other">%1$d verse</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d vertaling</item>
-    <item quantity="other">%1$d vertalings</item>
-  </plurals>
   <string name="search_index_not_created">geen indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Gebruik die toep in monochroom-modus (geen kleure nie), wat dit meer geskik maak vir E-ink-toestelle.</string>
   <string name="prefs_display_color_mode_title">Kleurmodus</string>
   <string name="prefs_display_color_mode_summary">Kies hoe kleure vertoon word. Monochroom gebruik slegs swart en wit, vir e-ink-skerms; gemerkte boekmerke word vetgedruk gewys. Kleur-e-ink lyk soos Monochroom, maar behou die kleure van boekmerkopligting en onderstreping — vir kleur-e-ink-skerms.</string>
+  <string name="prefs_use_system_colors_title">Gebruik stelselkleure (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Volg die kleure van jou muurpapier. \'n Werkspasiekleur en die e-ink-kleurmodusse geniet steeds voorrang.</string>
   <string name="prefs_display_color_mode_normal">Normaal</string>
   <string name="prefs_display_color_mode_bw">Swart en wit</string>
   <string name="prefs_display_color_mode_monochrome">Monochroom</string>
@@ -318,6 +318,7 @@ Woordafbreking</string>
   <string name="word_not_found_in_dictionaries">Woord nie in enige woordeboek gevind nie</string>
   <string name="prefs_top_margin_title_mm">Boonste kantlyn (%d mm)</string>
   <string name="font_size_title">Skrif grootte</string>
+  <string name="font_preview_verse">Want so lief het God die wêreld gehad dat Hy sy eniggebore Seun gegee het, sodat elkeen wat in Hom glo, nie verlore mag gaan nie, maar die ewige lewe kan hê.</string>
   <string name="font_size_title_pt">Skrif grootte (%dpt)</string>
   <string name="prefs_font_text_size_summary">Verstel hoof teks skrif grootte</string>
   <string name="pref_font_family_label_name">Skrif familie (%s)</string>
@@ -389,11 +390,7 @@ Woordafbreking</string>
   <string name="activity_empty">Niks loop nie</string>
   <string name="activity_failed_toast">%1$s — sien kieslys</string>
   <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
-  <string name="download_question_message">As u in \'n vervolgde land woon,
-moet jy miskien versigtig wees met die aflaai van Christelike materiaal via die internet.
-In plaas daarvan wil u miskien \'n zip-lêer van die module veiliger bekom en installeer
-via \"Laai dokumente vanaf zip\". Is jy seker dat jy wil voortgaan met die aflaai?
-Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
+  <string name="download_question_message">As jy in \'n land woon waar Christene vervolg word, moet jy dalk versigtig wees om Christelike materiaal oor die internet af te laai. In plaas daarvan wil jy dalk modulesip-lêers veiliger bekom en dit installeer via \"%1$s\". Is jy seker jy wil voortgaan met aflaai? Alle aflaaie vanaf modulebedieners is geënkripteer (HTTPS).</string>
   <string name="do_not_ask_again">Ja, moenie meer vra nie</string>
   <string name="recommended_document">Aanbeveel!</string>
   <string name="about_version_history">Weergawe geskiedenis:%s</string>
@@ -414,6 +411,7 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="overwrite_files">Volgende lêers bestaan reeds%s Oorskryf?</string>
   <string name="overwrite_files_title">Oorskryf lêers?</string>
   <string name="could_not_overwrite_files">Kon nie lêers oorheers nie: %s Afgesien daarvan was die installasie suksesvol.</string>
+  <string name="module_backup_restore">Hierdie lêer is \'n AndBible-dokumenterugskrif. Wil jy sy dokumente herstel?</string>
   <string name="install_do_you_want">Wil jy module installeer (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lees Plan</string>
@@ -773,6 +771,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="all">Alles</string>
   <string name="reset_generic">Herstel</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
+  <string name="watch_tutorial_video_plain">Kyk handleidingvideo</string>
   <string name="verse_not_found">Vers nie gevind</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Gaan voort</string>
@@ -1496,7 +1495,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_settings">KI-instellings</string>
   <string name="ai_connection_settings">Verbindingsinstellings</string>
   <string name="ai_setup_title">Stel KI op</string>
-  <string name="ai_setup_description">AndBible kan KI gebruik om Bybelteks te vertaal, verse te verduidelik, opsommings te skep, en meer. Om te begin, stel \'n verbinding in met \'n OpenAI-versoenbare API-verskaffer.</string>
+  <string name="ai_setup_description">AndBible kan KI gebruik om Bybelteks te vertaal, verse te verduidelik, opsommings te skep, en meer. Om te begin, stel \'n verbinding met \'n KI-verskaffer op, soos OpenAI, Anthropic of Google Gemini.</string>
   <string name="ai_configure_button">Stel verbinding op</string>
   <string name="ai_settings_shortcut_summary">KI-verbinding en opdraginstellings</string>
   <string name="ai_provider_tier_recommended">Aanbeveel</string>
@@ -2119,4 +2118,5 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="recommend_get_it">Kry dit hier: %s</string>
   <string name="recommend_share_link">Deel \'n skakel</string>
   <string name="recommend_qr_caption">Skandeer om AndBible vir jou foon, tablet of rekenaar te kry.</string>
+  <string name="desktop_activation_failed">AndBible loop reeds, maar sy venster het nie gereageer nie. Skakel oor na die lopende instansie en probeer weer. Inkomende lêers is nie as afgelewer bevestig nie.</string>
 </resources>

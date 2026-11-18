@@ -55,6 +55,12 @@
   <string name="other">Ostatní</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Nápověda a tipy</string>
+  <string name="help_tab_tips">Tipy</string>
+  <string name="help_tab_user_guide">Uživatelská příručka</string>
+  <string name="help_user_guide_intro">Úplná uživatelská příručka je na andbible.org. Stránky se otevírají v prohlížeči.</string>
+  <string name="help_user_guide_home">Úvodní stránka příručky</string>
+  <string name="help_tutorial_videos">Výuková videa</string>
+  <string name="help_play_video">Přehrát video: %1$s</string>
   <string name="administration">Správa</string>
   <string name="rate_application">Ohodnotit a recenzovat</string>
   <string name="chooce_document">Vybrat dokument</string>
@@ -129,18 +135,6 @@
   <string name="search_indexing_notification_title">Vytváření vyhledávacího indexu</string>
   <string name="choose_translations">Vybrat překlady…</string>
   <string name="multi_search_count_summary">%1$s v %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d verš</item>
-    <item quantity="few">%1$d verše</item>
-    <item quantity="many">%1$d verše</item>
-    <item quantity="other">%1$d veršů</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d překlad</item>
-    <item quantity="few">%1$d překlady</item>
-    <item quantity="many">%1$d překladu</item>
-    <item quantity="other">%1$d překladů</item>
-  </plurals>
   <string name="search_index_not_created">žádný index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitoly a čísla veršů</string>
@@ -149,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Používat monochromatické zobrazení (bez barev), usnadňuje čtení na zařízeních s E-ink displayem.</string>
   <string name="prefs_display_color_mode_title">Barevný režim</string>
   <string name="prefs_display_color_mode_summary">Zvolte, jak se zobrazují barvy. Monochromatický režim používá pouze černou a bílou pro obrazovky e-ink; zvýrazněné záložky se zobrazují tučně. Barevný e-ink vypadá jako monochromatický, ale zachovává barvy zvýraznění a podtržení záložek – pro barevné obrazovky e-ink.</string>
+  <string name="prefs_use_system_colors_title">Používat systémové barvy (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Řídit se barvami vaší tapety. Barva pracovní plochy a barevné režimy pro e-ink mají stále přednost.</string>
   <string name="prefs_display_color_mode_normal">Normální</string>
   <string name="prefs_display_color_mode_bw">Černobílý</string>
   <string name="prefs_display_color_mode_monochrome">Monochromatický</string>
@@ -320,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Slovo nebylo nalezeno v žádném slovníku</string>
   <string name="prefs_top_margin_title_mm">Horní okraj (%d mm)</string>
   <string name="font_size_title">Velikost písma</string>
+  <string name="font_preview_verse">Neboť tak Bůh miloval svět, že dal svého jednorozeného Syna, aby žádný, kdo v něho věří, nezahynul, ale měl život věčný.</string>
   <string name="font_size_title_pt">Velikost písma (%d bodů)</string>
   <string name="prefs_font_text_size_summary">Nastavení velikosti hlavního písma</string>
   <string name="pref_font_family_label_name">Typ písma (%s)</string>
@@ -391,10 +388,7 @@
   <string name="activity_empty">Nic neprobíhá</string>
   <string name="activity_failed_toast">%1$s — viz nabídka</string>
   <string name="download_question_title">Chcete přistoupit ke stažení dokumentů?</string>
-  <string name="download_question_message">Pokud žijete v nedemokratické zemi,
-měli byste být opatrní při stahování křesťanského obsahu z internetu.
-Pokud je tomu tak, zvažte použití instalace pomocí ZIP souboru. Opravdu chcete pokračovat?
-Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
+  <string name="download_question_message">Pokud žijete v zemi, kde jsou křesťané pronásledováni, možná byste měli být opatrní při stahování křesťanských materiálů přes internet. Místo toho můžete získat zip soubory modulů bezpečnějším způsobem a nainstalovat je pomocí \"%1$s\". Opravdu chcete pokračovat ve stahování? Všechna stahování ze serverů modulů jsou šifrována (HTTPS).</string>
   <string name="do_not_ask_again">Ano, již se nedotazovat</string>
   <string name="recommended_document">Doporučujeme!</string>
   <string name="about_version_history">Přehled změn: %s</string>
@@ -415,6 +409,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="overwrite_files">Následující soubory již existují: %s Přepsat?</string>
   <string name="overwrite_files_title">Přepsat soubory?</string>
   <string name="could_not_overwrite_files">Nelze přesat soubory: %s. Kromě toho byla instalace úspěšná.</string>
+  <string name="module_backup_restore">Tento soubor je záloha dokumentů AndBible. Chcete obnovit její dokumenty?</string>
   <string name="install_do_you_want">Chcete instalovat modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
@@ -787,6 +782,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="all">Vše</string>
   <string name="reset_generic">Resetovat</string>
   <string name="watch_tutorial_video">Instruktážní video (Angličtina)</string>
+  <string name="watch_tutorial_video_plain">Sledovat výukové video</string>
   <string name="verse_not_found">Verš nebyl nalezen</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Pokračovat</string>
@@ -1535,7 +1531,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_settings">Nastavení AI</string>
   <string name="ai_connection_settings">Nastavení připojení</string>
   <string name="ai_setup_title">Konfigurovat AI</string>
-  <string name="ai_setup_description">AndBible může pomocí AI překládat text Bible, vysvětlovat verše, vytvářet souhrny a mnoho dalšího. Chcete-li začít, nakonfigurujte připojení k poskytovateli API kompatibilnímu s OpenAI.</string>
+  <string name="ai_setup_description">AndBible může pomocí AI překládat text Bible, vysvětlovat verše, vytvářet shrnutí a další. Pro začátek nastavte připojení k poskytovateli AI, například OpenAI, Anthropic nebo Google Gemini.</string>
   <string name="ai_configure_button">Konfigurovat připojení</string>
   <string name="ai_settings_shortcut_summary">Nastavení připojení AI a výzev</string>
   <string name="ai_provider_tier_recommended">Doporučeno</string>
@@ -2158,4 +2154,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="recommend_get_it">Získáte ji zde: %s</string>
   <string name="recommend_share_link">Sdílet odkaz</string>
   <string name="recommend_qr_caption">Naskenujte a získejte AndBible pro telefon, tablet nebo počítač.</string>
+  <string name="desktop_activation_failed">AndBible již běží, ale jeho okno nereagovalo. Přepněte se na běžící instanci a zkuste to znovu. Příchozí soubory nebyly potvrzeny jako doručené.</string>
 </resources>

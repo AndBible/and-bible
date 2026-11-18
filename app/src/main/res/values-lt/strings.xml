@@ -55,6 +55,12 @@
   <string name="other">Kita</string>
   <string name="contact">Kontaktas</string>
   <string name="help_and_tips">Pagalba ir patarimai</string>
+  <string name="help_tab_tips">Patarimai</string>
+  <string name="help_tab_user_guide">Vartotojo vadovas</string>
+  <string name="help_user_guide_intro">Visas vartotojo vadovas yra svetainėje andbible.org. Puslapiai atidaromi naršyklėje.</string>
+  <string name="help_user_guide_home">Vartotojo vadovo pradžia</string>
+  <string name="help_tutorial_videos">Mokomieji vaizdo įrašai</string>
+  <string name="help_play_video">Leisti vaizdo įrašą: %1$s</string>
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
@@ -129,18 +135,6 @@
   <string name="search_indexing_notification_title">Kuriamas paieškos indeksas</string>
   <string name="choose_translations">Pasirinkti vertimus…</string>
   <string name="multi_search_count_summary">%1$s, %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d eilutė</item>
-    <item quantity="few">%1$d eilutės</item>
-    <item quantity="many">%1$d eilutės</item>
-    <item quantity="other">%1$d eilučių</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d vertimas</item>
-    <item quantity="few">%1$d vertimai</item>
-    <item quantity="many">%1$d vertimo</item>
-    <item quantity="other">%1$d vertimų</item>
-  </plurals>
   <string name="search_index_not_created">indeksas nesukurtas</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
@@ -149,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotame režime (be spalvų), taip paverčiant ją labiau tinkama elektroninio popieriaus įrenginiams.</string>
   <string name="prefs_display_color_mode_title">Spalvų režimas</string>
   <string name="prefs_display_color_mode_summary">Pasirinkite, kaip rodomos spalvos. Vienspalvis režimas naudoja tik juodą ir baltą spalvas, skirtas e-rašalo ekranams; paryškinti žymekliai rodomi pusjuodžiu šriftu. Spalvotas e-rašalas atrodo kaip vienspalvis režimas, bet išsaugo žymeklių paryškinimo ir pabraukimo spalvas – skirta spalvotiems e-rašalo ekranams.</string>
+  <string name="prefs_use_system_colors_title">Naudoti sistemos spalvas (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Sekti darbalaukio fono spalvas. Darbo srities spalva ir e-ink spalvų režimai vis tiek turi pirmenybę.</string>
   <string name="prefs_display_color_mode_normal">Normalus</string>
   <string name="prefs_display_color_mode_bw">Juoda ir balta</string>
   <string name="prefs_display_color_mode_monochrome">Vienspalvis</string>
@@ -320,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Žodis nerastas nei viename žodyne</string>
   <string name="prefs_top_margin_title_mm">Viršutinė paraštė (%d mm)</string>
   <string name="font_size_title">Šrifto dydis</string>
+  <string name="font_preview_verse">Nes Dievas taip pamilo pasaulį, kad atidavė savo viengimį Sūnų, jog kiekvienas, kuris Jį tiki, nebūtų pražuvęs, bet turėtų amžinąjį gyvenimą.</string>
   <string name="font_size_title_pt">Šrifto dydis (%d tšk.)</string>
   <string name="prefs_font_text_size_summary">Reguliuoti pagrindinio teksto šrifto dydį</string>
   <string name="pref_font_family_label_name">Šriftas (%s)</string>
@@ -391,10 +388,7 @@
   <string name="activity_empty">Nieko nevykdoma</string>
   <string name="activity_failed_toast">%1$s — žr. meniu</string>
   <string name="download_question_title">Ar norite tęsti dokumentų atsisiuntimą?</string>
-  <string name="download_question_message">Jei gyvenate šalyje, kurioje persekioja už tikėjimą,
-     jums reikėtų gerai pagalvoti prieš bandant atsisiųsti krikščionišką medžiagą per internetą.
-     Vietoje to, geriau saugiai atsisiųskite modulių zip failus ir įdiekite juos naudodami „Įkelti dokumentą iš Zip failo“. Ar tikrai norite atsisiųsti?
-     Visi atsiuntimai iš modulių saugyklos yra šifruoti (HTTPS).</string>
+  <string name="download_question_message">Jei gyvenate persekiojimus patiriančioje šalyje, gali tekti būti atsargiems atsisiunčiant krikščioniškąją medžiagą internetu. Verčiau galite saugesniu būdu gauti modulių zip failus ir įdiegti juos per \"%1$s\". Ar tikrai norite tęsti atsisiuntimą? Visi atsisiuntimai iš modulių serverių yra šifruojami (HTTPS).</string>
   <string name="do_not_ask_again">Taip, daugiau nebeklausti</string>
   <string name="recommended_document">Rekomenduojama!</string>
   <string name="about_version_history">Versijų istorija: %s</string>
@@ -415,6 +409,7 @@
   <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <string name="could_not_overwrite_files">Nepavyko ant viršaus užrašyti failų: %s. Visas kitas diegimas buvo sėkmingas.</string>
+  <string name="module_backup_restore">Šis failas yra AndBible dokumentų atsarginė kopija. Ar norite atkurti jos dokumentus?</string>
   <string name="install_do_you_want">Ar norite įdiegti modulį (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitymo planas</string>
@@ -786,6 +781,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="all">Visos</string>
   <string name="reset_generic">Atstatyti</string>
   <string name="watch_tutorial_video">Žiūrėti mokymo vaizdo įrašą (anglų kalba)</string>
+  <string name="watch_tutorial_video_plain">Žiūrėti mokomąjį vaizdo įrašą</string>
   <string name="verse_not_found">Eilutė nerasta</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Tęsti</string>
@@ -1531,7 +1527,7 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="ai_settings">DI nustatymai</string>
   <string name="ai_connection_settings">Ryšio nustatymai</string>
   <string name="ai_setup_title">Konfigūruoti DI</string>
-  <string name="ai_setup_description">AndBible gali naudoti DI Biblijos teksto vertimui, eilučių aiškinimui, santraukų kūrimui ir kt. Norėdami pradėti, sukonfigūruokite ryšį su OpenAI suderinamu API tiekėju.</string>
+  <string name="ai_setup_description">AndBible gali naudoti DI Biblijos tekstui versti, eilutėms aiškinti, santraukoms kurti ir kitkam. Norėdami pradėti, sukonfigūruokite ryšį su DI tiekėju, pavyzdžiui, OpenAI, Anthropic arba Google Gemini.</string>
   <string name="ai_configure_button">Konfigūruoti ryšį</string>
   <string name="ai_settings_shortcut_summary">DI ryšio ir užklausų nustatymai</string>
   <string name="ai_provider_tier_recommended">Rekomenduojama</string>
@@ -2154,4 +2150,5 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="recommend_get_it">Gaukite čia: %s</string>
   <string name="recommend_share_link">Bendrinti nuorodą</string>
   <string name="recommend_qr_caption">Nuskaitykite, kad gautumėte „AndBible“ savo telefonui, planšetei ar kompiuteriui.</string>
+  <string name="desktop_activation_failed">AndBible jau veikia, tačiau jos langas neatsakė. Persijunkite į veikiančią programą ir bandykite dar kartą. Gaunami failai nebuvo patvirtinti kaip pristatyti.</string>
 </resources>

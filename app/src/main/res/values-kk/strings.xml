@@ -220,10 +220,6 @@
   <string name="one_more_back_press">Қолданбаны жабу үшін артқа батырмасын қайта басыңыз</string>
   <string name="document_filter_results">%dқұжаттар</string>
   <string name="download_question_title">Құжаттарды жүктеуді жалғастырғыңыз келе ме?</string>
-  <string name="download_question_message">Егерде сіз қудалау бар елде тұрып жатсаңыз,
- Мәсіхшілік материалдарды интернет желісінен жүктеу барысында абай болуыңыз қажет. 
-Мүмкін сіз оның орнына, қауіпсіз жолмен модульдердің zip файлдарын алып, оларды орнатқыңыз келеді.
- Жүктеуді жалғастырғыңыз келетініне сенімдісіз бе? Барлық жүктеулер модуль серверлерінен шифрланған (HTTPS)</string>
   <string name="do_not_ask_again">Иә, басқа сұрамаңыз </string>
   <string name="recommended_document">Ұсынылады!</string>
   <string name="about_version_history">Тарих нұсқасы:%s</string>

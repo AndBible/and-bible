@@ -55,6 +55,12 @@
   <string name="other">Aliaj</string>
   <string name="contact">Kontakto</string>
   <string name="help_and_tips">Helpo kaj konsiloj</string>
+  <string name="help_tab_tips">Konsiletoj</string>
+  <string name="help_tab_user_guide">Uzantogvidilo</string>
+  <string name="help_user_guide_intro">La plena uzantogvidilo troviĝas en andbible.org. La paĝoj malfermiĝas en via retumilo.</string>
+  <string name="help_user_guide_home">Hejmpaĝo de la uzantogvidilo</string>
+  <string name="help_tutorial_videos">Lernvideoj</string>
+  <string name="help_play_video">Ludi videon: %1$s</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi / recenzi</string>
   <string name="chooce_document">Elekti dokumenton</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Kreado de serĉindekso</string>
   <string name="choose_translations">Elekti tradukojn…</string>
   <string name="multi_search_count_summary">%1$s en %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d verso</item>
-    <item quantity="other">%1$d versoj</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traduko</item>
-    <item quantity="other">%1$d tradukoj</item>
-  </plurals>
   <string name="search_index_not_created">neniu indekso</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj.</string>
   <string name="prefs_display_color_mode_title">Reĝimo de koloroj</string>
   <string name="prefs_display_color_mode_summary">Elektu kiel koloroj estas montrataj. Monokroma uzas nur nigron kaj blankon, por e-inkaj ekranoj; markitaj legosignoj aperas grase. Kolora e-inko aspektas kiel Monokroma, sed konservas la kolorojn de legosigna emfazo kaj substreko — por koloraj e-inkaj ekranoj.</string>
+  <string name="prefs_use_system_colors_title">Uzi sistemajn kolorojn (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Sekvi la kolorojn de via ekranfono. Laborspaca koloro kaj la e-inkaj kolorreĝimoj ankoraŭ havas prioritaton.</string>
   <string name="prefs_display_color_mode_normal">Norma</string>
   <string name="prefs_display_color_mode_bw">Blank-nigra</string>
   <string name="prefs_display_color_mode_monochrome">Unukolora</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Vorto ne trovita en iu ajn vortaro</string>
   <string name="prefs_top_margin_title_mm">Supra marĝeno (%d mm)</string>
   <string name="font_size_title">Grando de tiparo</string>
+  <string name="font_preview_verse">Ĉar tiel multe Dio amis la mondon, ke Li donis Sian solenaskitan Filon, por ke ĉiu, kiu en Lin kredas, ne pereu, sed havu eternan vivon.</string>
   <string name="font_size_title_pt">Grando de tiparo (%d p.)</string>
   <string name="prefs_font_text_size_summary">Alĝustigi grandon de tiparo</string>
   <string name="pref_font_family_label_name">Familio de tiparo (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">Nenio funkcias</string>
   <string name="activity_failed_toast">%1$s — vidu la menuon</string>
   <string name="download_question_title">Ĉu vi vere volas elŝuti dokumentojn?</string>
-  <string name="download_question_message">Se vi loĝas en persekutanta lando, vi estu singarda pri elŝuti kristanajn materialojn per la interreto. Anstataŭ tio, vi povas akiri la zip-modulon en pli sekura maniero kaj sekve instali ĝin uzante “Enlegi dokumentojn el dosieroj”. Ĉu vi certe volas elŝuti dokumentojn? Ĉiuj elŝutoj el deponejoj de moduloj estas ĉifrataj (HTTPS).</string>
+  <string name="download_question_message">Se vi loĝas en persekutata lando, vi eble devas esti singarda pri elŝutado de kristana materialo per Interreto. Anstataŭe, vi eble volas akiri modulajn zip-dosierojn pli sekure kaj instali ilin per \"%1$s\". Ĉu vi certe volas daŭrigi la elŝutadon? Ĉiuj elŝutoj de modulaj serviloj estas ĉifritaj (HTTPS).</string>
   <string name="do_not_ask_again">Jes, ne demandi denove</string>
   <string name="recommended_document">Konsilinda!</string>
   <string name="about_version_history">Historio de versio: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">La jenaj dosieroj jam ekzistas: %s Ĉu anstataŭigi ilin?</string>
   <string name="overwrite_files_title">Ĉu anstataŭigi dosierojn?</string>
   <string name="could_not_overwrite_files">Ne povas superskribi dosierojn: %s. Malgraŭ tio, la instalado sukcesis.</string>
+  <string name="module_backup_restore">Ĉi tiu dosiero estas rezerva kopio de dokumentoj de AndBible. Ĉu vi volas restaŭri ĝiajn dokumentojn?</string>
   <string name="install_do_you_want">Ĉu instali la modulon %s?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
@@ -756,6 +758,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="all">Ĉiuj</string>
   <string name="reset_generic">Reagordi</string>
   <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
+  <string name="watch_tutorial_video_plain">Spekti lernvideon</string>
   <string name="verse_not_found">Ne trovis verson</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Daŭrigi</string>
@@ -1458,7 +1461,7 @@ Ne montri tion ĉi denove</string>
   <string name="ai_settings">Agordoj pri AI</string>
   <string name="ai_connection_settings">Konektaj agordoj</string>
   <string name="ai_setup_title">Agordi AI</string>
-  <string name="ai_setup_description">AndBible povas uzi artefaritan intelekton por traduki bibliajn tekstojn, klarigi versojn, krei sumigojn, kaj pli. Por komenci, agordu konekton al OpenAI-akorda API-liveranto.</string>
+  <string name="ai_setup_description">AndBible povas uzi artefaritan intelekton por traduki bibliotekston, klarigi versojn, krei resumojn kaj pli. Por komenci, agordu konekton al AI-liveranto, ekzemple OpenAI, Anthropic aŭ Google Gemini.</string>
   <string name="ai_configure_button">Agordi konekton</string>
   <string name="ai_settings_shortcut_summary">Agordoj pri artefarita intelekto: konektoj, demandoj</string>
   <string name="ai_provider_tier_recommended">Konsilindaj</string>
@@ -2081,4 +2084,5 @@ Ne montri tion ĉi denove</string>
   <string name="recommend_get_it">Akiru ĝin ĉi tie: %s</string>
   <string name="recommend_share_link">Kunhavigi ligilon</string>
   <string name="recommend_qr_caption">Skanu por akiri AndBible por via telefono, tabulkomputilo aŭ komputilo.</string>
+  <string name="desktop_activation_failed">AndBible jam funkcias, sed ĝia fenestro ne respondis. Ŝanĝu al la funkcianta kopio kaj reprovu. Envenintaj dosieroj ne estis konfirmitaj kiel liveritaj.</string>
 </resources>

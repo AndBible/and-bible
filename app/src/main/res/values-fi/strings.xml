@@ -55,6 +55,12 @@
   <string name="other">Muita</string>
   <string name="contact">Ota yhteyttä</string>
   <string name="help_and_tips">Ohjeita &amp; vinkkejä</string>
+  <string name="help_tab_tips">Vinkit</string>
+  <string name="help_tab_user_guide">Käyttöopas</string>
+  <string name="help_user_guide_intro">Täydellinen käyttöopas on osoitteessa andbible.org. Sivut avautuvat selaimessasi.</string>
+  <string name="help_user_guide_home">Käyttöoppaan etusivu</string>
+  <string name="help_tutorial_videos">Opetusvideot</string>
+  <string name="help_play_video">Toista video: %1$s</string>
   <string name="administration">Ylläpito</string>
   <string name="rate_application">Arvioi &amp; arvostele</string>
   <string name="chooce_document">Valitse teos</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Luodaan hakuhakemistoa</string>
   <string name="choose_translations">Valitse käännökset…</string>
   <string name="multi_search_count_summary">%1$s, %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d jae</item>
-    <item quantity="other">%1$d jaetta</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d käännös</item>
-    <item quantity="other">%1$d käännöstä</item>
-  </plurals>
   <string name="search_index_not_created">ei indeksiä</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
   <string name="prefs_display_color_mode_title">Värien tila</string>
   <string name="prefs_display_color_mode_summary">Valitse, miten värit näytetään. Yksivärinen käyttää vain mustaa ja valkoista e-ink-näytöille; korostetut kirjanmerkit näytetään lihavoituina. Väri-e-ink näyttää Yksiväriseltä, mutta säilyttää kirjanmerkkien korostus- ja alleviivausvärit — värillisille e-ink-näytöille.</string>
+  <string name="prefs_use_system_colors_title">Käytä järjestelmän värejä (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Seuraa taustakuvasi värejä. Työtilan väri ja e-ink-värimuodot ovat edelleen etusijalla.</string>
   <string name="prefs_display_color_mode_normal">Normaali</string>
   <string name="prefs_display_color_mode_bw">Mustavalkoinen</string>
   <string name="prefs_display_color_mode_monochrome">Yksivärinen</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Sanaa ei löytynyt sanakirjoista</string>
   <string name="prefs_top_margin_title_mm">Ylämarginaali (%d mm)</string>
   <string name="font_size_title">Kirjaisimen koko</string>
+  <string name="font_preview_verse">Sillä niin on Jumala maailmaa rakastanut, että hän antoi ainokaisen Poikansa, ettei yksikään, joka häneen uskoo, huku, vaan hänellä olisi iankaikkinen elämä.</string>
   <string name="font_size_title_pt">Kirjaisimen koko (%d pt)</string>
   <string name="prefs_font_text_size_summary">Muuta kirjaisimen kokoa</string>
   <string name="pref_font_family_label_name">Kirjasimen tyyppi (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">Ei käynnissä olevia toimintoja</string>
   <string name="activity_failed_toast">%1$s — katso valikko</string>
   <string name="download_question_title">Haluatko jatkaa dokumenttien lataukseen?</string>
-  <string name="download_question_message">Jos elät vainotussa valtiossa, sinun voi olla syytä olla varovainen kristillisen materiaalin lataamisessa Internetistä. Sen sijaan saattaa olla viisasta siirtää moduulien zip-tiedostot turvallisemmin ja asentaa ne \"Asenna dokumentteja Zip-tiedostosta\"-toimintoa käyttäen. Oletko varma että haluat jatkaa lataamaan? Kaikki dokumenttien lataukset palvelimilta on salattuja (HTTPS).</string>
+  <string name="download_question_message">Jos asut maassa, jossa kristittyjä vainotaan, kristillisen aineiston lataamisessa internetin kautta kannattaa olla varovainen. Voit sen sijaan hankkia moduulien zip-tiedostot turvallisemmin ja asentaa ne kohdasta \"%1$s\". Haluatko varmasti jatkaa lataamiseen? Kaikki lataukset moduulipalvelimilta on salattu (HTTPS).</string>
   <string name="do_not_ask_again">Kyllä, äläkä kysy enää uudestaan</string>
   <string name="recommended_document">Suositeltu!</string>
   <string name="about_version_history">Versiohistoria: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">Seuraavat tiedosto ovat jo olemassa: %s Ylikirjoitetaanko?</string>
   <string name="overwrite_files_title">Ylikirjoitetaanko tiedostot?</string>
   <string name="could_not_overwrite_files">Ei voitu ylikirjoittaa tiedostoja: %s. Tätä lukuunottamatta asennus onnistui.</string>
+  <string name="module_backup_restore">Tämä tiedosto on AndBiblen dokumenttien varmuuskopio. Haluatko palauttaa sen dokumentit?</string>
   <string name="install_do_you_want">Haluatko asentaa moduulin (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
@@ -766,6 +768,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="all">Kaikki</string>
   <string name="reset_generic">Tyhjennä</string>
   <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
+  <string name="watch_tutorial_video_plain">Katso opetusvideo</string>
   <string name="verse_not_found">Jaetta ei löytynyt</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Jatka</string>
@@ -1439,7 +1442,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_settings">Tekoälyn asetukset</string>
   <string name="ai_connection_settings">Yhteysasetukset</string>
   <string name="ai_setup_title">Määritä tekoäly</string>
-  <string name="ai_setup_description">AndBible voi käyttää tekoälyä Raamatun tekstin kääntämiseen, jakeiden selittämiseen, tiivistelmien luomiseen ja muuhun. Aloita määrittämällä yhteys OpenAI-yhteensopivaan API-palveluntarjoajaan.</string>
+  <string name="ai_setup_description">AndBible voi käyttää tekoälyä Raamatun tekstin kääntämiseen, jakeiden selittämiseen, tiivistelmien luomiseen ja muuhun. Aloittaaksesi määritä yhteys tekoälyn palveluntarjoajaan, kuten OpenAI, Anthropic tai Google Gemini.</string>
   <string name="ai_configure_button">Määritä yhteys</string>
   <string name="ai_settings_shortcut_summary">Tekoälyn yhteys- ja kehoteasetukset</string>
   <string name="ai_provider_tier_recommended">Suositeltu</string>
@@ -2062,4 +2065,5 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="recommend_get_it">Hanki se täältä: %s</string>
   <string name="recommend_share_link">Jaa linkki</string>
   <string name="recommend_qr_caption">Skannaa hankkiaksesi AndBiblen puhelimeesi, tablettiisi tai tietokoneellesi.</string>
+  <string name="desktop_activation_failed">AndBible on jo käynnissä, mutta sen ikkuna ei vastannut. Siirry käynnissä olevaan ohjelmaan ja yritä uudelleen. Saapuvien tiedostojen toimitusta ei vahvistettu.</string>
 </resources>

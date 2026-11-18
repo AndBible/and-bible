@@ -55,6 +55,12 @@
   <string name="other">Egyéb</string>
   <string name="contact">Kapcsolat</string>
   <string name="help_and_tips">Sugó és tippek</string>
+  <string name="help_tab_tips">Tippek</string>
+  <string name="help_tab_user_guide">Felhasználói kézikönyv</string>
+  <string name="help_user_guide_intro">A teljes felhasználói kézikönyv az andbible.org oldalon található. Az oldalak a böngészőben nyílnak meg.</string>
+  <string name="help_user_guide_home">Kézikönyv főoldala</string>
+  <string name="help_tutorial_videos">Oktatóvideók</string>
+  <string name="help_play_video">Videó lejátszása: %1$s</string>
   <string name="administration">Kezelés</string>
   <string name="rate_application">Értékelés</string>
   <string name="chooce_document">Dokumentumválasztás</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Keresési index létrehozása</string>
   <string name="choose_translations">Fordítások kiválasztása…</string>
   <string name="multi_search_count_summary">%1$s, %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="other">%1$d vers</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d fordítás</item>
-    <item quantity="other">%1$d fordítás</item>
-  </plurals>
   <string name="search_index_not_created">nincs index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Fejezet- és versszámok</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Az alkalmazás használata színek nélkül, jobb olvashatóság e-ink képernyőn.</string>
   <string name="prefs_display_color_mode_title">Szín mód</string>
   <string name="prefs_display_color_mode_summary">Válaszd ki a színek megjelenítési módját. A Monokróm csak fekete és fehér színt használ e-ink képernyőkhöz; a kiemelt könyvjelzők félkövéren jelennek meg. A Színes e-ink hasonlít a Monokrómhoz, de megtartja a könyvjelzők kiemelő és aláhúzó színeit — színes e-ink képernyőkhöz.</string>
+  <string name="prefs_use_system_colors_title">Rendszerszínek használata (Material You)</string>
+  <string name="prefs_use_system_colors_summary">A háttérkép színeit követi. A munkaterület színe és az e-ink színmódok továbbra is elsőbbséget élveznek.</string>
   <string name="prefs_display_color_mode_normal">Normál</string>
   <string name="prefs_display_color_mode_bw">Fekete-fehér</string>
   <string name="prefs_display_color_mode_monochrome">Egyszínű</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">A szó nem található egyik szótárban sem</string>
   <string name="prefs_top_margin_title_mm">Felső margó (%d mm)</string>
   <string name="font_size_title">Betűméret</string>
+  <string name="font_preview_verse">Mert úgy szerette Isten a világot, hogy az ő egyszülött Fiát adta, hogy valaki hisz őbenne, el ne vesszen, hanem örök élete legyen.</string>
   <string name="font_size_title_pt">Betűméret (%d pt)</string>
   <string name="prefs_font_text_size_summary">Fő szövegméret beállítása</string>
   <string name="pref_font_family_label_name">Betűtípus (%s)</string>
@@ -387,11 +388,7 @@
   <string name="activity_empty">Nem fut semmi</string>
   <string name="activity_failed_toast">%1$s — lásd a menüt</string>
   <string name="download_question_title">Biztos, hogy letölti a könyveket?</string>
-  <string name="download_question_message">Ha elnyomás alatt lévő országban él,
-legyen óvatos keresztény tartalmak letöltésével az Internetről. 
-Ehelyett szerezze be a műveket biztonságosan zip formátumban, és telepítse őket
-a \"Könyv betöltése Zip fájlból\" opcióval. Biztos, hogy letölti a dokumentumokat?
-Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</string>
+  <string name="download_question_message">Ha üldözött országban él, óvatosnak kell lennie a keresztény anyagok internetről való letöltésével. Érdemes lehet a modulok zip-fájljait biztonságosabb úton beszerezni, és a \"%1$s\" menüponttal telepíteni. Biztosan folytatja a letöltést? A modulkiszolgálókról történő letöltések titkosítottak (HTTPS).</string>
   <string name="do_not_ask_again">Igen, és ne kérdezze többet</string>
   <string name="recommended_document">Javasolt</string>
   <string name="about_version_history">Verziótörténet: %s</string>
@@ -412,6 +409,7 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <string name="overwrite_files">Az alábbi fájlok már telepítve vannak: %s Felülírja?</string>
   <string name="overwrite_files_title">Felülírja a fájlokat?</string>
   <string name="could_not_overwrite_files">A következő fájlok felülírása nem sikerült: %s. Különben a modul telepítése sikeres volt.</string>
+  <string name="module_backup_restore">Ez a fájl egy AndBible-dokumentumokat tartalmazó biztonsági mentés. Szeretné visszaállítani a benne lévő dokumentumokat?</string>
   <string name="install_do_you_want">Telepíti a modult (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Olvasási terv</string>
@@ -768,6 +766,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="all">Mind</string>
   <string name="reset_generic">Visszaállítás</string>
   <string name="watch_tutorial_video">Bemutóvideó megtekinŧése (angol nyelvű)</string>
+  <string name="watch_tutorial_video_plain">Oktatóvideó megtekintése</string>
   <string name="verse_not_found">Vers nem található</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Folytatás</string>
@@ -1499,7 +1498,7 @@ jelentse be az észlelt problémát</string>
   <string name="ai_settings">AI beállítások</string>
   <string name="ai_connection_settings">Kapcsolati beállítások</string>
   <string name="ai_setup_title">AI konfigurálása</string>
-  <string name="ai_setup_description">Az AndBible AI-t használhat bibliai szöveg fordítására, versek magyarázatára, összefoglalók készítésére és még sok másra. A kezdéshez konfiguráljon kapcsolatot egy OpenAI-kompatibilis API-szolgáltatóhoz.</string>
+  <string name="ai_setup_description">Az AndBible képes mesterséges intelligenciával bibliaszöveget fordítani, verseket magyarázni, összefoglalókat készíteni és még sok mást. A kezdéshez állítson be kapcsolatot egy MI-szolgáltatóval, például az OpenAI-jal, az Anthropickal vagy a Google Gemini-vel.</string>
   <string name="ai_configure_button">Kapcsolat konfigurálása</string>
   <string name="ai_settings_shortcut_summary">AI kapcsolati és prompt beállítások</string>
   <string name="ai_provider_tier_recommended">Ajánlott</string>
@@ -2122,4 +2121,5 @@ jelentse be az észlelt problémát</string>
   <string name="recommend_get_it">Itt szerezheted be: %s</string>
   <string name="recommend_share_link">Hivatkozás megosztása</string>
   <string name="recommend_qr_caption">Olvasd be, hogy megszerezd az AndBible alkalmazást telefonodra, táblagépedre vagy számítógépedre.</string>
+  <string name="desktop_activation_failed">Az AndBible már fut, de az ablaka nem válaszolt. Váltson át a futó példányra, és próbálja újra. A beérkező fájlok kézbesítése nincs megerősítve.</string>
 </resources>

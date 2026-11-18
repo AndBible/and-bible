@@ -55,6 +55,12 @@
   <string name="other">其他</string>
   <string name="contact">联系方式</string>
   <string name="help_and_tips">帮助与贴士</string>
+  <string name="help_tab_tips">小技巧</string>
+  <string name="help_tab_user_guide">用户指南</string>
+  <string name="help_user_guide_intro">完整的用户指南位于 andbible.org。页面将在浏览器中打开。</string>
+  <string name="help_user_guide_home">用户指南首页</string>
+  <string name="help_tutorial_videos">教程视频</string>
+  <string name="help_play_video">播放视频：%1$s</string>
   <string name="administration">管理</string>
   <string name="rate_application">评分及评论</string>
   <string name="chooce_document">选择文件</string>
@@ -129,12 +135,6 @@
   <string name="search_indexing_notification_title">正在创建搜索索引</string>
   <string name="choose_translations">选择翻译版本…</string>
   <string name="multi_search_count_summary">在%2$s中共%1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="other">%1$d 节经文</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="other">%1$d 个译本</item>
-  </plurals>
   <string name="search_index_not_created">无索引</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">章节序号</string>
@@ -143,6 +143,8 @@
   <string name="prefs_eink_mode_summary">在单色环境（没有颜色）下使用应用，对墨水屏更友好。</string>
   <string name="prefs_display_color_mode_title">颜色模式</string>
   <string name="prefs_display_color_mode_summary">选择颜色的显示方式。单色模式仅使用黑色和白色，适用于电子墨水屏；高亮的书签以粗体显示。彩色电子墨水模式外观类似单色模式，但保留书签高亮和下划线的颜色，适用于彩色电子墨水屏。</string>
+  <string name="prefs_use_system_colors_title">使用系统颜色（Material You）</string>
+  <string name="prefs_use_system_colors_summary">跟随壁纸的颜色。工作区颜色和电子墨水颜色模式仍优先生效。</string>
   <string name="prefs_display_color_mode_normal">正常</string>
   <string name="prefs_display_color_mode_bw">黑白</string>
   <string name="prefs_display_color_mode_monochrome">单色</string>
@@ -316,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">在任何字典中均未找到该单词</string>
   <string name="prefs_top_margin_title_mm">顶边界 (%d mm)</string>
   <string name="font_size_title">字型大小</string>
+  <string name="font_preview_verse">神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。</string>
   <string name="font_size_title_pt">字型大小 (%d pt)</string>
   <string name="prefs_font_text_size_summary">调整主要文字大小</string>
   <string name="pref_font_family_label_name">字型家族 (%s)</string>
@@ -387,12 +390,7 @@
   <string name="activity_empty">没有正在运行的任务</string>
   <string name="activity_failed_toast">%1$s — 请查看菜单</string>
   <string name="download_question_title">你想继续下载文件吗？</string>
-  <string name="download_question_message">如果你生活的地区存在迫害行为，
-在下载基督教的材料时，你或许更要小心。
-取而代之，你可以用 \"从ZIP载入文件\" 功能，
-以更安全的方法取得及安装 ZIP模块。你确定要继续进行下载吗？
-所有下载都是经由加密方式 (HTTPS)。
-</string>
+  <string name="download_question_message">如果您生活在受迫害的国家，通过互联网下载基督教资料时可能需要谨慎。您也许更愿意通过更安全的方式获取模块压缩文件，然后通过\"%1$s\"安装。您确定要继续下载吗？所有来自模块服务器的下载都是加密的（HTTPS）。</string>
   <string name="do_not_ask_again">确定。不要再询问</string>
   <string name="recommended_document">推荐！</string>
   <string name="about_version_history">版本历史: %s</string>
@@ -413,6 +411,7 @@
   <string name="overwrite_files">以下文件已经存在: %s 覆盖吗？</string>
   <string name="overwrite_files_title">覆盖文件？</string>
   <string name="could_not_overwrite_files">无法覆盖文件：%s。其中一部分已经安装成功。</string>
+  <string name="module_backup_restore">此文件是 AndBible 文档备份。您要恢复其中的文档吗？</string>
   <string name="install_do_you_want">您想要安装模块（%s）吗？</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">读经计划</string>
@@ -783,6 +782,7 @@ http://www.heartlight.org 准予使用
   <string name="all">全部</string>
   <string name="reset_generic">重设</string>
   <string name="watch_tutorial_video">观看示范影片 (英文)</string>
+  <string name="watch_tutorial_video_plain">观看教程视频</string>
   <string name="verse_not_found">找不到节</string>
   <!--Errors-->
   <string name="crash_recovery_continue">继续</string>
@@ -1507,7 +1507,7 @@ http://www.heartlight.org 准予使用
   <string name="ai_settings">AI设置</string>
   <string name="ai_connection_settings">连接设置</string>
   <string name="ai_setup_title">配置AI</string>
-  <string name="ai_setup_description">AndBible可使用AI翻译圣经文本、解释经文、创建摘要等。要开始使用，请配置与OpenAI兼容API提供商的连接。</string>
+  <string name="ai_setup_description">AndBible 可以使用 AI 翻译圣经经文、解释经文、生成摘要等。要开始使用，请配置与 AI 提供商的连接，例如 OpenAI、Anthropic 或 Google Gemini。</string>
   <string name="ai_configure_button">配置连接</string>
   <string name="ai_settings_shortcut_summary">AI连接和提示词设置</string>
   <string name="ai_provider_tier_recommended">推荐</string>
@@ -2130,4 +2130,5 @@ http://www.heartlight.org 准予使用
   <string name="recommend_get_it">在这里获取：%s</string>
   <string name="recommend_share_link">分享链接</string>
   <string name="recommend_qr_caption">扫描二维码，在您的手机、平板电脑或电脑上获取 AndBible。</string>
+  <string name="desktop_activation_failed">AndBible 已在运行，但其窗口没有响应。请切换到正在运行的实例后重试。传入的文件未确认已送达。</string>
 </resources>

@@ -55,6 +55,12 @@
   <string name="other">Muu</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Abiinfo ja vihjed</string>
+  <string name="help_tab_tips">Näpunäited</string>
+  <string name="help_tab_user_guide">Kasutusjuhend</string>
+  <string name="help_user_guide_intro">Täielik kasutusjuhend on saidil andbible.org. Lehed avanevad sinu brauseris.</string>
+  <string name="help_user_guide_home">Kasutusjuhendi avaleht</string>
+  <string name="help_tutorial_videos">Õppevideod</string>
+  <string name="help_play_video">Esita video: %1$s</string>
   <string name="administration">Haldamine</string>
   <string name="rate_application">Hinda ja arvusta</string>
   <string name="chooce_document">Vali dokument</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Otsinguindeksi loomine</string>
   <string name="choose_translations">Vali tõlked…</string>
   <string name="multi_search_count_summary">%1$s, %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d salm</item>
-    <item quantity="other">%1$d salmi</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d tõlge</item>
-    <item quantity="other">%1$d tõlget</item>
-  </plurals>
   <string name="search_index_not_created">indeks puudub</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Peatüki ja salmi numbrid</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Kasuta mustvalget režiimi, mis teeb selle sobivamaks e-lugeritele.</string>
   <string name="prefs_display_color_mode_title">Värvirežiim</string>
   <string name="prefs_display_color_mode_summary">Vali, kuidas värve kuvatakse. Monokroomne režiim kasutab ainult musta ja valget, e-tindi ekraanidele; esiletõstetud järjehoidjad kuvatakse paksus kirjas. Värviline e-tint näeb välja nagu Monokroomne, kuid säilitab järjehoidjate esiletõstu- ja allajoonimisvärvid — värvilistele e-tindi ekraanidele.</string>
+  <string name="prefs_use_system_colors_title">Kasuta süsteemivärve (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Järgi taustapildi värve. Tööruumi värv ja e-tindi värvirežiimid on endiselt ülimuslikud.</string>
   <string name="prefs_display_color_mode_normal">Tavaline</string>
   <string name="prefs_display_color_mode_bw">Must-valge</string>
   <string name="prefs_display_color_mode_monochrome">Ühevärviline</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Sõna ei leitud ühestki sõnaraamatust</string>
   <string name="prefs_top_margin_title_mm">Ülemine veeris (%d mm)</string>
   <string name="font_size_title">Teksti suurus</string>
+  <string name="font_preview_verse">Sest nõnda on Jumal maailma armastanud, et ta andis oma ainusündinud Poja, et iga, kes temasse usub, ei hukkuks, vaid et temal oleks igavene elu.</string>
   <string name="font_size_title_pt">Teksti suurus (%d punkti)</string>
   <string name="prefs_font_text_size_summary">Määra teksti suurus</string>
   <string name="pref_font_family_label_name">Tekstifondi perekond (%s)</string>
@@ -387,11 +388,7 @@
   <string name="activity_empty">Midagi ei ole käimas</string>
   <string name="activity_failed_toast">%1$s — vaata menüüd</string>
   <string name="download_question_title">Kas soovid jätkata dokumentide allalaadimisega?</string>
-  <string name="download_question_message">Kui sa elad riigis, kus kiusatakse kristlasi taga,
-peaksid olema ettevaatlik internetist kristliku materjali alla laadides.
-Selle asemel võiksid hankida ohutumalt zip mooduleid installides neid läbi
-\"Lae dokumente failidest\". Oled kindel, et soovid jätkata allalaadimisega?
-Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
+  <string name="download_question_message">Kui elad riigis, kus kristlasi taga kiusatakse, pead võib-olla olema ettevaatlik kristliku materjali allalaadimisel internetist. Selle asemel võid soovida hankida moodulite zip-failid turvalisemal viisil ja paigaldada need valikuga \"%1$s\". Kas oled kindel, et soovid allalaadimisega jätkata? Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
   <string name="do_not_ask_again">Jah, ära enam küsi</string>
   <string name="recommended_document">Soovitatud!</string>
   <string name="about_version_history">Versiooni ajalugu: %s</string>
@@ -412,6 +409,7 @@ Kõik allalaadimised moodulite serveritest on krüpteeritud (HTTPS).</string>
   <string name="overwrite_files">Järgmised failid on juba olemas: %s Kas asendame?</string>
   <string name="overwrite_files_title">Kirjutada failid üle?</string>
   <string name="could_not_overwrite_files">Järgnevaid faile ei õnnestunud üle kirjutada: %s. Sellele vaatamata oli installimine edukas.</string>
+  <string name="module_backup_restore">See fail on AndBible\'i dokumentide varukoopia. Kas soovid selle dokumendid taastada?</string>
   <string name="install_do_you_want">Kas soovid paigaldada moodulit (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lugemiskava</string>
@@ -776,6 +774,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="all">Kõik</string>
   <string name="reset_generic">Nulli</string>
   <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
+  <string name="watch_tutorial_video_plain">Vaata õppevideot</string>
   <string name="verse_not_found">Salmi ei leitud</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Jätka</string>
@@ -1464,7 +1463,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="ai_settings">AI seaded</string>
   <string name="ai_connection_settings">Ühenduse seaded</string>
   <string name="ai_setup_title">Seadista AI</string>
-  <string name="ai_setup_description">AndBible saab kasutada AI-d piibli teksti tõlkimiseks, salmide selgitamiseks, kokkuvõtete loomiseks jne. Alustamiseks seadista ühendus OpenAI-ühilduva API teenusepakkujaga.</string>
+  <string name="ai_setup_description">AndBible oskab tehisintellekti abil tõlkida Piibli teksti, selgitada salme, koostada kokkuvõtteid ja palju muud. Alustamiseks seadista ühendus tehisintellekti pakkujaga, näiteks OpenAI, Anthropic või Google Gemini.</string>
   <string name="ai_configure_button">Seadista ühendus</string>
   <string name="ai_settings_shortcut_summary">AI ühenduse ja käskude seaded</string>
   <string name="ai_provider_tier_recommended">Soovitatud</string>
@@ -2087,4 +2086,5 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="recommend_get_it">Hangi see siit: %s</string>
   <string name="recommend_share_link">Jaga linki</string>
   <string name="recommend_qr_caption">Skänneeri, et hankida AndBible oma telefoni, tahvelarvutisse või arvutisse.</string>
+  <string name="desktop_activation_failed">AndBible juba töötab, kuid selle aken ei reageerinud. Lülitu töötavale aknale ja proovi uuesti. Sissetulevate failide kohaletoimetamist ei kinnitatud.</string>
 </resources>

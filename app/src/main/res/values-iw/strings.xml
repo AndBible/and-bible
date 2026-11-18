@@ -57,6 +57,12 @@
   <string name="other">אחר</string>
   <string name="contact">יצירת קשר</string>
   <string name="help_and_tips">עזרה וטיפים</string>
+  <string name="help_tab_tips">טיפים</string>
+  <string name="help_tab_user_guide">מדריך למשתמש</string>
+  <string name="help_user_guide_intro">המדריך המלא למשתמש נמצא באתר andbible.org. הדפים נפתחים בדפדפן שלך.</string>
+  <string name="help_user_guide_home">דף הבית של המדריך למשתמש</string>
+  <string name="help_tutorial_videos">סרטוני הדרכה</string>
+  <string name="help_play_video">הפעלת סרטון: %1$s</string>
   <string name="administration">ניהול</string>
   <string name="rate_application">דירוג וביקורת</string>
   <string name="chooce_document">בחירת מסמך</string>
@@ -131,18 +137,6 @@
   <string name="search_indexing_notification_title">יוצר אינדקס חיפוש</string>
   <string name="choose_translations">בחר תרגומים…</string>
   <string name="multi_search_count_summary">%1$s ב-%2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">פסוק %1$d</item>
-    <item quantity="two">%1$d פסוקים</item>
-    <item quantity="many">%1$d פסוקים</item>
-    <item quantity="other">%1$d פסוקים</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">תרגום %1$d</item>
-    <item quantity="two">%1$d תרגומים</item>
-    <item quantity="many">%1$d תרגומים</item>
-    <item quantity="other">%1$d תרגומים</item>
-  </plurals>
   <string name="search_index_not_created">אין אינדקס</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">מספרי פרקים ופסוקים</string>
@@ -151,6 +145,8 @@
   <string name="prefs_eink_mode_summary">האפליקציה תעבוד במצב מונוכרומטי (ללא צבעים), מה שמתאים יותר למכשירי דיו אלקטרוני</string>
   <string name="prefs_display_color_mode_title">מצב צבע</string>
   <string name="prefs_display_color_mode_summary">בחר כיצד יוצגו הצבעים. מצב מונוכרום משתמש רק בשחור ולבן, עבור מסכי דיו אלקטרוני; סימניות מודגשות מוצגות בהדגשה. דיו אלקטרוני צבעוני נראה כמו מונוכרום אך שומר על צבעי ההדגשה והקו התחתון של הסימניות — עבור מסכי דיו אלקטרוני צבעוניים.</string>
+  <string name="prefs_use_system_colors_title">שימוש בצבעי המערכת (Material You)</string>
+  <string name="prefs_use_system_colors_summary">עקוב אחר צבעי הרקע של המכשיר. צבע סביבת עבודה ומצבי הצבע של מסך דיו אלקטרוני עדיין קודמים להם.</string>
   <string name="prefs_display_color_mode_normal">רגיל</string>
   <string name="prefs_display_color_mode_bw">שחור-לבן</string>
   <string name="prefs_display_color_mode_monochrome">מונוכרומטי</string>
@@ -324,6 +320,7 @@
   <string name="word_not_found_in_dictionaries">המילה לא נמצאה באף מילון</string>
   <string name="prefs_top_margin_title_mm">שוליים עליונים (%d מ\"מ)</string>
   <string name="font_size_title">גודל גופן</string>
+  <string name="font_preview_verse">כי כה אהב האלהים את העולם עד אשר נתן את בנו יחידו למען לא יאבד כל המאמין בו, כי אם יחיה חיי עולם.</string>
   <string name="font_size_title_pt">גודל גופן (%d נק)</string>
   <string name="prefs_font_text_size_summary">הגדרות שוליים, גופן וגודל</string>
   <string name="pref_font_family_label_name">סוג גופן (%s)</string>
@@ -395,7 +392,7 @@
   <string name="activity_empty">שום דבר לא פועל</string>
   <string name="activity_failed_toast">%1$s — ראו בתפריט</string>
   <string name="download_question_title">האם להמשיך בהורדה?</string>
-  <string name="download_question_message">אם אתה חי במדינה שיש בה רדיפה, ייתכן שיהיה עליך להיזהר בהורדת חומר נוצרי דרך האינטרנט. במקום זאת, ייתכן שתרצה להשיג מודולים - בצורת קובצי ZIP - בצורה מאובטחת יותר, ולהתקין אותם דרך \"טען מסמך מקובץ ZIP\". האם אתה בטוח שברצונך להמשיך בהורדה? כל ההורדות משרתי המודולים מוצפנות (HTTPS).</string>
+  <string name="download_question_message">אם אתה חי במדינה שבה נרדפים נוצרים, ייתכן שעליך להיזהר בהורדת חומר נוצרי דרך האינטרנט. במקום זאת, ייתכן שתעדיף להשיג קובצי zip של מודולים באופן מאובטח יותר ולהתקין אותם דרך \"%1$s\". האם אתה בטוח שברצונך להמשיך בהורדה? כל ההורדות משרתי המודולים מוצפנות (HTTPS).</string>
   <string name="do_not_ask_again">כן, אל תשאל שוב</string>
   <string name="recommended_document">מומלץ!</string>
   <string name="about_version_history">גרסא: %s</string>
@@ -416,6 +413,7 @@
   <string name="overwrite_files">הקבצים הבאים כבר קיימים: %s האם לדרוס?</string>
   <string name="overwrite_files_title">האם לדרוס את הקבצים?</string>
   <string name="could_not_overwrite_files">לא ניתן לדרוס קבצים: %s. למעט זה, ההתקנה הצליחה.</string>
+  <string name="module_backup_restore">קובץ זה הוא גיבוי של מסמכי AndBible. האם לשחזר את המסמכים שבו?</string>
   <string name="install_do_you_want">האם ברצונך להתקין את המודול (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">תוכנית קריאה</string>
@@ -770,6 +768,7 @@
   <string name="all">הכל</string>
   <string name="reset_generic">איפוס</string>
   <string name="watch_tutorial_video">צפייה בסרטון הדרכה (באנגלית)</string>
+  <string name="watch_tutorial_video_plain">צפה בסרטון ההדרכה</string>
   <string name="verse_not_found">הפסוק לא נמצא</string>
   <!--Errors-->
   <string name="crash_recovery_continue">המשך</string>
@@ -1460,7 +1459,7 @@
   <string name="ai_settings">הגדרות בינה מלאכותית</string>
   <string name="ai_connection_settings">הגדרות חיבור</string>
   <string name="ai_setup_title">הגדר בינה מלאכותית</string>
-  <string name="ai_setup_description">AndBible יכולה להשתמש בבינה מלאכותית לתרגום טקסט מקראי, הסבר פסוקים, יצירת סיכומים ועוד. להתחלה, הגדר חיבור לספק API תואם OpenAI.</string>
+  <string name="ai_setup_description">AndBible יכול להשתמש בבינה מלאכותית כדי לתרגם טקסט מקראי, להסביר פסוקים, ליצור סיכומים ועוד. כדי להתחיל, הגדר חיבור לספק בינה מלאכותית, כגון OpenAI, Anthropic או Google Gemini.</string>
   <string name="ai_configure_button">הגדר חיבור</string>
   <string name="ai_settings_shortcut_summary">הגדרות חיבור בינה מלאכותית והנחיות</string>
   <string name="ai_provider_tier_recommended">מומלץ</string>
@@ -2083,4 +2082,5 @@
   <string name="recommend_get_it">להורדה כאן: %s</string>
   <string name="recommend_share_link">שתף קישור</string>
   <string name="recommend_qr_caption">סרוק כדי להשיג את AndBible לטלפון, לטאבלט או למחשב שלך.</string>
+  <string name="desktop_activation_failed">AndBible כבר פועל, אך החלון שלו לא הגיב. עבור למופע הפועל ונסה שוב. קבצים נכנסים לא אושרו כמסורים.</string>
 </resources>

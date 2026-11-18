@@ -55,6 +55,12 @@
   <string name="other">অন্যান্য</string>
   <string name="contact">যোগাযোগ</string>
   <string name="help_and_tips">সহায়তা এবং &amp; পরামর্শ</string>
+  <string name="help_tab_tips">টিপস</string>
+  <string name="help_tab_user_guide">ব্যবহারকারী নির্দেশিকা</string>
+  <string name="help_user_guide_intro">সম্পূর্ণ ব্যবহারকারী নির্দেশিকা andbible.org-এ আছে। পৃষ্ঠাগুলো আপনার ব্রাউজারে খুলবে।</string>
+  <string name="help_user_guide_home">ব্যবহারকারী নির্দেশিকার হোম</string>
+  <string name="help_tutorial_videos">টিউটোরিয়াল ভিডিও</string>
+  <string name="help_play_video">ভিডিও চালান: %1$s</string>
   <string name="administration">প্রশাসন </string>
   <string name="rate_application">Rate &amp; Review</string>
   <string name="chooce_document">নথি চয়ন করুন </string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">অনুসন্ধান সূচি তৈরি হচ্ছে</string>
   <string name="choose_translations">অনুবাদ চয়ন করুন…</string>
   <string name="multi_search_count_summary">%2$s-এ %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d পদ</item>
-    <item quantity="other">%1$d পদ</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d অনুবাদ</item>
-    <item quantity="other">%1$d অনুবাদ</item>
-  </plurals>
   <string name="search_index_not_created">কোনো সূচক নেই</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">অধ্যায় &amp; ্পদ সংখ্যা্গুলি</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">একরঙা মোডে অ্যাপ্লিকেশন ব্যবহার করুন (কোনও রঙ নেই), এটি ই-কালি ডিভাইসের জন্য আরও উপযুক্ত করে তোলে।</string>
   <string name="prefs_display_color_mode_title">রঙের মোড</string>
   <string name="prefs_display_color_mode_summary">রঙ কীভাবে প্রদর্শিত হবে তা বেছে নিন। মনোক্রোম শুধু কালো ও সাদা ব্যবহার করে, ই-ইঙ্ক স্ক্রিনের জন্য; হাইলাইট করা বুকমার্ক গাঢ় অক্ষরে দেখানো হয়। রঙিন ই-ইঙ্ক দেখতে মনোক্রোমের মতো, তবে বুকমার্কের হাইলাইট ও আন্ডারলাইনের রঙ বজায় রাখে — রঙিন ই-ইঙ্ক স্ক্রিনের জন্য।</string>
+  <string name="prefs_use_system_colors_title">সিস্টেমের রঙ ব্যবহার করুন (Material You)</string>
+  <string name="prefs_use_system_colors_summary">আপনার ওয়ালপেপারের রং অনুসরণ করুন। ওয়ার্কস্পেসের রঙ এবং ই-ইঙ্ক রঙের মোড তবুও অগ্রাধিকার পাবে।</string>
   <string name="prefs_display_color_mode_normal">স্বাভাবিক</string>
   <string name="prefs_display_color_mode_bw">সাদা-কালো</string>
   <string name="prefs_display_color_mode_monochrome">একরঙা</string>
@@ -318,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">কোনো অভিধানে শব্দ পাওয়া যায়নি</string>
   <string name="prefs_top_margin_title_mm">শীর্ষ মার্জিন(%dmm)</string>
   <string name="font_size_title">অক্ষরের আকার</string>
+  <string name="font_preview_verse">কারণ ঈশ্বর জগৎকে এমন প্রেম করিলেন যে, আপনার একজাত পুত্রকে দান করিলেন, যেন, যে কেহ তাঁহাতে বিশ্বাস করে, সে বিনষ্ট না হয়, কিন্তু অনন্ত জীবন পায়।</string>
   <string name="font_size_title_pt">ফন্টের আকার(%dpt)</string>
   <string name="prefs_font_text_size_summary">প্রধান পাঠ্য ফন্টের আকার সামঞ্জস্য করুন</string>
   <string name="pref_font_family_label_name">ফন্ট পরিবার(%s)</string>
@@ -391,7 +392,7 @@
   <string name="activity_empty">কিছুই চলছে না</string>
   <string name="activity_failed_toast">%1$s — মেনু দেখুন</string>
   <string name="download_question_title">আপনি কি ডকুমেন্টস  ডাউনলোড করার জন্য এগিয়ে যেতে চান?</string>
-  <string name="download_question_message">আপনি যদি নিপীড়িত দেশে বাস করেন, ইন্টারনেটের মাধ্যমে খ্রিস্টিয়ান উপাদান ডাউনলোড করার ক্ষেত্রে আপনার সাবধান হওয়া দরকার। পরিবর্তে, আপনি মডিউল জিপ ফাইলগুলি আরও সুরক্ষিতভাবে পেতে এবং সেগুলি ইনস্টল করতে চাইতে পারেন \"জিপ থেকে লোড ডকুমেন্টস\" এর মাধ্যমে। আপনি কি ডাউনলোডের সাথে এগিয়ে যাওয়ার বিষয়ে নিশ্চিত? মডিউল সংগ্রহশালা থেকে সমস্ত ডাউনলোড এনক্রিপ্ট করা হয় (এইচটিটিপিএস)।</string>
+  <string name="download_question_message">আপনি যদি নির্যাতিত খ্রিস্টানদের দেশে বাস করেন, তবে ইন্টারনেটের মাধ্যমে খ্রিস্টীয় সামগ্রী ডাউনলোড করার ব্যাপারে আপনাকে সতর্ক থাকতে হতে পারে। বরং আপনি মডিউল জিপ ফাইলগুলো আরও নিরাপদ উপায়ে সংগ্রহ করে \"%1$s\"-এর মাধ্যমে ইনস্টল করতে চাইতে পারেন। আপনি কি ডাউনলোড চালিয়ে যেতে নিশ্চিত? মডিউল সার্ভার থেকে সমস্ত ডাউনলোড এনক্রিপ্টেড (HTTPS)।</string>
   <string name="do_not_ask_again">হ্যাঁ, আর জিজ্ঞাসা করবেন না</string>
   <string name="recommended_document">বাঞ্ছনীয়!</string>
   <string name="about_version_history">সংস্করণ ইতিহাস: %s </string>
@@ -413,6 +414,7 @@
   <string name="overwrite_files_title">ওভাররাইট ফাইল?
  </string>
   <string name="could_not_overwrite_files">ফাইলগুলি ওভাররাইট করা যায়নি: .%s তা ছাড়া ইনস্টল সফল হয়েছে।</string>
+  <string name="module_backup_restore">এই ফাইলটি AndBible ডকুমেন্টের ব্যাকআপ। আপনি কি এর ডকুমেন্টগুলো পুনরুদ্ধার করতে চান?</string>
   <string name="install_do_you_want">আপনি মডিউল ইনস্টল করতে চান(%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">পঠন পরিকল্পনা</string>
@@ -775,6 +777,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="all">সব </string>
   <string name="reset_generic">রিসেট</string>
   <string name="watch_tutorial_video">টিউটোরিয়াল ভিডিও দেখুন (ইংরেজি)</string>
+  <string name="watch_tutorial_video_plain">টিউটোরিয়াল ভিডিও দেখুন</string>
   <string name="verse_not_found">পদ পাওয়া যায়নি </string>
   <!--Errors-->
   <string name="crash_recovery_continue">চালিয়ে যান</string>
@@ -1491,7 +1494,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="ai_settings">AI সেটিংস</string>
   <string name="ai_connection_settings">সংযোগ সেটিংস</string>
   <string name="ai_setup_title">AI কনফিগার করুন</string>
-  <string name="ai_setup_description">AndBible বাইবেল টেক্সট অনুবাদ, পদ ব্যাখ্যা, সারসংক্ষেপ তৈরি এবং আরও অনেক কাজে AI ব্যবহার করতে পারে। শুরু করতে, OpenAI-সামঞ্জস্যপূর্ণ API প্রদানকারীর সাথে সংযোগ কনফিগার করুন।</string>
+  <string name="ai_setup_description">AndBible বাইবেলের পাঠ অনুবাদ, পদের ব্যাখ্যা, সারসংক্ষেপ তৈরি এবং আরও অনেক কিছুর জন্য এআই ব্যবহার করতে পারে। শুরু করতে OpenAI, Anthropic বা Google Gemini-এর মতো কোনো এআই প্রদানকারীর সাথে সংযোগ কনফিগার করুন।</string>
   <string name="ai_configure_button">সংযোগ কনফিগার করুন</string>
   <string name="ai_settings_shortcut_summary">AI সংযোগ ও প্রম্পট সেটিংস</string>
   <string name="ai_provider_tier_recommended">প্রস্তাবিত</string>
@@ -2114,4 +2117,5 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="recommend_get_it">এখানে পান: %s</string>
   <string name="recommend_share_link">একটি লিঙ্ক শেয়ার করুন</string>
   <string name="recommend_qr_caption">আপনার ফোন, ট্যাবলেট বা কম্পিউটারের জন্য AndBible পেতে স্ক্যান করুন।</string>
+  <string name="desktop_activation_failed">AndBible ইতিমধ্যে চলছে, কিন্তু এর উইন্ডো সাড়া দেয়নি। চলমান অ্যাপটিতে যান এবং আবার চেষ্টা করুন। আসা ফাইলগুলো পৌঁছেছে বলে নিশ্চিত হয়নি।</string>
 </resources>

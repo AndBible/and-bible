@@ -55,6 +55,12 @@
   <string name="other">Altres</string>
   <string name="contact">Contacte</string>
   <string name="help_and_tips">Ajuda i consells</string>
+  <string name="help_tab_tips">Consells</string>
+  <string name="help_tab_user_guide">Manual d\'usuari</string>
+  <string name="help_user_guide_intro">El manual d\'usuari complet és a andbible.org. Les pàgines s\'obren al navegador.</string>
+  <string name="help_user_guide_home">Inici del manual d\'usuari</string>
+  <string name="help_tutorial_videos">Vídeos tutorials</string>
+  <string name="help_play_video">Reprodueix el vídeo: %1$s</string>
   <string name="administration">Administració</string>
   <string name="rate_application">Valoreu i comenteu</string>
   <string name="chooce_document">Trieu un document</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Creació de l\'índex de cerca</string>
   <string name="choose_translations">Trieu traduccions…</string>
   <string name="multi_search_count_summary">%1$s en %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="many">%1$d de versos</item>
-    <item quantity="other">%1$d versos</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traducció</item>
-    <item quantity="many">%1$d de traduccions</item>
-    <item quantity="other">%1$d traduccions</item>
-  </plurals>
   <string name="search_index_not_created">sense índex</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítol i verset</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Utilitza l\'aplicació en mode monocrom (sense colors), fet que la fa més adequada per a dispositius de tinta electrònica.</string>
   <string name="prefs_display_color_mode_title">Mode de color</string>
   <string name="prefs_display_color_mode_summary">Tria com es mostren els colors. El mode monocrom només usa blanc i negre, per a pantalles de tinta electrònica; els marcadors ressaltats es mostren en negreta. El color de tinta electrònica és com el monocrom però conserva els colors de ressaltat i subratllat dels marcadors — per a pantalles de tinta electrònica en color.</string>
+  <string name="prefs_use_system_colors_title">Utilitza els colors del sistema (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Segueix els colors del fons de pantalla. El color de l\'espai de treball i els modes de color per a tinta electrònica continuen tenint prioritat.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Blanc i negre</string>
   <string name="prefs_display_color_mode_monochrome">Monocrom</string>
@@ -318,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">No s\'ha trobat la paraula en cap diccionari</string>
   <string name="prefs_top_margin_title_mm">Marge superior (%d mm)</string>
   <string name="font_size_title">Mida del tipus de lletra</string>
+  <string name="font_preview_verse">Perquè Déu estimà tant el món, que va donar el seu Fill unigènit, perquè tot aquell qui creu en ell no es perdi, sinó que tingui vida eterna.</string>
   <string name="font_size_title_pt">Mida del tipus de lletra (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajusta la mida del tipus de lletra del text principal</string>
   <string name="pref_font_family_label_name">Família de tipus de lletra (%s)</string>
@@ -389,7 +388,7 @@
   <string name="activity_empty">No hi ha res en execució</string>
   <string name="activity_failed_toast">%1$s — vegeu el menú</string>
   <string name="download_question_title">Voleu continuar per baixar documents?</string>
-  <string name="download_question_message">Si viviu en un país on hi ha persecució religiosa, pot ser que hàgiu d\'anar amb compte en baixar material cristià per Internet. En lloc d\'això, podeu obtenir els fitxers zip de mòduls de manera més segura i instal·lar-los mitjançant \"Carrega documents des d\'un fitxer zip\". Esteu segur que voleu continuar amb la baixada? Totes les baixades des de servidors de mòduls estan xifrades (HTTPS).</string>
+  <string name="download_question_message">Si viviu en un país on hi ha persecució, potser heu de ser prudents en baixar material cristià per Internet. En lloc d\'això, potser preferiu obtenir els fitxers zip dels mòduls de manera més segura i instal·lar-los mitjançant «%1$s». Esteu segur que voleu continuar amb la baixada? Totes les baixades dels servidors de mòduls estan xifrades (HTTPS).</string>
   <string name="do_not_ask_again">Sí, no tornis a preguntar</string>
   <string name="recommended_document">Recomanat!</string>
   <string name="about_version_history">Historial de versions: %s</string>
@@ -410,6 +409,7 @@
   <string name="overwrite_files">Els fitxers següents ja existeixen: %s. Voleu sobreescriure\'ls?</string>
   <string name="overwrite_files_title">Sobreescriu fitxers?</string>
   <string name="could_not_overwrite_files">No s\'han pogut sobreescriure els fitxers: %s. A part d\'això, la instal·lació ha estat correcta.</string>
+  <string name="module_backup_restore">Aquest fitxer és una còpia de seguretat dels documents d\'AndBible. Voleu restaurar-ne els documents?</string>
   <string name="install_do_you_want">Voleu instal·lar el mòdul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Pla de lectura</string>
@@ -724,6 +724,7 @@
   <string name="all">Tot</string>
   <string name="reset_generic">Restableix</string>
   <string name="watch_tutorial_video">Mira el vídeo tutorial (en anglès)</string>
+  <string name="watch_tutorial_video_plain">Mira el vídeo tutorial</string>
   <string name="verse_not_found">No s\'ha trobat el verset</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Continua</string>
@@ -1390,7 +1391,7 @@
   <string name="ai_settings">Configuració de la IA</string>
   <string name="ai_connection_settings">Configuració de la connexió</string>
   <string name="ai_setup_title">Configura la IA</string>
-  <string name="ai_setup_description">AndBible pot utilitzar la IA per traduir text bíblic, explicar versets, crear resums i molt més. Per començar, configura una connexió a un proveïdor d\'API compatible amb OpenAI.</string>
+  <string name="ai_setup_description">AndBible pot utilitzar la IA per traduir el text bíblic, explicar versets, crear resums i molt més. Per començar, configureu una connexió amb un proveïdor d\'IA, com ara OpenAI, Anthropic o Google Gemini.</string>
   <string name="ai_configure_button">Configura la connexió</string>
   <string name="ai_settings_shortcut_summary">Configuració de connexió i missatges de la IA</string>
   <string name="ai_provider_tier_recommended">Recomanat</string>
@@ -2013,4 +2014,5 @@
   <string name="recommend_get_it">Aconsegueix-la aquí: %s</string>
   <string name="recommend_share_link">Comparteix un enllaç</string>
   <string name="recommend_qr_caption">Escaneja per aconseguir AndBible per al mòbil, la tauleta o l\'ordinador.</string>
+  <string name="desktop_activation_failed">AndBible ja s\'està executant, però la seva finestra no ha respost. Canvieu a la instància en execució i torneu-ho a provar. No s\'ha confirmat que s\'hagin lliurat els fitxers entrants.</string>
 </resources>

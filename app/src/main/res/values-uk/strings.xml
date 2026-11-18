@@ -55,6 +55,12 @@
   <string name="other">Інше</string>
   <string name="contact">Контакти</string>
   <string name="help_and_tips">Довідка та поради</string>
+  <string name="help_tab_tips">Поради</string>
+  <string name="help_tab_user_guide">Посібник користувача</string>
+  <string name="help_user_guide_intro">Повний посібник користувача розміщено на andbible.org. Сторінки відкриваються у вашому браузері.</string>
+  <string name="help_user_guide_home">Головна сторінка посібника</string>
+  <string name="help_tutorial_videos">Навчальні відео</string>
+  <string name="help_play_video">Відтворити відео: %1$s</string>
   <string name="administration">Адміністрування</string>
   <string name="rate_application">Оцінка та огдяд</string>
   <string name="chooce_document">Вибрати ресурс</string>
@@ -129,18 +135,6 @@
   <string name="search_indexing_notification_title">Створення пошукового індексу</string>
   <string name="choose_translations">Вибрати переклади…</string>
   <string name="multi_search_count_summary">%1$s у %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d вірш</item>
-    <item quantity="few">%1$d вірші</item>
-    <item quantity="many">%1$d віршів</item>
-    <item quantity="other">%1$d вірша</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d переклад</item>
-    <item quantity="few">%1$d переклади</item>
-    <item quantity="many">%1$d перекладів</item>
-    <item quantity="other">%1$d перекладу</item>
-  </plurals>
   <string name="search_index_not_created">індекс відсутній</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
@@ -149,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Використовувати програму в монохромному режимі (без кольорів), що робить її більш придатною для пристроїв E-ink.</string>
   <string name="prefs_display_color_mode_title">Режим кольору</string>
   <string name="prefs_display_color_mode_summary">Виберіть, як відображаються кольори. Монохромний режим використовує лише чорний і білий кольори, для екранів e-ink; закладки з виділенням показуються жирним. Кольоровий e-ink виглядає як Монохромний, але зберігає кольори виділення та підкреслення закладок — для кольорових екранів e-ink.</string>
+  <string name="prefs_use_system_colors_title">Використовувати системні кольори (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Наслідувати кольори шпалер. Колір робочої області та кольорові режими для електронного паперу все одно мають вищий пріоритет.</string>
   <string name="prefs_display_color_mode_normal">Звичайний</string>
   <string name="prefs_display_color_mode_bw">Чорно-білий</string>
   <string name="prefs_display_color_mode_monochrome">Монохромний</string>
@@ -321,6 +317,7 @@
   <string name="word_not_found_in_dictionaries">Слово не знайдено в жодному словнику</string>
   <string name="prefs_top_margin_title_mm">Верхнє поле (%d мм)</string>
   <string name="font_size_title">Розмір шрифту</string>
+  <string name="font_preview_verse">Бо так Бог полюбив світ, що віддав Сина Свого Єдинородного, щоб кожен, хто вірує в Нього, не загинув, але мав життя вічне.</string>
   <string name="font_size_title_pt">Розмір шрифту (%d точ)</string>
   <string name="prefs_font_text_size_summary">Налаштування розміру шрифту основного тексту</string>
   <string name="pref_font_family_label_name">Сімейство шрифтів (%s)</string>
@@ -392,11 +389,7 @@
   <string name="activity_empty">Нічого не виконується</string>
   <string name="activity_failed_toast">%1$s — див. меню</string>
   <string name="download_question_title">Ви хочете продовжити завантаження ресурсів?</string>
-  <string name="download_question_message">Якщо ви живете в країні, де переслідування,
-можливо, вам потрібно бути обережними щодо завантаження християнських матеріалів через Інтернет.
-Натомість, ви можете отримати zip файли модуля більш безпечно та встановити їх
-через \"Завантажити ресурси з Zip\". Ви впевнені, що хочете продовжити завантаження?
-Усі завантаження з серверів модулів зашифровані (HTTPS).</string>
+  <string name="download_question_message">Якщо ви живете в країні, де християн переслідують, вам може знадобитися обережність під час завантаження християнських матеріалів через Інтернет. Натомість ви можете безпечніше отримати zip-файли модулів і встановити їх через \"%1$s\". Ви впевнені, що хочете продовжити завантаження? Усі завантаження із серверів ресурсів зашифровані (HTTPS).</string>
   <string name="do_not_ask_again">Так, більше не питати</string>
   <string name="recommended_document">Рекомендовано!</string>
   <string name="about_version_history">Журнал версій: %s</string>
@@ -417,6 +410,7 @@
   <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
   <string name="could_not_overwrite_files">Не вдалося перезаписати файли: %s. Крім того, встановлення пройшло успішно.</string>
+  <string name="module_backup_restore">Цей файл є резервною копією документів AndBible. Відновити її документи?</string>
   <string name="install_do_you_want">Ви хочете встановити (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читання</string>
@@ -786,6 +780,7 @@
   <string name="all">Всі</string>
   <string name="reset_generic">Скинути</string>
   <string name="watch_tutorial_video">Дивитись навчальне відео (на англ.)</string>
+  <string name="watch_tutorial_video_plain">Дивитися навчальне відео</string>
   <string name="verse_not_found">Вірш не знайдено</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Продовжити</string>
@@ -1525,7 +1520,7 @@
   <string name="ai_settings">Налаштування ШІ</string>
   <string name="ai_connection_settings">Налаштування підключення</string>
   <string name="ai_setup_title">Налаштувати ШІ</string>
-  <string name="ai_setup_description">AndBible може використовувати ШІ для перекладу біблійного тексту, пояснення віршів, створення резюме тощо. Щоб почати, налаштуйте підключення до постачальника API, сумісного з OpenAI.</string>
+  <string name="ai_setup_description">AndBible може використовувати ШІ для перекладу біблійного тексту, пояснення віршів, створення підсумків тощо. Щоб почати, налаштуйте з\'єднання з постачальником ШІ, наприклад OpenAI, Anthropic або Google Gemini.</string>
   <string name="ai_configure_button">Налаштувати підключення</string>
   <string name="ai_settings_shortcut_summary">Налаштування підключення ШІ та промптів</string>
   <string name="ai_provider_tier_recommended">Рекомендовано</string>
@@ -2148,4 +2143,5 @@
   <string name="recommend_get_it">Отримати тут: %s</string>
   <string name="recommend_share_link">Поділитися посиланням</string>
   <string name="recommend_qr_caption">Скануйте, щоб отримати AndBible для телефона, планшета або комп\'ютера.</string>
+  <string name="desktop_activation_failed">AndBible уже запущено, але його вікно не відповіло. Перейдіть до запущеного екземпляра та спробуйте ще раз. Отримання вхідних файлів не підтверджено.</string>
 </resources>

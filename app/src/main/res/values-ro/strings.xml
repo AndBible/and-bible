@@ -55,6 +55,12 @@
   <string name="other">Altele</string>
   <string name="contact">Contact</string>
   <string name="help_and_tips">Ajutor și sfaturi</string>
+  <string name="help_tab_tips">Sfaturi</string>
+  <string name="help_tab_user_guide">Ghidul utilizatorului</string>
+  <string name="help_user_guide_intro">Ghidul complet al utilizatorului se află pe andbible.org. Paginile se deschid în browser.</string>
+  <string name="help_user_guide_home">Pagina principală a ghidului</string>
+  <string name="help_tutorial_videos">Videoclipuri tutorial</string>
+  <string name="help_play_video">Redă videoclipul: %1$s</string>
   <string name="administration">Administrare</string>
   <string name="rate_application">Evaluări și Recenzii</string>
   <string name="chooce_document">Alege documentul</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Se creează indexul de căutare</string>
   <string name="choose_translations">Alege traduceri…</string>
   <string name="multi_search_count_summary">%1$s în %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d verset</item>
-    <item quantity="few">%1$d versete</item>
-    <item quantity="other">%1$d de versete</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traducere</item>
-    <item quantity="few">%1$d traduceri</item>
-    <item quantity="other">%1$d de traduceri</item>
-  </plurals>
   <string name="search_index_not_created">fără index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numărul capitolului și al versetului</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Folosește o singură culoare pentru aplicație (pentru a fi mai potrivită ecranelor E-ink).</string>
   <string name="prefs_display_color_mode_title">Mod culoare</string>
   <string name="prefs_display_color_mode_summary">Alege cum sunt afișate culorile. Monocrom folosește doar alb și negru, pentru ecrane e-ink; semnele de carte evidențiate sunt afișate aldin. E-ink color arată ca Monocrom, dar păstrează culorile de evidențiere și de subliniere ale semnelor de carte — pentru ecrane e-ink color.</string>
+  <string name="prefs_use_system_colors_title">Folosește culorile sistemului (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Urmează culorile imaginii de fundal. Culoarea unui spațiu de lucru și modurile de culoare e-ink au totuși prioritate.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Alb-negru</string>
   <string name="prefs_display_color_mode_monochrome">Monocrom</string>
@@ -320,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">Cuvântul nu a fost găsit în niciun dicționar</string>
   <string name="prefs_top_margin_title_mm">Marginea de sus (%d mm)</string>
   <string name="font_size_title">Mărime litere</string>
+  <string name="font_preview_verse">Fiindcă atât de mult a iubit Dumnezeu lumea, încât a dat pe singurul Său Fiu, pentru ca oricine crede în El să nu piară, ci să aibă viață veșnică.</string>
   <string name="font_size_title_pt">Mărime litere (%d pt)</string>
   <string name="prefs_font_text_size_summary">Schimbă mărimea literelor</string>
   <string name="pref_font_family_label_name">Tip de litere (%s)</string>
@@ -391,12 +390,7 @@
   <string name="activity_empty">Nimic în desfășurare</string>
   <string name="activity_failed_toast">%1$s — vezi meniul</string>
   <string name="download_question_title">Vrei să descarci documentele?</string>
-  <string name="download_question_message">Dacă locuiești într-o țară cu persecuții,
-        trebuie să fii atent cînd descarci materiale creștine de pe internet.
-        În schimb, poți obține fișierele Zip ale cărților într-un mod mai sigur și să le instalezi
-        cu „Folosește documente din Zip”. Sigur vrei să continui cu descărcarea?
-        Toate descărcările de pe servere sînt cifrate (HTTPS).
-    </string>
+  <string name="download_question_message">Dacă locuiești într-o țară în care creștinii sînt persecutați, ar trebui să fii atent la descărcarea materialelor creștine prin Internet. Poți obține fișierele zip ale modulelor într-un mod mai sigur și le poți instala prin „%1$s”. Ești sigur că vrei să continui cu descărcarea? Toate descărcările de pe serverele de module sînt criptate (HTTPS).</string>
   <string name="do_not_ask_again">Da, nu mai întreba</string>
   <string name="recommended_document">Recomandat!</string>
   <string name="about_version_history">Cronologia versiunilor: %s</string>
@@ -417,6 +411,7 @@
   <string name="overwrite_files">Următoarele fișiere există deja: %s Scrii peste ele? </string>
   <string name="overwrite_files_title">Scrii peste fișiere?</string>
   <string name="could_not_overwrite_files">Nu s-a putut scrie peste fișierele: %s. În afară de asta, instalarea a avut succes.</string>
+  <string name="module_backup_restore">Acest fișier este o copie de rezervă a documentelor AndBible. Vrei să restaurezi documentele din ea?</string>
   <string name="install_do_you_want">Vrei să instalezi modulul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de citire</string>
@@ -793,6 +788,7 @@
   <string name="all">Toate</string>
   <string name="reset_generic">Restabilește</string>
   <string name="watch_tutorial_video">Vezi instrucțiunile video (engleză)</string>
+  <string name="watch_tutorial_video_plain">Urmărește videoclipul tutorial</string>
   <string name="verse_not_found">Versetul nu a fost găsit</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Continuă</string>
@@ -1542,7 +1538,7 @@
   <string name="ai_settings">Reglări AI</string>
   <string name="ai_connection_settings">Reglări conexiune</string>
   <string name="ai_setup_title">Configurează AI</string>
-  <string name="ai_setup_description">AndBible poate folosi AI pentru a traduce texte biblice, explica versete, crea rezumate și altele. Pentru a începe, configurați o conexiune la un furnizor de API compatibil OpenAI.</string>
+  <string name="ai_setup_description">AndBible poate folosi IA pentru a traduce textul biblic, a explica versete, a crea rezumate și multe altele. Pentru a începe, configurează o conexiune la un furnizor de IA, precum OpenAI, Anthropic sau Google Gemini.</string>
   <string name="ai_configure_button">Configurează conexiunea</string>
   <string name="ai_settings_shortcut_summary">Reglări conexiune AI și prompturi</string>
   <string name="ai_provider_tier_recommended">Recomandat</string>
@@ -2165,4 +2161,5 @@
   <string name="recommend_get_it">Descarc-o de aici: %s</string>
   <string name="recommend_share_link">Distribuie un link</string>
   <string name="recommend_qr_caption">Scanează pentru a obține AndBible pentru telefonul, tableta sau computerul tău.</string>
+  <string name="desktop_activation_failed">AndBible rulează deja, dar fereastra lui nu a răspuns. Comută la instanța care rulează și încearcă din nou. Fișierele primite nu au fost confirmate ca livrate.</string>
 </resources>

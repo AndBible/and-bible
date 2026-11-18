@@ -55,6 +55,12 @@
   <string name="other">Άλλα</string>
   <string name="contact">Επικοινωνία</string>
   <string name="help_and_tips">Βοήθεια &amp; Συμβουλές</string>
+  <string name="help_tab_tips">Συμβουλές</string>
+  <string name="help_tab_user_guide">Οδηγός χρήσης</string>
+  <string name="help_user_guide_intro">Ο πλήρης οδηγός χρήσης βρίσκεται στο andbible.org. Οι σελίδες ανοίγουν στο πρόγραμμα περιήγησής σας.</string>
+  <string name="help_user_guide_home">Αρχική σελίδα οδηγού χρήσης</string>
+  <string name="help_tutorial_videos">Βίντεο οδηγιών</string>
+  <string name="help_play_video">Αναπαραγωγή βίντεο: %1$s</string>
   <string name="administration">Διαχείριση</string>
   <string name="rate_application">Αξιολόγηση &amp; Επισκόπηση</string>
   <string name="chooce_document">Επιλογή εγγράφου</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Δημιουργία ευρετηρίου αναζήτησης</string>
   <string name="choose_translations">Επιλέξτε μεταφράσεις…</string>
   <string name="multi_search_count_summary">%1$s σε %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d εδάφιο</item>
-    <item quantity="other">%1$d εδάφια</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d μετάφραση</item>
-    <item quantity="other">%1$d μεταφράσεις</item>
-  </plurals>
   <string name="search_index_not_created">χωρίς ευρετήριο</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Αριθμοί κεφαλαίων &amp; εδαφίων</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Χρήση μονόχρωμου στυλ (χωρίς χρώματα), κατάλληλο για συσκευές E-ink.</string>
   <string name="prefs_display_color_mode_title">Λειτουργία χρωμάτων</string>
   <string name="prefs_display_color_mode_summary">Επιλέξτε πώς εμφανίζονται τα χρώματα. Η λειτουργία Μονόχρωμη χρησιμοποιεί μόνο μαύρο και λευκό, για οθόνες e-ink· οι επισημασμένοι σελιδοδείκτες εμφανίζονται με έντονη γραφή. Η Έγχρωμη e-ink μοιάζει με τη Μονόχρωμη, αλλά διατηρεί τα χρώματα επισήμανσης και υπογράμμισης των σελιδοδεικτών — για έγχρωμες οθόνες e-ink.</string>
+  <string name="prefs_use_system_colors_title">Χρήση χρωμάτων συστήματος (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Ακολουθήστε τα χρώματα της ταπετσαρίας σας. Το χρώμα του χώρου εργασίας και οι χρωματικές λειτουργίες e-ink εξακολουθούν να υπερισχύουν.</string>
   <string name="prefs_display_color_mode_normal">Κανονική</string>
   <string name="prefs_display_color_mode_bw">Ασπρόμαυρη</string>
   <string name="prefs_display_color_mode_monochrome">Μονόχρωμο</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Η λέξη δεν βρέθηκε σε κανένα λεξικό</string>
   <string name="prefs_top_margin_title_mm">Επάνω περιθώριο (%d mm)</string>
   <string name="font_size_title">Μέγεθος γραμματοσειράς</string>
+  <string name="font_preview_verse">Επειδή τόσο ἠγάπησεν ὁ Θεὸς τὸν κόσμον, ὥστε τὸν Υἱὸν αὐτοῦ τὸν μονογενῆ ἔδωκεν, ἵνα πᾶς ὁ πιστεύων εἰς αὐτὸν μὴ ἀπόληται, ἀλλ᾿ ἔχῃ ζωὴν αἰώνιον.</string>
   <string name="font_size_title_pt">Μέγεθος γραμματοσειράς (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ρύθμιση μεγέθους γραμματοσειράς κυρίου κειμένου</string>
   <string name="pref_font_family_label_name">Οικογένεια γραμματοσειρών (%s)</string>
@@ -387,11 +388,7 @@
   <string name="activity_empty">Τίποτα σε εξέλιξη</string>
   <string name="activity_failed_toast">%1$s — δείτε το μενού</string>
   <string name="download_question_title">Συνέχεια στην λήψη εγγράφων?</string>
-  <string name="download_question_message">Αν ζείτε σε διωκόμενη χώρα,
-ίσως χρειάζετε να είστε προσεκτικοί κατά την λήψη χριστιανικού υλικού από το ίντερνετ.
-Εναλλακτικά, μπορείτε να αποκτήσετε συμπιεσμένα αρχεία προσθέτων με ασφάλεια και να τα εγκαταστήσετε
-από το \"Μεταφόρτωση εγγράφων από Zip\". Θέλετε σίγουρα να συνεχίσετε με την λήψη?
-Όλες οι λήψεις από διακομιστές είναι κρυπτογραφημένες (HTTPS)</string>
+  <string name="download_question_message">Αν ζείτε σε χώρα όπου υπάρχει δίωξη, ίσως χρειάζεται να είστε προσεκτικοί με τη λήψη χριστιανικού υλικού μέσω Διαδικτύου. Αντί γι\' αυτό, μπορεί να θέλετε να αποκτήσετε αρχεία zip εγγράφων με πιο ασφαλή τρόπο και να τα εγκαταστήσετε μέσω του \"%1$s\". Είστε βέβαιοι ότι θέλετε να συνεχίσετε με τη λήψη; Όλες οι λήψεις από διακομιστές εγγράφων είναι κρυπτογραφημένες (HTTPS).</string>
   <string name="do_not_ask_again">Ναι, μη ρωτήσεις πάλι</string>
   <string name="recommended_document">Προτεινόμενο!</string>
   <string name="about_version_history">Ιστορικό έκδοσης: %s</string>
@@ -412,6 +409,7 @@
   <string name="overwrite_files">Τα ακόλουθα αρχεία ήδη υπάρχουν: %s Αντικατάσταση?</string>
   <string name="overwrite_files_title">Αντικατάσταση αρχείων?</string>
   <string name="could_not_overwrite_files">Δεν μπορούσαν να επανεγγραφούν αρχεία: %s. Εκτός από αυτό η εγκατάσταση ήταν επιτυχής.</string>
+  <string name="module_backup_restore">Αυτό το αρχείο είναι αντίγραφο ασφαλείας εγγράφων του AndBible. Θέλετε να επαναφέρετε τα έγγραφά του;</string>
   <string name="install_do_you_want">Θέλετε να εγκαταστήσετε πρόσθετο (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
@@ -764,6 +762,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="all">Ολα</string>
   <string name="reset_generic">Επαναφορά</string>
   <string name="watch_tutorial_video">Δείτε βίντεο καθοδήγησης (Αγγλικά)</string>
+  <string name="watch_tutorial_video_plain">Προβολή βίντεο οδηγιών</string>
   <string name="verse_not_found">Δεν βρέθηκε ο στίχος</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Συνέχεια</string>
@@ -1483,7 +1482,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_settings">Ρυθμίσεις AI</string>
   <string name="ai_connection_settings">Ρυθμίσεις σύνδεσης</string>
   <string name="ai_setup_title">Ρύθμιση AI</string>
-  <string name="ai_setup_description">Το AndBible μπορεί να χρησιμοποιήσει AI για μετάφραση κειμένου της Αγίας Γραφής, επεξήγηση στίχων, δημιουργία περιλήψεων και άλλα. Για να ξεκινήσετε, ρυθμίστε μια σύνδεση με έναν πάροχο API συμβατό με OpenAI.</string>
+  <string name="ai_setup_description">Το AndBible μπορεί να χρησιμοποιεί AI για τη μετάφραση του κειμένου της Βίβλου, την εξήγηση στίχων, τη δημιουργία περιλήψεων και άλλα. Για να ξεκινήσετε, ρυθμίστε μια σύνδεση με έναν πάροχο AI, όπως OpenAI, Anthropic ή Google Gemini.</string>
   <string name="ai_configure_button">Ρύθμιση σύνδεσης</string>
   <string name="ai_settings_shortcut_summary">Ρυθμίσεις σύνδεσης AI και εντολών</string>
   <string name="ai_provider_tier_recommended">Προτεινόμενοι</string>
@@ -2106,4 +2105,5 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="recommend_get_it">Αποκτήστε το εδώ: %s</string>
   <string name="recommend_share_link">Κοινοποίηση συνδέσμου</string>
   <string name="recommend_qr_caption">Σαρώστε για να αποκτήσετε το AndBible για το τηλέφωνο, το tablet ή τον υπολογιστή σας.</string>
+  <string name="desktop_activation_failed">Το AndBible εκτελείται ήδη, αλλά το παράθυρό του δεν ανταποκρίθηκε. Μεταβείτε στην εκτελούμενη εφαρμογή και δοκιμάστε ξανά. Δεν επιβεβαιώθηκε η παράδοση των εισερχόμενων αρχείων.</string>
 </resources>

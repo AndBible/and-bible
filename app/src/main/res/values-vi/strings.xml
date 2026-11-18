@@ -55,6 +55,12 @@
   <string name="other">Khác</string>
   <string name="contact">Liên hệ</string>
   <string name="help_and_tips">Trợ giúp &amp; mẹo</string>
+  <string name="help_tab_tips">Mẹo</string>
+  <string name="help_tab_user_guide">Hướng dẫn sử dụng</string>
+  <string name="help_user_guide_intro">Hướng dẫn sử dụng đầy đủ có trên andbible.org. Các trang sẽ mở trong trình duyệt của bạn.</string>
+  <string name="help_user_guide_home">Trang chủ hướng dẫn sử dụng</string>
+  <string name="help_tutorial_videos">Video hướng dẫn</string>
+  <string name="help_play_video">Phát video: %1$s</string>
   <string name="administration">Quản trị</string>
   <string name="rate_application">Đánh giá &amp; Nhận xét</string>
   <string name="chooce_document">Chọn tài liệu</string>
@@ -129,12 +135,6 @@
   <string name="search_indexing_notification_title">Đang tạo chỉ mục tìm kiếm</string>
   <string name="choose_translations">Chọn bản dịch…</string>
   <string name="multi_search_count_summary">%1$s trong %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="other">%1$d câu</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="other">%1$d bản dịch</item>
-  </plurals>
   <string name="search_index_not_created">chưa có chỉ mục</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Số chương &amp; câu</string>
@@ -143,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Sử dụng ứng dụng ở chế độ đơn sắc (không màu), phù hợp hơn cho các thiết bị E-ink.</string>
   <string name="prefs_display_color_mode_title">Chế độ màu</string>
   <string name="prefs_display_color_mode_summary">Chọn cách hiển thị màu sắc. Đơn sắc chỉ dùng màu đen và trắng, dành cho màn hình e-ink; các dấu trang được đánh dấu sẽ hiển thị in đậm. Color e-ink trông giống Đơn sắc nhưng giữ lại màu đánh dấu và màu gạch chân của dấu trang — dành cho màn hình e-ink màu.</string>
+  <string name="prefs_use_system_colors_title">Dùng màu hệ thống (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Theo màu của hình nền. Màu không gian làm việc và các chế độ màu e-ink vẫn được ưu tiên hơn.</string>
   <string name="prefs_display_color_mode_normal">Bình thường</string>
   <string name="prefs_display_color_mode_bw">Đen &amp; trắng</string>
   <string name="prefs_display_color_mode_monochrome">Đơn sắc</string>
@@ -314,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Không tìm thấy từ trong bất kỳ từ điển nào</string>
   <string name="prefs_top_margin_title_mm">Lề trên (%d mm)</string>
   <string name="font_size_title">Cỡ chữ</string>
+  <string name="font_preview_verse">Vì Đức Chúa Trời yêu thương thế gian, đến nỗi đã ban Con một của Ngài, hầu cho hễ ai tin Con ấy không bị hư mất mà được sự sống đời đời.</string>
   <string name="font_size_title_pt">Cỡ chữ (%d pt)</string>
   <string name="prefs_font_text_size_summary">Điều chỉnh cỡ chữ của văn bản chính</string>
   <string name="pref_font_family_label_name">Họ phông chữ (%s)</string>
@@ -385,7 +388,7 @@
   <string name="activity_empty">Không có gì đang chạy</string>
   <string name="activity_failed_toast">%1$s — xem menu</string>
   <string name="download_question_title">Bạn có muốn tiến hành tải tài liệu không?</string>
-  <string name="download_question_message">Nếu bạn sống ở một quốc gia bị ngăn cấm, bạn có thể cần thận trọng khi tải tài liệu Kitô giáo qua Internet. Thay vào đó, bạn nên lấy các tệp zip mô-đun một cách an toàn hơn và cài đặt chúng qua \"Tải Tài Liệu Từ Tệp Zip\". Bạn có chắc muốn tiếp tục tải xuống không? Tất cả các tải xuống từ máy chủ mô-đun đều được mã hóa (HTTPS).</string>
+  <string name="download_question_message">Nếu bạn sống ở một quốc gia có đàn áp tôn giáo, bạn có thể cần thận trọng khi tải tài liệu Cơ Đốc qua Internet. Thay vào đó, bạn có thể muốn lấy các tệp zip mô-đun một cách an toàn hơn và cài đặt chúng qua \"%1$s\". Bạn có chắc chắn muốn tiếp tục tải xuống không? Mọi lượt tải từ máy chủ mô-đun đều được mã hóa (HTTPS).</string>
   <string name="do_not_ask_again">Có, đừng hỏi thêm nữa</string>
   <string name="recommended_document">Được khuyến nghị!</string>
   <string name="about_version_history">Lịch sử phiên bản: %s</string>
@@ -406,6 +409,7 @@
   <string name="overwrite_files">Các tệp sau đã tồn tại: %s Ghi đè?</string>
   <string name="overwrite_files_title">Ghi đè tệp?</string>
   <string name="could_not_overwrite_files">Không thể ghi đè các tệp: %s. Ngoài ra, quá trình cài đặt đã thành công.</string>
+  <string name="module_backup_restore">Tệp này là bản sao lưu tài liệu AndBible. Bạn có muốn khôi phục các tài liệu của nó không?</string>
   <string name="install_do_you_want">Bạn có muốn cài đặt mô-đun (%s) không?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Kế Hoạch Đọc</string>
@@ -720,6 +724,7 @@
   <string name="all">Tất cả</string>
   <string name="reset_generic">Đặt lại</string>
   <string name="watch_tutorial_video">Xem video hướng dẫn (tiếng Anh)</string>
+  <string name="watch_tutorial_video_plain">Xem video hướng dẫn</string>
   <string name="verse_not_found">Không tìm thấy câu</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Tiếp tục</string>
@@ -1386,7 +1391,7 @@
   <string name="ai_settings">Cài đặt AI</string>
   <string name="ai_connection_settings">Cài đặt kết nối</string>
   <string name="ai_setup_title">Cấu hình AI</string>
-  <string name="ai_setup_description">AndBible có thể dùng AI để dịch văn bản Kinh Thánh, giải thích câu, tạo tóm tắt và nhiều hơn nữa. Để bắt đầu, hãy cấu hình kết nối tới nhà cung cấp API tương thích OpenAI.</string>
+  <string name="ai_setup_description">AndBible có thể dùng AI để dịch văn bản Kinh Thánh, giải thích các câu, tạo bản tóm tắt và nhiều việc khác. Để bắt đầu, hãy cấu hình kết nối tới một nhà cung cấp AI, chẳng hạn OpenAI, Anthropic hoặc Google Gemini.</string>
   <string name="ai_configure_button">Cấu hình kết nối</string>
   <string name="ai_settings_shortcut_summary">Cài đặt kết nối AI và lệnh nhắc</string>
   <string name="ai_provider_tier_recommended">Được khuyến nghị</string>
@@ -2009,4 +2014,5 @@
   <string name="recommend_get_it">Tải về tại đây: %s</string>
   <string name="recommend_share_link">Chia sẻ liên kết</string>
   <string name="recommend_qr_caption">Quét để tải AndBible cho điện thoại, máy tính bảng hoặc máy tính của bạn.</string>
+  <string name="desktop_activation_failed">AndBible đã đang chạy, nhưng cửa sổ của nó không phản hồi. Hãy chuyển sang phiên bản đang chạy và thử lại. Các tệp được gửi đến chưa được xác nhận là đã chuyển giao.</string>
 </resources>
