@@ -12,6 +12,7 @@ from pathlib import Path
 import yaml
 
 from sitegen import paths
+from sitegen.tutorials import _LANG, youtube_language
 
 OUTPUT = paths.REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/TutorialVideoCatalog.kt"
 
@@ -34,8 +35,14 @@ def build(tutorials: Path = paths.DATA / "tutorials.yaml") -> Catalog:
     if playlist is not None and not re.fullmatch(r"[A-Za-z0-9_-]+", playlist):
         raise ValueError("playlist must be a YouTube playlist id or null")
     episodes = []
+    seen_slugs: set[str] = set()
     for episode in data.get("episodes", []):
         slug, youtube = episode["slug"], episode.get("youtube")
+        if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+            raise ValueError(f"bad episode slug {slug!r}")
+        if slug in seen_slugs:
+            raise ValueError(f"duplicate episode slug {slug}")
+        seen_slugs.add(slug)
         if youtube is not None and not re.fullmatch(r"[A-Za-z0-9_-]{11}", youtube):
             raise ValueError(f"{slug}: youtube must be an 11-character YouTube id or null")
         episodes.append((slug, youtube, _subtitles(episode.get("subtitles", []), f"{slug}.subtitles")))
@@ -45,13 +52,28 @@ def build(tutorials: Path = paths.DATA / "tutorials.yaml") -> Catalog:
 def _subtitles(value: list[str], source: str) -> tuple[str, ...]:
     if not isinstance(value, list) or any(not isinstance(tag, str) or not tag for tag in value):
         raise ValueError(f"{source} must be a list of language tags")
-    if value != sorted(set(value)):
+    normalized = [youtube_language(code) for code in value]
+    for code in normalized:
+        if not _LANG.fullmatch(code):
+            raise ValueError(f"{source} has a bad subtitle language {code!r}")
+        if code == "en" or code.startswith("en-"):
+            raise ValueError(f"{source} lists English; subtitles are the languages besides English")
+    if normalized != sorted(set(normalized)):
         raise ValueError(f"{source} must be sorted and unique")
-    return tuple(value)
+    return tuple(normalized)
 
 
 def _k(value: str) -> str:
-    return value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$")
+    escaped = []
+    for char in value:
+        escapes = {"\\": "\\\\", '"': '\\"', "$": "\\$", "\n": "\\n", "\r": "\\r", "\t": "\\t", "\b": "\\b", "\f": "\\f"}
+        if char in escapes:
+            escaped.append(escapes[char])
+        elif ord(char) < 0x20 or ord(char) == 0x7f:
+            escaped.append(f"\\u{ord(char):04x}")
+        else:
+            escaped.append(char)
+    return "".join(escaped)
 
 
 def render(catalog: Catalog) -> str:

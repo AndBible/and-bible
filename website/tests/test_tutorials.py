@@ -152,6 +152,10 @@ def test_real_file_is_valid():
 
 def test_tutorials_yaml_and_the_app_registry_agree():
     data = yaml.safe_load(DATA.read_text(encoding="utf-8"))
+    kotlin_source = KOTLIN.read_text(encoding="utf-8")
+    enum_block = kotlin_source.split("enum class Episode", 1)[1].split(";", 1)[0]
+    enum_slugs = {name.lower().replace("_", "-") for name in re.findall(r"^\s*([A-Z0-9_]+),?$", enum_block, re.M)}
+    assert {e["slug"] for e in data["episodes"]} == enum_slugs
     assert {e["slug"]: (e["youtube"], tuple(e["subtitles"])) for e in data["episodes"]} == _kotlin_episodes()
     assert data["placeholder"] == re.search(r'val placeholderId: String\? = "([^"]+)"', CATALOG.read_text()).group(1)
 

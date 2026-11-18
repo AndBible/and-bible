@@ -24,24 +24,43 @@ episodes: []
 def test_render_metadata_and_escape_special_characters():
     catalog = app_tutorials.Catalog(
         placeholder_id=None,
-        placeholder_subtitles=('de"quoted', "fi\\slash", "sv$price"),
+        placeholder_subtitles=('de"quoted', "fi\\slash", "sv$price", "fr\nline"),
         playlist_id=None,
-        episodes=(("tutorial-quoted", "abcDEF12345", ('de"quoted', "fi\\slash", "sv$price")),
+        episodes=(("tutorial-quoted", "abcDEF12345", ('de"quoted', "fi\\slash", "sv$price", "fr\nline")),
                   ("tutorial-unpublished", None, ())),
     )
     rendered = app_tutorials.render(catalog)
     assert 'val placeholderId: String? = null' in rendered
-    assert 'setOf("de\\"quoted", "fi\\\\slash", "sv\\$price")' in rendered
-    assert '"tutorial-quoted" to Video("abcDEF12345", setOf("de\\"quoted", "fi\\\\slash", "sv\\$price"))' in rendered
+    assert 'setOf("de\\"quoted", "fi\\\\slash", "sv\\$price", "fr\\nline")' in rendered
+    assert '"tutorial-quoted" to Video("abcDEF12345", setOf("de\\"quoted", "fi\\\\slash", "sv\\$price", "fr\\nline"))' in rendered
     assert '"tutorial-unpublished" to Video(null, setOf())' in rendered
     assert 'val playlistId: String? = null' in rendered
 
 
-def test_subtitles_must_be_sorted_and_unique(tmp_path):
+@pytest.mark.parametrize("languages, message", [
+    ("[fi, de]", "sorted and unique"),
+    ("[not_a_language]", "bad subtitle language"),
+    ("[en]", "lists English"),
+])
+def test_subtitles_are_normalized_and_validated(tmp_path, languages, message):
     source = tmp_path / "tutorials.yaml"
-    source.write_text("placeholder: null\nplaceholder_subtitles: [fi, de]\nepisodes: []\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="sorted and unique"):
+    source.write_text(f"placeholder: null\nplaceholder_subtitles: {languages}\nepisodes: []\n", encoding="utf-8")
+    with pytest.raises(ValueError, match=message):
         app_tutorials.build(source)
+
+
+def test_android_subtitle_aliases_normalize_without_changing_language_tags(tmp_path):
+    source = tmp_path / "tutorials.yaml"
+    source.write_text("placeholder: null\nplaceholder_subtitles: [pt-rBR, b+sr+Latn]\nepisodes: []\n", encoding="utf-8")
+    assert app_tutorials.build(source).placeholder_subtitles == ("pt-BR", "sr-Latn")
+
+
+def test_episode_slugs_must_be_valid_and_unique(tmp_path):
+    source = tmp_path / "tutorials.yaml"
+    for slugs, error in ((["Bad_Slug"], "bad episode slug"), (["first", "first"], "duplicate episode slug")):
+        source.write_text("placeholder: null\nepisodes:\n" + "".join(f"  - {{slug: {slug}, youtube: null, subtitles: []}}\n" for slug in slugs), encoding="utf-8")
+        with pytest.raises(ValueError, match=error):
+            app_tutorials.build(source)
 
 
 def test_generated_file_is_up_to_date():
