@@ -36,21 +36,36 @@ for (k in enStrings) {
 
 let stringsLoaded = false;
 
+/** Map native BCP-47 tags to the historical Android-derived bundle filenames. */
+function languageFile(langTag: string): string {
+    const [language, scriptOrRegion] = langTag.toLowerCase().split("-");
+    switch (language) {
+        case "id": return "in";
+        case "iw": return "he";
+        case "sr": return scriptOrRegion === "latn" ? "b+sr+Latn" : "b+sr+RS";
+        // zh.yaml is Traditional Chinese; an explicit script takes precedence over the region.
+        case "zh": return ["hans", "cn", "sg"].includes(scriptOrRegion) ? "zh-CN" : "zh";
+        default: return language;
+    }
+}
+
 async function loadStrings() {
     const langTag = new URLSearchParams(window.location.search).get("lang") || "";
     if (langTag === "en-US") return;
     const langShort = langTag.split('-')[0]
     console.log(`Loading lang ${langTag}`)
-    let translations: Partial<TranslatedStrings>;
-    try {
-        translations = (await import(`@/lang/${langTag}.yaml`)).default;
-    } catch {
+    let translations: Partial<TranslatedStrings> | undefined;
+    for (const file of new Set([langTag, languageFile(langTag), langShort])) {
         try {
-            translations = (await import(`@/lang/${langShort}.yaml`)).default;
+            translations = (await import(`@/lang/${file}.yaml`)).default;
+            break;
         } catch {
-            console.error(`Language ${langTag} not found, falling back to English!`)
-            return;
+            // Try the mapped filename and primary language before keeping the English defaults.
         }
+    }
+    if (!translations) {
+        console.error(`Language ${langTag} not found, falling back to English!`)
+        return;
     }
     let k: keyof TranslatedStrings
     for (k in translations) {
