@@ -55,6 +55,12 @@
   <string name="other">Sonstiges</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hilfe &amp; Tipps</string>
+  <string name="help_tab_tips">Tipps</string>
+  <string name="help_tab_user_guide">Benutzerhandbuch</string>
+  <string name="help_user_guide_intro">Das vollständige Benutzerhandbuch befindet sich auf andbible.org. Die Seiten werden in Ihrem Browser geöffnet.</string>
+  <string name="help_user_guide_home">Startseite des Benutzerhandbuchs</string>
+  <string name="help_tutorial_videos">Anleitungsvideos</string>
+  <string name="help_play_video">Video abspielen: %1$s</string>
   <string name="administration">Verwaltung</string>
   <string name="rate_application">Bewerten &amp; Review schreiben</string>
   <string name="chooce_document">Dokument auswählen</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Suchindex wird erstellt</string>
   <string name="choose_translations">Übersetzungen auswählen…</string>
   <string name="multi_search_count_summary">%1$s in %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d Vers</item>
-    <item quantity="other">%1$d Verse</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d Übersetzung</item>
-    <item quantity="other">%1$d Übersetzungen</item>
-  </plurals>
   <string name="search_index_not_created">kein Index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Die Applikation im Monochrommodus (ohne Farben) benutzen, um sie bequemer auf E-Ink - Geräten benutzen zu können.</string>
   <string name="prefs_display_color_mode_title">Farbmodus</string>
   <string name="prefs_display_color_mode_summary">Wähle, wie Farben dargestellt werden. Monochrom verwendet nur Schwarz und Weiß, für E-Ink-Displays; hervorgehobene Lesezeichen werden fett angezeigt. Farbiges E-Ink sieht aus wie Monochrom, behält aber die Hervorhebungs- und Unterstreichungsfarben der Lesezeichen — für farbige E-Ink-Displays.</string>
+  <string name="prefs_use_system_colors_title">Systemfarben verwenden (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Den Farben Ihres Hintergrundbilds folgen. Eine Arbeitsbereichsfarbe und die E-Ink-Farbmodi haben weiterhin Vorrang.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Schwarz &amp; Weiß</string>
   <string name="prefs_display_color_mode_monochrome">Monochrom</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Wort in keinem Wörterbuch gefunden</string>
   <string name="prefs_top_margin_title_mm">Oberer Rand (%d mm)</string>
   <string name="font_size_title">Schriftgröße</string>
+  <string name="font_preview_verse">Denn also hat Gott die Welt geliebt, dass er seinen eingeborenen Sohn gab, damit alle, die an ihn glauben, nicht verloren werden, sondern das ewige Leben haben.</string>
   <string name="font_size_title_pt">Schriftgröße (%d pt)</string>
   <string name="prefs_font_text_size_summary">Die generelle Schriftgröße anpassen</string>
   <string name="pref_font_family_label_name">Schriftart (%s)</string>
@@ -387,11 +388,7 @@
   <string name="activity_empty">Nichts läuft</string>
   <string name="activity_failed_toast">%1$s — siehe Menü</string>
   <string name="download_question_title">Möchten Sie mit dem Herunterladen der Dokumente fortfahren?</string>
-  <string name="download_question_message">Wenn du in einem Land lebst, das unter Verfolgung leidet,
-dann möchtest du evtl. vorsichtig sein, christliches Material über das Internet herunterzuladen.
-Stattdessen wäre es evtl. besser, Zip-Dateien über einen sichereren Weg erhalten und händisch
-über \"Dokumente aus Zip-Datei laden\" installieren. Bist du dir sicher, dass du fortfahren möchtest?
-Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).</string>
+  <string name="download_question_message">Wenn Sie in einem Land leben, in dem Christen verfolgt werden, sollten Sie beim Herunterladen christlicher Inhalte über das Internet vorsichtig sein. Stattdessen könnten Sie Modul-Zip-Dateien auf sicherere Weise beschaffen und über \"%1$s\" installieren. Sind Sie sicher, dass Sie mit dem Herunterladen fortfahren möchten? Alle Downloads von Modulservern sind verschlüsselt (HTTPS).</string>
   <string name="do_not_ask_again">Ja, nicht mehr nachfragen</string>
   <string name="recommended_document">Empfohlen!</string>
   <string name="about_version_history">Versionschronik: %s</string>
@@ -412,6 +409,7 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="overwrite_files">Die folgende Datei existiert bereits: %s Überschreiben?</string>
   <string name="overwrite_files_title">Dateien überschreiben?</string>
   <string name="could_not_overwrite_files">Konnte Dateien %s nicht überschreiben. Abgesehen davon war die Installation erfolgreich.</string>
+  <string name="module_backup_restore">Diese Datei ist eine Sicherung von AndBible-Dokumenten. Möchten Sie die Dokumente daraus wiederherstellen?</string>
   <string name="install_do_you_want">Möchtest du das Modul (%s) installieren?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
@@ -756,6 +754,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="all">Alles</string>
   <string name="reset_generic">Zurücksetzen</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
+  <string name="watch_tutorial_video_plain">Anleitungsvideo ansehen</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Weiter</string>
@@ -1468,7 +1467,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="ai_settings">KI-Einstellungen</string>
   <string name="ai_connection_settings">Verbindungseinstellungen</string>
   <string name="ai_setup_title">KI konfigurieren</string>
-  <string name="ai_setup_description">AndBible kann KI verwenden, um Bibeltext zu übersetzen, Verse zu erklären, Zusammenfassungen zu erstellen und vieles mehr. Konfigurieren Sie zunächst eine Verbindung zu einem OpenAI-kompatiblen API-Anbieter.</string>
+  <string name="ai_setup_description">AndBible kann KI nutzen, um Bibeltext zu übersetzen, Verse zu erklären, Zusammenfassungen zu erstellen und mehr. Richten Sie zunächst eine Verbindung zu einem KI-Anbieter wie OpenAI, Anthropic oder Google Gemini ein.</string>
   <string name="ai_configure_button">Verbindung konfigurieren</string>
   <string name="ai_settings_shortcut_summary">KI-Verbindungs- und Prompt-Einstellungen</string>
   <string name="ai_provider_tier_recommended">Empfohlen</string>
@@ -2091,4 +2090,5 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="recommend_get_it">Hier bekommst du sie: %s</string>
   <string name="recommend_share_link">Link teilen</string>
   <string name="recommend_qr_caption">Scannen, um AndBible für dein Smartphone, Tablet oder Computer zu erhalten.</string>
+  <string name="desktop_activation_failed">AndBible läuft bereits, aber sein Fenster hat nicht reagiert. Wechseln Sie zur laufenden Instanz und versuchen Sie es erneut. Eingehende Dateien wurden möglicherweise nicht zugestellt.</string>
 </resources>

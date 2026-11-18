@@ -219,12 +219,6 @@
   <string name="one_more_back_press">再按返回以關閉程式</string>
   <string name="document_filter_results">%d文件</string>
   <string name="download_question_title">你想繼續下載文件嗎？</string>
-  <string name="download_question_message">如果你生活在受逼迫的地區，
-在下載基督教的材料時，你或許更要小心。
-取而代之，你可以用 \"從ZIP載入文件\" 功能，
-以更安全的方法取得及安裝 ZIP模組。你確定要繼續進行下載嗎？
-所有下載都是經由加密方式 (HTTPS)。
-</string>
   <string name="do_not_ask_again">確定。不要再詢問</string>
   <string name="recommended_document">建議的！</string>
   <string name="about_version_history">版本歷史: %s</string>

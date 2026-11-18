@@ -118,7 +118,6 @@ Other labels: all other labels.</string>
   <string name="give_name_workspace">New workspace name</string>
   <!--Beta notice-->
   <string name="beta_notice_title">This is the beta version!</string>
-  <string name="upgrade_video_message">Please see the video highlighting new features of this release (%s).</string>
   <!--History-->
   <!--Help-->
   <string name="help_nav_text">Go to the next or previous chapter by swiping left or right..

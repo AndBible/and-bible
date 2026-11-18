@@ -55,6 +55,12 @@
   <string name="other">기타</string>
   <string name="contact">연락처</string>
   <string name="help_and_tips">도움말과 팁</string>
+  <string name="help_tab_tips">팁</string>
+  <string name="help_tab_user_guide">사용자 가이드</string>
+  <string name="help_user_guide_intro">전체 사용자 가이드는 andbible.org에 있습니다. 페이지는 브라우저에서 열립니다.</string>
+  <string name="help_user_guide_home">사용자 가이드 홈</string>
+  <string name="help_tutorial_videos">튜토리얼 동영상</string>
+  <string name="help_play_video">동영상 재생: %1$s</string>
   <string name="administration">관리</string>
   <string name="rate_application">평가와 리뷰</string>
   <string name="chooce_document">문서 선택</string>
@@ -129,12 +135,6 @@
   <string name="search_indexing_notification_title">검색 색인 만드는 중</string>
   <string name="choose_translations">번역본 선택…</string>
   <string name="multi_search_count_summary">%2$s에서 %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="other">%1$d개 구절</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="other">%1$d개 번역본</item>
-  </plurals>
   <string name="search_index_not_created">색인 없음</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">장 &amp; 절 번호</string>
@@ -143,6 +143,8 @@
   <string name="prefs_eink_mode_summary">전자책 디바이스에 알맞게 앱을 흑백 모드(컬러 없음)로 사용합니다.</string>
   <string name="prefs_display_color_mode_title">색상 모드</string>
   <string name="prefs_display_color_mode_summary">색상 표시 방식을 선택하세요. 흑백은 전자잉크 화면용으로 검은색과 흰색만 사용하며, 강조 표시된 북마크는 굵게 표시됩니다. 컬러 전자잉크는 흑백과 비슷하지만 북마크 강조 및 밑줄 색상을 유지하며, 컬러 전자잉크 화면용입니다.</string>
+  <string name="prefs_use_system_colors_title">시스템 색상 사용 (Material You)</string>
+  <string name="prefs_use_system_colors_summary">배경화면의 색상을 따릅니다. 작업공간 색상과 전자잉크 색상 모드가 여전히 우선합니다.</string>
   <string name="prefs_display_color_mode_normal">일반</string>
   <string name="prefs_display_color_mode_bw">흑백</string>
   <string name="prefs_display_color_mode_monochrome">흑백</string>
@@ -314,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">어떤 사전에서도 단어를 찾을 수 없습니다</string>
   <string name="prefs_top_margin_title_mm">상단 여백 (%d mm)</string>
   <string name="font_size_title">글꼴 크기</string>
+  <string name="font_preview_verse">하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라</string>
   <string name="font_size_title_pt">글꼴 크기 (%d pt)</string>
   <string name="prefs_font_text_size_summary">주 텍스트의 글꼴 크기를 조정합니다</string>
   <string name="pref_font_family_label_name">글꼴 패밀리 (%s)</string>
@@ -385,11 +388,7 @@
   <string name="activity_empty">실행 중인 작업 없음</string>
   <string name="activity_failed_toast">%1$s — 메뉴 참조</string>
   <string name="download_question_title">문서들을 다운로드하시겠습니까?</string>
-  <string name="download_question_message">만약 당신이 박해받는 나라에 살고 계신다면,
-인터넷으로 기독교 관련 파일을 다운로드 받는 것을 조심해야 할 수도 있습니다.
-대신, 더 안전한 방법으로 모듈 zip 파일을 다운로드 받은 후에
-“zip 파일에서 문서 가져오기” 기능으로 설치하는 것이 나을 수 있습니다. 정말 다운로드를 진행할까요?
-모듈 서버로부터 받는 모든 다운로드는 암호화(HTTPS) 되어 있습니다.</string>
+  <string name="download_question_message">박해받는 나라에 살고 계신다면, 인터넷을 통해 기독교 자료를 다운로드하는 데 주의가 필요할 수 있습니다. 대신 모듈 zip 파일을 더 안전하게 입수하여 \"%1$s\"를 통해 설치하는 것이 좋을 수 있습니다. 정말 다운로드를 진행하시겠습니까? 문서 서버에서의 모든 다운로드는 암호화(HTTPS)되어 있습니다.</string>
   <string name="do_not_ask_again">예, 더 물어보지 마세요</string>
   <string name="recommended_document">추천!</string>
   <string name="about_version_history">버전 히스토리: %s</string>
@@ -410,6 +409,7 @@
   <string name="overwrite_files">이 파일은 이미 있습니다: %s 덮어쓸까요?</string>
   <string name="overwrite_files_title">파일을 덮어쓸까요?</string>
   <string name="could_not_overwrite_files">다음 파일을 덮어쓸 수 없습니다: %s. 그 외에는 설치가 성공적으로 완료되었습니다.</string>
+  <string name="module_backup_restore">이 파일은 AndBible 문서 백업입니다. 백업에 들어 있는 문서를 복원하시겠습니까?</string>
   <string name="install_do_you_want">모듈 (%s)을 설치하시겠습니까?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">읽기 계획</string>
@@ -786,6 +786,7 @@
   <string name="all">전체</string>
   <string name="reset_generic">재설정</string>
   <string name="watch_tutorial_video">튜토리얼 비디오를 봐 주세요 (영어)</string>
+  <string name="watch_tutorial_video_plain">튜토리얼 동영상 보기</string>
   <string name="verse_not_found">절이 없음</string>
   <!--Errors-->
   <string name="crash_recovery_continue">계속</string>
@@ -1534,7 +1535,7 @@
   <string name="ai_settings">AI 설정</string>
   <string name="ai_connection_settings">연결 설정</string>
   <string name="ai_setup_title">AI 구성</string>
-  <string name="ai_setup_description">AndBible은 AI를 사용하여 성경 텍스트를 번역하고, 구절을 설명하고, 요약을 만들 수 있습니다. 시작하려면 OpenAI 호환 API 공급자에 대한 연결을 구성하세요.</string>
+  <string name="ai_setup_description">AndBible은 AI를 사용하여 성경 본문을 번역하고, 구절을 설명하고, 요약을 만드는 등의 작업을 할 수 있습니다. 시작하려면 OpenAI, Anthropic 또는 Google Gemini와 같은 AI 공급자에 대한 연결을 설정하세요.</string>
   <string name="ai_configure_button">연결 구성</string>
   <string name="ai_settings_shortcut_summary">AI 연결 및 프롬프트 설정</string>
   <string name="ai_provider_tier_recommended">권장</string>
@@ -2157,4 +2158,5 @@
   <string name="recommend_get_it">여기에서 받기: %s</string>
   <string name="recommend_share_link">링크 공유</string>
   <string name="recommend_qr_caption">스캔하여 휴대폰, 태블릿 또는 컴퓨터용 AndBible을 받으세요.</string>
+  <string name="desktop_activation_failed">AndBible이 이미 실행 중이지만 창이 응답하지 않았습니다. 실행 중인 인스턴스로 전환한 후 다시 시도하세요. 전달된 파일은 수신이 확인되지 않았습니다.</string>
 </resources>

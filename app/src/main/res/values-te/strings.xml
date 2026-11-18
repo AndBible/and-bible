@@ -55,6 +55,12 @@
   <string name="other">ఇతర</string>
   <string name="contact">సంప్రదించండి</string>
   <string name="help_and_tips">సహాయం &amp; చిట్కాలు</string>
+  <string name="help_tab_tips">చిట్కాలు</string>
+  <string name="help_tab_user_guide">వినియోగదారు గైడ్</string>
+  <string name="help_user_guide_intro">పూర్తి వినియోగదారు గైడ్ andbible.org లో ఉంది. పేజీలు మీ బ్రౌజర్‌లో తెరవబడతాయి.</string>
+  <string name="help_user_guide_home">వినియోగదారు గైడ్ హోమ్</string>
+  <string name="help_tutorial_videos">ట్యుటోరియల్ వీడియోలు</string>
+  <string name="help_play_video">వీడియో ప్లే చేయండి: %1$s</string>
   <string name="administration">అడ్మినిస్ట్రేషన్</string>
   <string name="rate_application">రేటు &amp; సమీక్ష</string>
   <string name="chooce_document">పత్రాన్ని ఎంచుకోండి</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">వెతుకు సూచికను సృష్టిస్తోంది</string>
   <string name="choose_translations">అనువాదాలను ఎంచుకోండి…</string>
   <string name="multi_search_count_summary">%2$s %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d వచనం</item>
-    <item quantity="other">%1$d వచనాలు</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d అనువాదంలో</item>
-    <item quantity="other">%1$d అనువాదాల్లో</item>
-  </plurals>
   <string name="search_index_not_created">సూచిక లేదు</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">చాప్టర్ &amp; వచనం సంఖ్యలు</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">మోనోక్రోమ్ మోడ్‌లో అప్లికేషన్‌ను ఉపయోగించండి (రంగులు లేవు), ఇది E-ఇంక్ పరికరాలకు మరింత అనుకూలంగా ఉంటుంది.</string>
   <string name="prefs_display_color_mode_title">కలర్ మోడ్</string>
   <string name="prefs_display_color_mode_summary">రంగులు ఎలా ప్రదర్శించబడాలో ఎంచుకోండి. ఏకవర్ణం ఇ-ఇంక్ స్క్రీన్‌ల కోసం కేవలం నలుపు మరియు తెలుపును మాత్రమే ఉపయోగిస్తుంది; హైలైట్ చేసిన బుక్‌మార్క్‌లు బోల్డ్‌లో చూపబడతాయి. రంగు ఇ-ఇంక్ ఏకవర్ణంలా కనిపిస్తుంది కానీ బుక్‌మార్క్ హైలైట్ మరియు అండర్‌లైన్ రంగులను ఉంచుతుంది — రంగు ఇ-ఇంక్ స్క్రీన్‌ల కోసం.</string>
+  <string name="prefs_use_system_colors_title">సిస్టమ్ రంగులను ఉపయోగించండి (Material You)</string>
+  <string name="prefs_use_system_colors_summary">మీ వాల్‌పేపర్ రంగులను అనుసరించండి. వర్క్‌స్పేస్ రంగు మరియు ఇ-ఇంక్ రంగు మోడ్‌లకు ఇప్పటికీ ప్రాధాన్యత ఉంటుంది.</string>
   <string name="prefs_display_color_mode_normal">సాధారణం</string>
   <string name="prefs_display_color_mode_bw">నలుపు &amp; తెలుపు</string>
   <string name="prefs_display_color_mode_monochrome">ఏకవర్ణం</string>
@@ -317,6 +317,7 @@
   <string name="word_not_found_in_dictionaries">ఏ నిఘంటువులో పదం కనుగొనబడలేదు</string>
   <string name="prefs_top_margin_title_mm">ఎగువ అంచు (%dmm)</string>
   <string name="font_size_title">ఫాంట్ పరిమాణం</string>
+  <string name="font_preview_verse">దేవుడు లోకమును ఎంతో ప్రేమించెను; కాగా ఆయన తన అద్వితీయకుమారునిపై విశ్వాసముంచు ప్రతివాడును నశింపక నిత్యజీవము పొందునట్లు ఆయనను అనుగ్రహించెను.</string>
   <string name="font_size_title_pt">ఫాంట్ పరిమాణం (%d pt)</string>
   <string name="prefs_font_text_size_summary">ప్రధాన వచన ఫాంట్ పరిమాణాన్ని సర్దుబాటు చేయండి</string>
   <string name="pref_font_family_label_name">ఫాంట్ కుటుంబం (%s)</string>
@@ -388,11 +389,7 @@
   <string name="activity_empty">ఏదీ నడవడం లేదు</string>
   <string name="activity_failed_toast">%1$s — మెనూ చూడండి</string>
   <string name="download_question_title">మీరు పత్రాలను డౌన్‌లోడ్ చేయడానికి కొనసాగాలనుకుంటున్నారా?</string>
-  <string name="download_question_message">మీరు హింసించబడే దేశంలో నివసిస్తున్నట్లయితే,
-మీరు ఇంటర్నెట్ ద్వారా క్రైస్తవ మెటీరియల్‌ని డౌన్‌లోడ్ చేయడంలో జాగ్రత్తగా ఉండవలసి ఉంటుంది.
-బదులుగా, మీరు మాడ్యూల్ జిప్ ఫైల్‌లను మరింత సురక్షితంగా పొంది, వాటిని ఇన్‌స్టాల్ చేయవొచ్చు
-\"జిప్ నుండి పత్రాలను లోడ్ చేయి\" ద్వారా. మీరు డౌన్‌లోడ్ చేయడాన్ని ఖచ్చితంగా కొనసాగించాలనుకుంటున్నారా?
-మాడ్యూల్ సర్వర్‌ల నుండి అన్ని డౌన్‌లోడ్‌లు (HTTPS) ద్వారా గుప్తీకరించబడ్డాయి.</string>
+  <string name="download_question_message">మీరు హింస ఉన్న దేశంలో నివసిస్తుంటే, ఇంటర్నెట్ ద్వారా క్రైస్తవ సామగ్రిని డౌన్‌లోడ్ చేయడంలో జాగ్రత్త వహించాల్సి ఉండవచ్చు. బదులుగా, మాడ్యూల్ జిప్ ఫైళ్లను మరింత సురక్షితంగా పొంది \"%1$s\" ద్వారా ఇన్‌స్టాల్ చేయాలనుకోవచ్చు. మీరు డౌన్‌లోడ్ కొనసాగించాలనుకుంటున్నారా? మాడ్యూల్ సర్వర్ల నుండి అన్ని డౌన్‌లోడ్‌లు ఎన్‌క్రిప్ట్ చేయబడతాయి (HTTPS).</string>
   <string name="do_not_ask_again">అవును, మరొకసారి అడగవద్దు</string>
   <string name="recommended_document">సిఫార్సు చేయబడింది!</string>
   <string name="about_version_history">అనువాద చరిత్ర: %s</string>
@@ -413,6 +410,7 @@
   <string name="overwrite_files">కింది ఫైల్‌లు ఇప్పటికే ఉన్నాయి: %s ఓవర్‌రైట్ చేయాలా?</string>
   <string name="overwrite_files_title">ఫైల్‌లను ఓవర్‌రైట్ చేయాలా?</string>
   <string name="could_not_overwrite_files">%sఫైల్‌లను ఓవర్‌రైట్ చేయడం సాధ్యపడలేదు: . అంతే కానీ ఇన్‌స్టాల్ విజయవంతమైంది.</string>
+  <string name="module_backup_restore">ఈ ఫైల్ AndBible పత్రాల బ్యాకప్. దీనిలోని పత్రాలను పునరుద్ధరించాలనుకుంటున్నారా?</string>
   <string name="install_do_you_want">మీరు మాడ్యూల్ (%s) ని ఇన్‌స్టాల్ చేయాలనుకుంటున్నారా?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">చదవడానికి ప్రణాళిక</string>
@@ -777,6 +775,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="all">అన్ని</string>
   <string name="reset_generic">మళ్లీ సెట్ చేయడం</string>
   <string name="watch_tutorial_video">ట్యుటోరియల్ వీడియో (ఇంగ్లీష్) చూడండి</string>
+  <string name="watch_tutorial_video_plain">ట్యుటోరియల్ వీడియో చూడండి</string>
   <string name="verse_not_found">వచనం దొరకలేదు</string>
   <!--Errors-->
   <string name="crash_recovery_continue">కొనసాగించండి</string>
@@ -1509,7 +1508,7 @@ Don\'t show this message again
   <string name="ai_settings">AI సెట్టింగులు</string>
   <string name="ai_connection_settings">కనెక్షన్ సెట్టింగులు</string>
   <string name="ai_setup_title">AI కాన్ఫిగర్ చేయండి</string>
-  <string name="ai_setup_description">AndBible బైబిలు వచనం అనువదించడానికి, వచనాలు వివరించడానికి, సారాంశాలు సృష్టించడానికి మరియు మరింత చేయడానికి AI ఉపయోగించవచ్చు. ప్రారంభించడానికి, OpenAI-అనుకూల API ప్రొవైడర్‌కు కనెక్షన్ కాన్ఫిగర్ చేయండి.</string>
+  <string name="ai_setup_description">AndBible బైబిల్ వచనాన్ని అనువదించడానికి, వచనాలను వివరించడానికి, సారాంశాలను రూపొందించడానికి మరియు మరిన్నింటికి AI ని ఉపయోగించగలదు. ప్రారంభించడానికి, OpenAI, Anthropic లేదా Google Gemini వంటి AI ప్రొవైడర్‌కు కనెక్షన్‌ను కాన్ఫిగర్ చేయండి.</string>
   <string name="ai_configure_button">కనెక్షన్ కాన్ఫిగర్ చేయండి</string>
   <string name="ai_settings_shortcut_summary">AI కనెక్షన్ మరియు ప్రాంప్ట్ సెట్టింగులు</string>
   <string name="ai_provider_tier_recommended">సిఫారసు చేసినవి</string>
@@ -2132,4 +2131,5 @@ Don\'t show this message again
   <string name="recommend_get_it">ఇక్కడ పొందండి: %s</string>
   <string name="recommend_share_link">లింక్‌ను పంచుకోండి</string>
   <string name="recommend_qr_caption">మీ ఫోన్, టాబ్లెట్ లేదా కంప్యూటర్ కోసం AndBible పొందడానికి స్కాన్ చేయండి.</string>
+  <string name="desktop_activation_failed">AndBible ఇప్పటికే నడుస్తోంది, కానీ దాని విండో స్పందించలేదు. నడుస్తున్న ఇన్‌స్టెన్స్‌కు మారి మళ్లీ ప్రయత్నించండి. వచ్చిన ఫైళ్లు అందజేయబడినట్లు నిర్ధారణ కాలేదు.</string>
 </resources>

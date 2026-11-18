@@ -55,6 +55,12 @@
   <string name="other">अन्य</string>
   <string name="contact">सम्पर्क</string>
   <string name="help_and_tips">मद्दत र सुझावहरू</string>
+  <string name="help_tab_tips">सुझावहरू</string>
+  <string name="help_tab_user_guide">प्रयोगकर्ता निर्देशिका</string>
+  <string name="help_user_guide_intro">पूर्ण प्रयोगकर्ता निर्देशिका andbible.org मा छ। पृष्ठहरू तपाईंको ब्राउजरमा खुल्छन्।</string>
+  <string name="help_user_guide_home">प्रयोगकर्ता निर्देशिकाको गृहपृष्ठ</string>
+  <string name="help_tutorial_videos">ट्युटोरियल भिडियोहरू</string>
+  <string name="help_play_video">भिडियो चलाउनुहोस्: %1$s</string>
   <string name="administration">प्रशासन</string>
   <string name="rate_application">मूल्याङ्कन र समीक्षा</string>
   <string name="chooce_document">कागजात छान्नुहोस्</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">खोज सूचकांक बनाइँदै</string>
   <string name="choose_translations">अनुवादहरू छान्नुहोस्…</string>
   <string name="multi_search_count_summary">%2$s मा %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d श्लोक</item>
-    <item quantity="other">%1$d श्लोकहरू</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d अनुवाद</item>
-    <item quantity="other">%1$d अनुवादहरू</item>
-  </plurals>
   <string name="search_index_not_created">कुनै अनुक्रमणिका छैन</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">अध्याय र श्लोक नम्बरहरू</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">अनुप्रयोग एकरंगी मोडमा (कुनै रंग नभई) प्रयोग गर्नुहोस्, जसले E-ink उपकरणहरूको लागि उपयुक्त बनाउँछ।</string>
   <string name="prefs_display_color_mode_title">रङ मोड</string>
   <string name="prefs_display_color_mode_summary">रङहरू कसरी देखाइन्छ भनेर छान्नुहोस्। मोनोक्रोमले ई-इन्क स्क्रिनहरूका लागि केवल कालो र सेतो मात्र प्रयोग गर्छ; हाइलाइट गरिएका बुकमार्कहरू बोल्डमा देखाइन्छन्। रङ ई-इन्कले मोनोक्रोम जस्तै देखिन्छ तर बुकमार्कको हाइलाइट र रेखाङ्कन रङहरू राख्छ — रङ ई-इन्क स्क्रिनहरूका लागि।</string>
+  <string name="prefs_use_system_colors_title">प्रणालीका रङहरू प्रयोग गर्नुहोस् (Material You)</string>
+  <string name="prefs_use_system_colors_summary">तपाईंको वालपेपरका रङहरू पछ्याउनुहोस्। कार्यक्षेत्रको रङ र ई-इन्क रङ मोडहरूले अझै प्राथमिकता पाउँछन्।</string>
   <string name="prefs_display_color_mode_normal">सामान्य</string>
   <string name="prefs_display_color_mode_bw">कालो र सेतो</string>
   <string name="prefs_display_color_mode_monochrome">एकवर्णीय</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">कुनै पनि शब्दकोशमा शब्द फेला परेन</string>
   <string name="prefs_top_margin_title_mm">माथिल्लो किनारा (%d मिमी)</string>
   <string name="font_size_title">फन्ट आकार</string>
+  <string name="font_preview_verse">किनभने परमेश्वरले संसारलाई यति साह्रो प्रेम गर्नुभयो, कि उहाँले आफ्नो एकमात्र पुत्र दिनुभयो, ताकि उहाँमाथि विश्वास गर्ने कोही पनि नाश नहोस्, तर अनन्त जीवन पाओस्।</string>
   <string name="font_size_title_pt">फन्ट आकार (%d pt)</string>
   <string name="prefs_font_text_size_summary">मुख्य पाठ फन्ट आकार समायोजन गर्नुहोस्</string>
   <string name="pref_font_family_label_name">फन्ट परिवार (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">केही चलिरहेको छैन</string>
   <string name="activity_failed_toast">%1$s — मेनु हेर्नुहोस्</string>
   <string name="download_question_title">के तपाईं कागजातहरू डाउनलोड गर्न अगाडि बढ्न चाहनुहुन्छ?</string>
-  <string name="download_question_message">यदि तपाईं उत्पीडित देशमा बस्नुहुन्छ भने, इन्टरनेट मार्फत ईसाई सामग्री डाउनलोड गर्दा सावधान हुनुपर्न सक्छ। यसको सट्टा, तपाईं module zip फाइलहरू अधिक सुरक्षित तरिकाले प्राप्त गर्न र \"Zip बाट कागजातहरू लोड गर्नुहोस्\" मार्फत स्थापना गर्न सक्नुहुन्छ। के तपाईं डाउनलोड गर्न अगाडि बढ्न चाहनुहुन्छ? Module सर्भरहरूबाट सबै डाउनलोडहरू एन्क्रिप्टेड (HTTPS) छन्।</string>
+  <string name="download_question_message">यदि तपाईं सताइएको देशमा बस्नुहुन्छ भने, इन्टरनेटमार्फत ख्रीष्टियन सामग्री डाउनलोड गर्दा तपाईंले सावधान हुनुपर्ने हुन सक्छ। बरु, तपाईं मोड्युल जिप फाइलहरू बढी सुरक्षित तरिकाले प्राप्त गरेर \"%1$s\" मार्फत स्थापना गर्न चाहनुहुन्छ होला। के तपाईं डाउनलोड गर्न अगाडि बढ्न निश्चित हुनुहुन्छ? मोड्युल सर्भरहरूबाट हुने सबै डाउनलोडहरू इन्क्रिप्ट गरिएका छन् (HTTPS)।</string>
   <string name="do_not_ask_again">हो, अब नसोध्नुहोस्</string>
   <string name="recommended_document">सिफारिस गरिएको!</string>
   <string name="about_version_history">संस्करण इतिहास: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">निम्न फाइलहरू पहिले नै छन्: %s ओभरराइट गर्ने?</string>
   <string name="overwrite_files_title">फाइलहरू ओभरराइट गर्ने?</string>
   <string name="could_not_overwrite_files">फाइलहरू ओभरराइट गर्न सकिएन: %s। यसबाहेक स्थापना सफल भयो।</string>
+  <string name="module_backup_restore">यो फाइल AndBible कागजातहरूको ब्याकअप हो। के तपाईं यसका कागजातहरू पुनर्स्थापना गर्न चाहनुहुन्छ?</string>
   <string name="install_do_you_want">के तपाईं module (%s) स्थापना गर्न चाहनुहुन्छ?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">पठन योजना</string>
@@ -722,6 +724,7 @@
   <string name="all">सबै</string>
   <string name="reset_generic">रिसेट</string>
   <string name="watch_tutorial_video">ट्युटोरियल भिडियो हेर्नुहोस् (अंग्रेजी)</string>
+  <string name="watch_tutorial_video_plain">ट्युटोरियल भिडियो हेर्नुहोस्</string>
   <string name="verse_not_found">श्लोक फेला परेन</string>
   <!--Errors-->
   <string name="crash_recovery_continue">जारी राख्नुहोस्</string>
@@ -1388,7 +1391,7 @@
   <string name="ai_settings">AI सेटिङहरू</string>
   <string name="ai_connection_settings">जडान सेटिङहरू</string>
   <string name="ai_setup_title">AI कन्फिगर गर्नुहोस्</string>
-  <string name="ai_setup_description">AndBible ले बाइबल पाठ अनुवाद गर्न, श्लोकहरू व्याख्या गर्न, सारांश बनाउन र थप गर्न AI प्रयोग गर्न सक्छ। सुरु गर्न, OpenAI-संगत API प्रदायकमा जडान कन्फिगर गर्नुहोस्।</string>
+  <string name="ai_setup_description">AndBible ले बाइबल पाठ अनुवाद गर्न, पदहरू व्याख्या गर्न, सारांश बनाउन र अरू धेरै कामका लागि AI प्रयोग गर्न सक्छ। सुरु गर्न, OpenAI, Anthropic वा Google Gemini जस्तो AI प्रदायकसँग जडान कन्फिगर गर्नुहोस्।</string>
   <string name="ai_configure_button">जडान कन्फिगर गर्नुहोस्</string>
   <string name="ai_settings_shortcut_summary">AI जडान र प्रम्प्ट सेटिङहरू</string>
   <string name="ai_provider_tier_recommended">सिफारिस गरिएको</string>
@@ -2011,4 +2014,5 @@
   <string name="recommend_get_it">यहाँबाट प्राप्त गर्नुहोस्: %s</string>
   <string name="recommend_share_link">लिङ्क बाँड्नुहोस्</string>
   <string name="recommend_qr_caption">आफ्नो फोन, ट्याब्लेट वा कम्प्युटरका लागि AndBible प्राप्त गर्न स्क्यान गर्नुहोस्।</string>
+  <string name="desktop_activation_failed">AndBible पहिले नै चलिरहेको छ, तर यसको विन्डोले प्रतिक्रिया दिएन। चलिरहेको प्रतिलिपिमा जानुहोस् र फेरि प्रयास गर्नुहोस्। आएका कुनै फाइलहरू पुग्यो भनी पुष्टि भएन।</string>
 </resources>

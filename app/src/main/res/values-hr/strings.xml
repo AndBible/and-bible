@@ -55,6 +55,12 @@
   <string name="other">Ostalo</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Pomoć i savjeti</string>
+  <string name="help_tab_tips">Savjeti</string>
+  <string name="help_tab_user_guide">Korisnički priručnik</string>
+  <string name="help_user_guide_intro">Cjeloviti korisnički priručnik nalazi se na andbible.org. Stranice se otvaraju u vašem pregledniku.</string>
+  <string name="help_user_guide_home">Početna stranica priručnika</string>
+  <string name="help_tutorial_videos">Video upute</string>
+  <string name="help_play_video">Pokreni video: %1$s</string>
   <string name="administration">Upravljanje</string>
   <string name="rate_application">Ocijenite aplikaciju</string>
   <string name="chooce_document">Odaberi dokument</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Izrada indeksa pretrage</string>
   <string name="choose_translations">Odaberi prijevode…</string>
   <string name="multi_search_count_summary">%1$s u %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d stih</item>
-    <item quantity="few">%1$d stiha</item>
-    <item quantity="other">%1$d stihova</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d prijevod</item>
-    <item quantity="few">%1$d prijevoda</item>
-    <item quantity="other">%1$d prijevoda</item>
-  </plurals>
   <string name="search_index_not_created">nema indeksa</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Brojevi poglavlja i redaka</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Koristite aplikaciju u monokromatskom (jednobojnom) načinu, prilagođenom za E-ink uređaje.</string>
   <string name="prefs_display_color_mode_title">Način prikaza boja</string>
   <string name="prefs_display_color_mode_summary">Odaberite kako se prikazuju boje. Monokromatski način koristi samo crnu i bijelu boju, za e-ink zaslone; označene zabilješke prikazuju se podebljano. Obojeni e-ink izgleda kao monokromatski, ali zadržava boje isticanja i podcrtavanja zabilješki — za obojene e-ink zaslone.</string>
+  <string name="prefs_use_system_colors_title">Koristi boje sustava (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Prati boje vaše pozadinske slike. Boja radne površine i načini boja za e-ink i dalje imaju prednost.</string>
   <string name="prefs_display_color_mode_normal">Normalno</string>
   <string name="prefs_display_color_mode_bw">Crno-bijelo</string>
   <string name="prefs_display_color_mode_monochrome">Jednobojno</string>
@@ -319,6 +317,7 @@
   <string name="word_not_found_in_dictionaries">Riječ nije pronađena ni u jednom rječniku</string>
   <string name="prefs_top_margin_title_mm">Gornja margina (%d mm)</string>
   <string name="font_size_title">Veličina teksta</string>
+  <string name="font_preview_verse">Jer Bog je tako zavolio svijet da je dao svoga jedinorođenoga Sina da nijedan koji u njega vjeruje ne propadne, nego da ima život vječni.</string>
   <string name="font_size_title_pt">Veličina teksta (%d pt)</string>
   <string name="prefs_font_text_size_summary">Prilagodite veličinu glavnog teksta</string>
   <string name="pref_font_family_label_name">Stil teksta (%s)</string>
@@ -390,11 +389,7 @@
   <string name="activity_empty">Ništa nije u tijeku</string>
   <string name="activity_failed_toast">%1$s — vidi izbornik</string>
   <string name="download_question_title">Želite li nastaviti preuzimanje dokumenata?</string>
-  <string name="download_question_message">Ako živite u zemlji koja progoni,
-možda je potrebno da budete oprezni kada preuzimate kršćanski materijal preko interneta.
-Mogli biste, namjesto toga, da sigurno pribavite zip arhive i instalirate ih putem
-Učitaj dokumente kroz ZIP. Jeste li ste sigurni da želite nastaviti preuzimanje?
-Sva preuzimanja modula kroz repozitorij su šifrirana (HTTPS)</string>
+  <string name="download_question_message">Ako živite u zemlji u kojoj su kršćani progonjeni, možda ćete morati biti oprezni pri preuzimanju kršćanskih sadržaja putem interneta. Umjesto toga, možda biste željeli sigurnije nabaviti zip datoteke modula i instalirati ih putem \"%1$s\". Jeste li sigurni da želite nastaviti s preuzimanjem? Sva preuzimanja s poslužitelja modula šifrirana su (HTTPS).</string>
   <string name="do_not_ask_again">Da, ne pitaj ponovno</string>
   <string name="recommended_document">Preporučeno!</string>
   <string name="about_version_history">Povijest verzija: %s</string>
@@ -415,6 +410,7 @@ Sva preuzimanja modula kroz repozitorij su šifrirana (HTTPS)</string>
   <string name="overwrite_files">Sljedeće datoteke već postoje: %s Prepisati?</string>
   <string name="overwrite_files_title">Prepisati datoteke?</string>
   <string name="could_not_overwrite_files">Nije moguće zamijeniti datoteke: %s. Osim toga, instalacija je bila uspješna</string>
+  <string name="module_backup_restore">Ova datoteka je sigurnosna kopija AndBible dokumenata. Želite li vratiti njezine dokumente?</string>
   <string name="install_do_you_want">Želite li instalirati modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan čitanja</string>
@@ -779,6 +775,7 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="all">Sve</string>
   <string name="reset_generic">Poništi</string>
   <string name="watch_tutorial_video">Pogledajte video sa uputstvima (na engleskom)</string>
+  <string name="watch_tutorial_video_plain">Pogledaj video uputu</string>
   <string name="verse_not_found">Redak nije pronađen</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Nastavi</string>
@@ -1500,7 +1497,7 @@ Ne prikazuj ovu poruku ponovno.
   <string name="ai_settings">AI postavke</string>
   <string name="ai_connection_settings">Postavke povezivanja</string>
   <string name="ai_setup_title">Konfiguriraj AI</string>
-  <string name="ai_setup_description">AndBible može koristiti AI za prevođenje biblijskog teksta, objašnjavanje redaka, stvaranje sažetaka i još mnogo toga. Za početak, konfiguriraj povezivanje s pružateljem API-ja kompatibilnim s OpenAI.</string>
+  <string name="ai_setup_description">AndBible može koristiti umjetnu inteligenciju za prevođenje biblijskog teksta, objašnjavanje redaka, izradu sažetaka i više. Za početak postavite vezu s pružateljem usluge umjetne inteligencije, kao što su OpenAI, Anthropic ili Google Gemini.</string>
   <string name="ai_configure_button">Konfiguriraj povezivanje</string>
   <string name="ai_settings_shortcut_summary">AI povezivanje i postavke upita</string>
   <string name="ai_provider_tier_recommended">Preporučeno</string>
@@ -2123,4 +2120,5 @@ Ne prikazuj ovu poruku ponovno.
   <string name="recommend_get_it">Nabavi ga ovdje: %s</string>
   <string name="recommend_share_link">Podijeli poveznicu</string>
   <string name="recommend_qr_caption">Skenirajte za AndBible na telefonu, tabletu ili računalu.</string>
+  <string name="desktop_activation_failed">AndBible je već pokrenut, ali njegov prozor nije odgovorio. Prebacite se na pokrenutu instancu i pokušajte ponovno. Dolazne datoteke nisu potvrđene kao isporučene.</string>
 </resources>

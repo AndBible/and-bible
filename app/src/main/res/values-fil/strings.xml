@@ -55,6 +55,12 @@
   <string name="other">Iba pa</string>
   <string name="contact">Makipag-ugnayan</string>
   <string name="help_and_tips">Tulong at mga tip</string>
+  <string name="help_tab_tips">Mga tip</string>
+  <string name="help_tab_user_guide">Gabay sa paggamit</string>
+  <string name="help_user_guide_intro">Ang buong gabay sa paggamit ay nasa andbible.org. Magbubukas ang mga pahina sa iyong browser.</string>
+  <string name="help_user_guide_home">Home ng gabay sa paggamit</string>
+  <string name="help_tutorial_videos">Mga tutorial na video</string>
+  <string name="help_play_video">I-play ang video: %1$s</string>
   <string name="administration">Administrasyon</string>
   <string name="rate_application">I-rate at Suriin</string>
   <string name="chooce_document">Pumili ng Dokumento</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Ginagawa ang search index</string>
   <string name="choose_translations">Pumili ng mga salin…</string>
   <string name="multi_search_count_summary">%1$s sa %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d talata</item>
-    <item quantity="other">%1$d mga talata</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d salin</item>
-    <item quantity="other">%1$d mga salin</item>
-  </plurals>
   <string name="search_index_not_created">walang index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Mga numero ng kabanata at talata</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Gamitin ang application sa monochrome mode (walang kulay), na mas angkop para sa mga E-ink device.</string>
   <string name="prefs_display_color_mode_title">Mode ng kulay</string>
   <string name="prefs_display_color_mode_summary">Piliin kung paano ipapakita ang mga kulay. Itim at puti lamang ang gamit ng Monochrome, para sa mga e-ink na screen; ang mga naka-highlight na bookmark ay ipinapakita nang naka-bold. Ang Color e-ink ay kamukha ng Monochrome ngunit pinapanatili ang mga kulay ng highlight at underline ng bookmark — para sa mga kulay na e-ink na screen.</string>
+  <string name="prefs_use_system_colors_title">Gamitin ang mga kulay ng system (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Sundin ang mga kulay ng iyong wallpaper. Mas inuuna pa rin ang kulay ng workspace at ang mga e-ink na color mode.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Itim at puti</string>
   <string name="prefs_display_color_mode_monochrome">Monochrome</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Hindi nahanap ang salita sa anumang diksyonaryo</string>
   <string name="prefs_top_margin_title_mm">Tuktok na margin (%d mm)</string>
   <string name="font_size_title">Laki ng font</string>
+  <string name="font_preview_verse">Sapagka\'t gayon na lamang ang pagsinta ng Dios sa sanglibutan, na ibinigay niya ang kaniyang bugtong na Anak, upang ang sinomang sumampalataya sa kaniya ay huwag mapahamak, kundi magkaroon ng buhay na walang hanggan.</string>
   <string name="font_size_title_pt">Laki ng font (%d pt)</string>
   <string name="prefs_font_text_size_summary">I-adjust ang laki ng font ng pangunahing teksto</string>
   <string name="pref_font_family_label_name">Pamilya ng font (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">Walang tumatakbo</string>
   <string name="activity_failed_toast">%1$s — tingnan ang menu</string>
   <string name="download_question_title">Nais mo bang magpatuloy sa pag-download ng mga dokumento?</string>
-  <string name="download_question_message">Kung nakatira ka sa isang bansang may pag-uusig, maaaring kailangang mag-ingat ka sa pag-download ng mga Kristiyanong materyal sa pamamagitan ng Internet. Sa halip, maaaring gusto mong makuha ang mga module zip file nang mas ligtas at i-install ang mga ito sa pamamagitan ng \"I-load ang Mga Dokumento Mula sa Zip\". Sigurado ka bang nais mong magpatuloy sa pag-download? Lahat ng mga download mula sa mga module server ay naka-encrypt (HTTPS).</string>
+  <string name="download_question_message">Kung nakatira ka sa bansang may pag-uusig, maaaring kailangan mong mag-ingat sa pag-download ng materyal na Kristiyano sa pamamagitan ng Internet. Sa halip, maaari mong kunin nang mas ligtas ang mga zip file ng module at i-install ang mga ito sa pamamagitan ng \"%1$s\". Sigurado ka bang gusto mong magpatuloy sa pag-download? Naka-encrypt (HTTPS) ang lahat ng download mula sa mga server ng module.</string>
   <string name="do_not_ask_again">Oo, huwag nang itanong pa</string>
   <string name="recommended_document">Inirerekomenda!</string>
   <string name="about_version_history">Kasaysayan ng bersyon: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">Ang mga sumusunod na file ay mayroon na: %s I-overwrite?</string>
   <string name="overwrite_files_title">I-overwrite ang mga file?</string>
   <string name="could_not_overwrite_files">Hindi ma-overwrite ang mga file: %s. Bukod doon, matagumpay ang pag-install.</string>
+  <string name="module_backup_restore">Ang file na ito ay backup ng mga dokumento ng AndBible. Gusto mo bang ibalik ang mga dokumento nito?</string>
   <string name="install_do_you_want">Nais mo bang i-install ang module (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano sa Pagbabasa</string>
@@ -722,6 +724,7 @@
   <string name="all">Lahat</string>
   <string name="reset_generic">I-reset</string>
   <string name="watch_tutorial_video">Panoorin ang tutorial video (Ingles)</string>
+  <string name="watch_tutorial_video_plain">Panoorin ang tutorial na video</string>
   <string name="verse_not_found">Hindi nahanap ang talata</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Magpatuloy</string>
@@ -1388,7 +1391,7 @@
   <string name="ai_settings">Mga Setting ng AI</string>
   <string name="ai_connection_settings">Mga setting ng koneksyon</string>
   <string name="ai_setup_title">I-configure ang AI</string>
-  <string name="ai_setup_description">Maaaring gumamit ang AndBible ng AI para isalin ang teksto ng Bibliya, magpaliwanag ng mga talata, lumikha ng mga buod, at marami pa. Para makapagsimula, mag-configure ng koneksyon sa isang OpenAI-compatible na API provider.</string>
+  <string name="ai_setup_description">Magagamit ng AndBible ang AI upang isalin ang teksto ng Bibliya, ipaliwanag ang mga talata, gumawa ng mga buod, at iba pa. Para magsimula, i-configure ang koneksyon sa isang AI provider, gaya ng OpenAI, Anthropic o Google Gemini.</string>
   <string name="ai_configure_button">I-configure ang Koneksyon</string>
   <string name="ai_settings_shortcut_summary">Mga setting ng AI connection at prompt</string>
   <string name="ai_provider_tier_recommended">Inirerekomenda</string>
@@ -2011,4 +2014,5 @@
   <string name="recommend_get_it">Kunin dito: %s</string>
   <string name="recommend_share_link">Magbahagi ng link</string>
   <string name="recommend_qr_caption">I-scan para makuha ang AndBible para sa iyong telepono, tablet o computer.</string>
+  <string name="desktop_activation_failed">Tumatakbo na ang AndBible, ngunit hindi tumugon ang window nito. Lumipat sa tumatakbong instance at subukang muli. Hindi nakumpirma na naihatid ang anumang papasok na file.</string>
 </resources>

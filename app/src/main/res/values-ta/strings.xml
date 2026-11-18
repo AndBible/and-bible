@@ -55,6 +55,12 @@
   <string name="other">பிற</string>
   <string name="contact">தொடர்பு</string>
   <string name="help_and_tips">உதவி &amp; உதவிக்குறிப்புகள்</string>
+  <string name="help_tab_tips">குறிப்புகள்</string>
+  <string name="help_tab_user_guide">பயனர் வழிகாட்டி</string>
+  <string name="help_user_guide_intro">முழுமையான பயனர் வழிகாட்டி andbible.org தளத்தில் உள்ளது. பக்கங்கள் உங்கள் உலாவியில் திறக்கும்.</string>
+  <string name="help_user_guide_home">பயனர் வழிகாட்டி முகப்பு</string>
+  <string name="help_tutorial_videos">பயிற்சி வீடியோக்கள்</string>
+  <string name="help_play_video">வீடியோவை இயக்கு: %1$s</string>
   <string name="administration">நிர்வாகம்</string>
   <string name="rate_application">மதிப்பீடு &amp; ஆய்வு</string>
   <string name="chooce_document">கோப்பினைத் தேர்வு செய்க</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">தேடல் குறியீட்டை உருவாக்குகிறது</string>
   <string name="choose_translations">மொழிபெயர்ப்புகளை தேர்ந்தெடு…</string>
   <string name="multi_search_count_summary">%2$s %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d வசனம்</item>
-    <item quantity="other">%1$d வசனங்கள்</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d மொழிபெயர்ப்பில்</item>
-    <item quantity="other">%1$d மொழிபெயர்ப்புகளில்</item>
-  </plurals>
   <string name="search_index_not_created">அட்டவணை இல்லை</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">அதிகாரம் &amp; வசன எண்கள்</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">மோனோக்ரோம் பயன்முறையில் (வண்ணங்கள் இல்லாமல்), E-ink கருவிகளுக்கு மிகவும் பொருத்தமானதாக இருக்கும்.</string>
   <string name="prefs_display_color_mode_title">வண்ண பயன்முறை</string>
   <string name="prefs_display_color_mode_summary">வண்ணங்கள் எவ்வாறு காட்டப்பட வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும். ஒற்றை நிறம் e-ink திரைகளுக்காக கருப்பு மற்றும் வெள்ளை மட்டுமே பயன்படுத்தும்; ஒளிர்வூட்டப்பட்ட புத்தககுறிகள் தடித்த எழுத்தில் காட்டப்படும். வண்ண e-ink ஒற்றை நிறம் போலத் தோன்றும், ஆனால் புத்தககுறி ஒளிர்வு மற்றும் அடிக்கோடு வண்ணங்களை வைத்திருக்கும் — வண்ண e-ink திரைகளுக்கு.</string>
+  <string name="prefs_use_system_colors_title">கணினி நிறங்களைப் பயன்படுத்து (Material You)</string>
+  <string name="prefs_use_system_colors_summary">உங்கள் வால்பேப்பரின் நிறங்களைப் பின்பற்றும். பணியிட நிறம் மற்றும் இ-இங்க் நிற முறைகளுக்கே இன்னும் முன்னுரிமை.</string>
   <string name="prefs_display_color_mode_normal">இயல்பானது</string>
   <string name="prefs_display_color_mode_bw">கருப்பு &amp; வெள்ளை</string>
   <string name="prefs_display_color_mode_monochrome">ஒற்றை நிறம்</string>
@@ -318,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">எந்த அகராதியிலும் சொல் கிடைக்கவில்லை</string>
   <string name="prefs_top_margin_title_mm">மேல் விளிம்பு (%d mm)</string>
   <string name="font_size_title">எழுத்துரு அளவு</string>
+  <string name="font_preview_verse">தேவன், தமது ஒரேபேறான குமாரனை விசுவாசிக்கிறவன் எவனோ அவன் கெட்டுப்போகாமல் நித்தியஜீவனை அடையும்படிக்கு, அவரைத் தந்தருளி, இவ்வளவாய் உலகத்தில் அன்புகூர்ந்தார்.</string>
   <string name="font_size_title_pt">எழுத்துரு அளவு (%d pt)</string>
   <string name="prefs_font_text_size_summary">முதன்மை உரையின் எழுத்துரு அளவை மாற்ற</string>
   <string name="pref_font_family_label_name">எழுத்துரு குடும்பம் (%s)</string>
@@ -389,12 +390,7 @@
   <string name="activity_empty">எதுவும் இயங்கவில்லை</string>
   <string name="activity_failed_toast">%1$s — மெனுவைப் பார்க்கவும்</string>
   <string name="download_question_title">ஆவணங்களைப் பதிவிறக்கவா?</string>
-  <string name="download_question_message">நீங்கள் கிறிஸ்தவர்கள் துன்புறுத்தப்படும் நாட்டில் வாழ்ந்தால்,
-        இணையம் வழியாக கிறிஸ்தவ விஷயங்களைப் பதிவிறக்குவதில் கவனமாக இருக்க வேண்டும்.
-        இதற்கு பதிலாக, நீங்கள் module zip கோப்புகளை பாதுகாப்பாகப் பெற்று
-        \"ஜிப்பில் இருந்து ஆவணங்களை ஏற்று\" என்னும் வழியில் அவற்றை நிறுவலாம். பதிவிறக்கத்தை தொடர விரும்புகிறீர்களா?
-        Module சேவையகங்களிலிருந்து அனைத்து பதிவிறக்கங்களும் மறையாக்கம் (HTTPS) செய்யப்பட்டுள்ளன.
-    </string>
+  <string name="download_question_message">நீங்கள் துன்புறுத்தப்படும் நாட்டில் வசித்தால், இணையம் வழியாக கிறிஸ்தவ உள்ளடக்கத்தைப் பதிவிறக்குவதில் கவனமாக இருக்க வேண்டியிருக்கலாம். அதற்குப் பதிலாக, தொகுதி ஜிப் கோப்புகளை பாதுகாப்பான வழியில் பெற்று \"%1$s\" மூலம் நிறுவலாம். பதிவிறக்கத்தைத் தொடர விரும்புகிறீர்களா? தொகுதி சேவையகங்களிலிருந்து வரும் அனைத்துப் பதிவிறக்கங்களும் குறியாக்கம் செய்யப்பட்டவை (HTTPS).</string>
   <string name="do_not_ask_again">ஆம், இனி கேட்க வேண்டாம்</string>
   <string name="recommended_document">பரிந்துரைக்கப்பட்டது!</string>
   <string name="about_version_history">பதிப்பு வரலாறு: %s</string>
@@ -415,6 +411,7 @@
   <string name="overwrite_files">பின்வரும் கோப்புகள் ஏற்கனவே உள்ளன: %s மேலெழுதவா?</string>
   <string name="overwrite_files_title">கோப்புகளை மேலெழுதவா?</string>
   <string name="could_not_overwrite_files">நிறுவல் வெற்றிகரமாக இருந்த கோப்புகளைத் தவிற பிற கோப்புகளின் மேலெழுத முடியவில்லை: %s</string>
+  <string name="module_backup_restore">இந்தக் கோப்பு AndBible ஆவணங்களின் காப்புப்பிரதி. அதன் ஆவணங்களை மீட்டெடுக்க விரும்புகிறீர்களா?</string>
   <string name="install_do_you_want">(%s) தொகுதியை நிறுவ விரும்புகிறீர்களா?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">வாசிப்பு திட்டம்</string>
@@ -788,6 +785,7 @@
   <string name="all">அனைத்தும்</string>
   <string name="reset_generic">மீட்டமை</string>
   <string name="watch_tutorial_video">பயிற்சி காணொளியை காண்க (ஆங்கிலம்)</string>
+  <string name="watch_tutorial_video_plain">பயிற்சி வீடியோவைப் பாருங்கள்</string>
   <string name="verse_not_found">வசனம் கிடைக்கவில்லை</string>
   <!--Errors-->
   <string name="crash_recovery_continue">தொடர்</string>
@@ -1536,7 +1534,7 @@
   <string name="ai_settings">AI அமைப்புகள்</string>
   <string name="ai_connection_settings">இணைப்பு அமைப்புகள்</string>
   <string name="ai_setup_title">AI கட்டமை</string>
-  <string name="ai_setup_description">AndBible விவிலிய உரையை மொழிபெயர்க்க, வசனங்களை விளக்க, சுருக்கங்கள் உருவாக்க மற்றும் பலவற்றுக்கும் AI பயன்படுத்தலாம். தொடங்க, OpenAI-இணக்கமான API வழங்குனருடன் இணைப்பை கட்டமைக்கவும்.</string>
+  <string name="ai_setup_description">பைபிள் உரையை மொழிபெயர்க்கவும், வசனங்களை விளக்கவும், சுருக்கங்களை உருவாக்கவும் மேலும் பலவற்றிற்கும் AndBible செயற்கை நுண்ணறிவைப் பயன்படுத்தலாம். தொடங்க, OpenAI, Anthropic அல்லது Google Gemini போன்ற AI வழங்குநருடன் இணைப்பை அமைக்கவும்.</string>
   <string name="ai_configure_button">இணைப்பை கட்டமை</string>
   <string name="ai_settings_shortcut_summary">AI இணைப்பு மற்றும் வரைவு அமைப்புகள்</string>
   <string name="ai_provider_tier_recommended">பரிந்துரைக்கப்பட்டது</string>
@@ -2159,4 +2157,5 @@
   <string name="recommend_get_it">இங்கே பெறுங்கள்: %s</string>
   <string name="recommend_share_link">இணைப்பைப் பகிர்</string>
   <string name="recommend_qr_caption">உங்கள் தொலைபேசி, டேப்லெட் அல்லது கணினிக்கு AndBible ஐப் பெற ஸ்கேன் செய்யுங்கள்.</string>
+  <string name="desktop_activation_failed">AndBible ஏற்கனவே இயங்குகிறது, ஆனால் அதன் சாளரம் பதிலளிக்கவில்லை. இயங்கும் நிகழ்வுக்கு மாறி மீண்டும் முயலவும். உள்வரும் கோப்புகள் வழங்கப்பட்டதாக உறுதிசெய்யப்படவில்லை.</string>
 </resources>

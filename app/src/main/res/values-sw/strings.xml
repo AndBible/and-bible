@@ -55,6 +55,12 @@
   <string name="other">Nyingine</string>
   <string name="contact">Wasiliana</string>
   <string name="help_and_tips">Msaada na vidokezo</string>
+  <string name="help_tab_tips">Vidokezo</string>
+  <string name="help_tab_user_guide">Mwongozo wa mtumiaji</string>
+  <string name="help_user_guide_intro">Mwongozo kamili wa mtumiaji uko kwenye andbible.org. Kurasa hufunguka kwenye kivinjari chako.</string>
+  <string name="help_user_guide_home">Ukurasa mkuu wa mwongozo wa mtumiaji</string>
+  <string name="help_tutorial_videos">Video za mafunzo</string>
+  <string name="help_play_video">Cheza video: %1$s</string>
   <string name="administration">Usimamizi</string>
   <string name="rate_application">Kadiria na Pitia</string>
   <string name="chooce_document">Chagua Hati</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Inaunda faharasa ya utafutaji</string>
   <string name="choose_translations">Chagua tafsiri…</string>
   <string name="multi_search_count_summary">%1$s katika %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">mstari %1$d</item>
-    <item quantity="other">mistari %1$d</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">tafsiri %1$d</item>
-    <item quantity="other">tafsiri %1$d</item>
-  </plurals>
   <string name="search_index_not_created">hakuna faharasa</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nambari za sura na mstari</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Tumia programu katika hali ya rangi moja (bila rangi), kufaa zaidi kwa vifaa vya E-ink.</string>
   <string name="prefs_display_color_mode_title">Hali ya rangi</string>
   <string name="prefs_display_color_mode_summary">Chagua jinsi rangi zinavyoonyeshwa. Monochrome hutumia nyeusi na nyeupe pekee, kwa skrini za e-ink; alamisho zilizoangaziwa huonyeshwa kwa herufi nzito. Color e-ink inaonekana kama Monochrome lakini huhifadhi rangi za uangaziaji na mstari chini wa alamisho — kwa skrini za e-ink za rangi.</string>
+  <string name="prefs_use_system_colors_title">Tumia rangi za mfumo (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Fuata rangi za mandhari yako ya skrini. Rangi ya nafasi ya kazi na hali za rangi za e-ink bado zina kipaumbele.</string>
   <string name="prefs_display_color_mode_normal">Kawaida</string>
   <string name="prefs_display_color_mode_bw">Nyeusi na nyeupe</string>
   <string name="prefs_display_color_mode_monochrome">Rangi moja</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Neno halipatikani katika kamusi yoyote</string>
   <string name="prefs_top_margin_title_mm">Ukingo wa juu (%d mm)</string>
   <string name="font_size_title">Ukubwa wa fonti</string>
+  <string name="font_preview_verse">Maana jinsi hii Mungu aliupenda ulimwengu, hata akamtoa Mwanawe pekee, ili killa mtu amwaminiye asipotee, bali awe na uzima wa milele.</string>
   <string name="font_size_title_pt">Ukubwa wa fonti (%d pt)</string>
   <string name="prefs_font_text_size_summary">Rekebisha ukubwa wa fonti ya maandishi kuu</string>
   <string name="pref_font_family_label_name">Familia ya fonti (%s)</string>
@@ -387,9 +388,7 @@
   <string name="activity_empty">Hakuna kinachoendelea</string>
   <string name="activity_failed_toast">%1$s — tazama menyu</string>
   <string name="download_question_title">Je, unataka kuendelea kupakua hati?</string>
-  <string name="download_question_message">Ikiwa unaishi katika nchi inayodhulumiwa, 
-huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Badala yake, unaweza kutaka kupata faili za moduli za zipu kwa usalama zaidi na kuzisanikisha kupitia \"Pakia Hati Kutoka kwa Zipu\". Je, una uhakika unataka kuendelea kupakua? Upakuaji wote kutoka kwa seva za moduli umesimbwa (HTTPS).
-</string>
+  <string name="download_question_message">Ikiwa unaishi katika nchi yenye mateso ya kidini, huenda ukahitaji kuwa mwangalifu unapopakua nyenzo za Kikristo kupitia Intaneti. Badala yake, unaweza kutaka kupata faili za zip za moduli kwa njia salama zaidi na kuziweka kupitia \"%1$s\". Je, una uhakika unataka kuendelea na upakuaji? Upakuaji wote kutoka kwa seva za moduli husimbwa kwa njia fiche (HTTPS).</string>
   <string name="do_not_ask_again">Ndiyo, usiulize tena</string>
   <string name="recommended_document">Inapendekezwa!</string>
   <string name="about_version_history">Historia ya toleo: %s</string>
@@ -410,6 +409,7 @@ huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Ba
   <string name="overwrite_files">Faili zifuatazo tayari zipo: %s Ziandike juu?</string>
   <string name="overwrite_files_title">Andika juu ya faili?</string>
   <string name="could_not_overwrite_files">Haikuweza kuandika juu ya faili: %s. Zaidi ya hilo sanikisho ilifanikiwa.</string>
+  <string name="module_backup_restore">Faili hii ni nakala rudufu ya hati za AndBible. Je, unataka kurejesha hati zake?</string>
   <string name="install_do_you_want">Je, unataka kusanikisha moduli (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Mpango wa Kusoma</string>
@@ -752,6 +752,7 @@ Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya a
   <string name="all">Yote</string>
   <string name="reset_generic">Weka upya</string>
   <string name="watch_tutorial_video">Tazama video ya mafunzo (Kiingereza)</string>
+  <string name="watch_tutorial_video_plain">Tazama video ya mafunzo</string>
   <string name="verse_not_found">Mstari haukupatikana</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Endelea</string>
@@ -1444,7 +1445,7 @@ Usionyeshe ujumbe huu tena</string>
   <string name="ai_settings">Mipangilio ya AI</string>
   <string name="ai_connection_settings">Mipangilio ya muunganisho</string>
   <string name="ai_setup_title">Sanidi AI</string>
-  <string name="ai_setup_description">AndBible inaweza kutumia AI kutafsiri maandishi ya Biblia, kueleza mistari, kuunda muhtasari, na zaidi. Ili kuanza, sanidi muunganisho na mtoa huduma wa API unaooana na OpenAI.</string>
+  <string name="ai_setup_description">AndBible inaweza kutumia AI kutafsiri maandishi ya Biblia, kueleza mistari, kuunda muhtasari, na mengineyo. Ili kuanza, sanidi muunganisho kwa mtoa huduma wa AI, kama vile OpenAI, Anthropic au Google Gemini.</string>
   <string name="ai_configure_button">Sanidi Muunganisho</string>
   <string name="ai_settings_shortcut_summary">Mipangilio ya muunganisho wa AI na maagizo</string>
   <string name="ai_provider_tier_recommended">Inayopendekezwa</string>
@@ -2067,4 +2068,5 @@ Usionyeshe ujumbe huu tena</string>
   <string name="recommend_get_it">Ipate hapa: %s</string>
   <string name="recommend_share_link">Shiriki kiungo</string>
   <string name="recommend_qr_caption">Changanua ili kupata AndBible kwa simu, kompyuta kibao au kompyuta yako.</string>
+  <string name="desktop_activation_failed">AndBible tayari inaendeshwa, lakini dirisha lake halikujibu. Badilisha hadi kwenye nakala inayoendeshwa kisha ujaribu tena. Faili zozote zilizoingia hazikuthibitishwa kuwa zimewasilishwa.</string>
 </resources>

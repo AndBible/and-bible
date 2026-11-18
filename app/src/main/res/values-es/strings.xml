@@ -55,6 +55,12 @@
   <string name="other">Otro</string>
   <string name="contact">Contacto</string>
   <string name="help_and_tips">Ayuda &amp; consejos</string>
+  <string name="help_tab_tips">Consejos</string>
+  <string name="help_tab_user_guide">Guía del usuario</string>
+  <string name="help_user_guide_intro">La guía del usuario completa está en andbible.org. Las páginas se abren en tu navegador.</string>
+  <string name="help_user_guide_home">Inicio de la guía del usuario</string>
+  <string name="help_tutorial_videos">Videos tutoriales</string>
+  <string name="help_play_video">Reproducir video: %1$s</string>
   <string name="administration">Administración</string>
   <string name="rate_application">Valorar y comentar</string>
   <string name="chooce_document">Elegir documento</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Creando índice de búsqueda</string>
   <string name="choose_translations">Elegir traducciones…</string>
   <string name="multi_search_count_summary">%1$s en %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d versículo</item>
-    <item quantity="many">%1$d de versículos</item>
-    <item quantity="other">%1$d versículos</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traducción</item>
-    <item quantity="many">%1$d de traducciones</item>
-    <item quantity="other">%1$d traducciones</item>
-  </plurals>
   <string name="search_index_not_created">sin índice</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Utilice la aplicación en modo monocromo (sin colores), lo que la hace más adecuada para dispositivos de E-ink.</string>
   <string name="prefs_display_color_mode_title">Modo de color</string>
   <string name="prefs_display_color_mode_summary">Elige cómo se muestran los colores. Monocromo usa solo blanco y negro, para pantallas de tinta electrónica; los marcadores resaltados se muestran en negrita. Tinta electrónica en color se ve como Monocromo pero conserva los colores de resaltado y subrayado de los marcadores, para pantallas de tinta electrónica en color.</string>
+  <string name="prefs_use_system_colors_title">Usar colores del sistema (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Sigue los colores de tu fondo de pantalla. El color del espacio de trabajo y los modos de color de tinta electrónica siguen teniendo prioridad.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Blanco y negro</string>
   <string name="prefs_display_color_mode_monochrome">Monocromo</string>
@@ -320,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">Palabra no encontrada en ningún diccionario</string>
   <string name="prefs_top_margin_title_mm">Margen superior (%d mm)</string>
   <string name="font_size_title">Tamaño de tipografía</string>
+  <string name="font_preview_verse">Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.</string>
   <string name="font_size_title_pt">Tamaño de letra (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajustar el tamaño del texto principal</string>
   <string name="pref_font_family_label_name">Tipo de letra (%s)</string>
@@ -391,12 +390,7 @@
   <string name="activity_empty">Nada en curso</string>
   <string name="activity_failed_toast">%1$s — ver menú</string>
   <string name="download_question_title">¿Desea proceder a descargar documentos?</string>
-  <string name="download_question_message">Si vives en un país perseguido,
-        Es posible que deba tener cuidado al descargar material cristiano a través de Internet.
-        En cambio, es posible que desee obtener archivos zip de módulo de forma más segura e instalarlos
-        a través de \"Cargar documento desde Zip\". ¿Seguro que quieres continuar con la descarga?
-        Todas las descargas de los servidores de módulos están encriptadas (HTTPS).
-</string>
+  <string name="download_question_message">Si vives en un país donde los cristianos son perseguidos, puede que debas tener cuidado al descargar material cristiano por Internet. En su lugar, quizá prefieras obtener archivos zip de módulos de forma más segura e instalarlos mediante \"%1$s\". ¿Seguro que quieres continuar con la descarga? Todas las descargas desde los servidores de módulos están cifradas (HTTPS).</string>
   <string name="do_not_ask_again">Si, no preguntes de nuevo</string>
   <string name="recommended_document">Recomendada!</string>
   <string name="about_version_history">Historial de versiones: %s</string>
@@ -417,6 +411,7 @@
   <string name="overwrite_files">Los siguientes archivos ya existen: %s ¿Sobrescribir?</string>
   <string name="overwrite_files_title">¿Sobrescribir archivos?</string>
   <string name="could_not_overwrite_files">No se pudieron sobrescribir archivos: %s. Aparte de eso, la instalación fue exitosa.</string>
+  <string name="module_backup_restore">Este archivo es una copia de seguridad de documentos de AndBible. ¿Quieres restaurar sus documentos?</string>
   <string name="install_do_you_want">¿Quieres instalar el módulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
@@ -787,6 +782,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="all">Todo</string>
   <string name="reset_generic">Restablecer</string>
   <string name="watch_tutorial_video">Ver vídeo tutorial (Inglés)</string>
+  <string name="watch_tutorial_video_plain">Ver video tutorial</string>
   <string name="verse_not_found">Verso no encontrado</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Continuar</string>
@@ -1535,7 +1531,7 @@ informe los problemas a los mantenedores de texto
   <string name="ai_settings">Ajustes de IA</string>
   <string name="ai_connection_settings">Ajustes de conexión</string>
   <string name="ai_setup_title">Configurar IA</string>
-  <string name="ai_setup_description">AndBible puede usar IA para traducir texto bíblico, explicar versículos, crear resúmenes y más. Para comenzar, configura una conexión a un proveedor de API compatible con OpenAI.</string>
+  <string name="ai_setup_description">AndBible puede usar IA para traducir el texto bíblico, explicar versículos, crear resúmenes y más. Para empezar, configura una conexión con un proveedor de IA, como OpenAI, Anthropic o Google Gemini.</string>
   <string name="ai_configure_button">Configurar conexión</string>
   <string name="ai_settings_shortcut_summary">Ajustes de conexión y de indicaciones de IA</string>
   <string name="ai_provider_tier_recommended">Recomendado</string>
@@ -2158,4 +2154,5 @@ informe los problemas a los mantenedores de texto
   <string name="recommend_get_it">Consíguela aquí: %s</string>
   <string name="recommend_share_link">Compartir un enlace</string>
   <string name="recommend_qr_caption">Escanea para conseguir AndBible en tu teléfono, tableta u ordenador.</string>
+  <string name="desktop_activation_failed">AndBible ya se está ejecutando, pero su ventana no respondió. Cambia a la instancia en ejecución e inténtalo de nuevo. No se confirmó la entrega de los archivos entrantes.</string>
 </resources>

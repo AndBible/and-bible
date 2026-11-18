@@ -55,6 +55,12 @@
   <string name="other">Annat</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hjälp &amp; tips</string>
+  <string name="help_tab_tips">Tips</string>
+  <string name="help_tab_user_guide">Användarguide</string>
+  <string name="help_user_guide_intro">Den fullständiga användarguiden finns på andbible.org. Sidorna öppnas i webbläsaren.</string>
+  <string name="help_user_guide_home">Användarguidens startsida</string>
+  <string name="help_tutorial_videos">Instruktionsvideor</string>
+  <string name="help_play_video">Spela upp video: %1$s</string>
   <string name="administration">Administration</string>
   <string name="rate_application">Betygsätt &amp; recensera</string>
   <string name="chooce_document">Välj Dokument</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Skapar sökindex</string>
   <string name="choose_translations">Välj översättningar…</string>
   <string name="multi_search_count_summary">%1$s i %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="other">%1$d verser</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d översättning</item>
-    <item quantity="other">%1$d översättningar</item>
-  </plurals>
   <string name="search_index_not_created">inget index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; versnummer</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Använd appen i monokromt läge (inga färger) för att göra den mer lämpad för E-Ink-enheter.</string>
   <string name="prefs_display_color_mode_title">Färgläge</string>
   <string name="prefs_display_color_mode_summary">Välj hur färger visas. Monokrom använder bara svart och vitt, för e-ink-skärmar; markerade bokmärken visas i fetstil. Färg-e-ink ser ut som Monokrom men behåller färgerna för bokmärkesmarkering och understrykning — för färgade e-ink-skärmar.</string>
+  <string name="prefs_use_system_colors_title">Använd systemfärger (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Följ färgerna i din bakgrundsbild. En arbetsytefärg och e-ink-färglägena har fortfarande företräde.</string>
   <string name="prefs_display_color_mode_normal">Normalt</string>
   <string name="prefs_display_color_mode_bw">Svartvitt</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>
@@ -318,6 +318,7 @@
   <string name="word_not_found_in_dictionaries">Ordet hittades inte i någon ordlista</string>
   <string name="prefs_top_margin_title_mm">Övre marginal (%d mm)</string>
   <string name="font_size_title">Textstorlek</string>
+  <string name="font_preview_verse">Alltså älskade Gud världen, att han utgav sin enfödde Son, för att var och en som tror på honom icke skall förgås, utan hava evigt liv.</string>
   <string name="font_size_title_pt">Textstorlek (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ändra storleken på typsnittet</string>
   <string name="pref_font_family_label_name">Typsnittfamilj (%s)</string>
@@ -389,11 +390,7 @@
   <string name="activity_empty">Inget pågår</string>
   <string name="activity_failed_toast">%1$s — se menyn</string>
   <string name="download_question_title">Vill du fortsätta med nedladdningen av dokument?</string>
-  <string name="download_question_message">Om du bor i ett förföljt land
-kan du behöva vara försiktig med att ladda ner kristet material via internet.
-Istället vill du kanske få tag i modulens zip-filer på ett säkrare sätt och installera dem
-via \"Läs in dokument från filer\". Är du säker på att du vill fortsätta med nedladdningen?
-Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
+  <string name="download_question_message">Om du bor i ett land där kristna förföljs kan du behöva vara försiktig med att ladda ner kristet material via Internet. Du kanske hellre vill skaffa modulernas zip-filer på ett säkrare sätt och installera dem via "%1$s". Är du säker på att du vill fortsätta med nedladdningen? Alla nedladdningar från modulservrar är krypterade (HTTPS).</string>
   <string name="do_not_ask_again">Ja, fråga inte mer</string>
   <string name="recommended_document">Rekommenderat!</string>
   <string name="about_version_history">Versionshistorik: %s</string>
@@ -414,6 +411,7 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="overwrite_files">Följande filer finns redan: %s, Vill du skriva över?  </string>
   <string name="overwrite_files_title">Skriva över filer?</string>
   <string name="could_not_overwrite_files">Kunde inte skriva över filer: %s. Bortsett från det lyckades installationen.</string>
+  <string name="module_backup_restore">Den här filen är en säkerhetskopia av AndBible-dokument. Vill du återställa dess dokument?</string>
   <string name="install_do_you_want">Vill du installera modulen (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Läsningsplan</string>
@@ -789,6 +787,7 @@ i GT och NT varje dag.
   <string name="all">Alla</string>
   <string name="reset_generic">Återställ</string>
   <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
+  <string name="watch_tutorial_video_plain">Titta på instruktionsvideon</string>
   <string name="verse_not_found">Versen hittades inte</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Fortsätt</string>
@@ -1537,7 +1536,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_settings">AI-inställningar</string>
   <string name="ai_connection_settings">Anslutningsinställningar</string>
   <string name="ai_setup_title">Konfigurera AI</string>
-  <string name="ai_setup_description">AndBible kan använda AI för att översätta bibeltext, förklara verser, skapa sammanfattningar och mer. Kom igång genom att konfigurera en anslutning till en OpenAI-kompatibel API-leverantör.</string>
+  <string name="ai_setup_description">AndBible kan använda AI för att översätta bibeltext, förklara verser, skapa sammanfattningar och mer. För att komma igång, konfigurera en anslutning till en AI-leverantör, till exempel OpenAI, Anthropic eller Google Gemini.</string>
   <string name="ai_configure_button">Konfigurera anslutning</string>
   <string name="ai_settings_shortcut_summary">AI-anslutning och promptinställningar</string>
   <string name="ai_provider_tier_recommended">Rekommenderade</string>
@@ -2160,4 +2159,5 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="recommend_get_it">Skaffa den här: %s</string>
   <string name="recommend_share_link">Dela en länk</string>
   <string name="recommend_qr_caption">Skanna för att skaffa AndBible till din telefon, surfplatta eller dator.</string>
+  <string name="desktop_activation_failed">AndBible körs redan, men dess fönster svarade inte. Växla till den pågående instansen och försök igen. Inkommande filer bekräftades inte som levererade.</string>
 </resources>

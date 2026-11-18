@@ -202,10 +202,6 @@
   <string name="one_more_back_press">အက်ပ်ကိုပိတ်ရန် နောက်ပြန်ခလုတ်ကို ပြန်နှိပ်ပါ</string>
   <string name="document_filter_results">%d မှတ်တမ်းများ</string>
   <string name="download_question_title">မှတ်တမ်းများကို ဒေါင်းလုပ်ဆွဲရန် ရှေ့ဆက်လိုပါသလား။ </string>
-  <string name="download_question_message">သင်သည် ညှင်းပန်းနှိပ်စက်ခံတိုင်းပြည်တွင် နေထိုင်ပါက အင်တာနက်မှတစ်ဆင့် ခရစ်ယာန် အချက်အလက်များ 
-ဒေါင်းလုပ်ဆွဲခြင်းကို သတိထားရန်လိုပါသည်။ ၎င်းအစား ပိုမိုစိတ်ချရသည့် zip ဖိုင်သင်ခန်းစာများကို ရယူပြီး 
-\"Load Documents From Zip\"မှ ၎င်းတို့ကို ထည့်သွင်းသင့်ပါသည်။ ဆက်လက် ဒေါင်းလုပ်ဆွဲရန် သေချာပါ 
-သလား။ သင်ခန်းစာ ဆာဗာများမှ ဒေါင်းလုပ်ဆွဲခြင်းများကို စကားဝှက် ခံပေးထားပါသည် (HTTPS)။ </string>
   <string name="do_not_ask_again">ဟုတ်ပါတယ်၊ ထပ်မမေးပါနဲ့</string>
   <string name="recommended_document">ထောက်ခံအကြံပြုပါသည်</string>
   <string name="about_version_history">သုံးခဲ့သည့် ဗားရှင်းမှတ်တမ်း %s</string>

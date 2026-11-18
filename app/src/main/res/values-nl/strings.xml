@@ -55,6 +55,12 @@
   <string name="other">Anders</string>
   <string name="contact">Contact</string>
   <string name="help_and_tips">Help &amp; tips</string>
+  <string name="help_tab_tips">Tips</string>
+  <string name="help_tab_user_guide">Gebruikershandleiding</string>
+  <string name="help_user_guide_intro">De volledige gebruikershandleiding staat op andbible.org. Pagina\'s openen in je browser.</string>
+  <string name="help_user_guide_home">Startpagina van de handleiding</string>
+  <string name="help_tutorial_videos">Instructievideo\'s</string>
+  <string name="help_play_video">Video afspelen: %1$s</string>
   <string name="administration">Administratie</string>
   <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">Zoekindex wordt aangemaakt</string>
   <string name="choose_translations">Kies vertalingen…</string>
   <string name="multi_search_count_summary">%1$s in %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d vers</item>
-    <item quantity="other">%1$d verzen</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d vertaling</item>
-    <item quantity="other">%1$d vertalingen</item>
-  </plurals>
   <string name="search_index_not_created">geen index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Gebruik de applicatie in monochrome modus (geen kleur), meer geschikt voor e-readers.</string>
   <string name="prefs_display_color_mode_title">Kleurmodus</string>
   <string name="prefs_display_color_mode_summary">Kies hoe kleuren worden weergegeven. Monochroom gebruikt alleen zwart en wit, voor e-inkschermen; gemarkeerde bladwijzers worden vetgedrukt weergegeven. Kleuren-e-ink ziet eruit als Monochroom, maar behoudt de markerings- en onderstrepingskleuren van bladwijzers — voor kleuren-e-inkschermen.</string>
+  <string name="prefs_use_system_colors_title">Systeemkleuren gebruiken (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Volg de kleuren van je achtergrond. Een werkbladkleur en de e-inkt-kleurmodi hebben nog steeds voorrang.</string>
   <string name="prefs_display_color_mode_normal">Normaal</string>
   <string name="prefs_display_color_mode_bw">Zwart-wit</string>
   <string name="prefs_display_color_mode_monochrome">Monochroom</string>
@@ -317,6 +317,7 @@
   <string name="word_not_found_in_dictionaries">Woord niet gevonden in een woordenboek</string>
   <string name="prefs_top_margin_title_mm">Bovenmarge (%dmm)</string>
   <string name="font_size_title">Lettergrootte</string>
+  <string name="font_preview_verse">Want alzo lief heeft God de wereld gehad, dat Hij Zijn eniggeboren Zoon gegeven heeft, opdat een iegelijk, die in Hem gelooft, niet verderve, maar het eeuwige leven hebbe.</string>
   <string name="font_size_title_pt">Lettergrootte (%d pt)</string>
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
   <string name="pref_font_family_label_name">Lettertype (%s)</string>
@@ -388,9 +389,7 @@
   <string name="activity_empty">Niets actief</string>
   <string name="activity_failed_toast">%1$s — zie menu</string>
   <string name="download_question_title">Wilt u verder gaan met documenten downloaden?</string>
-  <string name="download_question_message">Als u in een land woont waar vervolging is, zult u mogelijk voorzichtig moeten zijn met het downloaden van Christelijke materialen via internet. 
-Het is mogelijk veiliger om modules in zip-bestanden te verkrijgen en te installeren via \"Documenten laden vanuit Zip\". Weet u zeker dat u door wilt gaan met downloaden?
-Alle downloads van module servers zijn versleuteld (HTTPS).</string>
+  <string name="download_question_message">Als je in een land woont waar christenen vervolgd worden, moet je misschien voorzichtig zijn met het downloaden van christelijk materiaal via internet. Misschien wil je modulebestanden (zip) op een veiligere manier verkrijgen en installeren via "%1$s". Weet je zeker dat je wilt doorgaan met downloaden? Alle downloads van moduleservers zijn versleuteld (HTTPS).</string>
   <string name="do_not_ask_again">Ja, niet meer vragen</string>
   <string name="recommended_document">Aanbevolen!</string>
   <string name="about_version_history">Versiegeschiedenis: %s</string>
@@ -411,6 +410,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).</string>
   <string name="overwrite_files">De volgende bestanden bestaan al: %s. Overschrijven?</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <string name="could_not_overwrite_files">Kan bestanden niet overschrijven: %s. Afgezien hiervan was de installatie succesvol.</string>
+  <string name="module_backup_restore">Dit bestand is een back-up van AndBible-documenten. Wil je de documenten daaruit terugzetten?</string>
   <string name="install_do_you_want">Wil je module (%s) installeren?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
@@ -774,6 +774,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="all">Alles</string>
   <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Bekijk de rondleidingsvideo (Engels)</string>
+  <string name="watch_tutorial_video_plain">Instructievideo bekijken</string>
   <string name="verse_not_found">Vers niet gevonden</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Doorgaan</string>
@@ -1498,7 +1499,7 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="ai_settings">AI-instellingen</string>
   <string name="ai_connection_settings">Verbindingsinstellingen</string>
   <string name="ai_setup_title">AI configureren</string>
-  <string name="ai_setup_description">AndBible kan AI gebruiken om bijbeltekst te vertalen, verzen uit te leggen, samenvattingen te maken en meer. Om te beginnen configureert u een verbinding met een OpenAI-compatibele API-provider.</string>
+  <string name="ai_setup_description">AndBible kan AI gebruiken om bijbeltekst te vertalen, verzen uit te leggen, samenvattingen te maken en meer. Om te beginnen stel je een verbinding in met een AI-aanbieder, zoals OpenAI, Anthropic of Google Gemini.</string>
   <string name="ai_configure_button">Verbinding configureren</string>
   <string name="ai_settings_shortcut_summary">AI-verbindings- en promptinstellingen</string>
   <string name="ai_provider_tier_recommended">Aanbevolen</string>
@@ -2121,4 +2122,5 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="recommend_get_it">Download hem hier: %s</string>
   <string name="recommend_share_link">Een link delen</string>
   <string name="recommend_qr_caption">Scan om AndBible te krijgen voor je telefoon, tablet of computer.</string>
+  <string name="desktop_activation_failed">AndBible draait al, maar het venster reageerde niet. Schakel over naar de actieve instantie en probeer het opnieuw. Binnenkomende bestanden zijn niet als afgeleverd bevestigd.</string>
 </resources>

@@ -55,6 +55,12 @@
   <string name="other">Autre</string>
   <string name="contact">Contact</string>
   <string name="help_and_tips">Aide &amp; astuces</string>
+  <string name="help_tab_tips">Astuces</string>
+  <string name="help_tab_user_guide">Guide de l\'utilisateur</string>
+  <string name="help_user_guide_intro">Le guide complet de l\'utilisateur se trouve sur andbible.org. Les pages s\'ouvrent dans votre navigateur.</string>
+  <string name="help_user_guide_home">Accueil du guide de l\'utilisateur</string>
+  <string name="help_tutorial_videos">Vidéos de présentation</string>
+  <string name="help_play_video">Lire la vidéo : %1$s</string>
   <string name="administration">Gérer</string>
   <string name="rate_application">Évaluer &amp; commenter</string>
   <string name="chooce_document">Ouvrir un document</string>
@@ -129,16 +135,6 @@
   <string name="search_indexing_notification_title">Création de l\'index de recherche</string>
   <string name="choose_translations">Choisir des traductions…</string>
   <string name="multi_search_count_summary">%1$s dans %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d verset</item>
-    <item quantity="many">%1$d de versets</item>
-    <item quantity="other">%1$d versets</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d traduction</item>
-    <item quantity="many">%1$d de traductions</item>
-    <item quantity="other">%1$d traductions</item>
-  </plurals>
   <string name="search_index_not_created">aucun index</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
@@ -147,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Utilisez l’application en mode monochrome (sans couleurs), ce qui la rend plus adaptée aux appareils à encre électronique.</string>
   <string name="prefs_display_color_mode_title">Mode couleur</string>
   <string name="prefs_display_color_mode_summary">Choisissez comment les couleurs sont affichées. Le mode monochrome utilise uniquement le noir et le blanc, pour les écrans à encre électronique ; les signets surlignés sont affichés en gras. Le mode encre électronique couleur ressemble au mode monochrome mais conserve les couleurs de surlignage et de soulignement des signets — pour les écrans à encre électronique couleur.</string>
+  <string name="prefs_use_system_colors_title">Utiliser les couleurs du système (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Suivre les couleurs de votre fond d\'écran. Une couleur d\'espace de travail et les modes de couleur e-ink restent prioritaires.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Noir et blanc</string>
   <string name="prefs_display_color_mode_monochrome">Monochrome</string>
@@ -318,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Mot introuvable dans les dictionnaires</string>
   <string name="prefs_top_margin_title_mm">Marge supérieure (%d mm)</string>
   <string name="font_size_title">Taille de la police</string>
+  <string name="font_preview_verse">Car Dieu a tant aimé le monde qu\'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu\'il ait la vie éternelle.</string>
   <string name="font_size_title_pt">Taille de la police (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajuster la taille de la police du texte principal</string>
   <string name="pref_font_family_label_name">Famille de police (%s)</string>
@@ -389,11 +388,7 @@
   <string name="activity_empty">Rien en cours</string>
   <string name="activity_failed_toast">%1$s — voir le menu</string>
   <string name="download_question_title">Voulez-vous procéder au téléchargement des documents ?</string>
-  <string name="download_question_message">Si vous vivez dans un pays de persécution,
-vous devrez faire attention au téléchargement de matériel chrétien via Internet.
-Au lieu de cela, vous souhaiterez peut-être obtenir les fichiers zip du module de manière plus sécurisée et les installer
-via « Charger un document au format Zip ». Voulez-vous vraiment continuer le téléchargement ?
-Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTPS).</string>
+  <string name="download_question_message">Si vous vivez dans un pays où les chrétiens sont persécutés, vous devriez peut-être être prudent en téléchargeant du contenu chrétien via Internet. Vous préférerez peut-être obtenir les fichiers zip des modules de manière plus sûre et les installer via « %1$s ». Voulez-vous vraiment continuer le téléchargement ? Tous les téléchargements depuis les serveurs de modules sont chiffrés (HTTPS).</string>
   <string name="do_not_ask_again">Oui ne plus me demander</string>
   <string name="recommended_document">Recommandé!</string>
   <string name="about_version_history">Historique de version : %s</string>
@@ -414,6 +409,7 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="overwrite_files">Les fichiers suivants existent déjà : %s Les écraser ?</string>
   <string name="overwrite_files_title">Écraser les fichiers ?</string>
   <string name="could_not_overwrite_files">Impossible d’écraser les fichiers : %s. À part cela, l’installation s’est déroulée avec succès.</string>
+  <string name="module_backup_restore">Ce fichier est une sauvegarde de documents AndBible. Voulez-vous restaurer ses documents ?</string>
   <string name="install_do_you_want">Voulez-vous installer le module (%s) ?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
@@ -768,6 +764,7 @@ Le fichier est peut-être invalide.</string>
   <string name="all">Tout</string>
   <string name="reset_generic">Réinitialiser</string>
   <string name="watch_tutorial_video">Voir le tutoriel vidéo (en anglais)</string>
+  <string name="watch_tutorial_video_plain">Regarder la vidéo de présentation</string>
   <string name="verse_not_found">Verset non trouvé</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Continuer</string>
@@ -1508,7 +1505,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_settings">Paramètres AI</string>
   <string name="ai_connection_settings">Paramètres de connexion</string>
   <string name="ai_setup_title">Configurer l\'AI</string>
-  <string name="ai_setup_description">AndBible peut utiliser l\'AI pour traduire le texte biblique, expliquer des versets, créer des résumés, et plus encore. Pour commencer, configurez une connexion à un fournisseur d\'API compatible OpenAI.</string>
+  <string name="ai_setup_description">AndBible peut utiliser l\'IA pour traduire le texte biblique, expliquer des versets, créer des résumés, et plus encore. Pour commencer, configurez une connexion à un fournisseur d\'IA, tel qu\'OpenAI, Anthropic ou Google Gemini.</string>
   <string name="ai_configure_button">Configurer la connexion</string>
   <string name="ai_settings_shortcut_summary">Paramètres de connexion AI et d\'invite</string>
   <string name="ai_provider_tier_recommended">Recommandé</string>
@@ -2131,4 +2128,5 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="recommend_get_it">Obtenez-la ici : %s</string>
   <string name="recommend_share_link">Partager un lien</string>
   <string name="recommend_qr_caption">Scannez pour obtenir AndBible sur votre téléphone, votre tablette ou votre ordinateur.</string>
+  <string name="desktop_activation_failed">AndBible est déjà en cours d\'exécution, mais sa fenêtre ne répond pas. Passez à l\'instance en cours et réessayez. La remise des fichiers entrants n\'a pas été confirmée.</string>
 </resources>

@@ -55,6 +55,12 @@
   <string name="other">دیگر</string>
   <string name="contact">رابطہ</string>
   <string name="help_and_tips">مدد اور تجاویز</string>
+  <string name="help_tab_tips">مشورے</string>
+  <string name="help_tab_user_guide">صارف گائیڈ</string>
+  <string name="help_user_guide_intro">مکمل صارف گائیڈ andbible.org پر موجود ہے۔ صفحات آپ کے براؤزر میں کھلتے ہیں۔</string>
+  <string name="help_user_guide_home">صارف گائیڈ کا ہوم</string>
+  <string name="help_tutorial_videos">ٹیوٹوریل ویڈیوز</string>
+  <string name="help_play_video">ویڈیو چلائیں: %1$s</string>
   <string name="administration">انتظام</string>
   <string name="rate_application">ریٹنگ اور جائزہ</string>
   <string name="chooce_document">دستاویز منتخب کریں</string>
@@ -129,14 +135,6 @@
   <string name="search_indexing_notification_title">تلاش کا انڈیکس بنایا جا رہا ہے</string>
   <string name="choose_translations">تراجم منتخب کریں…</string>
   <string name="multi_search_count_summary">%2$s میں %1$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="one">%1$d آیت</item>
-    <item quantity="other">%1$d آیات</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="one">%1$d ترجمہ</item>
-    <item quantity="other">%1$d تراجم</item>
-  </plurals>
   <string name="search_index_not_created">کوئی انڈیکس نہیں</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">باب اور آیت نمبر</string>
@@ -145,6 +143,8 @@
   <string name="prefs_eink_mode_summary">ایپ کو یک رنگی موڈ (بغیر رنگ) میں استعمال کریں، جو ای-انک ڈیوائسز کے لیے موزوں ہے۔</string>
   <string name="prefs_display_color_mode_title">رنگ موڈ</string>
   <string name="prefs_display_color_mode_summary">منتخب کریں کہ رنگ کیسے دکھائے جائیں۔ مونوکروم صرف سیاہ اور سفید استعمال کرتا ہے، ای-انک اسکرینوں کے لیے؛ نمایاں کیے گئے بک مارکس موٹے حروف میں دکھائے جاتے ہیں۔ رنگین ای-انک مونوکروم جیسا دکھتا ہے لیکن بک مارک کی نمایاں اور انڈرلائن کے رنگ برقرار رکھتا ہے — رنگین ای-انک اسکرینوں کے لیے۔</string>
+  <string name="prefs_use_system_colors_title">سسٹم رنگ استعمال کریں (Material You)</string>
+  <string name="prefs_use_system_colors_summary">اپنے وال پیپر کے رنگوں کی پیروی کریں۔ ورک اسپیس کا رنگ اور ای انک رنگ کے موڈز پھر بھی ترجیح رکھتے ہیں۔</string>
   <string name="prefs_display_color_mode_normal">عام</string>
   <string name="prefs_display_color_mode_bw">سیاہ و سفید</string>
   <string name="prefs_display_color_mode_monochrome">یک رنگی</string>
@@ -316,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">لفظ کسی لغت میں نہیں ملا</string>
   <string name="prefs_top_margin_title_mm">اوپری حاشیہ (%d ملی میٹر)</string>
   <string name="font_size_title">فونٹ سائز</string>
+  <string name="font_preview_verse">کیونکہ خدا نے دنیا سے ایسی محبت رکھی کہ اُس نے اپنا اکلوتا بیٹا بخش دیا تاکہ جو کوئی اُس پر ایمان لائے ہلاک نہ ہو بلکہ ہمیشہ کی زندگی پائے۔</string>
   <string name="font_size_title_pt">فونٹ سائز (%d pt)</string>
   <string name="prefs_font_text_size_summary">مرکزی متن فونٹ سائز ایڈجسٹ کریں</string>
   <string name="pref_font_family_label_name">فونٹ فیملی (%s)</string>
@@ -387,7 +388,7 @@
   <string name="activity_empty">کچھ جاری نہیں</string>
   <string name="activity_failed_toast">%1$s — مینو دیکھیں</string>
   <string name="download_question_title">کیا آپ دستاویزات ڈاؤنلوڈ کرنا چاہتے ہیں؟</string>
-  <string name="download_question_message">اگر آپ کسی مظلوم ملک میں رہتے ہیں، تو آپ کو انٹرنیٹ کے ذریعے عیسائی مواد ڈاؤنلوڈ کرنے میں محتاط رہنا پڑ سکتا ہے۔ اس کی بجائے، آپ زیادہ محفوظ طریقے سے ماڈیول زپ فائلیں حاصل کر کے \"زپ سے دستاویزات لوڈ کریں\" کے ذریعے انسٹال کر سکتے ہیں۔ کیا آپ واقعی ڈاؤنلوڈ جاری رکھنا چاہتے ہیں؟ ماڈیول سرورز کے تمام ڈاؤنلوڈ انکرپٹڈ (HTTPS) ہیں۔</string>
+  <string name="download_question_message">اگر آپ کسی ایسے ملک میں رہتے ہیں جہاں ایذا رسانی ہوتی ہے، تو آپ کو انٹرنیٹ کے ذریعے مسیحی مواد ڈاؤن لوڈ کرتے وقت محتاط رہنے کی ضرورت ہو سکتی ہے۔ اس کے بجائے، آپ ماڈیول زپ فائلیں زیادہ محفوظ طریقے سے حاصل کر کے \"%1$s\" کے ذریعے انسٹال کرنا چاہیں گے۔ کیا آپ واقعی ڈاؤن لوڈ جاری رکھنا چاہتے ہیں؟ ماڈیول سرورز سے تمام ڈاؤن لوڈز مرموز (HTTPS) ہیں۔</string>
   <string name="do_not_ask_again">ہاں، دوبارہ نہ پوچھیں</string>
   <string name="recommended_document">تجویز کردہ!</string>
   <string name="about_version_history">ورژن تاریخ: %s</string>
@@ -408,6 +409,7 @@
   <string name="overwrite_files">مندرجہ ذیل فائلیں پہلے سے موجود ہیں: %s اوور رائٹ کریں؟</string>
   <string name="overwrite_files_title">فائلیں اوور رائٹ کریں؟</string>
   <string name="could_not_overwrite_files">فائلیں اوور رائٹ نہ ہو سکیں: %s۔ اس کے علاوہ انسٹالیشن کامیاب رہی۔</string>
+  <string name="module_backup_restore">یہ فائل AndBible دستاویزات کا بیک اپ ہے۔ کیا آپ اس کی دستاویزات بحال کرنا چاہتے ہیں؟</string>
   <string name="install_do_you_want">کیا آپ ماڈیول (%s) انسٹال کرنا چاہتے ہیں؟</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">مطالعہ منصوبہ</string>
@@ -722,6 +724,7 @@
   <string name="all">تمام</string>
   <string name="reset_generic">ری سیٹ کریں</string>
   <string name="watch_tutorial_video">ٹیوٹوریل ویڈیو دیکھیں (انگریزی)</string>
+  <string name="watch_tutorial_video_plain">ٹیوٹوریل ویڈیو دیکھیں</string>
   <string name="verse_not_found">آیت نہیں ملی</string>
   <!--Errors-->
   <string name="crash_recovery_continue">جاری رکھیں</string>
@@ -1388,7 +1391,7 @@
   <string name="ai_settings">AI ترتیبات</string>
   <string name="ai_connection_settings">کنکشن ترتیبات</string>
   <string name="ai_setup_title">AI ترتیب دیں</string>
-  <string name="ai_setup_description">AndBible AI کو بائبل متن ترجمہ کرنے، آیات سمجھانے، خلاصے بنانے اور مزید کے لیے استعمال کر سکتا ہے۔ شروع کرنے کے لیے OpenAI سے مطابق API فراہم کنندہ سے کنکشن ترتیب دیں۔</string>
+  <string name="ai_setup_description">AndBible بائبل متن کا ترجمہ کرنے، آیات کی وضاحت کرنے، خلاصے بنانے اور مزید کے لیے AI استعمال کر سکتا ہے۔ شروع کرنے کے لیے، کسی AI فراہم کنندہ، جیسے OpenAI، Anthropic یا Google Gemini سے کنکشن ترتیب دیں۔</string>
   <string name="ai_configure_button">کنکشن ترتیب دیں</string>
   <string name="ai_settings_shortcut_summary">AI کنکشن اور پرامپٹ ترتیبات</string>
   <string name="ai_provider_tier_recommended">تجویز کردہ</string>
@@ -2011,4 +2014,5 @@
   <string name="recommend_get_it">اسے یہاں سے حاصل کریں: %s</string>
   <string name="recommend_share_link">لنک شیئر کریں</string>
   <string name="recommend_qr_caption">اپنے فون، ٹیبلیٹ یا کمپیوٹر کے لیے AndBible حاصل کرنے کے لیے اسکین کریں۔</string>
+  <string name="desktop_activation_failed">AndBible پہلے سے چل رہا ہے، لیکن اس کی ونڈو نے جواب نہیں دیا۔ چلتی ہوئی انسٹینس پر جائیں اور دوبارہ کوشش کریں۔ آنے والی فائلوں کی ترسیل کی تصدیق نہیں ہوئی۔</string>
 </resources>

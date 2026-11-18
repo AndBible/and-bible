@@ -241,12 +241,6 @@
   <string name="one_more_back_press">Још један притисак на дугме назад ће затворити апликацију</string>
   <string name="document_filter_results">%d докумената</string>
   <string name="download_question_title">Да ли желити наставити преузимање докумената?</string>
-  <string name="download_question_message">Ако живите у земљи која прогони,
-        можда је потребно да будете обазриви када преузимате хришћански материјал преко Интернета.
-        Могли бисте, уместо тога, да безбедно прибавите зип архиве и уградите их путем
-        \"Учитај документа кроз ЗИП\". Да ли сте сигурни да желите наставити преузимање?
-        Сва преузимања модула кроз ризнице су шифрована (HTTPS).
-    </string>
   <string name="do_not_ask_again">Да, не питај поново</string>
   <string name="recommended_document">Препоручено!</string>
   <string name="about_version_history">Историја верзија: %s</string>

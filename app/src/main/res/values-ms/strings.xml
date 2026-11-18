@@ -55,6 +55,12 @@
   <string name="other">Lain-lain</string>
   <string name="contact">Hubungi</string>
   <string name="help_and_tips">Bantuan &amp; petua</string>
+  <string name="help_tab_tips">Petua</string>
+  <string name="help_tab_user_guide">Panduan pengguna</string>
+  <string name="help_user_guide_intro">Panduan pengguna penuh terdapat di andbible.org. Halaman dibuka dalam pelayar anda.</string>
+  <string name="help_user_guide_home">Laman utama panduan pengguna</string>
+  <string name="help_tutorial_videos">Video tutorial</string>
+  <string name="help_play_video">Main video: %1$s</string>
   <string name="administration">Pentadbiran</string>
   <string name="rate_application">Nilaikan &amp; Ulas</string>
   <string name="chooce_document">Pilih Dokumen</string>
@@ -129,12 +135,6 @@
   <string name="search_indexing_notification_title">Membuat indeks carian</string>
   <string name="choose_translations">Pilih terjemahan…</string>
   <string name="multi_search_count_summary">%1$s dalam %2$s</string>
-  <plurals name="multi_search_verse_count">
-    <item quantity="other">%1$d ayat</item>
-  </plurals>
-  <plurals name="multi_search_translation_count">
-    <item quantity="other">%1$d terjemahan</item>
-  </plurals>
   <string name="search_index_not_created">tiada indeks</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nombor bab &amp; ayat</string>
@@ -143,6 +143,8 @@
   <string name="prefs_eink_mode_summary">Gunakan aplikasi dalam mod monokrom (tanpa warna), menjadikannya lebih sesuai untuk peranti E-ink.</string>
   <string name="prefs_display_color_mode_title">Mod warna</string>
   <string name="prefs_display_color_mode_summary">Pilih cara warna dipaparkan. Monokrom hanya menggunakan hitam dan putih, untuk skrin e-ink; penanda buku yang diserlahkan dipaparkan dengan tebal. Warna e-ink kelihatan seperti Monokrom tetapi mengekalkan warna serlahan dan garis bawah penanda buku — untuk skrin e-ink berwarna.</string>
+  <string name="prefs_use_system_colors_title">Guna warna sistem (Material You)</string>
+  <string name="prefs_use_system_colors_summary">Ikut warna kertas dinding anda. Warna ruang kerja dan mod warna e-ink masih diutamakan.</string>
   <string name="prefs_display_color_mode_normal">Biasa</string>
   <string name="prefs_display_color_mode_bw">Hitam &amp; putih</string>
   <string name="prefs_display_color_mode_monochrome">Monokrom</string>
@@ -314,6 +316,7 @@
   <string name="word_not_found_in_dictionaries">Perkataan tidak ditemui dalam mana-mana kamus</string>
   <string name="prefs_top_margin_title_mm">Jidar atas (%d mm)</string>
   <string name="font_size_title">Saiz fon</string>
+  <string name="font_preview_verse">Kerana demikianlah kasih Allah akan dunia ini, sehingga dikaruniakan-Nya Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya jangan binasa, melainkan beroleh hidup yang kekal.</string>
   <string name="font_size_title_pt">Saiz fon (%d pt)</string>
   <string name="prefs_font_text_size_summary">Laraskan saiz fon teks utama</string>
   <string name="pref_font_family_label_name">Keluarga fon (%s)</string>
@@ -385,7 +388,7 @@
   <string name="activity_empty">Tiada yang sedang berjalan</string>
   <string name="activity_failed_toast">%1$s — lihat menu</string>
   <string name="download_question_title">Adakah anda ingin meneruskan untuk memuat turun dokumen?</string>
-  <string name="download_question_message">Jika anda tinggal di negara yang menganiaya, anda mungkin perlu berhati-hati tentang memuat turun bahan kristian melalui Internet. Sebaliknya, anda mungkin ingin mendapatkan fail zip modul dengan lebih selamat dan memasangnya melalui \"Muat Dokumen Dari Zip\". Adakah anda pasti ingin meneruskan dengan memuat turun? Semua muat turun dari pelayan modul disulitkan (HTTPS).</string>
+  <string name="download_question_message">Jika anda tinggal di negara yang menganiayai orang Kristian, anda mungkin perlu berhati-hati semasa memuat turun bahan Kristian melalui Internet. Sebaliknya, anda mungkin ingin mendapatkan fail zip modul dengan lebih selamat dan memasangnya melalui \"%1$s\". Adakah anda pasti mahu meneruskan muat turun? Semua muat turun daripada pelayan modul disulitkan (HTTPS).</string>
   <string name="do_not_ask_again">Ya, jangan tanya lagi</string>
   <string name="recommended_document">Disyorkan!</string>
   <string name="about_version_history">Sejarah versi: %s</string>
@@ -406,6 +409,7 @@
   <string name="overwrite_files">Fail berikut sudah wujud: %s Timpa?</string>
   <string name="overwrite_files_title">Timpa fail?</string>
   <string name="could_not_overwrite_files">Tidak dapat menimpa fail: %s. Selain itu pemasangan berjaya.</string>
+  <string name="module_backup_restore">Fail ini ialah sandaran dokumen AndBible. Adakah anda mahu memulihkan dokumennya?</string>
   <string name="install_do_you_want">Adakah anda ingin memasang modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Rancangan Bacaan</string>
@@ -720,6 +724,7 @@
   <string name="all">Semua</string>
   <string name="reset_generic">Set semula</string>
   <string name="watch_tutorial_video">Tonton video tutorial (Bahasa Inggeris)</string>
+  <string name="watch_tutorial_video_plain">Tonton video tutorial</string>
   <string name="verse_not_found">Ayat tidak ditemui</string>
   <!--Errors-->
   <string name="crash_recovery_continue">Teruskan</string>
@@ -1386,7 +1391,7 @@
   <string name="ai_settings">Tetapan AI</string>
   <string name="ai_connection_settings">Tetapan sambungan</string>
   <string name="ai_setup_title">Konfigurasi AI</string>
-  <string name="ai_setup_description">AndBible boleh menggunakan AI untuk menterjemah teks Alkitab, menerangkan ayat, membuat ringkasan, dan banyak lagi. Untuk bermula, konfigurasikan sambungan ke penyedia API yang serasi dengan OpenAI.</string>
+  <string name="ai_setup_description">AndBible boleh menggunakan AI untuk menterjemah teks Alkitab, menerangkan ayat, membuat ringkasan dan banyak lagi. Untuk bermula, konfigurasikan sambungan kepada pembekal AI, seperti OpenAI, Anthropic atau Google Gemini.</string>
   <string name="ai_configure_button">Konfigurasi Sambungan</string>
   <string name="ai_settings_shortcut_summary">Tetapan sambungan AI dan prompt</string>
   <string name="ai_provider_tier_recommended">Disyorkan</string>
@@ -2009,4 +2014,5 @@
   <string name="recommend_get_it">Dapatkan di sini: %s</string>
   <string name="recommend_share_link">Kongsi pautan</string>
   <string name="recommend_qr_caption">Imbas untuk mendapatkan AndBible untuk telefon, tablet atau komputer anda.</string>
+  <string name="desktop_activation_failed">AndBible sudah berjalan, tetapi tetingkapnya tidak bertindak balas. Beralih kepada contoh yang sedang berjalan dan cuba lagi. Fail masuk tidak disahkan telah diterima.</string>
 </resources>
