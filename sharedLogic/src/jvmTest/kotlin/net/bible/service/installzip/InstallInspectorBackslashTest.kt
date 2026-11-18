@@ -143,6 +143,33 @@ class InstallInspectorBackslashTest {
         assertTrue(scanSwordZip(archive.absolutePath.toPath()).invalid)
     }
 
+    @Test fun ordinarySwordZipWithNonModuleBackupManifestScansAsPlainSwordModule() {
+        val manifests = listOf(
+            """{"backupType":"DB_BACKUP"}""", """{"backupType":"STUDYPAD"}""", "{",
+            """{"backupType":"MODULE_BACKUP"}""" + " ".repeat(64 * 1024 + 1),
+        )
+        for (manifest in manifests) {
+            val scan = scanSwordZip(zip(listOf("AndBibleBackupManifest.json" to manifest.toByteArray()) + fixtureEntries())
+                .absolutePath.toPath())
+            assertFalse(scan.invalid, "an ordinary SWORD zip must stay valid with manifest ${manifest.take(30)}")
+            assertFalse(scan.isModuleBackup, "only a well-formed MODULE_BACKUP manifest makes a modules backup")
+        }
+    }
+
+    @Test fun moduleBackupManifestAfterItsPayloadStillWorks() {
+        val manifest = """{"backupType":"MODULE_BACKUP"}""".toByteArray()
+        val scan = scanSwordZip(zip(fixtureEntries() + ("AndBibleBackupManifest.json" to manifest)).absolutePath.toPath())
+        assertFalse(scan.invalid)
+        assertTrue(scan.isModuleBackup)
+    }
+
+    @Test fun zipWithOnlyAManifestIsRejected() {
+        for (type in listOf("MODULE_BACKUP", "DB_BACKUP")) {
+            val manifest = """{"backupType":"$type"}""".toByteArray()
+            assertTrue(scanSwordZip(zip(listOf("AndBibleBackupManifest.json" to manifest)).absolutePath.toPath()).invalid, type)
+        }
+    }
+
     @Test fun moduleBackupWithOnlyDirectoriesIsRejected() {
         val manifest = """{"backupType":"MODULE_BACKUP"}""".toByteArray()
         val archive = zip(listOf("AndBibleBackupManifest.json" to manifest, "epub/" to ByteArray(0)))

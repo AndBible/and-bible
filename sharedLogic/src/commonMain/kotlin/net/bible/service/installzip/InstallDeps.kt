@@ -178,20 +178,19 @@ fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
                     modulesFound = true
                     modsDirFound = true
                 }
+                // Only a well-formed MODULE_BACKUP manifest changes the classification. Any other root manifest
+                // (another backup type, malformed, oversized, duplicated, a directory) is ignored as it always was.
                 name == ANDBIBLE_BACKUP_MANIFEST_FILENAME -> {
-                    if (hasManifest || entry.isDirectory) return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
-                    hasManifest = true
-                    val manifest = try {
-                        val input = zin.entry.buffer()
-                        if (input.request(64 * 1024L + 1)) return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
-                        AndBibleBackupManifest.fromJson(input.readUtf8())
-                    } catch (e: Exception) {
-                        return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
+                    if (!hasManifest && !entry.isDirectory) {
+                        hasManifest = true
+                        val manifest = try {
+                            val input = zin.entry.buffer()
+                            if (input.request(64 * 1024L + 1)) null else AndBibleBackupManifest.fromJson(input.readUtf8())
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (manifest?.backupType == BackupType.MODULE_BACKUP) isModuleBackup = true
                     }
-                    if (manifest.backupType != BackupType.MODULE_BACKUP) {
-                        return InstallInspector.SwordZipScan(emptyList(), 0, false, true)
-                    }
-                    isModuleBackup = true
                 }
                 name.startsWith("ttf/") || name.startsWith("background/") || name.startsWith("prompts/") -> {
                     val extension = name.substringAfterLast('.', "").lowercase()
