@@ -213,6 +213,49 @@ class MaximisedLinksPaneLayoutTest {
         assertEquals(listOf(other), repo.visibleWindows)
     }
 
+    @Test
+    fun maximisingAnotherWindowWhileMaximisedStillBringsTheHiddenLinksWindowBack() {
+        other.windowState = WindowState.VISIBLE
+        links.windowState = WindowState.VISIBLE
+        control.maximiseWindow(main)
+
+        control.maximiseWindow(other)
+        control.unMaximise()
+
+        assertEquals(WindowState.VISIBLE, links.windowState, "the links window hidden by the first maximise is back")
+        assertTrue(links.isVisible)
+    }
+
+    @Test
+    fun closingTheMaximisedWindowBringsTheHiddenLinksWindowBack() {
+        other.windowState = WindowState.VISIBLE
+        links.windowState = WindowState.VISIBLE
+        control.maximiseWindow(main)
+
+        control.closeWindow(main)
+
+        assertNull(repo.maximizedWindowId)
+        assertTrue(links.isVisible, "the split comes back with its links window")
+        assertTrue(other.isVisible)
+        assertEquals(listOf(other, links), repo.visibleWindows)
+    }
+
+    @Test
+    fun aClosedPrimaryLinksWindowIsNotFallenBackFromToAnotherLinksWindow() {
+        val chained = window(repo, control, links = true)
+        repo.windowList.add(chained)
+        control.maximiseWindow(main)
+        links.windowState = WindowState.VISIBLE
+        assertEquals(listOf(main, links), repo.visibleWindows)
+
+        control.closeWindow(links)
+
+        assertNull(repo.primaryTargetLinksWindowId)
+        assertNull(repo.maximizedLinksWindow, "no links window is M's target until a link opens one")
+        assertEquals(listOf(main), repo.visibleWindows)
+        assertFalse(chained.isVisible)
+    }
+
     private inline fun <reified T> proxy(crossinline call: (String, Array<out Any?>) -> Any?): T =
         Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, args -> call(method.name, args ?: emptyArray()) } as T
 

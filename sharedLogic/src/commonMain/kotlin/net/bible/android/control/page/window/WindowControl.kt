@@ -31,6 +31,8 @@ import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.firstBibleDoc
+import net.bible.service.history.HistoryItem
+import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.mp.KoinPlatform
 import net.bible.service.sword.BookAndKey
@@ -159,12 +161,16 @@ open class WindowControl constructor() {
     /**
      * Shows [key] of [document] in the active window's links window. While a window is maximised, its links window is
      * shown beside it (#4141, `WindowRepository.maximizedLinksWindow`), and links tapped in that links window open in
-     * it again rather than in a chained links window, which maximised mode would not show.
+     * it again rather than in a chained links window, which maximised mode would not show. Back in that pane walks only
+     * what was opened in it since it was shown, then closes it ([backInMaximisedLinksPane]).
      */
     fun showLink(document: Book?, key: Key) {
+        // Measured before the target is resolved: resolving may adopt an open links window as the new target, which
+        // maximised mode shows only from then on (#4141).
+        val shownBefore = windowRepository.visibleWindows
         val linksWindow = windowRepository.maximizedLinksWindow?.takeIf { it == activeWindow }
             ?: activeWindow.targetLinksWindow
-        val linksWindowWasVisible = linksWindow.isVisible
+        val linksWindowWasVisible = linksWindow in shownBefore
 
         if (!linksWindowWasVisible) {
             windowRepository.activeWindow = linksWindow
@@ -185,6 +191,17 @@ open class WindowControl constructor() {
         } else null
 
         linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
+
+        // Shown by a link: whatever maximising hid, the user wants it now (#4141).
+        windowRepository.linksWindowsHiddenByMaximise.remove(linksWindow.id)
+        if (windowRepository.isMaximized && linksWindow == windowRepository.maximizedLinksWindow) {
+            val session = windowRepository.maximisedLinksSession
+            if (!linksWindowWasVisible || session?.linksWindowId != linksWindow.id) {
+                // After the link: its record of the page the links window showed before belongs to the older history.
+                windowRepository.maximisedLinksSession =
+                    WindowRepository.MaximisedLinksSession(linksWindow.id, newestHistoryItem(linksWindow))
+            }
+        }
 
         if (!linksWindowWasVisible) {
             windowRepository.notifyWindowsChanged()
@@ -216,6 +233,8 @@ open class WindowControl constructor() {
 
     fun minimiseWindow(window: Window, force: Boolean = false) {
         if(force || isWindowMinimizable(window)) {
+            // The user's minimise wins over a links window hidden by maximising (#4141).
+            windowRepository.linksWindowsHiddenByMaximise.remove(window.id)
             windowRepository.minimise(window)
 
             // redisplay the current page
@@ -337,11 +356,15 @@ open class WindowControl constructor() {
      * [unMaximise]; a link opened from the maximised window shows it beside it (#4141).
      */
     fun maximiseWindow(window: Window) {
+        windowRepository.maximisedLinksSession = null
         windowRepository.maximizedWindowId = window.id
-        windowRepository.linksWindowHiddenByMaximiseId = windowRepository.maximizedLinksWindow
+        // Added to what an earlier maximise hid: maximising another window while maximised keeps those (#4141).
+        windowRepository.maximizedLinksWindow
             ?.takeIf { it.windowState == WindowState.VISIBLE }
-            ?.also { it.windowState = WindowState.MINIMISED }
-            ?.id
+            ?.also {
+                it.windowState = WindowState.MINIMISED
+                windowRepository.linksWindowsHiddenByMaximise.add(it.id)
+            }
         if (!activeWindow.isVisible) activeWindow = window
         windowSync.reloadAllWindows()
         windowRepository.notifyWindowsChanged()
@@ -349,13 +372,29 @@ open class WindowControl constructor() {
 
     fun unMaximise() {
         windowRepository.maximizedWindowId = null
-        windowRepository.getWindow(windowRepository.linksWindowHiddenByMaximiseId)
-            ?.takeIf { it.windowState == WindowState.MINIMISED }
-            ?.windowState = WindowState.VISIBLE
-        windowRepository.linksWindowHiddenByMaximiseId = null
+        windowRepository.restoreLinksWindowsHiddenByMaximise()
         windowSync.reloadAllWindows()
         windowRepository.notifyWindowsChanged()
     }
+
+    /**
+     * #4141, the Back step of the links pane beside a maximised window (when it is the active pane): while the pane has
+     * history gathered since a link showed it, returns false so the history step walks it. With none left (or none
+     * known, e.g. after a restart) it closes the pane, back to the plain maximised window, and returns true; it never
+     * walks pages the links window showed before, nor lets Back fall through to the exit warning.
+     */
+    fun backInMaximisedLinksPane(): Boolean {
+        val links = windowRepository.maximizedLinksWindow?.takeIf { it.isVisible && it == activeWindow } ?: return false
+        val session = windowRepository.maximisedLinksSession?.takeIf { it.linksWindowId == links.id }
+        val newest = newestHistoryItem(links)
+        if (session != null && newest != null && newest !== session.historyTopAtStart) return false
+        windowRepository.maximisedLinksSession = null
+        dismissWindow(links)
+        return true
+    }
+
+    private fun newestHistoryItem(window: Window): HistoryItem? =
+        KoinPlatform.getKoin().getOrNull<HistoryManager>()?.getHistory(window.id)?.firstOrNull()
 
     fun hasMoveItems(window: Window): Boolean {
         return windowRepository.windowList.filter {it.isPinMode == window.isPinMode}.size > 1

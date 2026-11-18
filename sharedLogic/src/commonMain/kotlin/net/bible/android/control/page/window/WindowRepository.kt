@@ -48,6 +48,7 @@ import org.koin.mp.KoinPlatform
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.history.HistoryManager
+import net.bible.service.history.HistoryItem
 import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -91,10 +92,29 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var maximizedWindowId: IdType? = null
 
     /**
-     * #4141: the links window that [WindowControl.maximiseWindow] hid because it was open beside the window being
-     * maximised (a maximised window is shown alone); `WindowControl.unMaximise` shows it again. In memory only.
+     * #4141: the links windows that [WindowControl.maximiseWindow] hid because they were open beside the window being
+     * maximised (a maximised window is shown alone). Leaving maximised mode ([restoreLinksWindowsHiddenByMaximise])
+     * shows them again, unless the user has shown or minimised them since. In memory only.
      */
-    var linksWindowHiddenByMaximiseId: IdType? = null
+    val linksWindowsHiddenByMaximise: MutableSet<IdType> = mutableSetOf()
+
+    /**
+     * #4141: the links window shown beside the maximised window by a link, with its newest history item at that moment.
+     * Back in that pane walks only the history gathered since ([HistoryItem] identity), then closes the pane. In memory
+     * only: after a restart Back closes the pane at once.
+     */
+    class MaximisedLinksSession(val linksWindowId: IdType, val historyTopAtStart: HistoryItem?)
+
+    var maximisedLinksSession: MaximisedLinksSession? = null
+
+    /** #4141: shows the links windows hidden by maximising again (when still minimised) and forgets them. */
+    fun restoreLinksWindowsHiddenByMaximise() {
+        for (id in linksWindowsHiddenByMaximise) {
+            getWindow(id)?.takeIf { it.windowState == WindowState.MINIMISED }?.windowState = WindowState.VISIBLE
+        }
+        linksWindowsHiddenByMaximise.clear()
+        maximisedLinksSession = null
+    }
     var primaryTargetLinksWindowId: IdType? = null
 
     val primaryTargetLinksWindow: Window get() =
@@ -350,6 +370,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val closedId = window.id
         enqueueWrite { deleteWindow(closedId) }
         destroy(window)
+        linksWindowsHiddenByMaximise.remove(closedId)
+        // #4141: a closed target is no target; the next link picks (or creates) a links window explicitly.
+        if (primaryTargetLinksWindowId == closedId) primaryTargetLinksWindowId = null
+        if (maximizedWindowId == closedId) {
+            maximizedWindowId = null
+            restoreLinksWindowsHiddenByMaximise()
+        }
         if(visibleWindows.isEmpty()) {
             activeWindow = windowList[min(currentPos, windowList.size - 1)]
             activeWindow.windowState = WindowState.VISIBLE
@@ -649,7 +676,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         Log.i(TAG, "clear $destroy")
         _activeWindow = null
         maximizedWindowId = null
-        linksWindowHiddenByMaximiseId = null
+        linksWindowsHiddenByMaximise.clear()
+        maximisedLinksSession = null
         unPinnedWeight = null
         orderNumber = 0
         id = IdType.empty()

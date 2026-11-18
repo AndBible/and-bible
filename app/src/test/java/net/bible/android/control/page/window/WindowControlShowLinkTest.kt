@@ -217,4 +217,64 @@ class WindowControlShowLinkTest {
         windowControl.unMaximise()
         assertTrue(links in repo.visibleWindows, "un-maximise brings the links window back")
     }
+    /** Split with the source, its links window L and L's chained links window L2 (a link tapped inside L). */
+    private fun splitWithAChainedLinksWindow(): Triple<Window, Window, Window> {
+        val source = repo.activeWindow
+        windowControl.showLink(kjv, verse(3, 16))
+        val links = repo.windowList.single { it.isLinksWindow }
+        assertEquals(links, windowControl.activeWindow)
+        windowControl.showLink(kjv, verse(3, 17))
+        val chained = repo.windowList.single { it.isLinksWindow && it != links }
+        assertEquals(listOf(source, links, chained), repo.visibleWindows, "premise: L2 is open in the split")
+        repo.activeWindow = source
+        return Triple(source, links, chained)
+    }
+
+    @Test
+    fun closingTheLinksPaneDoesNotBringInAChainedLinksWindow() {
+        val (source, links, chained) = splitWithAChainedLinksWindow()
+        windowControl.maximiseWindow(source)
+        windowControl.showLink(kjv, verse(3, 18))
+        assertEquals(listOf(source, links), repo.visibleWindows, "premise: L beside the maximised window")
+
+        windowControl.closeWindow(links)
+
+        assertEquals(listOf(source), repo.visibleWindows, "plain maximised window, not the chained L2")
+        assertFalse(chained.isVisible)
+        assertEquals(source, windowControl.activeWindow)
+        assertNull(repo.primaryTargetLinksWindowId, "the closed primary links window is no longer the target")
+    }
+
+    @Test
+    fun afterTheLinksPaneClosedTheNextLinkShowsItsNewLinksWindowBesideTheMaximisedWindow() {
+        val (source, links, chained) = splitWithAChainedLinksWindow()
+        windowControl.maximiseWindow(source)
+        windowControl.showLink(kjv, verse(3, 18))
+        windowControl.closeWindow(links)
+
+        val seen = windowChangesDuring { windowControl.showLink(kjv, verse(3, 19)) }
+
+        assertEquals(chained.id, repo.primaryTargetLinksWindowId, "the remaining links window is the new target")
+        assertEquals(listOf(source, chained), repo.visibleWindows)
+        assertEquals(verse(3, 19), chained.pageManager.currentBible.singleKey)
+        assertEquals(chained, windowControl.activeWindow, "the pane that shows the link is active")
+        assertTrue(WindowChange.WindowsChanged in seen, "the new pane must be laid out, got $seen")
+    }
+
+    @Test
+    fun aHiddenLinksWindowShownByALinkAndThenMinimisedStaysMinimisedAfterUnMaximise() {
+        val source = repo.activeWindow
+        windowControl.showLink(kjv, verse(3, 16))
+        val links = repo.windowList.single { it.isLinksWindow }
+        repo.activeWindow = source
+        windowControl.maximiseWindow(source)
+        windowControl.showLink(kjv, verse(3, 17))
+        assertEquals(listOf(source, links), repo.visibleWindows)
+
+        windowControl.minimiseWindow(links)
+        windowControl.unMaximise()
+
+        assertFalse(links.isVisible, "the user's minimise wins over the state before maximising")
+        assertEquals(listOf(source), repo.visibleWindows)
+    }
 }

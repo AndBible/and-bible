@@ -117,10 +117,11 @@ class LinkControl constructor(
      *
      * A maximised window that shows Memorize in place (#4118: links window setting off, or "open here") un-maximises
      * and keeps the exercise on screen, because its history would step back to the Bible it came from; the next Back
-     * walks the history as usual. Back in the links window shown beside a maximised window (#4141) walks that links
-     * window's history, as in the split.
+     * walks the history as usual. Back in the links window shown beside a maximised window (#4141) walks only what was
+     * opened in it since it was shown, then closes it ([WindowControl.backInMaximisedLinksPane]).
      */
     fun backInMaximisedWindow(): Boolean {
+        if (windowControl.backInMaximisedLinksPane()) return true
         val window = windowControl.windowRepository.maximizedWindow ?: return false
         if (windowControl.activeWindow != window) return false
         val document = window.pageManager.currentPage.currentDocument ?: return false
