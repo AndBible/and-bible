@@ -45,8 +45,9 @@ class HelpAndTipsTest {
         val strings = net.bible.sharedui.strings.iosStrings("en")
         val labels = { lang: String -> HelpAndTips.toUi(strings, { it }, appLanguage = lang).filter { it.videoUrl != null }.map { it.videoLabel }.distinct() }
         assertEquals(listOf(strings.watchTutorialVideoPlain), labels("en-GB"))
-        // No real episode has captions yet, so a non-English app keeps "(English)".
-        assertEquals(listOf(strings.watchTutorialVideo), labels("fi"))
+        // Unpublished episodes use the placeholder's caption tracks, not their own empty subtitle sets.
+        assertEquals(listOf(strings.watchTutorialVideoPlain), labels("fi"))
+        assertEquals(listOf(strings.watchTutorialVideo), labels("kk"))
         assertNotEquals(strings.watchTutorialVideo, strings.watchTutorialVideoPlain)
         assertFalse(strings.watchTutorialVideoPlain.contains("English"))
     }
