@@ -8,9 +8,11 @@ from sitegen import paths
 
 CATALOG = paths.REPO / "sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLink.kt"
 DOCS_DIR = CATALOG.parent
-# UserGuideToc is generated from docs/tutorials.yaml; app_toc --check guards it.
-# Its generator is migrated separately. Keep checking its targets against the catalog below.
 GENERATED_TOC = DOCS_DIR / "UserGuideToc.kt"
+BASE_URL_ALLOWLIST = {
+    paths.REPO / "sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/ports/DocumentDialogsCore.kt",
+    paths.REPO / "sharedUi/src/commonMain/kotlin/net/bible/sharedui/help/HelpScreen.kt",
+}
 ROOTS = [paths.REPO / module / "src" for module in
          ("app", "sharedCore", "sharedLogic", "sharedUi", "desktopApp")]
 ENTRY = re.compile(r'\b([A-Z][A-Z0-9_]*)\("([a-z0-9_/.-]+)"(?:, "([a-z0-9_-]+)")?\)[,;]')
@@ -33,9 +35,24 @@ def uncataloged_calls(roots):
     problems = []
     for root in roots:
         for kt in sorted(root.rglob("*.kt")):
-            if kt in (CATALOG, DOCS_DIR / "DocsLinks.kt", GENERATED_TOC):
+            if kt in (CATALOG, DOCS_DIR / "DocsLinks.kt"):
                 continue
             text = kt.read_text(encoding="utf-8")
+            if not any("test" in part.lower() for part in kt.relative_to(root).parts):
+                base_url_names = {"DocsLinks"}
+                base_url_names.update(re.findall(
+                    r"import\s+net\.bible\.sharedcore\.docs\.DocsLinks\s+as\s+(\w+)", text))
+                direct_base_url_imports = re.findall(
+                    r"import\s+net\.bible\.sharedcore\.docs\.DocsLinks\.BASE_URL(?:\s+as\s+(\w+))?", text)
+                base_url_names.update(alias or "BASE_URL" for alias in direct_base_url_imports)
+                uses_base_url = any(re.search(rf"\b{re.escape(name)}\s*\.\s*BASE_URL\b", text)
+                                    for name in base_url_names if name != "BASE_URL")
+                uses_base_url |= any(re.search(rf"\b{re.escape(alias or 'BASE_URL')}\b", text)
+                                     for alias in direct_base_url_imports)
+                if uses_base_url and kt not in BASE_URL_ALLOWLIST:
+                    number = next(n for n, line in enumerate(text.splitlines(), 1)
+                                  if re.search(r"BASE_URL|import .*DocsLinks", line))
+                    problems.append(f"{kt}:{number}: use a DocsLink catalog entry")
             aliases = re.finditer(r'import\s+net\.bible\.sharedcore\.docs\.DocsLinks(?:\.page)?\s+as\s+\w+', text)
             for alias in aliases:
                 number = text.count("\n", 0, alias.start()) + 1
@@ -77,7 +94,11 @@ def test_migrated_call_sites_preserve_original_targets():
     for source, names in by_source.items():
         kt = paths.REPO / source
         if kt == GENERATED_TOC:
-            continue  # Its generated targets are checked separately until the generator migration.
+            current = re.findall(r'DocsLink\.([A-Z][A-Z0-9_]*)\.url', kt.read_text(encoding="utf-8"))
+            assert current == names
+            continue
+        if "test" in kt.parts:
+            continue
         current = re.findall(r'DocsLink\.([A-Z][A-Z0-9_]*)', kt.read_text(encoding="utf-8"))
         if source.endswith("/HelpAndTips.kt"):
             # The old when-map is now typed Item metadata; HelpAndTipsTest pins item order.
@@ -87,12 +108,23 @@ def test_migrated_call_sites_preserve_original_targets():
 
 
 def test_generated_toc_targets_are_cataloged():
-    targets = {(page, anchor) for _, _, page, anchor in scan()}
-    text = GENERATED_TOC.read_text(encoding="utf-8")
-    generated = LITERAL_CALL.findall(text)
-    assert len(generated) == len(CALL.findall(text)), "unscannable generated TOC call"
+    catalog_entries = {match[1]: match[2] for match in ENTRY.finditer(CATALOG.read_text(encoding="utf-8"))}
+    toc = GENERATED_TOC.read_text(encoding="utf-8")
+    generated = re.findall(r'Page\("([a-z0-9_/.-]+)".*?DocsLink\.([A-Z][A-Z0-9_]*)\.url', toc)
     assert generated
-    assert {(page, anchor or None) for page, anchor in generated} <= targets
+    for stem, name in generated:
+        assert name == stem.upper().replace("/", "_").replace("-", "_")
+        assert catalog_entries[name] == stem
+    assert len(generated) == len(re.findall(r'\bPage\("', toc)), "unscannable generated TOC page"
+
+
+def test_docs_base_url_is_used_only_at_the_documentation_roots():
+    assert uncataloged_calls(ROOTS) == []
+
+
+def test_docs_base_url_allowlist_is_exact():
+    assert all(path.is_file() for path in BASE_URL_ALLOWLIST)
+    assert all("BASE_URL" in path.read_text(encoding="utf-8") for path in BASE_URL_ALLOWLIST)
 
 
 def test_every_app_docs_link_exists():
@@ -129,6 +161,9 @@ def test_a_missing_page_is_reported(tmp_path):
     'val u = DocsLinks.page(page = "ai", anchor = "no-such")\n',
     'val u = DocsLinks.page(name, "no-such")\n',
     'val u = DocsLinks.page("ai", "x$y")\n',
+    'val u = DocsLinks.BASE_URL + "ai/"\n',
+    'val u = DocsLinks   .  BASE_URL + "ai/"\n',
+    'import net.bible.sharedcore.docs.DocsLinks.BASE_URL\nval u = BASE_URL + "ai/"\n',
 ])
 def test_an_uncataloged_call_is_reported(tmp_path, source):
     kt = tmp_path / "X.kt"

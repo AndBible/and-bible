@@ -74,7 +74,7 @@ def _flatten(node: Any) -> list[str]:
 
 
 def _const(slug: str) -> str:
-    return slug.upper().replace("-", "_")
+    return slug.upper().replace("/", "_").replace("-", "_")
 
 
 def build(toml: Path = paths.WEBSITE / "zensical.toml", docs: Path = paths.CONTENT / "en" / "docs",
@@ -125,7 +125,8 @@ def render(toc: Toc) -> str:
         out.append(f'        Section("{_k(section.title)}", listOf(')
         for page in section.pages:
             eps = ", ".join(f"TutorialVideos.Episode.{e}" for e in page.episodes)
-            out.append(f'            Page("{_k(page.stem)}", "{_k(page.title)}", DocsLinks.page("{_k(page.stem)}"), listOf({eps})),')
+            link = _const(page.stem)
+            out.append(f'            Page("{_k(page.stem)}", "{_k(page.title)}", DocsLink.{link}.url, listOf({eps})),')
         out.append("        )),")
     out += [
         "    )",

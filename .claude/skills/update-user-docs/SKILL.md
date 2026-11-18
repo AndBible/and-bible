@@ -19,12 +19,12 @@ repo `AndBible/docs` is deprecated.
 3. **Headings are anchors.** App deep-link targets are declared once in the `DocsLink` enum catalog
    (`sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLink.kt`), with each entry's page
    literal and optional anchor. Call sites reuse the catalog entry, for example
-   `DocsLinks.page(DocsLink.AI_SETTING_PERMISSIONS)`; `DocsLinks.page(DocsLink)` builds the URL
+   `DocsLink.AI_SETTING_PERMISSIONS.url`, which builds the URL
    `https://andbible.org/docs/<page>/#<anchor>` (without the fragment when no anchor is set).
    Do not rename a linked heading; `website/tests/test_app_deep_links.py` checks catalog targets
    against the built docs. If a linked target must change, update its catalog entry.
 4. **New app deep link.** Add a `DocsLink` enum entry with the new page literal and optional anchor,
-   then use that entry at call sites through `DocsLinks.page(DocsLink)`. Do not repeat page/anchor
+   then use that entry at call sites through `DocsLink.<ENTRY>.url`. Do not repeat page/anchor
    literals at use sites or hardcode `andbible.org/docs/` URLs. The test reads the catalog and rejects
    bypasses across `app`, `sharedCore`, `sharedLogic`, `sharedUi`, and `desktopApp`. Make sure the
    anchor exists in the built page.
