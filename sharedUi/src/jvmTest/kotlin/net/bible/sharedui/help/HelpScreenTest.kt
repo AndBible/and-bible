@@ -1,6 +1,12 @@
 package net.bible.sharedui.help
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import net.bible.sharedui.desktop.reading.DesktopBackDispatcher
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -20,6 +26,7 @@ import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -222,17 +229,13 @@ class HelpScreenTest {
     @Test fun subViewListsTheWholeSeriesNumberedInOrder() = runComposeUiTest {
         val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {})
         val videos = deps.tutorialVideos("en")
-        val first = videos.first().title
-        val last = videos.last().title
         assertEquals(Episode.entries.map { numberedTitle(it) }, videos.map { it.title })
-        assertEquals(numberedTitle(Episode.entries.first()), first)
         assertEquals(episodeTitle(Episode.WHATS_NEW_6_0), videos.single { !it.title.first().isDigit() }.title)
         show(videos = videos.take(2))
         openInOrder()
         val b1 = onNodeWithText(videos[0].title, useUnmergedTree = true).getBoundsInRoot()
         val b2 = onNodeWithText(videos[1].title, useUnmergedTree = true).getBoundsInRoot()
         assertTrue(b1.top < b2.top)
-        assertTrue(last.isNotEmpty())
     }
 
     @Test fun catalogWithSharedPlaceholderUrlsStillRendersDistinctClickableRows() = runComposeUiTest {
@@ -262,4 +265,60 @@ class HelpScreenTest {
         onNodeWithContentDescription(strings.settingsEditorBack).performClick()
         assertEquals(1, up)
     }
+
+    @Test fun systemBackInTheSubViewReturnsToTheTocWithoutLeavingTheScreen() = runComposeUiTest {
+        var up = 0
+        show(onUp = { up++ }, initialTab = 1)
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+        onNodeWithText("Episode one").assertExists()
+        runOnIdle { assertTrue(DesktopBackDispatcher.back()) }
+        waitForIdle()
+        onNodeWithText(strings.helpWatchInOrder).assertExists()
+        onNodeWithText(strings.helpTabUserGuide).assertExists()
+        onNodeWithText("Episode one").assertDoesNotExist()
+        assertEquals(0, up)
+    }
+
+    @Test fun systemBackOutsideTheSubViewIsNotConsumedByTheScreen() = runComposeUiTest {
+        var up = 0
+        show(onUp = { up++ }, initialTab = 1)
+        runOnIdle { assertFalse(DesktopBackDispatcher.back()) }
+        onNodeWithText(strings.helpWatchInOrder).assertExists()
+        assertEquals(0, up)
+    }
+
+    @Test fun subViewSurvivesSavedStateRestore() = runComposeUiTest {
+        // StateRestorationTester is not available on the skiko test target, so save and restore through a
+        // SaveableStateRegistry by hand: what the Activity does across a rotation.
+        var registry by mutableStateOf<SaveableStateRegistry?>(SaveableStateRegistry(null) { true })
+        setContent {
+            // The same composition path is disposed and rebuilt: rememberSaveable keys depend on it.
+            registry?.let { reg ->
+                CompositionLocalProvider(LocalSaveableStateRegistry provides reg, LocalStrings provides strings) {
+                    AbTheme(darkTheme = false) {
+                        HelpScreen(
+                            tips = tips, sections = sections,
+                            tutorialVideos = listOf(VideoRowUi("Episode one", "https://video/e1")),
+                            versionText = "Version 9.9",
+                            guideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
+                            appLanguage = "en", initialTab = 1, onOpenUrl = {}, onUp = {},
+                        )
+                    }
+                }
+            }
+        }
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+        onNodeWithText("Episode one").assertExists()
+        var saved: Map<String, List<Any?>> = emptyMap()
+        runOnIdle { saved = registry!!.performSave() }
+        registry = null
+        waitForIdle()
+        onNodeWithText("Episode one").assertDoesNotExist()
+        registry = SaveableStateRegistry(saved) { true }
+        waitForIdle()
+        onNodeWithText(strings.helpTutorialVideos).assertExists()
+        onNodeWithText("Episode one").assertExists()
+        onNodeWithText("Section One").assertDoesNotExist()
+    }
+
 }

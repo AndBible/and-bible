@@ -246,6 +246,6 @@ private fun WatchInOrderRow(onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(strings.helpWatchInOrder) },
         leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
-        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
+        modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpWatchInOrder, onClick = onClick),
     )
 }
