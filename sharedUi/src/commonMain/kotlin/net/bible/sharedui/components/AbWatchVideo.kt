@@ -6,19 +6,22 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalUriHandler
-import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedui.strings.tutorialVideoLabel
+import net.bible.sharedui.strings.tutorialVideoUrl
 
 /**
  * The one affordance for "watch the tutorial video of this screen": an overflow-menu item (the link opens through
- * the host's link opener, which asks first in discrete mode). [url] always comes from
- * `net.bible.sharedcore.docs.TutorialVideos`.
+ * the host's link opener, which asks first in discrete mode). The link follows the app language
+ * ([tutorialVideoUrl]).
  */
 @Composable
-fun AbWatchVideoMenuItem(url: String, close: () -> Unit) {
+fun AbWatchVideoMenuItem(episode: TutorialVideos.Episode, close: () -> Unit) {
+    val url = tutorialVideoUrl(episode)
     val uriHandler = LocalUriHandler.current
     val linkOpener = LocalAbLinkOpener.current
     AbMenuItem(
-        text = LocalStrings.current.watchTutorialVideo,
+        text = tutorialVideoLabel(episode),
         onClick = { close(); linkOpener?.open(url) ?: uriHandler.openUri(url) },
         icon = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
     )
@@ -26,6 +29,6 @@ fun AbWatchVideoMenuItem(url: String, close: () -> Unit) {
 
 /** A top-bar overflow menu holding only [AbWatchVideoMenuItem], for a screen that has no overflow menu yet. */
 @Composable
-fun RowScope.AbWatchVideoOverflowMenu(url: String) {
-    AbOverflowMenu { close -> AbWatchVideoMenuItem(url, close) }
+fun RowScope.AbWatchVideoOverflowMenu(episode: TutorialVideos.Episode) {
+    AbOverflowMenu { close -> AbWatchVideoMenuItem(episode, close) }
 }

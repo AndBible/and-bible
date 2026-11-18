@@ -54,7 +54,7 @@ class ManageLabelsHelpGoldenTest {
             mode = ManageLabelsMode.ASSIGN,
             title = "Assign labels",
             scopeSentence = null,
-            readMoreUrl = "https://example.invalid/",
+            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
             onDismiss = {},
         )
     }
@@ -77,7 +77,7 @@ class ManageLabelsHelpGoldenTest {
             mode = ManageLabelsMode.WORKSPACE,
             title = "Labels",
             scopeSentence = "This setting applies to this workspace.",
-            readMoreUrl = "https://example.invalid/",
+            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
             onDismiss = {},
         )
     }
@@ -87,7 +87,7 @@ class ManageLabelsHelpGoldenTest {
             mode = ManageLabelsMode.HIDELABELS,
             title = "Hide specified labels",
             scopeSentence = "This setting applies to this workspace.",
-            readMoreUrl = "https://example.invalid/",
+            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
             onDismiss = {},
         )
     }
@@ -97,7 +97,7 @@ class ManageLabelsHelpGoldenTest {
             mode = ManageLabelsMode.STUDYPAD,
             title = "Study pads",
             scopeSentence = null,
-            readMoreUrl = "https://example.invalid/",
+            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
             onDismiss = {},
         )
     }

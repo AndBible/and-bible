@@ -5,7 +5,6 @@ package net.bible.sharedui.help
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +16,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
@@ -30,8 +28,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.components.AbScaffold
@@ -49,18 +49,23 @@ data class HelpTipUi(
     val docUrl: String?,
 )
 
-/** A row of the "Tutorial videos" list: the episode [title] and the [url] it opens. */
+/**
+ * A row of the "Tutorial videos" list: the episode [title] and the [url] it opens. [plainLabel] is false when the
+ * video has no caption track in the app language, which adds the "(English)" qualifier to the row's label.
+ */
 @kotlin.native.HiddenFromObjC
-data class VideoRowUi(val title: String, val url: String)
+data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolean = true)
 
 /**
  * The full-screen Help & tips: a "Tips" tab (the tip cards, a link to the full documentation and the version) and a
- * "User guide" tab (the documentation table of contents from [UserGuideToc], with a play button on every page that
- * has a published tutorial episode, and the list of [tutorialVideos]). Stateless apart from the selected tab:
+ * "User guide" tab (the documentation table of contents from [UserGuideToc], with an indented, playable row under
+ * every page for each of its published tutorial episodes, and the list of [tutorialVideos]). Stateless apart from the
+ * selected tab:
  * every link goes through [onOpenUrl], so the host can confirm before leaving the app.
  *
- * [isPublished] decides which of a page's episodes get a play button; the default is "has a YouTube id" and a test
- * can substitute its own.
+ * [isPublished] decides which of a page's episodes get a row; the default is "has a YouTube id" and a test can
+ * substitute its own. The episode rows open [TutorialVideos.url] for [appLanguage] (captions in that language when
+ * the episode has them, else "(English)" in the label).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +75,7 @@ fun HelpScreen(
     sections: List<UserGuideToc.Section>,
     tutorialVideos: List<VideoRowUi>,
     versionText: String,
+    appLanguage: String = "en",
     initialTab: Int = 0,
     onOpenUrl: (String) -> Unit,
     onUp: () -> Unit,
@@ -88,7 +94,7 @@ fun HelpScreen(
             if (tab == 0) {
                 TipsTab(tips, versionText, onOpenUrl)
             } else {
-                UserGuideTab(sections, tutorialVideos, onOpenUrl, isPublished)
+                UserGuideTab(sections, tutorialVideos, appLanguage, onOpenUrl, isPublished)
             }
         }
     }
@@ -123,6 +129,8 @@ private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (Stri
         item {
             Column(Modifier.fillMaxWidth()) {
                 TextButton({ onOpenUrl(DocsLinks.BASE_URL) }) { Text(strings.helpFullDocumentationLink) }
+                // The sponsor line the old Android Help notice carried.
+                TextButton({ onOpenUrl(SiteLinks.SHOP_URL) }) { Text("${strings.buyDevelopment2}: ${strings.buyDevelopment}") }
                 Text(versionText, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp))
             }
         }
@@ -133,6 +141,7 @@ private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (Stri
 private fun UserGuideTab(
     sections: List<UserGuideToc.Section>,
     tutorialVideos: List<VideoRowUi>,
+    appLanguage: String,
     onOpenUrl: (String) -> Unit,
     isPublished: (TutorialVideos.Episode) -> Boolean,
 ) {
@@ -148,22 +157,23 @@ private fun UserGuideTab(
         item { GuideRow(strings.helpUserGuideHome, { onOpenUrl(DocsLinks.BASE_URL) }) }
         for (section in sections) {
             item(key = "h:${section.title}") { SectionHeader(section.title) }
-            items(section.pages, key = { "p:${it.stem}" }) { page ->
-                GuideRow(page.title, { onOpenUrl(page.url) }) {
-                    // One play button per published episode, each named by its episode title.
-                    page.episodes.filter(isPublished).forEach { episode ->
-                        val title = UserGuideToc.episodeTitles[episode] ?: episode.slug
-                        IconButton({ onOpenUrl(TutorialVideos.url(episode)) }) {
-                            Icon(Icons.Outlined.PlayCircle, contentDescription = strings.helpPlayVideo(title))
-                        }
-                    }
+            for (page in section.pages) {
+                item(key = "p:${page.stem}") { GuideRow(page.title, { onOpenUrl(page.url) }) }
+                // One indented row per published episode: several identical icons in a trailing slot overflow a phone.
+                items(page.episodes.filter(isPublished), key = { "e:${page.stem}:${it.name}" }) { episode ->
+                    VideoRow(
+                        UserGuideToc.episodeTitles[episode] ?: episode.slug,
+                        TutorialVideos.hasPlainLabel(episode, appLanguage),
+                        { onOpenUrl(TutorialVideos.url(episode, appLanguage)) },
+                        indent = true,
+                    )
                 }
             }
         }
         if (tutorialVideos.isNotEmpty()) {
             item(key = "h:videos") { SectionHeader(strings.helpTutorialVideos) }
             items(tutorialVideos, key = { "v:${it.url}" }) { video ->
-                GuideRow(video.title, { onOpenUrl(video.url) })
+                VideoRow(video.title, video.plainLabel, { onOpenUrl(video.url) })
             }
         }
     }
@@ -183,10 +193,22 @@ private fun SectionHeader(title: String) {
 }
 
 @Composable
-private fun GuideRow(title: String, onClick: () -> Unit, trailing: @Composable (() -> Unit)? = null) {
+private fun GuideRow(title: String, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(title) },
-        trailingContent = trailing?.let { t -> { Row { t() } } },
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
+    )
+}
+
+/** A playable video row: play icon, the [title] and the "Watch tutorial video" label ("(English)" unless [plainLabel]). */
+@Composable
+private fun VideoRow(title: String, plainLabel: Boolean, onClick: () -> Unit, indent: Boolean = false) {
+    val strings = LocalStrings.current
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(if (plainLabel) strings.watchTutorialVideoPlain else strings.watchTutorialVideo) },
+        // The indent is inside the row, so the row's background still spans the full width.
+        leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null, modifier = Modifier.padding(start = if (indent) 24.dp else 0.dp)) },
+        modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpPlayVideo(title), onClick = onClick),
     )
 }

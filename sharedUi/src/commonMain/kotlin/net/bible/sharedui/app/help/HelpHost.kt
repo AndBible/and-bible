@@ -25,6 +25,7 @@ class HelpHost(
         exitHost = { shell.exitHost() },
         setWindowTitle = { shell.setWindowTitle(it) },
         tips = { HelpAndTips.toUi(strings, helpDialogs::tipText, appLanguage = helpDialogs.appLanguage()) },
+        appLanguage = { helpDialogs.appLanguage() },
         versionText = { strings.versionText(helpDialogs.versionName()) },
         onOpenUrl = { links.confirmAndOpen(it, dialogs) { strings } },
     )

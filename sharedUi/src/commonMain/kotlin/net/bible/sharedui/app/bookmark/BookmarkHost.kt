@@ -1269,11 +1269,9 @@ class BookmarkHost(
                         )
                     } else null,
                     // STUDYPAD keeps its own video; the other three modes use the
-                    // Labels & highlights one. Don't collapse this to one URL.
-                    readMoreUrl = TutorialVideos.url(
-                        if (session.controller.mode == ManageLabelsMode.STUDYPAD) TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS
-                        else TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
-                    ),
+                    // Labels & highlights one. Don't collapse this to one episode.
+                    videoEpisode = if (session.controller.mode == ManageLabelsMode.STUDYPAD) TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS
+                    else TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
                     onDismiss = { manageLabelsHelpOpen = false },
                 )
             }

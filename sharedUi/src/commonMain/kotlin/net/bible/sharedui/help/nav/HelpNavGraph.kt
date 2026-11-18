@@ -27,9 +27,16 @@ class HelpNavDeps(
     val tips: () -> List<HelpTipUi>,
     val versionText: () -> String,
     val onOpenUrl: (String) -> Unit,
-    /** The published episodes listed under "Tutorial videos"; empty while none is uploaded. */
-    val tutorialVideos: () -> List<VideoRowUi> = {
-        TutorialVideos.published().map { VideoRowUi(UserGuideToc.episodeTitles[it] ?: it.slug, TutorialVideos.url(it)) }
+    /**
+     * The app's language tag. A system language without an app translation still drives the captions: the tag is
+     * the one the app resolved, which falls back to English, and only a tag with a caption track changes the link.
+     */
+    val appLanguage: () -> String = { "en" },
+    /** The published episodes listed under "Tutorial videos" for an app in the given language; empty while none is uploaded. */
+    val tutorialVideos: (appLanguage: String) -> List<VideoRowUi> = { lang ->
+        TutorialVideos.published().map {
+            VideoRowUi(UserGuideToc.episodeTitles[it] ?: it.slug, TutorialVideos.url(it, lang), TutorialVideos.hasPlainLabel(it, lang))
+        }
     },
 )
 
@@ -40,11 +47,13 @@ fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNav
         val strings = LocalStrings.current
         LaunchedEffect(strings.helpAndTips) { deps.setWindowTitle(strings.helpAndTips) }
         val tips = remember(strings) { deps.tips() }
-        val videos = remember { deps.tutorialVideos() }
+        val language = remember { deps.appLanguage() }
+        val videos = remember { deps.tutorialVideos(language) }
         HelpScreen(
             tips = tips,
             sections = UserGuideToc.sections,
             tutorialVideos = videos,
+            appLanguage = language,
             versionText = remember(strings) { deps.versionText() },
             onOpenUrl = deps.onOpenUrl,
             onUp = { navController.popOrExitFrom(entry, deps.exitHost) },

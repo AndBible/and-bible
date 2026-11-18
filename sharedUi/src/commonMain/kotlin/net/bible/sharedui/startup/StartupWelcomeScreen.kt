@@ -74,6 +74,7 @@ import net.bible.sharedcore.startup.StartupWelcomeTab
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.volumeVerticalScroll
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.tutorialVideoUrl
 import net.bible.sharedui.theme.isPureMonochrome
 
 /**
@@ -190,7 +191,7 @@ fun StartupWelcomeScreen(
             ) {
                 FooterLink(Icons.Outlined.Language, strings.welcomeHomepageLabel, onOpenHomepage)
                 FooterLink(Icons.Outlined.Code, strings.welcomeGithubLabel, onOpenGithub)
-                val videoUrl = TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)
+                val videoUrl = tutorialVideoUrl(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)
                 FooterLink(Icons.Outlined.PlayCircle, strings.welcomeVideoLabel) {
                     linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl)
                 }

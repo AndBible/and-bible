@@ -581,7 +581,7 @@ fun ReadingToolbar(
                 readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else DocsLinks.page("search", "advanced-search"),
                 // The Bible search help covers the basics and the advanced syntax: link part 1 (the tutorial series
                 // continues with the advanced part). The EPUB search is a different engine the videos do not cover.
-                videoUrl = if (forEpub) null else TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_12_SEARCH_1_BASICS),
+                videoEpisode = if (forEpub) null else TutorialVideos.Episode.TUTORIAL_12_SEARCH_1_BASICS,
             )
         }
         return

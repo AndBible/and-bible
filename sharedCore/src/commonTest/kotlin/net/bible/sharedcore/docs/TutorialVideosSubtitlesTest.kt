@@ -26,6 +26,25 @@ class TutorialVideosSubtitlesTest {
         assertNull(TutorialVideos.matchSubtitle(subs, "de"))
     }
 
+    @Test fun scriptAndRegionFallbacks() {
+        assertEquals("zh-TW", TutorialVideos.matchSubtitle(setOf("zh-TW", "zh-CN"), "zh-Hant-TW"))
+        assertEquals("zh-Hant", TutorialVideos.matchSubtitle(setOf("zh-Hant", "zh-TW"), "zh-Hant-TW"))
+        assertEquals("zh-CN", TutorialVideos.matchSubtitle(setOf("zh-TW", "zh-CN"), "zh-Hans-CN"))
+        assertEquals("zh-Hans", TutorialVideos.matchSubtitle(setOf("zh-Hans"), "zh-Hans-CN"))
+        assertEquals("sr-Latn", TutorialVideos.matchSubtitle(setOf("sr", "sr-Latn"), "sr-Latn-RS"))
+        assertEquals("zh", TutorialVideos.matchSubtitle(setOf("zh"), "zh-Hant-TW"))
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-CN"), "zh-Hant-TW"))
+    }
+
+    @Test fun legacyLanguageAliasesMatchBothWays() {
+        assertEquals("he", TutorialVideos.matchSubtitle(setOf("he"), "iw"))
+        assertEquals("iw", TutorialVideos.matchSubtitle(setOf("iw"), "he-IL"))
+        assertEquals("id", TutorialVideos.matchSubtitle(setOf("id"), "in"))
+        assertEquals("in", TutorialVideos.matchSubtitle(setOf("in"), "id"))
+        assertEquals("yi", TutorialVideos.matchSubtitle(setOf("yi"), "ji"))
+        assertEquals("ji", TutorialVideos.matchSubtitle(setOf("ji"), "yi"))
+    }
+
     @Test fun englishNeverMatches() {
         assertNull(TutorialVideos.matchSubtitle(setOf("en", "en-GB"), "en"))
         assertNull(TutorialVideos.matchSubtitle(setOf("en-GB"), "en-GB"))

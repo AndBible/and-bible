@@ -146,9 +146,7 @@ fun DailyReadingScreen(
                             onClick = { close(); onImportPlan() },
                             icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
                         )
-                        AbWatchVideoMenuItem(
-                            TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS), close,
-                        )
+                        AbWatchVideoMenuItem(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS, close)
                     }
                 },
             )

@@ -4,12 +4,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.docs.TutorialVideos.Episode
+import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
@@ -34,12 +35,13 @@ class HelpScreenTest {
         opened: MutableList<String> = mutableListOf(),
         onUp: () -> Unit = {},
         initialTab: Int = 0,
+        appLanguage: String = "en",
     ) = setContent {
         CompositionLocalProvider(LocalStrings provides strings) {
             AbTheme(darkTheme = false) {
                 HelpScreen(
                     tips = tips, sections = sections, tutorialVideos = videos, versionText = "Version 9.9",
-                    initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
+                    appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
                     isPublished = { it == Episode.TUTORIAL_02_FINDING_YOUR_WAY },
                 )
             }
@@ -61,6 +63,13 @@ class HelpScreenTest {
         assertEquals(listOf("https://docs/1"), opened)
     }
 
+    @Test fun tipsTabHasTheSponsorLink() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        show(opened = opened)
+        onNodeWithText("${strings.buyDevelopment2}: ${strings.buyDevelopment}").performClick()
+        assertEquals(listOf(net.bible.sharedcore.docs.SiteLinks.SHOP_URL), opened)
+    }
+
     @Test fun userGuideTabShowsSectionsAndOpensPages() = runComposeUiTest {
         val opened = mutableListOf<String>()
         show(opened = opened)
@@ -71,15 +80,33 @@ class HelpScreenTest {
         assertEquals(listOf("https://x/navigation/"), opened)
     }
 
-    @Test fun onlyPublishedEpisodesGetAPlayButton() = runComposeUiTest {
+    @Test fun onlyPublishedEpisodesGetARowUnderTheirPage() = runComposeUiTest {
         val opened = mutableListOf<String>()
         show(opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
-        val label = strings.helpPlayVideo(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_02_FINDING_YOUR_WAY))
-        onAllNodesWithContentDescription(label).assertCountEquals(1)
-        onNodeWithContentDescription(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_03_VERSE_MENU), substring = true).assertDoesNotExist()
-        onNodeWithContentDescription(label).performClick()
-        assertEquals(listOf(net.bible.sharedcore.docs.TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY)), opened)
+        val title = UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_02_FINDING_YOUR_WAY)
+        onAllNodesWithText(title).assertCountEquals(1)
+        onNodeWithText(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_03_VERSE_MENU)).assertDoesNotExist()
+        onNodeWithText(title).performClick()
+        assertEquals(listOf(TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY, "en")), opened)
+    }
+
+    @Test fun episodeRowsUseTheAppLanguageForUrlAndLabel() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
+        // Captions exist only when the real episode carries them; assert the screen follows the core rule either way.
+        show(videos = emptyList(), opened = opened, appLanguage = "fi")
+        onNodeWithText(strings.helpTabUserGuide).performClick()
+        val label = if (TutorialVideos.hasPlainLabel(episode, "fi")) strings.watchTutorialVideoPlain else strings.watchTutorialVideo
+        onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).assertExists()
+        onAllNodesWithText(label).assertCountEquals(1)
+        onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).performClick()
+        assertEquals(listOf(TutorialVideos.url(episode, "fi")), opened)
+    }
+
+    @Test fun videoRowWithoutCaptionsCarriesTheEnglishQualifier() = runComposeUiTest {
+        show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = 1)
+        onAllNodesWithText(strings.watchTutorialVideo).assertCountEquals(1)
     }
 
     @Test fun tutorialVideosSectionListsVideosAndHidesWhenEmpty() = runComposeUiTest {

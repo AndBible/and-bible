@@ -345,7 +345,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
                 when (action) {
                     ReleaseNoticeAction.SPONSOR -> CommonUtils.openLink(buyDevelopmentLink)
                     ReleaseNoticeAction.SHARE -> recommendToFriend(host, appDialogs::await)
-                    else -> ReleaseNotice.linkFor(action)?.let { CommonUtils.openLink(it) }
+                    else -> ReleaseNotice.linkFor(action, CommonUtils.appLanguageTag(application))?.let { CommonUtils.openLink(it) }
                 }
             },
         )

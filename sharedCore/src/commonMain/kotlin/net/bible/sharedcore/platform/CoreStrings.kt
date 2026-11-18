@@ -2,6 +2,8 @@ package net.bible.sharedcore.platform
 
 /** Strings domain code needs. One member per resource; grows per batch (spec L1a section 3). */
 interface CoreStrings {
+    /** The BCP-47 tag of the language these strings resolve to; picks the caption language of tutorial video links. */
+    val languageTag: String get() = "en"
     val documentSyncActivityTitle: String
     val documentSyncEnabled: String
     val documentSyncDisabled: String
@@ -163,6 +165,7 @@ interface CoreStrings {
     val verseTip: String // R.string.verse_tip
     val helpBookmarksText: String // R.string.help_bookmarks_text
     val watchTutorialVideo: String // R.string.watch_tutorial_video
+    val watchTutorialVideoPlain: String // R.string.watch_tutorial_video_plain
     val bookmarksAndMyNotesTitle: String // R.string.bookmarks_and_mynotes_title
 
     val prefsNightModeDescriptionsSystemAutoManual: List<String> // R.array.prefs_night_mode_descriptions_system_auto_manual

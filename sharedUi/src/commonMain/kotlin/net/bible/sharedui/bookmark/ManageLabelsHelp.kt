@@ -62,7 +62,7 @@ fun ManageLabelsHelpDialog(
     mode: ManageLabelsMode,
     title: String,
     scopeSentence: String?,
-    readMoreUrl: String,
+    videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode,
     onDismiss: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -77,8 +77,7 @@ fun ManageLabelsHelpDialog(
         title = title,
         body = body,
         onDismiss = onDismiss,
-        readMoreLabel = strings.watchTutorialVideo,
-        readMoreUrl = readMoreUrl,
+        videoEpisode = videoEpisode,
         content = if (mode == ManageLabelsMode.STUDYPAD) null else {
             {
                 Spacer(Modifier.height(12.dp))
