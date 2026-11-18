@@ -2068,4 +2068,10 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="recommend_share_link">Bagikan tautan</string>
   <string name="recommend_qr_caption">Pindai untuk mendapatkan AndBible di ponsel, tablet, atau komputer Anda.</string>
   <string name="desktop_activation_failed">AndBible sudah berjalan, tetapi jendelanya tidak merespons. Beralihlah ke instans yang sedang berjalan dan coba lagi. File yang masuk tidak terkonfirmasi telah terkirim.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d ayat</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d terjemahan</item>
+  </plurals>
 </resources>

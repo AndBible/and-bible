@@ -2015,4 +2015,12 @@
   <string name="recommend_share_link">लिङ्क बाँड्नुहोस्</string>
   <string name="recommend_qr_caption">आफ्नो फोन, ट्याब्लेट वा कम्प्युटरका लागि AndBible प्राप्त गर्न स्क्यान गर्नुहोस्।</string>
   <string name="desktop_activation_failed">AndBible पहिले नै चलिरहेको छ, तर यसको विन्डोले प्रतिक्रिया दिएन। चलिरहेको प्रतिलिपिमा जानुहोस् र फेरि प्रयास गर्नुहोस्। आएका कुनै फाइलहरू पुग्यो भनी पुष्टि भएन।</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d श्लोक</item>
+    <item quantity="other">%1$d श्लोकहरू</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d अनुवाद</item>
+    <item quantity="other">%1$d अनुवादहरू</item>
+  </plurals>
 </resources>

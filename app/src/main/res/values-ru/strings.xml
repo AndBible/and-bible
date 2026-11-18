@@ -2151,4 +2151,16 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="recommend_share_link">Поделиться ссылкой</string>
   <string name="recommend_qr_caption">Отсканируйте, чтобы получить AndBible для телефона, планшета или компьютера.</string>
   <string name="desktop_activation_failed">AndBible уже запущен, но его окно не отвечает. Переключитесь на запущенный экземпляр и повторите попытку. Входящие файлы не были подтверждены как доставленные.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d стих</item>
+    <item quantity="few">%1$d стиха</item>
+    <item quantity="many">%1$d стихов</item>
+    <item quantity="other">%1$d стиха</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d переводе</item>
+    <item quantity="few">%1$d переводах</item>
+    <item quantity="many">%1$d переводах</item>
+    <item quantity="other">%1$d переводах</item>
+  </plurals>
 </resources>

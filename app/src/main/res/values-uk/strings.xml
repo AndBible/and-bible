@@ -2144,4 +2144,16 @@
   <string name="recommend_share_link">Поділитися посиланням</string>
   <string name="recommend_qr_caption">Скануйте, щоб отримати AndBible для телефона, планшета або комп\'ютера.</string>
   <string name="desktop_activation_failed">AndBible уже запущено, але його вікно не відповіло. Перейдіть до запущеного екземпляра та спробуйте ще раз. Отримання вхідних файлів не підтверджено.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d вірш</item>
+    <item quantity="few">%1$d вірші</item>
+    <item quantity="many">%1$d віршів</item>
+    <item quantity="other">%1$d вірша</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d переклад</item>
+    <item quantity="few">%1$d переклади</item>
+    <item quantity="many">%1$d перекладів</item>
+    <item quantity="other">%1$d перекладу</item>
+  </plurals>
 </resources>

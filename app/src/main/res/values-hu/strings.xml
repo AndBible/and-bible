@@ -2122,4 +2122,12 @@ jelentse be az észlelt problémát</string>
   <string name="recommend_share_link">Hivatkozás megosztása</string>
   <string name="recommend_qr_caption">Olvasd be, hogy megszerezd az AndBible alkalmazást telefonodra, táblagépedre vagy számítógépedre.</string>
   <string name="desktop_activation_failed">Az AndBible már fut, de az ablaka nem válaszolt. Váltson át a futó példányra, és próbálja újra. A beérkező fájlok kézbesítése nincs megerősítve.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d fordítás</item>
+    <item quantity="other">%1$d fordítás</item>
+  </plurals>
 </resources>

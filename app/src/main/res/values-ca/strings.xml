@@ -2015,4 +2015,14 @@
   <string name="recommend_share_link">Comparteix un enllaç</string>
   <string name="recommend_qr_caption">Escaneja per aconseguir AndBible per al mòbil, la tauleta o l\'ordinador.</string>
   <string name="desktop_activation_failed">AndBible ja s\'està executant, però la seva finestra no ha respost. Canvieu a la instància en execució i torneu-ho a provar. No s\'ha confirmat que s\'hagin lliurat els fitxers entrants.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="many">%1$d de versos</item>
+    <item quantity="other">%1$d versos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducció</item>
+    <item quantity="many">%1$d de traduccions</item>
+    <item quantity="other">%1$d traduccions</item>
+  </plurals>
 </resources>

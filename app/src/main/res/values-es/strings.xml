@@ -2155,4 +2155,14 @@ informe los problemas a los mantenedores de texto
   <string name="recommend_share_link">Compartir un enlace</string>
   <string name="recommend_qr_caption">Escanea para conseguir AndBible en tu teléfono, tableta u ordenador.</string>
   <string name="desktop_activation_failed">AndBible ya se está ejecutando, pero su ventana no respondió. Cambia a la instancia en ejecución e inténtalo de nuevo. No se confirmó la entrega de los archivos entrantes.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versículo</item>
+    <item quantity="many">%1$d de versículos</item>
+    <item quantity="other">%1$d versículos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducción</item>
+    <item quantity="many">%1$d de traducciones</item>
+    <item quantity="other">%1$d traducciones</item>
+  </plurals>
 </resources>

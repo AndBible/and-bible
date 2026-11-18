@@ -2015,4 +2015,10 @@
   <string name="recommend_share_link">リンクを共有</string>
   <string name="recommend_qr_caption">スキャンして、スマートフォン、タブレット、パソコン向けの AndBible を入手できます。</string>
   <string name="desktop_activation_failed">AndBibleはすでに実行中ですが、そのウィンドウが応答しませんでした。実行中のインスタンスに切り替えて、もう一度お試しください。受信したファイルが配信されたかどうかは確認されていません。</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d節</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d訳</item>
+  </plurals>
 </resources>

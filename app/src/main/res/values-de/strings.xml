@@ -2091,4 +2091,12 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="recommend_share_link">Link teilen</string>
   <string name="recommend_qr_caption">Scannen, um AndBible für dein Smartphone, Tablet oder Computer zu erhalten.</string>
   <string name="desktop_activation_failed">AndBible läuft bereits, aber sein Fenster hat nicht reagiert. Wechseln Sie zur laufenden Instanz und versuchen Sie es erneut. Eingehende Dateien wurden möglicherweise nicht zugestellt.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d Vers</item>
+    <item quantity="other">%1$d Verse</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d Übersetzung</item>
+    <item quantity="other">%1$d Übersetzungen</item>
+  </plurals>
 </resources>

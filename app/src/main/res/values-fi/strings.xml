@@ -2066,4 +2066,12 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="recommend_share_link">Jaa linkki</string>
   <string name="recommend_qr_caption">Skannaa hankkiaksesi AndBiblen puhelimeesi, tablettiisi tai tietokoneellesi.</string>
   <string name="desktop_activation_failed">AndBible on jo käynnissä, mutta sen ikkuna ei vastannut. Siirry käynnissä olevaan ohjelmaan ja yritä uudelleen. Saapuvien tiedostojen toimitusta ei vahvistettu.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d jae</item>
+    <item quantity="other">%1$d jaetta</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d käännös</item>
+    <item quantity="other">%1$d käännöstä</item>
+  </plurals>
 </resources>

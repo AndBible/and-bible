@@ -2015,4 +2015,12 @@
   <string name="recommend_share_link">Del et link</string>
   <string name="recommend_qr_caption">Scan for at hente AndBible til din telefon, tablet eller computer.</string>
   <string name="desktop_activation_failed">AndBible kører allerede, men vinduet svarede ikke. Skift til den kørende instans, og prøv igen. Det blev ikke bekræftet, at indkommende filer blev afleveret.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d oversættelse</item>
+    <item quantity="other">%1$d oversættelser</item>
+  </plurals>
 </resources>

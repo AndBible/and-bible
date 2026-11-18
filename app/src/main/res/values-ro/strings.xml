@@ -2162,4 +2162,14 @@
   <string name="recommend_share_link">Distribuie un link</string>
   <string name="recommend_qr_caption">Scanează pentru a obține AndBible pentru telefonul, tableta sau computerul tău.</string>
   <string name="desktop_activation_failed">AndBible rulează deja, dar fereastra lui nu a răspuns. Comută la instanța care rulează și încearcă din nou. Fișierele primite nu au fost confirmate ca livrate.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verset</item>
+    <item quantity="few">%1$d versete</item>
+    <item quantity="other">%1$d de versete</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traducere</item>
+    <item quantity="few">%1$d traduceri</item>
+    <item quantity="other">%1$d de traduceri</item>
+  </plurals>
 </resources>

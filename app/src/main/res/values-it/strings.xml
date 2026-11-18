@@ -2114,4 +2114,14 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="recommend_share_link">Condividi un link</string>
   <string name="recommend_qr_caption">Inquadra il codice per ottenere AndBible sul tuo telefono, tablet o computer.</string>
   <string name="desktop_activation_failed">AndBible è già in esecuzione, ma la sua finestra non ha risposto. Passa all\'istanza in esecuzione e riprova. Non è stato confermato che i file in arrivo siano stati consegnati.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versetto</item>
+    <item quantity="many">%1$d di versetti</item>
+    <item quantity="other">%1$d versetti</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduzione</item>
+    <item quantity="many">%1$d di traduzioni</item>
+    <item quantity="other">%1$d traduzioni</item>
+  </plurals>
 </resources>

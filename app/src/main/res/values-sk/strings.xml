@@ -2157,4 +2157,16 @@ Režim opakovania bol vypnutý, pretože
   <string name="recommend_share_link">Zdieľať odkaz</string>
   <string name="recommend_qr_caption">Naskenujte a získajte AndBible pre telefón, tablet alebo počítač.</string>
   <string name="desktop_activation_failed">AndBible už beží, ale jeho okno neodpovedalo. Prepnite sa na bežiacu inštanciu a skúste to znova. Prichádzajúce súbory neboli potvrdené ako doručené.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verš</item>
+    <item quantity="few">%1$d verše</item>
+    <item quantity="many">%1$d verša</item>
+    <item quantity="other">%1$d veršov</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d preklade</item>
+    <item quantity="few">%1$d prekladoch</item>
+    <item quantity="many">%1$d preklade</item>
+    <item quantity="other">%1$d prekladoch</item>
+  </plurals>
 </resources>

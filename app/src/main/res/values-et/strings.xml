@@ -2087,4 +2087,12 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="recommend_share_link">Jaga linki</string>
   <string name="recommend_qr_caption">Skänneeri, et hankida AndBible oma telefoni, tahvelarvutisse või arvutisse.</string>
   <string name="desktop_activation_failed">AndBible juba töötab, kuid selle aken ei reageerinud. Lülitu töötavale aknale ja proovi uuesti. Sissetulevate failide kohaletoimetamist ei kinnitatud.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d salm</item>
+    <item quantity="other">%1$d salmi</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d tõlge</item>
+    <item quantity="other">%1$d tõlget</item>
+  </plurals>
 </resources>

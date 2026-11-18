@@ -2151,4 +2151,16 @@ Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėte klausymo
   <string name="recommend_share_link">Bendrinti nuorodą</string>
   <string name="recommend_qr_caption">Nuskaitykite, kad gautumėte „AndBible“ savo telefonui, planšetei ar kompiuteriui.</string>
   <string name="desktop_activation_failed">AndBible jau veikia, tačiau jos langas neatsakė. Persijunkite į veikiančią programą ir bandykite dar kartą. Gaunami failai nebuvo patvirtinti kaip pristatyti.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d eilutė</item>
+    <item quantity="few">%1$d eilutės</item>
+    <item quantity="many">%1$d eilutės</item>
+    <item quantity="other">%1$d eilučių</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertimas</item>
+    <item quantity="few">%1$d vertimai</item>
+    <item quantity="many">%1$d vertimo</item>
+    <item quantity="other">%1$d vertimų</item>
+  </plurals>
 </resources>

@@ -2119,4 +2119,12 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="recommend_share_link">Deel \'n skakel</string>
   <string name="recommend_qr_caption">Skandeer om AndBible vir jou foon, tablet of rekenaar te kry.</string>
   <string name="desktop_activation_failed">AndBible loop reeds, maar sy venster het nie gereageer nie. Skakel oor na die lopende instansie en probeer weer. Inkomende lêers is nie as afgelewer bevestig nie.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verse</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertaling</item>
+    <item quantity="other">%1$d vertalings</item>
+  </plurals>
 </resources>

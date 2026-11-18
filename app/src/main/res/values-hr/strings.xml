@@ -2121,4 +2121,14 @@ Ne prikazuj ovu poruku ponovno.
   <string name="recommend_share_link">Podijeli poveznicu</string>
   <string name="recommend_qr_caption">Skenirajte za AndBible na telefonu, tabletu ili računalu.</string>
   <string name="desktop_activation_failed">AndBible je već pokrenut, ali njegov prozor nije odgovorio. Prebacite se na pokrenutu instancu i pokušajte ponovno. Dolazne datoteke nisu potvrđene kao isporučene.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d stih</item>
+    <item quantity="few">%1$d stiha</item>
+    <item quantity="other">%1$d stihova</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d prijevod</item>
+    <item quantity="few">%1$d prijevoda</item>
+    <item quantity="other">%1$d prijevoda</item>
+  </plurals>
 </resources>

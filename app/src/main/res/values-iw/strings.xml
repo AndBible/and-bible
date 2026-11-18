@@ -2083,4 +2083,16 @@
   <string name="recommend_share_link">שתף קישור</string>
   <string name="recommend_qr_caption">סרוק כדי להשיג את AndBible לטלפון, לטאבלט או למחשב שלך.</string>
   <string name="desktop_activation_failed">AndBible כבר פועל, אך החלון שלו לא הגיב. עבור למופע הפועל ונסה שוב. קבצים נכנסים לא אושרו כמסורים.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">פסוק %1$d</item>
+    <item quantity="two">%1$d פסוקים</item>
+    <item quantity="many">%1$d פסוקים</item>
+    <item quantity="other">%1$d פסוקים</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">תרגום %1$d</item>
+    <item quantity="two">%1$d תרגומים</item>
+    <item quantity="many">%1$d תרגומים</item>
+    <item quantity="other">%1$d תרגומים</item>
+  </plurals>
 </resources>

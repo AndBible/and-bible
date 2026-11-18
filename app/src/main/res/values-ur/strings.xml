@@ -2015,4 +2015,12 @@
   <string name="recommend_share_link">لنک شیئر کریں</string>
   <string name="recommend_qr_caption">اپنے فون، ٹیبلیٹ یا کمپیوٹر کے لیے AndBible حاصل کرنے کے لیے اسکین کریں۔</string>
   <string name="desktop_activation_failed">AndBible پہلے سے چل رہا ہے، لیکن اس کی ونڈو نے جواب نہیں دیا۔ چلتی ہوئی انسٹینس پر جائیں اور دوبارہ کوشش کریں۔ آنے والی فائلوں کی ترسیل کی تصدیق نہیں ہوئی۔</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d آیت</item>
+    <item quantity="other">%1$d آیات</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d ترجمہ</item>
+    <item quantity="other">%1$d تراجم</item>
+  </plurals>
 </resources>

@@ -2158,4 +2158,12 @@
   <string name="recommend_share_link">இணைப்பைப் பகிர்</string>
   <string name="recommend_qr_caption">உங்கள் தொலைபேசி, டேப்லெட் அல்லது கணினிக்கு AndBible ஐப் பெற ஸ்கேன் செய்யுங்கள்.</string>
   <string name="desktop_activation_failed">AndBible ஏற்கனவே இயங்குகிறது, ஆனால் அதன் சாளரம் பதிலளிக்கவில்லை. இயங்கும் நிகழ்வுக்கு மாறி மீண்டும் முயலவும். உள்வரும் கோப்புகள் வழங்கப்பட்டதாக உறுதிசெய்யப்படவில்லை.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d வசனம்</item>
+    <item quantity="other">%1$d வசனங்கள்</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d மொழிபெயர்ப்பில்</item>
+    <item quantity="other">%1$d மொழிபெயர்ப்புகளில்</item>
+  </plurals>
 </resources>

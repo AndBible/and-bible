@@ -2085,4 +2085,12 @@ Ne montri tion ĉi denove</string>
   <string name="recommend_share_link">Kunhavigi ligilon</string>
   <string name="recommend_qr_caption">Skanu por akiri AndBible por via telefono, tabulkomputilo aŭ komputilo.</string>
   <string name="desktop_activation_failed">AndBible jam funkcias, sed ĝia fenestro ne respondis. Ŝanĝu al la funkcianta kopio kaj reprovu. Envenintaj dosieroj ne estis konfirmitaj kiel liveritaj.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verso</item>
+    <item quantity="other">%1$d versoj</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduko</item>
+    <item quantity="other">%1$d tradukoj</item>
+  </plurals>
 </resources>

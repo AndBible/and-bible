@@ -2069,4 +2069,12 @@ Usionyeshe ujumbe huu tena</string>
   <string name="recommend_share_link">Shiriki kiungo</string>
   <string name="recommend_qr_caption">Changanua ili kupata AndBible kwa simu, kompyuta kibao au kompyuta yako.</string>
   <string name="desktop_activation_failed">AndBible tayari inaendeshwa, lakini dirisha lake halikujibu. Badilisha hadi kwenye nakala inayoendeshwa kisha ujaribu tena. Faili zozote zilizoingia hazikuthibitishwa kuwa zimewasilishwa.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">mstari %1$d</item>
+    <item quantity="other">mistari %1$d</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">tafsiri %1$d</item>
+    <item quantity="other">tafsiri %1$d</item>
+  </plurals>
 </resources>

@@ -2068,4 +2068,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="recommend_share_link">Del en lenke</string>
   <string name="recommend_qr_caption">Skann for å få AndBible til mobilen, nettbrettet eller datamaskinen din.</string>
   <string name="desktop_activation_failed">AndBible kjører allerede, men vinduet svarte ikke. Bytt til den kjørende instansen og prøv igjen. Innkommende filer ble ikke bekreftet levert.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d vers</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d oversettelse</item>
+    <item quantity="other">%1$d oversettelser</item>
+  </plurals>
 </resources>

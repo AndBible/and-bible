@@ -2123,4 +2123,12 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="recommend_share_link">Een link delen</string>
   <string name="recommend_qr_caption">Scan om AndBible te krijgen voor je telefoon, tablet of computer.</string>
   <string name="desktop_activation_failed">AndBible draait al, maar het venster reageerde niet. Schakel over naar de actieve instantie en probeer het opnieuw. Binnenkomende bestanden zijn niet als afgeleverd bevestigd.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verzen</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d vertaling</item>
+    <item quantity="other">%1$d vertalingen</item>
+  </plurals>
 </resources>

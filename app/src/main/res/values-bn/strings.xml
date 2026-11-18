@@ -2118,4 +2118,12 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="recommend_share_link">একটি লিঙ্ক শেয়ার করুন</string>
   <string name="recommend_qr_caption">আপনার ফোন, ট্যাবলেট বা কম্পিউটারের জন্য AndBible পেতে স্ক্যান করুন।</string>
   <string name="desktop_activation_failed">AndBible ইতিমধ্যে চলছে, কিন্তু এর উইন্ডো সাড়া দেয়নি। চলমান অ্যাপটিতে যান এবং আবার চেষ্টা করুন। আসা ফাইলগুলো পৌঁছেছে বলে নিশ্চিত হয়নি।</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d পদ</item>
+    <item quantity="other">%1$d পদ</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d অনুবাদ</item>
+    <item quantity="other">%1$d অনুবাদ</item>
+  </plurals>
 </resources>

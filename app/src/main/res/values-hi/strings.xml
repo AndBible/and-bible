@@ -2125,4 +2125,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="recommend_share_link">लिंक साझा करें</string>
   <string name="recommend_qr_caption">अपने फ़ोन, टैबलेट या कंप्यूटर के लिए AndBible पाने हेतु स्कैन करें।</string>
   <string name="desktop_activation_failed">AndBible पहले से चल रहा है, लेकिन उसकी विंडो ने प्रतिक्रिया नहीं दी। चल रहे इंस्टेंस पर जाएँ और फिर से प्रयास करें। आने वाली फ़ाइलों की डिलीवरी की पुष्टि नहीं हुई।</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d पद</item>
+    <item quantity="other">%1$d पद</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d अनुवाद</item>
+    <item quantity="other">%1$d अनुवाद</item>
+  </plurals>
 </resources>

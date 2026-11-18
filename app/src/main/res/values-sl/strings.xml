@@ -2143,4 +2143,16 @@ Tega sporočila ne prikaži več
   <string name="recommend_share_link">Deli povezavo</string>
   <string name="recommend_qr_caption">Skenirajte za AndBible na telefonu, tablici ali računalniku.</string>
   <string name="desktop_activation_failed">AndBible že teče, vendar se njegovo okno ni odzvalo. Preklopite na zagnani primerek in poskusite znova. Prejete datoteke niso bile potrjene kot dostavljene.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vrstica</item>
+    <item quantity="two">%1$d vrstici</item>
+    <item quantity="few">%1$d vrstice</item>
+    <item quantity="other">%1$d vrstic</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d prevodu</item>
+    <item quantity="two">%1$d prevodih</item>
+    <item quantity="few">%1$d prevodih</item>
+    <item quantity="other">%1$d prevodih</item>
+  </plurals>
 </resources>

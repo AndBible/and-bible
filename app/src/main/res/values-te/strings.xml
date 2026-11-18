@@ -2132,4 +2132,12 @@ Don\'t show this message again
   <string name="recommend_share_link">లింక్‌ను పంచుకోండి</string>
   <string name="recommend_qr_caption">మీ ఫోన్, టాబ్లెట్ లేదా కంప్యూటర్ కోసం AndBible పొందడానికి స్కాన్ చేయండి.</string>
   <string name="desktop_activation_failed">AndBible ఇప్పటికే నడుస్తోంది, కానీ దాని విండో స్పందించలేదు. నడుస్తున్న ఇన్‌స్టెన్స్‌కు మారి మళ్లీ ప్రయత్నించండి. వచ్చిన ఫైళ్లు అందజేయబడినట్లు నిర్ధారణ కాలేదు.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d వచనం</item>
+    <item quantity="other">%1$d వచనాలు</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d అనువాదంలో</item>
+    <item quantity="other">%1$d అనువాదాల్లో</item>
+  </plurals>
 </resources>

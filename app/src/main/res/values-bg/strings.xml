@@ -2015,4 +2015,12 @@
   <string name="recommend_share_link">Сподели връзка</string>
   <string name="recommend_qr_caption">Сканирайте, за да вземете AndBible за вашия телефон, таблет или компютър.</string>
   <string name="desktop_activation_failed">AndBible вече работи, но прозорецът му не отговори. Преминете към работещия екземпляр и опитайте отново. Входящите файлове не са потвърдени като доставени.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d стих</item>
+    <item quantity="other">%1$d стиха</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d превод</item>
+    <item quantity="other">%1$d превода</item>
+  </plurals>
 </resources>

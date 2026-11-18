@@ -2015,4 +2015,10 @@
   <string name="recommend_share_link">Kongsi pautan</string>
   <string name="recommend_qr_caption">Imbas untuk mendapatkan AndBible untuk telefon, tablet atau komputer anda.</string>
   <string name="desktop_activation_failed">AndBible sudah berjalan, tetapi tetingkapnya tidak bertindak balas. Beralih kepada contoh yang sedang berjalan dan cuba lagi. Fail masuk tidak disahkan telah diterima.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d ayat</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d terjemahan</item>
+  </plurals>
 </resources>

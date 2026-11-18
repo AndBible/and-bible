@@ -2131,4 +2131,10 @@ http://www.heartlight.org 准予使用
   <string name="recommend_share_link">分享链接</string>
   <string name="recommend_qr_caption">扫描二维码，在您的手机、平板电脑或电脑上获取 AndBible。</string>
   <string name="desktop_activation_failed">AndBible 已在运行，但其窗口没有响应。请切换到正在运行的实例后重试。传入的文件未确认已送达。</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d 节经文</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d 个译本</item>
+  </plurals>
 </resources>

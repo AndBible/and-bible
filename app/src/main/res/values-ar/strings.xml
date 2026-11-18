@@ -2089,4 +2089,20 @@
   <string name="recommend_share_link">مشاركة رابط</string>
   <string name="recommend_qr_caption">امسح الرمز للحصول على AndBible لهاتفك أو لوحك أو حاسوبك.</string>
   <string name="desktop_activation_failed">AndBible قيد التشغيل بالفعل، لكن نافذته لم تستجب. انتقل إلى النسخة العاملة وحاول مرة أخرى. لم يتم تأكيد تسليم أي ملفات واردة.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="zero">%1$d آية</item>
+    <item quantity="one">%1$d آية</item>
+    <item quantity="two">%1$d آيتان</item>
+    <item quantity="few">%1$d آيات</item>
+    <item quantity="many">%1$d آية</item>
+    <item quantity="other">%1$d آية</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="zero">%1$d ترجمة</item>
+    <item quantity="one">%1$d ترجمة</item>
+    <item quantity="two">%1$d ترجمتان</item>
+    <item quantity="few">%1$d ترجمات</item>
+    <item quantity="many">%1$d ترجمة</item>
+    <item quantity="other">%1$d ترجمة</item>
+  </plurals>
 </resources>

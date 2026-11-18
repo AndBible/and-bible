@@ -2015,4 +2015,12 @@
   <string name="recommend_share_link">Magbahagi ng link</string>
   <string name="recommend_qr_caption">I-scan para makuha ang AndBible para sa iyong telepono, tablet o computer.</string>
   <string name="desktop_activation_failed">Tumatakbo na ang AndBible, ngunit hindi tumugon ang window nito. Lumipat sa tumatakbong instance at subukang muli. Hindi nakumpirma na naihatid ang anumang papasok na file.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d talata</item>
+    <item quantity="other">%1$d mga talata</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d salin</item>
+    <item quantity="other">%1$d mga salin</item>
+  </plurals>
 </resources>

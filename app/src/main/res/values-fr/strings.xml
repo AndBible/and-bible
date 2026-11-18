@@ -2129,4 +2129,14 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="recommend_share_link">Partager un lien</string>
   <string name="recommend_qr_caption">Scannez pour obtenir AndBible sur votre téléphone, votre tablette ou votre ordinateur.</string>
   <string name="desktop_activation_failed">AndBible est déjà en cours d\'exécution, mais sa fenêtre ne répond pas. Passez à l\'instance en cours et réessayez. La remise des fichiers entrants n\'a pas été confirmée.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verset</item>
+    <item quantity="many">%1$d de versets</item>
+    <item quantity="other">%1$d versets</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d traduction</item>
+    <item quantity="many">%1$d de traductions</item>
+    <item quantity="other">%1$d traductions</item>
+  </plurals>
 </resources>

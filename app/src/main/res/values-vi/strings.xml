@@ -2015,4 +2015,10 @@
   <string name="recommend_share_link">Chia sẻ liên kết</string>
   <string name="recommend_qr_caption">Quét để tải AndBible cho điện thoại, máy tính bảng hoặc máy tính của bạn.</string>
   <string name="desktop_activation_failed">AndBible đã đang chạy, nhưng cửa sổ của nó không phản hồi. Hãy chuyển sang phiên bản đang chạy và thử lại. Các tệp được gửi đến chưa được xác nhận là đã chuyển giao.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d câu</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d bản dịch</item>
+  </plurals>
 </resources>

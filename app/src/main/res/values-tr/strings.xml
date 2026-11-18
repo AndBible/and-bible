@@ -2162,4 +2162,12 @@
   <string name="recommend_share_link">Bağlantı paylaş</string>
   <string name="recommend_qr_caption">AndBible\'ı telefonunuz, tabletiniz veya bilgisayarınız için edinmek üzere tarayın.</string>
   <string name="desktop_activation_failed">AndBible zaten çalışıyor, ancak penceresi yanıt vermedi. Çalışan örneğe geçip yeniden deneyin. Gelen dosyaların teslim edildiği doğrulanmadı.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d ayet</item>
+    <item quantity="other">%1$d ayet</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d çeviri</item>
+    <item quantity="other">%1$d çeviri</item>
+  </plurals>
 </resources>

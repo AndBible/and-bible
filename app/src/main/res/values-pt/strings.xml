@@ -2110,4 +2110,14 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="recommend_share_link">Partilhar uma ligação</string>
   <string name="recommend_qr_caption">Leia o código para obter o AndBible para o seu telemóvel, tablet ou computador.</string>
   <string name="desktop_activation_failed">O AndBible já está em execução, mas a sua janela não respondeu. Mude para a instância em execução e tente novamente. Não foi confirmado que os ficheiros recebidos tenham sido entregues.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d versículo</item>
+    <item quantity="many">%1$d de versículos</item>
+    <item quantity="other">%1$d versículos</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d tradução</item>
+    <item quantity="many">%1$d de traduções</item>
+    <item quantity="other">%1$d traduções</item>
+  </plurals>
 </resources>

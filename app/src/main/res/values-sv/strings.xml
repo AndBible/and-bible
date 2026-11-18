@@ -2160,4 +2160,12 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="recommend_share_link">Dela en länk</string>
   <string name="recommend_qr_caption">Skanna för att skaffa AndBible till din telefon, surfplatta eller dator.</string>
   <string name="desktop_activation_failed">AndBible körs redan, men dess fönster svarade inte. Växla till den pågående instansen och försök igen. Inkommande filer bekräftades inte som levererade.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d vers</item>
+    <item quantity="other">%1$d verser</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d översättning</item>
+    <item quantity="other">%1$d översättningar</item>
+  </plurals>
 </resources>

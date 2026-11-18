@@ -2076,4 +2076,16 @@ Nie wyświetlaj tego ponownie</string>
   <string name="recommend_share_link">Udostępnij link</string>
   <string name="recommend_qr_caption">Zeskanuj, aby pobrać AndBible na telefon, tablet lub komputer.</string>
   <string name="desktop_activation_failed">AndBible jest już uruchomiony, ale jego okno nie odpowiada. Przełącz się na działającą instancję i spróbuj ponownie. Nie potwierdzono dostarczenia żadnych przychodzących plików.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d werset</item>
+    <item quantity="few">%1$d wersety</item>
+    <item quantity="many">%1$d wersetów</item>
+    <item quantity="other">%1$d wersetu</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d przekładzie</item>
+    <item quantity="few">%1$d przekładach</item>
+    <item quantity="many">%1$d przekładach</item>
+    <item quantity="other">%1$d przekładu</item>
+  </plurals>
 </resources>

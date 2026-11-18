@@ -2015,4 +2015,10 @@
   <string name="recommend_share_link">แชร์ลิงก์</string>
   <string name="recommend_qr_caption">สแกนเพื่อรับ AndBible สำหรับโทรศัพท์ แท็บเล็ต หรือคอมพิวเตอร์ของคุณ</string>
   <string name="desktop_activation_failed">AndBible กำลังทำงานอยู่แล้ว แต่หน้าต่างไม่ตอบสนอง โปรดสลับไปยังอินสแตนซ์ที่กำลังทำงานอยู่แล้วลองอีกครั้ง ไฟล์ที่ส่งเข้ามาไม่ได้รับการยืนยันว่าส่งถึงแล้ว</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d ข้อ</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d ฉบับแปล</item>
+  </plurals>
 </resources>

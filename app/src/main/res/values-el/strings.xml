@@ -2106,4 +2106,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="recommend_share_link">Κοινοποίηση συνδέσμου</string>
   <string name="recommend_qr_caption">Σαρώστε για να αποκτήσετε το AndBible για το τηλέφωνο, το tablet ή τον υπολογιστή σας.</string>
   <string name="desktop_activation_failed">Το AndBible εκτελείται ήδη, αλλά το παράθυρό του δεν ανταποκρίθηκε. Μεταβείτε στην εκτελούμενη εφαρμογή και δοκιμάστε ξανά. Δεν επιβεβαιώθηκε η παράδοση των εισερχόμενων αρχείων.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d εδάφιο</item>
+    <item quantity="other">%1$d εδάφια</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d μετάφραση</item>
+    <item quantity="other">%1$d μεταφράσεις</item>
+  </plurals>
 </resources>

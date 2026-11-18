@@ -2159,4 +2159,10 @@
   <string name="recommend_share_link">링크 공유</string>
   <string name="recommend_qr_caption">스캔하여 휴대폰, 태블릿 또는 컴퓨터용 AndBible을 받으세요.</string>
   <string name="desktop_activation_failed">AndBible이 이미 실행 중이지만 창이 응답하지 않았습니다. 실행 중인 인스턴스로 전환한 후 다시 시도하세요. 전달된 파일은 수신이 확인되지 않았습니다.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="other">%1$d개 구절</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="other">%1$d개 번역본</item>
+  </plurals>
 </resources>

@@ -2155,4 +2155,16 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="recommend_share_link">Sdílet odkaz</string>
   <string name="recommend_qr_caption">Naskenujte a získejte AndBible pro telefon, tablet nebo počítač.</string>
   <string name="desktop_activation_failed">AndBible již běží, ale jeho okno nereagovalo. Přepněte se na běžící instanci a zkuste to znovu. Příchozí soubory nebyly potvrzeny jako doručené.</string>
+  <plurals name="multi_search_verse_count">
+    <item quantity="one">%1$d verš</item>
+    <item quantity="few">%1$d verše</item>
+    <item quantity="many">%1$d verše</item>
+    <item quantity="other">%1$d veršů</item>
+  </plurals>
+  <plurals name="multi_search_translation_count">
+    <item quantity="one">%1$d překlad</item>
+    <item quantity="few">%1$d překlady</item>
+    <item quantity="many">%1$d překladu</item>
+    <item quantity="other">%1$d překladů</item>
+  </plurals>
 </resources>
