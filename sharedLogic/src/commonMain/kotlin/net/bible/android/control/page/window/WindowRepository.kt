@@ -91,20 +91,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var maximizedWindowId: IdType? = null
 
     /**
-     * #4141: one way back from a maximised links window. A link from the maximised window [returnWindowId] put the
-     * links window [linksWindowId] in its place when that window's history was [linksHistoryDepth] items deep; history
-     * the links window gathers beyond that depth is walked by Back before it returns.
+     * #4141: the links window that [WindowControl.maximiseWindow] hid because it was open beside the window being
+     * maximised (a maximised window is shown alone); `WindowControl.unMaximise` shows it again. In memory only.
      */
-    class MaximisedReturnPoint(val returnWindowId: IdType, val linksWindowId: IdType, val linksHistoryDepth: Int)
-
-    /**
-     * #4141: the ways back from the maximised links window, most recent last; `WindowControl.returnFromMaximisedLinksWindow`
-     * takes them in reverse order. In memory only: [applyLoaded] therefore never leaves a links window maximised.
-     */
-    val maximizedReturnPoints: MutableList<MaximisedReturnPoint> = mutableListOf()
-
-    /** The number of history items of window [windowId]. */
-    fun historyDepth(windowId: IdType): Int = get<HistoryManager>().getHistory(windowId).size
+    var linksWindowHiddenByMaximiseId: IdType? = null
     var primaryTargetLinksWindowId: IdType? = null
 
     val primaryTargetLinksWindow: Window get() =
@@ -136,6 +126,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     val isMaximized get() = maximizedWindowId != null
     val maximizedWindow get() = getWindow(maximizedWindowId)
+
+    /**
+     * #4141: the links window of the maximised window (the one its links open in), if it exists. While it is open
+     * (`VISIBLE`) it is shown beside the maximised window, as a second pane; no other window is shown.
+     */
+    val maximizedLinksWindow: Window?
+        get() = maximizedWindow?.let { maximised -> maximised.existingTargetLinksWindow?.takeIf { it.id != maximised.id } }
 
     var id: IdType = IdType.empty()
     var name = ""
@@ -288,7 +285,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         if (isMaximized) {
             val maxWindow = getWindow(maximizedWindowId)
             if (maxWindow != null) {
-                return listOf(maxWindow)
+                val links = maximizedLinksWindow?.takeIf { it.windowState == WindowState.VISIBLE }
+                return listOfNotNull(maxWindow, links)
             } else {
                 maximizedWindowId = null
             }
@@ -640,8 +638,6 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             windowList.add(window)
             historyManager.restoreFrom(window, loadedWindow.history)
         }
-        // #4141: the way back from a maximised links window is not saved; a loaded one is shown in the split instead.
-        if (getWindow(maximizedWindowId)?.isLinksWindow == true) maximizedWindowId = null
         setDefaultActiveWindow()
         notifyWindowsChanged()
         // Everything workspace-scoped — colours included — has just been replaced wholesale. See
@@ -653,7 +649,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         Log.i(TAG, "clear $destroy")
         _activeWindow = null
         maximizedWindowId = null
-        maximizedReturnPoints.clear()
+        linksWindowHiddenByMaximiseId = null
         unPinnedWeight = null
         orderNumber = 0
         id = IdType.empty()

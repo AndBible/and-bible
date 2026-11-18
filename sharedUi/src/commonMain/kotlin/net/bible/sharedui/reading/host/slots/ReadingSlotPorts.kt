@@ -155,10 +155,7 @@ fun searchWindowBookName(window: net.bible.android.control.page.window.Window): 
     "-"
 }
 
-/**
- * Opens an explicit result in the links window; from a maximised window the links window takes the maximised place and
- * Back returns (#4141).
- */
+/** Opens an explicit result in the links window; from a maximised window it is shown beside that window (#4141). */
 @kotlin.native.HiddenFromObjC
 fun WindowControl.showSearchResultInLinksWindow(book: Book, key: Key) = showLink(book, key)
 

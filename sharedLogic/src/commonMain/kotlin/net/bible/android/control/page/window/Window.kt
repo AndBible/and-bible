@@ -81,6 +81,13 @@ class Window (
         }
 
     private val ownTargetLinksWindow get() = windowRepository.getWindow(targetLinksWindowId)
+
+    /** [targetLinksWindow] when it already exists; never creates one. */
+    val existingTargetLinksWindow: Window?
+        get() = ownTargetLinksWindow
+            ?: if (isLinksWindow) null
+            else windowRepository.getWindow(windowRepository.primaryTargetLinksWindowId)
+                ?: windowRepository.windowList.find { it.isLinksWindow }
     val linksWindowNumber: Int get() {
         val target = ownTargetLinksWindow
         return if(target == null) 0
@@ -218,10 +225,15 @@ class Window (
             windowLayout.state = value
         }
 
+    /**
+     * Whether the reading area shows this window. While a window is maximised, only that window is shown, plus its
+     * links window beside it while that is open (#4141, `WindowRepository.maximizedLinksWindow`).
+     */
     val isVisible: Boolean
         get() =
-            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.targetLinksWindowId != id)
-                windowRepository.maximizedWindowId == id
+            if (windowRepository.isMaximized)
+                windowRepository.maximizedWindowId == id ||
+                    (windowLayout.state == WindowState.VISIBLE && windowRepository.maximizedLinksWindow?.id == id)
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
