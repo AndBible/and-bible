@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import defaultStrings from "@/lang/default.yaml";
 import enStrings from "@/lang/en.yaml";
 
@@ -36,6 +36,13 @@ for (k in enStrings) {
 
 let stringsLoaded = false;
 
+/**
+ * The BCP-47 tag of the loaded UI strings ("en" when English is used), for `lang` on UI labels so that CSS
+ * `hyphens: auto` follows the UI language (#4146). Set only on UI chrome, never on the document root: Bible text
+ * inherits the root language and must not be hyphenated with the UI language's rules.
+ */
+export const uiLanguage = ref("en");
+
 /** Map native BCP-47 tags to the historical Android-derived bundle filenames. */
 function languageFile(langTag: string): string {
     const [language, scriptOrRegion] = langTag.toLowerCase().split("-");
@@ -51,7 +58,11 @@ function languageFile(langTag: string): string {
 
 async function loadStrings() {
     const langTag = new URLSearchParams(window.location.search).get("lang") || "";
-    if (langTag === "en-US") return;
+    if (langTag === "en-US") {
+        uiLanguage.value = langTag;
+        return;
+    }
+    if (!langTag) return;
     const langShort = langTag.split('-')[0]
     console.log(`Loading lang ${langTag}`)
     let translations: Partial<TranslatedStrings> | undefined;
@@ -67,6 +78,7 @@ async function loadStrings() {
         console.error(`Language ${langTag} not found, falling back to English!`)
         return;
     }
+    uiLanguage.value = langTag;
     let k: keyof TranslatedStrings
     for (k in translations) {
         const t = translations[k]

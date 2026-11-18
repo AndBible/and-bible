@@ -353,6 +353,21 @@ function saveState() {
     padding: 8px 4px;
     font-size: 12px;
   }
+
+  // Equal-width phone tabs must contain even long, unbroken translations (#4146).
+  .tab-navigation.memorize-mode-selector .tab-label {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    text-align: center;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 </style>

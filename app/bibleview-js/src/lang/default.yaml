@@ -110,9 +110,13 @@ invalidClosingTag: Invalid closing tag
 unmatchedClosingTag: Unmatched closing tag
 unclosedTag: Unclosed tag
 unknownError: Unknown error
+# Short Memorize mode tab label, one word if possible.
 wordBlur: Blur
+# Short Memorize mode tab label, one word if possible.
 wordScramble: Scramble
+# Short Memorize mode tab label (typing practice), one word if possible.
 wordType: Type
+# Short Memorize mode tab label, one word if possible.
 wordOrder: Order
 typeEverything: Type full words
 tapToStartTyping: Tap here to start typing

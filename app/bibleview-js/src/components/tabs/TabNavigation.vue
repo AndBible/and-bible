@@ -44,7 +44,7 @@
             :icon="tab.icon"
             class="tab-icon"
         />
-        <span class="tab-label">{{ tab.label }}</span>
+        <span class="tab-label" :lang="uiLanguage">{{ tab.label }}</span>
       </button>
     </div>
   </div>
@@ -55,6 +55,7 @@ import {ref} from 'vue';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import type {Tab} from './TabContainer.vue';
 import {useScrollOverflow} from '@/composables/scroll-overflow';
+import {uiLanguage} from '@/composables/strings';
 
 const navRef = ref<HTMLElement | null>(null);
 const {canScrollLeft, canScrollRight} = useScrollOverflow(navRef);

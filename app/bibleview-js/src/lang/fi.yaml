@@ -106,9 +106,9 @@ invalidClosingTag: Virheellinen sulkeva elementti
 unmatchedClosingTag: Pariton sulkeva elementti
 unclosedTag: Sulkematon elementti
 unknownError: Tuntematon virhe
-wordBlur: Sanan sumennus
-wordScramble: Sanojen sekoitus
-wordType: Kirjoittaminen
+wordBlur: Sumennus
+wordScramble: Sekoitus
+wordType: Kirjoitus
 wordOrder: Järjestys
 typeEverything: Kirjoita kokonaiset sanat
 tapToStartTyping: Napsauta aloittaaksesi kirjoittamisen

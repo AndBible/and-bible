@@ -32,6 +32,9 @@ action (when enabled).
 
 The Memorize view offers four study modes that you can switch between using
 the tabs at the top of the window: **Blur**, **Scramble**, **Type** and **Order**.
+On phones, each tab shows its icon above its label so all four modes stay visible.
+Long translated labels wrap onto up to two lines; any remaining text is shortened with
+an ellipsis rather than overlapping the next tab.
 The sections below call them Word Blur, Word Scramble, Word Type and Word Order.
 
 ## Study modes
