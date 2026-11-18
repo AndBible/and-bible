@@ -13,7 +13,7 @@ DOCS_DIR = CATALOG.parent
 GENERATED_TOC = DOCS_DIR / "UserGuideToc.kt"
 ROOTS = [paths.REPO / module / "src" for module in
          ("app", "sharedCore", "sharedLogic", "sharedUi", "desktopApp")]
-ENTRY = re.compile(r'^[ \t]*([A-Z][A-Z0-9_]*)\("([a-z0-9_/.-]+)"(?:, "([a-z0-9_-]+)")?\)[,;]', re.MULTILINE)
+ENTRY = re.compile(r'\b([A-Z][A-Z0-9_]*)\("([a-z0-9_/.-]+)"(?:, "([a-z0-9_-]+)")?\)[,;]')
 CALL = re.compile(r'DocsLinks\s*\.\s*page\s*\(')
 LITERAL_CALL = re.compile(r'DocsLinks\.page\(\s*"([a-z0-9_/.-]+)"\s*(?:,\s*"([a-z0-9_-]+)"\s*)?\)')
 CATALOG_CALL = re.compile(r'DocsLinks\s*\.\s*page\s*\(\s*DocsLink\.[A-Z][A-Z0-9_]*\s*\)')
@@ -23,7 +23,7 @@ def scan(catalog=CATALOG):
     """Read literal enum entries only; unexpected entry syntax fails closed."""
     text = catalog.read_text(encoding="utf-8")
     entries = list(ENTRY.finditer(text))
-    declarations = re.findall(r'^[ \t]*[A-Z][A-Z0-9_]*\s*\(', text, re.MULTILINE)
+    declarations = re.findall(r'\b[A-Z][A-Z0-9_]*\s*\(', text)
     assert entries and len(entries) == len(declarations), f"{catalog}: unscannable catalog entry"
     assert len({m[1] for m in entries}) == len(entries), f"{catalog}: duplicate entry name"
     return [(catalog, text.count("\n", 0, m.start()) + 1, m[2], m[3]) for m in entries]
@@ -138,8 +138,9 @@ def test_an_uncataloged_call_is_reported(tmp_path, source):
 
 def test_catalog_accepts_indentation_without_skipping_targets(tmp_path):
     catalog = tmp_path / "DocsLink.kt"
-    catalog.write_text('    GOOD("ai"),\n        BAD("removed");\n')
-    assert [(page, anchor) for _, _, page, anchor in scan(catalog)] == [("ai", None), ("removed", None)]
+    for source in ['    GOOD("ai"),\n        BAD("removed");\n', '    GOOD("ai"), BAD("removed");\n']:
+        catalog.write_text(source)
+        assert [(page, anchor) for _, _, page, anchor in scan(catalog)] == [("ai", None), ("removed", None)]
 
 
 def test_builder_alias_is_rejected(tmp_path):
