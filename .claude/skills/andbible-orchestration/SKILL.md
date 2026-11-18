@@ -85,6 +85,12 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   progress.
 - Notifying does not make orchestration blocking: questions stay plain text, the inbox waiter stays armed
   and other children keep moving.
+- **Never use `AskUserQuestion` while orchestrating** (2026-11-18, maintainer): the dialog blocks the turn, so child
+  messages, merges and spawns wait behind it. This overrides the "ask with an AskUserQuestion form" rule in
+  `docs/superpowers/CLAUDE.md` and the ostickethelper confirmation rule's form: ask in plain text (numbered, each
+  question self-contained) and send a `PushNotification`; act on the maintainer's explicit plain-text answer. A
+  confirmation that a rule requires (e.g. every osTicket write) is still required: show the exact actions and texts
+  in plain text, then wait for that specific yes before running it, while everything else keeps moving.
 
 ## Rework
 
