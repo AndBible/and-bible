@@ -98,18 +98,20 @@ The toolbar at the top of the reading screen has these parts, from left to right
 The main menu (☰, top left) lists these rows. It is also opened by swiping in from the edge of the
 screen, see [Swipe from the edge](#swipe-from-the-edge-to-open-the-main-menu).
 
-Rows named after their screen (`Choose Document`, `Find`, `Speak`, `Bookmarks`, `Study Pads`,
-`My Documents`, `Reading Plan`, `History`, `Download Documents`, `Backup & Restore`,
-`Device synchronization`, `AI Settings`, `Application preferences`) open that screen; see
-[Documents](documents.md), [Search](search.md), [Speak](speak.md), [Bookmarks](bookmarks.md),
-[Study Pads](study_pads.md), [My Documents](my_documents.md), [Reading plans](reading_plans.md),
-[Backup and restore](backup_restore.md), [Synchronization](cloud_sync.md), [AI](ai.md) and
-[Appearance and settings](look_and_feel.md). The rows that need a note:
+Rows named after their screen (`Find`, `Speak`, `My Documents`, `Reading Plan`, `History`,
+`Backup & Restore`, `Device synchronization`, `AI Settings`, `Application preferences`) open that
+screen; see [Search](search.md), [Speak](speak.md), [My Documents](my_documents.md),
+[Reading plans](reading_plans.md), [Backup and restore](backup_restore.md),
+[Synchronization](cloud_sync.md), [AI](ai.md) and [Appearance and settings](look_and_feel.md).
+`Choose Document` opens the [Document Library](documents.md#document-library), `Download Documents`
+opens [Download Documents](documents.md#download-documents) and `Bookmarks` opens the
+[Bookmarks list](bookmarks.md#bookmarks-list). The rows that need a note:
 
 | Row | What it does |
 |---|---|
 | `Find` | Greyed out when the current page cannot be searched |
 | `Speak` | Not shown on a platform without speech |
+| `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
 | `Device synchronization` | Shown only where it is available |
 | `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
 | `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
@@ -285,6 +287,7 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Ctrl+S** (**Cmd+S** on macOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop |
 | **F11** | Toggle fullscreen | Desktop |
 | **Esc** | Go back, see [below](#esc-key-as-back) | iOS, desktop |
+| **Up / Down** | Scroll the text | All |
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
@@ -307,9 +310,10 @@ such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
 ### Esc Key as Back {#esc-key-as-back}
 
-On iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works like the Back button:
-each press closes the topmost open thing (a dialog, popup or sheet, then the main menu, the search
-results and **Find**), and on a screen opened over the Bible text it returns to the previous screen.
+With a hardware keyboard on iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
+like the Back button: each press closes the topmost open thing (a dialog, popup or sheet, then the
+main menu, the search results and **Find**), and on a screen opened over the Bible text, such as the
+settings or the Bible chooser, it returns to the previous screen.
 On the desktop reading screen, Esc also exits fullscreen; with nothing open it does nothing.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
