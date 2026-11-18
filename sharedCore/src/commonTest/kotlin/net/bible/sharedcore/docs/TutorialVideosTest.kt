@@ -19,16 +19,9 @@ class TutorialVideosTest {
     fun withNeitherIdTheChannelIsUsed() = assertEquals(channel, TutorialVideos.resolve(null, null))
 
     @Test
-    fun playlistFallsBackThroughThePlaceholderToTheChannel() {
-        assertEquals("https://www.youtube.com/playlist?list=PL1", TutorialVideos.resolvePlaylist("PL1", "ph"))
-        assertEquals("https://www.youtube.com/watch?v=ph", TutorialVideos.resolvePlaylist(null, "ph"))
-        assertEquals(channel, TutorialVideos.resolvePlaylist(null, null))
-    }
-
-    @Test
     fun everyEpisodeResolvesToAnHttpsYoutubeUrl() {
         for (episode in TutorialVideos.Episode.entries) {
-            assertTrue(TutorialVideos.url(episode).startsWith("https://www.youtube.com/"), episode.name)
+            assertTrue(TutorialVideos.url(episode, "en").startsWith("https://www.youtube.com/"), episode.name)
         }
     }
 

@@ -58,7 +58,7 @@ class TutorialVideosSubtitlesTest {
     }
 
     @Test fun publishedEpisodeWithMatchAsksForCaptionsAndInterfaceLanguage() {
-        assertEquals("$watch&cc_load_policy=1&cc_lang_pref=pt&hl=pt-BR", TutorialVideos.buildUrl("abc123", subs, "pt_BR"))
+        assertEquals("$watch&cc_load_policy=1&cc_lang_pref=pt&hl=pt", TutorialVideos.buildUrl("abc123", subs, "pt_BR"))
     }
 
     @Test fun publishedEpisodeWithoutMatchIsThePlainWatchUrl() {
@@ -100,17 +100,37 @@ class TutorialVideosSubtitlesTest {
             "in" to "id", "id" to "id", "he" to "iw", "iw" to "iw",
             "sr-Latn" to "sr-Latn", "sr-Latn-RS" to "sr-Latn", "sr-Cyrl-RS" to "sr", "sr-RS" to "sr",
             "zh-Hans" to "zh-CN", "zh-Hans-SG" to "zh-CN", "zh-Hans-TW" to "zh-CN", "zh-CN" to "zh-CN", "zh-SG" to "zh-CN",
+            "zh" to "zh-TW", "zh-MO" to "zh-TW",
             "zh-Hant" to "zh-TW", "zh-Hant-HK" to "zh-TW", "zh-Hant-CN" to "zh-TW", "zh-TW" to "zh-TW", "zh-HK" to "zh-TW",
             "nb" to "nb", "no" to "nb", "no-NO" to "nb", "tl" to "fil", "fil" to "fil",
         )
         for ((app, caption) in cases) {
             assertEquals(caption, TutorialVideos.subtitleLanguage(episode, app), app)
             assertEquals(
-                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$caption&hl=$app",
+                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$caption&hl=$caption",
                 TutorialVideos.url(episode, app), app,
             )
             assertTrue(TutorialVideos.hasPlainLabel(episode, app), app)
         }
+    }
+
+    @Test fun bareChineseAndMacaoUseTheAppsTraditionalChineseCaptions() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        for (tag in listOf("zh", "zh-MO")) {
+            assertEquals("zh-TW", TutorialVideos.subtitleLanguage(episode, tag), tag)
+        }
+    }
+
+    @Test fun cantoneseDoesNotSelectAMandarinTrack() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        assertNull(TutorialVideos.subtitleLanguage(episode, "yue"))
+        assertNull(TutorialVideos.subtitleLanguage(episode, "yue-Hant-HK"))
+        assertFalse(TutorialVideos.hasPlainLabel(episode, "yue"))
+    }
+
+    @Test fun explicitSimplifiedChineseInMacaoDoesNotSelectTraditionalCaptions() {
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-TW"), "zh-Hans-MO"))
+        assertEquals("zh-CN", TutorialVideos.matchSubtitle(setOf("zh-CN", "zh-TW"), "zh-Hans-MO"))
     }
 
     @Test fun tagIsUrlEncoded() {
@@ -127,7 +147,7 @@ class TutorialVideosSubtitlesTest {
 
     @Test fun englishAppKeepsTheEpisodesOwnUrl() {
         val e = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
-        assertEquals(TutorialVideos.url(e), TutorialVideos.url(e, "en"))
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(e, "en"))
         assertNull(TutorialVideos.subtitleLanguage(e, "en"))
     }
 }

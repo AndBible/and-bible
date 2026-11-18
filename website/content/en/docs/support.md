@@ -33,7 +33,9 @@ group) open the support and contribution pages in your browser; `Help & tips` op
 
 Tutorial videos open on YouTube. When an episode has subtitles in the language of the app, they are turned
 on for you; otherwise the video is in English and the link says so. Unpublished episodes use the placeholder
-video's available subtitles.
+video's available subtitles. The YouTube interface language follows the selected subtitle track. Chinese
+without a region uses Traditional Chinese subtitles, as does Chinese (Macao); an explicit Simplified Chinese
+script still selects Simplified Chinese. Cantonese is not treated as Mandarin Chinese.
 
 ## Reporting Issues
 

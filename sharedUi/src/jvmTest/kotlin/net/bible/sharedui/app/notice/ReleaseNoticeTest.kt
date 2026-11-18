@@ -227,7 +227,7 @@ class ReleaseNoticeTest {
             ReleaseNoticeAction.INSTALL_MAC to DocsLink.GETTING_STARTED_MAC.url,
             ReleaseNoticeAction.INSTALL_LINUX to DocsLink.GETTING_STARTED_LINUX.url,
             ReleaseNoticeAction.COMPUTER to DocsLink.GETTING_STARTED_INSTALLATION.url,
-            ReleaseNoticeAction.VIDEO to TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0),
+            ReleaseNoticeAction.VIDEO to TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0, "en"),
             ReleaseNoticeAction.WEBSITE to SiteLinks.HOME_URL,
         )
         for ((action, url) in expected) assertEquals(url, ReleaseNotice.linkFor(action), "$action")
