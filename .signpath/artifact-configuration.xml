@@ -4,9 +4,9 @@
   Source of truth for the configuration uploaded in the SignPath web UI; keep the two identical.
 
   Input: the GitHub artifact uploaded by .github/workflows/desktop.yml (job "windows"). GitHub wraps it in a zip
-  whose root holds the portable zip and the MSI.
-  The MSIX is not sent: it is only for the Microsoft Store, which signs it itself. SignPath Foundation signs only AndBible's own binaries: the
-  jpackage launcher AndBible.exe and the two installers. The bundled JDK runtime and WebView2Loader.dll are
+  whose root holds the portable zip and the MSI. The MSIX is not sent: it is only for the Microsoft Store, which
+  signs it itself. SignPath Foundation signs only AndBible's own binaries: the jpackage launcher AndBible.exe and
+  the MSI installer. The bundled JDK runtime and WebView2Loader.dll are
   third-party files and stay as they are.
 -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
