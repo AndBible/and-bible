@@ -1,0 +1,13 @@
+- Tutorial links now open a captioned placeholder video (e5525d2d22)
+- Links window opens beside a maximised window, and Back closes the links pane after its session pages (#4141)
+- Diagnostics log appends each event instead of rewriting the whole file (#4148)
+- Memorize mode tab labels no longer wrap on phones (#4146)
+- Unreadable diagnostics files are kept instead of being discarded (#4148)
+- BibleView maps language tags to the correct language bundle, so Bible text is no longer hyphenated with the UI language's rules (#4147)
+- Locale alias mirroring so Indonesian and Serbian translations are picked up (74bb8ead19)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
