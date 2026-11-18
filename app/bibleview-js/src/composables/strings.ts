@@ -38,7 +38,13 @@ let stringsLoaded = false;
 
 async function loadStrings() {
     const langTag = new URLSearchParams(window.location.search).get("lang") || "";
-    if (langTag === "en-US") return;
+    // UI labels inherit this language for automatic hyphenation; Bible text can override it locally.
+    document.documentElement.lang = "en";
+    if (langTag === "en-US") {
+        document.documentElement.lang = langTag;
+        return;
+    }
+    if (!langTag) return;
     const langShort = langTag.split('-')[0]
     console.log(`Loading lang ${langTag}`)
     let translations: Partial<TranslatedStrings>;
@@ -52,6 +58,7 @@ async function loadStrings() {
             return;
         }
     }
+    document.documentElement.lang = langTag;
     let k: keyof TranslatedStrings
     for (k in translations) {
         const t = translations[k]
