@@ -226,6 +226,13 @@ class InstallZipComposeActivityTest {
     }
 
     @Test
+    fun awaitingModuleBackupRestore_mapsToRestoreState() {
+        val phase = InstallPhase.AwaitingDecision(DecisionRequest.ModuleBackupRestore)
+        val state = mapPhaseToUiState(context, phase, "renamed.zip")
+        assertEquals(InstallUiState.ModuleBackupRestore, state)
+    }
+
+    @Test
     fun awaitingEpubUpgrade_mapsToEpubUpgradeState() {
         val phase = InstallPhase.AwaitingDecision(DecisionRequest.EpubUpgrade)
         val state = mapPhaseToUiState(context, phase, "book.epub")

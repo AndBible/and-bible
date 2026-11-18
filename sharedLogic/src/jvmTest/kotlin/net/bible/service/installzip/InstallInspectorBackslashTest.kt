@@ -125,6 +125,86 @@ class InstallInspectorBackslashTest {
         return file
     }
 
+    @Test fun moduleBackupWithDocumentAssetsIsAccepted() {
+        val manifest = """{"backupType":"MODULE_BACKUP","andBibleVersion":822}""".toByteArray()
+        val assets = listOf("ttf/font.ttf", "background/image.png", "prompts/prompt.csv")
+            .map { it to "asset".toByteArray() }
+        val archive = zip(listOf("AndBibleBackupManifest.json" to manifest) + fixtureEntries() + assets)
+
+        val scan = scanSwordZip(archive.absolutePath.toPath())
+
+        assertFalse(scan.invalid, "a documents backup with supported assets must be accepted")
+    }
+
+    @Test fun moduleBackupWithOversizedManifestIsRejected() {
+        val manifest = ("""{"backupType":"MODULE_BACKUP"}""" + " ".repeat(64 * 1024 + 1)).toByteArray()
+        val archive = zip(listOf("AndBibleBackupManifest.json" to manifest, "ttf/font.ttf" to byteArrayOf(1)))
+
+        assertTrue(scanSwordZip(archive.absolutePath.toPath()).invalid)
+    }
+
+    @Test fun moduleBackupWithOnlyDirectoriesIsRejected() {
+        val manifest = """{"backupType":"MODULE_BACKUP"}""".toByteArray()
+        val archive = zip(listOf("AndBibleBackupManifest.json" to manifest, "epub/" to ByteArray(0)))
+
+        assertTrue(scanSwordZip(archive.absolutePath.toPath()).invalid)
+    }
+
+    @Test fun backupValidationRejectsInvalidArchives() {
+        val manifest = """{"backupType":"MODULE_BACKUP"}""".toByteArray()
+        val header = "AndBibleBackupManifest.json" to manifest
+        val validAsset = "ttf/font.ttf" to byteArrayOf(1)
+        assertFalse(scanSwordZip(zip(listOf(validAsset, header)).absolutePath.toPath()).invalid)
+        val invalidArchives = listOf(
+            listOf(validAsset),
+            listOf(header),
+            listOf(header, "ttf/unknown.exe" to byteArrayOf(1)),
+            listOf(header, validAsset, "other/file" to byteArrayOf(1)),
+            listOf(header, validAsset, "../escape" to byteArrayOf(1)),
+            listOf("AndBibleBackupManifest.json" to "{".toByteArray(), validAsset),
+            listOf("AndBibleBackupManifest.json" to """{"backupType":"DB_BACKUP"}""".toByteArray(), validAsset),
+        )
+        for (entries in invalidArchives) {
+            assertTrue(scanSwordZip(zip(entries).absolutePath.toPath()).invalid, "accepted ${entries.map { it.first }}")
+        }
+    }
+
+    @Test fun backupRestoreDecisionPrecedesOverwriteAndCancellationNeverCommits() = runBlocking {
+        val manifest = """{"backupType":"MODULE_BACKUP"}""".toByteArray()
+        val archive = zip(listOf("AndBibleBackupManifest.json" to manifest) + fixtureEntries())
+        File(dest, "mods.d/$INITIALS.conf").apply { parentFile.mkdirs(); writeText("existing") }
+        var commits = 0
+        val committer = Proxy.newProxyInstance(InstallCommitter::class.java.classLoader, arrayOf(InstallCommitter::class.java)) { _, method, _ ->
+            if (method.name == "commitSwordZip") { commits++; Unit } else error("unexpected ${method.name}")
+        } as InstallCommitter
+        val runner = InstallJobRunner(InstallInspector(::determineLocalFileType), committer)
+        suspend fun run(answers: List<Boolean>): Pair<InstallPhase, List<DecisionRequest>> {
+            val decisions = mutableListOf<DecisionRequest>()
+            val result = runner.runJob(
+                source = InstallSource(archive.toURI().toString(), null, "renamed.zip", null),
+                acquireTo = File(work, "acquired.zip").absolutePath.toPath(),
+                openStream = { InstallStream(archive.source(), archive.length()) },
+                isStudyPadExport = { false }, studyPadStats = { error("not a StudyPad") },
+                swordZipScan = ::scanSwordZip, epubUpgradeCheck = { error("not an EPUB") },
+                onPhase = {}, awaitDecision = { decisions += it; answers[decisions.lastIndex] },
+            )
+            return result to decisions
+        }
+        val (declined, first) = run(listOf(false))
+        assertEquals(InstallPhase.Cancelled, declined)
+        assertEquals(listOf(DecisionRequest.ModuleBackupRestore), first)
+        assertEquals(0, commits)
+        val (overwriteDeclined, second) = run(listOf(true, false))
+        assertEquals(InstallPhase.Cancelled, overwriteDeclined)
+        assertEquals(DecisionRequest.ModuleBackupRestore, second.first())
+        assertTrue(second.last() is DecisionRequest.Overwrite)
+        assertEquals(0, commits)
+        val (accepted, third) = run(listOf(true, true))
+        assertEquals(InstallPhase.Done, accepted)
+        assertEquals(2, third.size)
+        assertEquals(1, commits)
+    }
+
     @Test fun backslashEntryNamesInstall() {
         val archive = zip(fixtureEntries())
         val scan = scanSwordZip(archive.absolutePath.toPath())

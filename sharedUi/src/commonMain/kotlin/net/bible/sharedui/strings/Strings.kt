@@ -1111,6 +1111,7 @@ interface Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI (progress + decision dialogs)
     val installZipTitle: String                    // R.string.install_zip (FormatInfo prelude dialog title)
+    val moduleBackupRestore: String
     fun installDoYouWant(subject: String): String   // R.string.install_do_you_want (ConfirmInstall / StudyPadImport question)
     val proceed: String                             // R.string.proceed (FormatInfo confirm button)
     val overwriteFilesTitle: String                 // R.string.overwrite_files_title

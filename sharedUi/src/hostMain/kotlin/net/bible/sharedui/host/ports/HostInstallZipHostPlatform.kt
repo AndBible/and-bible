@@ -69,6 +69,7 @@ class HostInstallZipHostPlatform(
         is InstallPhase.AwaitingDecision -> when (val request = phase.request) {
             is DecisionRequest.Overwrite -> InstallUiState.Overwrite(request.files)
             is DecisionRequest.StudyPadImport -> InstallUiState.StudyPadImport(request.statsText)
+            DecisionRequest.ModuleBackupRestore -> InstallUiState.ModuleBackupRestore
             DecisionRequest.EpubUpgrade -> InstallUiState.EpubUpgrade
         }
         is InstallPhase.Error -> {

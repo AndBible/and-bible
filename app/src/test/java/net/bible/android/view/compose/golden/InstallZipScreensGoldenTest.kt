@@ -112,6 +112,15 @@ class InstallZipScreensGoldenTest {
             )
         }
 
+    @Test fun moduleBackupRestore_matrix() =
+        captureMatrix("InstallZipScreens", "moduleBackupRestore") {
+            InstallZipContent(
+                state = InstallUiState.ModuleBackupRestore,
+                onConfirm = {},
+                onDismiss = {},
+            )
+        }
+
     @Test fun epubUpgrade_matrix() =
         captureMatrix("InstallZipScreens", "epubUpgrade") {
             InstallZipContent(

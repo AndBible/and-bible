@@ -1045,6 +1045,7 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI
     override val installZipTitle: String get() = context.getString(R.string.install_zip)
+    override val moduleBackupRestore: String get() = context.getString(R.string.module_backup_restore)
     override fun installDoYouWant(subject: String): String = context.getString(R.string.install_do_you_want, subject)
     override val proceed: String get() = context.getString(R.string.proceed)
     override val overwriteFilesTitle: String get() = context.getString(R.string.overwrite_files_title)

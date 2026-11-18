@@ -77,6 +77,8 @@ sealed interface InstallUiState {
     /** EPUB re-optimize confirmation (classic `CommonUtils.documentUpgradeConfirmation`). */
     data object EpubUpgrade : InstallUiState
 
+    data object ModuleBackupRestore : InstallUiState
+
     /** A terminal failure; [message] is the fully host-resolved message (already combines the
      *  `R.string` template + any argument — e.g. `install_failed_reason`/`invalid_module`). */
     data class Error(val message: String) : InstallUiState
@@ -136,6 +138,15 @@ fun InstallZipContent(
             is InstallUiState.StudyPadImport -> AbConfirmDialog(
                 title = strings.areYouSure,
                 message = strings.installDoYouWant(state.statsText),
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
+
+            InstallUiState.ModuleBackupRestore -> AbConfirmDialog(
+                title = strings.areYouSure,
+                message = strings.moduleBackupRestore,
                 confirmText = strings.okay,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,

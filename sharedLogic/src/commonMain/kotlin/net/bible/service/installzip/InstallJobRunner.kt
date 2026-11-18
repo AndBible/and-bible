@@ -98,6 +98,10 @@ class InstallJobRunner(
                 InstallPhase.Error(InstallError.INVALID_FILE, plan.filename)
 
             is InstallPlan.SwordZip -> {
+                if (plan.isModuleBackup) {
+                    onPhase(InstallPhase.AwaitingDecision(DecisionRequest.ModuleBackupRestore))
+                    if (!awaitDecision(DecisionRequest.ModuleBackupRestore)) return InstallPhase.Cancelled.also(onPhase)
+                }
                 if (plan.existingFiles.isNotEmpty()) {
                     val decision = DecisionRequest.Overwrite(plan.existingFiles)
                     onPhase(InstallPhase.AwaitingDecision(decision))

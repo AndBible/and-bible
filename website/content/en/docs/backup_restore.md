@@ -152,6 +152,11 @@ manager or share it to AndBible. AndBible recognises it as a database backup and
 same restore as *Restore or Import*, asking which backup sections to restore, instead of
 offering to install it as a module.
 
+Document backups can also be selected using *Load Documents From Files*. AndBible
+recognises them by their contents, even if the filename has changed, and asks you
+to confirm restoration. If files already exist, a separate overwrite confirmation
+appears. Cancel either confirmation to leave the existing files unchanged.
+
 ## Auto-Backups, Reset Databases and Last crash info
 
 Below the restore buttons the *Backup & Restore* screen may show more sections:
