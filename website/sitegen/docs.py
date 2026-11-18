@@ -34,7 +34,8 @@ def published_pages(config: Path) -> list[str]:
 
     def walk(node: Any) -> None:
         if isinstance(node, str):
-            pages.append(node)
+            if node.endswith(".md"):  # a nav link such as "/videos/" is not a staged page
+                pages.append(node)
         elif isinstance(node, list):
             for item in node:
                 walk(item)

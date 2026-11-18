@@ -136,6 +136,21 @@ of `{year, text}` entries (validated by `sitegen/reviews.py`; the English string
   `https://andbible.org/docs/<page>/#<id>`. Renaming a heading the app links to fails the tests.
 - A user-visible app change updates the matching docs page in the same PR.
 
+### Docs formatting
+
+(Formerly the published `style_guide` page, now only here.)
+
+- Inline: `*italics*`, `**bold**`, `` `code` ``. A definition list is `Term` then `:   Definition`.
+- Lists need a blank line before them. Numbered lists renumber automatically.
+- Images: `[![Alt](images/name.png){ .align-center style="width: 200px" }](images/name.png)`.
+- Notes: an admonition, `!!! note` followed by an indented paragraph after a blank line.
+- Links: `[text](https://example.org)` externally, `[text](bookmarks.md)` to another page,
+  `[text](bookmarks.md#creating-a-bookmark)` to a section, `[text](#inline-formatting)` within a page.
+- Tables use pipes, `| Column | Column |` with a `| --- | --- |` row under the header.
+- The nav (`zensical.toml`) mirrors the learning path of the tutorial series. A nav entry that is not a
+  page, such as `{ "All videos" = "/videos/" }`, is a link: it is skipped by the page checks and by the
+  in-app user guide. The "Browse by topic" part of `docs/index.md` lists the nav sections only.
+
 ## Translations
 
 `content/<lang>/` mirrors `content/en/`. Any file may be missing; the English file is used

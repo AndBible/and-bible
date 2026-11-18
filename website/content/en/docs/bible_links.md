@@ -1,4 +1,4 @@
-# Bible Links / Deep Linking
+# Bible links {#bible-links-deep-linking}
 
 *AndBible* (since version 5.0) supports deep linking via the following URL format:
 

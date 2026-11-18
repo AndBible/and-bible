@@ -1,4 +1,4 @@
-# Look and Feel
+# Appearance and settings {#look-and-feel}
 
 The look and feel of *AndBible* can be configured at several levels: for the entire
 application, as global defaults, for specific workspaces, for individual

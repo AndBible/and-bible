@@ -1,4 +1,4 @@
-# My Documents
+# My Documents and EPUB books {#my-documents}
 
 *AndBible* allows you to create your own custom documents, such as personal study
 guides, sermon outlines, or reference notes. These documents appear alongside

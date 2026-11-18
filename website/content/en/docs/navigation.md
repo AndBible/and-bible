@@ -1,4 +1,4 @@
-# Navigation
+# Finding your way around {#navigation}
 
 ## Opening Bible References
 
@@ -68,7 +68,7 @@ verse number you would like to open.
 
 The toolbar at the top of the reading screen has these parts, from left to right:
 
-- **Menu (☰)** opens the [main menu](getting_started.md#main-menu).
+- **Menu (☰)** opens the [main menu](#main-menu).
 - **The title** shows the current reference and document. Tap it to open the *Book Chooser*
     (see [Opening Bible References](#opening-bible-references)). Long-press it to open the document
     sheet. Swipe down on it to open the workspace selector, or swipe left or right on it to go to
@@ -92,6 +92,55 @@ The toolbar at the top of the reading screen has these parts, from left to right
     (when an AI provider is set up), *Sync now* (when sync is set up), the text options you used
     most recently and *All text options*. See also
     [Background activity](#background-activity).
+
+## Main menu {#main-menu}
+
+The main menu (☰, top left) lists these rows. It is also opened by swiping in from the edge of the
+screen, see [Swipe from the edge](#swipe-from-the-edge-to-open-the-main-menu).
+
+| Row | What it does |
+|---|---|
+| `Choose Document` | Opens the document list, see [Documents](documents.md#document-library) |
+| `Find` | Opens search, see [Search](search.md) (greyed out when the current page cannot be searched) |
+| `Speak` | Shows the speak bar, see [Speak](speak.md) (not shown on a platform without speech) |
+| `Bookmarks` | The [Bookmarks list](bookmarks.md#bookmarks-list) |
+| `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
+| `My Documents` | Your own pages, see [My Documents](my_documents.md) |
+| `Reading Plan` | [Reading plans](reading_plans.md) |
+| `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
+| `History` | The list of places you have been to |
+
+**Administration**
+
+| Row | What it does |
+|---|---|
+| `Download Documents` | [Download documents](documents.md#download-documents) |
+| `Backup & Restore` | [Backup and restore](backup_restore.md) |
+| `Device synchronization` | [Synchronization](cloud_sync.md) (shown only where it is available) |
+| `AI Settings` | [AI](ai.md) |
+| `Application preferences` | The app settings, see [Look and feel](look_and_feel.md) |
+
+**Information**
+
+| Row | What it does |
+|---|---|
+| `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
+| `Buy development work` | Opens the development shop in your browser (Android only) |
+| `Questions?` | Opens the support page in your browser, see [Support](support.md) |
+| `How to contribute?` | Opens the page about how to help the project, in your browser |
+| `Open Source License` | Shows the licence text |
+
+**Contact**
+
+| Row | What it does |
+|---|---|
+| `Recommend to a friend` | A QR code and a link to share, see [Sharing on Android](support.md#sharing-on-android) |
+| `Rate & Review` | Opens a short dialog and then the store listing (Android; not in F-Droid, Huawei or Amazon builds) |
+| `Feedback / bug report` | Prepares a bug report, see [Support](support.md#reporting-issues) |
+
+On iPhone, iPad, Mac, Windows and Linux the menu has the same rows, except that `Buy development work`
+and `Rate & Review` are not offered there. `Recommend to a friend` and `Rate & Review` are hidden in
+discrete mode.
 
 ## Moving Between Documents
 

@@ -1,4 +1,4 @@
-# Documents
+# The document library {#documents}
 
 ## Overview
 

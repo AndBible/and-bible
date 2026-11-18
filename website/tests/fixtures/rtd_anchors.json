@@ -339,11 +339,6 @@
   "study_pads": [
     "study-pads"
   ],
-  "style_guide": [
-    "style-guide-for-documentation-contributions",
-    "inline-formatting",
-    "heading-1"
-  ],
   "support": [
     "support",
     "general-questions",
@@ -370,10 +365,6 @@
     "share",
     "memorize",
     "comparing-verses"
-  ],
-  "videos/note_add_to_existing_bookmark": [
-    "add-a-note-to-an-existing-bookmark",
-    "id1"
   ],
   "windows": [
     "windows",

@@ -1,4 +1,4 @@
-# Usage
+# Study workflows {#usage}
 
 ## Overview
 

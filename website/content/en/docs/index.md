@@ -32,76 +32,19 @@ shows how to find your way around the app.
 
 <div class="ab-docs-landing" markdown>
 
-### Getting Started
+The sections follow the order in which the [tutorial videos](/videos/) introduce the app. Each link opens the
+first page of the section; the menu on the left lists the rest.
 
-| Doc | What's inside |
+| Section | What's inside |
 |---|---|
-| [Getting Started](getting_started.md) | Installing the app on Android, iPhone, iPad, Mac, Windows and Linux |
-| [Navigation](navigation.md) | Opening Bible references, moving between documents and workspaces, gestures and shortcuts |
-| [Usage](usage.md) | Suggested setups for Bible study, topical and word study, devotions, sermon notes and original languages |
-
-### Bible Documents
-
-| Doc | What's inside |
-|---|---|
-| [Documents](documents.md) | The document library and the kinds of module: Bibles, commentaries, dictionaries, books and maps |
-| [My Documents](my_documents.md) | Creating your own documents, such as study guides and sermon outlines |
-| [Custom Repositories](custom_repositories.md) | Adding your own SWORD module repositories through a manifest file |
-
-### Reading & Workspace
-
-| Doc | What's inside |
-|---|---|
-| [Workspaces](workspaces.md) | Keeping different window layouts and settings for different kinds of reading |
-| [Windows](windows.md) | Opening several windows, pinning and syncing them, and the window buttons and popup menu |
-| [Verse Action Dialog](verse_action_dialog.md) | What the buttons do when you tap a verse |
-| [Look and Feel](look_and_feel.md) | Display settings for the app, workspaces, windows and individual modules |
-| [Bible Links](bible_links.md) | Deep links that open a Bible reference in the app from a web address |
-| [Speak](speak.md) | Having the Bible read aloud with your device's text-to-speech voice |
-
-### Study Tools
-
-| Doc | What's inside |
-|---|---|
-| [Bookmarks](bookmarks.md) | Marking verses or selections and viewing them across translations |
-| [Labels](labels.md) | Tagging bookmarks, study pads and notes, and managing your labels |
-| [Notes](notes.md) | Adding personal notes to bookmarks and study pads |
-| [Study Pads](study_pads.md) | Gathering all your notes on one topic in a single view |
-| [Search](search.md) | Finding words and phrases in Bibles and commentaries |
-| [Reading Plans](reading_plans.md) | Following a daily schedule of readings |
-| [Reading Progress](reading_progress.md) | Tracking which chapters you have read and memorized |
-| [Memorize](memorize.md) | Learning verses by heart with interactive exercises |
-| [AI Assistant](ai.md) | Translating, explaining and annotating text through an external AI provider |
-| [Sharing](share.md) | Sharing verses, notes and study pads |
-
-### Backup & Sync
-
-| Doc | What's inside |
-|---|---|
-| [Backup and Restore](backup_restore.md) | Exporting your data and restoring it on another device |
-| [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive, iCloud Drive, Nextcloud or WebDAV |
-| [Document Sync](document_sync.md) | Syncing your installed Bibles and other documents across devices |
-
-### Desktop
-
-| Doc | What's inside |
-|---|---|
-| [AndBible on Windows and Linux](desktop.md) | Installation, update checks, data locations, known limitations and how to report a bug |
-
-### Customisation & Advanced
-
-| Doc | What's inside |
-|---|---|
-| [Customisation](customisation/index.md) | Custom CSS, and creating your own modules including custom font modules |
-| [Discrete Build](discrete_build.md) | The variant that appears as a calculator app, for places where Bible apps are not tolerated |
-
-### Help & Reference
-
-| Doc | What's inside |
-|---|---|
-| [FAQ](faq.md) | Answers to common questions, such as missing modules and older phones |
-| [Platform differences](platform_differences.md) | What works differently on Android, iPhone, iPad, Mac, Windows and Linux |
-| [Support](support.md) | Where to ask questions, report bugs and suggest features |
-| [Releases](releases/index.md) | What changed in releases 6.0, 5.0, 4.1 and 4.0 |
+| [Getting Started](getting_started.md) | Installing the app, finding your way around and the verse menu |
+| [Reading & Workspace](windows.md) | Windows, workspaces, display settings and listening to the Bible |
+| [Bookmarks & Notes](bookmarks.md) | Bookmarks, labels and highlights, notes and study pads |
+| [Study Tools](search.md) | Search, reading plans and progress, memorizing, the AI assistant and study workflows |
+| [Bible Documents](documents.md) | The document library, your own documents and custom repositories |
+| [Sharing, Backup & Sync](share.md) | Sharing and Bible links, backup and restore, cloud sync and document sync |
+| [Desktop & Platforms](desktop.md) | The Windows and Linux app, platform differences and the discrete build |
+| [Customisation & Advanced](customisation/index.md) | Custom CSS and creating your own modules |
+| [Help & Reference](faq.md) | The FAQ, support, all videos and the release notes |
 
 </div>
