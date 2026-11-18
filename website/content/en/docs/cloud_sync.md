@@ -181,7 +181,7 @@ independently.
     [Reading Progress](reading_progress.md) and [Memorize](memorize.md).
 
 **Documents** (toggle: Documents)
-:   Installed Bibles, commentaries, dictionaries and other modules can be synced
+:   Installed documents can be synced
     as a separate category. Unlike the categories above (which sync small data
     records), this copies whole document files. See [Document Sync](document_sync.md) for
     details.

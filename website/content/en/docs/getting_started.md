@@ -85,17 +85,15 @@ the Mac App Store and open the link there.
 <!-- if beta -->
 AndBible for Windows is new in 6.0 and is in public beta.
 
-1. Download the `.msi` file (`andbible-desktop-<version>-x64.msi`) from the newest *Beta release*
+1. Install AndBible from the Microsoft Store, or download the signed `.msi` installer
+    (`andbible-desktop-<version>-x64.msi`, for 64-bit Windows) from the newest *Beta release*
     on the [GitHub releases page]({{ beta_release }}).
-    It is for 64-bit Windows (x64).
 <!-- else -->
-1. Download the `.msi` file (`andbible-desktop-<version>-x64.msi`) from the
+1. Install AndBible from the Microsoft Store, or download the signed `.msi` installer
+    (`andbible-desktop-<version>-x64.msi`, for 64-bit Windows) from the
     [latest release](https://github.com/AndBible/and-bible/releases/latest).
-    It is for 64-bit Windows (x64).
 <!-- end -->
-2. Open it. A new SignPath certificate may not yet have SmartScreen reputation. If Windows says
-    "Windows protected your PC", choose **More info**, then **Run anyway**. See the
-    [code signing policy](/code-signing-policy/) for signature details.
+2. If you used the MSI, open it. See the [code signing policy](/code-signing-policy/) for signature details.
 
 To uninstall, open Windows *Settings → Apps → Installed apps*, choose **AndBible** and then
 **Uninstall**. Your data in `%APPDATA%\AndBible` and the cache in `%LOCALAPPDATA%\AndBible`
@@ -139,8 +137,7 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 - **Redownload Documents**: choose from documents installed earlier on this device (shown only
   when there are any).
-- **Download Documents**: browse the online catalog of Bibles, commentaries, dictionaries and
-  books in many languages. See [Documents](documents.md). The app first asks "Do you want to proceed
+- **Download Documents**: browse the online catalog of documents in many languages. See [Documents](documents.md). The app first asks "Do you want to proceed
   to download documents?" (it warns that downloading Christian material can be risky in a
   persecuted country). Answer `Yes`, `Yes, do not ask any more` (the question is not asked again)
   or `Cancel`. While you are setting up the first time, the download screen has an `OK` button at
