@@ -63,6 +63,26 @@ class RuntimeDiagnosticStoreTest {
         } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
     }
 
+    @Test fun rotationPrunesExpiredPhysicalHistoryWithoutPerEventReads() {
+        val dir = Files.createTempDirectory("diagnostics-rotation-expiry").toOkioPath()
+        try {
+            var now = 1_000_000_000L
+            val fs = CountingFileSystem()
+            val store = RuntimeDiagnosticStore(dir, fs) { now }
+            repeat(180) { store.append(DiagnosticRecord("expired-marker", it.toLong(), now,
+                RuntimeDiagnosticEvent.ClientReady("p".repeat(3000)))) }
+            now += 604800001L
+            fs.reset()
+            repeat(180) { store.append(DiagnosticRecord("fresh", it.toLong(), now,
+                RuntimeDiagnosticEvent.ClientReady("p".repeat(3000)))) }
+            assertEquals(0, fs.reads)
+            FileSystem.SYSTEM.list(dir).forEach { path ->
+                assertTrue(!FileSystem.SYSTEM.source(path).buffer().use { it.readUtf8() }.contains("expired-marker"))
+            }
+            assertTrue(RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { now }.snapshot().contains("fresh"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
     @Test fun legacySingleFooterGenerationLoadsAndRotatesWithoutLosingHistory() {
         val dir = Files.createTempDirectory("diagnostics-legacy").toOkioPath()
         try {
