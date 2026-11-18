@@ -5,7 +5,7 @@ import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptListFilter
 import net.bible.sharedcore.ai.PromptVd
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.ai.AiPromptsScreen
 import net.bible.sharedui.ai.PromptFilterSheetContent
 import org.junit.Test
@@ -58,7 +58,7 @@ class AiPromptsGoldenTest {
                 onMovePromptToCategory = { _, _ -> },
                 categoriesProvider = { categories },
                 helpBody = "AI Settings is where you manage your prompts and categories.",
-                helpReadMoreUrl = DocsLinks.page("ai"),
+                helpReadMoreUrl = DocsLink.AI.url,
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
                 initiallySearchOpen = initiallySearchOpen,

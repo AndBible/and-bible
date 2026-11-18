@@ -18,7 +18,7 @@
 
 package net.bible.sharedui.app.notice
 
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.SiteLinks
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.platform.AppSettings
@@ -53,12 +53,12 @@ object ReleaseNotice {
     fun linkFor(action: ReleaseNoticeAction, appLanguage: String = "en"): String? = when (action) {
         ReleaseNoticeAction.VIDEO -> TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0, appLanguage)
         ReleaseNoticeAction.WEBSITE -> SiteLinks.HOME_URL
-        ReleaseNoticeAction.COMPUTER -> DocsLinks.page("getting_started", "installation")
-        ReleaseNoticeAction.INSTALL_ANDROID -> DocsLinks.page("getting_started", "android")
-        ReleaseNoticeAction.INSTALL_IOS -> DocsLinks.page("getting_started", "iphone-and-ipad")
-        ReleaseNoticeAction.INSTALL_WINDOWS -> DocsLinks.page("getting_started", "windows")
-        ReleaseNoticeAction.INSTALL_MAC -> DocsLinks.page("getting_started", "mac")
-        ReleaseNoticeAction.INSTALL_LINUX -> DocsLinks.page("getting_started", "linux")
+        ReleaseNoticeAction.COMPUTER -> DocsLink.GETTING_STARTED_INSTALLATION.url
+        ReleaseNoticeAction.INSTALL_ANDROID -> DocsLink.GETTING_STARTED_ANDROID.url
+        ReleaseNoticeAction.INSTALL_IOS -> DocsLink.GETTING_STARTED_IPHONE_AND_IPAD.url
+        ReleaseNoticeAction.INSTALL_WINDOWS -> DocsLink.GETTING_STARTED_WINDOWS.url
+        ReleaseNoticeAction.INSTALL_MAC -> DocsLink.GETTING_STARTED_MAC.url
+        ReleaseNoticeAction.INSTALL_LINUX -> DocsLink.GETTING_STARTED_LINUX.url
         ReleaseNoticeAction.SHARE, ReleaseNoticeAction.SPONSOR -> null
     }
 

@@ -2,7 +2,7 @@
 
 package net.bible.sharedui.app.ports
 
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedui.help.HelpTipUi
 import net.bible.sharedui.strings.Strings
@@ -30,14 +30,14 @@ object HelpAndTips {
     /** The user-guide URL of a [Item.docPage] stem; null for null. Literal calls keep the app-to-documentation link scanner authoritative. */
     fun docUrl(page: String?): String? = when (page) {
         null -> null
-        "navigation" -> DocsLinks.page("navigation")
-        "windows" -> DocsLinks.page("windows")
-        "bookmarks" -> DocsLinks.page("bookmarks")
-        "study_pads" -> DocsLinks.page("study_pads")
-        "search" -> DocsLinks.page("search")
-        "workspaces" -> DocsLinks.page("workspaces")
-        "documents" -> DocsLinks.page("documents")
-        "look_and_feel" -> DocsLinks.page("look_and_feel")
+        "navigation" -> DocsLink.NAVIGATION.url
+        "windows" -> DocsLink.WINDOWS.url
+        "bookmarks" -> DocsLink.BOOKMARKS.url
+        "study_pads" -> DocsLink.STUDY_PADS.url
+        "search" -> DocsLink.SEARCH.url
+        "workspaces" -> DocsLink.WORKSPACES.url
+        "documents" -> DocsLink.DOCUMENTS.url
+        "look_and_feel" -> DocsLink.LOOK_AND_FEEL.url
         else -> error("Unknown help page: $page")
     }
 

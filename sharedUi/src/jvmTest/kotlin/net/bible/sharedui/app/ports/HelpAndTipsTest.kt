@@ -3,6 +3,7 @@ package net.bible.sharedui.app.ports
 import net.bible.sharedcore.docs.TutorialVideos
 import java.io.File
 import kotlin.test.*
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -27,7 +28,7 @@ class HelpAndTipsTest {
     @Test fun optionalSponsorDoesNotRemoveHelpDocsOrVersionAndDefaultsToAndroidBehavior() {
         val table = StringTable("en", { it }, { key, args -> key + args.joinToString() }, { n, _ -> n }, { emptyList() })
         val core = DocumentDialogsCore(AppDialogController(), { table })
-        val items = listOf(DocumentDialogsCore.HelpItem("Navigation", "Body", docUrl = DocsLinks.page("navigation")))
+        val items = listOf(DocumentDialogsCore.HelpItem("Navigation", "Body", docUrl = DocsLink.NAVIGATION.url))
         val android = core.helpNotice(items, versionMsg = "Version 1")
         assertTrue(android.blocks.any { it is AppDialogRequest.NoticeBlock.IconLine })
         val ios = core.helpNotice(items, versionMsg = "Version 1", includeSponsor = false)
@@ -35,7 +36,7 @@ class HelpAndTipsTest {
         val html = ios.blocks.filterIsInstance<AppDialogRequest.NoticeBlock.Html>().map { it.html }
         assertEquals(3, html.size)
         assertContains(html[0], "<b>Navigation</b>")
-        assertContains(html[0], DocsLinks.page("navigation"))
+        assertContains(html[0], DocsLink.NAVIGATION.url)
         assertContains(html[1], DocsLinks.BASE_URL)
         assertEquals("<i>Version 1</i>", html[2])
         assertFalse(html.joinToString().contains("shop.andbible.org"))
@@ -53,7 +54,7 @@ class HelpAndTipsTest {
 
     @Test fun docUrlMapsEveryItemPageAndRejectsUnknown() {
         HelpAndTips.items.forEach { item ->
-            // Compared against the stem-built URL by hand (the link scanner only accepts literal DocsLinks.page calls).
+            // Keep the help-item metadata aligned with the catalog's resolved URLs.
             val expected = item.docPage?.let { DocsLinks.BASE_URL + it + "/" }
             assertEquals(expected, HelpAndTips.docUrl(item.docPage))
         }

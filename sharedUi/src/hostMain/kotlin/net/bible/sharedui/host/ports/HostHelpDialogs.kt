@@ -1,7 +1,7 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package net.bible.sharedui.host.ports
 
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -32,20 +32,20 @@ class HostHelpDialogs(
             when (topic) {
                 HelpTopic.WORKSPACES -> core.helpNotice(listOf(DocumentDialogsCore.HelpItem(
                     t.text("help_workspaces_title"), t.text("help_workspaces_text"),
-                    video(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLinks.page("workspaces"),
+                    video(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES), DocsLink.WORKSPACES.url,
                     TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, lang),
                 )))
                 HelpTopic.LICENCE -> AppDialogRequest.Message(
                     title = t.text("app_licence_title"), message = bundleHtml("license"),
                     confirmText = t.text("okay"), cancellable = true,
                 )
-                HelpTopic.READING_PROGRESS -> core.helpDialog(t.text("help"), t.text("help_reading_progress_text"), DocsLinks.page("reading_progress"),
+                HelpTopic.READING_PROGRESS -> core.helpDialog(t.text("help"), t.text("help_reading_progress_text"), DocsLink.READING_PROGRESS.url,
                     video(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS),
                     TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS, lang))
-                HelpTopic.DOCUMENT_SYNC -> core.helpDialog(t.text("help"), t.text("help_document_sync_text"), DocsLinks.page("document_sync"),
+                HelpTopic.DOCUMENT_SYNC -> core.helpDialog(t.text("help"), t.text("help_document_sync_text"), DocsLink.DOCUMENT_SYNC.url,
                     video(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS),
                     TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS, lang))
-                HelpTopic.AI_CONNECTION -> core.helpDialog(t.text("help"), t.text("help_ai_connection_text"), DocsLinks.page("ai", "getting-started"))
+                HelpTopic.AI_CONNECTION -> core.helpDialog(t.text("help"), t.text("help_ai_connection_text"), DocsLink.AI_GETTING_STARTED.url)
             }
         })
     }

@@ -39,7 +39,7 @@ import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.UserNotifier
@@ -170,7 +170,7 @@ class AiHost(
             readTools = { readTools },
             writeTools = { writeTools },
             helpBody = { strings.helpToolInfoText },
-            helpReadMoreUrl = DocsLinks.page("ai", "ai-tools"),
+            helpReadMoreUrl = DocsLink.AI_AI_TOOLS.url,
         ),
         aiDocumentFilter = AiDocumentFilterDeps(
             // A fresh instance per back-stack entry -- see AiDocumentFilterDeps' kdoc (C1: this used to be a single
@@ -179,7 +179,7 @@ class AiHost(
                 AiDocumentFilterController(service = documentFilterServiceProvider(), scope = shell.hostScope)
             },
             helpBody = { strings.helpAiDocumentFilterText },
-            helpReadMoreUrl = DocsLinks.page("ai", "available-data-and-documents"),
+            helpReadMoreUrl = DocsLink.AI_AVAILABLE_DATA_AND_DOCUMENTS.url,
         ),
         globalToolPermissions = GlobalToolPermissionsDeps(
             // Same fix, same reason -- see AiDocumentFilterDeps' kdoc (C1).
@@ -187,13 +187,13 @@ class AiHost(
                 GlobalToolPermissionsController(service = toolPermissionServiceProvider(), scope = shell.hostScope)
             },
             helpBody = { strings.helpGlobalToolPermissionsText },
-            helpReadMoreUrl = DocsLinks.page("ai", "setting-permissions"),
+            helpReadMoreUrl = DocsLink.AI_SETTING_PERMISSIONS.url,
         ),
         aiModels = AiModelsDeps(
             controller = { aiModelsController },
             providersForPicker = { llmModelServiceProvider().providersForPicker() },
             helpBody = { strings.helpAiModelsText },
-            helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
+            helpReadMoreUrl = DocsLink.AI_AVAILABLE_MODELS.url,
             onResume = { shell.hostScope.launch { llmModelServiceProvider().refresh() } },
         ),
         aiConnectionSettings = AiConnectionSettingsDeps(
@@ -208,7 +208,7 @@ class AiHost(
         aiProviders = AiProvidersDeps(
             controller = { aiProvidersController },
             helpBody = { strings.helpAiProvidersText },
-            helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
+            helpReadMoreUrl = DocsLink.AI_CHOOSING_A_PROVIDER.url,
             unknownErrorMessage = { strings.unknownError },
             onResume = { shell.hostScope.launch { llmProviderServiceProvider().refresh() } },
         ),
@@ -223,7 +223,7 @@ class AiHost(
                 )
             },
             helpBody = { strings.helpAiSettingsText },
-            helpReadMoreUrl = DocsLinks.page("ai"),
+            helpReadMoreUrl = DocsLink.AI.url,
             // Launched on THIS host's scope, not a scope owned by the graph's composable arm -- see AiPromptsDeps'
             // kdoc for why: a rememberCoroutineScope() in that arm would be cancelled the instant its back-stack
             // entry stops being the top one (near-instant on Up/navigate), unlike the host scope (cancelled only at
@@ -257,7 +257,7 @@ class AiHost(
                 else globalMaxIterations.toString()
             },
             helpBody = { strings.helpPromptEditText },
-            helpReadMoreUrl = DocsLinks.page("ai", "custom-prompts"),
+            helpReadMoreUrl = DocsLink.AI_CUSTOM_PROMPTS.url,
             onPromptCopied = { notifier.showInfo(strings.promptCopied) },
             onPromptCopyFailed = { notifier.showInfo(strings.promptCopyFailed) },
         ),
@@ -275,7 +275,7 @@ class AiHost(
                 RawLogHistoryController(service = rawLogService, scope = shell.hostScope, onOpenLog = onOpenLog)
             },
             helpBody = { strings.helpAiConnectionText },
-            helpReadMoreUrl = DocsLinks.page("ai"),
+            helpReadMoreUrl = DocsLink.AI.url,
             onResume = { shell.hostScope.launch { rawLogService.refresh() } },
         ),
     )

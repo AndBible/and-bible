@@ -16,14 +16,18 @@ repo `AndBible/docs` is deprecated.
 1. **Edit** the matching page. Facts come from the user or the code; never invent behaviour.
 2. **New page.** Create `website/content/en/docs/<page>.md` and list it in the `nav` of
    `website/zensical.toml`; a page missing from the nav is not built.
-3. **Headings are anchors.** The app links `DocsLinks.page("<page>", "<anchor>")`
-   (`sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLinks.kt`) to
-   `https://andbible.org/docs/<page>/#<anchor>`. Do not rename a linked heading;
-   `website/tests/test_app_deep_links.py` fails if you do. Rename needed? Change the Kotlin call in the
-   same commit.
-4. **New app deep link.** Use only a literal one-line call `DocsLinks.page("page", "anchor")` in Kotlin
-   (the test scans `app/src/main`, `sharedUi/src`, `sharedCore/src/commonMain`; multi-line or computed
-   calls fail it, and so do hardcoded `andbible.org/docs/` URLs). Make sure the anchor exists in the built page.
+3. **Headings are anchors.** App deep-link targets are declared once in the `DocsLink` enum catalog
+   (`sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLink.kt`), with each entry's page
+   literal and optional anchor. Call sites reuse the catalog entry, for example
+   `DocsLinks.page(DocsLink.AI_SETTING_PERMISSIONS)`; `DocsLinks.page(DocsLink)` builds the URL
+   `https://andbible.org/docs/<page>/#<anchor>` (without the fragment when no anchor is set).
+   Do not rename a linked heading; `website/tests/test_app_deep_links.py` checks catalog targets
+   against the built docs. If a linked target must change, update its catalog entry.
+4. **New app deep link.** Add a `DocsLink` enum entry with the new page literal and optional anchor,
+   then use that entry at call sites through `DocsLinks.page(DocsLink)`. Do not repeat page/anchor
+   literals at use sites or hardcode `andbible.org/docs/` URLs. The test reads the catalog and rejects
+   bypasses across `app`, `sharedCore`, `sharedLogic`, `sharedUi`, and `desktopApp`. Make sure the
+   anchor exists in the built page.
 5. **Images.** In `website/content/en/docs/images/`, referenced relatively as `images/name.png`
    (see `getting_started.md`), not in the media repo.
 6. **Related videos.** Set `docs: "<page-stem>"` on the entry in `website/data/videos.yaml`; it then

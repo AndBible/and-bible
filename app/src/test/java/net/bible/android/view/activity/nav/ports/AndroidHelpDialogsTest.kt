@@ -7,7 +7,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.service.common.CommonUtils
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.ports.HelpTopic
@@ -40,7 +40,7 @@ class AndroidHelpDialogsTest {
         val notice = assertIs<AppDialogRequest.Notice>(assertNotNull(dialogs.pending.value).request)
         val html = assertIs<AppDialogRequest.NoticeBlock.Html>(notice.blocks.first()).html
         assertContains(html, "<b>${activity.getString(R.string.help_workspaces_title)}</b>")
-        assertContains(html, "href=\"${DocsLinks.page("workspaces")}\"")
+        assertContains(html, "href=\"${DocsLink.WORKSPACES.url}\"")
         assertContains(html, "href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES, "en")}\"")
         // English app: the video label carries no "(English)" qualifier.
         assertContains(html, ">${activity.getString(R.string.watch_tutorial_video_plain)}</a>")

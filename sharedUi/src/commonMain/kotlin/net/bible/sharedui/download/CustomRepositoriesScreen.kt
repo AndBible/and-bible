@@ -35,7 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.download.CustomRepoListState
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbInfoDialog
@@ -52,7 +52,7 @@ import net.bible.sharedui.components.volumeScrollTarget
  * Public, not internal: `:app` reads it (the only definition) and `internal` is scoped to the
  * compilation module.
  */
-val customRepositoriesHelpUrl: String = DocsLinks.page("custom_repositories")
+val customRepositoriesHelpUrl: String = DocsLink.CUSTOM_REPOSITORIES.url
 
 /**
  * Stateless port of classic `CustomRepositories`: a list of user-added custom Sword/MyBible
