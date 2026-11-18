@@ -10,13 +10,11 @@ what comes back, keeps the containers busy, and stages a comment for every fixed
 one issue. Children do the debugging and TDD; the orchestrator owns review, merge, gates and GitHub.
 
 **REQUIRED SUB-SKILLS:** jailbee-orchestration for everything about children (grant, spawn,
-inbox, done, import, destroy); jailbee-issue-management for staging issue actions (`jailbee issue ...`);
-issue-management for tracker rules. This skill only adds the AndBible-specific choices.
-
-## 0. Orchestrator role
-
-Follow **jailbee-orchestration** ("Containers are not subagents"): investigation, reviews and larger
-reading/writing go to subagents or a fork; debugging that runs programs goes to a child.
+inbox, done, import, destroy); **andbible-orchestration** for AndBible's orchestration rules (role and
+delegation, spawning from HEAD, runner, egress, evidence folder, holds, decisions, notifications,
+rework, merging, disk hygiene, parallel final gate); jailbee-issue-management for staging issue actions
+(`jailbee issue ...`); issue-management for tracker rules. This skill only adds what is specific to a
+bug round.
 
 ## 1. Pick candidates
 
@@ -75,45 +73,25 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
   one whenever a child is merged.
 - Assign each issue to the publishing account as soon as its child is spawned (`jailbee issue assign <n> --me`,
   published right away when the grant allows; issue-management Flow 3, "Assign when work starts").
-- Runner: the one the maintainer names at the start of the session (it changes with quota); runner notes from earlier
-  sessions do not carry over. Check `jailbee inbox runners` for what is available. The script's default is the
-  `claude-jb` codex profile, tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`.
-- Waiting, reading the inbox, watching quiet or dead children, answering questions, statuses and cleanup:
-  follow **jailbee-orchestration** as is.
-- AndBible rules for every orchestration (egress, `.local` evidence folder, holds on shared resources, quiet
-  notes): "Orchestrating JailBee children" in `docs/superpowers/CLAUDE.md`.
+- Runner: chosen as **andbible-orchestration** says. The script's default is the `claude-jb` codex profile,
+  tier opus; override with e.g. `RUNNER="--agent claude --model opus" MODEL_NAME="Claude Opus"`. The script
+  spawns a `fork` of HEAD; never add a bare `--new` to `SPAWN_FLAGS`.
 - The spawn prompt tells each child to commit early (WIP commits are fine), so a dead agent loses little.
 
-## Decisions: park them, never block the run on the user
+## Decisions
 
-The run is autonomous and may go on overnight. **jailbee-orchestration's "Never block on the user"
-applies as is:** no question dialogs while orchestrating. For a decision a child or a review raises (a
-design choice, a product question, "merge or rework?"):
-
-- **Park it.** Write the question, the options and your recommendation into `$BATCH/decisions.md`. Take
-  the recommended default when there is a safe one ("default taken, pending maintainer"); otherwise keep
-  the work safe (leave the import unmerged, or preserve it as a local branch, e.g. `wip/issue-<n>-v1`).
-  Then carry on with everything else.
-- **Remind, don't ask.** In your normal replies, say how many decisions are parked (one line). Present
-  them as a numbered plain-text list when the user asks for them or the round is done.
-- **Brainstorming with the user has priority:** while it is under way, do not start new work (spawns,
-  merges, gates) in between; children keep running, and their reports wait for the next stopping point.
-- A blocker that makes the whole run pointless (no egress, the grant revoked, the disk full): report it
-  plainly and stop cleanly.
-- A child's own `question` is answered by you from the issue, the code and the spec; forward it to the
-  decision list only if it truly needs the user, and give the child a safe interim instruction (skip that
-  part, take the conservative option) so it is not left waiting.
-
-Memory `orchestrator-defer-decisions-to-end` has the history.
+Park them as **andbible-orchestration** says, in `$BATCH/decisions.md`. A child's own `question` is
+answered by you from the issue, the code and the spec; forward it to the decision list only if it truly
+needs the user, and give the child a safe interim instruction (skip that part, take the conservative
+option) so it is not left waiting.
 
 ## 4. Review, fix and merge each `done`
 
-Import as **jailbee-orchestration** describes ("When a child says done"). Merge only after the
-orchestrator's own independent review below; a review the child ran itself does not replace it.
+Import as **jailbee-orchestration** describes ("When a child says done"); review, fix and merge as
+**andbible-orchestration** says. Bug-round specifics:
 
-1. **Review with a subagent** (superpowers:requesting-code-review; reviewer model sonnet or opus,
-   never fable). Give it the issue file, the child's report and `git diff HEAD...<imported_ref>`,
-   not your conclusion. Ask: is the fix at the root cause and in the layer that owns the
+1. **Review** with superpowers:requesting-code-review. Give the reviewer the issue file, the child's
+   report and `git diff HEAD...<imported_ref>`. Ask: is the fix at the root cause and in the layer that owns the
    behaviour (bibleview-js vs Kotlin `:app` vs the shared modules), or is it a narrow ad hoc
    patch for the reported symptom; are other entry points (a gesture path, another caller, other
    platforms) covered; does a test go red without the fix; any regression risk.
@@ -121,20 +99,11 @@ orchestrator's own independent review below; a review the child ran itself does 
    (`isolation: "worktree"` on the Agent call), as jailbee-orchestration allows. A finding that needs
    a test run to confirm goes to a child, not to a reviewer here. For a larger or riskier diff, also
    ask the container's other Claude process (different model family) for a read-only review.
-2. **Read the production diff yourself** too, and verify every finding against the code
-   (superpowers:receiving-code-review) before acting on it.
-3. **Fix what the review found:**
-   - Small or Minor findings: merge the child's branch, then fix on the orchestrator branch with
-     a coder subagent (haiku or sonnet; opus only for hard ones), TDD, its own commit
-     (`Refs #<n> (...)`), and run that fix's focused tests yourself.
-   - The fix is wrong or misses the root cause: do not merge; spawn a new child for the issue
-     (fresh fork, new branch name such as `fix/issue-<n>-2`) with the review findings in its
-     context.
-4. **Merge** with `--no-ff` and a message naming the issue:
-   `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`. After a conflicted merge stage only the
-   conflicted paths: `git add <submodule>` records the submodule worktree's old HEAD and silently reverts
-   the child's gitlink bump. Compare `git ls-tree HEAD <sub>` with `git ls-tree MERGE_HEAD <sub>` before
-   committing, then `git submodule update --checkout <sub>`.
+2. Spot-check the findings against the code (superpowers:receiving-code-review) before acting on them.
+3. **Fix what the review found:** Small or Minor findings: merge the child's branch, then hand the fix
+   (TDD, its own commit `Refs #<n> (...)`) to a fork child, or to a worktree subagent when it needs no
+   runs. Wrong fix or not at the root cause: a new child `fix/issue-<n>-2` with the findings.
+4. **Merge** message: `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`.
 5. A child that found "already fixed" may still bring a regression test: merge that, and name the
    earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
    report it to the user, no comment.
@@ -173,18 +142,7 @@ staged manifests") says; otherwise tell the user to run `jb issue apply <contain
   selection": Vue `test:ci`/`lint`/`type-check` for bibleview-js; shared `jvmTest` + iOS
   compiles; `:app:cleanTestStandardGoogleplayDebugUnitTest :app:verifyRoborazziStandardGoogleplayDebug`
   for anything in `app/` or rendered; `assembleStandardGithubDebug` for Kotlin changes.
-- **Run the gate in parallel, not as one sequential script.** Verify (45-80 min) is the long pole;
-  nothing should queue behind it:
-  - Start verify first, in this container.
-  - Run the light, non-Gradle steps (Vue gate, `make site site-check`) here at the same time; they
-    do not compete with Gradle.
-  - Never run a second Gradle build in this checkout while verify runs: it contends for the same
-    build directories and locks. Give the other Gradle steps (`assembleStandardGithubDebug`, and
-    the shared `jvmTest` + iOS compiles or desktop tests when they are not done yet) to a light
-    child: a `fork` of HEAD (warm build outputs; the APK took about 2 min on 2026-11-06), spawned
-    with `--autostart-profile none`, with a bounded command and "report the result, change nothing".
-  - The host's cores are shared by all containers: parallel Gradle runs slow each other, so do
-    this when the load allows; the light steps are always worth it.
+- Run it in parallel as **andbible-orchestration** ("Final gate") says.
 - A golden that moves because of a fix: inspect it and re-record in the same batch.
 - Report per issue: root cause, fix, confidence (high / medium + why), and what was skipped.
 - Clean up: no emulator, no own idle Gradle daemons; remind `jailbee unmount osticket <container>`
@@ -197,5 +155,5 @@ staged manifests") says; otherwise tell the user to run `jb issue apply <contain
 | Spawning a bug that is already fixed on the branch | grep the log for `#<n>`, and `git log test-<build>..HEAD` |
 | Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
 | A question dialog mid-run (`AskUserQuestion` at night) | park it in `decisions.md`, remind, list it when asked |
-| Merging on the child's word | subagent review + your own read of the diff, every time |
+| Merging on the child's word | independent subagent/fork review, every time |
 | Child cannot reach a download/osTicket | put the file in the shared batch folder |
