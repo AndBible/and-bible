@@ -58,7 +58,7 @@ class WindowsManifestTest {
         assertEquals("-ToastActivated", elements("ExeServer").single().getAttribute("Arguments"))
         val identity = elements("Identity").single()
         assertEquals("AndBible.Desktop", identity.getAttribute("Name"))
-        assertEquals("CN=AndBible-Unsigned", identity.getAttribute("Publisher"))
+        assertEquals(System.getProperty("expectedPublisher"), identity.getAttribute("Publisher"))
         assertEquals("${System.getProperty("windowsPackageVersion")}.0", identity.getAttribute("Version"))
         val capabilities = elements("Capability").map { it.getAttribute("Name") }.toSet()
         assertTrue(capabilities.containsAll(setOf("runFullTrust", "unvirtualizedResources")))

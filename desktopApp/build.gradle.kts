@@ -239,7 +239,14 @@ val rootVersionProperties = Properties().apply {
     rootProject.layout.projectDirectory.file("version.properties").asFile.inputStream().use { load(it) }
 }
 val desktopVersion = desktopPackageVersion(rootVersionProperties)
-val windowsIdentity = mapOf("NAME" to "AndBible.Desktop", "PUBLISHER" to "CN=AndBible-Unsigned")
+/**
+ * MSIX manifest Publisher: the Partner Center publisher (`CN=<GUID>`) for a Store package, passed with
+ * `-PwindowsPublisher=...`; the Store signs the package itself. The default is an unsigned-build placeholder.
+ */
+val windowsPublisher = providers.gradleProperty("windowsPublisher").orElse("CN=AndBible-Unsigned").get().also {
+    require(it.startsWith("CN=") && it.isNotBlank() && it == it.trim()) { "windowsPublisher must be a distinguished name starting with CN=" }
+}
+val windowsIdentity = mapOf("NAME" to "AndBible.Desktop", "PUBLISHER" to windowsPublisher)
 val windowsAssociations = mapOf(
     "zip" to "application/zip", "epub" to "application/epub+zip", "ttf" to "font/ttf",
     "csv" to "text/csv", "jpg" to "image/jpeg", "jpeg" to "image/jpeg", "png" to "image/png",
@@ -894,6 +901,7 @@ tasks.named<Test>("test") {
     systemProperty("windowsPackageVersion", windowsPackageVersion)
     systemProperty("expectedTimestamp", windowsTimestampUrl)
     systemProperty("expectedTestSigning", windowsTestSigning.toString())
+    systemProperty("expectedPublisher", windowsPublisher)
 }
 
 fun windowsSdkTool(name: String): String {

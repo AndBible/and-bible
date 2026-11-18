@@ -96,6 +96,10 @@ AndBible for Windows is new in 6.0 and is in public beta.
 2. Open it. The installer is not signed yet, so Windows SmartScreen may say
     "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
+To uninstall, open Windows *Settings → Apps → Installed apps*, choose **AndBible** and then
+**Uninstall**. Your data in `%APPDATA%\AndBible` and the cache in `%LOCALAPPDATA%\AndBible`
+are kept; delete those folders too to remove them.
+
 See [AndBible on Windows and Linux](desktop.md) for updates and data locations.
 
 ### Linux {#linux}
