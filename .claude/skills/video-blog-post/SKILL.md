@@ -25,10 +25,11 @@ Never push.
    paragraphs, optionally linking `/docs/<page>/`. No `image` (the thumbnail would duplicate it).
    Categories: reuse existing ones (`grep -h -A3 '^categories' website/content/en/blog/*.md`),
    typically "New features" or "tips & tricks".
-5. **Verify:** `make site site-check` from the repo root.
-6. **Commit.** First in the media submodule: `git -C website/media add videos && git -C website/media commit`
+5. **Catalog and app link.** Tutorial videos use `website/data/tutorials.yaml` as the source of ids and caption languages. After a tutorial upload, review the fields printed by `youtube_upload.py`; the `placeholder-coming-soon` entry uses top-level `placeholder` and `placeholder_subtitles`. Regenerate the app registry with `cd website && uv run python -m sitegen.app_tutorials`; never hand-edit `TutorialVideos.kt`.
+6. **Verify:** `make site site-check` from the repo root.
+7. **Commit.** First in the media submodule: `git -C website/media add videos && git -C website/media commit`
    (message `videos: thumbnail <id>`), then in the main repo the gitlink bump together with
    `website/data/videos.yaml` and the post. End messages with the `Claude-Session:` line. Tell the
    user to run `git -C website/media push origin HEAD:master` before `make push`
    (see `website/CUTOVER.md`).
-7. Send a screenshot only if asked.
+9. Send a screenshot only if asked.
