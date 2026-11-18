@@ -36,6 +36,9 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 ## Spawning
 
+- **Briefs are short:** every implementation brief starts with "Load the `andbible-child` skill." and keeps to
+  Task / Context / Acceptance (+ runner/egress specifics, the `.local/<topic>/` folder). The skill carries process,
+  the child gate tier, commit, evidence, cleanup and `done`-report rules; do not repeat them in briefs.
 - **Start from your HEAD:** a `fork` (default), or `--ref <HEAD sha>` (or the commit to rework). Never a
   bare `--new`: it branches from origin's default `current-stable` (classic tree, no shared modules).
   Why: 2026-11-14, three children started on `current-stable`. A child reporting a classic tree gets
