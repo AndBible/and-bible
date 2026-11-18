@@ -22,7 +22,7 @@ class HelpAndTipsTest {
                 ,
             HelpAndTips.items.map { it.episode })
         // Every video link comes from the registry (a published episode's own URL, else the placeholder).
-        assertEquals(HelpAndTips.items.map { it.episode?.let(TutorialVideos::url) }, HelpAndTips.items.map { HelpAndTips.videoUrl(it, "en") })
+        assertEquals(HelpAndTips.items.map { it.episode?.let { episode -> TutorialVideos.url(episode, "en") } }, HelpAndTips.items.map { HelpAndTips.videoUrl(it, "en") })
     }
 
     @Test fun optionalSponsorDoesNotRemoveHelpDocsOrVersionAndDefaultsToAndroidBehavior() {
