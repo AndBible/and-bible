@@ -66,7 +66,7 @@ def _subtitles(value: list[str], source: str) -> tuple[str, ...]:
 def _k(value: str) -> str:
     escaped = []
     for char in value:
-        escapes = {"\\": "\\\\", '"': '\\"', "$": "\\$", "\n": "\\n", "\r": "\\r", "\t": "\\t", "\b": "\\b", "\f": "\\f"}
+        escapes = {"\\": "\\\\", '"': '\\"', "$": "\\$", "\n": "\\n", "\r": "\\r", "\t": "\\t", "\b": "\\b"}
         if char in escapes:
             escaped.append(escapes[char])
         elif ord(char) < 0x20 or ord(char) == 0x7f:

@@ -21,6 +21,10 @@ episodes: []
     assert catalog.playlist_id == "PL12345"
 
 
+def test_k_escapes_form_feed_as_unicode_control():
+    assert app_tutorials._k("\f") == r"\u000c"
+
+
 def test_render_metadata_and_escape_special_characters():
     catalog = app_tutorials.Catalog(
         placeholder_id=None,
