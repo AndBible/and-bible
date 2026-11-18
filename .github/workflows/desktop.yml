@@ -294,12 +294,12 @@ jobs:
     needs: [linux-packages, windows-sign]
     runs-on: ubuntu-24.04
     timeout-minutes: 75
-    permissions: {contents: write}
+    permissions: {contents: write, id-token: write, attestations: write}
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           path: artifacts
-      - name: Validate and upload release assets
+      - name: Prepare release assets
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -319,6 +319,18 @@ jobs:
           copy_one andbible-desktop-appimage '*.AppImage' "andbible-desktop-$TAG-x86_64.AppImage"
           copy_one andbible-desktop-tarball '*.tar.gz' "andbible-desktop-$TAG-linux-x64.tar.gz"
           copy_one andbible-desktop-windows-x64 '*.msi' "andbible-desktop-$TAG-x64.msi"
+      - name: Attest release assets
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-path: release/*
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
           # Releases are immutable: assets can be added only to a draft. The APK workflow creates the
           # draft with the two APKs; wait for it, add the desktop packages, then publish it.
           apks_ready() {

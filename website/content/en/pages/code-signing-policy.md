@@ -2,10 +2,21 @@
 title: Code signing policy
 ---
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+Free code signing for the Windows packages provided by [SignPath.io](https://about.signpath.io), certificate by
 [SignPath Foundation](https://signpath.org).
 
-## What is signed
+## Android
+
+Google Play and the GitHub release APKs use AndBible's own release key, which is also the
+Google Play app signing key. F-Droid builds AndBible from source and signs it with F-Droid's
+own key: F-Droid and Play/GitHub installations cannot update each other. Amazon, Samsung,
+Huawei and Accrescent builds are distributed through their respective stores.
+
+## iPhone, iPad and Mac
+
+App Store and TestFlight builds are signed through Apple's distribution signing.
+
+## Windows
 
 The Windows packages of AndBible are signed:
 
@@ -20,6 +31,25 @@ listed in `.signpath/artifact-configuration.xml`.
 Only AndBible's own files are signed with this certificate. Third-party components shipped inside
 the packages, the Java runtime and Microsoft's WebView2 loader, keep their original publishers'
 signatures. The Microsoft Store version (MSIX) is signed by Microsoft.
+
+## Linux and GitHub release provenance
+
+The Linux `.deb`, AppImage and tarball are not code-signed. Starting with releases made after
+this policy change, the APKs and desktop packages uploaded to GitHub releases carry GitHub
+build provenance attestations. These associate each file with this repository's workflow run
+for the release tag. Desktop packages are built in earlier jobs of that run, and Windows
+packages are signed before the release job; the attestation itself does not independently
+prove those build or signing steps. Provenance is
+not a publisher's code signature. GitHub's automatically generated source archives are not
+covered. Verify an uploaded package with the
+[GitHub CLI](https://cli.github.com/):
+
+```sh
+gh attestation verify <file> --repo AndBible/and-bible
+```
+
+Older releases may not have attestations. APK and Windows signing remains separate from this
+provenance verification.
 
 ## Team roles
 
