@@ -375,7 +375,7 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     if command -v gh >/dev/null 2>&1; then
         echo ""
         HEAD_SHA=$(git rev-parse HEAD)
-        approve_workflow_deployments desktop.yml "$HEAD_SHA" 5400 30 windows-sign \
+        approve_workflow_deployments desktop.yml "$HEAD_SHA" 14400 30 windows-sign \
             > >(sed -u 's/^/[Windows signing] /') 2>&1 &
         DESKTOP_WAITER_PID=$!
         echo "Windows signing approval runs in the background; the script waits for it at the end."
@@ -408,7 +408,7 @@ fi
 
 if [[ -n "${DESKTOP_WAITER_PID:-}" ]]; then
     echo ""
-    echo "Waiting for the Desktop workflow's Windows signing (up to 90 minutes; Ctrl-C only stops waiting)..."
+    echo "Waiting for the Desktop workflow's Windows signing (up to 4 hours, including the SignPath approval; Ctrl-C only stops waiting)..."
     if wait "$DESKTOP_WAITER_PID"; then
         echo -e "${GREEN}✓ Windows packages signed${NC}"
     else

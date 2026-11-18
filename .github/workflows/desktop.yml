@@ -247,7 +247,8 @@ jobs:
     needs: windows
     environment: And Bible Builds
     runs-on: windows-latest
-    timeout-minutes: 60
+    # Covers the SignPath wait below plus download and checks.
+    timeout-minutes: 200
     steps:
       # v3
       - uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092
@@ -258,6 +259,8 @@ jobs:
           signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
           github-artifact-id: ${{ needs.windows.outputs.unsigned-artifact-id }}
           wait-for-completion: true
+          # Malware scan of the large packages, and for release signing the approver's manual approval in SignPath.
+          wait-for-completion-timeout-in-seconds: 10800
           output-artifact-directory: signed
       - name: Check signatures
         shell: pwsh
