@@ -4,7 +4,8 @@
   Source of truth for the configuration uploaded in the SignPath web UI; keep the two identical.
 
   Input: the GitHub artifact uploaded by .github/workflows/desktop.yml (job "windows"). GitHub wraps it in a zip
-  whose root holds exactly one of each package. SignPath Foundation signs only AndBible's own binaries: the
+  whose root holds the portable zip and the MSI.
+  The MSIX is not sent: it is only for the Microsoft Store, which signs it itself. SignPath Foundation signs only AndBible's own binaries: the
   jpackage launcher AndBible.exe and the two installers. The bundled JDK runtime and WebView2Loader.dll are
   third-party files and stay as they are.
 -->
@@ -16,14 +17,6 @@
         <authenticode-sign/>
       </pe-file>
     </zip-file>
-    <!-- MSIX: deep signing signs the launcher, repacks, then signs the package. Its manifest Publisher must equal
-         the signing certificate's subject (Gradle property windowsPublisher). -->
-    <msix-file path="andbible-*-windows-x64.msix">
-      <pe-file path="AndBible.exe">
-        <authenticode-sign/>
-      </pe-file>
-      <authenticode-sign/>
-    </msix-file>
     <!-- MSI (jpackage + WiX): deep signing signs the installed launcher, repacks, then signs the installer. -->
     <msi-file path="andbible-*-windows-x64.msi">
       <pe-file path="**/AndBible.exe">

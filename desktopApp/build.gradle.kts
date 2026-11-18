@@ -240,8 +240,8 @@ val rootVersionProperties = Properties().apply {
 }
 val desktopVersion = desktopPackageVersion(rootVersionProperties)
 /**
- * MSIX manifest Publisher. It must equal the subject of the certificate that signs the package, so CI passes the
- * SignPath certificate's subject with `-PwindowsPublisher=...`; the default is an unsigned-build placeholder.
+ * MSIX manifest Publisher: the Partner Center publisher (`CN=<GUID>`) for a Store package, passed with
+ * `-PwindowsPublisher=...`; the Store signs the package itself. The default is an unsigned-build placeholder.
  */
 val windowsPublisher = providers.gradleProperty("windowsPublisher").orElse("CN=AndBible-Unsigned").get().also {
     require(it.startsWith("CN=") && it.isNotBlank() && it == it.trim()) { "windowsPublisher must be a distinguished name starting with CN=" }

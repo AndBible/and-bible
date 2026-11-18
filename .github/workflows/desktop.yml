@@ -201,7 +201,7 @@ jobs:
         env:
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
-          # Subject of the SignPath certificate; the MSIX manifest Publisher must equal it.
+          # MSIX manifest Publisher: the Partner Center publisher (the Store signs the MSIX itself).
           MSIX_PUBLISHER: ${{ vars.WINDOWS_MSIX_PUBLISHER }}
         run: |
           $kind = 'dev'
@@ -224,7 +224,6 @@ jobs:
           name: andbible-desktop-windows-x64-unsigned
           path: |
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.zip
-            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msix
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msi
           if-no-files-found: error
           retention-days: 1
@@ -245,7 +244,7 @@ jobs:
         run: |
           $signed = Join-Path $env:RUNNER_TEMP 'signed-windows'
           $out = 'desktopApp/build/compose/binaries/main'
-          foreach ($extension in @('zip', 'msix', 'msi')) {
+          foreach ($extension in @('zip', 'msi')) {
             $files = @(Get-ChildItem "$signed/andbible-*-windows-x64.$extension")
             if ($files.Count -ne 1) { throw "Expected exactly one signed Windows $extension artifact" }
             Copy-Item -LiteralPath $files[0].FullName -Destination $out -Force
@@ -272,7 +271,6 @@ jobs:
           name: andbible-desktop-windows-x64
           path: |
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.zip
-            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msix
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msi
           if-no-files-found: error
           retention-days: 14
