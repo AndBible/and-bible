@@ -39,6 +39,9 @@ const val WORKSPACE_COLOR_DOT_TAG = "workspaceColorDot"
  * reading toolbar derives from for such a workspace. It is computed here rather than read from
  * `MaterialTheme`, because a row or a detached settings editor can describe a workspace other than
  * the active one, whose own colour seeds the current theme.
+ *
+ * Known limit: the opt-in "Use system colors" (Material You) scheme is not followed here, as no
+ * composition local carries that flag; with it on, an unset workspace shows the built-in default.
  */
 fun workspaceDisplayArgb(workspaceArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): Int =
     if (isWorkspaceColorSet(workspaceArgb)) workspaceArgb!!
@@ -58,9 +61,18 @@ fun workspaceDotColor(workspaceArgb: Int?): Color {
 }
 
 /**
+ * The workspace colour picker's starting colour: [workspaceDisplayArgb] in NORMAL mode, whatever
+ * the current display mode. A stored colour only tints the theme in NORMAL, and the greyscale modes
+ * would start an unset workspace on ink (black or white), which is also a preset: a deliberate pick
+ * of it would then be read as "kept the default" by [keepsDefaultWorkspaceColor].
+ */
+fun workspacePickerStartArgb(workspaceArgb: Int?, dark: Boolean): Int =
+    workspaceDisplayArgb(workspaceArgb, dark, DisplayColorMode.NORMAL)
+
+/**
  * Whether confirming [pickedArgb] in the workspace colour picker keeps the workspace at its default.
  * True only when the workspace had no colour of its own ([storedArgb] unset) and the user confirmed
- * the unchanged starting colour [shownArgb] (the theme colour from [workspaceDisplayArgb]); the caller
+ * the unchanged starting colour [shownArgb] (from [workspacePickerStartArgb]); the caller
  * then resets instead of storing that theme colour as a chosen one, which would stop the workspace
  * following the theme. Alpha is ignored, as the picker works on opaque colours.
  */

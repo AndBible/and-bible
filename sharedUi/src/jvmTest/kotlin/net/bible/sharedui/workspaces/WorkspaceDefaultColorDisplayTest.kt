@@ -43,6 +43,7 @@ import net.bible.sharedui.theme.abColorScheme
 import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
 import net.bible.sharedui.theme.monoInk
 import net.bible.sharedui.theme.workspaceDisplayArgb
+import net.bible.sharedui.theme.workspacePickerStartArgb
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -122,6 +123,28 @@ class WorkspaceDefaultColorDisplayTest {
     @Test fun quickLight() = assertQuick(dark = false, mode = DisplayColorMode.NORMAL)
     @Test fun quickDark() = assertQuick(dark = true, mode = DisplayColorMode.NORMAL)
     @Test fun quickBw() = assertQuick(dark = true, mode = DisplayColorMode.BW)
+    @Test fun quickEink() = assertQuick(dark = false, mode = DisplayColorMode.COLOR_EINK)
+
+    @Test
+    fun pickerStartsOnTheNormalThemeColourInEveryMode() {
+        for (mode in DisplayColorMode.entries) for (dark in listOf(false, true)) {
+            assertEquals(
+                DefaultThemeProposal.DEFAULT.scheme(dark)!!.primary.toArgb(),
+                workspacePickerStartArgb(DEFAULT_WORKSPACE_COLOR_ARGB, dark), "$mode $dark",
+            )
+        }
+        assertEquals(chosen, workspacePickerStartArgb(chosen, dark = true))
+    }
+
+    @Test
+    fun pickingBlackInLightMonochromeIsAChosenColour() {
+        // Light MONOCHROME shows an unset workspace as ink (black); black is also a preset. The
+        // picker starts on the NORMAL theme colour, so a deliberate black pick is stored, not reset.
+        val black = 0xFF000000.toInt()
+        assertEquals(black, workspaceDisplayArgb(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.MONOCHROME))
+        val start = workspacePickerStartArgb(DEFAULT_WORKSPACE_COLOR_ARGB, dark = false)
+        assertFalse(keepsDefaultWorkspaceColor(DEFAULT_WORKSPACE_COLOR_ARGB, start, black))
+    }
 
     @Test
     fun resolverMapsOnlyTheUnsetSentinel() {
