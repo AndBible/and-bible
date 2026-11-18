@@ -15,6 +15,52 @@ import java.io.IOException
 import okio.Path.Companion.toOkioPath
 
 class RuntimeDiagnosticStoreTest {
+    @Test fun fullStoreAppendsHaveBoundedIoInsteadOfRewritingEveryEvent() {
+        val dir = Files.createTempDirectory("diagnostics-cost").toOkioPath()
+        try {
+            val fs = CountingFileSystem()
+            val store = RuntimeDiagnosticStore(dir, fs) { 1000L }
+            repeat(180) { n -> store.append(DiagnosticRecord("run", n.toLong(), 1000,
+                RuntimeDiagnosticEvent.ClientReady("p".repeat(3000)))) }
+            fs.reset()
+            repeat(100) { n -> store.append(DiagnosticRecord("run", 180L + n, 1000,
+                RuntimeDiagnosticEvent.ClientReady("pane"))) }
+            assertTrue(fs.bytesWritten < 800_000, "100 small appends wrote ${fs.bytesWritten} bytes")
+            assertTrue(fs.rewrites <= 1, "100 small appends rewrote ${fs.rewrites} files")
+            assertEquals(0, fs.reads, "steady-state append must not reparse the inactive file")
+            assertTrue(RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }.snapshot().contains("\"sequence\":279"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun exportIncludesOnlyTheLatestTwoRuns() {
+        val dir = Files.createTempDirectory("diagnostics-runs").toOkioPath()
+        try {
+            val store = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }
+            listOf("old", "previous", "current").forEach { run ->
+                store.append(DiagnosticRecord(run, 1, 1000, RuntimeDiagnosticEvent.ClientReady("pane")))
+            }
+            val snapshot = store.snapshot()
+            assertTrue(!snapshot.contains("\"runId\":\"old\""), snapshot)
+            assertTrue(snapshot.contains("previous") && snapshot.contains("current"), snapshot)
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    private class CountingFileSystem : ForwardingFileSystem(FileSystem.SYSTEM) {
+        var bytesWritten = 0L
+        var rewrites = 0
+        var reads = 0
+        fun reset() { bytesWritten = 0; rewrites = 0; reads = 0 }
+        override fun source(file: Path): okio.Source { reads++; return super.source(file) }
+        override fun sink(file: Path, mustCreate: Boolean): Sink { rewrites++; return counted(super.sink(file, mustCreate)) }
+        override fun appendingSink(file: Path, mustExist: Boolean): Sink = counted(super.appendingSink(file, mustExist))
+        private fun counted(sink: Sink): Sink = object : ForwardingSink(sink) {
+            override fun write(source: Buffer, byteCount: Long) {
+                bytesWritten += byteCount
+                super.write(source, byteCount)
+            }
+        }
+    }
+
     @Test fun persistedOwnershipAndTrackingDetachKeepTypedJoinFields() {
         val dir = Files.createTempDirectory("diagnostics-ownership").toOkioPath()
         try {
