@@ -10,12 +10,22 @@ The normal report assembles `ios_runtime_diagnostics.txt.gz` alongside the exist
 
 The application-support directory `AndBible/Diagnostics` contains
 `diagnostics.0.ndjson` and `diagnostics.1.ndjson`. Each generation is at most 512 KiB,
-for a maximum of 1 MiB on disk. They are alternating recoverable snapshots, so distinct
-history is about 512 KiB, not 1 MiB. Records older than seven days are pruned at
-initialization and writes. The asynchronous writer admits at most 256 pending records,
-each at most 4 KiB; overflow is indicated by a coalesced dropped-events record.
-Forced termination can lose the queued tail. The directory and files are marked excluded
-from backup when possible.
+for a maximum of 1 MiB on disk. The active generation receives append-only batches with
+cumulative checksum checkpoints; rotation writes a complete snapshot into the other
+slot, keeping the last complete generation recoverable during an interrupted write.
+The original single-footer format remains readable. Rotation compacts to about 256 KiB
+to leave headroom, so active distinct history ranges from about 256 to 512 KiB rather
+than 1 MiB. Startup rotates before its first append to discard any interrupted tail.
+Records older than seven days are physically pruned at initialization and rotation,
+not on every event; export always filters expired records. The report attachment includes
+only the current and previous retained run (within those seven days), not every launch.
+The asynchronous writer admits at most 256 pending records, each at most 4 KiB, and drains
+queued pre-snapshot records in one store batch. Overflow is indicated by a coalesced
+dropped-events record. The snapshot barrier preserves ordering without waiting for later
+producers, retaining its one-second timeout for genuinely blocked I/O.
+Forced termination can lose the queued tail. The directory is marked excluded from
+backup at startup, and each generation file is marked once when newly created, not on
+every append; rewriting an existing file preserves its resource flag.
 
 ## Collecting evidence on a Mac
 
@@ -65,9 +75,15 @@ metadata call may reach a filesystem stat API covered by that category; no addit
 reason is apparent for this app-private use. This is a source-level assessment, not a
 fresh Apple binary/API compliance validation. No manifest declaration was changed.
 
-## Deferred Mac verification
+## Verification status
 
-The Mac was unavailable during authoring. Xcode compilation, iOS Native execution,
-XCUITest execution and the physical container lookup remain pending. Do not infer runtime
-success from Linux checks. Do not upload a release or TestFlight build as part of this
+The previously deferred Native and real-app checks ran on 2026-11-17: iPhone/iPad
+force-terminate, relaunch and report attachment checks passed, including persisted record
+identities across runs. The physical iOS-on-Mac container lookup above remains unvalidated;
+the simulator results do not reproduce or explain the original Spaces/sleep hang.
+
+The write-amplification fix has Linux JVM store/writer regression coverage (I/O cost,
+coalescing, busy snapshot deadline, interrupted checkpoints and startup pruning). Its
+updated `IosRuntimeDiagnosticsTest` still needs a Mac test run; compiling iOS tests on
+Linux does not execute them. Do not upload a release or TestFlight build as part of
 verification.

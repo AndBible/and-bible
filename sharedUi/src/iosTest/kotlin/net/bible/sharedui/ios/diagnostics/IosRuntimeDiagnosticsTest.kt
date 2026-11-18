@@ -180,8 +180,8 @@ class IosRuntimeDiagnosticsTest {
                 val waiting = async(start = CoroutineStart.UNDISPATCHED) { writer.snapshot() }
                 initialization.release()
                 append.awaitEntered()
-                // One slot is now free: this accepted record must stay AFTER the reserved marker.
-                writer.emit(RuntimeDiagnosticEvent.ClientReady("late"))
+                // The batch is in flight: new admissions must stay AFTER the reserved marker.
+                repeat(256) { writer.emit(RuntimeDiagnosticEvent.ClientReady("late")) }
                 repeat(100) { writer.emit(RuntimeDiagnosticEvent.ClientReady("post-barrier-loss")) }
                 append.release()
                 val first = withTimeout(2000) { waiting.await() }
@@ -194,7 +194,7 @@ class IosRuntimeDiagnosticsTest {
                 assertEquals(sequences.sorted(), sequences)
                 assertEquals(sequences.size, sequences.distinct().size)
                 // Check real append order, not RuntimeDiagnosticStore's sorted export.
-                assertEquals((1L..256L).toList() + listOf(301L, 302L, 403L), sequences)
+                assertEquals((1L..256L).toList() + listOf(301L) + (302L..557L).toList() + listOf(658L), sequences)
             } finally {
                 initialization.release()
                 append.release()
@@ -269,13 +269,13 @@ class IosRuntimeDiagnosticsTest {
     }
 
     @Test
-    fun backupExcludedForDirectoryAndBothRewrittenFiles() = runBlocking {
+    fun backupExcludedForDirectoryAndBothGenerationFiles() = runBlocking {
         val directory = NSTemporaryDirectory().toPath() / ("diagnostics-test-" + NSUUID().UUIDString)
         try {
             withWriter(storeFactory = { diagnosticStore(directory) { 1L } }) { writer ->
-                // Four alternating generations create and then rewrite each slot.
-                repeat(4) {
-                    writer.emit(RuntimeDiagnosticEvent.ClientReady("pane"))
+                // Fill and rotate, then append without recreating either inode.
+                repeat(3) {
+                    repeat(180) { writer.emit(RuntimeDiagnosticEvent.ClientReady("pane".repeat(750))) }
                     assertTrue(writer.snapshot().contains("pane"))
                 }
                 listOf(directory, directory / "diagnostics.0.ndjson", directory / "diagnostics.1.ndjson").forEach { path ->

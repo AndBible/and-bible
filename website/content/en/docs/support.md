@@ -47,11 +47,13 @@ Reports include device/app details, a compressed recent log from the current pro
 and the last captured Kotlin crash stack when available. The recent log is kept in
 memory, so it does not contain logs from a previous app launch. iOS reports can also
 include `ios_runtime_diagnostics.txt.gz`, a separate technical history of recent app,
-scene, window and reading-pane lifecycle events, including events from earlier launches.
+scene, window and reading-pane lifecycle events from the current and previous retained
+app launch only, within the last seven days.
 This history uses an allowlist of technical fields, not Bible text, notes, account details,
-paths, URLs or arbitrary JavaScript. It is kept for up to seven days in two files of at
-most 512 KiB each; because they are recoverable generations of the same history, the
-effective distinct history is about 512 KiB. Events waiting to be written may be lost
+paths, URLs or arbitrary JavaScript. It is kept in two files of at most 512 KiB each;
+because they are recoverable generations of the same history and periodically compacted,
+the active distinct history is about 256–512 KiB. Expired records are removed from disk
+at startup and file rotation and are always excluded from reports. Events waiting to be written may be lost
 if the app is forcibly terminated. A recorded event alone cannot establish the cause of
 a hang. Review all attachments before sending. AI bug reports attach the selected
 conversation log instead; these logs may contain private information.
