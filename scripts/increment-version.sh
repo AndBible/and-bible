@@ -19,6 +19,48 @@ NC='\033[0m' # No Color
 
 # Retry wrapper for GPG/network operations that may fail due to YubiKey timeout
 # Usage: retry_command <description> <command...>
+# Approves the pending environment deployments of the newest run of workflow $1 for commit $2.
+# Waits up to $3 seconds for the run to appear and ask for approval, polling every $4 seconds.
+# Plain echo only: it also runs detached (nohup), where the colour variables are not defined.
+approve_workflow_deployments() {
+    local workflow="$1" sha="$2" timeout="$3" interval="$4"
+    local deadline=$((SECONDS + timeout)) run_id="" pending=""
+    echo "Waiting for $workflow run of $sha to ask for deployment approval..."
+    while (( SECONDS < deadline )); do
+        if [[ -z "$run_id" ]]; then
+            run_id=$(gh api "repos/{owner}/{repo}/actions/workflows/$workflow/runs?head_sha=$sha&per_page=1" \
+                --jq '.workflow_runs[0].id // empty' 2>/dev/null || true)
+        fi
+        if [[ -n "$run_id" ]]; then
+            pending=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --jq '.[].environment.id' 2>/dev/null || true)
+            if [[ -n "$pending" ]]; then
+                local args=() eid
+                while IFS= read -r eid; do args+=(-F "environment_ids[]=$eid"); done <<< "$pending"
+                if gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
+                    -f state=approved -f comment="Approved via increment-version script" >/dev/null 2>&1; then
+                    echo "Deployment approved for $workflow run $run_id"
+                    return 0
+                fi
+                echo "Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$run_id"
+                return 1
+            fi
+            local status
+            status=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id" --jq .status 2>/dev/null || true)
+            if [[ "$status" == "completed" ]]; then
+                echo "$workflow run $run_id completed without asking for approval"
+                return 1
+            fi
+        fi
+        sleep "$interval"
+    done
+    if [[ -n "$run_id" ]]; then
+        echo "$workflow run $run_id did not ask for approval in time. Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
+    else
+        echo "Could not find a $workflow run for $sha. Check GitHub Actions manually."
+    fi
+    return 1
+}
+
 retry_command() {
     local desc="$1"
     shift
@@ -296,53 +338,18 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     retry_command "Push tag to GitHub" git push origin "$TAG_NAME"
     echo -e "${GREEN}✓ Changes and tag pushed to GitHub successfully${NC}"
 
-    # Wait for CI workflow to start and approve deployment
+    # Approve the deployments the tag's CI runs wait for (environment "And Bible Builds" needs approval):
+    # the APK build right away, and the Desktop workflow's windows-sign job (SignPath), which only asks
+    # for approval after the ~20 minute Windows build, from a detached background waiter.
     if command -v gh >/dev/null 2>&1; then
         echo ""
-        echo "Waiting for CI workflow to start for tag $TAG_NAME..."
         HEAD_SHA=$(git rev-parse HEAD)
-        RUN_ID=""
-        for i in $(seq 1 30); do
-            RUN_ID=$(gh api "repos/{owner}/{repo}/actions/workflows/build-apk.yml/runs?head_sha=$HEAD_SHA&per_page=1" \
-                --jq '.workflow_runs[0].id // empty' 2>/dev/null)
-            if [[ -n "$RUN_ID" ]]; then
-                break
-            fi
-            sleep 2
-        done
-
-        if [[ -n "$RUN_ID" ]]; then
-            echo "Found workflow run: $RUN_ID"
-            # Wait for it to reach "waiting" (pending approval) state
-            for i in $(seq 1 30); do
-                PENDING=$(gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" --jq '.[].environment.id' 2>/dev/null)
-                if [[ -n "$PENDING" ]]; then
-                    break
-                fi
-                sleep 2
-            done
-
-            if [[ -n "$PENDING" ]]; then
-                echo -e "${YELLOW}Approving deployment for workflow run $RUN_ID...${NC}"
-                # Collect all pending environment IDs as -F array params
-                APPROVE_ARGS=()
-                while IFS= read -r eid; do
-                    APPROVE_ARGS+=(-F "environment_ids[]=$eid")
-                done < <(gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" --jq '.[].environment.id' 2>/dev/null)
-                gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" \
-                    --method POST \
-                    "${APPROVE_ARGS[@]}" \
-                    -f state=approved \
-                    -f comment="Approved via increment-version script" \
-                    >/dev/null 2>&1 && \
-                    echo -e "${GREEN}✓ Deployment approved${NC}" || \
-                    echo -e "${YELLOW}Warning: Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$RUN_ID${NC}"
-            else
-                echo -e "${YELLOW}Workflow not waiting for approval yet. Check: https://github.com/AndBible/and-bible/actions/runs/$RUN_ID${NC}"
-            fi
-        else
-            echo -e "${YELLOW}Could not find CI workflow run. Check GitHub Actions manually.${NC}"
-        fi
+        approve_workflow_deployments build-apk.yml "$HEAD_SHA" 60 2 || true
+        DESKTOP_APPROVAL_LOG="${TMPDIR:-/tmp}/andbible-desktop-approval-$TAG_NAME.log"
+        nohup bash -c "$(declare -f approve_workflow_deployments); approve_workflow_deployments desktop.yml '$HEAD_SHA' 5400 30" \
+            > "$DESKTOP_APPROVAL_LOG" 2>&1 < /dev/null &
+        disown
+        echo -e "${YELLOW}Approving the Desktop (Windows signing) deployment in the background when it asks, within 90 minutes; log: $DESKTOP_APPROVAL_LOG${NC}"
     fi
 
     # Cleanup old test releases - keep only the most recent one available during build
