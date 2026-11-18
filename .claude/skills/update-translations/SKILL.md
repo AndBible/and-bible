@@ -66,6 +66,17 @@ Some languages must write to **more than one Android directory** to stay synchro
 |------|----------------|--------|-----|
 | `zh-rTW` | `values-zh-rTW/strings.xml` | `values-zh/strings.xml` | Transifex `zh_TW` → `values-zh/`; Makefile then `cp` → `values-zh-rTW/`. Both must stay in sync so `tx push`/`tx pull` don't destroy new translations. |
 
+### Locale alias directories
+
+`values-id` is an alias of `values-in` (Indonesian) and `values-b+sr` an alias of `values-b+sr+RS`
+(Serbian Cyrillic; `b+sr+Latn` is Latin), because a device may resolve to either directory. The alias
+directories are **byte-for-byte copies** of the full source directories, never edited by hand.
+`locale_aliases.py` (`LOCALE_ALIASES`) does the copy and removes alias files the source no longer has;
+`restructure.py` runs it automatically after writing `values-in` or `values-b+sr+RS`. After a `tx-pull`
+or any manual edit of a source directory, run `python3 $SKILL/locale_aliases.py` (`--check` only
+reports). `validate.py` fails when an alias differs from its source. Tests:
+`python3 -m unittest discover -s $SKILL/tests`.
+
 When adding new translations to a mirror-target language, **also push to Transifex** (`tx push -t -l <transifex-code> -f -r andbible.and-bible-stringsxml`), otherwise the next `make tx-pull` will overwrite the mirror with stale Transifex content.
 
 Some languages may not yet have a Vue.js translation file. The `restructure_yaml.py` script creates new files automatically when needed.

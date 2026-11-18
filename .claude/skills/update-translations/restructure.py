@@ -38,6 +38,7 @@ import os
 import glob
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lang_codes import resolve_paths, get_android_mirror_paths
+from locale_aliases import LOCALE_ALIASES, mirror_alias
 
 CS = "<" + "!--"  # comment start - avoid literal for bash safety
 CE = "--" + ">"   # comment end
@@ -383,6 +384,13 @@ def main():
     if comment_count == 0:
         print("WARNING: No comments found in output - restructure likely broken!")
         sys.exit(1)
+
+    # --- 10. Refresh locale alias directories (values-id <- values-in, ...) ---
+    res_dir = os.path.dirname(os.path.dirname(target_path))
+    for alias, source in LOCALE_ALIASES.items():
+        if os.path.basename(os.path.dirname(target_path)) == f"values-{source}":
+            mirror_alias(res_dir, alias, source)
+            print(f"Alias mirrored: values-{source} -> values-{alias}")
 
 
 if __name__ == '__main__':
