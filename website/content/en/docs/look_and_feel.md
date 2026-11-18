@@ -62,24 +62,16 @@ categories. Language, notes format, the font size multiplier, fullscreen and
 window display, one-tap actions and the Study Pad option are all in the
 `Look & feel` category.
 
-Single-choice settings such as **Color mode**, and the **Strong's numbers** options
-opened by long-pressing the reading toolbar button, show inset radio-button rows.
-Tap anywhere on an option's row, including the space beside the radio button, to
-select it.
-
 <a id="general"></a>
 ### Application behavior
 
 - **Keep screen on:** Prevent the screen from sleeping while using the app. Not available on Windows and Linux; see [Platform differences](platform_differences.md).
-    Changes take effect when you return from settings to the reader; no app
-    restart is needed.
 - **Night mode switching:** Control when the dark theme is used:
 
     - *System* (default) – follow the Android system dark mode setting (Android 10+). iPhone, iPad and Mac follow the system too; on Windows and Linux you choose light or dark yourself (see [Platform differences](platform_differences.md)).
     - *Manual* – toggle dark mode with `Night mode` in the three-dot menu (⋮). The menu item is greyed out unless this setting is *Manual*.
     - *Automatic* – on Android devices with a light sensor, switch based on
-      ambient light. Enabling this mode starts monitoring immediately; no app
-      restart is needed.
+      ambient light.
 
 ### Dictionaries
 
