@@ -59,10 +59,33 @@ class TutorialVideosSubtitlesTest {
         assertEquals(watch, TutorialVideos.buildUrl("abc123", subs, "de"))
     }
 
-    @Test fun unpublishedEpisodeGivesThePlaceholderWithoutCaptionParameters() {
-        val url = TutorialVideos.buildUrl(null, subs, "fi")
-        assertEquals(TutorialVideos.resolve(null, TutorialVideos.PLACEHOLDER_VIDEO_ID), url)
-        assertFalse("cc_" in url)
+    @Test fun unpublishedEpisodeRequestsThePlaceholdersCaptions() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        for (language in listOf("fi", "de", "sv")) {
+            assertEquals(
+                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$language&hl=$language",
+                TutorialVideos.url(episode, language),
+            )
+            assertTrue(TutorialVideos.hasPlainLabel(episode, language), language)
+            assertEquals(language, TutorialVideos.subtitleLanguage(episode, language))
+        }
+    }
+
+    @Test fun unpublishedEpisodeWithoutMatchingCaptionsKeepsTheEnglishQualifier() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "zxx"))
+        assertFalse(TutorialVideos.hasPlainLabel(episode, "zxx"))
+        assertNull(TutorialVideos.subtitleLanguage(episode, "zxx"))
+    }
+
+    @Test fun unpublishedEpisodeInEnglishUsesThePlainPlaceholderUrlAndLabel() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "en-US"))
+        assertTrue(TutorialVideos.hasPlainLabel(episode, "en-US"))
+    }
+
+    @Test fun unpublishedEpisodeIgnoresItsOwnSubtitleMetadata() {
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.buildUrl(null, setOf("zxx"), "zxx"))
     }
 
     @Test fun tagIsUrlEncoded() {
