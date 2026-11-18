@@ -188,6 +188,12 @@ class HelpScreenTest {
         onNodeWithText("Episode one").assertDoesNotExist()
     }
 
+    @Test fun inOrderRowIsHiddenWhenThereAreNoTutorialVideos() = runComposeUiTest {
+        show(videos = emptyList(), initialTab = 1)
+        onNodeWithText(strings.helpUserGuideHome).assertExists()
+        onNodeWithText(strings.helpWatchInOrder).assertDoesNotExist()
+    }
+
     @Test fun tocEpisodeRowsAreUnnumbered() = runComposeUiTest {
         show(initialTab = 1)
         onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertExists()

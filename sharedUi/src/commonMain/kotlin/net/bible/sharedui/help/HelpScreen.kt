@@ -66,7 +66,7 @@ data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolea
  * The full-screen Help & tips: a "Tips" tab (the tip cards, a link to the full documentation and the version) and a
  * "User guide" tab (the documentation table of contents from [UserGuideToc], with a playable sibling row after
  * each page for each of its tutorial episodes). The tab's first row opens a sub-view listing [tutorialVideos] (the
- * whole series, numbered, in order); Up and Back return from it to the tab. Stateless apart from the selected tab
+ * whole series, numbered, in order; the row is hidden when the list is empty); Up and Back return from it to the tab. Stateless apart from the selected tab
  * and the sub-view, which survive rotation:
  * every link goes through [onOpenUrl], so the host can confirm before leaving the app.
  *
@@ -111,7 +111,10 @@ fun HelpScreen(
             if (tab == 0) {
                 TipsTab(tips, versionText, onOpenUrl)
             } else {
-                UserGuideTab(sections, guideStrings, appLanguage, onOpenUrl, onWatchInOrder = { showVideos = true })
+                UserGuideTab(
+                    sections, guideStrings, appLanguage, onOpenUrl,
+                    onWatchInOrder = if (tutorialVideos.isEmpty()) null else ({ showVideos = true }),
+                )
             }
         }
     }
@@ -162,7 +165,8 @@ private fun UserGuideTab(
     guideStrings: KeyedUserGuideStrings,
     appLanguage: String,
     onOpenUrl: (String) -> Unit,
-    onWatchInOrder: () -> Unit,
+    /** Opens the in-order series sub-view; null hides the row (no catalogued videos). */
+    onWatchInOrder: (() -> Unit)?,
 ) {
     val strings = LocalStrings.current
     val listState = rememberLazyListState()
@@ -174,7 +178,7 @@ private fun UserGuideTab(
                 modifier = Modifier.padding(16.dp),
             )
         }
-        item { WatchInOrderRow(onWatchInOrder) }
+        if (onWatchInOrder != null) item { WatchInOrderRow(onWatchInOrder) }
         item { GuideRow(strings.helpUserGuideHome, { onOpenUrl(DocsLinks.BASE_URL) }) }
         for (section in sections) {
             item(key = "h:${section.title}") { SectionHeader(guideStrings.section(section)) }
