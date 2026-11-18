@@ -6,6 +6,7 @@ import net.bible.sharedcore.platform.CoreStrings
 
 /** Reads the resource on every access so locale changes take effect. */
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
+    override val languageTag get() = context.resources.configuration.locales.get(0).toLanguageTag()
     override val documentSyncActivityTitle get() = context.getString(R.string.document_sync_activity_title)
     override val documentSyncEnabled get() = context.getString(R.string.document_sync_enabled)
     override val documentSyncDisabled get() = context.getString(R.string.document_sync_disabled)
@@ -220,6 +221,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val verseTip: String get() = context.getString(R.string.verse_tip)
     override val helpBookmarksText: String get() = context.getString(R.string.help_bookmarks_text)
     override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
+    override val watchTutorialVideoPlain: String get() = context.getString(R.string.watch_tutorial_video_plain)
     override val bookmarksAndMyNotesTitle: String get() = context.getString(R.string.bookmarks_and_mynotes_title)
 
     override val prefsNightModeDescriptionsSystemAutoManual: List<String> get() = context.resources.getStringArray(R.array.prefs_night_mode_descriptions_system_auto_manual).toList()

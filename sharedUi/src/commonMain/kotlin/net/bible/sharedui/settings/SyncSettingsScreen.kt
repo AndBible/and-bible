@@ -66,7 +66,7 @@ fun SyncSettingsScreen(
     AbScaffold(
         title = uiState.screen.title,
         onNavigateUp = onUp,
-        actions = { AbWatchVideoOverflowMenu(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_17_SYNC_1_GOOGLE_DRIVE)) },
+        actions = { AbWatchVideoOverflowMenu(TutorialVideos.Episode.TUTORIAL_17_SYNC_1_GOOGLE_DRIVE) },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AbSettingsContent(

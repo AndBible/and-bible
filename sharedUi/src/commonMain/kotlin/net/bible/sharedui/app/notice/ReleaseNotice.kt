@@ -50,8 +50,8 @@ object ReleaseNotice {
      * The page an action opens, the same on every platform: the platform pills (#4065) open their section of the
      * installation guide and the computer row its start. Null for Share and Sponsor, which the host handles itself.
      */
-    fun linkFor(action: ReleaseNoticeAction): String? = when (action) {
-        ReleaseNoticeAction.VIDEO -> TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0)
+    fun linkFor(action: ReleaseNoticeAction, appLanguage: String = "en"): String? = when (action) {
+        ReleaseNoticeAction.VIDEO -> TutorialVideos.url(TutorialVideos.Episode.WHATS_NEW_6_0, appLanguage)
         ReleaseNoticeAction.WEBSITE -> SiteLinks.HOME_URL
         ReleaseNoticeAction.COMPUTER -> DocsLinks.page("getting_started", "installation")
         ReleaseNoticeAction.INSTALL_ANDROID -> DocsLinks.page("getting_started", "android")

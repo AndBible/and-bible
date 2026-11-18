@@ -683,6 +683,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         workspaceName = { activity.hostWindowRepository.name },
         activeWindowPosition = { windowControl.activeWindowPosition },
         currentDocumentInitials = { documentControl.currentDocument?.initials },
+        appLanguage = { CommonUtils.appLanguageTag(activity.hostContext) },
     )
 
     // ------------------------------------------------------------------------------------------

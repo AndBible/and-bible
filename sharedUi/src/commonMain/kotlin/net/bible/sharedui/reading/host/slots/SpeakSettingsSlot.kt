@@ -64,6 +64,7 @@ internal class SpeakSettingsState(
     private val hostState: ReadingHostState,
     service: SpeakSettingsService,
     private val strings: () -> Strings,
+    private val appLanguage: () -> String,
     private val externalLinks: ExternalLinks,
     private val platform: SpeakSettingsPlatform,
     private val gridPassages: GridPassageControllerFactory,
@@ -107,10 +108,17 @@ internal class SpeakSettingsState(
         sheet.open(SpeakSheetPage.Settings)
     }
 
+    /** The Speak tutorial link in the app language: with captions when there are some, "(English)" only when not. */
+    private fun speakVideoLink(s: Strings): String {
+        val lang = appLanguage()
+        val episode = TutorialVideos.Episode.TUTORIAL_14_SPEAK
+        val label = if (TutorialVideos.hasPlainLabel(episode, lang)) s.watchTutorialVideoPlain else s.watchTutorialVideo
+        return "<b><a href=\"${TutorialVideos.url(episode, lang)}\">$label</a></b>"
+    }
+
     fun showHelp() {
         val s = strings()
-        help.value = "<b>${s.speakTitle}</b><br><br>" +
-            "<b><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${s.watchTutorialVideo}</a></b>"
+        help.value = "<b>${s.speakTitle}</b><br><br>" + speakVideoLink(s)
     }
 
     /**
@@ -120,7 +128,7 @@ internal class SpeakSettingsState(
     fun showAdvancedHelp() {
         val s = strings()
         help.value = "<b>${s.confSpeakAutoBookmark}</b><br><br>" +
-            "<b><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${s.watchTutorialVideo}</a></b><br><br>" +
+            speakVideoLink(s) + "<br><br>" +
             s.speakHelpAutoBookmark +
             "<br><br><b>${s.confSavePlaybackSettingsToBookmarks}</b><br><br>" +
             s.speakHelpPlaybackSettings +

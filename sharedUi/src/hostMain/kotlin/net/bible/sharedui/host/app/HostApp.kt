@@ -209,6 +209,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
           ProvideLanguageLayoutDirection(language) {
             CompositionLocalProvider(
                 LocalStrings provides strings,
+                net.bible.sharedui.strings.LocalAppLanguage provides language,
                 LocalSheetDragHandleDescription provides strings.sheetDragHandle,
                 LocalLiveSettingsLanguage provides true,
                 net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
@@ -261,6 +262,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
       ProvideLanguageLayoutDirection(language) {
         CompositionLocalProvider(
             LocalStrings provides strings,
+                net.bible.sharedui.strings.LocalAppLanguage provides language,
             LocalSheetDragHandleDescription provides strings.sheetDragHandle,
             LocalDrawerRowsGrowWithText provides true,
             LocalLiveSettingsLanguage provides true,
@@ -606,7 +608,7 @@ private fun HostAppContent(
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SPONSOR -> links.open(net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
                         net.bible.sharedcore.ui.dialog.ReleaseNoticeAction.SHARE ->
                             net.bible.sharedui.app.recommend.RecommendApp.run(strings, dialogs::await, textShare::shareText)
-                        else -> net.bible.sharedui.app.notice.ReleaseNotice.linkFor(action)?.let { links.open(it) }
+                        else -> net.bible.sharedui.app.notice.ReleaseNotice.linkFor(action, language)?.let { links.open(it) }
                     }
                 },
             )

@@ -85,7 +85,7 @@ fun BackupRestoreScreen(
     AbScaffold(
         title = strings.backupAndRestoreTitle,
         onNavigateUp = onUp,
-        actions = { AbWatchVideoOverflowMenu(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_16_BACKUP_AND_RESTORE)) },
+        actions = { AbWatchVideoOverflowMenu(TutorialVideos.Episode.TUTORIAL_16_BACKUP_AND_RESTORE) },
     ) { padding ->
         Column(
             modifier = modifier

@@ -20,7 +20,7 @@ from sitegen.youtube import embed_html
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 _ANCHOR = re.compile(r"[A-Za-z0-9_-]+")
-_LANG = re.compile(r"[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?")
+_LANG = re.compile(r"[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2}|-[0-9]{3})?")
 DEFAULT_LABELS = {
     "video_tutorial": "Video tutorial: {title}",
     "coming_soon": "Coming soon",
@@ -71,11 +71,19 @@ def _video_id(path: Path, what: str, raw: object) -> str | None:
     return raw
 
 
+def youtube_language(code: str) -> str:
+    """A media-folder language (Android `pt-rBR`, `b+sr+Latn`) as a YouTube BCP-47 code (`pt-BR`, `sr-Latn`)."""
+    if code.startswith("b+"):
+        return code[2:].replace("+", "-")
+    return re.sub(r"-r(?=[A-Z]{2}$)", "-", code)
+
+
 def _subtitles(path: Path, slug: str, raw: object) -> tuple[str, ...]:
     if raw is None:
         return ()
     if not isinstance(raw, list):
         raise ValueError(f"{path}: episode {slug} subtitles must be a list of language codes")
+    raw = [youtube_language(c) if isinstance(c, str) else c for c in raw]
     for code in raw:
         if not isinstance(code, str) or not _LANG.fullmatch(code):
             raise ValueError(f"{path}: episode {slug} has a bad subtitle language {code!r}")

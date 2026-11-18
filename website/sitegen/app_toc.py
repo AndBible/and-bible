@@ -139,10 +139,6 @@ def render(toc: Toc) -> str:
         "    )",
         "}",
         "",
-        "/** Test seam: the episodes of this page that [isPublished] accepts, without depending on real ids. */",
-        "internal fun UserGuideToc.Page.publishedWith(isPublished: (TutorialVideos.Episode) -> Boolean): List<TutorialVideos.Episode> =",
-        "    episodes.filter(isPublished)",
-        "",
     ]
     return "\n".join(out)
 

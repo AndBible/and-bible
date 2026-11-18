@@ -203,9 +203,7 @@ fun TextDisplaySettingsScreen(
                 IconButton(onClick = { showResetConfirm = true }) {
                     Icon(Icons.Filled.RestartAlt, contentDescription = dialogLabels.resetContentDescription)
                 }
-                AbWatchVideoOverflowMenu(
-                    TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS),
-                )
+                AbWatchVideoOverflowMenu(TutorialVideos.Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS)
             },
         )
     }

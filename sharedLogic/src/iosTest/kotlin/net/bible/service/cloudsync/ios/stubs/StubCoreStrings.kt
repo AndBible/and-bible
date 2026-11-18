@@ -164,6 +164,7 @@ internal class StubCoreStrings : CoreStrings {
     override val verseTip = "verseTip"
     override val helpBookmarksText = "helpBookmarksText"
     override val watchTutorialVideo = "watchTutorialVideo"
+    override val watchTutorialVideoPlain = "watchTutorialVideoPlain"
     override val bookmarksAndMyNotesTitle = "bookmarksAndMyNotesTitle"
 
     override val prefsNightModeDescriptionsSystemAutoManual: List<String> = listOf("prefsNightModeDescriptionsSystemAutoManual")

@@ -189,3 +189,9 @@ def test_videos_page_renders_the_preview_as_html_not_text(tmp_path):
     page = (tmp_path / "videos" / "index.html").read_text()
     assert "&lt;div" not in page and page.count('class="yt yt--video yt--card"') == 2
     assert page.index("Video tutorials (AndBible 6.0)") < page.index("One") < page.index("Two")
+
+
+def test_subtitles_accept_android_style_folder_names(tmp_path):
+    text = GOOD.replace("youtube: abcDEF12345}", "youtube: abcDEF12345, subtitles: [es-419, pt-rBR, b+sr+Latn]}")
+    series = load(write(tmp_path, text), {"search"})
+    assert series.episodes[2].subtitles == ("es-419", "pt-BR", "sr-Latn")

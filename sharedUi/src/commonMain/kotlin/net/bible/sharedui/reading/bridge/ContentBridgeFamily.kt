@@ -172,7 +172,9 @@ internal class ContentBridgeFamily(
     fun helpBookmarks() {
         if (session.isDisposed) return
         val s = strings()
-        val message = "<i><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS)}\">${s.watchTutorialVideo}</a></i>" +
+        val lang = s.languageTag
+        val videoLabel = if (TutorialVideos.hasPlainLabel(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, lang)) s.watchTutorialVideoPlain else s.watchTutorialVideo
+        val message = "<i><a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, lang)}\">${videoLabel}</a></i>" +
             "<br><br><b>${s.verseTip}</b><br><br>${s.helpBookmarksText}"
         session.hostSheets?.showHelp(s.bookmarksAndMyNotesTitle, message)
     }

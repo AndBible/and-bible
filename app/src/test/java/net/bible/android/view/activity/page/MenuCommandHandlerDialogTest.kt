@@ -250,4 +250,19 @@ class MenuCommandHandlerDialogTest {
         assertNull(request.neutralText)
         assertTrue(request.cancellable)
     }
+
+    /** The drawer's "Help & tips" row (#4134) opens the full-screen help destination of the Compose nav host. */
+    @Test(timeout = 30000)
+    fun helpButtonOpensTheHelpRoute() {
+        handler.handleMenuRequest(R.id.helpButton)
+        idle()
+
+        val started = shadowOf(activity).nextStartedActivityForResult
+        val expected = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(activity, net.bible.sharedcore.nav.NavRoutes.HELP)
+        assertEquals(expected.component, started.intent.component)
+        val keys = expected.extras!!.keySet()
+        assertTrue("expected a route extra", keys.isNotEmpty())
+        keys.forEach { assertEquals("extra $it", expected.extras!!.get(it), started.intent.extras?.get(it)) }
+        assertNull("the help screen produces no pending dialog", dialogs.pending.value)
+    }
 }

@@ -26,15 +26,6 @@ class UserGuideTocTest {
     }
 
     @Test
-    fun publishedWithKeepsOnlyAcceptedEpisodesInOrder() {
-        val page = pages.first { it.episodes.size >= 2 }
-        val keep = page.episodes.last()
-        assertEquals(listOf(keep), page.publishedWith { it == keep })
-        assertEquals(page.episodes, page.publishedWith { true })
-        assertTrue(page.publishedWith { false }.isEmpty())
-    }
-
-    @Test
     fun everyEpisodeHasATitle() {
         assertEquals(TutorialVideos.Episode.entries.toSet(), UserGuideToc.episodeTitles.keys)
         assertTrue(UserGuideToc.episodeTitles.values.all { it.isNotBlank() })

@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.tutorialVideoLabel
+import net.bible.sharedui.strings.tutorialVideoUrl
 
 /**
  * Scrollable, height-bounded informational dialog: a title + a plain-text body + a single dismiss
@@ -67,7 +69,7 @@ fun AbInfoDialog(
     confirmLabel: String = LocalStrings.current.okay,
     readMoreLabel: String? = null,
     readMoreUrl: String? = null,
-    videoUrl: String? = null,
+    videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
@@ -94,10 +96,11 @@ fun AbInfoDialog(
                         modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
                     )
                 }
-                if (videoUrl != null) {
+                if (videoEpisode != null) {
+                    val videoUrl = tutorialVideoUrl(videoEpisode)
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = LocalStrings.current.watchTutorialVideo,
+                        text = tutorialVideoLabel(videoEpisode),
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier.clickable { linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl) },

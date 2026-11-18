@@ -98,7 +98,3 @@ object UserGuideToc {
         TutorialVideos.Episode.TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC to "32. AI assistant, part 4: your own prompts, costs and sync",
     )
 }
-
-/** Test seam: the episodes of this page that [isPublished] accepts, without depending on real ids. */
-internal fun UserGuideToc.Page.publishedWith(isPublished: (TutorialVideos.Episode) -> Boolean): List<TutorialVideos.Episode> =
-    episodes.filter(isPublished)

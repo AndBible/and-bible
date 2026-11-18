@@ -25,6 +25,7 @@ import net.bible.sharedcore.platform.CoreStrings
  */
 class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     constructor(table: StringTable) : this({ table })
+    override val languageTag get() = t.tag
     override val documentSyncActivityTitle get() = t.text("document_sync_activity_title")
     override val documentSyncEnabled get() = t.text("document_sync_enabled")
     override val documentSyncDisabled get() = t.text("document_sync_disabled")
@@ -216,6 +217,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val verseTip: String get() = t.text("verse_tip")
     override val helpBookmarksText: String get() = t.text("help_bookmarks_text")
     override val watchTutorialVideo: String get() = t.text("watch_tutorial_video")
+    override val watchTutorialVideoPlain: String get() = t.text("watch_tutorial_video_plain")
     override val bookmarksAndMyNotesTitle: String get() = t.text("bookmarks_and_mynotes_title")
 
     override val prefsNightModeDescriptionsSystemAutoManual: List<String> get() = t.array("prefs_night_mode_descriptions_system_auto_manual")

@@ -725,14 +725,14 @@ class ReadingHostSlotsTest {
         slots.showSpeakHelp()
         val speakHtml = slots.speakHelp.value
         assertTrue(
-            speakHtml != null && speakHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${strings.watchTutorialVideo}</a>"),
+            speakHtml != null && speakHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK, "en")}\">${strings.watchTutorialVideoPlain}</a>"),
             "speak help must link the Speak tutorial, was: $speakHtml",
         )
         slots.showAdvancedSpeakHelp()
         val advancedHtml = slots.speakHelp.value
         assertTrue(
             advancedHtml != null &&
-                advancedHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK)}\">${strings.watchTutorialVideo}</a>") &&
+                advancedHtml.contains("<a href=\"${TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_14_SPEAK, "en")}\">${strings.watchTutorialVideoPlain}</a>") &&
                 advancedHtml.contains(strings.speakHelpAutoBookmark) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettings) &&
                 advancedHtml.contains(strings.speakHelpPlaybackSettingsExample),
