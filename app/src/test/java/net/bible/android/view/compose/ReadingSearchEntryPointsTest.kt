@@ -296,10 +296,9 @@ class ReadingSearchEntryPointsTest {
         assertEquals(book, target.pageManager.currentBible.currentDocument)
         assertEquals(result, target.pageManager.currentBible.singleKey)
         assertEquals(initial, source.pageManager.currentBible.singleKey)
-        // #4141: the links window takes the maximised place, and returning gives it back to the source.
-        assertEquals(target.id, windowRepository.maximizedWindowId)
-        assertTrue(windowControl.returnFromMaximisedLinksWindow())
+        // #4141: the links window is shown beside the source, which stays maximised.
         assertEquals(source.id, windowRepository.maximizedWindowId)
+        assertEquals(listOf(source, target), windowRepository.visibleWindows)
     }
 
     // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------

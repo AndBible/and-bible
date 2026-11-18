@@ -19,6 +19,7 @@
 package net.bible.sharedui.reading.host
 
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.window.WindowLayoutState
 
 /**
  * Whether the floating window-button rail is shown at all (the hard gate, not the 2 s idle fade): removed while a window
@@ -28,3 +29,15 @@ import net.bible.sharedcore.platform.AppSettings
 @kotlin.native.HiddenFromObjC
 fun paneButtonsShown(settings: AppSettings, maximised: Boolean): Boolean =
     !maximised && !settings.getBoolean("hide_window_buttons", false)
+
+/**
+ * Whether the pane of window [windowId] shows its floating window button. Not maximised, every pane follows
+ * [paneButtonsShown]. Maximised, only the links window shown beside the maximised window has one (#4141), so it can be
+ * minimised or closed; like links windows in the classic split it ignores `hide_window_buttons`.
+ */
+@kotlin.native.HiddenFromObjC
+fun paneButtonShown(settings: AppSettings, layout: WindowLayoutState, windowId: String): Boolean {
+    val maximisedId = layout.maximizedWindowId ?: return paneButtonsShown(settings, maximised = false)
+    if (windowId == maximisedId) return false
+    return layout.windows.any { it.id == windowId && it.isLinksWindow && it.isVisible }
+}

@@ -309,8 +309,9 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     // `WindowPaneMenu` unconditionally.)
     // iOS/desktop reserve the top-right corner for the fullscreen exit control. Android has no
     // such control, so its floating pane buttons keep their existing fullscreen behaviour.
-    val showPaneButtons = paneButtonsShown(settings = state.settings, maximised = layout.maximizedWindowId != null) &&
-        !(fullScreen && deps.onExitFullScreen != null)
+    // Per pane: maximised, only the links window beside the maximised window keeps its button (#4141).
+    val showPaneButton = { windowId: String -> paneButtonShown(settings = state.settings, layout = layout, windowId = windowId) &&
+        !(fullScreen && deps.onExitFullScreen != null) }
     val paneButtonsAutoHidden = !windowButtonsVisible
     // Classic `SplitBibleArea`'s fullscreen auto-hide (`full_screen_hide_buttons_pref`, default ON,
     // `SplitBibleArea.kt:166-171`/365-366): in fullscreen with the pref on, drop the rail entirely
@@ -510,13 +511,11 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                             windowId = windowId,
                             window = window,
                             isActive = windowId == layout.activeWindowId,
-                            showButton = showPaneButtons,
+                            showButton = showPaneButton(windowId),
                             autoHidden = paneButtonsAutoHidden,
                             autoPin = layout.autoPin,
-                            // Currently unreachable as true: `showPaneButtons` is a SINGLE value shared by
-                            // every window and is false whenever ANY window is maximised. Kept per-window
-                            // (not hard-coded false) because it is the correct value if a future change
-                            // ever composes pane buttons during maximise.
+                            // Currently unreachable as true: the maximised window itself never shows its pane
+                            // button (only the links pane beside it does, #4141).
                             isMaximised = layout.maximizedWindowId == windowId,
                             nightMode = deps.nightMode.value,
                             disableAnimations = deps.disableAnimations(),

@@ -166,6 +166,26 @@ class WindowPaneMenuStateBuilderTest {
     }
 
     @Test
+    fun theLinksPaneBesideAMaximisedWindowCanBeMinimisedOrClosedButNotChangedToNormal() {
+        // #4141: maximised, a link opens the links window beside the maximised window; its menu dismisses it.
+        val main = windowRepository.activeWindow
+        val links = main.targetLinksWindow
+        windowControl.maximiseWindow(main)
+        links.windowState = net.bible.android.control.page.window.WindowLayout.WindowState.VISIBLE
+        assertTrue(links.isVisible, "premise: the links pane is shown beside the maximised window")
+
+        val built = items(links)
+
+        assertTrue(itemById(links, WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE).enabled)
+        assertTrue(built.any { it.id == WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE })
+        assertNull(itemByIdOrNull(links, WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL), "its new window would be hidden")
+        assertNull(itemByIdOrNull(links, WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE))
+        // The maximised window itself keeps the maximised menu: no minimise, no close.
+        assertNull(itemByIdOrNull(main, WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE))
+        assertNull(itemByIdOrNull(main, WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
+    }
+
+    @Test
     fun windowMinimiseEnabledTracksIsWindowMinimizable() {
         // single window: not minimizable (isWindowMinimizable requires >1 visible window)
         val soleWindow = windowRepository.activeWindow

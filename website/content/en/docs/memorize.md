@@ -11,9 +11,9 @@ exercises.
     **Memorize** button, after **Bookmark**, **Note** and **AI** (when configured).
     Actions that do not fit on a narrow screen are under **More**.
 3. The verse menu closes and the Memorize view opens in the links window. When a
-    window is maximized, the links window takes its place, maximized; **Back**
-    returns to the window that was maximized before. With the `Links window`
-    setting off, the Memorize view opens in the current window instead.
+    window is maximized, the links window is shown next to it. With the
+    `Links window` setting off, the Memorize view opens in the current window
+    instead.
 
 Pressing **Back** in the Memorize view first closes an open menu or gear popup. In a
 maximized window that shows Memorize in place (with the `Links window` setting off), Back
