@@ -17,8 +17,18 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Retry wrapper for GPG/network operations that may fail due to YubiKey timeout
-# Usage: retry_command <description> <command...>
+# Prints the SignPath approval reminder when the "And Bible Builds" environment selects a signing policy
+# other than test-signing: SignPath Foundation requires a person to approve every release signing request.
+signpath_approval_reminder() {
+    local env="And Bible Builds" policy org url="https://app.signpath.io"
+    policy=$(gh variable get SIGNPATH_SIGNING_POLICY_SLUG --env "$env" 2>/dev/null || true)
+    [[ -z "$policy" || "$policy" == "test-signing" ]] && return 0
+    org=$(gh variable get SIGNPATH_ORGANIZATION_ID --env "$env" 2>/dev/null || true)
+    [[ -n "$org" ]] && url="https://app.signpath.io/Web/$org/SigningRequests"
+    printf '\a'
+    echo "==> ACTION NEEDED: approve the Windows signing request ($policy) in SignPath: $url"
+}
+
 # Approves the pending environment deployments of the newest run of workflow $1 for commit $2.
 # Waits up to $3 seconds for the run to appear and ask for approval, polling every $4 seconds.
 # With job name $5, then waits (same deadline) for that job to finish and fails unless it succeeded.
@@ -40,7 +50,7 @@ approve_workflow_deployments() {
                     -f state=approved -f comment="Approved via increment-version script" >/dev/null 2>&1; then
                     echo "Deployment approved for $workflow run $run_id"
                     [[ -z "$follow_job" ]] && return 0
-                    local job_state=""
+                    local job_state="" reminded=""
                     while (( SECONDS < deadline )); do
                         job_state=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
                             --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null || true)
@@ -48,6 +58,10 @@ approve_workflow_deployments() {
                             echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
                             [[ "$job_state" == "completed success" ]]
                             return
+                        fi
+                        if [[ -z "$reminded" && "$job_state" == in_progress* ]]; then
+                            reminded=1
+                            signpath_approval_reminder
                         fi
                         sleep "$interval"
                     done
@@ -74,6 +88,8 @@ approve_workflow_deployments() {
     return 1
 }
 
+# Retry wrapper for GPG/network operations that may fail due to YubiKey timeout
+# Usage: retry_command <description> <command...>
 retry_command() {
     local desc="$1"
     shift
@@ -359,10 +375,10 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     if command -v gh >/dev/null 2>&1; then
         echo ""
         HEAD_SHA=$(git rev-parse HEAD)
-        DESKTOP_APPROVAL_LOG=$(mktemp "${TMPDIR:-/tmp}/andbible-desktop-approval-XXXXXX")
-        (approve_workflow_deployments desktop.yml "$HEAD_SHA" 5400 30 windows-sign) > "$DESKTOP_APPROVAL_LOG" 2>&1 &
+        approve_workflow_deployments desktop.yml "$HEAD_SHA" 5400 30 windows-sign \
+            > >(sed -u 's/^/[Windows signing] /') 2>&1 &
         DESKTOP_WAITER_PID=$!
-        echo "Desktop (Windows signing) approval runs in the background; the script waits for it at the end."
+        echo "Windows signing approval runs in the background; the script waits for it at the end."
         approve_workflow_deployments build-apk.yml "$HEAD_SHA" 60 2 || true
     fi
 
@@ -394,13 +410,10 @@ if [[ -n "${DESKTOP_WAITER_PID:-}" ]]; then
     echo ""
     echo "Waiting for the Desktop workflow's Windows signing (up to 90 minutes; Ctrl-C only stops waiting)..."
     if wait "$DESKTOP_WAITER_PID"; then
-        cat "$DESKTOP_APPROVAL_LOG"
         echo -e "${GREEN}✓ Windows packages signed${NC}"
     else
-        cat "$DESKTOP_APPROVAL_LOG"
-        echo -e "${YELLOW}Warning: Windows signing did not finish successfully; see above.${NC}"
+        echo -e "${YELLOW}Warning: Windows signing did not finish successfully; see the [Windows signing] lines above.${NC}"
     fi
-    rm -f "$DESKTOP_APPROVAL_LOG"
 fi
 
 echo ""
