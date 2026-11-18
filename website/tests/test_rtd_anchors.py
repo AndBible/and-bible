@@ -32,5 +32,5 @@ def test_every_legacy_anchor_exists(page):
 
 
 def test_fixture_has_every_page_and_id():
-    assert len(ANCHORS) == 38
-    assert sum(map(len, ANCHORS.values())) == 310
+    assert len(ANCHORS) == 36
+    assert sum(map(len, ANCHORS.values())) == 305

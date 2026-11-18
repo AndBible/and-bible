@@ -1,6 +1,12 @@
 package net.bible.sharedui.help
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import net.bible.sharedui.desktop.reading.DesktopBackDispatcher
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -20,11 +26,13 @@ import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class HelpScreenTest {
-    private fun episodeTitle(episode: Episode): String = UserGuideToc.episodeTitles.getValue(episode).let {
+    private fun episodeTitle(episode: Episode): String = UserGuideToc.episodeTitles.getValue(episode).title
+    private fun numberedTitle(episode: Episode): String = UserGuideToc.episodeTitles.getValue(episode).let {
         if (it.number != null) "${it.number}. ${it.title}" else it.title
     }
     private val strings = iosStrings("en")
@@ -68,7 +76,8 @@ class HelpScreenTest {
         show(videos = emptyList(), initialTab = 1, guideStrings = guideStrings)
         onNodeWithText("Translated section").assertExists()
         onNodeWithText("Translated page").assertExists()
-        onNodeWithText("2. Translated video").assertExists()
+        onNodeWithText("Translated video").assertExists()
+        onNodeWithText("2. Translated video").assertDoesNotExist()
     }
 
     @Test fun tipsShownOnFirstTab() = runComposeUiTest {
@@ -160,20 +169,73 @@ class HelpScreenTest {
 
     @Test fun videoRowWithoutCaptionsCarriesTheEnglishQualifier() = runComposeUiTest {
         show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = 1, guideSections = emptyList())
+        onNodeWithText(strings.helpWatchInOrder).performClick()
         onAllNodesWithText(strings.watchTutorialVideo).assertCountEquals(1)
     }
 
-    @Test fun tutorialVideosSectionListsVideosAndHidesWhenEmpty() = runComposeUiTest {
-        val opened = mutableListOf<String>()
-        show(opened = opened, initialTab = 1)
+    private fun androidx.compose.ui.test.ComposeUiTest.openInOrder() {
+        onNodeWithText(strings.helpTabUserGuide).performClick()
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+    }
+
+    @Test fun inOrderRowIsFirstAndTheTocHasNoTrailingCatalog() = runComposeUiTest {
+        show(initialTab = 1)
+        val inOrder = onNodeWithText(strings.helpWatchInOrder, useUnmergedTree = true).getBoundsInRoot()
+        val home = onNodeWithText(strings.helpUserGuideHome, useUnmergedTree = true).getBoundsInRoot()
+        val firstSection = onNodeWithText("Section One", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue(inOrder.top < home.top && home.top < firstSection.top)
+        onNodeWithText(strings.helpTutorialVideos).assertDoesNotExist()
+        onNodeWithText("Episode one").assertDoesNotExist()
+    }
+
+    @Test fun tocEpisodeRowsAreUnnumbered() = runComposeUiTest {
+        show(initialTab = 1)
+        onNodeWithText(episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertExists()
+        onNodeWithText(numberedTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)).assertDoesNotExist()
+    }
+
+    @Test fun inOrderRowOpensTheSeriesSubViewAndUpReturnsToToc() = runComposeUiTest {
+        var up = 0
+        show(onUp = { up++ }, initialTab = 1)
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+        onNodeWithText("Episode one").assertExists()
+        onNodeWithText("Section One").assertDoesNotExist()
         onNodeWithText(strings.helpTutorialVideos).assertExists()
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+        assertEquals(0, up)
+        onNodeWithText("Section One").assertExists()
+        onNodeWithText(strings.helpWatchInOrder).assertExists()
+        onNodeWithText("Episode one").assertDoesNotExist()
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+        assertEquals(1, up)
+    }
+
+    @Test fun subViewKeepsTheUserGuideTabSelectedAfterReturning() = runComposeUiTest {
+        show()
+        openInOrder()
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+        onNodeWithText("Section One").assertExists()
+        onNodeWithText("Tip title").assertDoesNotExist()
+    }
+
+    @Test fun subViewOpensVideoUrls() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        show(opened = opened)
+        openInOrder()
         onNodeWithText("Episode one").performClick()
         assertEquals(listOf("https://video/e1"), opened)
     }
 
-    @Test fun emptyVideoListHidesTheTutorialVideosHeader() = runComposeUiTest {
-        show(videos = emptyList(), initialTab = 1)
-        onNodeWithText(strings.helpTutorialVideos).assertDoesNotExist()
+    @Test fun subViewListsTheWholeSeriesNumberedInOrder() = runComposeUiTest {
+        val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {})
+        val videos = deps.tutorialVideos("en")
+        assertEquals(Episode.entries.map { numberedTitle(it) }, videos.map { it.title })
+        assertEquals(episodeTitle(Episode.WHATS_NEW_6_0), videos.single { !it.title.first().isDigit() }.title)
+        show(videos = videos.take(2))
+        openInOrder()
+        val b1 = onNodeWithText(videos[0].title, useUnmergedTree = true).getBoundsInRoot()
+        val b2 = onNodeWithText(videos[1].title, useUnmergedTree = true).getBoundsInRoot()
+        assertTrue(b1.top < b2.top)
     }
 
     @Test fun catalogWithSharedPlaceholderUrlsStillRendersDistinctClickableRows() = runComposeUiTest {
@@ -183,6 +245,7 @@ class HelpScreenTest {
             videos = listOf(VideoRowUi("Episode one", url), VideoRowUi("Episode two", url)),
             opened = opened, initialTab = 1, guideSections = emptyList(),
         )
+        onNodeWithText(strings.helpWatchInOrder).performClick()
         onNodeWithText("Episode one").assertExists()
         onNodeWithText("Episode two").performClick()
         assertEquals(listOf(url), opened)
@@ -191,7 +254,7 @@ class HelpScreenTest {
     @Test fun defaultVideoCatalogIncludesEveryEpisodeInSeriesOrder() {
         val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {})
         val videos = deps.tutorialVideos("fi")
-        assertEquals(Episode.entries.map { episodeTitle(it) }, videos.map { it.title })
+        assertEquals(Episode.entries.map { numberedTitle(it) }, videos.map { it.title })
         assertEquals(setOf("https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), videos.map { it.url }.toSet())
         kotlin.test.assertTrue(videos.all { it.plainLabel })
     }
@@ -202,4 +265,60 @@ class HelpScreenTest {
         onNodeWithContentDescription(strings.settingsEditorBack).performClick()
         assertEquals(1, up)
     }
+
+    @Test fun systemBackInTheSubViewReturnsToTheTocWithoutLeavingTheScreen() = runComposeUiTest {
+        var up = 0
+        show(onUp = { up++ }, initialTab = 1)
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+        onNodeWithText("Episode one").assertExists()
+        runOnIdle { assertTrue(DesktopBackDispatcher.back()) }
+        waitForIdle()
+        onNodeWithText(strings.helpWatchInOrder).assertExists()
+        onNodeWithText(strings.helpTabUserGuide).assertExists()
+        onNodeWithText("Episode one").assertDoesNotExist()
+        assertEquals(0, up)
+    }
+
+    @Test fun systemBackOutsideTheSubViewIsNotConsumedByTheScreen() = runComposeUiTest {
+        var up = 0
+        show(onUp = { up++ }, initialTab = 1)
+        runOnIdle { assertFalse(DesktopBackDispatcher.back()) }
+        onNodeWithText(strings.helpWatchInOrder).assertExists()
+        assertEquals(0, up)
+    }
+
+    @Test fun subViewSurvivesSavedStateRestore() = runComposeUiTest {
+        // StateRestorationTester is not available on the skiko test target, so save and restore through a
+        // SaveableStateRegistry by hand: what the Activity does across a rotation.
+        var registry by mutableStateOf<SaveableStateRegistry?>(SaveableStateRegistry(null) { true })
+        setContent {
+            // The same composition path is disposed and rebuilt: rememberSaveable keys depend on it.
+            registry?.let { reg ->
+                CompositionLocalProvider(LocalSaveableStateRegistry provides reg, LocalStrings provides strings) {
+                    AbTheme(darkTheme = false) {
+                        HelpScreen(
+                            tips = tips, sections = sections,
+                            tutorialVideos = listOf(VideoRowUi("Episode one", "https://video/e1")),
+                            versionText = "Version 9.9",
+                            guideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
+                            appLanguage = "en", initialTab = 1, onOpenUrl = {}, onUp = {},
+                        )
+                    }
+                }
+            }
+        }
+        onNodeWithText(strings.helpWatchInOrder).performClick()
+        onNodeWithText("Episode one").assertExists()
+        var saved: Map<String, List<Any?>> = emptyMap()
+        runOnIdle { saved = registry!!.performSave() }
+        registry = null
+        waitForIdle()
+        onNodeWithText("Episode one").assertDoesNotExist()
+        registry = SaveableStateRegistry(saved) { true }
+        waitForIdle()
+        onNodeWithText(strings.helpTutorialVideos).assertExists()
+        onNodeWithText("Episode one").assertExists()
+        onNodeWithText("Section One").assertDoesNotExist()
+    }
+
 }

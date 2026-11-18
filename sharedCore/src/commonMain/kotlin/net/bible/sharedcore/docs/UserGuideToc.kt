@@ -13,52 +13,54 @@ object UserGuideToc {
 
     val sections: List<Section> = listOf(
         Section("Getting Started", "user_guide_section_getting_started", listOf(
-            Page("getting_started", "Getting Started", "user_guide_page_getting_started", DocsLink.GETTING_STARTED.url, listOf(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)),
-            Page("navigation", "Navigation", "user_guide_page_navigation", DocsLink.NAVIGATION.url, listOf(TutorialVideos.Episode.TUTORIAL_02_FINDING_YOUR_WAY)),
-            Page("usage", "Usage", "user_guide_page_usage", DocsLink.USAGE.url, listOf(TutorialVideos.Episode.TUTORIAL_27_STUDY_WORKFLOWS_1_TOPICAL_AND_SERMON, TutorialVideos.Episode.TUTORIAL_28_STUDY_WORKFLOWS_2_WORD_STUDY_AND_DEVOTIONS)),
-        )),
-        Section("Bible Documents", "user_guide_section_bible_documents", listOf(
-            Page("documents", "Documents", "user_guide_page_documents", DocsLink.DOCUMENTS.url, listOf(TutorialVideos.Episode.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS, TutorialVideos.Episode.TUTORIAL_21_DOCUMENT_LIBRARY)),
-            Page("my_documents", "My Documents", "user_guide_page_my_documents", DocsLink.MY_DOCUMENTS.url, listOf(TutorialVideos.Episode.TUTORIAL_23_MY_DOCUMENTS_AND_EPUB)),
-            Page("custom_repositories", "Custom Repositories", "user_guide_page_custom_repositories", DocsLink.CUSTOM_REPOSITORIES.url, listOf(TutorialVideos.Episode.TUTORIAL_22_LOAD_FILES_AND_CUSTOM_REPOSITORIES)),
+            Page("getting_started", "Installation and first start", "user_guide_page_getting_started", DocsLink.GETTING_STARTED.url, listOf(TutorialVideos.Episode.TUTORIAL_01_GETTING_STARTED)),
+            Page("navigation", "Finding your way around", "user_guide_page_navigation", DocsLink.NAVIGATION.url, listOf(TutorialVideos.Episode.TUTORIAL_02_FINDING_YOUR_WAY)),
+            Page("verse_action_dialog", "The verse menu", "user_guide_page_verse_action_dialog", DocsLink.VERSE_ACTION_DIALOG.url, listOf(TutorialVideos.Episode.TUTORIAL_03_VERSE_MENU)),
         )),
         Section("Reading & Workspace", "user_guide_section_reading_workspace", listOf(
-            Page("workspaces", "Workspaces", "user_guide_page_workspaces", DocsLink.WORKSPACES.url, listOf(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES)),
             Page("windows", "Windows", "user_guide_page_windows", DocsLink.WINDOWS.url, listOf(TutorialVideos.Episode.TUTORIAL_05_WINDOWS_1_OPEN_AND_ARRANGE, TutorialVideos.Episode.TUTORIAL_06_WINDOWS_2_PIN_SYNC_LINKS)),
-            Page("verse_action_dialog", "Verse Action Dialog", "user_guide_page_verse_action_dialog", DocsLink.VERSE_ACTION_DIALOG.url, listOf(TutorialVideos.Episode.TUTORIAL_03_VERSE_MENU)),
-            Page("look_and_feel", "Look and Feel", "user_guide_page_look_and_feel", DocsLink.LOOK_AND_FEEL.url, listOf(TutorialVideos.Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS, TutorialVideos.Episode.TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW)),
-            Page("bible_links", "Bible Links / Deep Linking", "user_guide_page_bible_links", DocsLink.BIBLE_LINKS.url, listOf()),
-            Page("speak", "Speak", "user_guide_page_speak", DocsLink.SPEAK.url, listOf(TutorialVideos.Episode.TUTORIAL_14_SPEAK)),
+            Page("workspaces", "Workspaces", "user_guide_page_workspaces", DocsLink.WORKSPACES.url, listOf(TutorialVideos.Episode.TUTORIAL_07_WORKSPACES)),
+            Page("look_and_feel", "Appearance and settings", "user_guide_page_look_and_feel", DocsLink.LOOK_AND_FEEL.url, listOf(TutorialVideos.Episode.TUTORIAL_19_APPEARANCE_1_NIGHT_MODE_FONTS_COLOURS, TutorialVideos.Episode.TUTORIAL_20_APPEARANCE_2_GLOBAL_WORKSPACE_WINDOW)),
+            Page("speak", "Speak: listen to the Bible", "user_guide_page_speak", DocsLink.SPEAK.url, listOf(TutorialVideos.Episode.TUTORIAL_14_SPEAK)),
         )),
-        Section("Study Tools", "user_guide_section_study_tools", listOf(
+        Section("Bookmarks & Notes", "user_guide_section_bookmarks_notes", listOf(
             Page("bookmarks", "Bookmarks", "user_guide_page_bookmarks", DocsLink.BOOKMARKS.url, listOf(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS)),
-            Page("labels", "Labels", "user_guide_page_labels", DocsLink.LABELS.url, listOf(TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS)),
+            Page("labels", "Labels and highlights", "user_guide_page_labels", DocsLink.LABELS.url, listOf(TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS)),
             Page("notes", "Notes", "user_guide_page_notes", DocsLink.NOTES.url, listOf(TutorialVideos.Episode.TUTORIAL_10_NOTES)),
             Page("study_pads", "Study Pads", "user_guide_page_study_pads", DocsLink.STUDY_PADS.url, listOf(TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS)),
+        )),
+        Section("Study Tools", "user_guide_section_study_tools", listOf(
             Page("search", "Search", "user_guide_page_search", DocsLink.SEARCH.url, listOf(TutorialVideos.Episode.TUTORIAL_12_SEARCH_1_BASICS, TutorialVideos.Episode.TUTORIAL_13_SEARCH_2_ADVANCED)),
             Page("reading_plans", "Reading Plans", "user_guide_page_reading_plans", DocsLink.READING_PLANS.url, listOf(TutorialVideos.Episode.TUTORIAL_15_READING_PLANS_AND_PROGRESS)),
             Page("reading_progress", "Reading Progress", "user_guide_page_reading_progress", DocsLink.READING_PROGRESS.url, listOf()),
             Page("memorize", "Memorize", "user_guide_page_memorize", DocsLink.MEMORIZE.url, listOf(TutorialVideos.Episode.TUTORIAL_25_MEMORIZE)),
-            Page("ai", "AI Bible Study Assistant", "user_guide_page_ai", DocsLink.AI.url, listOf(TutorialVideos.Episode.TUTORIAL_29_AI_1_GETTING_STARTED, TutorialVideos.Episode.TUTORIAL_30_AI_2_PROMPTS, TutorialVideos.Episode.TUTORIAL_31_AI_3_TOOLS_DATA_PERMISSIONS, TutorialVideos.Episode.TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC)),
-            Page("share", "Sharing", "user_guide_page_share", DocsLink.SHARE.url, listOf(TutorialVideos.Episode.TUTORIAL_24_SHARING_AND_BIBLE_LINKS)),
+            Page("ai", "AI Bible study assistant", "user_guide_page_ai", DocsLink.AI.url, listOf(TutorialVideos.Episode.TUTORIAL_29_AI_1_GETTING_STARTED, TutorialVideos.Episode.TUTORIAL_30_AI_2_PROMPTS, TutorialVideos.Episode.TUTORIAL_31_AI_3_TOOLS_DATA_PERMISSIONS, TutorialVideos.Episode.TUTORIAL_32_AI_4_CUSTOM_PROMPTS_COSTS_SYNC)),
+            Page("usage", "Study workflows", "user_guide_page_usage", DocsLink.USAGE.url, listOf(TutorialVideos.Episode.TUTORIAL_27_STUDY_WORKFLOWS_1_TOPICAL_AND_SERMON, TutorialVideos.Episode.TUTORIAL_28_STUDY_WORKFLOWS_2_WORD_STUDY_AND_DEVOTIONS)),
         )),
-        Section("Backup & Sync", "user_guide_section_backup_sync", listOf(
+        Section("Bible Documents", "user_guide_section_bible_documents", listOf(
+            Page("documents", "The document library", "user_guide_page_documents", DocsLink.DOCUMENTS.url, listOf(TutorialVideos.Episode.TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS, TutorialVideos.Episode.TUTORIAL_21_DOCUMENT_LIBRARY)),
+            Page("my_documents", "My Documents and EPUB books", "user_guide_page_my_documents", DocsLink.MY_DOCUMENTS.url, listOf(TutorialVideos.Episode.TUTORIAL_23_MY_DOCUMENTS_AND_EPUB)),
+            Page("custom_repositories", "Custom Repositories", "user_guide_page_custom_repositories", DocsLink.CUSTOM_REPOSITORIES.url, listOf(TutorialVideos.Episode.TUTORIAL_22_LOAD_FILES_AND_CUSTOM_REPOSITORIES)),
+        )),
+        Section("Sharing, Backup & Sync", "user_guide_section_sharing_backup_sync", listOf(
+            Page("share", "Sharing", "user_guide_page_share", DocsLink.SHARE.url, listOf(TutorialVideos.Episode.TUTORIAL_24_SHARING_AND_BIBLE_LINKS)),
+            Page("bible_links", "Bible links", "user_guide_page_bible_links", DocsLink.BIBLE_LINKS.url, listOf()),
             Page("backup_restore", "Backup and Restore", "user_guide_page_backup_restore", DocsLink.BACKUP_RESTORE.url, listOf(TutorialVideos.Episode.TUTORIAL_16_BACKUP_AND_RESTORE)),
             Page("cloud_sync", "Cloud Sync", "user_guide_page_cloud_sync", DocsLink.CLOUD_SYNC.url, listOf(TutorialVideos.Episode.TUTORIAL_17_SYNC_1_GOOGLE_DRIVE, TutorialVideos.Episode.TUTORIAL_18_SYNC_2_MORE_BACKENDS_AND_DOCUMENTS)),
             Page("document_sync", "Document Sync", "user_guide_page_document_sync", DocsLink.DOCUMENT_SYNC.url, listOf()),
         )),
-        Section("Desktop", "user_guide_section_desktop", listOf(
+        Section("Desktop & Platforms", "user_guide_section_desktop_platforms", listOf(
             Page("desktop", "AndBible on Windows and Linux", "user_guide_page_desktop", DocsLink.DESKTOP.url, listOf(TutorialVideos.Episode.TUTORIAL_26_DESKTOP)),
+            Page("platform_differences", "Platform differences", "user_guide_page_platform_differences", DocsLink.PLATFORM_DIFFERENCES.url, listOf()),
+            Page("discrete_build", "Discrete Build", "user_guide_page_discrete_build", DocsLink.DISCRETE_BUILD.url, listOf()),
         )),
         Section("Customisation & Advanced", "user_guide_section_customisation_advanced", listOf(
             Page("customisation", "Customisation", "user_guide_page_customisation", DocsLink.CUSTOMISATION.url, listOf()),
             Page("customisation/custom_css", "Custom CSS", "user_guide_page_customisation_custom_css", DocsLink.CUSTOMISATION_CUSTOM_CSS.url, listOf()),
             Page("customisation/module_creation", "Module Creation", "user_guide_page_customisation_module_creation", DocsLink.CUSTOMISATION_MODULE_CREATION.url, listOf()),
-            Page("discrete_build", "Discrete Build", "user_guide_page_discrete_build", DocsLink.DISCRETE_BUILD.url, listOf()),
         )),
         Section("Help & Reference", "user_guide_section_help_reference", listOf(
             Page("faq", "Frequently Asked Questions", "user_guide_page_faq", DocsLink.FAQ.url, listOf()),
-            Page("platform_differences", "Platform differences", "user_guide_page_platform_differences", DocsLink.PLATFORM_DIFFERENCES.url, listOf()),
             Page("support", "Support", "user_guide_page_support", DocsLink.SUPPORT.url, listOf()),
         )),
     )

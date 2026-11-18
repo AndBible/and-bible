@@ -1,4 +1,4 @@
-# Verse Action Dialog
+# The verse menu {#verse-action-dialog}
 
 Tap a verse to select it and open the verse action dialog. The selection highlight
 covers the whole verse, including text in bulleted lists.

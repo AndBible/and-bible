@@ -15,7 +15,7 @@ NAV = """\
 nav = [
   { "Home" = "index.md" },
   { "Basics" = ["a.md", { "Sub" = ["sub/index.md", "sub/b.md"] }, "c.md"] },
-  { "Help" = ["d.md", { "Releases" = ["releases/index.md"] }] },
+  { "Help" = ["d.md", { "All videos" = "/videos/" }, { "Site" = "https://andbible.org/videos/" }, { "Releases" = ["releases/index.md"] }] },
   { "More" = ["style.md"] },
 ]
 """
@@ -65,6 +65,14 @@ def test_sections_follow_the_nav_and_skip_more_and_releases(tmp_path):
         ("Help", ["d"]),
     ]
     assert [p.title for p in toc.sections[0].pages] == ["Page A", "Sub", "B", "C"]
+
+
+def test_link_entries_are_not_toc_pages(tmp_path):
+    """A nav link such as "All videos" -> /videos/ is website-only: the app's in-order row replaces it."""
+    toml, docs, yaml_ = make_site(tmp_path)
+    toc = app_toc.build(toml, docs, yaml_)
+    help_section = next(s for s in toc.sections if s.title == "Help")
+    assert [p.stem for p in help_section.pages] == ["d"]
 
 
 def test_episodes_attach_to_their_docs_page(tmp_path):

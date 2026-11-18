@@ -21,20 +21,22 @@ class KeyedUserGuideStringsTest {
         val strings = strings(mapOf(section.key to "Osio", page.key to "Sivu", episodeTitle.key to "Video"))
         assertEquals("Osio", strings.section(section))
         assertEquals("Sivu", strings.page(page))
-        assertEquals("1. Video", strings.episode(episode))
+        assertEquals("Video", strings.episode(episode))
+        assertEquals("1. Video", strings.numberedEpisode(episode))
     }
 
     @Test fun missingKeysFallBackToEnglish() {
         val strings = strings(emptyMap())
         assertEquals(section.title, strings.section(section))
         assertEquals(page.title, strings.page(page))
-        assertEquals("1. ${episodeTitle.title}", strings.episode(episode))
+        assertEquals(episodeTitle.title, strings.episode(episode))
+        assertEquals("1. ${episodeTitle.title}", strings.numberedEpisode(episode))
     }
 
     @Test fun unnumberedEpisodeHasNoNumberPrefix() {
         val title = UserGuideToc.episodeTitles.getValue(Episode.WHATS_NEW_6_0)
-        assertEquals("Uutta", strings(mapOf(title.key to "Uutta")).episode(Episode.WHATS_NEW_6_0))
-        assertEquals(title.title, strings(emptyMap()).episode(Episode.WHATS_NEW_6_0))
+        assertEquals("Uutta", strings(mapOf(title.key to "Uutta")).numberedEpisode(Episode.WHATS_NEW_6_0))
+        assertEquals(title.title, strings(emptyMap()).numberedEpisode(Episode.WHATS_NEW_6_0))
     }
     @Test fun allGuideKeysMatchEnglishResources() {
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File("../app/src/main/res/values/strings.xml"))

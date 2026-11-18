@@ -1,4 +1,4 @@
-"""The docs landing page is hand-curated: every nav page needs a row, and nothing may rot."""
+"""The docs landing page lists the nav sections (one row each); it must mirror the nav and nothing may rot."""
 import re
 from pathlib import Path
 
@@ -10,30 +10,10 @@ from sitegen.i18n import strings
 from sitegen.videos import load as load_videos, render_videos
 
 INDEX = paths.CONTENT / "en" / "docs" / "index.md"
-# Nav pages deliberately absent from the landing page (the contributor style guide and the
-# hidden video page stay reachable from the nav; releases/* are covered by the one Releases row).
-EXCLUDED = {"index.md", "style_guide.md", "videos/note_add_to_existing_bookmark.md",
-            "customisation/custom_css.md", "customisation/module_creation.md",
-            "releases/release_6_0.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"}
 
 
 def md_links(text: str) -> list[str]:
     return re.findall(r"\]\(([^)\s]+)\)", text)
-
-
-def test_every_nav_page_is_linked_from_the_landing_page():
-    linked = {link.split("#")[0] for link in md_links(INDEX.read_text()) if ".md" in link}
-    missing = set(published_pages(paths.WEBSITE / "zensical.toml")) - EXCLUDED - linked
-    assert missing == set(), f"add a row for these pages to docs/index.md: {sorted(missing)}"
-
-
-def test_exclusions_name_real_nav_pages():
-    assert EXCLUDED <= set(published_pages(paths.WEBSITE / "zensical.toml"))
-
-
-def test_landing_links_only_to_pages_not_to_sub_headings():
-    rows = [line for line in INDEX.read_text().splitlines() if line.startswith("| [")]
-    assert rows and all("#" not in line.split("|")[1] for line in rows)
 
 
 def test_no_active_development_note_or_intro_link_list():
@@ -62,7 +42,7 @@ def test_built_landing_links_resolve(landing_html):
     out, html = landing_html
     body = html[html.index("<article"):html.index("</article>")]
     hrefs = re.findall(r'href="([^"#]+)(?:#[^"]*)?"', body)
-    assert len(hrefs) > 30
+    assert len(hrefs) > 12
     for href in hrefs:
         if href.startswith(("http://", "https://", "mailto:")):
             continue
@@ -70,7 +50,7 @@ def test_built_landing_links_resolve(landing_html):
         assert (target / "index.html").is_file() or target.is_file(), f"dead landing link {href}"
 
 
-def nav_groups() -> dict[str, list[str]]:
+def nav_groups() -> dict[str, list]:
     import tomllib
     groups = {}
     for entry in tomllib.loads((paths.WEBSITE / "zensical.toml").read_text())["project"]["nav"]:
@@ -80,41 +60,33 @@ def nav_groups() -> dict[str, list[str]]:
     return groups
 
 
-def landing_tables() -> dict[str, list[tuple[str, str]]]:
-    """Section heading -> [(link target, description)] for each table row."""
-    tables, section = {}, None
+def landing_rows() -> list[tuple[str, str, str]]:
+    """(section name, link target, description) for each row of the single "Browse by topic" table."""
+    rows = []
     for line in INDEX.read_text().splitlines():
-        if line.startswith("### "):
-            section = line[4:].strip()
-            tables[section] = []
-        elif line.startswith("| [") and section:
+        if line.startswith("| ["):
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            tables[section].append((re.search(r"\]\(([^)]+)\)", cells[0]).group(1), cells[1]))
-    return tables
+            m = re.match(r"\[([^\]]+)\]\(([^)]+)\)", cells[0])
+            rows.append((m.group(1), m.group(2), cells[1]))
+    return rows
 
 
 def test_quick_start_comes_before_the_tables():
     text = INDEX.read_text()
-    assert 0 < text.index("## Quick start") < text.index("| Doc |")
+    assert 0 < text.index("## Quick start") < text.index("| Section |")
 
 
 def test_every_row_has_a_description():
-    rows = [r for rows in landing_tables().values() for r in rows]
-    assert rows and all(len(desc) > 10 for _, desc in rows)
+    rows = landing_rows()
+    assert rows and all(len(desc) > 10 for _, _, desc in rows)
 
 
-def test_tables_mirror_nav_groups_in_order():
-    tables = landing_tables()
-    groups = {k: v for k, v in nav_groups().items() if k not in ("Home", "More")}
-    assert list(tables) == list(groups)
-    for name, items in groups.items():
-        flat = []
-        for item in items:
-            if isinstance(item, str):
-                flat.append(item)
-            else:  # a nested nav section: the landing row links its index page
-                flat.append(next(iter(item.values()))[0])
-        assert [target for target, _ in tables[name]] == flat, name
+def test_sections_mirror_nav_groups_in_order_and_link_their_first_page():
+    """The landing page lists the nav sections only, so it cannot drift from the nav."""
+    groups = nav_groups()
+    assert [name for name, _, _ in landing_rows()] == list(groups)
+    for name, target, _ in landing_rows():
+        assert target == groups[name][0], name
 
 
 def test_landing_tables_use_a_unique_wrapper_not_the_contents_id(landing_html, built_faq):
@@ -130,3 +102,15 @@ def test_css_never_keys_on_the_contents_id():
 @pytest.fixture(scope="module")
 def built_faq(landing_html):
     return (landing_html[0] / "docs" / "faq" / "index.html").read_text()
+
+
+def test_docs_header_and_nav_link_to_the_videos_page(landing_html, built_faq):
+    html = landing_html[1]
+    header = html[html.index("<header"):html.index("</header>")]
+    assert '<a href="/videos/">' in header, "docs header lost its Videos link"
+    assert re.search(r'<a href="/videos/" class="md-nav__link">\s*(?:<[^>]+>\s*)*All videos', built_faq)
+
+
+def test_nav_url_entries_are_links_not_pages():
+    pages = published_pages(paths.WEBSITE / "zensical.toml")
+    assert "/videos/" not in pages and all(p.endswith(".md") for p in pages)

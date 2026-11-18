@@ -1,4 +1,4 @@
-# AI Bible Study Assistant
+# AI Bible study assistant {#ai-bible-study-assistant}
 
 *AndBible* includes a built-in AI assistant that can translate, explain, summarize,
 annotate, and perform word studies on Bible text. It works by sending selected

@@ -1,4 +1,4 @@
-# Getting Started
+# Installation and first start {#getting-started}
 
 ## Installation
 
@@ -152,52 +152,7 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 ## Main menu {#main-menu}
 
-The main menu (☰, top left) lists these rows. It is also opened by swiping in from the edge of the
-screen, see [Navigation](navigation.md#swipe-from-the-edge-to-open-the-main-menu).
-
-| Row | What it does |
-|---|---|
-| `Choose Document` | Opens the document list, see [Documents](documents.md#document-library) |
-| `Find` | Opens search, see [Search](search.md) (greyed out when the current page cannot be searched) |
-| `Speak` | Shows the speak bar, see [Speak](speak.md) (not shown on a platform without speech) |
-| `Bookmarks` | The [Bookmarks list](bookmarks.md#bookmarks-list) |
-| `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
-| `My Documents` | Your own pages, see [My Documents](my_documents.md) |
-| `Reading Plan` | [Reading plans](reading_plans.md) |
-| `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
-| `History` | The list of places you have been to |
-
-**Administration**
-
-| Row | What it does |
-|---|---|
-| `Download Documents` | [Download documents](documents.md#download-documents) |
-| `Backup & Restore` | [Backup and restore](backup_restore.md) |
-| `Device synchronization` | [Synchronization](cloud_sync.md) (shown only where it is available) |
-| `AI Settings` | [AI](ai.md) |
-| `Application preferences` | The app settings, see [Look and feel](look_and_feel.md) |
-
-**Information**
-
-| Row | What it does |
-|---|---|
-| `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
-| `Buy development work` | Opens the development shop in your browser (Android only) |
-| `Questions?` | Opens the support page in your browser, see [Support](support.md) |
-| `How to contribute?` | Opens the page about how to help the project, in your browser |
-| `Open Source License` | Shows the licence text |
-
-**Contact**
-
-| Row | What it does |
-|---|---|
-| `Recommend to a friend` | A QR code and a link to share, see [Sharing on Android](#sharing-on-android) |
-| `Rate & Review` | Opens a short dialog and then the store listing (Android; not in F-Droid, Huawei or Amazon builds) |
-| `Feedback / bug report` | Prepares a bug report, see [Support](support.md#reporting-issues) |
-
-On iPhone, iPad, Mac, Windows and Linux the menu has the same rows, except that `Buy development work`
-and `Rate & Review` are not offered there. `Recommend to a friend` and `Rate & Review` are hidden in
-discrete mode.
+The main menu moved to [Finding your way around](navigation.md#main-menu).
 
 ## Release notice
 
@@ -225,39 +180,15 @@ A downward arrow at the bottom of the content indicates that there is more below
 
 ## Sharing on Android
 
-**Recommend to a friend** (the same on every platform) shows a QR code of
-[andbible.org](https://andbible.org), where the downloads for every platform are listed, that a friend
-can scan in person. **Share a link** in the same dialog opens the system share sheet with a short
-description of AndBible and the same link.
-**Rate & Review**, when offered, shows a short dialog about rating and about reporting problems; its confirm
-button then opens the standard Play listing, or Samsung Apps for Samsung builds.
-
-**Recommend to a friend** is hidden in discrete mode. Recommendation and rating actions
-are disabled while discrete mode is active, to avoid revealing the app's identity.
+See [Support](support.md#sharing-on-android).
 
 ## Help and sharing on iOS
 
-The iOS drawer's **Help & tips** shows all eight help topics, tutorial and manual links,
-and the app version. It does not include the Android development-shop promotion.
-**Open Source License** displays the complete licence bundled with the app, so it is available offline.
-**Recommend to a friend** works as on Android: it shows a QR code of the homepage and a **Share a link** button.
-
-The iOS **Feedback / bug report** action asks for confirmation before preparing a report with device
-and version details, any retained crash details, and a compressed recent app log. If iOS has
-delivered a crash diagnostic from the last 24 hours, it is also attached as
-`recent_crash_diagnostic.json.gz`. Diagnostics are not sent automatically. JavaScript error
-reports use the same consent flow and include the WebView error diagnostic.
-
-The iOS drawer does not currently offer a rating or development-purchase action.
+See [Support](support.md#help-and-sharing-on-ios).
 
 ## Help and bug reports on Windows and Linux {#help-and-bug-reports-on-windows-and-linux}
 
-**Feedback / bug report** (in the *Contact* group of the main menu) asks where to save a report
-file, then always shows short instructions: send an email to the address shown (**Copy address**),
-attach the saved file (its path is shown, with **Copy file path** and **Open folder**), and use the
-suggested subject (**Copy subject**). Your email program is then opened if possible. See [Desktop](desktop.md#reporting-a-bug).
-
-Sharing text offers a choice between **Copy** and **Save** (see [Platform differences](platform_differences.md#files-and-sharing)).
+See [Support](support.md#help-and-bug-reports-on-windows-and-linux).
 
 ## Linux setup {#linux-setup}
 

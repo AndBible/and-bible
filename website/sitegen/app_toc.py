@@ -83,9 +83,14 @@ def _stem(page: str) -> str:
     return stem.removesuffix("/index") if stem.endswith("/index") else stem
 
 
+def _is_link(entry: str) -> bool:
+    """A nav link (`/videos/`, `https://...`) rather than a docs page; the app TOC lists pages only."""
+    return not entry.endswith(".md")
+
+
 def _flatten(node: Any) -> list[str]:
     if isinstance(node, str):
-        return [node]
+        return [] if _is_link(node) else [node]
     if isinstance(node, list):
         return [p for item in node for p in _flatten(item)]
     if isinstance(node, dict):

@@ -20,7 +20,7 @@ episodes:
   - {slug: tutorial-01-getting-started, number: 1, title: "Getting started: install and your first Bibles", docs: getting_started, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-02-finding-your-way, number: 2, title: "Finding your way", docs: navigation, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-03-verse-menu, number: 3, title: "The verse menu", docs: verse_action_dialog, anchor: null, youtube: null, subtitles: []}
-  - {slug: tutorial-04-strongs-dictionaries-crossrefs, number: 4, title: "Strong's numbers, dictionaries and cross-references", docs: documents, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-04-strongs-dictionaries-crossrefs, number: 4, title: "Strong's numbers, dictionaries and cross-references", docs: documents, anchor: cross-references, youtube: null, subtitles: []}
   - {slug: tutorial-05-windows-1-open-and-arrange, number: 5, title: "Windows, part 1: open and arrange", docs: windows, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-06-windows-2-pin-sync-links, number: 6, title: "Windows, part 2: pin, sync and links", docs: windows, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-07-workspaces, number: 7, title: "Workspaces", docs: workspaces, anchor: null, youtube: null, subtitles: []}
@@ -34,7 +34,7 @@ episodes:
   - {slug: tutorial-15-reading-plans-and-progress, number: 15, title: "Reading plans and reading progress", docs: reading_plans, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-16-backup-and-restore, number: 16, title: "Backup and restore", docs: backup_restore, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-17-sync-1-google-drive, number: 17, title: "Sync, part 1: Google Drive", docs: cloud_sync, anchor: null, youtube: null, subtitles: []}
-  - {slug: tutorial-18-sync-2-more-backends-and-documents, number: 18, title: "Sync, part 2: Nextcloud, WebDAV and documents", docs: cloud_sync, anchor: null, youtube: null, subtitles: []}
+  - {slug: tutorial-18-sync-2-more-backends-and-documents, number: 18, title: "Sync, part 2: Nextcloud, WebDAV and documents", docs: cloud_sync, anchor: setting-up-nextcloud, youtube: null, subtitles: []}
   - {slug: tutorial-19-appearance-1-night-mode-fonts-colours, number: 19, title: "Appearance, part 1: night mode, fonts and colours", docs: look_and_feel, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-20-appearance-2-global-workspace-window, number: 20, title: "Appearance, part 2: global, workspace and window settings", docs: look_and_feel, anchor: settings-hierarchy, youtube: null, subtitles: []}
   - {slug: tutorial-21-document-library, number: 21, title: "The document library", docs: documents, anchor: null, youtube: null, subtitles: []}

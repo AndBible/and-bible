@@ -22,11 +22,13 @@ saved automatically.
 
 > [![Verse action dialog note button](/media/docs/images/verse-action-dialog-note-button.png){ .align-center style="width: 640px; max-width: 100%; height: auto" }](/media/docs/images/verse-action-dialog-note-button.png)
 
-### [Add a note to an existing bookmark:](videos/note_add_to_existing_bookmark.md)
+### Add a note to an existing bookmark
 
 1. Locate the [bookmark](bookmarks.md) where you would like to add a note.
 2. Click the bookmark to display the [verse action dialog](verse_action_dialog.md).
 3. Click the *Note* button to add a note to the bookmark.
+
+![Add a note to an existing bookmark](images/note-add-to-existing-bookmark.gif){ .align-center }
 
 ### Add a note to a new bookmark:
 

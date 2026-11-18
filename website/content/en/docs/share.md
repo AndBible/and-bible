@@ -9,7 +9,7 @@ With *AndBible*, you can easily share verses, notes, and study pads.
 On iPhone, iPad and Mac sharing uses the share sheet; on Windows and Linux you choose between **Copy** and **Save**. See [Platform differences](platform_differences.md).
 
 1. Click on the verse you would like to share.
-2. In the [Verse Action Dialog](verse_action_dialog.md), click the *share* button.
+2. In the [verse menu](verse_action_dialog.md), click the *share* button.
 
     - To share notes in addition to the verse text, click the *share* button
         in the specific note you would like to share. Keep *Show notes* enabled

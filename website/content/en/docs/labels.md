@@ -1,4 +1,4 @@
-# Labels
+# Labels and highlights {#labels}
 
 ## Overview
 
