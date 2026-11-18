@@ -257,6 +257,8 @@ jobs:
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
           project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'and-bible' }}
           signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
+          # Named explicitly: the project's default configuration is SignPath's placeholder.
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG || 'windows-desktop' }}
           github-artifact-id: ${{ needs.windows.outputs.unsigned-artifact-id }}
           wait-for-completion: true
           # Malware scan of the large packages, and for release signing the approver's manual approval in SignPath.
