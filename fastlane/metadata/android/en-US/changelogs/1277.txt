@@ -1,0 +1,8 @@
+- In-app Help table of contents with an in-order series view; docs navigation follows the learning path and tutorial videos are easier to find (d3f58459d4)
+- Default workspace colour now matches the theme toolbar colour, shown with a dashed ring (#4149)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
