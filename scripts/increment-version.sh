@@ -17,12 +17,13 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Prints the SignPath approval reminder when the "And Bible Builds" environment selects a signing policy
-# other than test-signing: SignPath Foundation requires a person to approve every release signing request.
+# Prints the SignPath approval reminder unless the "And Bible Builds" environment selects the test-signing
+# policy (the workflow's default is release-signing): SignPath Foundation requires a person to approve every release signing request.
 signpath_approval_reminder() {
     local env="And Bible Builds" policy org url="https://app.signpath.io"
     policy=$(gh variable get SIGNPATH_SIGNING_POLICY_SLUG --env "$env" 2>/dev/null || true)
-    [[ -z "$policy" || "$policy" == "test-signing" ]] && return 0
+    [[ "$policy" == "test-signing" ]] && return 0
+    policy="${policy:-release-signing}"
     org=$(gh variable get SIGNPATH_ORGANIZATION_ID --env "$env" 2>/dev/null || true)
     [[ -n "$org" ]] && url="https://app.signpath.io/Web/$org/SigningRequests"
     printf '\a'

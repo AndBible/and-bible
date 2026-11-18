@@ -34,7 +34,7 @@ CI signs the Windows packages through the [SignPath Foundation](https://signpath
 | `SIGNPATH_ORGANIZATION_ID` | variable | SignPath organization id |
 | `SIGNPATH_PROJECT_SLUG` | variable | project slug, default `and-bible` |
 | `SIGNPATH_ARTIFACT_CONFIGURATION_SLUG` | variable | artifact configuration slug, default `windows-desktop` |
-| `SIGNPATH_SIGNING_POLICY_SLUG` | variable | `test-signing` (default, self-signed test certificate) or `release-signing` once the production certificate exists |
+| `SIGNPATH_SIGNING_POLICY_SLUG` | variable | default `release-signing` (production certificate, each request approved by hand in SignPath); `test-signing` for SignPath's self-signed test certificate |
 | `WINDOWS_MSIX_PUBLISHER` | repository variable (read by the `windows` build job, not the environment) | optional; the Partner Center publisher (`CN=<GUID>`), becomes the MSIX `Publisher` (`-PwindowsPublisher`) |
 
 The MSIX `Publisher` must match the Partner Center publisher for a Store submission; Microsoft re-signs the package, so it needs no SignPath signature. A sideloaded MSIX would instead need a signature whose certificate subject equals `Publisher`; AndBible does not publish one.
