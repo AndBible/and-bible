@@ -85,17 +85,17 @@ page, so everything on this page applies to them too:
 
 - **Edit** a result as you would any page (see [Writing a Page](#writing-a-page)).
 - **Share or copy** it from the three-dot icon at the start of the page.
-- **Export** one page with *Export page* in its three-dot menu on the page list, or all pages of
+- **Export** one page with *Export* in its three-dot menu on the page list, or all pages of
     the document with *Export all pages* in the document's menu. A page is written as a `.md`
     file; exporting all pages writes one file per page into a folder you choose, numbered in
     page order (`01-…`, `02-…`).
 
 ## Exporting and Importing Markdown
 
-Markdown export and import make a round trip. Export pages to files, edit them in any text
+Markdown export and import make a round trip for the content (page names may lose punctuation on the way). Export pages to files, edit them in any text
 editor or keep them as a backup, and bring them back with *Import files as document* (a new
 document, one page per file, in file-name order) or *Import Markdown/HTML* in the *New page*
-sheet (a single page). A file ending in `.html` or `.htm` becomes an HTML page; any other file
+sheet (one page per file). A file ending in `.html` or `.htm` becomes an HTML page; any other file
 becomes a Markdown page. A page takes its name from the file name. The same route works for
 files that did not come from *AndBible*, such as notes written elsewhere.
 
