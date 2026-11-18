@@ -38,6 +38,7 @@ import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.volumeScrollTarget
+import net.bible.sharedui.strings.keyed.KeyedUserGuideStrings
 import net.bible.sharedui.strings.LocalStrings
 
 /** One tip card of the Help & tips screen. [videoUrl] and [docUrl] are null when the tip has no video or manual page. */
@@ -76,6 +77,7 @@ fun HelpScreen(
     sections: List<UserGuideToc.Section>,
     tutorialVideos: List<VideoRowUi>,
     versionText: String,
+    guideStrings: KeyedUserGuideStrings = KeyedUserGuideStrings.english(),
     appLanguage: String = "en",
     initialTab: Int = 0,
     onOpenUrl: (String) -> Unit,
@@ -94,7 +96,7 @@ fun HelpScreen(
             if (tab == 0) {
                 TipsTab(tips, versionText, onOpenUrl)
             } else {
-                UserGuideTab(sections, tutorialVideos, appLanguage, onOpenUrl)
+                UserGuideTab(sections, tutorialVideos, guideStrings, appLanguage, onOpenUrl)
             }
         }
     }
@@ -143,6 +145,7 @@ private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (Stri
 private fun UserGuideTab(
     sections: List<UserGuideToc.Section>,
     tutorialVideos: List<VideoRowUi>,
+    guideStrings: KeyedUserGuideStrings,
     appLanguage: String,
     onOpenUrl: (String) -> Unit,
 ) {
@@ -158,13 +161,13 @@ private fun UserGuideTab(
         }
         item { GuideRow(strings.helpUserGuideHome, { onOpenUrl(DocsLinks.BASE_URL) }) }
         for (section in sections) {
-            item(key = "h:${section.title}") { SectionHeader(section.title) }
+            item(key = "h:${section.title}") { SectionHeader(guideStrings.section(section)) }
             for (page in section.pages) {
-                item(key = "p:${page.stem}") { GuideRow(page.title, { onOpenUrl(page.url) }) }
+                item(key = "p:${page.stem}") { GuideRow(guideStrings.page(page), { onOpenUrl(page.url) }) }
                 // One indented row per episode: several identical icons in a trailing slot overflow a phone.
                 items(page.episodes, key = { "e:${page.stem}:${it.name}" }) { episode ->
                     VideoRow(
-                        UserGuideToc.episodeTitles[episode] ?: episode.slug,
+                        guideStrings.episode(episode),
                         TutorialVideos.hasPlainLabel(episode, appLanguage),
                         { onOpenUrl(TutorialVideos.url(episode, appLanguage)) },
                         indent = true,

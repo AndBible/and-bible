@@ -64,7 +64,7 @@ class HelpScreenGoldenTest {
         check(aiPage.episodes.size == 4) { "the ai page is expected to have 4 episodes" }
         HelpScreen(
             tips = emptyList(),
-            sections = listOf(UserGuideToc.Section("Study Tools", listOf(aiPage))),
+            sections = listOf(UserGuideToc.Section("Study Tools", "user_guide_section_study_tools", listOf(aiPage))),
             tutorialVideos = emptyList(),
             versionText = "Version 6.0.0",
             initialTab = 1,

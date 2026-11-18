@@ -13,6 +13,13 @@ import net.bible.sharedui.app.ports.HelpTopic
 class AndroidHelpDialogs(private val activity: ActivityBase) : HelpDialogs {
     override fun tipText(key: String): String = activity.getString(CommonUtils.helpTipStringIds.getValue(key))
 
+    override fun guideTitle(key: String): String {
+        val resources = activity.resources
+        val resourcePackage = resources.getResourcePackageName(R.string.help)
+        val id = resources.getIdentifier(key, "string", resourcePackage)
+        return if (id == 0) key else activity.getString(id)
+    }
+
     override fun appLanguage(): String = CommonUtils.appLanguageTag(activity)
 
     override fun versionName(): String = CommonUtils.applicationVersionName

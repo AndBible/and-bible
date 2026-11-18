@@ -1,0 +1,2 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/user_guide_section_*,@string/user_guide_page_*,@string/tutorial_title_*" />

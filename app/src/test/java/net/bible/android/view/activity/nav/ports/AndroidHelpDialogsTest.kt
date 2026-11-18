@@ -60,6 +60,15 @@ class AndroidHelpDialogsTest {
         assertEquals(CommonUtils.applicationVersionName, help.versionName())
     }
 
+    @Test fun guideKeysResolveFromAndroidResourcesAndUnknownKeysFallBack() = withHost { activity, _ ->
+        val help = AndroidHelpDialogs(activity)
+        val titles = net.bible.sharedcore.docs.UserGuideToc.sections.flatMap { section ->
+            listOf(section.key to section.title) + section.pages.map { it.key to it.title }
+        } + net.bible.sharedcore.docs.UserGuideToc.episodeTitles.values.map { it.key to it.title }
+        titles.forEach { (key, title) -> assertEquals(title, help.guideTitle(key), key) }
+        assertEquals("unknown_guide_key", help.guideTitle("unknown_guide_key"))
+    }
+
     @Test fun licenceDispatchesEntireRealHtmlWithOneOkButton() = withHost { activity, dialogs ->
         AndroidHelpDialogs(activity).show(HelpTopic.LICENCE)
         val message = assertIs<AppDialogRequest.Message>(assertNotNull(dialogs.pending.value).request)

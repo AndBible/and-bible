@@ -14,6 +14,7 @@ import net.bible.sharedui.help.HelpTipUi
 import net.bible.sharedui.help.VideoRowUi
 import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.strings.keyed.KeyedUserGuideStrings
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -32,10 +33,11 @@ class HelpNavDeps(
      * the one the app resolved, which falls back to English, and only a tag with a caption track changes the link.
      */
     val appLanguage: () -> String = { "en" },
+    val guideStrings: KeyedUserGuideStrings = KeyedUserGuideStrings.english(),
     /** All episodes in series order; unpublished ones open the placeholder with its caption languages. */
     val tutorialVideos: (appLanguage: String) -> List<VideoRowUi> = { lang ->
         TutorialVideos.Episode.entries.map {
-            VideoRowUi(UserGuideToc.episodeTitles[it] ?: it.slug, TutorialVideos.url(it, lang), TutorialVideos.hasPlainLabel(it, lang))
+            VideoRowUi(guideStrings.episode(it), TutorialVideos.url(it, lang), TutorialVideos.hasPlainLabel(it, lang))
         }
     },
 )
@@ -48,11 +50,12 @@ fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNav
         LaunchedEffect(strings.helpAndTips) { deps.setWindowTitle(strings.helpAndTips) }
         val tips = remember(strings) { deps.tips() }
         val language = remember { deps.appLanguage() }
-        val videos = remember { deps.tutorialVideos(language) }
+        val videos = deps.tutorialVideos(language)
         HelpScreen(
             tips = tips,
             sections = UserGuideToc.sections,
             tutorialVideos = videos,
+            guideStrings = deps.guideStrings,
             appLanguage = language,
             versionText = remember(strings) { deps.versionText() },
             onOpenUrl = deps.onOpenUrl,

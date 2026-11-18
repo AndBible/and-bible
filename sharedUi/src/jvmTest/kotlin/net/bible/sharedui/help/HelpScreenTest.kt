@@ -20,11 +20,14 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class HelpScreenTest {
+    private fun episodeTitle(episode: Episode): String = UserGuideToc.episodeTitles.getValue(episode).let {
+        if (it.number != null) "${it.number}. ${it.title}" else it.title
+    }
     private val strings = iosStrings("en")
 
-    private val withVideo = UserGuideToc.Page("navigation", "Navigation page", "https://x/navigation/", listOf(Episode.TUTORIAL_02_FINDING_YOUR_WAY))
-    private val noVideo = UserGuideToc.Page("faq", "Faq page", "https://x/faq/", listOf(Episode.TUTORIAL_03_VERSE_MENU))
-    private val sections = listOf(UserGuideToc.Section("Section One", listOf(withVideo, noVideo)))
+    private val withVideo = UserGuideToc.Page("navigation", "Navigation page", "navigation_key", "https://x/navigation/", listOf(Episode.TUTORIAL_02_FINDING_YOUR_WAY))
+    private val noVideo = UserGuideToc.Page("faq", "Faq page", "faq_key", "https://x/faq/", listOf(Episode.TUTORIAL_03_VERSE_MENU))
+    private val sections = listOf(UserGuideToc.Section("Section One", "section_key", listOf(withVideo, noVideo)))
     private val tips = listOf(
         HelpTipUi("Tip title", "line one\nline two", "https://video/1", "Watch it", "https://docs/1"),
         HelpTipUi("Plain tip", "plain", null, "Watch it", null),
@@ -37,15 +40,30 @@ class HelpScreenTest {
         initialTab: Int = 0,
         appLanguage: String = "en",
         guideSections: List<UserGuideToc.Section> = sections,
+        guideStrings: net.bible.sharedui.strings.keyed.KeyedUserGuideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
     ) = setContent {
         CompositionLocalProvider(LocalStrings provides strings) {
             AbTheme(darkTheme = false) {
                 HelpScreen(
                     tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
-                    appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
+                    guideStrings = guideStrings, appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
                 )
             }
         }
+    }
+
+    @Test fun translatedGuideAndCatalogTitlesReachTheScreen() = runComposeUiTest {
+        val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
+        val episodeKey = UserGuideToc.episodeTitles.getValue(episode).key
+        val translated = mapOf("section_key" to "Translated section", "navigation_key" to "Translated page", episodeKey to "Translated video")
+        val table = net.bible.sharedui.strings.keyed.StringTable.of("fi", { translated[it] ?: it }, { key, _ -> key }, { emptyList() })
+        val guideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings(table)
+        val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {}, guideStrings = guideStrings)
+        assertEquals("2. Translated video", deps.tutorialVideos("fi")[Episode.entries.indexOf(episode)].title)
+        show(videos = emptyList(), initialTab = 1, guideStrings = guideStrings)
+        onNodeWithText("Translated section").assertExists()
+        onNodeWithText("Translated page").assertExists()
+        onNodeWithText("2. Translated video").assertExists()
     }
 
     @Test fun tipsShownOnFirstTab() = runComposeUiTest {
@@ -84,9 +102,9 @@ class HelpScreenTest {
         val opened = mutableListOf<String>()
         show(opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
-        val title = UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_02_FINDING_YOUR_WAY)
+        val title = episodeTitle(Episode.TUTORIAL_02_FINDING_YOUR_WAY)
         onAllNodesWithText(title).assertCountEquals(1)
-        onNodeWithText(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_03_VERSE_MENU)).assertExists()
+        onNodeWithText(episodeTitle(Episode.TUTORIAL_03_VERSE_MENU)).assertExists()
         onNodeWithText(title).performClick()
         assertEquals(listOf("https://www.youtube.com/watch?v=RlLkpKZZwTg"), opened)
     }
@@ -96,9 +114,9 @@ class HelpScreenTest {
         val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
         show(videos = emptyList(), opened = opened, appLanguage = "fi")
         onNodeWithText(strings.helpTabUserGuide).performClick()
-        onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).assertExists()
+        onNodeWithText(episodeTitle(episode)).assertExists()
         onAllNodesWithText(strings.watchTutorialVideoPlain).assertCountEquals(2)
-        onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).performClick()
+        onNodeWithText(episodeTitle(episode)).performClick()
         assertEquals(listOf("https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), opened)
     }
 
@@ -135,7 +153,7 @@ class HelpScreenTest {
     @Test fun defaultVideoCatalogIncludesEveryEpisodeInSeriesOrder() {
         val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {})
         val videos = deps.tutorialVideos("fi")
-        assertEquals(Episode.entries.map { UserGuideToc.episodeTitles.getValue(it) }, videos.map { it.title })
+        assertEquals(Episode.entries.map { episodeTitle(it) }, videos.map { it.title })
         assertEquals(setOf("https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), videos.map { it.url }.toSet())
         kotlin.test.assertTrue(videos.all { it.plainLabel })
     }

@@ -10,6 +10,8 @@ import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.help.nav.HelpNavDeps
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.strings.keyed.KeyedUserGuideStrings
+import net.bible.sharedui.strings.keyed.StringTable
 
 /** Builds the Help & tips destination's deps. Construction touches no database; everything resolves on use. */
 @kotlin.native.HiddenFromObjC
@@ -26,6 +28,9 @@ class HelpHost(
         setWindowTitle = { shell.setWindowTitle(it) },
         tips = { HelpAndTips.toUi(strings, helpDialogs::tipText, appLanguage = helpDialogs.appLanguage()) },
         appLanguage = { helpDialogs.appLanguage() },
+        guideStrings = KeyedUserGuideStrings(StringTable.of(
+            helpDialogs.appLanguage(), helpDialogs::guideTitle, { key, _ -> key }, { emptyList() },
+        )),
         versionText = { strings.versionText(helpDialogs.versionName()) },
         onOpenUrl = { links.confirmAndOpen(it, dialogs) { strings } },
     )
