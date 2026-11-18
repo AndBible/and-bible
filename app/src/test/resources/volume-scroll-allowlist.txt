@@ -28,3 +28,4 @@ net/bible/sharedui/components/AbOptionsDialog.kt # dialog
 net/bible/sharedui/components/AbDropdownMenu.kt # popup menu
 net/bible/sharedui/reading/activity/ActivityListContent.kt # sheet / popover list (short; hosted by ActivityListHost)
 net/bible/sharedui/components/AbReleaseNoticeCard.kt # dialog
+net/bible/sharedui/settings/NumericTextSettingContent.kt # font sample: a 120dp preview viewport inside the settings editor sheet, not the page (#4140)

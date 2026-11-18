@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.test.runTest
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -143,6 +144,10 @@ class InstallZipBeforeDbInitTest {
             CommonUtils.initialized = wasInitialized
             prefs.edit().putBoolean("show_calculator", hadCalculator).commit()
         }
+        // An uncaught coroutine failure on this uninitialised host (a lifecycleScope job resolving a database-backed
+        // Koin single, DataBaseNotReady) would crash the app on a device. In the suite, kotlinx-coroutines-test parks it
+        // and fails the NEXT runTest in this JVM (UncaughtExceptionsBeforeTest) instead, so surface it here.
+        runTest { }
     }
 
     companion object {
