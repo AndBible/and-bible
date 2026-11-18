@@ -24,9 +24,9 @@ The actual Compose window must use Direct3D. Missing/unusable WebView2 shows a l
 
 The MSIX identity `AndBible.Desktop` and publisher `CN=AndBible-Unsigned` are placeholders in the `windowsIdentity` block in `desktopApp/build.gradle.kts`. Before a Store release, reserve the app name in Partner Center, obtain the package identity name and publisher from its app identity page, and replace both values in that block. Verify the resulting manifest against Partner Center and use a certificate whose subject matches the publisher. The Store identity and production certificate are still pending; placeholder packages are not Store-ready. Follow Partner Center's current package submission, certification, and publishing steps after uploading the release package.
 
-CI signs the Windows packages through the [SignPath Foundation](https://signpath.org) program, not with a certificate of its own. The `windows` job in `.github/workflows/desktop.yml` builds unsigned packages, uploads them as a GitHub artifact and submits it with `signpath/github-action-submit-signing-request`; SignPath signs `AndBible.exe` inside the zip and the MSI (deep signing) and the MSI itself, and the job continues (smoke test, release assets) with the signed files. The MSIX is not sent to SignPath: it is only for the Microsoft Store, which signs submitted packages itself. What is signed is defined in `.signpath/artifact-configuration.xml`; keep it identical to the artifact configuration in the SignPath project. Only AndBible's own binaries are signed: the bundled JDK runtime and `WebView2Loader.dll` are third-party files (SignPath Foundation policy).
+CI signs the Windows packages through the [SignPath Foundation](https://signpath.org) program, not with a certificate of its own. The `windows` job in `.github/workflows/desktop.yml` builds and smoke-tests unsigned packages and uploads the zip and MSI as the artifact `andbible-desktop-windows-x64-unsigned`; the `windows-sign` job submits it with `signpath/github-action-submit-signing-request`; SignPath signs `AndBible.exe` inside the zip and the MSI (deep signing) and the MSI itself, and the job then checks that the signatures are present and uploads the signed files as `andbible-desktop-windows-x64`, which the release uses. The MSIX is not sent to SignPath: it is only for the Microsoft Store, which signs submitted packages itself. What is signed is defined in `.signpath/artifact-configuration.xml`; keep it identical to the artifact configuration in the SignPath project. Only AndBible's own binaries are signed: the bundled JDK runtime and `WebView2Loader.dll` are third-party files (SignPath Foundation policy).
 
-Signing runs when the repository variable `SIGNPATH_ORGANIZATION_ID` is set, and never for pull requests. Configuration:
+`windows-sign` runs for every non-pull-request run (tags and manual runs) in the GitHub environment `And Bible Builds`; only that job sees the token. Configure these in that environment:
 
 | Name | Kind | Value |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Signing runs when the repository variable `SIGNPATH_ORGANIZATION_ID` is set, and
 | `SIGNPATH_ORGANIZATION_ID` | variable | SignPath organization id |
 | `SIGNPATH_PROJECT_SLUG` | variable | project slug, default `and-bible` |
 | `SIGNPATH_SIGNING_POLICY_SLUG` | variable | `test-signing` (default, self-signed test certificate) or `release-signing` once the production certificate exists |
-| `WINDOWS_MSIX_PUBLISHER` | variable | optional; the Partner Center publisher (`CN=<GUID>`), becomes the MSIX `Publisher` (`-PwindowsPublisher`) |
+| `WINDOWS_MSIX_PUBLISHER` | repository variable (read by the `windows` build job, not the environment) | optional; the Partner Center publisher (`CN=<GUID>`), becomes the MSIX `Publisher` (`-PwindowsPublisher`) |
 
 The MSIX `Publisher` must match the Partner Center publisher for a Store submission; Microsoft re-signs the package, so it needs no SignPath signature. A sideloaded MSIX would instead need a signature whose certificate subject equals `Publisher`; AndBible does not publish one.
 

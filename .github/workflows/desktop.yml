@@ -154,9 +154,8 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 90
-    env:
-      # SignPath signing runs when the organization id variable is set, never for pull requests (no secrets there).
-      SIGNPATH_ENABLED: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' && github.event_name != 'pull_request' }}
+    outputs:
+      unsigned-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
     steps:
       # v4
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -216,48 +215,6 @@ jobs:
             $files = @(Get-ChildItem "desktopApp/build/compose/binaries/main/andbible-*-windows-x64.$extension")
             if ($files.Count -ne 1) { throw "Expected exactly one Windows $extension artifact" }
           }
-      # v4; SignPath takes the packages from a GitHub artifact (see .signpath/artifact-configuration.xml).
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        id: upload-unsigned
-        if: env.SIGNPATH_ENABLED == 'true'
-        with:
-          name: andbible-desktop-windows-x64-unsigned
-          path: |
-            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.zip
-            desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msi
-          if-no-files-found: error
-          retention-days: 1
-      # v3
-      - uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092
-        if: env.SIGNPATH_ENABLED == 'true'
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'and-bible' }}
-          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
-          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
-          wait-for-completion: true
-          output-artifact-directory: ${{ runner.temp }}/signed-windows
-      - name: Use signed packages
-        if: env.SIGNPATH_ENABLED == 'true'
-        shell: pwsh
-        run: |
-          $signed = Join-Path $env:RUNNER_TEMP 'signed-windows'
-          $out = 'desktopApp/build/compose/binaries/main'
-          foreach ($extension in @('zip', 'msi')) {
-            $files = @(Get-ChildItem "$signed/andbible-*-windows-x64.$extension")
-            if ($files.Count -ne 1) { throw "Expected exactly one signed Windows $extension artifact" }
-            Copy-Item -LiteralPath $files[0].FullName -Destination $out -Force
-          }
-          # A self-signed test certificate is untrusted on the runner, so check that a signature is present, not its trust.
-          $msi = @(Get-ChildItem "$out/andbible-*-windows-x64.msi")[0]
-          $check = Join-Path $env:RUNNER_TEMP 'signed-zip-check'
-          Expand-Archive -LiteralPath @(Get-ChildItem "$out/andbible-*-windows-x64.zip")[0].FullName -DestinationPath $check -Force
-          foreach ($file in @($msi.FullName, (Join-Path $check 'AndBible/AndBible.exe'))) {
-            $signature = Get-AuthenticodeSignature -LiteralPath $file
-            if (-not $signature.SignerCertificate) { throw "$file is not signed ($($signature.Status))" }
-            Write-Host "$file signed by $($signature.SignerCertificate.Subject) [$($signature.Status)]"
-          }
       - name: Smoke test app image
         shell: pwsh
         run: |
@@ -265,19 +222,71 @@ jobs:
           if ($zip.Count -ne 1) { throw "Expected exactly one Windows zip" }
           & ./desktopApp/scripts/smoke-windows.ps1 -Zip $zip[0].FullName
           if ($LASTEXITCODE -ne 0) { throw "Windows smoke failed" }
-      # v4
+      # v4; the windows-sign job sends this artifact to SignPath (see .signpath/artifact-configuration.xml).
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: upload-unsigned
         with:
-          name: andbible-desktop-windows-x64
+          name: andbible-desktop-windows-x64-unsigned
           path: |
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.zip
             desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msi
           if-no-files-found: error
           retention-days: 14
+      # v4; the MSIX is for the Microsoft Store, which signs it itself.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: andbible-desktop-windows-x64-msix
+          path: desktopApp/build/compose/binaries/main/andbible-*-windows-x64.msix
+          if-no-files-found: error
+          retention-days: 14
+
+  # Signs the zip and MSI through SignPath. A separate job so that only this job, not the build and its
+  # dependencies, sees the SignPath token of the "And Bible Builds" environment. Never for pull requests.
+  windows-sign:
+    if: github.event_name != 'pull_request'
+    needs: windows
+    environment: And Bible Builds
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      # v3
+      - uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'and-bible' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
+          github-artifact-id: ${{ needs.windows.outputs.unsigned-artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+      - name: Check signatures
+        shell: pwsh
+        run: |
+          foreach ($extension in @('zip', 'msi')) {
+            $files = @(Get-ChildItem "signed/andbible-*-windows-x64.$extension")
+            if ($files.Count -ne 1) { throw "Expected exactly one signed Windows $extension artifact" }
+          }
+          # A self-signed test certificate is untrusted on the runner, so check that a signature is present, not its trust.
+          $check = Join-Path $env:RUNNER_TEMP 'signed-zip-check'
+          Expand-Archive -LiteralPath @(Get-ChildItem signed/andbible-*-windows-x64.zip)[0].FullName -DestinationPath $check -Force
+          foreach ($file in @(@(Get-ChildItem signed/andbible-*-windows-x64.msi)[0].FullName, (Join-Path $check 'AndBible/AndBible.exe'))) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $file
+            if (-not $signature.SignerCertificate) { throw "$file is not signed ($($signature.Status))" }
+            Write-Host "$file signed by $($signature.SignerCertificate.Subject) [$($signature.Status)]"
+          }
+      # v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: andbible-desktop-windows-x64
+          path: |
+            signed/andbible-*-windows-x64.zip
+            signed/andbible-*-windows-x64.msi
+          if-no-files-found: error
+          retention-days: 14
 
   release-assets:
     if: github.ref_type == 'tag' && (startsWith(github.ref_name, 'test-') || startsWith(github.ref_name, 'beta-') || startsWith(github.ref_name, 'production-'))
-    needs: [linux-packages, windows]
+    needs: [linux-packages, windows-sign]
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     permissions: {contents: write}
