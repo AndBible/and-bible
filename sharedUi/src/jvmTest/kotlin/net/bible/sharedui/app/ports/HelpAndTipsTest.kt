@@ -13,7 +13,7 @@ class HelpAndTipsTest {
     @Test fun helpItemsRetainManualPagesAndTutorialTargets() {
         assertEquals(
             listOf("navigation", null, "documents", "windows", "bookmarks", "study_pads", "search", "workspaces", "look_and_feel", null),
-            HelpAndTips.items.map { it.docPage })
+            HelpAndTips.items.map { it.docPage?.page })
         val e = TutorialVideos.Episode.entries.associateBy { it.name }
         assertEquals(
             listOf(e.getValue("TUTORIAL_02_FINDING_YOUR_WAY"), e.getValue("TUTORIAL_03_VERSE_MENU"), e.getValue("TUTORIAL_04_STRONGS_DICTIONARIES_CROSSREFS"),
@@ -52,12 +52,12 @@ class HelpAndTipsTest {
         assertFalse(strings.watchTutorialVideoPlain.contains("English"))
     }
 
-    @Test fun docUrlMapsEveryItemPageAndRejectsUnknown() {
+    @Test fun docUrlMapsEveryItemPageAndPreservesNull() {
         HelpAndTips.items.forEach { item ->
             // Keep the help-item metadata aligned with the catalog's resolved URLs.
-            val expected = item.docPage?.let { DocsLinks.BASE_URL + it + "/" }
+            val expected = item.docPage?.let { DocsLinks.BASE_URL + it.page + "/" }
             assertEquals(expected, HelpAndTips.docUrl(item.docPage))
         }
-        assertFailsWith<IllegalStateException> { HelpAndTips.docUrl("nope") }
+        assertNull(HelpAndTips.docUrl(null))
     }
 }

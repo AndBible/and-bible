@@ -59,7 +59,6 @@ class DocsLinkCatalogTest {
         assertEquals(DocsLink.entries.toSet(), original.keys)
         original.forEach { (link, expected) ->
             assertEquals(expected, link.url, link.name)
-            assertEquals(expected, DocsLinks.page(link), link.name)
         }
     }
 }

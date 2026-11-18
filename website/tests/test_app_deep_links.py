@@ -13,7 +13,7 @@ DOCS_DIR = CATALOG.parent
 GENERATED_TOC = DOCS_DIR / "UserGuideToc.kt"
 ROOTS = [paths.REPO / module / "src" for module in
          ("app", "sharedCore", "sharedLogic", "sharedUi", "desktopApp")]
-ENTRY = re.compile(r'^    ([A-Z][A-Z0-9_]*)\("([a-z0-9_/.-]+)"(?:, "([a-z0-9_-]+)")?\)[,;]$', re.MULTILINE)
+ENTRY = re.compile(r'^[ \t]*([A-Z][A-Z0-9_]*)\("([a-z0-9_/.-]+)"(?:, "([a-z0-9_-]+)")?\)[,;]', re.MULTILINE)
 CALL = re.compile(r'DocsLinks\s*\.\s*page\s*\(')
 LITERAL_CALL = re.compile(r'DocsLinks\.page\(\s*"([a-z0-9_/.-]+)"\s*(?:,\s*"([a-z0-9_-]+)"\s*)?\)')
 CATALOG_CALL = re.compile(r'DocsLinks\s*\.\s*page\s*\(\s*DocsLink\.[A-Z][A-Z0-9_]*\s*\)')
@@ -23,7 +23,7 @@ def scan(catalog=CATALOG):
     """Read literal enum entries only; unexpected entry syntax fails closed."""
     text = catalog.read_text(encoding="utf-8")
     entries = list(ENTRY.finditer(text))
-    declarations = re.findall(r'^    [A-Z][A-Z0-9_]*\s*\(', text, re.MULTILINE)
+    declarations = re.findall(r'^[ \t]*[A-Z][A-Z0-9_]*\s*\(', text, re.MULTILINE)
     assert entries and len(entries) == len(declarations), f"{catalog}: unscannable catalog entry"
     assert len({m[1] for m in entries}) == len(entries), f"{catalog}: duplicate entry name"
     return [(catalog, text.count("\n", 0, m.start()) + 1, m[2], m[3]) for m in entries]
@@ -36,6 +36,10 @@ def uncataloged_calls(roots):
             if kt in (CATALOG, DOCS_DIR / "DocsLinks.kt", GENERATED_TOC):
                 continue
             text = kt.read_text(encoding="utf-8")
+            aliases = re.finditer(r'import\s+net\.bible\.sharedcore\.docs\.DocsLinks(?:\.page)?\s+as\s+\w+', text)
+            for alias in aliases:
+                number = text.count("\n", 0, alias.start()) + 1
+                problems.append(f"{kt}:{number}: do not alias the docs URL builder")
             checked = {m.start() for m in CATALOG_CALL.finditer(text)}
             for match in CALL.finditer(text):
                 if match.start() not in checked:
@@ -63,9 +67,30 @@ def test_catalog_preserves_original_urls():
     assert Counter(current) == Counter(set(old))
 
 
+def test_migrated_call_sites_preserve_original_targets():
+    baseline = Path(__file__).parent / "fixtures/app_docs_links_before_catalog.tsv"
+    by_source = {}
+    for line in baseline.read_text().splitlines():
+        if not line.startswith("#"):
+            source, name, _ = line.split("\t")
+            by_source.setdefault(source, []).append(name)
+    for source, names in by_source.items():
+        kt = paths.REPO / source
+        if kt == GENERATED_TOC:
+            continue  # Its generated targets are checked separately until the generator migration.
+        current = re.findall(r'DocsLink\.([A-Z][A-Z0-9_]*)', kt.read_text(encoding="utf-8"))
+        if source.endswith("/HelpAndTips.kt"):
+            # The old when-map is now typed Item metadata; HelpAndTipsTest pins item order.
+            assert Counter(current) == Counter(names), source
+        else:
+            assert current == names, source
+
+
 def test_generated_toc_targets_are_cataloged():
     targets = {(page, anchor) for _, _, page, anchor in scan()}
-    generated = LITERAL_CALL.findall(GENERATED_TOC.read_text(encoding="utf-8"))
+    text = GENERATED_TOC.read_text(encoding="utf-8")
+    generated = LITERAL_CALL.findall(text)
+    assert len(generated) == len(CALL.findall(text)), "unscannable generated TOC call"
     assert generated
     assert {(page, anchor or None) for page, anchor in generated} <= targets
 
@@ -111,7 +136,19 @@ def test_an_uncataloged_call_is_reported(tmp_path, source):
     assert uncataloged_calls([tmp_path]) == [f"{kt}:1: use a DocsLink catalog entry"]
 
 
-@pytest.mark.parametrize("entry", ['    BAD(page);', '    BAD("ai", anchor);'])
+def test_catalog_accepts_indentation_without_skipping_targets(tmp_path):
+    catalog = tmp_path / "DocsLink.kt"
+    catalog.write_text('    GOOD("ai"),\n        BAD("removed");\n')
+    assert [(page, anchor) for _, _, page, anchor in scan(catalog)] == [("ai", None), ("removed", None)]
+
+
+def test_builder_alias_is_rejected(tmp_path):
+    kt = tmp_path / "X.kt"
+    kt.write_text('import net.bible.sharedcore.docs.DocsLinks as Links\nval u = Links.page("removed")')
+    assert uncataloged_calls([tmp_path]) == [f"{kt}:1: do not alias the docs URL builder"]
+
+
+@pytest.mark.parametrize("entry", ['    BAD(page);', '    BAD("ai", anchor);', '        BAD("ai", anchor);'])
 def test_an_unscannable_catalog_entry_is_reported(tmp_path, entry):
     catalog = tmp_path / "DocsLink.kt"
     catalog.write_text('    GOOD("ai"),\n' + entry)
