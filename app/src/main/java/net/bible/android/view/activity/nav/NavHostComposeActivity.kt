@@ -63,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlin.reflect.KFunction1
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -1055,6 +1056,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         readingAppBootstrap.prepareData()
         val repository = readingAppBootstrap.createWindowRepository()
+        linkTransportVisibilityToInsets(deferred = true)
         // Bootstrapped during a restore: the repository holds provisional state. If the restore already ended, its
         // notification may have gone out before this host listened, so reload now (else the notification does it).
         if (repository.staleAfterRestore && !DatabaseContainer.replacing) {
@@ -2621,6 +2623,25 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val hostSubscriptions = Subscriptions()
 
+    private var transportInsetsLinked = false
+
+    /**
+     * #4048: the Speak transport owns its visibility; the inset ledger follows it. Resolving the transport builds its
+     * state from the database, so a host started uninitialised (crash dialog -> Backup) must not do it before the app
+     * is initialised: there it threw DataBaseNotReady inside lifecycleScope, an uncaught coroutine failure. Once per host.
+     * [deferred] posts the collection instead of running it inline (Main.immediate): the late link runs from inside the
+     * reading bootstrap, which may itself be running inside a navigation callback or composition.
+     */
+    private fun linkTransportVisibilityToInsets(deferred: Boolean = false) {
+        if (transportInsetsLinked) return
+        transportInsetsLinked = true
+        lifecycleScope.launch(if (deferred) Dispatchers.Main else EmptyCoroutineContext) {
+            speakTransportServiceImpl.state.map { it.visible }.distinctUntilChanged().collect {
+                readingInsets.onTransportVisibilityChanged()
+            }
+        }
+    }
+
     /**
      * Registers this host's owner-stream subscriptions (cancelled in onDestroy via [hostSubscriptions]);
      * called from onCreate. Six, all classic `MainBibleActivity.eventSubscriptions` ports (the Welcome
@@ -2642,11 +2663,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * the one the user is looking at.
      */
     private fun subscribeReadingHost() {
-        lifecycleScope.launch {
-            speakTransportServiceImpl.state.map { it.visible }.distinctUntilChanged().collect {
-                readingInsets.onTransportVisibilityChanged()
-            }
-        }
+        // An uninitialised start (Welcome, Backup) links it when it bootstraps a reading view ([bootstrapIfNeeded]).
+        if (!doNotInitializeApp) linkTransportVisibilityToInsets()
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
         // `DocumentChanges.installedChanged` from six of its own destinations and, until T8a,
         // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an

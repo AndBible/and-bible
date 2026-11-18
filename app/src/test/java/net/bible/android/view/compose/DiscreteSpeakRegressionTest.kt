@@ -80,6 +80,9 @@ class DiscreteSpeakRegressionTest {
     }
 
     private fun host(): ActivityController<NavHostComposeActivity> {
+        // A real host composes on Compose's JVM-static UI dispatcher, which an earlier test in this JVM may have left
+        // stuck (see resetComposeUiDispatcher): the start then never leaves "start settings not loaded".
+        net.bible.test.resetComposeUiDispatcher()
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
