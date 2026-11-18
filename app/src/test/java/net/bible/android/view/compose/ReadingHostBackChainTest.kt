@@ -417,7 +417,11 @@ class ReadingHostBackChainTest {
         activity.onBackPressedDispatcher.onBackPressed()
 
         assertEquals("BACK in the links pane does not un-maximise", bibleWindow.id, repository.maximizedWindowId)
-        assertEquals(listOf(bibleWindow, links), repository.visibleWindows)
+        assertEquals(
+            "nothing opened in the links pane since it was shown: BACK closes it (plain maximised window)",
+            listOf(bibleWindow), repository.visibleWindows,
+        )
+        assertEquals(bibleWindow, windowControl.activeWindow)
         assertFalse(activity.isFinishing)
     }
 
@@ -473,6 +477,72 @@ class ReadingHostBackChainTest {
         assertEquals("BACK walks the links window's own history", first, links.pageManager.currentBible.singleKey)
         assertEquals(bibleWindow.id, repository.maximizedWindowId)
         assertEquals(listOf(bibleWindow, links), repository.visibleWindows)
+        assertFalse(activity.isFinishing)
+
+        // Back at the first page of the session: the links pane closes, the maximised window stays as it was.
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals(bibleWindow.id, repository.maximizedWindowId)
+        assertEquals(listOf(bibleWindow), repository.visibleWindows)
+        assertEquals(bibleWindow, windowControl.activeWindow)
+        assertEquals(Verse(v11n, BibleBook.PS, 23, 1), bibleWindow.pageManager.currentBible.singleKey)
+        assertFalse(activity.isFinishing)
+    }
+
+    /**
+     * #4141: BACK in the links pane never walks into pages the links window showed before this maximised session; with
+     * no history of the session left it closes the pane.
+     */
+    @Test
+    fun backInTheLinksPaneDoesNotWalkPagesFromBeforeTheMaximisedSession() = withLinksWindowSetting(on = true) {
+        val activity = host()
+        val windowControl = CommonUtils.windowControl
+        val repository = windowControl.windowRepository
+        val linkControl = GlobalContext.get().get<LinkControl>()
+        val bibleWindow = windowControl.activeWindow
+        bibleWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(v11n, BibleBook.PS, 23, 1))
+        // Before the session: the links window showed John 10:11 in the split, then was minimised.
+        linkControl.showLink(null, Verse(v11n, BibleBook.JOHN, 10, 11))
+        val links = windowControl.activeWindow
+        historyManager().addHistoryItem(links)
+        linkControl.showLink(null, Verse(v11n, BibleBook.JOHN, 10, 12))
+        windowControl.minimiseWindow(links)
+        windowControl.activeWindow = bibleWindow
+        windowControl.maximiseWindow(bibleWindow)
+
+        linkControl.showLink(null, Verse(v11n, BibleBook.ROM, 8, 28))
+        assertEquals("fixture: the links pane beside the maximised window", listOf(bibleWindow, links), repository.visibleWindows)
+        assertEquals(links, windowControl.activeWindow)
+        val linksHistory = historyManager().getHistory(links.id).size
+        assertTrue("fixture: the links window has older history", linksHistory > 0)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals(listOf(bibleWindow), repository.visibleWindows)
+        assertEquals(bibleWindow.id, repository.maximizedWindowId)
+        assertEquals("the older history was not walked", linksHistory, historyManager().getHistory(links.id).size)
+        assertFalse(activity.isFinishing)
+    }
+
+    /** #4141: a links pane with no history at all used to fall through to the exit warning; BACK closes it. */
+    @Test
+    fun backInALinksPaneWithoutAnyHistoryClosesItInsteadOfWarning() = withLinksWindowSetting(on = true) {
+        val activity = host()
+        val windowControl = CommonUtils.windowControl
+        val repository = windowControl.windowRepository
+        val bibleWindow = windowControl.activeWindow
+        windowControl.maximiseWindow(bibleWindow)
+        GlobalContext.get().get<LinkControl>().showLink(null, Verse(v11n, BibleBook.JOHN, 10, 11))
+        val links = repository.visibleWindows.last()
+        assertTrue(links.isLinksWindow)
+        assertEquals(links, windowControl.activeWindow)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertEquals(listOf(bibleWindow), repository.visibleWindows)
+        assertEquals(bibleWindow.id, repository.maximizedWindowId)
+
+        // The press closed the pane; it did not arm the exit warning, so one more press only warns.
+        activity.onBackPressedDispatcher.onBackPressed()
         assertFalse(activity.isFinishing)
     }
 

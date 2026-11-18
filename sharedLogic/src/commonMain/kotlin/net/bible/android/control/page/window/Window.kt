@@ -82,12 +82,15 @@ class Window (
 
     private val ownTargetLinksWindow get() = windowRepository.getWindow(targetLinksWindowId)
 
-    /** [targetLinksWindow] when it already exists; never creates one. */
+    /**
+     * The links window this window's links currently go to, when it exists. Unlike [targetLinksWindow] it never creates
+     * one, nor adopts some other links window when the target is gone (#4141: closing the links pane beside a maximised
+     * window must not bring in, say, a links window chained from it).
+     */
     val existingTargetLinksWindow: Window?
         get() = ownTargetLinksWindow
             ?: if (isLinksWindow) null
             else windowRepository.getWindow(windowRepository.primaryTargetLinksWindowId)
-                ?: windowRepository.windowList.find { it.isLinksWindow }
     val linksWindowNumber: Int get() {
         val target = ownTargetLinksWindow
         return if(target == null) 0
