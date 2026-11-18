@@ -83,18 +83,165 @@ class RuntimeDiagnosticStoreTest {
         } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
     }
 
-    @Test fun legacySingleFooterGenerationLoadsAndRotatesWithoutLosingHistory() {
-        val dir = Files.createTempDirectory("diagnostics-legacy").toOkioPath()
+    @Test fun restartAfterInterruptedTailCanPersistAnotherCheckpoint() {
+        val dir = Files.createTempDirectory("diagnostics-restart-tail").toOkioPath()
         try {
-            FileSystem.SYSTEM.sink(dir / "diagnostics.0.ndjson").buffer().use {
-                it.writeUtf8("{\"generation\":7}\n{\"runId\":\"legacy\",\"sequence\":1,\"epochMillis\":1000,\"event\":{\"type\":\"ClientReady\",\"paneId\":\"pane\"}}\n{\"checksum\":1896292895759850750}\n")
+            val fs = FileSystem.SYSTEM
+            RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("complete")))
+            fs.appendingSink(dir / "diagnostics.0.ndjson").buffer().use {
+                it.writeUtf8("{\"runId\":\"interrupted")
             }
-            val store = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }
-            assertTrue(store.snapshot().contains("legacy"))
-            store.append(DiagnosticRecord("new", 1, 1000, RuntimeDiagnosticEvent.ClientReady("pane")))
-            val reopened = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }.snapshot()
-            assertTrue(reopened.contains("legacy") && reopened.contains("new"))
+            val restarted = RuntimeDiagnosticStore(dir, fs) { 1000L }
+            restarted.append(DiagnosticRecord("run", 2, 1000, RuntimeDiagnosticEvent.ClientReady("after-restart")))
+            val recovered = RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot()
+            assertTrue(recovered.contains("complete"), recovered)
+            assertTrue(recovered.contains("after-restart"), recovered)
+            assertTrue(!recovered.contains("interrupted"), recovered)
         } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun startupSlicesAtLastCheckpointEvenWhenTailContainsACompleteRecord() {
+        val dir = Files.createTempDirectory("diagnostics-checkpoint-slice").toOkioPath()
+        try {
+            val fs = FileSystem.SYSTEM
+            val store = RuntimeDiagnosticStore(dir, fs) { 1000L }
+            repeat(20) { n ->
+                store.append(DiagnosticRecord("run", n.toLong(), 1000, RuntimeDiagnosticEvent.ClientReady("committed")))
+            }
+            fs.appendingSink(dir / "diagnostics.0.ndjson").buffer().use {
+                it.writeUtf8(DiagnosticRecord("run", 20, 1000, RuntimeDiagnosticEvent.ClientReady("uncommitted")).encode() + "\n")
+            }
+            val recovered = RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot()
+            assertEquals(20, recovered.lineSequence().count { it.isNotEmpty() })
+            assertTrue(!recovered.contains("uncommitted"), recovered)
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun closeFailureDuringRotationForcesNextAppendToRotateAgain() {
+        val dir = Files.createTempDirectory("diagnostics-rotation-close").toOkioPath()
+        try {
+            var failClose = false
+            val fs = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+                override fun sink(file: Path, mustCreate: Boolean): Sink =
+                    object : ForwardingSink(super.sink(file, mustCreate)) {
+                        override fun close() {
+                            super.close()
+                            if (failClose) throw IOException("injected complete-write close failure")
+                        }
+                    }
+            }
+            val store = RuntimeDiagnosticStore(dir, fs) { 1000L }
+            var sequence = 0L
+            while (fs.list(dir).none { fs.metadata(it).size!! > 510_000 }) {
+                store.append(DiagnosticRecord("run", sequence++, 1000, RuntimeDiagnosticEvent.ClientReady("p".repeat(3000))))
+            }
+            failClose = true
+            kotlin.test.assertFailsWith<IOException> {
+                store.appendBatch((1..10).map {
+                    DiagnosticRecord("run", sequence++, 1000, RuntimeDiagnosticEvent.ClientReady("p".repeat(3000)))
+                })
+            }
+            failClose = false
+            store.append(DiagnosticRecord("run", sequence, 1000, RuntimeDiagnosticEvent.ClientReady("after-close")))
+            val recovered = RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot()
+            assertTrue(recovered.contains("after-close"), "append after failed rotation was hidden by the newer disk generation")
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun startupDeletesInvalidInactiveGenerationAndKeepsCommittedHistory() {
+        for (unreadable in listOf(false, true)) {
+            val dir = Files.createTempDirectory("diagnostics-invalid-inactive").toOkioPath()
+            try {
+                val fs = FileSystem.SYSTEM
+                RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                    DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("complete")))
+                val inactive = dir / "diagnostics.1.ndjson"
+                fs.sink(inactive).buffer().use { it.writeUtf8("{\"generation\":999}\n{half-written") }
+                val readingFs = object : ForwardingFileSystem(fs) {
+                    override fun source(file: Path): okio.Source {
+                        if (unreadable && file == inactive) throw IOException("injected unreadable inactive file")
+                        return super.source(file)
+                    }
+                }
+                val reopened = RuntimeDiagnosticStore(dir, readingFs) { 1000L }
+                assertTrue(reopened.snapshot().contains("complete"))
+                assertTrue(!fs.exists(inactive), "invalid inactive generation was not deleted (unreadable=$unreadable)")
+                reopened.append(DiagnosticRecord("run", 2, 1000, RuntimeDiagnosticEvent.ClientReady("continued")))
+                assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("continued"))
+            } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+        }
+    }
+
+    @Test fun startupDeletesInactiveGenerationsWithWrongTypedJsonFields() {
+        val invalidBodies = listOf(
+            "{\"generation\":[]}\n",
+            "{\"generation\":999}\n{\"checksum\":{}}\n",
+            "{\"generation\":999}\n{\"runId\":[],\"sequence\":1,\"epochMillis\":1000}\n",
+            "{\"generation\":999}\n{\"runId\":\"run\",\"sequence\":{},\"epochMillis\":1000}\n",
+            "{\"generation\":999}\n{\"runId\":\"run\",\"sequence\":1,\"epochMillis\":[]}\n",
+        )
+        for (body in invalidBodies) {
+            val dir = Files.createTempDirectory("diagnostics-invalid-json").toOkioPath()
+            try {
+                val fs = FileSystem.SYSTEM
+                RuntimeDiagnosticStore(dir, fs) { 1000L }.append(
+                    DiagnosticRecord("run", 1, 1000, RuntimeDiagnosticEvent.ClientReady("complete")))
+                val inactive = dir / "diagnostics.1.ndjson"
+                fs.sink(inactive).buffer().use { it.writeUtf8(body) }
+                assertTrue(RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot().contains("complete"))
+                assertTrue(!fs.exists(inactive), "invalid inactive JSON not deleted: $body")
+            } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+        }
+    }
+
+    @Test fun oversizedBatchCountsOnlyNewRecordsLostDuringCompaction() {
+        val dir = Files.createTempDirectory("diagnostics-batch-loss").toOkioPath()
+        try {
+            val store = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }
+            repeat(10) {
+                store.append(DiagnosticRecord("run", it.toLong(), 1000, RuntimeDiagnosticEvent.ClientReady("previous")))
+            }
+            val records = (10L..265L).map {
+                DiagnosticRecord("run", it, 1000, RuntimeDiagnosticEvent.ClientReady("p".repeat(3000)))
+            }
+            store.appendBatch(records)
+            val persisted = RuntimeDiagnosticStore(dir, FileSystem.SYSTEM) { 1000L }.snapshot()
+                .lineSequence().count { it.isNotEmpty() }
+            assertTrue(persisted in 1..255)
+            assertEquals(256L - persisted, store.takeOmittedCount(), "new batch losses must not include evicted history")
+            assertEquals(0L, store.takeOmittedCount())
+            assertTrue(store.snapshot().contains("\"sequence\":265"))
+        } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+    }
+
+    @Test fun legacyWriterGenerationsLoadAndContinueAtSmallAndNearCapSizes() {
+        for (count in listOf(2, 180)) {
+            val dir = Files.createTempDirectory("diagnostics-legacy").toOkioPath()
+            try {
+                val fs = FileSystem.SYSTEM
+                val legacy = LegacyRuntimeDiagnosticStore(dir, fs) { 1000L }
+                repeat(count) { n ->
+                    legacy.append(DiagnosticRecord("legacy", n.toLong(), 1000,
+                        RuntimeDiagnosticEvent.ClientReady("p".repeat(3000))))
+                }
+                val files = fs.list(dir)
+                assertEquals(2, files.size)
+                val headers = files.map { path -> fs.source(path).buffer().use { it.readUtf8LineStrict() } }
+                assertEquals(2, headers.toSet().size, "legacy files must have different generations")
+                if (count == 180) assertTrue(files.all { fs.metadata(it).size!! in 520_000L..524_288L })
+                val expected = legacy.snapshot()
+                val store = RuntimeDiagnosticStore(dir, fs) { 1000L }
+                assertEquals(expected, store.snapshot(), "legacy load count=$count")
+                store.append(DiagnosticRecord("new", 1, 1000, RuntimeDiagnosticEvent.ClientReady("first-new")))
+                store.append(DiagnosticRecord("new", 2, 1000, RuntimeDiagnosticEvent.ClientReady("second-new")))
+                val reopened = RuntimeDiagnosticStore(dir, fs) { 1000L }.snapshot()
+                assertEquals(store.snapshot(), reopened)
+                assertTrue(reopened.contains("\"sequence\":${count - 1}"), "latest legacy record lost")
+                assertTrue(reopened.contains("first-new") && reopened.contains("second-new"))
+                assertTrue(files.all { fs.metadata(it).size!! <= 524_288L })
+            } finally { FileSystem.SYSTEM.deleteRecursively(dir) }
+        }
     }
 
     @Test fun interruptedAppendRecoversLastCheckpointAndCanContinue() {
