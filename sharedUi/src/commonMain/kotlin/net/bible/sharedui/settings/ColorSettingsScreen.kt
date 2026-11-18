@@ -56,9 +56,9 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.keepsDefaultWorkspaceColor
-import net.bible.sharedui.theme.workspaceDisplayArgb
+import net.bible.sharedui.theme.WorkspaceColorCircle
+import net.bible.sharedui.theme.WorkspaceColorCircleStyle
 import net.bible.sharedui.theme.workspacePickerStartArgb
 import net.bible.sharedui.theme.LocalIsDarkTheme
 
@@ -211,14 +211,11 @@ fun ColorSettingsContent(
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {
-            ColorSwatchRow(
-                label = labels.workspaceColor,
-                // The stored default is an unset sentinel, not the visible theme colour (#4149).
-                color = workspaceDisplayArgb(
-                    colors.workspaceColor, LocalIsDarkTheme.current, LocalDisplayColorMode.current,
-                ),
-                onClick = onWorkspaceColorClick,
-            )
+            // The stored default is an unset sentinel, not the visible theme colour (#4149): it is
+            // drawn as the default toolbar colour with a dashed "follows the theme" ring.
+            ColorSwatchRow(label = labels.workspaceColor, onClick = onWorkspaceColorClick) {
+                WorkspaceColorCircle(colors.workspaceColor, size = 32.dp, style = WorkspaceColorCircleStyle.SWATCH)
+            }
         }
 
         SectionTitle(labels.dayMode)
@@ -304,7 +301,19 @@ private fun ColorModeSection(
 
 /** A clickable coloured circle + label; opens the caller's colour-picker dialog. */
 @Composable
-private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) {
+private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) =
+    ColorSwatchRow(label, onClick) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(AbColor.toComposeColor(color), CircleShape)
+                .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant, CircleShape),
+        )
+    }
+
+/** A clickable [circle] + label row. */
+@Composable
+private fun ColorSwatchRow(label: String, onClick: () -> Unit, circle: @Composable () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -312,12 +321,7 @@ private fun ColorSwatchRow(label: String, color: Int, onClick: () -> Unit) {
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(AbColor.toComposeColor(color), CircleShape)
-                .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant, CircleShape),
-        )
+        circle()
         Spacer(Modifier.width(16.dp))
         Text(label, style = MaterialTheme.typography.bodyLarge)
     }

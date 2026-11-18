@@ -17,7 +17,6 @@
 
 package net.bible.sharedui.workspaces
 
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,24 +28,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.testTag
-import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
-import net.bible.sharedui.theme.workspaceDotColor
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.components.ScrollToItemOnce
 import net.bible.sharedui.components.currentRowHighlight
-import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
+import net.bible.sharedui.theme.WorkspaceColorCircle
+import net.bible.sharedui.theme.WorkspaceColorCircleStyle
 
 /**
  * The workspace QUICK switch list (spec §4.4): colour dot + name, current row bold and inert.
@@ -110,11 +109,10 @@ fun WorkspaceQuickContent(
                 // grays out in BW, ink in MONOCHROME and COLOR_EINK. Construction copied verbatim from
                 // `WorkspaceSelectorScreen.kt:183-187` so the two screens tint identically.
                 // An unset colour (#4149) is resolved to the default theme's colour.
-                Surface(
-                    color = workspaceDotColor(row.colorArgb),
-                    shape = CircleShape,
-                    modifier = Modifier.size(16.dp).testTag(WORKSPACE_COLOR_DOT_TAG),
-                ) {}
+                WorkspaceColorCircle(
+                    row.colorArgb, size = 16.dp, style = WorkspaceColorCircleStyle.DOT,
+                    modifier = Modifier.testTag(WORKSPACE_COLOR_DOT_TAG),
+                )
                 Spacer(Modifier.width(16.dp))
                 Text(
                     // I4: the existing `workspaceListingWithCurrent` string -- what the full

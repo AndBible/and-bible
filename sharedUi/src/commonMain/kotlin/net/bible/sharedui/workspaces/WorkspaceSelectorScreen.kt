@@ -16,8 +16,6 @@
  */
 package net.bible.sharedui.workspaces
 
-import androidx.compose.foundation.selection.selectable
-import net.bible.sharedui.components.currentRowHighlight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -42,29 +40,28 @@ import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonDefaults
-import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbDropdownMenu
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOptionsDialog
@@ -74,10 +71,12 @@ import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
+import net.bible.sharedui.components.currentRowHighlight
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
-import net.bible.sharedui.theme.workspaceDotColor
 import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
+import net.bible.sharedui.theme.WorkspaceColorCircle
+import net.bible.sharedui.theme.WorkspaceColorCircleStyle
 import net.bible.sharedui.theme.isPureMonochrome
 
 /**
@@ -192,11 +191,10 @@ fun WorkspaceSelectorScreen(
                         // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
                         // grays out in BW, ink in MONOCHROME and COLOR_EINK.
                         // An unset colour (#4149) is resolved to the default theme's colour.
-                        Surface(
-                            color = workspaceDotColor(item.colorArgb),
-                            shape = CircleShape,
-                            modifier = Modifier.size(16.dp).testTag(WORKSPACE_COLOR_DOT_TAG),
-                        ) {}
+                        WorkspaceColorCircle(
+                            item.colorArgb, size = 16.dp, style = WorkspaceColorCircleStyle.DOT,
+                            modifier = Modifier.testTag(WORKSPACE_COLOR_DOT_TAG),
+                        )
                         Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                             Text(
                                 if (item.isCurrent) s.workspaceListingWithCurrent(item.name) else item.name,
