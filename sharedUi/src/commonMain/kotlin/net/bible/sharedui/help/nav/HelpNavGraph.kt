@@ -50,7 +50,7 @@ fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNav
         LaunchedEffect(strings.helpAndTips) { deps.setWindowTitle(strings.helpAndTips) }
         val tips = remember(strings) { deps.tips() }
         val language = remember { deps.appLanguage() }
-        val videos = deps.tutorialVideos(language)
+        val videos = remember(strings, language) { deps.tutorialVideos(language) }
         HelpScreen(
             tips = tips,
             sections = UserGuideToc.sections,

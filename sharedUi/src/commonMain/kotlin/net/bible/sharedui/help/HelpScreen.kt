@@ -205,7 +205,7 @@ private fun GuideRow(title: String, onClick: () -> Unit) {
         headlineContent = { Text(title) },
         supportingContent = { Text(strings.helpReadInUserGuide) },
         leadingContent = { Icon(Icons.Outlined.Description, contentDescription = null) },
-        modifier = Modifier.clickable(role = Role.Button, onClickLabel = "${strings.helpReadMoreLink}: $title", onClick = onClick),
+        modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpReadPage(title), onClick = onClick),
     )
 }
 

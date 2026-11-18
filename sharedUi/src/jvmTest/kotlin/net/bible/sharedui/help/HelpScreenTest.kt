@@ -45,8 +45,9 @@ class HelpScreenTest {
         appLanguage: String = "en",
         guideSections: List<UserGuideToc.Section> = sections,
         guideStrings: net.bible.sharedui.strings.keyed.KeyedUserGuideStrings = net.bible.sharedui.strings.keyed.KeyedUserGuideStrings.english(),
+        uiStrings: net.bible.sharedui.strings.Strings = strings,
     ) = setContent {
-        CompositionLocalProvider(LocalStrings provides strings) {
+        CompositionLocalProvider(LocalStrings provides uiStrings) {
             AbTheme(darkTheme = false) {
                 HelpScreen(
                     tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
@@ -108,9 +109,18 @@ class HelpScreenTest {
         val page = onNodeWithText("Navigation page")
         onAllNodesWithText("Read in the user guide").assertCountEquals(3)
         val click = page.fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick)
-        assertTrue(!click?.label.isNullOrBlank())
+        assertEquals("Read in the user guide: Navigation page", click?.label)
         page.performClick()
         assertEquals(listOf("https://x/navigation/"), opened)
+    }
+
+    @Test fun guidePageClickLabelUsesTheCompleteLocalizedTemplate() = runComposeUiTest {
+        val localized = object : net.bible.sharedui.strings.Strings by strings {
+            override fun helpReadPage(title: String) = "<$title> / open guide"
+        }
+        show(videos = emptyList(), initialTab = 1, uiStrings = localized)
+        val click = onNodeWithText("Navigation page").fetchSemanticsNode().config.getOrNull(SemanticsActions.OnClick)
+        assertEquals("<Navigation page> / open guide", click?.label)
     }
 
     @Test fun guidePageAndEpisodesAreOrderedAndAligned() = runComposeUiTest {

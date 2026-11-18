@@ -83,6 +83,7 @@
     <string name="help_user_guide_intro">The full user guide is on andbible.org. Pages open in your browser.</string>
     <string name="help_user_guide_home">User guide home</string>
     <string name="help_read_in_user_guide">Read in the user guide</string>
+    <string name="help_read_page">Read in the user guide: %1$s</string>
     <string name="help_tutorial_videos">Tutorial videos</string>
     <string name="help_play_video">Play video: %1$s</string>
     <string name="administration">Administration</string>
