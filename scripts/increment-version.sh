@@ -21,9 +21,9 @@ NC='\033[0m' # No Color
 # Usage: retry_command <description> <command...>
 # Approves the pending environment deployments of the newest run of workflow $1 for commit $2.
 # Waits up to $3 seconds for the run to appear and ask for approval, polling every $4 seconds.
-# Plain echo only: it also runs detached (nohup), where the colour variables are not defined.
+# With job name $5, then waits (same deadline) for that job to finish and fails unless it succeeded.
 approve_workflow_deployments() {
-    local workflow="$1" sha="$2" timeout="$3" interval="$4"
+    local workflow="$1" sha="$2" timeout="$3" interval="$4" follow_job="${5:-}"
     local deadline=$((SECONDS + timeout)) run_id="" pending=""
     echo "Waiting for $workflow run of $sha to ask for deployment approval..."
     while (( SECONDS < deadline )); do
@@ -39,7 +39,20 @@ approve_workflow_deployments() {
                 if gh api "repos/{owner}/{repo}/actions/runs/$run_id/pending_deployments" --method POST "${args[@]}" \
                     -f state=approved -f comment="Approved via increment-version script" >/dev/null 2>&1; then
                     echo "Deployment approved for $workflow run $run_id"
-                    return 0
+                    [[ -z "$follow_job" ]] && return 0
+                    local job_state=""
+                    while (( SECONDS < deadline )); do
+                        job_state=$(gh api "repos/{owner}/{repo}/actions/runs/$run_id/jobs" \
+                            --jq ".jobs[] | select(.name == \"$follow_job\") | \"\\(.status) \\(.conclusion)\"" 2>/dev/null || true)
+                        if [[ "$job_state" == completed* ]]; then
+                            echo "$follow_job: ${job_state#completed } (https://github.com/AndBible/and-bible/actions/runs/$run_id)"
+                            [[ "$job_state" == "completed success" ]]
+                            return
+                        fi
+                        sleep "$interval"
+                    done
+                    echo "$follow_job did not finish in time (a production signing request needs approval in SignPath). Check: https://github.com/AndBible/and-bible/actions/runs/$run_id"
+                    return 1
                 fi
                 echo "Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$run_id"
                 return 1
@@ -338,18 +351,19 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     retry_command "Push tag to GitHub" git push origin "$TAG_NAME"
     echo -e "${GREEN}✓ Changes and tag pushed to GitHub successfully${NC}"
 
-    # Approve the deployments the tag's CI runs wait for (environment "And Bible Builds" needs approval):
-    # the APK build right away, and the Desktop workflow's windows-sign job (SignPath), which only asks
-    # for approval after the ~20 minute Windows build, from a detached background waiter.
+    # Approve the deployments the tag's CI runs wait for (environment "And Bible Builds" needs approval).
+    # The Desktop workflow's windows-sign job (SignPath) asks only after the ~20 minute Windows build, so
+    # its waiter runs in the background while the APK approval and the release cleanup go on; the script
+    # waits for it at the end and reports the signing result.
+    DESKTOP_WAITER_PID=""
     if command -v gh >/dev/null 2>&1; then
         echo ""
         HEAD_SHA=$(git rev-parse HEAD)
+        DESKTOP_APPROVAL_LOG=$(mktemp "${TMPDIR:-/tmp}/andbible-desktop-approval-XXXXXX")
+        (approve_workflow_deployments desktop.yml "$HEAD_SHA" 5400 30 windows-sign) > "$DESKTOP_APPROVAL_LOG" 2>&1 &
+        DESKTOP_WAITER_PID=$!
+        echo "Desktop (Windows signing) approval runs in the background; the script waits for it at the end."
         approve_workflow_deployments build-apk.yml "$HEAD_SHA" 60 2 || true
-        DESKTOP_APPROVAL_LOG="${TMPDIR:-/tmp}/andbible-desktop-approval-$TAG_NAME.log"
-        nohup bash -c "$(declare -f approve_workflow_deployments); approve_workflow_deployments desktop.yml '$HEAD_SHA' 5400 30" \
-            > "$DESKTOP_APPROVAL_LOG" 2>&1 < /dev/null &
-        disown
-        echo -e "${YELLOW}Approving the Desktop (Windows signing) deployment in the background when it asks, within 90 minutes; log: $DESKTOP_APPROVAL_LOG${NC}"
     fi
 
     # Cleanup old test releases - keep only the most recent one available during build
@@ -374,6 +388,19 @@ else
     echo "To push later, run:"
     echo "  git push origin"
     echo "  git push origin $TAG_NAME"
+fi
+
+if [[ -n "${DESKTOP_WAITER_PID:-}" ]]; then
+    echo ""
+    echo "Waiting for the Desktop workflow's Windows signing (up to 90 minutes; Ctrl-C only stops waiting)..."
+    if wait "$DESKTOP_WAITER_PID"; then
+        cat "$DESKTOP_APPROVAL_LOG"
+        echo -e "${GREEN}✓ Windows packages signed${NC}"
+    else
+        cat "$DESKTOP_APPROVAL_LOG"
+        echo -e "${YELLOW}Warning: Windows signing did not finish successfully; see above.${NC}"
+    fi
+    rm -f "$DESKTOP_APPROVAL_LOG"
 fi
 
 echo ""
