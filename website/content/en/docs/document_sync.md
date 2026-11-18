@@ -2,8 +2,7 @@
 
 In addition to syncing your data — bookmarks, workspaces, reading plans, My
 Documents, AI settings and reading progress (see [Cloud Sync](cloud_sync.md)) — *AndBible* can
-also synchronize your installed **documents** — Bibles, commentaries,
-dictionaries and other modules — across your devices, using the same cloud
+also synchronize your installed **documents** across your devices, using the same cloud
 account and whichever backend you have signed in to (Google Drive, iCloud Drive, Nextcloud or WebDAV).
 
 When a document is installed on one device — by *any* method (downloaded from a
