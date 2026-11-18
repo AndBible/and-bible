@@ -13,10 +13,12 @@
   <string name="history">သုံးခဲ့သည့်မှတ်တမ်း</string>
   <string name="speak">စကားပြောပါ</string>
   <string name="help">ကူညီပါ</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="information">သတင်းအချက်အလက်</string>
   <string name="other">အခြား</string>
   <string name="contact">အဆက်အစပ်</string>
   <string name="help_and_tips">&amp; ကိုကူညီပါ; အကြံပြုချက်များ</string>
+  <string name="help_read_in_user_guide">အသုံးပြုသူလမ်းညွှန်တွင် ဖတ်ပါ</string>
   <string name="administration">အုပ်ချုပ်မှု</string>
   <string name="rate_application">&amp; အားအဆင့်သတ်မှတ်ပါ၊ သုံးသပ်ပါ</string>
   <string name="chooce_document">မှတ်တမ်းရွေးချယ်ပါ</string>
@@ -57,6 +59,18 @@
   <string name="error_executing_search">စုံစမ်းရှာဖွေမှု မမှန်ကန်ပါ</string>
   <!--Open (bible reference X)-->
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">အခန်းကြီး &amp; အခန်းငယ်နံပါတ်များ</string>
   <string name="prefs_show_verseno_summary">အခန်းကြီး &amp;အားပြပါ; အခန်းငယ်နံပါတ်များ</string>
@@ -123,8 +137,6 @@
   <string name="text_display_settings_activity_title">စာသား ပေါ်လွင်ပုံ ဆက်တင်များ</string>
   <string name="workspace_text_display_settings_title">စာသား ရွေးချယ်စရာများ %s</string>
   <string name="window_text_display_settings_title">စာသား ရွေးချယ်စရာများ - ဝင်းဒိုး %d</string>
-  <string name="prefs_text_display_settings_title">ပုံစံ ဖွဲ့စည်းခြင်း</string>
-  <string name="prefs_text_appearance_title">အသွင်အပြင်</string>
   <string name="prefs_justify_title">စာသားအစွန်းကို ညီအောင်ထားပါ</string>
   <string name="prefs_justify_summary">စာကြောင်းညီအောင်ထားသည့်ပုံစံဆိုရာတွင် စာသားများ၏ ဘယ်နှင့်ညာဘက်မာဂျင်များ ညီနေသည်ကို ဆိုလိုသည်</string>
   <string name="pref_left_margin_label_mm">ဘယ်မာဂျင် (%d mm)</string>
@@ -357,6 +369,10 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="speak_autobookmarking_disabled">အလိုအလျောက် စာညှပ်ခြင်းကို ပိတ်လိုက်ပါပြီ</string>
   <string name="system_speak_settings">Open system TTS ဆက်တင်များ</string>
   <string name="auto_assing_labels_help1">သင်ဖန်တီးထားသည့် စာညှပ်များတွင် အလိုအလျာက်အလုပ်လုပ်သည့် လေဘယ်လ်များကို ဤနေရာတွင် ပြုပြင်နိုင်သည်။ </string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">ဤဆက်တင်သည် %s သို့လည်း အကျုံးဝင်သည် </string>
   <string name="setting_scope_window">ဤဝင်းဒိုး</string>
@@ -437,6 +453,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="loading_backup">ဒေတာဘေ့စ်အား အရန်ဖိုင်မှ ဖွင့်နေပါသည်</string>
   <string name="backup_success2">ကိုယ်ပိုင်မှတ်စုများ၊စာညှပ်များ၊လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့်အလုပ်ခွင်များအား အောင်မြင်စွာ အရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
   <string name="backup_modules_success">ရွေးချယ်ထားသော သင်ခန်းစာများအား အောင်မြင်စွာအရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
   <string name="backup_modules_email_subject_2">%s သင်ခန်းစာများအား အရန်ဖိုင်လုပ်ခြင်း</string>
   <string name="backup_email_subject_2">%s ဒေတာဘေ့စ် အရန်ဖိုင်လုပ်ခြင်း</string>
   <string name="backup_email_message_2">စာညှပ်များ၊ မှတ်စုများ၊ စာဖတ်ခြင်းအစီအစဉ်များနှင့် အလုပ်ခွင်များပါဝင်သည့် သင်၏ %s ဒေတာဘေ့စ်အား ဖိုင်တွဲထားပါသည်</string>
@@ -475,11 +492,15 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="doc_type_book">စာအုပ်</string>
   <string name="doc_type_map">မြေပုံ</string>
   <string name="doc_type_addons">Add-ons</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">ပုံသေ</string>
   <!--General-->
   <string name="okay">အိုကေ</string>
   <string name="cancel">ပယ်ဖျက်ပါ</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">ဟုတ်တယ်</string>
   <string name="no">မဟုတ်ပါ</string>
   <string name="error">မှားယွင်းချက်များ</string>
@@ -496,8 +517,12 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="error_no_content">ရွေးထားသည့် အခန်းငယ်အတွက် မည်သည့်အကြောင်းအရာမှ မရှိပါ</string>
   <string name="error_page_too_large">စာမျက်နှာကြီးလွန်းသည့်အတွက် ဖွင့်မရပါ</string>
   <string name="error_key_not_in_document">မှတ်တမ်းတွင် ရှာမတွေ့ပါ</string>
-  <string name="error_key_not_in_document2">%1$s မှတ်တမ်းတွင် ရှာမတွေ့ပါ %2$s.</string>  <string name="empty_list">ဖော်ပြရန် မည်သည့်အကြောင်းအရာမှမရှိပါ</string>
+  <string name="error_key_not_in_document2">%1$s မှတ်တမ်းတွင် ရှာမတွေ့ပါ %2$s.</string>
+  <string name="empty_list">ဖော်ပြရန် မည်သည့်အကြောင်းအရာမှမရှိပါ</string>
   <string name="error_skip">ကျော်သွားပါ</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <!--Notifications-->
   <string name="notification_channel_tts_status">အသံဖြင့်ပြောရန် စာသား</string>
   <string name="notification_channel_progress_status">မှတ်တမ်း ဒေါင်းလုပ်ဆွဲခြင်းများ.. အစရှိသည်များ အတွက် လုပ်ငန်းစဉ် အခြေအနေပြ သတိပေးချက်</string>
@@ -525,8 +550,8 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="beta_notice_github_issues">GitHub ပြဿနာများ</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>
-  <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
-  <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">ညွှန်ကြားပြသခြင်း</string>
@@ -556,8 +581,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">ပိတ်ပါ</string>
-  <string name="first_time_help_do_not_show_again">နားလည်ပါသည်</string>
-  <string name="first_time_help_show_next_time">နောက်တစ်ကြိမ်တွင် ထပ်ဖော်ပြပါ</string>
   <string name="strongs_mode_title">Strong အသွင်အား ရွေးချယ်ပါ</string>
   <string name="download_dialog_message">အောက်ပါစာအုပ်များကို ဒေါင်းလုပ်ဆွဲ၍မရနိုင်ပါ:</string>
   <string name="journal_description">အသုံးပြုသူမှ တည်းဖြတ်နိုင်သည့် လေ့လာရေးစာရွက်များအား စိတ်ကြိုက်စာသားနှင့်တကွ စာညှပ်များ</string>
@@ -681,6 +704,9 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="instructions_for_translators">ဘာသာပြန်သူများအတွက် လမ်းညွှန်ချက်များ</string>
   <string name="questions_title">မေးခွန်းမေးလိုပါသလား။</string>
   <string name="bookmark_style">စာညှပ်ပုံစံ</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="added_to_bookmark">ဤစာညှပ်ကို တာဝန်ပေးပါ</string>
   <string name="strongs_links">လင့်ခ်များ</string>
   <string name="verse_tip">အခန်းငယ် များစွာ သို့မဟုတ် တစ်စိတ်တစ်ပိုင်းကို မှတ်သားလိုလျှင် ကျမ်းစာစာသားအား ကြာကြာဖိထားရပါမည်</string>
@@ -694,9 +720,125 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="custom_repositories_info_button_label">သတင်းအချက်အလက်</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--Reading Progress Activity-->
   <!--... after restoring from backup file-->
   <string name="last_updated">နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
   <string name="prefs_swipe_mode_chapter">အခန်းကြီး</string>
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">စတင်အသုံးပြုခြင်း</string>
+  <string name="user_guide_section_bible_documents">သမ္မာကျမ်းစာ မှတ်တမ်းများ</string>
+  <string name="user_guide_section_reading_workspace">စာဖတ်ခြင်းနှင့် အလုပ်ခွင်</string>
+  <string name="user_guide_section_study_tools">လေ့လာရေး ကိရိယာများ</string>
+  <string name="user_guide_section_backup_sync">အရန်သိမ်းခြင်းနှင့် ထပ်တူပြုခြင်း</string>
+  <string name="user_guide_section_desktop">ကွန်ပျူတာ</string>
+  <string name="user_guide_section_customisation_advanced">စိတ်ကြိုက်ပြင်ဆင်ခြင်းနှင့် အဆင့်မြင့်ဆက်တင်များ</string>
+  <string name="user_guide_section_help_reference">အကူအညီနှင့် ကိုးကားချက်</string>
+  <string name="user_guide_page_getting_started">စတင်အသုံးပြုခြင်း</string>
+  <string name="user_guide_page_navigation">သွားလာခြင်း</string>
+  <string name="user_guide_page_usage">အသုံးပြုပုံ</string>
+  <string name="user_guide_page_documents">မှတ်တမ်းများ</string>
+  <string name="user_guide_page_my_documents">ကျွန်ုပ်၏ မှတ်တမ်းများ</string>
+  <string name="user_guide_page_custom_repositories">စိတ်ကြိုက် သိုလှောင်ရာများ</string>
+  <string name="user_guide_page_workspaces">အလုပ်ခွင်များ</string>
+  <string name="user_guide_page_windows">ဝင်းဒိုးများ</string>
+  <string name="user_guide_page_verse_action_dialog">အခန်းငယ် လုပ်ဆောင်ချက်များ</string>
+  <string name="user_guide_page_look_and_feel">အသွင်အပြင်</string>
+  <string name="user_guide_page_bible_links">ကျမ်းစာလင့်ခ်များနှင့် တိုက်ရိုက်လင့်ခ်များ</string>
+  <string name="user_guide_page_speak">အသံဖတ်ခြင်း</string>
+  <string name="user_guide_page_bookmarks">စာညှပ်များ</string>
+  <string name="user_guide_page_labels">လေဘယ်လ်များ</string>
+  <string name="user_guide_page_notes">မှတ်စုများ</string>
+  <string name="user_guide_page_study_pads">လေ့လာရေးစာရွက်များ</string>
+  <string name="user_guide_page_search">ရှာဖွေခြင်း</string>
+  <string name="user_guide_page_reading_plans">စာဖတ်ခြင်း အစီအစဉ်များ</string>
+  <string name="user_guide_page_reading_progress">စာဖတ်ခြင်း တိုးတက်မှု</string>
+  <string name="user_guide_page_memorize">အလွတ်ကျက်မှတ်ခြင်း</string>
+  <string name="user_guide_page_ai">AI ကျမ်းစာလေ့လာရေး အကူအညီပေးသူ</string>
+  <string name="user_guide_page_share">မျှဝေခြင်း</string>
+  <string name="user_guide_page_backup_restore">အရန်သိမ်းခြင်းနှင့် ပြန်လည်ရယူခြင်း</string>
+  <string name="user_guide_page_cloud_sync">Cloud ထပ်တူပြုခြင်း</string>
+  <string name="user_guide_page_document_sync">မှတ်တမ်းများ ထပ်တူပြုခြင်း</string>
+  <string name="user_guide_page_desktop">Windows နှင့် Linux ပေါ်ရှိ AndBible</string>
+  <string name="user_guide_page_customisation">စိတ်ကြိုက်ပြင်ဆင်ခြင်း</string>
+  <string name="user_guide_page_customisation_custom_css">စိတ်ကြိုက် CSS</string>
+  <string name="user_guide_page_customisation_module_creation">မော်ဂျူး ဖန်တီးခြင်း</string>
+  <string name="user_guide_page_discrete_build">ဖုံးကွယ်ထားသော ဗားရှင်း</string>
+  <string name="user_guide_page_faq">မကြာခဏ မေးသောမေးခွန်းများ</string>
+  <string name="user_guide_page_platform_differences">ပလက်ဖောင်း ကွာခြားချက်များ</string>
+  <string name="user_guide_page_support">အကူအညီ</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0 တွင် အသစ်ပါဝင်သောအရာများ</string>
+  <string name="tutorial_title_01_getting_started">စတင်အသုံးပြုခြင်း: ထည့်သွင်းခြင်းနှင့် ပထမဆုံးကျမ်းစာများ</string>
+  <string name="tutorial_title_02_finding_your_way">အက်ပ်ကို သိရှိခြင်း</string>
+  <string name="tutorial_title_03_verse_menu">အခန်းငယ် မီနူး</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong နံပါတ်များ၊ အဘိဓာန်များနှင့် အပြန်အလှန်ကိုးကားချက်များ</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">ဝင်းဒိုးများ၊ အပိုင်း ၁: ဖွင့်ခြင်းနှင့် စီစဉ်ခြင်း</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">ဝင်းဒိုးများ၊ အပိုင်း ၂: ပင်ထိုးခြင်း၊ ထပ်တူပြုခြင်းနှင့် လင့်ခ်များ</string>
+  <string name="tutorial_title_07_workspaces">အလုပ်ခွင်များ</string>
+  <string name="tutorial_title_08_bookmarks">စာညှပ်များ</string>
+  <string name="tutorial_title_09_labels_and_highlights">လေဘယ်လ်များနှင့် အသားပေးမှတ်သားချက်များ</string>
+  <string name="tutorial_title_10_notes">မှတ်စုများ</string>
+  <string name="tutorial_title_11_study_pads">လေ့လာရေးစာရွက်များ</string>
+  <string name="tutorial_title_12_search_1_basics">ရှာဖွေခြင်း၊ အပိုင်း ၁: အခြေခံများ</string>
+  <string name="tutorial_title_13_search_2_advanced">ရှာဖွေခြင်း၊ အပိုင်း ၂: စကားစုများ၊ အစားထိုးသင်္ကေတများနှင့် AND/OR</string>
+  <string name="tutorial_title_14_speak">အသံဖတ်ခြင်း: ကျမ်းစာနားထောင်ခြင်း</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">စာဖတ်ခြင်း အစီအစဉ်များနှင့် တိုးတက်မှု</string>
+  <string name="tutorial_title_16_backup_and_restore">အရန်သိမ်းခြင်းနှင့် ပြန်လည်ရယူခြင်း</string>
+  <string name="tutorial_title_17_sync_1_google_drive">ထပ်တူပြုခြင်း၊ အပိုင်း ၁: Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">ထပ်တူပြုခြင်း၊ အပိုင်း ၂: Nextcloud၊ WebDAV နှင့် မှတ်တမ်းများ</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">အသွင်အပြင်၊ အပိုင်း ၁: ညပိုင်းမုဒ်၊ ဖောင့်များနှင့် အရောင်များ</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">အသွင်အပြင်၊ အပိုင်း ၂: အထွေထွေ၊ အလုပ်ခွင်နှင့် ဝင်းဒိုး ဆက်တင်များ</string>
+  <string name="tutorial_title_21_document_library">မှတ်တမ်း စာကြည့်တိုက်</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">ဖိုင်များနှင့် စိတ်ကြိုက် သိုလှောင်ရာများ</string>
+  <string name="tutorial_title_23_my_documents_and_epub">ကျွန်ုပ်၏ မှတ်တမ်းများနှင့် EPUB စာအုပ်များ</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">အခန်းငယ်များ၊ လေ့လာရေးစာရွက်များနှင့် ကျမ်းစာလင့်ခ်များ မျှဝေခြင်း</string>
+  <string name="tutorial_title_25_memorize">အလွတ်ကျက်မှတ်ခြင်း: အခန်းငယ်များကို အလွတ်ကျက်ပါ</string>
+  <string name="tutorial_title_26_desktop">ကွန်ပျူတာပေါ်ရှိ AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">လေ့လာနည်းများ၊ အပိုင်း ၁: ခေါင်းစဉ်အလိုက် လေ့လာခြင်းနှင့် တရားဒေသနာ မှတ်စုများ</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">လေ့လာနည်းများ၊ အပိုင်း ၂: စကားလုံးလေ့လာခြင်းနှင့် ဝတ်ပြုဆင်ခြင်ခြင်း</string>
+  <string name="tutorial_title_29_ai_1_getting_started">AI အကူအညီပေးသူ၊ အပိုင်း ၁: စတင်အသုံးပြုခြင်း</string>
+  <string name="tutorial_title_30_ai_2_prompts">AI အကူအညီပေးသူ၊ အပိုင်း ၂: ညွှန်ကြားချက်များ အသုံးပြုခြင်း</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">AI အကူအညီပေးသူ၊ အပိုင်း ၃: ကိရိယာများ၊ သင့်ဒေတာနှင့် ခွင့်ပြုချက်များ</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI အကူအညီပေးသူ၊ အပိုင်း ၄: ကိုယ်ပိုင်ညွှန်ကြားချက်များ၊ ကုန်ကျစရိတ်နှင့် ထပ်တူပြုခြင်း</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
+
+  <!-- Additional translations -->
+  <string name="first_time_help_do_not_show_again">နားလည်ပါသည်</string>
+  <string name="first_time_help_show_next_time">နောက်တစ်ကြိမ်တွင် ထပ်ဖော်ပြပါ</string>
+  <string name="prefs_text_appearance_title">အသွင်အပြင်</string>
+  <string name="prefs_text_display_settings_title">ပုံစံ ဖွဲ့စည်းခြင်း</string>
+  <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
+  <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>
 </resources>

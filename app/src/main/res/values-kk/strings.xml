@@ -15,10 +15,12 @@
   <string name="history">Тарих</string>
   <string name="speak">Дауыстап оқу</string>
   <string name="help">Көмек</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="information">Ақпарат</string>
   <string name="other">Басқасы</string>
   <string name="contact">Байланыс</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
+  <string name="help_read_in_user_guide">Пайдаланушы нұсқаулығынан оқу</string>
   <string name="administration">Басқару</string>
   <string name="rate_application">Бағалау мен Қайта шолу</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>
@@ -40,7 +42,8 @@
   <string name="do_in_background">Артқы аясында жалғастыру</string>
   <string name="rebuild_index_button">Қайта құру</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%2$s ішінде %1$s нәтиже</string>  <!--Tasks-->
+  <string name="search_with_results2">%2$s ішінде %1$s нәтиже</string>
+  <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқа қолдабаға ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылуы мүмкін.</string>
   <string name="no_tasks_running">Қазір орындалып жатқан еш тапсырма жоқ.</string>
@@ -62,6 +65,18 @@
   <string name="go_to_ref">Ашу %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Табу%s</string>
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Тарау мен аят нөмерлері</string>
   <string name="prefs_show_verseno_summary">Тарау және аят нөмерлерін көрсету</string>
@@ -132,8 +147,6 @@
   <string name="text_display_settings_activity_title">Мәтінді көрсету параметрлері</string>
   <string name="workspace_text_display_settings_title">Текст опциялары - %s</string>
   <string name="window_text_display_settings_title">Текст опциялары - Терезе %d</string>
-  <string name="prefs_text_display_settings_title">Форматтау</string>
-  <string name="prefs_text_appearance_title">Сыртқы келбеті</string>
   <string name="prefs_justify_title">Тексті теңестіріп түзеу</string>
   <string name="prefs_justify_summary">\'Теңестіру\' стилінде тексті түзету мәнісі, мәтінің сол жақ пен оң жақ шекараларын сәйкес келтіру</string>
   <string name="pref_left_margin_label_mm">Сол жақ шекарасы (%dмм)</string>
@@ -388,6 +401,10 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_autobookmarking_disabled">Автоматты кітап белгілеу өшірілген!</string>
   <string name="system_speak_settings">TTS жүйесінің ашық параметрлері</string>
   <string name="auto_assing_labels_help1">Мұнда сіз жасайтын бетбелгілерге қандай белгілер автоматты түрде тағайындалатынын реттей аласыз.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Бұл параметр %s қолданылады.</string>
   <string name="setting_scope_window">Осы терезе</string>
@@ -476,6 +493,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
   <string name="backup_success2">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері сақтық көшірмесіне сәтті сақталған.</string>
   <string name="backup_modules_success">Таңдалған модуль көрсеткіштері сақтық көшірмесіне сәтті сақталған.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
   <string name="backup_modules_email_message_2">Модульдердің сақтық көшірмесі %1$s қоса берілген, ол келесі модульдерді қамтиды: %2$s</string>
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
@@ -519,11 +537,15 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="doc_type_book">Кітап</string>
   <string name="doc_type_map">Карта</string>
   <string name="doc_type_addons">Толықтырулар</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">Дефолт</string>
   <!--General-->
   <string name="okay">Жарайды</string>
   <string name="cancel">Болдырмау</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">Иә</string>
   <string name="no">Жоқ</string>
   <string name="error">Қате</string>
@@ -540,8 +562,12 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
   <string name="error_key_not_in_document">Құжатта табылмаған</string>
-  <string name="error_key_not_in_document2">%1$s %2$s құжатында табылмады.</string>  <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
+  <string name="error_key_not_in_document2">%1$s %2$s құжатында табылмады.</string>
+  <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
   <string name="error_skip">Өткізіп жіберу</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <string name="bug_report_email_title">Қате туралы есепті электрондық пошта арқылы жіберіңіз</string>
   <string name="bug_report_email_text">Әрі қарай, әзірлеушілер тобына есепті жіберу үшін қалаған электрондық пошта қолданбасын (мысалы, Gmail) таңдаңыз.</string>
   <!--Notifications-->
@@ -571,9 +597,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="beta_notice_github_issues">GitHub мәселелері</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>
-  <string name="stable_notice_title">Қолданба жаңартылды!</string>
-  <string name="upgrade_video_message">Өтінеміз, Осы шығарылымның жаңа мүмкіндіктері бар бейнені қараңыз(%s).</string>
-  <string name="stable_notice_par1">Жаңа нұсқа %1$s бойынша %2$s сәтті орнатылды!</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <string name="history_for">Тарих (%1$s: Терезе %2$d)</string>
   <!--Help-->
@@ -629,8 +654,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Uncategorized-->
   <string name="close">Жабу</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
-  <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
   <string name="strongs_mode_title">Стронг режимін таңдаңыз</string>
   <string name="download_dialog_message">Келесі кітаптарды жүктеу мүмкін болмады</string>
   <string name="journal_description">Таңдалған мәтіндермен және бетбелгілермен өңделетін блокноттар</string>
@@ -761,6 +784,9 @@ Google Play -ге өтіңіз
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>
   <string name="bookmark_style">Бетбелгі стилі</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="added_to_bookmark">Бұл бетбелгіге тағайындалды</string>
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
@@ -812,7 +838,6 @@ Google Play -ге өтіңіз
   <string name="delete_custom_repository">Пайдаланушы репозиторийін жойғыңыз келе ме %s?</string>
   <string name="custom_repositories_help1">Жаңа пайдаланушы репозиторийін қосу үшін теріңіз немесе көшіріңіз &amp; реттелетін репозитарий URL мекенжайын осы жерге қойыңыз.</string>
   <string name="custom_repositories_help2">Пайдаланушы репозиторийлері туралы қосымша ақпаратты мына жерден оқи аласыз %s.</string>
-  <string name="wiki_page">WIKI беті</string>
   <string name="custom_repositories_help0">Пайдаланушы репозитарийлерін орнату арқылы құжаттарды сыртқы реттелетін репозитарийлерден орнатуға болады.</string>
   <string name="duplicate_custom_repository">Аты бар репозиторий %s бұрыннан бар, басқасын қосу мүмкін емес.</string>
   <string name="packages_dir">Пакеттер каталогы (Zip файлдары)</string>
@@ -837,6 +862,7 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="reading_plans_content">Оқу жоспарлары және олардың күйлері</string>
   <string name="bookmarks_contents">Бетбелгілер, белгілер және оқу тақталары</string>
   <string name="workspaces_contents">Жұмыс кеңістігі және Windows</string>
+  <!--Reading Progress Activity-->
   <string name="cloud_fetch_and_restore_initial">Бұлттан осы құрылғыға көшіріңіз</string>
   <string name="cloud_create_new">Осы құрылғыдан бұлтқа көшіріңіз</string>
   <string name="cloud_disable_sync">Бас тарту &amp; синхрондауды өшіру</string>
@@ -888,4 +914,121 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="dont_show">
 Бұл хабарды қайта көрсетпеңіз</string>
   <string name="prefs_swipe_mode_chapter">Тарау</string>
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">Бастау</string>
+  <string name="user_guide_section_bible_documents">Киелі кітап құжаттары</string>
+  <string name="user_guide_section_reading_workspace">Оқу және жұмыс кеңістігі</string>
+  <string name="user_guide_section_study_tools">Зерттеу құралдары</string>
+  <string name="user_guide_section_backup_sync">Сақтық көшірме және синхрондау</string>
+  <string name="user_guide_section_desktop">Компьютер</string>
+  <string name="user_guide_section_customisation_advanced">Баптау және кеңейтілген мүмкіндіктер</string>
+  <string name="user_guide_section_help_reference">Көмек және анықтама</string>
+  <string name="user_guide_page_getting_started">Бастау</string>
+  <string name="user_guide_page_navigation">Шарлау</string>
+  <string name="user_guide_page_usage">Пайдалану</string>
+  <string name="user_guide_page_documents">Құжаттар</string>
+  <string name="user_guide_page_my_documents">Менің құжаттарым</string>
+  <string name="user_guide_page_custom_repositories">Пайдаланушы репозиторийлері</string>
+  <string name="user_guide_page_workspaces">Жұмыс кеңістіктері</string>
+  <string name="user_guide_page_windows">Терезелер</string>
+  <string name="user_guide_page_verse_action_dialog">Аят әрекеттерінің диалогы</string>
+  <string name="user_guide_page_look_and_feel">Сыртқы көрініс</string>
+  <string name="user_guide_page_bible_links">Киелі кітап сілтемелері және терең сілтемелер</string>
+  <string name="user_guide_page_speak">Дауыстап оқу</string>
+  <string name="user_guide_page_bookmarks">Бетбелгілер</string>
+  <string name="user_guide_page_labels">Жапсырмалар</string>
+  <string name="user_guide_page_notes">Жазбалар</string>
+  <string name="user_guide_page_study_pads">Оқу планшеттері</string>
+  <string name="user_guide_page_search">Іздеу</string>
+  <string name="user_guide_page_reading_plans">Оқу жоспарлары</string>
+  <string name="user_guide_page_reading_progress">Оқу барысы</string>
+  <string name="user_guide_page_memorize">Жаттау</string>
+  <string name="user_guide_page_ai">Киелі кітапты зерттеуге арналған жасанды интеллект көмекшісі</string>
+  <string name="user_guide_page_share">Бөлісу</string>
+  <string name="user_guide_page_backup_restore">Сақтық көшірме жасау және қалпына келтіру</string>
+  <string name="user_guide_page_cloud_sync">Бұлтпен синхрондау</string>
+  <string name="user_guide_page_document_sync">Құжаттарды синхрондау</string>
+  <string name="user_guide_page_desktop">Windows және Linux жүйелеріндегі AndBible</string>
+  <string name="user_guide_page_customisation">Баптау</string>
+  <string name="user_guide_page_customisation_custom_css">Пайдаланушы CSS</string>
+  <string name="user_guide_page_customisation_module_creation">Модуль жасау</string>
+  <string name="user_guide_page_discrete_build">Жасырын нұсқа</string>
+  <string name="user_guide_page_faq">Жиі қойылатын сұрақтар</string>
+  <string name="user_guide_page_platform_differences">Платформалар айырмашылығы</string>
+  <string name="user_guide_page_support">Қолдау</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0 нұсқасындағы жаңалықтар</string>
+  <string name="tutorial_title_01_getting_started">Бастау: орнату және алғашқы Киелі кітаптар</string>
+  <string name="tutorial_title_02_finding_your_way">Қолданбамен танысу</string>
+  <string name="tutorial_title_03_verse_menu">Аят мәзірі</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong нөмірлері, сөздіктер және айқас сілтемелер</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">Терезелер, 1-бөлім: ашу және орналастыру</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">Терезелер, 2-бөлім: бекіту, синхрондау және сілтемелер</string>
+  <string name="tutorial_title_07_workspaces">Жұмыс кеңістіктері</string>
+  <string name="tutorial_title_08_bookmarks">Бетбелгілер</string>
+  <string name="tutorial_title_09_labels_and_highlights">Жапсырмалар және ерекшелеу</string>
+  <string name="tutorial_title_10_notes">Жазбалар</string>
+  <string name="tutorial_title_11_study_pads">Оқу планшеттері</string>
+  <string name="tutorial_title_12_search_1_basics">Іздеу, 1-бөлім: негіздері</string>
+  <string name="tutorial_title_13_search_2_advanced">Іздеу, 2-бөлім: сөз тіркестері, алмастыру таңбалары және AND/OR</string>
+  <string name="tutorial_title_14_speak">Дауыстап оқу: Киелі кітапты тыңдау</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">Оқу жоспарлары және оқу барысы</string>
+  <string name="tutorial_title_16_backup_and_restore">Сақтық көшірме жасау және қалпына келтіру</string>
+  <string name="tutorial_title_17_sync_1_google_drive">Синхрондау, 1-бөлім: Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">Синхрондау, 2-бөлім: Nextcloud, WebDAV және құжаттар</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">Сыртқы көрініс, 1-бөлім: түнгі режим, қаріптер және түстер</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">Сыртқы көрініс, 2-бөлім: жалпы, жұмыс кеңістігі және терезе параметрлері</string>
+  <string name="tutorial_title_21_document_library">Құжаттар кітапханасы</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">Файлдар және пайдаланушы репозиторийлері</string>
+  <string name="tutorial_title_23_my_documents_and_epub">Менің құжаттарым және EPUB кітаптары</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">Аяттармен, оқу планшеттерімен және Киелі кітап сілтемелерімен бөлісу</string>
+  <string name="tutorial_title_25_memorize">Жаттау: аяттарды жаттап алу</string>
+  <string name="tutorial_title_26_desktop">Компьютердегі AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">Зерттеу тәсілдері, 1-бөлім: тақырыптық зерттеу және уағыз жазбалары</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">Зерттеу тәсілдері, 2-бөлім: сөздерді зерттеу және рухани ойлар</string>
+  <string name="tutorial_title_29_ai_1_getting_started">Жасанды интеллект көмекшісі, 1-бөлім: бастау</string>
+  <string name="tutorial_title_30_ai_2_prompts">Жасанды интеллект көмекшісі, 2-бөлім: сұрауларды орындау</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">Жасанды интеллект көмекшісі, 3-бөлім: құралдар, деректеріңіз және рұқсаттар</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Жасанды интеллект көмекшісі, 4-бөлім: өз сұрауларыңыз, шығындар және синхрондау</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
+
+  <!-- Additional translations -->
+  <string name="first_time_help_do_not_show_again">Мен түсінемін</string>
+  <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
+  <string name="prefs_text_appearance_title">Сыртқы келбеті</string>
+  <string name="prefs_text_display_settings_title">Форматтау</string>
+  <string name="stable_notice_par1">Жаңа нұсқа %1$s бойынша %2$s сәтті орнатылды!</string>
+  <string name="stable_notice_title">Қолданба жаңартылды!</string>
+  <string name="upgrade_video_message">Өтінеміз, Осы шығарылымның жаңа мүмкіндіктері бар бейнені қараңыз(%s).</string>
+  <string name="wiki_page">WIKI беті</string>
 </resources>

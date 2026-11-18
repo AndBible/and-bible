@@ -15,10 +15,12 @@
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="information">資訊</string>
   <string name="other">其他</string>
   <string name="contact">聯絡</string>
   <string name="help_and_tips">說明與提示</string>
+  <string name="help_read_in_user_guide">在使用者指南閱讀</string>
   <string name="administration">管理</string>
   <string name="rate_application">評分及評論</string>
   <string name="chooce_document">選擇文件</string>
@@ -40,7 +42,8 @@
   <string name="do_in_background">背景中繼續</string>
   <string name="rebuild_index_button">重建</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>  <!--Tasks-->
+  <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>
+  <!--Tasks-->
   <string name="progress_status">進度</string>
   <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
   <string name="no_tasks_running">當前沒有任務</string>
@@ -62,6 +65,18 @@
   <string name="go_to_ref">打開 %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">尋找 \"%s\"</string>
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">章節號碼</string>
   <string name="prefs_show_verseno_summary">顯示章節號碼</string>
@@ -131,8 +146,6 @@
   <string name="text_display_settings_activity_title">文字顯示設定</string>
   <string name="workspace_text_display_settings_title">文字選項 - %s</string>
   <string name="window_text_display_settings_title">文字選項 - 視窗 %d</string>
-  <string name="prefs_text_display_settings_title">格式</string>
-  <string name="prefs_text_appearance_title">外觀</string>
   <string name="prefs_justify_title">左右對齊</string>
   <string name="prefs_justify_summary">左右對齊。將文字平均分配在二個邊界之間</string>
   <string name="pref_left_margin_label_mm">左邊界 (%dmm)</string>
@@ -396,6 +409,10 @@ http://www.heartlight.org 准予使用
   <string name="speak_autobookmarking_disabled">自動書籤已停用！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>
   <string name="auto_assing_labels_help1">你可以調整自動分配標籤至你定義的書籤。</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">此設定應用至%s。</string>
   <string name="setting_scope_window">此視窗</string>
@@ -494,6 +511,7 @@ http://www.heartlight.org 准予使用
   <string name="loading_backup">正在從備份載入資料庫</string>
   <string name="backup_success2">成功備份我的筆記、書籤、研習筆記、讀經計劃及工作區</string>
   <string name="backup_modules_success">選擇的模組已成功備份</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %1$s 模組備份，包含了以下模組: %2$s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
@@ -537,11 +555,15 @@ http://www.heartlight.org 准予使用
   <string name="doc_type_book">書卷</string>
   <string name="doc_type_map">地圖</string>
   <string name="doc_type_addons">附加</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">預設</string>
   <!--General-->
   <string name="okay">確定</string>
   <string name="cancel">取消</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
@@ -558,8 +580,12 @@ http://www.heartlight.org 准予使用
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
-  <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>  <string name="empty_list">沒有可顯示項目</string>
+  <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>
+  <string name="empty_list">沒有可顯示項目</string>
   <string name="error_skip">暫停</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
   <string name="bug_report_email_text">然後，請選擇你想用的電郵程式 (例如Gmail)，將回報發送至開發團隊。</string>
   <!--Notifications-->
@@ -589,9 +615,8 @@ http://www.heartlight.org 准予使用
   <string name="beta_notice_github_issues">GitHub問題</string>
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
-  <string name="stable_notice_title">程式已更新！</string>
-  <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
-  <string name="stable_notice_par1">新版本 %1$s 的 %2$s 已成功安装！</string>
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <string name="history_for">歷史 (%1$s: 視窗 %2$d)</string>
   <!--Help-->
@@ -648,8 +673,6 @@ http://www.heartlight.org 准予使用
   <!--Uncategorized-->
   <string name="close">關閉</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">我明白</string>
-  <string name="first_time_help_show_next_time">下次再顯示</string>
   <string name="strongs_mode_title">還擇Strong\'s模式</string>
   <string name="download_dialog_message">以下的書本無發下載：</string>
   <string name="journal_description">使用者可自行編輯研習筆記及標記書籤</string>
@@ -790,6 +813,9 @@ http://www.heartlight.org 准予使用
   <string name="instructions_for_translators">給翻譯者的指示</string>
   <string name="questions_title">問題？</string>
   <string name="bookmark_style">書籤樣式</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
   <string name="added_to_bookmark">分配至此書籤</string>
   <string name="strongs_links">連結</string>
   <string name="strongs_text_and_links">文字及連結</string>
@@ -843,7 +869,6 @@ http://www.heartlight.org 准予使用
   <string name="delete_custom_repository">你想刪除自訂儲存庫%s嗎？</string>
   <string name="custom_repositories_help1">請在此輸入或貼上自訂儲存庫URL，以新增自訂儲存庫。</string>
   <string name="custom_repositories_help2">在%s可以閱讀更多有關自訂儲存庫的資訊。</string>
-  <string name="wiki_page">WIKI頁面</string>
   <string name="custom_repositories_help0">你可以安裝自訂儲存庫，以安裝外部自訂儲存庫的文件。</string>
   <string name="duplicate_custom_repository">儲存庫%s已經存在，無法再次建立。</string>
   <string name="packages_dir">封包目錄 (Zip檔案)</string>
@@ -871,6 +896,7 @@ http://www.heartlight.org 准予使用
   <string name="reading_plans_content">讀經計劃及其狀態</string>
   <string name="bookmarks_contents">書籤、標籤及研習筆記</string>
   <string name="workspaces_contents">工作區及視窗</string>
+  <!--Reading Progress Activity-->
   <string name="cloud_fetch_and_restore_initial">從雲端複製至此裝置</string>
   <string name="cloud_create_new">從此裝置複製至雲端</string>
   <string name="cloud_disable_sync">取消或停用同步功能</string>
@@ -923,4 +949,121 @@ http://www.heartlight.org 准予使用
 不再顯示此訊息
 </string>
   <string name="prefs_swipe_mode_chapter">章節</string>
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">開始使用</string>
+  <string name="user_guide_section_bible_documents">聖經文件</string>
+  <string name="user_guide_section_reading_workspace">閱讀與工作區</string>
+  <string name="user_guide_section_study_tools">研習工具</string>
+  <string name="user_guide_section_backup_sync">備份與同步</string>
+  <string name="user_guide_section_desktop">桌面版</string>
+  <string name="user_guide_section_customisation_advanced">自訂與進階設定</string>
+  <string name="user_guide_section_help_reference">說明與參考</string>
+  <string name="user_guide_page_getting_started">開始使用</string>
+  <string name="user_guide_page_navigation">導覽</string>
+  <string name="user_guide_page_usage">使用方法</string>
+  <string name="user_guide_page_documents">文件</string>
+  <string name="user_guide_page_my_documents">我的文件</string>
+  <string name="user_guide_page_custom_repositories">自訂儲存庫</string>
+  <string name="user_guide_page_workspaces">工作區</string>
+  <string name="user_guide_page_windows">視窗</string>
+  <string name="user_guide_page_verse_action_dialog">經文操作對話框</string>
+  <string name="user_guide_page_look_and_feel">外觀</string>
+  <string name="user_guide_page_bible_links">聖經連結與深層連結</string>
+  <string name="user_guide_page_speak">朗讀</string>
+  <string name="user_guide_page_bookmarks">書籤</string>
+  <string name="user_guide_page_labels">標籤</string>
+  <string name="user_guide_page_notes">筆記</string>
+  <string name="user_guide_page_study_pads">研習筆記</string>
+  <string name="user_guide_page_search">搜尋</string>
+  <string name="user_guide_page_reading_plans">讀經計劃</string>
+  <string name="user_guide_page_reading_progress">閱讀進度</string>
+  <string name="user_guide_page_memorize">背誦</string>
+  <string name="user_guide_page_ai">AI 聖經研習助手</string>
+  <string name="user_guide_page_share">分享</string>
+  <string name="user_guide_page_backup_restore">備份與回復</string>
+  <string name="user_guide_page_cloud_sync">雲端同步</string>
+  <string name="user_guide_page_document_sync">文件同步</string>
+  <string name="user_guide_page_desktop">Windows 與 Linux 上的 AndBible</string>
+  <string name="user_guide_page_customisation">自訂</string>
+  <string name="user_guide_page_customisation_custom_css">自訂 CSS</string>
+  <string name="user_guide_page_customisation_module_creation">建立模組</string>
+  <string name="user_guide_page_discrete_build">隱蔽版本</string>
+  <string name="user_guide_page_faq">常見問題</string>
+  <string name="user_guide_page_platform_differences">平台差異</string>
+  <string name="user_guide_page_support">支援</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0 有甚麼新功能</string>
+  <string name="tutorial_title_01_getting_started">開始使用：安裝及你的第一批聖經</string>
+  <string name="tutorial_title_02_finding_your_way">認識介面</string>
+  <string name="tutorial_title_03_verse_menu">經文選單</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong 編號、字典與交叉參照</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">視窗，第一部分：開啟與排列</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">視窗，第二部分：釘選、同步與連結</string>
+  <string name="tutorial_title_07_workspaces">工作區</string>
+  <string name="tutorial_title_08_bookmarks">書籤</string>
+  <string name="tutorial_title_09_labels_and_highlights">標籤與醒目提示</string>
+  <string name="tutorial_title_10_notes">筆記</string>
+  <string name="tutorial_title_11_study_pads">研習筆記</string>
+  <string name="tutorial_title_12_search_1_basics">搜尋，第一部分：基本操作</string>
+  <string name="tutorial_title_13_search_2_advanced">搜尋，第二部分：片語、萬用字元與 AND/OR</string>
+  <string name="tutorial_title_14_speak">朗讀：聆聽聖經</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">讀經計劃與閱讀進度</string>
+  <string name="tutorial_title_16_backup_and_restore">備份與回復</string>
+  <string name="tutorial_title_17_sync_1_google_drive">同步，第一部分：Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">同步，第二部分：Nextcloud、WebDAV 與文件</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">外觀，第一部分：夜間模式、字型與顏色</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">外觀，第二部分：全域、工作區與視窗設定</string>
+  <string name="tutorial_title_21_document_library">文件庫</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">檔案與自訂儲存庫</string>
+  <string name="tutorial_title_23_my_documents_and_epub">我的文件與 EPUB 電子書</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">分享經文、研習筆記與聖經連結</string>
+  <string name="tutorial_title_25_memorize">背誦：熟記經文</string>
+  <string name="tutorial_title_26_desktop">桌面版 AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">研習方法，第一部分：主題研習與講道筆記</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">研習方法，第二部分：字詞研習與靈修</string>
+  <string name="tutorial_title_29_ai_1_getting_started">AI 助手，第一部分：開始使用</string>
+  <string name="tutorial_title_30_ai_2_prompts">AI 助手，第二部分：執行提示詞</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">AI 助手，第三部分：工具、你的資料與權限</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI 助手，第四部分：自訂提示詞、費用與同步</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
+
+  <!-- Additional translations -->
+  <string name="first_time_help_do_not_show_again">我明白</string>
+  <string name="first_time_help_show_next_time">下次再顯示</string>
+  <string name="prefs_text_appearance_title">外觀</string>
+  <string name="prefs_text_display_settings_title">格式</string>
+  <string name="stable_notice_par1">新版本 %1$s 的 %2$s 已成功安装！</string>
+  <string name="stable_notice_title">程式已更新！</string>
+  <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
+  <string name="wiki_page">WIKI頁面</string>
 </resources>

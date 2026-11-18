@@ -1,21 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
-  ~
-  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
-  ~
-  ~ AndBible is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU General Public License as published by the Free Software Foundation,
-  ~ either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  ~ See the GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along with AndBible.
-  ~ If not, see http://www.gnu.org/licenses/.
-  -->
-
 <resources>
   <string name="version_text">Versiya %s</string>
   <!--Main menu-->
@@ -26,6 +9,8 @@
   <string name="history">Tarix</string>
   <string name="speak">Gapir</string>
   <string name="help">Yordam</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_in_user_guide">Foydalanuvchi qo\'llanmasida o\'qish</string>
   <string name="administration">Sozlamalar</string>
   <string name="chooce_document">Faylni tanlang</string>
   <!--Passage navigation-->
@@ -39,6 +24,7 @@
   <string name="indexing_wait_msg">Indekslash tugagach, qidiruv bo\'limi ochiladi</string>
   <string name="index_create">Yarating</string>
   <string name="rebuild_index">Indeksni qayta yaratish</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Jarayon</string>
   <string name="task_kill_warning">Agar boshqa aplikatsiyaga o\'tsangiz, ko\'p vaqt olayotgan bu vazifalar tugashidan oldin to\'xtab qo\'ladi.</string>
@@ -56,6 +42,20 @@
   <string name="search_old_testament">Eski Ahd</string>
   <string name="search_current_book">Mazkur kitob</string>
   <string name="error_executing_search">Noto\'g\'ri qidiruv iborasi</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_verse_per_line_summary">Har bir oyatni boshqa qatorda ko\'rsatish</string>
   <string name="prefs_show_mynotes_summary">Eslatma bor oyatlarda belgini ko\'rsat</string>
@@ -126,6 +126,7 @@
   <string name="open_link_in_special_window">Linkni maxsus oynada ochish</string>
   <!--Bookmarks-->
   <string name="bookmarks">Xatcho\'plar</string>
+  <!--Bookmark / note labels-->
   <string name="assign_labels">Belgi qo\'ymoq</string>
   <string name="new_item">Yangi</string>
   <string name="label_name_prompt">Ism</string>
@@ -135,6 +136,7 @@
   <string name="sort_by_date">Kun tartibi</string>
   <string name="sort_by_bible_book">Muqaddas Kitob tartibi</string>
   <string name="sort_by_alphabetical">Alifbo tartibida</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Lug\'at</string>
   <string name="search_dictionary_hint">Lug\'atdan qidir</string>
@@ -190,6 +192,10 @@
   <string name="speak_status_stopped">to\'xtatilgan</string>
   <string name="speak_autobookmarking_disabled">Avtomatik xatcho\'p qo\'yish bekor qilindi!</string>
   <string name="system_speak_settings">Sistema TSS sozlamalarini ochish</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
@@ -232,7 +238,10 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="mynotes">Mening Eslatmalarim</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Faylni saqlab qo\'yish; Qayta tiklash</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">%sMualliflik Huquqi</string>
   <string name="module_about_versification">Versifikatsiya: %s</string>
@@ -243,11 +252,15 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="doc_type_dictionary">Lug\'at</string>
   <string name="doc_type_book">Kitob</string>
   <string name="doc_type_map">Xarita</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">Ilk nastroykalar</string>
   <!--General-->
   <string name="okay">Bo\'ladi</string>
   <string name="cancel">Bekor qil</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">Ha</string>
   <string name="no">Yo\'q</string>
   <string name="error">Xato</string>
@@ -261,6 +274,9 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="error_page_too_large">Bu sahifani kattaligi uchun yulab bo\'lmadi</string>
   <string name="error_key_not_in_document">Hech qanday fayl topilmadi</string>
   <string name="empty_list">Ko\'rsatadigan hech narsa yo\'q</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <!--Notifications-->
   <string name="notification_channel_tts_status">Matnni gapirish</string>
   <string name="notification_channel_progress_status">Faylni yuklash progresi haqida ma\'lumot va boshqalar</string>
@@ -269,22 +285,157 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="save_and_exit">Saqla</string>
   <string name="reset_settings">Ilk holatga qaytarish</string>
   <!--Beta notice-->
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigatsiya</string>
   <string name="help_contextmenus_title">Konteks Menyusi</string>
   <string name="help_search_title">Qidiruv</string>
+  <!--TODO: to be removed-->
   <!--Welcome text-->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">Yoping</string>
   <string name="my_notes_abbreviation">Mening Eslatmalarim</string>
   <string name="compare_description">Tarjimalarni taqqosla</string>
   <string name="show_versenumbers">Oyat raqamlarini ko\'rsatish</string>
+  <!--meaning, bible version name-->
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">Ko\'proq</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <!--will be added to incomplete_translation as a link-->
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--Reading Progress Activity-->
+  <!--... after restoring from backup file-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">Ishni boshlash</string>
+  <string name="user_guide_section_bible_documents">Muqaddas Kitob dokumentlari</string>
+  <string name="user_guide_section_reading_workspace">O\'qish va ish maydoni</string>
+  <string name="user_guide_section_study_tools">O\'rganish vositalari</string>
+  <string name="user_guide_section_backup_sync">Zaxiralash va sinxronlash</string>
+  <string name="user_guide_section_desktop">Kompyuter</string>
+  <string name="user_guide_section_customisation_advanced">Moslashtirish va qo\'shimcha imkoniyatlar</string>
+  <string name="user_guide_section_help_reference">Yordam va ma\'lumot</string>
+  <string name="user_guide_page_getting_started">Ishni boshlash</string>
+  <string name="user_guide_page_navigation">Navigatsiya</string>
+  <string name="user_guide_page_usage">Foydalanish</string>
+  <string name="user_guide_page_documents">Dokumentlar</string>
+  <string name="user_guide_page_my_documents">Mening dokumentlarim</string>
+  <string name="user_guide_page_custom_repositories">Maxsus repozitoriylar</string>
+  <string name="user_guide_page_workspaces">Ish maydonlari</string>
+  <string name="user_guide_page_windows">Oynalar</string>
+  <string name="user_guide_page_verse_action_dialog">Oyat amallari oynasi</string>
+  <string name="user_guide_page_look_and_feel">Tashqi ko\'rinish</string>
+  <string name="user_guide_page_bible_links">Muqaddas Kitob havolalari / chuqur havolalar</string>
+  <string name="user_guide_page_speak">Ovoz chiqarib o\'qish</string>
+  <string name="user_guide_page_bookmarks">Xatcho\'plar</string>
+  <string name="user_guide_page_labels">Belgilar</string>
+  <string name="user_guide_page_notes">Eslatmalar</string>
+  <string name="user_guide_page_study_pads">O\'rganish daftarlari</string>
+  <string name="user_guide_page_search">Qidiruv</string>
+  <string name="user_guide_page_reading_plans">O\'qish rejalari</string>
+  <string name="user_guide_page_reading_progress">O\'qish jarayoni</string>
+  <string name="user_guide_page_memorize">Yodlash</string>
+  <string name="user_guide_page_ai">Muqaddas Kitobni o\'rganish uchun AI yordamchisi</string>
+  <string name="user_guide_page_share">Ulashish</string>
+  <string name="user_guide_page_backup_restore">Zaxiralash va tiklash</string>
+  <string name="user_guide_page_cloud_sync">Bulut bilan sinxronlash</string>
+  <string name="user_guide_page_document_sync">Dokumentlarni sinxronlash</string>
+  <string name="user_guide_page_desktop">Windows va Linux uchun AndBible</string>
+  <string name="user_guide_page_customisation">Moslashtirish</string>
+  <string name="user_guide_page_customisation_custom_css">Maxsus CSS</string>
+  <string name="user_guide_page_customisation_module_creation">Modul yaratish</string>
+  <string name="user_guide_page_discrete_build">Yashirin versiya</string>
+  <string name="user_guide_page_faq">Ko\'p beriladigan savollar</string>
+  <string name="user_guide_page_platform_differences">Platformalar orasidagi farqlar</string>
+  <string name="user_guide_page_support">Yordam</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0 dagi yangiliklar</string>
+  <string name="tutorial_title_01_getting_started">Ishni boshlash: o\'rnatish va ilk Muqaddas Kitoblar</string>
+  <string name="tutorial_title_02_finding_your_way">Ilova bilan tanishish</string>
+  <string name="tutorial_title_03_verse_menu">Oyat menyusi</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong raqamlari, lug\'atlar va o\'zaro havolalar</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">Oynalar, 1-qism: ochish va joylashtirish</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">Oynalar, 2-qism: mahkamlash, sinxronlash va havolalar</string>
+  <string name="tutorial_title_07_workspaces">Ish maydonlari</string>
+  <string name="tutorial_title_08_bookmarks">Xatcho\'plar</string>
+  <string name="tutorial_title_09_labels_and_highlights">Belgilar va ajratib ko\'rsatish</string>
+  <string name="tutorial_title_10_notes">Eslatmalar</string>
+  <string name="tutorial_title_11_study_pads">O\'rganish daftarlari</string>
+  <string name="tutorial_title_12_search_1_basics">Qidiruv, 1-qism: asoslar</string>
+  <string name="tutorial_title_13_search_2_advanced">Qidiruv, 2-qism: iboralar, almashtirish belgilari va AND/OR</string>
+  <string name="tutorial_title_14_speak">Ovoz chiqarib o\'qish: Muqaddas Kitobni tinglash</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">O\'qish rejalari va jarayoni</string>
+  <string name="tutorial_title_16_backup_and_restore">Zaxiralash va tiklash</string>
+  <string name="tutorial_title_17_sync_1_google_drive">Sinxronlash, 1-qism: Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">Sinxronlash, 2-qism: Nextcloud, WebDAV va dokumentlar</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">Tashqi ko\'rinish, 1-qism: tungi rejim, shriftlar va ranglar</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">Tashqi ko\'rinish, 2-qism: umumiy, ish maydoni va oyna sozlamalari</string>
+  <string name="tutorial_title_21_document_library">Dokumentlar kutubxonasi</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">Fayllar va maxsus repozitoriylar</string>
+  <string name="tutorial_title_23_my_documents_and_epub">Mening dokumentlarim va EPUB kitoblari</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">Oyatlar, o\'rganish daftarlari va Muqaddas Kitob havolalarini ulashish</string>
+  <string name="tutorial_title_25_memorize">Yodlash: oyatlarni yoddan o\'rganish</string>
+  <string name="tutorial_title_26_desktop">Kompyuterda AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">O\'rganish usullari, 1-qism: mavzuli o\'rganish va va\'z eslatmalari</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">O\'rganish usullari, 2-qism: so\'zlarni o\'rganish va ruhiy mushohada</string>
+  <string name="tutorial_title_29_ai_1_getting_started">AI yordamchisi, 1-qism: ishni boshlash</string>
+  <string name="tutorial_title_30_ai_2_prompts">AI yordamchisi, 2-qism: so\'rovlarni bajarish</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">AI yordamchisi, 3-qism: vositalar, ma\'lumotlaringiz va ruxsatlar</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI yordamchisi, 4-qism: shaxsiy so\'rovlar, xarajatlar va sinxronlash</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
 </resources>
