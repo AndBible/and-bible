@@ -482,14 +482,12 @@ class HostReadingHost(
         ),
         // The search field lives in the toolbar, which full screen hides: opening search leaves full screen.
         onLeaveFullScreen = onLeaveFullScreen,
+        windowState = koin.get<WindowStateService>(),
     )
 
     private val windowLabelFreshness = WindowLabelFreshness()
 
-    /**
-     * Android's `searchController.activeDocumentChanged()` call sites: search mode outlives a window switch and a document
-     * swap, so the panel's target document follows them.
-     */
+    /** Document swaps refresh the active window's session; window switches select their own session. */
     private val searchSubscriptions = Subscriptions().also { subscriptions ->
         subscriptions.add(
             PassageChangeMediator.changes.subscribeOnMain { change ->
@@ -505,6 +503,7 @@ class HostReadingHost(
             koin.get<WindowStateServiceImpl>().windowChanges.subscribeOnMain { change ->
                 if (change is WindowChange.ActiveWindowChanged) {
                     refreshOverlay()
+                    searchState.activeWindowChanged()
                     searchState.controller.activeDocumentChanged()
                 }
             },
@@ -796,7 +795,7 @@ class HostReadingHost(
         onSpeakDialogDismiss = speakTransport::dismissDialog,
         searchBar = searchState.searchBar,
         searchBarCallbacks = searchState.searchBarCallbacks,
-        searchSheetVisible = searchState.controller.sheetVisible,
+        searchSheetVisible = searchState.searchSheetVisible,
         onSearchSheetDismissed = { searchState.controller.closeSheet() },
         searchUnavailableDocName = searchState.searchUnavailableDocName,
         onSearchUnavailableMessageShown = searchState::searchUnavailableMessageShown,
@@ -860,8 +859,9 @@ class HostReadingHost(
         closeSearchBar = { searchState.leaveSearch() },
         reopenSearchResults = { searchState.controller.reopenResultsOnBack() },
         observeOpen = {
-            val sheetVisible by searchState.controller.sheetVisible.collectAsState()
-            val searchModeActive by searchState.controller.searchModeActive.collectAsState()
+            val sheetVisible by searchState.searchSheetVisible.collectAsState()
+            val searchBar by searchState.searchBar.collectAsState()
+            val searchModeActive = searchBar != null
             hostState.isDrawerOpen || sheetVisible || searchModeActive
         },
     )

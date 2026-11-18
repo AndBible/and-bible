@@ -36,6 +36,21 @@ class ReadingSearchControllerTest {
     )
 
     @Test
+    fun editQueryFocusesWithoutSubmittingAndPreservesOrReplacesText() {
+        val (r, c) = controller()
+        c.open("light")
+        c.imeRequestHandled()
+        c.editQuery()
+        assertEquals("light", c.queries.query.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+        c.imeRequestHandled()
+        c.editQuery("ä")
+        assertEquals("ä", c.queries.query.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+    }
+
+    @Test
     fun findShortcutSelectsTheQueryWithoutRunningTheOldSearchAgain() {
         for (hideResults in listOf(false, true)) {
             val (r, c) = controller()

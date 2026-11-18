@@ -81,7 +81,10 @@ interface ReadingKeyChooserPage {
  */
 @kotlin.native.HiddenFromObjC
 interface ReadingSearchPlatform {
-    /** The document the active window shows, or null (an error page). Read fresh on every call. */
+    /** Binds document lookups to a session's window, including asynchronous index continuations. */
+    fun forWindow(windowId: String): ReadingSearchPlatform = this
+
+    /** The owning window's document, or null (an error page). Read fresh on every call. */
     fun currentDocument(): Book?
 
     /** The active window's book name for the search request (`SearchControl.currentBookName`). */
@@ -113,6 +116,43 @@ interface ReadingSearchPlatform {
 
     /** Shows [list] (the "open results in a window" multi-document). */
     fun showInLinksWindow(list: BookAndKeyList)
+}
+
+/**
+ * Binds [base]'s window-dependent lookups to the window [windowId] (a Find session's owner). The
+ * window is looked up by id on every call, never captured: a DB or sync reload
+ * (`WindowRepository.applyLoaded`) rebuilds the Window objects under the same ids, and a captured
+ * one would be detached (stale document, results set into an invisible window). An unknown id
+ * falls back to [base]'s active-window behaviour.
+ */
+@kotlin.native.HiddenFromObjC
+fun windowBoundSearchPlatform(
+    base: ReadingSearchPlatform,
+    windowControl: () -> WindowControl,
+    windowId: String,
+): ReadingSearchPlatform {
+    if (windowId.isBlank()) return base
+    val id = net.bible.android.database.IdType(windowId)
+    fun window() = windowControl().windowRepository.getWindow(id)
+    return object : ReadingSearchPlatform by base {
+        override fun currentDocument(): Book? = window()?.pageManager?.currentPage?.currentDocument ?: base.currentDocument()
+        override fun currentBookName(): String = window()?.let(::searchWindowBookName) ?: base.currentBookName()
+        override fun showInActiveWindow(book: Book, key: Key) {
+            window()?.pageManager?.setCurrentDocumentAndKey(book, key) ?: base.showInActiveWindow(book, key)
+        }
+    }
+}
+
+/** The same Bible-section name as SearchControl, bound to the session's window rather than the active one. */
+@kotlin.native.HiddenFromObjC
+fun searchWindowBookName(window: net.bible.android.control.page.window.Window): String = try {
+    val page = window.pageManager.currentBible
+    val v11n = (page.currentDocument as org.crosswire.jsword.book.sword.SwordBook).versification
+    val book = page.singleKey.book
+    val longName = v11n.getLongName(book)
+    if (!longName.isNullOrBlank() && longName.length < 14) longName else v11n.getShortName(book)
+} catch (_: Exception) {
+    "-"
 }
 
 /**

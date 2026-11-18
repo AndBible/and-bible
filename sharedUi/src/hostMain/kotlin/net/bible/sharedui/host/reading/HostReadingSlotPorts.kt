@@ -153,6 +153,9 @@ internal class HostReadingSearchPlatform(
     private val linkControl: () -> LinkControl,
     private val fakeBookFactory: () -> FakeBookFactory,
 ) : ReadingSearchPlatform {
+    override fun forWindow(windowId: String): ReadingSearchPlatform =
+        net.bible.sharedui.reading.host.slots.windowBoundSearchPlatform(this, windowControl, windowId)
+
     override fun currentDocument(): Book? = currentDocument.invoke()
 
     override fun currentBookName(): String = currentBookName.invoke()

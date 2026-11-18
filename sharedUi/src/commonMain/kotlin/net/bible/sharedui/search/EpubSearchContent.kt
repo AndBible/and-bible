@@ -17,9 +17,13 @@
 
 package net.bible.sharedui.search
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedui.components.AbDropdownField
@@ -38,11 +42,13 @@ import net.bible.sharedui.strings.Strings
 fun LazyListScope.epubResultRows(
     rows: List<EpubResultRow>,
     onSelect: (keyId: String, ordinal: Int) -> Unit,
+    selectedIndex: Int = -1,
 ) {
     // `keyId` addresses the fragment, so it repeats when one fragment holds several hits; the list
     // key must be the hit (F44/B1).
-    items(rows, key = { it.rowId }) { row ->
+    itemsIndexed(rows, key = { _, row -> row.rowId }) { index, row ->
         TwoLineListItem(
+            modifier = if (index == selectedIndex) Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface) else Modifier,
             title = row.keyName,
             subtitle = styledTextToAnnotatedString(row.text),
             onClick = { onSelect(row.keyId, row.ordinal) },

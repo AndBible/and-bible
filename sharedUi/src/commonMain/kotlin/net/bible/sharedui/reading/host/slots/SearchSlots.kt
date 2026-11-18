@@ -48,7 +48,7 @@ import net.bible.sharedui.strings.Strings
 @kotlin.native.HiddenFromObjC
 @Composable
 internal fun SearchSettingsSlotContent(
-    state: ReadingSearchState,
+    state: ReadingSearchSession,
     forEpub: () -> Boolean,
     currentBookName: () -> String,
     onClosed: () -> Unit,
@@ -85,10 +85,11 @@ internal fun SearchSettingsSlotContent(
  */
 @kotlin.native.HiddenFromObjC
 @Composable
-internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings) {
+internal fun SearchSheetSlotContent(state: ReadingSearchSession, strings: Strings) {
     val platform = state.platform
     val controller = state.controller
     val phase by controller.phase.collectAsState()
+    val sheetVisible by controller.sheetVisible.collectAsState()
     val indexDocId = when (val p = phase) {
         is ReadingSearchPhase.NeedsIndex -> p.docId
         is ReadingSearchPhase.Indexing -> p.docId
@@ -124,6 +125,9 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
         return
     }
     val resultsPhase = phase as? ReadingSearchPhase.Results ?: return
+    // The scaffold keeps hidden sheet content mounted; hidden results must not retain keyboard focus.
+    // While the close animation still shows the sheet they stay composed, but unfocusable.
+    if (!sheetVisible && !LocalSearchSheetOnScreen.current) return
     val openResultInLinksWindow by state.openResultInLinksWindow.collectAsState()
     if (resultsPhase.forEpub) {
         val loading by state.epubSearchResults.loading.collectAsState()
@@ -146,11 +150,16 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             listState = state.searchResultsListState.value,
             onDismissError = state.epubSearchResults::dismissError,
             onClose = { controller.closeSheet() },
+            resultCount = rows.size,
+            requestResultsFocus = sheetVisible,
+            selection = state.resultKeyboardSelection,
+            onOpenResult = { index -> rows.getOrNull(index)?.let { state.epubSearchResults.select(it.keyId, it.ordinal) } },
+            onEditQuery = controller::editQuery,
             actions = {
                 SearchResultTargetActions(openResultInLinksWindow, state::setOpenResultInLinksWindow)
             },
-        ) {
-            epubResultRows(rows = rows, onSelect = state.epubSearchResults::select)
+        ) { selectedIndex ->
+            epubResultRows(rows = rows, onSelect = state.epubSearchResults::select, selectedIndex = selectedIndex)
         }
         return
     }
@@ -186,6 +195,13 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
         listState = state.searchResultsListState.value,
         onDismissError = searchResults::dismissError,
         onClose = { controller.closeSheet() },
+        resultCount = rows.size,
+        requestResultsFocus = sheetVisible,
+        selection = state.resultKeyboardSelection,
+        onOpenResult = { index ->
+            rows.getOrNull(index)?.let { state.onSearchResultSelected(it.referenceName, it.matches.firstOrNull()?.translationId) }
+        },
+        onEditQuery = controller::editQuery,
         actions = {
             BibleResultsActions(
                 candidates = candidates,
@@ -200,9 +216,10 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
                 onSelectTranslations = { ids -> state.onSearchTranslationsChosen(ids) },
             )
         },
-    ) {
+    ) { selectedIndex ->
         bibleResultRows(
             rows = rows,
+            selectedIndex = selectedIndex,
             expanded = state.searchResultsExpanded,
             // F27: labelling a single-match card with its translation only says anything when more
             // than one translation was searched.
@@ -289,3 +306,10 @@ internal fun singleNonBibleSearched(
 ): String? = selected.singleOrNull()
     ?.takeIf { id -> categoryOf(id).let { it != null && it != BookCategory.BIBLE } }
     ?.let { abbreviationOf(it) ?: it }
+
+/**
+ * Whether the search sheet is still on screen (not settled Hidden), provided by the reading host's
+ * scaffold. Results stay composed until the sheet's close animation ends instead of blanking it.
+ */
+@kotlin.native.HiddenFromObjC
+val LocalSearchSheetOnScreen = androidx.compose.runtime.compositionLocalOf { false }

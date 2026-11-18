@@ -99,6 +99,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import net.bible.sharedui.search.trackFindKeyboardInput
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -326,7 +327,10 @@ fun ReadingSearchField(
         cursorBrush = cursorBrush,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        modifier = modifier.testTag(SEARCH_FIELD_TAG).focusRequester(focusRequester).onPreviewKeyEvent { event ->
+        modifier = modifier.testTag(SEARCH_FIELD_TAG).focusRequester(focusRequester)
+            // Typing the query on a hardware keyboard makes the results keyboard-focused (#4139).
+            .trackFindKeyboardInput()
+            .onPreviewKeyEvent { event ->
             if (readingShortcut(event, iosCommandKeys = searchFieldUsesCommandKeys) == "CtrlKeyF") {
                 fieldValue = fieldValue.copy(selection = TextRange(0, fieldValue.text.length))
                 true

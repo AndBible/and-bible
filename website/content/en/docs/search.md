@@ -9,6 +9,22 @@ Its availability follows the active window's document. If Find is greyed out for
 non-searchable document, select a Bible window or choose a searchable document;
 Find becomes available again.
 
+Find belongs to the window where you opened it. Selecting another window hides that
+window's search bar and results; returning restores its query, results and position.
+You can start a separate Find in each window. Closing Find or closing its window
+discards that window's search, and so does switching to another workspace: a Find
+left open in the workspace you leave is not there when you come back.
+
+When a result opens in the links window, Find stays with the window you searched
+from: its search bar remains, and Back reopens the results.
+
+When you type your search on a hardware keyboard, the results list receives focus
+when results appear (with touch input, focus stays where it was). The
+first result is highlighted; use Up and Down to move through results and Enter to
+open the highlighted passage. Press Up at the first result or Ctrl+F (Command+F on
+Apple hardware) to return to the query. Typing a character in the results starts a
+replacement query in the field.
+
 All searches open their results in the reading view's search sheet, including searches
 started from selected text, a Strong's link, or another screen. There is no separate
 full-screen results screen. The sheet appears on top of the reading text, like a dialog;

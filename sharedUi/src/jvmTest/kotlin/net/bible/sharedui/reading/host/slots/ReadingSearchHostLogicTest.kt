@@ -445,7 +445,7 @@ class ReadingSearchHostLogicTest {
         val f = SearchFixture()
         f.state.openSearch()
         assertFalse(f.state.controller.sheetVisible.value, "sanity: an indexed document with no query opens into Form")
-        f.state.searchFieldFocused.value = true
+        f.state.searchBarCallbacks.onFieldFocusChanged(true)
 
         assertTrue(f.state.closeSearchIfOpen(), "a single back press must leave search mode from an empty form")
 

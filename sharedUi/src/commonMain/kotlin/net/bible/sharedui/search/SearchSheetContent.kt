@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.search
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,14 +35,38 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.reading.readingShortcut
+import net.bible.sharedui.reading.searchFieldUsesCommandKeys
+import net.bible.sharedui.reading.isHardwareKeyEvent
+import net.bible.sharedui.reading.searchResultKeyCharacter
 
 /**
  * What goes **inside** the reading view's search sheet: a header row (result count on the left, a
@@ -80,10 +105,35 @@ fun SearchSheetContent(
     listState: LazyListState,
     onDismissError: () -> Unit,
     onClose: () -> Unit,
+    resultCount: Int = 0,
+    requestResultsFocus: Boolean = true,
+    selection: MutableState<Int>? = null,
+    onOpenResult: (Int) -> Unit = {},
+    onEditQuery: (String?) -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    listContent: LazyListScope.() -> Unit,
+    listContent: LazyListScope.(Int) -> Unit,
 ) {
     val strings = LocalStrings.current
+    val focusRequester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
+    val localSelection = remember(listState) { mutableStateOf(listState.firstVisibleItemIndex) }
+    var selected by (selection ?: localSelection)
+    var listFocused by remember { mutableStateOf(false) }
+    val inputModeManager = LocalInputModeManager.current
+    fun keyboardUser() = inputModeManager.inputMode == InputMode.Keyboard || FindKeyboardInput.lastWasHardwareKey
+    val keyboardMode = keyboardUser()
+    val hasResults = requestResultsFocus && !loading && !empty && resultCount > 0
+    // Once per shown result set (a new search passes through loading; reopening recomposes this),
+    // not on every count change, which would pull focus back from the query while the user types.
+    // Touch users keep their focus: only keyboard mode moves it into the list.
+    LaunchedEffect(hasResults, listState) {
+        if (hasResults && keyboardUser()) {
+            selected = selected.coerceIn(0, resultCount - 1)
+            // The toolbar may release its field in the same composition as cached results appear.
+            withFrameNanos { }
+            focusRequester.requestFocus()
+        }
+    }
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
@@ -113,7 +163,43 @@ fun SearchSheetContent(
                 state = listState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = listContent,
+                // Results being closed (still sliding out) must neither keep nor take focus.
+                modifier = Modifier.focusProperties { canFocus = requestResultsFocus }
+                    .focusRequester(focusRequester).onFocusChanged { listFocused = it.isFocused }.onPreviewKeyEvent { event ->
+                    // Only the list itself: a focused row (Tab into a card or its expand button) keeps its keys.
+                    if (!listFocused) return@onPreviewKeyEvent false
+                    if (event.type == KeyEventType.KeyDown && isHardwareKeyEvent(event)) FindKeyboardInput.lastWasHardwareKey = true
+                    // Space is no query text: it would replace the query with a blank.
+                    val character = searchResultKeyCharacter(event)?.takeIf { it.isNotBlank() }
+                    when {
+                        event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown && resultCount > 0 -> {
+                            selected = (selected + 1).coerceAtMost(resultCount - 1)
+                            scope.launch { listState.scrollToItem(selected) }
+                            true
+                        }
+                        event.type == KeyEventType.KeyDown && event.key == Key.DirectionUp && resultCount > 0 -> {
+                            if (selected == 0) onEditQuery(null) else {
+                                selected--
+                                scope.launch { listState.scrollToItem(selected) }
+                            }
+                            true
+                        }
+                        event.type == KeyEventType.KeyDown && (event.key == Key.Enter || event.key == Key.NumPadEnter) && resultCount > 0 -> {
+                            onOpenResult(selected)
+                            true
+                        }
+                        readingShortcut(event, iosCommandKeys = searchFieldUsesCommandKeys) == "CtrlKeyF" -> {
+                            onEditQuery(null)
+                            true
+                        }
+                        character != null -> {
+                            onEditQuery(character)
+                            true
+                        }
+                        else -> false
+                    }
+                }.focusable(),
+                content = { listContent(if (listFocused && keyboardMode) selected else -1) },
             )
         }
     }
