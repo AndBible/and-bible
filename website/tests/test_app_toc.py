@@ -161,6 +161,9 @@ def test_site_check_rejects_stale_app_toc_before_other_checks(tmp_path, stale_ou
         cwd=paths.REPO, capture_output=True, text=True,
     )
     assert result.returncode != 0, result.stdout + result.stderr
+    assert f"--- {stale}" in result.stdout
+    assert "+++ generated" in result.stdout
+    assert any(line.startswith("-") and "Outdated heading" in line for line in result.stdout.splitlines())
     assert [json.loads(line) for line in log.read_text().splitlines()] == [
         ["run", "python", "-m", "sitegen.app_toc", "--check"],
     ]
