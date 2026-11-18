@@ -88,6 +88,7 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -1029,6 +1030,69 @@ class ReadingSearchHostTest {
      * genuinely differ. Asserting both directions matters: the SEARCH must still cover the appended
      * document, only the published selection may not.
      */
+    /**
+     * #4136 review: a Strong's result opens in the links window by default
+     * (`strongs_search_result_in_links_window`), and showing it there makes the links window active.
+     * The source window's Find must stay in charge: the search bar stays and the first Back reopens
+     * the same results, as before per-window Find.
+     */
+    @Test
+    fun strongsResultInTheLinksWindowKeepsTheSourceFindAndBackReopensResults() {
+        val production = GlobalContext.get().get<BibleSearchService>()
+        val productionCache = GlobalContext.get().get<SearchResultsCache>()
+        val rows = MultiSearchResults(
+            listOf(net.bible.sharedcore.search.SwordResultRow("Gen.1.1", emptyList(),
+                net.bible.sharedcore.search.StyledText.plain("God"))),
+            emptyList(), 1,
+        )
+        val fake = object : BibleSearchService by production {
+            override fun unindexedAmong(translationIds: List<String>) = emptyList<String>()
+            override fun unindexedStrongsAmong(translationIds: List<String>) = emptyList<String>()
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults = rows
+        }
+        val overrideModule = module {
+            single<BibleSearchService> { fake }
+            single { SearchResultsCache() }
+        }
+        loadKoinModules(overrideModule)
+        val kjv = checkNotNull(Books.installed().getBook("KJV"))
+        val previousIndex = kjv.indexStatus
+        kjv.indexStatus = IndexStatus.DONE
+        try {
+            val host = host()
+            val source = windowRepository.activeWindow
+            host.openSearchStrongs("H430", listOf("KJV"))
+            // The Strong's index validation runs on IO before the search resumes on Main.
+            val deadline = System.currentTimeMillis() + 10_000
+            while (host.searchController.phase.value !is ReadingSearchPhase.Results && System.currentTimeMillis() < deadline) {
+                shadowOf(Looper.getMainLooper()).idle()
+                Thread.sleep(10)
+            }
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), host.searchController.phase.value)
+            assertEquals(rows, host.searchResults.results.value)
+            val controller = host.searchController
+
+            host.onSearchResultSelected("Gen.1.1", "KJV")
+            shadowOf(Looper.getMainLooper()).idle()
+
+            assertTrue(windowRepository.activeWindow.isLinksWindow, "sanity: the result activated the links window")
+            assertNotSame(source, windowRepository.activeWindow)
+            assertSame(controller, host.searchController, "the links window must not take over Find")
+            assertTrue(host.searchController.searchModeActive.value, "the search bar stays")
+            assertEquals("strong:H430", host.searchBar.value?.query)
+            assertTrue(host.closeSearchIfOpen(), "the first Back is consumed")
+            assertTrue(host.searchController.sheetVisible.value, "the first Back reopens the results")
+            assertEquals(rows, host.searchResults.results.value)
+        } finally {
+            kjv.indexStatus = previousIndex
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module {
+                single<BibleSearchService> { production }
+                single { productionCache }
+            })
+        }
+    }
+
     @Test
     fun runSearchPublishesTheUsersSelectionNotTheAutoAppendedSearchList() {
         val production = GlobalContext.get().get<BibleSearchService>()
