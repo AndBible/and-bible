@@ -47,6 +47,7 @@ class Section:
 
     @property
     def key(self) -> str:
+        # Heading-derived keys mean renaming a heading orphans its translations.
         return "user_guide_section_" + _key(self.title)
 
 
@@ -179,7 +180,10 @@ def render_strings(toc: Toc) -> str:
         raise ValueError("duplicate user guide resource keys")
     lines = [BEGIN]
     for key, title in entries:
-        value = escape(title.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"'))
+        escaped_title = title.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+        if escaped_title.startswith(("@", "?")):
+            escaped_title = "\\" + escaped_title
+        value = escape(escaped_title)
         lines.append(f'    <string name="{key}">{value}</string>')
     return "\n".join(lines + [END])
 

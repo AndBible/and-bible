@@ -99,6 +99,18 @@ def test_every_toc_page_stem_is_a_published_docs_page():
                for s in toc.sections for p in s.pages)
 
 
+def test_render_strings_android_escapes_leading_resource_reference_markers(tmp_path):
+    titles = {"index": "Home", "a": "@string/title", "sub/index": "Sub", "sub/b": "B",
+              "c": "C", "d": "?attr/title", "releases/index": "Rel", "style": "S"}
+    toml, docs, yaml_ = make_site(tmp_path, titles)
+    toc = app_toc.build(toml, docs, yaml_)
+
+    block = app_toc.render_strings(toc)
+
+    assert '<string name="user_guide_page_a">\\@string/title</string>' in block
+    assert '<string name="user_guide_page_d">\\?attr/title</string>' in block
+
+
 def test_generated_keys_and_android_xml_escaping(tmp_path):
     toml, docs, yaml_ = make_site(tmp_path)
     (docs / "a.md").write_text('# Strong\'s & "Backup"\n')
