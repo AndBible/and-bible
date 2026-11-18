@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+
 import pytest
 
 from sitegen import app_toc, paths
@@ -125,6 +129,41 @@ def test_generated_keys_and_android_xml_escaping(tmp_path):
     assert all(block.count(f'name="{key}"') == 1 for key in keys)
     (docs / "a.md").write_text("# Renamed\n")
     assert app_toc.build(toml, docs, yaml_).sections[0].pages[0].key == "user_guide_page_a"
+
+
+@pytest.mark.parametrize("stale_output", ["kotlin", "strings"])
+def test_site_check_rejects_stale_app_toc_before_other_checks(tmp_path, stale_output):
+    output = tmp_path / "UserGuideToc.kt"
+    strings = tmp_path / "strings.xml"
+    toc = app_toc.build()
+    output.write_text(app_toc.render(toc))
+    strings.write_text(app_toc.update_strings("<resources>\n</resources>\n", app_toc.render_strings(toc)))
+    stale = output if stale_output == "kotlin" else strings
+    stale.write_text(stale.read_text().replace("Getting Started", "Outdated heading", 1))
+    log = tmp_path / "commands.jsonl"
+    uv = tmp_path / "uv"
+    uv.write_text(
+        f"#!{sys.executable}\n"
+        "import json, sys\n"
+        f"with open({str(log)!r}, 'a') as log:\n"
+        "    log.write(json.dumps(sys.argv[1:]) + '\\n')\n"
+        "if sys.argv[1:] == ['run', 'python', '-m', 'sitegen.app_toc', '--check']:\n"
+        f"    sys.path.insert(0, {str(paths.REPO / 'website')!r})\n"
+        "    from pathlib import Path\n"
+        "    from sitegen import app_toc\n"
+        f"    app_toc.OUTPUT = Path({str(output)!r})\n"
+        f"    app_toc.STRINGS = Path({str(strings)!r})\n"
+        "    sys.exit(app_toc.main(['--check']))\n"
+    )
+    uv.chmod(0o755)
+    result = subprocess.run(
+        ["make", "site-check", f"PATH={tmp_path}:/usr/bin:/bin"],
+        cwd=paths.REPO, capture_output=True, text=True,
+    )
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert [json.loads(line) for line in log.read_text().splitlines()] == [
+        ["run", "python", "-m", "sitegen.app_toc", "--check"],
+    ]
 
 
 def test_check_detects_stale_strings_block(tmp_path, monkeypatch):

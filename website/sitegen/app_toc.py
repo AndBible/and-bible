@@ -1,7 +1,7 @@
-"""Generate the app's user guide table of contents (sharedCore `UserGuideToc.kt`).
+"""Generate sharedCore `UserGuideToc.kt` and the owned block in `app/src/main/res/values/strings.xml`.
 
 Sections and order come from `zensical.toml` `nav`, page titles from each docs page's H1 and the episodes of a page
-from `data/tutorials.yaml`. `uv run python -m sitegen.app_toc` writes the file, `--check` fails when it is stale.
+from `data/tutorials.yaml`. `uv run python -m sitegen.app_toc` writes both outputs; `--check` fails when either is stale.
 Never reads the private video pipeline.
 """
 
