@@ -1221,10 +1221,12 @@ interface Strings {
     val helpTabUserGuide: String                      // R.string.help_tab_user_guide
     val helpUserGuideIntro: String                    // R.string.help_user_guide_intro
     val helpUserGuideHome: String                     // R.string.help_user_guide_home
+    val helpReadInUserGuide: String                   // R.string.help_read_in_user_guide
     val buyDevelopment: String                        // R.string.buy_development
     val buyDevelopment2: String                 // R.string.buy_development2
     val helpTutorialVideos: String                    // R.string.help_tutorial_videos
     fun helpPlayVideo(title: String): String          // R.string.help_play_video
+    fun helpReadPage(title: String): String           // R.string.help_read_page
 
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now

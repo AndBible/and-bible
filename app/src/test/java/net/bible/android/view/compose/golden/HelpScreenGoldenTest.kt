@@ -36,7 +36,7 @@ import org.robolectric.annotation.GraphicsMode
  * Goldens of the full-screen Help & tips ([HelpScreen]): the Tips tab and the User guide tab.
  *
  * Uses the real guide and episode catalog, including unpublished episodes that open the placeholder.
- * Every page's episodes are indented rows, without publication stand-ins.
+ * Each page and its episodes are sibling link rows, without publication stand-ins.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -64,7 +64,7 @@ class HelpScreenGoldenTest {
         check(aiPage.episodes.size == 4) { "the ai page is expected to have 4 episodes" }
         HelpScreen(
             tips = emptyList(),
-            sections = listOf(UserGuideToc.Section("Study Tools", listOf(aiPage))),
+            sections = listOf(UserGuideToc.Section("Study Tools", "user_guide_section_study_tools", listOf(aiPage))),
             tutorialVideos = emptyList(),
             versionText = "Version 6.0.0",
             initialTab = 1,
@@ -90,5 +90,13 @@ class HelpScreenGoldenTest {
 
     @Test fun userGuide_mono() {
         MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuide", mode, heightDp = 3800, content = screen(1)) }
+    }
+
+    @Test fun userGuideManyEpisodes_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "userGuideManyEpisodes", mode, heightDp = 900, content = manyEpisodes()) }
+    }
+
+    @Test fun tutorialCatalog_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("HelpScreen", "tutorialCatalog", mode, heightDp = 3300, content = tutorialCatalog()) }
     }
 }

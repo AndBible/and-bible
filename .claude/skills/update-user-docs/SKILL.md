@@ -34,6 +34,7 @@ repo `AndBible/docs` is deprecated.
    shows under the page's Related videos. Do not set it on shorts.
 7. **Translations.** Other languages fall back to the English file if theirs is missing; do not add
    translated copies unless asked.
+   After a nav/H1/episode-title change, run `cd website && uv run python -m sitegen.app_toc`, then use `update-translations` for changed `user_guide_*`/`tutorial_title_*` keys; after a rename, remove orphaned keys from `values-*` files.
 8. **Verify.** `make site site-check`, then open `/docs/<page>/` in the built site (test server: see
    `website-maintenance`) and check the anchors.
 9. **Release order.** App builds containing `andbible.org/docs` links must not ship before the

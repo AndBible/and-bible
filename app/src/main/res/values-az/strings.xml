@@ -1,21 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
-  ~
-  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
-  ~
-  ~ AndBible is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU General Public License as published by the Free Software Foundation,
-  ~ either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  ~ See the GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along with AndBible.
-  ~ If not, see http://www.gnu.org/licenses/.
-  -->
-
 <resources>
   <string name="version_text">Versiya %s</string>
   <!--Main menu-->
@@ -26,6 +9,9 @@
   <string name="history">Əvvəl</string>
   <string name="speak">Səsli oxu</string>
   <string name="help">Kömək</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_in_user_guide">İstifadəçi təlimatında oxuyun</string>
+  <string name="help_read_page">İstifadəçi təlimatında oxuyun: %1$s</string>
   <string name="administration">Mudiriyyət</string>
   <string name="chooce_document">Sənədi seçin</string>
   <!--Passage navigation-->
@@ -39,6 +25,7 @@
   <string name="indexing_wait_msg">İndeks yaradıldıqdan sonra axtarış səhifəsi açılacaq.</string>
   <string name="index_create">Düzəlt</string>
   <string name="rebuild_index">İndeki yenidən qur.</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">İrəliləmə</string>
   <string name="task_kill_warning">Bu əməliyyat üçün vaxt lazımdır. Əgər tətbiqi dayandırsanız əməliyyat qurtarmamış dayanacaq. Əməliyyat görən vəzifə yoxdur.</string>
@@ -56,6 +43,20 @@
   <string name="search_old_testament">Əhdi-Ətiq</string>
   <string name="search_current_book">Seçilmiş kitabda</string>
   <string name="error_executing_search">Axtarılan mətn tapılmadı</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_verse_per_line_summary">Hər ayə təzə bir sətirdə göstərilir</string>
   <string name="prefs_show_bookmarks_summary">Bütün əlfəcinləri qizlət</string>
@@ -130,6 +131,7 @@
   <string name="open_link_in_special_window">Linki xüsusi pəncərədə aç</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nişanlı yerlər (Əlfəcinlər)</string>
+  <!--Bookmark / note labels-->
   <string name="assign_labels">Etiketlə</string>
   <string name="new_item">Yeni</string>
   <string name="label_name_prompt">Etiket</string>
@@ -139,6 +141,7 @@
   <string name="sort_by_date">Tarix sıralaması</string>
   <string name="sort_by_bible_book">Müqəddəs Kitab sıralaması</string>
   <string name="sort_by_alphabetical">Əlifba sırası ilə</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Lüğət</string>
   <string name="search_dictionary_hint">Lüğətdə tap</string>
@@ -196,6 +199,10 @@
   <string name="speak_status_stopped">Dayandırılıb</string>
   <string name="speak_autobookmarking_disabled">Əlvəçinlərin avtomatik yerləşdirilməsi dayandırılıb!</string>
   <string name="system_speak_settings">Açıq sistemin TTS parametrləri</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
@@ -237,7 +244,10 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="mynotes">Qeydlərim</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Back up &amp; Bərpa</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Copyright %s</string>
   <string name="module_about_versification">Ayələmə: %s</string>
@@ -248,11 +258,15 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="doc_type_dictionary">Lüğət</string>
   <string name="doc_type_book">Kitab</string>
   <string name="doc_type_map">Xəritə</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">İlkin təyin olunan</string>
   <!--General-->
   <string name="okay">Bəli</string>
   <string name="cancel">Ləğv</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">Bəli</string>
   <string name="no">Xeyr</string>
   <string name="error">Xəta</string>
@@ -266,6 +280,9 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="error_page_too_large">Səhifə yükləmək üçün çox böyükdür</string>
   <string name="error_key_not_in_document">Sənətdə tapılmadı</string>
   <string name="empty_list">Elemenet tapılmadı</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <!--Notifications-->
   <string name="notification_channel_tts_status">Danışıq üçün mətn</string>
   <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
@@ -274,24 +291,159 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="save_and_exit">Yaddaşa vur</string>
   <string name="reset_settings">Sıfırdan başla</string>
   <!--Beta notice-->
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Naviqasiya</string>
   <string name="help_contextmenus_title">Menyuların Mündəricatı</string>
   <string name="help_search_title">Axtarış</string>
+  <!--TODO: to be removed-->
   <!--Welcome text-->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">Bağla</string>
   <string name="my_notes_abbreviation">Qeydlərim</string>
   <string name="compare_description">Tərcümələri qarşılaşdır</string>
   <string name="show_versenumbers">Ayə nömrələri göstərilir</string>
+  <!--meaning, bible version name-->
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">Daha çox</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Üzr istəyirik, ancaq %1$s dilində qismən istifadəçi interfeysi tərcüməmiz var. Çünki %2$s tamamilə könüllülər tərəfindən hazırlanmışdır. Tərcümə etməyə kömək edə bilsəniz, %3$s -ə baxın. </string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">tərcüməçilər üçün təlimatlar</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--Reading Progress Activity-->
+  <!--... after restoring from backup file-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">Başlanğıc</string>
+  <string name="user_guide_section_bible_documents">Müqəddəs Kitab sənədləri</string>
+  <string name="user_guide_section_reading_workspace">Oxu və iş məkanları</string>
+  <string name="user_guide_section_study_tools">Öyrənmə alətləri</string>
+  <string name="user_guide_section_backup_sync">Ehtiyat nüsxə və sinxronizasiya</string>
+  <string name="user_guide_section_desktop">Kompüter</string>
+  <string name="user_guide_section_customisation_advanced">Fərdiləşdirmə və əlavə seçimlər</string>
+  <string name="user_guide_section_help_reference">Kömək və istinad</string>
+  <string name="user_guide_page_getting_started">Başlanğıc</string>
+  <string name="user_guide_page_navigation">Naviqasiya</string>
+  <string name="user_guide_page_usage">İstifadə</string>
+  <string name="user_guide_page_documents">Sənədlər</string>
+  <string name="user_guide_page_my_documents">Sənədlərim</string>
+  <string name="user_guide_page_custom_repositories">Fərdi repozitoriyalar</string>
+  <string name="user_guide_page_workspaces">İş məkanları</string>
+  <string name="user_guide_page_windows">Pəncərələr</string>
+  <string name="user_guide_page_verse_action_dialog">Ayə əməliyyatları pəncərəsi</string>
+  <string name="user_guide_page_look_and_feel">Görünüş</string>
+  <string name="user_guide_page_bible_links">Müqəddəs Kitab keçidləri və dərin keçidlər</string>
+  <string name="user_guide_page_speak">Səsləndirmə</string>
+  <string name="user_guide_page_bookmarks">Əlfəcinlər</string>
+  <string name="user_guide_page_labels">Etiketlər</string>
+  <string name="user_guide_page_notes">Qeydlər</string>
+  <string name="user_guide_page_study_pads">Öyrənmə dəftərləri</string>
+  <string name="user_guide_page_search">Axtarış</string>
+  <string name="user_guide_page_reading_plans">Oxumaq planları</string>
+  <string name="user_guide_page_reading_progress">Oxu irəliləyişi</string>
+  <string name="user_guide_page_memorize">Əzbərləmə</string>
+  <string name="user_guide_page_ai">Süni intellektli Müqəddəs Kitab öyrənmə köməkçisi</string>
+  <string name="user_guide_page_share">Paylaşma</string>
+  <string name="user_guide_page_backup_restore">Ehtiyat nüsxə və bərpa</string>
+  <string name="user_guide_page_cloud_sync">Bulud sinxronizasiyası</string>
+  <string name="user_guide_page_document_sync">Sənədlərin sinxronizasiyası</string>
+  <string name="user_guide_page_desktop">Windows və Linux-da AndBible</string>
+  <string name="user_guide_page_customisation">Fərdiləşdirmə</string>
+  <string name="user_guide_page_customisation_custom_css">Fərdi CSS</string>
+  <string name="user_guide_page_customisation_module_creation">Modul yaratmaq</string>
+  <string name="user_guide_page_discrete_build">Gizli versiya</string>
+  <string name="user_guide_page_faq">Tez-tez verilən suallar</string>
+  <string name="user_guide_page_platform_differences">Platformalar arasındakı fərqlər</string>
+  <string name="user_guide_page_support">Dəstək</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0-da yeniliklər</string>
+  <string name="tutorial_title_01_getting_started">Başlanğıc: quraşdırma və ilk Müqəddəs Kitablarınız</string>
+  <string name="tutorial_title_02_finding_your_way">Tətbiqlə tanışlıq</string>
+  <string name="tutorial_title_03_verse_menu">Ayə menyusu</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong nömrələri, lüğətlər və çarpaz istinadlar</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">Pəncərələr, 1-ci hissə: açmaq və düzmək</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">Pəncərələr, 2-ci hissə: sabitləmə, sinxronizasiya və keçidlər</string>
+  <string name="tutorial_title_07_workspaces">İş məkanları</string>
+  <string name="tutorial_title_08_bookmarks">Əlfəcinlər</string>
+  <string name="tutorial_title_09_labels_and_highlights">Etiketlər və vurğulamalar</string>
+  <string name="tutorial_title_10_notes">Qeydlər</string>
+  <string name="tutorial_title_11_study_pads">Öyrənmə dəftərləri</string>
+  <string name="tutorial_title_12_search_1_basics">Axtarış, 1-ci hissə: əsaslar</string>
+  <string name="tutorial_title_13_search_2_advanced">Axtarış, 2-ci hissə: ifadələr, əvəzedici simvollar və AND/OR</string>
+  <string name="tutorial_title_14_speak">Səsləndirmə: Müqəddəs Kitabı dinləyin</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">Oxumaq planları və oxu irəliləyişi</string>
+  <string name="tutorial_title_16_backup_and_restore">Ehtiyat nüsxə və bərpa</string>
+  <string name="tutorial_title_17_sync_1_google_drive">Sinxronizasiya, 1-ci hissə: Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">Sinxronizasiya, 2-ci hissə: Nextcloud, WebDAV və sənədlər</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">Görünüş, 1-ci hissə: gecə rejimi, şriftlər və rənglər</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">Görünüş, 2-ci hissə: ümumi, iş məkanı və pəncərə parametrləri</string>
+  <string name="tutorial_title_21_document_library">Sənəd kitabxanası</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">Fayllar və fərdi repozitoriyalar</string>
+  <string name="tutorial_title_23_my_documents_and_epub">Sənədlərim və EPUB kitabları</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">Ayələri, öyrənmə dəftərlərini və Müqəddəs Kitab keçidlərini paylaşmaq</string>
+  <string name="tutorial_title_25_memorize">Əzbərləmə: ayələri yadda saxlamaq</string>
+  <string name="tutorial_title_26_desktop">Kompüterdə AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">Öyrənmə üsulları, 1-ci hissə: mövzu üzrə araşdırma və vəz qeydləri</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">Öyrənmə üsulları, 2-ci hissə: söz araşdırması və düşüncələr</string>
+  <string name="tutorial_title_29_ai_1_getting_started">Süni intellekt köməkçisi, 1-ci hissə: başlanğıc</string>
+  <string name="tutorial_title_30_ai_2_prompts">Süni intellekt köməkçisi, 2-ci hissə: sorğuları işlətmək</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">Süni intellekt köməkçisi, 3-cü hissə: alətlər, məlumatlarınız və icazələr</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">Süni intellekt köməkçisi, 4-cü hissə: öz sorğularınız, xərclər və sinxronizasiya</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
 </resources>

@@ -1,21 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
-  ~
-  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
-  ~
-  ~ AndBible is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU General Public License as published by the Free Software Foundation,
-  ~ either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  ~ See the GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along with AndBible.
-  ~ If not, see http://www.gnu.org/licenses/.
-  -->
-
 <resources>
   <string name="version_text">വേർഷൻ %s</string>
   <!--Main menu-->
@@ -26,6 +9,9 @@
   <string name="history">കഴിഞ്ഞ വായനകൾ</string>
   <string name="speak">വായിക്കുക</string>
   <string name="help">സഹായം</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_in_user_guide">ഉപയോക്തൃ ഗൈഡിൽ വായിക്കുക</string>
+  <string name="help_read_page">ഉപയോക്തൃ ഗൈഡിൽ വായിക്കുക: %1$s</string>
   <string name="administration">കാര്യനിര്‍വഹണം</string>
   <string name="chooce_document">ഡോക്കുമെന്റ് തിരഞ്ഞെടുക്കുക</string>
   <!--Passage navigation-->
@@ -39,6 +25,7 @@
   <string name="indexing_wait_msg">പട്ടികക്രമീകരണം ചെയ്താലുടനെ തിരെച്ചിൽ സ്ക്രീൻ തുറക്കും</string>
   <string name="index_create">ഉണ്ടാക്കുക</string>
   <string name="rebuild_index">സൂചിക വീണ്ടും ഉണ്ടാക്കുക</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">പുരോഗതി</string>
   <string name="task_kill_warning">ഈ പ്രവർത്തനം തീരുന്നതിനു മുമ്പായി മറ്റൊരു പ്രവർത്തനം തുടങ്ങിയാൽ ദീർഘസമയം വേണ്ടിവരുന്ന ഇതു നിലച്ചുപോകാൻ സാധ്യത ഉണ്ട്</string>
@@ -56,6 +43,20 @@
   <string name="search_old_testament">പഴയനിയമം</string>
   <string name="search_current_book">ഈ പുസ്തകം</string>
   <string name="error_executing_search">അസാധുവായ അന്വേഷണം</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <!--Multi-translation search-->
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
   <!--Preferences-->
   <string name="prefs_verse_per_line_summary">ഒരോ വാക്യങ്ങളും വ്യത്യസ്ത വരികളിൽ കാണിക്കുക</string>
   <string name="prefs_show_mynotes_summary">എന്റെ കുറിപ്പിൽ വാക്യത്തോടൊപ്പം ഐക്കോൺ കാണിക്കുക</string>
@@ -116,6 +117,7 @@
   <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">പുസ്തകസൂചിക</string>
+  <!--Bookmark / note labels-->
   <string name="assign_labels">ശീർഷകം നിർണ്ണയിക്കുക</string>
   <string name="new_item">പുതിയ</string>
   <string name="label_name_prompt">പേര്</string>
@@ -125,6 +127,7 @@
   <string name="sort_by_date">തീയതി ക്രമത്തിൽ</string>
   <string name="sort_by_bible_book">ബൈബിള്‍ പുസ്തക ക്രമത്തിൽ</string>
   <string name="sort_by_alphabetical">അക്ഷരമാല ക്രമത്തിൽ</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">നിഘണ്ടു</string>
   <string name="search_dictionary_hint">നിഘണ്ടുവിൽ തിരയുക</string>
@@ -164,6 +167,10 @@
   <string name="speak_status_stopped">നിന്നു</string>
   <string name="speak_autobookmarking_disabled">തനിയേയുള്ള അടയാളങ്ങൾ നിർത്തിവെച്ചിരിക്കുന്നു</string>
   <string name="system_speak_settings">ഓപ്പൺ സിസ്റ്റം TTS സെറ്റിങ്ങ്സ്</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <!--param is bookmark icon-->
   <!--param is auto-assign label icon-->
@@ -194,7 +201,10 @@
   <string name="mynotes">എന്റെ കുറിപ്പുകൾ</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">ബാക്കപ്പ് &amp; പൂര്‍വ്വസ്ഥിതിയിലാക്കുക</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">പകർപ്പവകാശ %s</string>
   <string name="module_about_versification">വാക്യം ക്രമീകരണം: %s</string>
@@ -205,11 +215,15 @@
   <string name="doc_type_dictionary">നിഘണ്ഡു</string>
   <string name="doc_type_book">പുസ്തകം </string>
   <string name="doc_type_map">ഭൂപടം</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
   <!--Languages-->
   <string name="lang_default">ഉറപ്പിച്ചിട്ടുള്ളതു</string>
   <!--General-->
   <string name="okay">കൊള്ളാം</string>
   <string name="cancel">മാറ്റിക്കളയുക</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
   <string name="yes">അതെ</string>
   <string name="no">അല്ല</string>
   <string name="error">തെറ്റ്</string>
@@ -223,6 +237,9 @@
   <string name="error_page_too_large">ഉൾക്കൊള്ളിക്കാൻ കഴിയുന്നതിലും വളരെ വലിയതാണ്‌</string>
   <string name="error_key_not_in_document">ഡോക്കുമെന്റിൽ കാണുന്നില്ല</string>
   <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
+  <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
+  <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
+  <!--#4112: notification and widget text when a widget, the media button or the speak notification could not open the app's data because it is damaged.-->
   <!--Notifications-->
   <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
   <!--Workspaces-->
@@ -230,19 +247,154 @@
   <string name="save_and_exit">സൂക്ഷിക്കു</string>
   <string name="reset_settings">പുനഃരാരംഭിക്കൂ</string>
   <!--Beta notice-->
+  <!--The developer's special notice above the standard beta notice (BetaNotice, :sharedUi). One whole
+         paragraph, list item or link text per string; %s placeholders take links or menu item names.-->
   <!--History-->
   <!--Help-->
+  <!--TODO: to be removed-->
   <!--Welcome text-->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">അടക്കുക</string>
   <string name="my_notes_abbreviation">എന്റെ കുറിപ്പുകൾ</string>
   <string name="compare_description">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
   <string name="show_versenumbers">വാക്യങ്ങളുടെ അക്കങ്ങൾ കാണിക്കുക</string>
+  <!--meaning, bible version name-->
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="system_items1">കൂടുതൽ</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <!--will be added to incomplete_translation as a link-->
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--Reading Progress Activity-->
+  <!--... after restoring from backup file-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
+  <!--Document sync: settings UI-->
+  <!--Document sync: cloud documents management view-->
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <!--R3 (accessibility audit)-->
+  <!--I3b legacy migration-->
+  <!--H2: platform-neutral iOS recommendation.-->
+  <!--I2c-B-->
+  <!--BEGIN generated by sitegen.app_toc, do not edit-->
+  <string name="user_guide_section_getting_started">ആരംഭിക്കാം</string>
+  <string name="user_guide_section_bible_documents">വേദപുസ്തക ഡോക്കുമെന്റുകൾ</string>
+  <string name="user_guide_section_reading_workspace">വായനയും പ്രവർത്തനമേഖലയും</string>
+  <string name="user_guide_section_study_tools">പഠന ഉപകരണങ്ങൾ</string>
+  <string name="user_guide_section_backup_sync">ബാക്കപ്പും സമന്വയവും</string>
+  <string name="user_guide_section_desktop">ഡെസ്ക്ടോപ്പ്</string>
+  <string name="user_guide_section_customisation_advanced">ഇഷ്ടാനുസൃതമാക്കലും വിപുലമായ ഓപ്ഷനുകളും</string>
+  <string name="user_guide_section_help_reference">സഹായവും അവലംബങ്ങളും</string>
+  <string name="user_guide_page_getting_started">ആരംഭിക്കാം</string>
+  <string name="user_guide_page_navigation">നാവിഗേഷൻ</string>
+  <string name="user_guide_page_usage">ഉപയോഗം</string>
+  <string name="user_guide_page_documents">ഡോക്കുമെന്റുകൾ</string>
+  <string name="user_guide_page_my_documents">എന്റെ ഡോക്കുമെന്റുകൾ</string>
+  <string name="user_guide_page_custom_repositories">ഇഷ്ടാനുസൃത ശേഖരങ്ങൾ</string>
+  <string name="user_guide_page_workspaces">പ്രവർത്തനമേഖലകൾ</string>
+  <string name="user_guide_page_windows">വിൻഡോകൾ</string>
+  <string name="user_guide_page_verse_action_dialog">വാക്യ പ്രവർത്തനങ്ങൾ</string>
+  <string name="user_guide_page_look_and_feel">രൂപഭാവം</string>
+  <string name="user_guide_page_bible_links">വേദപുസ്തക ലിങ്കുകളും ഡീപ് ലിങ്കുകളും</string>
+  <string name="user_guide_page_speak">വായിച്ചുകേൾപ്പിക്കൽ</string>
+  <string name="user_guide_page_bookmarks">പുസ്തകസൂചിക</string>
+  <string name="user_guide_page_labels">ലേബലുകൾ</string>
+  <string name="user_guide_page_notes">കുറിപ്പുകൾ</string>
+  <string name="user_guide_page_study_pads">പഠന കുറിപ്പുപുസ്തകങ്ങൾ</string>
+  <string name="user_guide_page_search">തിരയൽ</string>
+  <string name="user_guide_page_reading_plans">വായന പദ്ധതികൾ</string>
+  <string name="user_guide_page_reading_progress">വായനാ പുരോഗതി</string>
+  <string name="user_guide_page_memorize">മനഃപാഠമാക്കുക</string>
+  <string name="user_guide_page_ai">AI വേദപുസ്തക പഠന സഹായി</string>
+  <string name="user_guide_page_share">പങ്കിടൽ</string>
+  <string name="user_guide_page_backup_restore">ബാക്കപ്പും പുനഃസ്ഥാപിക്കലും</string>
+  <string name="user_guide_page_cloud_sync">ക്ലൗഡ് സമന്വയം</string>
+  <string name="user_guide_page_document_sync">ഡോക്കുമെന്റ് സമന്വയം</string>
+  <string name="user_guide_page_desktop">Windows, Linux എന്നിവയിൽ AndBible</string>
+  <string name="user_guide_page_customisation">ഇഷ്ടാനുസൃതമാക്കൽ</string>
+  <string name="user_guide_page_customisation_custom_css">ഇഷ്ടാനുസൃത CSS</string>
+  <string name="user_guide_page_customisation_module_creation">മോഡ്യൂൾ നിർമ്മാണം</string>
+  <string name="user_guide_page_discrete_build">തിരിച്ചറിയാത്ത പതിപ്പ്</string>
+  <string name="user_guide_page_faq">പതിവുചോദ്യങ്ങൾ</string>
+  <string name="user_guide_page_platform_differences">പ്ലാറ്റ്ഫോം വ്യത്യാസങ്ങൾ</string>
+  <string name="user_guide_page_support">പിന്തുണ</string>
+  <string name="tutorial_title_whats_new_6_0">AndBible 6.0 ലെ പുതുമകൾ</string>
+  <string name="tutorial_title_01_getting_started">ആരംഭിക്കാം: ഇൻസ്റ്റാളേഷനും ആദ്യ വേദപുസ്തകങ്ങളും</string>
+  <string name="tutorial_title_02_finding_your_way">ആപ്പ് പരിചയപ്പെടാം</string>
+  <string name="tutorial_title_03_verse_menu">വാക്യ മെനു</string>
+  <string name="tutorial_title_04_strongs_dictionaries_crossrefs">Strong നമ്പറുകൾ, നിഘണ്ടുക്കൾ, പരസ്പര സൂചനകൾ</string>
+  <string name="tutorial_title_05_windows_1_open_and_arrange">വിൻഡോകൾ, ഭാഗം 1: തുറക്കലും ക്രമീകരിക്കലും</string>
+  <string name="tutorial_title_06_windows_2_pin_sync_links">വിൻഡോകൾ, ഭാഗം 2: പിൻ ചെയ്യൽ, സമന്വയം, ലിങ്കുകൾ</string>
+  <string name="tutorial_title_07_workspaces">പ്രവർത്തനമേഖലകൾ</string>
+  <string name="tutorial_title_08_bookmarks">പുസ്തകസൂചിക</string>
+  <string name="tutorial_title_09_labels_and_highlights">ലേബലുകളും ഹൈലൈറ്റുകളും</string>
+  <string name="tutorial_title_10_notes">കുറിപ്പുകൾ</string>
+  <string name="tutorial_title_11_study_pads">പഠന കുറിപ്പുപുസ്തകങ്ങൾ</string>
+  <string name="tutorial_title_12_search_1_basics">തിരയൽ, ഭാഗം 1: അടിസ്ഥാനങ്ങൾ</string>
+  <string name="tutorial_title_13_search_2_advanced">തിരയൽ, ഭാഗം 2: വാക്യങ്ങൾ, വൈൽഡ്കാർഡുകൾ, AND/OR</string>
+  <string name="tutorial_title_14_speak">വായിച്ചുകേൾപ്പിക്കൽ: വേദപുസ്തകം കേൾക്കുക</string>
+  <string name="tutorial_title_15_reading_plans_and_progress">വായന പദ്ധതികളും പുരോഗതിയും</string>
+  <string name="tutorial_title_16_backup_and_restore">ബാക്കപ്പും പുനഃസ്ഥാപിക്കലും</string>
+  <string name="tutorial_title_17_sync_1_google_drive">സമന്വയം, ഭാഗം 1: Google Drive</string>
+  <string name="tutorial_title_18_sync_2_more_backends_and_documents">സമന്വയം, ഭാഗം 2: Nextcloud, WebDAV, ഡോക്കുമെന്റുകൾ</string>
+  <string name="tutorial_title_19_appearance_1_night_mode_fonts_colours">രൂപഭാവം, ഭാഗം 1: രാത്രി മോഡ്, ഫോണ്ടുകൾ, നിറങ്ങൾ</string>
+  <string name="tutorial_title_20_appearance_2_global_workspace_window">രൂപഭാവം, ഭാഗം 2: പൊതുവായ, പ്രവർത്തനമേഖല, വിൻഡോ ക്രമീകരണങ്ങൾ</string>
+  <string name="tutorial_title_21_document_library">ഡോക്കുമെന്റ് ലൈബ്രറി</string>
+  <string name="tutorial_title_22_load_files_and_custom_repositories">ഫയലുകളും ഇഷ്ടാനുസൃത ശേഖരങ്ങളും</string>
+  <string name="tutorial_title_23_my_documents_and_epub">എന്റെ ഡോക്കുമെന്റുകളും EPUB പുസ്തകങ്ങളും</string>
+  <string name="tutorial_title_24_sharing_and_bible_links">വാക്യങ്ങൾ, പഠന കുറിപ്പുപുസ്തകങ്ങൾ, വേദപുസ്തക ലിങ്കുകൾ പങ്കിടൽ</string>
+  <string name="tutorial_title_25_memorize">മനഃപാഠമാക്കുക: വാക്യങ്ങൾ പഠിക്കുക</string>
+  <string name="tutorial_title_26_desktop">ഡെസ്ക്ടോപ്പിൽ AndBible</string>
+  <string name="tutorial_title_27_study_workflows_1_topical_and_sermon">പഠനരീതികൾ, ഭാഗം 1: വിഷയപഠനവും പ്രസംഗക്കുറിപ്പുകളും</string>
+  <string name="tutorial_title_28_study_workflows_2_word_study_and_devotions">പഠനരീതികൾ, ഭാഗം 2: പദപഠനവും ധ്യാനവും</string>
+  <string name="tutorial_title_29_ai_1_getting_started">AI സഹായി, ഭാഗം 1: ആരംഭിക്കാം</string>
+  <string name="tutorial_title_30_ai_2_prompts">AI സഹായി, ഭാഗം 2: പ്രോംപ്റ്റുകൾ പ്രവർത്തിപ്പിക്കൽ</string>
+  <string name="tutorial_title_31_ai_3_tools_data_permissions">AI സഹായി, ഭാഗം 3: ഉപകരണങ്ങൾ, ഡാറ്റ, അനുമതികൾ</string>
+  <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI സഹായി, ഭാഗം 4: സ്വന്തം പ്രോംപ്റ്റുകൾ, ചെലവ്, സമന്വയം</string>
+  <!--END generated by sitegen.app_toc, do not edit-->
 </resources>

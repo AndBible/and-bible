@@ -26,9 +26,17 @@ class UserGuideTocTest {
     }
 
     @Test
+    fun generatedTitleKeysArePresentAndUnique() {
+        val keys = UserGuideToc.sections.map { it.key } + pages.map { it.key } +
+            UserGuideToc.episodeTitles.values.map { it.key }
+        assertTrue(keys.all { it.isNotBlank() })
+        assertEquals(keys.size, keys.toSet().size)
+    }
+
+    @Test
     fun everyEpisodeHasATitle() {
         assertEquals(TutorialVideos.Episode.entries.toSet(), UserGuideToc.episodeTitles.keys)
-        assertTrue(UserGuideToc.episodeTitles.values.all { it.isNotBlank() })
-        assertEquals("What's new in AndBible 6.0", UserGuideToc.episodeTitles[TutorialVideos.Episode.WHATS_NEW_6_0])
+        assertTrue(UserGuideToc.episodeTitles.values.all { it.title.isNotBlank() })
+        assertEquals("What's new in AndBible 6.0", UserGuideToc.episodeTitles[TutorialVideos.Episode.WHATS_NEW_6_0]?.title)
     }
 }

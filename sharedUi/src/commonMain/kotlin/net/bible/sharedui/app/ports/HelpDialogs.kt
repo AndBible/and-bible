@@ -9,6 +9,9 @@ interface HelpDialogs {
     /** The localized text of a help string resource [key] (`help_nav_text`...); the key itself where a host has no table. */
     fun tipText(key: String): String = key
 
+    /** Resolves a generated guide title resource, returning the key when unavailable. */
+    fun guideTitle(key: String): String = key
+
     /** The app version name for the Help screen's version line; empty where unknown. */
     fun versionName(): String = ""
 

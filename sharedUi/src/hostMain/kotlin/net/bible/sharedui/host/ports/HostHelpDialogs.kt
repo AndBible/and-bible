@@ -19,6 +19,8 @@ class HostHelpDialogs(
 ) : HelpDialogs {
     override fun tipText(key: String): String = table().text(key)
 
+    override fun guideTitle(key: String): String = table().text(key)
+
     override fun appLanguage(): String = table().tag
 
     override fun versionName(): String = versionName.invoke()
