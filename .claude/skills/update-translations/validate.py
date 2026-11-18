@@ -22,6 +22,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lang_codes import resolve_paths
+from locale_aliases import LOCALE_ALIASES, diff_alias, DEFAULT_RES_DIR
 
 try:
     import yaml
@@ -238,6 +239,13 @@ def main():
                 warnings.append(f"Play Store: short_description too long ({len(short)} > 80 chars)")
 
             print(f"  Keys filled: {len(ps_filled)}/{len(ps_base_keys)}")
+
+    # ===== LOCALE ALIASES =====
+    # values-id / values-b+sr must equal their full source dirs (see locale_aliases.py)
+    for alias, source in LOCALE_ALIASES.items():
+        for problem in diff_alias(DEFAULT_RES_DIR, alias, source):
+            errors.append(f"Locale alias out of sync: {problem} "
+                          f"(run locale_aliases.py)")
 
     # ===== RESULTS =====
     print()
