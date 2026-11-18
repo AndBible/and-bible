@@ -36,18 +36,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.testTag
+import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
+import net.bible.sharedui.theme.workspaceDotColor
 import androidx.compose.ui.unit.dp
-import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.ScrollToItemOnce
 import net.bible.sharedui.components.currentRowHighlight
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.LocalDisplayColorMode
-import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The workspace QUICK switch list (spec §4.4): colour dot + name, current row bold and inert.
@@ -80,7 +79,6 @@ fun WorkspaceQuickContent(
     listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier,
 ) {
-    val colorMode = LocalDisplayColorMode.current
     val strings = LocalStrings.current
     // I2 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize. Under the host's bounded
     // `heightIn(max = AbSheetContentMaxHeight)`, fillMaxSize sets minHeight = maxHeight, pinning the
@@ -111,11 +109,11 @@ fun WorkspaceQuickContent(
                 // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
                 // grays out in BW, ink in MONOCHROME and COLOR_EINK. Construction copied verbatim from
                 // `WorkspaceSelectorScreen.kt:183-187` so the two screens tint identically.
+                // An unset colour (#4149) is resolved to the default theme's colour.
                 Surface(
-                    color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
-                    else Color(accentArgbFor(row.colorArgb, colorMode)),
+                    color = workspaceDotColor(row.colorArgb),
                     shape = CircleShape,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(16.dp).testTag(WORKSPACE_COLOR_DOT_TAG),
                 ) {}
                 Spacer(Modifier.width(16.dp))
                 Text(

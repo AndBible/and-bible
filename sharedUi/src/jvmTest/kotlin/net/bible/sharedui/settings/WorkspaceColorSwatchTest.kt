@@ -17,6 +17,8 @@ import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.theme.abColorScheme
+import net.bible.sharedui.theme.monoInk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -36,9 +38,22 @@ class WorkspaceColorSwatchTest {
     fun chosenWorkspaceSwatchKeepsItsLiteralColor() =
         assertUnsetSwatch(dark = false, workspaceColor = 0xFF8B5A2B.toInt())
 
+    // #4149: an unset colour shows the theme an unset workspace gets in that mode, never #444444.
     @Test
-    fun einkDefaultSwatchStaysGrey() =
+    fun einkDefaultSwatchShowsInk() =
         assertUnsetSwatch(dark = false, mode = DisplayColorMode.COLOR_EINK)
+
+    @Test
+    fun monochromeDarkDefaultSwatchShowsInk() =
+        assertUnsetSwatch(dark = true, mode = DisplayColorMode.MONOCHROME)
+
+    @Test
+    fun bwDefaultSwatchShowsGreyThemePrimary() =
+        assertUnsetSwatch(dark = false, mode = DisplayColorMode.BW)
+
+    @Test
+    fun einkChosenSwatchKeepsItsLiteralColor() =
+        assertUnsetSwatch(dark = false, workspaceColor = 0xFF8B5A2B.toInt(), mode = DisplayColorMode.COLOR_EINK)
 
     private fun assertUnsetSwatch(
         dark: Boolean,
@@ -74,8 +89,11 @@ class WorkspaceColorSwatchTest {
         val radius = row.height / 4
         // The built-in default theme ("Ink on paper"), never the stock Material violet.
         val default = DefaultThemeProposal.DEFAULT.scheme(dark)!!
-        val expected = if (mode == DisplayColorMode.NORMAL && workspaceColor == DEFAULT_WORKSPACE_COLOR_ARGB)
-            default.primary else Color(workspaceColor)
+        val expected = if (workspaceColor != DEFAULT_WORKSPACE_COLOR_ARGB) Color(workspaceColor) else when (mode) {
+            DisplayColorMode.NORMAL -> default.primary
+            DisplayColorMode.MONOCHROME, DisplayColorMode.COLOR_EINK -> monoInk(dark)
+            DisplayColorMode.BW -> abColorScheme(null, dark, mode).primary
+        }
         assertEquals(expected, pixels[radius, row.height / 2])
     }
 }

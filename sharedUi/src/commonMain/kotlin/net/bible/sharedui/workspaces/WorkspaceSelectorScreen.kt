@@ -57,12 +57,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
-import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.components.AbActionIcon
@@ -76,8 +75,9 @@ import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.WORKSPACE_COLOR_DOT_TAG
+import net.bible.sharedui.theme.workspaceDotColor
 import net.bible.sharedui.theme.LocalAbColors
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.isPureMonochrome
 
 /**
@@ -191,11 +191,11 @@ fun WorkspaceSelectorScreen(
                         // The per-workspace color is a decorative-but-meaningful identifier, not a scheme
                         // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
                         // grays out in BW, ink in MONOCHROME and COLOR_EINK.
+                        // An unset colour (#4149) is resolved to the default theme's colour.
                         Surface(
-                            color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
-                            else Color(accentArgbFor(item.colorArgb, LocalDisplayColorMode.current)),
+                            color = workspaceDotColor(item.colorArgb),
                             shape = CircleShape,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(16.dp).testTag(WORKSPACE_COLOR_DOT_TAG),
                         ) {}
                         Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                             Text(
