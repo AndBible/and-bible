@@ -2,15 +2,15 @@
 title: Code signing policy
 ---
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+Free code signing for the Windows packages provided by [SignPath.io](https://about.signpath.io), certificate by
 [SignPath Foundation](https://signpath.org).
 
 ## Android
 
 Google Play and the GitHub release APKs use AndBible's own release key, which is also the
 Google Play app signing key. F-Droid builds AndBible from source and signs it with F-Droid's
-own key: F-Droid and Play/GitHub installations cannot update each other. Amazon, Samsung and
-Huawei builds are distributed through their respective stores.
+own key: F-Droid and Play/GitHub installations cannot update each other. Amazon, Samsung,
+Huawei and Accrescent builds are distributed through their respective stores.
 
 ## iPhone, iPad and Mac
 
