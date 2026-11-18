@@ -36,6 +36,12 @@ class TutorialVideosSubtitlesTest {
         assertNull(TutorialVideos.matchSubtitle(setOf("zh-CN"), "zh-Hant-TW"))
     }
 
+    @Test fun explicitChineseScriptDoesNotFallBackToAnIncompatibleRegionalTrack() {
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-TW"), "zh-Hans-TW"))
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-CN"), "zh-Hant-CN"))
+        assertEquals("zh", TutorialVideos.matchSubtitle(setOf("zh", "zh-TW"), "zh-Hans-TW"))
+    }
+
     @Test fun legacyLanguageAliasesMatchBothWays() {
         assertEquals("he", TutorialVideos.matchSubtitle(setOf("he"), "iw"))
         assertEquals("iw", TutorialVideos.matchSubtitle(setOf("iw"), "he-IL"))
@@ -59,10 +65,52 @@ class TutorialVideosSubtitlesTest {
         assertEquals(watch, TutorialVideos.buildUrl("abc123", subs, "de"))
     }
 
-    @Test fun unpublishedEpisodeGivesThePlaceholderWithoutCaptionParameters() {
-        val url = TutorialVideos.buildUrl(null, subs, "fi")
-        assertEquals(TutorialVideos.resolve(null, TutorialVideos.PLACEHOLDER_VIDEO_ID), url)
-        assertFalse("cc_" in url)
+    @Test fun unpublishedEpisodeRequestsThePlaceholdersCaptions() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        for (language in listOf("fi", "de", "sv")) {
+            assertEquals(
+                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$language&hl=$language",
+                TutorialVideos.url(episode, language),
+            )
+            assertTrue(TutorialVideos.hasPlainLabel(episode, language), language)
+            assertEquals(language, TutorialVideos.subtitleLanguage(episode, language))
+        }
+    }
+
+    @Test fun unpublishedEpisodeWithoutMatchingCaptionsKeepsTheEnglishQualifier() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "zxx"))
+        assertFalse(TutorialVideos.hasPlainLabel(episode, "zxx"))
+        assertNull(TutorialVideos.subtitleLanguage(episode, "zxx"))
+    }
+
+    @Test fun unpublishedEpisodeInEnglishUsesThePlainPlaceholderUrlAndLabel() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.url(episode, "en-US"))
+        assertTrue(TutorialVideos.hasPlainLabel(episode, "en-US"))
+    }
+
+    @Test fun unpublishedEpisodeIgnoresItsOwnSubtitleMetadata() {
+        assertEquals("https://www.youtube.com/watch?v=RlLkpKZZwTg", TutorialVideos.buildUrl(null, setOf("zxx"), "zxx"))
+    }
+
+    @Test fun placeholderCaptionsMatchPlatformLanguageTags() {
+        val episode = TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS
+        val cases = mapOf(
+            "in" to "id", "id" to "id", "he" to "iw", "iw" to "iw",
+            "sr-Latn" to "sr-Latn", "sr-Latn-RS" to "sr-Latn", "sr-Cyrl-RS" to "sr", "sr-RS" to "sr",
+            "zh-Hans" to "zh-CN", "zh-Hans-SG" to "zh-CN", "zh-Hans-TW" to "zh-CN", "zh-CN" to "zh-CN", "zh-SG" to "zh-CN",
+            "zh-Hant" to "zh-TW", "zh-Hant-HK" to "zh-TW", "zh-Hant-CN" to "zh-TW", "zh-TW" to "zh-TW", "zh-HK" to "zh-TW",
+            "nb" to "nb", "no" to "nb", "no-NO" to "nb", "tl" to "fil", "fil" to "fil",
+        )
+        for ((app, caption) in cases) {
+            assertEquals(caption, TutorialVideos.subtitleLanguage(episode, app), app)
+            assertEquals(
+                "https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=$caption&hl=$app",
+                TutorialVideos.url(episode, app), app,
+            )
+            assertTrue(TutorialVideos.hasPlainLabel(episode, app), app)
+        }
     }
 
     @Test fun tagIsUrlEncoded() {

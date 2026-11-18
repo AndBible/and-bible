@@ -26,12 +26,14 @@ group) open the support and contribution pages in your browser; `Help & tips` op
 
 - **Tips** has short help topics, each with a link to its tutorial video and to the matching page of this
   manual, and a link to the full documentation.
-- **User guide** is the table of contents of this manual: pick a page to open it in your browser. A page that
-  has a tutorial video shows a play button, and the **Tutorial videos** list at the end has the published
-  videos in order.
+- **User guide** is the table of contents of this manual: pick a page to open it in your browser. Pages
+  with tutorial episodes show a play button for each episode, and the **Tutorial videos** list at the end
+  shows every episode in order. Unpublished episodes open the "Videos coming soon" placeholder; published
+  episodes open their own videos.
 
-Tutorial videos open on YouTube. When a video has subtitles in the language of the app, they are turned on
-for you; otherwise the video is in English and the link says so.
+Tutorial videos open on YouTube. When an episode has subtitles in the language of the app, they are turned
+on for you; otherwise the video is in English and the link says so. Unpublished episodes use the placeholder
+video's available subtitles.
 
 ## Reporting Issues
 

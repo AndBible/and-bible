@@ -36,13 +36,13 @@ class HelpScreenTest {
         onUp: () -> Unit = {},
         initialTab: Int = 0,
         appLanguage: String = "en",
+        guideSections: List<UserGuideToc.Section> = sections,
     ) = setContent {
         CompositionLocalProvider(LocalStrings provides strings) {
             AbTheme(darkTheme = false) {
                 HelpScreen(
-                    tips = tips, sections = sections, tutorialVideos = videos, versionText = "Version 9.9",
+                    tips = tips, sections = guideSections, tutorialVideos = videos, versionText = "Version 9.9",
                     appLanguage = appLanguage, initialTab = initialTab, onOpenUrl = { opened += it }, onUp = onUp,
-                    isPublished = { it == Episode.TUTORIAL_02_FINDING_YOUR_WAY },
                 )
             }
         }
@@ -80,32 +80,30 @@ class HelpScreenTest {
         assertEquals(listOf("https://x/navigation/"), opened)
     }
 
-    @Test fun onlyPublishedEpisodesGetARowUnderTheirPage() = runComposeUiTest {
+    @Test fun unpublishedEpisodesGetPlayableRowsUnderTheirPages() = runComposeUiTest {
         val opened = mutableListOf<String>()
         show(opened = opened)
         onNodeWithText(strings.helpTabUserGuide).performClick()
         val title = UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_02_FINDING_YOUR_WAY)
         onAllNodesWithText(title).assertCountEquals(1)
-        onNodeWithText(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_03_VERSE_MENU)).assertDoesNotExist()
+        onNodeWithText(UserGuideToc.episodeTitles.getValue(Episode.TUTORIAL_03_VERSE_MENU)).assertExists()
         onNodeWithText(title).performClick()
-        assertEquals(listOf(TutorialVideos.url(Episode.TUTORIAL_02_FINDING_YOUR_WAY, "en")), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=RlLkpKZZwTg"), opened)
     }
 
     @Test fun episodeRowsUseTheAppLanguageForUrlAndLabel() = runComposeUiTest {
         val opened = mutableListOf<String>()
         val episode = Episode.TUTORIAL_02_FINDING_YOUR_WAY
-        // Captions exist only when the real episode carries them; assert the screen follows the core rule either way.
         show(videos = emptyList(), opened = opened, appLanguage = "fi")
         onNodeWithText(strings.helpTabUserGuide).performClick()
-        val label = if (TutorialVideos.hasPlainLabel(episode, "fi")) strings.watchTutorialVideoPlain else strings.watchTutorialVideo
         onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).assertExists()
-        onAllNodesWithText(label).assertCountEquals(1)
+        onAllNodesWithText(strings.watchTutorialVideoPlain).assertCountEquals(2)
         onNodeWithText(UserGuideToc.episodeTitles.getValue(episode)).performClick()
-        assertEquals(listOf(TutorialVideos.url(episode, "fi")), opened)
+        assertEquals(listOf("https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), opened)
     }
 
     @Test fun videoRowWithoutCaptionsCarriesTheEnglishQualifier() = runComposeUiTest {
-        show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = 1)
+        show(videos = listOf(VideoRowUi("Episode one", "https://video/e1", plainLabel = false)), initialTab = 1, guideSections = emptyList())
         onAllNodesWithText(strings.watchTutorialVideo).assertCountEquals(1)
     }
 
@@ -120,6 +118,26 @@ class HelpScreenTest {
     @Test fun emptyVideoListHidesTheTutorialVideosHeader() = runComposeUiTest {
         show(videos = emptyList(), initialTab = 1)
         onNodeWithText(strings.helpTutorialVideos).assertDoesNotExist()
+    }
+
+    @Test fun catalogWithSharedPlaceholderUrlsStillRendersDistinctClickableRows() = runComposeUiTest {
+        val opened = mutableListOf<String>()
+        val url = "https://www.youtube.com/watch?v=RlLkpKZZwTg"
+        show(
+            videos = listOf(VideoRowUi("Episode one", url), VideoRowUi("Episode two", url)),
+            opened = opened, initialTab = 1, guideSections = emptyList(),
+        )
+        onNodeWithText("Episode one").assertExists()
+        onNodeWithText("Episode two").performClick()
+        assertEquals(listOf(url), opened)
+    }
+
+    @Test fun defaultVideoCatalogIncludesEveryEpisodeInSeriesOrder() {
+        val deps = net.bible.sharedui.help.nav.HelpNavDeps({}, {}, { emptyList() }, { "Version" }, {})
+        val videos = deps.tutorialVideos("fi")
+        assertEquals(Episode.entries.map { UserGuideToc.episodeTitles.getValue(it) }, videos.map { it.title })
+        assertEquals(setOf("https://www.youtube.com/watch?v=RlLkpKZZwTg&cc_load_policy=1&cc_lang_pref=fi&hl=fi"), videos.map { it.url }.toSet())
+        kotlin.test.assertTrue(videos.all { it.plainLabel })
     }
 
     @Test fun upCallsOnUp() = runComposeUiTest {

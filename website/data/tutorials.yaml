@@ -2,14 +2,19 @@
 #
 # Hand-maintainable and public: the site build reads only this file, never website/video/.
 # - slug: the episode folder under website/video/episodes/ (and TutorialVideos.kt's enum name, lower-cased, `-` for `_`).
-# - youtube: null until the episode is published. `youtube_upload.py` fills it in after an upload (and prints the
-#   TutorialVideos.kt line). While null, the docs page shows a "Coming soon" note and /videos/ the placeholder.
+# - youtube: null until the episode is published. `youtube_upload.py` fills it in after an upload.
+#   While null, the docs page shows a "Coming soon" note and in-app links open the placeholder.
 # - placeholder: the unlisted "videos coming soon" video (same id as TutorialVideos.PLACEHOLDER_VIDEO_ID).
+# - placeholder_subtitles: YouTube caption languages on the placeholder (source for the generated app catalog).
+# - playlist: YouTube playlist id, or null when no playlist is assigned.
 # - subtitles: YouTube caption languages uploaded for the episode, besides English (sorted BCP-47 codes such as fi, pt-BR);
-#   filled by `youtube_upload.py`, mirrored in TutorialVideos.kt (`X("id", setOf("fi"))`) and used to open videos with captions.
+#   filled by `youtube_upload.py` and used to open videos with captions.
 # - docs / anchor: the docs page stem (relative to docs/, no .md) the episode is embedded in, and an optional heading anchor.
-# website/tests/test_tutorials.py keeps this file in step with TutorialVideos.kt.
+# App metadata is generated: cd website && uv run python -m sitegen.app_tutorials
+# website/tests/test_app_tutorials.py rejects a stale generated catalog.
 placeholder: RlLkpKZZwTg
+placeholder_subtitles: [af, ar, bg, bn, ca, cs, da, de, el, eo, es, et, fi, fil, fr, hi, hr, hu, id, it, iw, ja, ko, lt, ms, nb, ne, nl, pl, pt, pt-BR, ro, ru, sk, sl, sr, sr-Latn, sv, sw, ta, te, th, tr, uk, ur, vi, zh-CN, zh-TW]
+playlist: null
 episodes:
   - {slug: whats-new-6-0, number: null, title: "What's new in AndBible 6.0", docs: releases/release_6_0, anchor: null, youtube: null, subtitles: []}
   - {slug: tutorial-01-getting-started, number: 1, title: "Getting started: install and your first Bibles", docs: getting_started, anchor: null, youtube: null, subtitles: []}
