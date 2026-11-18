@@ -65,7 +65,7 @@ class HelpScreenGoldenTest {
         HelpScreen(
             tips = emptyList(),
             sections = listOf(UserGuideToc.Section("Study Tools", "user_guide_section_study_tools", listOf(aiPage))),
-            tutorialVideos = emptyList(),
+            tutorialVideos = catalog.tutorialVideos("en"),
             versionText = "Version 6.0.0",
             initialTab = 1,
             onOpenUrl = {},
