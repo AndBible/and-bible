@@ -36,6 +36,12 @@ class TutorialVideosSubtitlesTest {
         assertNull(TutorialVideos.matchSubtitle(setOf("zh-CN"), "zh-Hant-TW"))
     }
 
+    @Test fun explicitChineseScriptDoesNotFallBackToAnIncompatibleRegionalTrack() {
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-TW"), "zh-Hans-TW"))
+        assertNull(TutorialVideos.matchSubtitle(setOf("zh-CN"), "zh-Hant-CN"))
+        assertEquals("zh", TutorialVideos.matchSubtitle(setOf("zh", "zh-TW"), "zh-Hans-TW"))
+    }
+
     @Test fun legacyLanguageAliasesMatchBothWays() {
         assertEquals("he", TutorialVideos.matchSubtitle(setOf("he"), "iw"))
         assertEquals("iw", TutorialVideos.matchSubtitle(setOf("iw"), "he-IL"))

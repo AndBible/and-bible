@@ -154,7 +154,13 @@ object TutorialVideos {
                 else -> null
             }
         } else null
-        val tails = listOfNotNull(rest.joinToString("-"), script, chineseRegion, region, "").distinct()
+        val compatibleRegion = region.takeUnless {
+            lang.equals("zh", ignoreCase = true) && (
+                script.equals("Hans", ignoreCase = true) && (it.equals("TW", true) || it.equals("HK", true)) ||
+                    script.equals("Hant", ignoreCase = true) && (it.equals("CN", true) || it.equals("SG", true))
+                )
+        }
+        val tails = listOfNotNull(rest.joinToString("-"), script, chineseRegion, compatibleRegion, "").distinct()
         val langs = listOf(lang) + listOfNotNull(LANGUAGE_ALIASES[lang.lowercase()])
         return langs.flatMap { l -> tails.map { t -> if (t.isEmpty()) l else "$l-$t" } }.distinct()
     }
