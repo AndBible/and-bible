@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material3.Card
@@ -36,6 +37,7 @@ import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.CappedBarFontScale
+import net.bible.sharedui.components.volumeScrollTarget
 import net.bible.sharedui.strings.LocalStrings
 
 /** One tip card of the Help & tips screen. [videoUrl] and [docUrl] are null when the tip has no video or manual page. */
@@ -103,8 +105,10 @@ fun HelpScreen(
 @Composable
 private fun TipsTab(tips: List<HelpTipUi>, versionText: String, onOpenUrl: (String) -> Unit) {
     val strings = LocalStrings.current
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        state = listState,
+        modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -146,7 +150,8 @@ private fun UserGuideTab(
     isPublished: (TutorialVideos.Episode) -> Boolean,
 ) {
     val strings = LocalStrings.current
-    LazyColumn(Modifier.fillMaxWidth()) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         item {
             Text(
                 strings.helpUserGuideIntro,
