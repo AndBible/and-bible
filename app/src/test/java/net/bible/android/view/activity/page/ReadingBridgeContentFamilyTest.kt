@@ -360,7 +360,7 @@ class ReadingBridgeContentFamilyTest {
         bridge.helpBookmarks()
         val (title, html) = sheets.helps.single()
         assertEquals(testCoreStrings().bookmarksAndMyNotesTitle, title)
-        assertTrue(html.contains(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS)))
+        assertTrue(html.contains(TutorialVideos.url(TutorialVideos.Episode.TUTORIAL_08_BOOKMARKS, "en")))
         assertTrue(html.contains(testCoreStrings().verseTip))
     }
 

@@ -231,7 +231,7 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
 - App deep-link targets are declared once in the `DocsLink` enum catalog
   (`sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLink.kt`), with each entry's
   page literal and optional anchor. Use the catalog entry at app call sites, e.g.
-  `DocsLinks.page(DocsLink.AI_SETTING_PERMISSIONS)`; `DocsLinks.page(DocsLink)` builds its URL.
+  `DocsLink.AI_SETTING_PERMISSIONS.url`.
   Add new targets to the catalog rather than repeating page/anchor strings at use sites.
   `website/tests/test_app_deep_links.py` reads the catalog, checks targets against the built docs,
   and rejects bypasses across `app`, `sharedCore`, `sharedLogic`, `sharedUi`, and `desktopApp`.

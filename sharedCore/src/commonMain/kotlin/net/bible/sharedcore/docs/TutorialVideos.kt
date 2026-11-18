@@ -72,23 +72,18 @@ object TutorialVideos {
     /** The episodes that have a YouTube id, in series order. */
     fun published(): List<Episode> = Episode.entries.filter { it.youtubeId != null }
 
-    /** The video to open for the placeholder: its own watch URL, else the channel. */
-    fun placeholderUrl(): String = resolve(null, PLACEHOLDER_VIDEO_ID)
-
-    /** The video to open for [episode]: its own watch URL when published, else the [placeholderUrl]. */
-    fun url(episode: Episode): String = resolve(episode.youtubeId, PLACEHOLDER_VIDEO_ID)
-
     /**
      * The YouTube caption language to request for an app in [appLanguage], or null when none applies: the
      * opened video's subtitles (the placeholder's when unpublished) are matched by exact tag (case-insensitive, `_` read as `-`), then by the
-     * app tag's primary subtag (app `pt-BR` finds subtitle `pt`; app `pt` does not find `pt-BR`). English never
-     * matches, because the video's own audio and captions are English.
+     * app tag's script/region and primary subtag (app `pt-BR` finds subtitle `pt`; app `pt` does not find `pt-BR`).
+     * Chinese uses YouTube's regional tracks; bare `zh` follows the app's Traditional Chinese table.
+     * English never matches, because the video's own audio and captions are English.
      */
     fun subtitleLanguage(episode: Episode, appLanguage: String): String? = matchSubtitle(effectiveSubtitles(episode.youtubeId, episode.subtitles), appLanguage)
 
     /**
      * The video to open for [episode] from an app in [appLanguage]: with a matching caption track the watch URL
-     * asks YouTube for those captions and interface language, otherwise it is [url].
+     * asks YouTube for those captions and interface language, otherwise it is the plain watch URL.
      *
      * The form stays `watch?v=`: the caption spike (2026-11-17, Android emulator) found the `/embed/<id>` form unusable as
      * a top-level link (YouTube player error 153), while the `watch` form is accepted by the YouTube app and by Chrome
@@ -101,15 +96,9 @@ object TutorialVideos {
     fun hasPlainLabel(episode: Episode, appLanguage: String): Boolean =
         plainLabel(effectiveSubtitles(episode.youtubeId, episode.subtitles), appLanguage)
 
-    /** The tutorials playlist when it is public, else the [placeholderUrl]. */
-    fun playlistUrl(): String = resolvePlaylist(TUTORIAL_PLAYLIST_ID, PLACEHOLDER_VIDEO_ID)
-
     /** The fallback chain episode, then placeholder, then channel; separate from the ids so a test can drive it. */
     internal fun resolve(episodeId: String?, placeholderId: String?, channel: String = CHANNEL_URL): String =
         (episodeId ?: placeholderId)?.let(::watchUrl) ?: channel
-
-    internal fun resolvePlaylist(playlistId: String?, placeholderId: String?, channel: String = CHANNEL_URL): String =
-        playlistId?.let { "https://www.youtube.com/playlist?list=$it" } ?: resolve(null, placeholderId, channel)
 
     internal fun plainLabel(subtitles: Set<String>, appLanguage: String): Boolean =
         isEnglish(appLanguage) || matchSubtitle(subtitles, appLanguage) != null
@@ -121,7 +110,9 @@ object TutorialVideos {
         val videoId = youtubeId ?: PLACEHOLDER_VIDEO_ID
         val match = matchSubtitle(effectiveSubtitles(youtubeId, subtitles), appLanguage)
         if (videoId == null || match == null) return resolve(youtubeId, PLACEHOLDER_VIDEO_ID)
-        return "${watchUrl(videoId)}&cc_load_policy=1&cc_lang_pref=${encode(match)}&hl=${encode(normalise(appLanguage))}"
+        // Use the uploaded YouTube language code for both parameters, not a platform locale/legacy alias.
+        // The i18nLanguages API requires unavailable credentials; keep hl aligned with the known caption code.
+        return "${watchUrl(videoId)}&cc_load_policy=1&cc_lang_pref=${encode(match)}&hl=${encode(match)}"
     }
 
     internal fun matchSubtitle(subtitles: Set<String>, appLanguage: String): String? {
@@ -150,13 +141,15 @@ object TutorialVideos {
                 script.equals("Hans", ignoreCase = true) -> "CN"
                 script.equals("Hant", ignoreCase = true) -> "TW"
                 region.equals("SG", ignoreCase = true) -> "CN"
-                region.equals("HK", ignoreCase = true) -> "TW"
+                region.equals("HK", ignoreCase = true) || region.equals("MO", ignoreCase = true) -> "TW"
+                // values-zh (also the generated iOS/desktop `zh` table) is Traditional Chinese.
+                script == null && region == null -> "TW"
                 else -> null
             }
         } else null
         val compatibleRegion = region.takeUnless {
             lang.equals("zh", ignoreCase = true) && (
-                script.equals("Hans", ignoreCase = true) && (it.equals("TW", true) || it.equals("HK", true)) ||
+                script.equals("Hans", ignoreCase = true) && (it.equals("TW", true) || it.equals("HK", true) || it.equals("MO", true)) ||
                     script.equals("Hant", ignoreCase = true) && (it.equals("CN", true) || it.equals("SG", true))
                 )
         }
