@@ -125,7 +125,7 @@ when the *Links window* option is on, which it is by default:
 
 Other (plain) dictionaries, such as an English dictionary, are used for looking up any word you
 select in the text. Select a word and choose *Look up in dictionaries* from the selection menu
-(see [Verse Action Dialog](verse_action_dialog.md#text-selection-menu)); the entries that match
+(see [verse menu](verse_action_dialog.md#text-selection-menu)); the entries that match
 are shown together. The menu row is only offered when at least one lookup dictionary is
 enabled, and a message tells you if the word is not found.
 

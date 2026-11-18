@@ -48,7 +48,7 @@ def test_repository_redirects_load():
     mapping = load(DATA / "redirects.yaml")
     assert mapping["/privacy.html"] == "/privacy/"
     # pages removed in the docs IA rework keep their old URL alive
-    assert mapping["/docs/videos/note_add_to_existing_bookmark/"] == "/docs/notes/"
+    assert mapping["/docs/videos/note_add_to_existing_bookmark/"] == "/docs/notes/#add-a-note-to-an-existing-bookmark"
     assert mapping["/docs/style_guide/"].startswith("https://github.com/AndBible/and-bible/")
 
 

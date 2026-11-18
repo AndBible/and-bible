@@ -95,7 +95,8 @@ def test_migrated_call_sites_preserve_original_targets():
         kt = paths.REPO / source
         if kt == GENERATED_TOC:
             current = re.findall(r'DocsLink\.([A-Z][A-Z0-9_]*)\.url', kt.read_text(encoding="utf-8"))
-            assert current == names
+            # The TOC order follows zensical.toml (pinned by test_app_toc.py); here only the targets must survive.
+            assert Counter(current) == Counter(names)
             continue
         if "test" in kt.parts:
             continue

@@ -7,7 +7,7 @@ exercises.
 
 1. Tap a verse, or select a passage by long-pressing a word and extending the
     selection.
-2. In the [Verse Action Dialog](verse_action_dialog.md), tap the
+2. In the [verse menu](verse_action_dialog.md), tap the
     **Memorize** button, after **Bookmark**, **Note** and **AI** (when configured).
     Actions that do not fit on a narrow screen are under **More**.
 3. The verse menu closes and the Memorize view opens in the links window. When a

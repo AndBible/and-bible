@@ -87,7 +87,7 @@ The toolbar at the top of the reading screen has these parts, from left to right
         stopped. Long-press it to open the speak settings. See [Speak](speak.md).
     - **Workspaces**: opens the workspace selector.
 - **More options (⋮)** is always shown. Its menu has *Fullscreen*, *Night mode* (see
-    [Look and Feel](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (on devices with a motion sensor, so not on Windows and Linux), *Reversed split
+    [Appearance and settings](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (on devices with a motion sensor, so not on Windows and Linux), *Reversed split
     mode* (when several windows are open), *Window pinning*, *Label settings*, *AI Actions*
     (when an AI provider is set up), *Sync now* (when sync is set up), the text options you used
     most recently and *All text options*. See also
@@ -118,7 +118,7 @@ screen, see [Swipe from the edge](#swipe-from-the-edge-to-open-the-main-menu).
 | `Backup & Restore` | [Backup and restore](backup_restore.md) |
 | `Device synchronization` | [Synchronization](cloud_sync.md) (shown only where it is available) |
 | `AI Settings` | [AI](ai.md) |
-| `Application preferences` | The app settings, see [Look and feel](look_and_feel.md) |
+| `Application preferences` | The app settings, see [Appearance and settings](look_and_feel.md) |
 
 **Information**
 
@@ -231,7 +231,7 @@ can show what the app is doing in the background, such as downloads, search
 indexing and sync. On Android the same information is shown as system
 notifications, so this is off by default there. Turn it on or off with
 *Show background activity in the menu* in the *Look & feel* section of the
-application settings (see [Look and Feel](look_and_feel.md#look-feel)).
+application settings (see [Appearance and settings](look_and_feel.md#look-feel)).
 
 When the setting is on:
 
@@ -308,7 +308,7 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Space** | Pause or resume speaking, while speech is not stopped | All |
 
 When you tap a verse and its action menu is open, **B** adds a bookmark, **N** adds a note and
-**Space** speaks the verse. See [Verse Action Dialog](verse_action_dialog.md).
+**Space** speaks the verse. See [The verse menu](verse_action_dialog.md).
 
 ### Keyboard Search
 
