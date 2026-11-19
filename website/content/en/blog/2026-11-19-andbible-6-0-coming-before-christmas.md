@@ -36,10 +36,9 @@ computer:
 - **Sync between your devices.** Google Drive, Nextcloud and WebDAV work on every platform, and
   iCloud Drive on iPhone, iPad and Mac. Add a bookmark with a note on your phone, and the next
   sync brings it to your computer. See [Cloud synchronization](/docs/cloud_sync/).
-- **An AI Bible study assistant**, if you want one. Choose a passage and a prompt, and it
-  explains the passage drawing on your installed commentaries, or summarizes or translates it.
-  It is optional: you use your own API key from the provider you choose, and like any AI it can
-  make mistakes, so check its answers. See [AI Bible study assistant](/docs/ai/).
+- **Search from the title bar.** Search starts right from the title bar of the reading view, and
+  the results open in a sheet on top of the Bible text, so you keep your place. See
+  [Search](/docs/search/).
 
 The full list of changes is on the [Release 6.0](/docs/releases/release_6_0/) page.
 
@@ -68,6 +67,9 @@ users, join us on [Telegram](https://t.me/andbible) or on
 As always, AndBible is free and open source, with no ads and no tracking, on every platform. It is
 made possible by the people who support it: if you would like to help, please consider
 [sponsoring AndBible](https://shop.andbible.org).
+
+Our YouTube channel has just passed 3,000 subscribers: thank you, and welcome to everyone who
+joined us!
 
 God bless,  
 Tuomas Airaksinen  
