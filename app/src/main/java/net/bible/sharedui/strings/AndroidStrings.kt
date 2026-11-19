@@ -1132,6 +1132,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val manageLabelsHelpFavourite: String get() = context.getString(R.string.manage_labels_help_favourite)
     override val manageLabelsHelpStyles: String get() = context.getString(R.string.manage_labels_help_styles)
     override val manageLabelsHelpReorder: String get() = context.getString(R.string.manage_labels_help_reorder)
+    override val manageLabelsHelpNarrowToggles: String get() = context.getString(R.string.manage_labels_help_narrow_toggles)
     // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
     override val assignLabelsHelpIntro: String get() = context.getString(R.string.assing_labels_help1)
     override val autoAssignLabelsHelpIntro: String get() = context.getString(R.string.auto_assing_labels_help1)

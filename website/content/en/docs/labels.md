@@ -68,8 +68,10 @@ apply different styling to the label and make assigning it easier. You can:
 >     the main label on a single bookmark, under *This bookmark*.
 
 In the label list the lightning bolt marks auto-assign labels, the heart
-favourites and the bookmark icon main labels. The ⋮ menu also has *Re-order*
-for changing the order of the labels.
+favourites and the bookmark icon main labels. On a narrow screen (a phone held
+upright), the list you open to choose a bookmark's labels leaves these three icons
+out so that the label names have room; tap a label to set them in its settings.
+The ⋮ menu also has *Re-order* for changing the order of the labels.
 
 ## Override Label Style per Workspace
 

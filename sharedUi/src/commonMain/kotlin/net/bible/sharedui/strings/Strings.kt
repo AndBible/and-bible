@@ -1204,6 +1204,7 @@ interface Strings {
     val manageLabelsHelpFavourite: String             // R.string.manage_labels_help_favourite
     val manageLabelsHelpStyles: String                // R.string.manage_labels_help_styles
     val manageLabelsHelpReorder: String               // R.string.manage_labels_help_reorder
+    val manageLabelsHelpNarrowToggles: String         // R.string.manage_labels_help_narrow_toggles
     // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
     val assignLabelsHelpIntro: String                 // R.string.assing_labels_help1
     val autoAssignLabelsHelpIntro: String             // R.string.auto_assing_labels_help1
