@@ -103,6 +103,9 @@ Issues: done / duplicate / obsolete / wontfix / stale-info (close with a comment
 keep / candidate (labels + Priority; candidates also require P1 or P2, Size, and enrichment).
 PRs: reimplement (close with thanks; idea goes to an issue) · reject · review (stays open, In review;
 the maintainer's own PRs land here) · stale-draft.
+External PRs target `develop` (protected, the shared development branch), never `ios` (the maintainer's
+work branch) or `current-stable`; ask a PR with another base to retarget (CONTRIBUTING.md, "Contributing code").
+Why: 2026-11-20, maintainer.
 Decision file format: see "Decision file format" in
 `docs/superpowers/plans/2026-10-10-issue-triage-and-project-board.md`, Task 8. Brand-new issues (not
 from an existing issue or PR) and comment-only notes on open issues go in the optional top-level
@@ -145,27 +148,48 @@ From the Priorities and Quick wins views (P1–P2, Size S first, demand from `in
 "Status=Next up"`), and to In progress when work starts. Each picked item then
 starts its own superpowers chain: brainstorming → spec/plan → SDD, with the issue as input.
 
-**Assign when work starts (maintainer, 2026-11-12).** The moment an issue is taken into work (a child
-spawned for it, an SDD run or your own fix started), assign it to the publishing account:
-`jailbee issue assign <n> --me` (several: `--batch NAME` + `jailbee outbox submit NAME --kind issue`), then
-publish it yourself when the grant's `publish issues` includes `assign_self`/`assign`; otherwise leave it
-for `jb issue apply`. Do it in the same turn as the spawn, not at merge time. In the same batch set the
-board Status: `jailbee issue project <n> --project AndBible/11 --set "Status=In progress"` (and
-`Status=In review` when it waits in an open PR; closing moves it to Done automatically).
+Start work on each picked item as Flow 4 says (assign + In progress).
 
-### 4. Close the loop
+### 4. Close the loop (owner section: every route that works on an issue)
 
-Fix commits start `Fixes #NNN (short description)`. **Close an issue as soon as its fix is merged
-into a development branch** (here: the container branch the orchestrator merges into, e.g. `ios`/`dev`
-lines), even if it is not yet in `current-stable`, the default branch, or a release (maintainer,
-2026-10-31). The closing comment says it is fixed on the development branch and will be in an
-upcoming version. Work that is only in an open PR stays open (Status In review) until merged.
+Applies to **every** route that works on or fixes an issue: bug rounds, SDD plan runs, feature and docs/website
+children, video or other plan rounds, the maintainer's own sessions (also Codex ones), and work that fixes an
+issue as a side effect. Other skills point here instead of repeating it.
+
+1. **Work starts → assign + In progress** (maintainer, 2026-11-12). The moment an issue is taken into work (a
+   child spawned for it, an SDD run or your own fix started), in the same turn, not at merge time:
+   `jailbee issue assign <n> --me` and `jailbee issue project <n> --project AndBible/11 --set "Status=In progress"`
+   (several: one `--batch NAME` + `jailbee outbox submit NAME --kind issue`). `Status=In review` only while it
+   waits in an open PR.
+2. **Commits name the issue.** First line `Fixes #NNN (short description)` for a full fix, `Refs #NNN (...)` for
+   partial work or follow-ups. A child lists the issues its commits fix in its `done` report (`andbible-child`).
+3. **Fix merged → comment + close.** Close an issue as soon as its fix is merged into a development branch (the
+   branch the orchestrator merges into, the `ios`/`develop` lines), even if it is not yet in `current-stable`, the
+   default branch, or a release (maintainer, 2026-10-31). Whoever merges does it in the same turn as the merge:
+   the orchestrator for a child's merge; a session working on its own branch (maintainer's session, SDD run) when
+   the fix is committed and its gate is green, at the latest when it reports the work finished. Stage
+   `jailbee issue comment <n> --body-file <file>` and `jailbee issue state <n> closed --reason completed`. The
+   comment says what the user sees now and that it is fixed on the development branch and will be in an upcoming
+   version; it ends with a context marker line (e.g. `_— bug-fix round, Nov 2026_`). Partial work (`Refs`) gets
+   a comment if useful and stays open.
+4. **Publish** right after staging when `jailbee inbox grant` shows `publish issues` (and `publish projects:
+   andbible/11` for Status) covering the actions; otherwise list the staged batch under the host actions of your
+   report (`jb issue apply <container>`). A child never stages: it names the issues in `done`.
+5. Work only in an open PR stays open (Status In review) until merged. Closing moves the board item to Done
+   automatically; never set Done by hand.
+
+`Fixes #NNN` alone closes nothing here: GitHub auto-closes only when the commit reaches the default branch
+`current-stable`, and the work lands on `ios`/`develop` weeks or months earlier.
+Why: 2026-11-20, #4080 (`d3964e43aa` "Fixes #4080", merged 2026-11-17 in a maintainer's Codex session) and #4149
+(child merge `7ef2025c0e`, 2026-11-18) stayed open and unassigned until the maintainer noticed on 2026-11-19: the
+close rule lived only in this skill and the bug-round skill, so merges outside bug rounds never ran it.
 
 ### 5. Drift check
 
 Re-fetch the snapshot and board. Report: open items missing from the board, open items without
 Priority, closed items whose Status is not Done, labels outside the taxonomy, new issues that
-duplicate older ones. Stage fixes as a batch.
+duplicate older ones, and open issues that a `Fixes #NNN` commit on the development line names
+(`git log origin/ios --since=<last check> --grep='Fixes #'`; close them per Flow 4). Stage fixes as a batch.
 
 ## Operational cautions
 

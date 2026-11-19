@@ -60,9 +60,9 @@ For running tests locally, you need to install test modules. One module in the t
 
 - Fork the repo
 - Consider writing unit tests (how important this is depends on the type of change)
-- Create a pull request from your fork's feature branch (see [naming convention](#branch-naming)) towards one of these branches:
-  - `develop` — for new features
-  - `current-stable` — for bugfixes or minor improvements
+- Create a pull request from your fork's feature branch (see [naming convention](#branch-naming)) towards
+  `develop`, the shared development branch, for features and bug fixes alike. Do not target `current-stable` (release
+  branch) or other long-lived branches such as `ios`.
 
 ### Commit messages
 
@@ -70,7 +70,7 @@ Commits should be **atomic and descriptive**. A good commit message explains *wh
 
 - Use a short imperative subject line (e.g. `Fix crash when bookmarks list is empty`)
 - Optionally add a blank line followed by a more detailed explanation of the motivation
-- If the commit fixes a GitHub issue, start the message with `Fixes #NNN (short description)` — this automatically closes the issue when merged
+- If the commit fixes a GitHub issue, start the message with `Fixes #NNN (short description)` — this links the commit to the issue, which the maintainer closes once your change is merged
 
 AI tools (Copilot, Claude, etc.) are welcome for drafting commit messages.
 
