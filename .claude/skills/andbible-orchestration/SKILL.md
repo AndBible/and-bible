@@ -18,10 +18,15 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 ## Role and delegation
 
 - **Reviews run outside your own context:** review every child's `done` before merging with the
-  `superpowers:requesting-code-review` skill, dispatching its reviewer subagent on **opus** (`model: "opus"`),
-  given the issue/spec and the diff range, not your conclusion. You read the findings and spot-check one.
-  Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context; the same day the
-  maintainer made the superpowers review on opus mandatory for every child.
+  `superpowers:requesting-code-review` skill, dispatching its reviewer subagent with the issue/spec and the diff
+  range, not your conclusion. You read the findings and spot-check one.
+  **Reviewer model by difficulty** (always pass `model`, never fable): **opus** for code changes with logic,
+  concurrency, data/migrations, cross-platform or security impact, large or many-file diffs, and anything where
+  a missed defect is costly; **sonnet** for routine, well-specified diffs (docs, text/narration edits,
+  mechanical renames, small scoped fixes). When unsure, opus.
+  Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context, so reviews moved to
+  subagents (opus for every child). 2026-11-19 the maintainer made the model a judgement call: video round 3 ran
+  ~35 opus reviews of mostly narration edits.
 - **Review fixes never run in your tree**, not even ones found while resolving a conflicted merge: resolve
   only the conflict in the merge commit, then fix with a fork / worktree subagent (`isolation: "worktree"`,
   no runs needed) or a `fork` child (tests or builds needed). Only tiny one-line edits stay inline.
@@ -109,7 +114,7 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 
 ## Merging
 
-- Merge only after your independent review (`superpowers:requesting-code-review`, opus reviewer); a review the
+- Merge only after your independent review (`superpowers:requesting-code-review`, reviewer model by difficulty, see Role and delegation); a review the
   child ran itself does not replace it.
 - `git merge --no-ff` with a message naming the child and the issue:
   `Merge <branch> (child <short>): <what> (#<n>)`.
