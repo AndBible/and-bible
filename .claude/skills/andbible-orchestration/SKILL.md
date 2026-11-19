@@ -93,7 +93,7 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   review, a newly parked product decision. Always notify when the session's work is finished (round merged,
   final gate run, publish and host reminders ready). One short line naming what is waiting; no routine
   progress.
-- Notifying does not make orchestration blocking: questions stay plain text, the inbox waiter stays armed
+- Notifying does not make orchestration blocking: questions stay plain text, the inbox monitor keeps delivering
   and other children keep moving.
 - **Never use `AskUserQuestion` while orchestrating** (2026-11-18, maintainer): the dialog blocks the turn, so child
   messages, merges and spawns wait behind it. This overrides the "ask with an AskUserQuestion form" rule in
@@ -111,18 +111,17 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   more per turn and got compacted.
 - A fix that is wrong or misses the root cause: do not merge; spawn a new child (fresh fork, branch such as
   `fix/issue-<n>-2`) with the review findings in its brief.
-- **Every message you send to a child ends with** "Re-arm your inbox waiter after reading this." A child's waiter
-  exits on each message; children (sonnet especially) often answer and go back to work without re-arming it,
-  and are unreachable until someone notices. Why: 2026-11-19, video round 3, ep24 twice.
+- **Inbox delivery is JailBee's job** (since JailBee 1.8.9, 2026-11-19): interactive Claude Code children get the
+  managed inbox monitor (`jailbee inbox follow`), which survives messages and restarts. Do not tell a child to
+  re-arm a waiter or start one: a second waiter next to the monitor is wrong. Only a headless or non-Claude child
+  uses the fallback `jailbee inbox wait`. A child that does not answer: check `jailbee inbox status` first.
 - **A hung child:** first try `restart --agent-only --resume last` (keeps its slot, no queue). Only when the
   broker refuses (non-waiter background processes) `stop` and do an ordinary `restart`; that queues for a slot.
 - **Every restart prompt after a `stop` (or any container restart) says so explicitly:** "The container was
-  restarted: every background process is gone, including your inbox waiter and any render/build. First re-arm
-  your background inbox waiter, then check with `pgrep -fa` and your logs which runs are unfinished, kill
-  leftovers, and re-run what is missing as background commands that exit with the work." A resumed session
-  remembers its old waiter and jobs as running, so without this it neither listens nor notices dead or
-  duplicate runs. Why: 2026-11-19, video round 3: ep20/ep24 restarted with `--resume` never re-armed their
-  waiter, and ep20 had two stale `render.py` processes hanging at 0 % CPU.
+  restarted: every background process is gone, including any render/build. Check with `pgrep -fa` and your logs
+  which runs are unfinished, kill leftovers, and re-run what is missing as background commands that exit with the
+  work." A resumed session remembers its old jobs as running, so without this it does not notice dead or duplicate
+  runs. Why: 2026-11-19, video round 3: ep20 had two stale `render.py` processes hanging at 0 % CPU.
 
 ## Merging
 
