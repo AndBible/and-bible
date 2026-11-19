@@ -33,6 +33,17 @@ not repeated.
 - Run it once, at HEAD, after the last code change. Docs/status commits after it do not invalidate it.
 - Before any `:app` test run: `.jailbee/AGENT-GUIDE.md`, "Test Sword modules".
 
+## Waiting on long runs
+
+- Run a long command (render, Gradle, capture, TTS) as a **background command that ends when the work ends**
+  (`run_in_background`), and wait for its completion notification. Wrap it so it always exits, also on failure
+  (`cmd > log 2>&1; echo "exit=$?" >> log`).
+- Never wait with `tail -f`, an `until [ -s file ]` / `sleep` poll loop or a `Monitor` on a log pattern. If the run
+  dies, writes elsewhere or never prints the pattern, the wait never ends and the agent hangs for hours: it cannot
+  read orchestrator messages either.
+  Why: 2026-11-19, video round 3: three children (ep14, ep20, ep24) hung 1.5 h each this way and had to be stopped
+  and restarted.
+
 ## Decisions and questions
 
 - A product or UX choice the brief leaves open: take the sensible default, build it so it is easy to change, list
@@ -88,4 +99,5 @@ Maintainer action: <pushes of submodule commits, host commands, GitHub writes to
 | `question` for a UX choice | Default + "Decisions" in `done` |
 | Gitlink bump without the submodule commit (or the reverse) | Submodule commit, then bump, back to back |
 | Evidence only in `/tmp` | Status note in `docs/superpowers/status/` or the named `.local/<topic>/` |
+| Waiting on a render/build with `tail -f`, a poll loop or `Monitor` on a log line | Background command that exits with the work; wait for its notification |
 | Gate numbers from a scoped rerun | `rm -rf build/test-results/<task>/` after scoped runs; report the final run |
