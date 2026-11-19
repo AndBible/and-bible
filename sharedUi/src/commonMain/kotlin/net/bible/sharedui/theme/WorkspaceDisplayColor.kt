@@ -64,19 +64,20 @@ private const val RING_DASH_FRACTION: Float = 0.6f
  * It is computed here rather than read from `MaterialTheme`, because a row or a detached settings
  * editor can describe a workspace other than the active one, whose own colour seeds the current theme.
  *
- * Known limit: the opt-in "Use system colors" (Material You) scheme is not followed here, as no
- * composition local carries that flag; with it on, an unset workspace shows the built-in default.
+ * [useSystemColors] follows the host's opt-in "Use system colors" (Material You) setting, exposed
+ * to UI callers by [LocalUseSystemColors]. As with the toolbar, it only affects NORMAL mode when
+ * a platform system palette is available; chosen workspace colours still win.
  */
 fun workspaceDisplayArgb(workspaceArgb: Int?, dark: Boolean, colorMode: DisplayColorMode, useSystemColors: Boolean = false): Int {
     if (isWorkspaceColorSet(workspaceArgb)) return workspaceArgb!!
-    val scheme = abColorScheme(null, dark, colorMode)
+    val scheme = abColorScheme(null, dark, colorMode, useSystemColors)
     return (if (colorMode.isInkBase) scheme.surface else scheme.primaryContainer).toArgb()
 }
 
 /** Colour of the dashed ring around a default workspace colour: the unset scheme's `outline`
  *  (Ink on paper's Faint #8A806D light, #7E786D dark; grey in BW; ink in MONOCHROME/COLOR_EINK). */
 fun workspaceDefaultRingArgb(dark: Boolean, colorMode: DisplayColorMode, useSystemColors: Boolean = false): Int =
-    abColorScheme(null, dark, colorMode).outline.toArgb()
+    abColorScheme(null, dark, colorMode, useSystemColors).outline.toArgb()
 
 /** Where a [WorkspaceColorCircle] is shown; decides how a CHOSEN colour is drawn. */
 enum class WorkspaceColorCircleStyle {
@@ -103,8 +104,9 @@ fun WorkspaceColorCircle(
     val mode = LocalDisplayColorMode.current
     val dark = LocalIsDarkTheme.current
     if (!isWorkspaceColorSet(workspaceArgb)) {
-        val fill = Color(workspaceDisplayArgb(workspaceArgb, dark, mode))
-        val ring = Color(workspaceDefaultRingArgb(dark, mode))
+        val useSystemColors = LocalUseSystemColors.current
+        val fill = Color(workspaceDisplayArgb(workspaceArgb, dark, mode, useSystemColors))
+        val ring = Color(workspaceDefaultRingArgb(dark, mode, useSystemColors))
         Box(
             modifier.size(size).drawBehind {
                 val stroke = WORKSPACE_DEFAULT_RING_WIDTH.toPx()
@@ -151,7 +153,7 @@ fun WorkspaceColorCircle(
  * pick of it would then be read as "kept the default" by [keepsDefaultWorkspaceColor].
  */
 fun workspacePickerStartArgb(workspaceArgb: Int?, dark: Boolean, useSystemColors: Boolean = false): Int =
-    workspaceDisplayArgb(workspaceArgb, dark, DisplayColorMode.NORMAL)
+    workspaceDisplayArgb(workspaceArgb, dark, DisplayColorMode.NORMAL, useSystemColors)
 
 /**
  * Whether confirming [pickedArgb] in the workspace colour picker keeps the workspace at its default.
