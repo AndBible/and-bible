@@ -43,7 +43,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Goldens for the activity center's overflow button ring and badge and the menu activity section (#4007),
  * in light, dark and monochrome. Fixed item values, and the harness runs with animations disabled, so the
- * indeterminate ring is a static arc and every capture is deterministic. The menu section is rendered in a
+ * indeterminate ring is a static full circle and every capture is deterministic. The menu section is rendered in a
  * plain column (like `ReadingOverflowMenuGoldenTest`) rather than a popup, which can hang golden capture.
  */
 @RunWith(RobolectricTestRunner::class)
