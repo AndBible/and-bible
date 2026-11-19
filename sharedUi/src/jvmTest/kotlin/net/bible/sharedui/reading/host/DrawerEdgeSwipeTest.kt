@@ -259,11 +259,11 @@ class DrawerEdgeSwipeTest {
     fun aDiagonalFlickFromTheEdgeOpensLikeClassicDrawerLayout() = runComposeUiTest {
         mainClock.autoAdvance = false
         val h = setHarness()
-        // Thumb arcs: 100px down for 150px inwards, in two big moves (dy/dx = 0.67, within ViewDragHelper's 2:1).
+        // The first thumb-arc move has dy/dx = 1.5: the old 1:1 rule cancels it, ViewDragHelper's 2:1 accepts it.
         onNodeWithTag("root").performTouchInput {
             down(Offset(5f, 200f))
-            moveBy(Offset(40f, 30f), delayMillis = 8)
-            moveBy(Offset(110f, 70f), delayMillis = 8)
+            moveBy(Offset(20f, 30f), delayMillis = 8)
+            moveBy(Offset(130f, 70f), delayMillis = 8)
             up()
         }
         settle()
@@ -275,7 +275,8 @@ class DrawerEdgeSwipeTest {
         mainClock.autoAdvance = false
         val h = setHarness()
         onNodeWithTag("root").performTouchInput {
-            down(Offset(DrawerEdgeSwipeWidth.value - 2f, midY))
+            // A fixed 28dp start is outside the old 20dp strip but inside the widened 32dp strip.
+            down(Offset(28f, midY))
             slowMove(300f)
             up()
         }
