@@ -60,6 +60,7 @@ import net.bible.sharedui.strings.LocalStrings
 @Composable
 fun ManageLabelsHelpDialog(
     mode: ManageLabelsMode,
+    rowTogglesShown: Boolean,
     title: String,
     scopeSentence: String?,
     videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode,
@@ -73,9 +74,7 @@ fun ManageLabelsHelpDialog(
         ManageLabelsMode.STUDYPAD -> strings.studyPadsHelpText
     }
     val body = if (scopeSentence != null) "$intro\n\n$scopeSentence" else intro
-    // Read here, in the host's composition, not inside the dialog's content: there LocalWindowInfo
-    // would be the dialog's own (narrower) window, not the one the label list fills.
-    val rowTogglesShown = manageLabelsRowTogglesShownInWindow(mode)
+    // The list owns this decision: a pane can be narrower than either host or dialog window.
     AbInfoDialog(
         title = title,
         body = body,

@@ -477,6 +477,7 @@ class ManageLabelsGoldenTest {
     ) = Column {
         ManageLabelsSearchOptionsSheetContent(
             mode = mode,
+            rowTogglesShown = mode != ManageLabelsMode.ASSIGN,
             searchMode = searchMode,
             filters = filters,
             onSetSearchMode = {},
@@ -493,9 +494,7 @@ class ManageLabelsGoldenTest {
         }
     }
 
-    /** ASSIGN: two match-mode rows (no content option) plus the filter section, with the auto-add
-     *  filter ON and the favourite one OFF -- so the image shows both switch states and both icon
-     *  states (filled bolt, hollow heart) in one capture. */
+    /** Narrow ASSIGN: two match-mode rows, no content option and no filters for hidden row states. */
     @Test fun manageLabelsSearchOptions_assign() {
         captureGolden("ManageLabelsSearchOptions", "assign", EDGE_MODE, heightDp = 500) {
             searchOptionsContent(ManageLabelsMode.ASSIGN, filters = setOf(LabelFilter.AUTO_ADD))

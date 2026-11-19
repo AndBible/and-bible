@@ -54,6 +54,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,8 +68,6 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
@@ -128,6 +128,9 @@ import net.bible.sharedui.components.volumeScrollTarget
  * New (⊕) icon there: without it, a search that finds nothing had no way to become a label seeded
  * with the query, because the only path to that was the ⊕ in [actions], which the screen never
  * draws while search is active.
+ *
+ * [onRowTogglesShownChange] publishes the actual list's width decision to host-level help overlays;
+ * they must not infer it from their own window size. Hidden filters are cleared when the list narrows.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -157,9 +160,15 @@ fun ManageLabelsScreen(
     dialog: ManageLabelsDialog = ManageLabelsDialog.None,
     onConfirmDialog: () -> Unit = {},
     onDismissDialog: () -> Unit = {},
+    onRowTogglesShownChange: (Boolean) -> Unit = {},
 ) {
     val strings = LocalStrings.current
 
+    // Null until the list is measured: do not clear restored wide-layout filters prematurely.
+    var rowTogglesShown by remember(mode) { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(rowTogglesShown, filters) {
+        if (rowTogglesShown == false) filters.forEach(onToggleFilter)
+    }
     AbScaffold(
         title = title,
         // In search mode the bar is entirely the search field (AbTopAppBar's contract), so the
@@ -190,6 +199,7 @@ fun ManageLabelsScreen(
                 searchActions()
                 SearchOptionsButton(
                     mode = mode,
+                    rowTogglesShown = rowTogglesShown == true,
                     searchMode = searchMode,
                     filters = filters,
                     onSetSearchMode = onSetSearchMode,
@@ -201,8 +211,12 @@ fun ManageLabelsScreen(
     ) { padding: PaddingValues ->
         Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
             val listState = rememberLazyListState()
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val rowTogglesShown = manageLabelsRowTogglesShown(mode, maxWidth)
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val shown = manageLabelsRowTogglesShown(mode, maxWidth)
+                SideEffect {
+                    rowTogglesShown = shown
+                    onRowTogglesShownChange(shown)
+                }
                 LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
                     items(rows, key = ::rowKey) { row ->
                         when (row) {
@@ -211,7 +225,7 @@ fun ManageLabelsScreen(
                                 row = row,
                                 mode = mode,
                                 styleTagsVisible = styleTagsVisible,
-                                rowTogglesShown = rowTogglesShown,
+                                rowTogglesShown = shown,
                                 onRowClick = onRowClick,
                                 onRowLongClick = onRowLongClick,
                                 onToggleChecked = onToggleChecked,
@@ -261,6 +275,7 @@ fun ManageLabelsScreen(
 @Composable
 private fun SearchOptionsButton(
     mode: ManageLabelsMode,
+    rowTogglesShown: Boolean,
     searchMode: SearchMode,
     filters: Set<LabelFilter>,
     onSetSearchMode: (SearchMode) -> Unit,
@@ -272,6 +287,7 @@ private fun SearchOptionsButton(
     ManageLabelsSearchOptionsSheet(
         open = expanded,
         mode = mode,
+        rowTogglesShown = rowTogglesShown,
         searchMode = searchMode,
         filters = filters,
         onSetSearchMode = onSetSearchMode,
@@ -328,6 +344,7 @@ private fun LabelItemRow(
                 onClick = { onRowClick(label.id) },
                 onLongClick = { onRowLongClick(label.id) },
             )
+            .semantics { contentDescription = label.name }
             // 48dp, not classic's 40dp: the row carries up to four tappable controls and 48dp is
             // the Material minimum touch target. The old 40dp icon Box plus 8dp vertical padding
             // made this ~56dp with a mostly empty leading column.
@@ -688,12 +705,3 @@ internal val NarrowAssignMaxWidth = 480.dp
  */
 internal fun manageLabelsRowTogglesShown(mode: ManageLabelsMode, listWidth: Dp): Boolean =
     mode != ManageLabelsMode.ASSIGN || listWidth >= NarrowAssignMaxWidth
-
-/** Window-width variant of [manageLabelsRowTogglesShown], for UI outside the list (the help legend). */
-@Composable
-internal fun manageLabelsRowTogglesShownInWindow(mode: ManageLabelsMode): Boolean {
-    val widthPx = LocalWindowInfo.current.containerSize.width
-    val width = with(LocalDensity.current) { widthPx.toDp() }
-    // An unmeasured window (0) is not a narrow one: keep the full legend.
-    return widthPx == 0 || manageLabelsRowTogglesShown(mode, width)
-}

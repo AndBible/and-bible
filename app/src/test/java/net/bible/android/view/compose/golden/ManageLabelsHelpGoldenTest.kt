@@ -56,6 +56,7 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_assign() = captureMatrix("ManageLabelsHelp", "assign", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.ASSIGN,
+            rowTogglesShown = false,
             title = "Assign labels",
             scopeSentence = null,
             videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
@@ -79,6 +80,7 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_workspace() = captureMatrix("ManageLabelsHelp", "workspace", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.WORKSPACE,
+            rowTogglesShown = true,
             title = "Labels",
             scopeSentence = "This setting applies to this workspace.",
             videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
@@ -89,6 +91,7 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_hide() = captureGolden("ManageLabelsHelp", "hide", GoldenMode.LIGHT, heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.HIDELABELS,
+            rowTogglesShown = true,
             title = "Hide specified labels",
             scopeSentence = "This setting applies to this workspace.",
             videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
@@ -99,6 +102,7 @@ class ManageLabelsHelpGoldenTest {
     @Test fun help_studypad() = captureGolden("ManageLabelsHelp", "studypad", GoldenMode.LIGHT, heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.STUDYPAD,
+            rowTogglesShown = true,
             title = "Study pads",
             scopeSentence = null,
             videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
