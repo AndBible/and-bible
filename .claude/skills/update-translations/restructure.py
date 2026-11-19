@@ -36,6 +36,7 @@ import re
 import sys
 import os
 import glob
+from xml.sax.saxutils import quoteattr
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lang_codes import resolve_paths, get_android_mirror_paths
 from locale_aliases import LOCALE_ALIASES, mirror_alias
@@ -60,13 +61,29 @@ def fix_xml_entities(value):
 BLOCK_TAGS = ('string-array', 'plurals')
 
 
+ATTRIBUTES = r'''(?:[^>"']|"[^"]*"|'[^']*')*'''
+
+
+def resource_start(line, tag):
+    """Match a resource opening tag without assuming attribute order or quotes."""
+    return re.match(r'\s*<' + tag + r'(?=[\s/>])(' + ATTRIBUTES + r')>', line)
+
+
+def resource_name(match):
+    if match:
+        name = re.search(r'''\bname\s*=\s*(["'])(.*?)\1''', match.group(1))
+        if name:
+            return name.group(2)
+    return None
+
+
 def extract_blocks(lines, tag):
     """Return {name: [raw lines]} for every <tag name="..."> block (also one-liners)."""
     blocks = {}
     i = 0
     while i < len(lines):
-        m = re.match(r'\s*<' + tag + r'\s+[^>]*?name="([^"]+)"', lines[i])
-        if m:
+        name = resource_name(resource_start(lines[i], tag))
+        if name:
             block = []
             if re.search(r'/\s*>\s*$', lines[i].rstrip()) or ('</' + tag + '>') in lines[i]:
                 block.append(lines[i])
@@ -76,9 +93,22 @@ def extract_blocks(lines, tag):
                     if ('</' + tag + '>') in lines[i]:
                         break
                     i += 1
-            blocks[m.group(1)] = block
+            blocks[name] = block
         i += 1
     return blocks
+
+
+def string_elements(content):
+    """Yield raw named strings, skipping comments but preserving XML inside strings."""
+    pattern = (re.escape(CS) + r'.*?' + re.escape(CE) +
+               r'|<string(?=[\s/>])' + ATTRIBUTES + r'?(?:/>|>.*?</string>)')
+    for match in re.finditer(pattern, content, re.DOTALL):
+        raw = match.group(0)
+        if raw.startswith(CS):
+            continue
+        name = resource_name(resource_start(raw, 'string'))
+        if name:
+            yield name, raw
 
 
 def load_translations_from_file(path):
@@ -92,34 +122,18 @@ def load_translations_from_file(path):
     with open(path, 'r') as f:
         content = f.read()
 
-    # Fix bare ampersands before XML parsing so parser doesn't choke
+    # Repair bare ampersands in agent-produced fragments.
     content = re.sub(r'&(?!(amp|lt|gt|apos|quot);|#)', '&amp;', content)
 
-    # First try XML parsing (handles multiline strings correctly)
-    try:
-        root = ET.fromstring('<resources>' + content + '</resources>')
-        for elem in root.findall('string'):
-            name = elem.get('name')
-            if name:
-                # Use ET.tostring to preserve XML entities (&amp; &lt; etc.)
-                raw = ET.tostring(elem, encoding='unicode', method='xml')
-                start = raw.index('>') + 1
-                end = raw.rindex('</')
-                text = raw[start:end].strip()
-                # Collapse internal whitespace (multiline → single line)
-                text = re.sub(r'\s+', ' ', text)
-                translations[name] = fix_xml_entities(text)
-        if translations:
-            return translations
-    except ET.ParseError:
-        pass
-
-    # Fallback: line-by-line regex (for files that aren't valid XML)
-    for line in content.splitlines():
-        line = line.strip()
-        m = re.match(r'<string name="([^"]+)">(.*)</string>', line, re.DOTALL)
-        if m:
-            translations[m.group(1)] = fix_xml_entities(m.group(2))
+    # Keep the opening tag verbatim, including namespaced attributes. Raw blocks
+    # also work for fragments with undeclared prefixes or surrounding non-XML text.
+    for name, raw in string_elements(content):
+        opening = resource_start(raw, 'string')
+        end = raw.rfind('</string>')
+        if end >= 0:
+            text = re.sub(r'\s+', ' ', raw[opening.end():end].strip())
+            raw = opening.group(0) + fix_xml_entities(text) + '</string>'
+        translations[name] = raw
     return translations
 
 
@@ -180,21 +194,16 @@ def main():
         print(f"New translations loaded: {len(new_translations)}")
 
     # --- 2. Parse existing target translations (before overwriting!) ---
+    target_namespaces = {}
     existing = {}
     existing_string_arrays = {}  # name -> raw XML lines (for <string-array> preservation)
     existing_plurals = {}  # name -> raw XML lines (for <plurals> preservation)
     try:
-        target_tree = ET.parse(target_path)
-        for e in target_tree.getroot():
-            if e.tag == 'string':
-                name = e.get('name')
-                text = ET.tostring(e, encoding='unicode', method='xml')
-                start = text.index('>') + 1
-                end = text.rindex('</')
-                existing[name] = text[start:end]
-        # Also extract raw <string-array> and <plurals> blocks from target file
+        ET.parse(target_path)  # Refuse malformed target XML before overwriting it.
+        target_namespaces = dict(ns for _, ns in ET.iterparse(target_path, events=['start-ns']))
         with open(target_path, 'r') as tf:
             target_lines = tf.readlines()
+        existing = dict(string_elements(''.join(target_lines)))
         existing_string_arrays = extract_blocks(target_lines, 'string-array')
         existing_plurals = extract_blocks(target_lines, 'plurals')
         if existing_string_arrays:
@@ -272,8 +281,14 @@ def main():
             continue
 
         # Resources open/close tags
-        if stripped == '<resources>':
-            output_lines.append('<resources>\n')
+        if resource_start(stripped, 'resources'):
+            # Raw resource elements keep their prefixes; retain the declarations too.
+            namespaces = dict(ns for _, ns in ET.iterparse(base_path, events=['start-ns']))
+            namespaces.update(target_namespaces)
+            declarations = ''.join(
+                f' xmlns:{prefix}={quoteattr(uri)}' if prefix else f' xmlns={quoteattr(uri)}'
+                for prefix, uri in namespaces.items())
+            output_lines.append(f'<resources{declarations}>\n')
             i += 1
             continue
         if stripped == '</resources>':
@@ -293,28 +308,20 @@ def main():
             i += 1
             continue
 
-        # Multi-line <string> in base (opening without closing on same line)
-        m = re.match(r'\s*<string name="([^"]+)">', stripped)
-        if m and '</string>' not in stripped:
-            name = m.group(1)
-            # Skip all continuation lines until </string>
-            while i < len(base_lines) and '</string>' not in base_lines[i]:
+        # Recognize strings by tag/name, independently of other attributes.
+        opening_text = stripped
+        if re.match(r'<string(?=[\s/>]|$)', stripped):
+            while resource_start(opening_text, 'string') is None and i + 1 < len(base_lines):
                 i += 1
-            # Emit as single line from our translations dict
+                opening_text += '\n' + base_lines[i].strip()
+        opening = resource_start(opening_text, 'string')
+        name = resource_name(opening)
+        if name:
+            if '</string>' not in opening_text and not opening.group(1).rstrip().endswith('/'):
+                while i < len(base_lines) and '</string>' not in base_lines[i]:
+                    i += 1
             if name in all_translations:
-                output_lines.append('  <string name="{}">{}</string>\n'.format(
-                    name, all_translations[name]))
-                emitted.add(name)
-            i += 1
-            continue
-
-        # Single-line <string>
-        m = re.match(r'\s*<string name="([^"]+)">(.*)</string>', stripped)
-        if m:
-            name = m.group(1)
-            if name in all_translations:
-                output_lines.append('  <string name="{}">{}</string>\n'.format(
-                    name, all_translations[name]))
+                output_lines.append('  ' + all_translations[name] + '\n')
                 emitted.add(name)
             i += 1
             continue
@@ -360,8 +367,7 @@ def main():
             output_lines.append('\n')
             output_lines.append('  ' + CS + ' Additional translations ' + CE + '\n')
             for name in sorted(unemitted):
-                output_lines.append('  <string name="{}">{}</string>\n'.format(
-                    name, all_translations[name]))
+                output_lines.append('  ' + all_translations[name] + '\n')
 
     output_lines.append('</resources>\n')
 
@@ -374,7 +380,7 @@ def main():
 
     # --- 9. Self-check ---
     comment_count = sum(1 for l in output_lines if CS in l and 'Additional' not in l)
-    string_count = sum(1 for l in output_lines if '<string name=' in l)
+    string_count = len(list(string_elements(''.join(output_lines))))
     print(f"Strings: {string_count} (emitted: {len(emitted)})")
     print(f"Comments: {comment_count}")
     print(f"Plurals: {len(emitted_plurals)}")

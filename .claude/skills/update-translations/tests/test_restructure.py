@@ -1,4 +1,4 @@
-"""Round-trip tests: restructure.py and validate.py must not lose <plurals>/<string-array>."""
+"""Round-trip tests for attributed strings and resource key preservation."""
 import io
 import os
 import subprocess
@@ -86,6 +86,7 @@ class RoundTrip(unittest.TestCase):
             '<string name="a" translatable="false">A</string>',
             '<string formatted="false" name="a">A</string>',
             '<string name="a" formatted="false">\n    A\n  </string>',
+            '<string\n    name="a" formatted="false">A</string>',
         ):
             with self.subTest(entry=entry):
                 out = self.run_restructure(TARGET, base_text=BASE.replace(
@@ -115,6 +116,54 @@ class RoundTrip(unittest.TestCase):
             with self.subTest(prefix=prefix):
                 out = self.run_restructure(TARGET, prefix + entry)
                 self.assertIn(entry, out)
+
+    def test_chunk_keeps_adjacent_and_multiline_strings(self):
+        chunk = ('<string name="a">New A</string><string name="b" formatted="false">\n'
+                 '  BB &amp; <b>bold</b>\n</string>')
+        out = self.run_restructure(TARGET, chunk)
+        root = ET.fromstring(out)
+        self.assertEqual(root.find('string[@name="a"]').text, 'New A')
+        self.assertIsNotNone(root.find('string[@name="b"]'))
+        self.assertEqual(root.find('string[@name="b"]').get('formatted'), 'false')
+        self.assertIn('>BB &amp; <b>bold</b></string>', out)
+
+    def test_target_preserves_adjacent_and_multiline_opening_tags(self):
+        target = TARGET.replace('<string name="a">AA</string>',
+                                '<string\n    formatted="false" name="a">AA</string>'
+                                '<string name="b">BB</string>')
+        out = self.run_restructure(target)
+        self.assertIn('<string\n    formatted="false" name="a">AA</string>', out)
+        self.assertIn('<string name="b">BB</string>', out)
+
+    def test_self_closing_target_does_not_consume_next_string(self):
+        target = TARGET.replace('<string name="a">AA</string>',
+                                '<string name="a" formatted="false" />\n'
+                                '  <string name="b">BB</string>')
+        out = self.run_restructure(target)
+        root = ET.fromstring(out)
+        self.assertIsNone(root.find('string[@name="a"]').text)
+        self.assertEqual(root.find('string[@name="b"]').text, 'BB')
+        self.assertLess(out.index('</plurals>'), out.index('<string name="b">'))
+
+    def test_chunk_ignores_commented_out_strings(self):
+        chunk = ('<!-- <string name="a">Do not use</string> -->\n'
+                 '<string name="b">BB</string>')
+        root = ET.fromstring(self.run_restructure(TARGET, chunk))
+        self.assertEqual(root.find('string[@name="a"]').text, 'AA')
+
+    def test_target_only_namespace_survives(self):
+        target = TARGET.replace('name="a">', 'name="a" tools:ignore="X">')
+        base = BASE.replace(' xmlns:tools="http://schemas.android.com/tools"', '')
+        base = base.replace(' tools:ignore="X"', '')
+        root = ET.fromstring(self.run_restructure(target, base_text=base))
+        self.assertEqual(root.find('string[@name="a"]').get(
+            '{http://schemas.android.com/tools}ignore'), 'X')
+
+    def test_self_closing_base_string_does_not_skip_next_entry(self):
+        base = BASE.replace('<string name="a">A</string>', '<string name="a" formatted="false" />')
+        root = ET.fromstring(self.run_restructure(TARGET, base_text=base))
+        self.assertIsNotNone(root.find('string[@name="a"]'))
+        self.assertIsNotNone(root.find('plurals[@name="verse_count"]'))
 
     def test_keep_stale_preserves_attributes(self):
         entry = '<string name="old" formatted="false">Old</string>'

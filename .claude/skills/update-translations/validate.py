@@ -9,6 +9,7 @@ Checks:
   - Vue.js YAML key order matches base
   - No empty translation values
   - XML well-formedness (via ET.parse)
+  - No string, plural or array keys lost vs the committed (HEAD) version
 
 Usage (run from repo root):
   python3 .claude/skills/update-translations/validate.py LANG
@@ -39,7 +40,7 @@ def count_format_specifiers(s):
     return re.findall(r'%(?:\d+\$)?[sdfe]', s)
 
 
-BLOCK_TAGS = ('plurals', 'string-array')
+BLOCK_TAGS = ('string', 'plurals', 'string-array')
 
 
 def block_names(root):
@@ -48,7 +49,7 @@ def block_names(root):
 
 
 def committed_block_names(path):
-    """Names of <plurals>/<string-array> in the committed (HEAD) version of path, or None."""
+    """Resource key sets in the committed (HEAD) version of path, or None."""
     try:
         top = subprocess.run(['git', 'rev-parse', '--show-toplevel'], cwd=os.path.dirname(os.path.abspath(path)),
                              capture_output=True, text=True, check=True).stdout.strip()
@@ -60,17 +61,17 @@ def committed_block_names(path):
 
 
 def check_blocks(base_root, target_root, previous, label='Android'):
-    """Errors for lost <plurals>/<string-array>: missing vs base, or fewer than the committed version."""
+    """Report missing resources and any key lost since the committed version."""
     errors = []
     base_b, target_b = block_names(base_root), block_names(target_root)
     for tag in BLOCK_TAGS:
         missing = sorted(base_b[tag] - target_b[tag])
-        if missing:
+        if missing and tag != 'string':  # String coverage is reported separately.
             errors.append(f"{label}: {len(missing)} <{tag}> missing vs base: {missing[:10]}")
         if previous is not None:
-            lost = sorted((previous[tag] & base_b[tag]) - target_b[tag])
-            if lost or len(target_b[tag]) < len(previous[tag] & base_b[tag]):
-                errors.append(f"{label}: <{tag}> count dropped vs committed version (lost: {lost[:10]})")
+            lost = sorted(previous[tag] - target_b[tag])
+            if lost:
+                errors.append(f"{label}: <{tag}> keys lost vs committed version: {lost[:10]}")
     return errors
 
 
