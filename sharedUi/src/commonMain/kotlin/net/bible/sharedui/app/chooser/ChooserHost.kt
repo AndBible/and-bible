@@ -2,6 +2,8 @@
 
 package net.bible.sharedui.app.chooser
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpMenuItem
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import fi.sykero.kdom.Element
@@ -535,6 +537,7 @@ class ChooserHost(
     @Composable
     private fun ChooseDocumentOverflowMenu() {
         AbOverflowMenu(contentDescription = null) { close ->
+            AbHelpMenuItem(DocsLink.DOCUMENTS, close)
             AbMenuItem(
                 text = strings.chooseDocumentDownload,
                 onClick = { close(); onChooseDocumentDownload() },

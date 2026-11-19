@@ -2,6 +2,8 @@
 
 package net.bible.sharedui.app.download
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpMenuItem
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CancellationException
@@ -983,6 +985,7 @@ class DownloadHost(
     @Composable
     private fun DownloadOverflowMenu(navController: NavHostController, firstDownload: Boolean) {
         AbOverflowMenu(contentDescription = null) { close ->
+            AbHelpMenuItem(DocsLink.DOCUMENTS, close)
             if (session?.hasErrors == true) {
                 AbMenuItem(
                     text = strings.downloadErrors,

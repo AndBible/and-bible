@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.settings
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -115,6 +117,7 @@ fun ColorSettingsScreen(
             IconButton(onClick = { showResetConfirm = true }) {
                 Icon(Icons.Filled.Refresh, contentDescription = labels.reset)
             }
+            AbHelpOverflowMenu(DocsLink.LOOK_AND_FEEL)
         },
     ) { padding ->
         ColorSettingsContent(

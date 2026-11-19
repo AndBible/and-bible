@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.search
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -96,7 +98,7 @@ fun SearchScreen(
         currentBookName = currentBookName,
     )
 
-    AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
+    AbScaffold(title = title, onNavigateUp = onNavigateUp, actions = { AbHelpOverflowMenu(DocsLink.SEARCH) }) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
