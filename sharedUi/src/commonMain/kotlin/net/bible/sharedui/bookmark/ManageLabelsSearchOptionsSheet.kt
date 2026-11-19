@@ -65,7 +65,7 @@ import net.bible.sharedui.strings.LocalStrings
  * Two sections. **Search** is the match-mode radio group the dropdown already had (the content
  * option is StudyPad-only, because only StudyPads have searchable content). **Show** is new: the
  * two row filters, offered only where the matching row control is drawn
- * ([ManageLabelsMode.workspaceEdits]) so a filter never refers to a state the list does not
+ * ([ManageLabelsMode.workspaceEdits] and the list's [rowTogglesShown] decision) so a filter never refers to a state the list does not
  * display. Each filter row wears the list column's own icon pair, filled/hollow, so the sheet
  * teaches the column.
  *
@@ -82,6 +82,7 @@ import net.bible.sharedui.strings.LocalStrings
 fun ManageLabelsSearchOptionsSheet(
     open: Boolean,
     mode: ManageLabelsMode,
+    rowTogglesShown: Boolean,
     searchMode: SearchMode,
     filters: Set<LabelFilter>,
     onSetSearchMode: (SearchMode) -> Unit,
@@ -93,6 +94,7 @@ fun ManageLabelsSearchOptionsSheet(
     AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         ManageLabelsSearchOptionsSheetContent(
             mode = mode,
+            rowTogglesShown = rowTogglesShown,
             searchMode = searchMode,
             filters = filters,
             onSetSearchMode = { onSetSearchMode(it); onDismiss() },
@@ -107,6 +109,7 @@ fun ManageLabelsSearchOptionsSheet(
 @Composable
 fun ManageLabelsSearchOptionsSheetContent(
     mode: ManageLabelsMode,
+    rowTogglesShown: Boolean,
     searchMode: SearchMode,
     filters: Set<LabelFilter>,
     onSetSearchMode: (SearchMode) -> Unit,
@@ -140,7 +143,7 @@ fun ManageLabelsSearchOptionsSheetContent(
                         onSelect = { onSetSearchMode(SearchMode.CONTENT) },
                     )
                 }
-                if (mode.workspaceEdits) {
+                if (mode.workspaceEdits && rowTogglesShown) {
                     SheetSectionTitle(strings.labelsFilterSection)
                     val autoAdd = filters.contains(LabelFilter.AUTO_ADD)
                     AbSwitchRow(

@@ -94,7 +94,7 @@ class AppWideSheetChromeTest {
 
     @Test fun labelSearchOptionsCloseWithoutChangingFilters() = assertCloseWithoutHandle { close ->
         net.bible.sharedui.bookmark.ManageLabelsSearchOptionsSheet(
-            true, net.bible.sharedcore.bookmark.ManageLabelsMode.STUDYPAD,
+            true, net.bible.sharedcore.bookmark.ManageLabelsMode.STUDYPAD, true,
             net.bible.sharedcore.bookmark.SearchMode.NAME_START, emptySet(),
             { error("Unexpected search change") }, { error("Unexpected filter change") }, close,
         )

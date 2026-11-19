@@ -71,6 +71,11 @@ In the label list the lightning bolt marks auto-assign labels, the heart
 favourites and the bookmark icon main labels. On a narrow screen (a phone held
 upright), the list you open to choose a bookmark's labels leaves these three icons
 out so that the label names have room; tap a label to set them in its settings.
+In this narrow list, *Search settings* also leaves out the auto-assign and favourite
+filters, since their states are not displayed in the rows. Wider lists, and the
+workspace label settings list, keep these filters. If a wider list becomes narrow
+(for example when resizing a window), active auto-assign and favourite filters are
+cleared so that no invisible filter continues to hide labels.
 The ⋮ menu also has *Re-order* for changing the order of the labels.
 
 ## Override Label Style per Workspace

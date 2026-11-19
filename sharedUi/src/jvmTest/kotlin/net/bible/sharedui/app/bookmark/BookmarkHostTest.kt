@@ -2,6 +2,12 @@ package net.bible.sharedui.app.bookmark
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
+import net.bible.sharedui.nav.NavResultChannel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -103,8 +109,8 @@ class BookmarkHostTest {
         deliveryDestinations = { destinations },
     )
 
-    private fun session(): ManageLabelsSession {
-        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+    private fun session(mode: ManageLabelsContract.Mode = ManageLabelsContract.Mode.STUDYPAD): ManageLabelsSession {
+        val data = ManageLabelsContract.ManageLabelsData(mode = mode)
         val control = unsafe.allocateInstance(BookmarkControl::class.java) as BookmarkControl
         val session = ManageLabelsSession(data, mutableMapOf(), ManageLabelsWrites(control, scope))
         session.controller = ManageLabelsController(
@@ -143,6 +149,39 @@ class BookmarkHostTest {
         runOnIdle { host.manageLabelsHelpOpen = true }
         waitForIdle()
         onNodeWithText(strings.studyPadsHelpText, substring = true).assertExists()
+    }
+
+    @Test
+    fun helpOverlayUsesTheConstrainedScreensDecision() = runComposeUiTest {
+        val host = host()
+        val session = session(ManageLabelsContract.Mode.ASSIGN)
+        host.manageLabelsSession = "payload" to session
+        setContent {
+            val nav = rememberNavController()
+            val deps = remember {
+                host.navDeps(nav, NavResultChannel { }, NavResultChannel { }, NavResultChannel { })
+            }
+            AbTheme(darkTheme = false) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    Box(Modifier.width(360.dp)) {
+                        net.bible.sharedui.bookmark.ManageLabelsScreen(
+                            title = "Labels", rows = emptyList(), mode = session.controller.mode,
+                            styleTagsVisible = false, searchText = "",
+                            searchMode = net.bible.sharedcore.bookmark.SearchMode.NAME_START,
+                            onSearch = {}, onSetSearchMode = {}, filters = emptySet(), onToggleFilter = {},
+                            searchModeActive = false, onCloseSearch = {}, onRowClick = {}, onRowLongClick = {},
+                            onToggleChecked = {}, onToggleFavourite = {}, onSetPrimary = {}, onToggleAutoAssign = {},
+                            onUp = {}, iconSlot = { _, _ -> }, actions = {}, searchActions = {},
+                            onRowTogglesShownChange = deps.manageLabels.onRowTogglesShownChange,
+                        )
+                    }
+                    host.Overlays()
+                }
+            }
+        }
+        runOnIdle { host.manageLabelsHelpOpen = true }
+        onNodeWithText(strings.manageLabelsHelpNarrowToggles).assertExists()
+        onNodeWithText(strings.manageLabelsHelpAutoAssign).assertDoesNotExist()
     }
 
     @Test

@@ -270,6 +270,7 @@ class BookmarkHost(
                 iconSlot = { customIcon, tint, studyPadMode ->
                     icons.ManageLabelIcon(customIcon, tint, studyPadMode)
                 },
+                onRowTogglesShownChange = { manageLabelsRowTogglesShown = it },
                 actions = { controller -> ManageLabelsActions(controller) },
                 searchActions = { controller ->
                     NewLabelIcon(onClick = controller::newLabel)
@@ -628,6 +629,8 @@ class BookmarkHost(
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
     internal var manageLabelsHelpOpen by mutableStateOf(false)
+    // Published by the constrained list, not inferred from this overlay's window.
+    private var manageLabelsRowTogglesShown by mutableStateOf(true)
     internal var manageLabelsExportOpen by mutableStateOf(false)
 
     private fun manageLabelsControllerFor(
@@ -1257,6 +1260,7 @@ class BookmarkHost(
             manageLabelsSession?.second?.let { session ->
                 ManageLabelsHelpDialog(
                     mode = session.controller.mode,
+                    rowTogglesShown = manageLabelsRowTogglesShown,
                     title = manageLabelsTitle(session.data.mode),
                     // Classic showed this only for WORKSPACE and HIDE, the two scoped
                     // settings (`ManageLabelsComposeActivity.kt:254-263`).

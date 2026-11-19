@@ -262,6 +262,7 @@ class ManageLabelsDeps(
     val iconSlot: @Composable (customIcon: String?, tint: Color, studyPadMode: Boolean) -> Unit,
     val actions: @Composable RowScope.(controller: ManageLabelsController) -> Unit,
     val searchActions: @Composable RowScope.(controller: ManageLabelsController) -> Unit,
+    val onRowTogglesShownChange: (Boolean) -> Unit = {},
 )
 
 /**
@@ -667,6 +668,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             dialog = dialog,
             onConfirmDialog = controller::confirmDialog,
             onDismissDialog = controller::dismissDialog,
+            onRowTogglesShownChange = d.onRowTogglesShownChange,
         )
     }
 
