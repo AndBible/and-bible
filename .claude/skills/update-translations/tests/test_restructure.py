@@ -182,10 +182,11 @@ class RoundTrip(unittest.TestCase):
 
 
 class KeyPreservation(unittest.TestCase):
-    def run_validation(self, previous, current):
+    def run_validation(self, previous, current,
+                       base_text='<resources><string name="a">A</string></resources>'):
         with tempfile.TemporaryDirectory() as d:
             base, target = Path(d) / 'base.xml', Path(d) / 'target.xml'
-            base.write_text('<resources><string name="a">A</string></resources>')
+            base.write_text(base_text)
             target.write_text(previous)
             for args in (
                 ['init', '-q'], ['add', 'target.xml'],
@@ -215,10 +216,31 @@ class KeyPreservation(unittest.TestCase):
                           f'<{tag} name="old">old</{tag}></resources>')
                 after = ('<resources><string name="a">A</string>'
                          f'<{tag} name="new">new</{tag}></resources>')
-                code, output = self.run_validation(before, after)
+                code, output = self.run_validation(before, after, base_text=before)
                 self.assertEqual(code, 1, output)
                 self.assertIn('old', output)
                 self.assertIn('committed', output)
+
+    def test_validator_rejects_lost_attributed_string_still_in_base(self):
+        before = ('<resources><string name="a">A</string>'
+                  '<string formatted="false" name="old">Old</string></resources>')
+        after = '<resources><string name="a">A</string></resources>'
+        code, output = self.run_validation(before, after, base_text=before)
+        self.assertEqual(code, 1, output)
+        self.assertIn("<string> keys lost vs committed version: ['old']", output)
+
+    def test_validator_allows_stale_key_removal_with_warning(self):
+        for tag in ('string', 'plurals', 'string-array'):
+            with self.subTest(tag=tag):
+                before = ('<resources><string name="a">A</string>'
+                          f'<{tag} name="old">Old</{tag}></resources>')
+                after = '<resources><string name="a">A</string></resources>'
+                code, output = self.run_validation(before, after)
+                self.assertEqual(code, 0, output)
+                self.assertIn('WARNINGS', output)
+                self.assertIn(f'<{tag}> stale keys removed', output)
+                self.assertIn('old', output)
+                self.assertNotIn('ERRORS', output)
 
     def test_validator_allows_preserved_keys_and_additions(self):
         before = '<resources><string name="a">A</string></resources>'
