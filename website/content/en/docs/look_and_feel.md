@@ -120,6 +120,11 @@ built-in *Ink on paper* theme, in both light and dark mode. Change the wallpaper
 AndBible follows it. It is off by default. A workspace color still takes
 precedence: the system colors apply only to workspaces without one. The
 *Black & white*, *Color e-ink* and *Monochrome* color modes also ignore it.
+Default workspace dots in the workspace selector and quick-switch sheet, and
+the workspace color swatch in Color settings, follow the same system palette.
+They keep a dashed ring to show that no custom color is set. The color picker
+also starts on that default color; confirming it unchanged keeps the workspace
+following the theme.
 The setting is not shown on older Android versions, iOS or desktop.
 
 <a id="e-ink-displays"></a>
