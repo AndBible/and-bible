@@ -53,8 +53,8 @@ The full list of changes is on the [Release 6.0](/docs/releases/release_6_0/) pa
 
 [Getting started](/docs/getting_started/) walks you through the installation on each platform.
 
-Can't wait? The public beta is open now on Android, Windows and Linux (the beta for iPhone, iPad
-and Mac is coming soon): see
+Can't wait? The public beta is open now on every platform: Android, iPhone, iPad, Mac, Windows
+and Linux. See
 [how to join the AndBible 6.0 public beta](/2026/11/07/andbible-6-0-public-beta/), and please tell
 us what you find.
 
