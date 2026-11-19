@@ -39,8 +39,6 @@ __pycache__/
 .zshrc
 .claude/*
 !.claude/skills/
-# Temporary: JailBee child inbox-waiter Stop hook (no-op outside a JailBee child)
-!.claude/settings.json
 .playwright-mcp/
 .gitconfig
 .mcp.json

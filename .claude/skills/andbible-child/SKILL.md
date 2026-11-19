@@ -35,12 +35,11 @@ not repeated.
 
 ## After a restart or resume
 
-- A `Stop` hook (`.jailbee/child-waiter-stop-hook.sh`, temporary until JailBee does it) refuses to end your turn
-  while no `jailbee inbox wait` runs. When it fires, re-arm the waiter as a background command; do not argue with it.
-  Right after an accepted `done` in a container being destroyed, one line saying so and stopping is fine.
 - If your prompt says the container was restarted, or you resume a session and find background tasks missing,
-  assume **no background process survived**: your inbox waiter and every render, build or capture are gone.
-- First re-arm the background inbox waiter (as the child preamble describes). Then `pgrep -fa` and read your
+  assume **no background process survived**: every render, build or capture is gone.
+- Inbox delivery follows `jailbee-orchestration-child` ("Stay reachable"): in an interactive Claude Code session
+  JailBee's plugin restarts the inbox monitor itself, so do not start a second waiter; otherwise re-arm the
+  fallback waiter. Then `pgrep -fa` and read your
   logs: kill leftovers and duplicates from before the restart, and re-run unfinished work as background commands
   that exit with the work. Never assume a run you started before the restart is still going.
   Why: 2026-11-19, two restarted video children never re-armed their waiter, and one had two stale render
