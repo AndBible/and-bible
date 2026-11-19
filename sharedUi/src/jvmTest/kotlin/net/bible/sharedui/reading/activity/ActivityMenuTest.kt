@@ -71,8 +71,14 @@ class ActivityMenuTest {
     private fun menu(items: List<ActivityItem>, unread: Int = 0, onShowAll: () -> Unit = {}, onOpened: () -> Unit = {}) =
         ActivityMenuState(items, unread, onShowAll, onOpened)
 
+    private val clearPainter = ColorPainter(Color.Transparent)
+    private val clearIcons = ReadingToolbarIcons(
+        clearPainter, clearPainter, clearPainter, clearPainter, clearPainter, clearPainter, clearPainter, clearPainter, clearPainter,
+    )
+
     private fun androidx.compose.ui.test.ComposeUiTest.toolbar(
         activity: ActivityMenuState?, syncRunning: Boolean = false, noAnim: Boolean = false, expanded: Boolean = false,
+        icons: ReadingToolbarIcons = this@ActivityMenuTest.icons,
     ) = setContent {
         AbTheme(disableAnimations = noAnim) {
             CompositionLocalProvider(LocalStrings provides strings) {
@@ -515,6 +521,44 @@ class ActivityMenuTest {
         mainClock.advanceTimeBy(700)
         val after = ring(this).captureToImage().toPixelMap()
         assertSamePixels(before, after)
+    }
+
+    /**
+     * How strongly the ring's stroke centre line, [angleDeg] clockwise from 12 o'clock, differs from the
+     * background (the capture is opaque; the corner outside the circle is background); 0 = nothing drawn there (#4156).
+     */
+    private fun ringAlphaAt(img: androidx.compose.ui.graphics.PixelMap, angleDeg: Double): Float {
+        val c = img.width / 2.0
+        val r = c - img.width / 38.0 // centre line sits one dp (stroke / 2) inside the 38dp canvas edge
+        val a = Math.toRadians(angleDeg)
+        val bg = img[0, 0]
+        val p = img[(c + r * Math.sin(a)).toInt(), (c - r * Math.cos(a)).toInt()]
+        return maxOf(Math.abs(p.red - bg.red), Math.abs(p.green - bg.green), Math.abs(p.blue - bg.blue))
+    }
+
+    @Test fun noAnimationsIndeterminateRingIsAFullCircle() = runComposeUiTest {
+        toolbar(menu(listOf(item("a"))), noAnim = true, icons = clearIcons)
+        waitForIdle()
+        val img = ring(this).captureToImage().toPixelMap()
+        for (angle in listOf(0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0)) {
+            assertTrue(ringAlphaAt(img, angle) > 0.2f, "static ring must be drawn at $angle degrees")
+        }
+    }
+
+    @Test fun animatedIndeterminateRingStaysAPartialArc() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        toolbar(menu(listOf(item("a"))), icons = clearIcons)
+        waitForIdle()
+        val img = ring(this).captureToImage().toPixelMap()
+        assertTrue(ringAlphaAt(img, 45.0) > 0.2f, "the arc starts at 12 o'clock and covers 45 degrees")
+        assertTrue(ringAlphaAt(img, 225.0) < 0.1f, "an animated indeterminate ring is only an arc")
+    }
+
+    @Test fun noAnimationsDeterminateRingStaysAProgressArc() = runComposeUiTest {
+        toolbar(menu(listOf(item("a", progress = 25))), noAnim = true, icons = clearIcons)
+        waitForIdle()
+        val img = ring(this).captureToImage().toPixelMap()
+        assertTrue(ringAlphaAt(img, 45.0) > 2 * ringAlphaAt(img, 225.0), "25 % is filled, the rest only the faint track")
     }
 
     @Test fun animatedRingMovesSoTheStaticCheckCanFail() = runComposeUiTest {
