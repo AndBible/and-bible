@@ -73,6 +73,9 @@ fun ManageLabelsHelpDialog(
         ManageLabelsMode.STUDYPAD -> strings.studyPadsHelpText
     }
     val body = if (scopeSentence != null) "$intro\n\n$scopeSentence" else intro
+    // Read here, in the host's composition, not inside the dialog's content: there LocalWindowInfo
+    // would be the dialog's own (narrower) window, not the one the label list fills.
+    val rowTogglesShown = manageLabelsRowTogglesShownInWindow(mode)
     AbInfoDialog(
         title = title,
         body = body,
@@ -95,7 +98,6 @@ fun ManageLabelsHelpDialog(
                     }
                     // Issue #4153: a narrow ASSIGN list draws none of these three glyphs, and the
                     // legend never names a glyph that is not on screen -- so it says where they went.
-                    val rowTogglesShown = manageLabelsRowTogglesShownInWindow(mode)
                     if (mode.primaryShown && rowTogglesShown) {
                         HelpRow({ Icon(Icons.Filled.Bookmark, null) }, strings.manageLabelsHelpPrimary)
                     }

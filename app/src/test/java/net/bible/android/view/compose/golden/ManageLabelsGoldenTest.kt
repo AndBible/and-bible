@@ -351,7 +351,8 @@ class ManageLabelsGoldenTest {
      * this comment. So **the 110dp tag cap IS still exercisable** -- in WORKSPACE, whose 132dp
      * column is wider than the cap, the cap rather than the column is what stops an intrinsic-width
      * tag from winning the space contest; ASSIGN's 88dp column is narrower than the cap and binds
-     * first, same as before.
+     * first, same as before. (Since issue #4153 a 320dp ASSIGN list draws no trailing grid, so these
+     * ASSIGN figures describe the 480dp-and-up layout; at 320dp its column runs from x=96 to the edge.)
      *
      * What this capture nonetheless does NOT exercise the cap with: the tag text now comes from
      * `Strings` (the axis words), and the golden harness has no fixture-only string override point,

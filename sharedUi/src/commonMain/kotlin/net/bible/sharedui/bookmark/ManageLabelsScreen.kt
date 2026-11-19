@@ -66,10 +66,10 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.LabelItem
@@ -682,7 +682,8 @@ internal val NarrowAssignMaxWidth = 480.dp
  * In ASSIGN (picking labels for one bookmark) the job is to find and tick labels, so on a narrow
  * list the name gets the room instead (issue #4153). The three states stay reachable: tapping the
  * row opens the label's editor, which has the favourite heart, the workspace auto-assign switches
- * and this bookmark's primary switch; and the bookmark's own label chips set the primary label too.
+ * and this bookmark's primary switch. Checking the first label still makes it primary automatically
+ * (ManageLabelsController), as before.
  * WORKSPACE keeps them at every width: there the toggles are the very thing being edited.
  */
 internal fun manageLabelsRowTogglesShown(mode: ManageLabelsMode, listWidth: Dp): Boolean =
