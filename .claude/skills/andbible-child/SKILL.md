@@ -35,6 +35,9 @@ not repeated.
 
 ## After a restart or resume
 
+- A `Stop` hook (`.jailbee/child-waiter-stop-hook.sh`, temporary until JailBee does it) refuses to end your turn
+  while no `jailbee inbox wait` runs. When it fires, re-arm the waiter as a background command; do not argue with it.
+  Right after an accepted `done` in a container being destroyed, one line saying so and stopping is fine.
 - If your prompt says the container was restarted, or you resume a session and find background tasks missing,
   assume **no background process survived**: your inbox waiter and every render, build or capture are gone.
 - First re-arm the background inbox waiter (as the child preamble describes). Then `pgrep -fa` and read your
