@@ -9,7 +9,7 @@ Checks:
   - Vue.js YAML key order matches base
   - No empty translation values
   - XML well-formedness (via ET.parse)
-  - No string, plural or array keys lost vs the committed (HEAD) version
+  - No string, plural or array keys still in base lost vs the committed (HEAD) version
 
 Usage (run from repo root):
   python3 .claude/skills/update-translations/validate.py LANG
@@ -60,8 +60,8 @@ def committed_block_names(path):
         return None
 
 
-def check_blocks(base_root, target_root, previous, label='Android'):
-    """Report missing resources and any key lost since the committed version."""
+def check_blocks(base_root, target_root, previous, label='Android', warnings=None):
+    """Reject lost current keys; optionally warn about removed stale keys."""
     errors = []
     base_b, target_b = block_names(base_root), block_names(target_root)
     for tag in BLOCK_TAGS:
@@ -69,9 +69,12 @@ def check_blocks(base_root, target_root, previous, label='Android'):
         if missing and tag != 'string':  # String coverage is reported separately.
             errors.append(f"{label}: {len(missing)} <{tag}> missing vs base: {missing[:10]}")
         if previous is not None:
-            lost = sorted(previous[tag] - target_b[tag])
+            lost = sorted((previous[tag] & base_b[tag]) - target_b[tag])
             if lost:
                 errors.append(f"{label}: <{tag}> keys lost vs committed version: {lost[:10]}")
+            stale_removed = sorted(previous[tag] - base_b[tag] - target_b[tag])
+            if stale_removed and warnings is not None:
+                warnings.append(f"{label}: <{tag}> stale keys removed: {stale_removed[:10]}")
     return errors
 
 
@@ -172,7 +175,7 @@ def main():
                 )
 
             errors.extend(check_blocks(base_tree.getroot(), target_tree.getroot(),
-                                       committed_block_names(android_target)))
+                                       committed_block_names(android_target), warnings=warnings))
 
             print(f"  Strings: {len(target_strings)}/{len(base_strings)}")
 
