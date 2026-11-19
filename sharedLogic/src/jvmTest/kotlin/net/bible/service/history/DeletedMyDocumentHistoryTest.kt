@@ -18,7 +18,10 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
+import net.bible.sharedcore.platform.AppSettings
+import org.crosswire.jsword.book.Books
 import net.bible.sharedcore.platform.CoreStrings
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -52,7 +55,17 @@ class DeletedMyDocumentHistoryTest {
         val strings = Proxy.newProxyInstance(CoreStrings::class.java.classLoader, arrayOf(CoreStrings::class.java)) { _, method, _ ->
             method.name
         } as CoreStrings
+        val values = mutableMapOf<String, String?>()
+        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, method, args ->
+            when (method.name) {
+                "getString" -> values[args[0]] ?: args[1]
+                "setString" -> { values[args[0] as String] = args[1] as String?; Unit }
+                else -> error("Unexpected settings call: ${method.name}")
+            }
+        } as AppSettings
         startKoin { modules(module {
+            single { settings }
+            single { RecentDocumentsStore(settings) }
             single { FakeBookFactory(strings) }
             single { WindowStateServiceImpl() }
             single<GlobalTextDisplaySettingsSource> { object : GlobalTextDisplaySettingsSource {
@@ -68,11 +81,12 @@ class DeletedMyDocumentHistoryTest {
                 pages.forEach { index.addAll(key(it)) }
             }
         })
+        Books.installed().addBook(book)
         val control = WindowControl()
         val repository = WindowRepository(CoroutineScope(Dispatchers.Unconfined + job))
         pageManager = CurrentPageManager(blank<BibleTraverser>(), blank<BookmarkControl>(), control)
         window = Window(WorkspaceEntities.Window(IdType(), false, false,
-            windowLayout = WorkspaceEntities.WindowLayout("VISIBLE")), pageManager, repository)
+            windowLayout = WorkspaceEntities.WindowLayout("MINIMISED")), pageManager, repository)
         control.windowRepository = repository
         repository.activeWindow = window
         history = HistoryManager(control, object : HistoryPlatform {
@@ -89,6 +103,10 @@ class DeletedMyDocumentHistoryTest {
         if (::window.isInitialized) window.destroy()
         runBlocking { job.cancelAndJoin() }
         HistoryManager.resetInstanceForTest()
+        if (::book.isInitialized) {
+            book.deactivate(null)
+            Books.installed().removeBook(book)
+        }
         stopKoin()
         Dispatchers.resetMain()
     }
