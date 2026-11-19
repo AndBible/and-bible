@@ -58,8 +58,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-/** Width of the leading-edge strip that drags the main menu open: classic `DrawerLayout`'s 20dp edge size. */
-internal val DrawerEdgeSwipeWidth: Dp = 20.dp
+/**
+ * Width of the leading-edge strip that drags the main menu open. Classic `DrawerLayout` (drawerlayout 1.2.0,
+ * `ViewDragHelper.EDGE_SIZE`) used 20dp. Here it is 32dp: a Pixel's edge-palm rejection makes a touch in the
+ * outermost millimetres unreliable, so a finger that starts a few mm in must still count (#4074). It is also
+ * the width exempted from the system back gesture (see [drawerEdgeGestureExclusion]).
+ */
+internal val DrawerEdgeSwipeWidth: Dp = 32.dp
 
 /**
  * Android allows at most 200dp of system-gesture exclusion per screen edge; the rest of a larger
@@ -155,6 +160,23 @@ internal fun BoxScope.DrawerEdgeHitTarget(
     )
 }
 
+/** What an edge touch has become after moving [edgeDragStep]'s `dx` inwards and `dy` sideways since the down. */
+internal enum class EdgeDragStep { Pending, Start, Cancel }
+
+/**
+ * Classic `ViewDragHelper.checkNewEdgeDrag`'s rule: nothing happens until the finger passed the touch
+ * [slop] in some direction; a drag that is mostly vertical (|dx| < 0.5 * |dy|) is a scroll and stays one;
+ * otherwise inward movement beyond the slop is the drawer's, so a diagonal thumb arc still counts.
+ * [dx] is positive towards the open position.
+ */
+internal fun edgeDragStep(dx: Float, dy: Float, slop: Float): EdgeDragStep = when {
+    abs(dx) <= slop && abs(dy) <= slop -> EdgeDragStep.Pending
+    abs(dy) > slop && abs(dx) < abs(dy) * 0.5f -> EdgeDragStep.Cancel
+    dx > slop -> EdgeDragStep.Start
+    dx < -slop -> EdgeDragStep.Cancel
+    else -> EdgeDragStep.Pending
+}
+
 /**
  * The settle decision at the end of an edge drag: a fling ([inwardVelocity], px/s, positive towards
  * the open position) beyond [velocityThreshold] decides by its direction; otherwise the drawer opens
@@ -226,11 +248,13 @@ internal fun Modifier.drawerEdgeSwipe(
             val delta = change.positionChange()
             dx += delta.x * sign
             dy += delta.y
-            if (abs(dy) > slop && abs(dy) >= abs(dx)) return@awaitEachGesture
-            if (dx < -slop) return@awaitEachGesture
-            if (dx > slop) {
-                change.consume()
-                break
+            when (edgeDragStep(dx, dy, slop)) {
+                EdgeDragStep.Cancel -> return@awaitEachGesture
+                EdgeDragStep.Start -> {
+                    change.consume()
+                    break
+                }
+                EdgeDragStep.Pending -> Unit
             }
         }
         var distance = 0f
