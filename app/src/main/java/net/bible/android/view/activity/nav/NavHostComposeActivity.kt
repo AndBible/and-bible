@@ -617,9 +617,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun goBackInReadingHistory(): Boolean {
         if (!ReadingViewVisibility.isVisible) return false
         val manager = historyTraversal.historyManager
-        if (!manager.canGoBack()) return false
-        manager.goBack()
-        return true
+        return manager.goBack()
     }
 
     /** Whether the graph is currently showing the reading destination. */
@@ -768,9 +766,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     override fun goBackInHistory(): Boolean {
         if (!readingDestinationIsCurrent()) return super.goBackInHistory()
         val manager = historyTraversal.historyManager
-        if (!manager.canGoBack()) return false
-        manager.goBack()
-        return true
+        return manager.goBack()
     }
 
     /**
