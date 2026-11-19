@@ -16,6 +16,13 @@ description: Use for AndBible issue and project-board work — creating, comment
   yourself right after staging, as `jailbee-issue-management` ("Orchestrator publication") says;
   otherwise the maintainer runs `jb issue apply` on the host.
   No submodule commit is involved. This is the default for everything in day-to-day work.
+  **Screenshots go on the issue too:** the outbox uploads images (PNG/JPEG/GIF/WebP). Write a JSON
+  manifest with top-level `attachments` (`{"id": {"file": "x.png"}}`, paths relative to the manifest)
+  and reference them inline as `![alt](attachment:id)` in a `comment` or `create` body; stage it with
+  `jailbee outbox stage issue <manifest> --slug <name>` and publish as usual (`jailbee-issue-management`,
+  "Image evidence"). Keep the manifest and images outside the work tree (`/tmp`). Why: 2026-11-20, the
+  orchestrator wrongly told the maintainer GitHub images needed a manual browser upload; a comment with
+  five images on #4154 published fine.
 - **Large triage runs → the triage batch toolchain** (`docs/superpowers/tools/triage/`,
   `triage/batches/`, `apply.py`, below). It exists for whole-area or whole-tracker passes that also
   change the project board, the label taxonomy or many items at once. **It is currently out of
