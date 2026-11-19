@@ -33,6 +33,16 @@ not repeated.
 - Run it once, at HEAD, after the last code change. Docs/status commits after it do not invalidate it.
 - Before any `:app` test run: `.jailbee/AGENT-GUIDE.md`, "Test Sword modules".
 
+## After a restart or resume
+
+- If your prompt says the container was restarted, or you resume a session and find background tasks missing,
+  assume **no background process survived**: your inbox waiter and every render, build or capture are gone.
+- First re-arm the background inbox waiter (as the child preamble describes). Then `pgrep -fa` and read your
+  logs: kill leftovers and duplicates from before the restart, and re-run unfinished work as background commands
+  that exit with the work. Never assume a run you started before the restart is still going.
+  Why: 2026-11-19, two restarted video children never re-armed their waiter, and one had two stale render
+  processes hanging.
+
 ## Waiting on long runs
 
 - Run a long command (render, Gradle, capture, TTS) as a **background command that ends when the work ends**
