@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -65,6 +66,9 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelFilter
@@ -197,28 +201,32 @@ fun ManageLabelsScreen(
     ) { padding: PaddingValues ->
         Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
             val listState = rememberLazyListState()
-            LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
-                items(rows, key = ::rowKey) { row ->
-                    when (row) {
-                        is ManageLabelsRow.Header -> CategoryHeaderRow(row.category, strings)
-                        is ManageLabelsRow.Item -> LabelItemRow(
-                            row = row,
-                            mode = mode,
-                            styleTagsVisible = styleTagsVisible,
-                            onRowClick = onRowClick,
-                            onRowLongClick = onRowLongClick,
-                            onToggleChecked = onToggleChecked,
-                            onToggleFavourite = onToggleFavourite,
-                            onSetPrimary = onSetPrimary,
-                            onToggleAutoAssign = onToggleAutoAssign,
-                            iconSlot = iconSlot,
-                            strings = strings,
-                        )
-                        is ManageLabelsRow.SearchResult -> SearchResultRow(
-                            row = row,
-                            onRowClick = onRowClick,
-                            strings = strings,
-                        )
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val rowTogglesShown = manageLabelsRowTogglesShown(mode, maxWidth)
+                LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
+                    items(rows, key = ::rowKey) { row ->
+                        when (row) {
+                            is ManageLabelsRow.Header -> CategoryHeaderRow(row.category, strings)
+                            is ManageLabelsRow.Item -> LabelItemRow(
+                                row = row,
+                                mode = mode,
+                                styleTagsVisible = styleTagsVisible,
+                                rowTogglesShown = rowTogglesShown,
+                                onRowClick = onRowClick,
+                                onRowLongClick = onRowLongClick,
+                                onToggleChecked = onToggleChecked,
+                                onToggleFavourite = onToggleFavourite,
+                                onSetPrimary = onSetPrimary,
+                                onToggleAutoAssign = onToggleAutoAssign,
+                                iconSlot = iconSlot,
+                                strings = strings,
+                            )
+                            is ManageLabelsRow.SearchResult -> SearchResultRow(
+                                row = row,
+                                onRowClick = onRowClick,
+                                strings = strings,
+                            )
+                        }
                     }
                 }
             }
@@ -299,6 +307,7 @@ private fun LabelItemRow(
     row: ManageLabelsRow.Item,
     mode: ManageLabelsMode,
     styleTagsVisible: Boolean,
+    rowTogglesShown: Boolean,
     onRowClick: (String) -> Unit,
     onRowLongClick: (String) -> Unit,
     onToggleChecked: (String) -> Unit,
@@ -356,7 +365,9 @@ private fun LabelItemRow(
                 text = label.name,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 1,
+                // Two lines, not one (issue #4153): long names (Myanmar script especially) were
+                // cut to a few characters and users had to open the label to see which it was.
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             if (mode.styleTagsShown && styleTagsVisible) {
@@ -371,7 +382,8 @@ private fun LabelItemRow(
         // in the same place. `mode` is constant for the whole list, so a mode without a given
         // control has no column at all and nothing to align; the only per-row variance that needs
         // reserving is the Unlabeled pseudo-label, which has no workspace toggles.
-        if (mode.workspaceEdits) {
+        // Issue #4153: narrow ASSIGN has no trailing grid at all (see manageLabelsRowTogglesShown).
+        if (mode.workspaceEdits && rowTogglesShown) {
             if (label.isUnlabeled) {
                 Spacer(Modifier.width(TrailingSlotSize * 2))
             } else {
@@ -405,7 +417,7 @@ private fun LabelItemRow(
             }
         }
 
-        if (mode.primaryShown) {
+        if (mode.primaryShown && rowTogglesShown) {
             if (row.checked) {
                 IconButton(onClick = { onSetPrimary(label.id) }, modifier = Modifier.size(TrailingSlotSize).selectionStateSemantics(row.isPrimary)) {
                     Icon(
@@ -654,4 +666,34 @@ private fun searchResultSnippetStyledText(row: ManageLabelsRow.SearchResult): St
         if (end < text.length) add(StyledRun(text.substring(end)))
     }
     return StyledText(runs)
+}
+
+/**
+ * Below this list width ASSIGN drops its three trailing toggles (issue #4153). 480dp puts every
+ * phone in portrait (about 320-430dp) on the narrow side, where the toggles plus the checkbox and
+ * glyph left the name about a third of the row, while landscape phones, tablets and desktop windows
+ * keep the full grid.
+ */
+internal val NarrowAssignMaxWidth = 480.dp
+
+/**
+ * Whether a label row draws its trailing auto-assign / favourite / primary toggles.
+ *
+ * In ASSIGN (picking labels for one bookmark) the job is to find and tick labels, so on a narrow
+ * list the name gets the room instead (issue #4153). The three states stay reachable: tapping the
+ * row opens the label's editor, which has the favourite heart, the workspace auto-assign switches
+ * and this bookmark's primary switch. Checking the first label still makes it primary automatically
+ * (ManageLabelsController), as before.
+ * WORKSPACE keeps them at every width: there the toggles are the very thing being edited.
+ */
+internal fun manageLabelsRowTogglesShown(mode: ManageLabelsMode, listWidth: Dp): Boolean =
+    mode != ManageLabelsMode.ASSIGN || listWidth >= NarrowAssignMaxWidth
+
+/** Window-width variant of [manageLabelsRowTogglesShown], for UI outside the list (the help legend). */
+@Composable
+internal fun manageLabelsRowTogglesShownInWindow(mode: ManageLabelsMode): Boolean {
+    val widthPx = LocalWindowInfo.current.containerSize.width
+    val width = with(LocalDensity.current) { widthPx.toDp() }
+    // An unmeasured window (0) is not a narrow one: keep the full legend.
+    return widthPx == 0 || manageLabelsRowTogglesShown(mode, width)
 }

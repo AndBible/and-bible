@@ -58,7 +58,8 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+// w600dp: since issue #4153 a narrow (<480dp) ASSIGN list draws no primary column at all.
+@Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w600dp")
 class ManageLabelsInertPrimaryA11yTest {
     @get:Rule val compose = createComposeRule()
 

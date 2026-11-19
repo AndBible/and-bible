@@ -73,6 +73,9 @@ fun ManageLabelsHelpDialog(
         ManageLabelsMode.STUDYPAD -> strings.studyPadsHelpText
     }
     val body = if (scopeSentence != null) "$intro\n\n$scopeSentence" else intro
+    // Read here, in the host's composition, not inside the dialog's content: there LocalWindowInfo
+    // would be the dialog's own (narrower) window, not the one the label list fills.
+    val rowTogglesShown = manageLabelsRowTogglesShownInWindow(mode)
     AbInfoDialog(
         title = title,
         body = body,
@@ -93,12 +96,18 @@ fun ManageLabelsHelpDialog(
                         // this row too, matching all five icon rows below it.
                         HelpRow({ Checkbox(checked = true, onCheckedChange = null) }, strings.manageLabelsHelpCheckbox)
                     }
-                    if (mode.primaryShown) {
+                    // Issue #4153: a narrow ASSIGN list draws none of these three glyphs, and the
+                    // legend never names a glyph that is not on screen -- so it says where they went.
+                    if (mode.primaryShown && rowTogglesShown) {
                         HelpRow({ Icon(Icons.Filled.Bookmark, null) }, strings.manageLabelsHelpPrimary)
                     }
-                    if (mode.workspaceEdits) {
+                    if (mode.workspaceEdits && rowTogglesShown) {
                         HelpRow({ Icon(AbIcons.BoltOutline, null) }, strings.manageLabelsHelpAutoAssign)
                         HelpRow({ Icon(Icons.Filled.Favorite, null) }, strings.manageLabelsHelpFavourite)
+                    }
+                    if (!rowTogglesShown) {
+                        Text(strings.manageLabelsHelpNarrowToggles, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
                     }
                     if (mode.styleTagsShown) {
                         // TextFormat, not Tune: this row is about the style EXAMPLES, and after

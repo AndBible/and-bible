@@ -37,6 +37,10 @@ import org.robolectric.annotation.GraphicsMode
 class ManageLabelsHelpGoldenTest {
 
     /**
+     * Since issue #4153 this 320dp capture is the NARROW legend: the primary/auto-assign/favourite rows
+     * are replaced by one sentence saying where those toggles went, and all rows fit. The text below
+     * describes the wide (480dp and up) legend.
+     *
      * ASSIGN, six legend rows -- of which this image shows FIVE. The sixth (re-order, the ⋮ glyph)
      * sits below the scroll fold, and no viewport height fixes that: [AbInfoDialog] caps its content
      * at its own max height and scrolls inside it, deliberately (round 15a Task 6 moved that bound
