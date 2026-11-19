@@ -73,6 +73,10 @@ data class VideoRowUi(val title: String, val url: String, val plainLabel: Boolea
  * All episodes are visible. Unpublished episodes open the placeholder; [TutorialVideos] chooses the URL and
  * label from the opened video's captions for [appLanguage].
  */
+/** The Help & tips tabs, in display order. The first entry is the default tab. */
+@kotlin.native.HiddenFromObjC
+enum class HelpTab { UserGuide, Tips }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @kotlin.native.HiddenFromObjC
@@ -83,15 +87,17 @@ fun HelpScreen(
     versionText: String,
     guideStrings: KeyedUserGuideStrings = KeyedUserGuideStrings.english(),
     appLanguage: String = "en",
-    initialTab: Int = 0,
+    initialTab: HelpTab = HelpTab.UserGuide,
     initialShowVideos: Boolean = false,
     onOpenUrl: (String) -> Unit,
     onUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    var tab by rememberSaveable { mutableIntStateOf(initialTab) }
+    // Saved as the ordinal: an enum is not a portable saveable type on every Compose target.
+    var tabOrdinal by rememberSaveable { mutableIntStateOf(initialTab.ordinal) }
+    val tab = HelpTab.entries[tabOrdinal]
     var showVideos by rememberSaveable { mutableStateOf(initialShowVideos) }
-    val inVideos = showVideos && tab == 1
+    val inVideos = showVideos && tab == HelpTab.UserGuide
     PlatformBackHandler(enabled = inVideos) { showVideos = false }
     AbScaffold(
         title = if (inVideos) strings.helpTutorialVideos else strings.helpAndTips,
@@ -103,18 +109,22 @@ fun HelpScreen(
         }
         Column(Modifier.padding(padding)) {
             CappedBarFontScale {
-                PrimaryTabRow(selectedTabIndex = tab) {
-                    Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(strings.helpTabTips) })
-                    Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(strings.helpTabUserGuide) })
+                PrimaryTabRow(selectedTabIndex = tab.ordinal) {
+                    for (entry in HelpTab.entries) {
+                        Tab(
+                            selected = tab == entry,
+                            onClick = { tabOrdinal = entry.ordinal },
+                            text = { Text(if (entry == HelpTab.Tips) strings.helpTabTips else strings.helpTabUserGuide) },
+                        )
+                    }
                 }
             }
-            if (tab == 0) {
-                TipsTab(tips, versionText, onOpenUrl)
-            } else {
-                UserGuideTab(
+            when (tab) {
+                HelpTab.UserGuide -> UserGuideTab(
                     sections, guideStrings, appLanguage, onOpenUrl,
                     onWatchInOrder = if (tutorialVideos.isEmpty()) null else ({ showVideos = true }),
                 )
+                HelpTab.Tips -> TipsTab(tips, versionText, onOpenUrl)
             }
         }
     }

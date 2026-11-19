@@ -114,7 +114,7 @@ opens [Download Documents](documents.md#download-documents) and `Bookmarks` open
 | `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
 | `Device synchronization` | Shown only where it is available |
 | `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
-| `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
+| `Help & tips` | The user guide contents with the tutorial videos, and short help topics (Tips) with the app version |
 | `Buy development work` | Opens the development shop in your browser (Android only) |
 | `Questions?` | Opens the [support page](support.md) in your browser |
 | `Recommend to a friend` | A QR code and a link to share, see [Sharing on Android](support.md#sharing-on-android) |
