@@ -37,8 +37,9 @@ computer:
   iCloud Drive on iPhone, iPad and Mac. Add a bookmark with a note on your phone, and the next
   sync brings it to your computer. See [Cloud synchronization](/docs/cloud_sync/).
 - **An AI Bible study assistant**, if you want one. Choose a passage and a prompt, and it
-  explains, summarizes or translates, working from the commentaries you have installed. It is optional: you use your own API key from the provider you choose, and like any
-  AI it can make mistakes, so check its answers. See [AI Bible study assistant](/docs/ai/).
+  explains the passage drawing on your installed commentaries, or summarizes or translates it.
+  It is optional: you use your own API key from the provider you choose, and like any AI it can
+  make mistakes, so check its answers. See [AI Bible study assistant](/docs/ai/).
 
 The full list of changes is on the [Release 6.0](/docs/releases/release_6_0/) page.
 
@@ -53,7 +54,8 @@ The full list of changes is on the [Release 6.0](/docs/releases/release_6_0/) pa
 
 [Getting started](/docs/getting_started/) walks you through the installation on each platform.
 
-Can't wait? The public beta is open now: see
+Can't wait? The public beta is open now on Android, Windows and Linux (the beta for iPhone, iPad
+and Mac is coming soon): see
 [how to join the AndBible 6.0 public beta](/2026/11/07/andbible-6-0-public-beta/), and please tell
 us what you find.
 
