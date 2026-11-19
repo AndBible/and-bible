@@ -8,9 +8,8 @@ documents, and [Load Documents](#load-documents) from your device’s filesystem
 
 ## Document Library
 
-The *Document Library* is the list of all Bibles, commentaries, dictionaries,
-books, and other modules that have been downloaded. In the app the screen is titled
-*Document*. It can be opened in a few different ways:
+The *Document Library* is the list of all downloaded documents. In the app the screen is
+titled *Document*. It can be opened in a few different ways:
 
 > - Click the top left main menu (☰).
 > - Click *Choose Document*.
@@ -20,7 +19,6 @@ row, also gets you to the document list; see [Opening Documents](navigation.md#o
 
 ## Bibles
 
-Bibles modules can be installed in different languages, translations, and formats.
 Many Bible modules contain Strong’s numbers, footnotes, cross-references, and study notes.
 
 With **Footnotes** enabled in the text options, tap a note marker to read its
@@ -71,9 +69,7 @@ For comprehensive cross-references covering every verse in the Bible, install th
 
 ## Commentaries
 
-Commentaries contain explanations or interpretations of other Bibles or books.
-Many commentaries will contain interactive Bible references, and can be
-[navigated](navigation.md) like Bible modules.
+Commentaries have interactive Bible references and can be [navigated](navigation.md) like Bibles.
 
 Some commentaries cover only selected passages. At a passage without a note,
 the module may display its own notice instead of commentary. Very long runs of
@@ -86,8 +82,7 @@ for earlier verses.
 
 ## Dictionaries
 
-Dictionaries provide additional information about individual words. *AndBible* supports
-Greek and Hebrew Strong’s dictionaries, Robinson’s Greek morphology, and others.
+*AndBible* supports Greek and Hebrew Strong’s dictionaries, Robinson’s Greek morphology, and others.
 
 Strong’s and Robinson dictionaries can be used as the primary lookup for words
 in Strong’s enabled document modules (like KJV, BSB, NASB, NET, etc):
@@ -184,7 +179,7 @@ Web links and Strong's dictionary links remain separate from this reference coll
 
 ## Maps
 
-Map modules can be installed through the provided repositories.
+Map modules are installed like other documents.
 
 ## Download Documents
 

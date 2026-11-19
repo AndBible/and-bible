@@ -98,45 +98,30 @@ The toolbar at the top of the reading screen has these parts, from left to right
 The main menu (☰, top left) lists these rows. It is also opened by swiping in from the edge of the
 screen, see [Swipe from the edge](#swipe-from-the-edge-to-open-the-main-menu).
 
+Rows named after their screen (`Find`, `Speak`, `My Documents`, `Reading Plan`, `History`,
+`Backup & Restore`, `Device synchronization`, `AI Settings`, `Application preferences`) open that
+screen; see [Search](search.md), [Speak](speak.md), [My Documents](my_documents.md),
+[Reading plans](reading_plans.md), [Backup and restore](backup_restore.md),
+[Synchronization](cloud_sync.md), [AI](ai.md) and [Appearance and settings](look_and_feel.md).
+`Choose Document` opens the [Document Library](documents.md#document-library), `Download Documents`
+opens [Download Documents](documents.md#download-documents) and `Bookmarks` opens the
+[Bookmarks list](bookmarks.md#bookmarks-list). The rows that need a note:
+
 | Row | What it does |
 |---|---|
-| `Choose Document` | Opens the document list, see [Documents](documents.md#document-library) |
-| `Find` | Opens search, see [Search](search.md) (greyed out when the current page cannot be searched) |
-| `Speak` | Shows the speak bar, see [Speak](speak.md) (not shown on a platform without speech) |
-| `Bookmarks` | The [Bookmarks list](bookmarks.md#bookmarks-list) |
+| `Find` | Greyed out when the current page cannot be searched |
+| `Speak` | Not shown on a platform without speech |
 | `Study Pads` | Opens the list of labels to choose a [Study Pad](study_pads.md) from |
-| `My Documents` | Your own pages, see [My Documents](my_documents.md) |
-| `Reading Plan` | [Reading plans](reading_plans.md) |
+| `Device synchronization` | Shown only where it is available |
 | `Read/Memory Progress` | [Reading progress](reading_progress.md) and [memorization](memorize.md) |
-| `History` | The list of places you have been to |
-
-**Administration**
-
-| Row | What it does |
-|---|---|
-| `Download Documents` | [Download documents](documents.md#download-documents) |
-| `Backup & Restore` | [Backup and restore](backup_restore.md) |
-| `Device synchronization` | [Synchronization](cloud_sync.md) (shown only where it is available) |
-| `AI Settings` | [AI](ai.md) |
-| `Application preferences` | The app settings, see [Appearance and settings](look_and_feel.md) |
-
-**Information**
-
-| Row | What it does |
-|---|---|
 | `Help & tips` | Short help topics with links to the manual and the tutorial videos, and the app version |
 | `Buy development work` | Opens the development shop in your browser (Android only) |
-| `Questions?` | Opens the support page in your browser, see [Support](support.md) |
-| `How to contribute?` | Opens the page about how to help the project, in your browser |
-| `Open Source License` | Shows the licence text |
-
-**Contact**
-
-| Row | What it does |
-|---|---|
+| `Questions?` | Opens the [support page](support.md) in your browser |
 | `Recommend to a friend` | A QR code and a link to share, see [Sharing on Android](support.md#sharing-on-android) |
 | `Rate & Review` | Opens a short dialog and then the store listing (Android; not in F-Droid, Huawei or Amazon builds) |
 | `Feedback / bug report` | Prepares a bug report, see [Support](support.md#reporting-issues) |
+
+`How to contribute?` and `Open Source License` open the contribution page and the licence text.
 
 On iPhone, iPad, Mac, Windows and Linux the menu has the same rows, except that `Buy development work`
 and `Rate & Review` are not offered there. `Recommend to a friend` and `Rate & Review` are hidden in
@@ -293,13 +278,11 @@ reading view, not in text fields or in the note editor (see the notes under
 | **Ctrl+W** | Open the workspace selector | All |
 | **Alt+M** | Open the main menu | All |
 | **Alt+O** | Open the ⋮ menu | All |
-| **Alt+Up**, **Alt+Down** | Switch to the previous / next window | All |
-| **Alt+Left**, **Alt+Right** | Switch to the previous / next window | Android, iOS |
+| **Alt+Up**, **Alt+Down** | Switch to the previous / next window (also **Alt+Left**, **Alt+Right** on Android and iOS) | All |
 | **Alt+Left** | Go back (same as **Esc**, see [below](#esc-key-as-back)); **Alt+Right** does nothing | Desktop |
 | Mouse back button | Go back | Desktop |
 | **Ctrl+Tab**, **Ctrl+Shift+Tab** | Switch to the next / previous window | Desktop |
-| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0** | Larger text, smaller text, default text size | Desktop |
-| **Ctrl + mouse wheel** | Larger or smaller text | Desktop |
+| **Ctrl+Plus**, **Ctrl+Minus**, **Ctrl+0**, **Ctrl + mouse wheel** | Larger text, smaller text, default text size | Desktop |
 | **Ctrl+,** | Open *Application preferences* | Desktop |
 | **Ctrl+S** (**Cmd+S** on macOS) | Run **Sync now**, or open *Device synchronization* settings if not set up; left to focused editors | Desktop |
 | **F11** | Toggle fullscreen | Desktop |
@@ -327,13 +310,11 @@ such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
 ### Esc Key as Back {#esc-key-as-back}
 
-With a hardware keyboard on iPhone, iPad, the iOS app on a Mac, and the
-desktop app, **Esc** works like the Back button. Each press closes the topmost
-open thing first: a dialog, popup or sheet, then the main menu, then the search
-results and finally **Find** (the search field in the toolbar). On a screen
-opened over the Bible text, such as the settings or the Bible chooser, Esc
-returns to the previous screen. On the desktop reading screen, Esc also exits
-fullscreen; otherwise, with nothing open, it does nothing.
+With a hardware keyboard on iPhone, iPad, the iOS app on a Mac and the desktop app, **Esc** works
+like the Back button: each press closes the topmost open thing (a dialog, popup or sheet, then the
+main menu, the search results and **Find**), and on a screen opened over the Bible text, such as the
+settings or the Bible chooser, it returns to the previous screen.
+On the desktop reading screen, Esc also exits fullscreen; with nothing open it does nothing.
 
 On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
 first Esc only leaves the field (and hides the on-screen keyboard); press Esc

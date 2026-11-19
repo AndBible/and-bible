@@ -40,8 +40,10 @@ def test_getting_started_has_an_install_section_per_platform(built_docs):
 def test_getting_started_states_the_install_facts(built_docs):
     html = _page(built_docs, "getting_started")
     for word in ("iOS 16", "Apple Silicon", "releases/latest", ".msi", ".deb",
-                 "AppImage", "chmod +x", "SmartScreen"):
+                 "AppImage", "chmod +x", "Microsoft Store", "signed <code>.msi</code>"):
         assert word in html, word
+    for stale in ("SmartScreen", "Run anyway"):
+        assert stale not in html, stale
     assert "Waydroid" not in html
 
 

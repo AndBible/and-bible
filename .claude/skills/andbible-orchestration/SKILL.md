@@ -18,10 +18,15 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
 ## Role and delegation
 
 - **Reviews run outside your own context:** review every child's `done` before merging with the
-  `superpowers:requesting-code-review` skill, dispatching its reviewer subagent on **opus** (`model: "opus"`),
-  given the issue/spec and the diff range, not your conclusion. You read the findings and spot-check one.
-  Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context; the same day the
-  maintainer made the superpowers review on opus mandatory for every child.
+  `superpowers:requesting-code-review` skill, dispatching its reviewer subagent with the issue/spec and the diff
+  range, not your conclusion. You read the findings and spot-check one.
+  **Reviewer model by difficulty** (always pass `model`, never fable): **opus** for code changes with logic,
+  concurrency, data/migrations, cross-platform or security impact, large or many-file diffs, and anything where
+  a missed defect is costly; **sonnet** for routine, well-specified diffs (docs, text/narration edits,
+  mechanical renames, small scoped fixes). When unsure, opus.
+  Why: 2026-11-18, the orchestrator reviewed and fixed #4146 inline and spent its context, so reviews moved to
+  subagents (opus for every child). 2026-11-19 the maintainer made the model a judgement call: video round 3 ran
+  ~35 opus reviews of mostly narration edits.
 - **Review fixes never run in your tree**, not even ones found while resolving a conflicted merge: resolve
   only the conflict in the merge commit, then fix with a fork / worktree subagent (`isolation: "worktree"`,
   no runs needed) or a `fork` child (tests or builds needed). Only tiny one-line edits stay inline.
@@ -88,7 +93,7 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   review, a newly parked product decision. Always notify when the session's work is finished (round merged,
   final gate run, publish and host reminders ready). One short line naming what is waiting; no routine
   progress.
-- Notifying does not make orchestration blocking: questions stay plain text, the inbox waiter stays armed
+- Notifying does not make orchestration blocking: questions stay plain text, the inbox monitor keeps delivering
   and other children keep moving.
 - **Never use `AskUserQuestion` while orchestrating** (2026-11-18, maintainer): the dialog blocks the turn, so child
   messages, merges and spawns wait behind it. This overrides the "ask with an AskUserQuestion form" rule in
@@ -106,10 +111,21 @@ rules; never restate the base here. Bug rounds additionally use `fixing-bug-back
   more per turn and got compacted.
 - A fix that is wrong or misses the root cause: do not merge; spawn a new child (fresh fork, branch such as
   `fix/issue-<n>-2`) with the review findings in its brief.
+- **Inbox delivery is JailBee's job** (since JailBee 1.8.9, 2026-11-19): interactive Claude Code children get the
+  managed inbox monitor (`jailbee inbox follow`), which survives messages and restarts. Do not tell a child to
+  re-arm a waiter or start one: a second waiter next to the monitor is wrong. Only a headless or non-Claude child
+  uses the fallback `jailbee inbox wait`. A child that does not answer: check `jailbee inbox status` first.
+- **A hung child:** first try `restart --agent-only --resume last` (keeps its slot, no queue). Only when the
+  broker refuses (non-waiter background processes) `stop` and do an ordinary `restart`; that queues for a slot.
+- **Every restart prompt after a `stop` (or any container restart) says so explicitly:** "The container was
+  restarted: every background process is gone, including any render/build. Check with `pgrep -fa` and your logs
+  which runs are unfinished, kill leftovers, and re-run what is missing as background commands that exit with the
+  work." A resumed session remembers its old jobs as running, so without this it does not notice dead or duplicate
+  runs. Why: 2026-11-19, video round 3: ep20 had two stale `render.py` processes hanging at 0 % CPU.
 
 ## Merging
 
-- Merge only after your independent review (`superpowers:requesting-code-review`, opus reviewer); a review the
+- Merge only after your independent review (`superpowers:requesting-code-review`, reviewer model by difficulty, see Role and delegation); a review the
   child ran itself does not replace it.
 - `git merge --no-ff` with a message naming the child and the issue:
   `Merge <branch> (child <short>): <what> (#<n>)`.

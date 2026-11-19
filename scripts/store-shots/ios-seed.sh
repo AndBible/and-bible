@@ -18,6 +18,10 @@ support="$data/Library/Application Support"
 rm -rf "$support/databases" "$support/backup"
 mkdir -p "$support/databases" "$data/Documents/sword"
 cp "$src"/db/*.sqlite3 "$support/databases/"
+# A stable build shows the release notice over the first screen; the store-shot tests do not dismiss it.
+# '6.0' is the release-notice id of the current release: change it with the version the build shows the notice for.
+sqlite3 "$support/databases/settings.sqlite3" \
+    "INSERT OR REPLACE INTO StringSetting VALUES ('release-notice-displayed', '6.0')"
 for z in "$src"/modules/*.zip; do unzip -q -o "$z" -d "$data/Documents/sword"; done
 cp "$src/plan-$mode.json" "$src/plan.json"
 xcrun simctl ui "$udid" appearance "$mode"
