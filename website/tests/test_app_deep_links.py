@@ -119,6 +119,13 @@ def test_generated_toc_targets_are_cataloged():
     assert len(generated) == len(re.findall(r'\bPage\("', toc)), "unscannable generated TOC page"
 
 
+def test_every_catalog_page_is_a_user_guide_page():
+    """In-app help items name a DocsLink topic; the Help screen highlights the guide page with that stem (#4159)."""
+    toc_stems = set(re.findall(r'\bPage\("([a-z0-9_/.-]+)"', GENERATED_TOC.read_text(encoding="utf-8")))
+    assert toc_stems
+    assert sorted({page for _, _, page, _ in scan()} - toc_stems) == []
+
+
 def test_docs_base_url_is_used_only_at_the_documentation_roots():
     assert uncataloged_calls(ROOTS) == []
 
