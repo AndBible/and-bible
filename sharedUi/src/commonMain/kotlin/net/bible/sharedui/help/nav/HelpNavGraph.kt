@@ -6,7 +6,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.savedstate.read
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.UserGuideToc
 import net.bible.sharedui.help.HelpScreen
@@ -45,7 +48,11 @@ class HelpNavDeps(
 /** The Help & tips destination. */
 @kotlin.native.HiddenFromObjC
 fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNavDeps) {
-    composable(route = NavRoutes.HELP) { entry ->
+    composable(
+        route = NavRoutes.HELP_PATTERN,
+        arguments = listOf(navArgument(NavRoutes.ARG_HELP_TOPIC) { type = NavType.StringType; nullable = true; defaultValue = null }),
+    ) { entry ->
+        val topic = remember(entry) { NavRoutes.helpTopic(entry.arguments?.read { getStringOrNull(NavRoutes.ARG_HELP_TOPIC) }) }
         val strings = LocalStrings.current
         LaunchedEffect(strings.helpAndTips) { deps.setWindowTitle(strings.helpAndTips) }
         val tips = remember(strings) { deps.tips() }
@@ -58,6 +65,7 @@ fun NavGraphBuilder.helpNavGraph(navController: NavHostController, deps: HelpNav
             guideStrings = deps.guideStrings,
             appLanguage = language,
             versionText = remember(strings) { deps.versionText() },
+            highlight = topic,
             onOpenUrl = deps.onOpenUrl,
             onUp = { navController.popOrExitFrom(entry, deps.exitHost) },
         )
