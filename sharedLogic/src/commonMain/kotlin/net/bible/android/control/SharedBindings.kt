@@ -240,7 +240,7 @@ fun buildSharedBindings() = module {
     single { ActivityCenter(get<AppCoroutineScope>(), net.bible.android.control.activity.monotonicActivityClock()) }
     // "Open the activity list" requests (#4012): a native notification click on desktop; harmless where nothing emits.
     single { net.bible.android.control.activity.ActivityListRequests() }
-    // Platform default (Android false, desktop/iOS true) comes from each platform's bindings as ActivityMenuDefault.
+    // Platform default (true on every platform since #4157) comes from each platform's bindings as ActivityMenuDefault.
     single { net.bible.android.control.activity.ActivityMenuPreference(get(), get()) }
     single {
         val strings = get<net.bible.sharedcore.platform.CoreStrings>()

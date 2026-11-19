@@ -227,8 +227,8 @@ remain reachable on a phone.
     ring and a badge for failures or items needing attention on the button, and
     an activity list in the menu. Opening the menu clears unread failure badges,
     but an agent permission-wait badge remains until the request is resolved. On
-    by default on desktop and iOS, off on Android, where the system notifications
-    show the same information. See
+    by default on every platform. On Android the in-menu activity complements the
+    system notifications, which are not affected by this setting. See
     [Background activity](navigation.md#background-activity).
 - **System notifications:** (Linux and Windows desktop, iOS, and the iOS app on a Mac) Shows a system notification
     when background work fails, and when a long download, install or index (over
