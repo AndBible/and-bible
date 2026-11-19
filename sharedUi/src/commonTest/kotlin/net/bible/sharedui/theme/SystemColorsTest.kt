@@ -21,6 +21,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import kotlin.test.Test
@@ -88,6 +89,48 @@ class SystemColorsTest {
     fun withoutAPlatformProviderTheSwitchIsANoOp() = withProvider(null) {
         for (dark in listOf(false, true)) {
             assertEquals(abColorScheme(null, dark, DisplayColorMode.NORMAL).toString(), abColorScheme(null, dark, DisplayColorMode.NORMAL, useSystemColors = true).toString())
+        }
+    }
+
+    @Test
+    fun workspaceDefaultDisplayAndPickerFollowSystemColorsOnlyWhenEnabled() = withProvider(fake) {
+        for (dark in listOf(false, true)) for (enabled in listOf(false, true)) {
+            val expected = if (enabled) {
+                (if (dark) fakeDark else fakeLight).primaryContainer.toArgb()
+            } else DefaultThemeProposal.DEFAULT.scheme(dark)!!.primaryContainer.toArgb()
+            for (stored in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
+                assertEquals(expected, workspaceDisplayArgb(stored, dark, DisplayColorMode.NORMAL, enabled), "dark=$dark system=$enabled stored=$stored")
+                val start = workspacePickerStartArgb(stored, dark, enabled)
+                assertEquals(expected, start, "picker dark=$dark system=$enabled")
+                assertTrue(keepsDefaultWorkspaceColor(stored, start, start))
+            }
+            val expectedRing = (if (enabled) {
+                if (dark) fakeDark else fakeLight
+            } else DefaultThemeProposal.DEFAULT.scheme(dark)!!).outline.toArgb()
+            assertEquals(expectedRing, workspaceDefaultRingArgb(dark, DisplayColorMode.NORMAL, enabled))
+        }
+    }
+
+    @Test
+    fun systemColorsDoNotOverrideChosenWorkspaceDisplayOrEinkModes() = withProvider(fake) {
+        val chosen = 0xFF1565C0.toInt()
+        for (dark in listOf(false, true)) {
+            assertEquals(chosen, workspacePickerStartArgb(chosen, dark, true))
+            for (mode in DisplayColorMode.entries) {
+                assertEquals(chosen, workspaceDisplayArgb(chosen, dark, mode, true))
+                if (mode == DisplayColorMode.NORMAL) continue
+                assertEquals(workspaceDisplayArgb(null, dark, mode, false), workspaceDisplayArgb(null, dark, mode, true))
+                assertEquals(workspaceDefaultRingArgb(dark, mode, false), workspaceDefaultRingArgb(dark, mode, true))
+            }
+        }
+        assertTrue(requested.isEmpty())
+    }
+
+    @Test
+    fun workspaceDefaultWithoutAProviderFallsBackToTheBuiltInTheme() = withProvider(null) {
+        for (dark in listOf(false, true)) {
+            assertEquals(workspacePickerStartArgb(null, dark, false), workspacePickerStartArgb(null, dark, true))
+            assertEquals(workspaceDefaultRingArgb(dark, DisplayColorMode.NORMAL, false), workspaceDefaultRingArgb(dark, DisplayColorMode.NORMAL, true))
         }
     }
 

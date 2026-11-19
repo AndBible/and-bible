@@ -2,6 +2,8 @@ package net.bible.sharedui.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +31,7 @@ import net.bible.sharedui.theme.abColorScheme
 import net.bible.sharedui.theme.monoInk
 import net.bible.sharedui.theme.monoPaper
 import net.bible.sharedui.theme.ringFraction
+import net.bible.sharedui.theme.systemColorSchemeProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -75,11 +78,28 @@ class WorkspaceColorSwatchTest {
     fun bwChosenSwatchIsGrey() =
         assertUnsetSwatch(dark = true, workspaceColor = 0xFF8B5A2B.toInt(), mode = DisplayColorMode.BW)
 
+    @Test
+    fun defaultSwatchFollowsSystemSchemeEvenWhenActiveWorkspaceHasAColor() {
+        val saved = systemColorSchemeProvider
+        systemColorSchemeProvider = { dark ->
+            if (dark) darkColorScheme(primaryContainer = Color(0xFF123456), outline = Color(0xFFCCDDFF))
+            else lightColorScheme(primaryContainer = Color(0xFFCCDDEE), outline = Color(0xFF123456))
+        }
+        try {
+            for (dark in listOf(false, true)) {
+                assertUnsetSwatch(dark, activeSeed = 0xFFFF8000.toInt(), useSystemColors = true)
+            }
+        } finally {
+            systemColorSchemeProvider = saved
+        }
+    }
+
     private fun assertUnsetSwatch(
         dark: Boolean,
         activeSeed: Int? = null,
         workspaceColor: Int = DEFAULT_WORKSPACE_COLOR_ARGB,
         mode: DisplayColorMode = DisplayColorMode.NORMAL,
+        useSystemColors: Boolean = false,
     ) = runComposeUiTest {
         val state = ColorSettingsUiState(
             colors = ColorsSnapshot(
@@ -94,7 +114,7 @@ class WorkspaceColorSwatchTest {
         )
         setContent {
             CompositionLocalProvider(LocalDensity provides Density(DENSITY)) {
-                AbTheme(darkTheme = dark, seedArgb = activeSeed, colorMode = mode, disableAnimations = true) {
+                AbTheme(darkTheme = dark, seedArgb = activeSeed, colorMode = mode, disableAnimations = true, useSystemColors = useSystemColors) {
                     Box(Modifier.width(320.dp)) {
                         ColorSettingsContent(
                             state = state, labels = ColorSettingsLabels.forTest(), onColorFieldClick = {},
@@ -118,7 +138,10 @@ class WorkspaceColorSwatchTest {
         val pixels = row.toPixelMap()
         val radius = row.height / 4
         // The built-in default theme ("Ink on paper"), never the stock Material violet.
-        val default = DefaultThemeProposal.DEFAULT.scheme(dark)!!
+        val default = if (useSystemColors) {
+            if (dark) darkColorScheme(primaryContainer = Color(0xFF123456), outline = Color(0xFFCCDDFF))
+            else lightColorScheme(primaryContainer = Color(0xFFCCDDEE), outline = Color(0xFF123456))
+        } else DefaultThemeProposal.DEFAULT.scheme(dark)!!
         val unset = workspaceColor == DEFAULT_WORKSPACE_COLOR_ARGB
         val expected = if (!unset) when (mode) {
             DisplayColorMode.NORMAL, DisplayColorMode.COLOR_EINK -> Color(workspaceColor)

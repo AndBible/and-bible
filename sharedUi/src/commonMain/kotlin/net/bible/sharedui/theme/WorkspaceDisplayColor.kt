@@ -67,7 +67,7 @@ private const val RING_DASH_FRACTION: Float = 0.6f
  * Known limit: the opt-in "Use system colors" (Material You) scheme is not followed here, as no
  * composition local carries that flag; with it on, an unset workspace shows the built-in default.
  */
-fun workspaceDisplayArgb(workspaceArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): Int {
+fun workspaceDisplayArgb(workspaceArgb: Int?, dark: Boolean, colorMode: DisplayColorMode, useSystemColors: Boolean = false): Int {
     if (isWorkspaceColorSet(workspaceArgb)) return workspaceArgb!!
     val scheme = abColorScheme(null, dark, colorMode)
     return (if (colorMode.isInkBase) scheme.surface else scheme.primaryContainer).toArgb()
@@ -75,7 +75,7 @@ fun workspaceDisplayArgb(workspaceArgb: Int?, dark: Boolean, colorMode: DisplayC
 
 /** Colour of the dashed ring around a default workspace colour: the unset scheme's `outline`
  *  (Ink on paper's Faint #8A806D light, #7E786D dark; grey in BW; ink in MONOCHROME/COLOR_EINK). */
-fun workspaceDefaultRingArgb(dark: Boolean, colorMode: DisplayColorMode): Int =
+fun workspaceDefaultRingArgb(dark: Boolean, colorMode: DisplayColorMode, useSystemColors: Boolean = false): Int =
     abColorScheme(null, dark, colorMode).outline.toArgb()
 
 /** Where a [WorkspaceColorCircle] is shown; decides how a CHOSEN colour is drawn. */
@@ -150,7 +150,7 @@ fun WorkspaceColorCircle(
  * would start an unset workspace on paper (white or black), which is also a preset: a deliberate
  * pick of it would then be read as "kept the default" by [keepsDefaultWorkspaceColor].
  */
-fun workspacePickerStartArgb(workspaceArgb: Int?, dark: Boolean): Int =
+fun workspacePickerStartArgb(workspaceArgb: Int?, dark: Boolean, useSystemColors: Boolean = false): Int =
     workspaceDisplayArgb(workspaceArgb, dark, DisplayColorMode.NORMAL)
 
 /**
