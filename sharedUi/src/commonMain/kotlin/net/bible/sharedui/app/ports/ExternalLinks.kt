@@ -40,12 +40,14 @@ interface ExternalLinks {
 }
 
 /** The single [AppDialogResult.SelectedWithCheckbox] option value of [externalLinkQuestion]. */
+@kotlin.native.HiddenFromObjC
 const val EXTERNAL_LINK_OPEN = "open"
 
 /**
  * The "open external link?" question shared by every queued asker (#4155). With a [trustableHost] it carries the
  * "Don't ask again for <host>" checkbox ([AppDialogRequest.Options]); without one it is the plain confirmation.
  */
+@kotlin.native.HiddenFromObjC
 fun externalLinkQuestion(s: Strings, url: String, trustableHost: String?): AppDialogRequest =
     if (trustableHost == null) AppDialogRequest.Confirm(
         title = s.externalLink,
@@ -65,6 +67,7 @@ fun externalLinkQuestion(s: Strings, url: String, trustableHost: String?): AppDi
  * Whether [result] of an [externalLinkQuestion] means "open"; a ticked checkbox first adds [trustableHost] to
  * [trust].
  */
+@kotlin.native.HiddenFromObjC
 fun externalLinkAnswer(result: AppDialogResult, trustableHost: String?, trust: TrustedLinkDomains?): Boolean =
     when (result) {
         AppDialogResult.Ok -> true

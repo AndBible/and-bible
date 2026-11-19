@@ -897,7 +897,8 @@ object CommonUtils : CommonUtilsBase() {
         val activity = CurrentActivityHolder.currentActivity!!
         activity.lifecycleScope.launch(Dispatchers.Main) {
             AndroidExternalLinks().confirmAndOpen(link, KoinJavaComponent.get(AppDialogController::class.java)) {
-                net.bible.sharedui.strings.AndroidStrings(activity)
+                // The current activity's (localized) context, resolved when shown: not captured until answered.
+                net.bible.sharedui.strings.AndroidStrings(CurrentActivityHolder.currentActivity ?: application)
             }
         }
     }

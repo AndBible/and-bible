@@ -82,4 +82,29 @@ class ExternalLinkPolicyTest {
         assertNull(ExternalLinkPolicy.hostOf("https:///nohost"))
         assertNull(ExternalLinkPolicy.hostOf("javascript:alert(1)"))
     }
+
+    /** Review finding: a URL must never parse to a trusted host while a browser (WHATWG parsing) opens another. */
+    @Test fun hostOfNeverReportsAHostTheBrowserWouldNotOpen() {
+        // Browsers treat "\\" as "/": the real host is evil.com. Such links ask without the option.
+        assertNull(ExternalLinkPolicy.hostOf("https://evil.com\\@trusted.com/"))
+        // Userinfo ends at the LAST "@" of the authority.
+        assertEquals("evil.com", ExternalLinkPolicy.hostOf("https://x@trusted.com:@evil.com/"))
+        assertEquals("trusted.com", ExternalLinkPolicy.hostOf("https://evil%2F@trusted.com/x"))
+        // Whitespace or control characters inside the URL: ask without the option.
+        assertNull(ExternalLinkPolicy.hostOf("https://trusted.com\tevil.com/"))
+        assertNull(ExternalLinkPolicy.hostOf("https://trusted.com evil.com/"))
+        // IPv6 literal: the whole bracketed address, never "[".
+        assertEquals("[::1]", ExternalLinkPolicy.hostOf("https://[::1]:8080/"))
+        assertNull(ExternalLinkPolicy.hostOf("https://[::1/"))
+        // An "@" in the path or query is not userinfo.
+        assertEquals("trusted.com", ExternalLinkPolicy.hostOf("https://trusted.com/a@evil.com"))
+        assertEquals("trusted.com", ExternalLinkPolicy.hostOf("https://trusted.com?x=@evil.com"))
+    }
+
+    @Test fun aTrustedHostDoesNotLetALookAlikeUrlOpenDirectly() {
+        val trust = TrustedLinkDomains(MapSettings())
+        trust.trust("trusted.com")
+        assertEquals(ExternalLinkDecision.Ask(null), trust.decide("https://evil.com\\@trusted.com/", true, false))
+        assertEquals(ExternalLinkDecision.Ask("evil.com"), trust.decide("https://x@trusted.com:@evil.com/", true, false))
+    }
 }

@@ -18,11 +18,29 @@ sealed interface ExternalLinkDecision {
  * (`ExternalLinks.confirmAndOpen`, `AbLinkRouting`, Android `CommonUtils.openLink`), #4155.
  */
 object ExternalLinkPolicy {
-    private val webUrl = Regex("^(https?)://(?:[^/?#@]*@)?([^/?#:]+)", RegexOption.IGNORE_CASE)
+    private val scheme = Regex("^https?://", RegexOption.IGNORE_CASE)
+    private val hostName = Regex("^[a-z0-9._-]+$") // no percent-escapes or sub-delims: anything unusual just asks
+    private val ipv6Literal = Regex("^\\[[0-9a-f:.]+]$")
 
-    /** The lower-cased host of an `http`/`https` [url]; null for any other link. Matching is by exact host. */
-    fun hostOf(url: String): String? =
-        webUrl.find(url.trim())?.groupValues?.get(2)?.lowercase()?.takeIf { it.isNotBlank() }
+    /**
+     * The lower-cased host of an `http`/`https` [url]; null for any other link. Matching is by exact host.
+     *
+     * Parsed so it never names a host a browser would not open: a URL with a backslash, whitespace or a control
+     * character answers null (browsers read a backslash as a slash), userinfo ends at the LAST `@` of the authority, and an
+     * IPv6 literal is the whole bracketed address. Null means "ask, without offering to trust".
+     */
+    fun hostOf(url: String): String? {
+        if (url.any { it == '\\' || it.isWhitespace() || it.code < 0x20 || it.code == 0x7f }) return null
+        val prefix = scheme.find(url) ?: return null
+        val rest = url.substring(prefix.range.last + 1)
+        val authority = rest.substring(0, rest.indexOfFirst { it == '/' || it == '?' || it == '#' }.takeIf { it >= 0 } ?: rest.length)
+        val hostPort = authority.substringAfterLast('@').lowercase()
+        val host = if (hostPort.startsWith("[")) {
+            hostPort.substring(0, hostPort.indexOf(']').takeIf { it > 0 }?.plus(1) ?: return null)
+                .takeIf { ipv6Literal.matches(it) }
+        } else hostPort.substringBefore(':').takeIf { hostName.matches(it) }
+        return host?.takeIf { it.isNotEmpty() }
+    }
 
     /**
      * [askRequested]: whether this caller asks at all (unchanged per call site). [discrete]: calculator build or
