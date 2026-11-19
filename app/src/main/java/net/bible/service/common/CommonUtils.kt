@@ -103,7 +103,6 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.TutorialVideos.Episode
@@ -118,6 +117,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.koin.java.KoinJavaComponent
+import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.isAvailable
 import net.bible.android.view.activity.page.Selection
@@ -873,7 +873,7 @@ object CommonUtils : CommonUtilsBase() {
      * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`
      * branch, extracted (C1 fix) so a Compose caller that has ALREADY asked its own "open external
      * link?" question (`AbLinkRouting`, driven by [isDiscrete]) does not ask a SECOND time through
-     * [openLink]'s `Dialogs.simpleQuestion` FIFO -- which would also queue behind, and so be hidden
+     * [openLink]'s `AppDialogController` FIFO -- which would also queue behind, and so be hidden
      * by, whatever dialog contains the link.
      */
     fun openLinkNow(link: String) {
@@ -888,23 +888,18 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode through the
-     *  platform `Dialogs.simpleQuestion` FIFO, same as before C1. A Compose dialog body's link goes
-     *  through `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. */
+    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode (or with [forceAsk]) through the
+     *  shared `AppDialogController` FIFO, same as before C1. A Compose dialog body's link goes through
+     *  `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. The question itself and the
+     *  trusted-host skip (#4155) are the shared `ExternalLinks.confirmAndOpen` ones. */
     fun openLink(link: String, forceAsk: Boolean = false) {
+        if (!isDiscrete && !forceAsk) return openLinkNow(link)
         val activity = CurrentActivityHolder.currentActivity!!
-        if (isDiscrete || forceAsk) {
-            activity.lifecycleScope.launch(Dispatchers.Main) {
-                if(Dialogs.simpleQuestion(activity,
-                        message = net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link),
-                        title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
-                    )
-                ) {
-                    openLinkNow(link)
-                }
+        activity.lifecycleScope.launch(Dispatchers.Main) {
+            AndroidExternalLinks().confirmAndOpen(link, KoinJavaComponent.get(AppDialogController::class.java)) {
+                // The current activity's (localized) context, resolved when shown: not captured until answered.
+                net.bible.sharedui.strings.AndroidStrings(CurrentActivityHolder.currentActivity ?: application)
             }
-        } else {
-            openLinkNow(link)
         }
     }
 

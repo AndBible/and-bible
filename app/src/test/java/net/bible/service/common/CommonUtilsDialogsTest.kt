@@ -309,6 +309,65 @@ class CommonUtilsDialogsTest {
         assertNull("only one button today", request.neutralText)
     }
 
+    // -- openLink (#4155) --
+
+    /**
+     * #4155: a reading-view external link (`forceAsk`) asks with "Don't ask again for <host>"; ticking it opens the
+     * link and stores the host, so the next link to the same host opens without a question. Emptying the list asks
+     * again.
+     */
+    @Test
+    fun openLinkOffersDontAskAgainAndATrustedHostOpensWithoutAsking() {
+        val activity = activity()
+        val url = "https://www.youtube.com/watch?v=abc"
+        try {
+            CommonUtils.openLink(url, forceAsk = true)
+            testDispatcher.scheduler.advanceUntilIdle()
+            val question = dialogs.pending.value!!.let { (it.request as? AppDialogRequest.Localized)?.resolve() ?: it.request }
+            question as AppDialogRequest.Options
+            assertEquals(application.getString(R.string.external_link_dont_ask_again, "www.youtube.com"), question.checkboxLabel)
+            assertEquals(application.getString(R.string.external_link_question, url), question.message)
+            assertNull(shadowOf(activity).nextStartedActivityForResult)
+
+            dialogs.respond(dialogs.pending.value!!.id,
+                AppDialogResult.SelectedWithCheckbox(net.bible.sharedui.app.ports.EXTERNAL_LINK_OPEN, true))
+            assertEquals(url, shadowOf(activity).nextStartedActivityForResult.intent.data.toString())
+            assertEquals(setOf("www.youtube.com"), CommonUtils.settings.getStringSet(net.bible.sharedcore.links.TrustedLinkDomains.KEY))
+
+            CommonUtils.openLink("https://www.youtube.com/other", forceAsk = true)
+            testDispatcher.scheduler.advanceUntilIdle()
+            assertNull("a trusted host opens without asking", dialogs.pending.value)
+            assertEquals("https://www.youtube.com/other", shadowOf(activity).nextStartedActivityForResult.intent.data.toString())
+
+            CommonUtils.settings.setStringSet(net.bible.sharedcore.links.TrustedLinkDomains.KEY, emptySet())
+            CommonUtils.openLink(url, forceAsk = true)
+            testDispatcher.scheduler.advanceUntilIdle()
+            assertTrue("removed host asks again", dialogs.pending.value != null)
+            assertNull(shadowOf(activity).nextStartedActivityForResult)
+        } finally {
+            CommonUtils.settings.removeString(net.bible.sharedcore.links.TrustedLinkDomains.KEY)
+        }
+    }
+
+    /** #4155 decision 1: discrete mode always asks, with the plain question even for a trusted host. */
+    @Test
+    fun openLinkInDiscreteModeAlwaysAsksWithoutTheOption() {
+        val activity = activity()
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(application)
+        try {
+            prefs.edit().putBoolean("discrete_mode", true).commit()
+            CommonUtils.settings.setStringSet(net.bible.sharedcore.links.TrustedLinkDomains.KEY, setOf("www.youtube.com"))
+            CommonUtils.openLink("https://www.youtube.com/watch?v=abc")
+            testDispatcher.scheduler.advanceUntilIdle()
+            val question = dialogs.pending.value!!.let { (it.request as? AppDialogRequest.Localized)?.resolve() ?: it.request }
+            assertTrue(question is AppDialogRequest.Confirm)
+            assertNull(shadowOf(activity).nextStartedActivityForResult)
+        } finally {
+            prefs.edit().remove("discrete_mode").commit()
+            CommonUtils.settings.removeString(net.bible.sharedcore.links.TrustedLinkDomains.KEY)
+        }
+    }
+
     // -- checkPoorTranslations --
 
     @Test

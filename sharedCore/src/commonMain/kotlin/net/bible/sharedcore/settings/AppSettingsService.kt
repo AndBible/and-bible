@@ -20,6 +20,10 @@ data class AppSettingsSnapshot(
     // Behavior
     val navigateToVerse: Boolean,
     val openLinksInSpecialWindow: Boolean,
+    /** #4155: hosts whose links open without the "open external link?" question. */
+    val trustedLinkDomains: Set<String> = emptySet(),
+    /** False in discrete builds, which always ask (the row is hidden). */
+    val trustedLinkDomainsVisible: Boolean = false,
     val screenKeepOn: Boolean,
     val doubleTapToFullscreen: Boolean,
     val doubleTapFullscreenAvailable: Boolean = true,

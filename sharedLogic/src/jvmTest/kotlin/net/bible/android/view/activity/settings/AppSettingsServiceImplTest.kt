@@ -277,6 +277,7 @@ class AppSettingsServiceImplTest {
             "google_drive_sync", "disable_bible_bookmark_modal_buttons", "disable_gen_bookmark_modal_buttons",
             "display_color_mode", "use_system_colors", "theme_palette_style", "disable_animations", "disable_click_to_edit",
             "font_size_multiplier", "bible_view_swipe_mode", "experimental_features", "notes_content_type",
+            "trusted_link_domains",
         )
         for (key in cleared + preserved) {
             db.setString(key, "stored")
