@@ -334,7 +334,9 @@ copy or share a page, or export it to a file; see
 [AI documents are My Documents](my_documents.md#ai-documents-are-my-documents). If you run the same prompt again on the same verses, the saved page
 opens instead of a new run. The page has a **Regenerate** action, which lets you add
 *Additional instructions (optional)* and choose **Keep previous version** or **Fresh run
-(ignore previous result)**.
+(ignore previous result)**. Unless you select **Keep previous version**, the old result is
+removed. Back and the window's history skip removed result pages, returning to an earlier
+page that still exists.
 
 **Before the run.** *Ask a question*, *Custom prompt* and *Workspace assistant* first
 ask you to *Specify task* (any prompt can do so with the *Specify before run*

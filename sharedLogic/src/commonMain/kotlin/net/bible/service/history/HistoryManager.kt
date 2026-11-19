@@ -25,6 +25,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
@@ -56,6 +57,20 @@ class HistoryManager constructor(
 
     private fun historySnapshot(windowId: IdType): List<HistoryItem> = withMonitor(historyLock) {
         windowHistoryStackMap[windowId]?.toList() ?: emptyList()
+    }.filter { it.isAvailable() }
+
+    // MyDocument pages can disappear through regeneration, manual deletion, tools or sync. Check
+    // the refreshed backend's exact page key, not getKey(), which also accepts partial matches.
+    // Never read a document under historyLock: the backend may need database access.
+    private fun HistoryItem.isAvailable(): Boolean {
+        if (this !is KeyHistoryItem || !document.isMyDocument) return true
+        return try {
+            document.contains(key)
+        } catch (e: Exception) {
+            // A temporary read failure is not proof of deletion; preserve the history entry.
+            Log.e(TAG, "Could not check history page in ${document.initials}", e)
+            true
+        }
     }
 
     fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
@@ -108,7 +123,7 @@ class HistoryManager constructor(
 
     fun canGoBack(): Boolean {
         val windowId = windowControl.activeWindow.id
-        return withMonitor(historyLock) { windowHistoryStackMap[windowId]?.isNotEmpty() == true }
+        return historySnapshot(windowId).isNotEmpty()
     }
 
     /**
@@ -121,7 +136,7 @@ class HistoryManager constructor(
         val activeWindow = window ?: windowControl.activeWindow
         if (withMonitor(historyLock) { isGoingBack }) return
         val item = createHistoryItem(activeWindow, screenToken)
-        add(activeWindow.id, item)
+        if (item != null && item.isAvailable()) add(activeWindow.id, item)
     }
 
     fun popHistoryItem() {
@@ -173,9 +188,17 @@ class HistoryManager constructor(
         } ?: return
 
         try {
+            var destination = previousItem
+            while (!destination.isAvailable()) {
+                destination = withMonitor(historyLock) {
+                    windowHistoryStackMap[windowId]?.let { stack ->
+                        if (stack.isEmpty()) null else stack.removeAt(stack.lastIndex)
+                    }
+                } ?: return
+            }
             // Navigation can re-enter history recording; never call it while holding the monitor.
-            Log.i(TAG, "Going back to:$previousItem")
-            previousItem.revertTo()
+            Log.i(TAG, "Going back to:$destination")
+            destination.revertTo()
 
             // Leave the screen on top when it is not the reading view. Both questions are asked
             // of the platform: leaving is a HOST operation (a classic Activity finishes, the
