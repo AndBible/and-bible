@@ -21,7 +21,7 @@ what we are working towards, and we wanted you to know.
 
 Here is a short teaser:
 
-https://www.youtube.com/watch?v=TEASER_YOUTUBE_ID
+https://www.youtube.com/watch?v=RMot6i16C3Y
 
 ## What 6.0 brings
 
