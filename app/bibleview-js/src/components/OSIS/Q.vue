@@ -43,15 +43,22 @@ const {config} = useCommon();
 
 <style lang="scss">
 $redLetters: rgb(215, 13, 13);
+$redLettersNight: rgb(255, 100, 100); // brighter for legibility on dark backgrounds
 .redLetters {
   color: $redLetters !important;
+  .night & {
+    color: $redLettersNight !important;
+  }
   .monochrome & {
     color: unset !important;
   }
 }
 
-.redLetters > a:link, a:visited {
+.redLetters > a:link, .redLetters > a:visited {
   color: $redLetters;
+  .night & {
+    color: $redLettersNight;
+  }
   .monochrome & {
     color: unset !important;
   }
