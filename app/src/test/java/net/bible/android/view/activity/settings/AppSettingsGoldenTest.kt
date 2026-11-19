@@ -199,6 +199,13 @@ class AppSettingsGoldenTest {
     // to filter this list, filtered == search mode: its content function was byte-for-byte identical
     // to searchMode_matrix's light capture (same snapshot, same query, same searchModeActive = true),
     // so it was a redundant golden, not a distinct state. Removed rather than kept in sync forever.
+    /** #4155: the trusted link domains row (Behavior), found by search so the capture stays short. */
+    @Test fun trustedLinkDomains_matrix() =
+        captureMatrix("AppSettings", "trustedLinkDomains", content = filteredScreen(
+            baseSnapshot().copy(trustedLinkDomains = setOf("www.youtube.com", "andbible.org"), trustedLinkDomainsVisible = true),
+            "trusted",
+        ))
+
     @Test fun searchMode_matrix() =
         captureMatrix("AppSettings", "searchMode", content = filteredScreen(baseSnapshot(), "night"))
 }
