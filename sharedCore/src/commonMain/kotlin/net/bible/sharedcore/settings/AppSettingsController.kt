@@ -1,6 +1,7 @@
 package net.bible.sharedcore.settings
 
 import net.bible.sharedcore.platform.USE_SYSTEM_COLORS_KEY
+import net.bible.sharedcore.links.TrustedLinkDomains
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +47,9 @@ sealed interface AppSettingsDialog {
  * service impl, so the rows here (and the [onMultiSelectChange] write-through) stay semantics-free.
  * Modelled on `net.bible.sharedcore.ai.AiConnectionSettingsController`.
  */
+/** The app settings row (and [AppSettingsService.setStringSet] key) of the trusted link hosts, #4155. */
+const val TRUSTED_LINK_DOMAINS_KEY = TrustedLinkDomains.KEY
+
 class AppSettingsController(
     private val service: AppSettingsService,
     private val scope: CoroutineScope,
@@ -170,6 +174,19 @@ class AppSettingsController(
                 summary = labels.openLinksInSpecialWindowSummary,
                 checked = s.openLinksInSpecialWindow,
                 iconKey = "open_links_in_special_window_pref",
+            ),
+            // #4155: remove-only editor of the hosts trusted from the "open external link?" question; every
+            // listed host is checked, unchecking one removes it. Disabled (with a hint) while the list is empty.
+            SettingsItem.MultiSelectRow(
+                key = TRUSTED_LINK_DOMAINS_KEY,
+                title = labels.trustedLinkDomainsTitle,
+                summary = if (s.trustedLinkDomains.isEmpty()) labels.trustedLinkDomainsEmpty
+                    else labels.trustedLinkDomainsSummary,
+                options = s.trustedLinkDomains.sorted().map { SettingsItem.Choice(it, it) },
+                selectedValues = s.trustedLinkDomains,
+                visible = s.trustedLinkDomainsVisible,
+                enabled = s.trustedLinkDomains.isNotEmpty(),
+                iconKey = TRUSTED_LINK_DOMAINS_KEY,
             ),
             SettingsItem.SwitchRow(
                 key = "screen_keep_on_pref",

@@ -433,6 +433,11 @@ interface Strings {
     // R.string.external_link / external_link_question words `CommonUtils.openLink` already asks.
     val externalLink: String
     fun externalLinkQuestion(link: String): String
+    // #4155: the question's "Don't ask again for <host>" checkbox and the Application preferences row.
+    fun externalLinkDontAskAgain(host: String): String
+    val prefsTrustedLinkDomainsTitle: String
+    val prefsTrustedLinkDomainsSummary: String
+    val prefsTrustedLinkDomainsEmpty: String
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String

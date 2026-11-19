@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.links.TrustedLinkDomains
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import org.koin.mp.KoinPlatform
@@ -33,6 +35,9 @@ import platform.UIKit.UIApplication
 @kotlin.native.HiddenFromObjC
 class IosExternalLinks(
     private val isDiscrete: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isDiscrete },
+    private val trust: () -> TrustedLinkDomains? = {
+        KoinPlatform.getKoinOrNull()?.getOrNull<AppSettings>()?.let(::TrustedLinkDomains)
+    },
     private val openUrl: (NSURL, (Boolean) -> Unit) -> Unit = { url, completion ->
         UIApplication.sharedApplication.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = completion)
     },
@@ -42,6 +47,7 @@ class IosExternalLinks(
     },
 ) : ExternalLinks {
     override val askBeforeOpening: Boolean get() = isDiscrete()
+    override val trustedDomains: TrustedLinkDomains? get() = trust()
     override fun open(url: String) {
         CoroutineScope(Dispatchers.Main).launch {
             val target = NSURL.URLWithString(url)

@@ -20,6 +20,8 @@
 package net.bible.sharedui.components
 
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedcore.links.ExternalLinkDecision
+import net.bible.sharedcore.links.ExternalLinkPolicy
 import androidx.compose.foundation.Image
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -161,7 +163,14 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
     // both are read fresh here, so this can never close over a stale isDiscrete/callback the way
     // keying on them could if a caller passes a fresh lambda identity every recomposition (the
     // common case) while some OTHER key held remember from recomputing.
-    val opener = AbLinkOpener { url -> if (askFirst) pending = url else onOpenExternal(url) }
+    // #4155: the shared ExternalLinkPolicy decides. askFirst is the discrete flag here, so a question never offers
+    // "Don't ask again" (discrete always asks) and trusted hosts play no part; the queued askers handle those.
+    val opener = AbLinkOpener { url ->
+        when (ExternalLinkPolicy.decide(url, askRequested = askFirst, discrete = askFirst, trusted = emptySet())) {
+            ExternalLinkDecision.Open -> onOpenExternal(url)
+            is ExternalLinkDecision.Ask -> pending = url
+        }
+    }
     CompositionLocalProvider(LocalAbLinkOpener provides opener, content = content)
     pending?.let { url ->
         val strings = LocalStrings.current

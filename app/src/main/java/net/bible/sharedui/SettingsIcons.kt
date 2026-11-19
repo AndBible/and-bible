@@ -91,6 +91,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "disabled_word_lookup_dictionaries" -> R.drawable.ic_dictionary_24dp
     "navigate_to_verse_pref" -> R.drawable.ic_chapter_verse_numbers_24dp
     "open_links_in_special_window_pref" -> R.drawable.ic_link_window_24dp
+    "trusted_link_domains" -> R.drawable.outline_shield_24 // #4155, Compose-only (no classic settings.xml row)
     "screen_keep_on_pref" -> R.drawable.ic_baseline_light_mode_24
     "double_tap_to_fullscreen" -> R.drawable.ic_full_screen_24
     "auto_fullscreen_pref" -> R.drawable.ic_full_screen_by_scrolling_24dp

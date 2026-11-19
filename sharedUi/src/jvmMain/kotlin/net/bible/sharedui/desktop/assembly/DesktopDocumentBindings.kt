@@ -5,6 +5,8 @@
 package net.bible.sharedui.desktop.assembly
 
 import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.links.TrustedLinkDomains
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
 import net.bible.sharedcore.platform.desktop.files.DesktopFileDelivery
@@ -36,7 +38,10 @@ fun desktopDocumentModule(): Module = module {
         DesktopIncomingFilesImpl(get<AppDirectories>().internalFilesDir.toNioPath(), get<DesktopLaunchArgs>().args, get(), get<DesktopExitTasks>())
     } onClose { (it as? DesktopIncomingFilesImpl)?.close() }
     single<DesktopFileShare> { DesktopFileShareImpl(get()) }
-    single { DesktopExternalLinks() }
+    single {
+        val koin = getKoin()
+        DesktopExternalLinks(trust = { koin.getOrNull<AppSettings>()?.let(::TrustedLinkDomains) })
+    }
     single<ExternalLinks> { get<DesktopExternalLinks>() }
     single<MyDocumentFiles> { DesktopMyDocumentFiles() }
     single<PromptFiles> { DesktopPromptFiles() }
