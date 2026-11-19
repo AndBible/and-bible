@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Claude Code Stop hook (wired in .claude/settings.json). Temporary stop-gap until JailBee
+# ships VRTFinland/jailbee#48 (waiter kept armed by JailBee); then delete this file, its test,
+# the Stop entry in .claude/settings.json and the .gitignore exception (memory
+# jailbee-child-waiter-hook-temporary). Until then JailBee does not
 # re-arms a child's inbox waiter itself.
 #
 # In a JailBee child (JAILBEE_ROLE=child) the agent must keep `jailbee inbox wait` running in
