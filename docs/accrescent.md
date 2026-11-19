@@ -96,6 +96,8 @@ bundletool install-apks --apks=app/standardAccrescent/release/app-standardAccres
 3. Upload the `.apks` file
 4. Fill in required metadata
 5. Submit for review
+6. Keep `app/standardAccrescent/release/mapping.txt` (copied by `make accrescent`) with the release: the build is
+   R8-obfuscated and its crash traces need that mapping (`docs/r8-obfuscation.md`)
 
 ## Security Notes
 

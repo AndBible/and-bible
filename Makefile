@@ -85,7 +85,9 @@ accrescent:
 	./gradlew -Pandbible.sign=true buildApksStandardAccrescentRelease
 	@mkdir -p app/standardAccrescent/release
 	@cp app/build/outputs/apkset/standardAccrescentRelease/app-standardAccrescentRelease.apks app/standardAccrescent/release/
+	@cp app/build/outputs/mapping/standardAccrescentRelease/mapping.txt app/standardAccrescent/release/mapping.txt
 	@echo "✓ APK set: app/standardAccrescent/release/app-standardAccrescentRelease.apks"
+	@echo "✓ R8 mapping (keep it with the release; docs/r8-obfuscation.md): app/standardAccrescent/release/mapping.txt"
 
 accrescent-debug:
 	@echo "Building Accrescent Debug APK set (signing via keystore.properties.gpg)..."

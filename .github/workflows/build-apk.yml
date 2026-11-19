@@ -95,6 +95,15 @@ jobs:
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/standardGithub/release/*-unsigned.apk
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calculator-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
+    # Release builds are obfuscated (#4160): the R8 mapping of each APK is needed to read its stack traces
+    # (retrace). Keep it with the release; docs/r8-obfuscation.md.
+    - name: Collect R8 mapping files
+      if: contains(github.ref, 'refs/tags/')
+      env:
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      run: |
+        gzip -9 -c app/build/outputs/mapping/standardGithubRelease/mapping.txt > $GITHUB_WORKSPACE/mapping-andbible-$TAG_NAME.txt.gz
+        gzip -9 -c app/build/outputs/mapping/discreteGithubRelease/mapping.txt > $GITHUB_WORKSPACE/mapping-calculator-$TAG_NAME.txt.gz
     - name: Attest signed release APKs
       uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
       with:
@@ -120,6 +129,8 @@ jobs:
         files: |
           ./andbible-${{ env.TAG_NAME }}.apk
           ./calculator-${{ env.TAG_NAME }}.apk
+          ./mapping-andbible-${{ env.TAG_NAME }}.txt.gz
+          ./mapping-calculator-${{ env.TAG_NAME }}.txt.gz
 
     - name: Publish release (tags without desktop packages)
       if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref_name, 'test-') && !startsWith(github.ref_name, 'beta-') && !startsWith(github.ref_name, 'production-')
