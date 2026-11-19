@@ -261,12 +261,12 @@ class CommonUtilsDialogsTest {
     @Test
     fun showHelpDialogPostsACancellableMessage() {
         val activity = activity()
-        CommonUtils.showHelpDialog(activity, R.string.help, R.string.help_search_text2, DocsLink.SEARCH.url)
+        CommonUtils.showHelpDialog(activity, R.string.help, R.string.help_search_text2, DocsLink.SEARCH)
         idle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Message
         assertEquals(application.getString(R.string.help), head.title)
         assertTrue(head.message.startsWith(application.getString(R.string.help_search_text2)))
-        assertTrue(head.message.contains("href=\"https://andbible.org/docs/search/\""))
+        assertTrue(head.message.contains("href=\"andbible-help:SEARCH\""))
         assertEquals(application.getString(R.string.okay), head.confirmText)
         assertTrue(head.cancellable)
     }

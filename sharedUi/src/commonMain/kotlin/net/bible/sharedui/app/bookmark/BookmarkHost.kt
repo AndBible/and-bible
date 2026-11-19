@@ -42,7 +42,7 @@ import net.bible.service.common.displayName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.BookmarksController
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
@@ -1268,10 +1268,10 @@ class BookmarkHost(
                             if (session.data.isWindow) strings.settingScopeWindow else strings.settingScopeWorkspace,
                         )
                     } else null,
-                    // STUDYPAD keeps its own video; the other three modes use the
-                    // Labels & highlights one. Don't collapse this to one episode.
-                    videoEpisode = if (session.controller.mode == ManageLabelsMode.STUDYPAD) TutorialVideos.Episode.TUTORIAL_11_STUDY_PADS
-                    else TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+                    // STUDYPAD keeps its own guide page; the other three modes use the
+                    // Labels & highlights one. Don't collapse this to one topic.
+                    helpTopic = if (session.controller.mode == ManageLabelsMode.STUDYPAD) DocsLink.STUDY_PADS
+                    else DocsLink.LABELS,
                     onDismiss = { manageLabelsHelpOpen = false },
                 )
             }

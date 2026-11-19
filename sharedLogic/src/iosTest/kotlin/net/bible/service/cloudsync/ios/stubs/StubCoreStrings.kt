@@ -161,6 +161,7 @@ internal class StubCoreStrings : CoreStrings {
     override val help = "help"
     override val helpMemorizeText = "helpMemorizeText"
     override val helpReadMoreLink = "helpReadMoreLink"
+    override val helpInUserGuide = "helpInUserGuide"
     override val verseTip = "verseTip"
     override val helpBookmarksText = "helpBookmarksText"
     override val watchTutorialVideo = "watchTutorialVideo"

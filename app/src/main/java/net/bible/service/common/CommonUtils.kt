@@ -802,14 +802,11 @@ object CommonUtils : CommonUtilsBase() {
      */
     fun showTipDialog(item: net.bible.sharedui.app.ports.HelpAndTips.Item) {
         val app = application
-        val lang = appLanguageTag(app)
         dialogs.post(documentDialogsCore(app).helpNotice(
             listOf(net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(
                 app.getString(helpTipStringIds.getValue(item.titleKey)),
                 app.getString(helpTipStringIds.getValue(item.textKey)),
-                net.bible.sharedui.app.ports.HelpAndTips.videoUrl(item, lang),
-                net.bible.sharedui.app.ports.HelpAndTips.docUrl(item.docPage),
-                net.bible.sharedui.app.ports.HelpAndTips.plainVideoLabel(item, lang),
+                item.docPage,
             )),
             okText = app.getString(android.R.string.ok),
         ))
@@ -840,28 +837,21 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     /**
-     * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
-     *
-     * The link opens [helpUrl], normally taken from [DocsLink.url].
+     * Show a help dialog with a short blurb and a "Help in the user guide" link (#4159), which opens Help & tips at
+     * [topic]'s guide page (with its tutorial videos), e.g. `DocsLink.AI_SETTING_PERMISSIONS`.
      *
      * @param activity Activity used to launch the dialog.
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
-     * @param helpUrl Full docs URL, e.g. `DocsLink.AI_SETTING_PERMISSIONS.url`.
-     * @param videoEpisode Optional tutorial video; shown as a second link that opens with captions in the app language when available.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
-        helpUrl: String,
-        videoEpisode: net.bible.sharedcore.docs.TutorialVideos.Episode? = null,
+        topic: net.bible.sharedcore.docs.DocsLink,
     ) {
-        val lang = appLanguageTag(activity)
         dialogs.post(documentDialogsCore(activity).helpDialog(
-            activity.getString(titleResId), activity.getString(messageResId), helpUrl,
-            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.url(it, lang) },
-            videoEpisode?.let { net.bible.sharedcore.docs.TutorialVideos.hasPlainLabel(it, lang) } ?: false,
+            activity.getString(titleResId), activity.getString(messageResId), topic,
         ))
     }
 
