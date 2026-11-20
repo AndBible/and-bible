@@ -662,6 +662,27 @@
     <string name="speak_previous">Previous</string>
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
     <string name="widget_bookmark_helptext">Speak bookmarks shortcut buttons will appear here.</string>
+    <!-- Home-screen widgets (#184) -->
+    <string name="widget_speak_name">Speak</string>
+    <string name="widget_speak_text_name">Speak with text</string>
+    <string name="widget_listening_list_name">Listening list</string>
+    <string name="widget_verse_name">Verse</string>
+    <string name="widget_continue_from">Continue from %1$s · %2$s</string>
+    <string name="widget_continue_listening">Continue listening</string>
+    <string name="widget_paused">Paused</string>
+    <string name="widget_status_line">%1$s · %2$d %% · %3$s</string>
+    <string name="widget_listening_list_empty_title">No speak bookmarks yet</string>
+    <string name="widget_listening_list_empty_text">Bookmarks with the Speak label appear here. Turn on automatic bookmarks in the speak settings, or add the label to any bookmark.</string>
+    <string name="widget_open_app_to_load">Open AndBible to load verses</string>
+    <string name="widget_sleep_minutes">%d min</string>
+    <string name="widget_verse_unavailable_no_bible">Install a Bible to see verses here</string>
+    <string name="widget_verse_unavailable_label_missing">The label of this widget no longer exists. Tap to choose verses.</string>
+    <string name="widget_verse_unavailable_label_empty">This label has no Bible bookmarks yet. Tap to choose other verses.</string>
+    <string name="widget_verse_unavailable_no_reading_plan">No reading plan is active. Tap to choose other verses.</string>
+    <string name="widget_verse_source_random_whole_bible">Random verse</string>
+    <string name="widget_verse_source_random_new_testament">Random verse · New Testament</string>
+    <string name="widget_verse_source_random_psalms_proverbs">Random verse · Psalms &amp; Proverbs</string>
+    <string name="widget_verse_source_reading_plan">Today\'s reading</string>
     <string name="speak_status_stopped">stopped</string>
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
     <string name="system_speak_settings">Open system TTS settings</string>

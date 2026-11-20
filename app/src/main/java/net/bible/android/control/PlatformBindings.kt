@@ -137,6 +137,7 @@ fun buildPlatformBindings() = module {
     single<net.bible.sharedlogic.platform.LabelNameStrings> { net.bible.android.platform.AndroidLabelNameStrings(androidContext()) }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<net.bible.android.control.widget.WidgetStrings> { net.bible.android.platform.AndroidWidgetStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {
         net.bible.android.platform.AndroidGlobalTextDisplaySettingsSource { get() }
     }
