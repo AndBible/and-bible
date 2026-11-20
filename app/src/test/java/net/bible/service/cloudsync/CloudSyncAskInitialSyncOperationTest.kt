@@ -33,7 +33,6 @@ import org.junit.After
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -121,7 +120,6 @@ class CloudSyncAskInitialSyncOperationTest {
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertNull(confirm.title)
-        assertNotEquals(activity.getString(R.string.are_you_sure), confirm.message)
         assertEquals(
             activity.getString(R.string.cloud_replace_local_lead, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,

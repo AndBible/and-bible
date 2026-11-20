@@ -900,7 +900,6 @@ interface Strings {
     val copyLabel: String                         // R.string.copy
     val shareLabel: String                        // R.string.share
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
-    val areYouSure: String                        // R.string.are_you_sure
 
     // Batch 9 fix B3 — AI language picker Compose dialog (F32)
     val aiLanguageCustomHint: String               // R.string.ai_language_custom_hint
@@ -1452,6 +1451,7 @@ interface Strings {
     val cloudDocRemoveCloudDetail: String                  // R.string.cloud_doc_remove_cloud_detail
     val cloudDocPurgeDetail: String                        // R.string.cloud_doc_purge_detail
     val cloudDocBlockConfirmButton: String                 // R.string.cloud_doc_block_confirm_button
+    // end dialog copy: B3b
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

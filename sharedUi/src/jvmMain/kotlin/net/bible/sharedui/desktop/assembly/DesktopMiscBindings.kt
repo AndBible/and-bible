@@ -218,8 +218,8 @@ fun desktopMiscModule(): Module = module {
                 val strings = table.current
                 dialogs.await(AppDialogRequest.Confirm(
                     title = null,
-                    message = strings.text(if (ai) "send_ai_bug_report_title" else "bug_report_email_title"),
-                    confirmText = strings.text("bug_report_continue"), dismissText = strings.text("cancel"),
+                    message = strings.text("bug_report_email_question"),
+                    confirmText = strings.text("continue_action"), dismissText = strings.text("cancel"),
                     detail = strings.text("bug_report_desktop_text"),
                 )) == AppDialogResult.Ok
             },
