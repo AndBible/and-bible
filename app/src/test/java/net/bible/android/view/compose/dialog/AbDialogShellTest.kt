@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -300,5 +301,55 @@ class AbDialogShellTest {
         dialog.onTouchEvent(up)
         compose.waitForIdle()
         assertEquals(1, dismissed)
+    }
+
+    /**
+     * Root cause of D1: the dialog window must fill the screen, not wrap the dialog. A wrapped platform window feeds its
+     * own height back as `maxHeight` and the shell's screen margin was subtracted on every measure pass, so the middle
+     * was clipped with no scroll divider on a real device. Here the window root must be much taller than the dialog.
+     */
+    @Test fun dialogWindowFillsTheScreenInsteadOfWrappingTheDialog() {
+        show(lead = "Lead")
+        compose.waitForIdle()
+        val d = compose.density.density
+        val root = dialogRoot().rootBounds()
+        val dialogH = compose.onNodeWithTag("dialog-confirm").rootBounds().bottom - compose.onNodeWithTag("dialog-lead").rootBounds().top
+        assertTrue("window ${root.height} px only wraps the dialog content ($dialogH px)", root.height > dialogH + 100 * d)
+        assertEquals(root.height, compose.onNodeWithTag("dialog-scrim").rootBounds().height, 1f)
+    }
+
+    @Test fun tapOnTheScrimDismissesButATapOnTheDialogDoesNot() {
+        var dismissed = 0
+        show(onDismiss = { dismissed++ })
+        compose.waitForIdle()
+        compose.onNodeWithTag("dialog-lead").performTouchInput { click() }
+        compose.waitForIdle()
+        assertEquals(0, dismissed)
+        compose.onNodeWithTag("dialog-scrim").performTouchInput { click(androidx.compose.ui.geometry.Offset(4f, 4f)) }
+        compose.waitForIdle()
+        assertEquals(1, dismissed)
+    }
+
+    /** A dialog with a lead and an empty middle (e.g. "Discard changes?") looks the same as one without a middle. */
+    @Test fun emptyMiddleLeavesNoBandBetweenLeadAndButtons() {
+        val emptyMiddle = androidx.compose.runtime.mutableStateOf(false)
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = {},
+                    buttons = { AbDialogButton("Cancel", DialogButtonRole.Cancel, {}) },
+                    lead = { Text("Discard changes?") },
+                    content = if (emptyMiddle.value) ({}) else null,
+                )
+            }
+        }
+        fun band(): Float {
+            compose.waitForIdle()
+            return compose.onNodeWithTag("dialog-dismiss").rootBounds().top - compose.onNodeWithTag("dialog-lead").rootBounds().bottom
+        }
+        val without = band()
+        emptyMiddle.value = true
+        val with = band()
+        assertEquals("band with an empty middle", without, with, 1f)
     }
 }
