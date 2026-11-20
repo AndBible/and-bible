@@ -45,6 +45,7 @@ sealed interface AppDialogRequest {
         val cancellable: Boolean = false,
         val detail: String? = null,
         val destructive: Boolean = false,
+        val presentation: DialogPresentation = DialogPresentation.Dialog,
     ) : AppDialogRequest
 
     /** Class B. [message] may be null (a title-only question, e.g. `simpleQuestion(message = null)`). */
@@ -56,6 +57,7 @@ sealed interface AppDialogRequest {
         val cancellable: Boolean = true,
         val detail: String? = null,
         val destructive: Boolean = false,
+        val presentation: DialogPresentation = DialogPresentation.Dialog,
     ) : AppDialogRequest
 
     /** Class C, a sheet. */
@@ -141,6 +143,7 @@ sealed interface AppDialogRequest {
         val confirmText: String,
         val dismissText: String? = null,
         val neutralText: String? = null,
+        val presentation: DialogPresentation = DialogPresentation.Dialog,
     ) : AppDialogRequest
 
     /**
@@ -170,6 +173,13 @@ sealed interface AppDialogRequest {
     }
     enum class NoticeIcon { Money }
 }
+
+/**
+ * How a [AppDialogRequest.Message], [AppDialogRequest.Confirm] or [AppDialogRequest.Notice] is shown:
+ * [Dialog] is the centred dialog; [Page] is the full-screen text page (`AbTextPage`) for long text. A page keeps the
+ * request's buttons and answers: a request with a dismiss text is a decision page, one without is read-only.
+ */
+enum class DialogPresentation { Dialog, Page }
 
 sealed interface AppDialogResult {
     data object Ok : AppDialogResult
