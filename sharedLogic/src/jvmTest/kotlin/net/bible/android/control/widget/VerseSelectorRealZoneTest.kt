@@ -41,22 +41,45 @@ class VerseSelectorRealZoneTest {
     }
 
     @Test fun periodChangesExactlyAtNextPeriodStart() {
-        for (id in listOf("Europe/Helsinki", "America/New_York")) {
+        // (zone, a day just before one of its 2026 clock changes): spring-forward and fall-back of both zones
+        val starts = listOf(
+            "Europe/Helsinki" to LocalDate.of(2026, 3, 27), // spring forward 29 Mar
+            "Europe/Helsinki" to LocalDate.of(2026, 10, 23), // fall back 25 Oct
+            "America/New_York" to LocalDate.of(2026, 3, 6), // spring forward 8 Mar
+            "America/New_York" to LocalDate.of(2026, 10, 30), // fall back 1 Nov
+        )
+        for ((id, day) in starts) {
             val z = zone(id)
             for (f in listOf(VerseChangeFrequency.DAILY, VerseChangeFrequency.EVERY_3_HOURS)) {
-                // walk through the 2026 spring-forward and fall-back weeks
-                var now = ZonedDateTime.of(2026, 3, 27, 5, 0, 0, 0, ZoneId.of(id)).toInstant().toEpochMilli()
-                var boundaries = 0
-                while (boundaries < 40) {
+                var now = day.atTime(5, 0).atZone(ZoneId.of(id)).toInstant().toEpochMilli()
+                // 3 days of DAILY, 3 days of 3-hour slots: both cross the change
+                val boundaries = if (f == VerseChangeFrequency.DAILY) 6 else 24
+                repeat(boundaries) {
                     val next = VerseSelector.nextPeriodStart(now, z, f)!!
                     assertTrue(next > now)
-                    assertEquals(VerseSelector.periodIndex(now, z, f), VerseSelector.periodIndex(next - 1, z, f), "$id $f before boundary")
-                    assertEquals(VerseSelector.periodIndex(now, z, f) + 1, VerseSelector.periodIndex(next, z, f), "$id $f at boundary")
+                    assertEquals(VerseSelector.periodIndex(now, z, f), VerseSelector.periodIndex(next - 1, z, f), "$id $day $f before boundary")
+                    assertEquals(VerseSelector.periodIndex(now, z, f) + 1, VerseSelector.periodIndex(next, z, f), "$id $day $f at boundary")
                     now = next
-                    boundaries++
                 }
             }
         }
+    }
+
+    @Test fun newYorkSpringForwardDayLosesAnHourAndFallBackDayGainsOne() {
+        val ny = ZoneId.of("America/New_York")
+        val z = zone("America/New_York")
+        fun midnight(d: LocalDate) = d.atStartOfDay(ny).toInstant().toEpochMilli()
+        // spring forward 8 Mar 2026: 23 h day; one DAILY period spans it
+        val springStart = ZonedDateTime.of(2026, 3, 8, 0, 30, 0, 0, ny).toInstant().toEpochMilli()
+        assertEquals(midnight(LocalDate.of(2026, 3, 9)), VerseSelector.nextPeriodStart(springStart, z, VerseChangeFrequency.DAILY))
+        assertEquals(23 * 3_600_000L - 30 * 60_000L, midnight(LocalDate.of(2026, 3, 9)) - springStart)
+        // fall back 1 Nov 2026: 25 h day
+        val fallStart = ZonedDateTime.of(2026, 11, 1, 0, 30, 0, 0, ny).toInstant().toEpochMilli()
+        assertEquals(midnight(LocalDate.of(2026, 11, 2)), VerseSelector.nextPeriodStart(fallStart, z, VerseChangeFrequency.DAILY))
+        assertEquals(25 * 3_600_000L - 30 * 60_000L, midnight(LocalDate.of(2026, 11, 2)) - fallStart)
+        // the repeated 01:xx hour stays in one daily period
+        val during = ZonedDateTime.of(2026, 11, 1, 1, 30, 0, 0, ny).withLaterOffsetAtOverlap().toInstant().toEpochMilli()
+        assertEquals(VerseSelector.periodIndex(fallStart, z, VerseChangeFrequency.DAILY), VerseSelector.periodIndex(during, z, VerseChangeFrequency.DAILY))
     }
 
     @Test fun helsinkiSpringForwardDayHasOnePeriodAndNextMidnightIsOnSummerTime() {

@@ -39,11 +39,13 @@ internal class FakeVerseSources : VerseWidgetSources {
     override suspend fun bibles() = installed.values.toList()
     override suspend fun labels() = labelMap.map { it.key to it.value.name }
     override suspend fun label(labelId: IdType) = labelMap[labelId]
-    override suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible) = when (part) {
+    /** When set, every random part uses this pool instead of the toy ranges. */
+    var poolOverride: VerseOrdinals? = null
+    override suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): VerseOrdinals = poolOverride ?: RangeVerseOrdinals(when (part) {
         VerseSource.RandomPart.WHOLE_BIBLE -> 0 until 6600
         VerseSource.RandomPart.NEW_TESTAMENT -> NT_START until 6600
         VerseSource.RandomPart.PSALMS_PROVERBS -> 1800 until 2000
-    }
+    })
     override suspend fun readingPlanPassage(bible: VerseBible) = plan
     override suspend fun text(ref: VerseRef, bible: VerseBible): String {
         if (ref.startOrdinal in emptyOrdinals) return ""
@@ -177,5 +179,57 @@ class VerseCandidatesTest {
         val morning = candidates.content(config(src), WidgetTestTime.utc(2026, 11, 20, 6), utc)
         val night = candidates.content(config(src), WidgetTestTime.utc(2026, 11, 20, 23), utc)
         assertEquals((morning as VerseWidgetContent.Verse).ref, (night as VerseWidgetContent.Verse).ref)
+    }
+
+    /** Ordinals 10, 20, 30...: the gaps stand for chapter and verse 0 introductions that must never be picked. */
+    private class GappedOrdinals(override val size: Int) : VerseOrdinals {
+        override fun ordinalAt(index: Int) = (index + 1) * 10
+    }
+
+    @Test fun randomPickNeverLandsInAGapAndIsUniform() = runTest {
+        sources.poolOverride = GappedOrdinals(4)
+        val src = VerseSource.Random(VerseSource.RandomPart.WHOLE_BIBLE)
+        val counts = HashMap<Int, Int>()
+        repeat(2000) { p ->
+            val c = candidates.content(config(src, seed = 3L), WidgetTestTime.utc(2026, 1, 1) + p * 86_400_000L, utc) as VerseWidgetContent.Verse
+            counts[c.ref.startOrdinal] = (counts[c.ref.startOrdinal] ?: 0) + 1
+        }
+        assertEquals(setOf(10, 20, 30, 40), counts.keys)
+        // uniform: each of 4 verses about 500 of 2000, never the doubled weight of a skipped neighbour
+        assertTrue(counts.values.all { it in 400..600 }, counts.toString())
+    }
+
+    @Test fun randomCandidatesListOnlyPoolOrdinals() = runTest {
+        sources.poolOverride = GappedOrdinals(3)
+        val list = candidates.candidates(VerseSource.Random(VerseSource.RandomPart.WHOLE_BIBLE), sources.web)
+        assertEquals(listOf(10, 20, 30), list.map { it.startOrdinal })
+    }
+
+    @Test fun randomSampleRotatesWithPeriod() = runTest {
+        val src = VerseSource.Random(VerseSource.RandomPart.WHOLE_BIBLE)
+        val a = candidates.sample(src, sources.web, 30, rotation = 100L).map { it.ref.startOrdinal }
+        val b = candidates.sample(src, sources.web, 30, rotation = 101L).map { it.ref.startOrdinal }
+        assertEquals(30, a.size)
+        assertEquals(a, candidates.sample(src, sources.web, 30, rotation = 100L).map { it.ref.startOrdinal })
+        assertTrue(a != b)
+    }
+
+    @Test fun bigLabelSampleRotatesWithPeriod() = runTest {
+        val id = IdType()
+        sources.labelMap[id] = LabelVerses("Big", (0 until 100).map { ref(it) })
+        val a = candidates.sample(VerseSource.Label(id), sources.web, 30, rotation = 5L).map { it.ref.startOrdinal }
+        val b = candidates.sample(VerseSource.Label(id), sources.web, 30, rotation = 6L).map { it.ref.startOrdinal }
+        assertEquals(30, a.size)
+        assertEquals(30, a.toSet().size)
+        assertTrue(a != b)
+    }
+
+    @Test fun labelSampleStillReachesLimitWhenSomeVersesAreEmpty() = runTest {
+        val id = IdType()
+        sources.labelMap[id] = LabelVerses("Big", (0 until 100).map { ref(it) })
+        sources.emptyOrdinals += (0 until 100 step 4)
+        val sample = candidates.sample(VerseSource.Label(id), sources.web, 30, rotation = 1L)
+        assertEquals(30, sample.size)
+        assertTrue(sample.none { it.ref.startOrdinal % 4 == 0 })
     }
 }

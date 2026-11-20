@@ -22,6 +22,20 @@ import net.bible.service.common.andBibleUrl
 /** An installed Bible as the widget logic sees it. */
 data class VerseBible(val initials: String, val abbreviation: String, val v11nName: String)
 
+/** An ordered pool of verse ordinals that may have gaps, so a pick by index is uniform over the real verses. */
+interface VerseOrdinals {
+    val size: Int
+
+    /** The ordinal of the verse at [index], `0 until size`. */
+    fun ordinalAt(index: Int): Int
+}
+
+/** A [VerseOrdinals] of consecutive ordinals. */
+class RangeVerseOrdinals(private val range: IntRange) : VerseOrdinals {
+    override val size: Int get() = if (range.isEmpty()) 0 else range.last - range.first + 1
+    override fun ordinalAt(index: Int): Int = range.first + index
+}
+
 /** A user label with its Bible bookmarks as verse refs, ordered by verse ordinal. */
 data class LabelVerses(val name: String, val refs: List<VerseRef>)
 
@@ -45,8 +59,8 @@ interface VerseWidgetSources {
     /** The label's Bible bookmarks, or null when the label no longer exists. Generic bookmarks are ignored. */
     suspend fun label(labelId: IdType): LabelVerses?
 
-    /** The ordinals of every verse of [part] in [bible]'s versification. */
-    suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): IntRange
+    /** The real verses (chapter and verse numbers of 1 or more, no introductions) of [part] in [bible]'s versification. */
+    suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): VerseOrdinals
 
     /** First passage of today's reading in the current plan (whole passage), or null without an active plan. */
     suspend fun readingPlanPassage(bible: VerseBible): VerseRef?
@@ -82,8 +96,9 @@ class VerseCandidates(private val sources: VerseWidgetSources) {
      */
     suspend fun candidates(source: VerseSource, bible: VerseBible): List<VerseRef> = when (source) {
         is VerseSource.Label -> sources.label(source.labelId)?.refs.orEmpty()
-        is VerseSource.Random -> sources.partOrdinals(source.part, bible)
-            .map { VerseRef(bible.initials, bible.v11nName, it, it) }
+        is VerseSource.Random -> sources.partOrdinals(source.part, bible).let { pool ->
+            List(pool.size) { pool.ordinalAt(it).let { o -> VerseRef(bible.initials, bible.v11nName, o, o) } }
+        }
         VerseSource.ReadingPlan -> listOfNotNull(sources.readingPlanPassage(bible)?.clampToVerses(READING_PLAN_VERSES))
     }
 
@@ -106,10 +121,10 @@ class VerseCandidates(private val sources: VerseWidgetSources) {
                 emptyReason = VerseWidgetContent.Unavailable.Reason.LABEL_EMPTY
             }
             is VerseSource.Random -> {
-                val ordinals = sources.partOrdinals(source.part, bible)
+                val pool = sources.partOrdinals(source.part, bible)
                 sourceName = sources.sourceName(source)
-                size = if (ordinals.isEmpty()) 0 else ordinals.last - ordinals.first + 1
-                refAt = { VerseRef(bible.initials, bible.v11nName, ordinals.first + it, ordinals.first + it) }
+                size = pool.size
+                refAt = { pool.ordinalAt(it).let { o -> VerseRef(bible.initials, bible.v11nName, o, o) } }
                 emptyReason = VerseWidgetContent.Unavailable.Reason.NO_BIBLE
             }
             VerseSource.ReadingPlan -> {
@@ -152,21 +167,26 @@ class VerseCandidates(private val sources: VerseWidgetSources) {
 
     /**
      * Up to [limit] verses of [source] in [bible] with their text, for a pool the iOS extension picks from. Pools
-     * that fit are returned whole in verse order; a larger one is sampled evenly (label, plan) or by a fixed hash
-     * (random), so the sample is stable between snapshots. Verses without text are left out.
+     * that fit are returned whole in verse order; a larger one is sampled evenly (label, plan) or by a hash (random).
+     * The sample is stable while [rotation] stays the same and changes with it (see [VerseSelector.weekIndex]), so the
+     * pools of a long-lived install do not freeze. Verses without text are left out, and more are drawn than needed
+     * so the pool still reaches [limit] when some are empty.
      */
-    suspend fun sample(source: VerseSource, bible: VerseBible, limit: Int): List<PooledVerseText> {
+    suspend fun sample(source: VerseSource, bible: VerseBible, limit: Int, rotation: Long = 0L): List<PooledVerseText> {
         val picks: List<VerseRef> = when (source) {
             is VerseSource.Random -> {
                 val ordinals = sources.partOrdinals(source.part, bible)
-                val size = if (ordinals.isEmpty()) 0 else ordinals.last - ordinals.first + 1
                 val seed = source.part.ordinal.toLong() * 7919L + bible.initials.hashCode()
-                (0 until limit * 2).mapNotNull { VerseSelector.pick(size, seed, it.toLong(), 0) }
-                    .distinct().map { ordinals.first + it }.map { VerseRef(bible.initials, bible.v11nName, it, it) }
+                (0 until limit * 2).mapNotNull { VerseSelector.pick(ordinals.size, seed, it.toLong(), rotation.toInt()) }
+                    .distinct().map { ordinals.ordinalAt(it) }.map { VerseRef(bible.initials, bible.v11nName, it, it) }
             }
             else -> {
                 val all = candidates(source, bible)
-                if (all.size <= limit) all else List(limit) { all[it * all.size / limit] }
+                if (all.size <= limit) all else {
+                    val take = minOf(all.size, limit * 2)
+                    val offset = VerseSelector.pick(all.size, source.toString().hashCode().toLong(), 0L, rotation.toInt()) ?: 0
+                    List(take) { all[(offset + it * all.size / take) % all.size] }
+                }
             }
         }
         val result = ArrayList<PooledVerseText>()

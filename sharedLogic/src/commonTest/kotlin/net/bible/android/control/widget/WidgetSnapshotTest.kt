@@ -35,7 +35,7 @@ class WidgetSnapshotTest {
     )
 
     private suspend fun build(requested: Set<String> = emptySet()) =
-        WidgetSnapshotBuilder.build(state, candidates, strings, requested, now = 1_000L)
+        WidgetSnapshotBuilder.build(state, candidates, strings, requested, now = 1_000L, zone = LocalZone { 0L })
 
     @Test fun snapshotRoundTripsJson() = runTest {
         val id = IdType()

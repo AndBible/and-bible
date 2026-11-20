@@ -32,6 +32,12 @@ import net.bible.android.control.speak.SpeakSettingsServiceImpl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.android.control.widget.ControlSpeakWidgetSource
+import net.bible.android.control.widget.ControlVerseWidgetSources
+import net.bible.android.control.widget.SpeakWidgetSource
+import net.bible.android.control.widget.SpeakWidgetStateProducer
+import net.bible.android.control.widget.VerseCandidates
+import net.bible.android.control.widget.VerseWidgetSources
 import net.bible.android.view.activity.ai.AgentSessionServiceImpl
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
 import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
@@ -322,11 +328,12 @@ fun buildSharedBindings() = module {
     singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() } onClose { it?.close() }
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() } onClose { it?.close() }
     // Home-screen widgets (#184): WidgetStrings is bound per platform (Android: R.string, iOS: keyed strings).
-    single { net.bible.android.control.widget.ControlVerseWidgetSources(get(), get(), get(), get(), get<SaxTextPolicy>(), get(), get()) } bind net.bible.android.control.widget.VerseWidgetSources::class
-    single { net.bible.android.control.widget.VerseCandidates(get()) }
-    single { net.bible.android.control.widget.ControlSpeakWidgetSource(get(), get(), get(), get(), get(), get(), get<SaxTextPolicy>()) }
-        .onClose { it?.close() } bind net.bible.android.control.widget.SpeakWidgetSource::class
-    single { net.bible.android.control.widget.SpeakWidgetStateProducer(get<AppCoroutineScope>(), get(), get()) }
+    single { ControlVerseWidgetSources(get(), get(), get(), get(), get<SaxTextPolicy>(), get(), get()) } bind VerseWidgetSources::class
+    single { VerseCandidates(get()) }
+    single { ControlSpeakWidgetSource(get(), get(), get(), get(), get(), get(), get<SaxTextPolicy>()) }
+        .onClose { it?.close() } bind SpeakWidgetSource::class
+    single { SpeakWidgetStateProducer(get<AppCoroutineScope>(), get(), get()) }
+        .onClose { it?.close() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }

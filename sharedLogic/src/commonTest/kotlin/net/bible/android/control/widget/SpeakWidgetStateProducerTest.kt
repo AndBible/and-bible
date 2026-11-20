@@ -161,4 +161,53 @@ class SpeakWidgetStateProducerTest {
         source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
         assertEquals("John 3:16", p.state.value.reference)
     }
+
+    @Test fun startAgainAfterScopeChildrenWereCancelled() = runTest {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        val source = FakeSource { currentTime }
+        val p = SpeakWidgetStateProducer(scope, source, FakeWidgetStrings())
+        p.start(); runCurrent()
+        val first = source.factsCalls
+        // what DatabaseResetter does to the app scope
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.children.forEach { it.cancel() }
+        runCurrent()
+        p.start(); runCurrent()
+        assertTrue(source.factsCalls > first, "start() must rebuild after the previous run died")
+        source.facts = source.facts.copy(reference = "John 3:16")
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals("John 3:16", p.state.value.reference)
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+    }
+
+    @Test fun startWhileRunningIsIdempotentAndStopEndsFollowing() = runTest {
+        val (p, source) = producer()
+        p.start(); runCurrent()
+        val before = source.factsCalls
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals(1, source.factsCalls - before)
+        p.stop()
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals(1, source.factsCalls - before)
+        p.start(); runCurrent()
+        assertTrue(source.factsCalls - before > 1)
+    }
+
+    @Test fun tickerStartsWhenTimerIsSetLater() = runTest {
+        val (p, source) = producer()
+        source.sleepAt = 10 * 60_000L
+        source.events.tryEmit(Unit)
+        advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals(10, p.state.value.sleepMinutesLeft)
+        advanceTimeBy(SpeakWidgetStateProducer.TICK_MS + 10); runCurrent()
+        assertEquals(9, p.state.value.sleepMinutesLeft)
+    }
+
+    @Test fun tickerStopsWhenTimerIsCleared() = runTest {
+        val (_, source) = producer { sleepAt = 10 * 60_000L }
+        source.sleepAt = null
+        advanceTimeBy(SpeakWidgetStateProducer.TICK_MS + 10); runCurrent() // last tick sees it off and ends the loop
+        val before = source.factsCalls
+        advanceTimeBy(5 * SpeakWidgetStateProducer.TICK_MS); runCurrent()
+        assertEquals(0, source.factsCalls - before)
+    }
 }

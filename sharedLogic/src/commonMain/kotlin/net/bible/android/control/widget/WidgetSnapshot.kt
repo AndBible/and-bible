@@ -95,6 +95,7 @@ object WidgetSnapshotBuilder {
         strings: WidgetStrings,
         requestedBibles: Set<String>,
         now: Long,
+        zone: LocalZone,
     ): WidgetSnapshot {
         val installed = candidates.bibles()
         val default = candidates.defaultBible()
@@ -103,9 +104,10 @@ object WidgetSnapshotBuilder {
             installed.filter { it.initials in requestedBibles && it.initials != default?.initials }.forEach { add(it) }
         }
         val labels = candidates.labels()
+        val rotation = VerseSelector.weekIndex(now, zone)
         val pools = ArrayList<VersePool>()
         suspend fun addPool(key: String, source: VerseSource, bible: VerseBible) {
-            val verses = candidates.sample(source, bible, POOL_CAP).map { PooledVerse(it.reference, it.text, it.link) }
+            val verses = candidates.sample(source, bible, POOL_CAP, rotation).map { PooledVerse(it.reference, it.text, it.link) }
             if (verses.isNotEmpty()) pools += VersePool(key, bible.initials, verses)
         }
         for (bible in bibleSet) {

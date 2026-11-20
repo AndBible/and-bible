@@ -41,6 +41,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
@@ -61,7 +63,9 @@ internal fun redrawsListeningList(change: BookmarkChange): Boolean = when (chang
  * speak, settings and bookmark event streams for its whole life (a Koin single); [close] cancels them.
  */
 class ControlSpeakWidgetSource(
-    private val speakControl: SpeakControl,
+    private val isSpeaking: () -> Boolean,
+    private val isPaused: () -> Boolean,
+    private val sleepTimerActivationTime: () -> Long?,
     private val bookmarkControl: BookmarkControl,
     private val advancedSpeakSettings: AdvancedSpeakSettings,
     private val bibleTraverser: BibleTraverser,
@@ -69,6 +73,20 @@ class ControlSpeakWidgetSource(
     private val coreStrings: CoreStrings,
     private val saxTextPolicy: SaxTextPolicy,
 ) : SpeakWidgetSource {
+    /** Reads the speak state from [speakControl] (a final class, hence the function parameters above). */
+    constructor(
+        speakControl: SpeakControl,
+        bookmarkControl: BookmarkControl,
+        advancedSpeakSettings: AdvancedSpeakSettings,
+        bibleTraverser: BibleTraverser,
+        settings: AppSettings,
+        coreStrings: CoreStrings,
+        saxTextPolicy: SaxTextPolicy,
+    ) : this(
+        { speakControl.isSpeaking }, { speakControl.isPaused }, { speakControl.sleepTimerActivationTime },
+        bookmarkControl, advancedSpeakSettings, bibleTraverser, settings, coreStrings, saxTextPolicy,
+    )
+
     private val events = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
     override val changes: Flow<Unit> = events.asSharedFlow()
 
@@ -105,19 +123,24 @@ class ControlSpeakWidgetSource(
 
     fun close() = subscriptions.cancelAll()
 
-    override fun sleepActivationTimeMs(): Long? = speakControl.sleepTimerActivationTime
+    /** Forgets the title, verse text and position of an earlier run; a producer start must not show them. */
+    override fun reset() = tracked.update { Tracked() }
+
+    override fun sleepActivationTimeMs(): Long? = sleepTimerActivationTime()
     override fun nowMs(): Long = currentTimeMillis()
 
     private fun versesOf(key: Key?): Verse? = when (key) {
         is Verse -> key
         is VerseRange -> key.start
+        // A book's getKey(osisRef) parses to a passage, which is what the saved resume position comes back as.
+        is Passage -> if (key.countVerses() == 0) null else key.getRangeAt(0, RestrictionType.NONE).start
         else -> null
     }
 
     override suspend fun facts(): SpeakFacts {
         val phase = when {
-            speakControl.isSpeaking -> SpeakPhase.SPEAKING
-            speakControl.isPaused -> SpeakPhase.PAUSED
+            isSpeaking() -> SpeakPhase.SPEAKING
+            isPaused() -> SpeakPhase.PAUSED
             else -> SpeakPhase.STOPPED
         }
         val (titleNow, textNow, book, key) = tracked.value
@@ -185,7 +208,8 @@ class ControlSpeakWidgetSource(
         return SpeakFacts(
             phase = phase,
             title = titleNow,
-            reference = shownVerse?.getName(),
+            // A non-Bible book being read has no verse: show its key (chapter, entry) rather than "Continue listening".
+            reference = shownVerse?.getName() ?: key?.takeIf { phase != SpeakPhase.STOPPED && shownBook != null }?.getName(),
             translation = shownBook?.initials,
             percent = percent,
             verseText = textNow,

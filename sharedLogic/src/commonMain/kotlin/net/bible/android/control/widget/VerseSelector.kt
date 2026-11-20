@@ -54,6 +54,9 @@ object VerseSelector {
         }
     }
 
+    /** The local epoch week (7 days of epoch days) containing [nowEpochMs]; rotates slow-changing samples. */
+    fun weekIndex(nowEpochMs: Long, zone: LocalZone): Long = Math2.floorDiv(Math2.floorDiv(localMs(nowEpochMs, zone), DAY_MS), 7L)
+
     /** UTC epoch ms at which the next period starts, or null for ON_SHUFFLE. Always greater than [nowEpochMs]. */
     fun nextPeriodStart(nowEpochMs: Long, zone: LocalZone, frequency: VerseChangeFrequency): Long? {
         val step = when (frequency) {

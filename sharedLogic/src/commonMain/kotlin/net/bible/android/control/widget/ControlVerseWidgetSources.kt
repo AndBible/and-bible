@@ -79,21 +79,48 @@ class ControlVerseWidgetSources(
         return LabelVerses(label.name, refs)
     }
 
-    override suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): IntRange {
-        val v11n = v11n(bible.v11nName) ?: return IntRange.EMPTY
-        fun first(book: BibleBook) = v11n.getOrdinal(Verse(v11n, book, 1, 1))
-        fun last(book: BibleBook): Int {
-            val chapter = v11n.getLastChapter(book)
-            return v11n.getOrdinal(Verse(v11n, book, chapter, v11n.getLastVerse(book, chapter)))
+    override suspend fun partOrdinals(part: VerseSource.RandomPart, bible: VerseBible): VerseOrdinals {
+        val v11n = v11n(bible.v11nName) ?: return ChapterBlocks(emptyList())
+        val all = (0 until v11n.bookCount).map { v11n.getBook(it) }
+        // Same span as before: from the first to the last book of the part in this versification's own order.
+        fun between(from: BibleBook, to: BibleBook): List<BibleBook> {
+            val i = all.indexOf(from)
+            val j = all.indexOf(to)
+            return if (i < 0 || j < i) emptyList() else all.subList(i, j + 1)
+        }
+        val books = when (part) {
+            VerseSource.RandomPart.WHOLE_BIBLE -> between(BibleBook.GEN, BibleBook.REV)
+            VerseSource.RandomPart.NEW_TESTAMENT -> between(BibleBook.MATT, BibleBook.REV)
+            VerseSource.RandomPart.PSALMS_PROVERBS -> between(BibleBook.PS, BibleBook.PROV)
         }
         return try {
-            when (part) {
-                VerseSource.RandomPart.WHOLE_BIBLE -> first(BibleBook.GEN)..last(BibleBook.REV)
-                VerseSource.RandomPart.NEW_TESTAMENT -> first(BibleBook.MATT)..last(BibleBook.REV)
-                VerseSource.RandomPart.PSALMS_PROVERBS -> first(BibleBook.PS)..last(BibleBook.PROV)
-            }
+            // One block per chapter, verses 1..last only: the ordinals in between are introductions (chapter 0, verse 0).
+            ChapterBlocks(books.flatMap { book ->
+                (1..v11n.getLastChapter(book)).mapNotNull { chapter ->
+                    val last = v11n.getLastVerse(book, chapter)
+                    if (last < 1) null
+                    else v11n.getOrdinal(Verse(v11n, book, chapter, 1))..v11n.getOrdinal(Verse(v11n, book, chapter, last))
+                }
+            })
         } catch (e: Exception) {
-            IntRange.EMPTY
+            ChapterBlocks(emptyList())
+        }
+    }
+
+    /** The real verses as consecutive-ordinal blocks (one per chapter), found by binary search over cumulative sizes. */
+    internal class ChapterBlocks(private val blocks: List<IntRange>) : VerseOrdinals {
+        private val starts = IntArray(blocks.size).also { var n = 0; blocks.forEachIndexed { i, r -> it[i] = n; n += r.last - r.first + 1 } }
+        override val size: Int = blocks.lastOrNull()?.let { starts.last() + it.last - it.first + 1 } ?: 0
+
+        override fun ordinalAt(index: Int): Int {
+            require(index in 0 until size) { "index $index of $size" }
+            var lo = 0
+            var hi = blocks.size - 1
+            while (lo < hi) {
+                val mid = (lo + hi + 1) / 2
+                if (starts[mid] <= index) lo = mid else hi = mid - 1
+            }
+            return blocks[lo].first + (index - starts[lo])
         }
     }
 

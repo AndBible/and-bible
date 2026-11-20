@@ -16,18 +16,21 @@
  */
 package net.bible.android.control.widget
 
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -64,6 +67,9 @@ interface SpeakWidgetSource {
     fun nowMs(): Long
 
     suspend fun facts(): SpeakFacts
+
+    /** Forgets what an earlier run tracked from events; called when the producer starts. */
+    fun reset() {}
 }
 
 /**
@@ -80,28 +86,52 @@ class SpeakWidgetStateProducer(
     private val _state = MutableStateFlow(emptyState())
     val state: StateFlow<SpeakWidgetState> = _state.asStateFlow()
 
-    private val started = kotlinx.atomicfu.atomic(false)
+    private val job = atomic<Job?>(null)
     private val rebuildLock = Mutex()
 
-    /** Builds the first state and starts following [SpeakWidgetSource.changes]. Idempotent. */
+    /**
+     * Builds the first state and starts following [SpeakWidgetSource.changes]. Idempotent while running; starts again
+     * when the previous run ended ([stop], or [scope]'s children cancelled by a database reset).
+     */
     fun start() {
-        if (!started.compareAndSet(false, true)) return
-        scope.launch { rebuild() }
-        scope.launch {
-            merge(source.changes, sleepTicker()).debounce(COALESCE_MS).collect { rebuild() }
+        val fresh = scope.launch(start = CoroutineStart.LAZY) {
+            launch { rebuild() }
+            launch { source.changes.debounce(COALESCE_MS).collect { rebuild() } }
+            // The ticker only runs while a sleep timer is set; a timer change arrives as a change event.
+            launch {
+                source.changes.onStart { emit(Unit) }.collectLatest {
+                    while (source.sleepActivationTimeMs() != null) {
+                        delay(TICK_MS)
+                        rebuild()
+                    }
+                }
+            }
+        }
+        while (true) {
+            val current = job.value
+            if (current?.isActive == true) {
+                fresh.cancel()
+                return
+            }
+            if (job.compareAndSet(current, fresh)) {
+                source.reset()
+                fresh.start()
+                return
+            }
         }
     }
+
+    /** Stops following the source; [state] keeps its last value. [start] may be called again. */
+    fun stop() {
+        job.getAndSet(null)?.cancel()
+    }
+
+    /** Same as [stop]; the Koin `onClose` hook. */
+    fun close() = stop()
 
     /** Rebuilds the state now (texts are locale dependent) after an in-app language change. */
     fun refreshForLocale() {
         scope.launch { rebuild() }
-    }
-
-    private fun sleepTicker(): Flow<Unit> = flow {
-        while (true) {
-            delay(TICK_MS)
-            if (source.sleepActivationTimeMs() != null) emit(Unit)
-        }
     }
 
     /** Serialised so an older result never overwrites a newer one; a failing read keeps the previous state. */
