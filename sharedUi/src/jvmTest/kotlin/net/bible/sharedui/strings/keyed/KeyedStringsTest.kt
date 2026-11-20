@@ -201,7 +201,6 @@ class KeyedStringsTest {
         assertText("aiDocumentsName", core.aiDocumentsName, filled = false)
         assertText("aiDocumentsDescription", core.aiDocumentsDescription, filled = false)
         assertText("sleepTimerStarted", core.sleepTimerStarted(3))
-        assertText("cloudSyncTitle", core.cloudSyncTitle, filled = false)
         assertText("cloudMergeData", core.cloudMergeData, filled = false)
         assertText("cloudFetchAndRestoreInitial", core.cloudFetchAndRestoreInitial, filled = false)
         assertText("cloudCreateNew", core.cloudCreateNew, filled = false)
@@ -211,7 +210,6 @@ class KeyedStringsTest {
         assertText("syncError", core.syncError, filled = false)
         assertText("okay", core.okay, filled = false)
         assertText("cancel", core.cancel, filled = false)
-        assertText("areYouSure", core.areYouSure, filled = false)
         assertText("areYouSureMerge", core.areYouSureMerge("x"))
         assertText("syncDisabling", core.syncDisabling("x"))
         assertText("share", core.share, filled = false)
@@ -268,6 +266,7 @@ class KeyedStringsTest {
         assertText("restoreOrImportLead", core.restoreOrImportLead("x"))
         assertText("restoreConsequence", core.restoreConsequence, filled = false)
         assertText("importConsequence", core.importConsequence, filled = false)
+        // end dialog copy: B3b
         assertText("backupModulesConflict", core.backupModulesConflict("a", "b", "c"))
         assertText("backupModulesConflictBook", core.backupModulesConflictBook("a", "b", "c"))
         assertText("backupFileInfo", core.backupFileInfo(3, "x"))

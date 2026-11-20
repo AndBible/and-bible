@@ -135,7 +135,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val iCloudDrive: String get() = context.getString(R.string.adapters_icloud_drive)
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = context.getString(R.string.webdav_untrusted_certificate_message, host, subject, issuer, from, until, fingerprint)
     override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = context.getString(R.string.webdav_untrusted_certificate_message_device, host, subject, issuer, from, until, fingerprint)
-    override val cloudSyncTitle: String get() = context.getString(R.string.cloud_sync_title)
     override val cloudMergeData: String get() = context.getString(R.string.cloud_merge_data)
     override val cloudFetchAndRestoreInitial: String get() = context.getString(R.string.cloud_fetch_and_restore_initial)
     override val cloudCreateNew: String get() = context.getString(R.string.cloud_create_new)
@@ -145,7 +144,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val syncError: String get() = context.getString(R.string.sync_error)
     override val okay: String get() = context.getString(R.string.okay)
     override val cancel: String get() = context.getString(R.string.cancel)
-    override val areYouSure: String get() = context.getString(R.string.are_you_sure)
     override fun areYouSureMerge(contents: String): String = context.getString(R.string.are_you_sure_merge, contents)
     override fun syncDisabling(what: String): String = context.getString(R.string.sync_disabling, what)
 
@@ -262,4 +260,5 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun restoreOrImportLead(contents: String): String = context.getString(R.string.restore_or_import_lead, contents)
     override val restoreConsequence: String get() = context.getString(R.string.restore_consequence)
     override val importConsequence: String get() = context.getString(R.string.import_consequence)
+    // end dialog copy: B3b
 }

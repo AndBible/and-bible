@@ -845,7 +845,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val copyLabel: String get() = context.getString(R.string.copy)
     override val shareLabel: String get() = context.getString(R.string.share)
     override val reportBugLabel: String get() = context.getString(R.string.ai_bug_report_menu)
-    override val areYouSure: String get() = context.getString(R.string.are_you_sure)
 
     // Batch 9 fix B3 — AI language picker Compose dialog (F32)
     override val aiLanguageCustomHint: String get() = context.getString(R.string.ai_language_custom_hint)
@@ -1380,4 +1379,5 @@ class AndroidStrings(private val context: Context) : Strings {
     override val cloudDocRemoveCloudDetail: String get() = context.getString(R.string.cloud_doc_remove_cloud_detail)
     override val cloudDocPurgeDetail: String get() = context.getString(R.string.cloud_doc_purge_detail)
     override val cloudDocBlockConfirmButton: String get() = context.getString(R.string.cloud_doc_block_confirm_button)
+    // end dialog copy: B3b
 }

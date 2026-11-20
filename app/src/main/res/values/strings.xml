@@ -1477,7 +1477,6 @@
     <string name="synchronization_categories">Synchronization categories</string>
     <string name="sync_general_settings">Info &amp; general settings</string>
     <string name="sync_introduction">Introduction</string>
-    <string name="are_you_sure">Are you sure?</string>
     <string name="are_you_sure_merge">Both the data on this device and the %s in the cloud will be kept. Where the same item was changed on both, the newer change is kept. This device\'s data will be sent to your other devices.</string>
     <string name="sync_cant_fetch">The version of database or patch file stored in Cloud is higher than the one supported by this app. </string>
     <string name="sync_disabling">Disabling synchronizing for %s for now.</string>
@@ -2527,5 +2526,5 @@
     </plurals>
     <string name="new_sync_targets_lead">More of your data can now sync</string>
     <string name="new_sync_targets_detail">My Documents, AI settings and reading progress can sync too. Turn them on in the Device synchronization settings.</string>
-    <string name="bug_report_continue">Continue</string>
+    <!-- end dialog copy: B3b -->
 </resources>

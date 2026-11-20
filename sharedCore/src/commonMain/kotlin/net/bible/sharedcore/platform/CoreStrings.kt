@@ -89,7 +89,6 @@ interface CoreStrings {
     fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     /** H2: device-neutral wording of [webDavUntrustedCertificateMessage] for iOS ("this device" instead of "Android"). */
     fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
-    val cloudSyncTitle: String
     val cloudMergeData: String
     val cloudFetchAndRestoreInitial: String
     val cloudCreateNew: String
@@ -99,7 +98,6 @@ interface CoreStrings {
     val syncError: String
     val okay: String
     val cancel: String
-    val areYouSure: String
     fun areYouSureMerge(contents: String): String
     fun syncDisabling(what: String): String
 
@@ -206,4 +204,5 @@ interface CoreStrings {
     fun restoreOrImportLead(contents: String): String
     val restoreConsequence: String
     val importConsequence: String
+    // end dialog copy: B3b
 }

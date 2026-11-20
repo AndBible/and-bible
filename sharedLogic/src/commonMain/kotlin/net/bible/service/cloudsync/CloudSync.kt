@@ -877,7 +877,7 @@ class CloudSync(
                         return@asyncMap
                     } catch (e: IncompatiblePatchVersion) {
                         logSyncFailure(dbDef, "download", e, "patch from a newer app version; category disabled for this version")
-                        run.report(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false, background = background, cause = e)
+                        run.report("${strings.syncTooOldLead(strings.syncCategoryContents(dbDef.category.name))} ${strings.syncTooOldDetail}", showReportButton = false, background = background, cause = e)
                         dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
@@ -921,13 +921,6 @@ class CloudSync(
         title = null, message = strings.syncTooOldLead(strings.syncCategoryContents(dbDef.category.name)),
         confirmText = strings.okay, cancellable = false, detail = strings.syncTooOldDetail,
     )
-
-    private fun cantFetchString(contentDescription: String): String {
-       val s1 = strings.syncCantFetch
-       val s2 = strings.syncDisabling(contentDescription)
-       val s3 = strings.syncUpdateApp
-       return "$s1 $s2 $s3"
-    }
 
     private val patchFilePattern = Regex("""(\d+)\.((\d+)\.)?sqlite3\.gz""")
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()

@@ -133,7 +133,6 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val iCloudDrive: String get() = t.text("adapters_icloud_drive")
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = t.fmt("webdav_untrusted_certificate_message", host, subject, issuer, from, until, fingerprint)
     override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = t.fmt("webdav_untrusted_certificate_message_device", host, subject, issuer, from, until, fingerprint)
-    override val cloudSyncTitle: String get() = t.text("cloud_sync_title")
     override val cloudMergeData: String get() = t.text("cloud_merge_data")
     override val cloudFetchAndRestoreInitial: String get() = t.text("cloud_fetch_and_restore_initial")
     override val cloudCreateNew: String get() = t.text("cloud_create_new")
@@ -143,7 +142,6 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val syncError: String get() = t.text("sync_error")
     override val okay: String get() = t.text("okay")
     override val cancel: String get() = t.text("cancel")
-    override val areYouSure: String get() = t.text("are_you_sure")
     override fun areYouSureMerge(contents: String): String = t.fmt("are_you_sure_merge", contents)
     override fun syncDisabling(what: String): String = t.fmt("sync_disabling", what)
 
@@ -258,4 +256,5 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override fun restoreOrImportLead(contents: String): String = t.fmt("restore_or_import_lead", contents)
     override val restoreConsequence: String get() = t.text("restore_consequence")
     override val importConsequence: String get() = t.text("import_consequence")
+    // end dialog copy: B3b
 }

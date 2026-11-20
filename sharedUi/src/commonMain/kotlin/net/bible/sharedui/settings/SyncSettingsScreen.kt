@@ -103,7 +103,7 @@ fun SyncSettingsScreen(
             title = null,
             message = d.message,
             detail = strings.syncResetDetail,
-            confirmText = strings.resetGeneric,
+            confirmText = strings.resetSync,
             dismissText = strings.cancel,
             destructive = true,
             onConfirm = onConfirmReset,

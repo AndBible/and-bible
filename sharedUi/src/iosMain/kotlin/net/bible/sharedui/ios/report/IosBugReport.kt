@@ -204,10 +204,10 @@ private suspend fun confirmReport(table: StringTable, ai: Boolean): Boolean = wi
     val host = IosPresenter.topViewController() ?: return@withContext false
     suspendCancellableCoroutine { continuation ->
         val alert = UIAlertController.alertControllerWithTitle(
-            table.text(if (ai) "send_ai_bug_report_title" else "bug_report_email_title"),
+            table.text("bug_report_email_question"),
             table.text("bug_report_email_text"), UIAlertControllerStyleAlert)
         val presentation = FilePresentation(alert, continuation, false)
-        alert.addAction(UIAlertAction.actionWithTitle(table.text("okay"), UIAlertActionStyleDefault) { presentation.finish(true) })
+        alert.addAction(UIAlertAction.actionWithTitle(table.text("continue_action"), UIAlertActionStyleDefault) { presentation.finish(true) })
         alert.addAction(UIAlertAction.actionWithTitle(table.text("cancel"), UIAlertActionStyleCancel) { presentation.finish(false) })
         presentation.present(host)
     }

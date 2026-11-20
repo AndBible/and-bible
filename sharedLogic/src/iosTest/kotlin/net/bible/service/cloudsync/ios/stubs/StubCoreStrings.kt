@@ -93,7 +93,6 @@ internal class StubCoreStrings : CoreStrings {
     // Mirrors the English resource webdav_untrusted_certificate_message_device (KeyedStringsTest checks the resource itself).
     override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String =
         "The certificate of $host is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: $subject\nIssuer: $issuer\nValid: $from – $until\nSHA-256: $fingerprint"
-    override val cloudSyncTitle = "cloudSyncTitle"
     override val cloudMergeData = "cloudMergeData"
     override val cloudFetchAndRestoreInitial = "cloudFetchAndRestoreInitial"
     override val cloudCreateNew = "cloudCreateNew"
@@ -103,7 +102,6 @@ internal class StubCoreStrings : CoreStrings {
     override val syncError = "syncError"
     override val okay = "okay"
     override val cancel = "cancel"
-    override val areYouSure = "areYouSure"
     override fun areYouSureMerge(contents: String): String = "areYouSureMerge ${contents}"
     override fun syncDisabling(what: String): String = "syncDisabling ${what}"
     override fun databaseTitle(dbFileName: String): String = dbFileName
@@ -205,4 +203,5 @@ internal class StubCoreStrings : CoreStrings {
     override fun restoreOrImportLead(contents: String): String = "restoreOrImportLead ${contents}"
     override val restoreConsequence = "restoreConsequence"
     override val importConsequence = "importConsequence"
+    // end dialog copy: B3b
 }

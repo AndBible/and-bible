@@ -1098,13 +1098,13 @@ class BackupControl(
     }
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: Path): Boolean?  = withContext(Dispatchers.Main) {
-        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
-            " (${bookmarksDbStats(category, backupFile, strings)})"
-        } else ""
+        val stats = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
+            bookmarksDbStats(category, backupFile, strings)
+        } else null
         val result = dialogs.await(
             AppDialogRequest.Options(
-                title = strings.restoreOrImportLead(strings.syncCategoryContents(category.name) + contents),
-                message = null,
+                title = strings.restoreOrImportLead(strings.syncCategoryContents(category.name)),
+                message = stats,
                 options = listOf(
                     DialogAnswer(RESTORE_VALUE, strings.restore, strings.restoreConsequence, destructive = true),
                     DialogAnswer(IMPORT_VALUE, strings.import2, strings.importConsequence),
