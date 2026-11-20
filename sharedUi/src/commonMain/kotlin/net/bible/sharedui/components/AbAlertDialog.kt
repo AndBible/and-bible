@@ -1,21 +1,24 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
-import net.bible.sharedui.theme.isPureMonochrome
-import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.components.dialog.AbDialogShell
 
-/** M3 alert dialog, with an ink border, paper surface and no platform dim in MONOCHROME. */
+/**
+ * Adapter from the M3 `AlertDialog` signature to [AbDialogShell]: `title` is the lead line, `text` the
+ * scrolling content, `dismissButton` then `confirmButton` the button row, `icon` the icon. The shell owns the
+ * look (surface, border, monochrome handling) and the height safety (lead cap, scrolling middle).
+ *
+ * The shell's middle area scrolls [text]. Many callers still wrap their text in their own `verticalScroll`
+ * (or use a lazy list), which Compose forbids under an infinite bound; [text] is therefore measured with a
+ * finite, very large bound, so their inner scroll normally never engages and the shell's scroll does the work. Callers that cap
+ * themselves (a `heightIn(max = ...)` list or picker) still scroll inside the shell's scrolling middle area;
+ * those caps are redundant now and are for the copy batches to remove.
+ */
 @Composable
 fun AbAlertDialog(
     onDismissRequest: () -> Unit,
@@ -27,37 +30,23 @@ fun AbAlertDialog(
     text: (@Composable () -> Unit)? = null,
     properties: DialogProperties = DialogProperties(),
 ) {
-    TrackOverlay()
-    val mono = isPureMonochrome()
-    AlertDialog(
+    AbDialogShell(
         onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
-        modifier = modifier.monoBorder(AlertDialogDefaults.shape),
-        dismissButton = dismissButton,
+        buttons = {
+            dismissButton?.invoke()
+            confirmButton()
+        },
+        modifier = modifier,
         icon = icon,
-        title = title?.let { content ->
+        lead = title,
+        content = text?.let { body ->
             {
-                // M3 measures the title before its weighted text slot. At AX5 a long title can
-                // otherwise consume the whole dialog and reduce a scrollable body to zero height.
-                // The bound must be an ancestor of verticalScroll, not its scrollable child.
-                BoxWithConstraints {
-                    val titleHeight = if (maxHeight.value.isFinite()) maxHeight * 0.4f else 200.dp
-                    Box(Modifier.heightIn(max = titleHeight)) {
-                        Box(Modifier.verticalScroll(rememberScrollState())) { content() }
-                    }
-                }
+                // The shell's middle area scrolls this content, so it is measured with a finite (huge) bound:
+                // callers whose content has its own scroll or a lazy list crash on an infinite one, and a
+                // window-sized bound would clip plain content that is taller than the window.
+                Box(Modifier.heightIn(max = 10000.dp)) { body() }
             }
         },
-        // Keep a missing text slot missing outside mono: M3 uses slot presence for spacing.
-        text = if (mono) {
-            {
-                NoDialogDim()
-                text?.invoke()
-                Unit
-            }
-        } else text,
-        containerColor = if (mono) MaterialTheme.colorScheme.surface else AlertDialogDefaults.containerColor,
-        tonalElevation = if (mono) 0.dp else AlertDialogDefaults.TonalElevation,
         properties = properties,
     )
 }

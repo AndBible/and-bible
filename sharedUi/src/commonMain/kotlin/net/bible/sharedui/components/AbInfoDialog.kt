@@ -18,30 +18,28 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.components.dialog.AbDialogButton
+import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.DialogButtonRole
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.tutorialVideoLabel
 import net.bible.sharedui.strings.tutorialVideoUrl
 
 /**
- * Scrollable, height-bounded informational dialog: a title + a plain-text body + a single dismiss
- * button. Used for help text, disclaimers, and tool descriptions (F28/F30/F34/F37) where the body
- * may be long — the body is capped at [maxBodyHeight] and scrolls internally instead of growing the
- * dialog past the screen. Any HTML in the source text must be flattened to plain text by the caller
+ * Scrollable, height-bounded informational dialog on [AbDialogShell]: [title] as the lead line, a plain-text
+ * body and a single dismiss button. Used for help text, disclaimers, and tool descriptions (F28/F30/F34/F37)
+ * where the body may be long — the shell's middle area is bounded by the window and scrolls (with dividers at
+ * the edges that can scroll further) instead of growing the dialog past the screen. Any HTML in the source text must be flattened to plain text by the caller
  * before it reaches [body]; this composable renders it verbatim (newlines preserved).
  *
  * When both [readMoreLabel] and [readMoreUrl] are non-null, an underlined, theme-tinted "read more"
@@ -50,11 +48,9 @@ import net.bible.sharedui.strings.tutorialVideoUrl
  * "External link?" question applies), else falls back to [LocalUriHandler]. The dialog window
  * re-provides a bare platform [LocalUriHandler] that shadows the host's override (C1), so the
  * custom local is the only one that reaches the click. Underlining (not just a tinted color) keeps
- * the affordance legible in monochrome/e-ink theme modes. Since round 15a the scroll/height bound
- * sits on the whole [Column] (body + [content] + the "read more" link) rather than on the body
- * [Text] alone, so the "read more" link now scrolls WITH the content instead of staying pinned below
- * it — with a slot below the body, bounding only the body would let a long legend push the buttons
- * off screen.
+ * the affordance legible in monochrome/e-ink theme modes. The body, the [content] slot and the
+ * "read more" link all scroll together in the shell's middle area, so a long legend can never push the
+ * buttons off screen.
  *
  * [content] is an optional slot rendered between the body and the "read more" link, for a dialog
  * whose content is not plain prose — round 15a's labels help is an icon legend, where each row is
@@ -74,44 +70,34 @@ fun AbInfoDialog(
 ) {
     val uriHandler = LocalUriHandler.current
     val linkOpener = LocalAbLinkOpener.current
-    AbAlertDialog(
+    AbDialogShell(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .heightIn(max = maxBodyHeight)
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                // A blank body is legitimate: a dialog whose whole content is [content] (an icon
-                // legend, say) has nothing to put here, and an empty Text would still take a line.
-                if (body.isNotBlank()) Text(text = body)
-                content?.invoke(this)
-                if (readMoreLabel != null && readMoreUrl != null) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = readMoreLabel,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
-                    )
-                }
-                if (videoEpisode != null) {
-                    val videoUrl = tutorialVideoUrl(videoEpisode)
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = tutorialVideoLabel(videoEpisode),
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl) },
-                    )
-                }
+        lead = { Text(title) },
+        content = {
+            // A blank body is legitimate: a dialog whose whole content is [content] (an icon
+            // legend, say) has nothing to put here, and an empty Text would still take a line.
+            if (body.isNotBlank()) Text(text = body)
+            content?.invoke(this)
+            if (readMoreLabel != null && readMoreUrl != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = readMoreLabel,
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
+                )
+            }
+            if (videoEpisode != null) {
+                val videoUrl = tutorialVideoUrl(videoEpisode)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = tutorialVideoLabel(videoEpisode),
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { linkOpener?.open(videoUrl) ?: uriHandler.openUri(videoUrl) },
+                )
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(confirmLabel) } },
+        buttons = { AbDialogButton(confirmLabel, DialogButtonRole.Confirm, onDismiss) },
     )
 }
-
-/** Cap on the scrollable body's height, so a long help/disclaimer text scrolls instead of growing
- *  the dialog beyond the screen. */
-private val maxBodyHeight = 420.dp

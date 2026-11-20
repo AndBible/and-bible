@@ -17,46 +17,31 @@
 
 package net.bible.sharedui.components
 
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import net.bible.sharedui.components.dialog.AbDialogButton
+import net.bible.sharedui.components.dialog.AbDialogDetail
+import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.DialogButtonRole
 
-/** Cap on the message body's height, so a long message scrolls instead of growing the dialog past
- *  the screen (and, critically, instead of pushing/overlapping the confirm/dismiss buttons — see
- *  [AbConfirmDialog]). Mirrors `AbInfoDialog.maxBodyHeight`. */
-private val maxMessageHeight = 420.dp
-
-/** A simple error dialog: a message + a single dismiss button. Height-bounded/scrollable like
- *  [AbConfirmDialog] (same regression risk: an unbounded body can push the dismiss button off the
- *  visible dialog on a real phone-sized window). */
+/**
+ * A simple error dialog on [AbDialogShell]: [message] is the lead line, an optional [detail] says what the
+ * user can do, and one confirm button dismisses. The shell scrolls a long body and keeps the button visible.
+ */
 @Composable
-fun AbErrorDialog(message: String, confirmText: String, onDismiss: () -> Unit) {
-    AbAlertDialog(
+fun AbErrorDialog(message: String, confirmText: String, onDismiss: () -> Unit, detail: String? = null) {
+    AbDialogShell(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text(confirmText) } },
-        text = {
-            Text(
-                text = message,
-                modifier = Modifier
-                    .heightIn(max = maxMessageHeight)
-                    .verticalScroll(rememberScrollState()),
-            )
-        },
+        buttons = { AbDialogButton(confirmText, DialogButtonRole.Confirm, onDismiss) },
+        lead = { Text(message) },
+        content = detail?.let { d -> { AbDialogDetail(d) } },
     )
 }
 
 /**
- * A confirm/cancel dialog: optional title, a message, a confirm and a cancel button. The message is
- * height-bounded and scrolls internally (mirrors `AbInfoDialog`'s `maxBodyHeight`/`verticalScroll`
- * treatment) — without this, a long message (e.g. the AI accept-disclaimer text, F31) can grow the
- * dialog's content past the actual window height on a real phone, overlapping or hiding the
- * confirm/dismiss buttons entirely. The cap only engages once content exceeds it, so short-message
- * callers (the ~13 others in this codebase) are visually unchanged.
+ * A confirm/cancel dialog on [AbDialogShell]. Plain text. Without a [title] the [message] is the lead line;
+ * with both, [title] is the lead and [message] becomes the detail, unless an explicit [detail] is given.
+ * [destructive] makes the confirm button a [DialogButtonRole.Destructive] one.
  */
 @Composable
 fun AbConfirmDialog(
@@ -66,19 +51,18 @@ fun AbConfirmDialog(
     dismissText: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    detail: String? = null,
+    destructive: Boolean = false,
 ) {
-    AbAlertDialog(
+    val lead = title ?: message
+    val shownDetail = detail ?: message.takeIf { title != null && it.isNotEmpty() }
+    AbDialogShell(
         onDismissRequest = onDismiss,
-        title = if (title != null) { { Text(title) } } else null,
-        text = {
-            Text(
-                text = message,
-                modifier = Modifier
-                    .heightIn(max = maxMessageHeight)
-                    .verticalScroll(rememberScrollState()),
-            )
+        buttons = {
+            AbDialogButton(dismissText, DialogButtonRole.Cancel, onDismiss)
+            AbDialogButton(confirmText, if (destructive) DialogButtonRole.Destructive else DialogButtonRole.Confirm, onConfirm)
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmText) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
+        lead = { Text(lead) },
+        content = shownDetail?.let { d -> { AbDialogDetail(d) } },
     )
 }

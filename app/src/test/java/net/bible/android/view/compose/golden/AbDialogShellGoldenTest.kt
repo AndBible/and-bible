@@ -96,6 +96,20 @@ class AbDialogShellGoldenTest {
     /** AX5: the real activity font scale (Roborazzi option); a LocalDensity override does not reach the Dialog window. */
     private val ax5 = listOf<RoborazziComposeOption>(RoborazziComposeFontScaleOption(3f))
 
+    /** AX5 at the default 470dp capture height, with a long lead and a long body: the buttons must stay whole. */
+    @Composable private fun Ax5Long() = AbDialogShell(
+        onDismissRequest = {},
+        buttons = {
+            AbDialogButton("Later", DialogButtonRole.Neutral, {})
+            AbDialogButton("Cancel", DialogButtonRole.Cancel, {})
+            AbDialogButton("Delete", DialogButtonRole.Destructive, {})
+        },
+        lead = { Text("Delete the label \u201CSermon notes from the 2026 autumn conference\u201D?") },
+        content = { Text((1..40).joinToString(" ") { "Sentence $it of the long body." }) },
+    )
+
+    @Test fun ax5_matrix() = captureMatrix("AbDialogShell", "ax5", captureOptions = ax5) { Ax5Long() }
+
     @Test fun ax5Confirm_matrix() = captureMatrix("AbDialogShell", "ax5Confirm", heightDp = 800, captureOptions = ax5) { ShortConfirm() }
 
     @Test

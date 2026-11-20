@@ -256,6 +256,8 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
 
 When adding or modifying UI elements (buttons, highlights, backgrounds, icons, etc.), verify they look correct across all four combinations: dark, light, monochrome, and no-animations.
 
+Dialogs: follow docs/dialog-guidelines.md
+
 ## Code Patterns
 
 ### New UI is Compose

@@ -17,22 +17,22 @@
 
 package net.bible.sharedui.components
 
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedui.components.dialog.AbDialogButton
+import net.bible.sharedui.components.dialog.AbDialogDetail
+import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.DialogButtonRole
 
 /**
  * A message or a question whose body is HTML (spec §6.1): the replacement for every platform
  * `AlertDialog` whose message went through `htmlToSpan`. Up to three buttons — confirm, optional
  * dismiss, optional neutral — in the platform dialog's order (neutral at the start).
+ *
+ * The lead line is [title] only; the HTML [html] is never the lead (it would show raw markup there). Without a
+ * title the HTML is body text with no lead line. [detail] (plain text) sits between the lead and the body.
+ * [destructive] makes the confirm button a destructive one.
  *
  * [cancellable] = false is `setCancelable(false)`: back and scrim do nothing and [onDismissRequest]
  * is never called. With [onBack] also set, a non-cancellable dialog still ignores the scrim but Back
@@ -51,26 +51,27 @@ fun AbMessageDialog(
     onNeutral: () -> Unit = {},
     cancellable: Boolean = true,
     onBack: (() -> Unit)? = null,
+    detail: String? = null,
+    destructive: Boolean = false,
 ) {
-    AbAlertDialog(
+    AbDialogShell(
         // With dismissOnClickOutside = false only Back reaches onDismissRequest.
         onDismissRequest = { if (cancellable) onDismissRequest() else onBack?.invoke() },
         properties = DialogProperties(
             dismissOnBackPress = cancellable || onBack != null,
             dismissOnClickOutside = cancellable,
         ),
-        title = if (title != null) { { Text(title) } } else null,
-        text = if (html != null) {
-            { AbHtmlText(html, Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) }
-        } else null,
-        confirmButton = { TextButton(onClick = onConfirm, modifier = Modifier.testTag("dialog-confirm")) { Text(confirmText) } },
-        dismissButton = if (dismissText != null || neutralText != null) {
+        lead = title?.let { t -> { Text(t) } },
+        content = if (detail != null || html != null) {
             {
-                Row {
-                    if (neutralText != null) TextButton(onClick = onNeutral, modifier = Modifier.testTag("dialog-neutral")) { Text(neutralText) }
-                    if (dismissText != null) TextButton(onClick = onDismiss, modifier = Modifier.testTag("dialog-dismiss")) { Text(dismissText) }
-                }
+                if (detail != null) AbDialogDetail(detail)
+                if (html != null) AbHtmlText(html)
             }
         } else null,
+        buttons = {
+            if (neutralText != null) AbDialogButton(neutralText, DialogButtonRole.Neutral, onNeutral)
+            if (dismissText != null) AbDialogButton(dismissText, DialogButtonRole.Cancel, onDismiss)
+            AbDialogButton(confirmText, if (destructive) DialogButtonRole.Destructive else DialogButtonRole.Confirm, onConfirm)
+        },
     )
 }

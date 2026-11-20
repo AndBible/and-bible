@@ -33,4 +33,5 @@ data class DialogAnswer(
 /** A plain [SettingsItem.Choice] as an answer with no consequence line. */
 fun SettingsItem.Choice.toAnswer(): DialogAnswer = DialogAnswer(value, label)
 
+/** Maps each [SettingsItem.Choice] with [toAnswer], keeping order and size (no consequence lines, none destructive). */
 fun List<SettingsItem.Choice>.toAnswers(): List<DialogAnswer> = map { it.toAnswer() }
