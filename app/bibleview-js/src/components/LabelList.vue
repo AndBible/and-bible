@@ -44,7 +44,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
-import {isAddonLabel} from "@/composables/addon";
+import {isAddonBookmark, isAddonLabel} from "@/composables/addon";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
@@ -125,7 +125,7 @@ const labels = computed<LabelAndStyle[]>(() => {
     return sortBy(
         Array.from(shown).map(
             (labelId: IdType) => bookmarkLabels.get(labelId)!)
-            // Quick-assign chips must not offer add-on labels on own bookmarks: Kotlin always refuses them.
+            // Quick-assign chips never offer add-on labels: Kotlin refuses them on own bookmarks.
             .filter(v => v && !(isAddonLabel(v) && !isAssigned(v.id))),
         ["name"]
     );
@@ -142,6 +142,8 @@ const locateTop = inject(locateTopKey, ref(true));
 async function labelClicked(event: MouseEvent | TouchEvent, label: LabelAndStyle) {
     if (props.disableLinks) return;
     if (!await waitForClick(event)) return;
+    // An add-on collection bookmark is read-only: its labels cannot change, and no label is added to it.
+    if (isAddonBookmark(bookmark.value)) return;
 
     if (!isAssigned(label.id)) {
         android.toggleBookmarkLabel(bookmark.value, label.id);
@@ -157,6 +159,7 @@ async function labelClicked(event: MouseEvent | TouchEvent, label: LabelAndStyle
 }
 
 function openActions() {
+    if (isAddonBookmark(bookmark.value)) return;
     actions.value!.showActions()
 }
 

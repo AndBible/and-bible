@@ -491,6 +491,13 @@ class BookmarkHost(
     ) {
         shell.hostScope.launch(Dispatchers.IO) {
             val bookmarks = bookmarksService.bookmarksByIds(ids)
+            // An add-on collection bookmark is read-only: no chooser for a selection that has one (all or nothing).
+            try {
+                bookmarkControl.requireOwnRows(*bookmarks.map { it.id }.toTypedArray())
+            } catch (e: AddonReadOnlyException) {
+                bookmarkControl.reportAddonReadOnly(e)
+                return@launch
+            }
             val labels = mutableSetOf<IdType>()
             for (bookmark in bookmarks) {
                 labels.addAll(bookmarkControl.labelsForBookmark(bookmark).map { it.id })

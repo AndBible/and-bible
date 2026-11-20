@@ -99,12 +99,18 @@ Notes:
 
 ### What users can and cannot do
 
-Collection labels are read-only: no rename, recolour, delete, merge, or adding verses to them; their
-bookmarks and notes cannot be edited or removed, and text entries in the StudyPad cannot be edited.
+Collections are strictly read-only: no rename, recolour, delete, merge, or adding verses to them; their
+bookmarks and notes cannot be edited or removed, and text entries in the StudyPad cannot be edited. Nothing
+of the user's can be attached to them either: no own label, note or StudyPad entry on a collection bookmark,
+and a collection label cannot be put on the user's own bookmarks.
 Users **can** favourite the label, hide it per workspace, use it as a Verse widget source and **copy it to
-their own labels** (a normal, editable, synced copy). If they add their own label, note or StudyPad to a
-collection verse, the app makes their own bookmark for that verse that stays in the collection and stands in
-for the original (the verse shows one highlight).
+their own labels** (a normal, editable, synced copy). To study a single verse, they use **Bookmark this
+verse** on the collection bookmark: an ordinary own bookmark of the same range, shown beside the collection's.
+
+Why so strict: the sync invariant stays simple. Collection rows never leave the device, and no user row ever
+references one, so the module can be updated or removed at any time without touching (or orphaning) anything
+the user owns, on this device or another. Sync strips any such reference that an older build or another
+device might still send.
 
 ### How updates reach users
 
@@ -114,11 +120,11 @@ compares each collection module's `Version` and a hash of the collection file wi
 - *new*: the label is imported;
 - *changed*: the previous import is replaced in one step (a crash leaves the old content);
 - *unchanged*: nothing happens;
-- *module removed*: its labels and rows are deleted; the user's own copies stay.
+- *module removed*: its labels and rows are deleted; the user's own bookmarks and copied labels stay.
 
 So an update needs a higher `Version` (the hash catches a file changed without a version bump, but do not
 rely on it). Because ids derive from the original ids, a verse you keep keeps its identity. A verse you drop
-from the collection leaves the user's own copy of it alone.
+from the collection leaves the user's own bookmarks of it alone.
 
 ### Sample
 

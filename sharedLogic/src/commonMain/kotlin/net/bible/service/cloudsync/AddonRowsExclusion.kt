@@ -27,14 +27,16 @@ import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 
 /**
- * Add-on collection rows (spec 2026-11-20-addon-bookmark-collections-design) never leave the device through sync:
- * every device builds them from its own installed module. A row of a synced bookmark table is an add-on row when its
- * first sync key carries the add-on id tag ([isAddonIdSql]); a user's own link row to an add-on label (first key: the
- * user's bookmark) is not one and syncs normally.
+ * Add-on collection rows (spec 2026-11-20-addon-bookmark-collections-design) never leave the device through sync, and
+ * no user row ever references one: every device builds them from its own installed module, and they are strictly
+ * read-only (BookmarkControl refuses every new association with them). A row of a synced bookmark table is an add-on
+ * row when its first sync key carries the add-on id tag ([isAddonIdSql]).
  *
  * Layers: the sync triggers skip add-on rows ([addonRowTriggerCondition]), patches are written without them, incoming
  * patches are stripped of them before they are read ([stripAddonRows]), and whole-database snapshots (the initial
  * upload, a downloaded initial file, the merge snapshot) are stripped too, together with the per-device add-on tables.
+ * The same strip removes any user row's reference to an add-on id ([userRefsToAddonRowsStatements]): such a row can
+ * only come from another device or an older build, and must not create the association here.
  */
 private const val EXCLUSION_TAG = "AddonRowsExclusion"
 
@@ -47,27 +49,6 @@ val SyncableDatabaseDefinition.hasAddonRows: Boolean get() = this == SyncableDat
 /** `AND NOT <add-on row>` for the sync trigger of [table], with [prefix] `NEW` or `OLD`; empty for other categories. */
 fun addonRowTriggerCondition(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table, prefix: String): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql("$prefix.${table.idField1}")})"
-
-/** Column of [table] that references a label, where a user row may point at an add-on label. */
-private fun addonLabelReference(table: String): String? = when (table) {
-    "BibleBookmarkToLabel", "GenericBookmarkToLabel" -> "labelId"
-    "BibleBookmark", "GenericBookmark" -> "primaryLabelId"
-    else -> null
-}
-
-/**
- * Extra condition for the foreign-key clean-up of an applied patch (`pragma_foreign_key_check(...) fk`): a user row
- * whose missing parent is an add-on label is kept. Add-on labels are not in the database for a while (after an
- * initial download or a merge, until the reconciler has re-imported them) or not at all (the module is not installed
- * here); a user's link to (or primary label of) an add-on label must not be lost in the first case, and is harmless
- * in the second. Nothing removes such references (AddonCollectionImporter never writes user rows).
- */
-fun keepUserRefsToAddonLabels(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String {
-    if (!category.hasAddonRows) return ""
-    val column = addonLabelReference(table.tableName) ?: return ""
-    val name = table.tableName
-    return " AND NOT (fk.parent = 'Label' AND EXISTS (SELECT 1 FROM $name t WHERE t.rowid = fk.rowid AND ${isAddonIdSql("t.$column")}))"
-}
 
 /** `AND NOT <add-on row>` for a query over [table] (alias-free column names); empty for other categories. */
 fun addonRowExclusion(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String =
@@ -84,7 +65,34 @@ private fun stripStatements(category: SyncableDatabaseDefinition, schema: String
     }
     val names = tables.joinToString(",") { "'${it.tableName}'" }
     if ("LogEntry" in existing && tables.isNotEmpty()) add("DELETE FROM $schema.LogEntry WHERE tableName IN ($names) AND ${isAddonIdSql("entityId1")}")
+    addAll(userRefsToAddonRowsStatements(schema, existing))
     if (wholeDatabase) ADDON_LOCAL_TABLES.filter { it in existing }.forEach { add("DELETE FROM $schema.$it") }
+}
+
+/**
+ * Statements that remove every user row's reference to an add-on id from the bookmark database attached as [schema]
+ * ([existing]: its tables): a user bookmark's link to an add-on label (with its log entry), a user's StudyPad text
+ * entry in an add-on label (with its text and log entries), and a user bookmark's add-on primary label (set to NULL,
+ * as deleting that label would). Such a row never arises on this build (BookmarkControl refuses it); an incoming patch
+ * or file from another device or an older build could still carry one, and where the module is installed here it would
+ * pass the foreign-key check and make the association. Where it is not installed, the plain foreign-key clean-up would
+ * delete the whole user bookmark instead of only its primary label.
+ */
+private fun userRefsToAddonRowsStatements(schema: String, existing: Set<String>): List<String> = buildList {
+    val log = "LogEntry" in existing
+    for (link in listOf("BibleBookmarkToLabel", "GenericBookmarkToLabel").filter { it in existing }) {
+        if (log) add("DELETE FROM $schema.LogEntry WHERE tableName = '$link' AND ${isAddonIdSql("entityId2")}")
+        add("DELETE FROM $schema.$link WHERE ${isAddonIdSql("labelId")}")
+    }
+    if ("StudyPadTextEntry" in existing) {
+        val userEntries = "SELECT id FROM $schema.StudyPadTextEntry WHERE ${isAddonIdSql("labelId")} AND NOT (${isAddonIdSql("id")})"
+        if (log) add("DELETE FROM $schema.LogEntry WHERE tableName IN ('StudyPadTextEntry','StudyPadTextEntryText') AND entityId1 IN ($userEntries)")
+        if ("StudyPadTextEntryText" in existing) add("DELETE FROM $schema.StudyPadTextEntryText WHERE studyPadTextEntryId IN ($userEntries)")
+        add("DELETE FROM $schema.StudyPadTextEntry WHERE id IN ($userEntries)")
+    }
+    for (bookmark in listOf("BibleBookmark", "GenericBookmark").filter { it in existing }) {
+        add("UPDATE $schema.$bookmark SET primaryLabelId = NULL WHERE primaryLabelId IS NOT NULL AND ${isAddonIdSql("primaryLabelId")}")
+    }
 }
 
 private const val TABLE_NAMES_SQL = "SELECT name FROM %s.sqlite_master WHERE type = 'table'"

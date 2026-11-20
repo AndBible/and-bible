@@ -242,7 +242,7 @@ class AddonCollectionImporterTest {
 
     @Test
     fun noLogEntryWrittenDuringImportUpdateAndRemove() = withFixture {
-        // A user bookmark with an own link to the add-on label: module removal cascades nothing that is logged.
+        // The device's own paragraph-break label, which the collection links to: module removal cascades nothing logged.
         withOwnParagraphBreakLabel()
         importer.replace(ref("Manna", file), "h")
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
@@ -276,50 +276,25 @@ class AddonCollectionImporterTest {
     }
 
     @Test
-    fun updateKeepsIdsAndUserLinkToAddonLabel() = withFixture {
+    fun updateKeepsIdsAndNeverWritesUserRows() = withFixture {
         importer.replace(ref("Manna", file), "h1")
         val l = addonId("Manna", Src.comfort)
-        // The user's own bookmark carries the add-on label (the per-bookmark copy's link).
+        // The user's own bookmark on a collection verse, in an own label (what "Bookmark this verse" makes).
         local.sql(
-            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (X'0F', 100, 101, 100, 101, 'KJV', 9, ${hex(l)})",
-            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(l)})",
+            "INSERT INTO Label (id, name) VALUES (X'0E', 'Mine')",
+            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (X'0F', 100, 101, 100, 101, 'KJV', 9, X'0E')",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', X'0E')",
         )
         local.sql("DELETE FROM LogEntry")
+        val user = "SELECT hex(b.id), hex(b.primaryLabelId), hex(bl.labelId) FROM BibleBookmark b JOIN BibleBookmarkToLabel bl ON bl.bookmarkId = b.id WHERE b.id = X'0F'"
+        val before = local.rows(user)
         importer.replace(ref("Manna", file, version = "2.0"), "h2")
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(l)}"))
-        assertEquals(l.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
-
-        // Neither the module's removal nor the sweep touches the user's rows: the module may come back (an update that
-        // uninstalls first, storage not mounted, a reinstall), and a dangling link or primary label is harmless.
-        // Nulling the primary label unlogged would later be synced with the next edit of the bookmark.
+        assertEquals(1, local.count("SELECT COUNT(*) FROM Label WHERE id = ${hex(l)}"), "the add-on label keeps its id")
         importer.remove("Manna")
         importer.sweep()
         assertFalse(importer.needsSweep())
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(l)}"))
-        assertEquals(l.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
+        assertEquals(before, local.rows(user))
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
-        // Back again: the link joins the label again.
-        importer.replace(ref("Manna", file, version = "3.0"), "h3")
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel b JOIN Label l ON l.id = b.labelId WHERE b.bookmarkId = X'0F'"))
-    }
-
-    /** Importing one module never drops a user's link into another module's label that is not imported yet. */
-    @Test
-    fun replaceLeavesUserLinksToOtherModulesLabels() = withFixture {
-        val otherLabel = addonId("Other", Src.comfort)
-        // As a synced patch leaves them while module Other is not imported yet (foreign keys off, as patches apply).
-        local.sql(
-            "PRAGMA foreign_keys=OFF",
-            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (X'0F', 1, 1, 1, 1, 'KJV', 9, ${hex(otherLabel)})",
-            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(otherLabel)})",
-            "PRAGMA foreign_keys=ON",
-        )
-        importer.replace(ref("Manna", file), "h")
-        importer.remove("Manna")
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
-        assertEquals(otherLabel.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
-        importer.replace(ref("Other", file), "h")
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(otherLabel)}"))
     }
 
     @Test

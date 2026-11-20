@@ -21,17 +21,19 @@ import {mount} from "@vue/test-utils";
 import {defineComponent, h, provide, reactive, ref, nextTick} from "vue";
 import {describe, it, expect, vi} from "vitest";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
+import LabelList from "@/components/LabelList.vue";
 import StudyPadRow from "@/components/StudyPadRow.vue";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import {useGlobalBookmarks, } from "@/composables/bookmarks";
 import {isAddonBookmark, isAddonLabel, readOnlyStudyPad} from "@/composables/addon";
 import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
 
-const appSettings = reactive({monochromeMode: false, studyPadCursors: {}, autoAssignLabels: [], disableClickToEdit: true});
+const appSettings = reactive({monochromeMode: false, studyPadCursors: {}, autoAssignLabels: [], disableClickToEdit: true,
+    favouriteLabels: [], recentLabels: [], frequentLabels: []});
 const strings = new Proxy({}, {get: (_, key) => String(key)});
 
 vi.mock("@/composables", () => ({
-    useCommon: () => ({strings, appSettings, sprintf: (s) => s}),
+    useCommon: () => ({strings, appSettings, sprintf: (s) => s, adjustedColor: () => ({string: () => "red", isLight: () => false})}),
 }));
 
 window.bibleViewDebug = {};
@@ -79,7 +81,7 @@ describe("BookmarkButtons on an add-on bookmark", () => {
         const w = mountButtons(bookmark("b1", {addonModule: "MyAddon"}), {});
         expect(w.find(".icon-trash").exists()).toBe(false);
         expect(w.find(".icon-custom-whole-verse-true").exists()).toBe(false);
-        expect(w.find(".icon-obj").exists()).toBe(false); // bookmark settings (icon / edit action)
+        expect(w.find('[title="bookmarkSettingsTitle"]').exists()).toBe(false); // bookmark settings (icon / edit action)
         expect(w.find(".icon-share-alt").exists()).toBe(true);
         expect(w.find(".icon-file-alt").exists()).toBe(true);
     });
@@ -90,17 +92,65 @@ describe("BookmarkButtons on an add-on bookmark", () => {
         expect(w.find(".icon-custom-whole-verse-true").exists()).toBe(true);
     });
 
-    it("keeps add note / edit outside the modal for an add-on bookmark", () => {
-        const w = mount(BookmarkButtons, {
-            props: {bookmark: bookmark("b1", {addonModule: "MyAddon"})},
+    function mountOutsideModal(b, android) {
+        return mount(BookmarkButtons, {
+            props: {bookmark: b},
             global: {
-                provide: {[androidKey]: {}, [globalBookmarksKey]: {bookmarkLabels: reactive(new Map([[labelId, {...USER_LABEL, color: 1}]]))}},
-                stubs: {FontAwesomeIcon: {props: ["icon"], template: "<i :class=\"'icon-' + icon\"/>"}, AreYouSure: true, AskBookmarkSettings: true},
+                provide: {[androidKey]: android, [globalBookmarksKey]: {bookmarkLabels: reactive(new Map([[labelId, {...USER_LABEL, color: 1}]]))}},
+                stubs: {FontAwesomeIcon: {props: ["icon"], template: "<i :class=\"'icon-' + (typeof icon === 'string' ? icon : icon.iconName)\"/>"}, AreYouSure: true, AskBookmarkSettings: true},
             },
         });
-        expect(w.find(".icon-edit").exists()).toBe(true);
+    }
+
+    it("offers no note edit outside the modal for an add-on bookmark, but info and Bookmark this verse", () => {
+        const w = mountOutsideModal(bookmark("b1", {addonModule: "MyAddon"}), {});
+        expect(w.find(".icon-edit").exists()).toBe(false);
+        expect(w.find(".icon-pen-square").exists()).toBe(false);
         expect(w.find(".icon-info-circle").exists()).toBe(true);
         expect(w.find(".icon-trash").exists()).toBe(false);
+        expect(w.find(".bookmark-this-verse").exists()).toBe(true);
+    });
+
+    it("Bookmark this verse asks native for an own bookmark of the add-on bookmark's range", async () => {
+        const android = {bookmarkAddonVerse: vi.fn()};
+        const b = bookmark("b1", {addonModule: "MyAddon"});
+        const w = mountOutsideModal(b, android);
+        await w.find(".bookmark-this-verse").trigger("click");
+        expect(android.bookmarkAddonVerse).toHaveBeenCalledWith(b);
+        expect(w.emitted("close-bookmark")).toBeTruthy();
+    });
+
+    it("offers note edit but no Bookmark this verse for the user's own bookmark", () => {
+        const w = mountOutsideModal(bookmark("b2"), {});
+        expect(w.find(".icon-edit").exists()).toBe(true);
+        expect(w.find(".bookmark-this-verse").exists()).toBe(false);
+    });
+});
+
+describe("LabelList of an add-on bookmark", () => {
+    function mountList(b, android) {
+        const bookmarkMap = reactive(new Map([[b.id, b]]));
+        const bookmarkLabels = reactive(new Map([[labelId, ADDON_LABEL], ["own", {...USER_LABEL, id: "own", name: "Own"}]]));
+        return mount(LabelList, {
+            props: {bookmarkId: b.id, inBookmark: true, favourites: true},
+            global: {
+                provide: {[androidKey]: android, [globalBookmarksKey]: {bookmarkMap, bookmarkLabels}},
+                stubs: {FontAwesomeIcon: true, BookmarkLabelActions: true},
+            },
+        });
+    }
+
+    it("never toggles a label or sets a primary label", async () => {
+        appSettings.favouriteLabels = ["own"];
+        appSettings.recentLabels = [];
+        const android = {toggleBookmarkLabel: vi.fn(), setAsPrimaryLabel: vi.fn()};
+        const w = mountList(bookmark("b1", {addonModule: "MyAddon"}), android);
+        const chips = w.findAll(".label");
+        expect(chips.length).toBeGreaterThan(0);
+        for (const chip of chips) await chip.trigger("click");
+        await new Promise(r => setTimeout(r, 400));
+        expect(android.toggleBookmarkLabel).not.toHaveBeenCalled();
+        expect(android.setAsPrimaryLabel).not.toHaveBeenCalled();
     });
 });
 
@@ -136,12 +186,9 @@ describe("StudyPadRow in an add-on StudyPad", () => {
         expect(w.find(".icon-expand-arrows-alt").exists()).toBe(true);
     });
 
-    it("keeps an own copy (addonModule null) deletable and its note editable", async () => {
+    it("locks any bookmark row of an add-on StudyPad, whatever the row says", async () => {
         const w = await mountRow(bookmark("b2"), ADDON_LABEL);
-        expect(w.find(".icon-trash").exists()).toBe(true);
-        expect(w.find(".icon-edit").exists()).toBe(true);
-        // ...but the pad's layout stays locked
-        for (const icon of ["plus-circle", "indent", "sort"]) {
+        for (const icon of ["trash", "edit", "plus-circle", "indent", "sort"]) {
             expect(w.find(`.icon-${icon}`).exists(), icon).toBe(false);
         }
     });
@@ -153,7 +200,7 @@ describe("StudyPadRow in an add-on StudyPad", () => {
         }
     });
 
-    it("never calls the bridge for removing the label from an own copy's add-on label via row actions", async () => {
+    it("never calls the bridge for deleting an add-on bookmark or removing its label via row actions", async () => {
         const android = {removeBookmark: vi.fn(), removeBookmarkLabel: vi.fn()};
         const w = mount(StudyPadRow, {
             props: {journalEntry: bookmark("b1", {addonModule: "MyAddon"}), label: ADDON_LABEL},

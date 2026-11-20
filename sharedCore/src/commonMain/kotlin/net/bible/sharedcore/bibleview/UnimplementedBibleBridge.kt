@@ -57,6 +57,7 @@ open class UnimplementedBibleBridge(
     override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("shareVerse", listOf(bookInitials, startOrdinal, endOrdinal))
     override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("copyVerse", listOf(bookInitials, startOrdinal, endOrdinal))
     override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = unimplemented("addBookmark", listOf(bookInitials, startOrdinal, endOrdinal, addNote))
+    override fun bookmarkAddonVerse(bookmarkId: String) = unimplemented("bookmarkAddonVerse", listOf(bookmarkId))
     override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = unimplemented("addGenericBookmark", listOf(bookInitials, osisRef, startOrdinal, endOrdinal, addNote))
     override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("addParagraphBreakBookmark", listOf(bookInitials, startOrdinal, endOrdinal))
     override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("addGenericParagraphBreakBookmark", listOf(bookInitials, osisRef, startOrdinal, endOrdinal))

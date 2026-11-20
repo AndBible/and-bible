@@ -911,14 +911,22 @@ class ManageLabelsControllerTest {
 
     private fun checkedIds(c: ManageLabelsController) = c.resultSelected()
 
-    @Test fun assign_mode_cannot_newly_check_an_addon_label_but_can_uncheck_it() {
-        val c = controller(ManageLabelsMode.ASSIGN, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")), initialSelected = setOf("A"))
-        c.toggleChecked("A")      // already on the bookmark: removing is allowed
+    @Test fun assign_mode_never_moves_the_tick_of_an_addon_label() {
+        // An add-on label is never on an own bookmark (the core refuses it): its tick is fixed either way.
+        val c = controller(ManageLabelsMode.ASSIGN, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")))
+        c.toggleChecked("A")
         assertFalse("A" in checkedIds(c))
-        c.toggleChecked("A")      // adding an add-on label to an own bookmark is refused by the core: not offered
-        assertFalse("A" in checkedIds(c))
+        val stale = controller(ManageLabelsMode.ASSIGN, labels = listOf(addonLabel("A", "Comfort")), initialSelected = setOf("A"))
+        stale.toggleChecked("A")
+        assertTrue("A" in checkedIds(stale))
         c.toggleChecked("B")
         assertTrue("B" in checkedIds(c))
+    }
+
+    @Test fun workspace_mode_can_remove_a_stale_addon_auto_assign_label() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort")), initialAutoAssign = setOf("A"))
+        c.toggleChecked("A")
+        assertFalse("A" in c.resultAutoAssign())
     }
 
     @Test fun hide_labels_mode_can_still_tick_an_addon_label() {

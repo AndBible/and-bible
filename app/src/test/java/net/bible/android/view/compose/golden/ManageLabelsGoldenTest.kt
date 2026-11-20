@@ -587,7 +587,7 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_addon_workspace() =
         captureMatrix("ManageLabels", "addon_workspace", content = screen(ManageLabelsMode.WORKSPACE, rows = addonRows()))
 
-    /** ASSIGN mode: an add-on label that is not on the bookmark cannot be newly ticked (its checkbox is disabled). */
+    /** ASSIGN mode: an add-on label is never put on an own bookmark (its checkbox is disabled). */
     @Test fun manageLabels_addon_assign() =
         captureGolden("ManageLabels", "addon_assign", EDGE_MODE, content = screen(ManageLabelsMode.ASSIGN, rows = addonRows()))
 }

@@ -78,8 +78,6 @@ class ControlVerseWidgetSources(
 
     override suspend fun label(labelId: IdType): LabelVerses? {
         val label = bookmarkControl.labelById(labelId)?.takeIf { !it.isSpecialLabel } ?: return null
-        // getBibleBookmarksWithLabel applies BookmarkControl.hideStoodInFor: a collection verse the user has an own copy of
-        // (same label, same range) is listed once, as the copy.
         val refs = bookmarkControl.getBibleBookmarksWithLabel(label)
             .sortedWith { a, b -> a.verseRange.start.compareTo(b.verseRange.start) }
             .map {

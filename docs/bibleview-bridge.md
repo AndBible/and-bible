@@ -20,7 +20,7 @@ The iOS host currently uses the common contract for its PoC, not full Android fe
   arguments and calls `BibleBridge`. Android's `BibleJavascriptInterface` implements that
   contract; iOS uses the PoC implementation based on `UnimplementedBibleBridge`.
 
-There are 88 posted methods and one synchronous exception, `getActiveLanguages`.
+There are 89 posted methods and one synchronous exception, `getActiveLanguages`.
 The latter calls the Android endpoint directly; iOS reads injected `__activeLanguages__`
 (with an English fallback). It cannot use a return value from `postMessage`.
 Top-level `undefined` arguments become JSON `null` before posting.

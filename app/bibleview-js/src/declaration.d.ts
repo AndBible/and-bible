@@ -95,6 +95,7 @@ type TranslatedStrings = {
     removeStudyPadConfirmationTitle: string
     dragHelp: string
     addonReadOnly: string
+    addonBookmarkThisVerse: string
     openAll: string
     editBookmarkPlaceholder: string
     onlyLabel: string

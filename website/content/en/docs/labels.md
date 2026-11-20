@@ -88,7 +88,9 @@ appear at once, highlighted in the text and listed with your own labels as
 Collection labels are **read-only**:
 
 - You cannot rename, recolour, delete or merge them, add verses to them, or edit or
-    delete their bookmarks, notes and Study Pad text. *Edit label* shows
+    delete their bookmarks, notes and Study Pad text. You cannot add your own labels or
+    notes to their bookmarks, put them into your own Study Pads, or put a collection label
+    on your own bookmarks. *Edit label* shows
     *From add-on …* (tap it to find the add-on in *Download Documents*) instead of the
     editing controls. If you try anyway, *AndBible* tells you the content comes from an
     add-on.
@@ -97,13 +99,14 @@ Collection labels are **read-only**:
 - To get an editable version, open the label and tap **Copy to my labels**. The copy is
     an ordinary label (named *… (copy)* if the name is taken) with its own bookmarks, notes
     and Study Pad, and it syncs like your other labels. The collection stays as it was.
-- You can add your own label, Study Pad or note to a verse of a collection. *AndBible* then
-    keeps your own bookmark for that verse in the collection, and the verse shows one highlight.
-    If you remove your bookmark or its label, the collection's original verse is shown again.
+- To study a verse of a collection, tap its bookmark and choose **Bookmark this verse**
+    (the bookmark icon). This makes your own, ordinary bookmark of the same verse, to which
+    you can add your labels, notes and Study Pads. The verse then shows both bookmarks, the
+    collection's and yours, as any verse with two bookmarks does.
 
 Collections are never synced as bookmarks: each device builds them from its own copy of the
 module. When the module is updated, the collection is replaced with the new version; when you
-remove the module, its labels disappear, while your own copies and bookmarks stay. A backup
+remove the module, its labels disappear, while your own bookmarks and copied labels stay. A backup
 or Study Pad file that contains collection items does not bring them back as your own; after
 such an import *AndBible* tells you how many items were skipped, and *Copy to my labels*
 gives you your own copy.

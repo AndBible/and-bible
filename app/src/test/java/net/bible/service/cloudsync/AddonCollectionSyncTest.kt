@@ -34,6 +34,7 @@ import net.bible.android.DurableTestBibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.isAddonIdSql
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.service.addons.collections.AddonCollectionImporter
@@ -79,9 +80,11 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * Add-on collection rows (#4162) never leave a device through sync: not in `LogEntry`, not in patches, not in the
- * initial upload snapshot, not in merge snapshots, and an incoming patch cannot change them. A user's own link to an
- * add-on label (the per-bookmark copy) does sync. Devices B (the app's own container, real CloudSync flows against
- * the in-process WebDAV fake) and standalone devices for the patch exchange.
+ * initial upload snapshot, not in merge snapshots, and an incoming patch cannot change them. No user row references
+ * one: the app refuses to make such a reference (AddonCollectionBookmarkControlTest), and one that an older build or
+ * another device made ([addRogueRefs]) is stripped from every patch, snapshot and import, in both directions, so it
+ * cannot create the association anywhere. Devices B (the app's own container, real CloudSync flows against the
+ * in-process WebDAV fake) and standalone devices for the patch exchange.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
@@ -181,16 +184,49 @@ class AddonCollectionSyncTest {
 
     private suspend fun uninstall(db: BookmarkDatabase) = AddonCollectionImporter({ db }, env).remove(module)
 
-    /** The user's own bookmark on b1's range with a link to the add-on label (what the per-bookmark copy creates). */
-    private suspend fun addOwnCopy(db: BookmarkDatabase): IdType {
+    private val mineLabel = IdType("01020304-0506-4708-890a-0b0c0d0e0f10")
+
+    /** The user's own bookmark on b1's range (a collection verse), in the own label "Mine": what "Bookmark this verse" makes. */
+    private suspend fun addOwnBookmark(db: BookmarkDatabase): IdType {
         val own = IdType()
         db.useWriterConnectionMarked { c ->
-            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5, ${hex(addonLabel)})")
-            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, ${hex(addonLabel)})")
-            c.exec("INSERT INTO Label (id, name) VALUES (X'0102030405064708890A0B0C0D0E0F10', 'Mine')")
-            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, X'0102030405064708890A0B0C0D0E0F10')")
+            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5, ${hex(mineLabel)})")
+            c.exec("INSERT INTO Label (id, name) VALUES (${hex(mineLabel)}, 'Mine')")
+            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, ${hex(mineLabel)})")
         }
         return own
+    }
+
+    /**
+     * User rows that reference add-on rows, written past BookmarkControl (as an older build, with per-bookmark copies,
+     * or another device's database could hold them): a user bookmark with the add-on label as primary label and a link
+     * to it, and a user StudyPad text entry in the add-on StudyPad. All logged as the user's own changes. Returns the
+     * bookmark's and the entry's ids.
+     */
+    private suspend fun addRogueRefs(db: BookmarkDatabase): Pair<IdType, IdType> {
+        val rogue = IdType()
+        val entry = IdType()
+        db.useWriterConnectionMarked { c ->
+            c.exec("PRAGMA foreign_keys=OFF")
+            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(rogue)}, 200, 200, 200, 200, 'KJV', 6, ${hex(addonLabel)})")
+            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(rogue)}, ${hex(addonLabel)})")
+            c.exec("INSERT INTO StudyPadTextEntry (id, labelId, orderNumber, indentLevel) VALUES (${hex(entry)}, ${hex(addonLabel)}, 9, 0)")
+            c.exec("INSERT INTO StudyPadTextEntryText (studyPadTextEntryId, text) VALUES (${hex(entry)}, 'My own thoughts')")
+            c.exec("PRAGMA foreign_keys=ON")
+        }
+        return rogue to entry
+    }
+
+    /** User rows referencing an add-on id, and log entries naming one, in [count]'s database. */
+    private suspend fun userRefsToAddonIds(count: suspend (String) -> Long): Long {
+        fun addon(column: String) = isAddonIdSql(column)
+        fun own(column: String) = "NOT (${addon(column)})"
+        return listOf(
+            "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE ${own("bookmarkId")} AND ${addon("labelId")}",
+            "SELECT COUNT(*) FROM BibleBookmark WHERE ${own("id")} AND primaryLabelId IS NOT NULL AND ${addon("primaryLabelId")}",
+            "SELECT COUNT(*) FROM StudyPadTextEntry WHERE ${own("id")} AND ${addon("labelId")}",
+            "SELECT COUNT(*) FROM LogEntry WHERE ${addon("entityId2")}",
+        ).sumOf { count(it) }
     }
 
     private val addonTag = "X'ADD08C01A011'"
@@ -226,23 +262,21 @@ class AddonCollectionSyncTest {
         val d1 = device("d1")
         val d2 = device("d2")
         install(d1.localDb); install(d2.localDb)
-        val own = addOwnCopy(d1.localDb)
+        val own = addOwnBookmark(d1.localDb)
         install(d1.localDb, "2.0")
         assertEquals(0, addonLogEntries(d1))
 
         val patch1 = createPatchForDatabase(d1, env)!!
         val patchFile = gunzip(patch1)
         assertEquals("no add-on row or log entry in the patch", 0, addonRowsIn(patchFile))
-        // The user's own link to the add-on label is in it.
-        assertEquals(1, countIn(patchFile, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
+        assertEquals(1, countIn(patchFile, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
 
         applyPatchesForDatabase(d2, env, patch1)
         val d2db = d2.localDb
         assertEquals(listOf("Comfort", "Mine"), d2db.bookmarkDao().allLabelsSortedByName().map { it.name }.sorted())
-        assertEquals(3, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark"))
-        assertEquals("the copy keeps its add-on label where the module is installed", 1,
-            countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
+        assertEquals("the collection's two verses and the user's bookmark beside one of them", 3, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark"))
         assertEquals(0, addonLogEntries(d2))
+        assertEquals(0, userRefsToAddonIds { countIn(d2, it) })
 
         uninstall(d1.localDb)
         assertEquals(0, addonLogEntries(d1))
@@ -254,39 +288,63 @@ class AddonCollectionSyncTest {
         val d1 = device("d1")
         val d2 = device("d2")
         install(d1.localDb)
-        val own = addOwnCopy(d1.localDb)
+        val own = addOwnBookmark(d1.localDb)
         applyPatchesForDatabase(d2, env, createPatchForDatabase(d1, env))
         assertEquals(0, addonRowsIn(d2))
         assertEquals(listOf("Mine"), d2.localDb.bookmarkDao().allLabelsSortedByName().map { it.name })
-        assertEquals("the user's bookmark arrives (its primary label is an add-on label it lacks)", 1,
-            countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
-        // The link and the primary label are kept as they came: the module may be installed here later, and a
-        // reconciliation after the sync (a sweep) never writes the user's rows (sync review IMPORTANT 1).
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
-        d2.localDb.useWriterConnectionMarked { it.exec("DELETE FROM LogEntry") }
-        AddonCollectionImporter({ d2.localDb }, env).sweep()
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
-        assertEquals("the sweep wrote nothing", 0, countIn(d2, "SELECT COUNT(*) FROM LogEntry"))
-        assertEquals(0, addonLogEntries(d2))
-        // A later edit on d2 sends the row as it is: d1's primary label is not overwritten with NULL.
-        d2.localDb.useWriterConnectionMarked { it.exec("UPDATE BibleBookmark SET lastUpdatedOn = 77 WHERE id = ${hex(own)}") }
-        val back = gunzip(createPatchForDatabase(d2, env)!!)
-        assertEquals(1, countIn(back, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(mineLabel)}"))
+        assertEquals(0, userRefsToAddonIds { countIn(d2, it) })
+        // Installing the module there later adds the collection beside the user's bookmark, which it does not touch.
+        install(d2.localDb)
+        assertEquals(3, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark"))
+        assertEquals(0, userRefsToAddonIds { countIn(d2, it) })
     }
 
-    /** Review Focus 3 / an initial download: the patch arrives before the reconciler has re-imported the module here. */
+    /**
+     * Receiving-side robustness: user rows that reference add-on rows (an older build's per-bookmark copy, another
+     * device) never make the association. This device does not send them, and a patch that still carries them (forged
+     * here) is applied without them: where the module is installed they would pass the foreign-key check, and where it
+     * is not the plain clean-up would delete the whole user bookmark instead of only its add-on primary label.
+     */
     @Test
-    fun linkToAnAddonLabelSurvivesUntilTheModuleIsImportedHere() = run {
+    fun noPatchCanMakeAUserRowReferenceAnAddonRow() = run {
         val d1 = device("d1")
-        val d2 = device("d2")
         install(d1.localDb)
-        val own = addOwnCopy(d1.localDb)
-        applyPatchesForDatabase(d2, env, createPatchForDatabase(d1, env))
-        install(d2.localDb)
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
-        assertEquals(0, countIn(d2, "SELECT COUNT(*) FROM pragma_foreign_key_check('BibleBookmarkToLabel')"))
+        val (rogue, entry) = addRogueRefs(d1.localDb)
+        val sent = gunzip(createPatchForDatabase(d1, env)!!)
+        assertEquals("this device sends no reference to an add-on row", 0, userRefsToAddonIds { countIn(sent, it) })
+        assertEquals("the user's bookmark itself is sent", 1, countIn(sent, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(rogue)} AND primaryLabelId IS NULL"))
+
+        // A patch that carries them anyway: the references and their log entries, as a device without the strip sends.
+        val later = System.currentTimeMillis() + 100_000
+        openSqlite(sent).also { c ->
+            try {
+                c.exec("PRAGMA foreign_keys=OFF")
+                c.exec("UPDATE BibleBookmark SET primaryLabelId = ${hex(addonLabel)} WHERE id = ${hex(rogue)}")
+                c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(rogue)}, ${hex(addonLabel)})")
+                c.exec("INSERT INTO LogEntry VALUES ('BibleBookmarkToLabel', ${hex(rogue)}, ${hex(addonLabel)}, 'UPSERT', $later, 'd1')")
+                c.exec("INSERT INTO StudyPadTextEntry (id, labelId, orderNumber, indentLevel) VALUES (${hex(entry)}, ${hex(addonLabel)}, 9, 0)")
+                c.exec("INSERT INTO StudyPadTextEntryText (studyPadTextEntryId, text) VALUES (${hex(entry)}, 'My own thoughts')")
+                c.exec("INSERT INTO LogEntry VALUES ('StudyPadTextEntry', ${hex(entry)}, '', 'UPSERT', $later, 'd1')")
+                c.exec("INSERT INTO LogEntry VALUES ('StudyPadTextEntryText', ${hex(entry)}, '', 'UPSERT', $later, 'd1')")
+            } finally { c.close() }
+        }
+        assertEquals(4, userRefsToAddonIds { countIn(sent, it) })
+        val forged = tmp("forged-", ".gz").toOkioPath()
+        ArchiveUtils.gzipFile(File(sent).toOkioPath(), forged)
+
+        val withModule = device("with-module")
+        install(withModule.localDb)
+        val withoutModule = device("without-module")
+        for (d in listOf(withModule, withoutModule)) {
+            applyPatchesForDatabase(d, env, forged)
+            assertEquals(d.deviceId, 0, userRefsToAddonIds { countIn(d, it) })
+            assertEquals("${d.deviceId}: the user's bookmark arrives, without the add-on primary label", 1,
+                countIn(d, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(rogue)} AND primaryLabelId IS NULL"))
+            assertEquals(d.deviceId, 0, countIn(d, "SELECT COUNT(*) FROM StudyPadTextEntryText WHERE studyPadTextEntryId = ${hex(entry)}"))
+            assertEquals(d.deviceId, 0, addonLogEntries(d))
+        }
+        assertEquals("the collection itself is untouched", 2, countIn(withModule, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
     }
 
     @Test
@@ -322,12 +380,16 @@ class AddonCollectionSyncTest {
         open(export.absolutePath).also { db ->
             install(db)
             db.bookmarkDao().insert(BookmarkEntities.Label(name = "Mine"))
+            addRogueRefs(db)
             db.close()
         }
         // The count of skipped items (1 label, 2 bookmarks, 1 StudyPad entry) is returned, for the UI to explain an
         // import that brought nothing.
         assertEquals(4L, importDatabaseFile(category, export.toOkioPath()))
         assertEquals(0, addonRowsIn(b))
+        // The user rows of the file come in without their references to the add-on rows.
+        assertEquals(0, userRefsToAddonIds { countIn(b, it) })
+        assertEquals(1, countIn(b, "SELECT COUNT(*) FROM BibleBookmark WHERE kjvOrdinalStart = 200 AND primaryLabelId IS NULL"))
         assertTrue((b.localDb as BookmarkDatabase).bookmarkDao().allLabelsSortedByName().any { it.name == "Mine" })
     }
 
@@ -382,10 +444,12 @@ class AddonCollectionSyncTest {
     fun mergeSnapshotHoldsNoAddonRows() = run {
         val d1 = device("d1")
         install(d1.localDb)
-        addOwnCopy(d1.localDb)
+        addOwnBookmark(d1.localDb)
+        addRogueRefs(d1.localDb)
         val snapshot = tmp("snapshot-").toOkioPath()
         prepareMergeSnapshot(d1, snapshot)
         assertEquals(0, addonRowsIn(snapshot.toString()))
+        assertEquals(0, userRefsToAddonIds { countIn(snapshot.toString(), it) })
         assertEquals(0, countIn(snapshot.toString(), "SELECT COUNT(*) FROM AddonCollectionRow"))
         assertEquals(0, countIn(snapshot.toString(), "SELECT COUNT(*) FROM AddonCollectionModule"))
         // The user's own rows are in it, logged for the merge.
@@ -427,7 +491,8 @@ class AddonCollectionSyncTest {
         val b = DatabaseContainer.databaseAccessorsByCategory[category]!!
         val bDb = b.localDb as BookmarkDatabase
         install(bDb)
-        addOwnCopy(bDb)
+        addOwnBookmark(bDb)
+        addRogueRefs(bDb)
         val (_, other) = signedInAdapters()
 
         syncAnswering(choiceIndex = 0)
@@ -438,6 +503,7 @@ class AddonCollectionSyncTest {
         other.download(initial.id, okio.FileSystem.SYSTEM.sink(gz))
         val file = gunzip(gz)
         assertEquals(0, addonRowsIn(file))
+        assertEquals(0, userRefsToAddonIds { countIn(file, it) })
         for (table in ADDON_LOCAL_TABLES) assertEquals(table, 0, countIn(file, "SELECT COUNT(*) FROM $table"))
         assertEquals(1, countIn(file, "SELECT COUNT(*) FROM Label WHERE name = 'Mine'"))
         // The device itself keeps its collection.

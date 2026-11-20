@@ -99,6 +99,7 @@ object BibleBridgeDecoder {
         "shareVerse" to Entry("SII") { a, b -> b.shareVerse(a.str(0), a.int(1), a.int(2)) },
         "copyVerse" to Entry("SII") { a, b -> b.copyVerse(a.str(0), a.int(1), a.int(2)) },
         "addBookmark" to Entry("SIIB") { a, b -> b.addBookmark(a.str(0), a.int(1), a.int(2), a.bool(3)) },
+        "bookmarkAddonVerse" to Entry("S") { a, b -> b.bookmarkAddonVerse(a.str(0)) },
         "addGenericBookmark" to Entry("SSIIB") { a, b -> b.addGenericBookmark(a.str(0), a.str(1), a.int(2), a.int(3), a.bool(4)) },
         "addParagraphBreakBookmark" to Entry("SII") { a, b -> b.addParagraphBreakBookmark(a.str(0), a.int(1), a.int(2)) },
         "addGenericParagraphBreakBookmark" to Entry("SSII") { a, b -> b.addGenericParagraphBreakBookmark(a.str(0), a.str(1), a.int(2), a.int(3)) },

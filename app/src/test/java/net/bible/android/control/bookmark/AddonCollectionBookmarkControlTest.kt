@@ -18,7 +18,6 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.view.activity.bookmark.assignableLabelItems
-import net.bible.android.database.bookmarks.ADDON_ROW_NO_ID2_SQL
 import net.bible.android.database.bookmarks.isAddonId
 import net.bible.service.addons.collections.AddonCollectionImporter
 import net.bible.service.addons.collections.addonId
@@ -57,9 +56,11 @@ import org.robolectric.annotation.Config
 import java.io.File
 
 /**
- * Add-on collection rows in [BookmarkControl] (#4162, Tasks 6-8): every write to them is refused; favourite and
- * StudyPad expand state are per device; an own label, StudyPad or note on a collection verse makes one user copy that
- * stands in for it; "Copy to my labels" makes a deep, synced copy.
+ * Add-on collection rows in [BookmarkControl] (#4162): strictly read-only. Every write to them, and every new
+ * association with them (a label, note, StudyPad entry or primary label on an add-on bookmark; an add-on label on an
+ * own bookmark), is refused and leaves no user row referencing an add-on id; favourite and StudyPad expand state are
+ * per device; "Bookmark this verse" makes an ordinary own bookmark beside the collection verse; "Copy to my labels"
+ * makes a deep, synced copy.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [35])
@@ -128,8 +129,6 @@ class AddonCollectionBookmarkControlTest {
 
     private suspend fun log() = db.syncDao().allLogEntries()
 
-    private suspend fun userBookmarksOn(verse: Int) = dao.bookmarksForVerseRange(range(verse)).filterNot { it.id.isAddonId }
-
     private suspend fun ownLabel(name: String = "Mine") = control.insertOrUpdateLabel(Label(new = true, name = name))
 
     @Test
@@ -164,6 +163,20 @@ class AddonCollectionBookmarkControlTest {
             "add own bookmark to add-on label" to { control.addOrUpdateBibleBookmark(ownBookmark, setOf(own.id, l)) },
             "insert own bookmark into add-on StudyPad" to { control.insertBookmarkToLabel(BibleBookmarkToLabel(ownBookmark.id, l)) },
             "add-on link indent" to { control.updateBookmarkToLabel(link().apply { indentLevel = 3 }) },
+            // No new association of any kind with an add-on row.
+            "own label on an add-on bookmark" to { control.addOrUpdateBibleBookmark(bookmark(), setOf(l, own.id)) },
+            "own label on an add-on bookmark (toggle)" to { control.toggleBookmarkLabel(bookmark(), own.id.toString()) },
+            "own labels on add-on bookmarks (batch)" to { control.changeLabelsForBookmarks(listOf(bookmark()), listOf(l, own.id)) },
+            "note on an add-on bookmark" to { control.saveBibleBookmarkNote(b1, "My thoughts") },
+            "note removed from an add-on bookmark" to { control.saveBibleBookmarkNote(b1, null) },
+            "note through addOrUpdate" to { control.addOrUpdateBibleBookmark(bookmark().apply { notes = "x" }, updateNotes = true) },
+            "unchanged add-on bookmark saved" to { control.addOrUpdateBibleBookmark(bookmark(), setOf(l)) },
+            "add-on bookmark into an own StudyPad" to { control.insertBookmarkToLabel(BibleBookmarkToLabel(b1, own.id)) },
+            "add-on primary label on an own bookmark" to { control.setAsPrimaryLabelForBible(ownBookmark.id, l) },
+            "add-on primary label through addOrUpdate" to { control.addOrUpdateBibleBookmark(ownBookmark.copy(primaryLabelId = l)) },
+            "add-on label on an own bookmark (batch)" to { control.changeLabelsForBookmark(ownBookmark, listOf(own.id, l)) },
+            "own bookmark into an add-on StudyPad" to { control.insertBookmarkToLabel(BibleBookmarkToLabel(ownBookmark.id, l)) },
+            "custom icon" to { control.addOrUpdateBibleBookmark(bookmark().apply { customIcon = "heart" }) },
         )
         for ((name, write) in writes) {
             val e = runCatching { write() }.exceptionOrNull()
@@ -172,6 +185,50 @@ class AddonCollectionBookmarkControlTest {
             assertEquals("$name changed the database", before, snapshot())
         }
         assertEquals(emptyList<Any>(), log())
+        assertNoUserRowReferencesAddonIds()
+    }
+
+    /** The sync invariant: add-on rows never leave the device and no user row references them. */
+    private suspend fun assertNoUserRowReferencesAddonIds() {
+        fun addon(column: String) = net.bible.android.database.bookmarks.isAddonIdSql(column)
+        fun own(column: String) = "NOT (${addon(column)})"
+        val queries = listOf(
+            "SELECT bookmarkId FROM BibleBookmarkToLabel WHERE ${own("bookmarkId")} AND ${addon("labelId")}",
+            "SELECT bookmarkId FROM GenericBookmarkToLabel WHERE ${own("bookmarkId")} AND ${addon("labelId")}",
+            "SELECT id FROM BibleBookmark WHERE ${own("id")} AND primaryLabelId IS NOT NULL AND ${addon("primaryLabelId")}",
+            "SELECT id FROM GenericBookmark WHERE ${own("id")} AND primaryLabelId IS NOT NULL AND ${addon("primaryLabelId")}",
+            "SELECT id FROM StudyPadTextEntry WHERE ${own("id")} AND ${addon("labelId")}",
+            "SELECT labelId FROM BibleBookmarkToLabel WHERE ${addon("bookmarkId")} AND ${own("labelId")} AND labelId != X'${net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID.toHex()}' AND labelId != X'${net.bible.android.database.bookmarks.UNLABELED_LABEL_ID.toHex()}'",
+        )
+        for (q in queries) assertEquals(q, emptyList<List<String?>>(), rows(q))
+        assertTrue(log().none { it.entityId1.isAddonId || it.entityId2.isAddonId })
+    }
+
+    /** "Bookmark this verse": an ordinary own bookmark of the same range, shown beside the untouched collection verse. */
+    @Test
+    fun bookmarkThisVerseMakesAnOwnBookmarkBesideTheCollectionVerse() = run {
+        db.useWriterConnectionMarked { it.exec("UPDATE BibleBookmark SET customIcon = 'heart' WHERE id = X'${b1.toHex()}'") }
+        val before = dao.bibleBookmarkById(b1)!!
+        val own = ownLabel()
+        val made = control.newOwnBookmarkLike(b1) as BibleBookmarkWithNotes
+        assertTrue(made.new)
+        assertFalse(made.id.isAddonId)
+        val saved = control.addOrUpdateBibleBookmark(made, setOf(own.id, l)) // add-on labels of auto-assign are dropped
+        val loaded = dao.bibleBookmarkById(saved.id)!!
+        assertEquals(before.kjvOrdinalStart, loaded.kjvOrdinalStart)
+        assertEquals(before.kjvOrdinalEnd, loaded.kjvOrdinalEnd)
+        assertEquals(before.startOffset, loaded.startOffset)
+        assertEquals(before.endOffset, loaded.endOffset)
+        assertEquals(before.wholeVerse, loaded.wholeVerse)
+        assertEquals(null, loaded.notes)
+        assertEquals(null, loaded.customIcon)
+        assertEquals(listOf(own.id), dao.labelsForBookmark(saved.id).map { it.id })
+        // Both are shown on the verse; the collection verse is untouched; the new bookmark is the user's (logged).
+        assertEquals(setOf(b1, saved.id), control.bookmarksForVerseRange(range(1)).map { it.id }.toSet())
+        assertEquals(before.copy(), dao.bibleBookmarkById(b1)!!.copy())
+        assertTrue(log().any { it.tableName == "BibleBookmark" && it.entityId1 == saved.id })
+        assertEquals(null, control.newOwnBookmarkLike(saved.id))
+        assertNoUserRowReferencesAddonIds()
     }
 
     @Test
@@ -206,181 +263,6 @@ class AddonCollectionBookmarkControlTest {
         val own = ownLabel()
         val saved = control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(range(7), null, true, null), setOf(own.id, l))
         assertEquals(listOf(own.id), dao.labelsForBookmark(saved.id).map { it.id })
-    }
-
-    /** Emulator finding (2026-11-20): a note on a collection verse hid the original but never told the views about the copy. */
-    @Test
-    fun aFirstNoteOnACollectionVerseTellsTheViewsAboutTheCopyThatReplacesTheHiddenOriginal() = run {
-        seen.clear()
-        control.saveBibleBookmarkNote(b1, "My own note")
-        val copy = userBookmarksOn(1).single()
-        assertTrue(seen.filterIsInstance<BookmarkChange.BookmarksDeleted>().any { b1 in it.bookmarkIds })
-        val upserted = seen.filterIsInstance<BookmarkChange.BookmarksUpserted>().flatMap { it.bookmarks }.singleOrNull { it.id == copy.id }
-        assertTrue("the copy is announced, with the add-on label and its note", upserted != null)
-        assertEquals("My own note", upserted!!.notes)
-        assertTrue(l in upserted.labelIds.orEmpty())
-    }
-
-    @Test
-    fun ownLabelOnCollectionVerseMakesOneCopyThatStandsInForIt() = run {
-        val own = ownLabel()
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        assertEquals(setOf(l, own.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        assertEquals("Fear not", copy.notes)
-        assertEquals(dao.getBibleBookmarkToLabel(b1, l)!!.orderNumber, dao.getBibleBookmarkToLabel(copy.id, l)!!.orderNumber)
-        assertTrue(seen.filterIsInstance<BookmarkChange.BookmarksDeleted>().any { b1 in it.bookmarkIds })
-
-        // A second action reuses it.
-        control.saveBibleBookmarkNote(b1, "My own note")
-        assertEquals(copy.id, userBookmarksOn(1).single().id)
-        assertEquals("My own note", dao.bibleBookmarkById(copy.id)!!.notes)
-        assertEquals("the collection is unchanged", "Fear not", dao.bibleBookmarkById(b1)!!.notes)
-
-        // The original is hidden everywhere it would be shown; the other verse is not.
-        val inText = control.bookmarksForVerseRange(VerseRangeFactory.fromString(kjv, "Ps 119:1-3")).map { it.id }.toSet()
-        assertEquals(setOf(copy.id, b2), inText)
-        val inLabel = control.getBibleBookmarksWithLabel(dao.labelById(l)!!, addData = true).map { it.id }.toSet()
-        assertEquals(setOf(copy.id, b2), inLabel)
-
-        // The copy and its link to the add-on label are synced; no add-on row is logged.
-        val logged = log()
-        assertTrue(logged.any { it.tableName == "BibleBookmarkToLabel" && it.entityId1 == copy.id && it.entityId2 == l })
-        assertTrue(logged.none { it.entityId1.isAddonId })
-    }
-
-    @Test
-    fun unchangedLabelsOrNoteMakeNoCopy() = run {
-        val b = dao.bibleBookmarkById(b1)!!
-        control.addOrUpdateBibleBookmark(b, setOf(l))
-        control.saveBibleBookmarkNote(b1, "Fear not")
-        control.addOrUpdateBibleBookmark(b.apply { notes = "Fear not" }, null, updateNotes = true)
-        assertEquals(emptyList<Any>(), userBookmarksOn(1))
-        assertEquals(emptyList<Any>(), log())
-    }
-
-    /** A verse in two add-on labels: removing one of them from the copy brings the original back in that label only. */
-    @Test
-    fun hidingIsPerLabel() = run {
-        val l2 = addonId(module, IdType("99999999-0000-4000-8000-000000000001"))
-        db.useWriterConnectionMarked { c ->
-            c.exec("INSERT INTO Label (id, name) VALUES (X'${l2.toHex()}', 'Second')")
-            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'${b1.toHex()}', X'${l2.toHex()}')")
-            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'Label', X'${l2.toHex()}', $ADDON_ROW_NO_ID2_SQL)")
-            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'BibleBookmarkToLabel', X'${b1.toHex()}', X'${l2.toHex()}')")
-        }
-        val own = ownLabel()
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        assertEquals(setOf(l, l2, own.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        control.removeBibleBookmarkLabel(copy.id, l2)
-        assertTrue("back in the second label", control.getBibleBookmarksWithLabel(dao.labelById(l2)!!).any { it.id == b1 })
-        assertTrue("still stood in for in the first", control.getBibleBookmarksWithLabel(dao.labelById(l)!!).none { it.id == b1 })
-        assertTrue("shown in the text: not all its labels are on the copy",
-            control.bookmarksForVerseRange(range(1)).any { it.id == b1 })
-
-        // Logic review IMPORTANT 1: an edit on the re-shown original (here: another own label, through the label list
-        // of the second StudyPad) goes to the copy as it is now, keeping its own label, and is not refused.
-        val own2 = ownLabel("Mine 2")
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own2.id.toString())
-        assertEquals(copy.id, userBookmarksOn(1).single().id)
-        assertEquals(setOf(l, own.id, own2.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        control.addOrUpdateBibleBookmark(dao.bibleBookmarkById(b1)!!.apply { notes = "edited" }, setOf(l, l2), updateNotes = true)
-        assertEquals("edited", dao.bibleBookmarkById(copy.id)!!.notes)
-        assertEquals(setOf(l, own.id, own2.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        assertTrue(log().none { it.entityId1.isAddonId })
-    }
-
-    @Test
-    fun ownBookmarkOnTheSameRangeWithoutTheLabelHidesNothing() = run {
-        val own = ownLabel()
-        control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(range(1), null, true, null), setOf(own.id))
-        assertEquals(2, control.bookmarksForVerseRange(range(1)).size)
-        assertTrue(control.getBibleBookmarksWithLabel(dao.labelById(l)!!).any { it.id == b1 })
-    }
-
-    @Test
-    fun removingTheLabelFromTheCopyOrDeletingItBringsTheOriginalBack() = run {
-        val own = ownLabel()
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        seen.clear()
-        control.removeBibleBookmarkLabel(copy.id, l)
-        assertEquals(setOf(b1, copy.id), control.bookmarksForVerseRange(range(1)).map { it.id }.toSet())
-        assertTrue(seen.filterIsInstance<BookmarkChange.BookmarksUpserted>().any { u -> u.bookmarks.any { it.id == b1 } })
-
-        // Now a fresh copy (the old one no longer carries the label), then delete it.
-        control.saveBibleBookmarkNote(b1, "again")
-        val second = userBookmarksOn(1).single { dao.labelsForBookmark(it.id).any { label -> label.id == l } }
-        assertNotEquals(copy.id, second.id)
-        control.deleteBookmark(dao.bibleBookmarkById(second.id)!!)
-        assertTrue(control.bookmarksForVerseRange(range(1)).any { it.id == b1 })
-    }
-
-    /**
-     * Sync review IMPORTANT 1: the module goes (briefly, or on a device that never had it): the copy keeps its link to
-     * the add-on label and its primary label, untouched and unlogged; it can be edited (no foreign-key failure, no
-     * NULL primary label logged), the views never see the missing label, and the module's return puts it back.
-     */
-    @Test
-    fun moduleRemovalKeepsTheCopyWithItsLinkAndPrimaryLabel() = run {
-        val own = ownLabel()
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        db.useWriterConnectionMarked { it.exec("UPDATE BibleBookmark SET primaryLabelId = X'${l.toHex()}' WHERE id = X'${copy.id.toHex()}'") }
-        db.useWriterConnectionMarked { it.exec("DELETE FROM LogEntry") }
-        AddonCollectionImporter({ db }, env).run { remove(module); sweep() }
-        assertEquals(emptyList<Any>(), log())
-        assertEquals(listOf(listOf(l.toHex())), rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'${copy.id.toHex()}' AND labelId = X'${l.toHex()}'"))
-        assertEquals(l, dao.bibleBookmarkById(copy.id)!!.primaryLabelId)
-
-        // Shown without the missing label (BibleView looks every label id up).
-        val shown = control.bookmarksForVerseRange(range(1), withLabels = true).single()
-        assertEquals(listOf(own.id), shown.labelIds)
-        assertEquals("null", net.bible.android.control.page.ClientBibleBookmark(shown).asHashMap["primaryLabelId"])
-
-        // Edits work and log the row as it is: the primary label is not lost.
-        control.saveBibleBookmarkNote(copy.id, "edited")
-        val other = ownLabel("Other")
-        control.addOrUpdateBibleBookmark(dao.bibleBookmarkById(copy.id)!!, setOf(own.id, other.id))
-        assertEquals(l, dao.bibleBookmarkById(copy.id)!!.primaryLabelId)
-        assertEquals(setOf(l.toHex(), own.id.toHex(), other.id.toHex()),
-            rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'${copy.id.toHex()}'").map { it[0] }.toSet())
-        assertTrue(log().any { it.tableName == "BibleBookmark" && it.entityId1 == copy.id })
-        assertTrue(log().none { it.entityId1.isAddonId })
-        assertEquals("foreign keys are back on", listOf(listOf("1")), rows("PRAGMA foreign_keys"))
-
-        // The module is back: so is the copy in its label, standing in for the original.
-        install(version = "2.0")
-        assertEquals(setOf(copy.id, b2), control.getBibleBookmarksWithLabel(dao.labelById(l)!!).map { it.id }.toSet())
-    }
-
-    /** Review Focus 5: an update that drops a verse the user copied. */
-    @Test
-    fun moduleUpdateDroppingACopiedVerseKeepsTheCopyLinked() = run {
-        val own = ownLabel()
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        val v2 = File.createTempFile("collection-v2-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
-        File(collection.toString()).copyTo(v2, overwrite = true)
-        DatabaseContainer.instance.getBookmarkDb(v2.absolutePath).also { f ->
-            try { f.useWriterConnectionMarked { it.exec("DELETE FROM BibleBookmark WHERE id = X'${srcB1.toHex()}'") } } finally { f.close() }
-        }
-        install(v2.toOkioPath(), "2.0")
-        assertEquals(null, dao.bibleBookmarkById(b1))
-        assertEquals(setOf(l, own.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        assertEquals(setOf(copy.id, b2), control.getBibleBookmarksWithLabel(dao.labelById(l)!!).map { it.id }.toSet())
-        assertEquals(listOf(b2), control.bookmarksForVerseRange(range(2)).map { it.id })
-    }
-
-    /** Review Focus 4: a drag of a collection verse into an own StudyPad goes to the copy. */
-    @Test
-    fun insertingAnAddonBookmarkIntoAnOwnStudyPadUsesTheCopy() = run {
-        val pad = ownLabel("My StudyPad")
-        control.insertBookmarkToLabel(BibleBookmarkToLabel(b1, pad.id, orderNumber = 0))
-        val copy = userBookmarksOn(1).single()
-        assertEquals(setOf(l, pad.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
-        assertEquals(null, dao.getBibleBookmarkToLabel(b1, pad.id))
     }
 
     @Test
@@ -426,7 +308,7 @@ class AddonCollectionBookmarkControlTest {
         assertEquals(link2.expandContent, dao.getBibleBookmarkToLabel(b2, l)!!.expandContent)
         // The copy is an ordinary label: it can be edited.
         control.insertOrUpdateLabel(copy.apply { name = "Mine now" })
-        Unit
+        assertNoUserRowReferencesAddonIds()
     }
 
     /** The per-device expand state also applies when the whole add-on StudyPad is sent again (a module update, a sync). */
@@ -440,48 +322,6 @@ class AddonCollectionBookmarkControlTest {
         while (seen.filterIsInstance<BookmarkChange.StudyPadOrder>().none { it.labelId == l } && System.currentTimeMillis() < deadline) Thread.sleep(20)
         val order = seen.filterIsInstance<BookmarkChange.StudyPadOrder>().single { it.labelId == l }
         assertEquals(!link.expandContent, order.bookmarkToLabelsOrderChanged.single { it.bookmarkId == b1 }.expandContent)
-    }
-
-    /** A primary label must be one of the bookmark's labels when it is an add-on label (the add-on side is read-only). */
-    @Test
-    fun primaryLabelOfAnOwnBookmarkCannotBeAnAddonLabelItDoesNotCarry() = run {
-        val own = ownLabel()
-        val bookmark = control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(range(9), null, true, null), setOf(own.id))
-        db.useWriterConnectionMarked { it.exec("DELETE FROM LogEntry") }
-        val e = runCatching { control.setAsPrimaryLabelForBible(bookmark.id, l) }.exceptionOrNull()
-        assertTrue("$e", e is AddonReadOnlyException)
-        assertEquals(own.id, dao.bibleBookmarkById(bookmark.id)!!.primaryLabelId ?: own.id)
-        assertEquals(emptyList<Any>(), log())
-        // On the copy, which carries it, it is fine.
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
-        val copy = userBookmarksOn(1).single()
-        control.setAsPrimaryLabelForBible(copy.id, own.id)
-        control.setAsPrimaryLabelForBible(copy.id, l)
-        assertEquals(l, dao.bibleBookmarkById(copy.id)!!.primaryLabelId)
-    }
-
-    /** The per-bookmark copy keeps the original's paragraph break in the add-on StudyPad. */
-    @Test
-    fun perBookmarkCopyCarriesTheParagraphBreak() = run {
-        val pb = control.paragraphBreakLabel()
-        db.useWriterConnectionMarked { c ->
-            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId, orderNumber) VALUES (X'${b1.toHex()}', X'${pb.id.toHex()}', 4)")
-            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'BibleBookmarkToLabel', X'${b1.toHex()}', X'${pb.id.toHex()}')")
-        }
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, ownLabel().id.toString())
-        val copy = userBookmarksOn(1).single()
-        assertEquals(4, dao.getBibleBookmarkToLabel(copy.id, pb.id)?.orderNumber)
-    }
-
-    /** The AI tool lists a label's bookmarks as the label's list does: a stood-in original is left out. */
-    @Test
-    fun getBookmarksWithLabelToolLeavesOutStoodInOriginals() = run {
-        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, ownLabel().id.toString())
-        val copy = userBookmarksOn(1).single()
-        val args = kotlinx.serialization.json.buildJsonObject { put("labelId", kotlinx.serialization.json.JsonPrimitive(l.toString())) }
-        val result = net.bible.service.llm.tools.read.GetBookmarksWithLabelTool.execute(args, net.bible.service.llm.agent.AgentContext(promptId = IdType()))
-        val data = (result as net.bible.service.llm.tools.ToolResult.Success).data as net.bible.service.llm.tools.read.GetBookmarksWithLabelTool.Result
-        assertEquals(setOf(copy.id, b2), data.bookmarks.map { it.id }.toSet())
     }
 
     /** The app's wiring: the importer creates a missing paragraph-break label through BookmarkControl (its lock, its event). */
@@ -517,7 +357,7 @@ class AddonCollectionBookmarkControlTest {
         assertEquals(mapOf(l to "Manna"), control.addonLabelModuleNames()) // not an installed book: the initials
         assertFalse(own.id in control.addonLabelModuleNames())
         assertEquals("Manna", control.addonModuleName("Manna"))
-        // assignableLabels keeps the add-on label (a copy keeps L) and the label manager marks it from the module map.
+        // assignableLabels keeps the add-on label (the chooser shows it, read-only) and the label manager marks it.
         val items = control.assignableLabels().assignableLabelItems(control.addonLabelModuleNames())
         assertEquals("Manna", items.single { it.id == l.toString() }.addonModuleName)
         assertEquals(null, items.single { it.id == own.id.toString() }.addonModuleName)
@@ -555,25 +395,19 @@ class AddonCollectionBookmarkControlTest {
     )
 
     @Test
-    fun addonLabelsAreVerseWidgetSourcesShownWithTheirModuleAndAnOwnCopyIsNotDoubled() = run {
+    fun addonLabelsAreVerseWidgetSourcesShownWithTheirModule() = run {
         val sources = widgetSources()
         assertEquals("Comfort · Manna", sources.labels().single { it.first == l }.second)
         val before = sources.label(l)!!
         assertEquals("Comfort · Manna", before.name)
         assertEquals(2, before.refs.size)
-
-        // An own bookmark of exactly Ps 119:1 that keeps the collection label stands in for the original (same verse, once).
-        control.ownCopyOf(b1)
-        val after = sources.label(l)!!
-        assertEquals(2, after.refs.size)
+        // An own bookmark on a collection verse does not join the collection (the add-on label cannot be put on it).
+        control.addOrUpdateBibleBookmark(control.newOwnBookmarkLike(b1) as BibleBookmarkWithNotes, setOf(ownLabel().id))
+        assertEquals(2, sources.label(l)!!.refs.size)
     }
 
     @Test
-    fun savingTheLabelsOfAnOwnCopyKeepsItsAddonLabelAndFavouriteShowsInTheAssignableList() = run {
-        val copy = control.ownCopyOf(b1)
-        val own = ownLabel()
-        control.changeLabelsForBookmarks(listOf(copy), listOf(l, own.id)) // the chooser keeps L ticked: not a new add-on label
-        assertTrue(dao.labelsForBookmark(dao.bibleBookmarkById(copy.id)!!).map { it.id }.containsAll(listOf(l, own.id)))
+    fun favouriteOfAnAddonLabelShowsInTheAssignableList() = run {
         control.insertOrUpdateLabel(control.labelById(l)!!.copy(favourite = true))
         assertTrue(control.assignableLabels().single { it.id == l }.favourite)
     }

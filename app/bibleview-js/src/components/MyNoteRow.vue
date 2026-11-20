@@ -27,10 +27,10 @@
       <div class="journal-button" @click="editBookmark">
         <FontAwesomeIcon icon="info-circle"/>
       </div>
-      <div v-if="!bookmark.notes" class="journal-button" @click="setEditMode(true)">
+      <div v-if="!bookmark.notes && !readOnly" class="journal-button" @click="setEditMode(true)">
         <FontAwesomeIcon icon="edit"/>
       </div>
-      <div v-if="!isAddonBookmark(bookmark)" class="journal-button" @click="deleteEntry">
+      <div v-if="!readOnly" class="journal-button" @click="deleteEntry">
         <FontAwesomeIcon icon="trash"/>
       </div>
     </ButtonRow>
@@ -49,6 +49,7 @@
           :text="bookmark.notes"
           :content-type="bookmark.notesContentType"
           :note-editor-context="{ entityType: 'BOOKMARK_NOTE', entityId: bookmark.id }"
+          :read-only="readOnly"
           @save="save"
       />
     </div>
@@ -71,6 +72,8 @@ import {BibleBookmark} from "@/types/client-objects";
 import {isAddonBookmark} from "@/composables/addon";
 
 const props = defineProps<{ bookmark: BibleBookmark }>()
+// An add-on collection bookmark is read-only: no note edit, no delete.
+const readOnly = computed(() => isAddonBookmark(props.bookmark));
 
 const android = inject(androidKey)!;
 const expanded = ref(false);

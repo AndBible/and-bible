@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.aliasIncomingIds
-import net.bible.service.cloudsync.addonRowExclusion
+import net.bible.service.cloudsync.stripAddonRows
 import net.bible.service.cloudsync.hasAddonRows
 import net.bible.android.database.bookmarks.isAddonIdSql
 import net.bible.sharedcore.log.Log
@@ -80,19 +80,21 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
                 db.inTransaction<Long> {
                     aliasIncomingIds(category, "import", persist = false)
                     var skipped = 0L
+                    if (category.hasAddonRows) for (tableDef in dbDef.tableDefinitions.filter { it.tableName in ADDON_ITEM_TABLES }) {
+                        skipped += queryLong("SELECT COUNT(*) FROM import.${tableDef.tableName} WHERE ${isAddonIdSql(tableDef.idField1)}") ?: 0L
+                    }
+                    // Add-on collection rows (an export of an installed collection) are never imported as the user's
+                    // own: they would be synced, and collide with the module's rows. The reconciler provides them from
+                    // the module where it is installed. Nor is a user row's reference to one (the file's copy of the
+                    // rows is changed, not the user's file).
+                    stripAddonRows(this, category, "import")
                     for (tableDef in dbDef.tableDefinitions) {
                         val table = tableDef.tableName
                         val cols = columnNamesJoined(table)
-                        // Add-on collection rows (an export of an installed collection) are never imported as the
-                        // user's own: they would be synced, and collide with the module's rows. The reconciler
-                        // provides them from the module where it is installed.
                         exec("""
                             INSERT OR IGNORE INTO $table ($cols)
-                            SELECT $cols FROM import.$table WHERE 1${addonRowExclusion(category, tableDef)}
+                            SELECT $cols FROM import.$table
                         """.trimIndent())
-                        if (category.hasAddonRows && table in ADDON_ITEM_TABLES) {
-                            skipped += queryLong("SELECT COUNT(*) FROM import.$table WHERE ${isAddonIdSql(tableDef.idField1)}") ?: 0L
-                        }
                     }
                     if (skipped > 0) Log.i(TAG, "Skipped $skipped add-on collection rows of the imported file")
                     skipped
