@@ -414,8 +414,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val startupReportBug: String get() = context.getString(R.string.startup_report_bug)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
-    override val externalLink: String get() = context.getString(R.string.external_link)
-    override fun externalLinkQuestion(link: String): String = context.getString(R.string.external_link_question, link)
     override fun externalLinkDontAskAgain(host: String): String = context.getString(R.string.external_link_dont_ask_again, host)
     override val prefsTrustedLinkDomainsTitle: String get() = context.getString(R.string.prefs_trusted_link_domains_title)
     override val prefsTrustedLinkDomainsSummary: String get() = context.getString(R.string.prefs_trusted_link_domains_summary)

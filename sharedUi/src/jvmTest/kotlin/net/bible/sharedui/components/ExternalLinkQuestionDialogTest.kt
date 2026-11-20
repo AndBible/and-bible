@@ -36,12 +36,13 @@ class ExternalLinkQuestionDialogTest {
                     )
                 }
             }
-            onNodeWithText(strings.externalLinkQuestion(url)).assertExists()
+            onNodeWithText(strings.externalLinkOpenQuestion).assertExists()
+            onNodeWithText(url).assertExists()
             val box = onNode(isToggleable())
             box.assertIsOff()
             onNodeWithText(strings.externalLinkDontAskAgain("www.youtube.com")).assertExists()
             if (tick) { box.performClick(); box.assertIsOn() }
-            onNodeWithText(strings.okay).performClick()
+            onNodeWithText(strings.openAction).performClick()
         }
         return answers
     }
@@ -62,7 +63,9 @@ class ExternalLinkQuestionDialogTest {
                 )
             }
         }
-        onNodeWithText(strings.externalLinkQuestion("mailto:a@b.org")).assertExists()
+        onNodeWithText(strings.externalLinkOpenQuestion).assertExists()
+        onNodeWithText("mailto:a@b.org").assertExists()
+        onNodeWithText(strings.openAction).assertExists()
         onNode(isToggleable()).assertDoesNotExist()
     }
 }

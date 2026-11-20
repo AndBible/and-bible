@@ -19,8 +19,6 @@ package net.bible.sharedui.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,26 +26,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -88,6 +93,8 @@ private enum class ShellSlot { Icon, Lead, Middle, Buttons }
  *    `SubcomposeLayout`. Plain text and simple layouts are fine;
  *  - [content]: the middle area (detail + body), shown in [abDialogBodyStyle]; it scrolls;
  *  - [properties]: only `dismissOnBackPress` and `dismissOnClickOutside` are forwarded to the platform dialog.
+ *    `dismissOnClickOutside` also decides whether the shell draws its own transparent dismiss scrim (the window
+ *    fills the screen, so the platform has no "outside" to detect).
  *    The shell always sets `usePlatformDefaultWidth = false` (the width is ours), and ignores the other fields.
  *
  * Height safety, in order of priority (one custom layout pass decides all of it):
@@ -124,14 +131,17 @@ fun AbDialogShell(
         usePlatformDefaultWidth = false,
     )) {
         if (mono) NoDialogDim()
+        val currentOnDismiss by rememberUpdatedState(onDismissRequest)
+        // The box fills the dialog window and keeps clear of the on-screen keyboard (`WindowInsets.ime`, not
+        // `imePadding()`: see InsetModifierGuardTest), so a text-input dialog at a large font stays above the keyboard.
         // The box fills the dialog window. A platform dialog window wraps its content, and a wrapped window feeds
         // its own previous height back as `maxHeight`: the screen margin below was then subtracted again on every
         // measure pass, the passes alternated between two heights, and the middle area was clipped without a scroll
         // divider (D1, seen on a real Android Dialog at a large font scale). With a window that always fills the screen
         // the bound is stable. The tap-to-dismiss scrim is ours, because a full-size window has no "outside".
-        BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.ime), contentAlignment = Alignment.Center) {
             if (properties.dismissOnClickOutside) {
-                Box(Modifier.fillMaxSize().testTag("dialog-scrim").pointerInput(Unit) { detectTapGestures { onDismissRequest() } })
+                Box(Modifier.fillMaxSize().testTag("dialog-scrim").pointerInput(Unit) { detectTapGestures { currentOnDismiss() } })
             }
             // Short windows (landscape phones) use a compact frame: smaller margin above/below and tighter padding,
             // so that three AX5 buttons plus the middle minimum still fit.
@@ -146,8 +156,7 @@ fun AbDialogShell(
                 modifier = modifier
                     .widthIn(min = minDialogWidth, max = maxDialogWidth)
                     .heightIn(max = available)
-                    .monoBorder(shape)
-                    .pointerInput(Unit) { detectTapGestures { } },
+                    .monoBorder(shape),
                 shape = shape,
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (mono) 0.dp else 6.dp,

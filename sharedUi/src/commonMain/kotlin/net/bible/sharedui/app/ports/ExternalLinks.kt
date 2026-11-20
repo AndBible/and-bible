@@ -4,10 +4,10 @@ package net.bible.sharedui.app.ports
 
 import net.bible.sharedcore.links.ExternalLinkDecision
 import net.bible.sharedcore.links.TrustedLinkDomains
-import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedcore.ui.dialog.DialogAnswer
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.strings.Strings
 
@@ -51,14 +51,16 @@ const val EXTERNAL_LINK_OPEN = "open"
 @kotlin.native.HiddenFromObjC
 fun externalLinkQuestion(s: Strings, url: String, trustableHost: String?): AppDialogRequest =
     if (trustableHost == null) AppDialogRequest.Confirm(
-        title = s.externalLink,
-        message = s.externalLinkQuestion(plainTextToHtml(url)),
-        confirmText = s.okay,
+        title = s.externalLinkOpenQuestion,
+        message = null,
+        detail = url,
+        confirmText = s.openAction,
         dismissText = s.cancel,
     ) else AppDialogRequest.Options(
-        title = s.externalLink,
-        message = s.externalLinkQuestion(plainTextToHtml(url)),
-        options = listOf(SettingsItem.Choice(EXTERNAL_LINK_OPEN, s.okay)),
+        title = s.externalLinkOpenQuestion,
+        // Options has no plain-text detail slot: its HTML message is drawn as the detail line, so escape the URL.
+        message = plainTextToHtml(url),
+        options = listOf(DialogAnswer(EXTERNAL_LINK_OPEN, s.openAction)),
         dismissText = s.cancel,
         asActionSheet = false,
         checkboxLabel = s.externalLinkDontAskAgain(trustableHost),

@@ -1,12 +1,16 @@
 package net.bible.android.view.compose.dialog
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.test.core.app.ApplicationProvider
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -14,14 +18,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.swipeUp
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.components.AbMultiSelectDialog
@@ -328,6 +328,33 @@ class AbDialogShellTest {
         compose.onNodeWithTag("dialog-scrim").performTouchInput { click(androidx.compose.ui.geometry.Offset(4f, 4f)) }
         compose.waitForIdle()
         assertEquals(1, dismissed)
+    }
+
+    /** The scrim must call the dismiss callback of the latest composition, not the one it was first composed with. */
+    @Test fun scrimTapCallsTheLatestOnDismissRequestAfterRecomposition() {
+        var first = 0
+        var second = 0
+        val callback = androidx.compose.runtime.mutableStateOf<() -> Unit>({ first++ })
+        compose.setContent {
+            AbTheme {
+                AbDialogShell(
+                    onDismissRequest = callback.value,
+                    buttons = { AbDialogButton("Cancel", DialogButtonRole.Cancel, {}) },
+                    lead = { Text("Lead") },
+                )
+            }
+        }
+        compose.waitForIdle()
+        // The gesture coroutine starts on the first pointer event, so tap once before swapping the callback.
+        compose.onNodeWithTag("dialog-scrim").performTouchInput { click(androidx.compose.ui.geometry.Offset(4f, 4f)) }
+        compose.waitForIdle()
+        assertEquals(1, first)
+        callback.value = { second++ }
+        compose.waitForIdle()
+        compose.onNodeWithTag("dialog-scrim").performTouchInput { click(androidx.compose.ui.geometry.Offset(4f, 4f)) }
+        compose.waitForIdle()
+        assertEquals("stale callback fired again", 1, first)
+        assertEquals("latest callback", 1, second)
     }
 
     /** A dialog with a lead and an empty middle (e.g. "Discard changes?") looks the same as one without a middle. */

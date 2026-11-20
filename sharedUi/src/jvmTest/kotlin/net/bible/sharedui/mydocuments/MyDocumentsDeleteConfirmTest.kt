@@ -7,6 +7,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -51,7 +52,8 @@ class MyDocumentsDeleteConfirmTest {
 
     @Test fun singleDeleteConfirmShowsLeadAndHasDestructiveConfirm() = runComposeUiTest {
         show(emptySet())
-        onNodeWithContentDescription(strings.menu).performClick()
+        // Two "Menu" buttons: the document row's menu (first, lower on screen) and the screen's own help menu.
+        onAllNodesWithContentDescription(strings.menu)[0].performClick()
         onNodeWithText(strings.deleteLabel).performClick()
         assertDestructiveConfirm(strings.deleteDocumentLead(doc.name))
     }

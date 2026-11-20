@@ -42,7 +42,7 @@ class HelpLinkRoutingTest {
         onNodeWithText("Help").performClick()
         assertEquals(listOf(DocsLink.SPEAK), topics)
         assertEquals(emptyList(), links.opened)
-        onNodeWithText(strings.externalLink).assertDoesNotExist()
+        onNodeWithText(strings.externalLinkOpenQuestion).assertDoesNotExist()
     }
 
     @Test fun anOrdinaryLinkStillGoesOutside() = runComposeUiTest {
