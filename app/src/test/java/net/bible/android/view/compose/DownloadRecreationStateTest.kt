@@ -11,11 +11,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
+import net.bible.android.activity.R
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.download.CustomRepositoryData
 import net.bible.sharedcore.download.CustomRepositoryService
