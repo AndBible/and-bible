@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -112,6 +113,15 @@ fun HelpScreen(
     var tabOrdinal by rememberSaveable { mutableIntStateOf((if (highlight != null) HelpTab.UserGuide else initialTab).ordinal) }
     val tab = HelpTab.entries[tabOrdinal]
     var showVideos by rememberSaveable { mutableStateOf(initialShowVideos) }
+    // A topic delivered to an already open screen (launchSingleTop keeps the saved tab and sub-view): show the guide.
+    var shownHighlight by remember { mutableStateOf(highlight) }
+    LaunchedEffect(highlight) {
+        if (highlight != null && highlight != shownHighlight) {
+            tabOrdinal = HelpTab.UserGuide.ordinal
+            showVideos = false
+        }
+        shownHighlight = highlight
+    }
     val inVideos = showVideos && tab == HelpTab.UserGuide
     PlatformBackHandler(enabled = inVideos) { showVideos = false }
     AbScaffold(

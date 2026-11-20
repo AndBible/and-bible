@@ -1,6 +1,9 @@
 package net.bible.sharedui.help
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -101,6 +104,45 @@ class HelpScreenHighlightTest {
             }
         }
         onNodeWithText("Frequently Asked Questions").assertIsDisplayed().assert(highlighted)
+    }
+
+    /** #4159 review: a topic delivered to an already open screen (launchSingleTop) must leave Tips / the videos view. */
+    private fun androidx.compose.ui.test.ComposeUiTest.showWithLateTopic(
+        initialTab: HelpTab, initialShowVideos: Boolean,
+    ): (DocsLink) -> Unit {
+        var topic by mutableStateOf<DocsLink?>(null)
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) {
+                    HelpScreen(
+                        tips = listOf(HelpTipUi("Tip title", "text", null, "", null)),
+                        sections = UserGuideToc.sections,
+                        tutorialVideos = listOf(VideoRowUi("Episode one", "https://v")),
+                        versionText = "Version",
+                        initialTab = initialTab, initialShowVideos = initialShowVideos,
+                        highlight = topic, onOpenUrl = {}, onUp = {},
+                    )
+                }
+            }
+        }
+        return { topic = it }
+    }
+
+    @Test fun aTopicDeliveredWhileOnTipsSwitchesToTheGuideAndScrolls() = runComposeUiTest {
+        val deliver = showWithLateTopic(HelpTab.Tips, initialShowVideos = false)
+        onNodeWithText("Tip title").assertIsDisplayed()
+        deliver(DocsLink.SUPPORT)
+        waitForIdle()
+        onNodeWithText("Tip title").assertDoesNotExist()
+        onNodeWithText("Support").assertIsDisplayed().assert(highlighted)
+    }
+
+    @Test fun aTopicDeliveredWhileInTheVideosViewReturnsToTheGuide() = runComposeUiTest {
+        val deliver = showWithLateTopic(HelpTab.UserGuide, initialShowVideos = true)
+        onNodeWithText("Episode one").assertIsDisplayed()
+        deliver(DocsLink.SUPPORT)
+        waitForIdle()
+        onNodeWithText("Support").assertIsDisplayed().assert(highlighted)
     }
 
     @Test fun guideItemIndexCountsEveryRowBeforeThePage() {
