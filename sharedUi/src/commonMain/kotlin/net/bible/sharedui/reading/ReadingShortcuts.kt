@@ -15,8 +15,10 @@ internal fun readingShortcut(
     iosCommandKeys: Boolean = false,
 ): String? {
     if (meta) {
-        if (!iosCommandKeys || ctrl || alt || code !in setOf("KeyF", "KeyB")) return null
+        if (!iosCommandKeys || ctrl || alt || code !in setOf("KeyF", "KeyB", "KeyL")) return null
         if (editing && code == "KeyB") return null
+        // Cmd+L = "go to reference" (desktop Ctrl+L): the page's Ctrl+B, the key chooser (#4168).
+        if (code == "KeyL") return "CtrlKeyB"
         return "Ctrl$code"
     }
     if (ctrl && alt) return null
@@ -39,6 +41,7 @@ internal fun readingShortcut(event: KeyEvent, editing: Boolean = false, iosComma
     val code = when (event.key) {
         Key.F -> "KeyF"
         Key.B -> "KeyB"
+        Key.L -> "KeyL"
         Key.C -> "KeyC"
         Key.W -> "KeyW"
         Key.M -> "KeyM"
