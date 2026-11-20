@@ -254,17 +254,17 @@ class DownloadHostTest {
                     onNodeWithText(strings.welcomeGithubLabel).assertExists()
                     onNodeWithText(strings.welcomeDownloadButton).performScrollTo().performClick()
                     waitUntil(timeoutMillis = 10_000) {
-                        onAllNodesWithText(strings.downloadQuestionTitle).fetchSemanticsNodes().isNotEmpty()
+                        onAllNodesWithText(strings.downloadDocumentsQuestion).fetchSemanticsNodes().isNotEmpty()
                     }
-                    onNodeWithText(strings.downloadQuestionTitle).assertExists()
+                    onNodeWithText(strings.downloadDocumentsQuestion).assertExists()
                     assertEquals(listOf("initialize", "sync"), calls, "network and permissions wait for consent")
                     assertInside(strings.cancel)
-                    onNodeWithText(strings.yes).performScrollTo()
-                    assertInside(strings.yes)
-                    onNodeWithText(strings.yes).performClick()
+                    onNodeWithText(strings.downloadAction).performScrollTo()
+                    assertInside(strings.downloadAction)
+                    onNodeWithText(strings.downloadAction).performClick()
                     waitUntil(timeoutMillis = 10_000) { "catalogue" in calls }
                     waitForIdle()
-                    onNodeWithText(strings.downloadQuestionTitle).assertDoesNotExist()
+                    onNodeWithText(strings.downloadDocumentsQuestion).assertDoesNotExist()
                     onNodeWithTag("welcome-screen").assertDoesNotExist()
                     onNodeWithContentDescription(strings.languageLabel).assertExists()
                     onNodeWithText(strings.downloadTitle).assertExists()
@@ -282,7 +282,7 @@ class DownloadHostTest {
                         onNodeWithContentDescription("Language").assertDoesNotExist()
                     }
                     assertEquals(listOf("initialize", "sync", "permission", "catalogue"), calls)
-                    assertEquals(false, settings.getBoolean("download_do_not_ask", false), "ordinary Yes is not permanent consent")
+                    assertEquals(false, settings.getBoolean("download_do_not_ask", false), "ordinary Download is not permanent consent")
                 }
             }
         } finally {

@@ -34,6 +34,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
@@ -172,6 +173,29 @@ class DialogsShimTest {
         yield()
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         assertEquals(false, cancelled.await())
+    }
+
+    @Test
+    fun simpleQuestionHasNoDefaultLeadAndCarriesVerbDetailAndRole() = runTest {
+        val activity = activity()
+        val plain = async { Dialogs.simpleQuestion(activity, "Send the file?") }
+        yield()
+        val bare = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        assertNull("never an \"Are you sure?\" lead", bare.title)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
+        plain.await()
+
+        val verb = async {
+            Dialogs.simpleQuestion(activity, title = "Delete the file?", confirmText = "Delete", detail = "No undo.", destructive = true)
+        }
+        yield()
+        val req = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        assertEquals("Delete the file?", req.title)
+        assertEquals("Delete", req.confirmText)
+        assertEquals("No undo.", req.detail)
+        assertTrue(req.destructive)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        assertEquals(true, verb.await())
     }
 
     @Test

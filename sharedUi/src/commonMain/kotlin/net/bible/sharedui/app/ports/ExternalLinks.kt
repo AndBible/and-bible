@@ -19,9 +19,10 @@ interface ExternalLinks {
         dialogs.post(AppDialogRequest.Localized {
             val s = strings()
             AppDialogRequest.Confirm(
-                title = s.externalLink,
-                message = s.externalLinkQuestion(url),
-                confirmText = s.okay,
+                title = s.externalLinkOpenQuestion,
+                message = null,
+                detail = url,
+                confirmText = s.openAction,
                 dismissText = s.cancel,
             )
         }) { result ->

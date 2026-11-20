@@ -109,16 +109,16 @@ fun InstallZipContent(
             is InstallUiState.Progress -> InstallProgressScreen(state)
 
             is InstallUiState.ConfirmInstall -> AbConfirmDialog(
-                title = strings.areYouSure,
-                message = strings.installDoYouWant(state.displayName ?: "?"),
-                confirmText = strings.okay,
+                title = null,
+                message = strings.installDocumentQuestion(state.displayName ?: "?"),
+                confirmText = strings.installAction,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
             )
 
             is InstallUiState.FormatInfo -> AbConfirmDialog(
-                title = strings.installZipTitle,
+                title = strings.installFromFileQuestion,
                 message = state.formatsText,
                 confirmText = strings.proceed,
                 dismissText = strings.cancel,
@@ -128,35 +128,36 @@ fun InstallZipContent(
 
             is InstallUiState.Overwrite -> AbConfirmDialog(
                 title = strings.overwriteFilesTitle,
-                message = strings.overwriteFiles("\n" + state.files.joinToString("\n")),
+                message = strings.overwriteFilesDetail("\n" + state.files.joinToString("\n")),
                 confirmText = strings.overwrite,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
+                destructive = true,
             )
 
             is InstallUiState.StudyPadImport -> AbConfirmDialog(
-                title = strings.areYouSure,
-                message = strings.installDoYouWant(state.statsText),
-                confirmText = strings.okay,
+                title = strings.importStudyPadsQuestion,
+                message = state.statsText,
+                confirmText = strings.importAction,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
             )
 
             InstallUiState.ModuleBackupRestore -> AbConfirmDialog(
-                title = strings.areYouSure,
-                message = strings.moduleBackupRestore,
-                confirmText = strings.okay,
+                title = strings.restoreBackupQuestion,
+                message = strings.restoreBackupDetail,
+                confirmText = strings.restoreLabel,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
             )
 
             InstallUiState.EpubUpgrade -> AbConfirmDialog(
-                title = strings.epubUpgradeTitle,
-                message = strings.epubUpgradeMessage,
-                confirmText = strings.okay,
+                title = strings.updateDocumentQuestion,
+                message = strings.epubUpgradeDetail,
+                confirmText = strings.updateAction,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,

@@ -188,11 +188,12 @@ fun CustomRepositoryEditorScreen(
     if (showDeleteConfirm) {
         AbConfirmDialog(
             title = null,
-            message = strings.deleteCustomRepository(state.resolved?.name ?: ""),
+            message = strings.removeCustomRepositoryQuestion(state.resolved?.name ?: ""),
             confirmText = strings.remove,
             dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },
             onDismiss = { showDeleteConfirm = false },
+            destructive = true,
         )
     }
     if (showHelp) {

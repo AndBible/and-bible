@@ -510,7 +510,7 @@ class ReadingHostSlotsTest {
         }
         onNodeWithText("Example link").performClick()
         assertTrue(links.opened.isEmpty(), "discrete mode must ask before opening")
-        onNodeWithText(strings.externalLink).assertExists()
+        onNodeWithText(strings.externalLinkOpenQuestion).assertExists()
         // two OK buttons now (help + question); the question's is the last one composed
         onAllNodesWithText(strings.okay).onLast().performClick()
         assertEquals(listOf("https://example.org/x"), links.opened)

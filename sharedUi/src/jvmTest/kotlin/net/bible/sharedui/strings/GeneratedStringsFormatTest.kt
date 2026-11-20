@@ -10,8 +10,8 @@ class GeneratedStringsFormatTest {
 
     @Test fun downloadWarningUsesTheSuppliedImportAction() {
         val action = "Renamed import action"
-        kotlin.test.assertTrue(strings.downloadQuestionMessage(action).contains(action))
-        kotlin.test.assertTrue(strings.downloadQuestionMessage(strings.installZipTitle).contains(strings.installZipTitle))
+        kotlin.test.assertTrue(strings.downloadPersecutionWarning(action).contains(action))
+        kotlin.test.assertTrue(strings.downloadPersecutionWarning(strings.installZipTitle).contains(strings.installZipTitle))
     }
 
     @Test fun documentCountSubstitutesTheUnpositionalDecimal() {

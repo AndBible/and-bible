@@ -467,14 +467,6 @@
     <string name="activity_title">Background activity</string>
     <string name="activity_empty">Nothing running</string>
     <string name="activity_failed_toast">%1$s — see menu</string>
-    <string name="download_question_title">Do you want to proceed to download documents?</string>
-    <string name="download_question_message">If you live in a persecuted country,
-        you might need to be careful about downloading christian material via Internet.
-        Instead, you might want to obtain module zip files more securely and install them
-        via "%1$s". Are you sure you want to proceed with downloading?
-        All downloads from module servers are encrypted (HTTPS).
-    </string>
-    <string name="do_not_ask_again">Yes, do not ask any more</string>
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
     <string name="download_errors">Download errors</string>
@@ -492,11 +484,9 @@
     <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
     <string name="install_zip_title">Please wait. Loading modules from a file.</string>
-    <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
     <string name="module_backup_restore">This file is an AndBible documents backup. Do you want to restore its documents?</string>
-    <string name="install_do_you_want">Do you want to install module (%s)?</string>
 
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
@@ -554,12 +544,8 @@
     <string name="delete_index">Delete search index</string>
     <string name="about">About</string>
     <string name="delete_doc">Delete %s?</string>
-    <string name="interrupted_downloads_title">Download interrupted</string>
-    <string name="interrupted_downloads_message">These documents were not installed because their download was interrupted:</string>
-    <string name="interrupted_downloads_question">Download them again?</string>
     <string name="download_again">Download again</string>
     <string name="delete_docs_confirm">Delete these documents?</string>
-    <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
@@ -603,7 +589,6 @@
         If document structure has changed, updating this document could make
         the locations of these bookmarks/notes move inside the document or disappear completely.
     </string>
-    <string name="bookmark_warning3">Do you still want to update module?</string>
     <string name="bookmark_warning4">It is recommended that you backup the module before updating.</string>
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
@@ -937,8 +922,8 @@
     <string name="damaged_data_needs_attention">The app\'s data needs attention. Tap to open the app.</string>
     <string name="debug_test_error">Test error (debug build)</string>
     <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
-    <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_desktop_text">Next, you will be asked where to save the bug report file. Then you will get instructions for sending it to the developer team.</string>
+    <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
     <string name="bug_report_manual_title">Send the report by email</string>
     <string name="bug_report_manual_text_saved">The report was saved to <b>%1$s</b>.\n\nPlease send an email to <b>%2$s</b> and attach that file; an email program cannot attach it for you. Suggested subject: <b>%3$s</b>. In the message, tell us what you did and what happened.</string>
@@ -1133,7 +1118,6 @@
     <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
     <string name="unlock_module">Set module passphrase</string>
     <string name="unlock_info">Encrypted module unlock info</string>
-    <string name="try_again_passphrase">Passphrase did not work, try again?</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
     <string name="prefs_experimental_features_title">Experimental features</string>
@@ -1201,7 +1185,6 @@
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
     <string name="proceed">Proceed</string>
-    <string name="rate_title">Rating and reviewing app</string>
     <string name="rate_message5">
         Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
     </string>
@@ -1366,14 +1349,12 @@
     <string name="strongs_hidden_links">Hidden Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
-    <string name="permission_required">Permission needed</string>
     <string name="labels_search_hint">Search</string>
     <string name="search_mode_name_start">Name (from start)</string>
     <string name="search_mode_name_contains">Name (contains)</string>
     <string name="search_mode_content">Content</string>
     <string name="search_results_matches">%d matches</string>
     <string name="search_results_match">1 match</string>
-    <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
 
     <!-- Discrete mode settings -->
     <string name="app_name_calculator">Simple Calculator</string>
@@ -1426,7 +1407,6 @@
     <string name="custom_repositories_create_button_label">Add Custom Repository</string>
     <string name="custom_repositories_info_button_label">Information</string>
     <string name="repository_specification">Repository URL</string>
-    <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
     <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>
     <string name="custom_repositories_help2">You can read more information about custom repositories in %s.</string>
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
@@ -1546,8 +1526,6 @@
     <!-- Other / uncategorized -->
     <string name="app_opened_elsewhere">App opened elsewhere</string>
     <string name="open_here">Open here</string>
-    <string name="external_link">External link</string>
-    <string name="external_link_question">This will open external link %s in a browser application, do you wish to continue?</string>
     <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
@@ -2483,4 +2461,35 @@
     <string name="dialog_labels_reset_hidden_lead">Show all hidden labels again?</string>
     <string name="dialog_labels_reset_hidden_detail">Your hidden-labels setting is reset.</string>
     <!-- end dialog copy: B2a -->
+    <!-- dialog copy: B3c -->
+    <string name="install_document_question">Install “%s”?</string>
+    <string name="install_action">Install</string>
+    <string name="install_from_file_question">Install documents from a file?</string>
+    <string name="overwrite_files_detail">These files already exist:%s</string>
+    <string name="import_studypads_question">Import these Study Pads?</string>
+    <string name="import_action">Import</string>
+    <string name="restore_backup_question">Restore the documents in this backup?</string>
+    <string name="restore_backup_detail">This file is an AndBible documents backup.</string>
+    <string name="update_document_question">Update this document?</string>
+    <string name="update_action">Update</string>
+    <string name="download_documents_question">Download documents?</string>
+    <string name="download_persecution_warning">If you live in a persecuted country, you might need to be careful about downloading Christian material via the Internet. Instead, you might want to obtain document zip files more securely and install them via “%1$s”. All downloads from document servers are encrypted (HTTPS).</string>
+    <string name="download_action">Download</string>
+    <string name="download_dont_ask_again">Download, don’t ask again</string>
+    <string name="download_dont_ask_again_consequence">Downloads start without this question in the future.</string>
+    <string name="passphrase_did_not_work">The passphrase did not work.</string>
+    <string name="try_again">Try again</string>
+    <string name="interrupted_downloads_lead">Download these documents again?</string>
+    <string name="interrupted_downloads_detail">Their download was interrupted, so they were not installed.</string>
+    <string name="external_link_open_question">Open this link in your browser?</string>
+    <string name="open_action">Open</string>
+    <string name="notification_permission_question">Allow notifications?</string>
+    <string name="notification_permission_detail">Notifications show download status, processing and speak status.</string>
+    <string name="allow_action">Allow</string>
+    <string name="rate_question">Rate and review the app?</string>
+    <string name="bug_report_email_question">Send the bug report by email?</string>
+    <string name="continue_action">Continue</string>
+    <string name="delete_search_index_question">Delete the search index of “%s”?</string>
+    <string name="remove_custom_repository_question">Remove the custom repository “%s”?</string>
+    <!-- end dialog copy: B3c -->
 </resources>

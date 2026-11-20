@@ -101,7 +101,7 @@ class MenuCommandHandlerDialogTest {
         idle()
 
         val request = dialogs.pending.value!!.request as AppDialogRequest.Message
-        assertEquals(RuntimeEnvironment.getApplication().getString(R.string.rate_title), request.title)
+        assertEquals(RuntimeEnvironment.getApplication().getString(R.string.rate_question), request.title)
         assertTrue("body is HTML, not spanned/plain text", request.message.contains("<br>"))
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.proceed_google_play), request.confirmText)
         assertEquals(RuntimeEnvironment.getApplication().getString(R.string.cancel), request.dismissText)

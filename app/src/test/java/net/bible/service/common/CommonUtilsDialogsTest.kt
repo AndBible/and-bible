@@ -214,10 +214,10 @@ class CommonUtilsDialogsTest {
         advance()
         respondHead(AppDialogResult.Text("wrong"))
         val retry = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(application.getString(R.string.try_again_passphrase), retry.title)
+        assertEquals(application.getString(R.string.passphrase_did_not_work), retry.title)
         assertNull(retry.message)
-        assertEquals(application.getString(R.string.yes), retry.confirmText)
-        assertEquals(application.getString(R.string.no), retry.dismissText)
+        assertEquals("Try again", retry.confirmText)
+        assertEquals(application.getString(R.string.cancel), retry.dismissText)
         assertFalse(retry.cancellable)
         respondHead(AppDialogResult.Cancel)
         assertEquals(false, result.await())
@@ -433,7 +433,7 @@ class CommonUtilsDialogsTest {
         assertTrue(activity.rationaleThreads.all { it === mainThread })
 
         val head = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(activity.getString(R.string.permission_required), head.title)
+        assertEquals(activity.getString(R.string.notification_permission_question), head.title)
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
 
         waited = 0
@@ -471,12 +471,12 @@ class CommonUtilsDialogsTest {
         val result = async { CommonUtils.documentUpgradeConfirmation(activity) }
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Confirm
-        assertEquals(application.getString(R.string.bookmark_warning), head.title)
-        assertEquals(application.getString(R.string.yes), head.confirmText)
+        assertEquals(application.getString(R.string.update_document_question), head.title)
+        assertEquals(application.getString(R.string.update_action), head.confirmText)
         assertEquals(application.getString(R.string.cancel), head.dismissText)
         assertFalse(head.cancellable)
         assertTrue(head.message!!.contains(application.getString(R.string.bookmark_warning2)))
-        assertTrue(head.message!!.contains(application.getString(R.string.bookmark_warning3)))
+        assertTrue(head.message!!.contains(application.getString(R.string.bookmark_warning)))
         assertTrue(head.message!!.contains(application.getString(R.string.bookmark_warning4)))
         respondHead(AppDialogResult.Ok)
         assertEquals(true, result.await())

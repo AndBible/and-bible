@@ -145,11 +145,10 @@ class EpubSearchScreenHelpDialogTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         show(helpOpen = true, askBeforeOpeningLink = true)
         compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick(compose.onNodeWithTag("dialog-middle"))
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
         assertEquals(emptyList<String>(), opened)
 
-        val okNodes = compose.onAllNodesWithText(context.getString(R.string.okay))
-        okNodes[okNodes.fetchSemanticsNodes().size - 1].performClick()
+        compose.onNodeWithText(context.getString(R.string.open_action)).performClick()
         assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), opened)
         assertEquals(0, dismissCalls) // the help dialog itself is untouched by the link question
     }

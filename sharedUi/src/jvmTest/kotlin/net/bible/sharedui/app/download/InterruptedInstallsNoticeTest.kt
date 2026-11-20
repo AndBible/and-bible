@@ -43,8 +43,13 @@ class InterruptedInstallsNoticeTest {
     @Test
     fun interruptedInstallIsReportedByNameAndRetryOpensTheDownloadOfExactlyThoseDocuments() {
         show(listOf(kjv, nasb), AppDialogResult.Ok)
-        val message = (asked.single() as AppDialogRequest.Message).message
+        val request = asked.single() as AppDialogRequest.Message
+        val message = request.message
         assertTrue("KJV" in message && "NASB" in message, message)
+        // The lead is the question, the cause is the detail, and the list carries no repeated question.
+        assertEquals(strings.interruptedDownloadsLead, request.title)
+        assertEquals(strings.interruptedDownloadsDetail, request.detail)
+        assertEquals("KJV\nNASB", message)
         val requested = AppJson.decodeFromString(ListSerializer(SwordDocumentInfo.serializer()), opened!!)
         assertEquals(listOf("KJV" to "CrossWire", "NASB" to "Lockman (CrossWire)"), requested.map { it.initials to it.repository })
         // Still pending until the new download settles, so a second interruption is reported again.

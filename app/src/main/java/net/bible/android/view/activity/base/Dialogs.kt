@@ -158,16 +158,24 @@ object Dialogs {
         }
     }
 
+    /**
+     * A yes/no question. [title] is the lead line and should name the action; there is no default lead
+     * (never "Are you sure?"). [confirmText] is a verb for the action; [detail] is a consequence line.
+     */
     suspend fun simpleQuestion(
         context: Context,
         message: String? = null,
-        title: String? = context.getString(R.string.are_you_sure),
+        title: String? = null,
         confirmText: String = context.getString(R.string.okay),
+        detail: String? = null,
+        destructive: Boolean = false,
     ): Boolean =
         dialogs.await(
             AppDialogRequest.Confirm(
                 title = title,
                 message = message,
+                detail = detail,
+                destructive = destructive,
                 confirmText = confirmText,
                 dismissText = context.getString(R.string.cancel),
             ),

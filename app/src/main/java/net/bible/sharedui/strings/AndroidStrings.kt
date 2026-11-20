@@ -424,8 +424,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val startupReportBug: String get() = context.getString(R.string.startup_report_bug)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
-    override val externalLink: String get() = context.getString(R.string.external_link)
-    override fun externalLinkQuestion(link: String): String = context.getString(R.string.external_link_question, link)
     override val indexingWaitMsg: String get() = context.getString(R.string.indexing_wait_msg)
     override val noTasksRunning: String get() = context.getString(R.string.no_tasks_running)
     override val doInBackground: String get() = context.getString(R.string.do_in_background)
@@ -499,11 +497,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val deleteIndexLabel: String get() = context.getString(R.string.delete_index)
     override val unlockModule: String get() = context.getString(R.string.unlock_module)
     override fun deleteDoc(name: String): String = context.getString(R.string.delete_doc, name)
-    override val interruptedDownloadsTitle: String get() = context.getString(R.string.interrupted_downloads_title)
-    override val interruptedDownloadsMessage: String get() = context.getString(R.string.interrupted_downloads_message)
-    override val interruptedDownloadsQuestion: String get() = context.getString(R.string.interrupted_downloads_question)
     override val downloadAgain: String get() = context.getString(R.string.download_again)
-    override fun deleteSearchIndexDoc(name: String): String = context.getString(R.string.delete_search_index_doc, name)
     override val cantDeleteDocument: String get() = context.getString(R.string.cant_delete_document)
     override val downloadDocuments: String get() = context.getString(R.string.download)
 
@@ -1032,15 +1026,11 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Task B1 (InstallZip Plan B) — Compose install UI
     override val installZipTitle: String get() = context.getString(R.string.install_zip)
-    override val moduleBackupRestore: String get() = context.getString(R.string.module_backup_restore)
-    override fun installDoYouWant(subject: String): String = context.getString(R.string.install_do_you_want, subject)
     override val proceed: String get() = context.getString(R.string.proceed)
     override val overwriteFilesTitle: String get() = context.getString(R.string.overwrite_files_title)
-    override fun overwriteFiles(files: String): String = context.getString(R.string.overwrite_files, files)
     override val epubUpgradeTitle: String get() = context.getString(R.string.bookmark_warning)
     override val epubUpgradeWarning: String get() = context.getString(R.string.bookmark_warning2)
     override val epubUpgradeRecommendation: String get() = context.getString(R.string.bookmark_warning4)
-    override val epubUpgradeQuestion: String get() = context.getString(R.string.bookmark_warning3)
 
     // Batch 13 T2 — CustomRepositories list + CustomRepositoryEditor screens
     override val customRepositories: String get() = context.getString(R.string.custom_repositories)
@@ -1048,7 +1038,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val customRepositoriesHelp0: String get() = context.getString(R.string.custom_repositories_help0)
     override val customRepositoriesHelp1: String get() = context.getString(R.string.custom_repositories_help1)
     override fun customRepositoriesHelp2(link: String): String = context.getString(R.string.custom_repositories_help2, link)
-    override fun deleteCustomRepository(name: String): String = context.getString(R.string.delete_custom_repository, name)
     override fun duplicateCustomRepository(name: String): String = context.getString(R.string.duplicate_custom_repository, name)
     override val repositorySpecification: String get() = context.getString(R.string.repository_specification)
     override val packagesDir: String get() = context.getString(R.string.packages_dir)
@@ -1196,10 +1185,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val promptFilterClear: String get() = context.getString(R.string.prompt_filter_clear)
 
     // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question
-    override val downloadQuestionTitle: String get() = context.getString(R.string.download_question_title)
-    override fun downloadQuestionMessage(installAction: String): String =
-        context.getString(R.string.download_question_message, installAction)
-    override val doNotAskAgain: String get() = context.getString(R.string.do_not_ask_again)
 
     // Task 26 — platform-dialog removal: the verse-share quick sheet
     override val shareSheetTitle: String get() = context.getString(R.string.share_verse_widget_title)
@@ -1353,4 +1338,27 @@ class AndroidStrings(private val context: Context) : Strings {
     override val aiDisclaimerAccept: String get() = context.getString(R.string.ai_disclaimer_accept)
     override val aiBugReportSendLead: String get() = context.getString(R.string.ai_bug_report_send_lead)
     // end dialog copy: B3a
+    // dialog copy: B3c
+    override val installAction: String get() = context.getString(R.string.install_action)
+    override fun installDocumentQuestion(name: String): String = context.getString(R.string.install_document_question, name)
+    override val installFromFileQuestion: String get() = context.getString(R.string.install_from_file_question)
+    override fun overwriteFilesDetail(files: String): String = context.getString(R.string.overwrite_files_detail, files)
+    override val importStudyPadsQuestion: String get() = context.getString(R.string.import_studypads_question)
+    override val importAction: String get() = context.getString(R.string.import_action)
+    override val restoreBackupQuestion: String get() = context.getString(R.string.restore_backup_question)
+    override val restoreBackupDetail: String get() = context.getString(R.string.restore_backup_detail)
+    override val updateDocumentQuestion: String get() = context.getString(R.string.update_document_question)
+    override val updateAction: String get() = context.getString(R.string.update_action)
+    override val downloadDocumentsQuestion: String get() = context.getString(R.string.download_documents_question)
+    override fun downloadPersecutionWarning(installAction: String): String = context.getString(R.string.download_persecution_warning, installAction)
+    override val downloadAction: String get() = context.getString(R.string.download_action)
+    override val downloadDontAskAgain: String get() = context.getString(R.string.download_dont_ask_again)
+    override val downloadDontAskAgainConsequence: String get() = context.getString(R.string.download_dont_ask_again_consequence)
+    override val interruptedDownloadsLead: String get() = context.getString(R.string.interrupted_downloads_lead)
+    override val interruptedDownloadsDetail: String get() = context.getString(R.string.interrupted_downloads_detail)
+    override val externalLinkOpenQuestion: String get() = context.getString(R.string.external_link_open_question)
+    override val openAction: String get() = context.getString(R.string.open_action)
+    override fun deleteSearchIndexQuestion(name: String): String = context.getString(R.string.delete_search_index_question, name)
+    override fun removeCustomRepositoryQuestion(name: String): String = context.getString(R.string.remove_custom_repository_question, name)
+    // end dialog copy: B3c
 }

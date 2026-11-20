@@ -478,8 +478,9 @@ $crashAttachments
         withContext(Dispatchers.Main) {
             val result = Dialogs.simpleQuestion(
                 activity,
-                message = activity.getString(R.string.bug_report_email_text),
-                title = activity.getString(R.string.bug_report_email_title),
+                title = activity.getString(R.string.bug_report_email_question),
+                detail = activity.getString(R.string.bug_report_email_text),
+                confirmText = activity.getString(R.string.continue_action),
             )
             if(!result) return@withContext
             val subject = activity.getString(

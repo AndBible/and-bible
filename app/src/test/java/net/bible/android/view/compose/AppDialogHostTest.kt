@@ -221,11 +221,11 @@ class AppDialogHostTest {
         show(ShownDialog(4, AppDialogRequest.Message(null, "<a href=\"https://x.org\">here</a>", "Close")), askBeforeOpeningLink = true)
 
         compose.onNodeWithText("here").performClick()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
         compose.onNodeWithText("Close").assertExists() // the Message is still shown, underneath
         assertEquals(emptyList<String>(), opened)
 
-        compose.onNodeWithText(context.getString(R.string.okay)).performClick()
+        compose.onNodeWithText(context.getString(R.string.open_action)).performClick()
         assertEquals(listOf("https://x.org"), opened)
         compose.onNodeWithText("Close").assertExists() // still shown and still unanswered
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
@@ -606,11 +606,11 @@ class AppDialogHostTest {
         show(ShownDialog(24, linkNotice), askBeforeOpeningLink = true)
 
         compose.onNodeWithText("here").performClick()
-        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.external_link_open_question)).assertExists()
         compose.onNodeWithText("Close").assertExists() // the Notice is still shown, underneath
         assertEquals(emptyList<String>(), opened)
 
-        compose.onNodeWithText(context.getString(R.string.okay)).performClick()
+        compose.onNodeWithText(context.getString(R.string.open_action)).performClick()
         assertEquals(listOf("https://x.org"), opened)
         compose.onNodeWithText("Close").assertExists() // still shown and still unanswered
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
