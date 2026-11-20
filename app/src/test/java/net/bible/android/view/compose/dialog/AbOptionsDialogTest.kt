@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.dialog
 
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -30,6 +31,7 @@ import net.bible.sharedcore.ui.dialog.DialogAnswer
 import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +76,15 @@ class AbOptionsDialogTest {
         }
         compose.onNodeWithTag("dialog-answer-labelOnly").performClick()
         assertEquals("labelOnly", selected)
+    }
+
+    @Test fun answerCardIsAtLeast48dpTall() {
+        compose.setContent {
+            AbTheme { AbOptionsDialog("Pick one", null, listOf(DialogAnswer("x", "Yes")), {}, {}, dismissText = "Cancel") }
+        }
+        compose.waitForIdle()
+        val h = compose.onNodeWithTag("dialog-answer-x").fetchSemanticsNode().boundsInRoot.height
+        assertTrue("card $h px < 48dp", h >= 48 * compose.density.density - 1f)
     }
 
     @Test fun consequenceLineIsShown() {

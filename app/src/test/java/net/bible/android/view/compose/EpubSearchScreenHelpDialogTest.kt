@@ -25,6 +25,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.core.app.ApplicationProvider
@@ -49,14 +53,25 @@ import org.robolectric.annotation.GraphicsMode
  * (where the link IS the whole body, so the default center-click lands on it), the FTS5 help link
  * sits mid-sentence in fixed production text this test cannot simplify.
  */
-private fun SemanticsNodeInteraction.performLinkClick() {
-    val node = fetchSemanticsNode()
-    val text = node.config[SemanticsProperties.Text].single()
-    val link = text.getLinkAnnotations(0, text.length).first()
-    val layouts = mutableListOf<TextLayoutResult>()
-    node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-    val box = layouts.single().getBoundingBox(link.start)
-    performTouchInput { click(box.center) }
+private fun SemanticsNodeInteraction.performLinkClick(scrollArea: SemanticsNodeInteraction) {
+    // The help text is taller than the dialog's scrolling middle area. A semantics node's bounds are clipped to
+    // the viewport, but the text layout's glyph boxes are not, so: scroll the link to mid-viewport, then tap the
+    // scroll area at the link's position computed from the text's unclipped position.
+    fun link(): Triple<androidx.compose.ui.geometry.Offset, androidx.compose.ui.geometry.Offset, Float> {
+        val t = fetchSemanticsNode()
+        val text = t.config[SemanticsProperties.Text].single()
+        val annotation = text.getLinkAnnotations(0, text.length).first()
+        val layouts = mutableListOf<TextLayoutResult>()
+        t.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        val center = layouts.single().getBoundingBox(annotation.start).center
+        return Triple(t.positionInRoot, center, scrollArea.fetchSemanticsNode().boundsInRoot.height)
+    }
+    val area0 = scrollArea.fetchSemanticsNode().positionInRoot
+    val (pos0, center0, viewport) = link()
+    scrollArea.performSemanticsAction(SemanticsActions.ScrollBy) { it.invoke(0f, pos0.y - area0.y + center0.y - viewport / 2) }
+    val areaPos = scrollArea.fetchSemanticsNode().positionInRoot
+    val (pos, center, _) = link()
+    scrollArea.performTouchInput { click(androidx.compose.ui.geometry.Offset(pos.x - areaPos.x + center.x, pos.y - areaPos.y + center.y)) }
 }
 
 /**
@@ -113,25 +128,23 @@ class EpubSearchScreenHelpDialogTest {
      *  dialog, reaches [onOpenExternal] directly (see `AppDialogHostTest
      *  .linkTapInsideTheDialogWindowReachesTheHost`'s kdoc for why this is now real coverage rather
      *  than the "Dialog-window limitation" this replaces). */
-    // A tall window: the help text is taller than the default 470dp window's dialog middle area, which scrolls now,
-    // and performLinkClick taps the link's glyph position, so the whole text must be on screen.
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h1200dp")
+    // The help text is taller than the dialog middle area, which scrolls: performLinkClick scrolls the link into
+    // view first, because it taps the link glyph position.
     @Test fun helpOpen_linkTapReachesOnOpenExternal() {
         show(helpOpen = true)
-        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick()
+        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick(compose.onNodeWithTag("dialog-middle"))
         assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), opened)
     }
 
     /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once. The
      *  help dialog's own confirm button is ALSO labelled "OK" (`strings.okay`), so the question's
      *  button is picked out by taking the LAST match -- see `AppSettingsScreenDialogTest`'s equivalent test. */
-    // A tall window: the help text is taller than the default 470dp window's dialog middle area, which scrolls now,
-    // and performLinkClick taps the link's glyph position, so the whole text must be on screen.
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h1200dp")
+    // The help text is taller than the dialog middle area, which scrolls: performLinkClick scrolls the link into
+    // view first, because it taps the link glyph position.
     @Test fun helpOpen_askBeforeOpeningLink_asksThenOpensOnce() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         show(helpOpen = true, askBeforeOpeningLink = true)
-        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick()
+        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick(compose.onNodeWithTag("dialog-middle"))
         compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
         assertEquals(emptyList<String>(), opened)
 

@@ -89,7 +89,8 @@ private enum class ShellSlot { Icon, Lead, Middle, Buttons }
  *  1. the button row is measured first and is never capped and never scrolls;
  *  2. the middle area ([content]) keeps at least [MiddleMinHeight];
  *  3. the lead yields first: its cap is `min(40% of the available height, what remains after the button row, the
- *     middle minimum, the icon and the gaps)`, and it scrolls inside that cap;
+ *     middle area, the icon and the gaps)`, and it scrolls inside that cap with a divider at each edge that can
+ *     scroll further. When the middle needs less than its reserve, the unused part goes back to the lead;
  *  4. windows shorter than 420dp use a compact frame (8dp margin, 12dp top and 8dp bottom padding);
  *  5. the middle area takes all remaining height and scrolls, with dividers at the edges that can scroll further.
  * The surface is bounded to the window's height, so the layout always has a finite bound to divide.
@@ -148,15 +149,20 @@ fun AbDialogShell(
                     content = {
                         if (icon != null) Box(Modifier.layoutId(ShellSlot.Icon)) { icon() }
                         if (lead != null) {
-                            Box(Modifier.layoutId(ShellSlot.Lead).testTag("dialog-lead").semantics { heading() }) {
-                                Box(Modifier.verticalScroll(rememberScrollState())) {
-                                    ProvideTextStyle(abDialogLeadStyle()) { lead() }
+                            val leadScroll = rememberScrollState()
+                            Column(Modifier.layoutId(ShellSlot.Lead).testTag("dialog-lead-area")) {
+                                if (leadScroll.canScrollBackward) ScrollDivider("dialog-lead-divider-top")
+                                Box(Modifier.weight(1f, fill = false).testTag("dialog-lead").semantics { heading() }) {
+                                    Box(Modifier.verticalScroll(leadScroll)) {
+                                        ProvideTextStyle(abDialogLeadStyle()) { lead() }
+                                    }
                                 }
+                                if (leadScroll.canScrollForward) ScrollDivider("dialog-lead-divider-bottom")
                             }
                         }
                         if (content != null) {
                             val scrollState = rememberScrollState()
-                            Column(Modifier.layoutId(ShellSlot.Middle)) {
+                            Column(Modifier.layoutId(ShellSlot.Middle).testTag("dialog-middle-area")) {
                                 if (scrollState.canScrollBackward) ScrollDivider("dialog-divider-top")
                                 Column(
                                     Modifier.weight(1f, fill = false).testTag("dialog-middle").verticalScroll(scrollState),
@@ -180,10 +186,11 @@ fun AbDialogShell(
                     val width = constraints.maxWidth
                     val total = if (constraints.hasBoundedHeight) constraints.maxHeight else Int.MAX_VALUE / 2
                     val gapLead = AbDialogTokens.GapLeadToBody.roundToPx()
-                    val gapButtons = AbDialogTokens.GapAboveButtons.roundToPx()
 
-                    // 1. Buttons: never capped, never scrolling.
+                    // 1. Buttons: never capped, never scrolling. An empty row (progress and list-choice dialogs)
+                    //    has no height and no gap above it.
                     val buttonsP = slot(ShellSlot.Buttons)!!.measure(loose.copy(maxHeight = total))
+                    val gapButtons = if (buttonsP.height == 0) 0 else AbDialogTokens.GapAboveButtons.roundToPx()
                     var used = buttonsP.height + gapButtons
                     // Icon: fixed.
                     val iconP = slot(ShellSlot.Icon)?.measure(loose.copy(maxHeight = (total - used).coerceAtLeast(0)))
@@ -193,14 +200,18 @@ fun AbDialogShell(
                     // A fixed reserve: intrinsic measurement is not allowed for content that uses
                     // SubcomposeLayout (BoxWithConstraints, lazy lists), which dialog content often does.
                     val middleReserve = if (middleM == null) 0 else MiddleMinHeight.roundToPx()
-                    // 3. Lead yields first.
+                    // 3. The middle is measured first, with the room left after the lead's wanted height (its natural
+                    //    height, at most the 40% cap) but never less than its reserve; the lead then takes whatever the
+                    //    middle did not use (so an unused part of the reserve goes back to the lead), up to its caps.
                     val leadM = slot(ShellSlot.Lead)
                     val gapMiddle = if (leadM != null && middleM != null) gapLead else 0
-                    val leadCap = minOf(leadCapFraction.roundToPx(), total - used - middleReserve - gapMiddle).coerceAtLeast(0)
+                    val leadFraction = leadCapFraction.roundToPx()
+                    val leadWanted = leadM?.let { minOf(leadFraction, it.maxIntrinsicHeight(width)) } ?: 0
+                    val room = (total - used - gapMiddle).coerceAtLeast(0)
+                    val middleP = middleM?.measure(loose.copy(maxHeight = maxOf(room - leadWanted, minOf(middleReserve, room))))
+                    val leadCap = minOf(leadFraction, room - (middleP?.height ?: 0)).coerceAtLeast(0)
                     val leadP = leadM?.measure(loose.copy(maxHeight = leadCap))
                     if (leadP != null) used += leadP.height + gapMiddle
-                    // 4. The middle area takes the rest.
-                    val middleP = middleM?.measure(loose.copy(maxHeight = (total - used).coerceAtLeast(0)))
                     val h = used + (middleP?.height ?: 0)
                     layout(width, h.coerceAtMost(total)) {
                         var y = 0
