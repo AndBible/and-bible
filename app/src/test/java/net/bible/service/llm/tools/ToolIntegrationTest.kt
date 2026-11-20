@@ -141,6 +141,31 @@ class ToolIntegrationTest {
         assertEquals(before + 1, bookmarksAt("Rom.8.28"))
     }
 
+    @Test
+    fun createBookmark_reportsDroppedAddonLabelsAndDoesNotCountThem() = runBlocking {
+        val bookmarkControl = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        val own = net.bible.android.database.bookmarks.BookmarkEntities.Label(name = "Mine").also { bookmarkControl.insert(it) }
+        val addon = net.bible.service.addons.collections.addonId("Manna", IdType())
+        val args = buildJsonObject {
+            put("verseRef", "Ps.23.1")
+            putJsonArray("labelIds") { add(addon.toString()); add(own.id.toString()) }
+        }
+        val result = CreateBookmarkTool.execute(args, context)
+        assertTrue("$result", result is ToolResult.Success)
+        val data = (result as ToolResult.Success).data as CreateBookmarkTool.Result
+        assertEquals("the own label and the AI label; the add-on label is not counted", 2, data.labelCount)
+        assertEquals(listOf(addon), data.droppedAddonLabelIds)
+        val labels = DatabaseContainer.instance.bookmarkDb.bookmarkDao().labelsForBookmark(data.id).map { it.id }
+        assertTrue(own.id in labels)
+        assertTrue(addon !in labels)
+    }
+
+    @Test
+    fun createBookmark_withoutAddonLabelsReportsNoDroppedOnes() = runBlocking {
+        val result = CreateBookmarkTool.execute(buildJsonObject { put("verseRef", "Ps.23.2") }, context)
+        assertTrue(((result as ToolResult.Success).data as CreateBookmarkTool.Result).droppedAddonLabelIds.isEmpty())
+    }
+
     private suspend fun bookmarksAt(ref: String): Int {
         val r = GetBookmarksForVerseTool.execute(buildJsonObject { put("verseRef", ref) }, context)
         return ((r as ToolResult.Success).data as GetBookmarksForVerseTool.Result).bookmarkCount

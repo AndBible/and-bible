@@ -27,6 +27,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.TextRange
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.isAddonId
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -75,7 +76,10 @@ object CreateBookmarkTool : Tool, KoinComponent {
         val verseRef: String,
         val verseName: String,
         val hasNote: Boolean,
-        val labelCount: Int
+        /** Labels the bookmark got (the AI label included); add-on labels are not counted. */
+        val labelCount: Int,
+        /** Requested add-on collection labels that were not applied: collections are read-only and take no user bookmarks. */
+        val droppedAddonLabelIds: List<IdType> = emptyList(),
     )
 
     override val agentTool = AgentTool.CREATE_BOOKMARK
@@ -208,11 +212,9 @@ object CreateBookmarkTool : Tool, KoinComponent {
 
             // Parse label IDs and always include AI label
             val aiLabelId = bookmarkControl.aiLabel().id
-            val labelIds = if (!labelIdsList.isNullOrEmpty()) {
-                labelIdsList.toSet() + aiLabelId
-            } else {
-                setOf(aiLabelId)
-            }
+            val requestedIds = labelIdsList.orEmpty().toSet()
+            val droppedAddonLabelIds = requestedIds.filter { it.isAddonId }
+            val labelIds = (requestedIds - droppedAddonLabelIds.toSet()) + aiLabelId
 
             // Set primary label: explicit param > first user label > default (AI label via addOrUpdateBookmark)
             val desiredPrimary = args.primaryLabelId ?: labelIdsList?.firstOrNull()
@@ -227,20 +229,20 @@ object CreateBookmarkTool : Tool, KoinComponent {
                 updateNotes = true
             )
 
-            savedResult(savedBookmark.id, verseRange, verseRef, hasNote = note != null, labelCount = labelIds.size)
+            savedResult(savedBookmark.id, verseRange, verseRef, hasNote = note != null, labelCount = labelIds.size, droppedAddonLabelIds = droppedAddonLabelIds)
         } catch (e: Exception) {
             ToolResult.error("Failed to create bookmark: ${e.message}", "CREATE_ERROR")
         }
     }
 
     /** F121: the bookmark is saved, so the call succeeded; a failure to describe it is logged, not reported as "not created". */
-    private fun savedResult(id: IdType, range: VerseRange, requestedRef: String, hasNote: Boolean, labelCount: Int): ToolResult {
+    private fun savedResult(id: IdType, range: VerseRange, requestedRef: String, hasNote: Boolean, labelCount: Int, droppedAddonLabelIds: List<IdType>): ToolResult {
         val (osisRef, verseName) = try {
             describeRange(range)
         } catch (e: Exception) {
             Log.w(TAG, "Bookmark $id saved; could not describe $requestedRef", e)
             requestedRef to requestedRef
         }
-        return typedSuccess(Result(id = id, verseRef = osisRef, verseName = verseName, hasNote = hasNote, labelCount = labelCount))
+        return typedSuccess(Result(id = id, verseRef = osisRef, verseName = verseName, hasNote = hasNote, labelCount = labelCount, droppedAddonLabelIds = droppedAddonLabelIds))
     }
 }

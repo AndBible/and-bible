@@ -87,6 +87,13 @@ describe("BookmarkButtons on an add-on bookmark", () => {
         expect(w.find(".icon-file-alt").exists()).toBe(true);
     });
 
+    it("does not crash on a stale primaryLabelId or label id (removed copy mechanism)", () => {
+        const w = mountButtons(bookmark("b3", {primaryLabelId: "gone", labels: ["gone", labelId]}), {});
+        expect(w.find(".icon-trash").exists()).toBe(true);
+        const none = mountButtons(bookmark("b4", {primaryLabelId: "gone", labels: ["gone"]}), {});
+        expect(none.find(".icon-trash").exists()).toBe(true);
+    });
+
     it("keeps delete for the user's own bookmark", () => {
         const w = mountButtons(bookmark("b2"), {});
         expect(w.find(".icon-trash").exists()).toBe(true);

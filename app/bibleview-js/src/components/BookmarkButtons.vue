@@ -155,12 +155,14 @@ function shareVerse() {
 const {bookmarkLabels} = inject(globalBookmarksKey)!;
 
 const labels = computed<LabelAndStyle[]>(() => {
-    return sortBy(bookmark.value.labels.map((id: IdType) => bookmarkLabels.get(id)!), ["name"]);
+    // A stale reference (a label that no longer exists) is skipped rather than crashing the menu.
+    return sortBy(bookmark.value.labels.map((id: IdType) => bookmarkLabels.get(id)).filter((l): l is LabelAndStyle => !!l), ["name"]);
 });
 
 const primaryLabel = computed(() => {
-    const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
-    return bookmarkLabels.get(primaryLabelId)!;
+    // Dev devices may carry a stale primaryLabelId (removed copy mechanism): fall back to the first known label.
+    const primaryLabelId = bookmark.value.primaryLabelId;
+    return (primaryLabelId && bookmarkLabels.get(primaryLabelId)) || labels.value[0] || ({color: "#888888"} as unknown as LabelAndStyle);
 });
 
 function openStudyPad(labelId: IdType) {
