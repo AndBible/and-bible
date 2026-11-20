@@ -29,7 +29,7 @@ import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -82,7 +82,7 @@ class ManageLabelsNarrowAssignTest {
                                 if (helpOpen) ManageLabelsHelpDialog(
                                     mode = mode, rowTogglesShown = rowTogglesShown,
                                     title = "Help", scopeSentence = null,
-                                    videoEpisode = TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+                                    helpTopic = DocsLink.LABELS,
                                     onDismiss = { helpOpen = false },
                                 )
                             }, searchActions = {},
