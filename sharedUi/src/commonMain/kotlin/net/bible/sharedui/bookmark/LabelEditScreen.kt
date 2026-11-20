@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
@@ -48,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
@@ -443,14 +445,27 @@ fun LabelEditScreen(
 private fun AddonLabelInfo(module: String, onOpenModule: (() -> Unit)?, onCopy: () -> Unit) {
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(
-            strings.addonLabelFromModule(module),
-            style = MaterialTheme.typography.titleSmall,
-            color = if (onOpenModule != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+        // A tappable line reads as a link: underlined, trailing chevron (not colour alone; monochrome has no hue).
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .then(if (onOpenModule != null) Modifier.clickable(onClickLabel = strings.addonLabelFromModuleHint) { onOpenModule() } else Modifier)
                 .padding(vertical = 8.dp),
-        )
+        ) {
+            Text(
+                strings.addonLabelFromModule(module),
+                style = MaterialTheme.typography.titleSmall,
+                color = if (onOpenModule != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                textDecoration = if (onOpenModule != null) TextDecoration.Underline else null,
+            )
+            if (onOpenModule != null) {
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         Text(
             strings.addonLabelReadOnlyNote,
             style = MaterialTheme.typography.bodyMedium,

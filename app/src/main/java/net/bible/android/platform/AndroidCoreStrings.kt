@@ -193,7 +193,10 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun addonLabelCopyName(name: String): String = context.getString(R.string.addon_label_copy_name, name)
     override fun addonLabelWithModule(label: String, module: String): String = context.getString(R.string.addon_label_with_module, label, module)
     override fun addonReadOnly(module: String): String = context.getString(R.string.addon_read_only, module)
-    override fun addonItemsSkipped(count: Int): String = context.getString(R.string.addon_items_skipped, count)
+    override fun addonItemsSkipped(count: Int): String =
+        context.resources.getQuantityString(R.plurals.addon_items_skipped, count, count)
+    override val addonReadOnlyUnknown: String get() = context.getString(R.string.addon_read_only_unknown)
+    override val addonLabelCopyFailed: String get() = context.getString(R.string.addon_label_copy_failed)
     override val exportedStudypadsSubject: String get() = context.getString(R.string.exported_studypads_subject)
     override fun exportedStudypadsMessage(appName: String): String = context.getString(R.string.exported_studypads_message, appName)
     override val sendExportFile: String get() = context.getString(R.string.send_export_file)

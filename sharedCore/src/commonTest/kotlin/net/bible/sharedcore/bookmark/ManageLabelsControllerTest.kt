@@ -936,6 +936,14 @@ class ManageLabelsControllerTest {
         assertTrue("B" in c.resultAutoAssign())
     }
 
+    @Test fun workspace_mode_toggle_checked_cannot_newly_tick_an_addon_label() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")))
+        c.toggleChecked("A")
+        assertFalse("A" in c.resultAutoAssign())
+        c.toggleChecked("B")
+        assertTrue("B" in c.resultAutoAssign())
+    }
+
     @Test fun favourite_toggle_stays_for_an_addon_label() {
         val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort")))
         c.toggleFavourite("A")

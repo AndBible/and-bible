@@ -186,6 +186,25 @@ class ReadingBridgeBookmarkFamilyTest {
         assertEquals(listOf(l1.id), runBlocking { control.labelsForBookmark(b) }.map { it.id })
     }
 
+    @Test fun assignLabelsRefusingANewAddonLabelToastsInsteadOfFailingSilently() {
+        val l1 = label("L1")
+        val b = runBlocking { control.addOrUpdateBibleBookmark(bookmark("Ps 119:1"), setOf(l1.id)) }
+        // A label carrying an add-on derived id (ownerless row: the unknown-module toast variant).
+        val addonLabel = Label(id = net.bible.service.addons.collections.addonId("Manna", net.bible.android.database.IdType()), name = "Comfort", new = true)
+        runBlocking { dao.insert(addonLabel) }
+        navigator.stub { onBlocking { assignLabels(any(), any()) } doReturn listOf(l1.id, addonLabel.id) }
+        val toasts = mutableListOf<String>()
+        val sub = net.bible.android.control.event.UserMessages.messages.subscribe {
+            (it as? net.bible.android.control.event.UserMessage.Toast)?.let { t -> t.text?.let(toasts::add) }
+        }
+        try {
+            runBlocking { BookmarkCreation(session, control).assignLabels(b) }
+        } finally { sub.cancel() }
+        assertEquals(1, toasts.size)
+        assertTrue(toasts.single(), toasts.single().contains("cannot be changed"))
+        assertEquals(listOf(l1.id), runBlocking { control.labelsForBookmark(b) }.map { it.id })
+    }
+
     @Test fun assignLabelsAppliesTheChosenLabels() {
         val l1 = label("L1")
         val l2 = label("L2")

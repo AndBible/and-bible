@@ -365,8 +365,8 @@ class ManageLabelsController(
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
         if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }
-        // An add-on label cannot be added to an own bookmark or auto-assigned (BookmarkControl refuses it); removing one stays possible.
-        else if (mode == ManageLabelsMode.ASSIGN && labels.any { it.id == id && it.isAddon }) return
+        // An add-on label cannot be added to an own bookmark or auto-assigned (WORKSPACE ticks are the auto-assign set; BookmarkControl refuses both); removing one stays possible.
+        else if ((mode == ManageLabelsMode.ASSIGN || mode == ManageLabelsMode.WORKSPACE) && labels.any { it.id == id && it.isAddon }) return
         else { ctx.add(id); if (contextPrimary() == null && mode.primaryShown) setContextPrimary(id) }
         rebuild()
     }

@@ -12,7 +12,11 @@ sealed interface LabelEditResult {
     data class Delete(val state: LabelEditState, val deleteOrphaned: Boolean) : LabelEditResult
     data object Cancel : LabelEditResult
     /** "Copy to my labels" made the editable copy [name]; the editor closes without saving the label itself. */
-    data class Copied(val name: String) : LabelEditResult
+    /**
+     * The add-on label was copied to [name]. [unsavedState] is the editor state when it had unsaved changes
+     * (such as the favourite toggle), so the host can save them instead of silently discarding them; null when clean.
+     */
+    data class Copied(val name: String, val unsavedState: LabelEditState? = null) : LabelEditResult
 }
 
 /** Delete UX the host must show: a plain confirm, or the 3-way orphaned-bookmarks dialog. */
@@ -91,7 +95,7 @@ class LabelEditController(
         copying = true
         scope.launch {
             val name = try { service.copyAddonLabel(labelId) } finally { copying = false }
-            if (name != null) onFinish(LabelEditResult.Copied(name))
+            if (name != null) onFinish(LabelEditResult.Copied(name, _state.value.takeIf { isDirty() }))
         }
     }
     private var copying = false

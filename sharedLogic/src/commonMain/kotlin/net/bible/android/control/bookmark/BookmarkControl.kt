@@ -1268,7 +1268,15 @@ open class BookmarkControl constructor(
 
     /** Tells the user that a write to add-on content was refused (never a silent no-op): the `addon_read_only` toast. */
     fun reportAddonReadOnly(e: AddonReadOnlyException) {
-        net.bible.android.control.event.UserMessages.toast(strings.addonReadOnly(e.moduleInitials.takeIf { it.isNotEmpty() }?.let(::addonModuleName) ?: ""))
+        val module = e.moduleInitials.takeIf { it.isNotEmpty() }
+        net.bible.android.control.event.UserMessages.toast(
+            if (module == null) strings.addonReadOnlyUnknown else strings.addonReadOnly(addonModuleName(module))
+        )
+    }
+
+    /** Tells the user that "Copy to my labels" failed. */
+    fun reportAddonCopyFailed() {
+        net.bible.android.control.event.UserMessages.toast(strings.addonLabelCopyFailed)
     }
 
     private suspend fun refuseAddonWrite(id: IdType): Nothing {

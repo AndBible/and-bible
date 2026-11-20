@@ -139,6 +139,8 @@ internal class ActivityTestStrings : CoreStrings {
     override fun addonLabelWithModule(label: String, module: String) = "$label · $module"
     override fun addonReadOnly(module: String) = "read-only: $module"
     override fun addonItemsSkipped(count: Int) = "$count skipped"
+    override val addonReadOnlyUnknown = "read-only"
+    override val addonLabelCopyFailed = "copy failed"
     override val exportedStudypadsSubject = "exportedStudypadsSubject"
     override fun exportedStudypadsMessage(appName: String): String = "exportedStudypadsMessage ${appName}"
     override val sendExportFile = "sendExportFile"
