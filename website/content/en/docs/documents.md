@@ -190,10 +190,10 @@ To download a document from the provided repositories:
 
 1. Click on the top left main menu (☰).
 2. Click *Download Documents*.
-3. If *AndBible* asks *Do you want to proceed to download documents?*, answer *Yes*
-    (*Yes, do not ask again* skips the question in the future, *Cancel* returns).
+3. If *AndBible* asks *Download documents?*, choose *Download*
+    (*Download, don’t ask again* skips the question in the future, *Cancel* returns).
 4. Search for a document and tap it, or tap the download arrow on its row. *AndBible*
-    asks *Download* followed by the document name; confirm with *OK*. A progress bar
+    asks *Download “<name>”?*; confirm with *Download*. A progress bar
     with a cross appears on the row while the download runs; the cross cancels it.
 
 The list has two chips at the top: the language chip (the globe) and the document type
@@ -248,7 +248,7 @@ To load a document from your device’s filesystem:
 2. Click *Choose Document* (or *Download Documents*).
 3. Click the three vertical dot menu on the right of the top menu bar.
 4. Click *Load Documents From Files*.
-5. Click *Proceed* and select a document from your device’s file browser.
+5. The dialog asks *Install documents from a file?*. Click *Choose file* and select a document from your device’s file browser.
 
 *Load Documents From Files* is in the three dot menu of both *Choose Document* and
 *Download Documents*. It is not shown in *Download Documents* while you are downloading
@@ -268,7 +268,7 @@ The dialog lists the file types that can be loaded:
 
 On iPhone, iPad and Mac, zip, EPUB and font files also open with **Open in**. On Windows and Linux you can pass files on the command line or open them from the file manager, and more formats are accepted (see [Platform differences](platform_differences.md)).
 
-When you select an AndBible documents backup, confirm that you want to restore its
+When you select an AndBible documents backup, answer *Restore the documents in this backup?* to restore its
 documents. If any files already exist, AndBible also asks before overwriting them.
 
 Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or

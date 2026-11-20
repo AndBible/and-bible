@@ -63,8 +63,7 @@ To use the AI assistant, you need an API key from your chosen provider:
 ### The AI disclaimer
 
 Before you can add your first provider (by Quick Setup or by hand), *AndBible* asks
-you to read the **Accept AI Disclaimer** dialog and to confirm with **I accept and take full
-responsibility**. It explains that AI can make mistakes, that your data is sent to the
+you to read the **Accept AI Disclaimer** dialog and to confirm with **I accept**. It explains that AI can make mistakes, that your data is sent to the
 provider you choose, and that you remain responsible for how you use the results. You can read
 the same text at any time from the first row of the connection settings,
 **Important: Read before using AI tools**.
@@ -356,7 +355,7 @@ You can cancel a running prompt at any time with `Stop AI`, and close the panel 
 `Close agent log`. The *Hide AI panel when done* setting in the connection settings hides the
 panel automatically after a task finishes or is cancelled; on an error it stays open.
 Rate limits are shown as a log line (*Rate limited. Retrying in …*), and when a run reaches the
-*Max agent iterations* limit a *Continue?* dialog asks whether to go on.
+*Max agent iterations* limit a *Continue for N more iterations?* dialog asks whether to go on.
 
 ### The Raw LLM Log
 
@@ -805,7 +804,7 @@ this mechanism – they come with the add-on module they live in.
 :   Double-check that your API key is entered correctly. Visit your provider’s
     console to verify the key is active.
 
-**“Continue?” appears during a run**
+**“Continue for N more iterations?” appears during a run**
 :   The run reached the *Max agent iterations* limit. Choose to continue, or stop and
     refine the prompt. A line *Rate limited. Retrying in …* in the log only means that
     the provider asked *AndBible* to wait.

@@ -54,7 +54,7 @@ registration exists for them, so tapping such a link in another app does not ope
 
 When you tap an external web link in Bible text, a commentary, or another document,
 *AndBible* asks for confirmation before opening it in your browser. This applies
-on Android, iOS, and desktop. Choose **OK** to open the link or **Cancel** to stay
+on Android, iOS, and desktop. The dialog asks *Open this link in your browser?*. Choose **Open** to open the link or **Cancel** to stay
 in *AndBible* without opening it.
 
 Other web links, including help and homepage links in the app's interface, keep

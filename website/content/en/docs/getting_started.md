@@ -137,9 +137,8 @@ In other languages there are no tabs and the screen shows the Advanced options d
 
 - **Redownload Documents**: choose from documents installed earlier on this device (shown only
   when there are any).
-- **Download Documents**: browse the online catalog of documents in many languages. See [Documents](documents.md). The app first asks "Do you want to proceed
-  to download documents?" (it warns that downloading Christian material can be risky in a
-  persecuted country). Answer `Yes`, `Yes, do not ask any more` (the question is not asked again)
+- **Download Documents**: browse the online catalog of documents in many languages. See [Documents](documents.md). The app first asks "Download documents?" (it warns that downloading Christian material can be risky in a
+  persecuted country). Answer `Download`, `Download, don’t ask again` (the question is not asked again)
   or `Cancel`. While you are setting up the first time, the download screen has an `OK` button at
   the bottom; it becomes available once the first Bible is installed, and takes you to reading.
 - **Load Documents From Files**: install from a file. Supported formats are AndBible zip,

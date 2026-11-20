@@ -42,8 +42,7 @@ To delete a label:
 1. [Open Label settings](#open-label-settings)
 2. Click the label you would like to delete.
 3. Click the Trash icon in the top right of *Edit label*.
-4. Click *Yes* to confirm deletion. (This will remove the label from all
-    bookmarks, notes, and associated Study Pad.)
+4. *AndBible* asks *Delete the label “…”?* (its Study Pad notes are deleted too). Click *Delete* to confirm. If some bookmarks have no other label, you can choose *Delete label only* (the bookmarks stay without a label) or *Delete label and N bookmarks* (the bookmarks and their notes are deleted).
 
 ## Change Label Settings
 
