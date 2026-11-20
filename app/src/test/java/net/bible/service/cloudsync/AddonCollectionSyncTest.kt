@@ -182,7 +182,7 @@ class AddonCollectionSyncTest {
     private suspend fun addOwnCopy(db: BookmarkDatabase): IdType {
         val own = IdType()
         db.useWriterConnectionMarked { c ->
-            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5)")
+            c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 100, 100, 100, 'KJV', 5, ${hex(addonLabel)})")
             c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, ${hex(addonLabel)})")
             c.exec("INSERT INTO Label (id, name) VALUES (X'0102030405064708890A0B0C0D0E0F10', 'Mine')")
             c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, X'0102030405064708890A0B0C0D0E0F10')")
@@ -255,9 +255,29 @@ class AddonCollectionSyncTest {
         applyPatchesForDatabase(d2, env, createPatchForDatabase(d1, env))
         assertEquals(0, addonRowsIn(d2))
         assertEquals(listOf("Mine"), d2.localDb.bookmarkDao().allLabelsSortedByName().map { it.name })
-        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
-        assertEquals("the link to the missing add-on label is dropped", 0,
-            countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
+        assertEquals("the user's bookmark arrives (its primary label is an add-on label it lacks)", 1,
+            countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)}"))
+        // Kept until the reconciler knows no installed module provides the label (it may just not be imported yet)...
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
+        // ...then the sweep drops the link and the primary label, never the bookmark; unlogged.
+        AddonCollectionImporter({ d2.localDb }, env).sweep()
+        assertEquals(0, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(addonLabel)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId IS NULL"))
+        assertEquals(0, addonLogEntries(d2))
+    }
+
+    /** Review Focus 3 / an initial download: the patch arrives before the reconciler has re-imported the module here. */
+    @Test
+    fun linkToAnAddonLabelSurvivesUntilTheModuleIsImportedHere() = run {
+        val d1 = device("d1")
+        val d2 = device("d2")
+        install(d1.localDb)
+        val own = addOwnCopy(d1.localDb)
+        applyPatchesForDatabase(d2, env, createPatchForDatabase(d1, env))
+        install(d2.localDb)
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(addonLabel)}"))
+        assertEquals(1, countIn(d2, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(own)} AND primaryLabelId = ${hex(addonLabel)}"))
+        assertEquals(0, countIn(d2, "SELECT COUNT(*) FROM pragma_foreign_key_check('BibleBookmarkToLabel')"))
     }
 
     @Test

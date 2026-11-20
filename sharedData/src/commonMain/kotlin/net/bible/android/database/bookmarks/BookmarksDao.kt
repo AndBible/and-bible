@@ -430,11 +430,32 @@ interface BookmarkDao {
 
     @Delete suspend fun delete(b: Label)
 
-    /** The add-on Bible bookmarks among [ids] that a user bookmark stands in for (see `BIBLE_STAND_IN_JOIN`). */
-    @Query("SELECT DISTINCT b.id $BIBLE_STAND_IN_JOIN AND b.id IN (:ids)")
+    /**
+     * The add-on Bible bookmarks among [ids] hidden in label [labelId]'s list or StudyPad: a user bookmark with exactly
+     * the same range carries [labelId] (the per-bookmark copy stands in for it there).
+     */
+    @Query("SELECT DISTINCT b.id $BIBLE_STAND_IN_JOIN AND bl.labelId = :labelId AND b.id IN (:ids)")
+    suspend fun stoodInBibleBookmarkIdsInLabel(ids: List<IdType>, labelId: IdType): List<IdType>
+
+    @Query("SELECT DISTINCT b.id $GENERIC_STAND_IN_JOIN AND bl.labelId = :labelId AND b.id IN (:ids)")
+    suspend fun stoodInGenericBookmarkIdsInLabel(ids: List<IdType>, labelId: IdType): List<IdType>
+
+    /**
+     * The add-on Bible bookmarks among [ids] hidden everywhere else (the text, all-bookmark lists): every add-on label
+     * of the bookmark is carried by a user bookmark with exactly its range.
+     */
+    @Query("""SELECT b.id FROM BibleBookmark b WHERE b.id IN (:ids) AND $B_IS_ADDON
+        AND EXISTS (SELECT 1 FROM BibleBookmarkToLabel bl WHERE bl.bookmarkId = b.id AND $BL_IS_ADDON)
+        AND NOT EXISTS (SELECT 1 FROM BibleBookmarkToLabel bl WHERE bl.bookmarkId = b.id AND $BL_IS_ADDON AND NOT EXISTS (
+            SELECT 1 FROM BibleBookmarkToLabel ul JOIN BibleBookmark u ON u.id = ul.bookmarkId
+            WHERE ul.labelId = bl.labelId AND $U_IS_OWN AND $SAME_BIBLE_RANGE))""")
     suspend fun stoodInBibleBookmarkIds(ids: List<IdType>): List<IdType>
 
-    @Query("SELECT DISTINCT b.id $GENERIC_STAND_IN_JOIN AND b.id IN (:ids)")
+    @Query("""SELECT b.id FROM GenericBookmark b WHERE b.id IN (:ids) AND $B_IS_ADDON
+        AND EXISTS (SELECT 1 FROM GenericBookmarkToLabel bl WHERE bl.bookmarkId = b.id AND $BL_IS_ADDON)
+        AND NOT EXISTS (SELECT 1 FROM GenericBookmarkToLabel bl WHERE bl.bookmarkId = b.id AND $BL_IS_ADDON AND NOT EXISTS (
+            SELECT 1 FROM GenericBookmarkToLabel ul JOIN GenericBookmark u ON u.id = ul.bookmarkId
+            WHERE ul.labelId = bl.labelId AND $U_IS_OWN AND $SAME_GENERIC_RANGE))""")
     suspend fun stoodInGenericBookmarkIds(ids: List<IdType>): List<IdType>
 
     /** The user bookmark standing in for add-on Bible bookmark [addonId], if any. */

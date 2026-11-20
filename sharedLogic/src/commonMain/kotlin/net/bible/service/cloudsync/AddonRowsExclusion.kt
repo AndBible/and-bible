@@ -46,6 +46,27 @@ val SyncableDatabaseDefinition.hasAddonRows: Boolean get() = this == SyncableDat
 fun addonRowTriggerCondition(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table, prefix: String): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql("$prefix.${table.idField1}")})"
 
+/** Column of [table] that references a label, where a user row may point at an add-on label. */
+private fun addonLabelReference(table: String): String? = when (table) {
+    "BibleBookmarkToLabel", "GenericBookmarkToLabel" -> "labelId"
+    "BibleBookmark", "GenericBookmark" -> "primaryLabelId"
+    else -> null
+}
+
+/**
+ * Extra condition for the foreign-key clean-up of an applied patch (`pragma_foreign_key_check(...) fk`): a user row
+ * whose missing parent is an add-on label is kept. Add-on labels are not in the database for a while (after an
+ * initial download or a merge, until the reconciler has re-imported them) or not at all (the module is not installed
+ * here); a user's link to (or primary label of) an add-on label must not be lost in the first case. The reconciler's
+ * sweep removes such references once it knows no installed module provides the label.
+ */
+fun keepUserRefsToAddonLabels(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String {
+    if (!category.hasAddonRows) return ""
+    val column = addonLabelReference(table.tableName) ?: return ""
+    val name = table.tableName
+    return " AND NOT (fk.parent = 'Label' AND EXISTS (SELECT 1 FROM $name t WHERE t.rowid = fk.rowid AND ${isAddonIdSql("t.$column")}))"
+}
+
 /** `AND NOT <add-on row>` for a query over [table] (alias-free column names); empty for other categories. */
 fun addonRowExclusion(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String =
     if (!category.hasAddonRows) "" else " AND NOT (${isAddonIdSql(table.idField1)})"

@@ -133,16 +133,26 @@ class SharedAddonScanner(
         for (book in addons) {
             val declared = book.bookMetaData.getValues("AndBibleProvidesLabels")?.firstOrNull() ?: continue
             val base = book.base() ?: continue
-            val real = if (safeFontPath(declared)) try {
-                val realBase = files.canonicalize(base)
-                files.canonicalize(base / declared).takeIf {
+            if (!safeFontPath(declared)) {
+                Log.e(TAG, "Rejected collection file path '$declared' for module ${book.initials}")
+                continue
+            }
+            val realBase = try { files.canonicalize(base) } catch (_: Exception) { base }
+            val candidate = realBase / declared
+            val real = if (files.metadataOrNull(candidate) == null) {
+                // Declared but missing or unreadable: still listed, so the reconciler keeps what it imported before
+                // (it cannot hash the file and skips the module) instead of removing it as if uninstalled.
+                Log.e(TAG, "Unreadable collection file '$declared' for module ${book.initials}")
+                candidate
+            } else try {
+                files.canonicalize(candidate).takeIf {
                     it.root == realBase.root && it.segments.size > realBase.segments.size &&
                         it.segments.take(realBase.segments.size) == realBase.segments &&
                         files.metadataOrNull(it)?.isRegularFile == true
                 }
-            } catch (_: Exception) { null } else null
+            } catch (_: Exception) { null }
             if (real == null) {
-                Log.e(TAG, "Rejected or unreadable collection file '$declared' for module ${book.initials}")
+                Log.e(TAG, "Rejected collection file '$declared' for module ${book.initials}")
                 continue
             }
             refs.add(CollectionPackRef(book.initials, book.name, book.bookMetaData.getProperty("Version") ?: "0", real))

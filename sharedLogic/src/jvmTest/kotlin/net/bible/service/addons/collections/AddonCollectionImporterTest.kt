@@ -223,12 +223,50 @@ class AddonCollectionImporterTest {
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(l)}"))
         assertEquals(l.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
 
-        // Module removal drops only the link (and the primary label), never the user's bookmark; nothing logged.
+        // Module removal alone leaves the user's rows as they are (another module may still provide the label)...
         importer.remove("Manna")
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
+        // ...the sweep, once every installed module is reconciled, drops only the link and the primary label, never
+        // the user's bookmark; nothing logged.
+        importer.sweep()
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmark WHERE id = X'0F'"))
         assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel"))
         assertEquals(null, local.rows("SELECT primaryLabelId FROM BibleBookmark WHERE id = X'0F'").single()[0])
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
+    }
+
+    /** Importing one module never drops a user's link into another module's label that is not imported yet. */
+    @Test
+    fun replaceLeavesUserLinksToOtherModulesLabels() = withFixture {
+        val otherLabel = addonId("Other", Src.comfort)
+        // As a synced patch leaves them while module Other is not imported yet (foreign keys off, as patches apply).
+        local.sql(
+            "PRAGMA foreign_keys=OFF",
+            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (X'0F', 1, 1, 1, 1, 'KJV', 9, ${hex(otherLabel)})",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(otherLabel)})",
+            "PRAGMA foreign_keys=ON",
+        )
+        importer.replace(ref("Manna", file), "h")
+        importer.remove("Manna")
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
+        assertEquals(otherLabel.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
+        importer.replace(ref("Other", file), "h")
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(otherLabel)}"))
+    }
+
+    @Test
+    fun authorsFavouriteAndSpeakLinksAreNotImported() = withFixture {
+        openBookmarkDb(file.toString()).apply {
+            try {
+                sql("UPDATE Label SET favourite = 1",
+                    "INSERT INTO Label (id, name) VALUES (${hex(net.bible.android.database.bookmarks.SPEAK_LABEL_ID)}, '${net.bible.android.database.bookmarks.SPEAK_LABEL_NAME}')",
+                    "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(Src.b1)}, ${hex(net.bible.android.database.bookmarks.SPEAK_LABEL_ID)})")
+            } finally { close() }
+        }
+        local.sql("INSERT INTO Label (id, name) VALUES (${hex(net.bible.android.database.bookmarks.SPEAK_LABEL_ID)}, '${net.bible.android.database.bookmarks.SPEAK_LABEL_NAME}')")
+        importer.replace(ref("Manna", file), "h")
+        assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE favourite = 1"))
+        assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(net.bible.android.database.bookmarks.SPEAK_LABEL_ID)}"))
     }
 
     @Test

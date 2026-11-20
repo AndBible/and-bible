@@ -78,6 +78,7 @@ private suspend fun writePatchData(
 
 private suspend fun readPatchData(
     db: PooledConnection,
+    category: SyncableDatabaseDefinition,
     tableDef: SyncableDatabaseDefinition.Table,
     restoreDropped: Boolean = false,
 ) = db.run {
@@ -130,7 +131,7 @@ private suspend fun readPatchData(
     // but patch still adds references
     exec("""
             DELETE FROM $table 
-            WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
+            WHERE rowId in (SELECT fk.rowid FROM pragma_foreign_key_check('$table') fk WHERE 1${keepUserRefsToAddonLabels(category, tableDef)});
             """.trimIndent()
     )
 
@@ -155,7 +156,7 @@ private suspend fun readPatchData(
               AND pe.lastUpdated = me.lastUpdated AND pe.sourceDevice = me.sourceDevice)
             """.trimIndent())
         if (queryLong("SELECT changes()") != 0L) {
-            exec("DELETE FROM $table WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'))")
+            exec("DELETE FROM $table WHERE rowId in (SELECT fk.rowid FROM pragma_foreign_key_check('$table') fk WHERE 1${keepUserRefsToAddonLabels(category, tableDef)})")
         }
     }
 
@@ -262,7 +263,7 @@ suspend fun applyPatchesForDatabase(
                         val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef, restoreDropped = tableDef.tableName in restorable)
+                            readPatchData(this, dbDef.category, tableDef, restoreDropped = tableDef.tableName in restorable)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }

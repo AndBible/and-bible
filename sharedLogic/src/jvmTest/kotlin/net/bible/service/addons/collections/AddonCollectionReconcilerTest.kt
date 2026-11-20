@@ -178,6 +178,51 @@ class AddonCollectionReconcilerTest {
         assertFalse(reconciler.reconcile())
     }
 
+    /** An installed module whose file cannot be read now (storage not mounted) is not treated as uninstalled. */
+    @Test
+    fun unreadableFileKeepsTheImportAndTheUsersLinks() = withFixture {
+        source.refs = listOf(ref("Manna", file))
+        reconciler.reconcile()
+        val l = addonId("Manna", Src.comfort)
+        local.sql(
+            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt) VALUES (X'0F', 1, 1, 1, 1, 'KJV', 9)",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(l)})",
+            "INSERT INTO AddonLabelLocalState (labelId, favourite) VALUES (${hex(l)}, 1)",
+        )
+        source.refs = listOf(ref("Manna", pathOf(dir, "not-mounted/manna.sqlite3")))
+        assertFalse(reconciler.reconcile())
+        assertEquals(2, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM AddonLabelLocalState"))
+    }
+
+    /** Two modules after a restore emptied the ownership tables: neither import drops the user's links into the other. */
+    @Test
+    fun twoModulesAfterARestoreKeepTheUsersLinks() = withFixture {
+        source.refs = listOf(ref("Manna", file), ref("Other", file))
+        reconciler.reconcile()
+        val manna = addonId("Manna", Src.comfort)
+        val other = addonId("Other", Src.comfort)
+        local.sql(
+            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt) VALUES (X'0F', 1, 1, 1, 1, 'KJV', 9)",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(manna)})",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'0F', ${hex(other)})",
+            // A restore of a backup taken before the modules were installed: no add-on rows, no records (a whole-file
+            // swap: no cascade).
+            "PRAGMA foreign_keys=OFF",
+            "DELETE FROM BibleBookmarkToLabel WHERE substr(bookmarkId, 5, 6) = X'ADD08C01A011'",
+            "DELETE FROM Label WHERE substr(id, 5, 6) = X'ADD08C01A011'",
+            "DELETE FROM AddonCollectionRow", "DELETE FROM AddonCollectionModule",
+            "PRAGMA foreign_keys=ON",
+        )
+        assertTrue(reconciler.reconcile())
+        assertEquals(setOf(manna.toHex(), other.toHex()), local.rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'").map { it[0] }.toSet())
+        // The module goes: its link goes with it, the other stays.
+        source.refs = listOf(ref("Other", file))
+        reconciler.reconcile()
+        assertEquals(setOf(other.toHex()), local.rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'").map { it[0] }.toSet())
+    }
+
     @Test
     fun concurrentReconcilesRunOneAtATime() = withFixture {
         source.refs = listOf(ref("Manna", file))

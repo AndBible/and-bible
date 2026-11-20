@@ -233,6 +233,37 @@ class AddonCollectionBookmarkControlTest {
     }
 
     @Test
+    fun unchangedLabelsOrNoteMakeNoCopy() = run {
+        val b = dao.bibleBookmarkById(b1)!!
+        control.addOrUpdateBibleBookmark(b, setOf(l))
+        control.saveBibleBookmarkNote(b1, "Fear not")
+        control.addOrUpdateBibleBookmark(b.apply { notes = "Fear not" }, null, updateNotes = true)
+        assertEquals(emptyList<Any>(), userBookmarksOn(1))
+        assertEquals(emptyList<Any>(), log())
+    }
+
+    /** A verse in two add-on labels: removing one of them from the copy brings the original back in that label only. */
+    @Test
+    fun hidingIsPerLabel() = run {
+        val l2 = addonId(module, IdType("99999999-0000-4000-8000-000000000001"))
+        db.useWriterConnectionMarked { c ->
+            c.exec("INSERT INTO Label (id, name) VALUES (X'${l2.toHex()}', 'Second')")
+            c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (X'${b1.toHex()}', X'${l2.toHex()}')")
+            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'Label', X'${l2.toHex()}', NULL)")
+            c.exec("INSERT INTO AddonCollectionRow (moduleInitials, tableName, id1, id2) VALUES ('$module', 'BibleBookmarkToLabel', X'${b1.toHex()}', X'${l2.toHex()}')")
+        }
+        val own = ownLabel()
+        control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
+        val copy = userBookmarksOn(1).single()
+        assertEquals(setOf(l, l2, own.id), dao.labelsForBookmark(copy.id).map { it.id }.toSet())
+        control.removeBibleBookmarkLabel(copy.id, l2)
+        assertTrue("back in the second label", control.getBibleBookmarksWithLabel(dao.labelById(l2)!!).any { it.id == b1 })
+        assertTrue("still stood in for in the first", control.getBibleBookmarksWithLabel(dao.labelById(l)!!).none { it.id == b1 })
+        assertTrue("shown in the text: not all its labels are on the copy",
+            control.bookmarksForVerseRange(range(1)).any { it.id == b1 })
+    }
+
+    @Test
     fun ownBookmarkOnTheSameRangeWithoutTheLabelHidesNothing() = run {
         val own = ownLabel()
         control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(range(1), null, true, null), setOf(own.id))
@@ -264,7 +295,7 @@ class AddonCollectionBookmarkControlTest {
         control.toggleBookmarkLabel(dao.bibleBookmarkById(b1)!!, own.id.toString())
         val copy = userBookmarksOn(1).single()
         db.useWriterConnectionMarked { it.exec("DELETE FROM LogEntry") }
-        AddonCollectionImporter({ db }, env).remove(module)
+        AddonCollectionImporter({ db }, env).run { remove(module); sweep() }
         assertEquals(listOf(own.id), dao.labelsForBookmark(copy.id).map { it.id })
         assertEquals("My own bookmark stays", copy.id, dao.bibleBookmarkById(copy.id)!!.id)
         assertEquals(emptyList<Any>(), log())

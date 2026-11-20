@@ -172,7 +172,7 @@ class SharedAddonScannerOracleTest {
         inject(books)
         val android = AndBibleAddons.providedCollections.map { listOf(it.moduleInitials, it.moduleName, it.version, it.file.toString()) }
         val shared = SharedAddonScanner({ books }).collections().map { listOf(it.moduleInitials, it.moduleName, it.version, it.file.toString()) }
-        assertEquals(listOf("A", "B"), android.map { it[0] })
+        assertEquals(listOf("A", "B", "Missing"), android.map { it[0] })
         assertEquals(android, shared)
     }
 }

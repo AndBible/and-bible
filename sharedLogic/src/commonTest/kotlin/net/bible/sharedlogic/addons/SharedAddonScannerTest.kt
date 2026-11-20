@@ -59,7 +59,7 @@ class SharedAddonScannerTest {
         assertEquals("/mods/ok/prompts/pack.csv", packs.single().path)
     }
 
-    @Test fun collectionsResolveTheDeclaredFileAndRejectUnsafeOrMissingPaths() {
+    @Test fun collectionsResolveTheDeclaredFileRejectUnsafePathsAndKeepMissingFiles() {
         touch("/mods/ok/db/manna.sqlite3")
         touch("/mods/nover/c.db")
         touch("/outside.db")
@@ -70,7 +70,9 @@ class SharedAddonScannerTest {
         val missing = fakeAddonBook("Gone", "/mods/ok", labels = listOf("gone.db"))
         val none = fakeAddonBook("None", "/mods/ok")
         val refs = SharedAddonScanner({ listOf(ok, nover, abs, dotdot, missing, none) }, fs).collections()
-        assertEquals(listOf("Manna", "NoVer"), refs.map { it.moduleInitials })
+        // A missing file is still listed (the reconciler then keeps the earlier import); unsafe paths are not.
+        assertEquals(listOf("Manna", "NoVer", "Gone"), refs.map { it.moduleInitials })
+        assertEquals("/mods/ok/gone.db".toPath(), refs[2].file)
         assertEquals("/mods/ok/db/manna.sqlite3".toPath(), refs[0].file)
         assertEquals("1.2", refs[0].version)
         assertEquals(ok.name, refs[0].moduleName)

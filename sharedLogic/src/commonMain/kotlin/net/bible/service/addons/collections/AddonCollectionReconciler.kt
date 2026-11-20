@@ -70,10 +70,12 @@ class AddonCollectionReconciler(
         val imported = dao().allModules().associateBy { it.moduleInitials }
         val changes = mutableListOf<LogEntry>()
         var changed = false
+        var failed = false
 
         for (ref in refs) {
             val hash = try { contentHash(ref) } catch (e: Exception) {
-                Log.e(TAG, "Could not read add-on collection file of ${ref.moduleInitials}", e); continue
+                // Installed but unreadable now (e.g. storage not mounted): keep what was imported, as is.
+                Log.e(TAG, "Could not read add-on collection file of ${ref.moduleInitials}", e); failed = true; continue
             }
             val previous = imported[ref.moduleInitials]
             if (previous != null && previous.version == ref.version && previous.contentHash == hash) continue
@@ -83,6 +85,7 @@ class AddonCollectionReconciler(
             } catch (e: Exception) {
                 // The previous content (if any) stays: replace is one transaction.
                 Log.e(TAG, "Could not import add-on collection ${ref.moduleInitials} ${ref.version}", e)
+                failed = true
                 continue
             }
             changed = true
@@ -96,16 +99,16 @@ class AddonCollectionReconciler(
                 importer.remove(gone)
             } catch (e: Exception) {
                 Log.e(TAG, "Could not remove add-on collection $gone", e)
+                failed = true
                 continue
             }
             changed = true
             changes += diff(before, emptyList())
         }
 
-        if (!changed) {
-            // Only when nothing ran: every import and removal sweeps too.
-            if (importer.needsSweep() && importer.sweep() > 0) changed = true
-        }
+        // Only once every installed module is in: then a missing add-on label really is gone, and the user's links
+        // to it (and unowned add-on rows) can go. Not after a failure: a module that could not be read may still own it.
+        if (!failed && importer.needsSweep() && importer.sweep() > 0) changed = true
         if (changed) {
             try { onChanged(changes) } catch (e: Exception) { Log.e(TAG, "Change notification failed", e) }
         }

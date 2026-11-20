@@ -133,15 +133,23 @@ object AndBibleAddons {
         val refs = mutableListOf<net.bible.sharedlogic.platform.CollectionPackRef>()
         for (book in addons) {
             val declared = book.bookMetaData.getValues("AndBibleProvidesLabels")?.firstOrNull() ?: continue
+            if (!isSafeRelativePath(declared)) {
+                Log.e(TAG, "Rejected collection file path '$declared' for module ${book.initials}")
+                continue
+            }
             val real = try {
                 val base = File(book.bookMetaData.location).canonicalFile
-                val file = File(base, declared).canonicalFile
-                file.takeIf {
-                    isSafeRelativePath(declared) && it.path.startsWith(base.path + File.separator) && it.isFile && it.canRead()
+                val candidate = File(base, declared)
+                if (!candidate.exists()) {
+                    // Declared but missing: still listed, so the reconciler keeps the earlier import (see SharedAddonScanner).
+                    Log.e(TAG, "Unreadable collection file '$declared' for module ${book.initials}")
+                    candidate
+                } else {
+                    candidate.canonicalFile.takeIf { it.path.startsWith(base.path + File.separator) && it.isFile }
                 }
             } catch (e: java.io.IOException) { null }
             if (real == null) {
-                Log.e(TAG, "Rejected or unreadable collection file '$declared' for module ${book.initials}")
+                Log.e(TAG, "Rejected collection file '$declared' for module ${book.initials}")
                 continue
             }
             refs.add(net.bible.sharedlogic.platform.CollectionPackRef(
