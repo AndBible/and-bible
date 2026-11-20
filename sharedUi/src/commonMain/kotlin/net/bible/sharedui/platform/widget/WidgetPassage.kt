@@ -51,7 +51,7 @@ object WidgetPassage {
         return try {
             if (doc is SwordDictionary) return BookAndKey(doc.getKey(zeroPad(keyStr)), doc)
             val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
-            BookAndKey(key, doc, ordinal = action.ordinal?.let { OrdinalRange(it) })
+            BookAndKey(key, doc, ordinal = action.ordinal?.takeIf { it >= 0 }?.let { OrdinalRange(it) })
         } catch (e: Exception) {
             Log.e(TAG, "Cannot resolve widget passage: $action", e)
             null
