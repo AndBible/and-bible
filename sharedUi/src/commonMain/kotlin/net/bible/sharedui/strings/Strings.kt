@@ -535,6 +535,12 @@ interface Strings {
      */
     val searchTypePrompt: String
     val chooseTranslations: String
+    /** The label of the regular-expression switch in the Bible search settings. */
+    val searchRegex: String
+    /** The one-line settings summary's stand-in for the word mode while the regex switch is on. */
+    val searchRegexSummary: String
+    /** The notice above the results of a regex search that hit its time budget. */
+    val searchResultsTruncated: String
     val recentSearches: String
     val create: String
     val rebuildIndex: String
@@ -562,7 +568,7 @@ interface Strings {
     /**
      * F6-B5. The Bible-search help dialog, restored to the Compose path: classic offered it from the
      * search screen's action bar (`R.menu.search_actionbar_menu`) and the Compose form dropped it
-     * along with the rebuild-index item, because `SearchScreen` passes `AbScaffold` no `actions` slot.
+     * along with the rebuild-index item, because the (since removed) legacy form passed `AbScaffold` no `actions` slot.
      * [helpSearchDetails] takes the link label, matching `custom_repositories_help2`'s shape.
      */
     val helpSearchText2: String

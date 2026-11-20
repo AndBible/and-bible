@@ -60,6 +60,7 @@ import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchDocumentCategory
+import net.bible.sharedcore.search.unindexedAmong
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchKind
@@ -93,7 +94,7 @@ class ReadingSearchServices(
  * and iOS share them. The settings persist through [AppSettings] under the keys the classic search
  * Activities use, byte for byte.
  *
- * Settings are plain Compose `State` rather than a `SearchFormController`: the reading view's
+ * Settings are plain Compose `State` rather than a controller of their own: the reading view's
  * current book moves as the user reads, so the book name is read fresh per search instead.
  *
  * Everything the platform alone can do (the document being read, JSword lookups, showing a result,
@@ -141,6 +142,8 @@ internal class ReadingSearchSession(
     }
 
     val searchType: MutableState<SearchType> = mutableStateOf(SearchType.ALL_WORDS)
+    /** Session-only, like [searchType]: the query is a regular expression over the stored verse texts. */
+    val searchRegex: MutableState<Boolean> = mutableStateOf(false)
     val searchSection: MutableState<SearchBibleSection> = mutableStateOf(SearchBibleSection.ALL)
     val searchTranslations: MutableState<List<String>> = mutableStateOf(emptyList())
 
@@ -322,7 +325,7 @@ internal class ReadingSearchSession(
         // Task 11 chain so every unindexed choice is built before the search runs.
         firstUnindexedInSelection = {
             val selection = searchTranslations.value
-            (if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(selection))
+            (if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(selection, searchRegex.value))
                 .firstOrNull()?.also { searchSelectorPendingIds = selection }
         },
         // An F100 prompt that was abandoned must not leave its chain armed for an unrelated later build.
@@ -643,6 +646,8 @@ internal class ReadingSearchSession(
             ),
             currentBookName = platform.currentBookName(),
             isStrongsSearch = strongsSearch,
+            // One-shot queries (Strong's, pre-decorated) are Lucene queries, never expressions.
+            isRegex = searchRegex.value && !preDecorated && !strongsSearch,
         )
     }
 
@@ -909,7 +914,7 @@ internal class ReadingSearchSession(
             // A selection holding more than one unindexed translation chains to the next one instead
             // of letting `onIndexingFinished` re-run against only the just-built translation.
             val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) {
-                if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(it)
+                if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(it, searchRegex.value)
             }
             if (next != null) {
                 controller.promptIndexFor(next, keepInterceptedSearch = true, preserveHidden = true)

@@ -19,6 +19,21 @@ class AppRoutesTest {
     }
 
     @Test
+    fun aRestoredLegacySearchFormStartRouteOpensReadingInsteadOfCrashingTheGraph() {
+        val stale = "search/form?searchText=love&searchType=PHRASE&searchSection=ALL&bibleBook=John"
+        assertEquals(NavRoutes.READING, navHostStartRoute(stale, null, onMissing = { fail() }))
+        assertEquals(NavRoutes.READING, navHostStartRoute(null, stale, onMissing = { fail() }))
+        assertEquals(NavRoutes.READING, navHostStartRoute("search/form", null, onMissing = { fail() }))
+    }
+
+    @Test
+    fun retiredRouteRedirectMatchesTheWholeBaseOnly() {
+        assertEquals(NavRoutes.EPUB_SEARCH, withoutRetiredRoute(NavRoutes.EPUB_SEARCH))
+        assertEquals("search/formal", withoutRetiredRoute("search/formal"))
+        assertEquals("settings?x=search/form", withoutRetiredRoute("settings?x=search/form"))
+    }
+
+    @Test
     fun missingDefaultsToReadingAndReports() {
         var missing = 0
         assertEquals(NavRoutes.READING, navHostStartRoute(null, null) { missing++ })

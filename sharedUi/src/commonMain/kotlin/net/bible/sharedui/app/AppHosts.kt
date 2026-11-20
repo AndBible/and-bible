@@ -12,7 +12,6 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.bookmark.BookmarkRecreationState
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
@@ -33,7 +32,6 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.UserNotifier
-import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
@@ -149,10 +147,7 @@ class AppHosts(
             appSettingsProvider = { koin.get<AppSettings>() },
             notificationPermission = ports.notificationPermission,
             links = koin.get<ExternalLinks>(),
-            searchControlProvider = { koin.get<SearchControl>() },
-            bibleSearchServiceProvider = { koin.get<BibleSearchService>() },
             searchIndexServiceProvider = { koin.get<SearchIndexService>() },
-            windowControlProvider = { koin.get<WindowControl>() },
             pageControlProvider = { koin.get<PageControl>() },
         )
     }

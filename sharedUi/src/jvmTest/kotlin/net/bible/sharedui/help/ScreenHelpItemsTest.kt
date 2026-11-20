@@ -8,15 +8,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.docs.DocsLink
-import net.bible.sharedcore.search.SearchBibleSection
-import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.backup.BackupRestoreScreen
 import net.bible.sharedcore.backup.BackupState
 import net.bible.sharedui.components.HelpOpener
 import net.bible.sharedui.components.LocalHelpOpener
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
-import net.bible.sharedui.search.SearchScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -45,18 +42,6 @@ class ScreenHelpItemsTest {
     @Test fun backupOpensBackupAndRestore() = assertEquals(
         listOf(DocsLink.BACKUP_RESTORE),
         topicOpenedFrom { BackupRestoreScreen(BackupState(), { _, _ -> }, {}, {}, {}, {}, {}, {}) },
-    )
-
-    @Test fun searchOpensSearch() = assertEquals(
-        listOf(DocsLink.SEARCH),
-        topicOpenedFrom {
-            SearchScreen(
-                title = "Search", query = "", searchType = SearchType.ALL_WORDS, bibleSection = SearchBibleSection.ALL,
-                availableTranslations = emptyList(), selectedTranslationIds = emptyList(),
-                onQueryChange = {}, onSearchType = {}, onBibleSection = {}, onTranslations = {},
-                onSubmit = {}, onNavigateUp = {},
-            )
-        },
     )
 
     @Test fun readingPlanSelectorOpensReadingPlans() = assertEquals(

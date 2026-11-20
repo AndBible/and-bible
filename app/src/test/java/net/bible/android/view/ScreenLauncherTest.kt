@@ -85,11 +85,6 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun search_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.searchForm(), ScreenLauncher.MIGRATED[Screen.Search])
-    }
-
-    @Test
     fun searchIndex_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.searchIndex(), ScreenLauncher.MIGRATED[Screen.SearchIndex])
     }

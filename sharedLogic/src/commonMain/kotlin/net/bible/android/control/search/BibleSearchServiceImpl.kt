@@ -19,8 +19,11 @@ package net.bible.android.control.search
 import net.bible.sharedcore.log.Log
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookException
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.sword.SwordContentFacade
@@ -43,12 +46,14 @@ import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import net.bible.sharedcore.search.SearchType as SharedSearchType
 import net.bible.sharedcore.search.SearchBibleSection as SharedSearchBibleSection
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 
 /** A search the user must change: carries the localized message the shared controller shows. */
-class SearchSyntaxException(message: String, cause: Throwable) : Exception(message, cause)
+class SearchSyntaxException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /**
  * Host (`:app`) implementation of the portable [BibleSearchService] seam. It wraps the existing
@@ -76,10 +81,16 @@ class BibleSearchServiceImpl(
             request.currentBookName,
         )
 
-    override suspend fun searchMulti(request: SearchRequest): MultiSearchResults = withContext(Dispatchers.IO) {
+    override suspend fun searchMulti(request: SearchRequest): MultiSearchResults =
+        searchMulti(request, SearchControl.REGEX_SEARCH_BUDGET)
+
+    /** [regexBudget] is injectable for tests only; production uses [SearchControl.REGEX_SEARCH_BUDGET]. */
+    @VisibleForTesting
+    suspend fun searchMulti(request: SearchRequest, regexBudget: Duration): MultiSearchResults = withContext(Dispatchers.IO) {
         // Result previews read the hit books: a restored results route must not read an enciphered book locked
         // (an empty/garbage preview, cached by readOsisFragment and by the results controller).
         net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+        if (request.isRegex) return@withContext searchRegex(request, regexBudget)
         // Section-decorated query drives the Lucene search (unchanged from the classic path); the
         // section-less variant supplies the words/lemmas that are actually highlighted in previews.
         val decorated = decorate(request)
@@ -104,6 +115,53 @@ class BibleSearchServiceImpl(
         val main = dto.mainSearchResults.map { it.toRow(previews) }
         val other = dto.otherSearchResults.map { it.toRow(previews) }
         MultiSearchResults(main = main, other = other, total = dto.size)
+    }
+
+    /**
+     * The regex path: the query reaches [Regex] exactly as typed (no Lucene decoration, so `:` and `[...]` are
+     * regex syntax), case-insensitive like the other searches.
+     */
+    private suspend fun searchRegex(request: SearchRequest, budget: Duration): MultiSearchResults {
+        if (request.query.isBlank()) return MultiSearchResults.EMPTY
+        // Syntax first, so that a malformed pattern gets the syntax message and not a complexity one.
+        val regex = try {
+            Regex(request.query, RegexOption.IGNORE_CASE)
+        } catch (e: IllegalArgumentException) {
+            throw SearchSyntaxException(strings.searchInvalidRegex(e.message ?: ""), e)
+        }
+        // Before anything runs: a pattern that can backtrack catastrophically is refused, because Android's engine
+        // cannot be interrupted once it runs, and so is any search while an abandoned runaway match still burns a thread.
+        when (regexRisk(request.query)) {
+            RegexRisk.NESTED_REPETITION -> throw SearchSyntaxException(strings.searchRegexNestedRepetition)
+            RegexRisk.TOO_MANY_WILDCARDS -> throw SearchSyntaxException(strings.searchRegexTooManyWildcards)
+            null -> {}
+        }
+        if (!awaitNoAbandonedRegexWork()) throw SearchSyntaxException(strings.searchRegexBusy)
+        val dto = searchControl.getMultiRegexResults(
+            request.translationIds, regex, request.bibleSection.toClassic(), request.currentBookName, budget,
+        )
+        val ctx = currentCoroutineContext()
+        ctx.ensureActive()
+        val previews = PreviewReader(emptyList(), emptyList())
+        val main = dto.mainSearchResults.map { ctx.ensureActive(); it.toRow(previews) }
+        val other = dto.otherSearchResults.map { ctx.ensureActive(); it.toRow(previews) }
+        // One abandonable pass with its own allowance: a pattern the engine cannot be interrupted in leaves the rest of
+        // the rows unhighlighted instead of holding the search.
+        val rows = main + other
+        // No highlighting at all when the scan ended by abandonment: the engine is still running there, and a second
+        // pass of the same pattern would add a second runaway thread.
+        val previewTexts = rows.flatMap { row -> row.matches.map { it.preview } }
+        val highlighted = (if (abandonedRegexWorkRunning > 0) previewTexts else
+            highlightWithinAllowance(previewTexts, REGEX_HIGHLIGHT_ALLOWANCE) { text, b -> highlightRegexMatches(text, regex, b) }
+        ).iterator()
+        val withHighlights = rows.map { row ->
+            val matches = row.matches.map { it.copy(preview = highlighted.next()) }
+            row.copy(matches = matches, primaryPreview = matches.firstOrNull()?.preview ?: row.primaryPreview)
+        }
+        return MultiSearchResults(
+            main = withHighlights.take(main.size), other = withHighlights.drop(main.size),
+            total = dto.size, truncatedByTime = dto.truncatedByTime,
+        )
     }
 
     override fun containsNonScripture(): Boolean = searchControl.currentDocumentContainsNonScripture()
@@ -229,6 +287,8 @@ class BibleSearchServiceImpl(
 
     companion object {
         private const val TAG = "BibleSearchService"
+        /** Wall-clock limit of highlighting the matches in the previews of one regex search. */
+        val REGEX_HIGHLIGHT_ALLOWANCE: Duration = 1.seconds
     }
 }
 

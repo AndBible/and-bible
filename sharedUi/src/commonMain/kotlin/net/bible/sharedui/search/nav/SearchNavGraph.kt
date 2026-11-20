@@ -25,13 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -41,19 +38,15 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.search.EpubSearchFormController
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.ProgressJob
-import net.bible.sharedcore.search.SearchBibleSection
-import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchRequest
-import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.popOrExitFrom
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.search.SearchIndexScreen
-import net.bible.sharedui.search.SearchScreen
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // The chain's arguments (plan D3)
@@ -139,60 +132,6 @@ internal fun epubSearchContinuation(query: String, mode: EpubSearchMode, documen
 // Deps
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
-/**
- * What classic `SearchComposeActivity.onCreate` read off JSword before it could draw the form:
- * the window/screen [title] (`R.string.search_in` with the current document's abbreviation) and the
- * [currentBookName] the section chooser labels its "current book" option with.
- */
-data class SearchFormSetup(
-    val title: String,
-    val currentBookName: String,
-)
-
-/** The installed Bibles and the persisted selection, as one snapshot. See [SearchFormDeps.loadTranslations]. */
-data class TranslationSelection(
-    /** `initials to abbreviation`, sorted by abbreviation — [SearchScreen]'s `availableTranslations`. */
-    val available: List<Pair<String, String>>,
-    val selected: List<String>,
-)
-
-/**
- * Where a submitted search form must go next — the data half of classic
- * `SearchComposeActivity.onSubmit`'s branch. The DECISION's inputs are computed host-side (they are
- * all JSword: index status and `decorateSearchString`); the branch itself is
- * taken in this graph, because both arms are `navController.navigate(...)`.
- */
-sealed interface SearchSubmission {
-    data class NeedsIndex(val documentId: String?, val request: ReadingSearchRequest) : SearchSubmission
-    data class Results(val request: ReadingSearchRequest) : SearchSubmission
-}
-
-/**
- * `SEARCH_FORM_PATTERN`'s platform-supplied slots, ported from classic `SearchComposeActivity`.
- *
- * - [prepare] is classic's `onCreate` preamble: the `search-last-used` timestamp, the current
- *   document gate (it returns **null** when there is no document to search — classic's immediate
- *   `finish()`) and the two strings in [SearchFormSetup]. It takes the route's restored
- *   `bibleBook` argument because classic seeded `currentBookName` from its history extra before
- *   falling back to `searchControl.currentBookName`.
- * - [loadTranslations] is BOTH classic's `onCreate` seed and its `onResume` re-seed (`:128-143`),
- *   which are the same two reads: every `SwordBook` sorted by abbreviation, and the persisted
- *   selection falling back to the current document. The graph calls it once when it builds the
- *   controller and again from a `LifecycleEventEffect(ON_RESUME)` — a lifecycle-aware effect, not
- *   at composition, because the reason classic re-read it is that the RESULTS screen's document
- *   selector may have changed the persisted choice while this screen sat in the back stack.
- * - [controllerFor] builds the [SearchFormController] host-side: its three constructor lambdas
- *   (`persistTranslations`, `persistRecentTerms`, `loadRecentTerms`) all reach app settings.
- * - [submit] is classic `onSubmit`'s JSword half, returning a [SearchSubmission] for the graph to
- *   branch on rather than navigating itself.
- */
-class SearchFormDeps(
-    val prepare: (restoredBibleBook: String?) -> SearchFormSetup?,
-    val loadTranslations: () -> TranslationSelection,
-    val controllerFor: (currentBookName: String) -> SearchFormController,
-    val submit: (SearchRequest) -> SearchSubmission,
-)
-
 /** The document an index prompt is about. See [SearchIndexPromptDeps.resolve]. */
 data class IndexTarget(
     val documentId: String,
@@ -228,7 +167,7 @@ class SearchIndexPromptDeps(
  * that produces it.
  */
 enum class IndexOutcome {
-    /** The document reached `IndexStatus.DONE`. Route on to the search form or the results. */
+    /** The document reached `IndexStatus.DONE`. Route on to the results. */
     INDEXED,
 
     /** As [INDEXED], but the document is an EPUB — classic picked the epub twin of each destination. */
@@ -350,7 +289,7 @@ class SearchNavDeps(
      * it disposes the exiting one. So on any A -> B where both publish a route, an unconditional
      * `DisposableEffect(Unit) { onDispose { clear() } }` on A runs after B has already published,
      * and wipes it: B shows with `isIntegrateWithHistoryManager == false` and nothing notices.
-     * `Search form -> reading` in this very cluster is exactly that shape.
+     * `EPUB search -> reading` in this very cluster is exactly that shape.
      */
     val clearHistoryRoute: (owner: Any) -> Unit,
     /**
@@ -365,8 +304,6 @@ class SearchNavDeps(
      * swallow (#4003).
      */
     val historyBackEnabled: Boolean = true,
-    // — SEARCH FORM —
-    val searchForm: SearchFormDeps,
     // — SEARCH INDEX PROMPT —
     val searchIndex: SearchIndexPromptDeps,
     // — SEARCH INDEX PROGRESS —
@@ -383,8 +320,8 @@ class SearchNavDeps(
  * Up-navigation for a destination that may be the graph's START destination. `popBackStack()`
  * returns false and does nothing on a single-entry back stack, so a bare `popBackStack()` binding
  * makes the up-arrow a dead button whenever the destination was entered directly. Both branches are
- * live here: the search form and the index prompt are each reachable directly from
- * `ScreenLauncher` AND as a child of the other.
+ * live here: the index prompt and the EPUB search are reachable directly from
+ * `ScreenLauncher`, and the index prompt also as a child of the progress screen.
  *
  * The boolean branch itself is [net.bible.sharedui.nav.popOrExitOnFailedPop] — ONE `internal`
  * helper shared by all four cluster graphs and tested there (whole-branch review M1, which
@@ -408,145 +345,8 @@ internal fun SearchIndexPromptBack(onCancel: () -> Unit) {
     PlatformBackHandler(enabled = true, onBack = onCancel)
 }
 
-/** Forms and standalone index management. Every search continuation hands off to the reading sheet. */
+/** The EPUB search form and standalone index management. Every search continuation hands off to the reading sheet. */
 fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: SearchNavDeps) {
-    // ——— SEARCH FORM ———
-    composable(
-        route = NavRoutes.SEARCH_FORM_PATTERN,
-        arguments = listOf(
-            // The form's four HISTORY-RESTORE arguments, not the chain's five: classic Search wrote
-            // "Search"/"Words"/"Selection"/"BibleBook" onto its own intent so HistoryManager could
-            // bring the filled-in Find screen back (`SearchComposeActivity.kt:154-157`).
-            navArgument(NavRoutes.ARG_SEARCH_TEXT) { type = NavType.StringType; nullable = true; defaultValue = null },
-            navArgument(NavRoutes.ARG_SEARCH_TYPE) { type = NavType.StringType; nullable = true; defaultValue = null },
-            navArgument(NavRoutes.ARG_SEARCH_SECTION) { type = NavType.StringType; nullable = true; defaultValue = null },
-            navArgument(NavRoutes.ARG_BIBLE_BOOK) { type = NavType.StringType; nullable = true; defaultValue = null },
-        ),
-    ) { backStackEntry ->
-        val d = deps.searchForm
-        // Read plainly — no decodeArg. See searchArgs()'s kdoc: the library already decoded these,
-        // and a query is free text where a second pass would crash on a literal '%'.
-        val restoredText = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_SEARCH_TEXT) }
-        val restoredType = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_SEARCH_TYPE) }
-        val restoredSection = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_SEARCH_SECTION) }
-        val restoredBibleBook = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_BIBLE_BOOK) }
-
-        val setup = remember(restoredBibleBook) { d.prepare(restoredBibleBook) }
-        if (setup == null) {
-            // Classic's "no document to search -> finish() immediately". Nothing was pushed on top
-            // of us, so leaving means leaving the host.
-            LaunchedEffect(Unit) { navController.popOrExit(backStackEntry, deps.exitHost) }
-        } else {
-            LaunchedEffect(setup.title) { deps.setWindowTitle(setup.title) }
-
-            val controller = remember(setup) {
-                d.controllerFor(setup.currentBookName).also { c ->
-                    val translations = d.loadTranslations()
-                    c.setAvailableTranslations(translations.available)
-                    // Seed, not set: loading must not re-persist what it just read.
-                    c.seedTranslations(translations.selected)
-                    // The history-restore arguments. An UNKNOWN searchType/searchSection name is
-                    // IGNORED, not an error — classic used firstOrNull and fell through to the
-                    // controller's own default.
-                    restoredText?.takeIf { it.isNotEmpty() }?.let(c::setQuery)
-                    restoredType
-                        ?.let { name -> SearchType.entries.firstOrNull { it.name == name } }
-                        ?.let(c::setSearchType)
-                    restoredSection
-                        ?.let { name -> SearchBibleSection.entries.firstOrNull { it.name == name } }
-                        ?.let(c::setBibleSection)
-                }
-            }
-
-            // Classic Search.onResume (`:128-143`): the RESULTS screen's document selector may have
-            // changed the persisted selection while this screen sat in the back stack, so the list
-            // is re-read on every resume — including a return through the back stack, which is the
-            // only form that case takes inside a nav graph. A lifecycle-aware effect, not a bare
-            // LaunchedEffect, for exactly that reason.
-            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                val translations = d.loadTranslations()
-                controller.setAvailableTranslations(translations.available)
-                controller.seedTranslations(translations.selected)
-            }
-
-            val query by controller.query.collectAsState()
-            val searchType by controller.searchType.collectAsState()
-            val bibleSection by controller.bibleSection.collectAsState()
-            val availableTranslations by controller.availableTranslations.collectAsState()
-            val selectedTranslationIds by controller.selectedTranslationIds.collectAsState()
-            val recentTerms by controller.recentTerms.collectAsState()
-
-            // THE HISTORY SEAM. Classic wrote the four restore extras onto its own intent inside
-            // onSubmit, because ActivityBase.startActivity captured intentForHistoryList on the way
-            // out. There is no startActivity here and no intent to mutate, so the route is
-            // published CONTINUOUSLY from the form's live state instead: whenever anything records
-            // a history item while this destination is showing, the stored route already names the
-            // query, search type and section on screen.
-            val historyOwner = remember { Any() }
-            LaunchedEffect(query, searchType, bibleSection, setup.currentBookName) {
-                deps.setHistoryRoute(
-                    historyOwner,
-                    NavRoutes.searchForm(
-                        searchText = query.takeIf { it.isNotEmpty() },
-                        searchType = searchType.name,
-                        searchSection = bibleSection.name,
-                        bibleBook = setup.currentBookName,
-                    ),
-                )
-            }
-            // Never an unconditional clear — see SearchNavDeps.clearHistoryRoute: this runs AFTER
-            // the entering destination has published its own route, and Search form -> reading is
-            // the exact case that breaks.
-            DisposableEffect(Unit) {
-                onDispose { deps.clearHistoryRoute(historyOwner) }
-            }
-            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
-            // the destination so it registers after the NavHost's own callback and wins over it.
-            PassThroughBackHandler(enabled = deps.historyBackEnabled) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
-
-            SearchScreen(
-                title = setup.title,
-                query = query,
-                searchType = searchType,
-                bibleSection = bibleSection,
-                availableTranslations = availableTranslations,
-                selectedTranslationIds = selectedTranslationIds,
-                currentBookName = setup.currentBookName,
-                onQueryChange = controller::setQuery,
-                onSearchType = controller::setSearchType,
-                onBibleSection = controller::setBibleSection,
-                onTranslations = controller::setTranslations,
-                onSubmit = {
-                    val request = controller.buildRequest()
-                    // Classic's `if (request.query.isBlank()) return`.
-                    if (request.query.isNotBlank()) {
-                        controller.recordRecentTerm(controller.query.value)
-                        // Classic finished itself on both arms (`startActivity(...); finish()`), so
-                        // Back from the results does NOT land on the form again — the HistoryManager
-                        // entry published above is what brings it back, filled in. popUpTo
-                        // reproduces that.
-                        val popSelf: NavOptionsBuilder.() -> Unit = {
-                            popUpTo(NavRoutes.SEARCH_FORM_PATTERN) { inclusive = true }
-                        }
-                        when (val next = d.submit(request)) {
-                            is SearchSubmission.NeedsIndex -> navController.navigate(
-                                NavRoutes.searchIndex(searchDocument = next.documentId, readingRequest = next.request),
-                                popSelf,
-                            )
-                            is SearchSubmission.Results -> navController.navigate(
-                                NavRoutes.readingSearch(next.request),
-                                popSelf,
-                            )
-                        }
-                    }
-                },
-                onNavigateUp = { navController.popOrExit(backStackEntry, deps.exitHost) },
-                recentTerms = recentTerms,
-                onRecentTermSelected = controller::setQuery,
-            )
-        }
-    }
-
     // ——— SEARCH INDEX PROMPT ———
     composable(
         route = NavRoutes.SEARCH_INDEX_PATTERN,
@@ -693,8 +493,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             }
 
             // THE HISTORY SEAM (`integrateWithHistoryManager = true`). The route is argument-free,
-            // so unlike the form in SEARCH_FORM_PATTERN there is nothing live to keep it in step
-            // with — but the owner-token clear is still a compare-and-clear, because this screen's
+            // so there is nothing live to keep it in step with — but the owner-token clear is still a compare-and-clear, because this screen's
             // successor publishes its own route before this one is
             // disposed.
             val historyOwner = remember { Any() }

@@ -21,6 +21,17 @@ interface BibleSearchService {
     fun unindexedStrongsAmong(translationIds: List<String>): List<String> = unindexedAmong(translationIds)
 }
 
+/**
+ * [BibleSearchService.unindexedAmong] for a search of the given kind. A regular-expression search scans Bibles only and
+ * skips every other document, so a skipped document needs no index and is never reported. An extension, not a member:
+ * a delegating `BibleSearchService` cannot bypass it.
+ */
+fun BibleSearchService.unindexedAmong(translationIds: List<String>, regex: Boolean): List<String> {
+    if (!regex) return unindexedAmong(translationIds)
+    val bibles = candidateBibles().mapTo(HashSet()) { it.id }
+    return unindexedAmong(translationIds.filter { it in bibles })
+}
+
 interface SearchIndexService {
     fun hasIndex(docId: String): Boolean
     fun createIndex(docId: String)   // kickoff only; progress = Screen.SearchIndexProgress (Batch 1)

@@ -32,7 +32,7 @@ import org.robolectric.annotation.GraphicsMode
  * `ShadowPausedLooper.idle()` under `captureScreenIfMultipleWindows` and never converges). Re-attempt
  * a real-popup golden only after a Roborazzi/Robolectric upgrade (or a per-test JVM fork) resolves
  * that hang; until then, the popup wrapper itself is proven by [net.bible.sharedui.components.AbOverflowMenu]'s
- * long production use (SearchScreen, WorkspaceSelectorScreen, MyDocumentsScreen, ...).
+ * long production use (WorkspaceSelectorScreen, MyDocumentsScreen, ...).
  *
  * `items` mixes iconed and iconless rows (A/B batch 1 F5a) — and this one is NOT just a synthetic
  * golden-test convenience: while classic's static `main_bible_options_menu.xml` gives all 9 of its

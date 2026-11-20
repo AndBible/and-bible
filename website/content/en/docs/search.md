@@ -152,6 +152,70 @@ The three search types treat what you type differently:
   quoted phrases and proximity searches do not behave as written, so use `Any word` for them.
 - `Phrase` searches everything you type as one phrase. Use it for plain words only.
 
+### Regular expressions
+
+**Experimental.** Regular-expression search is experimental. A pattern that the safety check described below misses
+can, on Android, keep computing in the background until you restart the app, and regular-expression search is refused
+while it does.
+
+In the search settings of the reading screen, the **Regular expression (experimental)** switch (below the search type row) makes
+AndBible read what you type as a regular expression instead of search words. While the switch is on, the three search
+types (`Phrase`, `All words`, `Any word`) are disabled, because they do not apply; the settings summary shows `Regex`.
+The older search form that some menus and links open does not have this switch yet.
+
+The expression is matched against the written verse text of the selected Bibles. Regular-expression search covers
+Bible translations only: commentaries, dictionaries and other documents among the selected ones are skipped. It does
+not match Strong's numbers or notes. Matches are highlighted in the results.
+
+- The match is case-insensitive by default. Start the expression with `(?-i)` to make it case-sensitive.
+- Accents and other diacritics are not folded: `e` does not match `é`.
+- The verse text is searched as it is written, so punctuation follows the word without a space: use `said:`, not `said :`.
+  The stored text is reconstructed from the module's markup, so in rare cases its spacing can still differ from what
+  the reading screen shows; a `\s*` in the expression tolerates that.
+- Spaces at the very start and end of what you type are ignored, as in every other search. To match a space there, use
+  `\s` or `[ ]` inside the expression.
+
+Examples:
+
+- `Lord\s+God` finds "Lord" followed by whitespace and "God"
+- `colou?r` finds both "color" and "colour"
+- `said:` finds "said" followed by a colon
+
+A blank expression does nothing. An invalid expression shows "Invalid regular expression:" and the reason. An
+expression that can match the empty string (for example `x*`) matches every verse; the results are capped at 5000 per
+translation.
+
+A regular-expression search has a time limit of 3 seconds for the whole search, across all selected translations. When
+it runs out, you get the results found so far and the notice "The search took too long and was stopped. Results are
+incomplete; try a simpler expression." The same notice appears when a verse could not be matched or one of the
+selected translations could not be read, because the list may then be incomplete; if every selected translation fails,
+the search shows an error instead of an empty list. Highlighting the matches has its own short time limit; results it
+does not reach are shown without highlights.
+
+An expression that repeats a group which itself contains a repetition, such as `(\w+\s?)+:`, `(a*)*b` or `(.*a){20}`,
+can take practically forever to match, so it is refused with a message before it runs; write it without the nesting
+(`[\w\s]+:`). The same goes for a repeated group of alternatives where one alternative is empty, optional or broad
+(`.`, `\S`, a negated class) or where two alternatives can match the same character, such as `(.|\s)*q`, `(\w|\d)+x`
+or `(a?){30}a{30}`; alternatives of distinct words such as `(said|spake)+` are fine, as are `\s+` or `\s*` between
+words. An expression with more than six open-ended wildcards (`.*`, `\w+`, `[^,]*`) is refused with its own message.
+Small bounded repeats such as `(\d{1,3}\.){3}` are fine. This check is not a proof, and a slow expression
+that it lets through is still stopped at the time limit. On Android the regular-expression engine cannot be
+interrupted: such an expression is abandoned after about 3 seconds, but its computation keeps running in the
+background until it finishes, which may be never (AndBible gives that background work the lowest thread priority, so it
+disturbs the rest of the app as little as possible, but it still uses a processor core). While one is running, a new regular-expression search is refused
+with a message that asks you to try again in a moment or restart the app. Desktop and iOS stop the match itself at the
+time limit.
+
+Each platform uses its own regular-expression engine: Android uses Android's own (ICU-based) engine, desktop uses
+Java's, and iOS uses Kotlin/Native's. They agree on common syntax, but small differences in dialect are possible. On
+iOS (checked on the simulator), `(?-i)`, case-insensitive matching of Greek letters, the time limit and very long
+repetitions such as `(a|b)*` over a 100,000-character text behave as on the other platforms. Other non-Latin scripts
+and exotic syntax (lookbehind, Unicode properties) have not been compared engine by engine.
+
+After updating to the version that adds this feature, the existing search indexes are rebuilt once (the search screen
+shows the usual state that the index is not built). The index grows by about 25 %: for example the KJV index grows
+from 16.7 MB to 21.1 MB.
+
 ### Proximity Search
 
 Find words that are within a specific distance of each other. To do a proximity search, put the

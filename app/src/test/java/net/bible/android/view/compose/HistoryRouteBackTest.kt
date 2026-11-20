@@ -87,7 +87,7 @@ class HistoryRouteBackTest {
         compose.waitForIdle()
     }
 
-    private fun searchFormHost(): Pair<NavHostComposeActivity, NavHostController> {
+    private fun epubSearchHost(): Pair<NavHostComposeActivity, NavHostController> {
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -96,18 +96,18 @@ class HistoryRouteBackTest {
         net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
             .apply { isAccessible = true }.get(activity) as NavHostController
-        // The form needs a current document (prepare() returns null otherwise); set one explicitly.
+        // The EPUB search destination needs a current document (prepare() returns null otherwise); set one explicitly.
         val kjv = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
         CommonUtils.windowControl.activeWindow.pageManager.setCurrentDocumentAndKey(
             kjv, Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 23, 1), addHistoryItem = false,
         )
-        // The search form publishes its history route continuously. EPUB_SEARCH would need an installed EPUB (it pops
-        // out when there is no current document to search), so the search-form route is used instead.
-        nav.navigate(NavRoutes.searchForm())
+        // The EPUB search destination publishes an argument-free history route while it is showing; it only needs a
+        // current document (any document, KJV here) to compose rather than pop out.
+        nav.navigate(NavRoutes.EPUB_SEARCH)
         idle()
         // The route is published by a LaunchedEffect on the Compose test clock: wait for it in real time, driving
         // that clock, instead of assuming 2 simulated seconds were enough on a contended forked run.
-        net.bible.test.awaitHostCondition("search form must publish its history route", { compose.waitForIdle() }) {
+        net.bible.test.awaitHostCondition("EPUB search must publish its history route", { compose.waitForIdle() }) {
             activity.isIntegrateWithHistoryManager
         }
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
@@ -119,7 +119,7 @@ class HistoryRouteBackTest {
     @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() = stepsHistory()
     @Test fun aHistoryRouteDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { stepsHistory() }
     private fun stepsHistory() {
-        val (activity, _) = searchFormHost()
+        val (activity, _) = epubSearchHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
         manager.addHistoryItem(window, Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"))
@@ -138,11 +138,11 @@ class HistoryRouteBackTest {
     @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() = emptyHistory()
     @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePopWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { emptyHistory() }
     private fun emptyHistory() {
-        val (activity, nav) = searchFormHost()
+        val (activity, nav) = epubSearchHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
         assertTrue("fixture: history is empty", manager.getHistory(window.id).isEmpty())
-        assertEquals("fixture: on the search form", NavRoutes.searchForm().substringBefore('?'), currentRoute(nav))
+        assertEquals("fixture: on the EPUB search", NavRoutes.EPUB_SEARCH, currentRoute(nav))
 
         activity.onBackPressedDispatcher.onBackPressed()
         idle()

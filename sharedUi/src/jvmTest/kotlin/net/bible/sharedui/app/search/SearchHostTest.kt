@@ -5,11 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import org.crosswire.jsword.index.IndexStatus
 import net.bible.sharedui.search.nav.IndexOutcome
-import net.bible.android.control.search.SearchControl
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedui.reading.host.slots.MapSearchSettings
-import net.bible.sharedui.reading.host.slots.FakeBibleSearch
-import net.bible.sharedcore.search.BibleSearchService
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import net.bible.sharedui.app.HostShell
@@ -17,7 +13,6 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
-import org.crosswire.jsword.book.Book
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,7 +35,6 @@ class SearchHostTest {
 
     private fun host(
         settings: AppSettings? = null,
-        bible: BibleSearchService? = null,
     ) = SearchHost(
         shell = shell,
         strings = strings,
@@ -52,57 +46,9 @@ class SearchHostTest {
             override val askBeforeOpening = false
             override fun open(url: String) = Unit
         },
-        searchControlProvider = { error("searchControl must stay lazy") },
-        bibleSearchServiceProvider = { bible ?: error("bibleSearchService must stay lazy") },
         searchIndexServiceProvider = { error("searchIndexService must stay lazy") },
-        windowControlProvider = { error("windowControl must stay lazy") },
         pageControlProvider = { error("pageControl must stay lazy") },
     )
-
-    @Test
-    fun commentaryFormDoesNotRestoreSavedBibleSelection() {
-        fun book(initials: String, driver: String): Book {
-            val config = """
-                [$initials]
-                DataPath=./modules/$initials
-                ModDrv=$driver
-                Description=$initials regression fixture
-                SourceType=OSIS
-                Lang=en
-                Encoding=UTF-8
-            """.trimIndent()
-            val metadata = SwordBookMetaData(config.toByteArray(), "$initials.conf")
-            return metadata.bookType!!.createBook(metadata)
-        }
-        val bible = book("Issue3873Bible", "RawText")
-        val secondBible = book("Issue3873SecondBible", "RawText")
-        val commentary = book("Issue3873Commentary", "RawCom")
-        val saved = "Issue3873Bible,Issue3873Gone,Issue3873SecondBible"
-        val settings = MapSearchSettings(mutableMapOf(SearchControl.SEARCH_TRANSLATIONS_PREF to saved))
-        // Seeding reads the cheap in-memory status; the (here contradicting) full validation must not matter.
-        bible.indexStatus = IndexStatus.DONE
-        secondBible.indexStatus = IndexStatus.UNDONE
-        Books.installed().addBook(bible)
-        Books.installed().addBook(secondBible)
-        try {
-            val host = host(settings = settings, bible = FakeBibleSearch(unindexed = setOf(bible.initials)))
-            assertEquals(listOf("Issue3873Commentary"), host.loadSearchTranslations(commentary).selected)
-            assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
-            assertEquals(
-                listOf("Issue3873Bible"),
-                host.loadSearchTranslations(bible).selected,
-            )
-            assertEquals(
-                listOf("Issue3873Bible", "Issue3873SecondBible"),
-                host.loadSearchTranslations(secondBible).selected,
-                "the active Bible remains selected even without an index",
-            )
-            assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
-        } finally {
-            Books.installed().removeBook(secondBible)
-            Books.installed().removeBook(bible)
-        }
-    }
 
     @Test
     fun idleProgressSubscriptionRechecksCompletionWithoutWaitingForANewEvent() {
