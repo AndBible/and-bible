@@ -123,15 +123,20 @@ class BibleSearchServiceImpl(
      */
     private suspend fun searchRegex(request: SearchRequest, budget: Duration): MultiSearchResults {
         if (request.query.isBlank()) return MultiSearchResults.EMPTY
-        // Before anything runs: a pattern that can backtrack catastrophically is refused, because Android's engine
-        // cannot be interrupted once it runs, and so is any search while an abandoned runaway match still burns a thread.
-        if (hasNestedRepetition(request.query)) throw SearchSyntaxException(strings.searchRegexNestedRepetition)
-        if (!awaitNoAbandonedRegexWork()) throw SearchSyntaxException(strings.searchRegexBusy)
+        // Syntax first, so that a malformed pattern gets the syntax message and not a complexity one.
         val regex = try {
             Regex(request.query, RegexOption.IGNORE_CASE)
         } catch (e: IllegalArgumentException) {
             throw SearchSyntaxException(strings.searchInvalidRegex(e.message ?: ""), e)
         }
+        // Before anything runs: a pattern that can backtrack catastrophically is refused, because Android's engine
+        // cannot be interrupted once it runs, and so is any search while an abandoned runaway match still burns a thread.
+        when (regexRisk(request.query)) {
+            RegexRisk.NESTED_REPETITION -> throw SearchSyntaxException(strings.searchRegexNestedRepetition)
+            RegexRisk.TOO_MANY_WILDCARDS -> throw SearchSyntaxException(strings.searchRegexTooManyWildcards)
+            null -> {}
+        }
+        if (!awaitNoAbandonedRegexWork()) throw SearchSyntaxException(strings.searchRegexBusy)
         val dto = searchControl.getMultiRegexResults(
             request.translationIds, regex, request.bibleSection.toClassic(), request.currentBookName, budget,
         )
@@ -143,9 +148,12 @@ class BibleSearchServiceImpl(
         // One abandonable pass with its own allowance: a pattern the engine cannot be interrupted in leaves the rest of
         // the rows unhighlighted instead of holding the search.
         val rows = main + other
-        val highlighted = highlightWithinAllowance(rows.flatMap { row -> row.matches.map { it.preview } }, REGEX_HIGHLIGHT_ALLOWANCE) { text, b ->
-            highlightRegexMatches(text, regex, b)
-        }.iterator()
+        // No highlighting at all when the scan ended by abandonment: the engine is still running there, and a second
+        // pass of the same pattern would add a second runaway thread.
+        val previewTexts = rows.flatMap { row -> row.matches.map { it.preview } }
+        val highlighted = (if (abandonedRegexWorkRunning > 0) previewTexts else
+            highlightWithinAllowance(previewTexts, REGEX_HIGHLIGHT_ALLOWANCE) { text, b -> highlightRegexMatches(text, regex, b) }
+        ).iterator()
         val withHighlights = rows.map { row ->
             val matches = row.matches.map { it.copy(preview = highlighted.next()) }
             row.copy(matches = matches, primaryPreview = matches.firstOrNull()?.preview ?: row.primaryPreview)

@@ -197,6 +197,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val exportDestinationMessage: String get() = context.getString(R.string.export_destination_message)
     override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
     override fun searchInvalidRegex(engineMessage: String): String = context.getString(R.string.search_invalid_regex, engineMessage)
+    override val searchRegexTooManyWildcards: String get() = context.getString(R.string.search_regex_too_many_wildcards)
     override val searchRegexNestedRepetition: String get() = context.getString(R.string.search_regex_nested_repetition)
     override val searchRegexBusy: String get() = context.getString(R.string.search_regex_busy)
     override val memorizeWordVisibilityEntries: List<String> get() = context.resources.getStringArray(R.array.memorize_word_visibility_entries).toList()

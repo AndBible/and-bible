@@ -20,14 +20,26 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RegexComplexityTest {
-    private fun assertNested(vararg patterns: String) = patterns.forEach { assertEquals(true, hasNestedRepetition(it), "should be refused: $it") }
-    private fun assertFine(vararg patterns: String) = patterns.forEach { assertEquals(false, hasNestedRepetition(it), "should be allowed: $it") }
+    private fun assertNested(vararg patterns: String) = patterns.forEach { assertEquals(RegexRisk.NESTED_REPETITION, regexRisk(it), "should be refused: $it") }
+    private fun assertWildcards(vararg patterns: String) = patterns.forEach { assertEquals(RegexRisk.TOO_MANY_WILDCARDS, regexRisk(it), "should be refused: $it") }
+    private fun assertFine(vararg patterns: String) = patterns.forEach { assertEquals(null, regexRisk(it), "should be allowed: $it") }
 
     @Test fun refusesARepeatedGroupThatContainsARepetition() {
         assertNested(
             """(\w+\s?)+:""", "(.*a){20}", "(a*)*b", "(a*)*\\1b", "(a+)+", "(a+)*", "(a*)+", "((a+)b)+", "x(?:a|b+)*y", "(a{2,})+", "(.{1,50}x){10,}",
             "(a+)+?", "(a+)++", "([a-z]+\\s)+", "(?i)(foo.*)*",
         )
+    }
+
+    @Test fun refusesARepeatedAlternationThatCanSplitTheSameTextManyWays() {
+        assertNested(
+            "(.|\\s)*q", "(\\S|\\w)+x", "(.|,)*", "(a?){30}a{30}", "(\\w|\\d)+x", "(a|a)+", "(a|A)*b", "(a?|b)+", "(a|)+", "(|a)*",
+            "([^x]|y)+", "(\\W|,){2,}", "(?:\\D|a)*", "(a|b|[ab])+", "(x|(.))*", "(a|b?){3,5}",
+        )
+    }
+
+    @Test fun allowsRepeatedAlternationsOfDistinctWords() {
+        assertFine("(said|spake)", "(said|spake)+", "(?:said|spake)*:", "(ab|cd)+", "(\\d|\\.)+", "(a|b)+", "(?i)(Lord|God){1,3}", "(\\s|,)*", "(a?)+", "(a?){2}a{2}")
     }
 
     @Test fun allowsEverydayPatterns() {
@@ -49,12 +61,20 @@ class RegexComplexityTest {
         assertFine("(a+){x}", "(a+){,5}", "(a+){1,2,3}", "(a+){")
     }
 
-    @Test fun refusesManyOpenEndedRepetitions() {
-        assertNested(".*.*.*.*.*.*.*!", "a+b+c+d+e+f+g+", "\\w*\\w*\\w*\\w*\\w*\\w*\\w*")
-        assertFine(".*.*.*.*.*.*!", "[a-z]+ [a-z]+ [a-z]+")
+    @Test fun refusesManyBroadOpenEndedRepetitions() {
+        assertWildcards(".*.*.*.*.*.*.*!", "\\w*\\w*\\w*\\w*\\w*\\w*\\w*", "[^,]+ [^,]+ [^,]+ [^,]+ [^,]+ [^,]+ [^,]+", "\\S+.*\\W+\\D*.*\\w+.+")
+        assertFine(".*.*.*.*.*.*!", "[a-z]+ [a-z]+ [a-z]+", "a+b+c+d+e+f+g+")
+    }
+
+    @Test fun whitespaceBetweenWordsIsNotCounted() {
+        assertFine(
+            "in\\s+the\\s+beginning\\s+God\\s+created\\s+the\\s+heaven\\s+and", "a\\s*b\\s*c\\s*d\\s*e\\s*f\\s*g\\s*h\\s*i",
+            "\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+",
+        )
+        assertWildcards("\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\w+")
     }
 
     @Test fun survivesMalformedPatterns() {
-        assertFine("", "(", "((", "[", "[[", "{", "a)", ")))")
+        assertFine("", "(", "((", "[", "[[", "{", "a)", ")))", "(?", "(?i", "(?<n")
     }
 }

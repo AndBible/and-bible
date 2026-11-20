@@ -195,6 +195,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val exportDestinationMessage: String get() = t.text("export_destination_message")
     override fun searchUnsupportedSyntax(syntax: String): String = t.fmt("search_unsupported_syntax", syntax)
     override fun searchInvalidRegex(engineMessage: String): String = t.fmt("search_invalid_regex", engineMessage)
+    override val searchRegexTooManyWildcards: String get() = t.text("search_regex_too_many_wildcards")
     override val searchRegexNestedRepetition: String get() = t.text("search_regex_nested_repetition")
     override val searchRegexBusy: String get() = t.text("search_regex_busy")
     override val memorizeWordVisibilityEntries: List<String> get() = t.array("memorize_word_visibility_entries")

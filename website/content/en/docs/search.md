@@ -190,7 +190,11 @@ does not reach are shown without highlights.
 
 An expression that repeats a group which itself contains a repetition, such as `(\w+\s?)+:`, `(a*)*b` or `(.*a){20}`,
 can take practically forever to match, so it is refused with a message before it runs; write it without the nesting
-(`[\w\s]+:`). Small bounded repeats such as `(\d{1,3}\.){3}` are fine. This check is not a proof, and a slow expression
+(`[\w\s]+:`). The same goes for a repeated group of alternatives where one alternative is empty, optional or broad
+(`.`, `\S`, a negated class) or where two alternatives can match the same character, such as `(.|\s)*q`, `(\w|\d)+x`
+or `(a?){30}a{30}`; alternatives of distinct words such as `(said|spake)+` are fine, as are `\s+` or `\s*` between
+words. An expression with more than six open-ended wildcards (`.*`, `\w+`, `[^,]*`) is refused with its own message.
+Small bounded repeats such as `(\d{1,3}\.){3}` are fine. This check is not a proof, and a slow expression
 that it lets through is still stopped at the time limit. On Android the regular-expression engine cannot be
 interrupted: such an expression is abandoned after about 3 seconds, but its computation keeps running in the
 background until it finishes, which may be never. While one is running, a new regular-expression search is refused

@@ -275,6 +275,7 @@ class KeyedStringsTest {
         assertText("exportDestinationMessage", core.exportDestinationMessage, filled = false)
         assertText("searchUnsupportedSyntax", core.searchUnsupportedSyntax("x"))
         assertText("searchInvalidRegex", core.searchInvalidRegex("x"))
+        assertText("searchRegexTooManyWildcards", core.searchRegexTooManyWildcards, filled = false)
         assertText("searchRegexNestedRepetition", core.searchRegexNestedRepetition, filled = false)
         assertText("searchRegexBusy", core.searchRegexBusy, filled = false)
         assertList("memorizeWordVisibilityEntries", core.memorizeWordVisibilityEntries)

@@ -211,6 +211,9 @@ class SearchControl constructor(
         budgetDuration: Duration = REGEX_SEARCH_BUDGET,
         bookLookup: (String) -> Book? = { SwordDocumentFacade.getDocumentByInitials(it) },
     ): MultiSearchResultsDto = withContext(Dispatchers.IO) {
+        require(bibleSection != SearchBibleSection.CURRENT_BOOK || !currentBookName.isNullOrBlank()) {
+            "Searching the current book needs a book name"
+        }
         val searchResults = MultiSearchResultsDto()
         val books = documentInitials.mapNotNull { initials ->
             (bookLookup(initials) as? SwordBook)?.takeIf { it.indexStatus == IndexStatus.DONE && it.bookCategory == BookCategory.BIBLE }
@@ -258,10 +261,7 @@ class SearchControl constructor(
                 SearchBibleSection.ALL -> null
                 SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
                 SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
-                SearchBibleSection.CURRENT_BOOK -> {
-                    if (currentBookName.isNullOrBlank()) throw NoSuchKeyException("No current book")
-                    book.getKey(currentBookName)
-                }
+                SearchBibleSection.CURRENT_BOOK -> book.getKey(currentBookName!!)
             }
             BookScan(index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget))
         }

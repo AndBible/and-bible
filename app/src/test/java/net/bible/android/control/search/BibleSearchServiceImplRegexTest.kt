@@ -64,15 +64,12 @@ class BibleSearchServiceImplRegexTest {
     // index file is removed once, after the last test. A test that damages the index must rebuild it itself.
     @Before fun index() {
         FtsTestSupport.ensureIndexed(kjv)
-        indexFile = FtsTestSupport.indexFile(kjv)
     }
 
     private companion object {
-        var indexFile: java.io.File? = null
-
         @JvmStatic @org.junit.AfterClass fun dropIndexOnce() {
-            indexFile?.delete()
-            indexFile = null
+            // Through the index manager, so that no open FtsIndex stays in the JVM-wide cache for other classes.
+            Books.installed().getBook("KJV")?.let { FtsTestSupport.dropIndex(it) }
         }
     }
 
@@ -80,6 +77,7 @@ class BibleSearchServiceImplRegexTest {
         override fun searchInvalidRegex(engineMessage: String) = "INVALID:$engineMessage"
         override val searchRegexNestedRepetition get() = "NESTED"
         override val searchRegexBusy get() = "BUSY"
+        override val searchRegexTooManyWildcards get() = "WILDCARDS"
     }
 
     private fun service(): BibleSearchServiceImpl {
@@ -126,6 +124,26 @@ class BibleSearchServiceImplRegexTest {
 
     @Test fun blankPatternIsEmpty() {
         assertEquals(MultiSearchResults.EMPTY, search(request("  ")))
+    }
+
+    @Test fun blankCurrentBookIsAnErrorNotAnEmptyResult() {
+        try {
+            search(request("light", SearchBibleSection.CURRENT_BOOK).copy(currentBookName = " "))
+            fail("expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(e.message, e.message!!.contains("book name"))
+        }
+    }
+
+    @Test fun runawayAlternationAndWildcardRefusalsKeepTheirOwnMessages() {
+        for (q in listOf("(.|\\s)*q", "(a?){30}a{30}")) {
+            try { search(request(q)); fail("expected refusal of $q") } catch (e: SearchSyntaxException) { assertEquals("NESTED", e.message) }
+        }
+        try { search(request(".*.*.*.*.*.*.*!")); fail("expected refusal") } catch (e: SearchSyntaxException) { assertEquals("WILDCARDS", e.message) }
+        // An invalid pattern gets the syntax message even when it would also be refused for its shape.
+        try { search(request("(a+)+(")); fail("expected syntax error") } catch (e: SearchSyntaxException) { assertTrue(e.message, e.message!!.startsWith("INVALID:")) }
+        // Whitespace between words is not a wildcard.
+        search(request("in\\s+the\\s+beginning\\s+God\\s+created\\s+the\\s+heaven\\s+and"))
     }
 
     @Test fun invalidPatternThrowsTheLocalizedMessage() {
