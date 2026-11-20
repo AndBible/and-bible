@@ -37,11 +37,17 @@ import platform.Foundation.writeToURL
  */
 object IosWidgetBridge {
     const val SNAPSHOT_FILE = "widget-snapshot.json"
+
+    /** The verse pools, a second file: large and rewritten only when they change. */
+    const val POOLS_FILE = "widget-pools.json"
     const val REQUESTS_FILE = "widget-requests.json"
     private const val TAG = "IosWidgetBridge"
 
-    /** Set by the Swift host; null in tests and before launch. */
-    var reloadTimelines: (() -> Unit)? = null
+    /**
+     * Set by the Swift host; null in tests and before launch. The argument is true to reload every widget, false to
+     * reload only the speak-state ones (Speak, Lock Screen, Listening list).
+     */
+    var reloadTimelines: ((all: Boolean) -> Unit)? = null
 
     /** The App Group id the Info.plist names (`AppGroupIdentifier`, set per configuration by `project.yml`). */
     fun appGroupId(): String? = NSBundle.mainBundle.objectForInfoDictionaryKey("AppGroupIdentifier") as? String
@@ -63,9 +69,9 @@ object IosWidgetBridge {
         }
     }
 
-    /** Atomically replaces the snapshot file; false when the container is unavailable or the write failed. */
-    internal fun writeSnapshot(json: String): Boolean {
-        val url = containerUrl()?.URLByAppendingPathComponent(SNAPSHOT_FILE) ?: return false
+    /** Atomically replaces [file] in the container; false when the container is unavailable or the write failed. */
+    internal fun writeFile(file: String, json: String): Boolean {
+        val url = containerUrl()?.URLByAppendingPathComponent(file) ?: return false
         val data = (json as NSString).dataUsingEncoding(NSUTF8StringEncoding) ?: return false
         return data.writeToURL(url, atomically = true)
     }

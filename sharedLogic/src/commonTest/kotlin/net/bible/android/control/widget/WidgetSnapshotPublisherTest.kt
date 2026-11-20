@@ -41,13 +41,16 @@ class WidgetSnapshotPublisherTest {
     private val state = MutableStateFlow(stopped)
     private val invalidations = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
     private val written = mutableListOf<WidgetSnapshot>()
-    private var reloads = 0
+    private val writtenPools = mutableListOf<WidgetPools>()
+    private val reloadKinds = mutableListOf<WidgetReload>()
+    private val reloads get() = reloadKinds.size
     private var requested = emptySet<String>()
 
     private fun TestScope.publisher() = WidgetSnapshotPublisher(
         scope = backgroundScope, state = state, candidates = VerseCandidates(sources), strings = strings,
         requestedBibles = { requested }, zone = LocalZone { 0L }, nowMs = { currentTime },
-        poolInvalidations = invalidations, write = { written += it }, reload = { reloads++ },
+        poolInvalidations = invalidations, write = { written += it }, writePools = { writtenPools += it },
+        reload = { reloadKinds += it },
     )
 
     private fun speaking(percent: Int) = stopped.copy(phase = SpeakPhase.SPEAKING, percent = percent, reference = "John 3:16")
@@ -57,7 +60,8 @@ class WidgetSnapshotPublisherTest {
         publisher().start(); runCurrent()
         assertEquals(1, written.size)
         assertEquals(1, reloads)
-        assertTrue(written.single().pools.isNotEmpty())
+        assertTrue(writtenPools.single().pools.isNotEmpty())
+        assertEquals(listOf(WidgetReload.ALL), reloadKinds)
     }
 
     @Test fun speakUpdatesReuseThePools() = runTest {
@@ -66,7 +70,7 @@ class WidgetSnapshotPublisherTest {
         for (percent in 1..5) { state.value = speaking(percent); advanceTimeBy(1_100); runCurrent() }
         assertEquals(6, written.size)
         assertEquals(1, p.poolBuilds, "pools must not be rebuilt on a speak update")
-        assertEquals(written.first().pools, written.last().pools)
+        assertEquals(1, writtenPools.size, "the pools file is written once, not on every speak update")
     }
 
     @Test fun writesAreAtLeastOneSecondApart() = runTest {
@@ -88,7 +92,7 @@ class WidgetSnapshotPublisherTest {
         sources.labelMap[id] = LabelVerses("New", listOf(VerseRef("WEB", "KJV", 3, 3)))
         state.value = speaking(1); advanceTimeBy(1_100); runCurrent()
         assertEquals(2, p.poolBuilds)
-        assertTrue(written.last().pools.any { it.sourceKey == "label:$id" })
+        assertTrue(writtenPools.last().pools.any { it.sourceKey == "label:$id" })
     }
 
     @Test fun bookmarkInvalidationRebuildsPools() = runTest {
@@ -99,16 +103,16 @@ class WidgetSnapshotPublisherTest {
         invalidations.tryEmit(Unit); runCurrent()
         state.value = speaking(1); advanceTimeBy(1_100); runCurrent()
         assertEquals(2, p.poolBuilds)
-        assertEquals("Ref 4", written.last().pools.single { it.sourceKey == "label:$id" }.verses.single().reference)
+        assertEquals("Ref 4", writtenPools.last().pools.single { it.sourceKey == "label:$id" }.verses.single().reference)
     }
 
     @Test fun requestedBibleRebuildsPoolsOnWriteNow() = runTest {
         sources.installed["KJV2"] = VerseBible("KJV2", "KJV", "KJV")
         val p = publisher(); p.start(); runCurrent()
-        assertEquals(setOf("WEB"), written.last().pools.map { it.bible }.toSet())
+        assertEquals(setOf("WEB"), writtenPools.last().pools.map { it.bible }.toSet())
         requested = setOf("KJV2")
         p.writeNow(); runCurrent()
-        assertEquals(setOf("WEB", "KJV2"), written.last().pools.map { it.bible }.toSet())
+        assertEquals(setOf("WEB", "KJV2"), writtenPools.last().pools.map { it.bible }.toSet())
     }
 
     @Test fun unchangedSnapshotIsNotWrittenAgain() = runTest {
@@ -126,7 +130,8 @@ class WidgetSnapshotPublisherTest {
             requestedBibles = { requested }, zone = LocalZone { 0L }, nowMs = { currentTime },
             poolInvalidations = invalidations,
             write = { if (failOnce) { failOnce = false; error("container unavailable") } else written += it },
-            reload = { reloads++ },
+            writePools = { writtenPools += it },
+            reload = { reloadKinds += it },
         )
         p.start(); runCurrent()
         assertEquals(0, written.size)
@@ -141,5 +146,50 @@ class WidgetSnapshotPublisherTest {
         advanceTimeBy(8L * 24 * 3_600_000)
         p.writeNow(); runCurrent()
         assertEquals(2, p.poolBuilds)
+    }
+
+    @Test fun speakOnlyUpdatesReloadOnlySpeakKinds() = runTest {
+        sources.labelMap[IdType()] = LabelVerses("Memory", listOf(VerseRef("WEB", "KJV", 10, 10)))
+        publisher().start(); runCurrent()
+        for (percent in 1..3) { state.value = speaking(percent); advanceTimeBy(1_100); runCurrent() }
+        assertEquals(listOf(WidgetReload.ALL, WidgetReload.SPEAK, WidgetReload.SPEAK, WidgetReload.SPEAK), reloadKinds)
+    }
+
+    @Test fun labelChangeReloadsAllKinds() = runTest {
+        publisher().start(); runCurrent()
+        sources.labelMap[IdType()] = LabelVerses("New", listOf(VerseRef("WEB", "KJV", 3, 3)))
+        state.value = speaking(1); advanceTimeBy(1_100); runCurrent()
+        assertEquals(WidgetReload.ALL, reloadKinds.last())
+        assertEquals(2, writtenPools.size)
+    }
+
+    @Test fun snapshotJsonCarriesNoPools() = runTest {
+        sources.labelMap[IdType()] = LabelVerses("Memory", listOf(VerseRef("WEB", "KJV", 10, 10)))
+        publisher().start(); runCurrent()
+        assertTrue(!kotlinx.serialization.json.Json.encodeToString(WidgetSnapshot.serializer(), written.single()).contains("pools"))
+    }
+
+    @Test fun failedPoolsWriteIsRetried() = runTest {
+        var failOnce = true
+        val p = WidgetSnapshotPublisher(
+            scope = backgroundScope, state = state, candidates = VerseCandidates(sources), strings = strings,
+            requestedBibles = { requested }, zone = LocalZone { 0L }, nowMs = { currentTime },
+            poolInvalidations = invalidations, write = { written += it },
+            writePools = { if (failOnce) { failOnce = false; error("disk full") } else writtenPools += it },
+            reload = { reloadKinds += it },
+        )
+        p.start(); runCurrent()
+        assertEquals(0, written.size, "no snapshot is written before its pools")
+        p.writeNow(); runCurrent()
+        assertEquals(1, writtenPools.size)
+        assertEquals(1, written.size)
+    }
+
+    @Test fun restartAfterStopFollowsStateAgain() = runTest {
+        val p = publisher(); p.start(); runCurrent(); p.stop()
+        state.value = speaking(7); advanceTimeBy(1_100); runCurrent()
+        assertEquals(1, written.size)
+        p.start(); runCurrent()
+        assertEquals(7, written.last().speak.percent)
     }
 }

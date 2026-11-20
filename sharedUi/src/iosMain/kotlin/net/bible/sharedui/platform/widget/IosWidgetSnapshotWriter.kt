@@ -19,7 +19,8 @@ package net.bible.sharedui.platform.widget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.Json
@@ -28,6 +29,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.widget.LocalZone
 import net.bible.android.control.widget.SpeakWidgetStateProducer
 import net.bible.android.control.widget.VerseCandidates
+import net.bible.android.control.widget.WidgetPools
+import net.bible.android.control.widget.WidgetReload
 import net.bible.android.control.widget.WidgetSnapshot
 import net.bible.android.control.widget.WidgetSnapshotPublisher
 import net.bible.android.control.widget.WidgetStrings
@@ -71,8 +74,12 @@ class IosWidgetSnapshotWriter(
         nowMs = { (NSDate().timeIntervalSince1970 * 1000).toLong() },
         poolInvalidations = invalidations.asSharedFlow(),
         write = ::write,
-        reload = { IosWidgetBridge.reloadTimelines?.invoke() },
+        writePools = ::writePools,
+        reload = { IosWidgetBridge.reloadTimelines?.invoke(it == WidgetReload.ALL) },
     )
+
+    /** True between [start] and [close]. */
+    val isStarted: Boolean get() = subscribed.value == 1
 
     /** Starts the speak state producer and the publisher; idempotent. */
     fun start() {
@@ -90,26 +97,35 @@ class IosWidgetSnapshotWriter(
         publisher.start()
     }
 
-    /** Publishes now (the app came to the foreground, or the extension asked for another Bible). */
-    fun writeNow() = publisher.writeNow()
+    /** Publishes now when started (the app came to the foreground, or the extension asked for another Bible). */
+    fun writeNow() { if (isStarted) publisher.writeNow() }
 
     /** The language changed: texts in the producer state and the snapshot strings are rebuilt. */
     fun refreshForLocale() {
         producer.refreshForLocale()
-        publisher.writeNow()
+        if (isStarted) publisher.writeNow()
     }
 
+    /**
+     * Stops following; a later [start] works again. The scope itself stays alive (only its children are cancelled):
+     * a cancelled scope would silently drop every launch of a restarted publisher.
+     */
     fun close() {
         publisher.stop()
         producer.stop()
         subscriptions.cancelAll()
         subscribed.value = 0
-        scope.cancel()
+        scope.coroutineContext.job.cancelChildren()
     }
 
     private fun write(snapshot: WidgetSnapshot) {
-        val ok = IosWidgetBridge.writeSnapshot(json.encodeToString(WidgetSnapshot.serializer(), snapshot))
+        val ok = IosWidgetBridge.writeFile(IosWidgetBridge.SNAPSHOT_FILE, json.encodeToString(WidgetSnapshot.serializer(), snapshot))
         // Throwing keeps the publisher from remembering a snapshot that never reached the disk.
         check(ok) { "snapshot not written: App Group container unavailable" }
+    }
+
+    private fun writePools(pools: WidgetPools) {
+        val ok = IosWidgetBridge.writeFile(IosWidgetBridge.POOLS_FILE, json.encodeToString(WidgetPools.serializer(), pools))
+        check(ok) { "pools not written: App Group container unavailable" }
     }
 }

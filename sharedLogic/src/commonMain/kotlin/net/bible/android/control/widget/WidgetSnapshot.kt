@@ -23,7 +23,8 @@ import kotlinx.serialization.Serializable
 /**
  * What the iOS widget extension reads from the App Group container. The extension cannot load the Kotlin framework
  * or SWORD modules, so every text it shows is prepared here. Bump [version] when a field changes meaning; the
- * extension ignores a snapshot with a version it does not know.
+ * extension ignores a snapshot with a version it does not know. The verse pools are large and change rarely, so they
+ * live in a second file ([WidgetPools]); this one is rewritten about once a second while speaking.
  */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -35,11 +36,18 @@ data class WidgetSnapshot(
     val labels: List<LabelOption>,
     val bibles: List<BibleOption>,
     val defaultBible: String?,
-    val pools: List<VersePool>,
     val strings: Map<String, String>,
 ) {
     companion object { const val VERSION = 1 }
 }
+
+/** The verse pools file next to the snapshot (`widget-pools.json`); rewritten only when the pools change. */
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class WidgetPools(
+    @EncodeDefault val version: Int = WidgetSnapshot.VERSION,
+    val pools: List<VersePool>,
+)
 
 @Serializable
 data class SpeakSnapshot(
@@ -79,6 +87,11 @@ data class VersePool(val sourceKey: String, val bible: String, val verses: List<
 
 @Serializable data class PooledVerse(val reference: String, val text: String, val link: String)
 
+/** The two files the iOS app writes: the state [snapshot] and the [poolsFile]. */
+data class BuiltWidgetData(val snapshot: WidgetSnapshot, val poolsFile: WidgetPools) {
+    val pools: List<VersePool> get() = poolsFile.pools
+}
+
 /** Builds the [WidgetSnapshot] the iOS app writes; pure apart from reading [VerseCandidates]. */
 object WidgetSnapshotBuilder {
     /** Most verses in one pool. */
@@ -96,8 +109,9 @@ object WidgetSnapshotBuilder {
         requestedBibles: Set<String>,
         now: Long,
         zone: LocalZone,
-    ): WidgetSnapshot = assemble(
-        state, candidates, strings, pools(candidates, requestedBibles, now, zone), now,
+    ): BuiltWidgetData = BuiltWidgetData(
+        assemble(state, candidates, strings, now),
+        WidgetPools(pools = pools(candidates, requestedBibles, now, zone)),
     )
 
     /**
@@ -126,12 +140,11 @@ object WidgetSnapshotBuilder {
         return pools
     }
 
-    /** The snapshot around already built [pools] (see [pools]); cheap apart from the label and Bible lists. */
+    /** The state snapshot (no pools, see [pools]); cheap apart from the label and Bible lists. */
     suspend fun assemble(
         state: SpeakWidgetState,
         candidates: VerseCandidates,
         strings: WidgetStrings,
-        pools: List<VersePool>,
         now: Long,
     ): WidgetSnapshot {
         val installed = candidates.bibles()
@@ -151,7 +164,6 @@ object WidgetSnapshotBuilder {
             labels = labels.map { (id, name) -> LabelOption(id.toString(), name) },
             bibles = installed.map { BibleOption(it.initials, it.abbreviation) },
             defaultBible = default?.initials,
-            pools = pools,
             strings = strings.asMap(),
         )
     }

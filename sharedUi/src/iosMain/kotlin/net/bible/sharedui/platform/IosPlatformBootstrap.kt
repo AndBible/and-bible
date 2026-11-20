@@ -60,15 +60,19 @@ object IosPlatformBootstrap {
 
     /**
      * Rewrites the widget snapshot now (Swift calls it when the app becomes active: picks up Bibles the widget
-     * extension asked for and a changed language). No-op before the snapshot writer has started.
+     * extension asked for and a changed language). No-op until reading is ready, and until the snapshot writer has
+     * started; never throws.
      */
     fun refreshWidgetSnapshot() {
-        net.bible.sharedui.platform.widget.IosWidgetBridge.reloadTimelines ?: return
-        KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedui.platform.widget.IosWidgetSnapshotWriter>()?.writeNow()
+        net.bible.sharedui.platform.widget.IosWidgetRefresh.runWhenReady(
+            ready = { net.bible.sharedui.host.app.HostReadingReady.isReady },
+        ) {
+            KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedui.platform.widget.IosWidgetSnapshotWriter>()?.writeNow()
+        }
     }
 
-    /** Swift sets this to `WidgetCenter.shared.reloadAllTimelines`. */
-    fun setWidgetReloader(reload: () -> Unit) {
+    /** Swift sets this to a closure reloading all widgets (`true`) or only the speak-state ones (`false`). */
+    fun setWidgetReloader(reload: (Boolean) -> Unit) {
         net.bible.sharedui.platform.widget.IosWidgetBridge.reloadTimelines = reload
     }
 
