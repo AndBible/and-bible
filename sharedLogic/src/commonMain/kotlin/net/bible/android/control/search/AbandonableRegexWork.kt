@@ -17,6 +17,8 @@
 package net.bible.android.control.search
 
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,18 +71,46 @@ internal suspend fun awaitNoAbandonedRegexWork(patience: Duration = 300.millisec
         true
     } ?: false
 
-/** One worker's life, so that a worker abandoned while it runs is counted until, and only until, it returns. */
+/** The priority hook of the workers; tests replace it with a fake. */
+internal var regexWorkerPriority: RegexWorkerPriority = platformRegexWorkerPriority()
+
+/**
+ * One worker's life, so that a worker abandoned while it runs is counted until, and only until, it returns. An abandoned
+ * worker's thread (a pooled Dispatchers.IO thread) is demoted to the lowest priority while its engine runs on, and
+ * restored when the engine returns so that the pool does not keep a thread at the lowest priority.
+ */
 private class WorkerTicket {
     private val state = atomic(RUNNING)
+    private val lock = SynchronizedObject()
+    private var handle: Any? = null
+    private var begun = false
+    private var over = false
+    private var lowered = false
+
+    /** Called on the worker's own thread before its engine starts. */
+    fun begin() {
+        val h = regexWorkerPriority.begin()
+        synchronized(lock) { handle = h; begun = true } // L1-common-ok: atomicfu lock
+    }
+
+    private fun lowerPriority() = synchronized(lock) { // L1-common-ok: atomicfu lock
+        if (begun && !over && !lowered) { lowered = true; regexWorkerPriority.lower(handle) }
+    }
+
+    private fun restorePriority() = synchronized(lock) { // L1-common-ok: atomicfu lock
+        over = true
+        if (lowered) { lowered = false; regexWorkerPriority.restore(handle) }
+    }
 
     /** The caller stopped waiting. Counted first: [finished] may run at once and must find the count already raised. */
     fun abandon() {
         abandonedStillRunning.incrementAndGet()
-        if (!state.compareAndSet(RUNNING, ABANDONED)) abandonedStillRunning.decrementAndGet()
+        if (!state.compareAndSet(RUNNING, ABANDONED)) abandonedStillRunning.decrementAndGet() else lowerPriority()
     }
 
     /** The engine returned (or threw). */
     fun finished() {
+        restorePriority()
         if (!state.compareAndSet(RUNNING, FINISHED)) abandonedStillRunning.decrementAndGet()
     }
 
@@ -122,7 +152,7 @@ internal suspend fun <T, R : Any> scanWithinBudget(
     for (item in items) {
         if (budget.exhausted) return RegexScanOutcome(results, timedOut = true)
         val ticket = WorkerTicket()
-        val worker = abandonableWork.async { try { Box(scan(item, budget)) } finally { ticket.finished() } }
+        val worker = abandonableWork.async { try { ticket.begin(); Box(scan(item, budget)) } finally { ticket.finished() } }
         val wait = (-deadline.elapsedNow()).coerceAtLeast(Duration.ZERO) + grace
         val done = try {
             withTimeoutOrNull(wait) { worker.await() }
@@ -161,6 +191,7 @@ internal suspend fun highlightWithinAllowance(
     val ticket = WorkerTicket()
     abandonableWork.launch {
         try {
+            ticket.begin()
             for ((i, text) in texts.withIndex()) {
                 if (budget.exhausted) break
                 val out = try {
