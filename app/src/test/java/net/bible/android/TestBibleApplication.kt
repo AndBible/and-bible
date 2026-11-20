@@ -174,6 +174,7 @@ open class TestBibleApplication : BibleApplication() {
         }))
         MyDocumentBookManager.launcher = aiLauncher
         beforeAppStartup()
+        CommonUtils.speakWidgetsEnabled = false
         CommonUtils.initializeApp()
         // The background snapshot load builds Koin singles (PromptService launches collectors on the AppCoroutineScope
         // it resolves then). A test body that swaps that binding must not race it: finish the load before the test starts.
