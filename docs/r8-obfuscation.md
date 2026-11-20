@@ -45,6 +45,8 @@ When adding a reflective path, run a release build on the emulator (below) befor
 
 ## Reading obfuscated stack traces
 
+See also: the `android-crash-retrace` skill (`.claude/skills/android-crash-retrace/`).
+
 A release build prints frames like
 
 ```text
