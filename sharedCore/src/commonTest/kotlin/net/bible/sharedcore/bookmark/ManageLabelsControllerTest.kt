@@ -921,6 +921,13 @@ class ManageLabelsControllerTest {
         assertTrue("B" in checkedIds(c))
     }
 
+    @Test fun hide_labels_mode_can_still_tick_an_addon_label() {
+        // Hiding a label per workspace is a display setting, not a write to the collection.
+        val c = controller(ManageLabelsMode.HIDELABELS, labels = listOf(addonLabel("A", "Comfort")))
+        c.toggleChecked("A")
+        assertTrue("A" in checkedIds(c))
+    }
+
     @Test fun workspace_mode_cannot_auto_assign_an_addon_label() {
         val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(addonLabel("A", "Comfort"), label("B", "Own")))
         c.toggleAutoAssign("A")

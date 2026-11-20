@@ -636,7 +636,7 @@ open class BookmarkControl constructor(
         labelList
     }
 
-    suspend fun assignableLabels(): List<Label> = dao.allLabelsSortedByName()
+    suspend fun assignableLabels(): List<Label> = withAddonLocalState(dao.allLabelsSortedByName())
 
     /**
      * Backs [speakLabel], [labelUnlabelled], [paragraphBreakLabel] and [aiLabel]. Takes
@@ -702,7 +702,8 @@ open class BookmarkControl constructor(
         dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabel().id).firstOrNull()
     }
     suspend fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
-        requireOwn(bookmark.id, *labelIds.toTypedArray())
+        requireOwn(bookmark.id)
+        requireNoNewAddonLabel(bookmark, labelIds)
         dao.clearLabels(bookmark)
         when(bookmark) {
             is BibleBookmarkWithNotes -> dao.insertBookmarkToLabels(labelIds.map { BibleBookmarkToLabel(bookmark.id, it)})
@@ -720,7 +721,8 @@ open class BookmarkControl constructor(
      * [changeLabelsForBookmark] itself still announces nothing: its other caller is the CSV bulk import.
      */
     suspend fun changeLabelsForBookmarks(bookmarks: List<BaseBookmarkWithNotes>, labelIds: List<IdType>) = deferringEffects {
-        requireOwn(*(bookmarks.map { it.id } + labelIds).toTypedArray())
+        requireOwn(*bookmarks.map { it.id }.toTypedArray())
+        for (bookmark in bookmarks) requireNoNewAddonLabel(bookmark, labelIds) // all or nothing
         for (bookmark in bookmarks) {
             changeLabelsForBookmark(bookmark, labelIds)
             refreshTextAndLabels(bookmark)
@@ -1273,6 +1275,17 @@ open class BookmarkControl constructor(
         val module = addonDao.moduleOfLabel(id) ?: addonDao.moduleOfBookmark(id) ?: ""
         Log.w(TAG, "Refused a write to add-on collection row $id ($module)")
         throw AddonReadOnlyException(module)
+    }
+
+    /**
+     * Throws [AddonReadOnlyException] when [labelIds] would give [bookmark] an add-on label it does not carry yet. A
+     * user's copy of a collection bookmark carries its add-on label by design, and keeps it when the labels are saved.
+     */
+    private suspend fun requireNoNewAddonLabel(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
+        val added = labelIds.filter { it.isAddonId }
+        if (added.isEmpty()) return
+        val carried = dao.labelsForBookmark(bookmark).map { it.id }.toSet()
+        added.firstOrNull { it !in carried }?.let { refuseAddonWrite(it) }
     }
 
     /** Throws [AddonReadOnlyException] when any of [ids] is an add-on collection row. */

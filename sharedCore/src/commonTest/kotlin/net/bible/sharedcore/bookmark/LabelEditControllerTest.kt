@@ -215,6 +215,23 @@ class LabelEditControllerTest {
         assertEquals(LabelEditResult.Copied("Study (copy)"), result)
     }
 
+    @Test fun a_second_copy_tap_while_the_first_runs_makes_no_second_copy() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var finishes = 0
+        val c = LabelEditController(
+            addonState(),
+            object : LabelEditService {
+                override suspend fun orphanedBookmarkCount(labelId: String) = 0
+                override suspend fun copyAddonLabel(labelId: String): String? { copied += labelId; gate.await(); return "Study (copy)" }
+            },
+            CoroutineScope(Dispatchers.Unconfined),
+        ) { finishes++ }
+        c.copyToMyLabels(); c.copyToMyLabels()
+        gate.complete(Unit)
+        assertEquals(listOf("L1"), copied)
+        assertEquals(1, finishes)
+    }
+
     @Test fun copy_to_my_labels_is_ignored_for_an_own_label() {
         var result: LabelEditResult? = null
         val c = controller(onFinish = { result = it })

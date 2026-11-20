@@ -554,4 +554,14 @@ class AddonCollectionBookmarkControlTest {
         val after = sources.label(l)!!
         assertEquals(2, after.refs.size)
     }
+
+    @Test
+    fun savingTheLabelsOfAnOwnCopyKeepsItsAddonLabelAndFavouriteShowsInTheAssignableList() = run {
+        val copy = control.ownCopyOf(b1)
+        val own = ownLabel()
+        control.changeLabelsForBookmarks(listOf(copy), listOf(l, own.id)) // the chooser keeps L ticked: not a new add-on label
+        assertTrue(dao.labelsForBookmark(dao.bibleBookmarkById(copy.id)!!).map { it.id }.containsAll(listOf(l, own.id)))
+        control.insertOrUpdateLabel(control.labelById(l)!!.copy(favourite = true))
+        assertTrue(control.assignableLabels().single { it.id == l }.favourite)
+    }
 }

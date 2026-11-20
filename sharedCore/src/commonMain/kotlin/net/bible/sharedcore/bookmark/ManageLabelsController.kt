@@ -366,7 +366,7 @@ class ManageLabelsController(
         val ctx = contextSelected()
         if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }
         // An add-on label cannot be added to an own bookmark or auto-assigned (BookmarkControl refuses it); removing one stays possible.
-        else if (labels.any { it.id == id && it.isAddon }) return
+        else if (mode == ManageLabelsMode.ASSIGN && labels.any { it.id == id && it.isAddon }) return
         else { ctx.add(id); if (contextPrimary() == null && mode.primaryShown) setContextPrimary(id) }
         rebuild()
     }
@@ -466,6 +466,9 @@ class ManageLabelsController(
     }
     /** Re-reads the Unlabeled label and the workspace overrides, then re-sorts (on [scope]). */
     fun refresh() { scope.launch { load(); rebuild(reorder = true) } }
+
+    /** Like [refresh], but reads the label list again too (a label was created outside this screen, e.g. "Copy to my labels"). */
+    fun reloadLabels() { labelsLoaded = false; refresh() }
 
     // ---- current in-memory label items (host save-time favourite sourcing) ----
     // The list's quick favourite-toggle (toggleFavourite) only flips this controller's own LabelItem

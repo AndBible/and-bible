@@ -367,7 +367,7 @@ private fun LabelItemRow(
                     checked = row.checked,
                     onCheckedChange = { onToggleChecked(label.id) },
                     // BookmarkControl refuses adding an add-on label to an own bookmark; removing it stays possible.
-                    enabled = !(label.isAddon && !row.checked),
+                    enabled = !(mode == ManageLabelsMode.ASSIGN && label.isAddon && !row.checked),
                     // The row's own tap opens the label, so the checkbox cannot merge into it:
                     // it keeps its own node and takes the label's name.
                     modifier = Modifier.semantics { contentDescription = label.name },

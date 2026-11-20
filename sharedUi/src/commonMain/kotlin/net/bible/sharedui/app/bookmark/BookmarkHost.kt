@@ -1150,7 +1150,7 @@ class BookmarkHost(
                 is ControllerLabelEditResult.Copied -> {
                     // The editable copy is a new label: the open list reloads, then the editor closes unsaved.
                     shell.hostScope.launch {
-                        manageLabelsSession?.second?.controller?.refresh()
+                        manageLabelsSession?.second?.controller?.reloadLabels()
                         UserMessages.toast(strings.addonLabelCopied(result.name))
                     }
                     onResult(NavLabelEditResult.Cancelled)

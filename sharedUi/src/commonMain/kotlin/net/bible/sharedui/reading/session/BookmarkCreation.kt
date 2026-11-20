@@ -145,7 +145,13 @@ class BookmarkCreation(
     suspend fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) {
         val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
         val chosen = session.navigator.assignLabels(bookmark, labels) ?: return
-        withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet()) }
+        withContext(Dispatchers.IO) {
+            try {
+                bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet())
+            } catch (e: net.bible.android.control.bookmark.AddonReadOnlyException) {
+                bookmarkControl.reportAddonReadOnly(e) // e.g. removing the collection label of a collection bookmark
+            }
+        }
     }
 
     private companion object {

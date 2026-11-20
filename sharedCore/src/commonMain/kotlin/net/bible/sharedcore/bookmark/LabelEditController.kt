@@ -87,12 +87,14 @@ class LabelEditController(
     /** "Copy to my labels" (add-on labels only): copies the label through the service, then closes with [LabelEditResult.Copied]. */
     fun copyToMyLabels() {
         val labelId = _state.value.labelId
-        if (!_state.value.isAddon) return
+        if (!_state.value.isAddon || copying) return // a second tap while the copy runs must not make a second label
+        copying = true
         scope.launch {
-            val name = service.copyAddonLabel(labelId) ?: return@launch
-            onFinish(LabelEditResult.Copied(name))
+            val name = try { service.copyAddonLabel(labelId) } finally { copying = false }
+            if (name != null) onFinish(LabelEditResult.Copied(name))
         }
     }
+    private var copying = false
 
     fun requestDelete() {
         if (!_state.value.deleteVisible) return
