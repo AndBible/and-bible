@@ -121,8 +121,6 @@ class KeyedLlmStrings(private val table: () -> StringTable) : LlmStrings {
     override val easySetupFreeTier: String get() = t.text("easy_setup_free_tier")
     override val easySetupGeminiDesc: String get() = t.text("easy_setup_gemini_desc")
     override val easySetupOpenaiDesc: String get() = t.text("easy_setup_openai_desc")
-    override fun llmContinueIterationsMessage(a1: Int, a2: Int): String = t.fmt("llm_continue_iterations_message", a1, a2)
-    override val llmContinueIterationsTitle: String get() = t.text("llm_continue_iterations_title")
     override fun llmCostTotal(a1: String): String = t.fmt("llm_cost_total", a1)
     override val llmDefaultDocumentTitle: String get() = t.text("llm_default_document_title")
     override val llmDefaultStudypadOpened: String get() = t.text("llm_default_studypad_opened")
@@ -140,9 +138,7 @@ class KeyedLlmStrings(private val table: () -> StringTable) : LlmStrings {
     override val llmUsageSummaryDefault: String get() = t.text("llm_usage_summary_default")
     override fun llmUsageSummaryFormat(a1: Long, a2: Long, a3: String): String = t.fmt("llm_usage_summary_format", a1, a2, a3)
     override val okay: String get() = t.text("okay")
-    override fun permissionAlwaysAllowConfirm(a1: String): String = t.fmt("permission_always_allow_confirm", a1)
     override val permissionAlwaysAllowConfirmResetHint: String get() = t.text("permission_always_allow_confirm_reset_hint")
-    override val permissionAlwaysAllowConfirmTitle: String get() = t.text("permission_always_allow_confirm_title")
     override val promptCategoryFavorites: String get() = t.text("prompt_category_favorites")
     override val promptCategoryGeneral: String get() = t.text("prompt_category_general")
     override val promptCategoryNotes: String get() = t.text("prompt_category_notes")
@@ -235,4 +231,9 @@ class KeyedLlmStrings(private val table: () -> StringTable) : LlmStrings {
         get() = t.raw("llm_agent_system_prompt")
     override val defaultTextTransformationSystemPrompt: String
         get() = t.raw("llm_text_transformation_system_prompt")
+    override fun llmContinueIterationsLead(a1: Int): String = t.fmt("llm_continue_iterations_lead", a1)
+    override fun llmContinueIterationsDetail(a1: Int): String = t.fmt("llm_continue_iterations_detail", a1)
+    override val llmContinueButton: String get() = t.text("llm_continue_button")
+    override fun permissionAlwaysAllowLead(a1: String): String = t.fmt("permission_always_allow_lead", a1)
+    override val permissionAlwaysAllowButton: String get() = t.text("permission_always_allow_button")
 }

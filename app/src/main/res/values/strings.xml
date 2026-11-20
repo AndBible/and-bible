@@ -1632,7 +1632,6 @@
     <string name="llm_reset_usage_title">Reset usage data</string>
     <string name="llm_reset_usage_summary">Clear cumulative token and cost tracking</string>
     <string name="llm_reset_usage_confirm_title">Reset usage data?</string>
-    <string name="llm_reset_usage_confirm_message">This will clear all cumulative usage data.</string>
     <string name="llm_custom_input_price_title">Input price ($/Mtoken)</string>
     <string name="llm_custom_output_price_title">Output price ($/Mtoken)</string>
     <string name="llm_cost_total">Total: %1$s</string>
@@ -1648,8 +1647,6 @@
     <string name="llm_parse_error_anthropic">Failed to parse Anthropic response: %1$s</string>
     <string name="llm_error_unknown">Unknown error</string>
     <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
-    <string name="llm_continue_iterations_title">Continue?</string>
-    <string name="llm_continue_iterations_message">The AI agent has reached its limit of %1$d iterations without completing. Continue for %2$d more iterations?</string>
     <string name="agent_max_iterations_title">Max agent iterations</string>
     <string name="agent_max_iterations_summary">Maximum iterations before asking to continue (0 = unlimited)</string>
     <string name="ask_model_before_run_title">Ask model before run</string>
@@ -1713,7 +1710,6 @@
     <string name="ai_models_summary_none">No models configured</string>
     <string name="ai_add_provider">Add provider</string>
     <string name="ai_provider_edit">Edit</string>
-    <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
     <string name="ai_provider_api_key_not_set">API key not set</string>
     <string name="ai_provider_select_type">Select provider type</string>
     <string name="ai_provider_name">Provider name</string>
@@ -1734,7 +1730,6 @@
     <string name="edit_model_title">Edit model</string>
     <string name="model_saved">Model saved</string>
     <string name="model_deleted">Model deleted</string>
-    <string name="model_delete_confirm">Delete model \"%1$s\"?</string>
     <string name="model_set_default">Set as default model</string>
     <string name="model_select_provider">Provider</string>
     <string name="model_supported_badge">✓ Supported</string>
@@ -1776,7 +1771,6 @@
     <string name="ai_disclaimer_point8">Your data is sent to the servers of your chosen AI provider. By using an API key, you accept that provider\'s terms and privacy policy. Self-hosted models are possible but require more technical expertise, and may not produce results as good as commercial models.</string>
     <string name="ai_disclaimer_point9">AI providers charge for API usage. Cost estimates shown in AndBible are approximate — always check your provider\'s billing for actual charges.</string>
     <string name="ai_disclaimer_accept_title">Accept AI Disclaimer</string>
-    <string name="ai_disclaimer_accept_button">I accept and take full responsibility</string>
 
     <string name="prompt_permission_mode">Permission mode</string>
     <string name="prompt_permission_mode_description">Controls when user confirmation is required before the AI performs write operations. The per-tool settings below can override this for individual tools.</string>
@@ -1894,7 +1888,6 @@
     <string name="default_prompt_custom_desc">Run a custom task on the selected passage</string>
     <string name="default_prompt_custom_template">Follow the user\'s task specification for the selected Bible passage.</string>
     <string name="copy">Copy</string>
-    <string name="delete_prompt_confirm_message">Are you sure you want to delete this prompt?</string>
     <string name="ai_hide_prompt">Hide</string>
     <string name="ai_restore_hidden_prompts">Restore hidden prompts</string>
     <string name="ai_prompt_hidden">Prompt hidden</string>
@@ -1982,8 +1975,6 @@
     <string name="permission_allow_all_session">Allow all tools this session</string>
     <string name="permission_allow_always">Always allow \"%1$s\"</string>
     <string name="permission_deny">Deny</string>
-    <string name="permission_always_allow_confirm_title">Always allow?</string>
-    <string name="permission_always_allow_confirm">Are you sure you want to permanently allow \"%1$s\"?</string>
     <string name="permission_always_allow_confirm_reset_hint">You can reset this in AI Settings.</string>
 
     <!-- Agent Tool Permission Settings -->
@@ -2377,6 +2368,24 @@
     <string name="recommend_share_link">Share a link</string>
     <string name="recommend_qr_caption">Scan to get AndBible for your phone, tablet or computer.</string>
     <string name="desktop_activation_failed">AndBible is already running, but its window did not respond. Switch to the running instance and try again. Any incoming files were not confirmed as delivered.</string>
+    <!-- dialog copy: B3a -->
+    <string name="ai_cannot_be_undone_detail">This cannot be undone.</string>
+    <string name="ai_raw_log_delete_lead">Delete this log?</string>
+    <string name="ai_provider_delete_lead">Delete the provider “%1$s”?</string>
+    <string name="ai_provider_delete_detail">Prompts that use it go back to the default provider.</string>
+    <string name="ai_model_delete_lead">Delete the model “%1$s”?</string>
+    <string name="ai_prompt_delete_named_lead">Delete the prompt “%1$s”?</string>
+    <string name="ai_prompt_delete_lead">Delete this prompt?</string>
+    <string name="ai_reset_usage_detail">All cumulative usage data is cleared.</string>
+    <string name="ai_reset_usage_button">Reset</string>
+    <string name="ai_disclaimer_accept">I accept</string>
+    <string name="llm_continue_iterations_lead">Continue for %1$d more iterations?</string>
+    <string name="llm_continue_iterations_detail">The AI agent reached its limit of %1$d iterations without finishing.</string>
+    <string name="llm_continue_button">Continue</string>
+    <string name="permission_always_allow_lead">Always allow “%1$s”?</string>
+    <string name="permission_always_allow_button">Always allow</string>
+    <string name="ai_bug_report_send_lead">Send an AI bug report?</string>
+    <!-- end dialog copy: B3a -->
     <!-- BEGIN generated by sitegen.app_toc, do not edit -->
     <string name="user_guide_section_getting_started">Getting Started</string>
     <string name="user_guide_section_reading_workspace">Reading &amp; Workspace</string>

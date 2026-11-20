@@ -8,7 +8,11 @@ interface AgentPlatform {
     val foregroundChanges: Events<Boolean>
     suspend fun awaitForegroundUi(): Boolean
     suspend fun askToolPermission(toolDisplayName: String, toolDescription: String, actionDescription: String?): ToolPermissionAnswer
-    suspend fun askQuestion(title: String?, message: String): Boolean
+    /**
+     * Asks a confirm question: [title] is the lead line, [message] the detail line and [confirmText] the verb on the
+     * confirming button (the platform's "OK" when null).
+     */
+    suspend fun askQuestion(title: String?, message: String, confirmText: String? = null): Boolean
     fun showShortMessage(message: String)
 }
 

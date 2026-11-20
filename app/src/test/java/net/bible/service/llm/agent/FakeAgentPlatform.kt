@@ -11,6 +11,6 @@ internal class FakeAgentPlatform : AgentPlatform {
         awaitCancellation()
     }
     override suspend fun askToolPermission(toolDisplayName: String, toolDescription: String, actionDescription: String?) = ToolPermissionAnswer.DENY
-    override suspend fun askQuestion(title: String?, message: String) = false
+    override suspend fun askQuestion(title: String?, message: String, confirmText: String?) = false
     override fun showShortMessage(message: String) = Unit
 }

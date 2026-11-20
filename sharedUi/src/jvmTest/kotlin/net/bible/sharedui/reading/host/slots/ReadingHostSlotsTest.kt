@@ -23,7 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertCountEquals
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsOff
@@ -483,6 +489,10 @@ class ReadingHostSlotsTest {
             }
         }
         onNodeWithText(strings.aiDocumentDeleteConfirmation).assertExists()
+        onNodeWithTag("dialog-detail").assertTextEquals(strings.aiCannotBeUndoneDetail)
+        onNodeWithTag("dialog-confirm").assert(
+            SemanticsMatcher("role is Destructive") { it.config.getOrNull(DialogButtonRoleKey) == DialogButtonRole.Destructive },
+        )
         onNodeWithText(strings.delete).performClick()
         assertEquals(1, deleted)
         assertTrue(state.readingDialog.value == null)

@@ -97,8 +97,6 @@ interface LlmStrings {
     val easySetupFreeTier: String
     val easySetupGeminiDesc: String
     val easySetupOpenaiDesc: String
-    fun llmContinueIterationsMessage(a1: Int, a2: Int): String
-    val llmContinueIterationsTitle: String
     fun llmCostTotal(a1: String): String
     val llmDefaultDocumentTitle: String
     val llmDefaultStudypadOpened: String
@@ -116,9 +114,7 @@ interface LlmStrings {
     val llmUsageSummaryDefault: String
     fun llmUsageSummaryFormat(a1: Long, a2: Long, a3: String): String
     val okay: String
-    fun permissionAlwaysAllowConfirm(a1: String): String
     val permissionAlwaysAllowConfirmResetHint: String
-    val permissionAlwaysAllowConfirmTitle: String
     val promptCategoryFavorites: String
     val promptCategoryGeneral: String
     val promptCategoryNotes: String
@@ -167,4 +163,9 @@ interface LlmStrings {
     fun toolDisplayName(tool: AgentTool): String
     val defaultAgentSystemPrompt: String
     val defaultTextTransformationSystemPrompt: String
+    fun llmContinueIterationsLead(a1: Int): String
+    fun llmContinueIterationsDetail(a1: Int): String
+    val llmContinueButton: String
+    fun permissionAlwaysAllowLead(a1: String): String
+    val permissionAlwaysAllowButton: String
 }

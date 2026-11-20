@@ -158,12 +158,17 @@ object Dialogs {
         }
     }
 
-    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)): Boolean =
+    suspend fun simpleQuestion(
+        context: Context,
+        message: String? = null,
+        title: String? = context.getString(R.string.are_you_sure),
+        confirmText: String = context.getString(R.string.okay),
+    ): Boolean =
         dialogs.await(
             AppDialogRequest.Confirm(
                 title = title,
                 message = message,
-                confirmText = context.getString(R.string.okay),
+                confirmText = confirmText,
                 dismissText = context.getString(R.string.cancel),
             ),
         ) == AppDialogResult.Ok

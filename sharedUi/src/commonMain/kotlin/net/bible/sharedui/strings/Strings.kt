@@ -758,14 +758,12 @@ interface Strings {
     val providerEndpointHint: String           // R.string.ai_provider_endpoint_hint
     val providerEndpointDescription: String    // R.string.ai_provider_endpoint_description
     val providerApiFormatLabel: String         // R.string.ai_provider_api_format
-    fun providerDeleteConfirm(name: String): String  // R.string.ai_provider_delete_confirm
     val apiKeyInstructionsPrefix: String       // R.string.easy_setup_api_key_instructions
 
     // Batch 9b — AiModelsScreen
     val aiModelsTitle: String                  // R.string.ai_models_category (screen title)
     val addModel: String                       // R.string.add_model (top-bar action + add-dialog title)
     val editModelTitle: String                 // R.string.edit_model_title (edit-dialog title)
-    fun modelDeleteConfirm(name: String): String  // R.string.model_delete_confirm
     val modelSetDefault: String                // R.string.model_set_default (checkbox/switch label)
     val modelSelectProviderLabel: String       // R.string.model_select_provider (PICK_PROVIDER dialog title + read-only provider field label)
     val modelSupportedBadge: String            // R.string.model_supported_badge (edit-mode supported indicator)
@@ -829,7 +827,6 @@ interface Strings {
     val deleteCategoryAndPromptsLabel: String   // R.string.delete_category_and_prompts
     val hidePromptLabel: String                 // R.string.ai_hide_prompt
     val restoreLabel: String                    // R.string.restore (reused as the un-hide-prompt action)
-    val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
     val moveToCategoryLabel: String              // R.string.move_to_category (overflow item + picker dialog title)
 
     // Batch 12e-A — reading-view AI dialogs (LlmDialogHelper) + Plan B agent-log panel
@@ -951,7 +948,6 @@ interface Strings {
 
     // Batch 9 fix D1 — Quick-setup accept-disclaimer Compose dialog (F31)
     val aiDisclaimerAcceptTitle: String              // R.string.ai_disclaimer_accept_title
-    val aiDisclaimerAcceptButton: String             // R.string.ai_disclaimer_accept_button
 
     // Batch 9 fix C2 — AiPrompts help dialog "Read more" link (F30); shared across every
     // `AbInfoDialog`-based help conversion in Batch C, not just AiPrompts.
@@ -1027,7 +1023,6 @@ interface Strings {
 
     // Task 14 — platform-dialog removal: AI connection settings' "Reset usage data?" confirm
     val llmResetUsageConfirmTitle: String             // R.string.llm_reset_usage_confirm_title
-    val llmResetUsageConfirmMessage: String           // R.string.llm_reset_usage_confirm_message
 
     // Task 14 — platform-dialog removal: AI prompts CSV import mode choice
     val importPromptsEditableLabel: String            // R.string.import_prompts_editable
@@ -1413,6 +1408,19 @@ interface Strings {
     fun recommendGetIt(link: String): String // R.string.recommend_get_it
     val recommendShareLink: String // R.string.recommend_share_link
     val recommendQrCaption: String // R.string.recommend_qr_caption
+    // dialog copy: B3a
+    val aiCannotBeUndoneDetail: String  // R.string.ai_cannot_be_undone_detail
+    val aiRawLogDeleteLead: String  // R.string.ai_raw_log_delete_lead
+    fun providerDeleteLead(name: String): String  // R.string.ai_provider_delete_lead
+    val providerDeleteDetail: String  // R.string.ai_provider_delete_detail
+    fun modelDeleteLead(name: String): String  // R.string.ai_model_delete_lead
+    fun aiPromptDeleteNamedLead(name: String): String  // R.string.ai_prompt_delete_named_lead
+    val aiPromptDeleteLead: String  // R.string.ai_prompt_delete_lead
+    val aiResetUsageDetail: String  // R.string.ai_reset_usage_detail
+    val aiResetUsageButton: String  // R.string.ai_reset_usage_button
+    val aiDisclaimerAccept: String  // R.string.ai_disclaimer_accept
+    val aiBugReportSendLead: String  // R.string.ai_bug_report_send_lead
+    // end dialog copy: B3a
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

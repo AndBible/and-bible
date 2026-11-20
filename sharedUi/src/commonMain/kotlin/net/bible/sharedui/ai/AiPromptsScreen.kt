@@ -466,10 +466,12 @@ fun AiPromptsScreen(
     }
     deletePromptTarget?.let { prompt ->
         AbConfirmDialog(
-            title = prompt.name,
-            message = strings.deletePromptConfirmMessage,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            title = strings.aiPromptDeleteNamedLead(prompt.name),
+            message = "",
+            detail = strings.aiCannotBeUndoneDetail,
+            destructive = true,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = { deletePromptTarget = null; onDeletePrompt(prompt.id) },
             onDismiss = { deletePromptTarget = null },
         )

@@ -40,6 +40,15 @@ class DesktopAgentPlatformTest {
                 dialogs.respond(shown.id, result)
                 kotlin.test.assertEquals(result == net.bible.sharedcore.ui.dialog.AppDialogResult.Ok, answer.await())
             }
+            val custom = async { agent.askQuestion("lead", "detail", confirmText = "Always allow") }
+            runCurrent()
+            val customShown = dialogs.pending.value!!
+            val customRequest = customShown.request as net.bible.sharedcore.ui.dialog.AppDialogRequest.Confirm
+            kotlin.test.assertEquals("Always allow", customRequest.confirmText)
+            kotlin.test.assertEquals("lead", customRequest.title)
+            kotlin.test.assertEquals("detail", customRequest.message)
+            dialogs.respond(customShown.id, net.bible.sharedcore.ui.dialog.AppDialogResult.Cancel)
+            kotlin.test.assertEquals(false, custom.await())
             agent.showShortMessage("notice")
             kotlin.test.assertEquals(listOf("notice"), notices)
         } finally { agent.close() }

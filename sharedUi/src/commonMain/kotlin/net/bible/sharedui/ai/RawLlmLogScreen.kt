@@ -138,8 +138,10 @@ fun RawLlmLogScreen(
 
     if (showDeleteConfirm) {
         AbConfirmDialog(
-            title = null,
-            message = strings.areYouSure,
+            title = strings.aiRawLogDeleteLead,
+            message = "",
+            detail = strings.aiCannotBeUndoneDetail,
+            destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },

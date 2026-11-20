@@ -53,8 +53,10 @@ internal fun ReadingDialogContent(hostState: ReadingHostState, strings: Strings,
             )
         }
         is ReadingDialog.ConfirmDeleteDocumentPage -> AbConfirmDialog(
-            title = null,
-            message = strings.aiDocumentDeleteConfirmation,
+            title = strings.aiDocumentDeleteConfirmation,
+            message = "",
+            detail = strings.aiCannotBeUndoneDetail,
+            destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = hostState::confirmReadingDialog,

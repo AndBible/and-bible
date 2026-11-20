@@ -210,7 +210,7 @@ import net.bible.sharedui.components.volumeVerticalScroll
  * an [AbConfirmDialog] ("Discard unsaved changes?") whenever [isDirty], calling [onBack] only on
  * confirm (or immediately, with no dialog, when not dirty) — mirrors classic's
  * `cancelOrConfirmDiscard()`. The delete menu item goes through its own confirm dialog
- * (`deletePromptConfirmMessage`, an existing generic string — no per-prompt name interpolation,
+ * (`aiPromptDeleteLead`, a generic lead — no per-prompt name interpolation,
  * unlike classic's parameterized message) before calling [onDelete].
  *
  * No new resource strings: every label here is an existing `R.string.*` newly exposed through
@@ -395,8 +395,10 @@ fun PromptEditScreen(
     }
     if (showDeleteConfirm) {
         AbConfirmDialog(
-            title = null,
-            message = strings.deletePromptConfirmMessage,
+            title = strings.aiPromptDeleteLead,
+            message = "",
+            detail = strings.aiCannotBeUndoneDetail,
+            destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },

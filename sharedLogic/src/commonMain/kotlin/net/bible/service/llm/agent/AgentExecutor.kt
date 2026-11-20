@@ -931,9 +931,9 @@ class AgentExecutor(
                     ToolPermissionAnswer.ALLOW_ALWAYS -> {
                         // Show confirmation dialog
                         val confirmed = platform.askQuestion(
-                            message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
-                                "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
-                            title = strings.permissionAlwaysAllowConfirmTitle
+                            message = strings.permissionAlwaysAllowConfirmResetHint,
+                            title = strings.permissionAlwaysAllowLead(toolDisplayName),
+                            confirmText = strings.permissionAlwaysAllowButton,
                         )
                         if (confirmed) {
                             aiSettings.permanentlyAllowedTools += tool.agentTool
@@ -958,8 +958,9 @@ class AgentExecutor(
             awaitActivity(workspaceId)
             AgentSessionManager.awaitDecisionDialog(workspaceId, null) {
                 platform.askQuestion(
-                    message = strings.llmContinueIterationsMessage(currentIteration, increment),
-                    title = strings.llmContinueIterationsTitle
+                    message = strings.llmContinueIterationsDetail(currentIteration),
+                    title = strings.llmContinueIterationsLead(increment),
+                    confirmText = strings.llmContinueButton,
                 )
             }
         }

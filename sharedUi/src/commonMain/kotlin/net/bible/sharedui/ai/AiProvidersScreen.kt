@@ -181,7 +181,7 @@ fun AiProvidersScreen(
         AbConfirmDialog(
             title = strings.aiDisclaimerAcceptTitle,
             message = strings.aiDisclaimerBody,
-            confirmText = strings.aiDisclaimerAcceptButton,
+            confirmText = strings.aiDisclaimerAccept,
             dismissText = strings.cancel,
             onConfirm = onAcceptDisclaimer,
             onDismiss = onDismissAcceptDisclaimer,
@@ -286,8 +286,10 @@ private fun ProviderFormDialog(
     val id = state.id
     if (showDeleteConfirm && id != null) {
         AbConfirmDialog(
-            title = null,
-            message = strings.providerDeleteConfirm(state.displayName),
+            title = strings.providerDeleteLead(state.displayName),
+            message = "",
+            detail = strings.providerDeleteDetail,
+            destructive = true,
             confirmText = strings.delete,
             dismissText = strings.cancel,
             onConfirm = {

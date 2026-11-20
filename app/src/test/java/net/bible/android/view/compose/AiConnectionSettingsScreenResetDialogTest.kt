@@ -18,6 +18,11 @@
 package net.bible.android.view.compose
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
@@ -26,6 +31,8 @@ import net.bible.sharedcore.ai.AiConnectionDialog
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -78,11 +85,14 @@ class AiConnectionSettingsScreenResetDialogTest {
         compose.onNodeWithText("Reset usage data?").assertDoesNotExist()
     }
 
-    @Test fun confirmResetUsage_showsTitleAndMessage_andAnswersConfirm() {
+    @Test fun confirmResetUsage_showsLeadDetailAndDestructiveResetButton_andAnswersConfirm() {
         show(AiConnectionDialog.ConfirmResetUsage)
         compose.onNodeWithText("Reset usage data?").assertExists()
-        compose.onNodeWithText("This will clear all cumulative usage data.").assertExists()
-        compose.onNodeWithText("OK").performClick()
+        compose.onNodeWithTag("dialog-detail").assertTextEquals("All cumulative usage data is cleared.")
+        compose.onNodeWithTag("dialog-confirm").assertTextEquals("Reset").assert(
+            SemanticsMatcher("role is Destructive") { it.config.getOrNull(DialogButtonRoleKey) == DialogButtonRole.Destructive },
+        )
+        compose.onNodeWithText("Reset").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
