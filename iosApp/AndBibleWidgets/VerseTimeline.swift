@@ -128,6 +128,10 @@ enum VerseTimeline {
                 return [VerseEntryModel(date: now, content: .unavailable(snap.text("widget_verse_unavailable_label_missing", "The label of this widget no longer exists. Tap to choose verses.")))]
             }
             guard snap.pool(sourceKey: config.sourceKey, bible: config.bible) != nil else {
+                // A chosen Bible whose pools the app has not built yet is "not loaded", not "empty".
+                if let bible = config.bible, !snap.pools.contains(where: { $0.bible == bible }) {
+                    return [VerseEntryModel(date: now, content: .openApp(openAppText(snap)))]
+                }
                 return [VerseEntryModel(date: now, content: .unavailable(snap.text("widget_verse_unavailable_label_empty", "This label has no Bible bookmarks yet. Tap to choose other verses.")))]
             }
             return build(snap, config, sourceName: label.name, now: now, zone: zone, formatDate: formatDate)

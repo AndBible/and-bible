@@ -51,15 +51,20 @@ enum WidgetLinks {
     static func speak(_ command: String) -> URL { URL(string: "\(scheme)://speak/\(command)")! }
 
     static func bookmark(_ id: String) -> URL {
-        URL(string: "\(scheme)://bookmark/\(id.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? id)")!
+        URL(string: "\(scheme)://bookmark/\(percentEncode(id))")!
     }
 
     /// The inner link must be fully percent-encoded: `URLComponents` leaves `&`, `?`, `=` and `#` alone, and an
     /// unencoded `&` would end the link at the app.
     static func encodeInner(_ link: String) -> String {
-        var allowed = CharacterSet.alphanumerics
-        allowed.insert(charactersIn: "-._~")
-        return link.addingPercentEncoding(withAllowedCharacters: allowed) ?? link
+        percentEncode(link)
+    }
+
+    /// Everything but ASCII letters, digits and `-._~` (`CharacterSet.alphanumerics` keeps non-ASCII letters, which would
+    /// make `URL(string:)` fail).
+    static func percentEncode(_ s: String) -> String {
+        let allowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
+        return s.addingPercentEncoding(withAllowedCharacters: allowed) ?? s
     }
 
     static func open(link: String) -> URL { URL(string: "\(scheme)://open?link=\(encodeInner(link))")! }

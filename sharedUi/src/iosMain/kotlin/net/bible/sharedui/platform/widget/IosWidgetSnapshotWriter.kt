@@ -23,6 +23,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.Json
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.widget.LocalZone
 import net.bible.android.control.widget.SpeakWidgetStateProducer
@@ -57,7 +58,7 @@ class IosWidgetSnapshotWriter(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val invalidations = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
     private val subscriptions = Subscriptions()
-    private var subscribed = false
+    private val subscribed = kotlin.concurrent.AtomicInt(0)
     private val json = Json { encodeDefaults = true }
 
     private val publisher = WidgetSnapshotPublisher(
@@ -75,10 +76,15 @@ class IosWidgetSnapshotWriter(
 
     /** Starts the speak state producer and the publisher; idempotent. */
     fun start() {
-        if (!subscribed) {
-            subscribed = true
-            // A label or bookmark change can change a pool; the publisher rebuilds the pools on the next write.
-            subscriptions.add(bookmarkControl.changes.subscribe { invalidations.tryEmit(Unit) })
+        if (subscribed.compareAndSet(0, 1)) {
+            // Only label-level changes can change a pool. Plain bookmark upserts are left out: speaking saves the
+            // position of an auto bookmark about every verse, which would rebuild every pool on each update.
+            subscriptions.add(bookmarkControl.changes.subscribe {
+                if (it is BookmarkChange.LabelUpserted || it is BookmarkChange.LabelsDeleted ||
+                    it is BookmarkChange.BookmarkToLabelUpserted || it is BookmarkChange.BookmarksDeleted) {
+                    invalidations.tryEmit(Unit)
+                }
+            })
         }
         producer.start()
         publisher.start()
@@ -97,12 +103,13 @@ class IosWidgetSnapshotWriter(
         publisher.stop()
         producer.stop()
         subscriptions.cancelAll()
-        subscribed = false
+        subscribed.value = 0
         scope.cancel()
     }
 
     private fun write(snapshot: WidgetSnapshot) {
         val ok = IosWidgetBridge.writeSnapshot(json.encodeToString(WidgetSnapshot.serializer(), snapshot))
-        if (!ok) Log.w("IosWidgetSnapshotWriter", "snapshot not written: App Group container unavailable")
+        // Throwing keeps the publisher from remembering a snapshot that never reached the disk.
+        check(ok) { "snapshot not written: App Group container unavailable" }
     }
 }

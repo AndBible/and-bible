@@ -119,6 +119,22 @@ class WidgetSnapshotPublisherTest {
         assertEquals(1, reloads)
     }
 
+    @Test fun failedWriteIsRetriedNotRemembered() = runTest {
+        var failOnce = true
+        val p = WidgetSnapshotPublisher(
+            scope = backgroundScope, state = state, candidates = VerseCandidates(sources), strings = strings,
+            requestedBibles = { requested }, zone = LocalZone { 0L }, nowMs = { currentTime },
+            poolInvalidations = invalidations,
+            write = { if (failOnce) { failOnce = false; error("container unavailable") } else written += it },
+            reload = { reloads++ },
+        )
+        p.start(); runCurrent()
+        assertEquals(0, written.size)
+        assertEquals(0, reloads, "no reload for a snapshot that was not written")
+        p.writeNow(); runCurrent()
+        assertEquals(1, written.size)
+    }
+
     @Test fun weekChangeRebuildsPools() = runTest {
         sources.labelMap[IdType()] = LabelVerses("L", (0 until 100).map { VerseRef("WEB", "KJV", it, it) })
         val p = publisher(); p.start(); runCurrent()

@@ -16,7 +16,9 @@ enum VerseProviderLogic {
         }
         let models = VerseTimeline.entries(snapshot: load, config: config, now: now)
         let entries = models.map { VerseEntry(date: $0.date, content: $0.content, config: config) }
-        return Timeline(entries: entries, policy: .atEnd)
+        // A single entry (shuffle-only, open-app, unavailable) never expires by itself: the app and the shuffle intent
+        // reload it. `.atEnd` there would make WidgetKit ask again at once.
+        return Timeline(entries: entries, policy: entries.count > 1 ? .atEnd : .never)
     }
 
     static var placeholder: VerseEntry {

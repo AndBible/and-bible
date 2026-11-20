@@ -91,6 +91,18 @@ final class VerseTimelineTests: XCTestCase {
         XCTAssertEqual(name, "Memory")
     }
 
+    func testLabelWithUnbuiltChosenBibleIsOpenAppNotEmpty() {
+        let known = [LabelOption(id: "L1", name: "Memory")]
+        var c = VerseConfig(); c.sourceKey = "label:L1"; c.bible = "KJV"
+        guard case .openApp = entries(load(pools: [], labels: known), c)[0].content else { return XCTFail("expected openApp") }
+    }
+
+    func testNonAsciiIsPercentEncodedSoUrlsStayValid() {
+        let url = WidgetLinks.open(link: "https://read.andbible.org/Ääni?document=KJV")
+        XCTAssertTrue(url.absoluteString.contains("%C3%84"), url.absoluteString)
+        XCTAssertEqual(WidgetLinks.bookmark("äö").absoluteString, "andbible-widget://bookmark/%C3%A4%C3%B6")
+    }
+
     func testSwiftPickMatchesKotlinVectors() throws {
         let url = try XCTUnwrap(Bundle(for: VerseTimelineTests.self).url(forResource: "verse-selector-vectors", withExtension: "json"))
         struct Vector: Decodable { var poolSize: Int; var seed: String; var period: Int64; var shuffle: Int; var index: Int }
