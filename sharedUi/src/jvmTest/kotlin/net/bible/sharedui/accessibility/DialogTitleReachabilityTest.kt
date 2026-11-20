@@ -1,8 +1,6 @@
 package net.bible.sharedui.accessibility
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,7 +39,8 @@ class DialogTitleReachabilityTest {
                         onDismissRequest = {},
                         title = { Text("Do you want to proceed to download documents?") },
                         text = {
-                            Column(Modifier.verticalScroll(rememberScrollState())) {
+                            // The shell's middle area scrolls the text; no inner scroll of its own.
+                            Column {
                                 Text("Long message. ".repeat(30))
                                 Text("End of message")
                             }

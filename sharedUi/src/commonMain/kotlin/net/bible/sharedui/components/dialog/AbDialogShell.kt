@@ -87,7 +87,7 @@ private enum class ShellSlot { Icon, Lead, Middle, Buttons }
  *
  * Height safety, in order of priority (one custom layout pass decides all of it):
  *  1. the button row is measured first and is never capped and never scrolls;
- *  2. the middle area ([content]) keeps at least [MiddleMinHeight] (or its natural height, if smaller);
+ *  2. the middle area ([content]) keeps at least [MiddleMinHeight];
  *  3. the lead yields first: its cap is `min(40% of the available height, what remains after the button row, the
  *     middle minimum, the icon and the gaps)`, and it scrolls inside that cap;
  *  4. windows shorter than 420dp use a compact frame (8dp margin, 12dp top and 8dp bottom padding);
@@ -190,8 +190,9 @@ fun AbDialogShell(
                     if (iconP != null) used += iconP.height + gapLead
                     // 2. Middle minimum: the lead must leave this much (or the middle's natural height if smaller).
                     val middleM = slot(ShellSlot.Middle)
-                    val middleReserve = if (middleM == null) 0 else
-                        minOf(MiddleMinHeight.roundToPx(), middleM.maxIntrinsicHeight(width))
+                    // A fixed reserve: intrinsic measurement is not allowed for content that uses
+                    // SubcomposeLayout (BoxWithConstraints, lazy lists), which dialog content often does.
+                    val middleReserve = if (middleM == null) 0 else MiddleMinHeight.roundToPx()
                     // 3. Lead yields first.
                     val leadM = slot(ShellSlot.Lead)
                     val gapMiddle = if (leadM != null && middleM != null) gapLead else 0

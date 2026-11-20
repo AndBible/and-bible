@@ -3,8 +3,7 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedui.components.dialog.AbDialogShell
@@ -14,9 +13,9 @@ import net.bible.sharedui.components.dialog.AbDialogShell
  * scrolling content, `dismissButton` then `confirmButton` the button row, `icon` the icon. The shell owns the
  * look (surface, border, monochrome handling) and the height safety (lead cap, scrolling middle).
  *
- * The shell's middle area scrolls, so it measures [text] with an unbounded height. Many callers still wrap
- * their text in their own `verticalScroll`, which Compose forbids under an infinite bound; [text] is therefore
- * bounded by the window height (a safety net: it only engages for taller-than-window content).
+ * The shell's middle area scrolls [text]. Many callers still wrap their text in their own `verticalScroll`
+ * (or use a lazy list), which Compose forbids under an infinite bound; [text] is therefore measured with a
+ * finite, very large bound, so their inner scroll never engages and the shell's scroll does the work.
  */
 @Composable
 fun AbAlertDialog(
@@ -40,8 +39,10 @@ fun AbAlertDialog(
         lead = title,
         content = text?.let { body ->
             {
-                val windowHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
-                Box(Modifier.heightIn(max = windowHeight)) { body() }
+                // The shell's middle area scrolls this content, so it is measured with a finite (huge) bound:
+                // callers whose content has its own scroll or a lazy list crash on an infinite one, and a
+                // window-sized bound would clip plain content that is taller than the window.
+                Box(Modifier.heightIn(max = 10000.dp)) { body() }
             }
         },
         properties = properties,
