@@ -35,6 +35,8 @@ import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.database.bookmarks.ADDON_ROW_NO_ID2_SQL
 import net.bible.android.database.bookmarks.isAddonIdSql
+import net.bible.android.database.bookmarks.newParagraphBreakLabel
+import net.bible.android.database.bookmarks.newUnlabeledLabel
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.TRIGGERS_DISABLED_KEY
@@ -95,13 +97,20 @@ class EmptyAddonCollectionException(moduleInitials: String, reason: String) :
  *
  * - Every row gets the id [addonId] (module, original id); every reference column is rewritten the same way.
  * - Special labels (speak, unlabeled, paragraph break, AI) are never imported: links to the paragraph-break and
- *   unlabeled labels point at the device's own label (dropped when the device has none); speak and AI links are dropped.
+ *   unlabeled labels point at the device's own label (created first, as an ordinary logged row, when the device has
+ *   none: [ensureSpecialLabels]); speak and AI links are dropped. A verse left with no collection label is not imported.
+ * - User rows are never written: not by [replace], [remove] or [sweep]. A user's link to (or primary label of) an add-on
+ *   label that is gone stays as it is: the module may come back (an update that uninstalls first, storage not mounted,
+ *   a reinstall) and the dangling reference is harmless (sync's foreign-key clean-up keeps it, SQLite lets an edit of
+ *   the row pass). Clearing it here would be an unlogged write that the next logged edit of the row spreads to every
+ *   device.
  * - Ownership is recorded in `AddonCollectionRow`, the version and hash in `AddonCollectionModule`.
  * - Writes run with the sync triggers disabled, so no add-on row (and no cascade it causes) reaches `LogEntry`.
  * - [replace] and [remove] are each one transaction: a failure leaves the previous content.
  *
  * The module's file is never written: it is copied to [AppEnvironment.tmpDir], migrated to the current schema
- * there (as a database import does) and rewritten in the copy.
+ * there (as a database import does) and rewritten in the copy. The file is foreign input: its triggers and views are
+ * dropped before anything runs on it, and `trusted_schema` is off on every connection that reads it.
  *
  * [bookmarkDb] is a provider, not a database: the container replaces the bookmark database on restore and sync.
  */
@@ -109,6 +118,8 @@ class AddonCollectionImporter(
     private val bookmarkDb: () -> BookmarkDatabase,
     private val env: AppEnvironment,
     private val openCopy: (String) -> BookmarkDatabase = { buildAppDatabase<BookmarkDatabase>(it, *bookmarkMigrations) },
+    /** Creates the device's own special labels among the given ids when missing (an ordinary, logged write). */
+    private val ensureSpecialLabels: suspend (Set<IdType>) -> Unit = { ids -> insertMissingSpecialLabels(bookmarkDb(), ids) },
 ) {
     /** Test seam: runs inside the replace transaction, after the module's previous rows are deleted. */
     @VisibleForTesting
@@ -123,9 +134,12 @@ class AddonCollectionImporter(
         try {
             FileSystem.SYSTEM.delete(copy)
             FileSystem.SYSTEM.copy(ref.file, copy)
+            dropTriggers(copy)
             // Open through Room so older schemas migrate (as importDatabaseFile does).
             openCopy(copy.toString()).let { db -> try { db.useWriterConnection { } } finally { db.close() } }
-            prepareCopy(copy, ref.moduleInitials)
+            val specials = prepareCopy(copy, ref.moduleInitials)
+            // Outside the import transaction: the device's own special labels are normal, synced rows.
+            if (specials.isNotEmpty()) ensureSpecialLabels(specials)
             writeLocal(ref.moduleInitials, attach = copy) {
                 insertFromCopy(this, ref.moduleInitials)
                 exec(
@@ -135,8 +149,9 @@ class AddonCollectionImporter(
             }
             Log.i(TAG, "Imported add-on collection ${ref.moduleInitials} ${ref.version}")
         } finally {
-            runCatching { FileSystem.SYSTEM.delete(copy, mustExist = false) }
-            runCatching { FileSystem.SYSTEM.delete("$copy-journal".toPath(), mustExist = false) }
+            for (suffix in listOf("", "-journal", "-wal", "-shm", ".lck")) {
+                runCatching { FileSystem.SYSTEM.delete("$copy$suffix".toPath(), mustExist = false) }
+            }
         }
     }
 
@@ -149,27 +164,28 @@ class AddonCollectionImporter(
     }
 
     /**
-     * Deletes add-on rows that no module owns (a restored backup or an imported file may bring them), and the user's
-     * links to and primary labels of add-on labels that no longer exist, and per-device state of gone add-on rows.
-     * Unlogged. Only for when every installed module has been reconciled: until then a missing add-on label may just be
-     * not imported yet ([replace] and [remove] leave user rows alone).
+     * Deletes add-on rows that no module owns (a restored backup or an imported file may bring them). Unlogged. Never
+     * touches a user row (see the class comment). Per-device state of add-on rows is kept: it is keyed by derived ids,
+     * so it applies again when the module comes back.
      */
     suspend fun sweep(): Long = withContext(Dispatchers.IO) {
-        writeLocal(null, userReferences = true) { }
+        writeLocal(null) { }
     }
 
     /**
      * One writer transaction with the sync triggers disabled and foreign keys off: deletes [moduleInitials]'s owned
-     * rows (when given), runs [body], then removes unowned add-on rows and dangling references (see [sweep]).
+     * rows (when given), runs [body], then removes unowned add-on rows and the add-on rows' own dangling references.
      * Foreign keys are off so that replacing a module's rows never cascades into user rows (a user bookmark's link
-     * to an add-on label survives an update that keeps the label); dangling references are removed explicitly.
+     * to an add-on label survives an update that keeps the label, or a removal).
      */
-    private suspend fun writeLocal(moduleInitials: String?, attach: Path? = null, userReferences: Boolean = false, body: suspend PooledConnection.() -> Unit): Long {
+    private suspend fun writeLocal(moduleInitials: String?, attach: Path? = null, body: suspend PooledConnection.() -> Unit): Long {
         val db = bookmarkDb()
         return db.useWriterConnectionMarked { conn ->
-            val cleanup = if (attach != null) arrayOf("PRAGMA foreign_keys=ON;", "DETACH DATABASE addon") else arrayOf("PRAGMA foreign_keys=ON;")
-            conn.withCleanup(*cleanup) {
-                // ATTACH and foreign_keys cannot change inside a transaction.
+            val trusted = conn.queryLong("PRAGMA trusted_schema") ?: 1L
+            val cleanup = listOfNotNull("PRAGMA foreign_keys=ON;", "PRAGMA trusted_schema=$trusted;", attach?.let { "DETACH DATABASE addon" })
+            conn.withCleanup(*cleanup.toTypedArray()) {
+                // ATTACH and foreign_keys cannot change inside a transaction. The attached copy is foreign input.
+                conn.exec("PRAGMA trusted_schema=OFF;")
                 if (attach != null) conn.exec("ATTACH DATABASE '${attach.toString().replace("'", "''")}' AS addon")
                 conn.exec("PRAGMA foreign_keys=OFF;")
                 conn.inTransaction<Long> {
@@ -180,7 +196,7 @@ class AddonCollectionImporter(
                         afterDeleteHookForTest?.invoke()
                     }
                     body()
-                    removeUnownedAndDangling(this, userReferences)
+                    removeUnownedAndDangling(this)
                     val changed = queryLong("SELECT total_changes()")!! - changesBefore
                     db.syncDao().setConfig(TRIGGERS_DISABLED_KEY, false)
                     changed
@@ -213,7 +229,8 @@ class AddonCollectionImporter(
     private suspend fun insertFromCopy(conn: PooledConnection, moduleInitials: String) = conn.run {
         for (table in SYNCED_TABLES) {
             val name = table.tableName
-            val cols = columnNamesJoined(name, "addon")
+            // The app's columns: a column only the file has (a later app of the same schema version) is not copied.
+            val cols = columnNamesJoined(name)
             // A row with this id here can only be a stale add-on row (a restored backup, an imported export of a
             // collection): ids derived for a module belong to it. REPLACE (foreign keys off: no cascade) takes it over.
             exec("INSERT OR REPLACE INTO main.$name ($cols) SELECT $cols FROM addon.$name")
@@ -226,14 +243,14 @@ class AddonCollectionImporter(
         }
     }
 
-    private suspend fun removeUnownedAndDangling(conn: PooledConnection, userReferences: Boolean) = conn.run {
-        for (cleanup in cleanups(userReferences)) exec(cleanup.sql)
+    private suspend fun removeUnownedAndDangling(conn: PooledConnection) = conn.run {
+        for (cleanup in cleanups()) exec(cleanup.sql)
     }
 
     /** Whether [sweep] would change anything (a read; most reconciliations find nothing to sweep). */
     suspend fun needsSweep(): Boolean = withContext(Dispatchers.IO) {
         bookmarkDb().useReaderConnectionMarked { conn ->
-            cleanups(userReferences = true).any { (conn.queryLong("SELECT EXISTS (SELECT 1 FROM ${it.table} WHERE ${it.where})") ?: 0L) > 0L }
+            cleanups().any { (conn.queryLong("SELECT EXISTS (SELECT 1 FROM ${it.table} WHERE ${it.where})") ?: 0L) > 0L }
         }
     }
 
@@ -243,12 +260,11 @@ class AddonCollectionImporter(
     }
 
     /**
-     * Add-on rows that no module owns; references to rows that are gone (an add-on row's link to a special label this
-     * device lacks, a user bookmark's link to or primary label of an add-on label that was removed; never a user row
-     * itself); ownership records of rows that are gone; per-device state of add-on labels and links that are gone.
-     * In this order.
+     * Add-on rows that no module owns; add-on rows' references to rows that are gone (a link to a special label this
+     * device lacks); ownership records of rows that are gone. In this order. Never a user row, nor a user row's
+     * reference to an add-on row.
      */
-    private fun cleanups(userReferences: Boolean): List<Cleanup> = buildList {
+    private fun cleanups(): List<Cleanup> = buildList {
         for (table in SYNCED_TABLES.reversed()) {
             val name = table.tableName
             val id2Match = table.idField2?.let { "AND a.id2 = $name.$it" } ?: ""
@@ -256,13 +272,9 @@ class AddonCollectionImporter(
                 "(SELECT 1 FROM AddonCollectionRow a WHERE a.tableName = '$name' AND a.id1 = $name.${table.idField1} $id2Match)"))
         }
         for ((linkTable, bookmarkTable) in listOf("BibleBookmarkToLabel" to "BibleBookmark", "GenericBookmarkToLabel" to "GenericBookmark")) {
-            // User rows only in a sweep: one module's import must not drop links into another module's labels that
-            // are not imported yet, nor anything while a module's file is unreadable.
-            val linkOwner = if (userReferences) "(${isAddonIdSql("bookmarkId")} OR ${isAddonIdSql("labelId")})" else isAddonIdSql("bookmarkId")
-            add(Cleanup(linkTable, "$linkOwner AND " +
+            add(Cleanup(linkTable, "${isAddonIdSql("bookmarkId")} AND " +
                 "(labelId NOT IN (SELECT id FROM Label) OR bookmarkId NOT IN (SELECT id FROM $bookmarkTable))"))
-            val primaryOwner = if (userReferences) "(${isAddonIdSql("id")} OR ${isAddonIdSql("primaryLabelId")})" else isAddonIdSql("id")
-            add(Cleanup(bookmarkTable, "primaryLabelId IS NOT NULL AND $primaryOwner " +
+            add(Cleanup(bookmarkTable, "primaryLabelId IS NOT NULL AND ${isAddonIdSql("id")} " +
                 "AND primaryLabelId NOT IN (SELECT id FROM Label)", set = "primaryLabelId = NULL"))
         }
         for ((notes, bookmarks) in listOf("BibleBookmarkNotes" to "BibleBookmark", "GenericBookmarkNotes" to "GenericBookmark")) {
@@ -276,22 +288,33 @@ class AddonCollectionImporter(
             add(Cleanup("AddonCollectionRow", "tableName = '$name' AND NOT EXISTS " +
                 "(SELECT 1 FROM $name t WHERE t.${table.idField1} = AddonCollectionRow.id1 $id2Match)"))
         }
-        if (!userReferences) return@buildList
-        add(Cleanup("AddonLabelLocalState", "labelId NOT IN (SELECT id FROM Label)"))
-        add(Cleanup("AddonLinkLocalState",
-            "NOT EXISTS (SELECT 1 FROM BibleBookmarkToLabel l WHERE l.bookmarkId = AddonLinkLocalState.bookmarkId AND l.labelId = AddonLinkLocalState.labelId) " +
-                "AND NOT EXISTS (SELECT 1 FROM GenericBookmarkToLabel l WHERE l.bookmarkId = AddonLinkLocalState.bookmarkId AND l.labelId = AddonLinkLocalState.labelId)"))
+    }
+
+    /** Drops every trigger of the file at [copy] (foreign input) before anything is written to it. */
+    private fun dropTriggers(copy: Path) {
+        openSqlite(copy.toString()).use { c ->
+            c.exec("PRAGMA trusted_schema=OFF")
+            for (name in c.queryRows("SELECT name FROM sqlite_master WHERE type = 'trigger'") { it.getText(0) }) {
+                c.exec("DROP TRIGGER IF EXISTS \"${name.replace("\"", "\"\"")}\"")
+            }
+        }
     }
 
     /**
      * Rewrites the (already migrated) copy at [copy] so that it holds exactly the rows to import: special labels
-     * removed and references to them mapped to the fixed local ids, every other id derived with [addonId], and
-     * rows whose parent is missing from the file dropped.
+     * removed and references to them mapped to the fixed local ids, every other id derived with [addonId], rows whose
+     * parent is missing from the file dropped, and bookmarks in no collection label dropped with their notes. Returns
+     * the device special labels the kept rows link to.
      */
-    private suspend fun prepareCopy(copy: Path, moduleInitials: String) {
-        openSqlite(copy.toString()).use { c ->
+    private suspend fun prepareCopy(copy: Path, moduleInitials: String): Set<IdType> {
+        return openSqlite(copy.toString()).use { c ->
+            c.exec("PRAGMA trusted_schema=OFF")
             c.exec("PRAGMA foreign_keys=OFF")
-            c.inTransaction {
+            // Room's migration may have created triggers or views again; nothing of the file's may run.
+            for ((type, name) in c.queryRows("SELECT type, name FROM sqlite_master WHERE type IN ('trigger', 'view')") { it.getText(0) to it.getText(1) }) {
+                c.exec("DROP ${type.uppercase()} IF EXISTS \"${name.replace("\"", "\"\"")}\"")
+            }
+            c.inTransaction<Set<IdType>> {
                 val specials = queryRows("SELECT id, name FROM Label") { st -> IdType.fromByteArray(st.getBlob(0))!! to st.getText(1) }
                     .mapNotNull { (id, name) -> SPECIAL_LABEL_IDS[name]?.let { id to it } }
                 exec("CREATE TEMP TABLE idmap (old BLOB PRIMARY KEY, new BLOB NOT NULL)")
@@ -317,6 +340,9 @@ class AddonCollectionImporter(
                 // the author's own state, not collection content, and are dropped.
                 val labels = "(SELECT id FROM Label UNION SELECT new FROM (SELECT ${KEPT_SPECIAL_LABEL_IDS.joinToString(" UNION SELECT ") { "X'${it.toHex()}' AS new" }}))"
                 for ((bookmarks, prefix) in listOf("BibleBookmark" to "Bible", "GenericBookmark" to "Generic")) {
+                    // A verse in no collection label (only a paragraph break, or links that were dropped) would be an
+                    // undeletable highlight of no label: not imported.
+                    exec("DELETE FROM $bookmarks WHERE id NOT IN (SELECT bookmarkId FROM ${prefix}BookmarkToLabel WHERE labelId IN (SELECT id FROM Label))")
                     exec("DELETE FROM ${prefix}BookmarkToLabel WHERE bookmarkId NOT IN (SELECT id FROM $bookmarks) OR labelId NOT IN $labels")
                     exec("DELETE FROM ${prefix}BookmarkNotes WHERE bookmarkId NOT IN (SELECT id FROM $bookmarks)")
                     exec("UPDATE $bookmarks SET primaryLabelId = NULL WHERE primaryLabelId IS NOT NULL AND primaryLabelId NOT IN $labels")
@@ -331,7 +357,19 @@ class AddonCollectionImporter(
                 if (queryLong("SELECT COUNT(*) FROM Label")!! == 0L) {
                     throw EmptyAddonCollectionException(moduleInitials, "no labels besides special labels")
                 }
+                val kept = KEPT_SPECIAL_LABEL_IDS.joinToString(",") { "X'${it.toHex()}'" }
+                queryRows("SELECT labelId FROM BibleBookmarkToLabel WHERE labelId IN ($kept) UNION SELECT labelId FROM GenericBookmarkToLabel WHERE labelId IN ($kept)") { st ->
+                    IdType.fromByteArray(st.getBlob(0))!!
+                }.toSet()
             }
         }
+    }
+}
+
+/** [AddonCollectionImporter]'s default for creating missing special labels (the app wires BookmarkControl's, which serialises with its own). */
+private suspend fun insertMissingSpecialLabels(db: BookmarkDatabase, ids: Set<IdType>) {
+    val dao = db.bookmarkDao()
+    for (label in listOf(newParagraphBreakLabel(), newUnlabeledLabel())) {
+        if (label.id in ids && dao.labelById(label.id) == null) dao.insert(label)
     }
 }

@@ -2,6 +2,9 @@ package net.bible.service.addons.collections
 
 import kotlinx.coroutines.test.runTest
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.isAddonId
@@ -31,6 +34,10 @@ class AddonCollectionImporterTest {
             local.close()
         }
     }
+
+    /** The device already has its paragraph-break label (as after any StudyPad use); the log starts empty. */
+    private suspend fun Fixture.withOwnParagraphBreakLabel() =
+        local.sql("INSERT INTO Label (id, name) VALUES (${hex(PARAGRAPH_BREAK_LABEL_ID)}, '$PARAGRAH_BREAK_LABEL_NAME')", "DELETE FROM LogEntry")
 
     private fun d(id: net.bible.android.database.IdType, module: String = "Manna") = addonId(module, id).toHex()
 
@@ -110,10 +117,11 @@ class AddonCollectionImporterTest {
     @Test
     fun authorsOwnLabelAndAddonCopyCoexist() = withFixture {
         seedAuthor(local)
+        withOwnParagraphBreakLabel()
         val logBefore = local.count("SELECT COUNT(*) FROM LogEntry")
         importer.replace(ref("Manna", file), "h")
 
-        assertEquals(setOf(Src.comfort.toHex(), Src.study.toHex(), d(Src.comfort), d(Src.study)), local.hexIds("Label"))
+        assertEquals(setOf(Src.comfort.toHex(), Src.study.toHex(), d(Src.comfort), d(Src.study), paragraphBreakHex.lowercase()), local.hexIds("Label"))
         assertEquals(4, local.count("SELECT COUNT(*) FROM BibleBookmark"))
         assertEquals(3, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId IN (${hex(Src.comfort)}, ${hex(Src.study)})"))
         assertEquals(logBefore, local.count("SELECT COUNT(*) FROM LogEntry"))
@@ -124,7 +132,7 @@ class AddonCollectionImporterTest {
 
         // Removing the module never touches the own label, its bookmarks, notes or links.
         importer.remove("Manna")
-        assertEquals(setOf(Src.comfort.toHex(), Src.study.toHex()), local.hexIds("Label"))
+        assertEquals(setOf(Src.comfort.toHex(), Src.study.toHex(), paragraphBreakHex.lowercase()), local.hexIds("Label"))
         assertEquals(setOf(Src.b1.toHex(), Src.b2.toHex()), local.hexIds("BibleBookmark"))
         assertEquals(3, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkNotes"))
@@ -138,32 +146,88 @@ class AddonCollectionImporterTest {
         importer.replace(ref("Manna", file), "h")
         importer.replace(ref("Other", file), "h")
         assertEquals(4, local.count("SELECT COUNT(*) FROM BibleBookmark"))
-        assertEquals(4, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(4, local.count("SELECT COUNT(*) FROM Label WHERE substr(id, 5, 6) = X'ADD08C01A011'"))
 
         importer.remove("Manna")
         assertEquals(setOf(d(Src.b1, "Other"), d(Src.b2, "Other")), local.hexIds("BibleBookmark"))
-        assertEquals(setOf(d(Src.comfort, "Other"), d(Src.study, "Other")), local.hexIds("Label"))
+        assertEquals(setOf(d(Src.comfort, "Other"), d(Src.study, "Other"), paragraphBreakHex.lowercase()), local.hexIds("Label"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkNotes"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM StudyPadTextEntryText"))
     }
 
+    /**
+     * A fresh device: the paragraph-break label a collection's StudyPad uses is created as the device's own (an ordinary,
+     * logged row), so its links are kept; the file's own special label is never taken over.
+     */
     @Test
     fun specialLabelsSkippedAndLinksMappedToLocalSpecial() = withFixture {
-        // Without the device's own paragraph-break label the link is dropped, not inserted dangling.
         importer.replace(ref("Manna", file), "h")
-        assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE name = '$PARAGRAH_BREAK_LABEL_NAME'"))
-        assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
-        assertEquals(0, local.count("SELECT COUNT(*) FROM AddonCollectionRow WHERE id2 = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
-
-        // With it, the link points at the device's own label, and the label is not taken over.
-        local.sql("INSERT INTO Label (id, name, color) VALUES (${hex(PARAGRAPH_BREAK_LABEL_ID)}, '$PARAGRAH_BREAK_LABEL_NAME', 42)")
-        importer.replace(ref("Manna", file), "h2")
+        assertEquals(listOf(listOf(PARAGRAH_BREAK_LABEL_NAME)), local.rows("SELECT name FROM Label WHERE id = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM LogEntry WHERE tableName = 'Label' AND entityId1 = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
         assertEquals(listOf(listOf(d(Src.b2).uppercase())),
             local.rows("SELECT hex(bookmarkId) FROM BibleBookmarkToLabel WHERE labelId = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
+        assertFalse(local.addonCollectionDao().isAddonLabel(PARAGRAPH_BREAK_LABEL_ID))
+
+        // The device's label stays the device's: an update does not overwrite it, a removal leaves it.
+        local.sql("UPDATE Label SET color = 42 WHERE id = ${hex(PARAGRAPH_BREAK_LABEL_ID)}")
+        importer.replace(ref("Manna", file), "h2")
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE labelId = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM Label WHERE name = '$PARAGRAH_BREAK_LABEL_NAME'"))
         importer.remove("Manna")
         assertEquals(listOf(listOf("42")), local.rows("SELECT color FROM Label WHERE id = ${hex(PARAGRAPH_BREAK_LABEL_ID)}"))
         assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel"))
+    }
+
+    /** A verse that is in no collection label (only a paragraph break, or a speak/AI link that is dropped) is not imported. */
+    @Test
+    fun bookmarksWithoutACollectionLabelAreNotImported() = withFixture {
+        val b3 = IdType("22222222-0000-4000-8000-000000000003")
+        val b4 = IdType("22222222-0000-4000-8000-000000000004")
+        val g2 = IdType("22222222-0000-4000-8000-000000000005")
+        openBookmarkDb(file.toString()).apply {
+            try {
+                sql(
+                    "INSERT INTO Label (id, name) VALUES (${hex(SPEAK_LABEL_ID)}, '$SPEAK_LABEL_NAME')",
+                    "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt) VALUES (${hex(b3)}, 300, 300, 300, 300, 'KJV', 1)",
+                    "INSERT INTO BibleBookmarkNotes (bookmarkId, notes) VALUES (${hex(b3)}, 'only a paragraph break')",
+                    "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(b3)}, X'AAAAAAAAAAAA4AAA8AAAAAAAAAAAAAAA')",
+                    "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt) VALUES (${hex(b4)}, 400, 400, 400, 400, 'KJV', 1)",
+                    "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(b4)}, ${hex(SPEAK_LABEL_ID)})",
+                    "INSERT INTO GenericBookmark (id, `key`, createdAt, bookInitials) VALUES (${hex(g2)}, 'chapter 2', 3, 'DOC')",
+                    "INSERT INTO GenericBookmarkNotes (bookmarkId, notes) VALUES (${hex(g2)}, 'no label')",
+                )
+            } finally { close() }
+        }
+        importer.replace(ref("Manna", file), "h")
+        assertEquals(setOf(d(Src.b1), d(Src.b2)), local.hexIds("BibleBookmark"))
+        assertEquals(setOf(d(Src.g1)), local.hexIds("GenericBookmark"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkNotes"))
+        assertEquals(0, local.count("SELECT COUNT(*) FROM GenericBookmarkNotes"))
+        assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId IN (X'${d(b3)}', X'${d(b4)}')"))
+    }
+
+    /** The copy's temporary files (journal, Room's `.lck`) are all removed. */
+    @Test
+    fun noTemporaryFilesAreLeftBehind() = withFixture {
+        importer.replace(ref("Manna", file), "h")
+        assertEquals(emptyList(), okio.FileSystem.SYSTEM.list(pathOf(dir, "")).map { it.name }.filter { it.startsWith("addon-collection-") })
+    }
+
+    /**
+     * A collection file is foreign input: its triggers never run while it is rewritten, and a column the app does not
+     * have (a file written by a later app of the same schema version) is ignored rather than failing the import.
+     */
+    @Test
+    fun triggersAndExtraColumnsOfTheFileAreIgnored() = withFixture {
+        openSqlite(file.toString()).also { c ->
+            try {
+                c.exec("CREATE TRIGGER evil AFTER UPDATE ON BibleBookmark BEGIN DELETE FROM BibleBookmarkNotes; END")
+                c.exec("ALTER TABLE BibleBookmark ADD COLUMN extra TEXT")
+            } finally { c.close() }
+        }
+        importer.replace(ref("Manna", file), "h")
+        assertEquals(listOf(listOf("Fear not")), local.rows("SELECT notes FROM BibleBookmarkNotes"))
+        assertEquals(setOf(d(Src.b1), d(Src.b2)), local.hexIds("BibleBookmark"))
     }
 
     @Test
@@ -179,6 +243,7 @@ class AddonCollectionImporterTest {
     @Test
     fun noLogEntryWrittenDuringImportUpdateAndRemove() = withFixture {
         // A user bookmark with an own link to the add-on label: module removal cascades nothing that is logged.
+        withOwnParagraphBreakLabel()
         importer.replace(ref("Manna", file), "h")
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
         assertEquals(0, local.count("SELECT COUNT(*) FROM SyncConfiguration WHERE keyName = 'triggersDisabled' AND booleanValue = 1"))
@@ -193,11 +258,12 @@ class AddonCollectionImporterTest {
 
     @Test
     fun replaceIsAtomic() = withFixture {
+        withOwnParagraphBreakLabel()
         importer.replace(ref("Manna", file), "h1")
         val before = local.rows("SELECT hex(id), name FROM Label ORDER BY 1")
         val rowsBefore = local.count("SELECT COUNT(*) FROM AddonCollectionRow")
         importer.afterDeleteHookForTest = {
-            assertEquals(0, local.count("SELECT COUNT(*) FROM Label"), "rows deleted inside the transaction")
+            assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE substr(id, 5, 6) = X'ADD08C01A011'"), "rows deleted inside the transaction")
             error("crash between delete and insert")
         }
         assertFailsWith<IllegalStateException> { importer.replace(ref("Manna", file, version = "2.0"), "h2") }
@@ -223,16 +289,18 @@ class AddonCollectionImporterTest {
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(l)}"))
         assertEquals(l.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
 
-        // Module removal alone leaves the user's rows as they are (another module may still provide the label)...
+        // Neither the module's removal nor the sweep touches the user's rows: the module may come back (an update that
+        // uninstalls first, storage not mounted, a reinstall), and a dangling link or primary label is harmless.
+        // Nulling the primary label unlogged would later be synced with the next edit of the bookmark.
         importer.remove("Manna")
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
-        // ...the sweep, once every installed module is reconciled, drops only the link and the primary label, never
-        // the user's bookmark; nothing logged.
         importer.sweep()
-        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmark WHERE id = X'0F'"))
-        assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel"))
-        assertEquals(null, local.rows("SELECT primaryLabelId FROM BibleBookmark WHERE id = X'0F'").single()[0])
+        assertFalse(importer.needsSweep())
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F' AND labelId = ${hex(l)}"))
+        assertEquals(l.toHex().uppercase(), local.rows("SELECT hex(primaryLabelId) FROM BibleBookmark WHERE id = X'0F'").single()[0])
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
+        // Back again: the link joins the label again.
+        importer.replace(ref("Manna", file, version = "3.0"), "h3")
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel b JOIN Label l ON l.id = b.labelId WHERE b.bookmarkId = X'0F'"))
     }
 
     /** Importing one module never drops a user's link into another module's label that is not imported yet. */

@@ -18,6 +18,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+/** SQL: the row's id is an add-on id. */
+private const val ADDON = "substr(id, 5, 6) = X'ADD08C01A011'"
+
 class AddonCollectionReconcilerTest {
     private class FakeSource : CollectionPackSource {
         var refs: List<CollectionPackRef> = emptyList()
@@ -36,13 +39,17 @@ class AddonCollectionReconcilerTest {
     private class Fixture(val dir: String, val local: BookmarkDatabase, val file: Path) {
         val source = FakeSource()
         val notified = mutableListOf<List<LogEntry>>()
-        val importer = AddonCollectionImporter({ local }, testEnv(dir), openCopy = { openBookmarkDb(it) })
+        /** Copies opened for an import (one per import attempt). */
+        var copiesOpened = 0
+        val importer = AddonCollectionImporter({ local }, testEnv(dir), openCopy = { copiesOpened++; openBookmarkDb(it) })
         val reconciler = AddonCollectionReconciler(source, importer, { local.addonCollectionDao() }) { notified += it }
     }
 
     private fun withFixture(block: suspend Fixture.() -> Unit) = runTest {
         val dir = newDir()
         val local = newLocalDb(dir)
+        // The device has its paragraph-break label already (created on a fresh device: AddonCollectionImporterTest).
+        local.sql("INSERT INTO Label (id, name) VALUES (${hex(net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID)}, '${net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME}')", "DELETE FROM LogEntry")
         val file = pathOf(dir, "manna.sqlite3")
         writeAuthorCollection(dir, file)
         try { Fixture(dir, local, file).block() } finally { local.close() }
@@ -63,7 +70,7 @@ class AddonCollectionReconcilerTest {
     fun newModuleIsImportedAndReported() = withFixture {
         source.refs = listOf(ref("Manna", file))
         assertTrue(reconciler.reconcile())
-        assertEquals(2, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(2, local.count("SELECT COUNT(*) FROM Label WHERE $ADDON"))
         assertEquals(sha256(file), local.addonCollectionDao().module("Manna")!!.contentHash)
         val entries = notified.single()
         assertTrue(entries.all { it.type == LogEntryTypes.UPSERT })
@@ -119,7 +126,7 @@ class AddonCollectionReconcilerTest {
         notified.clear()
         assertTrue(reconciler.reconcile())
         for (table in listOf("Label", "BibleBookmark", "GenericBookmark", "StudyPadTextEntry", "AddonCollectionRow", "AddonCollectionModule")) {
-            assertEquals(0, local.count("SELECT COUNT(*) FROM $table"), table)
+            assertEquals(0, local.count("SELECT COUNT(*) FROM $table" + if (table == "Label") " WHERE $ADDON" else ""), table)
         }
         assertTrue(notified.single().any { it.type == LogEntryTypes.DELETE && it.tableName == "Label" })
         assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
@@ -134,7 +141,7 @@ class AddonCollectionReconcilerTest {
         source.refs = listOf(ref("Manna", broken, version = "2.0"))
         assertFalse(reconciler.reconcile())
         assertEquals("1.0", local.addonCollectionDao().module("Manna")!!.version)
-        assertEquals(2, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(2, local.count("SELECT COUNT(*) FROM Label WHERE $ADDON"))
     }
 
     /**
@@ -171,7 +178,7 @@ class AddonCollectionReconcilerTest {
         local.sql("DELETE FROM AddonCollectionModule", "DELETE FROM AddonCollectionRow")
         source.refs = emptyList()
         assertTrue(reconciler.reconcile())
-        assertEquals(0, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE $ADDON"))
         assertEquals(0, local.count("SELECT COUNT(*) FROM BibleBookmark"))
         assertEquals(0, local.count("SELECT COUNT(*) FROM StudyPadTextEntryText"))
         // Nothing left to sweep: the next run writes nothing.
@@ -191,7 +198,7 @@ class AddonCollectionReconcilerTest {
         )
         source.refs = listOf(ref("Manna", pathOf(dir, "not-mounted/manna.sqlite3")))
         assertFalse(reconciler.reconcile())
-        assertEquals(2, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(2, local.count("SELECT COUNT(*) FROM Label WHERE $ADDON"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'"))
         assertEquals(1, local.count("SELECT COUNT(*) FROM AddonLabelLocalState"))
     }
@@ -217,10 +224,89 @@ class AddonCollectionReconcilerTest {
         )
         assertTrue(reconciler.reconcile())
         assertEquals(setOf(manna.toHex(), other.toHex()), local.rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'").map { it[0] }.toSet())
-        // The module goes: its link goes with it, the other stays.
+        // The module goes: the user's links stay (it may come back), only its own rows go.
         source.refs = listOf(ref("Other", file))
         reconciler.reconcile()
-        assertEquals(setOf(other.toHex()), local.rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'").map { it[0] }.toSet())
+        assertEquals(setOf(manna.toHex(), other.toHex()), local.rows("SELECT lower(hex(labelId)) FROM BibleBookmarkToLabel WHERE bookmarkId = X'0F'").map { it[0] }.toSet())
+        assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE id = ${hex(manna)}"))
+    }
+
+    /**
+     * Sync review IMPORTANT 1: a module that is briefly missing (an update that uninstalls first, storage not mounted at
+     * start, a reinstall) must not cost the user their links to its labels or the primary label of their bookmark, and
+     * nothing is written unlogged to the user's rows.
+     */
+    @Test
+    fun briefMissingModuleKeepsTheUsersLinkAndPrimaryLabel() = withFixture {
+        source.refs = listOf(ref("Manna", file))
+        reconciler.reconcile()
+        val l = addonId("Manna", Src.comfort)
+        val own = net.bible.android.database.IdType()
+        local.sql(
+            "INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(own)}, 100, 101, 100, 101, 'KJV', 9, ${hex(l)})",
+            "INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(own)}, ${hex(l)})",
+            "DELETE FROM LogEntry",
+        )
+        val before = local.rows("SELECT * FROM BibleBookmark WHERE id = ${hex(own)}")
+
+        source.refs = emptyList()
+        assertTrue(reconciler.reconcile())
+        assertFalse(reconciler.reconcile())
+        assertEquals(before, local.rows("SELECT * FROM BibleBookmark WHERE id = ${hex(own)}"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE bookmarkId = ${hex(own)} AND labelId = ${hex(l)}"))
+
+        source.refs = listOf(ref("Manna", file))
+        assertTrue(reconciler.reconcile())
+        assertEquals(before, local.rows("SELECT * FROM BibleBookmark WHERE id = ${hex(own)}"))
+        assertEquals(1, local.count("SELECT COUNT(*) FROM BibleBookmarkToLabel b JOIN Label l ON l.id = b.labelId WHERE b.bookmarkId = ${hex(own)}"))
+        assertEquals(0, local.count("SELECT COUNT(*) FROM LogEntry"))
+    }
+
+    /**
+     * Logic review IMPORTANT 3: a module that can never be imported (here: nothing but special labels) is tried once per
+     * version and content, not on every run, and does not keep the sweep of unowned add-on rows from running.
+     */
+    @Test
+    fun neverImportableModuleIsNotRetriedAndDoesNotBlockTheSweep() = withFixture {
+        val empty = pathOf(dir, "empty.sqlite3")
+        openBookmarkDb(empty.toString()).apply {
+            try { sql("INSERT INTO Label (id, name) VALUES (${hex(net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID)}, '${net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME}')") } finally { close() }
+        }
+        source.refs = listOf(ref("Manna", file), ref("Empty", empty))
+        reconciler.reconcile()
+        val stale = addonId("Gone", Src.comfort)
+        local.sql("INSERT INTO Label (id, name) VALUES (${hex(stale)}, 'Stale')")
+        copiesOpened = 0
+        assertTrue(reconciler.reconcile(), "the stale add-on row is swept")
+        assertEquals(0, local.count("SELECT COUNT(*) FROM Label WHERE id = ${hex(stale)}"))
+        assertEquals(0, copiesOpened, "the empty module is not imported again")
+        assertFalse(reconciler.reconcile())
+        assertEquals(0, copiesOpened)
+        // A new version is tried again.
+        source.refs = listOf(ref("Manna", file), ref("Empty", empty, version = "2.0"))
+        reconciler.reconcile()
+        assertEquals(1, copiesOpened)
+    }
+
+    /** Sync review Minor 4: an unchanged file (same size and modification time) is not hashed again. */
+    @Test
+    fun unchangedFileIsNotHashedAgain() = withFixture {
+        source.refs = listOf(ref("Manna", file))
+        reconciler.reconcile()
+        val f = java.io.File(file.toString())
+        val modified = f.lastModified()
+        val bytes = f.readBytes()
+        // Same size and time, other content (the header's application id): taken as unchanged (the pre-check).
+        val i = 68
+        bytes[i] = (bytes[i] + 1).toByte()
+        f.writeBytes(bytes)
+        f.setLastModified(modified)
+        assertFalse(reconciler.reconcile())
+        assertEquals(0, copiesOpened - 1, "no new import")
+        // A new modification time: hashed, and the change is found.
+        f.setLastModified(modified + 2000)
+        assertTrue(reconciler.reconcile())
+        assertEquals(sha256(file), local.addonCollectionDao().module("Manna")!!.contentHash)
     }
 
     @Test
@@ -230,6 +316,6 @@ class AddonCollectionReconcilerTest {
         assertEquals(3, source.calls)
         assertEquals(1, source.maxInside)
         assertEquals(listOf(true, false, false), results)
-        assertEquals(2, local.count("SELECT COUNT(*) FROM Label"))
+        assertEquals(2, local.count("SELECT COUNT(*) FROM Label WHERE $ADDON"))
     }
 }

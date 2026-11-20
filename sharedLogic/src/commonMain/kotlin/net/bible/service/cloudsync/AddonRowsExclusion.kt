@@ -57,8 +57,8 @@ private fun addonLabelReference(table: String): String? = when (table) {
  * Extra condition for the foreign-key clean-up of an applied patch (`pragma_foreign_key_check(...) fk`): a user row
  * whose missing parent is an add-on label is kept. Add-on labels are not in the database for a while (after an
  * initial download or a merge, until the reconciler has re-imported them) or not at all (the module is not installed
- * here); a user's link to (or primary label of) an add-on label must not be lost in the first case. The reconciler's
- * sweep removes such references once it knows no installed module provides the label.
+ * here); a user's link to (or primary label of) an add-on label must not be lost in the first case, and is harmless
+ * in the second. Nothing removes such references (AddonCollectionImporter never writes user rows).
  */
 fun keepUserRefsToAddonLabels(category: SyncableDatabaseDefinition, table: SyncableDatabaseDefinition.Table): String {
     if (!category.hasAddonRows) return ""

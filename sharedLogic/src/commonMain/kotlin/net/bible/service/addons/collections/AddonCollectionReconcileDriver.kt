@@ -50,8 +50,8 @@ class AddonCollectionReconcileDriver(
         if (!started.compareAndSet(expect = false, update = true)) return
         source.reloaded.subscribe { request() }
         DatabaseContainer.databaseRestored.subscribe { request() }
-        // Applied patches may leave a user's link to an add-on label this device lacks; the sweep settles it.
-        DatabaseContainer.bookmarksSynced.subscribe { request() }
+        // Not after applied patches: they never carry add-on rows, and a user's link to an add-on label this device
+        // lacks is left as it is (AddonCollectionImporter), so there is nothing to reconcile.
         databaseReplaced.forEach { events -> events.subscribe { request() } }
         scope.launch {
             for (unused in requests) {

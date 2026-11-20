@@ -37,6 +37,8 @@ import net.bible.android.database.DbDate
 import net.bible.android.database.bookmarks.AddonCollectionEntities.AddonLabelLocalState
 import net.bible.android.database.bookmarks.AddonCollectionEntities.AddonLinkLocalState
 import net.bible.android.database.bookmarks.isAddonId
+import net.bible.android.database.bookmarks.newParagraphBreakLabel
+import net.bible.android.database.bookmarks.newUnlabeledLabel
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
@@ -660,12 +662,17 @@ open class BookmarkControl constructor(
         Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
     }
 
-    suspend fun labelUnlabelled(): Label = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) {
-        Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
-    }
+    suspend fun labelUnlabelled(): Label = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) { newUnlabeledLabel() }
 
-    suspend fun paragraphBreakLabel(): Label = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
-        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null)
+    suspend fun paragraphBreakLabel(): Label = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) { newParagraphBreakLabel() }
+
+    /**
+     * Creates the special labels among [ids] (paragraph break, unlabeled) this device does not have yet: an add-on
+     * collection's links to them are kept only when they exist. Never inside a transaction ([getOrCreateSpecialLabel]).
+     */
+    suspend fun ensureSpecialLabels(ids: Set<IdType>) {
+        if (PARAGRAPH_BREAK_LABEL_ID in ids) paragraphBreakLabel()
+        if (UNLABELED_LABEL_ID in ids) labelUnlabelled()
     }
 
     suspend fun aiLabel(): Label = getOrCreateSpecialLabel(AI_LABEL_ID) {

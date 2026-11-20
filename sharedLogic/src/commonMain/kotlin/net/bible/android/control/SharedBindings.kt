@@ -309,7 +309,11 @@ fun buildSharedBindings() = module {
     singleOf(::BookmarkControl)
     // Add-on bookmark collections (#4162): read-only labels provided by AND_BIBLE add-on modules.
     single {
-        net.bible.service.addons.collections.AddonCollectionImporter({ DatabaseContainer.instance.bookmarkDb }, get())
+        val koin = getKoin()
+        net.bible.service.addons.collections.AddonCollectionImporter(
+            { DatabaseContainer.instance.bookmarkDb }, get(),
+            ensureSpecialLabels = { ids -> koin.get<BookmarkControl>().ensureSpecialLabels(ids) },
+        )
     }
     single {
         net.bible.service.addons.collections.AddonCollectionReconciler(

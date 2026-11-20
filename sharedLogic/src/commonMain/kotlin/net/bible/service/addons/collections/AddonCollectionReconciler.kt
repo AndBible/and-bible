@@ -22,7 +22,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.AddonCollectionDao
@@ -42,7 +41,12 @@ private const val TAG = "AddonCollectionReconciler"
  * Brings the bookmark database's add-on collection rows in line with the installed collection modules
  * ([CollectionPackSource]): a new module is imported, a changed one (other `Version`, or the same version with another
  * file content hash) is replaced, an unchanged one is left alone and a module that is gone is removed. Afterwards add-on
- * rows that no module owns are swept (a restored backup, an imported file). Runs are serialised.
+ * rows that no module owns are swept (a restored backup, an imported file). Runs are serialised. User rows are never
+ * written (see [AddonCollectionImporter]): a module that is missing for a while costs the user nothing.
+ *
+ * A module whose file cannot be imported (nothing but special labels, a newer schema, a damaged file) is tried once per
+ * version and content hash in this process, not on every run; the next app start tries again (an app update may read
+ * it). A file whose size and modification time are unchanged is not hashed again.
  *
  * The rows that changed are reported to [onChanged] as synthetic log entries (UPSERT for every row of an imported
  * module, DELETE for rows that are gone), the same shape a sync applies, so open views refresh the same way. These
@@ -58,6 +62,15 @@ class AddonCollectionReconciler(
 ) {
     private val mutex = Mutex()
 
+    /** What a file looked like when it was hashed: path, size, modification time. */
+    private data class FileStamp(val path: String, val size: Long?, val modified: Long?)
+
+    /** Last hash per module, valid while the file's [FileStamp] is unchanged. Guarded by [mutex]. */
+    private val hashes = mutableMapOf<String, Pair<FileStamp, String>>()
+
+    /** Version and content hash per module whose import failed in this process. Guarded by [mutex]. */
+    private val failedImports = mutableMapOf<String, Pair<String, String>>()
+
     /** Reconciles once; returns whether any add-on row changed. */
     suspend fun reconcile(): Boolean = mutex.withLock {
         withContext(Dispatchers.IO) { reconcileLocked() }
@@ -70,22 +83,32 @@ class AddonCollectionReconciler(
         val imported = dao().allModules().associateBy { it.moduleInitials }
         val changes = mutableListOf<LogEntry>()
         var changed = false
-        var failed = false
+        // A module with imported content that could not be read or re-imported now: its rows stay, and the sweep
+        // waits (it would only remove add-on rows, but there is no need to churn them).
+        var keptStale = false
 
         for (ref in refs) {
+            val previous = imported[ref.moduleInitials]
             val hash = try { contentHash(ref) } catch (e: Exception) {
                 // Installed but unreadable now (e.g. storage not mounted): keep what was imported, as is.
-                Log.e(TAG, "Could not read add-on collection file of ${ref.moduleInitials}", e); failed = true; continue
+                Log.e(TAG, "Could not read add-on collection file of ${ref.moduleInitials}", e)
+                if (previous != null) keptStale = true
+                continue
             }
-            val previous = imported[ref.moduleInitials]
             if (previous != null && previous.version == ref.version && previous.contentHash == hash) continue
+            if (failedImports[ref.moduleInitials] == (ref.version to hash)) {
+                if (previous != null) keptStale = true
+                continue
+            }
             val before = dao().rowsOf(ref.moduleInitials)
             try {
                 importer.replace(ref, hash)
+                failedImports.remove(ref.moduleInitials)
             } catch (e: Exception) {
-                // The previous content (if any) stays: replace is one transaction.
+                // The previous content (if any) stays: replace is one transaction. Not tried again for this content.
                 Log.e(TAG, "Could not import add-on collection ${ref.moduleInitials} ${ref.version}", e)
-                failed = true
+                failedImports[ref.moduleInitials] = ref.version to hash
+                if (previous != null) keptStale = true
                 continue
             }
             changed = true
@@ -93,33 +116,39 @@ class AddonCollectionReconciler(
         }
 
         val installed = refs.map { it.moduleInitials }.toSet()
+        failedImports.keys.retainAll(installed)
+        hashes.keys.retainAll(installed)
         for (gone in imported.keys - installed) {
             val before = dao().rowsOf(gone)
             try {
                 importer.remove(gone)
             } catch (e: Exception) {
                 Log.e(TAG, "Could not remove add-on collection $gone", e)
-                failed = true
+                keptStale = true
                 continue
             }
             changed = true
             changes += diff(before, emptyList())
         }
 
-        // Only once every installed module is in: then a missing add-on label really is gone, and the user's links
-        // to it (and unowned add-on rows) can go. Not after a failure: a module that could not be read may still own it.
-        if (!failed && importer.needsSweep() && importer.sweep() > 0) changed = true
+        if (!keptStale && importer.needsSweep() && importer.sweep() > 0) changed = true
         if (changed) {
             try { onChanged(changes) } catch (e: Exception) { Log.e(TAG, "Change notification failed", e) }
         }
         return changed
     }
 
-    private fun contentHash(ref: CollectionPackRef): String =
-        HashingSource.sha256(FileSystem.SYSTEM.source(ref.file)).use { hashing ->
+    private fun contentHash(ref: CollectionPackRef): String {
+        val metadata = FileSystem.SYSTEM.metadata(ref.file)
+        val stamp = FileStamp(ref.file.toString(), metadata.size, metadata.lastModifiedAtMillis)
+        hashes[ref.moduleInitials]?.let { (known, hash) -> if (known == stamp && stamp.size != null && stamp.modified != null) return hash }
+        val hash = HashingSource.sha256(FileSystem.SYSTEM.source(ref.file)).use { hashing ->
             hashing.buffer().readAll(blackholeSink())
             hashing.hash.hex()
         }
+        hashes[ref.moduleInitials] = stamp to hash
+        return hash
+    }
 
     private fun diff(before: List<AddonCollectionRow>, after: List<AddonCollectionRow>): List<LogEntry> {
         fun AddonCollectionRow.key() = Triple(tableName, id1, id2)
