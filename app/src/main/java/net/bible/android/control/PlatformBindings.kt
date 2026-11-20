@@ -131,6 +131,7 @@ fun buildPlatformBindings() = module {
     single<net.bible.sharedlogic.platform.EpubStoreEdge> { net.bible.android.platform.AndroidEpubStoreEdge }
     single<net.bible.sharedlogic.platform.MyDocumentStoreEdge> { net.bible.android.platform.AndroidMyDocumentStoreEdge }
     single<net.bible.sharedlogic.platform.PromptPackSource> { net.bible.android.platform.AndroidPromptPackSource }
+    single<net.bible.sharedlogic.platform.CollectionPackSource> { net.bible.android.platform.AndroidCollectionPackSource }
     single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.android.platform.AndroidLocaleSupport }
     single<net.bible.sharedlogic.platform.SentenceBreaker> { net.bible.android.platform.AndroidSentenceBreaker }
     single<net.bible.sharedlogic.platform.NightModeState> { net.bible.android.platform.AndroidNightModeState }

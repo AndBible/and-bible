@@ -65,14 +65,20 @@ class SharedAddonScannerOracleTest {
     private fun book(
         initials: String, dir: String, plans: List<String> = emptyList(), dateBased: String? = null,
         prompts: String? = null, createPrompts: Boolean = true,
+        labels: String? = null, createLabels: Boolean = true, version: String? = null,
     ): Book {
         val location = folder.newFolder(dir)
         if (prompts != null && createPrompts) File(location, prompts).also { it.parentFile.mkdirs() }.writeText("x")
+        if (labels != null && createLabels) File(location, labels).also { it.parentFile.mkdirs() }.writeText("x")
         val single = buildMap {
+            version?.let { put("Version", it) }
             dateBased?.let { put("AndBibleReadingPlanDateBased", it) }
             prompts?.let { put("AndBibleProvidesPrompts", it) }
         }
-        val multi = if (plans.isEmpty()) emptyMap() else mapOf("AndBibleProvidesReadingPlan" to plans)
+        val multi = buildMap {
+            if (plans.isNotEmpty()) put("AndBibleProvidesReadingPlan", plans)
+            labels?.let { put("AndBibleProvidesLabels", listOf(it)) }
+        }
         return StubBook(Meta(initials, location, multi, single))
     }
 
@@ -151,6 +157,22 @@ class SharedAddonScannerOracleTest {
         val android = AndBibleAddons.providedPromptPacks.map { it.moduleName to it.file.path }
         val shared = SharedAddonScanner({ books }).promptPacks().map { it.moduleName to it.path }
         assertEquals(listOf("A", "B", "Abs"), android.map { it.first })
+        assertEquals(android, shared)
+    }
+
+    @Test fun collectionsMatchAndroid() {
+        val books = listOf(
+            book("A", "a", labels = "db/a.sqlite3", version = "1.2"),
+            book("B", "b", labels = "b.db"),
+            book("Missing", "m", labels = "gone.db", createLabels = false),
+            book("Dots", "d", labels = "../x.db"),
+            book("None", "n"),
+        )
+        File(folder.root, "x.db").writeText("x")
+        inject(books)
+        val android = AndBibleAddons.providedCollections.map { listOf(it.moduleInitials, it.moduleName, it.version, it.file.toString()) }
+        val shared = SharedAddonScanner({ books }).collections().map { listOf(it.moduleInitials, it.moduleName, it.version, it.file.toString()) }
+        assertEquals(listOf("A", "B"), android.map { it[0] })
         assertEquals(android, shared)
     }
 }

@@ -68,6 +68,7 @@ import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedlogic.addons.SharedAddonCatalog
 import net.bible.sharedlogic.addons.SharedAddonScanner
+import net.bible.sharedlogic.addons.SharedCollectionPackSource
 import net.bible.sharedlogic.addons.SharedPromptPackSource
 import net.bible.sharedlogic.platform.AddonCatalog
 import net.bible.sharedlogic.platform.DistributedPlanCatalog
@@ -80,6 +81,7 @@ import net.bible.sharedlogic.platform.ManualInstallFolderEnabler
 import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedlogic.platform.PlatformLocales
+import net.bible.sharedlogic.platform.CollectionPackSource
 import net.bible.sharedlogic.platform.PromptPackSource
 import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
 import net.bible.sharedlogic.platform.SearchIndexScheduler
@@ -180,6 +182,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         )
     })
     val promptPacks = SharedPromptPackSource(scanner)
+    val collectionPacks = SharedCollectionPackSource(scanner)
 
     return module {
         // --- device, sandbox and settings
@@ -260,7 +263,8 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<EpubStoreEdge> { HostEpubStoreEdge }
         single<MyDocumentStoreEdge> { HostMyDocumentStoreEdge }
         single<PromptPackSource> { promptPacks }
-        single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks) }
+        single<CollectionPackSource> { collectionPacks }
+        single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks, collectionPacks) }
         single<SearchIndexScheduler> {
             val runner = IosSearchIndexingRunner()
             HostSearchIndexScheduler({ cancelBuild, build -> runner.run(cancelBuild, build) }, get<AppCoroutineScope>())
