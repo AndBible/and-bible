@@ -41,6 +41,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,14 +55,18 @@ import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoBorder
 import net.bible.sharedui.theme.monoInk
 
-/** Margin kept between the dialog and the screen edges when the screen is narrower than [AbDialogTokens.MaxWidth]. */
+/** Margin kept between the dialog and the screen's left and right edges. */
 private val ScreenMargin = 16.dp
+
+/** Margin kept above and below the dialog, so its corners and border stay clear of system bars and cutouts. */
+private val ScreenMarginVertical = 24.dp
 
 /**
  * The shell of the redesigned dialogs: icon, lead line, a scrolling middle area and an end-aligned button row.
  *
  * Height safety, in order of priority:
- *  - the button row never scrolls away: it is outside the scrolling middle area;
+ *  - the button row never scrolls away: it is outside the scrolling middle area (it is bounded to 40% of the
+ *    height like the lead, and scrolls only past that, at absurd font scales);
  *  - the lead is capped at [AbDialogTokens.LeadMaxHeightFraction] of the available height and scrolls inside that cap.
  *    The cap is a `heightIn` on an ANCESTOR of the `verticalScroll` (a bound set on the scrolling node itself leaves
  *    its content unbounded and the cap does nothing);
@@ -92,12 +98,12 @@ fun AbDialogShell(
     )) {
         if (mono) NoDialogDim()
         BoxWithConstraints(contentAlignment = Alignment.Center) {
-            val available: Dp = if (maxHeight.value.isFinite()) maxHeight else 600.dp
-            val width = (maxWidth - ScreenMargin * 2).coerceAtMost(AbDialogTokens.MaxWidth)
-                .coerceAtLeast(AbDialogTokens.MinWidth.coerceAtMost(maxWidth))
+            val available: Dp = if (maxHeight.value.isFinite()) (maxHeight - ScreenMarginVertical * 2).coerceAtLeast(120.dp) else 600.dp
+            val maxDialogWidth = (maxWidth - ScreenMargin * 2).coerceAtMost(AbDialogTokens.MaxWidth)
+            val minDialogWidth = AbDialogTokens.MinWidth.coerceAtMost(maxDialogWidth)
             Surface(
                 modifier = modifier
-                    .widthIn(min = width, max = width)
+                    .widthIn(min = minDialogWidth, max = maxDialogWidth)
                     .heightIn(max = available)
                     .monoBorder(shape),
                 shape = shape,
@@ -116,7 +122,7 @@ fun AbDialogShell(
                         Box(Modifier.align(Alignment.CenterHorizontally).padding(bottom = AbDialogTokens.GapLeadToBody)) { icon() }
                     }
                     if (lead != null) {
-                        Box(Modifier.heightIn(max = available * AbDialogTokens.LeadMaxHeightFraction).testTag("dialog-lead")) {
+                        Box(Modifier.heightIn(max = available * AbDialogTokens.LeadMaxHeightFraction).testTag("dialog-lead").semantics { heading() }) {
                             Box(Modifier.verticalScroll(rememberScrollState())) {
                                 ProvideTextStyle(abDialogLeadStyle()) { lead() }
                             }
@@ -136,11 +142,17 @@ fun AbDialogShell(
                         }
                     }
                     Spacer(Modifier.height(AbDialogTokens.GapAboveButtons))
-                    FlowRow(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) { buttons() }
+                    // Last-resort bound: lead (40%) + buttons (40%) + paddings always leave the middle area a
+                    // share of the window, so a huge font scale cannot push the buttons out of the surface.
+                    Box(Modifier.heightIn(max = available * AbDialogTokens.LeadMaxHeightFraction)) {
+                        Box(Modifier.verticalScroll(rememberScrollState())) {
+                            FlowRow(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) { buttons() }
+                        }
+                    }
                 }
             }
         }

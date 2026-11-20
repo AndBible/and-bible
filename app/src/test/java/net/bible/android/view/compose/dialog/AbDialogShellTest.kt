@@ -114,7 +114,8 @@ class AbDialogShellTest {
         compose.waitForIdle()
         // The dialog shrinks to its content, so the cap is measured against the window the dialog may fill.
         val windowH = ApplicationProvider.getApplicationContext<android.content.Context>().resources.displayMetrics.heightPixels.toFloat()
-        val rootH = windowH
+        // The dialog keeps 24dp above and below, and the cap is 40% of what is left.
+        val rootH = windowH - 2 * 24 * compose.density.density
         val leadH = compose.onNodeWithTag("dialog-lead").rootBounds().height
         val oneDp = compose.density.density
         assertTrue("lead $leadH > 0.4 * $rootH + 1dp", leadH <= 0.4f * rootH + oneDp)

@@ -96,9 +96,9 @@ class AbDialogShellGoldenTest {
     /** AX5: the real activity font scale (Roborazzi option); a LocalDensity override does not reach the Dialog window. */
     private val ax5 = listOf<RoborazziComposeOption>(RoborazziComposeFontScaleOption(3f))
 
-    @Test fun ax5Confirm_matrix() = captureMatrix("AbDialogShell", "ax5Confirm", captureOptions = ax5) { ShortConfirm() }
+    @Test fun ax5Confirm_matrix() = captureMatrix("AbDialogShell", "ax5Confirm", heightDp = 800, captureOptions = ax5) { ShortConfirm() }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
-    fun ax5Confirm_rtl() = captureRtl("AbDialogShell", "ax5Confirm", captureOptions = ax5) { ShortConfirm() }
+    fun ax5Confirm_rtl() = captureRtl("AbDialogShell", "ax5Confirm", heightDp = 800, captureOptions = ax5) { ShortConfirm() }
 }
