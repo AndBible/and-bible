@@ -86,8 +86,9 @@ accrescent:
 	@mkdir -p app/standardAccrescent/release
 	@cp app/build/outputs/apkset/standardAccrescentRelease/app-standardAccrescentRelease.apks app/standardAccrescent/release/
 	@cp app/build/outputs/mapping/standardAccrescentRelease/mapping.txt app/standardAccrescent/release/mapping.txt
+	@scripts/archive-r8-mappings.sh standardAccrescentRelease
 	@echo "✓ APK set: app/standardAccrescent/release/app-standardAccrescentRelease.apks"
-	@echo "✓ R8 mapping (keep it with the release; docs/r8-obfuscation.md): app/standardAccrescent/release/mapping.txt"
+	@echo "✓ R8 mapping archived (above) and copied to app/standardAccrescent/release/mapping.txt (docs/r8-obfuscation.md)"
 
 accrescent-debug:
 	@echo "Building Accrescent Debug APK set (signing via keystore.properties.gpg)..."

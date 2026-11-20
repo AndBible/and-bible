@@ -115,6 +115,29 @@ test_archived_mapping_is_found() {
     expect_retraced || return 1
     grep -q standardSamsungRelease "$T/err" || return "$(fail "picked: $(cat "$T/err")")"
 }
+test_archive_named_variant_and_stale_mapping() {
+    local b="$T/appbuild2"; mkdir -p "$b/outputs/mapping/standardAmazonRelease" "$b/outputs/mapping/standardHuaweiRelease"
+    zcat "$FIX/mapping-subset.txt.gz" > "$b/outputs/mapping/standardAmazonRelease/mapping.txt"
+    cp "$T/decoy.txt" "$b/outputs/mapping/standardHuaweiRelease/mapping.txt"
+    APP_BUILD_DIR="$b" bash "$HERE/archive-r8-mappings.sh" --dest "$T/arch8" standardAmazonRelease > "$T/archived" 2> "$T/err" \
+        || return "$(fail "archive failed: $(cat "$T/err")")"
+    [ "$(wc -l < "$T/archived")" = 1 ] && grep -q standardAmazonRelease "$T/archived" || return "$(fail "archived: $(cat "$T/archived")")"
+    touch -d '2000-01-01' "$b/outputs/mapping/standardAmazonRelease/mapping.txt"   # built before HEAD's commit
+    APP_BUILD_DIR="$b" bash "$HERE/archive-r8-mappings.sh" --dest "$T/arch9" standardAmazonRelease > /dev/null 2> "$T/err" \
+        && return "$(fail "archived a stale mapping")"
+    grep -q 'predates commit' "$T/err" || return "$(fail "$(cat "$T/err")")"
+    [ ! -e "$T/arch9" ] || [ -z "$(find "$T/arch9" -type f)" ] || return "$(fail "stale mapping written")"
+    APP_BUILD_DIR="$b" bash "$HERE/archive-r8-mappings.sh" --bogus > /dev/null 2> "$T/err" && return "$(fail "unknown option accepted")"
+    APP_BUILD_DIR="$b" bash "$HERE/archive-r8-mappings.sh" --dest "$T/arch10" standardNoSuchRelease > /dev/null 2> "$T/err" \
+        && return "$(fail "missing variant accepted")"
+    grep -q 'no mapping for standardNoSuchRelease' "$T/err" || return "$(fail "$(cat "$T/err")")"
+}
+test_missing_retrace_tool_is_one_clear_error() {
+    RETRACE= ANDROID_SDK_ROOT="$T/nosdk" PATH=/usr/bin:/bin bash "$SCRIPT" --mapping "$FIX/mapping-subset.txt.gz" \
+        "$FIX/obfuscated-logcat.txt" > "$T/out" 2> "$T/err"; RC=$?
+    [ "$RC" != 0 ] && grep -q 'no retrace found' "$T/err" && ! grep -q 'command not found' "$T/err" \
+        || return "$(fail "rc=$RC: $(cat "$T/err")")"
+}
 test_archive_without_mappings_fails() {
     mkdir -p "$T/emptybuild"
     APP_BUILD_DIR="$T/emptybuild" ANDBIBLE_MAPPINGS_DIR="$T/arch7" bash "$HERE/archive-r8-mappings.sh" > /dev/null 2> "$T/err" \

@@ -10,7 +10,7 @@ obfuscated DEX code ("DEX code optimization", deadline February 2027); until #41
 |------|------------|-----|
 | AndBible (`net.bible.**`: `:app`, `:sharedCore`, `:sharedData`, `:sharedLogic`, `:sharedUi`) | yes | the bulk of the gain; the reflective entry points have keep rules (below) |
 | Libraries (Kotlin, kotlinx, AndroidX/Compose, Room, Koin, Ktor/OkHttp, ...) | yes | they ship their own consumer keep rules for R8 |
-| JSword (`org.crosswire.**`, in-tree) | **no** (`-keepnames`) | loads drivers, filters, installers and config by class name (`PluginUtil`, `.plugin` files, `ClassUtil`, `MsgBase` bundles named after classes) |
+| JSword (`org.crosswire.**`, in-tree) | **no** (`-keepnames`) | still derives names from classes (`MsgBase` resource bundles named after `this::class.simpleName`, `ResourceUtil`/`CallContext`, `Convert`/`ReflectionUtil`) |
 | Nextcloud/WebDAV client, commons-compress zip, commons-httpclient, slf4j | no | kept by the existing rules in `proguard-rules.pro` |
 | **F-Droid flavour** (`fdroid`, both appearances) | **no** (`app/proguard-fdroid.pro`) | F-Droid builds from source on its own server; see "F-Droid" below |
 
@@ -65,9 +65,11 @@ scripts/retrace-crash.sh --mapping mapping.txt trace.txt    # any mapping file; 
 ```
 
 It searches `$ANDBIBLE_MAPPINGS_DIR` (default `.local/r8-mappings/`) and `.local/release/*/android/`. In-app bug
-reports (osTicket: `logcat.txt.gz`, `last_crash_logcat.txt.gz`) carry the version and commit in the subject;
-`--version-code` takes the number after the last dot (6.0.**1277**). Play Console de-obfuscates its own crash and ANR
-reports with the mapping inside the uploaded AAB.
+reports (osTicket: `logcat.txt.gz`, `last_crash_logcat.txt.gz`) carry the version and commit in the subject, followed by
+the crash location: the first AndBible frame, or in an obfuscated build the first obfuscated frame such as `t58.j:234`
+(`errorReportSubject` in `ErrorReportControl.kt`). `--version-code` takes the number after the last dot (6.0.**1277**)
+and fetches the GitHub CI build's mappings only; a Play, Samsung, ... build of the same version is another build with
+another map id. Play Console de-obfuscates its own crash and ANR reports with the mapping inside the uploaded AAB.
 
 Tests: `bash scripts/test-retrace-crash.sh` (a real obfuscated trace from a release build on the emulator,
 `scripts/tests/fixtures/retrace/`).
@@ -78,8 +80,8 @@ Tests: `bash scripts/test-retrace-crash.sh` (a real obfuscated trace from a rele
 |---------|-----------|---------|
 | Google Play (`standardGoogleplayRelease` AAB) | `make release-internal` (`scripts/release/android.sh`) | inside the AAB (`BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`; `android.sh verify` refuses an AAB without it), so Play has it; `android.sh build` also keeps `.local/release/<versionCode>/android/mapping-<versionName>.txt`. Play Console: App bundle explorer, the version, Downloads, "ReTrace mapping file". |
 | GitHub (`standardGithubRelease`, `discreteGithubRelease` APKs) | CI, `build-apk.yml` on a tag | release assets `mapping-andbible-<tag>.txt.gz` and `mapping-calculator-<tag>.txt.gz` (`retrace-crash.sh --version-code` fetches them) |
-| Accrescent | `make accrescent` | copied to `app/standardAccrescent/release/mapping.txt` |
-| Samsung, Huawei, Amazon (manual builds) | the maintainer | run `scripts/archive-r8-mappings.sh` right after the build: `.local/r8-mappings/<versionCode>/<variant>/mapping-<commit>.txt.gz` |
+| Accrescent | `make accrescent` | archived by `scripts/archive-r8-mappings.sh standardAccrescentRelease` (below), and copied next to the APK set as `app/standardAccrescent/release/mapping.txt` |
+| Samsung, Huawei, Amazon (manual builds) | the maintainer | run `scripts/archive-r8-mappings.sh <variant>...` (e.g. `standardSamsungRelease`) right after the build: `.local/r8-mappings/<versionCode>/<variant>/mapping-<commit>.txt.gz`; a mapping older than the HEAD commit is skipped, since its versionCode/commit key would be wrong |
 | F-Droid | F-Droid's build server | none needed: the `fdroid` flavour is not obfuscated |
 
 `.local/` is host scratch, not an archive: keep the mappings of released builds somewhere durable too (the GitHub

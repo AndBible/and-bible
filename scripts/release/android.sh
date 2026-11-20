@@ -121,8 +121,8 @@ build() {
     shopt -s nullglob; local aabs=("$GRADLE_OUT"/*.aab); shopt -u nullglob
     n=${#aabs[@]}
     [ "$n" = 1 ] || die "expected one AAB in $GRADLE_OUT, found $n"
-    cp "${aabs[0]}" "$AAB"
     [ -s "$GRADLE_MAPPING" ] || die "no R8 mapping at $GRADLE_MAPPING (is the release build still minified?)"
+    cp "${aabs[0]}" "$AAB"
     cp "$GRADLE_MAPPING" "$MAPPING"
     verify
     { echo "COMMIT=$(head10)"; echo "VERSION_CODE=$VC"; echo "VERSION_NAME=$VN"; echo "SHA256=$(sha "$AAB")"; } > "$ENVF"

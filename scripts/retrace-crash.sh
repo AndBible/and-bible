@@ -9,7 +9,8 @@
 #   --mapping FILE      use this mapping.txt (or .txt.gz) instead of looking it up; refused when the log's map id is
 #                       another build's
 #   --version-code N    first fetch the mapping files of the GitHub release whose tag ends in -N (beta-N, production-N,
-#                       ...) into the archive, with gh (read-only); for GitHub/F-Droid-tag builds, see the docs
+#                       ...) into the archive, with gh (read-only); GitHub CI builds only (Play, Samsung, ... builds
+#                       are other builds: their mappings are in .local/release or the archive, see the docs)
 # Archive: $ANDBIBLE_MAPPINGS_DIR (default <repo>/.local/r8-mappings) and <repo>/.local/release/*/android (the Play
 # release's mapping copies), searched recursively for mapping*.txt / mapping*.txt.gz.
 # Env: RETRACE (default: the Android SDK cmdline-tools retrace), GH (default gh), GH_REPO (default AndBible/and-bible).
@@ -42,7 +43,9 @@ find_retrace() {
     for r in "$sdk/cmdline-tools/latest/bin/retrace" "$sdk"/cmdline-tools/*/bin/retrace; do
         [ -x "$r" ] && { echo "$r"; return; }
     done
-    command -v retrace || die "no retrace found: install the Android SDK cmdline-tools or set RETRACE"
+    command -v retrace && return
+    echo "retrace-crash: no retrace found: install the Android SDK cmdline-tools or set RETRACE" >&2
+    return 1
 }
 cat_any() { case "$1" in *.gz) gzip -dc -- "$1" ;; *) cat -- "$1" ;; esac; }
 map_id_of() { cat_any "$1" 2>/dev/null | head -n 20 | sed -n 's/^# pg_map_id: *//p' | head -n 1; }
@@ -75,11 +78,12 @@ elif [ -n "$ID" ]; then
         [ "$(map_id_of "$f")" = "$ID" ] && { MAPPING=$f; break; }
     done < <(find "$ARCHIVE" "$REPO"/.local/release/*/android \( -name 'mapping*.txt' -o -name 'mapping*.txt.gz' \) \
              -print0 2>/dev/null)
-    [ -n "$MAPPING" ] || die "no mapping with map id $ID under $ARCHIVE or .local/release; fetch it with --version-code <versionCode> (the bug report subject names the version), or pass --mapping"
+    [ -n "$MAPPING" ] || die "no mapping with map id $ID under $ARCHIVE or .local/release. A GitHub build: fetch it with --version-code <versionCode> (the bug report names the version). A Play build: Play Console, App bundle explorer, the version, Downloads, ReTrace mapping file (then --mapping). Other stores: their archived mapping (docs/r8-obfuscation.md)"
 else
     die "the log has no r8-map-id frames: pass the build's mapping with --mapping (or --version-code plus --mapping)"
 fi
 echo "retrace-crash: mapping $MAPPING (map id ${ID:-$(map_id_of "$MAPPING")})" >&2
 
+RETRACE_BIN=$(find_retrace) || exit 1
 case "$MAPPING" in *.gz) gzip -dc -- "$MAPPING" > "$W/mapping.txt"; MAPPING="$W/mapping.txt" ;; esac
-"$(find_retrace)" "$MAPPING" "$W/log.txt"
+"$RETRACE_BIN" "$MAPPING" "$W/log.txt"

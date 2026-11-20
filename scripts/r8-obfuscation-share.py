@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Measure how much of a release build R8 obfuscated, from its mapping.txt (#4160; docs/r8-obfuscation.md).
 
-Usage: scripts/r8-obfuscation-share.py <mapping.txt> [--apk APK] [--by-prefix PREFIX ...]
+Usage: scripts/r8-obfuscation-share.py <mapping.txt[.gz]> [--apk APK] [--by-prefix PREFIX ...]
 
 Counts the classes, methods and fields that the mapping lists (classes R8 removed excepted) and how many of them got a new name. Prints the shares
 overall and for each given package prefix (default: net.bible., org.crosswire., and everything else). With --apk, also
@@ -9,6 +9,7 @@ counts the classes actually defined in the APK's DEX files and how many of them 
 also lists classes R8 removed or merged). Play Console's "Obfuscation" percentage must stay at or above 25 %.
 Constructors are not counted; a member with several line ranges counts once.
 """
+import gzip
 import re
 import struct
 import sys
@@ -17,6 +18,10 @@ import zipfile
 CLASS_RE = re.compile(r"^(\S+) -> (\S+):$")
 # "    [12:34:]type name(args)[:line[:line]] -> newName" for methods; "    type name -> newName" for fields.
 MEMBER_RE = re.compile(r"^\s+(?:\d+:\d+:)?(\S+) ([^\s(]+)(\(.*?\))?(?::\d+(?::\d+)?)? -> (\S+)$")
+
+
+def open_text(path):
+    return gzip.open(path, "rt", encoding="utf-8") if path.endswith(".gz") else open(path, encoding="utf-8")
 
 
 def measure(path, prefixes):
@@ -30,7 +35,7 @@ def measure(path, prefixes):
 
     cur = None
     seen = set()
-    with open(path, encoding="utf-8") as f:
+    with open_text(path) as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -95,7 +100,7 @@ def dex_class_names(dex):
 def measure_apk(apk, mapping, prefixes):
     """Per bucket: [classes in the DEX, of which renamed]; a DEX class missing from the mapping counts as not renamed."""
     original = {}
-    with open(mapping, encoding="utf-8") as f:
+    with open_text(mapping) as f:
         for line in f:
             m = CLASS_RE.match(line)
             if m:
@@ -119,15 +124,25 @@ def pct(a, b):
 
 
 def main(argv):
-    if len(argv) < 2:
+    prefixes, apk, mapping, args = None, None, None, argv[1:]
+    while args:
+        a = args.pop(0)
+        if a == "--apk" and args:
+            apk = args.pop(0)
+        elif a == "--by-prefix":
+            prefixes = []
+            while args and not args[0].startswith("--"):
+                prefixes.append(args.pop(0))
+        elif not a.startswith("--") and mapping is None:
+            mapping = a
+        else:
+            mapping = None
+            break
+    if mapping is None:
         print(__doc__, file=sys.stderr)
         return 2
-    prefixes = ["net.bible.", "org.crosswire."]
-    if "--by-prefix" in argv:
-        rest = argv[argv.index("--by-prefix") + 1:]
-        prefixes = rest[:next((i for i, a in enumerate(rest) if a.startswith("--")), len(rest))]
-    apk = argv[argv.index("--apk") + 1] if "--apk" in argv else None
-    b = measure(argv[1], prefixes)
+    prefixes = prefixes or ["net.bible.", "org.crosswire."]
+    b = measure(mapping, prefixes)
     print("Mapping (every class and member R8 kept, renamed or merged):")
     print(f"{'scope':<16} {'classes':>8} {'renamed':>8} {'share':>8}   {'methods':>8} {'renamed':>8} {'share':>8}"
           f"   {'fields':>8} {'renamed':>8} {'share':>8}")
@@ -136,7 +151,7 @@ def main(argv):
     if apk:
         print(f"\nDEX of {apk} (classes it defines):")
         print(f"{'scope':<16} {'classes':>8} {'renamed':>8} {'share':>8}")
-        for name, (c, cr) in measure_apk(apk, argv[1], prefixes).items():
+        for name, (c, cr) in measure_apk(apk, mapping, prefixes).items():
             print(f"{name:<16} {c:>8} {cr:>8} {pct(cr, c):>8}")
     return 0
 
