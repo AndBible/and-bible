@@ -89,7 +89,7 @@ The toolbar at the top of the reading screen has these parts, from left to right
 - **More options (⋮)** is always shown. Its menu has *Fullscreen*, *Night mode* (see
     [Appearance and settings](look_and_feel.md)), *Workspaces*, *Tilt to scroll* (on devices with a motion sensor, so not on Windows and Linux), *Reversed split
     mode* (when several windows are open), *Window pinning*, *Label settings*, *AI Actions*
-    (when an AI provider is set up), *Sync now* (when sync is set up), the text options you used
+    (when an AI provider is set up), *Sync now* (when sync is set up; with the [activity section](#background-activity) on, as it is by default, it is the first row there instead of here), the text options you used
     most recently and *All text options*. See also
     [Background activity](#background-activity).
 
@@ -209,7 +209,9 @@ For more information about managing workspaces, see [Workspaces](workspaces.md).
 
 ## Background activity
 
-When sync is configured, **Sync now** is the first row of this section.
+When sync is configured, **Sync now** is the first row of this section while the
+background activity section is on, which it is by default. Only when it is off does *Sync now*
+stay in its listed place in the ⋮ menu.
 
 The top right three-dot menu (⋮)
 can show what the app is doing in the background, such as downloads, search
