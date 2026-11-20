@@ -104,7 +104,7 @@ class ManageLabelsScreenResetDialogTest {
     @Test fun hideLabelsKindShowsTheHideLabelsQuestion() {
         show(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.HIDE_LABELS))
         compose.onNodeWithText("Show all hidden labels again?").assertExists()
-        compose.onNodeWithText("Your hidden-labels setting is reset.").assertExists()
+        compose.onNodeWithText("Labels you hid from the list are shown again.").assertExists()
         compose.onNodeWithText("Reset").performClick()
         assertEquals(1, confirmCalls)
     }

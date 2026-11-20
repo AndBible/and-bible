@@ -54,10 +54,10 @@ actions go to a sheet, answers to a dialog.
 The sizes of the lead, body, detail, card and shell (padding, corner, gaps, width, the 40% lead fraction) live in `AbDialogTokens` (`AbDialogTokens.kt`). The shell's height-safety constants are private to `AbDialogShell.kt`: the 16dp side and 24dp top/bottom screen margins, the 56dp middle reserve, and the compact frame (windows shorter than 420dp: 8dp margin, 12dp top and 8dp bottom padding). `AbAlertDialog` bounds its text at 10000dp. The shell applies three height rules:
 
 1. the button row is never capped and never scrolls (an empty row takes no height and no gap above it);
-2. the middle area (detail + content) keeps at least 56dp and scrolls; a callers' own height cap or scroll inside it nests a second scroll, so do not add one;
+2. the middle area (detail + content) keeps at least 56dp and scrolls; a caller's own height cap or scroll inside it nests a second scroll, so do not add one;
 3. the lead line yields first: its cap is the smaller of 40% of the available height and what remains after the button row and the middle area, and it scrolls inside the cap. Both scroll areas show a divider at an edge that can scroll further, and a middle area that needs less than its reserve hands the rest back to the lead.
 
-- **Lead line:** 18sp / 25sp, medium, `onSurface`. Capped at 40% of the available height and scrolls inside the cap.
+- **Lead line:** 18sp / 25sp, medium, `onSurface`.
 - **Body:** 16sp / 23sp `onSurface`. **Detail:** 14sp / 20sp `onSurfaceVariant`.
 - **Shell:** corner 20dp, padding 24dp sides / 22dp top / 14dp bottom, 10dp lead to body, 18dp above the button row, width 280-560dp.
 - **Buttons:** `Cancel`, `Neutral`, `Confirm` use `primary`; `Destructive` uses `error`. In pure monochrome every

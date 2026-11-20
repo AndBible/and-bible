@@ -9,7 +9,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.window.DialogWindowProvider
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -130,30 +134,25 @@ class AbAlertDialogTest {
         assertEquals(originalHostContrast, host!!.isNavigationBarContrastEnforced)
     }
 
-    @Test fun `old modes with null text retain Material dialog layout`() {
+    @Test fun `old modes with null text add no middle area and keep the shell's own spacing`() {
         val mode = mutableStateOf(DisplayColorMode.NORMAL)
-        val wrapped = mutableStateOf(false)
         var size = IntSize.Zero
         rule.setContent {
             AbTheme(darkTheme = false, colorMode = mode.value) {
-                val modifier = Modifier.onGloballyPositioned { size = it.size }
-                if (wrapped.value) {
-                    AbAlertDialog(onDismissRequest = {}, confirmButton = { Text("Confirm") },
-                        title = { Text("Title") }, modifier = modifier)
-                } else {
-                    androidx.compose.material3.AlertDialog(onDismissRequest = {},
-                        confirmButton = { Text("Confirm") }, title = { Text("Title") }, modifier = modifier)
-                }
+                AbAlertDialog(onDismissRequest = {}, confirmButton = { Text("Confirm") },
+                    title = { Text("Title") }, modifier = Modifier.onGloballyPositioned { size = it.size })
             }
         }
+        val d = rule.density.density
         for (oldMode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW)) {
-            rule.runOnIdle { wrapped.value = false; mode.value = oldMode }
+            rule.runOnIdle { mode.value = oldMode }
             rule.waitForIdle()
-            val defaultSize = size
-            assertTrue(defaultSize.height > 0)
-            rule.runOnIdle { wrapped.value = true }
-            rule.waitForIdle()
-            assertEquals("null text must not introduce M3 text padding in $oldMode", defaultSize, size)
+            rule.onAllNodesWithTag("dialog-middle-area").assertCountEquals(0)
+            val lead = rule.onNodeWithTag("dialog-lead").fetchSemanticsNode().boundsInRoot.height
+            val buttons = rule.onNodeWithText("Confirm").fetchSemanticsNode().boundsInRoot.height
+            // padding top 22 + lead + 18 gap + buttons + padding bottom 14: no M3 10dp text gap, no 56dp middle reserve.
+            val expected = (22 + 18 + 14) * d + lead + buttons
+            assertEquals("height in $oldMode", expected, size.height.toFloat(), 2f)
         }
     }
 

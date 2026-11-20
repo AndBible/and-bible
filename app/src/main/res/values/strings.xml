@@ -2408,7 +2408,7 @@
     </plurals>
     <string name="dialog_labels_reset_workspace_lead">Remove all auto-assign labels from this workspace?</string>
     <string name="dialog_labels_reset_hidden_lead">Show all hidden labels again?</string>
-    <string name="dialog_labels_reset_hidden_detail">Your hidden-labels setting is reset.</string>
+    <string name="dialog_labels_reset_shown_detail">Labels you hid from the list are shown again.</string>
     <!-- end dialog copy: B2a -->
     <!-- dialog copy: B3c -->
     <string name="install_document_question">Install “%s”?</string>

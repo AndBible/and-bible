@@ -231,7 +231,7 @@ fun ManageLabelsScreen(
             AbConfirmDialog(
                 title = null,
                 message = if (workspace) strings.dialogLabelsResetWorkspaceLead else strings.dialogLabelsResetHiddenLead,
-                detail = if (workspace) null else strings.dialogLabelsResetHiddenDetail,
+                detail = if (workspace) null else strings.dialogLabelsResetShownDetail,
                 confirmText = if (workspace) strings.remove else strings.resetGeneric,
                 dismissText = strings.cancel,
                 destructive = workspace,

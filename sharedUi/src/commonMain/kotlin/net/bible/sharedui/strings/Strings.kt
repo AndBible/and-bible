@@ -991,8 +991,6 @@ interface Strings {
     val assignLabelsLabel: String                    // R.string.assign_labels (selection action icon)
     val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
 
-    // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
-
     // Task 14 — platform-dialog removal: AI connection settings' "Reset usage data?" confirm
     val llmResetUsageConfirmTitle: String             // R.string.llm_reset_usage_confirm_title
 
@@ -1374,7 +1372,7 @@ interface Strings {
     fun dialogBookmarksRemoveDetail(count: Int): String       // R.plurals.dialog_bookmarks_remove_detail
     val dialogLabelsResetWorkspaceLead: String    // R.string.dialog_labels_reset_workspace_lead
     val dialogLabelsResetHiddenLead: String       // R.string.dialog_labels_reset_hidden_lead
-    val dialogLabelsResetHiddenDetail: String     // R.string.dialog_labels_reset_hidden_detail
+    val dialogLabelsResetShownDetail: String      // R.string.dialog_labels_reset_shown_detail
     // end dialog copy: B2a
     // dialog copy: B3a
     val aiCannotBeUndoneDetail: String  // R.string.ai_cannot_be_undone_detail

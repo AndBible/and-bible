@@ -1203,7 +1203,7 @@ class BookmarkHost(
                 is DeletePrompt.Orphaned -> strings.dialogLabelDeleteOrphansDetail(prompt.count)
                 DeletePrompt.Confirm -> strings.dialogLabelDeleteDetail
             },
-            deleteBothLabel = (prompt as? DeletePrompt.Orphaned)?.let { strings.dialogLabelDeleteBoth(it.count) } ?: "",
+            deleteBothLabel = (prompt as? DeletePrompt.Orphaned)?.let { strings.dialogLabelDeleteBoth(it.count) },
             deleteBothConsequence = strings.dialogLabelDeleteBothConsequence,
             deleteOnlyLabel = strings.deleteLabelOnly,
             deleteOnlyConsequence = strings.dialogLabelDeleteOnlyConsequence,

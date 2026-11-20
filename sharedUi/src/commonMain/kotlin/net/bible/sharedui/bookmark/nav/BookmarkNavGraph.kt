@@ -105,10 +105,8 @@ import net.bible.sharedui.nav.popOrExitFrom
  * - [deletePromptSlot] renders [LabelEditController.deletePrompt]'s two confirmations, classic's
  *   `DeletePromptDialog` (`:190-224`). NOT in the task brief's deps list, and it has to be: without
  *   it `requestDelete()` would set a prompt nothing draws, and the delete button would silently do
- *   nothing. Host-side because both dialogs are built from formatted Android string resources
- *   (`delete_label_confirmation`, `confirm_delete_orphaned_bookmarks`, ...) that have no
- *   `LocalStrings` entries; giving them entries is a `Strings.kt`/`AndroidStrings.kt` change of its
- *   own, not part of a navigation move. The label name is passed in from the LIVE controller state
+ *   nothing. Host-side because the host owns the label-delete prompt state and its
+ *   formatted strings (`dialogLabelDelete*` in `LocalStrings`); the slot only renders them. The label name is passed in from the LIVE controller state
  *   for classic's stated reason: a name typed but not yet saved must not show stale in the
  *   confirmation.
  *
