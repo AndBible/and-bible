@@ -21,6 +21,8 @@ import androidx.room3.PooledConnection
 import androidx.sqlite.SQLiteConnection
 import net.bible.android.database.bookmarks.isAddonIdSql
 import net.bible.service.db.exec
+import net.bible.service.db.useReaderConnectionMarked
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 
@@ -115,4 +117,51 @@ fun stripAddonRows(conn: SQLiteConnection, category: SyncableDatabaseDefinition,
     }
     if (removed > 0) net.bible.sharedcore.log.Log.w(EXCLUSION_TAG, "Removed $removed add-on rows from a ${category.name} database file")
     return removed
+}
+
+/** Rows of the per-device add-on state tables ([ADDON_STATE_TABLES]), as read by [readAddonLocalState]. */
+class AddonLocalState internal constructor(internal val rows: Map<String, List<List<Any?>>>)
+
+/** Per-device, user-chosen add-on state: carried across a whole-database swap (the other add-on tables are rebuilt). */
+private val ADDON_STATE_TABLES = listOf("AddonLabelLocalState", "AddonLinkLocalState")
+
+/**
+ * This device's add-on state of [dbDef] before its file is replaced (an initial download, a merge's swap back), or null
+ * for other categories. Never throws: losing per-device display state must not fail a sync.
+ */
+suspend fun readAddonLocalState(dbDef: SyncableDatabaseAccessor<*>): AddonLocalState? {
+    if (!dbDef.category.hasAddonRows) return null
+    return try {
+        dbDef.localDb.useReaderConnectionMarked { c ->
+            AddonLocalState(ADDON_STATE_TABLES.associateWith { table ->
+                c.queryRows("SELECT * FROM $table") { st ->
+                    (0 until st.getColumnCount()).map { i ->
+                        when (st.getColumnType(i)) {
+                            androidx.sqlite.SQLITE_DATA_NULL -> null
+                            androidx.sqlite.SQLITE_DATA_BLOB -> st.getBlob(i)
+                            androidx.sqlite.SQLITE_DATA_INTEGER -> st.getLong(i)
+                            else -> st.getText(i)
+                        }
+                    }
+                }
+            })
+        }
+    } catch (e: Exception) {
+        net.bible.sharedcore.log.Log.e(EXCLUSION_TAG, "Could not read the add-on state to carry over", e)
+        null
+    }
+}
+
+/** Writes [state] ([readAddonLocalState]) into [dbDef]'s (new) database. Never throws. */
+suspend fun restoreAddonLocalState(dbDef: SyncableDatabaseAccessor<*>, state: AddonLocalState?) {
+    if (state == null || state.rows.values.all { it.isEmpty() }) return
+    try {
+        dbDef.localDb.useWriterConnectionMarked { c ->
+            for ((table, rows) in state.rows) for (row in rows) {
+                c.exec("INSERT OR REPLACE INTO $table VALUES (${row.joinToString(",") { "?" }})", *row.toTypedArray())
+            }
+        }
+    } catch (e: Exception) {
+        net.bible.sharedcore.log.Log.e(EXCLUSION_TAG, "Could not carry the add-on state over", e)
+    }
 }

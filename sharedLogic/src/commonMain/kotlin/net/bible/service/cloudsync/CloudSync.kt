@@ -577,11 +577,14 @@ class CloudSync(
                 currentCoroutineContext().ensureActive()
                 // Once the live file is touched, reopening and sync-state initialization must finish too.
                 withContext(NonCancellable) {
+                    // This device's own add-on state (favourites, StudyPad expand state) is not in the file: carry it.
+                    val addonState = readAddonLocalState(dbDef)
                     dbDef.localDb.close()
                     FileSystem.SYSTEM.delete(dbDef.localDbPath.toPath(), mustExist = false) // replace the file, not rewrite it in place
                     FileSystem.SYSTEM.copy(downloaded, dbDef.localDbPath.toPath())
                     runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
                     dbDef.resetLocalDbOwned(token)
+                    restoreAddonLocalState(dbDef, addonState)
                     afterReset()
                 }
             }
