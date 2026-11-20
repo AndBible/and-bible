@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, SearchIndexProgress, SearchIndex, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, Search, EpubSearch, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, SearchIndexProgress, SearchIndex, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, EpubSearch, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -88,12 +88,7 @@ object ScreenLauncher {
         // directly, bypassing this map.
         Screen.ReadingPlan to NavRoutes.dailyReading(),
         // — slice 5: the search cluster (part A) —
-        // The ARGUMENT-FREE search form: classic SearchComposeActivity opened with no extras IS
-        // the empty Find screen, so this is a real state rather than a missing argument. Callers
-        // that know a query/type/section (HistoryManager's stored route) build
-        // NavRoutes.searchForm(...) directly, bypassing this map.
-        Screen.Search to NavRoutes.searchForm(),
-        // Likewise argument-free: SearchIndexComposeActivity.kt:46 falls back to the CURRENT page's
+        // Argument-free: SearchIndexComposeActivity.kt:46 falls back to the CURRENT page's
         // document when SEARCH_DOCUMENT is absent, so "index the book I am reading" is a defined
         // meaning. Callers that name a document build NavRoutes.searchIndex(searchDocument = ...).
         Screen.SearchIndex to NavRoutes.searchIndex(),
@@ -241,7 +236,6 @@ object ScreenLauncher {
         Screen.GridChoosePassageBook -> targetForMigratedScreen(screen)
         Screen.ChooseDocument -> targetForMigratedScreen(screen)
         Screen.Download -> targetForMigratedScreen(screen)
-        Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> targetForMigratedScreen(screen)

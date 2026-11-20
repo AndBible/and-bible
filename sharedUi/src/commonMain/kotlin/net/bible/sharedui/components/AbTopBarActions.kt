@@ -63,8 +63,7 @@ fun AbActionIcon(
  * [contentDescription] null means the shared "Menu" label (F84); every call site passes null today.
  *
  * [initiallyExpanded] seeds the internal open state — normally left `false` (the menu starts
- * closed); a test-only hook (same `initiallyXxxOpen` pattern as [net.bible.sharedui.search.SearchScreen]'s
- * `initiallyRecentMenuOpen`/`initiallySettingsOpen`) so a golden test can capture the menu OPEN
+ * closed); a test-only hook (the `initiallyXxxOpen` pattern used across the screens) so a golden test can capture the menu OPEN
  * without simulating a click on the 3-dot icon.
  */
 @Composable

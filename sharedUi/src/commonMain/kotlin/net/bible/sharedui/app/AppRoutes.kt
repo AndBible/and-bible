@@ -62,8 +62,8 @@ fun navHostStartRoute(
     intentRoute: String?,
     onMissing: () -> Unit,
 ): String {
-    savedStartRoute?.let { return it }
-    intentRoute?.let { return it }
+    savedStartRoute?.let { return withoutRetiredRoute(it) }
+    intentRoute?.let { return withoutRetiredRoute(it) }
     onMissing()
     return NavRoutes.READING
 }
@@ -107,3 +107,15 @@ fun isDailyReadingRoute(route: String): Boolean {
     val base = NavRoutes.dailyReading()
     return route == base || route.startsWith("$base?")
 }
+
+/** Base paths of destinations that no longer exist but may still arrive as a restored or stale start route. */
+private val RETIRED_ROUTE_BASES = setOf("search/form")
+
+/**
+ * A start route naming a retired destination (the legacy search form, removed in #4164) would make the NavHost throw
+ * while building its graph, so it resolves to [NavRoutes.READING] instead: the reading view's own search sheet is what
+ * every search entry point opens now. Any other route is returned unchanged.
+ */
+@kotlin.native.HiddenFromObjC
+fun withoutRetiredRoute(route: String): String =
+    if (route.substringBefore('?') in RETIRED_ROUTE_BASES) NavRoutes.READING else route

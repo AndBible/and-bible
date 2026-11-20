@@ -65,8 +65,7 @@ class BibleSearchSettingsSummaryTest {
         assertThat(s, not(containsString(strings.searchCurrentBook)))
     }
 
-    // `SearchScreen`'s `currentBookName` parameter is defaulted to "", so any caller that omits it
-    // reaches here with no book to name. The static label must remain the fallback rather than
+    // A caller with no book to name passes an empty `currentBookName`. The static label must remain the fallback rather than
     // leaving the row blank.
     @Test
     fun aBlankBookNameFallsBackToTheStaticLabel() {

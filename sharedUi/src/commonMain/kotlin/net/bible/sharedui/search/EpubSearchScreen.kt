@@ -49,7 +49,7 @@ private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full
 /**
  * EPUB (general-book) search form: a query field, a single 4-way word-mode segmented picker
  * (all-words / any-word / phrase / raw FTS5), and a submit button; an overflow action links the
- * FTS5 query-syntax help. Simpler than the SWORD [SearchScreen] — no translations selector and no
+ * FTS5 query-syntax help. Simpler than the Bible search — no translations selector and no
  * bible-section group. Pure state-in / callbacks-out; the host owns the search.
  *
  * Platform-dialog removal Task 15: the FTS5 help ([helpOpen], driven by

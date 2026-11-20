@@ -87,7 +87,7 @@ class ReadingHostHistoryOnExitTest {
         val activity = composedReadingHost()
         val before = readPsalm23()
 
-        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.searchForm()))
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.EPUB_SEARCH))
 
         val history = historyManager().getHistory(CommonUtils.windowControl.activeWindow.id)
         assertEquals("exactly one item for the exit (M3)", before + 1, history.size)
@@ -155,7 +155,7 @@ class ReadingHostHistoryOnExitTest {
             ReadingViewVisibility.isVisible,
         )
 
-        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.searchForm()))
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.EPUB_SEARCH))
         idle()
 
         assertEquals(

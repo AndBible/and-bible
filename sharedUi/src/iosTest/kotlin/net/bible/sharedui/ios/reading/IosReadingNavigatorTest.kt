@@ -153,7 +153,8 @@ class IosReadingNavigatorTest {
 
     @Test
     fun searchRouteMatchesAndroidSearchIntent() {
-        assertEquals(NavRoutes.searchForm(), searchRoute(indexDone = true, isEpub = false, isGeneralBook = false, initials = "KJV"))
+        // An indexed Bible/commentary searches in place (the reading sheet), never through a route.
+        assertNull(searchRoute(indexDone = true, isEpub = false, isGeneralBook = false, initials = "KJV"))
         assertEquals(NavRoutes.EPUB_SEARCH, searchRoute(indexDone = true, isEpub = true, isGeneralBook = false, initials = "E"))
         assertNull(searchRoute(indexDone = false, isEpub = false, isGeneralBook = true, initials = "G"))
         assertEquals(NavRoutes.searchIndex(searchDocument = "KJV"), searchRoute(false, false, false, "KJV"))

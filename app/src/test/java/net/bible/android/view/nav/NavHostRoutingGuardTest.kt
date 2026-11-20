@@ -166,17 +166,6 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
-    fun searchResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
-        // The argument-free search form is a real screen (classic `SearchComposeActivity` opened
-        // with no extras is the empty Find screen), so it is a valid MIGRATED value. Callers that
-        // DO know a query/search-type/section (HistoryManager's stored route) build
-        // NavRoutes.searchForm(...) directly, bypassing this map.
-        val intent = ScreenLauncher.intentFor(context, Screen.Search)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.searchForm(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
-    }
-
-    @Test
     fun searchIndexResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
         // Also a real screen without arguments: classic `SearchIndexComposeActivity.kt:46` falls
         // back to the CURRENT PAGE's document when SEARCH_DOCUMENT is absent, so an argument-free

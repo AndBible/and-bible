@@ -14,11 +14,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.search.EpubSearchMode
-import net.bible.sharedcore.search.SearchBibleSection
-import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
 import net.bible.sharedui.search.EpubSearchScreen
-import net.bible.sharedui.search.SearchScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
@@ -66,15 +63,6 @@ class SearchFieldTextTest {
         )
     }
 
-    private fun ComposeUiTest.showSword(h: Harness, recent: List<String> = emptyList(), onRecent: (String) -> Unit = {}) = mount {
-        SearchScreen(
-            title = "Search", query = h.shown, searchType = SearchType.ALL_WORDS, bibleSection = SearchBibleSection.ALL,
-            availableTranslations = emptyList(), selectedTranslationIds = emptyList(),
-            onQueryChange = h::onChange, onSearchType = {}, onBibleSection = {}, onTranslations = {},
-            onSubmit = {}, onNavigateUp = {}, recentTerms = recent, onRecentTermSelected = onRecent,
-        )
-    }
-
     /** Types "a", lets the screen recompose with the echo still held, then types "b". */
     private fun ComposeUiTest.typeTwoBeforeEcho(h: Harness): String {
         val node = field()
@@ -103,12 +91,6 @@ class SearchFieldTextTest {
         assertEquals("ab", field().text())
     }
 
-    @Test fun swordSearchFieldKeepsBothKeystrokesWhileTheEchoIsDelayed() = runComposeUiTest {
-        val h = Harness(); showSword(h)
-        assertEquals("ab", typeTwoBeforeEcho(h))
-        assertEquals("ab", field().text())
-    }
-
     @Test fun aStaleEchoDeliveredAloneNeverOverwritesNewerInput() = runComposeUiTest {
         val h = Harness(); showEpub(h)
         val node = field()
@@ -123,20 +105,5 @@ class SearchFieldTextTest {
         runOnIdle { h.releaseOne() }
         waitForIdle()
         assertEquals("ab", node.text())
-    }
-
-    @Test fun swordRecentTermSelectionStillWritesTheField() = runComposeUiTest {
-        val h = Harness()
-        showSword(h, recent = listOf("grace")) { term -> h.shown = term }
-        val node = field()
-        node.performClick()
-        node.performTextInput("a")
-        waitForIdle()
-        runOnIdle { h.releaseAll() }
-        waitForIdle()
-        // A genuine external write (recent-term pick) must reach the field even after own echoes were absorbed.
-        runOnIdle { h.shown = "grace" }
-        waitForIdle()
-        assertEquals("grace", node.text())
     }
 }
