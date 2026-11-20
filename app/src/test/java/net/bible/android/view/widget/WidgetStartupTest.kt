@@ -132,8 +132,8 @@ class WidgetStartupTest {
 
     @Test fun defaultDetectionSeesPlacedWidgetsOfLegacyReceiverClassesWithoutGlanceMapping() = runBlocking {
         assertFalse(WidgetUpdater.hasSpeakWidgets(context))
-        val manager = org.robolectric.Shadows.shadowOf(android.appwidget.AppWidgetManager.getInstance(context))
-        manager.createWidget(SpeakWidgetManager.SmallSpeakControlWidget::class.java, android.R.layout.simple_list_item_1)
+        // Not createWidget: it delivers APPWIDGET_UPDATE to the Glance receiver, whose goAsync/WorkManager work then fails after the test.
+        android.appwidget.AppWidgetManager.getInstance(context).bindAppWidgetIdIfAllowed(1, android.content.ComponentName(context, SpeakWidgetManager.SmallSpeakControlWidget::class.java))
         assertTrue(WidgetUpdater.hasSpeakWidgets(context))
     }
 
@@ -145,15 +145,8 @@ class WidgetStartupTest {
         org.robolectric.shadows.ShadowLog.clear()
         run {
             val receiver = SpeakWidgetManager.LargeSpeakControlWidget()
-            // Reflective: ShadowBroadcastPendingResult is package-private in Robolectric 4.14.1 (gradle/libs.versions.toml);
-            // revisit this lookup when that version is bumped.
             // As in a real broadcast: one PendingResult, which Glance's onDeleted takes with goAsync() (a second goAsync() is null).
-            val create = Class.forName("org.robolectric.shadows.ShadowBroadcastPendingResult").declaredMethods
-                .first { it.name == "create" }.apply { isAccessible = true }
-            val pending = create.invoke(null, 0, null, null, false)
-            android.content.BroadcastReceiver::class.java.getMethod("setPendingResult", android.content.BroadcastReceiver.PendingResult::class.java)
-                .invoke(receiver, pending)
-            receiver.onDeleted(context, intArrayOf(1))
+            receiver.callAsBroadcast { receiver.onDeleted(context, intArrayOf(1)) }
             assertNotNull(withTimeoutOrNull(10_000) { while (producer.isRunning) kotlinx.coroutines.delay(20); true })
             kotlinx.coroutines.delay(200) // an exception after the stop (the old pending.finish()) lands here
         }

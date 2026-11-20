@@ -116,7 +116,7 @@ class VerseGlanceWidgetTest {
         VerseWidgetScheduler.schedule(context, 13, System.currentTimeMillis() + 3_600_000L)
         val alarms = shadowOf(context.getSystemService(android.content.Context.ALARM_SERVICE) as android.app.AlarmManager)
         assertEquals(1, alarms.scheduledAlarms.size)
-        VerseWidgetReceiver().onDeleted(context, intArrayOf(13))
+        VerseWidgetReceiver().let { r -> r.callAsBroadcast { r.onDeleted(context, intArrayOf(13)) } }
         assertNull(VerseWidgetConfigStore.load(context, 13))
         assertEquals(0, alarms.scheduledAlarms.size)
     }
