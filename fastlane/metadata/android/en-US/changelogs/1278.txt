@@ -1,0 +1,15 @@
+- Redesigned dialogs with a consistent shell, role-based buttons and answer cards (15d2f1d4ef, 2468e5f834)
+- Long texts open as full-screen reading pages (f8fb1dafda)
+- External links check trusted domains before opening (f5ae59f2cd)
+- Clearer dialog wording for AI, sync, backup, cloud documents, documents, plans, settings, bookmarks, labels, unsaved changes, installs, downloads and errors (de061a4c0c, d9187b8262, 7985f30a25, 6df07b489a, 9afa454fe6, 8d6d832a1b, 867025fd7b)
+- Link confirmation asks "Open this link in your browser?" with an Open button (1173bb47ef)
+- Translations updated for 48 languages to match the new dialog texts (1731633ea6)
+- Fixed dialogs being clipped or leaving an empty band on device (5e55d9be10)
+- Fixed dialog scrim and keyboard padding (1173bb47ef)
+- Fixed the damaged-data headline and edge-to-edge layout of text pages (2253188fbd, e11cfc4729)
+
+AndBible 6.0 public beta! One app for Android, iPhone, iPad, Mac, Windows and Linux.
+
+Please report bugs via Menu → Feedback / bug report.
+
+More: https://andbible.org/2026/11/07/andbible-6-0-public-beta/
