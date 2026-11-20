@@ -195,7 +195,6 @@
   <string name="speak_next">Növbəti</string>
   <string name="speak_previous">Əvvəlki</string>
   <string name="widget_toggle_sleep_timer">Gözləmə taymerinin bayrağı</string>
-  <string name="widget_bookmark_helptext">Burada danışıq əlfəçinlərinə aid pəncərənin düymələri görsənəcək</string>
   <string name="speak_status_stopped">Dayandırılıb</string>
   <string name="speak_autobookmarking_disabled">Əlvəçinlərin avtomatik yerləşdirilməsi dayandırılıb!</string>
   <string name="system_speak_settings">Açıq sistemin TTS parametrləri</string>

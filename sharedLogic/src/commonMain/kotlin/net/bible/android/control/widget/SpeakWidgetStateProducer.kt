@@ -68,7 +68,7 @@ interface SpeakWidgetSource {
 
     suspend fun facts(): SpeakFacts
 
-    /** Forgets what an earlier run tracked from events; called when the producer starts. */
+    /** Forgets what an earlier run tracked from events. Not called on producer start: a paused session keeps its text. */
     fun reset() {}
 }
 
@@ -109,12 +109,11 @@ class SpeakWidgetStateProducer(
         }
         while (true) {
             val current = job.value
-            if (current?.isActive == true) {
+            if (current != null && !current.isCompleted) {
                 fresh.cancel()
                 return
             }
             if (job.compareAndSet(current, fresh)) {
-                source.reset()
                 fresh.start()
                 return
             }

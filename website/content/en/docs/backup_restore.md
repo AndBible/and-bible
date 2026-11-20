@@ -42,7 +42,7 @@ deleted at that point. You can choose:
 On Android, the message appears only after the calculator PIN when the
 calculator disguise is on. Speaking from the widget, the notification or a
 headset button does nothing while data is damaged. Instead, a notification
-says that the app's data needs attention, and the speak widgets show the same
+says that the app's data needs attention, and the Speak widgets show the same
 text; tap either one to open the app and see the message.
 
 When AndBible cannot tell which database is damaged, the message names every

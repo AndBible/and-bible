@@ -39,7 +39,7 @@ class AndroidWidgetStrings(private val context: Context) : WidgetStrings {
     override val listeningListEmptyText get() = s(R.string.widget_listening_list_empty_text)
     override val openAppToLoad get() = s(R.string.widget_open_app_to_load)
     override val toggleSleepTimer get() = s(R.string.widget_toggle_sleep_timer)
-    override fun sleepMinutes(minutes: Int) = s(R.string.widget_sleep_minutes, minutes)
+    override fun sleepMinutes(minutes: Int) = s(R.string.speak_sleep_timer_minutes, minutes)
     override fun verseUnavailable(reason: VerseWidgetContent.Unavailable.Reason) = s(
         when (reason) {
             VerseWidgetContent.Unavailable.Reason.NO_BIBLE -> R.string.widget_verse_unavailable_no_bible

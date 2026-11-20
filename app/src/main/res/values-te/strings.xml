@@ -575,7 +575,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="speak_next">తరువాతి విషయానికి</string>
   <string name="speak_previous">వెనుకటి విషయానికి</string>
   <string name="widget_toggle_sleep_timer">స్లీప్ టైమర్ ఉపయోగించండి</string>
-  <string name="widget_bookmark_helptext">స్పీక్ బుక్‌మార్క్‌ల షార్ట్‌కట్ బటన్‌లు ఇక్కడ కనిపిస్తాయి.</string>
   <string name="speak_status_stopped">ఆగిపోయింది</string>
   <string name="speak_autobookmarking_disabled">ఆటోబుక్‌మార్కింగ్ నిలిపివేయబడింది!</string>
   <string name="system_speak_settings">సిస్టమ్ TTS సెట్టింగ్‌లను తెరవండి</string>

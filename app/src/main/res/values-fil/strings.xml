@@ -557,7 +557,6 @@
   <string name="speak_next">Susunod</string>
   <string name="speak_previous">Nakaraan</string>
   <string name="widget_toggle_sleep_timer">I-toggle ang sleep timer</string>
-  <string name="widget_bookmark_helptext">Ang mga shortcut button ng Speak bookmarks ay lilitaw dito.</string>
   <string name="speak_status_stopped">natigil</string>
   <string name="speak_autobookmarking_disabled">Naka-disable ang autobookmarking!</string>
   <string name="system_speak_settings">Buksan ang mga setting ng TTS ng sistema</string>

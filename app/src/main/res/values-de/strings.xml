@@ -567,7 +567,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_next">Nächstes</string>
   <string name="speak_previous">Voriges</string>
   <string name="widget_toggle_sleep_timer">Schaltuhr ein-/ausschalten</string>
-  <string name="widget_bookmark_helptext">Sprachlesezeichen scheinen hier auf</string>
   <string name="speak_status_stopped">angehalten</string>
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>

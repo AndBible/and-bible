@@ -555,7 +555,6 @@
   <string name="speak_next">ถัดไป</string>
   <string name="speak_previous">ก่อนหน้า</string>
   <string name="widget_toggle_sleep_timer">เปิด/ปิดตัวจับเวลาหยุด</string>
-  <string name="widget_bookmark_helptext">ปุ่มลัดที่คั่นหน้าการอ่านจะปรากฏที่นี่</string>
   <string name="speak_status_stopped">หยุดแล้ว</string>
   <string name="speak_autobookmarking_disabled">ที่คั่นหน้าอัตโนมัติถูกปิดใช้งาน!</string>
   <string name="system_speak_settings">เปิดการตั้งค่า TTS ของระบบ</string>

@@ -81,6 +81,7 @@
 
         <receiver
             android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
+            android:label="@string/widget_speak_name"
             android:exported="true"
             >
             <intent-filter>
@@ -92,7 +93,9 @@
                 android:resource="@xml/small_speak_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
+        <receiver
+            android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
+            android:label="@string/widget_speak_name"
             android:exported="true"
             >
             <intent-filter>
@@ -104,7 +107,9 @@
                 android:resource="@xml/middle_speak_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
+        <receiver
+            android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
+            android:label="@string/widget_speak_name"
             android:exported="true"
             >
             <intent-filter>
@@ -115,7 +120,10 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/large_speak_control_widget_info" />
         </receiver>
-        <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget"
+
+        <receiver
+            android:name=".SpeakWidgetManager$SpeakTextControlWidget"
+            android:label="@string/widget_speak_text_name"
             android:exported="true"
             >
             <intent-filter>
@@ -127,7 +135,9 @@
                 android:resource="@xml/speak_text_control_widget_info" />
         </receiver>
 
-        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget"
+        <receiver
+            android:name=".SpeakWidgetManager$SpeakBookmarkWidget"
+            android:label="@string/widget_listening_list_name"
             android:exported="true"
             >
             <intent-filter>
@@ -138,6 +148,34 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/speak_bookmark_widget_info" />
         </receiver>
+
+        <receiver
+            android:name="net.bible.android.view.widget.VerseWidgetReceiver"
+            android:label="@string/widget_verse_name"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/verse_widget_info" />
+        </receiver>
+
+        <activity
+            android:name="net.bible.android.view.widget.VerseWidgetConfigActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

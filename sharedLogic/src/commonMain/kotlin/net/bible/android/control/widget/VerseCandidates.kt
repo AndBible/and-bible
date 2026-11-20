@@ -33,7 +33,10 @@ interface VerseOrdinals {
 /** A [VerseOrdinals] of consecutive ordinals. */
 class RangeVerseOrdinals(private val range: IntRange) : VerseOrdinals {
     override val size: Int get() = if (range.isEmpty()) 0 else range.last - range.first + 1
-    override fun ordinalAt(index: Int): Int = range.first + index
+    override fun ordinalAt(index: Int): Int {
+        require(index in 0 until size) { "index $index outside 0 until $size" }
+        return range.first + index
+    }
 }
 
 /** A user label with its Bible bookmarks as verse refs, ordered by verse ordinal. */

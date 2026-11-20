@@ -1,6 +1,7 @@
 package net.bible.android.activity
 
-import android.appwidget.AppWidgetManager
+import androidx.compose.ui.unit.dp
+import net.bible.android.view.widget.rootClickable
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -26,27 +27,24 @@ import org.robolectric.annotation.Config
 class WidgetStartupIntentTest {
     private val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
 
+    private val strings get() = net.bible.android.platform.AndroidWidgetStrings(app)
+
+    /** The background of every speak-state widget opens the app through the startup gate, never the reading screen. */
     @Test
     fun speechWidgetContentOpensStartupWithoutInstalledModules() = withoutInstalledModules {
-        val manager = shadowOf(AppWidgetManager.getInstance(app))
-        for (provider in listOf(
-            SpeakWidgetManager.SmallSpeakControlWidget::class.java,
-            SpeakWidgetManager.MiddleSpeakControlWidget::class.java,
-            SpeakWidgetManager.LargeSpeakControlWidget::class.java,
-            SpeakWidgetManager.SpeakTextControlWidget::class.java,
-        )) {
-            val id = manager.createWidget(provider, R.layout.speak_widget)
-            assertTrue(manager.getViewFor(id).findViewById<android.view.View>(R.id.layout).performClick())
+        val state = net.bible.android.view.widget.stoppedState()
+        val widgets: List<Pair<String, @androidx.compose.runtime.Composable () -> Unit>> = listOf(
+            "speak" to { net.bible.android.view.widget.SpeakStripContent(state, strings, 334.dp) },
+            "speak text" to { net.bible.android.view.widget.SpeakTextContent(state, strings, 334.dp, 182.dp) },
+            "listening list" to { net.bible.android.view.widget.ListeningListContent(state, strings, 334.dp, 182.dp) },
+        )
+        for ((name, content) in widgets) {
+            val view = net.bible.android.view.widget.renderWidget(app, 334, 182, content = content)
+            val root = view.rootClickable()
+            assertNotNull("$name widget has a background tap", root)
+            assertTrue(root!!.performClick())
             assertStartupWasStarted()
         }
-    }
-
-    @Test
-    fun bookmarkWidgetContentOpensStartupWithoutInstalledModules() = withoutInstalledModules {
-        val manager = shadowOf(AppWidgetManager.getInstance(app))
-        val id = manager.createWidget(SpeakWidgetManager.SpeakBookmarkWidget::class.java, R.layout.speak_bookmarks_widget)
-        assertTrue(manager.getViewFor(id).findViewById<android.view.View>(R.id.root).performClick())
-        assertStartupWasStarted()
     }
 
     private fun assertStartupWasStarted() {

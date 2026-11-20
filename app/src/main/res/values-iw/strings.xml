@@ -581,7 +581,6 @@
   <string name="speak_next">הבא</string>
   <string name="speak_previous">הקודם</string>
   <string name="widget_toggle_sleep_timer">הפעלה/כיבוי טיימר שינה</string>
-  <string name="widget_bookmark_helptext">קיצורי דרך לסימניות השמעה יוצגו כאן</string>
   <string name="speak_status_stopped">נעצר</string>
   <string name="speak_autobookmarking_disabled">סימניות אוטומטיות לא פעיל!</string>
   <string name="system_speak_settings">פתח הגדרות מערכת TTS</string>

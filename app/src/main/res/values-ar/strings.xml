@@ -578,7 +578,6 @@
   <string name="speak_next">التالي</string>
   <string name="speak_previous">السابق</string>
   <string name="widget_toggle_sleep_timer">تبديل مؤقت النوم</string>
-  <string name="widget_bookmark_helptext">ستظهر أزرار اختصار الإشارات المرجعية هنا.</string>
   <string name="speak_status_stopped">متوقف</string>
   <string name="speak_autobookmarking_disabled">تم تعطيل الإشارة المرجعية التلقائية!</string>
   <string name="system_speak_settings">فتح إعدادات نظام تحويل النص إلى كلام</string>

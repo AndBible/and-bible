@@ -660,8 +660,8 @@
 
     <string name="speak_next">Next</string>
     <string name="speak_previous">Previous</string>
+    <string name="widget_play">Play</string>
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
-    <string name="widget_bookmark_helptext">Speak bookmarks shortcut buttons will appear here.</string>
     <!-- Home-screen widgets (#184) -->
     <string name="widget_speak_name">Speak</string>
     <string name="widget_speak_text_name">Speak with text</string>
@@ -674,7 +674,6 @@
     <string name="widget_listening_list_empty_title">No speak bookmarks yet</string>
     <string name="widget_listening_list_empty_text">Bookmarks with the Speak label appear here. Turn on automatic bookmarks in the speak settings, or add the label to any bookmark.</string>
     <string name="widget_open_app_to_load">Open AndBible to load verses</string>
-    <string name="widget_sleep_minutes">%d min</string>
     <string name="widget_verse_unavailable_no_bible">Install a Bible to see verses here</string>
     <string name="widget_verse_unavailable_label_missing">The label of this widget no longer exists. Tap to choose verses.</string>
     <string name="widget_verse_unavailable_label_empty">This label has no Bible bookmarks yet. Tap to choose other verses.</string>
@@ -682,6 +681,26 @@
     <string name="widget_verse_source_random_whole_bible">Random verse</string>
     <string name="widget_verse_source_random_new_testament">Random verse · New Testament</string>
     <string name="widget_verse_source_random_psalms_proverbs">Random verse · Psalms &amp; Proverbs</string>
+    <string name="widget_shuffle">Shuffle verse</string>
+    <string name="widget_speak_verse">Speak verse</string>
+    <string name="widget_verse_config_title">Verse widget</string>
+    <string name="widget_verse_config_source_label">Verses from</string>
+    <string name="widget_verse_config_source_label_option">A label</string>
+    <string name="widget_verse_config_source_random">Random verse</string>
+    <string name="widget_verse_config_random_whole">Whole Bible</string>
+    <string name="widget_verse_config_random_nt">New Testament</string>
+    <string name="widget_verse_config_random_psalms_proverbs">Psalms &amp; Proverbs</string>
+    <string name="widget_verse_config_source_plan">Today\'s reading plan</string>
+    <string name="widget_verse_config_changes">Changes</string>
+    <string name="widget_verse_config_daily">Daily</string>
+    <string name="widget_verse_config_every_few_hours">Every few hours</string>
+    <string name="widget_verse_config_on_shuffle">Only when I tap shuffle</string>
+    <string name="widget_verse_config_bible">Bible</string>
+    <string name="widget_verse_config_bible_default">Default (%s)</string>
+    <string name="widget_verse_config_show_buttons">Show shuffle and speak buttons</string>
+    <string name="widget_verse_config_show_source">Show source and date</string>
+    <string name="widget_verse_config_add">Add widget</string>
+    <string name="widget_verse_config_save">Save</string>
     <string name="widget_verse_source_reading_plan">Today\'s reading</string>
     <string name="speak_status_stopped">stopped</string>
     <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
@@ -2552,5 +2571,4 @@
     <string name="new_sync_targets_lead">More of your data can now sync</string>
     <string name="new_sync_targets_detail">My Documents, AI settings and reading progress can sync too. Turn them on in the Device synchronization settings.</string>
     <!-- end dialog copy: B3b -->
-    <string name="widget_sleep_minutes">%1$d min</string>
 </resources>

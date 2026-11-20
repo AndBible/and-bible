@@ -583,7 +583,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="speak_next">Siguiente</string>
   <string name="speak_previous">Anterior</string>
   <string name="widget_toggle_sleep_timer">Apagar o encender temporizador</string>
-  <string name="widget_bookmark_helptext">Aquí aparecerán los botones de atajo a marcadores de voz.</string>
   <string name="speak_status_stopped">parado</string>
   <string name="speak_autobookmarking_disabled">¡Marcadores automáticos deshabilitados!</string>
   <string name="system_speak_settings">Abrir los ajustes del sistema de Texto a Voz</string>

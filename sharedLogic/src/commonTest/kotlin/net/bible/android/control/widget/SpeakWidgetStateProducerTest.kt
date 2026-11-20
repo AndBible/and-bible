@@ -36,6 +36,7 @@ class SpeakWidgetStateProducerTest {
         override val changes = events
         var sleepAt: Long? = null
         var factsCalls = 0
+        var resets = 0
         var facts = SpeakFacts(
             phase = SpeakPhase.SPEAKING, title = "Psalm 23", reference = "Psalm 23:1", translation = "WEB", percent = 34,
             verseText = "The LORD is my shepherd.", nextVerseText = "I shall not want.", autoBookmarkOn = true,
@@ -44,6 +45,7 @@ class SpeakWidgetStateProducerTest {
         override fun sleepActivationTimeMs() = sleepAt
         override fun nowMs() = clock()
         override suspend fun facts(): SpeakFacts { factsCalls++; return facts }
+        override fun reset() { resets++ }
     }
 
     private fun TestScope.producer(strings: WidgetStrings = FakeWidgetStrings(), configure: FakeSource.() -> Unit = {}):
@@ -62,6 +64,15 @@ class SpeakWidgetStateProducerTest {
         assertEquals("Psalm 23:1 · 34 % · WEB", s.statusLine)
         assertEquals("Psalm 23", s.title)
         assertEquals("I shall not want.", s.nextVerseText)
+    }
+
+    @Test fun restartingWhilePausedDoesNotForgetThePosition() = runTest {
+        val (p, source) = producer { facts = facts.copy(phase = SpeakPhase.PAUSED) }
+        p.stop()
+        p.start()
+        runCurrent()
+        assertEquals(0, source.resets)
+        assertEquals("Continue from Psalm 23:1 · WEB", p.state.value.statusLine)
     }
 
     @Test fun stoppedStateSaysContinueFrom() = runTest {

@@ -584,7 +584,6 @@
   <string name="speak_next">Наступний</string>
   <string name="speak_previous">Попередній</string>
   <string name="widget_toggle_sleep_timer">Переключити таймер сну</string>
-  <string name="widget_bookmark_helptext">Тут будуть появлятися кнопки для прослуховування закладок</string>
   <string name="speak_status_stopped">зупинено</string>
   <string name="speak_autobookmarking_disabled">Автоматичне створення закладок вимкнуто!</string>
   <string name="system_speak_settings">Відкрити системні налаштування TTS</string>

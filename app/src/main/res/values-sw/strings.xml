@@ -564,7 +564,6 @@ Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya 
   <string name="speak_next">Inayofuata</string>
   <string name="speak_previous">Iliyopita</string>
   <string name="widget_toggle_sleep_timer">Badilisha kipima muda cha kulala</string>
-  <string name="widget_bookmark_helptext">Vitufe vya njia ya mkato vya alamisho za kusoma zitaonekana hapa.</string>
   <string name="speak_status_stopped">imesimama</string>
   <string name="speak_autobookmarking_disabled">Kuweka alamisho kiotomatiki kumezimwa!</string>
   <string name="system_speak_settings">Fungua mipangilio ya TTS ya mfumo</string>

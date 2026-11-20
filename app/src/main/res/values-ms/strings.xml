@@ -555,7 +555,6 @@
   <string name="speak_next">Seterusnya</string>
   <string name="speak_previous">Sebelumnya</string>
   <string name="widget_toggle_sleep_timer">Togol pemasa tidur</string>
-  <string name="widget_bookmark_helptext">Butang pintasan penanda buku baca akan muncul di sini.</string>
   <string name="speak_status_stopped">dihentikan</string>
   <string name="speak_autobookmarking_disabled">Penanda buku automatik dinyahdayakan!</string>
   <string name="system_speak_settings">Buka tetapan TTS sistem</string>

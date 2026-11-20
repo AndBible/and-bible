@@ -582,7 +582,6 @@ i GT och NT varje dag.
   <string name="speak_next">Nästa</string>
   <string name="speak_previous">Föregående</string>
   <string name="widget_toggle_sleep_timer">Slå på/av sovtimer</string>
-  <string name="widget_bookmark_helptext">Genvägsknappar till uppläsningsbokmärken kommer att visas här.</string>
   <string name="speak_status_stopped">Stannad</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmärkning inaktiverad!</string>
   <string name="system_speak_settings">Öppna systemets text-till-tal-inställningar</string>

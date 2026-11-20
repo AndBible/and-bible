@@ -584,7 +584,6 @@
   <string name="speak_next">Înainte</string>
   <string name="speak_previous">Înapoi</string>
   <string name="widget_toggle_sleep_timer">Act/Dez contorul de timp</string>
-  <string name="widget_bookmark_helptext">Aici vor apărea scurtăturile pentru semnele de carte audio.</string>
   <string name="speak_status_stopped">oprit</string>
   <string name="speak_autobookmarking_disabled">Semn de carte automat dezactivat</string>
   <string name="system_speak_settings">Deschide reglările TTS ale sistemului</string>

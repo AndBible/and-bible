@@ -586,7 +586,6 @@
   <string name="speak_next">Kitas</string>
   <string name="speak_previous">Anstesnis</string>
   <string name="widget_toggle_sleep_timer">Perjungti miego laikrodį</string>
-  <string name="widget_bookmark_helptext">Čia atsiras kalbos žymių greito pasiekimo mygtukai</string>
   <string name="speak_status_stopped">sustabdyta</string>
   <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
   <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>

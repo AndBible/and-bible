@@ -571,7 +571,6 @@ Jeżeli struktura dokumentu uległa zmianie, jego aktualizacja może spowodować
   <string name="speak_next">Następny</string>
   <string name="speak_previous">Poprzedni</string>
   <string name="widget_toggle_sleep_timer">Przełącz automatyczne uśpienie</string>
-  <string name="widget_bookmark_helptext">Przyciski zakładek odtwarzania pojawią się tutaj.</string>
   <string name="speak_status_stopped">wstrzymano</string>
   <string name="speak_autobookmarking_disabled">Wyłączono automatyczne tworzenie zakładek!</string>
   <string name="system_speak_settings">Systemowe ustawienia syntezy mowy</string>

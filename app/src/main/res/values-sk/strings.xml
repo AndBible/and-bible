@@ -586,7 +586,6 @@
   <string name="speak_next">Ďalší</string>
   <string name="speak_previous">Predošlý</string>
   <string name="widget_toggle_sleep_timer">Prepni režim uspania</string>
-  <string name="widget_bookmark_helptext">Tlačidlá pre záložky čítania sa zobrazia tu.</string>
   <string name="speak_status_stopped">zastavené</string>
   <string name="speak_autobookmarking_disabled">Automatická tvorba záložiek je vypnutá!</string>
   <string name="system_speak_settings">Otvoriť systémové nastavenie TTS</string>

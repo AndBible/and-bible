@@ -583,7 +583,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="speak_next">Sledeći</string>
   <string name="speak_previous">Prethodni</string>
   <string name="widget_toggle_sleep_timer">Uklj/Isklj tajmer spavanja</string>
-  <string name="widget_bookmark_helptext">Dugmad prečica obeleživači Izgovora će se ovde pojaviti.</string>
   <string name="speak_status_stopped">zaustavljeno</string>
   <string name="speak_autobookmarking_disabled">Automatsko obeležavanje onemogućeno!</string>
   <string name="system_speak_settings">Otvori sistemske TTS postavke</string>

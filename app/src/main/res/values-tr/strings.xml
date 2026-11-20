@@ -582,7 +582,6 @@
   <string name="speak_next">Sonraki</string>
   <string name="speak_previous">Önceki</string>
   <string name="widget_toggle_sleep_timer">Uygu süre ayarlayıcı değiştir</string>
-  <string name="widget_bookmark_helptext">Konuşma yer imleri kısayol düğmeleri burada görünecektir.</string>
   <string name="speak_status_stopped">durduruldu</string>
   <string name="speak_autobookmarking_disabled">Otomatik yer imleme devre dışı bırakıldı!</string>
   <string name="system_speak_settings">Sistem MOÇ ayarlarını açın</string>

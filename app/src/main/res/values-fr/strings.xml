@@ -574,7 +574,6 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="speak_next">Suivant</string>
   <string name="speak_previous">Précédent</string>
   <string name="widget_toggle_sleep_timer">Inverser la mise en sommeil</string>
-  <string name="widget_bookmark_helptext">Ici s\'afficheront les raccourcis vers les signets audio de And Bible</string>
   <string name="speak_status_stopped">arrêt</string>
   <string name="speak_autobookmarking_disabled">Mise en signet automatique désactivée! </string>
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>

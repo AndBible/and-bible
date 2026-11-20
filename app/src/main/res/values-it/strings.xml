@@ -569,7 +569,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_next">Successivo</string>
   <string name="speak_previous">Precedente</string>
   <string name="widget_toggle_sleep_timer">Attiva/disattiva il timer di spegnimento</string>
-  <string name="widget_bookmark_helptext">Qui appariranno i pulsanti di scelta rapida dei segnalibri audio.</string>
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>

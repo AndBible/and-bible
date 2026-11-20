@@ -579,7 +579,6 @@
   <string name="speak_next">அடுத்தது</string>
   <string name="speak_previous">முந்தையது</string>
   <string name="widget_toggle_sleep_timer">தூங்கு கடிகார நிலையை மாற்று</string>
-  <string name="widget_bookmark_helptext">பேச்சு புக்மார்க்ஸ் ஷார்ட்கட் பட்டன்கள் இங்கே தோன்றும்.</string>
   <string name="speak_status_stopped">நிறுத்தப்பட்டது</string>
   <string name="speak_autobookmarking_disabled">தானாக புக் மார்க் செய்வது முடக்கப்பட்டது!</string>
   <string name="system_speak_settings">கருவியின் TTS அமைப்புகளைத் திற</string>

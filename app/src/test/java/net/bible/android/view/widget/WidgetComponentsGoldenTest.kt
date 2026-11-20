@@ -22,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import android.content.ComponentName
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,7 @@ import java.io.File
 /** Goldens of the shared widget building blocks (4x1-sized strip, 334x86 dp) in all four colour modes. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [TEST_SDK], application = Application::class)
+@Config(sdk = [TEST_SDK], application = Application::class, qualifiers = "w500dp-h900dp")
 class WidgetComponentsGoldenTest {
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
     private val noop: Action get() = actionStartActivity(ComponentName(context, "net.bible.android.view.widget.Noop"))
@@ -66,7 +67,8 @@ class WidgetComponentsGoldenTest {
     fun monoHasNoHue() {
         listOf(WidgetMode.MONO, WidgetMode.MONO_DARK).forEach { mode ->
             strip(mode)
-            val bmp = BitmapFactory.decodeFile(widgetGoldenPath("components", mode))
+            val path = widgetGoldenPath("components", mode)
+            val bmp = checkNotNull(BitmapFactory.decodeFile(path)) { "golden $path is missing or not a decodable PNG; record it first" }
             var worst = 0
             for (x in 0 until bmp.width) for (y in 0 until bmp.height) {
                 val p = bmp.getPixel(x, y)
@@ -75,5 +77,17 @@ class WidgetComponentsGoldenTest {
             }
             assertTrue("$mode has hue (channel spread $worst)", worst <= 8)
         }
+    }
+
+    @Test
+    fun progressBitmap_fillsExactFractionWithSquareEnds() {
+        val track = 0xFF112233.toInt(); val fill = 0xFFAABBCC.toInt()
+        val half = progressBitmap(0.5f, track, fill)
+        assertEquals(fill, half.getPixel(0, 0))
+        assertEquals(fill, half.getPixel(half.width / 2 - 1, half.height - 1))
+        assertEquals(track, half.getPixel(half.width / 2, 0))
+        assertEquals(track, half.getPixel(half.width - 1, 0))
+        assertEquals(track, progressBitmap(0f, track, fill).getPixel(0, 0))
+        assertEquals(fill, progressBitmap(2f, track, fill).getPixel(half.width - 1, 0))
     }
 }

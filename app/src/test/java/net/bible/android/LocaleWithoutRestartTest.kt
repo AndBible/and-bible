@@ -3,7 +3,9 @@ package net.bible.android
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Intent
-import net.bible.android.activity.SpeakWidgetManager
+import androidx.compose.ui.unit.dp
+import net.bible.android.view.widget.texts
+import org.junit.Assert.assertTrue
 import net.bible.service.cloudsync.SyncService
 import org.junit.Assert.assertNotEquals
 import org.robolectric.Robolectric
@@ -96,19 +98,22 @@ class LocaleWithoutRestartTest {
         assertEquals("Synchronizing\u2026", syncNotificationTitle())
     }
 
-    /** `app_name_medium` is translated in `ar` (not in `fi`), so use `ar` to tell the languages apart. */
+    /**
+     * `app_name_medium` is translated in `ar` (not in `fi`), so use `ar` to tell the languages apart. The Speak with text
+     * widget shows the app name as its title while nothing is read; it is resolved at every draw.
+     */
     @Test fun theSpeakWidgetTitleFollowsALanguageChange() {
-        val existing = SpeakWidgetManager.instance
-        val mgr = existing ?: SpeakWidgetManager()
-        try {
-            val english = app.getString(R.string.app_name_medium)
-            assertEquals(english, mgr.titleForTest())
-            setPref("ar")
-            val arabic = app.getString(R.string.app_name_medium)
-            assertNotEquals(english, arabic)
-            assertEquals(arabic, mgr.titleForTest())
-            setPref("")
-            assertEquals(english, mgr.titleForTest())
-        } finally { if (existing == null) mgr.destroy() } // only what this test created
+        val strings = net.bible.android.platform.AndroidWidgetStrings(app)
+        fun title() = net.bible.android.view.widget.renderWidget(app, 334, 182) {
+            net.bible.android.view.widget.SpeakTextContent(net.bible.android.view.widget.stoppedState(), strings, 334.dp, 182.dp)
+        }.texts()
+        val english = app.getString(R.string.app_name_medium)
+        assertTrue(title().contains(english))
+        setPref("ar")
+        val arabic = app.getString(R.string.app_name_medium)
+        assertNotEquals(english, arabic)
+        assertTrue(title().contains(arabic))
+        setPref("")
+        assertTrue(title().contains(english))
     }
 }

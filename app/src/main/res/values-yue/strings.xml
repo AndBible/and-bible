@@ -393,7 +393,6 @@ http://www.heartlight.org 准予使用
   <string name="speak_next">下一個</string>
   <string name="speak_previous">上一個</string>
   <string name="widget_toggle_sleep_timer">切換睡眠計時器</string>
-  <string name="widget_bookmark_helptext">朗讀書籤按鍵會在這裡顯示</string>
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自動書籤已停用！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>

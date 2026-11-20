@@ -583,7 +583,6 @@
   <string name="speak_next">Следећи</string>
   <string name="speak_previous">Претходни</string>
   <string name="widget_toggle_sleep_timer">Укљ/Искљ тајмер спавања</string>
-  <string name="widget_bookmark_helptext">Дугмад пречица обележивачи Изговора ће се овде појавити.</string>
   <string name="speak_status_stopped">заустављено</string>
   <string name="speak_autobookmarking_disabled">Аутоматско обележавање онемогућено!</string>
   <string name="system_speak_settings">Отвори системске ТТС поставке</string>

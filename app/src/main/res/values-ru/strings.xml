@@ -585,7 +585,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_next">Следуюущее</string>
   <string name="speak_previous">Предыдущее</string>
   <string name="widget_toggle_sleep_timer">Переключить таймер сна</string>
-  <string name="widget_bookmark_helptext">Здесь будут появляться кнопки быстрого вызова закладок прослушивания.</string>
   <string name="speak_status_stopped">остановлено</string>
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>

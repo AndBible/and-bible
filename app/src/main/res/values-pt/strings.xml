@@ -575,7 +575,6 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="speak_next">Próximo</string>
   <string name="speak_previous">Anterior</string>
   <string name="widget_toggle_sleep_timer">Ligar/desligar temporizador</string>
-  <string name="widget_bookmark_helptext">Os atalhos para botões de marcadores falados aparecerão aqui.</string>
   <string name="speak_status_stopped">Parado</string>
   <string name="speak_autobookmarking_disabled">Marcadores automáticos desativados</string>
   <string name="system_speak_settings">Configurações Open system TTS</string>
