@@ -18,7 +18,6 @@
 
 package net.bible.sharedui.host.ports
 
-import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.android.view.activity.settings.SettingsReset
 import net.bible.sharedcore.platform.AppSettings
@@ -32,7 +31,6 @@ import org.koin.mp.KoinPlatform
 /** Uses the shared reset contract, including the original device-local exclusions. */
 @kotlin.native.HiddenFromObjC
 class HostSettingsPlatform(
-    private val strings: CoreStrings,
     private val settings: AppSettings,
     private val devicePrefs: DeviceLocalPrefs,
     private val legacyImport: () -> LegacyDataImport? = { KoinPlatform.getKoin().getOrNull<LegacyDataImport>() },

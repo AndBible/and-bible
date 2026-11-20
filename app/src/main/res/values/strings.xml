@@ -1479,9 +1479,6 @@
     <string name="sync_general_settings">Info &amp; general settings</string>
     <string name="sync_introduction">Introduction</string>
     <string name="are_you_sure_merge">Both the data on this device and the %s in the cloud will be kept. Where the same item was changed on both, the newer change is kept. This device\'s data will be sent to your other devices.</string>
-    <string name="sync_cant_fetch">The version of database or patch file stored in Cloud is higher than the one supported by this app. </string>
-    <string name="sync_disabling">Disabling synchronizing for %s for now.</string>
-    <string name="sync_update_app">Please update the app to continue synchronization.</string>
     <!--  ... after restoring from backup file -->
     <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
     <string name="report">Report</string>

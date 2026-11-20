@@ -65,7 +65,7 @@ fun buildIosHostBindings(): Module = module {
     single<PlatformText> { IosPlatformText { get<net.bible.sharedui.assembly.HostStringTableHolder>().current } }
     single<DebugActions> { IosDebugActions(get(), get<CoreStrings>()) }
     single<DeviceLocalPrefs> { get<IosDeviceSettings>() }
-    single { HostSettingsPlatform(get<CoreStrings>(), get(), get()) }
+    single { HostSettingsPlatform(get(), get()) }
     single<SettingsPlatform> { get<HostSettingsPlatform>() }
     single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }

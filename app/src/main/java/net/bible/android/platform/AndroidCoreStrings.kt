@@ -139,13 +139,10 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val cloudFetchAndRestoreInitial: String get() = context.getString(R.string.cloud_fetch_and_restore_initial)
     override val cloudCreateNew: String get() = context.getString(R.string.cloud_create_new)
     override val cloudDisableSync: String get() = context.getString(R.string.cloud_disable_sync)
-    override val syncCantFetch: String get() = context.getString(R.string.sync_cant_fetch)
-    override val syncUpdateApp: String get() = context.getString(R.string.sync_update_app)
     override val syncError: String get() = context.getString(R.string.sync_error)
     override val okay: String get() = context.getString(R.string.okay)
     override val cancel: String get() = context.getString(R.string.cancel)
     override fun areYouSureMerge(contents: String): String = context.getString(R.string.are_you_sure_merge, contents)
-    override fun syncDisabling(what: String): String = context.getString(R.string.sync_disabling, what)
 
     override fun databaseTitle(dbFileName: String): String = context.getString(when (dbFileName) {
         "bookmarks.sqlite3" -> R.string.db_bookmarks

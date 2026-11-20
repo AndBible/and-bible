@@ -22,7 +22,7 @@ class BackgroundImageDeleteConfirmTest {
     private val labels = BackgroundImageChooserLabels.forTest()
     private val option = BackgroundImageOption("img1", "Image one", "tok")
 
-    @Test fun deleteConfirmShowsDetailAndHasDestructiveConfirm() = runComposeUiTest {
+    @Test fun deleteConfirmHasNoDetailAndHasDestructiveConfirm() = runComposeUiTest {
         setContent {
             CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
                 AbTheme(darkTheme = false) {

@@ -45,7 +45,7 @@ import net.bible.sharedui.host.report.reportSafely
 
 internal class IosBugReport(
     private val table: StringTable,
-    private val confirm: suspend (Boolean) -> Boolean = { ai -> confirmReport(table, ai) },
+    private val confirm: suspend (Boolean) -> Boolean = { confirmReport(table) },
     private val send: suspend (String, String, String, List<Attachment>) -> Unit = IosMailOrShare()::send,
     private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
     private val crashDiagnostic: () -> Attachment? = ::recentCrashDiagnostic,
@@ -200,7 +200,7 @@ private suspend fun showReportFailure(table: StringTable, error: Exception) {
 }
 
 /** UIKit confirmation also works before Koin, AppSettings and every database have been opened. */
-private suspend fun confirmReport(table: StringTable, ai: Boolean): Boolean = withContext(Dispatchers.Main) {
+private suspend fun confirmReport(table: StringTable): Boolean = withContext(Dispatchers.Main) {
     val host = IosPresenter.topViewController() ?: return@withContext false
     suspendCancellableCoroutine { continuation ->
         val alert = UIAlertController.alertControllerWithTitle(

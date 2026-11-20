@@ -38,7 +38,7 @@ class SettingsAx5MigrationTest {
         val settings = defaults<AppSettings>()
         val prefs = defaults<DeviceLocalPrefs>()
         val flags = net.bible.sharedui.host.ports.HostSettingsPlatform(
-            strings, settings, prefs, legacyImport = { null }, doubleTapFullscreenAvailable = false,
+            settings, prefs, legacyImport = { null }, doubleTapFullscreenAvailable = false,
         )
         val service = AppSettingsServiceImpl(defaults<DictionaryOptionsProvider>(), settings, prefs, strings, flags)
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Unconfined)
