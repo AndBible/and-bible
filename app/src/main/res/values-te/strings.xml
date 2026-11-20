@@ -1333,8 +1333,6 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">యాప్ మరెక్కడా తెరవబడింది</string>
   <string name="open_here">ఇక్కడ తెరవండి</string>
-  <string name="external_link">బాహ్య లింక్</string>
-  <string name="external_link_question">ఇది బ్రౌజర్ అప్లికేషన్‌లో బాహ్య లింక్‌ %s ని తెరుస్తుంది, మీరు కొనసాగించాలనుకుంటున్నారా?</string>
   <string name="external_link_dont_ask_again">%s కోసం మళ్లీ అడగవద్దు</string>
   <string name="nameless">శీర్షిక నిర్వచించబడలేదు</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">వన్-ట్యాప్ చర్య (బైబిల్)</string>

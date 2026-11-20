@@ -1325,8 +1325,6 @@ Kada koristite Google Drive, %s dozvoljen je pristup samo datotekama aplikacije,
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikacija je negdje drugo otvorena</string>
   <string name="open_here">Otvori ovdje</string>
-  <string name="external_link">Vanjska poveznica</string>
-  <string name="external_link_question">Ovo će otvoriti vanjsku poveznicu %s u internet pregledniku, želite li nastaviti?</string>
   <string name="external_link_dont_ask_again">Ne pitaj ponovno za %s</string>
   <string name="nameless">Naslov nije određen</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Radnje jednim dodirom (Biblije)</string>

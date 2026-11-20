@@ -1224,8 +1224,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App åbnet andetsteds</string>
   <string name="open_here">Åbn her</string>
-  <string name="external_link">Eksternt link</string>
-  <string name="external_link_question">Dette vil åbne det eksterne link %s i en browserapplikation. Vil du fortsætte?</string>
   <string name="external_link_dont_ask_again">Spørg ikke igen for %s</string>
   <string name="nameless">Titel ikke defineret</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Enkelttrykhandlinger (Bibler)</string>

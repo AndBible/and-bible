@@ -163,7 +163,6 @@
   <string name="line_spacing_title">行距</string>
   <string name="line_spacing_summary">設定每行之間距離</string>
   <string name="select_none">全不選</string>
-  <string name="reset_are_you_sure">你確定要重設所有數值嗎？</string>
   <string name="window_pinning_menutitle">視窗釘選</string>
   <string name="hide_window_buttons_title">隱藏視窗按鍵</string>
   <string name="hide_window_buttons_summary">隱藏在聖經視窗右下方的視窗按鍵。你可以長按底部的導覽列，以開啟彈出選單</string>
@@ -194,6 +193,7 @@
   <string name="window_color_settings_title">視窗顏色設定</string>
   <string name="workspace_color_settings_title">預設工作區顏色設定</string>
   <string name="color_workspace">工作區顏色</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
   <string name="color_text">文字顏色</string>
   <string name="color_background">背景顏色</string>
   <string name="colors_day_mode_title">日間模式</string>
@@ -223,7 +223,6 @@
   <string name="download_source_last_updated">文件列表最後更新：%s</string>
   <string name="download_refreshing_book_list">正在更新文件列表...</string>
   <string name="download_source_message1">文件來自以下來源：</string>
-  <string name="download_document_confirm_prefix">下載</string>
   <string name="error_downloading">下載時出錯。請檢查你的連線。</string>
   <string name="error_downloading_status">提供 %1$s 的伺服器由於 %2$s (%3$d) 出錯。</string>
   <string name="storage_space_warning">SD卡儲存空間不足</string>
@@ -233,8 +232,6 @@
   <string name="chooce_language_hint">語言</string>
   <string name="one_more_back_press">再按返回以關閉程式</string>
   <string name="document_filter_results">%d文件</string>
-  <string name="download_question_title">你想繼續下載文件嗎？</string>
-  <string name="do_not_ask_again">確定。不要再詢問</string>
   <string name="recommended_document">建議的！</string>
   <string name="about_version_history">版本歷史: %s</string>
   <string name="download_errors">下載錯誤</string>
@@ -250,10 +247,8 @@
   <string name="checking_zip_file">正在檢查所選文件...</string>
   <string name="invalid_module">檔案不包含兼容的SWORD模組</string>
   <string name="install_zip_title">請稍等。正在從檔案載入模組。</string>
-  <string name="overwrite_files">以下文件已經存在: %s 覆寫嗎？</string>
   <string name="overwrite_files_title">覆寫檔案？</string>
   <string name="could_not_overwrite_files">無法覆寫檔案：%s。在此以外，其他安裝成功。</string>
-  <string name="install_do_you_want">你想安裝模組 (%s) 嗎？</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">讀經計劃</string>
   <string name="reading_plans_plural">讀經計劃</string>
@@ -262,13 +257,7 @@
   <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="set_current_day">設定為目前日子...</string>
   <string name="done">完成</string>
-  <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
   <string name="import_reading_plan">匯入讀經計劃...</string>
-  <string name="plan_duplicate_user_plan">
-SD卡中有使用者jsword/readingplan的讀經計劃
-它與內部讀經計劃名稱相同，不能在此列舉。
-請重新命名至其他名稱，並將副檔名轉為 *.properties
-</string>
   <string name="plan_name_y1ntpspr">新約、詩篇與箴言一年計劃</string>
   <string name="plan_description_y1ntpspr">
 感謝 HEARTLIGHT Internet Magazine
@@ -308,7 +297,6 @@ http://www.heartlight.org 准予使用
   <string name="delete_index">刪除索引</string>
   <string name="about">關於</string>
   <string name="delete_doc">刪除 %s</string>
-  <string name="delete_search_index_doc">刪除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注腳及參考</string>
   <string name="share_verse">分享...</string>
@@ -344,7 +332,6 @@ http://www.heartlight.org 准予使用
   <string name="bookmark_warning2">
 如果文件結構被修改，更新此文件可能會讓
 這些書籤或筆記移動或消失。</string>
-  <string name="bookmark_warning3">你仍想更新模組嗎？</string>
   <string name="bookmark_warning4">建議你先備份模組後再作更新。</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
@@ -507,7 +494,6 @@ http://www.heartlight.org 准予使用
   <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">回復資料庫檔案</string>
-  <string name="restore_confirmation">覆寫我的筆記、書籤、研習筆記、讀經計劃及工作區嗎？</string>
   <string name="restore_success">成功回復我的筆記、書籤、研習筆記、讀經計劃及工作區</string>
   <string name="downloading_backup">正在下載備份檔案...</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
@@ -692,7 +678,6 @@ http://www.heartlight.org 准予使用
   <string name="give_passphrase_for_module">%s 文件已加密，需要密碼解鎖。</string>
   <string name="unlock_module">設定模組密碼</string>
   <string name="unlock_info">加密模組解鎖資訊</string>
-  <string name="try_again_passphrase">密碼無效，要再試嗎？</string>
   <string name="show_unlock_info">模組及解鎖資訊</string>
   <string name="prefs_show_error_box_title">顯示JavaScript錯誤窗口</string>
   <string name="prefs_show_error_box_summary">對於開發者排除BibleView JavaScreipt錯誤時有用。這會令程式稍慢。</string>
@@ -700,7 +685,6 @@ http://www.heartlight.org 准予使用
   <string name="active_window_indicator_summary">在使用中的視窗角落顯示標示</string>
   <string name="app_licence_title">開源許可</string>
   <string name="how_to_contribute">如何可以貢獻？</string>
-  <string name="confirm_delete_bookmarks">你希望移除 %d 書籤及它的筆記嗎？</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">分享給朋友</string>
   <string name="tell_friend_message1">我想推薦 %s 給你</string>
@@ -728,8 +712,6 @@ http://www.heartlight.org 准予使用
   <string name="old_webview">Android Webview 封包太舊 (%1$s)。您需要將 Android WebView 封包升級到至少%2$s版本以使用%3$s。對於大多數裝置，可以透過%4$s升級。</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">忽略並繼續</string>
-  <string name="proceed">繼續</string>
-  <string name="rate_title">評分及評論此app</string>
   <string name="rate_message5">
         鼓勵及詳細的評論將有效地幫助 And Bible 開源計劃。謝謝你
     </string>
@@ -773,7 +755,6 @@ http://www.heartlight.org 准予使用
   <string name="primary_label">主標籤</string>
   <string name="favourite_label">最愛標籤</string>
   <string name="edit_label">編輯標籤</string>
-  <string name="delete_label_confirmation">你希望移除書籤「%s」嗎？對應的研習筆記亦會被移除。</string>
   <string name="active_labels">選擇標籤</string>
   <string name="recent_labels">最近標籤</string>
   <string name="other_labels">其他標籤</string>
@@ -781,7 +762,6 @@ http://www.heartlight.org 准予使用
   <string name="book_menu_group_by_category">按書卷類別分組</string>
   <string name="book_menu_show_long_book_name">顯示詳細書名</string>
   <string name="reset_workspace_labels">你想重設此工作區的自動標示及最愛設定嗎？</string>
-  <string name="reset_hide_labels">你想重設隱藏標籤設定嗎？</string>
   <string name="reorder">重新排列</string>
   <string name="system_items">系統行動</string>
   <string name="system_items1">更多</string>
@@ -792,7 +772,6 @@ http://www.heartlight.org 准予使用
   <string name="prefs_double_tap_to_fullscreen_summary">雙點以進入全螢幕模式</string>
   <string name="toggle_fullscreen">全螢幕</string>
   <string name="exit_fullscreen">雙點以離開全螢幕模式</string>
-  <string name="reset_app_prefs">你希望重設所有偏好嗎？</string>
   <string name="label_red">紅色</string>
   <string name="label_green">綠色</string>
   <string name="label_blue">藍色</string>
@@ -822,9 +801,7 @@ http://www.heartlight.org 准予使用
   <string name="strongs_links">連結</string>
   <string name="strongs_text_and_links">文字及連結</string>
   <string name="verse_tip">長按以選擇部份或多節經文</string>
-  <string name="permission_required">需要權限</string>
   <string name="labels_search_hint">搜尋</string>
-  <string name="progress_status_permission">顯示通知 (下載進度、處理中、朗讀進度) 需要你的授權。</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">簡易計算機</string>
   <string name="prefs_persecution_cat">受逼迫地區的設定</string>
@@ -868,7 +845,6 @@ http://www.heartlight.org 准予使用
   <string name="custom_repositories_create_button_label">新增自訂儲存庫</string>
   <string name="custom_repositories_info_button_label">資訊</string>
   <string name="repository_specification">儲存庫URL</string>
-  <string name="delete_custom_repository">你想刪除自訂儲存庫%s嗎？</string>
   <string name="custom_repositories_help1">請在此輸入或貼上自訂儲存庫URL，以新增自訂儲存庫。</string>
   <string name="custom_repositories_help2">在%s可以閱讀更多有關自訂儲存庫的資訊。</string>
   <string name="custom_repositories_help0">你可以安裝自訂儲存庫，以安裝外部自訂儲存庫的文件。</string>
@@ -891,10 +867,6 @@ http://www.heartlight.org 准予使用
   <string name="db_repositories">儲存庫及相關設定</string>
   <string name="db_bookmarks">書籤、我的筆記、標籤及研習筆記</string>
   <string name="synchronizing">同步中...</string>
-  <string name="overrideBackup">
-在雲端發現此裝置尚未同步的資料庫。
-資料庫包括%s。你想如何處理？
-</string>
   <string name="reading_plans_content">讀經計劃及其狀態</string>
   <string name="bookmarks_contents">書籤、標籤及研習筆記</string>
   <string name="workspaces_contents">工作區及視窗</string>
@@ -905,7 +877,6 @@ http://www.heartlight.org 准予使用
   <string name="cloud_sync_title">裝置同步功能</string>
   <string name="reset_sync">登出</string>
   <string name="prefs_reset_sync_summary">停用同步及重設相關設定。</string>
-  <string name="sync_confirmation">你確定登出及重設同步嗎？</string>
   <string name="cloud_info">雲端資訊</string>
   <string name="cloud_info_summary">已用雲端空間：%s Mb</string>
   <string name="sync_adapter">同步功能後端</string>
@@ -917,13 +888,6 @@ http://www.heartlight.org 准予使用
   <string name="synchronization_categories">同步類別</string>
   <string name="sync_general_settings">資訊及一般設定</string>
   <string name="sync_introduction">簡介</string>
-  <string name="are_you_sure">你確定嗎？</string>
-  <string name="are_you_sure_reset_local">這會以雲端資料庫，重設你的本地%s資料庫。</string>
-  <string name="are_you_sure_reset_cloud">這會以裝置資料庫，重設你的雲端%s資料庫。</string>
-  <string name="sync_cant_fetch">雲端上資料庫或修補文件版本，高於此程式的支援。</string>
-  <string name="sync_disabling">暫時停用%s的同步。</string>
-  <string name="sync_update_app">請更新程式以繼續同步。</string>
-  <string name="sign_in_failed">無法登入同步服務。</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">正在停用同步功能。回復後需手動重新啟用同步功能。</string>
   <string name="report">回報</string>
@@ -938,8 +902,6 @@ http://www.heartlight.org 准予使用
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">程式已於別處開啟</string>
   <string name="open_here">此處開啟</string>
-  <string name="external_link">外部連結</string>
-  <string name="external_link_question">這樣會以瀏覽器開啟外部連結%s。你要繼續嗎？</string>
   <string name="nameless">標題尚未定義</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一鍵功能 (聖經)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">一鍵功能 (其他)</string>
@@ -982,6 +944,8 @@ http://www.heartlight.org 准予使用
   <!--I3b legacy migration-->
   <!--H2: platform-neutral iOS recommendation.-->
   <!--I2c-B-->
+  <!--dialog copy: B3a-->
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">開始使用</string>
   <string name="user_guide_section_reading_workspace">閱讀與工作區</string>
@@ -1059,4 +1023,12 @@ http://www.heartlight.org 准予使用
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI 助手，第三部分：工具、你的資料與權限</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI 助手，第四部分：自訂提示詞、費用與同步</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <!--end dialog copy: B3b-->
 </resources>

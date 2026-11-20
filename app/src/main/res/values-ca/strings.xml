@@ -1226,8 +1226,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">L\'aplicació s\'ha obert en un altre lloc</string>
   <string name="open_here">Obre aquí</string>
-  <string name="external_link">Enllaç extern</string>
-  <string name="external_link_question">Això obrirà l\'enllaç extern %s en una aplicació de navegador. Vols continuar?</string>
   <string name="external_link_dont_ask_again">No ho tornis a preguntar per a %s</string>
   <string name="nameless">Títol no definit</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Accions d\'un sol toc (Bíblies)</string>

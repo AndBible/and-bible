@@ -1272,8 +1272,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
   <string name="open_here">Buka di sini</string>
-  <string name="external_link">Tautan eksternal</string>
-  <string name="external_link_question">Ini akan membuka tautan eksternal %s di aplikasi browser, apakah Anda ingin melanjutkan?</string>
   <string name="external_link_dont_ask_again">Jangan tanya lagi untuk %s</string>
   <string name="nameless">Judul tidak ditentukan</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketuk (Alkitab)</string>

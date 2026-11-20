@@ -1330,8 +1330,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">ऐप कहीं और खोला गया</string>
   <string name="open_here">यहाँ खोलें</string>
-  <string name="external_link">बाहरी लिंक</string>
-  <string name="external_link_question">यह ब्राउज़र एप्लिकेशन में बाहरी लिंक %s खोलेगा, क्या आप जारी रखना चाहते हैं?</string>
   <string name="external_link_dont_ask_again">%s के लिए दोबारा न पूछें</string>
   <string name="nameless">शीर्षक परिभाषित नहीं</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">वन-टैप क्रियाएं (बाइबिल)</string>

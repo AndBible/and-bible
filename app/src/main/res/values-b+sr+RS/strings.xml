@@ -1340,8 +1340,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Апликација је негде друге отворена</string>
   <string name="open_here">Отворите овде</string>
-  <string name="external_link">Спољашњи линк</string>
-  <string name="external_link_question">Ово ће отворити спољашњи линк %s у интернет  прегледачу, да ли желите наставити?</string>
   <string name="external_link_dont_ask_again">Не питај поново за %s</string>
   <string name="nameless">Наслов није одређен</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Радње једним додиром (Библије)</string>

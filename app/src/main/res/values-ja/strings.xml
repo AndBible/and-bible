@@ -1222,8 +1222,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">別の場所でアプリが開かれました</string>
   <string name="open_here">ここで開く</string>
-  <string name="external_link">外部リンク</string>
-  <string name="external_link_question">外部リンク %s をブラウザアプリで開きます。続けますか？</string>
   <string name="external_link_dont_ask_again">%s については今後確認しない</string>
   <string name="nameless">タイトルが未定義です</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ワンタップ操作（聖書）</string>

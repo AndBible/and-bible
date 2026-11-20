@@ -1299,8 +1299,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">تم فتح التطبيق في مكان آخر</string>
   <string name="open_here">فتح هنا</string>
-  <string name="external_link">رابط خارجي</string>
-  <string name="external_link_question">سيفتح هذا الرابط الخارجي %s في متصفح، هل تريد المتابعة؟</string>
   <string name="external_link_dont_ask_again">عدم السؤال مرة أخرى عن %s</string>
   <string name="nameless">العنوان غير محدد</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (الأسفار)</string>

@@ -1224,8 +1224,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">ایپ کسی اور جگہ کھولی گئی</string>
   <string name="open_here">یہاں کھولیں</string>
-  <string name="external_link">بیرونی لنک</string>
-  <string name="external_link_question">یہ بیرونی لنک %s براؤزر ایپلیکیشن میں کھولے گا، کیا آپ جاری رکھنا چاہتے ہیں؟</string>
   <string name="external_link_dont_ask_again">%s کے لیے دوبارہ نہ پوچھیں</string>
   <string name="nameless">عنوان بیان نہیں کیا گیا</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">یک ٹیپ اعمال (بائبلیں)</string>

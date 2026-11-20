@@ -154,7 +154,6 @@
   <string name="line_spacing_title">စာကြောင်းအကွာအဝေး</string>
   <string name="line_spacing_summary">စာကြောင်းများအကြားတွင် အကွာအဝေး သတ်မှတ်ပါ</string>
   <string name="select_none">တစ်ခုမှ မရွေးချယ်ပါနှင့်</string>
-  <string name="reset_are_you_sure">ဤတန်ဖိုးများအားလုံးကို မူလပုံစံအတိုင်းပြန်ထားချင်ပါသလား။</string>
   <string name="window_pinning_menutitle">ဝင်းဒိုးတွင် တွဲထားခြင်း</string>
   <string name="hide_window_buttons_title">ဝင်းဒိုးခလုတ်ကို ဖျောက်ထားပါ</string>
   <string name="hide_window_buttons_summary">ကျမ်းစာမြင်ကွင်း၏ ညာဖက်တွင် ပေါ်နေသည့် ဝင်းဒိုးခလုတ်များကို ဖျောက်ထားပါသည်။ အောက်ခြေတွင်ရှိသည့် ဝင်းဒိုးလမ်းညွှန်းပြဘားသည် ပေါ်နေဆဲဖြစ်ပြီး ဝင်းဒိုး popup မီနူးကို ကြာကြာဖိထားခြင်းဖြင့် ဖွင့်နိုင်သည်။ </string>
@@ -180,6 +179,7 @@
   <string name="prefs_text_colors_menutitle">အရောင်ဆက်တင်များ</string>
   <string name="window_color_settings_title">ဝင်းဒိုး အရောင် ဆက်တင်များ</string>
   <string name="workspace_color_settings_title">အလုပ်ခွင် အရောင်ဆက်တင်များကို မူလနေရာထားရှိခြင်း</string>
+  <!--Screen-reader state of the workspace colour swatch when the workspace has no colour of its own and follows the theme-->
   <string name="color_text">စာသားအရောင်</string>
   <string name="color_background">နောက်ခံအရောင်</string>
   <string name="colors_day_mode_title">နေ့အသွင်</string>
@@ -206,7 +206,6 @@
   <string name="download_source_last_updated">မှတ်တမ်း စာရင်းများ နောက်ဆုံးအပ်ပ်ဒိတ်လုပ်ပြီး %s။</string>
   <string name="download_refreshing_book_list">မှတ်စုဆာဗာများမှတစ်ဆင့် ရနိုင်သည့်မှတ်စုစာရင်းကို ပြန်လည်လန်းဆန်းစေပါ</string>
   <string name="download_source_message1">မှတ်စုများကို အောက်ပါအရင်းအမြစ်များမှ ဒေါင်းလုပ်ဆွဲထားပါသည်</string>
-  <string name="download_document_confirm_prefix">ဒေါင်းလုပ်ဆွဲပါ</string>
   <string name="error_downloading">ဒေါင်းလုပ်ဆွဲနေစဉ်အတွင်း မှားယွင်းမှုတစ်ခု ဖြစ်ပေါ်ခဲ့သည်။ သင်၏အင်တာနက် ဆက်သွယ်မှုကို စစ်ဆေးပါ။ </string>
   <string name="storage_space_warning">သင်၏ သိုလှောင်နေရာ မလုံလောက်ပါ</string>
   <string name="too_many_jobs">လုပ်ငန်းထမ်းဆောင်မှုများ များပြားလွန်းနေသည်။ အချို့ကိုပြီးစီးအောင်စောင့်ပြီး ပြန်ကြိုးစားကြည့်ပါ။ </string>
@@ -215,8 +214,6 @@
   <string name="chooce_language_hint">ဘာသာစကား</string>
   <string name="one_more_back_press">အက်ပ်ကိုပိတ်ရန် နောက်ပြန်ခလုတ်ကို ပြန်နှိပ်ပါ</string>
   <string name="document_filter_results">%d မှတ်တမ်းများ</string>
-  <string name="download_question_title">မှတ်တမ်းများကို ဒေါင်းလုပ်ဆွဲရန် ရှေ့ဆက်လိုပါသလား။ </string>
-  <string name="do_not_ask_again">ဟုတ်ပါတယ်၊ ထပ်မမေးပါနဲ့</string>
   <string name="recommended_document">ထောက်ခံအကြံပြုပါသည်</string>
   <string name="about_version_history">သုံးခဲ့သည့် ဗားရှင်းမှတ်တမ်း %s</string>
   <string name="download_errors">ဒေါင်းလုပ် မှားယွင်းချက်များ</string>
@@ -228,7 +225,6 @@
   <string name="extracting_zip_file">Zip ဖိုင်ကို ယခုထုတ်ယူပါ...</string>
   <string name="checking_zip_file">ပေးထားသည့်ဖိုင်ကို စစ်ဆေးနေသည်...</string>
   <string name="invalid_module">ဖိုင်တွင် တရားဝင် SWORD module မပါဝင်ပါ</string>
-  <string name="overwrite_files">အောက်ပါဖိုင်များသည် ရှိပြီးသားဖြစ်သည်: %s ထပ်ရေးချင်ပါသလား။</string>
   <string name="overwrite_files_title">ဖိုင်များကို ထပ်ရေးချင်ပါသလား။ </string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">စာဖတ်ခြင်း အစီအစဉ်</string>
@@ -238,10 +234,7 @@
   <string name="rdg_plan_set_start_date">အစပြုနေ့ရက် သတ်မှတ်ပါ</string>
   <string name="set_current_day">ယနေ့ကို သတ်မှတ်ပါ</string>
   <string name="done">ပြီးပါပြီ</string>
-  <string name="reset_plan_question">အစီအစဉ်ကို အစမှပြန်လည်သတ်မှတ်လိုပါသလား။</string>
   <string name="import_reading_plan">စာဖတ်ခြင်း အစီအစဉ်ကို ထည့်သွင်းပါ</string>
-  <string name="plan_duplicate_user_plan">
-Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readingplan ထဲတွင်  အသုံးပြုသူ ဖတ်စာအစီအစဉ်တစ်ခုရှိသည်။ ၎င်းစာရင်းကို ဤနေရာတွင် မဖော်ပြနိုင်ပါ။ ကျေးဇူးပြုပြီး အခြားအမည်ဖြင့် ဖိုင်အမည် ထပ်ပေးပြီး တိုးချဲ့ဖိုင်များအား properties အဖြစ်ထားရှိပါ။ </string>
   <string name="plan_name_y1ntpspr">တစ်နှစ်တာ ဓမ္မသစ်ကျမ်း၊ ဆာလံကျမ်း &amp; နှင့် သုတ္တံကျမ်း</string>
   <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,
@@ -275,7 +268,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="delete_index">အညွှန်း ရှာဖွေမှုကို ဖျက်ပါ</string>
   <string name="about">အကြောင်း</string>
   <string name="delete_doc">ဖျက်ချင်ပါသလား %s။</string>
-  <string name="delete_search_index_doc">အညွှန်းကို ဖျက်ချင်ပါသလား %s။</string>
   <!--Verse context menu-->
   <string name="notes">အောက်ခြေမှတ်တမ်းနှင့် ကိုးကားချက်များ</string>
   <string name="share_verse">ဝေမျှပါ...</string>
@@ -450,7 +442,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">ဒေတာဘေ့စ်ဖိုင်ကို ပြန်ယူပါ</string>
-  <string name="restore_confirmation">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အသစ်ပြန်ရေးလိုပါသလား။ </string>
   <string name="restore_success">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အောင်မြင်စွာ ပြန်ယူပြီးပါပြီ</string>
   <string name="loading_backup">ဒေတာဘေ့စ်အား အရန်ဖိုင်မှ ဖွင့်နေပါသည်</string>
   <string name="backup_success2">ကိုယ်ပိုင်မှတ်စုများ၊စာညှပ်များ၊လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့်အလုပ်ခွင်များအား အောင်မြင်စွာ အရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
@@ -600,7 +591,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="give_passphrase_for_module">မှတ်တမ်း %sကို စကားဝှက် ခံထားသည့်အတွက် သော့ဖွင့်ရန် စကားဝှက်လိုအပ်ပါသည်။ </string>
   <string name="unlock_module">သင်ခန်းစာအတွက် စကားဝှက် လုပ်ပါ</string>
   <string name="unlock_info">စကားဝှက်ခံထားသည့်သင်ခန်းစာများ သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
-  <string name="try_again_passphrase">သော့ဖွင့်ခြင်း မအောင်မြင်ပါ၊ ထပ်လုပ်မှာလား။</string>
   <string name="show_unlock_info">&amp; သင်ခန်းစာ; သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
   <string name="prefs_show_error_box_title">Javascript မှားယွင်းမှုသေတ္တာကို ပြပါ</string>
   <string name="prefs_show_error_box_summary">ဖန်တီးသူများအတွက် ကျမ်းစာမြင်ကွင်း javascript မှချို့ယွင်းချက်များကို ရှာဖွေဖယ်ရှားရာ၌  အသုံး ဝင်သည်။ ၎င်းသည် အက်ပ်ကိုနှေးကွေးစေလိမ့်မည်။ </string>
@@ -608,7 +598,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="active_window_indicator_summary">မည်သည့်ဝင်းဒိုး အလုပ်လုပ်နေသည်ကို သိရှိစေနိုင်ရန် ဝင်းဒိုး၏ထောင့်များကို ဟိုက်လိုက်ပေးပါ။</string>
   <string name="app_licence_title">လိုင်စင်အကြောင်းအရာကို ဖွင့်ပါ</string>
   <string name="how_to_contribute">ဘယ်လိုပံ့ပိုးကူညီမလဲ။</string>
-  <string name="confirm_delete_bookmarks">%d စာညှပ်များနှင့် ကိုယ်ပိုင်မှတ်စုများကို ဖယ်ရှားလိုပါသလား။</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">သူငယ်ချင်းတစ်ယောက်ထံ အကြံပြုထောက်ခံပေးပါ</string>
   <string name="tell_friend_message1"> %s ကို သင့်အား အကြံပြုထောက်ခံလိုပါသည်။</string>
@@ -629,7 +618,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="play">Google Play</string>
   <string name="proceed_anyway">မည်သို့ပင်ဆိုစေ ဆက်သွားပါ</string>
-  <string name="rate_title">အက်ပ်အား နှုန်းသတ်မှတ်ခြင်းနှင့်သုံးသပ်ခြင်း</string>
   <string name="rate_message6">
         အနုတ်သဘောမသုံးသပ်ခင် ကျေးဇူးပြုပြီး အောက်ပါအချက်ကိုထည့်သွင်းစဉ်းစားစေလိုပါသည်။
     </string>
@@ -667,13 +655,11 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="primary_label">မူလ လေဘယ်လ်</string>
   <string name="favourite_label">အနှစ်သက်ဆုံး လေဘယ်လ်</string>
   <string name="edit_label">လေဘယ်လ်ကို တည်းဖြတ်ပါ</string>
-  <string name="delete_label_confirmation">စာညှပ်လေဘယ်လ်ကို ဖျက်လိုပါသလား \"%s\" Study Pad နှင့်သက်ဆိုင်သည့် မှတ်စုများအားလုံးသည်လည်း ပျက်သွားပါမည်။</string>
   <string name="active_labels">ရွေးချယ်ထားသည့် လေဘယ်လ်များ</string>
   <string name="recent_labels">မကြာမီက လေဘယ်လ်များ</string>
   <string name="other_labels">အခြား လေဘယ်လ်များ</string>
   <string name="book_menu_sort_row_opt">စာအုပ်များကို အလျားလိုက်စီပါ</string>
   <string name="reset_workspace_labels">ဤဝင်းဒိုးအတွက် အလိုအလျောက်စေခိုင်းချက်နှင့် အနှစ်သက်ဆုံးဆက်တင်များကို မူလနေရာသို့ ပြန်လည်ထားရှိလိုပါသလား။ </string>
-  <string name="reset_hide_labels">အထူးပြုထားသည့် လေဘယ်လ်များဆက်တင်ကို ဖျောက်ထားရန် ဆက်တင်ကို ပြန်လည်အစပြုလိုပါသလား။</string>
   <string name="reorder">ထပ်ပြီး ညွှန်ကြားပါ</string>
   <string name="system_items">စနစ် လုပ်ဆောင်ချက်များ</string>
   <string name="system_items1">နောက်ထပ်</string>
@@ -684,7 +670,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="prefs_double_tap_to_fullscreen_summary">ဝင်းဒိုးကို နှစ်ကြိမ်နှိပ်ခြင်းဖြင့် မျက်နှာပြင်အပြည့် အသွင်အပြင်အား ဖွင့်ပါ</string>
   <string name="toggle_fullscreen">မျက်နှာပြင်အပြည့်</string>
   <string name="exit_fullscreen">မျက်နှာပြင်အပြည့်မှထွက်ရန် မျက်နှာပြင်ကို နှစ်ချက်နှိပ်ပါ</string>
-  <string name="reset_app_prefs">ဤမျက်နှာပြင်တွင် ဖော်ပြထားသည့် ကမ္ဘာလုံးဆိုင်ရာ အက်ပ်ပလီကေးရှင်း စိတ်ကြိုက်ရွေးချယ်မှုကို မူလတန်ဖိုးများသို့ ပြန်လည်ထားရှိလိုပါသလား။</string>
   <string name="label_red">အနီရောင်</string>
   <string name="label_green">အစိမ်းရောင်</string>
   <string name="label_blue">အပြာရောင်</string>
@@ -759,6 +744,8 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--I3b legacy migration-->
   <!--H2: platform-neutral iOS recommendation.-->
   <!--I2c-B-->
+  <!--dialog copy: B3a-->
+  <!--end dialog copy: B3a-->
   <!--BEGIN generated by sitegen.app_toc, do not edit-->
   <string name="user_guide_section_getting_started">စတင်အသုံးပြုခြင်း</string>
   <string name="user_guide_section_reading_workspace">စာဖတ်ခြင်းနှင့် အလုပ်ခွင်</string>
@@ -836,4 +823,12 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="tutorial_title_31_ai_3_tools_data_permissions">AI အကူအညီပေးသူ၊ အပိုင်း ၃: ကိရိယာများ၊ သင့်ဒေတာနှင့် ခွင့်ပြုချက်များ</string>
   <string name="tutorial_title_32_ai_4_custom_prompts_costs_sync">AI အကူအညီပေးသူ၊ အပိုင်း ၄: ကိုယ်ပိုင်ညွှန်ကြားချက်များ၊ ကုန်ကျစရိတ်နှင့် ထပ်တူပြုခြင်း</string>
   <!--END generated by sitegen.app_toc, do not edit-->
+  <!--dialog copy: B2a-->
+  <!--end dialog copy: B2a-->
+  <!--dialog copy: B3c-->
+  <!--end dialog copy: B3c-->
+  <!--dialog copy: B2b-->
+  <!--/dialog copy: B2b-->
+  <!--dialog copy: B3b-->
+  <!--end dialog copy: B3b-->
 </resources>

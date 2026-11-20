@@ -1321,8 +1321,6 @@ jelentse be az észlelt problémát</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Az alkalmazás meg van nyitva máshol.</string>
   <string name="open_here">Megnyitás itt</string>
-  <string name="external_link">Külső hivatkozás</string>
-  <string name="external_link_question">Megnyitja a %s linket az alapértelmezett böngészőben?</string>
   <string name="external_link_dont_ask_again">Ne kérdezzen újra ehhez: %s</string>
   <string name="nameless">A cím nincs megadva</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Bibliákhoz kapcsolódó egy-koppintásos műveletek</string>

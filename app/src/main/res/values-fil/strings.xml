@@ -1224,8 +1224,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Binuksan ang app sa ibang lugar</string>
   <string name="open_here">Buksan dito</string>
-  <string name="external_link">External na link</string>
-  <string name="external_link_question">Magbubukas ito ng external na link na %s sa isang browser application, nais mo bang magpatuloy?</string>
   <string name="external_link_dont_ask_again">Huwag nang magtanong para sa %s</string>
   <string name="nameless">Hindi natukoy ang pamagat</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Mga one-tap na aksyon (Mga Bibliya)</string>

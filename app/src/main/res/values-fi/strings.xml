@@ -1272,8 +1272,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Sovellus avattu muualla</string>
   <string name="open_here">Avaa täällä</string>
-  <string name="external_link">Ulkoinen linkki</string>
-  <string name="external_link_question">Tämä avaa ulkoisen linkin %s selainsovelluksessa. Haluatko jatkaa?</string>
   <string name="external_link_dont_ask_again">Älä kysy uudelleen: %s</string>
   <string name="nameless">Otsikkoa ei määritelty</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Raamatut)</string>

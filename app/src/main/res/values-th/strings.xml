@@ -1222,8 +1222,6 @@
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
   <string name="open_here">เปิดที่นี่</string>
-  <string name="external_link">ลิงก์ภายนอก</string>
-  <string name="external_link_question">การดำเนินการนี้จะเปิดลิงก์ภายนอก %s ในแอปเบราว์เซอร์ คุณต้องการดำเนินการต่อหรือไม่?</string>
   <string name="external_link_dont_ask_again">ไม่ต้องถามอีกสำหรับ %s</string>
   <string name="nameless">ไม่ได้กำหนดชื่อ</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">การกระทำแบบแตะครั้งเดียว (พระคัมภีร์)</string>

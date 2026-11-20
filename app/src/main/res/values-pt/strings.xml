@@ -1312,8 +1312,6 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplicativo aberto noutro local</string>
   <string name="open_here">Abrir aqui</string>
-  <string name="external_link">Ligação externa</string>
-  <string name="external_link_question">Isso abrirá o link externo %s em um aplicativo de navegador, você deseja continuar?</string>
   <string name="external_link_dont_ask_again">Não perguntar novamente para %s</string>
   <string name="nameless">Título não definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acções um-toque (Bíblias)</string>

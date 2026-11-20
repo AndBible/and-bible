@@ -1356,8 +1356,6 @@ http://www.heartlight.org, разрешение предоставлено
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
   <string name="open_here">Открыть здесь</string>
-  <string name="external_link">Внешняя ссылка</string>
-  <string name="external_link_question">Откроется внешняя ссылка %s в приложении браузера. Продолжить?</string>
   <string name="external_link_dont_ask_again">Больше не спрашивать для %s</string>
   <string name="nameless">Название не определено</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия одним касанием (Библии)</string>

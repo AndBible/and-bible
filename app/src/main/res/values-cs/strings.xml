@@ -1359,8 +1359,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikace spuštěna jinde</string>
   <string name="open_here">Otevřít zde</string>
-  <string name="external_link">Externí odkaz</string>
-  <string name="external_link_question">V prohlížeči bude otevřen externí odkaz %s, chcete pokračovat?</string>
   <string name="external_link_dont_ask_again">Příště se neptat pro %s</string>
   <string name="nameless">Titulek není definován</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akce na jedno kliknutí (Bible)</string>

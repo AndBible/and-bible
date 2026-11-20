@@ -1331,8 +1331,6 @@ http://www.heartlight.org 准予使用
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">软件已在别处打开</string>
   <string name="open_here">在这里打开</string>
-  <string name="external_link">外部链接</string>
-  <string name="external_link_question">将在浏览器打开外部链接%s，你希望继续吗？</string>
   <string name="external_link_dont_ask_again">不再询问 %s</string>
   <string name="nameless">尚未定义标题</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一键功能（圣经）</string>

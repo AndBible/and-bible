@@ -1357,8 +1357,6 @@ informe los problemas a los mantenedores de texto
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">La aplicación se ha abierto en otro lugar</string>
   <string name="open_here">Abrir aquí</string>
-  <string name="external_link">Enlace externo</string>
-  <string name="external_link_question">Esto abrirá el enlace externo %s en una aplicación de navegador, ¿desea continuar?</string>
   <string name="external_link_dont_ask_again">No volver a preguntar por %s</string>
   <string name="nameless">Título no definido</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acciones de un toque (Biblias)</string>

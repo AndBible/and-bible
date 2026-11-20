@@ -1290,8 +1290,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Rakendus avatud mujal</string>
   <string name="open_here">Ava siin</string>
-  <string name="external_link">Väline link</string>
-  <string name="external_link_question">See avab välise lingi %s brauseris, kas soovid jätkata?</string>
   <string name="external_link_dont_ask_again">Ära küsi uuesti: %s</string>
   <string name="nameless">Pealkiri on määramata</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ühe puudutuse toimingud (piibel)</string>
