@@ -4,10 +4,8 @@ import android.os.Looper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import net.bible.service.device.speak.SpeakIntegrationTestBase
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -36,10 +34,19 @@ class SpeakTransportBookmarkVisibilityTest : SpeakIntegrationTestBase() {
         GlobalContext.get().get<AdvancedSpeakSettings>().reset()
     }
 
+    /**
+     * Waits for the transport's launched work. Must not block the Main thread in `runBlocking`: the work can hop to
+     * `Dispatchers.Main` (speakFromBookmark), which is the Robolectric looper this thread owns. So pump the looper
+     * between polls instead of joining.
+     */
     private fun awaitTransport() {
-        shadowOf(Looper.getMainLooper()).idle()
-        runBlocking {
-            withTimeout(5_000) { transportScope.coroutineContext.job.children.toList().joinAll() }
+        val deadline = System.nanoTime() + 5_000_000_000L
+        val looper = shadowOf(Looper.getMainLooper())
+        while (true) {
+            looper.idle()
+            if (transportScope.coroutineContext.job.children.none { it.isActive }) return
+            check(System.nanoTime() < deadline) { "transport work did not finish within 5 s" }
+            Thread.sleep(5)
         }
     }
 
