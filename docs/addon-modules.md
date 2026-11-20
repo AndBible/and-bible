@@ -25,8 +25,8 @@ AndBibleProvides...=...                     ; one or more keys, see the kinds be
 ```
 
 - The module is a zip: `mods.d/MyAddon.conf` plus the `DataPath` folder with the files it provides.
-  The files an add-on key names are relative to `DataPath`; paths must be relative and must not contain
-  `..` (the same rule for every kind).
+  The files an add-on key names are relative to `DataPath`; keep them relative and without
+  `..` (fonts and collections are rejected otherwise).
 - **`AndBibleMinimumVersion`** is the app *build number* (the last digits of the version, e.g. 5.0.1278 ->
   1278). An app older than that neither offers nor installs the module. Use the first build that supports
   the kind (collections: the build that contains #4162).

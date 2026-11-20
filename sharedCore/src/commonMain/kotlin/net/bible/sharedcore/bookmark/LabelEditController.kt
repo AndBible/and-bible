@@ -11,7 +11,6 @@ sealed interface LabelEditResult {
     data class Save(val state: LabelEditState) : LabelEditResult
     data class Delete(val state: LabelEditState, val deleteOrphaned: Boolean) : LabelEditResult
     data object Cancel : LabelEditResult
-    /** "Copy to my labels" made the editable copy [name]; the editor closes without saving the label itself. */
     /**
      * The add-on label was copied to [name]. [unsavedState] is the editor state when it had unsaved changes
      * (such as the favourite toggle), so the host can save them instead of silently discarding them; null when clean.
