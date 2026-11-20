@@ -51,6 +51,13 @@ object IosPlatformBootstrap {
         else dispatch_async(dispatch_get_main_queue()) { receive() }
     }
 
+    /**
+     * Swift's `onOpenURL` entry for `andbible-widget://` URLs (home-screen widget taps): `open?link=<read.andbible.org
+     * url>` opens the passage, `speak/<command>` drives the speak transport, `bookmark/<id>` resumes a speak bookmark.
+     * Buffered until startup is Ready.
+     */
+    fun openWidgetUrl(url: String) = net.bible.sharedui.platform.widget.IosWidgetUrls.open(url)
+
     /** Shared with the UI, confined to Main; background checks never mutate its launch accounting. */
     internal val crashTracker by lazy { net.bible.sharedui.ios.startup.IosCrashTracker(net.bible.sharedcore.platform.IosDeviceSettings()) }
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
@@ -95,6 +102,7 @@ object IosPlatformBootstrap {
      * No-op before Koin starts.
      */
     fun startForegroundSync() {
+        net.bible.sharedui.platform.widget.IosWidgetUrls.flush()
         KoinPlatform.getKoinOrNull()?.getOrNull<IosSyncTriggers>()?.start()
     }
 

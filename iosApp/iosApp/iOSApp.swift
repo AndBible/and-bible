@@ -32,7 +32,14 @@ struct iOSApp: App {
                 .onReceive(NotificationCenter.default.publisher(for: Notification.Name("net.bible.andbible.statusBarHidden"))) {
                     statusBarHidden = ($0.userInfo?["hidden"] as? Bool) ?? false
                 }
-                .onOpenURL { IosPlatformBootstrap.shared.openIncomingFile(url: $0.absoluteString) }
+                .onOpenURL { url in
+                    // Home-screen widget taps arrive as andbible-widget:// URLs; everything else is an incoming file.
+                    if url.scheme?.lowercased() == "andbible-widget" {
+                        IosPlatformBootstrap.shared.openWidgetUrl(url: url.absoluteString)
+                    } else {
+                        IosPlatformBootstrap.shared.openIncomingFile(url: url.absoluteString)
+                    }
+                }
         }
     }
 }

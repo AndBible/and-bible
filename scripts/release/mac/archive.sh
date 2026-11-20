@@ -16,6 +16,7 @@ for a in "$1" "$2" "$3" "$4" "$5" "$6" "$7"; do [ -n "$a" ] || { echo "empty arg
 VOL="$1" KEY_ID="$2" ISSUER="$3" TEAM="$4" BUILD="$5" VERSION="$6" COMMIT="$7" DEST="${8:-upload}" MODE="${9:-}"
 KEY="$VOL/AuthKey_${KEY_ID}.p8"
 BUNDLE_ID=org.andbible.ios ICLOUD=iCloud.org.andbible.ios
+EXT_ID=org.andbible.ios.widgets APP_GROUP=group.org.andbible.ios EXT_NAME=AndBibleWidgets.appex
 # xcodebuild -exportArchive must not see Homebrew tools (rsync). ANDBIBLE_TEST_EXPORT_PATH is a test-only seam.
 EXPORT_PATH=/usr/bin:/bin:/usr/sbin:/sbin
 if [ -n "${ANDBIBLE_TEST_EXPORT_PATH:-}" ]; then
@@ -59,6 +60,10 @@ XC_VERSION=$(xc_get MARKETING_VERSION); XC_COMMIT=$(xc_get AND_BIBLE_COMMIT_HASH
 CHECKS="xcconfig"
 echo "build number $BUILD, version $VERSION, commit $COMMIT, destination $DEST${MODE:+, reusing the archive}"
 APP="$ARCH/Products/Applications/AndBible.app"
+# The widget extension must be embedded; an archive without it would upload a build that silently lacks the widgets.
+require_appex() { # require_appex <app-dir> <where>
+	[ -d "$1/PlugIns/$EXT_NAME" ] || die "$2 has no PlugIns/$EXT_NAME (the widget extension is not embedded)" "${3:-1}"
+}
 
 if [ "$MODE" = reuse ]; then
 	STEP=reuse
@@ -67,6 +72,7 @@ if [ "$MODE" = reuse ]; then
 	A_VERSION=$(plutil -extract CFBundleShortVersionString raw -o - "$APP/Info.plist" 2>/dev/null)
 	[ "$A_BUILD" = "$BUILD" ] && [ "$A_VERSION" = "$VERSION" ] \
 		|| die "archive $ARCH is $A_VERSION ($A_BUILD), not $VERSION ($BUILD)" 3
+	STEP=appex; require_appex "$APP" "archive $ARCH" 3   # an older archive without the extension: the caller archives afresh
 	CHECKS="$CHECKS reuse"
 	echo "reusing $ARCH"
 else
@@ -91,8 +97,12 @@ rc=$?; ARCHIVE_S=$(( $(date +%s)-t0 )); echo "archive rc=$rc in ${ARCHIVE_S}s"
 plutil -p "$APP/Info.plist" | grep -E '"CFBundle(Identifier|ShortVersionString|Version|DisplayName)"|CFBundleTypeName'
 # The unsigned archive carries no entitlements: ad hoc re-sign with the Release-expanded entitlements.
 STEP=resign
-sed "s/\\\$(ICLOUD_CONTAINER)/$ICLOUD/g" iosApp/iosApp/iosApp.entitlements > "$OUT/release.entitlements"
-grep -q '\$(' "$OUT/release.entitlements" && die "unexpanded variable in entitlements"
+require_appex "$APP" "archive $ARCH"
+sed -e "s/\\\$(ICLOUD_CONTAINER)/$ICLOUD/g" -e "s/\\\$(APP_GROUP)/$APP_GROUP/g" iosApp/iosApp/iosApp.entitlements > "$OUT/release.entitlements"
+sed "s/\\\$(APP_GROUP)/$APP_GROUP/g" iosApp/AndBibleWidgets/AndBibleWidgets.entitlements > "$OUT/widgets.entitlements"
+grep -q '\$(' "$OUT/release.entitlements" "$OUT/widgets.entitlements" && die "unexpanded variable in entitlements"
+# Inner code first: the extension, then the app that embeds it.
+codesign --force --sign - --entitlements "$OUT/widgets.entitlements" --timestamp=none "$APP/PlugIns/$EXT_NAME" || exit 1
 codesign --force --sign - --entitlements "$OUT/release.entitlements" --timestamp=none "$APP" || exit 1
 fi
 
@@ -138,6 +148,15 @@ ents_has() { grep -q "$1" "$OUT/ipa-entitlements.txt"; }
 plist_is() { [ "$(plutil -extract "$1" raw -o - "$SAPP/Info.plist" 2>/dev/null)" = "$2" ]; }
 # get-task-allow: false or absent passes (absent = not debuggable); only true fails.
 gta_not_true() { [ "$(plutil -extract get-task-allow raw -o - "$OUT/ipa-entitlements.txt" 2>/dev/null)" != true ]; }
+require_appex "$SAPP" "the IPA"
+EXT="$SAPP/PlugIns/$EXT_NAME"
+EXT_SIG=$(codesign -dv --verbose=4 "$EXT" 2>&1)
+codesign -d --entitlements :- "$EXT" 2>/dev/null > "$OUT/ipa-widgets-entitlements.txt"
+ext_sig_has() { echo "$EXT_SIG" | grep -qxF "$1"; }
+ext_group() { grep -q "$APP_GROUP" "$OUT/ipa-widgets-entitlements.txt"; }
+check extension-identifier ext_sig_has "Identifier=$EXT_ID"
+check extension-team ext_sig_has "TeamIdentifier=$TEAM"
+check extension-group ext_group
 check identifier sig_has "Identifier=$BUNDLE_ID"
 check team sig_has "TeamIdentifier=$TEAM"
 check authority sig_starts "Authority=Apple Distribution:"
