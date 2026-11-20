@@ -559,7 +559,6 @@
   <string name="speak_next">Següent</string>
   <string name="speak_previous">Anterior</string>
   <string name="widget_toggle_sleep_timer">Activa/desactiva el temporitzador de son</string>
-  <string name="widget_bookmark_helptext">Aquí apareixeran els botons de drecera de marcadors de parla.</string>
   <string name="speak_status_stopped">aturat</string>
   <string name="speak_autobookmarking_disabled">Marcador automàtic desactivat!</string>
   <string name="system_speak_settings">Obre la configuració de TTS del sistema</string>

@@ -386,7 +386,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_next">Келесі</string>
   <string name="speak_previous">Алдыңғы</string>
   <string name="widget_toggle_sleep_timer">Ұйқы таймерін ауыстырыңыз</string>
-  <string name="widget_bookmark_helptext">Сөйлеу кітап белгілерінің төте түймелері осы жерде пайда болады.</string>
   <string name="speak_status_stopped">Тоқтатылған</string>
   <string name="speak_autobookmarking_disabled">Автоматты кітап белгілеу өшірілген!</string>
   <string name="system_speak_settings">TTS жүйесінің ашық параметрлері</string>

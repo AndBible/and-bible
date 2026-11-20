@@ -3,7 +3,6 @@ package net.bible.android.view.widget
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.RectF
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 import androidx.glance.layout.ContentScale
@@ -36,7 +35,7 @@ import net.bible.android.activity.R
 
 /** Filled, accent-coloured play/pause control: the only primary control of a widget. */
 @Composable
-fun PlayButton(playing: Boolean, size: Dp, action: Action, contentDescription: String = "") {
+fun PlayButton(playing: Boolean, size: Dp, action: Action, contentDescription: String) {
     Box(
         modifier = GlanceModifier.size(size).cornerRadius(14.dp)
             .background(GlanceTheme.colors.primary)
@@ -81,7 +80,7 @@ fun WidgetIconButton(icon: Int, contentDescription: String, size: Dp, action: Ac
  * on every launcher and in the Robolectric goldens (which do not paint framework progress bars).
  */
 @Composable
-fun WidgetProgressBar(fraction: Float, modifier: GlanceModifier = GlanceModifier) {
+fun WidgetProgressBar(fraction: Float, modifier: GlanceModifier = GlanceModifier, fillWidth: Boolean = true) {
     val context = LocalContext.current
     val track = GlanceTheme.colors.surfaceVariant.getColor(context).toArgb()
     val fill = GlanceTheme.colors.primary.getColor(context).toArgb()
@@ -89,24 +88,27 @@ fun WidgetProgressBar(fraction: Float, modifier: GlanceModifier = GlanceModifier
         provider = ImageProvider(progressBitmap(fraction.coerceIn(0f, 1f), track, fill)),
         contentDescription = null,
         contentScale = ContentScale.FillBounds,
-        modifier = modifier.fillMaxWidth().height(4.dp),
+        modifier = (if (fillWidth) modifier.fillMaxWidth() else modifier).height(4.dp),
     )
 }
 
-private const val BAR_W = 960
-private const val BAR_H = 12
+private const val BAR_W = 200
+private const val BAR_H = 4
 
-/** Rounded track with a rounded fill of [fraction] of its width. Public for tests of the geometry. */
-fun progressBitmap(fraction: Float, trackColor: Int, fillColor: Int): Bitmap {
+/**
+ * Track with a fill of [fraction] of its width, at 1/200 resolution. The ends are square on purpose: the bitmap is
+ * stretched to the bar's real width (a few dp up to a whole widget), which would squash rounded caps into ellipses.
+ * Kept tiny (200x4) because a list widget carries one per row inside the RemoteViews size limit.
+ */
+internal fun progressBitmap(fraction: Float, trackColor: Int, fillColor: Int): Bitmap {
     val bmp = Bitmap.createBitmap(BAR_W, BAR_H, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bmp)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    val r = BAR_H / 2f
+    val paint = Paint()
     paint.color = trackColor
-    canvas.drawRoundRect(RectF(0f, 0f, BAR_W.toFloat(), BAR_H.toFloat()), r, r, paint)
+    canvas.drawRect(0f, 0f, BAR_W.toFloat(), BAR_H.toFloat(), paint)
     if (fraction > 0f) {
         paint.color = fillColor
-        canvas.drawRoundRect(RectF(0f, 0f, maxOf(BAR_H.toFloat(), BAR_W * fraction), BAR_H.toFloat()), r, r, paint)
+        canvas.drawRect(0f, 0f, BAR_W * fraction.coerceIn(0f, 1f), BAR_H.toFloat(), paint)
     }
     return bmp
 }
@@ -126,7 +128,7 @@ fun SleepChip(minutes: Int) {
             modifier = GlanceModifier.size(14.dp),
         )
         Text(
-            text = " " + LocalContext.current.getString(R.string.widget_sleep_minutes, minutes),
+            text = " " + LocalContext.current.getString(R.string.speak_sleep_timer_minutes, minutes),
             style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Medium),
             maxLines = 1,
         )

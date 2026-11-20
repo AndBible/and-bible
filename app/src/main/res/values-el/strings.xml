@@ -572,7 +572,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_next">Επόμενος</string>
   <string name="speak_previous">Προηγούμενος</string>
   <string name="widget_toggle_sleep_timer">Εναλλαγή χρονοδιακόπτη ύπνου</string>
-  <string name="widget_bookmark_helptext">Συντομεύσεις σελιδοδεικτων ακρόασης θα εμφανίζονται εδω</string>
   <string name="speak_status_stopped">Διακοπή</string>
   <string name="speak_autobookmarking_disabled">Αυτόματοι σελιδοδείκτες απενεργοποιήθηκαν!</string>
   <string name="system_speak_settings">Άνοιγμα ρυθμίσεων TTS συστήματος</string>

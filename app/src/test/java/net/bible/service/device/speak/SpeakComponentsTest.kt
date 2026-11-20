@@ -23,59 +23,14 @@ class SpeakComponentsTest : SpeakIntegrationTestBase() {
     private fun text(text: String) =
         SpeakChange.Progress(book, book.getKey("Gen.1.1"), TextCommand(text, TextCommand.TextType.NORMAL))
 
+    /** The widget texts now come from the shared source (`ControlSpeakWidgetSourceTest`); the manager is only a lifecycle shell. */
     @Test
-    fun theWidgetFollowsTitlesAndResetsWhenSpeechStops() {
+    fun aDestroyedWidgetManagerIsGoneAndAFreshOneCanBeCreated() {
         val mgr = SpeakWidgetManager.instance ?: SpeakWidgetManager()
-        val reset = mgr.titleForTest()
-        SpeakChanges.notifyProgress(title("Romans"))
-        assertEquals("Romans", mgr.titleForTest())
-        SpeakChanges.notifyProgress(title(""))
-        assertEquals(reset, mgr.titleForTest())
-        SpeakChanges.notifyProgress(title("Romans"))
-        SpeakChanges.notifyState(SpeakPlaybackState.SILENT)
-        assertEquals(reset, mgr.titleForTest())
-    }
-
-    // Robolectric does not implement partiallyUpdateAppWidget; inspect the state that
-    // updateWidgetTexts writes into RemoteViews without adding a production test accessor.
-    private fun widgetText(manager: SpeakWidgetManager): String =
-        SpeakWidgetManager::class.java.getDeclaredField("currentText").let {
-            it.isAccessible = true
-            it.get(manager) as String
-        }
-
-    @Test
-    fun widgetTextSurvivesPauseButResetsOnSilentAndTemporaryStop() {
-        val mgr = SpeakWidgetManager.instance ?: SpeakWidgetManager()
-        for (stopState in listOf(SpeakPlaybackState.SILENT, SpeakPlaybackState.TEMPORARY_STOP)) {
-            SpeakChanges.notifyProgress(text("In the beginning"))
-            assertEquals("In the beginning", widgetText(mgr))
-            SpeakChanges.notifyProgress(title("Genesis"))
-            assertEquals("In the beginning", widgetText(mgr))
-            SpeakChanges.notifyState(SpeakPlaybackState.PAUSED)
-            assertEquals("In the beginning", widgetText(mgr))
-            SpeakChanges.notifyState(stopState)
-            assertEquals("", widgetText(mgr))
-        }
-    }
-
-    @Test
-    fun aDestroyedWidgetManagerNoLongerReacts() {
-        val mgr = SpeakWidgetManager.instance ?: SpeakWidgetManager()
-        try {
-            SpeakChanges.notifyProgress(title("Romans"))
-            SpeakChanges.notifyProgress(text("Paul"))
-            assertEquals("Romans", mgr.titleForTest())
-            assertEquals("Paul", widgetText(mgr))
-            mgr.destroy()
-            SpeakChanges.notifyProgress(title("Genesis"))
-            SpeakChanges.notifyProgress(text("In the beginning"))
-            SpeakChanges.notifyState(SpeakPlaybackState.SILENT)
-            assertEquals("Romans", mgr.titleForTest())
-            assertEquals("Paul", widgetText(mgr))
-        } finally {
-            if (SpeakWidgetManager.instance == null) SpeakWidgetManager()
-        }
+        mgr.destroy()
+        assertEquals(null, SpeakWidgetManager.instance)
+        SpeakWidgetManager()
+        assertEquals(true, SpeakWidgetManager.instance != null)
     }
 
     @Test

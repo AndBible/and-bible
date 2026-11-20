@@ -578,7 +578,6 @@
   <string name="speak_next">다음</string>
   <string name="speak_previous">이전</string>
   <string name="widget_toggle_sleep_timer">잠자기 타이머 켜기/끄기</string>
-  <string name="widget_bookmark_helptext">북마크 읽기 버튼이 여기 나타납니다.</string>
   <string name="speak_status_stopped">중지됨</string>
   <string name="speak_autobookmarking_disabled">자동 북마크가 비활성화됐습니다!</string>
   <string name="system_speak_settings">시스템 TTS 설정 열기</string>

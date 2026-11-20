@@ -572,7 +572,6 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
   <string name="widget_toggle_sleep_timer">Slaaptimer in-/uitschakelen</string>
-  <string name="widget_bookmark_helptext">Snelkoppelingen voor het voorlezen van bladwijzers verschijnen hier.</string>
   <string name="speak_status_stopped">gestopt</string>
   <string name="speak_autobookmarking_disabled">Automatisch toevoegen aan bladwijzers uitgeschakeld!</string>
   <string name="system_speak_settings">TTS-instellingen van systeem openen</string>

@@ -565,7 +565,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_next">Neste</string>
   <string name="speak_previous">Forrige</string>
   <string name="widget_toggle_sleep_timer">Slå søvntimer av/på</string>
-  <string name="widget_bookmark_helptext">Snarveiknapper for høytlesing av bokmerker vil vises her.</string>
   <string name="speak_status_stopped">stoppet</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmerking avslått!</string>
   <string name="system_speak_settings">Åpne systeminnstillinger for TTS</string>

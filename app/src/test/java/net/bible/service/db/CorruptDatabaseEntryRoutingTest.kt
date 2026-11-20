@@ -18,12 +18,13 @@ package net.bible.service.db
 
 import android.app.Notification
 import android.app.NotificationManager
-import android.appwidget.AppWidgetManager
+import net.bible.android.view.widget.descriptions
+import net.bible.android.view.widget.rootClickable
+import net.bible.android.view.widget.texts
 import android.content.Intent
 import android.os.Looper
 import net.bible.test.resetComposeUiDispatcher
 import net.bible.android.activity.R
-import net.bible.android.activity.SpeakWidgetManager
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
@@ -98,14 +99,13 @@ class CorruptDatabaseEntryRoutingTest {
         assertEquals(app.getString(R.string.damaged_data_needs_attention), notifications.single().extras.getCharSequence(Notification.EXTRA_TEXT)?.toString())
     }
 
-    /** #4112 review 2: a widget update renders a harmless "open the app" state instead of nothing. */
-    @Test fun aSpeakWidgetUpdateRendersTheAttentionState() {
-        val widgets = shadowOf(AppWidgetManager.getInstance(app))
-        val id = widgets.createWidget(SpeakWidgetManager.SmallSpeakControlWidget::class.java, R.layout.speak_widget)
-
-        val shown = widgets.getViewFor(id) as android.view.ViewGroup
-        assertEquals("only the attention text, no speak buttons", 1, shown.childCount)
-        assertEquals(app.getString(R.string.damaged_data_needs_attention), (shown.getChildAt(0) as android.widget.TextView).text.toString())
+    /** #4112 review 2: a widget draw renders a harmless "open the app" state instead of nothing. */
+    @Test fun aSpeakWidgetRendersTheAttentionState() {
+        val shown = net.bible.android.view.widget.renderWidget(app, 334, 86) { net.bible.android.view.widget.AttentionGlanceContent() }
+        assertEquals("only the attention text, no speak buttons", listOf(app.getString(R.string.damaged_data_needs_attention)), shown.texts())
+        assertTrue(shown.descriptions().isEmpty())
+        assertTrue("a tap opens the startup recovery", shown.rootClickable()!!.performClick())
+        assertEquals(StartupActivity::class.java.name, shadowOf(app).nextStartedActivity.component?.className)
     }
 
     /**

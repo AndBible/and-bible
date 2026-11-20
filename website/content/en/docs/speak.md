@@ -107,7 +107,7 @@ It disappears when the last Speak bookmark is removed.
 In a commentary, the Speak bookmark's marker appears in the commentary entry, including
 entries covering several Bible verses. Use **Speak from bookmark** (the bookmark button in the playback bar) to resume from a saved position.
 
-The Speak bookmarks can also be reached from the Android [home-screen widgets](platform_differences.md#speak-widgets).
+The Speak bookmarks can also be reached from the [Listening list home-screen widget](platform_differences.md#speak-widgets).
 
 ## How to speak a range of verses
 

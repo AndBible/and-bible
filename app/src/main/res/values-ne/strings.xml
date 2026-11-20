@@ -557,7 +557,6 @@
   <string name="speak_next">अर्को</string>
   <string name="speak_previous">अघिल्लो</string>
   <string name="widget_toggle_sleep_timer">स्लीप टाइमर टगल गर्नुहोस्</string>
-  <string name="widget_bookmark_helptext">बोल्ने बुकमार्क सर्टकट बटनहरू यहाँ देखिनेछन्।</string>
   <string name="speak_status_stopped">रोकिएको</string>
   <string name="speak_autobookmarking_disabled">स्वत: बुकमार्किङ असक्षम छ!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिङहरू खोल्नुहोस्</string>

@@ -557,7 +557,6 @@
   <string name="speak_next">اگلا</string>
   <string name="speak_previous">پچھلا</string>
   <string name="widget_toggle_sleep_timer">نیند ٹائمر ٹوگل کریں</string>
-  <string name="widget_bookmark_helptext">بولنے والے بک مارک شارٹ کٹ بٹن یہاں ظاہر ہوں گے۔</string>
   <string name="speak_status_stopped">رک گیا</string>
   <string name="speak_autobookmarking_disabled">خودکار بک مارکنگ غیر فعال ہے!</string>
   <string name="system_speak_settings">سسٹم TTS ترتیبات کھولیں</string>

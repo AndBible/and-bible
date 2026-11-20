@@ -36,6 +36,7 @@ class SpeakWidgetStateProducerTest {
         override val changes = events
         var sleepAt: Long? = null
         var factsCalls = 0
+        var resets = 0
         var facts = SpeakFacts(
             phase = SpeakPhase.SPEAKING, title = "Psalm 23", reference = "Psalm 23:1", translation = "WEB", percent = 34,
             verseText = "The LORD is my shepherd.", nextVerseText = "I shall not want.", autoBookmarkOn = true,
@@ -44,6 +45,7 @@ class SpeakWidgetStateProducerTest {
         override fun sleepActivationTimeMs() = sleepAt
         override fun nowMs() = clock()
         override suspend fun facts(): SpeakFacts { factsCalls++; return facts }
+        override fun reset() { resets++ }
     }
 
     private fun TestScope.producer(strings: WidgetStrings = FakeWidgetStrings(), configure: FakeSource.() -> Unit = {}):
@@ -62,6 +64,15 @@ class SpeakWidgetStateProducerTest {
         assertEquals("Psalm 23:1 · 34 % · WEB", s.statusLine)
         assertEquals("Psalm 23", s.title)
         assertEquals("I shall not want.", s.nextVerseText)
+    }
+
+    @Test fun restartingWhilePausedDoesNotForgetThePosition() = runTest {
+        val (p, source) = producer { facts = facts.copy(phase = SpeakPhase.PAUSED) }
+        p.stop()
+        p.start()
+        runCurrent()
+        assertEquals(0, source.resets)
+        assertEquals("Continue from Psalm 23:1 · WEB", p.state.value.statusLine)
     }
 
     @Test fun stoppedStateSaysContinueFrom() = runTest {
@@ -173,6 +184,22 @@ class SpeakWidgetStateProducerTest {
         runCurrent()
         p.start(); runCurrent()
         assertTrue(source.factsCalls > first, "start() must rebuild after the previous run died")
+        source.facts = source.facts.copy(reference = "John 3:16")
+        source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
+        assertEquals("John 3:16", p.state.value.reference)
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+    }
+
+    @Test fun startRightAfterCancellationDoesNotTreatTheCancellingRunAsRunning() = runTest {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        val source = FakeSource { currentTime }
+        val p = SpeakWidgetStateProducer(scope, source, FakeWidgetStrings())
+        p.start(); runCurrent()
+        val first = source.factsCalls
+        // DatabaseResetter cancels, and a widget draw calls start() before the cancelled run has unwound (no runCurrent here)
+        scope.coroutineContext[kotlinx.coroutines.Job]!!.children.forEach { it.cancel() }
+        p.start(); runCurrent()
+        assertTrue(source.factsCalls > first, "start() while the old run is only cancelling must start a new run")
         source.facts = source.facts.copy(reference = "John 3:16")
         source.events.tryEmit(Unit); advanceTimeBy(SpeakWidgetStateProducer.COALESCE_MS + 1); runCurrent()
         assertEquals("John 3:16", p.state.value.reference)

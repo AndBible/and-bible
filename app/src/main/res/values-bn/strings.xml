@@ -583,7 +583,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="speak_next">পরবর্তী</string>
   <string name="speak_previous">পূর্ববর্তী</string>
   <string name="widget_toggle_sleep_timer">টগ্র স্লিপ টাইমার </string>
-  <string name="widget_bookmark_helptext">কথা বলার বুকমার্কের শর্টকাট বোতামগুলি এখানে উপস্থিত হবে।</string>
   <string name="speak_status_stopped">বন্ধ</string>
   <string name="speak_autobookmarking_disabled">অটোবুকমার্কিং অক্ষম!</string>
   <string name="system_speak_settings">সিস্টেম টিটিএস সেটিংস খুলুন</string>

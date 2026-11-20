@@ -358,7 +358,6 @@
   <string name="speak_next"> နောက်တစ်ခု</string>
   <string name="speak_previous">ယခင်</string>
   <string name="widget_toggle_sleep_timer">Toggle အိပ်ချိန်သတ်မှတ်ချက်</string>
-  <string name="widget_bookmark_helptext">စာညှပ်စကားပြောအတွက် ဖြတ်လမ်းခလုတ်များသည် ဤနေရာတွင် ပေါ်လာမည်။</string>
   <string name="speak_status_stopped">ရပ်တန့်နေပါပြီ</string>
   <string name="speak_autobookmarking_disabled">အလိုအလျောက် စာညှပ်ခြင်းကို ပိတ်လိုက်ပါပြီ</string>
   <string name="system_speak_settings">Open system TTS ဆက်တင်များ</string>

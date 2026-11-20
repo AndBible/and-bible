@@ -569,7 +569,6 @@
   <string name="speak_next">Berikut</string>
   <string name="speak_previous">Sebelum</string>
   <string name="widget_toggle_sleep_timer">Aktivasi waktu tidur</string>
-  <string name="widget_bookmark_helptext">Shortcut penanda buku Bicara akan muncul di sini</string>
   <string name="speak_status_stopped">Terhenti</string>
   <string name="speak_autobookmarking_disabled">Penanda buku otomatis dinonaktifkan!</string>
   <string name="system_speak_settings">Buka pengaturan sistem bicara</string>

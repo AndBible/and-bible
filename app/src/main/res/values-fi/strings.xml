@@ -570,7 +570,6 @@ Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan
   <string name="speak_next">Seuraava</string>
   <string name="speak_previous">Edellinen</string>
   <string name="widget_toggle_sleep_timer">Kytke uniajastin päälle</string>
-  <string name="widget_bookmark_helptext">Puheen kirjanmerkkien pikapainikkeet tulevat tähän.</string>
   <string name="speak_status_stopped">pysäytetty</string>
   <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
   <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>

@@ -189,7 +189,6 @@
   <string name="speak_next">Keyingi</string>
   <string name="speak_previous">Oldingi</string>
   <string name="widget_toggle_sleep_timer">Uxlash taymerini o\'zgartirish</string>
-  <string name="widget_bookmark_helptext">Xatcho\'plarni gapirish belgisi bu yerda payda bo\'ladi.</string>
   <string name="speak_status_stopped">to\'xtatilgan</string>
   <string name="speak_autobookmarking_disabled">Avtomatik xatcho\'p qo\'yish bekor qilindi!</string>
   <string name="system_speak_settings">Sistema TSS sozlamalarini ochish</string>

@@ -567,7 +567,6 @@ Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek 
   <string name="speak_next">Következő</string>
   <string name="speak_previous">Előző</string>
   <string name="widget_toggle_sleep_timer">Alvási időzítő ki-/bekapcsolása</string>
-  <string name="widget_bookmark_helptext">A felolvasási könyvjelzők itt fognak megjelenni</string>
   <string name="speak_status_stopped">leállítva</string>
   <string name="speak_autobookmarking_disabled">A könyvjelzők automatikus mentése ki van kapcsolva!</string>
   <string name="system_speak_settings">TTS (Text-To-Speech) rendszerbeállítások megnyitása</string>

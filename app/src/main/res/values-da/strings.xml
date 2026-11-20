@@ -557,7 +557,6 @@
   <string name="speak_next">Næste</string>
   <string name="speak_previous">Forrige</string>
   <string name="widget_toggle_sleep_timer">Slå sove-timer til/fra</string>
-  <string name="widget_bookmark_helptext">Genvejsknapper til oplæsningsbogmærker vises her.</string>
   <string name="speak_status_stopped">stoppet</string>
   <string name="speak_autobookmarking_disabled">Automatisk bogmærkning deaktiveret!</string>
   <string name="system_speak_settings">Åbn systemets TTS-indstillinger</string>

@@ -555,7 +555,6 @@
   <string name="speak_next">次へ</string>
   <string name="speak_previous">前へ</string>
   <string name="widget_toggle_sleep_timer">スリープタイマーの切り替え</string>
-  <string name="widget_bookmark_helptext">読み上げブックマークのショートカットボタンがここに表示されます。</string>
   <string name="speak_status_stopped">停止中</string>
   <string name="speak_autobookmarking_disabled">自動ブックマークが無効になりました！</string>
   <string name="system_speak_settings">システムの TTS 設定を開く</string>

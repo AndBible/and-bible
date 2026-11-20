@@ -585,7 +585,6 @@ povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali p
   <string name="speak_next">Naslednji</string>
   <string name="speak_previous">Prejšnji</string>
   <string name="widget_toggle_sleep_timer">Preklop časovnika za spanje</string>
-  <string name="widget_bookmark_helptext">Tukaj se bo prikazala bližnjica do zaznamkov.</string>
   <string name="speak_status_stopped">ustavljeno</string>
   <string name="speak_autobookmarking_disabled">Avtomatski zaznamki onemogočeni!</string>
   <string name="system_speak_settings">Odpri nastavitve besedila v govor...</string>

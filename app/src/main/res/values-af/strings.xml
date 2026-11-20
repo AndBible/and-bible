@@ -580,7 +580,6 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
   <string name="widget_toggle_sleep_timer">Verander slaap tydhour</string>
-  <string name="widget_bookmark_helptext">Praat boekmerke kortpad knoppies sal hier verskyn.</string>
   <string name="speak_status_stopped">Gestop.</string>
   <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
   <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>

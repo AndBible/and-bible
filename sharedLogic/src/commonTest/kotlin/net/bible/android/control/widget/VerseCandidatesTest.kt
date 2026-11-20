@@ -19,6 +19,7 @@ package net.bible.android.control.widget
 import kotlinx.coroutines.test.runTest
 import net.bible.android.database.IdType
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -231,5 +232,12 @@ class VerseCandidatesTest {
         val sample = candidates.sample(VerseSource.Label(id), sources.web, 30, rotation = 1L)
         assertEquals(30, sample.size)
         assertTrue(sample.none { it.ref.startOrdinal % 4 == 0 })
+    }
+
+    @Test fun rangeOrdinalsRejectIndexOutsideThePool() {
+        val pool = RangeVerseOrdinals(10..12)
+        assertEquals(12, pool.ordinalAt(2))
+        assertFailsWith<IllegalArgumentException> { pool.ordinalAt(3) }
+        assertFailsWith<IllegalArgumentException> { pool.ordinalAt(-1) }
     }
 }

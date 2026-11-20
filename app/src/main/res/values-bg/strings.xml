@@ -557,7 +557,6 @@
   <string name="speak_next">Следващ</string>
   <string name="speak_previous">Предишен</string>
   <string name="widget_toggle_sleep_timer">Покажи/скрий таймера</string>
-  <string name="widget_bookmark_helptext">Тук ще се появят бутони за бързи отметки за реч.</string>
   <string name="speak_status_stopped">спрян</string>
   <string name="speak_autobookmarking_disabled">Автоматичното поставяне на отметки е деактивирано!</string>
   <string name="system_speak_settings">Отвори системните настройки за TTS</string>

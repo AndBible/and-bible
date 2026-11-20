@@ -569,7 +569,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="speak_next">Järgmine</string>
   <string name="speak_previous">Eelmine</string>
   <string name="widget_toggle_sleep_timer">Unetaimeri lülitamine</string>
-  <string name="widget_bookmark_helptext">Kõnelemise järjehoidjate otsetee nupud ilmuvad siia.</string>
   <string name="speak_status_stopped">peatatud</string>
   <string name="speak_autobookmarking_disabled">Automaatne järjehoidjate lidamine on keelatud!</string>
   <string name="system_speak_settings">Ava süsteemi TTS seaded</string>

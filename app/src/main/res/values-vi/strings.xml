@@ -555,7 +555,6 @@
   <string name="speak_next">Tiếp theo</string>
   <string name="speak_previous">Trước đó</string>
   <string name="widget_toggle_sleep_timer">Bật/tắt hẹn giờ ngủ</string>
-  <string name="widget_bookmark_helptext">Các nút tắt đánh dấu đọc sẽ xuất hiện ở đây.</string>
   <string name="speak_status_stopped">đã dừng</string>
   <string name="speak_autobookmarking_disabled">Tự động đánh dấu đã tắt!</string>
   <string name="system_speak_settings">Mở cài đặt TTS hệ thống</string>

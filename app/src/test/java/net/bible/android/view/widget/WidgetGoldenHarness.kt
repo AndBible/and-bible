@@ -45,6 +45,24 @@ fun captureWidget(
     heightDp: Int,
     mode: WidgetMode,
     content: @Composable () -> Unit,
+): View = renderWidget(context, widthDp, heightDp, mode, content) { it.captureRoboImage(widgetGoldenPath(name, mode)) }
+
+/** Renders [content] like [captureWidget] without writing a golden, for tests that assert on the view tree. */
+fun renderWidget(
+    context: Context,
+    widthDp: Int,
+    heightDp: Int,
+    mode: WidgetMode = WidgetMode.LIGHT,
+    content: @Composable () -> Unit,
+): View = renderWidget(context, widthDp, heightDp, mode, content) {}
+
+private fun renderWidget(
+    context: Context,
+    widthDp: Int,
+    heightDp: Int,
+    mode: WidgetMode,
+    content: @Composable () -> Unit,
+    afterLayout: (View) -> Unit,
 ): View {
     val widget = object : GlanceAppWidget() {
         override val sizeMode = SizeMode.Single
@@ -67,7 +85,7 @@ fun captureWidget(
     activity.setContentView(host, ViewGroup.LayoutParams(w, h))
     host.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY))
     host.layout(0, 0, w, h)
-    host.captureRoboImage(widgetGoldenPath(name, mode))
+    afterLayout(host)
     return view
 }
 

@@ -577,7 +577,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="speak_next">Dalje</string>
   <string name="speak_previous">Prethodno</string>
   <string name="widget_toggle_sleep_timer">Uklj/Isklj odbrojavanje spavanja</string>
-  <string name="widget_bookmark_helptext">Gumbi prečaca straničnici izgovora će se ovdje pojaviti</string>
   <string name="speak_status_stopped">Zaustavljeno</string>
   <string name="speak_autobookmarking_disabled">Automatski straničnik onemogućeno!</string>
   <string name="system_speak_settings">Otvori sustavske TTS postavke</string>

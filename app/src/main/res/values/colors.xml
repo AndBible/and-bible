@@ -51,7 +51,6 @@
 
 	<color name="actionbar_text_night">#919191</color>
 
-	<color name="widget_background">#93ffffff</color>
 	<color name="accent_day">@color/blue_900</color>
 	<color name="accent_night">@color/blue_300</color>
 

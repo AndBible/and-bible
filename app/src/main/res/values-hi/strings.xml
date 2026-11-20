@@ -577,7 +577,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_next">आगे</string>
   <string name="speak_previous"> पिछला</string>
   <string name="widget_toggle_sleep_timer">सोने का टाइमर लगाए/हटाए</string>
-  <string name="widget_bookmark_helptext">बोलने के बुकमार्क शॉर्टकट बटन यहां दिखाई देंगे।</string>
   <string name="speak_status_stopped">रुका हुआ</string>
   <string name="speak_autobookmarking_disabled"> ऑटोबोकमार्किंग अक्षम!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिंग्स खोलें</string>

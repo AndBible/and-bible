@@ -17,437 +17,67 @@
 
 package net.bible.android.activity
 
-import android.app.PendingIntent
-import net.bible.service.db.blockingAtEdge
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.util.Log
-import android.view.View
-import android.widget.RemoteViews
 import net.bible.android.BibleApplication
-import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarkChange
-import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakChange
-import net.bible.android.control.speak.SpeakChanges
-import net.bible.android.control.speak.SpeakSettingsChanges
-import net.bible.android.control.speak.load
-import net.bible.android.control.speak.save
-import net.bible.android.database.IdType
-import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.application
-import net.bible.service.common.CommonUtils
-import net.bible.android.control.speak.AdvancedSpeakSettings
-import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
-import net.bible.service.device.speak.TextCommand
-import net.bible.sharedcore.event.Subscription
-import net.bible.sharedcore.event.Subscriptions
-import java.lang.Exception
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-
+import net.bible.android.view.widget.ListeningListGlanceWidget
+import net.bible.android.view.widget.SpeakGlanceWidget
+import net.bible.android.view.widget.SpeakTextGlanceWidget
+import net.bible.android.view.widget.WidgetUpdater
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 
 /**
- * Whether [change] redraws the home-screen bookmark widget: exactly the five bookmark change kinds
- * that affect the widget. Exhaustive on purpose, so a new kind forces a decision.
+ * Lifecycle shell of the home-screen widgets. The widgets themselves are Glance widgets (`view/widget`); this class
+ * starts the speak-state producer that keeps them current ([WidgetUpdater]) and holds the five provider classes
+ * of the earlier widgets under their old names, so widgets placed before the redesign keep working (they render the
+ * new Speak, Speak with text and Listening list widgets they map to).
  */
-internal fun redrawsBookmarkWidget(change: BookmarkChange): Boolean = when (change) {
-    is BookmarkChange.BookmarksUpserted,
-    is BookmarkChange.BookmarksDeleted,
-    is BookmarkChange.LabelUpserted,
-    is BookmarkChange.LabelsDeleted,
-    is BookmarkChange.NoteModified -> true
-    is BookmarkChange.BookmarkToLabelUpserted,
-    is BookmarkChange.StudyPadOrder,
-    is BookmarkChange.StudyPadTextEntryDeleted -> false
-}
-
-/**
- * This is singleton manager class which
- * - takes care of updating widgets when they need to change (via EventBus)
- * - receives events from widgets and acts accordingly
- */
-class SpeakWidgetManager : KoinComponent {
+class SpeakWidgetManager {
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
     }
 
-    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
-    val speakControl: SpeakControl by inject()
-    val bookmarkControl: BookmarkControl by inject()
-    private var bookmarkChanges: Subscription? = null
-
-    private val subscriptions = Subscriptions()
     private val app = BibleApplication.application
-    private val resetTitle get() = app.getString(R.string.app_name_medium)
-    /** null = the reset title, resolved live so a language change shows (F114). */
-    private var currentTitle: String? = null
-    private var currentText = ""
-
-    @androidx.annotation.VisibleForTesting
-    internal fun titleForTest() = currentTitle ?: resetTitle
-
-    /** Re-draws the widget texts from the current resources (called when the app language changes). */
-    fun refreshTexts() = updateWidgetTexts()
 
     init {
-        if(instance != null) {
+        if (instance != null) {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        bookmarkChanges = bookmarkControl.changes.subscribe { change ->
-            if (!redrawsBookmarkWidget(change)) return@subscribe
-            val manager = AppWidgetManager.getInstance(app)
-            for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-                updateBookmarkWidget(app, manager, widgetId)
-            }
-        }
-        subscriptions.add(SpeakChanges.changes.subscribe { change ->
-            when (change) {
-                SpeakChange.Status -> updateWidgetTexts()
-                is SpeakChange.Progress -> {
-                    val ev = change
-                    val speakCommand = ev.speakCommand
-                    if (speakCommand is TextCommand) {
-                        if (speakCommand.type == TextCommand.TextType.TITLE) {
-                            currentTitle = speakCommand.text
-                            if (currentTitle.isNullOrEmpty()) {
-                                currentTitle = null
-                            }
-                        } else {
-                            currentText = speakCommand.text
-                        }
-
-                        updateWidgetTexts()
-                    }
-                }
-                is SpeakChange.State -> {
-                    val ev = change
-                    if (ev.isSpeaking) {
-                        currentTitle = null
-                    } else if (!ev.isSpeaking && !ev.isPaused) {
-                        currentTitle = null
-                        currentText = ""
-                    }
-                    updateWidgetTexts()
-                    updateWidgetSpeakButton(ev.isSpeaking)
-                }
-            }
-        })
-        subscriptions.add(SpeakSettingsChanges.changes.subscribe { ev ->
-            updateSleepTimerButtonIcon(ev.speakSettings)
-        })
+        WidgetUpdater.start(app)
     }
 
+    /** Re-draws the widget texts from the current resources (called when the app language changes). */
+    fun refreshTexts() = WidgetUpdater.refreshForLocale(app)
+
     fun destroy() {
-        subscriptions.cancelAll()
-        bookmarkChanges?.cancel(); bookmarkChanges = null
+        WidgetUpdater.stop()
         instance = null
     }
 
-    private fun updateWidgetSpeakButton(speaking: Boolean) {
-        Log.i(TAG, "updateWidgetSpeakButton")
-        val views = RemoteViews(app.packageName, R.layout.speak_widget)
-        val resource = if (speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-        views.setImageViewResource(R.id.speakButton, resource)
-        partialUpdateWidgets(views)
+    /** The old Small widget; renders the Speak widget. Hidden from the widget picker. */
+    class SmallSpeakControlWidget : GlanceAppWidgetReceiver() {
+        override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
-    private fun updateWidgetTexts() {
-        Log.i(TAG, "updateWidgetTexts")
-        val views = RemoteViews(app.packageName, R.layout.speak_widget)
-        Log.i(TAG, "updating status")
-        views.setTextViewText(R.id.titleText, currentTitle ?: resetTitle)
-
-        val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for((cls, wOptions) in widgetOptions) {
-            var statusText = speakControl.getStatusText(wOptions.statusFlags)
-            if(wOptions.showText) {
-                statusText += ": $currentText"
-            }
-            views.setTextViewText(R.id.statusText, statusText)
-            for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
-                manager.partiallyUpdateAppWidget(id, views)
-            }
-        }
+    /** The old Middle widget; renders the Speak widget. Hidden from the widget picker. */
+    class MiddleSpeakControlWidget : GlanceAppWidgetReceiver() {
+        override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
-    private fun updateSleepTimerButtonIcon(settings: SpeakSettings) {
-        val enabled = settings.sleepTimer > 0
-        val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
-        val resource = if (enabled) R.drawable.alarm_enabled else R.drawable.alarm_disabled
-        views.setImageViewResource(R.id.sleepButton, resource)
-        partialUpdateWidgets(views)
+    /** The Speak widget (the old Large widget's class). */
+    class LargeSpeakControlWidget : GlanceAppWidgetReceiver() {
+        override val glanceAppWidget: GlanceAppWidget = SpeakGlanceWidget()
     }
 
-    private fun partialUpdateWidgets(views: RemoteViews) {
-        val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for(cls in widgetOptions.keys) {
-            for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
-                manager.partiallyUpdateAppWidget(id, views)
-            }
-        }
+    /** The Speak with text widget (the old Text widget's class). */
+    class SpeakTextControlWidget : GlanceAppWidgetReceiver() {
+        override val glanceAppWidget: GlanceAppWidget = SpeakTextGlanceWidget()
     }
 
-    private var bookmarksAdded = false
-
-    fun updateBookmarkWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        Log.i(TAG, "updateBookmarkWidget")
-        val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
-
-        views.removeAllViews(R.id.layout)
-        fun addButton(name: String, b: BookmarkEntities.BaseBookmarkWithNotes?) {
-            val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
-            button.setTextViewText(R.id.button, name)
-            if(b != null) {
-                val type = when(b) {
-                    is BookmarkEntities.BibleBookmarkWithNotes -> "bible"
-                    is BookmarkEntities.GenericBookmarkWithNotes -> "generic"
-                    else -> throw RuntimeException("Illegal type")
-                }
-                val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
-                    action = SpeakBookmarkWidget.ACTION_BOOKMARK
-                    data = Uri.parse("bookmarksById://${type}/${b.id}")
-                }
-                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-                button.setOnClickPendingIntent(R.id.button, bc)
-            }
-            views.addView(R.id.layout, button)
-            bookmarksAdded = true
-        }
-
-        val label = blockingAtEdge { bookmarkControl.speakLabel() } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
-
-        val bibleBookmarks = blockingAtEdge { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
-        val genBookmarks = blockingAtEdge { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
-        val speakBookmarks = bibleBookmarks + genBookmarks
-        if(!advancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
-            addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
-        }
-        for (b in speakBookmarks){
-            val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
-            addButton(when(b) {
-                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.getName()} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
-                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.getName()} $repeatSymbol"
-                else -> throw RuntimeException("Illegal type")
-            }, b)
-            Log.i(TAG, "Added button for $b")
-        }
-        views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
-
-        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
-        val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        views.setOnClickPendingIntent(R.id.root, pendingIntent)
-
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-    }
-
-    abstract class AbstractSpeakWidget : AppWidgetProvider() {
-        // Lazy evaluation to these shortcut variables is necessary here as Application (and SpeakWidgetManager)
-        // is not instantiated before registering broadcastreceivers (here: widgets) in robolectric tests.
-        val instance: SpeakWidgetManager by lazy { SpeakWidgetManager.instance!! }
-        val speakControl by lazy { instance.speakControl }
-        val bookmarkControl by lazy { instance.bookmarkControl }
-        val app by lazy {instance.app }
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (!CommonUtils.initializeAppForHeadlessEntry()) {
-                // #4112: damaged data. A widget update still renders, in the harmless "open the app" state.
-                val ids = intent?.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-                if (context != null && intent?.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE && ids != null) {
-                    showDamagedDataState(context, AppWidgetManager.getInstance(context), ids)
-                }
-                return
-            }
-            super.onReceive(context, intent)
-        }
-
-        override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            if (!CommonUtils.initializeAppForHeadlessEntry()) {
-                showDamagedDataState(context, appWidgetManager, appWidgetIds)
-                return
-            }
-            Log.i(TAG, "onUpdate")
-            for (appWidgetId in appWidgetIds) {
-                try {
-                    setupWidget(context, appWidgetManager, appWidgetId)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Widget updating failed!")
-                }
-            }
-        }
-
-        protected abstract fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int)
-
-        /**
-         * #4112: while the app's data is damaged the widget shows only "the app's data needs attention"; a tap opens
-         * the startup's recovery question. No speak buttons, so nothing reaches the damaged databases.
-         */
-        private fun showDamagedDataState(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            val views = RemoteViews(context.packageName, R.layout.speak_widget_attention).apply {
-                setOnClickPendingIntent(R.id.root, CommonUtils.damagedDataRecoveryPendingIntent(context))
-            }
-            for (appWidgetId in appWidgetIds) {
-                try {
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Widget updating failed!", e)
-                }
-            }
-        }
-    }
-
-    abstract class AbstractButtonSpeakWidget : AbstractSpeakWidget() {
-        companion object {
-            const val ACTION_SPEAK = "action_speak"
-            const val ACTION_REWIND = "action_rewind"
-            const val ACTION_FAST_FORWARD = "action_fast_forward"
-            const val ACTION_STOP = "action_stop"
-            const val ACTION_NEXT = "action_next"
-            const val ACTION_PREV = "action_prev"
-            const val ACTION_SLEEP_TIMER = "action_sleep_timer"
-        }
-
-        protected abstract val buttons: List<String>
-        private val allButtons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND,
-                ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
-
-
-        override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-            Log.i(TAG, "onUpdate")
-            for (appWidgetId in appWidgetIds) {
-                setupWidget(context, appWidgetManager, appWidgetId)
-            }
-        }
-
-        override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.i(TAG, "setupWidget (speakWidget)")
-
-            val views = RemoteViews(context.packageName, R.layout.speak_widget)
-            views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
-
-            fun setupButton(action: String, button: Int, visible: Int) {
-                val intent = Intent(context, javaClass)
-                intent.action = action
-                val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-                views.setOnClickPendingIntent(button, bc)
-                views.setViewVisibility(button, visible)
-            }
-
-            val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
-            val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-            views.setOnClickPendingIntent(R.id.layout, pendingIntent)
-
-            for (b in allButtons) {
-                val buttonId = buttonId(b)
-                if (buttonId != null) {
-                    setupButton(b, buttonId, if (buttons.contains(b)) View.VISIBLE else View.GONE)
-                }
-            }
-            val wOptions = instance.widgetOptions[this::class] as WidgetOptions
-            if(!wOptions.showTitle) {
-                views.setViewVisibility(R.id.titleText, View.GONE)
-            }
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            instance.updateSleepTimerButtonIcon(SpeakSettings.load())
-            instance.updateWidgetSpeakButton(speakControl.isSpeaking)
-        }
-
-        private fun buttonId(b: String): Int? {
-            return when (b) {
-                ACTION_SPEAK -> R.id.speakButton
-                ACTION_FAST_FORWARD -> R.id.forwardButton
-                ACTION_NEXT -> R.id.nextButton
-                ACTION_PREV -> R.id.prevButton
-                ACTION_REWIND -> R.id.rewindButton
-                ACTION_STOP -> R.id.stopButton
-                ACTION_SLEEP_TIMER -> R.id.sleepButton
-                else -> null
-            }
-        }
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            super.onReceive(context, intent)
-            Log.i(TAG, "onReceive $context ${intent?.action}")
-            when (intent?.action) {
-                ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
-                ACTION_REWIND -> speakControl.rewind()
-                ACTION_FAST_FORWARD -> speakControl.forward()
-                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
-                ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE, toast = false)
-                ACTION_SLEEP_TIMER -> toggleSleepTimer()
-                ACTION_STOP -> speakControl.stop()
-            }
-        }
-
-        private fun toggleSleepTimer() {
-            val settings = SpeakSettings.load()
-            if (settings.sleepTimer > 0) {
-                settings.sleepTimer = 0
-            } else {
-                settings.sleepTimer = settings.lastSleepTimer
-            }
-            settings.save()
-        }
-    }
-
-    class SpeakBookmarkWidget : AbstractSpeakWidget() {
-        companion object {
-            const val ACTION_BOOKMARK = "action_bookmark"
-        }
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            super.onReceive(context, intent)
-            Log.i(TAG, "onReceive $context ${intent?.action}")
-            if (intent?.action == ACTION_BOOKMARK) {
-                val bookmarkType = intent.data?.host ?: return
-                val path = intent.data?.path ?: return
-                val bookmarkId = path.slice(1 until path.length)
-                Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
-                val dto = when(bookmarkType) {
-                    "bible" -> blockingAtEdge { bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))) }.first() // L1-edge: AppWidgetProvider callback
-                    "generic" -> blockingAtEdge { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-edge: AppWidgetProvider callback
-                    else -> throw RuntimeException("Illegal type")
-                }
-                speakControl.speakFromBookmark(dto)
-            }
-        }
-
-        override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            instance.updateBookmarkWidget(context, appWidgetManager, appWidgetId)
-        }
-    }
-
-    class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
-
-    val widgetOptions = hashMapOf(
-            SmallSpeakControlWidget::class to WidgetOptions(0, false),
-            MiddleSpeakControlWidget::class to WidgetOptions(FLAG_SHOW_PERCENT, true),
-            LargeSpeakControlWidget::class to WidgetOptions(FLAG_SHOW_ALL, true),
-            SpeakTextControlWidget::class to WidgetOptions(0, true, true)
-    )
-
-    class SmallSpeakControlWidget : AbstractButtonSpeakWidget() {
-        override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
-    }
-
-    class MiddleSpeakControlWidget : AbstractButtonSpeakWidget() {
-        override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
-    }
-
-    class LargeSpeakControlWidget : AbstractButtonSpeakWidget() {
-        override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
-    }
-
-    class SpeakTextControlWidget : AbstractButtonSpeakWidget() {
-        override val buttons: List<String> = listOf(ACTION_PREV, ACTION_NEXT, ACTION_SPEAK, ACTION_STOP)
+    /** The Listening list widget (the old speak bookmarks widget's class). */
+    class SpeakBookmarkWidget : GlanceAppWidgetReceiver() {
+        override val glanceAppWidget: GlanceAppWidget = ListeningListGlanceWidget()
     }
 }

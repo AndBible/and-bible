@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -17,12 +17,17 @@
   -->
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:minWidth="80dp"
+                    android:minWidth="180dp"
                     android:minHeight="110dp"
-                    android:updatePeriodMillis="86400000"
-                    android:previewImage="@drawable/speak_text_control_widget"
-                    android:initialLayout="@layout/speak_widget"
+                    android:minResizeWidth="180dp"
+                    android:minResizeHeight="110dp"
+                    android:maxResizeWidth="460dp"
+                    android:maxResizeHeight="400dp"
+                    android:targetCellWidth="3"
+                    android:targetCellHeight="2"
                     android:resizeMode="horizontal|vertical"
-                    android:widgetCategory="home_screen"
-        >
+                    android:previewImage="@drawable/widget_preview_speak_text"
+                    android:updatePeriodMillis="0"
+                    android:initialLayout="@layout/glance_default_loading_layout"
+                    android:widgetCategory="home_screen">
 </appwidget-provider>

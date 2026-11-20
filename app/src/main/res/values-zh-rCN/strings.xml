@@ -580,7 +580,6 @@ http://www.heartlight.org 准予使用
   <string name="speak_next">下一个</string>
   <string name="speak_previous">上一个</string>
   <string name="widget_toggle_sleep_timer">切换睡眠计时器</string>
-  <string name="widget_bookmark_helptext">朗读书签会在这里显示</string>
   <string name="speak_status_stopped">已停止</string>
   <string name="speak_autobookmarking_disabled">自动书签已停止！</string>
   <string name="system_speak_settings">开启系统文字转语音(TTS)设定</string>
