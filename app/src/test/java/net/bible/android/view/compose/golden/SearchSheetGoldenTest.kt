@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.StyledRun
@@ -32,6 +33,7 @@ import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.SearchResultTargetMenuRows
 import net.bible.sharedui.search.bibleResultRows
+import net.bible.sharedui.strings.AndroidStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,6 +62,8 @@ class SearchSheetGoldenTest {
             StyledRun(after),
         ),
     )
+
+    private val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
 
     private val rows = listOf(
         SwordResultRow(
@@ -158,6 +162,6 @@ class SearchSheetGoldenTest {
     // A regex search that hit its time budget: the one-line notice sits above the (partial) results.
     @Test fun resultsTruncatedNotice() = captureMatrix(
         "SearchSheet", "resultsTruncatedNotice", heightDp = 400,
-        content = sheet(notice = "The search took too long and was stopped. Results are incomplete; try a simpler expression."),
+        content = sheet(notice = strings.searchResultsTruncated),
     )
 }

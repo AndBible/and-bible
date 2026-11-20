@@ -722,4 +722,18 @@ class ReadingSearchStateTest {
             f.state.dispose()
         }
     }
+
+    @Test
+    fun aPreDecoratedQueryIsNeverARegexEvenWithTheSwitchOn() {
+        val f = SearchFixture()
+        try {
+            f.state.searchRegex.value = true
+            f.state.openSearch("for God", preDecorated = true)
+            val request = f.state.buildSearchRequest("KJV", "for God")
+            assertFalse(request.isRegex)
+            assertEquals(SearchType.ANY_WORDS, request.searchType)
+        } finally {
+            f.state.dispose()
+        }
+    }
 }
