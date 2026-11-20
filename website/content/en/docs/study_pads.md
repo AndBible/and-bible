@@ -40,6 +40,14 @@ automatically. Click a text entry to edit it; if you prefer to edit only with th
 edit button, enable *Disable Study Pad click-to-edit* under Application
 preferences > Look & feel.
 
+## The cursor
+
+When the Study Pad's label is ‘auto-assigned’, a green line (the cursor) marks where new
+bookmarks go. A new bookmark is inserted at the cursor, and the cursor moves past it, so
+bookmarks you add one after another stay in the order you added them. To move the cursor,
+tap the top edge of an entry: the line jumps there. Tap just below the last entry to put it at the
+end. The cursor is not shown for labels that are not auto-assigned, nor in an exported Study Pad.
+
 ## The entry toolbar
 
 Each entry has a toolbar with these buttons:
