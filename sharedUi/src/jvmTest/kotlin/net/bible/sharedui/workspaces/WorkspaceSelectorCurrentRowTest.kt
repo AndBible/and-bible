@@ -25,7 +25,7 @@ class WorkspaceSelectorCurrentRowTest {
             CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
                 AbTheme(darkTheme = false, disableAnimations = !animations) {
                     WorkspaceSelectorScreen(
-                        title = "Select workspace", workspaces = items, dirty = false, canDelete = true,
+                        title = "Manage workspaces", workspaces = items, dirty = false, canDelete = true,
                         filtering = false, query = "", searchModeActive = false,
                         copySettingsState = null, pendingSelectId = null,
                         onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},

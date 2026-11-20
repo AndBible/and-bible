@@ -21,7 +21,7 @@ class AbTopBarSearchGoldenTest {
 
     @Composable
     private fun bar(query: String) = AbScaffold(
-        title = "Select workspace",
+        title = "Manage workspaces",
         onNavigateUp = {},
         search = AbTopBarSearchState(query = query),
         searchCallbacks = callbacks,

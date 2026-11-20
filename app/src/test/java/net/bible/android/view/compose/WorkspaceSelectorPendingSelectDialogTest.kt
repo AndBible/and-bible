@@ -52,7 +52,7 @@ class WorkspaceSelectorPendingSelectDialogTest {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 WorkspaceSelectorScreen(
-                    title = "Select workspace",
+                    title = "Manage workspaces",
                     workspaces = emptyList(),
                     dirty = false,
                     canDelete = true,
