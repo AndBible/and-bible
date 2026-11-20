@@ -205,7 +205,9 @@ private fun UserGuideTab(
         if (highlightedStem == null || scrolledToHighlight) return@LaunchedEffect
         val index = guideItemIndex(sections, hasWatchInOrder = onWatchInOrder != null, stem = highlightedStem)
         if (index != null) {
-            if (noAnimations) listState.scrollToItem(index) else listState.animateScrollToItem(index)
+            // One row above the page: its section header (or the previous page's last row) stays in view as context.
+            val target = (index - 1).coerceAtLeast(0)
+            if (noAnimations) listState.scrollToItem(target) else listState.animateScrollToItem(target)
         }
         scrolledToHighlight = true
     }

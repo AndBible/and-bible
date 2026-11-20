@@ -771,6 +771,7 @@ object CommonUtils : CommonUtilsBase() {
         "module_about_repository" to R.string.module_about_repository,
         "module_about_osisId" to R.string.module_about_osisId,
         "help_read_more_link" to R.string.help_read_more_link,
+        "help_in_user_guide" to R.string.help_in_user_guide,
         "bookmark_warning" to R.string.bookmark_warning,
         "bookmark_warning2" to R.string.bookmark_warning2,
         "bookmark_warning3" to R.string.bookmark_warning3,
