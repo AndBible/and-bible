@@ -41,11 +41,12 @@ class AbTextPageTest {
         dismissText: String? = null,
         cancellable: Boolean = true,
         onBack: (() -> Unit)? = null,
+        topic: String? = "AI disclaimer",
     ) = compose.setContent {
         ProvideAppLocals {
             AbTheme {
                 AbTextPage(
-                    topic = "AI disclaimer", onClose = { closed++ },
+                    topic = topic, onClose = { closed++ },
                     confirmText = confirmText, onConfirm = { confirmed++ }, dismissText = dismissText,
                     cancellable = cancellable, onBack = onBack,
                 ) { Text("Long text") }
@@ -74,6 +75,22 @@ class AbTextPageTest {
         compose.onNodeWithTag("dialog-confirm").assertTextEquals("I accept").performClick()
         assertEquals(1, confirmed)
         assertEquals(0, closed)
+    }
+
+    @Test fun topicIsShownAsHeading() {
+        show()
+        compose.onNodeWithTag("page-topic").assertTextEquals("AI disclaimer")
+    }
+
+    @Test fun nullOrBlankTopicRendersNoTopicNode() {
+        show(topic = null)
+        compose.onAllNodesWithTag("page-topic").assertCountEquals(0)
+        compose.onAllNodesWithTag("page-close").assertCountEquals(1)
+    }
+
+    @Test fun blankTopicRendersNoTopicNode() {
+        show(topic = "   ")
+        compose.onAllNodesWithTag("page-topic").assertCountEquals(0)
     }
 
     @Test fun readOnlyPageHasSingleClose() {
@@ -120,7 +137,7 @@ class AbTextPageTest {
                 }
             }
         }
-        compose.onNodeWithTag("page-close").assertExists()
+        compose.onAllNodesWithTag("page-close").assertCountEquals(1)
         compose.onNodeWithTag("dialog-confirm").performClick()
         assertEquals(listOf<AppDialogResult>(AppDialogResult.Ok), answers)
     }

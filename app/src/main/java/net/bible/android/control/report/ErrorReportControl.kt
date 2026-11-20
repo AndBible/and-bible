@@ -153,11 +153,8 @@ object ErrorReportControl {
             while (choice == null) {
                 val dialogResult = dialogs.await(
                     AppDialogRequest.Options(
-                        title = context.getString(R.string.corrupt_database_title),
-                        message = plainTextToHtml(
-                            context.getString(R.string.corrupt_database_lead, names) + "\n\n" +
-                                context.getString(R.string.corrupt_database_detail),
-                        ),
+                        title = context.getString(R.string.corrupt_database_headline),
+                        message = plainTextToHtml(context.getString(R.string.corrupt_database_files_detail, names)),
                         options = listOf(
                             SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
                             SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),
@@ -186,7 +183,7 @@ object ErrorReportControl {
         val name = (error as? net.bible.service.db.CorruptDatabaseResetException)?.database?.fileName ?: error.message.orEmpty()
         dialogs.await(
             AppDialogRequest.Message(
-                title = context.getString(R.string.corrupt_database_title),
+                title = context.getString(R.string.corrupt_database_headline),
                 message = plainTextToHtml(context.getString(R.string.corrupt_database_reset_failed, name)),
                 confirmText = context.getString(R.string.okay),
                 cancellable = false,

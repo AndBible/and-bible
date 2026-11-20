@@ -403,9 +403,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val textCopiedToClipboard: String get() = context.getString(R.string.text_copied_to_clicpboard)
     // --- end I2 phase 2 R1 ---
     override val crashRecoveryMessage: String get() = context.getString(R.string.error_occurred_crash_last_time)
-    override val corruptDatabaseTitle: String get() = context.getString(R.string.corrupt_database_title)
-    override fun corruptDatabaseLead(databases: String): String = context.getString(R.string.corrupt_database_lead, databases)
-    override val corruptDatabaseDetail: String get() = context.getString(R.string.corrupt_database_detail)
+    override val corruptDatabaseHeadline: String get() = context.getString(R.string.corrupt_database_headline)
+    override fun corruptDatabaseFilesDetail(databases: String): String = context.getString(R.string.corrupt_database_files_detail, databases)
     override val corruptDatabaseReset: String get() = context.getString(R.string.corrupt_database_reset)
     override fun corruptDatabaseResetFailed(database: String): String = context.getString(R.string.corrupt_database_reset_failed, database)
     override val crashRecoveryContinue: String get() = context.getString(R.string.crash_recovery_continue)

@@ -407,9 +407,8 @@ interface Strings {
     val crashRecoveryMessage: String
     val crashRecoveryContinue: String
     val crashRecoveryReport: String
-    val corruptDatabaseTitle: String                // R.string.corrupt_database_title
-    fun corruptDatabaseLead(databases: String): String // R.string.corrupt_database_lead; [databases] may list several files
-    val corruptDatabaseDetail: String               // R.string.corrupt_database_detail
+    val corruptDatabaseHeadline: String             // R.string.corrupt_database_headline
+    fun corruptDatabaseFilesDetail(databases: String): String // R.string.corrupt_database_files_detail; [databases] may list several files
     val corruptDatabaseReset: String                // R.string.corrupt_database_reset
     fun corruptDatabaseResetFailed(database: String): String // R.string.corrupt_database_reset_failed
     val startupLogFolder: String                    // R.string.startup_log_folder

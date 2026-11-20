@@ -46,7 +46,11 @@ sealed interface AppDialogRequest {
         val detail: String? = null,
         val destructive: Boolean = false,
         val presentation: DialogPresentation = DialogPresentation.Dialog,
-    ) : AppDialogRequest
+    ) : AppDialogRequest {
+        init {
+            require(presentation != DialogPresentation.Page || neutralText == null) { "A page has no neutral button" }
+        }
+    }
 
     /** Class B. [message] may be null (a title-only question, e.g. `simpleQuestion(message = null)`). */
     data class Confirm(
@@ -144,7 +148,16 @@ sealed interface AppDialogRequest {
         val dismissText: String? = null,
         val neutralText: String? = null,
         val presentation: DialogPresentation = DialogPresentation.Dialog,
-    ) : AppDialogRequest
+    ) : AppDialogRequest {
+        init {
+            if (presentation == DialogPresentation.Page) {
+                require(neutralText == null) { "A page has no neutral button" }
+                require(blocks.all { it is NoticeBlock.Html }) {
+                    "A page shows Html blocks only (logo, QR code and icon lines are dialog furniture)"
+                }
+            }
+        }
+    }
 
     /**
      * The 6.0 stable release notice (`ReleaseNotice`): its content is drawn by the host from string
@@ -180,8 +193,9 @@ sealed interface AppDialogRequest {
  * request's buttons and answers: a request with a dismiss text is a decision page, one without is read-only.
  *
  * A page has no neutral button, and a [AppDialogRequest.Notice] page shows only [AppDialogRequest.NoticeBlock.Html]
- * blocks and is always cancellable (a notice has no `cancellable` flag); the host rejects a page request that sets
- * [AppDialogRequest.Message.neutralText] / [AppDialogRequest.Notice.neutralText] or has other blocks.
+ * blocks and is always cancellable (a notice has no `cancellable` flag); a page request that sets
+ * [AppDialogRequest.Message.neutralText] / [AppDialogRequest.Notice.neutralText] or has other blocks fails its
+ * constructor's `require`.
  * A null title omits the page heading.
  */
 enum class DialogPresentation { Dialog, Page }
