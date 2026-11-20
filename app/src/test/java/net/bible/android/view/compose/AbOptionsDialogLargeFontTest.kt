@@ -17,14 +17,11 @@
 
 package net.bible.android.view.compose
 
-import androidx.compose.runtime.CompositionLocalProvider
 import net.bible.sharedcore.ui.dialog.toAnswers
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.unit.Density
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedcore.settings.SettingsItem
@@ -46,30 +43,38 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class AbOptionsDialogLargeFontTest {
-    @get:Rule val compose = createComposeRule()
+    // The real activity font scale 3 (as in dialog/AbDialogShellTest): a LocalDensity override does not reach the Dialog window.
+    @get:Rule(order = 0) val fontScaleRule: org.junit.rules.TestRule = org.junit.rules.TestRule { base, _ ->
+        object : org.junit.runners.model.Statement() {
+            override fun evaluate() {
+                org.robolectric.RuntimeEnvironment.setFontScale(3f)
+                base.evaluate()
+            }
+        }
+    }
+    @get:Rule(order = 1) val compose = createComposeRule()
 
     private val longMessage = List(12) { "If you live in a persecuted country you might need to be careful." }.joinToString(" ")
 
     @Test fun everyAnswerIsReachableAtTheLargestFontScale() {
         compose.setContent {
-            val density = LocalDensity.current
-            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 3f)) {
-                AbTheme {
-                    AbOptionsDialog(
-                        title = "Do you want to proceed to download documents?",
-                        message = longMessage,
-                        options = listOf(
-                            SettingsItem.Choice(value = "yes", label = "Yes"),
-                            SettingsItem.Choice(value = "dont_ask_again", label = "Do not ask again"),
-                        ).toAnswers(),
-                        onSelect = {},
-                        onDismissRequest = {},
-                        dismissText = "Cancel",
-                    )
-                }
+            AbTheme {
+                AbOptionsDialog(
+                    title = "Do you want to proceed to download documents?",
+                    message = longMessage,
+                    options = listOf(
+                        SettingsItem.Choice(value = "yes", label = "Yes"),
+                        SettingsItem.Choice(value = "dont_ask_again", label = "Do not ask again"),
+                    ).toAnswers(),
+                    onSelect = {},
+                    onDismissRequest = {},
+                    dismissText = "Cancel",
+                )
             }
         }
-        compose.onNodeWithText("Do not ask again").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Yes").performScrollTo().assertIsDisplayed()
+        compose.waitForIdle()
+        compose.onNodeWithTag("dialog-answer-dont_ask_again").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("dialog-answer-yes").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("dialog-dismiss").assertIsDisplayed()
     }
 }
