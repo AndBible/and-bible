@@ -150,7 +150,9 @@ class DocumentDialogsCoreTest {
         runCurrent()
         val shown = dialogs.pending.value!!
         val request = shown.request as AppDialogRequest.Confirm
-        assertEquals("bookmark_warning2<br><br>bookmark_warning4<br><br>bookmark_warning3", request.message)
+        assertEquals("update_document_question", request.title)
+        assertEquals("bookmark_warning bookmark_warning2<br><br>bookmark_warning4", request.message)
+        assertEquals("update_action", request.confirmText)
         assertEquals("cancel", request.dismissText)
         assertFalse(request.cancellable)
         dialogs.respond(shown.id, AppDialogResult.Ok)
