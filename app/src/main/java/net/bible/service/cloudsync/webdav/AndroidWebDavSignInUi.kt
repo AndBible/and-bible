@@ -26,6 +26,7 @@ class AndroidWebDavSignInUi(private val app: Context) : WebDavSignInUi {
             confirmText = app.getString(R.string.webdav_trust_certificate),
             dismissText = app.getString(R.string.cancel),
             cancellable = true,
+            presentation = net.bible.sharedcore.ui.dialog.DialogPresentation.Page,
         ))
         return result == AppDialogResult.Ok
     }

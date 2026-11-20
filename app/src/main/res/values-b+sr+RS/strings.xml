@@ -815,7 +815,6 @@
   <string name="error_skip">Прескочи</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Оштећени подаци</string>
-  <string name="corrupt_database_message">Неки од ваших података нису могли да се отворе јер је датотека њихове базе података оштећена: %1$s.\n\nНишта није измењено нити обрисано. Можете послати извештај о грешци да нам помогнете да пронађемо узрок, отворити Резервна копија и враћање да направите резервну копију или вратите ранију, или ресетовати оштећене податке.\n\nРесетовање започиње те податке празне. Оштећена датотека остаје на овом уређају, преименована са \".corrupt-\" и датумом.</string>
   <string name="corrupt_database_reset">Ресетуј оштећене податке</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Оштећени подаци нису могли да се ресетују: %1$s није могао да се премести. Ништа није измењено. Можете покушати поново, послати извештај о грешци или користити Резервна копија и враћање.</string>

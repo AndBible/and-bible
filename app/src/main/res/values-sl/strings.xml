@@ -813,7 +813,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error_skip">Preskoči</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Poškodovani podatki</string>
-  <string name="corrupt_database_message">Nekaterih vaših podatkov ni bilo mogoče odpreti, ker je datoteka njihove zbirke podatkov poškodovana: %1$s.\n\nNič ni bilo spremenjeno ali izbrisano. Lahko pošljete poročilo o napaki, da nam pomagate najti vzrok, odprete Varnostna kopija &amp; Obnova, da naredite varnostno kopijo ali obnovite prejšnjo, ali pa ponastavite poškodovane podatke.\n\nPo ponastavitvi se ti podatki začnejo prazni. Poškodovana datoteka ostane v tej napravi, preimenovana z \".corrupt-\" in datumom.</string>
   <string name="corrupt_database_reset">Ponastavi poškodovane podatke</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Poškodovanih podatkov ni bilo mogoče ponastaviti: %1$s ni bilo mogoče premakniti na stran. Nič ni bilo spremenjeno. Poskusite znova, pošljite poročilo o napaki ali uporabite Varnostna kopija &amp; Obnova.</string>

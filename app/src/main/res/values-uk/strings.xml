@@ -811,7 +811,6 @@
   <string name="error_skip">Пропустити</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Пошкоджені дані</string>
-  <string name="corrupt_database_message">Частину ваших даних не вдалося відкрити, бо файл їхньої бази даних пошкоджено: %1$s.\n\nНічого не змінено й не видалено. Ви можете надіслати звіт про помилку, щоб допомогти нам знайти причину, відкрити «Резервне копіювання та відновлення», щоб створити резервну копію або відновити попередню, або скинути пошкоджені дані.\n\nПісля скидання ці дані починаються з порожнього стану. Пошкоджений файл зберігається на цьому пристрої з назвою, зміненою на \".corrupt-\" і дату.</string>
   <string name="corrupt_database_reset">Скинути пошкоджені дані</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Не вдалося скинути пошкоджені дані: не вдалося відсунути вбік %1$s. Нічого не змінено. Ви можете спробувати ще раз, надіслати звіт про помилку або скористатися «Резервним копіюванням та відновленням».</string>

@@ -801,7 +801,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="error_skip">Overslaan</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Beschadigde gegevens</string>
-  <string name="corrupt_database_message">Een deel van je gegevens kon niet worden geopend omdat het databasebestand beschadigd is: %1$s.\n\nEr is niets gewijzigd of verwijderd. Je kunt een foutrapport sturen om ons te helpen de oorzaak te vinden, Back-up en herstel openen om een back-up te maken of een eerdere terug te zetten, of de beschadigde gegevens opnieuw instellen.\n\nBij opnieuw instellen beginnen die gegevens leeg. Het beschadigde bestand blijft op dit apparaat bewaard, hernoemd met \".corrupt-\" en de datum.</string>
   <string name="corrupt_database_reset">Beschadigde gegevens opnieuw instellen</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">De beschadigde gegevens konden niet opnieuw worden ingesteld: %1$s kon niet opzij worden gezet. Er is niets gewijzigd. Je kunt het opnieuw proberen, een foutrapport sturen of Back-up en herstel gebruiken.</string>

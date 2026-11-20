@@ -753,7 +753,6 @@
   <string name="error_skip">Omet</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Dades danyades</string>
-  <string name="corrupt_database_message">No s\'han pogut obrir algunes de les teves dades perquè el fitxer de la base de dades està danyat: %1$s.\n\nNo s\'ha canviat ni esborrat res. Pots enviar un informe d\'error perquè ens ajudi a trobar-ne la causa, obrir Còpia de seguretat i restauració per fer una còpia o restaurar-ne una d\'anterior, o restablir les dades danyades.\n\nEl restabliment torna a començar aquestes dades en blanc. El fitxer danyat es conserva en aquest dispositiu, amb el nom canviat afegint-hi \".corrupt-\" i la data.</string>
   <string name="corrupt_database_reset">Restableix les dades danyades</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">No s\'han pogut restablir les dades danyades: no s\'ha pogut apartar %1$s. No s\'ha canviat res. Pots tornar-ho a provar, enviar un informe d\'error o utilitzar Còpia de seguretat i restauració.</string>

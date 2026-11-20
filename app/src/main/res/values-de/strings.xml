@@ -781,7 +781,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_skip">Üerspringen</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Beschädigte Daten</string>
-  <string name="corrupt_database_message">Ein Teil deiner Daten konnte nicht geöffnet werden, weil die Datenbankdatei beschädigt ist: %1$s.\n\nEs wurde nichts geändert oder gelöscht. Du kannst einen Fehlerbericht senden, damit wir die Ursache finden, Sicherung &amp; Wiederherstellung öffnen, um eine Sicherung zu erstellen oder eine frühere wiederherzustellen, oder die beschädigten Daten zurücksetzen.\n\nBeim Zurücksetzen beginnen diese Daten leer. Die beschädigte Datei bleibt auf diesem Gerät erhalten und wird mit \".corrupt-\" und dem Datum umbenannt.</string>
   <string name="corrupt_database_reset">Beschädigte Daten zurücksetzen</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Die beschädigten Daten konnten nicht zurückgesetzt werden: %1$s konnte nicht beiseitegelegt werden. Es wurde nichts geändert. Du kannst es erneut versuchen, einen Fehlerbericht senden oder Sicherung &amp; Wiederherstellung verwenden.</string>

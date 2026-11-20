@@ -25,6 +25,7 @@ internal class HostWebDavCertificatePrompt(
             confirmText = strings.webDavTrustCertificate,
             dismissText = strings.cancel,
             cancellable = true,
+            presentation = net.bible.sharedcore.ui.dialog.DialogPresentation.Page,
         ),
     ) == AppDialogResult.Ok
 

@@ -749,7 +749,6 @@
   <string name="error_skip">ข้าม</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">ข้อมูลเสียหาย</string>
-  <string name="corrupt_database_message">ไม่สามารถเปิดข้อมูลบางส่วนของคุณได้ เนื่องจากไฟล์ฐานข้อมูลเสียหาย: %1$s\n\nยังไม่มีการเปลี่ยนแปลงหรือลบสิ่งใด คุณสามารถส่งรายงานข้อผิดพลาดเพื่อช่วยให้เราหาสาเหตุ เปิดสำรองและกู้คืนเพื่อสำรองข้อมูลหรือกู้คืนข้อมูลก่อนหน้า หรือรีเซ็ตข้อมูลที่เสียหาย\n\nการรีเซ็ตจะเริ่มข้อมูลนั้นใหม่ให้ว่างเปล่า ไฟล์ที่เสียหายจะถูกเก็บไว้ในอุปกรณ์นี้ โดยเปลี่ยนชื่อเป็น \".corrupt-\" ตามด้วยวันที่</string>
   <string name="corrupt_database_reset">รีเซ็ตข้อมูลที่เสียหาย</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">ไม่สามารถรีเซ็ตข้อมูลที่เสียหายได้: ไม่สามารถย้าย %1$s ออกไปได้ ยังไม่มีการเปลี่ยนแปลงใดๆ คุณสามารถลองอีกครั้ง ส่งรายงานข้อผิดพลาด หรือใช้สำรองและกู้คืน</string>

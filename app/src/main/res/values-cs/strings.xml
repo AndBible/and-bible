@@ -813,7 +813,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="error_skip">Přeskočit</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Poškozená data</string>
-  <string name="corrupt_database_message">Některá vaše data se nepodařilo otevřít, protože soubor databáze je poškozený: %1$s.\n\nNic nebylo změněno ani smazáno. Můžete odeslat hlášení o chybě, které nám pomůže zjistit příčinu, otevřít Zálohu a obnovu a vytvořit zálohu nebo obnovit dřívější, nebo poškozená data resetovat.\n\nPo resetu tato data začínají prázdná. Poškozený soubor zůstane v tomto zařízení, přejmenovaný s příponou \".corrupt-\" a datem.</string>
   <string name="corrupt_database_reset">Resetovat poškozená data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Poškozená data se nepodařilo resetovat: soubor %1$s nešlo přesunout stranou. Nic nebylo změněno. Můžete to zkusit znovu, odeslat hlášení o chybě nebo použít Zálohu a obnovu.</string>

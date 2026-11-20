@@ -811,7 +811,6 @@
   <string name="error_skip">건너뛰기</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">손상된 데이터</string>
-  <string name="corrupt_database_message">데이터베이스 파일이 손상되어 일부 데이터를 열 수 없습니다: %1$s.\n\n변경되거나 삭제된 것은 없습니다. 오류 보고서를 보내 원인을 찾는 데 도움을 주시거나, 백업과 복원을 열어 백업하거나 이전 백업으로 복원하거나, 손상된 데이터를 초기화할 수 있습니다.\n\n초기화하면 해당 데이터가 비어 있는 상태로 시작됩니다. 손상된 파일은 이 기기에 남아 있으며 이름에 \".corrupt-\"와 날짜가 붙습니다.</string>
   <string name="corrupt_database_reset">손상된 데이터 초기화</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">손상된 데이터를 초기화할 수 없습니다: %1$s을(를) 옮길 수 없었습니다. 변경된 것은 없습니다. 다시 시도하거나, 오류 보고서를 보내거나, 백업과 복원을 사용할 수 있습니다.</string>

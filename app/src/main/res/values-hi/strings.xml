@@ -806,7 +806,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error_skip">छोड़ें</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">क्षतिग्रस्त डेटा</string>
-  <string name="corrupt_database_message">आपके कुछ डेटा को खोला नहीं जा सका क्योंकि उसकी डेटाबेस फ़ाइल क्षतिग्रस्त है: %1$s।\n\nकुछ भी बदला या हटाया नहीं गया है। आप कारण खोजने में हमारी मदद के लिए एरर रिपोर्ट भेज सकते हैं, बैकअप बनाने या पहले का बैकअप रिस्टोर करने के लिए बैकअप &amp; रिस्टोर खोल सकते हैं, या क्षतिग्रस्त डेटा रीसेट कर सकते हैं।\n\nरीसेट करने पर वह डेटा खाली अवस्था से शुरू होता है। क्षतिग्रस्त फ़ाइल इस डिवाइस पर रखी जाती है, जिसका नाम बदलकर \".corrupt-\" और तारीख जोड़ दी जाती है।</string>
   <string name="corrupt_database_reset">क्षतिग्रस्त डेटा रीसेट करें</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">क्षतिग्रस्त डेटा रीसेट नहीं किया जा सका: %1$s को अलग नहीं किया जा सका। कुछ भी नहीं बदला गया। आप फिर से कोशिश कर सकते हैं, एरर रिपोर्ट भेज सकते हैं, या बैकअप &amp; रिस्टोर का उपयोग कर सकते हैं।</string>

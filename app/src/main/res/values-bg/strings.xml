@@ -751,7 +751,6 @@
   <string name="error_skip">Пропусни</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Повредени данни</string>
-  <string name="corrupt_database_message">Някои от вашите данни не можаха да бъдат отворени, защото файлът на базата данни е повреден: %1$s.\n\nНищо не е променено или изтрито. Можете да изпратите отчет за грешка, за да ни помогнете да открием причината, да отворите Резервно копие, за да направите резервно копие или да възстановите по-ранно, или да нулирате повредените данни.\n\nНулирането започва тези данни празни. Повреденият файл се запазва на това устройство, преименуван с \".corrupt-\" и датата.</string>
   <string name="corrupt_database_reset">Нулиране на повредените данни</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Повредените данни не можаха да бъдат нулирани: %1$s не можа да бъде преместен настрана. Нищо не е променено. Можете да опитате отново, да изпратите отчет за грешка или да използвате Резервно копие.</string>

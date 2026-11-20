@@ -751,7 +751,6 @@
   <string name="error_skip">چھوڑیں</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">خراب ڈیٹا</string>
-  <string name="corrupt_database_message">آپ کے کچھ ڈیٹا کو کھولا نہیں جا سکا کیونکہ اس کی ڈیٹابیس فائل خراب ہے: %1$s۔\n\nکچھ بھی تبدیل یا حذف نہیں کیا گیا۔ وجہ تلاش کرنے میں ہماری مدد کے لیے آپ ایرر رپورٹ بھیج سکتے ہیں، بیک اپ بنانے یا پچھلا بیک اپ بحال کرنے کے لیے بیک اپ اور بحالی کھول سکتے ہیں، یا خراب ڈیٹا ری سیٹ کر سکتے ہیں۔\n\nری سیٹ کرنے پر وہ ڈیٹا خالی شروع ہوگا۔ خراب فائل اسی ڈیوائس پر \".corrupt-\" اور تاریخ کے ساتھ نام بدل کر محفوظ رہے گی۔</string>
   <string name="corrupt_database_reset">خراب ڈیٹا ری سیٹ کریں</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">خراب ڈیٹا ری سیٹ نہیں ہو سکا: %1$s کو ایک طرف منتقل نہیں کیا جا سکا۔ کچھ بھی تبدیل نہیں ہوا۔ آپ دوبارہ کوشش کر سکتے ہیں، ایرر رپورٹ بھیج سکتے ہیں، یا بیک اپ اور بحالی استعمال کر سکتے ہیں۔</string>

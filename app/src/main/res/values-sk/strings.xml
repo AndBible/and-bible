@@ -815,7 +815,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="error_skip">Preskočiť</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Poškodené údaje</string>
-  <string name="corrupt_database_message">Niektoré vaše údaje sa nepodarilo otvoriť, pretože súbor ich databázy je poškodený: %1$s.\n\nNič sa nezmenilo ani neodstránilo. Môžete odoslať hlásenie o chybe, aby ste nám pomohli nájsť príčinu, otvoriť Záloha a obnovenie na vytvorenie zálohy alebo obnovenie staršej, alebo poškodené údaje vynulovať.\n\nPo vynulovaní tieto údaje začnú prázdne. Poškodený súbor zostane v tomto zariadení, premenovaný s príponou \".corrupt-\" a dátumom.</string>
   <string name="corrupt_database_reset">Vynulovať poškodené údaje</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Poškodené údaje sa nepodarilo vynulovať: %1$s sa nepodarilo odsunúť nabok. Nič sa nezmenilo. Môžete to skúsiť znova, odoslať hlásenie o chybe alebo použiť Záloha a obnovenie.</string>

@@ -815,7 +815,6 @@
   <string name="error_skip">Atla</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Hasarlı veri</string>
-  <string name="corrupt_database_message">Veritabanı dosyası hasarlı olduğu için verilerinizin bir kısmı açılamadı: %1$s.\n\nHiçbir şey değiştirilmedi veya silinmedi. Nedenini bulmamıza yardımcı olmak için bir hata raporu gönderebilir, yedek almak ya da önceki bir yedeği geri yüklemek için Yedekle &amp; Geri Al bölümünü açabilir veya hasarlı veriyi sıfırlayabilirsiniz.\n\nSıfırlama, o veriyi boş olarak başlatır. Hasarlı dosya bu cihazda saklanır; adı \".corrupt-\" ve tarih eklenerek değiştirilir.</string>
   <string name="corrupt_database_reset">Hasarlı veriyi sıfırla</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Hasarlı veri sıfırlanamadı: %1$s kenara taşınamadı. Hiçbir şey değiştirilmedi. Tekrar deneyebilir, bir hata raporu gönderebilir veya Yedekle &amp; Geri Al\'ı kullanabilirsiniz.</string>

@@ -807,7 +807,6 @@ http://www.heartlight.org 准予使用
   <string name="error_skip">暂停</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">数据已损坏</string>
-  <string name="corrupt_database_message">部分数据无法打开，因为其数据库文件已损坏：%1$s。\n\n未做任何更改或删除。您可以发送错误报告以帮助我们找出原因，也可以打开“备份及恢复”进行备份或恢复到较早的备份，或者重置已损坏的数据。\n\n重置后，该数据将从空白开始。已损坏的文件会保留在此设备上，并以 \".corrupt-\" 和日期重新命名。</string>
   <string name="corrupt_database_reset">重置已损坏的数据</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">无法重置已损坏的数据：无法移开 %1$s。未做任何更改。您可以重试、发送错误报告或使用“备份及恢复”。</string>

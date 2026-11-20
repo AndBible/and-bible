@@ -805,7 +805,6 @@
   <string name="error_skip">تخطي</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">بيانات تالفة</string>
-  <string name="corrupt_database_message">تعذّر فتح بعض بياناتك لأن ملف قاعدة البيانات تالف: %1$s.\n\nلم يتم تغيير أي شيء أو حذفه. يمكنك إرسال تقرير خطأ لمساعدتنا في معرفة السبب، أو فتح النسخ الاحتياطي والاستعادة لإنشاء نسخة احتياطية أو استعادة نسخة سابقة، أو إعادة تعيين البيانات التالفة.\n\nتبدأ إعادة التعيين بتلك البيانات فارغة. يُحتفظ بالملف التالف على هذا الجهاز بعد إعادة تسميته بإضافة \".corrupt-\" والتاريخ.</string>
   <string name="corrupt_database_reset">إعادة تعيين البيانات التالفة</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">تعذّرت إعادة تعيين البيانات التالفة: لم يمكن نقل %1$s جانبًا. لم يتم تغيير أي شيء. يمكنك المحاولة مرة أخرى أو إرسال تقرير خطأ أو استخدام النسخ الاحتياطي والاستعادة.</string>

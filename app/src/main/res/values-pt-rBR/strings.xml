@@ -802,7 +802,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_skip">Pular</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Dados danificados</string>
-  <string name="corrupt_database_message">Alguns dos seus dados não puderam ser abertos porque o arquivo do banco de dados está danificado: %1$s.\n\nNada foi alterado ou excluído. Você pode enviar um relatório de erros para nos ajudar a encontrar a causa, abrir Backup e restauração para fazer um backup ou restaurar um anterior, ou redefinir os dados danificados.\n\nA redefinição inicia esses dados vazios. O arquivo danificado é mantido neste dispositivo, renomeado com \".corrupt-\" e a data.</string>
   <string name="corrupt_database_reset">Redefinir dados danificados</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Não foi possível redefinir os dados danificados: não foi possível mover %1$s para o lado. Nada foi alterado. Você pode tentar novamente, enviar um relatório de erros ou usar Backup e restauração.</string>

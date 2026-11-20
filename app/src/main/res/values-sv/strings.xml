@@ -814,7 +814,6 @@ i GT och NT varje dag.
   <string name="error_skip">Hoppa över</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Skadad data</string>
-  <string name="corrupt_database_message">Vissa av dina data kunde inte öppnas eftersom databasfilen är skadad: %1$s.\n\nInget har ändrats eller raderats. Du kan skicka en felrapport så att vi kan hitta orsaken, öppna Säkerhetskopiera &amp; återställ för att göra en säkerhetskopia eller återställa en tidigare, eller nollställa den skadade datan.\n\nNär du nollställer börjar datan om från tomt. Den skadade filen sparas på den här enheten, omdöpt med \".corrupt-\" och datumet.</string>
   <string name="corrupt_database_reset">Nollställ skadad data</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Den skadade datan kunde inte nollställas: %1$s kunde inte flyttas åt sidan. Inget har ändrats. Du kan försöka igen, skicka en felrapport eller använda Säkerhetskopiera &amp; återställ.</string>

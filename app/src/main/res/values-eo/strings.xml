@@ -785,7 +785,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_skip">Preterlasi</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Difektitaj datumoj</string>
-  <string name="corrupt_database_message">Kelkaj el viaj datumoj ne povis esti malfermitaj, ĉar ilia datumbaza dosiero estas difektita: %1$s.\n\nNenio estis ŝanĝita aŭ forigita. Vi povas sendi erarraporton por helpi nin trovi la kaŭzon, malfermi Sekurkopion por fari sekurkopion aŭ restarigi pli fruan, aŭ reagordi la difektitajn datumojn.\n\nReagordo komencas tiujn datumojn malplenaj. La difektita dosiero restas en ĉi tiu aparato, renomita per \".corrupt-\" kaj la dato.</string>
   <string name="corrupt_database_reset">Reagordi difektitajn datumojn</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">La difektitaj datumoj ne povis esti reagorditaj: %1$s ne povis esti flankenmovita. Nenio estis ŝanĝita. Vi povas reprovi, sendi erarraporton aŭ uzi Sekurkopion.</string>

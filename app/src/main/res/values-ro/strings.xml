@@ -817,7 +817,6 @@
   <string name="error_skip">Saltă</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Date deteriorate</string>
-  <string name="corrupt_database_message">Unele dintre datele dvs. nu au putut fi deschise deoarece fișierul lor de bază de date este deteriorat: %1$s.\n\nNimic nu a fost modificat sau șters. Puteți trimite un raport de eroare pentru a ne ajuta să găsim cauza, puteți deschide Copiere și Recuperare pentru a face o copie de rezervă sau a recupera una anterioară, ori puteți reseta datele deteriorate.\n\nResetarea pornește acele date goale. Fișierul deteriorat rămâne pe acest dispozitiv, redenumit cu \".corrupt-\" și data.</string>
   <string name="corrupt_database_reset">Resetează datele deteriorate</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Datele deteriorate nu au putut fi resetate: %1$s nu a putut fi mutat deoparte. Nimic nu a fost modificat. Puteți încerca din nou, trimite un raport de eroare sau folosi Copiere și Recuperare.</string>

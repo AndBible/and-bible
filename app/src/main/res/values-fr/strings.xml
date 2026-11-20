@@ -793,7 +793,6 @@ Le fichier est peut-être invalide.</string>
   <string name="error_skip">Sauter</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Données endommagées</string>
-  <string name="corrupt_database_message">Certaines de vos données n\'ont pas pu être ouvertes car leur fichier de base de données est endommagé : %1$s.\n\nRien n\'a été modifié ni supprimé. Vous pouvez envoyer un rapport d\'erreur pour nous aider à trouver la cause, ouvrir Sauvegarder &amp; Restaurer pour faire une sauvegarde ou en restaurer une plus ancienne, ou réinitialiser les données endommagées.\n\nLa réinitialisation repart de données vides. Le fichier endommagé est conservé sur cet appareil, renommé avec \".corrupt-\" et la date.</string>
   <string name="corrupt_database_reset">Réinitialiser les données endommagées</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Les données endommagées n\'ont pas pu être réinitialisées : %1$s n\'a pas pu être mis de côté. Rien n\'a été modifié. Vous pouvez réessayer, envoyer un rapport d\'erreur ou utiliser Sauvegarder &amp; Restaurer.</string>

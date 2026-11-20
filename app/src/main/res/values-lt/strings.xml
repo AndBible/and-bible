@@ -812,7 +812,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="error_skip">Praleisti</string>
   <!--#4112: shown at startup when a database file holding the user's data is damaged. %1$s is a comma-separated list of database file names.-->
   <string name="corrupt_database_title">Pažeisti duomenys</string>
-  <string name="corrupt_database_message">Dalies jūsų duomenų nepavyko atidaryti, nes jų duomenų bazės failas pažeistas: %1$s.\n\nNieko nepakeista ir neištrinta. Galite išsiųsti klaidos ataskaitą, kad padėtumėte mums rasti priežastį, atidaryti Atsarginės kopijos ir atkūrimas, kad sukurtumėte atsarginę kopiją arba atkurtumėte ankstesnę, arba atstatyti pažeistus duomenis.\n\nAtstačius šie duomenys pradedami tušti. Pažeistas failas lieka šiame įrenginyje, pervadintas pridėjus \".corrupt-\" ir datą.</string>
   <string name="corrupt_database_reset">Atstatyti pažeistus duomenis</string>
   <!--#4112: the reset of damaged data failed. %1$s is the database file name.-->
   <string name="corrupt_database_reset_failed">Pažeistų duomenų atstatyti nepavyko: %1$s nepavyko perkelti į šalį. Nieko nepakeista. Galite bandyti dar kartą, išsiųsti klaidos ataskaitą arba naudoti Atsarginės kopijos ir atkūrimas.</string>

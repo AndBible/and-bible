@@ -297,7 +297,7 @@ class AppDialogHostTest {
     @Test fun damagedDataActionSheetRendersParagraphsAndPreservesFilename() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val filename = "bookmarks<&>.db"
-        val plain = context.getString(R.string.corrupt_database_message, filename)
+        val plain = context.getString(R.string.corrupt_database_message_short, filename)
         show(ShownDialog(41, AppDialogRequest.Options(
             title = context.getString(R.string.corrupt_database_title),
             message = net.bible.sharedcore.ui.dialog.plainTextToHtml(plain),
