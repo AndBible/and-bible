@@ -118,7 +118,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.docs.DocsLink
-import net.bible.sharedcore.docs.TutorialVideos
+import net.bible.sharedcore.docs.HelpLinks
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.SearchFieldImeRequest
@@ -582,10 +582,9 @@ fun ReadingToolbar(
                     "\n\n${strings.helpSearchDetails(linkLabel)}",
                 onDismiss = { searchHelpOpen = false },
                 readMoreLabel = linkLabel,
-                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else DocsLink.SEARCH_ADVANCED_SEARCH.url,
-                // The Bible search help covers the basics and the advanced syntax: link part 1 (the tutorial series
-                // continues with the advanced part). The EPUB search is a different engine the videos do not cover.
-                videoEpisode = if (forEpub) null else TutorialVideos.Episode.TUTORIAL_12_SEARCH_1_BASICS,
+                // The Bible search syntax link opens the in-app user guide at the Search page (#4159), where the
+                // tutorial videos are too; the EPUB search is SQLite FTS5, whose syntax page is external.
+                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else HelpLinks.url(DocsLink.SEARCH_ADVANCED_SEARCH),
             )
         }
         return

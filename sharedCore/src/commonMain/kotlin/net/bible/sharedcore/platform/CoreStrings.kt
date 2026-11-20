@@ -162,6 +162,7 @@ interface CoreStrings {
     val help: String // R.string.help
     val helpMemorizeText: String // R.string.help_memorize_text
     val helpReadMoreLink: String // R.string.help_read_more_link
+    val helpInUserGuide: String // R.string.help_in_user_guide
     val verseTip: String // R.string.verse_tip
     val helpBookmarksText: String // R.string.help_bookmarks_text
     val watchTutorialVideo: String // R.string.watch_tutorial_video

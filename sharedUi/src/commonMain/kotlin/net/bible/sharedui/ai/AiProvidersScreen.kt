@@ -172,7 +172,7 @@ fun AiProvidersScreen(
             title = strings.helpLabel,
             body = helpBody,
             onDismiss = { showHelp = false },
-            readMoreLabel = strings.helpReadMoreLink,
+            readMoreLabel = strings.helpInUserGuide,
             readMoreUrl = helpReadMoreUrl,
         )
     }

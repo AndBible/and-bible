@@ -515,6 +515,18 @@ object NavRoutes {
     /** The full-screen Help & tips (tips and the user guide index). */
     const val HELP: String = "help"
 
+    const val ARG_HELP_TOPIC: String = "topic"
+
+    /** The registered Help & tips pattern: [HELP] with an optional help topic (a [net.bible.sharedcore.docs.DocsLink] name). */
+    const val HELP_PATTERN: String = "help?$ARG_HELP_TOPIC={$ARG_HELP_TOPIC}"
+
+    /** Help & tips opened for [topic] (#4159): the User guide tab, scrolled to and highlighting the topic's page. */
+    fun help(topic: net.bible.sharedcore.docs.DocsLink?): String = buildRoute(HELP) { optional(ARG_HELP_TOPIC, topic?.name) }
+
+    /** The topic of a [help] route argument; null for none or an unknown name (an old saved route). */
+    fun helpTopic(argument: String?): net.bible.sharedcore.docs.DocsLink? =
+        net.bible.sharedcore.docs.DocsLink.entries.firstOrNull { it.name == argument }
+
     const val ARG_INSTALL_ACTION: String = "installAction"
     const val ARG_INSTALL_URIS: String = "installUris"
 

@@ -11,6 +11,8 @@ import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.settings.LocalSettingsIcon
 import net.bible.service.common.CommonUtils
+import net.bible.sharedui.components.HelpOpener
+import net.bible.sharedui.components.LocalHelpOpener
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.strings.LocalAppLanguage
 import net.bible.sharedui.strings.LocalStrings
@@ -49,6 +51,9 @@ fun ProvideAppLocals(content: @Composable () -> Unit) {
         LocalMotionDurationScaleHandledByHost provides true,
         LocalStrings provides AndroidStrings(context),
         LocalAppLanguage provides CommonUtils.appLanguageTag(context),
+        // #4159: help items open Help & tips at their topic. The nav host is singleTop, so from inside it this
+        // navigates the live graph (as the reading view's openHelp does); from anywhere else it starts the host.
+        LocalHelpOpener provides HelpOpener { topic -> context.startActivity(helpIntent(context, topic)) },
         LocalCategoryIcon provides { category -> painterResource(categoryDrawableRes(category)) },
         LocalPinIcon provides { painterResource(R.drawable.ic_pin) },
         LocalAgentStatusIcon provides { painterResource(R.drawable.icon_robot) },
@@ -64,3 +69,9 @@ fun ProvideAppLocals(content: @Composable () -> Unit) {
         content = content,
     )
 }
+
+/** The intent that opens Help & tips for [topic] (#4159); outside an Activity it needs a new task. */
+internal fun helpIntent(context: android.content.Context, topic: net.bible.sharedcore.docs.DocsLink): android.content.Intent =
+    net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(context, net.bible.sharedcore.nav.NavRoutes.help(topic)).apply {
+        if (context.findActivity() == null) addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+    }

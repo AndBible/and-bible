@@ -48,11 +48,12 @@ import net.bible.sharedui.components.volumeScrollTarget
 /**
  * The manual page documenting the custom-repository manifest format. Moved off the GitHub wiki
  * 2026-08-29 (round 17e): the wiki page no longer exists and the content lives in the manual.
+ * #4159: a help link, so it opens the in-app user guide at the Custom Repositories page.
  *
  * Public, not internal: `:app` reads it (the only definition) and `internal` is scoped to the
  * compilation module.
  */
-val customRepositoriesHelpUrl: String = DocsLink.CUSTOM_REPOSITORIES.url
+val customRepositoriesHelpUrl: String = net.bible.sharedcore.docs.HelpLinks.url(DocsLink.CUSTOM_REPOSITORIES)
 
 /**
  * Stateless port of classic `CustomRepositories`: a list of user-added custom Sword/MyBible
@@ -115,9 +116,9 @@ fun CustomRepositoriesScreen(
     if (showHelp) {
         AbInfoDialog(
             title = strings.customRepositories,
-            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.helpReadMoreLink)}",
+            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.helpInUserGuide)}",
             onDismiss = { showHelp = false },
-            readMoreLabel = strings.helpReadMoreLink,
+            readMoreLabel = strings.helpInUserGuide,
             readMoreUrl = customRepositoriesHelpUrl,
         )
     }

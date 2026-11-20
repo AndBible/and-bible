@@ -576,7 +576,6 @@ class HostReadingHost(
         workspaceName = { windowControl.windowRepository.name },
         activeWindowPosition = { windowControl.activeWindowPosition },
         currentDocumentInitials = { documentControl.currentDocument?.initials },
-        appLanguage = { koin.get<net.bible.sharedcore.platform.CoreStrings>().languageTag },
     )
 
     /** What the toolbar host used to default to: fresh device preferences and a night state over them, built on first use. */

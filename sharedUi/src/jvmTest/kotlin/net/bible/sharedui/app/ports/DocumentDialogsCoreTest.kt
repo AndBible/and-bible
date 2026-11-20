@@ -157,25 +157,22 @@ class DocumentDialogsCoreTest {
         assertTrue(task.await())
     }
     @Test fun helpNoticePreservesBlocksAndLinks() {
-        val request = core().helpNotice(listOf(DocumentDialogsCore.HelpItem("Title", "first\nsecond", "https://video", "https://manual")), "Version 1")
+        val request = core().helpNotice(listOf(DocumentDialogsCore.HelpItem("Title", "first\nsecond", net.bible.sharedcore.docs.DocsLink.WORKSPACES)), "Version 1")
         assertEquals(4, request.blocks.size)
         val html = (request.blocks[0] as AppDialogRequest.NoticeBlock.Html).html
         assertContains(html, "first<br>second")
-        assertContains(html, "href=\"https://manual\"")
-        assertContains(html, "href=\"https://video\"")
+        // #4159: one in-app help link replaces the video + manual pair.
+        assertContains(html, "<a href=\"andbible-help:WORKSPACES\">help_in_user_guide</a>")
+        assertFalse(html.contains("watch_tutorial_video"))
         assertIs<AppDialogRequest.NoticeBlock.IconLine>(request.blocks[2])
         // The sponsor link is the one shared constant, and its value is the shop Android opens.
         assertEquals("https://shop.andbible.org", net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
         assertEquals("SourceRepository", net.bible.service.download.DownloadManager.REPOSITORY_KEY)
         assertEquals("<i>Version 1</i>", (request.blocks[3] as AppDialogRequest.NoticeBlock.Html).html)
     }
-    @Test fun helpNoticeAndDialogUseThePlainVideoLabelOnlyWhenAsked() {
-        fun noticeHtml(plain: Boolean) = (core().helpNotice(listOf(DocumentDialogsCore.HelpItem("T", "x", "https://video", null, plain)))
-            .blocks[0] as AppDialogRequest.NoticeBlock.Html).html
-        assertContains(noticeHtml(false), ">watch_tutorial_video</a>")
-        assertContains(noticeHtml(true), ">watch_tutorial_video_plain</a>")
-        assertContains(core().helpDialog("H", "B", "https://m", "https://v", plainVideoLabel = true).message, ">watch_tutorial_video_plain</a>")
-        assertContains(core().helpDialog("H", "B", "https://m", "https://v").message, ">watch_tutorial_video</a>")
+    @Test fun aHelpNoticeItemWithoutATopicHasNoLink() {
+        val html = (core().helpNotice(listOf(DocumentDialogsCore.HelpItem("T", "x"))).blocks[0] as AppDialogRequest.NoticeBlock.Html).html
+        assertFalse(html.contains("<a "))
     }
     @Test fun cancelUnlockLeavesTheBookLocked() = runTest {
         var stored = false
@@ -212,9 +209,9 @@ class DocumentDialogsCoreTest {
         task.cancel(); runCurrent()
         assertNull(dialogs.pending.value)
     }
-    @Test fun helpDialogHasReadMoreLink() {
-        val request = core().helpDialog("Help", "Blurb", "https://example.org/manual")
-        assertContains(request.message, "<a href=\"https://example.org/manual\">help_read_more_link</a>")
+    @Test fun helpDialogLinksTheTopicInTheUserGuide() {
+        val request = core().helpDialog("Help", "Blurb", net.bible.sharedcore.docs.DocsLink.AI_GETTING_STARTED)
+        assertContains(request.message, "<a href=\"andbible-help:AI_GETTING_STARTED\">help_in_user_guide</a>")
         assertTrue(request.cancellable)
     }
 }

@@ -59,7 +59,7 @@ class ManageLabelsHelpGoldenTest {
             rowTogglesShown = false,
             title = "Assign labels",
             scopeSentence = null,
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -83,7 +83,7 @@ class ManageLabelsHelpGoldenTest {
             rowTogglesShown = true,
             title = "Labels",
             scopeSentence = "This setting applies to this workspace.",
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -94,7 +94,7 @@ class ManageLabelsHelpGoldenTest {
             rowTogglesShown = true,
             title = "Hide specified labels",
             scopeSentence = "This setting applies to this workspace.",
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }
@@ -105,7 +105,7 @@ class ManageLabelsHelpGoldenTest {
             rowTogglesShown = true,
             title = "Study pads",
             scopeSentence = null,
-            videoEpisode = net.bible.sharedcore.docs.TutorialVideos.Episode.TUTORIAL_09_LABELS_AND_HIGHLIGHTS,
+            helpTopic = net.bible.sharedcore.docs.DocsLink.LABELS,
             onDismiss = {},
         )
     }

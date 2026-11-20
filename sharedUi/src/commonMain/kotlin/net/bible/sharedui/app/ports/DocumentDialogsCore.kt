@@ -10,7 +10,9 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.common.util.Version
+import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.HelpLinks
 import net.bible.sharedcore.docs.SiteLinks
 import net.bible.service.download.DownloadManager
 
@@ -180,24 +182,23 @@ class DocumentDialogsCore(
         return false
     }
 
-    /** A short help [message] with its "read more" docs link and, when [videoUrl] is given, a tutorial video link. */
-    fun helpDialog(title: String, message: String, url: String, videoUrl: String? = null, plainVideoLabel: Boolean = false) = AppDialogRequest.Message(
+    /** A help blurb with one "Help in the user guide" link (#4159): Help & tips at [topic]'s guide page and videos. */
+    fun helpDialog(title: String, message: String, topic: DocsLink) = AppDialogRequest.Message(
         title,
-        message + "<br><br><i><a href=\"$url\">${table().text("help_read_more_link")}</a></i>" +
-            (videoUrl?.let { "<br><i><a href=\"$it\">${videoLabel(plainVideoLabel)}</a></i>" } ?: ""),
+        message + "<br><br><i>${helpLinkHtml(topic)}</i>",
         table().text("okay"), cancellable = true,
     )
+
+    /** The in-app help link of [topic] (#4159), as HTML for a dialog body. */
+    fun helpLinkHtml(topic: DocsLink): String = "<a href=\"${HelpLinks.url(topic)}\">${table().text("help_in_user_guide")}</a>"
     suspend fun confirmUpgrade(): Boolean = await {
         val t = table()
         AppDialogRequest.Confirm(t.text("bookmark_warning"), "${t.text("bookmark_warning2")}<br><br>${t.text("bookmark_warning4")}<br><br>${t.text("bookmark_warning3")}", t.text("yes"), t.text("cancel"), cancellable = false)
     } == AppDialogResult.Ok
 
-    /** The tutorial video link text: plain when the video is captioned in the app language (or the app is English), else with "(English)". */
-    private fun videoLabel(plain: Boolean) = table().text(if (plain) "watch_tutorial_video_plain" else "watch_tutorial_video")
-
-    /** [plainVideoLabel]: drop the "(English)" qualifier of the [videoLink] label (see [TutorialVideos.hasPlainLabel]). */
+    /** One tip of a help notice; [topic] adds its "Help in the user guide" link (#4159). */
     @kotlin.native.HiddenFromObjC
-    data class HelpItem(val title: String, val text: String, val videoLink: String? = null, val docUrl: String? = null, val plainVideoLabel: Boolean = false)
+    data class HelpItem(val title: String, val text: String, val topic: DocsLink? = null)
 
     fun helpNotice(help: List<HelpItem>, versionMsg: String? = null, okText: String = table().text("okay"), includeSponsor: Boolean = true): AppDialogRequest.Notice {
         val buyMessage = "<b>${table().text("buy_development2")}</b>: <a href=\"${SiteLinks.SHOP_URL}\">${table().text("buy_development")}</a>"
@@ -206,14 +207,7 @@ class DocumentDialogsCore(
         for(helpItem in help) {
             val helpText = helpItem.text.replace("\n", "<br>")
 
-            val links = mutableListOf<String>()
-            if(helpItem.videoLink != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${videoLabel(helpItem.plainVideoLabel)}</a></i>")
-            }
-            if(helpItem.docUrl != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${table().text("help_read_more_link")}</a></i>")
-            }
-            val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
+            val linksHtml = helpItem.topic?.let { "<br>&bull;&nbsp;<i>${helpLinkHtml(it)}</i><br>" } ?: ""
 
             htmlMessage += "<b>${helpItem.title}</b><br>$helpText<br>$linksHtml<br>"
         }

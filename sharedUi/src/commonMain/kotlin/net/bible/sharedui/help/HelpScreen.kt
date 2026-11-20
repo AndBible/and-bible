@@ -3,6 +3,16 @@
 package net.bible.sharedui.help
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.runtime.LaunchedEffect
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedcore.docs.pageFor
+import net.bible.sharedui.theme.LocalDisableAnimations
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,12 +99,17 @@ fun HelpScreen(
     appLanguage: String = "en",
     initialTab: HelpTab = HelpTab.UserGuide,
     initialShowVideos: Boolean = false,
+    /**
+     * The help topic the screen was opened for (#4159): the User guide tab opens scrolled to the topic's page, and that
+     * page and its tutorial rows are highlighted. The highlighted page row opens the topic's own (anchored) URL.
+     */
+    highlight: DocsLink? = null,
     onOpenUrl: (String) -> Unit,
     onUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
     // Saved as the ordinal: an enum is not a portable saveable type on every Compose target.
-    var tabOrdinal by rememberSaveable { mutableIntStateOf(initialTab.ordinal) }
+    var tabOrdinal by rememberSaveable { mutableIntStateOf((if (highlight != null) HelpTab.UserGuide else initialTab).ordinal) }
     val tab = HelpTab.entries[tabOrdinal]
     var showVideos by rememberSaveable { mutableStateOf(initialShowVideos) }
     val inVideos = showVideos && tab == HelpTab.UserGuide
@@ -123,6 +138,7 @@ fun HelpScreen(
                 HelpTab.UserGuide -> UserGuideTab(
                     sections, guideStrings, appLanguage, onOpenUrl,
                     onWatchInOrder = if (tutorialVideos.isEmpty()) null else ({ showVideos = true }),
+                    highlight = highlight,
                 )
                 HelpTab.Tips -> TipsTab(tips, versionText, onOpenUrl)
             }
@@ -177,9 +193,24 @@ private fun UserGuideTab(
     onOpenUrl: (String) -> Unit,
     /** Opens the in-order series sub-view; null hides the row (no catalogued videos). */
     onWatchInOrder: (() -> Unit)?,
+    highlight: DocsLink?,
 ) {
     val strings = LocalStrings.current
     val listState = rememberLazyListState()
+    val highlightedStem = highlight?.let { topic -> UserGuideToc.pageFor(topic)?.stem?.takeIf { stem -> sections.any { s -> s.pages.any { it.stem == stem } } } }
+    val noAnimations = LocalDisableAnimations.current
+    // Once per topic (survives rotation): the user may scroll away afterwards; a new topic scrolls again.
+    var scrolledToHighlight by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(highlightedStem) {
+        if (highlightedStem == null || scrolledToHighlight == highlightedStem) return@LaunchedEffect
+        val index = guideItemIndex(sections, hasWatchInOrder = onWatchInOrder != null, stem = highlightedStem)
+        if (index != null) {
+            // One row above the page: its section header (or the previous page's last row) stays in view as context.
+            val target = (index - 1).coerceAtLeast(0)
+            if (noAnimations) listState.scrollToItem(target) else listState.animateScrollToItem(target)
+        }
+        scrolledToHighlight = highlightedStem
+    }
     LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         item {
             Text(
@@ -193,13 +224,17 @@ private fun UserGuideTab(
         for (section in sections) {
             item(key = "h:${section.title}") { SectionHeader(guideStrings.section(section)) }
             for (page in section.pages) {
-                item(key = "p:${page.stem}") { GuideRow(guideStrings.page(page), { onOpenUrl(page.url) }) }
+                val marked = page.stem == highlightedStem
+                // The highlighted row keeps the topic's anchor (an AI help item lands on its own section of the page).
+                val pageUrl = if (marked) highlight!!.url else page.url
+                item(key = "p:${page.stem}") { GuideRow(guideStrings.page(page), { onOpenUrl(pageUrl) }, marked) }
                 // Separate rows keep multiple episodes usable on a phone.
                 items(page.episodes, key = { "e:${page.stem}:${it.name}" }) { episode ->
                     VideoRow(
                         guideStrings.episode(episode),
                         TutorialVideos.hasPlainLabel(episode, appLanguage),
                         { onOpenUrl(TutorialVideos.url(episode, appLanguage)) },
+                        marked,
                     )
                 }
             }
@@ -230,26 +265,72 @@ private fun SectionHeader(title: String) {
     }
 }
 
+/**
+ * The LazyColumn index of the guide page [stem] in [UserGuideTab]'s item order (intro, the optional watch-in-order
+ * row, the guide home row, then per section its header and per page the page row and its episode rows); null when
+ * no page has that stem.
+ */
+internal fun guideItemIndex(sections: List<UserGuideToc.Section>, hasWatchInOrder: Boolean, stem: String): Int? {
+    var index = 2 + (if (hasWatchInOrder) 1 else 0)
+    for (section in sections) {
+        index++
+        for (page in section.pages) {
+            if (page.stem == stem) return index
+            index += 1 + page.episodes.size
+        }
+    }
+    return null
+}
+
+/**
+ * The highlight of the rows of the help topic's page: a container tint and a bar at the start edge, both static (the
+ * same with animations disabled). In monochrome the tint is paper, so the ink bar carries the mark alone.
+ */
 @Composable
-private fun GuideRow(title: String, onClick: () -> Unit) {
+private fun Modifier.helpHighlight(marked: Boolean): Modifier {
+    if (!marked) return this
+    val bar = MaterialTheme.colorScheme.primary
+    val state = LocalStrings.current.helpMatchingSection
+    return this
+        .semantics { stateDescription = state }
+        .drawWithContent {
+            drawContent()
+            val width = 4.dp.toPx()
+            val x = if (layoutDirection == androidx.compose.ui.unit.LayoutDirection.Ltr) 0f else size.width - width
+            drawRect(bar, topLeft = Offset(x, 0f), size = Size(width, size.height))
+        }
+}
+
+@Composable
+private fun highlightColors(marked: Boolean) =
+    if (marked) ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else ListItemDefaults.colors()
+
+@Composable
+private fun GuideRow(title: String, onClick: () -> Unit, marked: Boolean = false) {
     val strings = LocalStrings.current
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(strings.helpReadInUserGuide) },
         leadingContent = { Icon(Icons.Outlined.Description, contentDescription = null) },
-        modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpReadPage(title), onClick = onClick),
+        colors = highlightColors(marked),
+        modifier = Modifier
+            .clickable(role = Role.Button, onClickLabel = strings.helpReadPage(title), onClick = onClick)
+            .helpHighlight(marked),
     )
 }
 
 /** A playable video row: play icon, the [title] and the "Watch tutorial video" label ("(English)" unless [plainLabel]). */
 @Composable
-private fun VideoRow(title: String, plainLabel: Boolean, onClick: () -> Unit) {
+private fun VideoRow(title: String, plainLabel: Boolean, onClick: () -> Unit, marked: Boolean = false) {
     val strings = LocalStrings.current
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(if (plainLabel) strings.watchTutorialVideoPlain else strings.watchTutorialVideo) },
         leadingContent = { Icon(Icons.Outlined.PlayCircle, contentDescription = null) },
-        modifier = Modifier.clickable(role = Role.Button, onClickLabel = strings.helpPlayVideo(title), onClick = onClick),
+        colors = highlightColors(marked),
+        modifier = Modifier
+            .clickable(role = Role.Button, onClickLabel = strings.helpPlayVideo(title), onClick = onClick)
+            .helpHighlight(marked),
     )
 }
 

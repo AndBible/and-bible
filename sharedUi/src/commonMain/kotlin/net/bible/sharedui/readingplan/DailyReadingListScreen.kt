@@ -1,5 +1,7 @@
 package net.bible.sharedui.readingplan
 
+import net.bible.sharedcore.docs.DocsLink
+import net.bible.sharedui.components.AbHelpOverflowMenu
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +27,7 @@ fun DailyReadingListScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
+    AbScaffold(title = title, onNavigateUp = onNavigateUp, actions = { AbHelpOverflowMenu(DocsLink.READING_PLANS) }) { padding ->
         val listState = rememberLazyListState()
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
             items(days, key = { it.day }) { day ->

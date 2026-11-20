@@ -78,6 +78,7 @@ sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/ports/HelpAndTips.kt	LOOK_
 sharedUi/src/commonMain/kotlin/net/bible/sharedui/download/CustomRepositoriesScreen.kt	CUSTOM_REPOSITORIES	https://andbible.org/docs/custom_repositories/
 sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/ReadingToolbar.kt	SEARCH_ADVANCED_SEARCH	https://andbible.org/docs/search/#advanced-search
 sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ContentBridgeFamily.kt	MEMORIZE	https://andbible.org/docs/memorize/
+sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ContentBridgeFamily.kt	BOOKMARKS	https://andbible.org/docs/bookmarks/
 sharedUi/src/hostMain/kotlin/net/bible/sharedui/host/ports/HostHelpDialogs.kt	WORKSPACES	https://andbible.org/docs/workspaces/
 sharedUi/src/hostMain/kotlin/net/bible/sharedui/host/ports/HostHelpDialogs.kt	READING_PROGRESS	https://andbible.org/docs/reading_progress/
 sharedUi/src/hostMain/kotlin/net/bible/sharedui/host/ports/HostHelpDialogs.kt	DOCUMENT_SYNC	https://andbible.org/docs/document_sync/
