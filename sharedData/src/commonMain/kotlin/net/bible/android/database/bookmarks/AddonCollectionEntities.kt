@@ -78,3 +78,29 @@ class AddonCollectionEntities {
         val expandContent: Boolean,
     )
 }
+
+/**
+ * Bytes 5..10 (SQL `substr` positions, 1-based) of every id derived for an add-on collection row
+ * (`addonId` in `:sharedLogic`), as hex. A fixed 48-bit tag lets every reader (sync triggers, patch writers and
+ * readers, snapshot strippers, database imports) recognise an add-on row from its id alone, without the ownership
+ * table: an add-on row is a row of a synced bookmark table whose first sync key (`idField1`) carries the tag.
+ * A random user id carries it with probability 2^-48.
+ */
+const val ADDON_ID_TAG_HEX = "ADD08C01A011"
+
+/** Byte offset (0-based) of [ADDON_ID_TAG_HEX] in an id's 16 bytes. */
+const val ADDON_ID_TAG_OFFSET = 4
+
+/** SQL predicate: the BLOB [column] (an [net.bible.android.database.IdType]) is an add-on derived id. */
+fun isAddonIdSql(column: String): String = "substr($column, ${ADDON_ID_TAG_OFFSET + 1}, 6) = X'$ADDON_ID_TAG_HEX'"
+
+private val addonIdTagBytes: ByteArray = ByteArray(6) { ADDON_ID_TAG_HEX.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+
+/** Whether this id was derived for an add-on collection row (see [ADDON_ID_TAG_HEX]). */
+val IdType.isAddonId: Boolean get() {
+    val bytes = toByteArray() ?: return false
+    return (0 until 6).all { bytes[ADDON_ID_TAG_OFFSET + it] == addonIdTagBytes[it] }
+}
+
+/** [bytes] (16) with the add-on tag written in. */
+fun withAddonIdTag(bytes: ByteArray): ByteArray = bytes.copyOf(16).also { addonIdTagBytes.copyInto(it, ADDON_ID_TAG_OFFSET) }

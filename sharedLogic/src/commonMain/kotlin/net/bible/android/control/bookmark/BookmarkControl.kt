@@ -194,6 +194,20 @@ open class BookmarkControl constructor(
         }
     }
 
+    /**
+     * Add-on collection rows changed (a collection module was installed, updated or removed; [changes] as the
+     * reconciler reports them, never written to the log): open views refresh as after a sync.
+     */
+    fun notifyAddonRowsChanged(changes: List<LogEntry>) {
+        launcher.launch("bookmark-addons") {
+            deferringEffects {
+                val deletedLabels = changes.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Label" }.map { it.entityId1 }
+                if (deletedLabels.isNotEmpty()) emitChange(BookmarkChange.LabelsDeleted(deletedLabels))
+                onBookmarksSynced(changes)
+            }
+        }
+    }
+
     suspend fun favouriteLabels(): List<Label> = dao.favouriteLabels()
 
     // Dummy labels for all / unlabelled
