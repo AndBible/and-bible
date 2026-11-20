@@ -196,9 +196,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      *
      * See also the guard in `ToolbarStateServiceImpl.refresh()`, which keeps that observer from
      * reading a repository that is mid-load at all.
+     *
+     * Volatile: written under [applyLock], but read without it ([initialize], `WindowControl`, `BookmarksServiceImpl`).
      */
-    /** True while [loadFromDb] runs: [activeWindow] has no value then (see [loadFromDb]). */
-    var loadingFromDb = false
+    @Volatile var loadingFromDb = false
         private set
 
     /**
@@ -253,7 +254,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     /**
      * The synchronous entry to the first load, for the callers that cannot suspend: the host bootstrap
-     * and the [activeWindow] read before any load finished (media buttons, services and tools can read
+     * and (through the same locked step) the [activeWindow] read that finds no window (media buttons, services and tools can read
      * it with no UI host at all, so a throwing getter would be reachable from production).
      *
      * Joins a [loadFromDb] that is already mid-read instead of reading twice: the read phase never needs
@@ -278,8 +279,15 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * `awaitPersisted`) and for Koin creation monitors (the apply resolves `HistoryManager`, `CurrentPageManager` and
      * what `Window` injects). Hence the rule: nothing an apply calls may resolve a Koin single whose constructor reads
      * [activeWindow] (such as `TextToSpeechServiceManager`): its creator holds that single's monitor while it waits
-     * here, which would deadlock. A waiter can be Main, blocked for the whole of a background edge read; before this
-     * lock that Main reader crashed instead.
+     * here, which would deadlock.
+     *
+     * The rule is wider than that one single: a reader of [activeWindow] that finds no window (before the first load,
+     * or during any apply, a workspace switch included) waits here. So nothing that holds a monitor an apply or an edge
+     * read needs may read [activeWindow] then: not inside a Koin single's creation (the apply resolves Koin singles),
+     * not while holding JSword's `Books` lock (the apply restores documents through it), and not from a
+     * task on the workspace persistence queue (the edge read waits for that queue in `awaitPersisted`). Such a reader
+     * must wait for [initialized] by other means, or not read the window at all. A waiter can be Main, blocked for the
+     * whole of a background edge read; before this lock that Main reader crashed instead.
      */
     private val applyLock = reentrantLock()
 
@@ -308,8 +316,19 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     // 1 based screen no
     var activeWindow: Window
         get() {
-            if(!initialized) initializeAtEdge()
-            return _activeWindow!!
+            // One read of the volatile field: a workspace switch's apply (on Main, under [applyLock]) clears it until its
+            // end, so a check followed by a second read could see null on another thread.
+            val loaded = _activeWindow
+            if (loaded != null) {
+                afterLoadedCheck?.invoke()
+                return loaded
+            }
+            // No window: before the first load, or mid-apply on another thread. Waits for that apply, and reads the
+            // result while still holding the lock, so a following apply cannot clear it in between.
+            return applyLock.withLock {
+                initializeAtEdgeLocked()
+                _activeWindow!! // null only for a same-thread re-entry from inside an apply (see [loadingFromDb]), or after a failed apply
+            }
         }
         set (newActiveWindow) {
             if (!initialized || newActiveWindow != this._activeWindow) {
@@ -321,6 +340,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         }
 
     val initialized get() = _activeWindow != null
+
+    /** Test seam: runs in the [activeWindow] getter after the reader has seen a loaded repository, before it returns. */
+    @VisibleForTesting
+    var afterLoadedCheck: (() -> Unit)? = null
+
+    /** Test seam: runs inside an apply ([applyLoaded]) right after [clear], while the repository has no active window. */
+    @VisibleForTesting
+    var afterApplyClear: (() -> Unit)? = null
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
@@ -673,6 +700,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val entity = loaded.entity
         savedEntity = entity.deepCopy()
         clear()
+        afterApplyClear?.invoke()
 
         orderNumber = entity.orderNumber
         id = entity.id
