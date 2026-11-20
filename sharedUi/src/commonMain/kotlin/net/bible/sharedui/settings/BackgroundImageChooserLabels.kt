@@ -36,8 +36,8 @@ data class BackgroundImageChooserLabels(
             import = "Import",
             empty = "No background images",
             importing = "Importing…",
-            deleteTitle = "Delete image?",
-            deleteConfirm = "Delete this background image?",
+            deleteTitle = "Delete this background image?",
+            deleteConfirm = "Workspaces still using it will fall back to no image.",
             delete = "Delete",
             cancel = "Cancel",
         )
