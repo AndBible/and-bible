@@ -113,11 +113,8 @@ fun Strings.buildTextDisplayControllerLabels() = TextDisplaySettingsLabels(
 fun Strings.buildTextDisplayScreenLabels() = TextDisplaySettingsScreenLabels(
     resetContentDescription = resetSettings,
     resetConfirmMessage = resetValuesLead,
-    // No classic string exists for a single-row "revert to inherited?" confirmation (this
-    // long-press interaction is new in the Compose screen -- classic's per-row reset lives
-    // inside each value-editor dialog, with no separate confirm step). Reusing the generic
-    // bulk-reset confirmation is an accepted, if imprecise, wording.
-    revertMessage = resetValuesLead,
+    revertMessage = revertSettingLead,
+    revertLabel = revertSettingConfirm,
     fontSizeDialogTitle = fontSizeTitle,
     topMarginDialogTitle = prefsTopMarginTitle,
     lineSpacingDialogTitle = lineSpacingTitle,

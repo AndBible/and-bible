@@ -61,6 +61,8 @@ data class TextDisplaySettingsScreenLabels(
     val resetContentDescription: String,
     val resetConfirmMessage: String,
     val revertMessage: String,
+    /** Confirm button of the single-row revert dialog ("Revert"). */
+    val revertLabel: String,
     val fontSizeDialogTitle: String,
     val topMarginDialogTitle: String,
     val lineSpacingDialogTitle: String,
@@ -227,7 +229,7 @@ fun TextDisplaySettingsScreen(
         AbConfirmDialog(
             title = null,
             message = dialogLabels.revertMessage,
-            confirmText = dialogLabels.resetLabel,
+            confirmText = dialogLabels.revertLabel,
             dismissText = dialogLabels.cancelLabel,
             destructive = true,
             onConfirm = { onRevert(pendingRevertKey); revertKey = null },

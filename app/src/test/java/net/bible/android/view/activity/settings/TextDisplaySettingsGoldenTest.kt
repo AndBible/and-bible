@@ -175,6 +175,7 @@ class TextDisplaySettingsGoldenTest {
         resetContentDescription = "Reset",
         resetConfirmMessage = "Reset all of these values?",
         revertMessage = "Revert this setting to the inherited value?",
+        revertLabel = "Revert",
         fontSizeDialogTitle = "Font size",
         topMarginDialogTitle = "Top margin",
         lineSpacingDialogTitle = "Line spacing",

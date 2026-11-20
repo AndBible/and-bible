@@ -1363,6 +1363,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val backgroundImageDeleteLead: String get() = context.getString(R.string.background_image_delete_lead)
     override val backgroundImageDeleteDetail: String get() = context.getString(R.string.background_image_delete_detail)
     override val resetValuesLead: String get() = context.getString(R.string.reset_values_lead)
+    override val revertSettingLead: String get() = context.getString(R.string.revert_setting_lead)
+    override val revertSettingConfirm: String get() = context.getString(R.string.revert_setting_confirm)
     override val resetSettingsScreenLead: String get() = context.getString(R.string.reset_settings_screen_lead)
     override val resetSettingsScreenDetail: String get() = context.getString(R.string.reset_settings_screen_detail)
     override fun memorizeUnmarkLead(name: String): String = context.getString(R.string.memorize_unmark_lead, name)

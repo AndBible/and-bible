@@ -616,23 +616,19 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         )
 
         unmarkRow?.let { row ->
-            AbConfirmDialog(
-                title = null,
+            MemorizeRemoveConfirmDialog(
                 message = d.unmarkConfirmMessage(row.rangeName),
                 confirmText = d.confirmText,
                 dismissText = d.dismissText,
-                destructive = true,
                 onConfirm = { controller.unmarkPassage(row.startOrdinal, row.endOrdinal); unmarkRow = null },
                 onDismiss = { unmarkRow = null },
             )
         }
         removeRow?.let { row ->
-            AbConfirmDialog(
-                title = null,
+            MemorizeRemoveConfirmDialog(
                 message = d.removeTargetConfirmMessage(row.rangeName),
                 confirmText = d.confirmText,
                 dismissText = d.dismissText,
-                destructive = true,
                 onConfirm = { controller.removeTarget(row.id); removeRow = null },
                 onDismiss = { removeRow = null },
             )
@@ -678,3 +674,21 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         )
     }
 }
+
+/** The destructive confirm for removing a memorized passage or a memorization goal. */
+@androidx.compose.runtime.Composable
+internal fun MemorizeRemoveConfirmDialog(
+    message: String,
+    confirmText: String,
+    dismissText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) = AbConfirmDialog(
+    title = null,
+    message = message,
+    confirmText = confirmText,
+    dismissText = dismissText,
+    destructive = true,
+    onConfirm = onConfirm,
+    onDismiss = onDismiss,
+)

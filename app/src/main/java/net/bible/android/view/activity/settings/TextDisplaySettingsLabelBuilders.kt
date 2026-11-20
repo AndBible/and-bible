@@ -133,11 +133,8 @@ fun buildTextDisplayControllerLabels(context: Context) = TextDisplaySettingsLabe
 fun buildTextDisplayScreenLabels(context: Context) = TextDisplaySettingsScreenLabels(
     resetContentDescription = context.getString(R.string.reset_settings),
     resetConfirmMessage = context.getString(R.string.reset_values_lead),
-    // No classic string exists for a single-row "revert to inherited?" confirmation (this
-    // long-press interaction is new in the Compose screen -- classic's per-row reset lives
-    // inside each value-editor dialog, with no separate confirm step). Reusing the generic
-    // bulk-reset confirmation is an accepted, if imprecise, wording (see task report).
-    revertMessage = context.getString(R.string.reset_values_lead),
+    revertMessage = context.getString(R.string.revert_setting_lead),
+    revertLabel = context.getString(R.string.revert_setting_confirm),
     fontSizeDialogTitle = context.getString(R.string.font_size_title),
     topMarginDialogTitle = context.getString(R.string.prefs_top_margin_title),
     lineSpacingDialogTitle = context.getString(R.string.line_spacing_title),
