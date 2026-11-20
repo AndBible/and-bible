@@ -1,11 +1,9 @@
 package net.bible.android.view.compose.dialog
 
 import androidx.compose.material3.Text
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Rect
 import androidx.test.core.app.ApplicationProvider
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -16,7 +14,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
-import androidx.compose.ui.unit.Density
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogShell
@@ -39,19 +36,32 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class AbDialogShellTest {
-    @get:Rule val compose = createComposeRule()
+    /**
+     * `@Ax5` methods run with the real activity font scale 3 (`RuntimeEnvironment.setFontScale`, as Roborazzi's
+     * font-scale option does). A `LocalDensity` override does not reach the Dialog window's text, so it would
+     * make AX5 tests vacuous. The scale is set before the compose rule launches its activity.
+     */
+    @Retention(AnnotationRetention.RUNTIME) @Target(AnnotationTarget.FUNCTION) annotation class Ax5
+
+    @get:Rule(order = 0) val fontScaleRule: org.junit.rules.TestRule = org.junit.rules.TestRule { base, description ->
+        object : org.junit.runners.model.Statement() {
+            override fun evaluate() {
+                org.robolectric.RuntimeEnvironment.setFontScale(if (description.getAnnotation(Ax5::class.java) != null) 3f else 1f)
+                base.evaluate()
+            }
+        }
+    }
+    @get:Rule(order = 1) val compose = createComposeRule()
 
     private val longBody = (1..250).joinToString(" ") { "word$it" } // ~2000 chars
     private val ax5Lead = List(3) { "Delete the label “Sermon notes from the 2026 autumn conference”?" }.joinToString(" ")
 
     private fun show(
-        fontScale: Float = 1f,
         onDismiss: () -> Unit = {},
         lead: String = "Lead",
         body: String? = null,
     ) = compose.setContent {
-        val density = LocalDensity.current
-        CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = fontScale)) {
+        run {
             AbTheme {
                 AbDialogShell(
                     onDismissRequest = onDismiss,
@@ -75,8 +85,8 @@ class AbDialogShellTest {
 
     private fun SemanticsNodeInteraction.rootBounds(): Rect = fetchSemanticsNode().boundsInRoot
 
-    @Test fun buttonsStayVisibleAtAx5() {
-        show(fontScale = 3f, lead = ax5Lead, body = longBody)
+    @Ax5 @Test fun buttonsStayVisibleAtAx5() {
+        show(lead = ax5Lead, body = longBody)
         compose.waitForIdle()
         compose.onNodeWithTag("dialog-confirm").assertIsDisplayed()
         compose.onNodeWithTag("dialog-dismiss").assertIsDisplayed()
@@ -85,6 +95,18 @@ class AbDialogShellTest {
             val b = compose.onNodeWithTag(tag).rootBounds()
             assertTrue("$tag $b outside dialog root $root", b.top >= root.top && b.bottom <= root.bottom && b.left >= root.left && b.right <= root.right)
         }
+    }
+
+    /** Guards the AX5 tests: the font scale must really reach the dialog window's text. */
+    @Ax5 @Test fun ax5ReallyScalesTheDialogText() {
+        val scaled = run {
+            show(lead = "Lead")
+            compose.waitForIdle()
+            compose.onNodeWithTag("dialog-lead").rootBounds().height
+        }
+        // A 16sp-ish line is ~25dp at scale 1 (25sp line height); at scale 3 it must be ~75dp.
+        val oneDp = compose.density.density
+        assertTrue("lead height $scaled px is not scaled (1dp = $oneDp px)", scaled > 50 * oneDp)
     }
 
     @Test fun leadIsCappedAt40PercentOfTheDialog() {

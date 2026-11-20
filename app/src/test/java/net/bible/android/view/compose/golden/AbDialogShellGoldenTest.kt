@@ -3,8 +3,8 @@ package net.bible.android.view.compose.golden
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
+import com.github.takahirom.roborazzi.RoborazziComposeFontScaleOption
+import com.github.takahirom.roborazzi.RoborazziComposeOption
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogDetail
@@ -93,15 +93,12 @@ class AbDialogShellGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun scrollingBody_rtl() = captureRtl("AbDialogShell", "scrollingBody") { ScrollingBody() }
 
-    /** AX5: fontScale 3 through LocalDensity, as AbReleaseNoticeCardGoldenTest's largeFont does. */
-    @Composable private fun Ax5(content: @Composable () -> Unit) {
-        val density = LocalDensity.current
-        CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 3f), content = content)
-    }
+    /** AX5: the real activity font scale (Roborazzi option); a LocalDensity override does not reach the Dialog window. */
+    private val ax5 = listOf<RoborazziComposeOption>(RoborazziComposeFontScaleOption(3f))
 
-    @Test fun ax5Confirm_matrix() = captureMatrix("AbDialogShell", "ax5Confirm") { Ax5 { ShortConfirm() } }
+    @Test fun ax5Confirm_matrix() = captureMatrix("AbDialogShell", "ax5Confirm", captureOptions = ax5) { ShortConfirm() }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
-    fun ax5Confirm_rtl() = captureRtl("AbDialogShell", "ax5Confirm") { Ax5 { ShortConfirm() } }
+    fun ax5Confirm_rtl() = captureRtl("AbDialogShell", "ax5Confirm", captureOptions = ax5) { ShortConfirm() }
 }
