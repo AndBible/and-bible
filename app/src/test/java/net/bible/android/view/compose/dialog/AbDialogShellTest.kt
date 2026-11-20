@@ -123,8 +123,24 @@ class AbDialogShellTest {
             assertTrue("$tag $b outside dialog root $root", b.top >= root.top && b.bottom <= root.bottom && b.left >= root.left && b.right <= root.right)
         }
         val minPx = 56 * compose.density.density
-        val middleH = compose.onNodeWithTag("dialog-middle").rootBounds().height
+        val middleH = compose.onNodeWithTag("dialog-middle-area").rootBounds().height
         assertTrue("middle $middleH px < 56dp ($minPx px)", middleH >= minPx - 1f)
+    }
+
+    /** A lead that is cut off by its cap shows a divider, so the user can tell there is more. */
+    @Ax5 @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w360dp-h360dp")
+    @Test fun cutOffLeadShowsScrollDividerAtAx5() {
+        show(lead = ax5Lead, body = longBody)
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("dialog-lead-divider-bottom").assertCountEquals(1)
+        compose.onAllNodesWithTag("dialog-lead-divider-top").assertCountEquals(0)
+    }
+
+    @Test fun shortLeadHasNoDivider() {
+        show(lead = "Short lead", body = "Short body")
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("dialog-lead-divider-bottom").assertCountEquals(0)
+        compose.onAllNodesWithTag("dialog-lead-divider-top").assertCountEquals(0)
     }
 
     @Test fun leadIsCappedAt40PercentOfTheDialog() {

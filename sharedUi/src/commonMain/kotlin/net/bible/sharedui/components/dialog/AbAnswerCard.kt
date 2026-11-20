@@ -22,8 +22,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,7 +50,7 @@ import net.bible.sharedui.theme.monoInk
 /**
  * One answer of an options dialog as a bordered card: the [DialogAnswer.label] (15sp medium) and, when given, its
  * [DialogAnswer.consequence] (13sp, secondary colour). A destructive answer's label takes the colour and weight of
- * [DialogButtonRole.Destructive] (bold ink in pure monochrome). Tagged `dialog-answer-<value>`.
+ * [DialogButtonRole.Destructive] (bold ink in pure monochrome). At least 48dp tall (touch target). Tagged `dialog-answer-<value>`.
  * With animations off the press feedback is a static tint instead of a ripple.
  */
 @Composable
@@ -65,6 +67,7 @@ fun AbAnswerCard(answer: DialogAnswer, onClick: () -> Unit, modifier: Modifier =
     Column(
         modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .testTag("dialog-answer-${answer.value}")
             .clip(shape)
             .border(BorderStroke(1.dp, borderColor), shape)
@@ -76,6 +79,7 @@ fun AbAnswerCard(answer: DialogAnswer, onClick: () -> Unit, modifier: Modifier =
                 onClick = onClick,
             )
             .padding(horizontal = AbDialogTokens.CardPaddingH, vertical = AbDialogTokens.CardPaddingV),
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             answer.label,

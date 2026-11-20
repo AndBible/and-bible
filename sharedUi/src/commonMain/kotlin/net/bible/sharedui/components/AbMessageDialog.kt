@@ -17,12 +17,16 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.DialogProperties
 import net.bible.sharedui.components.dialog.AbDialogButton
 import net.bible.sharedui.components.dialog.AbDialogDetail
 import net.bible.sharedui.components.dialog.AbDialogShell
+import net.bible.sharedui.components.dialog.AbDialogTokens
 import net.bible.sharedui.components.dialog.DialogButtonRole
 
 /**
@@ -65,6 +69,7 @@ fun AbMessageDialog(
         content = if (detail != null || html != null) {
             {
                 if (detail != null) AbDialogDetail(detail)
+                if (detail != null && html != null) Spacer(Modifier.height(AbDialogTokens.GapLeadToBody))
                 if (html != null) AbHtmlText(html)
             }
         } else null,

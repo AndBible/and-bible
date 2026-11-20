@@ -1,10 +1,19 @@
 package net.bible.sharedui.accessibility
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.*
@@ -22,6 +31,57 @@ import net.bible.sharedui.theme.AbTheme
 class DialogTitleReachabilityTest {
     @Test fun tallTitleLeavesScrollableBodyAndFixedAnswersAtAx5() = checkDialog(53f / 17f)
     @Test fun normalFontKeepsTitleBodyAndAnswersReachable() = checkDialog(1f)
+
+    /** Callers that still wrap their text in their own capped scroll must not hide the title or the buttons. */
+    @Test fun callersInnerCappedScrollKeepsTitleAndButtonsAtAx5() = runSkikoComposeUiTest(size = Size(390f, 844f)) {
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 53f / 17f), LocalStrings provides iosStrings("en")) {
+                AbTheme(disableAnimations = true) {
+                    AbAlertDialog(
+                        onDismissRequest = {},
+                        title = { Text("Do you want to proceed to download documents?") },
+                        text = {
+                            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                                Text("Long message. ".repeat(60))
+                                Text("End of message")
+                            }
+                        },
+                        confirmButton = { TextButton(onClick = {}) { Text("Confirm") } },
+                        dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
+                    )
+                }
+            }
+        }
+        onNodeWithText("Do you want to proceed to download documents?").assertIsDisplayed()
+        onNodeWithText("Cancel").assertIsDisplayed()
+        onNodeWithText("Confirm").assertIsDisplayed()
+    }
+
+    /** A caller's capped lazy list inside the shell: title and buttons stay reachable and the list still scrolls. */
+    @Test fun callersCappedLazyColumnKeepsTitleAndButtonsAtAx5() = runSkikoComposeUiTest(size = Size(390f, 844f)) {
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 53f / 17f), LocalStrings provides iosStrings("en")) {
+                AbTheme(disableAnimations = true) {
+                    AbAlertDialog(
+                        onDismissRequest = {},
+                        title = { Text("Do you want to proceed to download documents?") },
+                        text = {
+                            LazyColumn(Modifier.heightIn(max = 400.dp).testTag("list")) {
+                                items(60) { Text("Row $it") }
+                            }
+                        },
+                        confirmButton = { TextButton(onClick = {}) { Text("Confirm") } },
+                        dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
+                    )
+                }
+            }
+        }
+        onNodeWithText("Do you want to proceed to download documents?").assertIsDisplayed()
+        onNodeWithText("Cancel").assertIsDisplayed()
+        onNodeWithText("Confirm").assertIsDisplayed()
+        onNodeWithTag("list").performScrollToIndex(59)
+        onNodeWithText("Row 59").assertExists() // composed: the capped list itself scrolls
+    }
 
     private fun checkDialog(scale: Float) {
         for (dark in listOf(false, true)) for (monochrome in listOf(false, true)) {

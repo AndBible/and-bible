@@ -40,7 +40,7 @@ These apply to every string you write for a dialog.
 | 3+ answers to a question | `AbOptionsDialog` | Answer cards with consequence lines; with a checkbox the answers become buttons |
 | 3+ actions (not answers) | `AbActionSheet` | A sheet, not a dialog |
 | Single choice from a list | `AbChoiceSheet` | Sheet |
-| Multi-select from a list | `AbMultiSelectSheet` | Sheet |
+| Multi-select from a list | `AbMultiSelectSheet` (sheet) or `AbMultiSelectDialog` | Sheet by default; the dialog form scrolls in the shell, with no inner height cap |
 | Single text field | `AbTextInputDialog` | Dialog (IME) |
 | Custom form or picker | `AbAlertDialog` (adapter on the shell) | A sheet when the body scrolls |
 | Modal wait | `AbProgressDialog` | Dialog |
@@ -51,7 +51,11 @@ actions go to a sheet, answers to a dialog.
 
 ## Tokens
 
-All sizes live in `AbDialogTokens` (`AbDialogTokens.kt`); no component hard-codes one. The shell adds two height rules: the button row is never capped and never scrolls, the middle area keeps at least 56dp, and the lead line yields first (its cap is the smaller of 40% and what remains). Windows shorter than 420dp use a compact frame (8dp margin, 12dp top and 8dp bottom padding).
+The sizes of the lead, body, detail, card and shell (padding, corner, gaps, width, the 40% lead fraction) live in `AbDialogTokens` (`AbDialogTokens.kt`). The shell's height-safety constants are private to `AbDialogShell.kt`: the 16dp side and 24dp top/bottom screen margins, the 56dp middle reserve, and the compact frame (windows shorter than 420dp: 8dp margin, 12dp top and 8dp bottom padding). `AbAlertDialog` bounds its text at 10000dp. The shell applies three height rules:
+
+1. the button row is never capped and never scrolls (an empty row takes no height and no gap above it);
+2. the middle area (detail + content) keeps at least 56dp and scrolls; a callers' own height cap or scroll inside it nests a second scroll, so do not add one;
+3. the lead line yields first: its cap is the smaller of 40% of the available height and what remains after the button row and the middle area, and it scrolls inside the cap. Both scroll areas show a divider at an edge that can scroll further, and a middle area that needs less than its reserve hands the rest back to the lead.
 
 - **Lead line:** 18sp / 25sp, medium, `onSurface`. Capped at 40% of the available height and scrolls inside the cap.
 - **Body:** 16sp / 23sp `onSurface`. **Detail:** 14sp / 20sp `onSurfaceVariant`.
@@ -59,9 +63,8 @@ All sizes live in `AbDialogTokens` (`AbDialogTokens.kt`); no component hard-code
 - **Buttons:** `Cancel`, `Neutral`, `Confirm` use `primary`; `Destructive` uses `error`. In pure monochrome every
   role is ink and Destructive is bold. Test tags: `dialog-dismiss`, `dialog-neutral`, `dialog-confirm` (Destructive too).
 - **Answer card:** 1dp `outline` border (`monoInk` in monochrome), 14dp radius, 11dp / 14dp padding, label 15sp medium,
-  consequence 13sp `onSurfaceVariant`; tag `dialog-answer-<value>`.
-- **Height safety:** the button row never scrolls away; the middle area (detail + content) scrolls with dividers at
-  the edges that can scroll further. Check every dialog at 320dp wide and AX5 (`fontScale = 3f`).
+  consequence 13sp `onSurfaceVariant`; at least 48dp tall; tag `dialog-answer-<value>`.
+- **Height safety:** the three rules above. Check every dialog at 320dp wide and AX5 (`fontScale = 3f`).
 - **Monochrome:** `monoBorder` on the shell, paper surface, no tonal elevation, no dim. No hue anywhere.
 
 ## Example: deleting a label

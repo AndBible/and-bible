@@ -63,7 +63,7 @@ class ConfirmDialogsTest {
 
     @Test fun destructiveConfirmHasDestructiveRole() {
         compose.setContent {
-            AbTheme { AbConfirmDialog("Delete", null.let { "Gone for good" }, "Delete", "Cancel", {}, {}, destructive = true) }
+            AbTheme { AbConfirmDialog("Delete", "Gone for good", "Delete", "Cancel", {}, {}, destructive = true) }
         }
         compose.onNodeWithTag("dialog-confirm").assert(
             SemanticsMatcher("role is Destructive") { it.config.getOrNull(DialogButtonRoleKey) == DialogButtonRole.Destructive },

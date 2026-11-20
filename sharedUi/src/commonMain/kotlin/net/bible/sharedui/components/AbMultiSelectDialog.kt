@@ -40,7 +40,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 
 /** Owns the working checked set; [onCheckedChange] reports it on every toggle (the select-all/none
  *  toggle included). The content never commits anything itself — committing is the caller's
@@ -59,13 +61,16 @@ fun <T> AbMultiSelectContent(
     // this list scrolls (spec §7.b). Defaulted, so the dialog below and both existing golden call
     // sites are untouched.
     listState: LazyListState = rememberLazyListState(),
+    // The sheets bound the list themselves; the dialog passes Dp.Unspecified because the shell's middle
+    // area already scrolls (a cap here would nest a second scroll inside it).
+    maxHeight: Dp = 400.dp,
 ) {
     // Labels may relocalize while open; only option identities or initial selection reset the draft.
     // AppDialogHost keys each request separately so a new request never inherits this working set.
     val checked = remember(options.map(idOf), selectedIds) {
         mutableStateListOf<String>().apply { addAll(selectedIds) }
     }
-    LazyColumn(state = listState, modifier = Modifier.heightIn(max = 400.dp).then(modifier)) {
+    LazyColumn(state = listState, modifier = (if (maxHeight.isSpecified) Modifier.heightIn(max = maxHeight) else Modifier).then(modifier)) {
         if (selectAllText != null) {
             item {
                 val allSelected = options.isNotEmpty() && checked.size == options.size
@@ -136,6 +141,7 @@ fun <T> AbMultiSelectDialog(
                 onCheckedChange = { current = it },
                 selectAllText = selectAllText,
                 selectNoneText = selectNoneText,
+                maxHeight = Dp.Unspecified,
             )
         },
         confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(confirmText) } },

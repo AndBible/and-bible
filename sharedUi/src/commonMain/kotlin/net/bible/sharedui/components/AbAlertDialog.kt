@@ -17,7 +17,10 @@ import net.bible.sharedui.components.dialog.AbDialogShell
  * (or use a lazy list), which Compose forbids under an infinite bound; [text] is therefore measured with a
  * finite, very large bound, so their inner scroll normally never engages and the shell's scroll does the work. Callers that cap
  * themselves (a `heightIn(max = ...)` list or picker) still scroll inside the shell's scrolling middle area;
- * those caps are redundant now and are for the copy batches to remove.
+ * those caps are redundant now and are for the copy batches to remove (the multi-select and colour-picker dialogs
+ * already pass none).
+ *
+ * The text bound is 10000dp: content taller than that is clipped, so a long text belongs on a text page.
  */
 @Composable
 fun AbAlertDialog(

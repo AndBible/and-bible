@@ -35,7 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import net.bible.sharedui.strings.LocalStrings
 
 /** The presets/custom page content, with [working] (the in-progress colour) and [presetsPage]
@@ -48,10 +50,12 @@ fun AbColorPickerContent(
     onWorkingChange: (Int) -> Unit,
     presetsPage: Boolean,
     modifier: Modifier = Modifier,
+    // The sheet bounds and scrolls the pages itself (spec §9). The dialog passes Dp.Unspecified: the shell's
+    // middle area already scrolls, so a cap here would nest a second scroll.
+    maxHeight: Dp = 420.dp,
 ) {
-    // The custom page is taller than the sliders it replaces; scroll rather than clip on a
-    // small screen (spec §9).
-    Box(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()).then(modifier)) {
+    val bound = if (maxHeight.isSpecified) Modifier.heightIn(max = maxHeight).verticalScroll(rememberScrollState()) else Modifier
+    Box(bound.then(modifier)) {
         if (presetsPage) {
             ColorPickerPresetsPage(
                 initialColor = initialColor,
@@ -101,6 +105,7 @@ fun AbColorPickerDialog(
                     working = working,
                     onWorkingChange = { working = it },
                     presetsPage = presetsPage,
+                    maxHeight = Dp.Unspecified,
                 )
                 if (onResetToDefault != null) {
                     TextButton(onClick = onResetToDefault, modifier = Modifier.align(Alignment.End)) {

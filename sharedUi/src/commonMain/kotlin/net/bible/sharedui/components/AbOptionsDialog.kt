@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -70,7 +71,7 @@ fun AbOptionsDialog(
         properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),
         lead = title?.let { t -> { Text(t) } },
         content = {
-            if (message != null) AbHtmlText(message, style = abDialogDetailStyle())
+            if (message != null) AbHtmlText(message, Modifier.testTag("dialog-detail"), style = abDialogDetailStyle())
             if (checkboxLabel != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().toggleable(
