@@ -482,6 +482,9 @@ class CloudSync(
         // idAliasResendPending, the idAliasResendDone flag and the stored id aliases of this one. Its first sync may then
         // re-send its log once more; that is bounded (once per device) and harmless (peers hold equal entries).
         FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), tmpFile)
+        // Add-on collection rows and the per-device add-on tables never leave the device (each device builds its
+        // collections from its own modules).
+        if (dbDef.category.hasAddonRows) stripAddonRowsFromFile(tmpFile)
         net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
         FileSystem.SYSTEM.delete(tmpFile)
 
@@ -516,6 +519,8 @@ class CloudSync(
         net.bible.service.common.ArchiveUtils.gunzipFile(gzippedTmpFile, tmpFile)
         FileSystem.SYSTEM.delete(gzippedTmpFile)
         val initialDbVersion = openSqlite(tmpFile.toString()).use { it.queryLong("PRAGMA user_version")!!.toInt() }
+        // Defensive: a cloud initial file never holds add-on rows; this device's own come back by reconciliation.
+        if (dbDef.category.hasAddonRows && initialDbVersion <= dbDef.version()) stripAddonRowsFromFile(tmpFile)
         val localVersion = dbDef.version()
         if(initialDbVersion > localVersion) {
             runCatching { FileSystem.SYSTEM.delete(tmpFile) }
@@ -572,11 +577,14 @@ class CloudSync(
                 currentCoroutineContext().ensureActive()
                 // Once the live file is touched, reopening and sync-state initialization must finish too.
                 withContext(NonCancellable) {
+                    // This device's own add-on state (favourites, StudyPad expand state) is not in the file: carry it.
+                    val addonState = readAddonLocalState(dbDef)
                     dbDef.localDb.close()
                     FileSystem.SYSTEM.delete(dbDef.localDbPath.toPath(), mustExist = false) // replace the file, not rewrite it in place
                     FileSystem.SYSTEM.copy(downloaded, dbDef.localDbPath.toPath())
                     runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
                     dbDef.resetLocalDbOwned(token)
+                    restoreAddonLocalState(dbDef, addonState)
                     afterReset()
                 }
             }
@@ -585,6 +593,13 @@ class CloudSync(
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
             if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+        }
+    }
+
+    private fun stripAddonRowsFromFile(file: Path) {
+        openSqlite(file.toString()).use { conn ->
+            stripAddonRows(conn, SyncableDatabaseDefinition.BOOKMARKS)
+            conn.exec("VACUUM")
         }
     }
 

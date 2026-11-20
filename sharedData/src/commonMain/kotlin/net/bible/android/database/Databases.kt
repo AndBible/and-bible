@@ -22,6 +22,8 @@ import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.ColumnTypeConverters
+import net.bible.android.database.bookmarks.AddonCollectionDao
+import net.bible.android.database.bookmarks.AddonCollectionEntities
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
@@ -59,6 +61,10 @@ import net.bible.service.llm.PromptCategoryDao
         BookmarkEntities.Label::class,
         BookmarkEntities.StudyPadTextEntry::class,
         BookmarkEntities.StudyPadTextEntryText::class,
+        AddonCollectionEntities.AddonCollectionModule::class,
+        AddonCollectionEntities.AddonCollectionRow::class,
+        AddonCollectionEntities.AddonLabelLocalState::class,
+        AddonCollectionEntities.AddonLinkLocalState::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -74,6 +80,7 @@ import net.bible.service.llm.PromptCategoryDao
 @ConstructedBy(BookmarkDatabaseConstructor::class)
 abstract class BookmarkDatabase: SyncableRoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun addonCollectionDao(): AddonCollectionDao
     companion object {
         const val dbFileName = "bookmarks.sqlite3"
     }

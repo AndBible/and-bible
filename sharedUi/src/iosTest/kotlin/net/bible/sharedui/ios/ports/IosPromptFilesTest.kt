@@ -134,7 +134,7 @@ class IosPromptFilesTest {
         // Use the same real scanner/catalog relationship as the iOS bindings, with a private cache.
         val scanner = SharedAddonScanner(books = { registry.getBooks() })
         val packs = SharedPromptPackSource(scanner)
-        val catalog = SharedAddonCatalog(scanner, packs)
+        val catalog = SharedAddonCatalog(scanner, packs, net.bible.sharedlogic.addons.SharedCollectionPackSource(scanner))
         assertFalse(packs.packs.any { it.moduleName == initials }) // prime the stale book cache
         var reloads = 0
         packs.reloaded.subscribe { reloads++ }
@@ -163,7 +163,7 @@ class IosPromptFilesTest {
     @Test fun failedInstallDoesNotPublishPackOrNotifyReload() = withTempFolder { dir ->
         val scanner = SharedAddonScanner(books = { Books.installed().getBooks() })
         val packs = SharedPromptPackSource(scanner)
-        val catalog = SharedAddonCatalog(scanner, packs)
+        val catalog = SharedAddonCatalog(scanner, packs, net.bible.sharedlogic.addons.SharedCollectionPackSource(scanner))
         val before = packs.packs
         var reloads = 0
         packs.reloaded.subscribe { reloads++ }
@@ -266,7 +266,7 @@ class IosPromptFilesTest {
 
     private suspend fun withCatalog(block: suspend (SharedAddonCatalog) -> Unit) {
         val scanner = SharedAddonScanner(books = { Books.installed().getBooks() })
-        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner))
+        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner), net.bible.sharedlogic.addons.SharedCollectionPackSource(scanner))
         try {
             block(catalog)
         } finally {

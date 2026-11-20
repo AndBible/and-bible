@@ -31,6 +31,7 @@ import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import net.bible.android.database.bookmarks.isAddonId
 import net.bible.android.database.bookmarks.AI_DOC_LABEL_ID
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -361,6 +362,13 @@ class StudyPadDocument(
         }
 }
 
+/**
+ * The primary label BibleView may look up: not an add-on label the bookmark is not shown with (a user's link to an
+ * add-on label this device lacks is kept in the database but not shown; BibleView then uses the first shown label).
+ */
+private fun shownPrimaryLabelId(bookmark: BookmarkEntities.BaseBookmarkWithNotes): IdType? =
+    bookmark.primaryLabelId?.takeUnless { it.isAddonId && it !in bookmark.labelIds.orEmpty() }
+
 class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): SynchronousDocument {
 
     override val asHashMap: Map<String, String> get() {
@@ -391,7 +399,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("bookmark"),
-            "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
+            "primaryLabelId" to wrapString(shownPrimaryLabelId(bookmark)?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
             "customIcon" to wrapString(bookmark.customIcon),
             "notesContentType" to wrapString(bookmark.notesContentType?.name),
@@ -427,7 +435,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("generic-bookmark"),
-            "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
+            "primaryLabelId" to wrapString(shownPrimaryLabelId(bookmark)?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
             "customIcon" to wrapString(bookmark.customIcon),
             "notesContentType" to wrapString(bookmark.notesContentType?.name),

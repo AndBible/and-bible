@@ -25,6 +25,7 @@ import net.bible.sharedcore.event.Events
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
+import okio.Path.Companion.toOkioPath
 
 class ProvidedFont(val book: Book, val name: String, val path: String) {
     val file: File get() = File(File(book.bookMetaData.location), path)
@@ -123,6 +124,42 @@ object AndBibleAddons {
         }
         return packs
     }
+
+    /**
+     * Collection databases from add-on modules (AndBibleProvidesLabels): one per module, the path must pass the font
+     * path rule and resolve (canonically) to a regular file inside the module directory.
+     */
+    val providedCollections: List<net.bible.sharedlogic.platform.CollectionPackRef> get() {
+        val refs = mutableListOf<net.bible.sharedlogic.platform.CollectionPackRef>()
+        for (book in addons) {
+            val declared = book.bookMetaData.getValues("AndBibleProvidesLabels")?.firstOrNull() ?: continue
+            if (!isSafeRelativePath(declared)) {
+                Log.e(TAG, "Rejected collection file path '$declared' for module ${book.initials}")
+                continue
+            }
+            val real = try {
+                val base = File(book.bookMetaData.location).canonicalFile
+                val candidate = File(base, declared)
+                if (!candidate.exists()) {
+                    // Declared but missing: still listed, so the reconciler keeps the earlier import (see SharedAddonScanner).
+                    Log.e(TAG, "Unreadable collection file '$declared' for module ${book.initials}")
+                    candidate
+                } else {
+                    candidate.canonicalFile.takeIf { it.path.startsWith(base.path + File.separator) && it.isFile }
+                }
+            } catch (e: java.io.IOException) { null }
+            if (real == null) {
+                Log.e(TAG, "Rejected collection file '$declared' for module ${book.initials}")
+                continue
+            }
+            refs.add(net.bible.sharedlogic.platform.CollectionPackRef(
+                book.initials, book.name, book.bookMetaData.getProperty("Version") ?: "0", real.toOkioPath()))
+        }
+        return refs
+    }
+
+    private fun isSafeRelativePath(path: String): Boolean = path.isNotEmpty() && !path.startsWith('/') &&
+        '\\' !in path && ':' !in path && '\u0000' !in path && path.split('/').none { it == "." || it == ".." }
 
     private var reloadedSource = EventSource<Unit>()
 

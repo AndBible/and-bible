@@ -44,11 +44,17 @@ fun fakeAddonBook(
     plans: List<String> = emptyList(),
     dateBased: String? = null,
     prompts: String? = null,
+    labels: List<String> = emptyList(),
+    version: String? = null,
 ): Book {
     val single = buildMap {
         dateBased?.let { put("AndBibleReadingPlanDateBased", it) }
         prompts?.let { put("AndBibleProvidesPrompts", it) }
+        version?.let { put("Version", it) }
     }
-    val multi = if (plans.isEmpty()) emptyMap() else mapOf("AndBibleProvidesReadingPlan" to plans)
+    val multi = buildMap {
+        if (plans.isNotEmpty()) put("AndBibleProvidesReadingPlan", plans)
+        if (labels.isNotEmpty()) put("AndBibleProvidesLabels", labels)
+    }
     return FakeAddonBook(FakeAddonMetaData(initials, location, multi, single))
 }

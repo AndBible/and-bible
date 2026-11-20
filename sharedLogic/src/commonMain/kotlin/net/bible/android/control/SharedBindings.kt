@@ -313,6 +313,27 @@ fun buildSharedBindings() = module {
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
     singleOf(::BookmarkControl)
+    // Add-on bookmark collections (#4162): read-only labels provided by AND_BIBLE add-on modules.
+    single {
+        val koin = getKoin()
+        net.bible.service.addons.collections.AddonCollectionImporter(
+            { DatabaseContainer.instance.bookmarkDb }, get(),
+            ensureSpecialLabels = { ids -> koin.get<BookmarkControl>().ensureSpecialLabels(ids) },
+        )
+    }
+    single {
+        net.bible.service.addons.collections.AddonCollectionReconciler(
+            source = get(),
+            importer = get(),
+            dao = { DatabaseContainer.instance.bookmarkDb.addonCollectionDao() },
+            onChanged = { changes -> get<BookmarkControl>().notifyAddonRowsChanged(changes) },
+        )
+    }
+    single {
+        net.bible.service.addons.collections.AddonCollectionReconcileDriver(
+            get(), get(), get<AppCoroutineScope>(), databaseReplaced = listOf(get<CloudSync>().workspaceRefreshRequired),
+        )
+    }
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }

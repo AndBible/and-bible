@@ -105,6 +105,14 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 
 val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
+/** The device's own "unlabeled" special label, as it is created on first use. */
+fun newUnlabeledLabel() = BookmarkEntities.Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
+
+/** The device's own paragraph-break special label (StudyPad layout), as it is created on first use. */
+fun newParagraphBreakLabel() = BookmarkEntities.Label(
+    id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null,
+)
+
 enum class BookmarkSortOrder {
     BIBLE_ORDER, BIBLE_ORDER_DESC, CREATED_AT, CREATED_AT_DESC, LAST_UPDATED, ORDER_NUMBER;
 }

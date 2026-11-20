@@ -326,7 +326,7 @@ class ReadingAppInitTest {
             override val manualReadingPlanDir = root.resolve("plans").path.toPath()
         }
         val scanner = SharedAddonScanner({ Books.installed().getBooks() })
-        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner))
+        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner), net.bible.sharedlogic.addons.SharedCollectionPackSource(scanner))
         KoinPlatform.getKoin().loadModules(listOf(module {
             single<AppDirectories> { dirs }
             single<CoreStrings> { unused() }

@@ -23,11 +23,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.aliasIncomingIds
+import net.bible.service.cloudsync.addonRowExclusion
+import net.bible.service.cloudsync.hasAddonRows
+import net.bible.android.database.bookmarks.isAddonIdSql
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 import okio.Path
 
 private const val TAG = "ImportDb"
+
+/** The tables whose add-on rows [importDatabaseFile] counts as skipped items. */
+private val ADDON_ITEM_TABLES = setOf("Label", "BibleBookmark", "GenericBookmark", "StudyPadTextEntry")
 
 suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path, strings: CoreStrings): String = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
@@ -53,11 +59,15 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path,
  * into the local database with `INSERT OR IGNORE`: rows already present locally win. One transaction; a failure
  * rolls the whole import back and is rethrown.
  *
+ * Returns the number of add-on collection items of [dbFile] (labels, bookmarks, StudyPad text entries) that were not
+ * imported (an export of an add-on StudyPad: its rows belong to the module, see `AddonCollectionImporter`), for the
+ * UI to tell the user why they did not come in.
+ *
  * Natural-key rows of [dbFile] that exist locally under another id are first mapped to the local id with their
  * children ([aliasIncomingIds], #3906), so an imported page of the other AI Documents book lands under the local book
  * instead of being left without a parent. This rewrites [dbFile] (an unzipped temporary file, already migrated in place).
  */
-suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Path) = withContext(Dispatchers.IO) {
+suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Path): Long = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.toString())
     try { importDbFile.useWriterConnection { } } finally { importDbFile.close() }
@@ -67,16 +77,25 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
             db.exec("ATTACH DATABASE '${dbFile.toString()}' AS import")
             db.exec("PRAGMA foreign_keys=OFF;")
             try {
-                db.inTransaction<Unit> {
+                db.inTransaction<Long> {
                     aliasIncomingIds(category, "import", persist = false)
+                    var skipped = 0L
                     for (tableDef in dbDef.tableDefinitions) {
                         val table = tableDef.tableName
                         val cols = columnNamesJoined(table)
+                        // Add-on collection rows (an export of an installed collection) are never imported as the
+                        // user's own: they would be synced, and collide with the module's rows. The reconciler
+                        // provides them from the module where it is installed.
                         exec("""
                             INSERT OR IGNORE INTO $table ($cols)
-                            SELECT $cols FROM import.$table 
+                            SELECT $cols FROM import.$table WHERE 1${addonRowExclusion(category, tableDef)}
                         """.trimIndent())
+                        if (category.hasAddonRows && table in ADDON_ITEM_TABLES) {
+                            skipped += queryLong("SELECT COUNT(*) FROM import.$table WHERE ${isAddonIdSql(tableDef.idField1)}") ?: 0L
+                        }
                     }
+                    if (skipped > 0) Log.i(TAG, "Skipped $skipped add-on collection rows of the imported file")
+                    skipped
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error occurred in importDatabaseFile", e)

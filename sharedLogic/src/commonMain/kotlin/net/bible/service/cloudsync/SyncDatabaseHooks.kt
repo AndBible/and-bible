@@ -223,22 +223,26 @@ private suspend fun createTriggersForTable(
         " AND EXISTS (SELECT 1 FROM $parent WHERE id = OLD.$column)"
     }
 
+    // Add-on collection rows are never logged (they never leave the device), whatever path writes them.
+    val notAddonNew = addonRowTriggerCondition(dbDef.category, this, "NEW")
+    val notAddonOld = addonRowTriggerCondition(dbDef.category, this, "OLD")
+
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition$notAddonNew 
             BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition$notAddonOld 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition$parentsExist 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition$parentsExist$notAddonOld 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
             END;
@@ -260,6 +264,15 @@ suspend fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.u
     for(tableDef in dbDef.tableDefinitions) {
         createTriggersForTable(db, dbDef, tableDef)
     }
+}
+
+/**
+ * Replaces [dbDef]'s sync triggers with the current ones (`DatabaseContainer.create` on every start): an upgraded
+ * database's older triggers (e.g. without the add-on row condition) never stay.
+ */
+suspend fun refreshSyncTriggers(dbDef: SyncableDatabaseAccessor<*>) {
+    dropTriggers(dbDef)
+    createTriggers(dbDef)
 }
 
 suspend fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnectionMarked { db ->

@@ -33,6 +33,12 @@ import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.window.setStudyPadCursor
 import net.bible.android.control.page.window.updateStudyPadCursor
 import net.bible.android.database.IdType
+import net.bible.android.database.DbDate
+import net.bible.android.database.bookmarks.AddonCollectionEntities.AddonLabelLocalState
+import net.bible.android.database.bookmarks.AddonCollectionEntities.AddonLinkLocalState
+import net.bible.android.database.bookmarks.isAddonId
+import net.bible.android.database.bookmarks.newParagraphBreakLabel
+import net.bible.android.database.bookmarks.newUnlabeledLabel
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
@@ -59,6 +65,10 @@ import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.AI_LABEL_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exec
+import net.bible.service.db.inTransaction
+import net.bible.service.db.withCleanup
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -182,19 +192,52 @@ open class BookmarkControl constructor(
             sanitizeStudyPadOrder(labelId, true)
         }
 
-        for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
+        // An add-on bookmark a user bookmark stands in for stays hidden; a synced user copy hides its original.
+        for(b in hideStoodInFor(dao.bibleBookmarksByIds(bookmarkUpserts.toList()))) {
             addLabels(b)
             addText(b)
             emitChange(BookmarkChange.BookmarksUpserted(listOf(b)))
+            if (b.labelIds.orEmpty().any { it.isAddonId }) emitStandInChanges(b)
         }
-        for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
+        for(b in hideStoodInFor(dao.genericBookmarksByIds(genericBookmarkUpserts.toList()))) {
             addLabels(b)
             addText(b)
             emitChange(BookmarkChange.BookmarksUpserted(listOf(b)))
+            if (b.labelIds.orEmpty().any { it.isAddonId }) emitStandInChanges(b)
         }
     }
 
-    suspend fun favouriteLabels(): List<Label> = dao.favouriteLabels()
+    /**
+     * Add-on collection rows changed (a collection module was installed, updated or removed; [changes] as the
+     * reconciler reports them, never written to the log): open views refresh as after a sync.
+     */
+    fun notifyAddonRowsChanged(changes: List<LogEntry>) {
+        launcher.launch("bookmark-addons") {
+            deferringEffects {
+                fun ids(table: String, type: LogEntryTypes) = changes.filter { it.tableName == table && it.type == type }.map { it.entityId1 }.distinct()
+                val deletedLabels = ids("Label", LogEntryTypes.DELETE)
+                val deletedBookmarks = ids("BibleBookmark", LogEntryTypes.DELETE) + ids("GenericBookmark", LogEntryTypes.DELETE)
+                if (deletedBookmarks.isNotEmpty()) emitChange(BookmarkChange.BookmarksDeleted(deletedBookmarks))
+                if (deletedLabels.isNotEmpty()) emitChange(BookmarkChange.LabelsDeleted(deletedLabels))
+                val labels = dao.labelsById(ids("Label", LogEntryTypes.UPSERT))
+                for (label in labels) emitChange(BookmarkChange.LabelUpserted(withAddonLocalState(label)))
+                // One batch per kind, not one event per row: a collection can have thousands of verses.
+                val bible = ids("BibleBookmark", LogEntryTypes.UPSERT).chunked(500).flatMap { dao.bibleBookmarksByIds(it) }
+                val generic = ids("GenericBookmark", LogEntryTypes.UPSERT).chunked(500).flatMap { dao.genericBookmarksByIds(it) }
+                val shown: List<BaseBookmarkWithNotes> = hideStoodInFor(bible) + hideStoodInFor(generic)
+                for (b in shown) { addLabels(b); addText(b) }
+                if (shown.isNotEmpty()) emitChange(BookmarkChange.BookmarksUpserted(shown))
+                for (label in labels) sanitizeStudyPadOrder(label.id, updateAllInUi = true)
+            }
+        }
+    }
+
+    /** Favourite labels: the user's own, and add-on labels marked favourite on this device ([AddonLabelLocalState]). */
+    suspend fun favouriteLabels(): List<Label> {
+        val addonFavourites = addonDao.favouriteAddonLabelIds()
+        val addon = if (addonFavourites.isEmpty()) emptyList() else dao.labelsById(addonFavourites).map { it.copy(favourite = true) }
+        return dao.favouriteLabels().filterNot { it.id.isAddonId } + addon
+    }
 
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, strings.labelAll, color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
@@ -248,7 +291,7 @@ open class BookmarkControl constructor(
     suspend fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) = deferringEffects {
         val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
 
-        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull()
+        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull { !it.id.isAddonId }
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
             addOrUpdateBookmark(bookmark)
@@ -268,6 +311,21 @@ open class BookmarkControl constructor(
         addOrUpdateBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
 
     suspend fun addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes = deferringEffects {
+        // An add-on collection bookmark is read-only: label and note changes go to the user's own copy of it.
+        if (bookmark.id.isAddonId) return@deferringEffects updateAddonBookmarkThroughCopy(bookmark, labels, updateNotes)
+        val wasNew = bookmark.new
+        // Auto-assigned labels never include add-on labels (they are not assignable); drop them from a new bookmark.
+        val labels = if (!wasNew) labels else labels?.let { requested ->
+            requested.filterNot { it.isAddonId }.toSet().also { kept ->
+                if (kept.size != requested.size) Log.i(TAG, "New bookmark: dropped add-on labels ${requested - kept} (not assignable)")
+            }
+        }
+        // A user bookmark gets an add-on label only as the per-bookmark copy ([ownCopyOf]); removing it is allowed.
+        // Checked before anything is written.
+        if (!wasNew && labels != null && labels.any { it.isAddonId }) {
+            val existing = dao.labelsForBookmark(bookmark).map { it.id }.toSet()
+            labels.firstOrNull { it.isAddonId && it !in existing }?.let { refuseAddonWrite(it) }
+        }
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
@@ -276,7 +334,7 @@ open class BookmarkControl constructor(
             }
             bookmark.new = false
         } else {
-            dao.update(bookmark.bookmarkEntity)
+            updateBookmarkRow(bookmark.bookmarkEntity)
             if(updateNotes) {
                 if (notes != null) {
                     dao.upsert(notes)
@@ -328,9 +386,11 @@ open class BookmarkControl constructor(
                 afterBridge { WorkspaceChanges.notifySettingsEdited() }
             }
 
-            if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
+            // A primary label that is an add-on label this device lacks, still linked, stays (see [updateBookmarkRow]):
+            // replacing it would be synced and overwrite it where the module is installed.
+            if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null && !keepsMissingAddonPrimaryLabel(bookmark)) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
-                dao.update(bookmark.bookmarkEntity)
+                updateBookmarkRow(bookmark.bookmarkEntity)
             }
             afterBridge { windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) } // for tests "?."
         }
@@ -338,6 +398,7 @@ open class BookmarkControl constructor(
         addText(bookmark)
         addLabels(bookmark)
         emitChange(BookmarkChange.BookmarksUpserted(listOf(bookmark)))
+        if (labels != null) emitStandInChanges(bookmark)
         bookmark
     }
     
@@ -371,12 +432,15 @@ open class BookmarkControl constructor(
     suspend fun bibleBookmarkStartingAtVerse(key: Verse): List<BibleBookmarkWithNotes> = dao.bookmarksStartingAtVerse(key)
 
     suspend fun deleteBookmark(bookmark: BaseBookmarkWithNotes) = deferringEffects {
+        requireOwn(bookmark.id)
         dao.delete(bookmark)
         sanitizeStudyPadOrder(bookmark)
         emitChange(BookmarkChange.BookmarksDeleted(listOf(bookmark.id)))
+        emitStandInChanges(bookmark)
     }
 
     private suspend fun deleteBookmarks(bookmarks: List<BaseBookmarkWithNotes>) {
+        requireOwn(*bookmarks.map { it.id }.toTypedArray())
         val labels = mutableSetOf<IdType>()
         for(b in bookmarks) {
             labels.addAll(dao.labelsForBookmark(b).map { it.id })
@@ -386,6 +450,7 @@ open class BookmarkControl constructor(
             sanitizeStudyPadOrder(l)
         }
         emitChange(BookmarkChange.BookmarksDeleted(bookmarks.map { it.id }))
+        for (b in bookmarks) emitStandInChanges(b)
     }
 
     suspend fun deleteBibleBookmarksById(bookmarkIds: List<IdType>) = deferringEffects { deleteBookmarks(dao.bibleBookmarksByIds(bookmarkIds)) }
@@ -404,11 +469,12 @@ open class BookmarkControl constructor(
                 if (search == null) dao.bookmarksWithLabel(label, orderBy)
                 else dao.searchBookmarksWithLabel(label, orderBy, search)
         }
-        if(addData) for (it in bookmarks) {
+        val shown = hideStoodInFor(bookmarks, inLabel = label.id.takeIf { label != labelAll && label.id != UNLABELED_LABEL_ID })
+        if(addData) for (it in shown) {
             addText(it)
             addLabels(it)
         }
-        bookmarks
+        shown
     }
 
     suspend fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false, search:String? = null): List<GenericBookmarkWithNotes> = deferringEffects {
@@ -423,11 +489,12 @@ open class BookmarkControl constructor(
                 if (search == null) dao.genericBookmarksWithLabel(label)
                 else dao.searchGenericBookmarksWithLabel(label, search)
         }
-        if(addData) for (it in bookmarks) {
+        val shown = hideStoodInFor(bookmarks, inLabel = label.id.takeIf { label != labelAll && label.id != UNLABELED_LABEL_ID })
+        if(addData) for (it in shown) {
             addText(it)
             addLabels(it)
         }
-        bookmarks
+        shown
     }
 
     /**
@@ -544,6 +611,7 @@ open class BookmarkControl constructor(
         addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
     suspend fun insertOrUpdateLabel(label: Label): Label = deferringEffects {
+        if (label.id.isAddonId) return@deferringEffects updateAddonLabelLocalState(label)
         label.name = label.name.trim()
         if(label.id.isEmpty) throw RuntimeException("Illegal empty label.id")
         if(label.new) {
@@ -556,11 +624,11 @@ open class BookmarkControl constructor(
         label
     }
 
-    suspend fun deleteLabel(label: Label) = dao.delete(label)
+    suspend fun deleteLabel(label: Label) { requireOwn(label.id); dao.delete(label) }
 
     // add special label that is automatically associated with all-bookmarks
     suspend fun allLabels(): List<Label> = deferringEffects {
-        val labelList = dao.allLabelsSortedByName().toMutableList()
+        val labelList = withAddonLocalState(dao.allLabelsSortedByName()).toMutableList()
         labelList.sortBy { it.name.lowercase(KswordLocale.default()) }
         // add special label that is automatically associated with all-bookmarks
         labelList.add(0, labelUnlabelled())
@@ -602,12 +670,17 @@ open class BookmarkControl constructor(
         Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
     }
 
-    suspend fun labelUnlabelled(): Label = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) {
-        Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
-    }
+    suspend fun labelUnlabelled(): Label = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) { newUnlabeledLabel() }
 
-    suspend fun paragraphBreakLabel(): Label = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
-        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null)
+    suspend fun paragraphBreakLabel(): Label = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) { newParagraphBreakLabel() }
+
+    /**
+     * Creates the special labels among [ids] (paragraph break, unlabeled) this device does not have yet: an add-on
+     * collection's links to them are kept only when they exist. Never inside a transaction ([getOrCreateSpecialLabel]).
+     */
+    suspend fun ensureSpecialLabels(ids: Set<IdType>) {
+        if (PARAGRAPH_BREAK_LABEL_ID in ids) paragraphBreakLabel()
+        if (UNLABELED_LABEL_ID in ids) labelUnlabelled()
     }
 
     suspend fun aiLabel(): Label = getOrCreateSpecialLabel(AI_LABEL_ID) {
@@ -624,11 +697,12 @@ open class BookmarkControl constructor(
     fun reset() {}
 
     suspend fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = deferringEffects { dao.labelsForBookmark(bookmark).contains(speakLabel()) }
-    suspend fun speakBookmarkForVerse(verse: Verse) = deferringEffects { dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull() }
+    suspend fun speakBookmarkForVerse(verse: Verse) = deferringEffects { dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull { !it.id.isAddonId } }
     suspend fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes? = deferringEffects {
         dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabel().id).firstOrNull()
     }
     suspend fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
+        requireOwn(bookmark.id, *labelIds.toTypedArray())
         dao.clearLabels(bookmark)
         when(bookmark) {
             is BibleBookmarkWithNotes -> dao.insertBookmarkToLabels(labelIds.map { BibleBookmarkToLabel(bookmark.id, it)})
@@ -646,11 +720,13 @@ open class BookmarkControl constructor(
      * [changeLabelsForBookmark] itself still announces nothing: its other caller is the CSV bulk import.
      */
     suspend fun changeLabelsForBookmarks(bookmarks: List<BaseBookmarkWithNotes>, labelIds: List<IdType>) = deferringEffects {
+        requireOwn(*(bookmarks.map { it.id } + labelIds).toTypedArray())
         for (bookmark in bookmarks) {
             changeLabelsForBookmark(bookmark, labelIds)
             refreshTextAndLabels(bookmark)
         }
         emitChange(BookmarkChange.BookmarksUpserted(bookmarks))
+        for (bookmark in bookmarks) emitStandInChanges(bookmark)
     }
 
     /** Announces [label] again after something outside this class changed how it renders (a workspace override). */
@@ -672,7 +748,12 @@ open class BookmarkControl constructor(
         addLabels(bookmark)
     }
 
-    suspend fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?) = deferringEffects {
+    suspend fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?): Unit = deferringEffects {
+        if (bookmarkId.isAddonId) {
+            val addon = dao.bibleBookmarkById(bookmarkId) ?: refuseAddonWrite(bookmarkId)
+            if (note == addon.notes && dao.bibleStandInFor(bookmarkId) == null) return@deferringEffects // nothing to own
+            return@deferringEffects saveBibleBookmarkNote(ownCopyOfBookmark(addon).id, note)
+        }
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
@@ -685,7 +766,12 @@ open class BookmarkControl constructor(
         addText(bookmark)
         emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.getTime()))
     }
-    suspend fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) = deferringEffects {
+    suspend fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?): Unit = deferringEffects {
+        if (bookmarkId.isAddonId) {
+            val addon = dao.genericBookmarkById(bookmarkId) ?: refuseAddonWrite(bookmarkId)
+            if (note == addon.notes && dao.genericStandInFor(bookmarkId) == null) return@deferringEffects // nothing to own
+            return@deferringEffects saveGenericBookmarkNote(ownCopyOfBookmark(addon).id, note)
+        }
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
@@ -727,6 +813,7 @@ open class BookmarkControl constructor(
     }
 
     suspend fun deleteLabels(labelIdList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) = deferringEffects {
+        requireOwn(*labelIdList.toTypedArray())
         if (deleteOrphanedBookmarks) {
             val bookmarksToDelete = findOrphanedBookmarks(labelIdList)
             if (bookmarksToDelete.isNotEmpty()) {
@@ -754,7 +841,7 @@ open class BookmarkControl constructor(
     }
 
     suspend fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
-        val bookmarks = dao.bookmarksForVerseRange(verseRange)
+        val bookmarks = hideStoodInFor(dao.bookmarksForVerseRange(verseRange))
         if(withLabels) for (b in bookmarks) {
             addLabels(b)
         }
@@ -765,7 +852,7 @@ open class BookmarkControl constructor(
     }
     suspend fun genericBookmarksFor(document: Book, key: Key, withLabels: Boolean = false, withText: Boolean = true): List<GenericBookmarkWithNotes> {
         if (document.bookCategory == BookCategory.BIBLE) return emptyList()
-        val bookmarks = dao.genericBookmarksFor(document, key)
+        val bookmarks = hideStoodInFor(dao.genericBookmarksFor(document, key))
         if(withLabels) for (b in bookmarks) {
             addLabels(b)
         }
@@ -776,7 +863,17 @@ open class BookmarkControl constructor(
     }
 
     private suspend fun addLabels(b: BaseBookmarkWithNotes) {
-        val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b)
+        var bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b)
+        // A user's link to an add-on label this device lacks (module not installed, or gone for a while) is kept in
+        // the database but never shown: BibleView looks every label id up.
+        val addonLabels = bookmarkToLabels.map { it.labelId }.filter { it.isAddonId }
+        if (addonLabels.isNotEmpty()) {
+            val present = dao.labelsById(addonLabels).map { it.id }.toSet()
+            if (present.size != addonLabels.toSet().size) bookmarkToLabels = bookmarkToLabels.filter { !it.labelId.isAddonId || it.labelId in present }
+        }
+        if (b.id.isAddonId) for (link in bookmarkToLabels) {
+            addonDao.linkLocalState(link.bookmarkId, link.labelId)?.let { link.expandContent = it.expandContent }
+        }
         b.setBaseBookmarkToLabels(bookmarkToLabels)
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
@@ -852,19 +949,35 @@ open class BookmarkControl constructor(
         addText(b, verseTexts, wholeVerse)
     }
 
-    suspend fun labelById(id: IdType): Label? = dao.labelById(id)
+    suspend fun labelById(id: IdType): Label? = dao.labelById(id)?.let { withAddonLocalState(it) }
 
     suspend fun getStudyPadTextEntriesForLabel(label: Label): List<StudyPadTextEntryWithText> =
         dao.studyPadTextEntriesByLabelId(label.id)
 
     suspend fun updateStudyPadTextEntry(entry: StudyPadTextEntry) = deferringEffects {
+        requireOwn(entry.id, entry.labelId)
         dao.update(entry)
         val withText = dao.studyPadTextEntryById(entry.id)
         emitChange(BookmarkChange.StudyPadOrder(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
     /** Inserts a new bookmark-to-label link and announces it after the write succeeds. */
-    suspend fun insertBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = deferringEffects {
+    suspend fun insertBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel): Unit = deferringEffects {
+        // Nothing is added to an add-on label; an add-on bookmark put into an own label is the user's copy of it.
+        requireOwn(bookmarkToLabel.labelId)
+        if (bookmarkToLabel.bookmarkId.isAddonId) {
+            val copy = ownCopyOfBookmark(bookmarkById(bookmarkToLabel.bookmarkId) ?: refuseAddonWrite(bookmarkToLabel.bookmarkId))
+            val redirected = when (bookmarkToLabel) {
+                is BibleBookmarkToLabel -> bookmarkToLabel.copy(bookmarkId = copy.id)
+                is GenericBookmarkToLabel -> bookmarkToLabel.copy(bookmarkId = copy.id)
+                else -> throw RuntimeException("Illegal type")
+            }
+            insertBookmarkToLabel(redirected)
+            addText(copy)
+            addLabels(copy)
+            emitChange(BookmarkChange.BookmarksUpserted(listOf(copy)))
+            return@deferringEffects
+        }
         when (bookmarkToLabel) {
             is BibleBookmarkToLabel -> dao.insert(bookmarkToLabel)
             is GenericBookmarkToLabel -> dao.insertGenericBookmarkToLabels(listOf(bookmarkToLabel))
@@ -874,15 +987,27 @@ open class BookmarkControl constructor(
     }
 
     suspend fun updateBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = deferringEffects {
+        if (bookmarkToLabel.bookmarkId.isAddonId) {
+            // Only the StudyPad expand state of an add-on link may change, and it is kept per device.
+            val stored = getBookmarkToLabelRow(bookmarkToLabel) ?: refuseAddonWrite(bookmarkToLabel.bookmarkId)
+            if (stored.orderNumber != bookmarkToLabel.orderNumber || stored.indentLevel != bookmarkToLabel.indentLevel) {
+                refuseAddonWrite(bookmarkToLabel.bookmarkId)
+            }
+            addonDao.upsertLinkLocalState(AddonLinkLocalState(bookmarkToLabel.bookmarkId, bookmarkToLabel.labelId, bookmarkToLabel.expandContent))
+            emitChange(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
+            return@deferringEffects
+        }
         dao.update(bookmarkToLabel)
         emitChange(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
     }
 
     suspend fun updateBibleBookmarkTimestamp(bookmarkId: IdType) {
+        if (bookmarkId.isAddonId) return // read-only: its time stamp does not move
         dao.updateBibleBookmarkDate(dao.bibleBookmarkById(bookmarkId)!!.id)
     }
 
     suspend fun updateGenericBookmarkTimestamp(bookmarkId: IdType) {
+        if (bookmarkId.isAddonId) return // read-only: its time stamp does not move
         dao.updateGenericBookmarkDate(dao.genericBookmarkById(bookmarkId)!!.id)
     }
 
@@ -896,6 +1021,7 @@ open class BookmarkControl constructor(
 
     private suspend fun updateStudyPadTextEntries(studyPadTextEntries: List<StudyPadTextEntryWithText>) = dao.updateStudyPadTextEntries(studyPadTextEntries.map { it.studyPadTextEntryEntity })
     suspend fun deleteStudyPadTextEntry(textEntryId: IdType) = deferringEffects {
+        requireOwn(textEntryId)
         val entry = dao.studyPadTextEntryById(textEntryId)!!
         dao.delete(entry.studyPadTextEntryEntity)
         emitChange(BookmarkChange.StudyPadTextEntryDeleted(textEntryId))
@@ -903,6 +1029,17 @@ open class BookmarkControl constructor(
     }
 
     private suspend fun sanitizeStudyPadOrder(labelId: IdType, updateAllInUi: Boolean = false) {
+        // An add-on StudyPad keeps its module's order (read-only); a user's copy linked to it keeps its own number.
+        if (labelId.isAddonId) {
+            if (updateAllInUi) {
+                // The expand state shown on this device ([AddonLinkLocalState]), as in the bookmark lists.
+                val expand = addonDao.linkLocalStates(labelId).associate { it.bookmarkId to it.expandContent }
+                val bible = dao.getBookmarkToLabelsForLabel(labelId).onEach { l -> expand[l.bookmarkId]?.let { l.expandContent = it } }
+                val generic = dao.getGenericBookmarkToLabelsForLabel(labelId).onEach { l -> expand[l.bookmarkId]?.let { l.expandContent = it } }
+                emitChange(BookmarkChange.StudyPadOrder(labelId, null, bible, generic, dao.studyPadTextEntriesByLabelId(labelId)))
+            }
+            return
+        }
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId)
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
@@ -996,6 +1133,7 @@ open class BookmarkControl constructor(
     }
 
     suspend fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) = deferringEffects {
+        requireOwn(labelId)
         val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(notesContentType))
 
         dao.insert(entry.studyPadTextEntryEntity)
@@ -1013,6 +1151,7 @@ open class BookmarkControl constructor(
         sourcePromptId: IdType? = null,
         indentLevel: Int = 0
     ): StudyPadTextEntryWithText = deferringEffects {
+        requireOwn(labelId)
         val actualOrderNumber = orderNumber ?: dao.countStudyPadEntities(labelId)
 
         val entry = StudyPadTextEntryWithText(
@@ -1065,6 +1204,8 @@ open class BookmarkControl constructor(
         genericBookmarksToLabels: List<GenericBookmarkToLabel>,
         studyPadTextEntries: List<StudyPadTextEntryWithText>
     ) = deferringEffects {
+        requireOwn(labelId, *(bookmarksToLabels.map { it.bookmarkId } + genericBookmarksToLabels.map { it.bookmarkId } +
+            studyPadTextEntries.map { it.id }).toTypedArray())
         dao.updateStudyPadTextEntries(studyPadTextEntries.map { it.studyPadTextEntryEntity })
         dao.updateBibleBookmarkToLabels(bookmarksToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarksToLabels)
@@ -1072,6 +1213,9 @@ open class BookmarkControl constructor(
     }
 
     suspend fun setAsPrimaryLabelForBible(bookmarkId: IdType, labelId: IdType) = deferringEffects {
+        requireOwn(bookmarkId)
+        // An add-on label only as the primary label of a bookmark that carries it (the per-bookmark copy).
+        if (labelId.isAddonId && dao.getBibleBookmarkToLabel(bookmarkId, labelId) == null) refuseAddonWrite(labelId)
         val bookmark = dao.bibleBookmarkById(bookmarkId)?: return@deferringEffects
         bookmark.primaryLabelId = labelId
         addOrUpdateBookmark(bookmark)
@@ -1079,6 +1223,8 @@ open class BookmarkControl constructor(
     }
 
     suspend fun setAsPrimaryLabelForGeneric(bookmarkId: IdType, labelId: IdType) = deferringEffects {
+        requireOwn(bookmarkId)
+        if (labelId.isAddonId && dao.getGenericBookmarkToLabel(bookmarkId, labelId) == null) refuseAddonWrite(labelId)
         val bookmark = dao.genericBookmarkById(bookmarkId)?: return@deferringEffects
         bookmark.primaryLabelId = labelId
         addOrUpdateBookmark(bookmark)
@@ -1086,10 +1232,280 @@ open class BookmarkControl constructor(
     }
 
     suspend fun updateStudyPadTextEntryText(id: IdType, text: String) = deferringEffects {
+        requireOwn(id)
         val textEntry = StudyPadTextEntryText(id, text)
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         emitChange(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+    }
+
+    // ---- Add-on bookmark collections (#4162) ----------------------------------------------------------------------
+    // Rows imported from an AND_BIBLE add-on module carry the add-on id tag ([isAddonId]) and are read-only. Every
+    // write entry above refuses them ([requireOwn], [AddonReadOnlyException]), except: adding an own label, StudyPad or
+    // note to an add-on bookmark goes to the user's own copy of it ([ownCopyOf]), which then stands in for it
+    // ([hideStoodInFor]); favourite and StudyPad expand state of add-on rows are kept per device.
+
+    private val addonDao get() = bookmarkDb.addonCollectionDao()
+
+    /** Whether [id] is a label provided by an add-on collection module. */
+    suspend fun isAddonLabel(id: IdType): Boolean = id.isAddonId && addonDao.isAddonLabel(id)
+
+    /** Whether [id] is a (Bible or generic) bookmark provided by an add-on collection module. */
+    suspend fun isAddonBookmark(id: IdType): Boolean = id.isAddonId && addonDao.isAddonBookmark(id)
+
+    /** The initials of the add-on module that provides label [id], or null for the user's own labels. */
+    suspend fun addonModuleOfLabel(id: IdType): String? = if (id.isAddonId) addonDao.moduleOfLabel(id) else null
+
+    private suspend fun refuseAddonWrite(id: IdType): Nothing {
+        val module = addonDao.moduleOfLabel(id) ?: addonDao.moduleOfBookmark(id) ?: ""
+        Log.w(TAG, "Refused a write to add-on collection row $id ($module)")
+        throw AddonReadOnlyException(module)
+    }
+
+    /** Throws [AddonReadOnlyException] when any of [ids] is an add-on collection row. */
+    private suspend fun requireOwn(vararg ids: IdType?) {
+        ids.firstOrNull { it != null && it.isAddonId }?.let { refuseAddonWrite(it) }
+    }
+
+    private suspend fun withAddonLocalState(labels: List<Label>): List<Label> {
+        if (labels.none { it.id.isAddonId }) return labels
+        val favourites = addonDao.favouriteAddonLabelIds().toSet()
+        return labels.map { if (it.id.isAddonId) it.copy(favourite = it.id in favourites) else it }
+    }
+
+    private suspend fun withAddonLocalState(label: Label): Label =
+        if (!label.id.isAddonId) label else label.copy(favourite = addonDao.labelLocalState(label.id)?.favourite == true)
+
+    /** An "update" of an add-on label: only its favourite flag may change, and it is stored on this device only. */
+    private suspend fun updateAddonLabelLocalState(label: Label): Label {
+        val stored = dao.labelById(label.id) ?: refuseAddonWrite(label.id)
+        if (label.new || stored.copy(favourite = label.favourite) != label.copy(name = label.name, new = false)) {
+            refuseAddonWrite(label.id)
+        }
+        addonDao.upsertLabelLocalState(AddonLabelLocalState(label.id, label.favourite))
+        val updated = stored.copy(favourite = label.favourite)
+        emitChange(BookmarkChange.LabelUpserted(updated))
+        return updated
+    }
+
+    private suspend fun bookmarkById(id: IdType): BaseBookmarkWithNotes? = dao.bibleBookmarkById(id) ?: dao.genericBookmarkById(id)
+
+    /** Whether [b]'s primary label is an add-on label that is missing on this device. */
+    private suspend fun hasMissingAddonPrimaryLabel(b: net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmark): Boolean {
+        val primary = b.primaryLabelId ?: return false
+        return primary.isAddonId && dao.labelById(primary) == null
+    }
+
+    private suspend fun keepsMissingAddonPrimaryLabel(b: BaseBookmarkWithNotes): Boolean =
+        hasMissingAddonPrimaryLabel(b.bookmarkEntity) && dao.getBookmarkToLabel(b, b.primaryLabelId!!) != null
+
+    /**
+     * `dao.update` of a user bookmark row. A user bookmark may keep a link to, and a primary label of, an add-on label
+     * this device lacks (the module is not installed here, or is gone for a while; see `AddonCollectionImporter`).
+     * SQLite refuses a full-row update whose `primaryLabelId` has no parent, so for such a row that one statement runs
+     * with foreign keys off: the row keeps its primary label, and the logged edit carries it unchanged to the other
+     * devices. Must not run inside a transaction (the pragma would not apply).
+     */
+    private suspend fun updateBookmarkRow(entity: net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmark) {
+        if (!hasMissingAddonPrimaryLabel(entity)) return dao.update(entity)
+        bookmarkDb.useWriterConnectionMarked<Unit> { conn ->
+            // Inside a transaction the pragma would silently not apply and the update would fail on the foreign key.
+            check(!conn.inTransaction()) { "updateBookmarkRow inside a transaction" }
+            conn.withCleanup<Unit>("PRAGMA foreign_keys=ON;") {
+                conn.exec("PRAGMA foreign_keys=OFF;")
+                dao.update(entity)
+            }
+        }
+    }
+
+    private suspend fun getBookmarkToLabelRow(link: BaseBookmarkToLabel): BaseBookmarkToLabel? = when (link) {
+        is BibleBookmarkToLabel -> dao.getBibleBookmarkToLabel(link.bookmarkId, link.labelId)
+        is GenericBookmarkToLabel -> dao.getGenericBookmarkToLabel(link.bookmarkId, link.labelId)
+        else -> null
+    }
+
+    /**
+     * [bookmarks] without the add-on bookmarks a user bookmark stands in for: in label [inLabel]'s list or StudyPad, an
+     * add-on bookmark B is hidden when a user bookmark with exactly B's range carries [inLabel] (the per-bookmark copy);
+     * elsewhere ([inLabel] null: the text, all-bookmark lists) when every add-on label of B is carried by such a copy.
+     * Nothing else is hidden.
+     */
+    suspend fun <T : BaseBookmarkWithNotes> hideStoodInFor(bookmarks: List<T>, inLabel: IdType? = null): List<T> {
+        val bible = bookmarks.filter { it.id.isAddonId && it is BibleBookmarkWithNotes }.map { it.id }
+        val generic = bookmarks.filter { it.id.isAddonId && it is GenericBookmarkWithNotes }.map { it.id }
+        if (bible.isEmpty() && generic.isEmpty()) return bookmarks
+        val hidden = if (inLabel != null) {
+            (bible.chunked(500).flatMap { dao.stoodInBibleBookmarkIdsInLabel(it, inLabel) } +
+                generic.chunked(500).flatMap { dao.stoodInGenericBookmarkIdsInLabel(it, inLabel) }).toSet()
+        } else {
+            (bible.chunked(500).flatMap { dao.stoodInBibleBookmarkIds(it) } +
+                generic.chunked(500).flatMap { dao.stoodInGenericBookmarkIds(it) }).toSet()
+        }
+        return if (hidden.isEmpty()) bookmarks else bookmarks.filterNot { it.id in hidden }
+    }
+
+    /** The user's own copy of add-on Bible bookmark [addonBookmarkId] (see [ownCopyOfBookmark]). */
+    suspend fun ownCopyOf(addonBookmarkId: IdType): BibleBookmarkWithNotes = deferringEffects {
+        val addon = dao.bibleBookmarkById(addonBookmarkId) ?: refuseAddonWrite(addonBookmarkId)
+        ownCopyOfBookmark(addon) as BibleBookmarkWithNotes
+    }
+
+    /**
+     * The user bookmark that stands in for add-on bookmark [addon]: the existing one, or a new one with the same range,
+     * note and icon, linked to every add-on label of [addon] at the same StudyPad position (a synced row the user
+     * owns). Its add-on original is then hidden ([hideStoodInFor]); views are told it is gone.
+     */
+    suspend fun ownCopyOfBookmark(addon: BaseBookmarkWithNotes): BaseBookmarkWithNotes = deferringEffects {
+        if (!addon.id.isAddonId) return@deferringEffects addon
+        // One transaction with the look-up: two concurrent redirects never make two copies.
+        val (copy, created) = bookmarkDb.useWriterConnectionMarked { conn -> conn.inTransaction { findOrCreateOwnCopy(addon) } }
+        if (!created) return@deferringEffects copy
+        emitChange(BookmarkChange.BookmarksDeleted(listOf(addon.id)))
+        copy
+    }
+
+    private suspend fun findOrCreateOwnCopy(addon: BaseBookmarkWithNotes): Pair<BaseBookmarkWithNotes, Boolean> {
+        val existing = when (addon) {
+            is BibleBookmarkWithNotes -> dao.bibleStandInFor(addon.id)?.let { dao.bibleBookmarkById(it) }
+            is GenericBookmarkWithNotes -> dao.genericStandInFor(addon.id)?.let { dao.genericBookmarkById(it) }
+            else -> throw RuntimeException("Illegal type")
+        }
+        if (existing != null) return existing to false
+        val now = DbDate(kotlin.time.Clock.System.now().toEpochMilliseconds())
+        val copy: BaseBookmarkWithNotes = when (addon) {
+            is BibleBookmarkWithNotes -> addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, playbackSettings = null, sourcePromptId = null, notesSourcePromptId = null)
+            is GenericBookmarkWithNotes -> addon.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, playbackSettings = null, sourcePromptId = null, notesSourcePromptId = null)
+            else -> throw RuntimeException("Illegal type")
+        }
+        dao.insert(copy.bookmarkEntity)
+        copy.noteEntity?.let { dao.insert(it) }
+        // Its place in the add-on StudyPads (with the paragraph break after it, and the expand state shown here).
+        val addonLinks = dao.getBookmarkToLabelsForBookmark(addon).filter { it.labelId.isAddonId || it.labelId == PARAGRAPH_BREAK_LABEL_ID }
+        suspend fun expand(link: BaseBookmarkToLabel) = addonDao.linkLocalState(link.bookmarkId, link.labelId)?.expandContent ?: link.expandContent
+        when (copy) {
+            is BibleBookmarkWithNotes -> dao.insertBookmarkToLabels(addonLinks.map {
+                BibleBookmarkToLabel(copy.id, it.labelId, orderNumber = it.orderNumber, indentLevel = it.indentLevel, expandContent = expand(it))
+            })
+            is GenericBookmarkWithNotes -> dao.insertGenericBookmarkToLabels(addonLinks.map {
+                GenericBookmarkToLabel(copy.id, it.labelId, orderNumber = it.orderNumber, indentLevel = it.indentLevel, expandContent = expand(it))
+            })
+        }
+        return copy to true
+    }
+
+    /**
+     * [addOrUpdateBookmark] on an add-on bookmark: label changes that keep its add-on labels, and note changes, are
+     * applied to the user's copy ([ownCopyOfBookmark]); anything else (another field, removing an add-on label) is
+     * refused. Returns the copy.
+     */
+    private suspend fun updateAddonBookmarkThroughCopy(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?, updateNotes: Boolean): BaseBookmarkWithNotes {
+        val addon = bookmarkById(bookmark.id) ?: refuseAddonWrite(bookmark.id)
+        if (labels == null && !updateNotes) refuseAddonWrite(bookmark.id)
+        val addonLabels = dao.labelsForBookmark(addon).map { it.id }.filter { it.isAddonId }.toSet()
+        // A collection verse is in at least one add-on label; one that is not cannot have a copy standing in for it.
+        if (addonLabels.isEmpty()) refuseAddonWrite(bookmark.id)
+        if (labels != null && labels.filter { it.isAddonId }.toSet() != addonLabels) refuseAddonWrite(bookmark.id)
+        val existing = when (addon) {
+            is BibleBookmarkWithNotes -> dao.bibleStandInFor(addon.id)
+            is GenericBookmarkWithNotes -> dao.genericStandInFor(addon.id)
+            else -> null
+        }
+        // Nothing the user owns would change (labels as they are, note as it is): no copy.
+        val noOwnLabels = labels == null || labels.none { !it.isAddonId }
+        val noteUnchanged = !updateNotes || bookmark.notes == addon.notes
+        if (existing == null && noOwnLabels && noteUnchanged) return addon
+        val copy = ownCopyOfBookmark(addon)
+        if (updateNotes) {
+            copy.notes = bookmark.notes
+        }
+        // The requested set is the original's add-on labels plus the own labels wanted on this verse. The copy keeps
+        // what it carries now (its own labels, and only the add-on labels it still has: the user may have removed
+        // one, so the original shows in that label again) and gets the own labels asked for. The original carries no
+        // own label, so none can be removed through it.
+        val target = labels?.let { requested ->
+            dao.labelsForBookmark(copy).map { it.id }.toSet() + requested.filterNot { it.isAddonId }
+        }
+        return addOrUpdateBookmark(copy, target, updateNotes)
+    }
+
+    /**
+     * After a user bookmark's labels changed or it was deleted: add-on bookmarks of the same range it now stands in for
+     * are reported deleted (hidden), the others upserted (shown again).
+     */
+    private suspend fun emitStandInChanges(bookmark: BaseBookmarkWithNotes) {
+        if (bookmark.id.isAddonId) return
+        val sameRange: List<BaseBookmarkWithNotes> = when (bookmark) {
+            is BibleBookmarkWithNotes -> dao.addonBibleBookmarksWithRange(bookmark.kjvOrdinalStart, bookmark.kjvOrdinalEnd, bookmark.startOffset, bookmark.endOffset)
+            is GenericBookmarkWithNotes -> dao.addonGenericBookmarksWithRange(bookmark.bookInitials, bookmark.key, bookmark.ordinalStart, bookmark.ordinalEnd, bookmark.startOffset, bookmark.endOffset)
+            else -> emptyList()
+        }
+        if (sameRange.isEmpty()) return
+        val shown = hideStoodInFor(sameRange)
+        val hidden = sameRange.filterNot { b -> shown.any { it.id == b.id } }
+        if (hidden.isNotEmpty()) emitChange(BookmarkChange.BookmarksDeleted(hidden.map { it.id }))
+        if (shown.isNotEmpty()) {
+            for (b in shown) { addText(b); addLabels(b) }
+            emitChange(BookmarkChange.BookmarksUpserted(shown))
+        }
+    }
+
+    /**
+     * "Copy to my labels": a new ordinary label (synced, editable) with the add-on label [labelId]'s name (made
+     * unique with [CoreStrings.addonLabelCopyName]; the add-on label's own name counts as taken), colour, styles, type
+     * and icon, and new copies (new ids) of its bookmarks with their notes, StudyPad positions and the expand state
+     * shown on this device, and of its StudyPad text entries. The author's AI provenance (prompt ids) is not copied.
+     * The add-on label stays. Throws [IllegalArgumentException] for a label that is not an add-on label.
+     */
+    suspend fun copyAddonLabel(labelId: IdType): Label = deferringEffects {
+        if (!isAddonLabel(labelId)) throw IllegalArgumentException("Not an add-on label: $labelId")
+        val source = dao.labelById(labelId) ?: throw IllegalArgumentException("No label $labelId")
+        val taken = dao.allLabelsSortedByName().map { it.name }.toSet()
+        // Bounded: a translation that does not change the name must not loop forever.
+        val name = generateSequence(source.name) { strings.addonLabelCopyName(it) }.take(50).firstOrNull { it !in taken }
+            ?: generateSequence(2) { it + 1 }.map { "${source.name} $it" }.first { it !in taken }
+        val label = source.copy(id = IdType(), name = name, favourite = false)
+        // One transaction: a failure leaves no half-made (synced) label.
+        val newBookmarks = bookmarkDb.useWriterConnectionMarked { conn -> conn.inTransaction { copyAddonLabelRows(labelId, label) } }
+        emitChange(BookmarkChange.LabelUpserted(label))
+        for (b in newBookmarks) { addText(b); addLabels(b) }
+        if (newBookmarks.isNotEmpty()) emitChange(BookmarkChange.BookmarksUpserted(newBookmarks))
+        label
+    }
+
+    private suspend fun copyAddonLabelRows(labelId: IdType, label: Label): List<BaseBookmarkWithNotes> {
+        dao.insert(label)
+        val now = DbDate(kotlin.time.Clock.System.now().toEpochMilliseconds())
+        val newBookmarks = mutableListOf<BaseBookmarkWithNotes>()
+        // What the user sees in the label: a stood-in add-on bookmark is copied from the user's own copy of it.
+        suspend fun shownExpand(link: BaseBookmarkToLabel) = addonDao.linkLocalState(link.bookmarkId, link.labelId)?.expandContent ?: link.expandContent
+        for (b in hideStoodInFor(dao.bookmarksWithLabel(labelId), inLabel = labelId)) {
+            val copy = b.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = label.id, playbackSettings = null,
+                sourcePromptId = null, notesSourcePromptId = null)
+            dao.insert(copy.bookmarkEntity)
+            copy.noteEntity?.let { dao.insert(it) }
+            val links = dao.getBookmarkToLabelsForBookmark(b.id)
+            dao.insertBookmarkToLabels(links.filter { it.labelId == labelId || it.labelId == PARAGRAPH_BREAK_LABEL_ID }.map {
+                BibleBookmarkToLabel(copy.id, if (it.labelId == labelId) label.id else it.labelId, it.orderNumber, it.indentLevel, shownExpand(it))
+            })
+            newBookmarks += copy
+        }
+        for (b in hideStoodInFor(dao.genericBookmarksWithLabel(labelId), inLabel = labelId)) {
+            val copy = b.copy(id = IdType(), createdAt = now, lastUpdatedOn = now, primaryLabelId = label.id, playbackSettings = null,
+                sourcePromptId = null, notesSourcePromptId = null)
+            dao.insert(copy.bookmarkEntity)
+            copy.noteEntity?.let { dao.insert(it) }
+            val links = dao.getGenericBookmarkToLabelsForBookmark(b.id)
+            dao.insertGenericBookmarkToLabels(links.filter { it.labelId == labelId || it.labelId == PARAGRAPH_BREAK_LABEL_ID }.map {
+                GenericBookmarkToLabel(copy.id, if (it.labelId == labelId) label.id else it.labelId, it.orderNumber, it.indentLevel, shownExpand(it))
+            })
+            newBookmarks += copy
+        }
+        for (entry in dao.studyPadTextEntriesByLabelId(labelId)) {
+            val copy = entry.copy(id = IdType(), labelId = label.id)
+            dao.insert(copy.studyPadTextEntryEntity)
+            dao.insert(copy.studyPadTextEntryTextEntity)
+        }
+        return newBookmarks
     }
 
     companion object {

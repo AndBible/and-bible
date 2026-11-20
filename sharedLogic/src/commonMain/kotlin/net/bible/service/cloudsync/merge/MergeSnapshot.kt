@@ -19,6 +19,7 @@ package net.bible.service.cloudsync.merge
 
 import androidx.annotation.VisibleForTesting
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.stripAddonRows
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryRows
@@ -52,6 +53,8 @@ suspend fun prepareMergeSnapshot(dbDef: SyncableDatabaseAccessor<*>, target: Pat
         FileSystem.SYSTEM.copy(source, target)
     }
     openSqlite(target.toString()).use { conn ->
+        // Add-on collection rows are never merged into the cloud data: not logged, never uploaded.
+        stripAddonRows(conn, dbDef.category)
         conn.exec("BEGIN")
         try {
             for (table in dbDef.tableDefinitions) {

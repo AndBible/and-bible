@@ -56,6 +56,7 @@ import net.bible.sharedlogic.platform.ManualInstallFolderEnabler
 import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedlogic.platform.PlatformLocales
+import net.bible.sharedlogic.platform.CollectionPackSource
 import net.bible.sharedlogic.platform.PromptPackSource
 import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
 import net.bible.sharedlogic.platform.SearchIndexScheduler
@@ -75,7 +76,7 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     DownloadHttp::class, LlmHttpTransport::class,
     SpeakPlatform::class, SpeakSettingsStore::class, MarkdownRenderer::class, AgentPlatform::class,
     AddonCatalog::class, net.bible.sharedlogic.platform.BackgroundImageCatalog::class,
-    PromptPackSource::class, PlatformLocales::class, LocaleSupport::class,
+    PromptPackSource::class, CollectionPackSource::class, PlatformLocales::class, LocaleSupport::class,
     ReadOnlyModuleDbOpener::class, SearchIndexScheduler::class, LocalCalendar::class,
     FirstLoadEdge::class, EpubStoreEdge::class, MyDocumentStoreEdge::class, SentenceBreaker::class,
     NightModeState::class, net.bible.sharedcore.platform.ActivityMenuDefault::class,

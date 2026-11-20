@@ -135,6 +135,7 @@ internal class StubCoreStrings : CoreStrings {
     override fun backupModulesConflictBook(name: String, version: String, folder: String): String = "backupModulesConflictBook ${name} ${version} ${folder}"
     override fun backupFileInfo(version: Int, size: String): String = "backupFileInfo ${version} ${size}"
     override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = "bookmarksDbStats ${firstLabel} ${labels} ${bookmarks}"
+    override fun addonLabelCopyName(name: String) = "$name (copy)"
     override val exportedStudypadsSubject = "exportedStudypadsSubject"
     override fun exportedStudypadsMessage(appName: String): String = "exportedStudypadsMessage ${appName}"
     override val sendExportFile = "sendExportFile"

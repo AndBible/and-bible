@@ -61,6 +61,7 @@ import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedlogic.addons.SharedAddonCatalog
 import net.bible.sharedlogic.addons.SharedAddonScanner
+import net.bible.sharedlogic.addons.SharedCollectionPackSource
 import net.bible.sharedlogic.addons.SharedPromptPackSource
 import net.bible.sharedlogic.platform.AddonCatalog
 import net.bible.sharedlogic.platform.BackgroundImageCatalog
@@ -73,6 +74,7 @@ import net.bible.sharedlogic.platform.LocaleSupport
 import net.bible.sharedlogic.platform.ManualInstallFolderEnabler
 import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 import net.bible.sharedlogic.platform.PlatformLocales
+import net.bible.sharedlogic.platform.CollectionPackSource
 import net.bible.sharedlogic.platform.PromptPackSource
 import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
 import net.bible.sharedlogic.platform.SearchIndexScheduler
@@ -189,6 +191,7 @@ fun desktopPlatformModule(
         )
     })
     val promptPacks = SharedPromptPackSource(scanner)
+    val collectionPacks = SharedCollectionPackSource(scanner)
 
     val platform = module {
         single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> {
@@ -272,7 +275,8 @@ fun desktopPlatformModule(
         single<EpubStoreEdge> { HostEpubStoreEdge }
         single<MyDocumentStoreEdge> { HostMyDocumentStoreEdge }
         single<PromptPackSource> { promptPacks }
-        single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks) }
+        single<CollectionPackSource> { collectionPacks }
+        single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks, collectionPacks) }
         // No background-task budget on a desktop: the index build simply runs.
         single<SearchIndexScheduler> { HostSearchIndexScheduler({ _, build -> build { false } }, get<AppCoroutineScope>()) }
         single<ManualInstallFolderEnabler> { ManualInstallFolderEnabler { } }

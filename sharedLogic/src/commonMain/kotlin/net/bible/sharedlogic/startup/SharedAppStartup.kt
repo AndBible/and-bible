@@ -156,6 +156,19 @@ object SharedAppStartup {
         } catch (e: Exception) {
             Log.e(TAG, "BookInstallWatcher failed to start; book installs will not be tracked", e)
         }
+        startAddonCollections(koin)
+    }
+
+    /**
+     * Starts the add-on collection reconciliation (#4162): installed collection modules are materialised as read-only
+     * labels. Logged, not rethrown; absent in minimal test graphs.
+     */
+    fun startAddonCollections(koin: Koin) {
+        try {
+            koin.getOrNull<net.bible.service.addons.collections.AddonCollectionReconcileDriver>()?.start()
+        } catch (e: Exception) {
+            Log.e(TAG, "Add-on collections failed to start", e)
+        }
     }
 
     private fun installErrorListener(report: (ReporterEvent) -> Unit) {

@@ -59,6 +59,51 @@ class SharedAddonScannerTest {
         assertEquals("/mods/ok/prompts/pack.csv", packs.single().path)
     }
 
+    @Test fun collectionsResolveTheDeclaredFileRejectUnsafePathsAndKeepMissingFiles() {
+        touch("/mods/ok/db/manna.sqlite3")
+        touch("/mods/nover/c.db")
+        touch("/outside.db")
+        val ok = fakeAddonBook("Manna", "/mods/ok", labels = listOf("db/manna.sqlite3", "other.db"), version = "1.2")
+        val nover = fakeAddonBook("NoVer", "/mods/nover", labels = listOf("c.db"))
+        val abs = fakeAddonBook("Abs", "/mods/ok", labels = listOf("/outside.db"))
+        val dotdot = fakeAddonBook("Dots", "/mods/ok", labels = listOf("../../outside.db"))
+        val missing = fakeAddonBook("Gone", "/mods/ok", labels = listOf("gone.db"))
+        val none = fakeAddonBook("None", "/mods/ok")
+        val refs = SharedAddonScanner({ listOf(ok, nover, abs, dotdot, missing, none) }, fs).collections()
+        // A missing file is still listed (the reconciler then keeps the earlier import); unsafe paths are not.
+        assertEquals(listOf("Manna", "NoVer", "Gone"), refs.map { it.moduleInitials })
+        assertEquals("/mods/ok/gone.db".toPath(), refs[2].file)
+        assertEquals("/mods/ok/db/manna.sqlite3".toPath(), refs[0].file)
+        assertEquals("1.2", refs[0].version)
+        assertEquals(ok.name, refs[0].moduleName)
+        assertEquals("0", refs[1].version)
+    }
+
+    /** A collection module that needs a newer app (`AndBibleMinimumVersion`) is not offered by the platform's add-on filter. */
+    @Test fun collectionNeedingANewerAppIsHidden() {
+        touch("/mods/ok/m.db")
+        touch("/mods/new/n.db")
+        val ok = fakeAddonBook("Ok", "/mods/ok", labels = listOf("m.db"))
+        val newer = FakeAddonBook(FakeAddonMetaData("Newer", "/mods/new", mapOf("AndBibleProvidesLabels" to listOf("n.db")),
+            mapOf("AndBibleMinimumVersion" to "5000")))
+        val filter = net.bible.service.sword.AndBibleAddonFilter { 1000 }
+        assertEquals(listOf("Ok"), SharedAddonScanner({ listOf(ok, newer).filter { filter.test(it) } }, fs).collections().map { it.moduleInitials })
+        val updated = net.bible.service.sword.AndBibleAddonFilter { 5000 }
+        assertEquals(listOf("Ok", "Newer"), SharedAddonScanner({ listOf(ok, newer).filter { updated.test(it) } }, fs).collections().map { it.moduleInitials })
+    }
+
+    @Test fun collectionSourceReadsLiveAndFiresReloadedFromCatalogClearCaches() {
+        touch("/mods/ok/m.db")
+        val scanner = SharedAddonScanner({ listOf(fakeAddonBook("M", "/mods/ok", labels = listOf("m.db"))) }, fs)
+        val source = SharedCollectionPackSource(scanner)
+        val catalog = SharedAddonCatalog(scanner, SharedPromptPackSource(scanner), source)
+        var fired = 0
+        source.reloaded.subscribe { fired++ }
+        assertEquals(1, source.collections().size)
+        catalog.clearCaches()
+        assertEquals(1, fired)
+    }
+
     @Test fun booksAreQueriedOnceUntilCachesAreCleared() {
         var calls = 0
         val scanner = SharedAddonScanner({ calls++; listOf(fakeAddonBook("A", "/a", plans = listOf("p.properties"))) }, fs)
@@ -84,7 +129,7 @@ class SharedAddonScannerTest {
         var installed = listOf(fakeAddonBook("A", "/a", plans = listOf("one.properties")))
         val scanner = SharedAddonScanner({ installed }, fs)
         val promptSource = SharedPromptPackSource(scanner)
-        val catalog = SharedAddonCatalog(scanner, promptSource)
+        val catalog = SharedAddonCatalog(scanner, promptSource, SharedCollectionPackSource(scanner))
         var fired = 0
         promptSource.reloaded.subscribe { fired++ }
         assertEquals(setOf("one"), catalog.readingPlans.keys)
