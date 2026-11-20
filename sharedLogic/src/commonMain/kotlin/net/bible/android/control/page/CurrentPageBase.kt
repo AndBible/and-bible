@@ -285,8 +285,9 @@ abstract class CurrentPageBase protected constructor(
             }
             // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.
             // Keep missing-module placeholders so their download link survives repeated reads.
-            if (_currentDocument?.let { it.isRemoved && !it.doesNotExist } == true) {
-                val removed = _currentDocument!!
+            // Window.loadText reads this on IO workers while the main thread may clear the document: test and use one
+            // snapshot, never a second read of the field (a `!!` after the check threw an uncaught NPE).
+            _currentDocument?.takeIf { it.isRemoved && !it.doesNotExist }?.let { removed ->
                 // Re-check the registry after the pending test: the replacement may register between the two reads.
                 val pending = removed.isEpub && isEpubInstallPending(removed.initials)
                 val replacement = if (removed.isEpub) Books.installed().getBook(removed.initials) else null
