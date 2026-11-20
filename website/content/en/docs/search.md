@@ -152,6 +152,41 @@ The three search types treat what you type differently:
   quoted phrases and proximity searches do not behave as written, so use `Any word` for them.
 - `Phrase` searches everything you type as one phrase. Use it for plain words only.
 
+### Regular expressions
+
+In the search settings of the reading screen, the **Regular expression** switch (below the search type row) makes
+AndBible read what you type as a regular expression instead of search words. While the switch is on, the three search
+types (`Phrase`, `All words`, `Any word`) are disabled, because they do not apply; the settings summary shows `Regex`.
+The older search form that some menus and links open does not have this switch yet.
+
+The expression is matched against the written verse text of the selected translations. It does not match Strong's
+numbers or notes. Matches are highlighted in the results.
+
+- The match is case-insensitive by default. Start the expression with `(?-i)` to make it case-sensitive.
+- Accents and other diacritics are not folded: `e` does not match `é`.
+- The verse text is searched as it is written, so punctuation follows the word without a space: use `said:`, not `said :`.
+
+Examples:
+
+- `Lord\s+God` finds "Lord" followed by whitespace and "God"
+- `colou?r` finds both "color" and "colour"
+- `said:` finds "said" followed by a colon
+
+A blank expression does nothing. An invalid expression shows "Invalid regular expression:" and the reason. An
+expression that can match the empty string (for example `x*`) matches every verse; the results are capped at 5000 per
+translation.
+
+A regular-expression search has a time limit of 3 seconds for the whole search, across all selected translations. When
+it runs out, you get the results found so far and the notice "The search took too long and was stopped. Results are
+incomplete; try a simpler expression." Try a simpler expression to get complete results.
+
+Android and desktop use the Kotlin/Java regular-expression engine. iOS uses the Kotlin/Native engine, which is mostly
+the same; small differences are possible on iOS.
+
+After updating to the version that adds this feature, the existing search indexes are rebuilt once (the search screen
+shows the usual state that the index is not built). The index grows by about 25 %: for example the KJV index grows
+from 16.7 MB to 21.1 MB.
+
 ### Proximity Search
 
 Find words that are within a specific distance of each other. To do a proximity search, put the
