@@ -77,6 +77,37 @@ workspace label settings list, keep these filters. If a wider list becomes narro
 cleared so that no invisible filter continues to hide labels.
 The ⋮ menu also has *Re-order* for changing the order of the labels.
 
+## Add-on collections {#add-on-collections}
+
+Some add-on modules provide a ready-made **collection**: one or more labels with their
+verses, notes and, for a Study Pad, its text. Install one like any other document
+(*Download Documents*, or a [custom repository](custom_repositories.md)); the labels
+appear at once, highlighted in the text and listed with your own labels as
+*Name · Module*, and each has a Study Pad you can open.
+
+Collection labels are **read-only**:
+
+- You cannot rename, recolour, delete or merge them, add verses to them, or edit or
+    delete their bookmarks, notes and Study Pad text. *Edit label* shows
+    *From add-on …* (tap it to find the add-on in *Download Documents*) instead of the
+    editing controls. If you try anyway, *AndBible* tells you the content comes from an
+    add-on.
+- You can still make a collection label a favourite, choose in *This workspace* how
+    it is shown (including hiding it), and use it as the source of the Verse widget.
+- To get an editable version, open the label and tap **Copy to my labels**. The copy is
+    an ordinary label (named *… (copy)* if the name is taken) with its own bookmarks, notes
+    and Study Pad, and it syncs like your other labels. The collection stays as it was.
+- You can add your own label, Study Pad or note to a verse of a collection. *AndBible* then
+    keeps your own bookmark for that verse in the collection, and the verse shows one highlight.
+    If you remove your bookmark or its label, the collection's original verse is shown again.
+
+Collections are never synced as bookmarks: each device builds them from its own copy of the
+module. When the module is updated, the collection is replaced with the new version; when you
+remove the module, its labels disappear, while your own copies and bookmarks stay. A backup
+or Study Pad file that contains collection items does not bring them back as your own; after
+such an import *AndBible* tells you how many items were skipped, and *Copy to my labels*
+gives you your own copy.
+
 ## Override Label Style per Workspace
 
 By default, a label’s display style (*Highlight*, *Underline*, *Marker only*, or *Hidden*)

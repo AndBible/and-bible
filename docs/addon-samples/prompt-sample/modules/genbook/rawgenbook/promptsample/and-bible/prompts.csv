@@ -1,0 +1,7 @@
+name;description;promptTemplate;showIn;orderNumber;strictContextMatching;permissionMode;allowedTools;deniedTools;configuredModelId;id;createdAt;bibleOnly;category
+Cross-reference ideas;Suggest related passages for the selected verses;"Suggest up to five passages that illuminate the selected verses.
+For each give the reference and one sentence on how it relates.
+If the user has selected only part of the passage, focus on that part.
+Do not invent references.";VERSE_SELECTION;0;true;;;;;5a8c1c70-1111-4d2e-9a10-0000000000a1;2026-11-20T00:00:00Z;true;
+Plain-language summary;Summarize the selected text in two or three simple sentences;"Summarize the selected text in two or three plain sentences that a new reader would understand.
+Output only the summary.";VERSE_SELECTION,TEXT_SELECTION;1;true;;;;;5a8c1c70-1111-4d2e-9a10-0000000000a2;2026-11-20T00:00:00Z;false;
