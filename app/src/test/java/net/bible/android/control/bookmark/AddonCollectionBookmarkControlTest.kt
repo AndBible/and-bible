@@ -11,6 +11,8 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -217,6 +219,10 @@ class AddonCollectionBookmarkControlTest {
         val loaded = dao.bibleBookmarkById(saved.id)!!
         assertEquals(before.kjvOrdinalStart, loaded.kjvOrdinalStart)
         assertEquals(before.kjvOrdinalEnd, loaded.kjvOrdinalEnd)
+        assertEquals(before.ordinalStart, loaded.ordinalStart)
+        assertEquals(before.ordinalEnd, loaded.ordinalEnd)
+        assertEquals(before.v11n, loaded.v11n)
+        assertEquals(before.book?.initials, loaded.book?.initials)
         assertEquals(before.startOffset, loaded.startOffset)
         assertEquals(before.endOffset, loaded.endOffset)
         assertEquals(before.wholeVerse, loaded.wholeVerse)
@@ -228,6 +234,33 @@ class AddonCollectionBookmarkControlTest {
         assertEquals(before.copy(), dao.bibleBookmarkById(b1)!!.copy())
         assertTrue(log().any { it.tableName == "BibleBookmark" && it.entityId1 == saved.id })
         assertEquals(null, control.newOwnBookmarkLike(saved.id))
+        assertNoUserRowReferencesAddonIds()
+    }
+
+    /** The generic-document variant (a MyDocument/commentary page key): same range data, own id, no add-on label. */
+    @Test
+    fun bookmarkThisVerseOnAGenericCollectionBookmarkMakesAnOwnGenericBookmark() = run {
+        val genericId = addonId(module, IdType())
+        dao.insert(BookmarkEntities.GenericBookmark(
+            id = genericId, key = "Gen.1", bookInitials = "MyDoc", ordinalStart = 4, ordinalEnd = 6,
+            startOffset = 2, endOffset = 7, customIcon = "heart",
+        ))
+        val before = dao.genericBookmarkById(genericId)!!
+        val own = ownLabel()
+        val made = control.newOwnBookmarkLike(genericId) as GenericBookmarkWithNotes
+        assertTrue(made.new)
+        assertFalse(made.id.isAddonId)
+        val saved = control.addOrUpdateGenericBookmark(made, setOf(own.id, l))
+        val loaded = dao.genericBookmarkById(saved.id)!!
+        assertEquals(before.key, loaded.key)
+        assertEquals(before.bookInitials, loaded.bookInitials)
+        assertEquals(4, loaded.ordinalStart)
+        assertEquals(6, loaded.ordinalEnd)
+        assertEquals(2, loaded.startOffset)
+        assertEquals(7, loaded.endOffset)
+        assertEquals(null, loaded.customIcon)
+        assertEquals(listOf(own.id), dao.labelsForBookmark(loaded).map { it.id })
+        assertEquals("the collection bookmark is untouched", before, dao.genericBookmarkById(genericId))
         assertNoUserRowReferencesAddonIds()
     }
 

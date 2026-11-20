@@ -200,21 +200,26 @@ class AddonCollectionSyncTest {
     /**
      * User rows that reference add-on rows, written past BookmarkControl (as an older build, with per-bookmark copies,
      * or another device's database could hold them): a user bookmark with the add-on label as primary label and a link
-     * to it, and a user StudyPad text entry in the add-on StudyPad. All logged as the user's own changes. Returns the
-     * bookmark's and the entry's ids.
+     * to it (a Bible and a generic one), and a user StudyPad text entry in the add-on StudyPad. All logged as the
+     * user's own changes. Returns the Bible bookmark's, the entry's and the generic bookmark's ids.
      */
-    private suspend fun addRogueRefs(db: BookmarkDatabase): Pair<IdType, IdType> {
+    private data class Rogue(val bookmark: IdType, val entry: IdType, val generic: IdType)
+
+    private suspend fun addRogueRefs(db: BookmarkDatabase): Rogue {
         val rogue = IdType()
         val entry = IdType()
+        val generic = IdType()
         db.useWriterConnectionMarked { c ->
             c.exec("PRAGMA foreign_keys=OFF")
             c.exec("INSERT INTO BibleBookmark (id, kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, createdAt, primaryLabelId) VALUES (${hex(rogue)}, 200, 200, 200, 200, 'KJV', 6, ${hex(addonLabel)})")
             c.exec("INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(rogue)}, ${hex(addonLabel)})")
             c.exec("INSERT INTO StudyPadTextEntry (id, labelId, orderNumber, indentLevel) VALUES (${hex(entry)}, ${hex(addonLabel)}, 9, 0)")
             c.exec("INSERT INTO StudyPadTextEntryText (studyPadTextEntryId, text) VALUES (${hex(entry)}, 'My own thoughts')")
+            c.exec("INSERT INTO GenericBookmark (id, key, createdAt, bookInitials, primaryLabelId) VALUES (${hex(generic)}, 'gen', 6, 'MannaSample', ${hex(addonLabel)})")
+            c.exec("INSERT INTO GenericBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(generic)}, ${hex(addonLabel)})")
             c.exec("PRAGMA foreign_keys=ON")
         }
-        return rogue to entry
+        return Rogue(rogue, entry, generic)
     }
 
     /** User rows referencing an add-on id, and log entries naming one, in [count]'s database. */
@@ -225,6 +230,10 @@ class AddonCollectionSyncTest {
             "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE ${own("bookmarkId")} AND ${addon("labelId")}",
             "SELECT COUNT(*) FROM BibleBookmark WHERE ${own("id")} AND primaryLabelId IS NOT NULL AND ${addon("primaryLabelId")}",
             "SELECT COUNT(*) FROM StudyPadTextEntry WHERE ${own("id")} AND ${addon("labelId")}",
+            "SELECT COUNT(*) FROM GenericBookmarkToLabel WHERE ${own("bookmarkId")} AND ${addon("labelId")}",
+            "SELECT COUNT(*) FROM GenericBookmark WHERE ${own("id")} AND primaryLabelId IS NOT NULL AND ${addon("primaryLabelId")}",
+            "SELECT COUNT(*) FROM LogEntry WHERE tableName IN ('StudyPadTextEntry','StudyPadTextEntryText') AND entityId1 IN " +
+                "(SELECT id FROM StudyPadTextEntry WHERE ${own("id")} AND ${addon("labelId")})",
             "SELECT COUNT(*) FROM LogEntry WHERE ${addon("entityId2")}",
         ).sumOf { count(it) }
     }
@@ -310,7 +319,7 @@ class AddonCollectionSyncTest {
     fun noPatchCanMakeAUserRowReferenceAnAddonRow() = run {
         val d1 = device("d1")
         install(d1.localDb)
-        val (rogue, entry) = addRogueRefs(d1.localDb)
+        val (rogue, entry, generic) = addRogueRefs(d1.localDb)
         val sent = gunzip(createPatchForDatabase(d1, env)!!)
         assertEquals("this device sends no reference to an add-on row", 0, userRefsToAddonIds { countIn(sent, it) })
         assertEquals("the user's bookmark itself is sent", 1, countIn(sent, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(rogue)} AND primaryLabelId IS NULL"))
@@ -327,9 +336,12 @@ class AddonCollectionSyncTest {
                 c.exec("INSERT INTO StudyPadTextEntryText (studyPadTextEntryId, text) VALUES (${hex(entry)}, 'My own thoughts')")
                 c.exec("INSERT INTO LogEntry VALUES ('StudyPadTextEntry', ${hex(entry)}, '', 'UPSERT', $later, 'd1')")
                 c.exec("INSERT INTO LogEntry VALUES ('StudyPadTextEntryText', ${hex(entry)}, '', 'UPSERT', $later, 'd1')")
+                c.exec("UPDATE GenericBookmark SET primaryLabelId = ${hex(addonLabel)} WHERE id = ${hex(generic)}")
+                c.exec("INSERT INTO GenericBookmarkToLabel (bookmarkId, labelId) VALUES (${hex(generic)}, ${hex(addonLabel)})")
+                c.exec("INSERT INTO LogEntry VALUES ('GenericBookmarkToLabel', ${hex(generic)}, ${hex(addonLabel)}, 'UPSERT', $later, 'd1')")
             } finally { c.close() }
         }
-        assertEquals(4, userRefsToAddonIds { countIn(sent, it) })
+        assertEquals("bible link + primary label, generic link + primary label, entry, its 2 log entries, 2 link log entries", 9, userRefsToAddonIds { countIn(sent, it) })
         val forged = tmp("forged-", ".gz").toOkioPath()
         ArchiveUtils.gzipFile(File(sent).toOkioPath(), forged)
 
@@ -341,6 +353,8 @@ class AddonCollectionSyncTest {
             assertEquals(d.deviceId, 0, userRefsToAddonIds { countIn(d, it) })
             assertEquals("${d.deviceId}: the user's bookmark arrives, without the add-on primary label", 1,
                 countIn(d, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(rogue)} AND primaryLabelId IS NULL"))
+            assertEquals("${d.deviceId}: the generic bookmark arrives without the add-on primary label", 1,
+                countIn(d, "SELECT COUNT(*) FROM GenericBookmark WHERE id = ${hex(generic)} AND primaryLabelId IS NULL"))
             assertEquals(d.deviceId, 0, countIn(d, "SELECT COUNT(*) FROM StudyPadTextEntryText WHERE studyPadTextEntryId = ${hex(entry)}"))
             assertEquals(d.deviceId, 0, addonLogEntries(d))
         }
@@ -509,5 +523,40 @@ class AddonCollectionSyncTest {
         // The device itself keeps its collection.
         assertTrue(addonRowsIn(b) > 0)
         assertEquals(0, addonLogEntries(b))
+    }
+
+    /**
+     * The initial download (a first-join FETCH) strips add-on rows and user rows' references to them from the cloud's
+     * file before it replaces the local database (CloudSync.fetchAndRestoreInitial). The cloud's initial file is
+     * replaced here by one with the references, as another device or an older build could have uploaded.
+     */
+    @Test
+    fun initialDownloadStripsUserRefsToAddonIds() = runTest(testDispatcher, timeout = 120.seconds) {
+        val before = DatabaseContainer.databaseAccessorsByCategory[category]!!
+        install(before.localDb as BookmarkDatabase)
+        val (_, other) = signedInAdapters()
+        syncAnswering(choiceIndex = 0) // creates the cloud's initial file
+        val folder = other.listFiles(name = "${env.packageName}-sync-${category.name.lowercase()}").single().id
+
+        val forgery = device("forger")
+        install(forgery.localDb)
+        val rogue = addRogueRefs(forgery.localDb)
+        val raw = tmp("forged-initial-").also { it.delete() }
+        forgery.localDb.useWriterConnectionMarked { it.exec("VACUUM INTO '${raw.absolutePath}'") }
+        assertTrue("the forged file holds references", userRefsToAddonIds { countIn(raw.absolutePath, it) } > 0)
+        val gz = tmp("forged-initial-", ".gz").toOkioPath()
+        ArchiveUtils.gzipFile(raw.toOkioPath(), gz)
+        other.upload(INITIAL_BACKUP_FILENAME, gz, folder)
+
+        // Forget the join, so that the next sync fetches the initial file: choice 1 is "fetch and restore initial".
+        before.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+        syncAnswering(choiceIndex = 1)
+
+        val b = DatabaseContainer.databaseAccessorsByCategory[category]!! // the swap reopened the database
+        assertEquals(0, userRefsToAddonIds { countIn(b, it) })
+        assertEquals("the user's bookmark arrives without its add-on primary label", 1,
+            countIn(b, "SELECT COUNT(*) FROM BibleBookmark WHERE id = ${hex(rogue.bookmark)} AND primaryLabelId IS NULL"))
+        assertEquals(1, countIn(b, "SELECT COUNT(*) FROM GenericBookmark WHERE id = ${hex(rogue.generic)} AND primaryLabelId IS NULL"))
+        assertEquals(0, countIn(b, "SELECT COUNT(*) FROM StudyPadTextEntry WHERE id = ${hex(rogue.entry)}"))
     }
 }

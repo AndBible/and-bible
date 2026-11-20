@@ -95,8 +95,9 @@ class BookmarkCreation(
 
     /**
      * "Bookmark this verse" on an add-on collection bookmark: the user's own new bookmark of the same range, with the
-     * workspace's auto-assign labels (add-on labels among them are dropped), opened like any new bookmark. The add-on
-     * bookmark itself is read-only and stays as it is.
+     * workspace's auto-assign labels (add-on labels among them are dropped). Like [makeBookmark], the bookmark's modal
+     * opens only when no own auto-assign label was applied (the user then picks labels there). The add-on bookmark
+     * itself is read-only and stays as it is.
      */
     fun bookmarkAddonVerse(addonBookmarkId: IdType) {
         val initialLabels = session.workspaceSettings.autoAssignLabels
@@ -107,7 +108,9 @@ class BookmarkCreation(
                 bookmark.primaryLabelId = primaryLabelId
             }
             bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-            session.emit(BibleViewEvents.bookmarkClicked(bookmark.id.toString(), false))
+            if (initialLabels.none { !it.isAddonId }) {
+                session.emit(BibleViewEvents.bookmarkClicked(bookmark.id.toString(), false))
+            }
         }
     }
 

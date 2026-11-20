@@ -80,6 +80,11 @@ private fun stripStatements(category: SyncableDatabaseDefinition, schema: String
  * or file from another device or an older build could still carry one, and where the module is installed here it would
  * pass the foreign-key check and make the association. Where it is not installed, the plain foreign-key clean-up would
  * delete the whole user bookmark instead of only its primary label.
+ *
+ * Known remainder, harmless: a patch holding only the `StudyPadTextEntryText` of such an entry (the entry row itself
+ * not in the patch) cannot be recognised, as the label is stored on the entry row only. Its text row has no entry here
+ * (this build never creates one in an add-on label), so the foreign-key clean-up drops it; its log entry stays in the
+ * local log, which only records "newer than T" and sends nothing without a row (patches are built from rows).
  */
 private fun userRefsToAddonRowsStatements(schema: String, existing: Set<String>): List<String> = buildList {
     val log = "LogEntry" in existing
