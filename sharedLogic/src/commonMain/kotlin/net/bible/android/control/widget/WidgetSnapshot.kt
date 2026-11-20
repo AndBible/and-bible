@@ -96,7 +96,15 @@ object WidgetSnapshotBuilder {
         requestedBibles: Set<String>,
         now: Long,
         zone: LocalZone,
-    ): WidgetSnapshot {
+    ): WidgetSnapshot = assemble(
+        state, candidates, strings, pools(candidates, requestedBibles, now, zone), now,
+    )
+
+    /**
+     * The verse pools alone: the expensive part (labels x Bibles x [POOL_CAP] SWORD reads), so a caller that rebuilds
+     * the snapshot often (every speak update) keeps them and calls this only when labels, Bibles or the week change.
+     */
+    suspend fun pools(candidates: VerseCandidates, requestedBibles: Set<String>, now: Long, zone: LocalZone): List<VersePool> {
         val installed = candidates.bibles()
         val default = candidates.defaultBible()
         val bibleSet = buildList {
@@ -115,6 +123,20 @@ object WidgetSnapshotBuilder {
             for (part in VerseSource.RandomPart.entries) addPool("random:${part.name}", VerseSource.Random(part), bible)
             addPool("plan", VerseSource.ReadingPlan, bible)
         }
+        return pools
+    }
+
+    /** The snapshot around already built [pools] (see [pools]); cheap apart from the label and Bible lists. */
+    suspend fun assemble(
+        state: SpeakWidgetState,
+        candidates: VerseCandidates,
+        strings: WidgetStrings,
+        pools: List<VersePool>,
+        now: Long,
+    ): WidgetSnapshot {
+        val installed = candidates.bibles()
+        val default = candidates.defaultBible()
+        val labels = candidates.labels()
         return WidgetSnapshot(
             generatedAt = now,
             speak = SpeakSnapshot(

@@ -58,6 +58,20 @@ object IosPlatformBootstrap {
      */
     fun openWidgetUrl(url: String) = net.bible.sharedui.platform.widget.IosWidgetUrls.open(url)
 
+    /**
+     * Rewrites the widget snapshot now (Swift calls it when the app becomes active: picks up Bibles the widget
+     * extension asked for and a changed language). No-op before the snapshot writer has started.
+     */
+    fun refreshWidgetSnapshot() {
+        net.bible.sharedui.platform.widget.IosWidgetBridge.reloadTimelines ?: return
+        KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedui.platform.widget.IosWidgetSnapshotWriter>()?.writeNow()
+    }
+
+    /** Swift sets this to `WidgetCenter.shared.reloadAllTimelines`. */
+    fun setWidgetReloader(reload: () -> Unit) {
+        net.bible.sharedui.platform.widget.IosWidgetBridge.reloadTimelines = reload
+    }
+
     /** Shared with the UI, confined to Main; background checks never mutate its launch accounting. */
     internal val crashTracker by lazy { net.bible.sharedui.ios.startup.IosCrashTracker(net.bible.sharedcore.platform.IosDeviceSettings()) }
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
@@ -102,7 +116,6 @@ object IosPlatformBootstrap {
      * No-op before Koin starts.
      */
     fun startForegroundSync() {
-        net.bible.sharedui.platform.widget.IosWidgetUrls.flush()
         KoinPlatform.getKoinOrNull()?.getOrNull<IosSyncTriggers>()?.start()
     }
 

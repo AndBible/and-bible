@@ -226,6 +226,8 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<CoreStrings> { KeyedCoreStrings { get<HostStringTableHolder>().current } }
         single<LlmStrings> { KeyedLlmStrings { get<HostStringTableHolder>().current } }
         single<LabelNameStrings> { KeyedLabelNameStrings { get<HostStringTableHolder>().current } }
+        single<net.bible.android.control.widget.WidgetStrings> { net.bible.sharedui.strings.keyed.KeyedWidgetStrings { get<HostStringTableHolder>().current } }
+        single { net.bible.sharedui.platform.widget.IosWidgetSnapshotWriter(get(), get(), get(), get()) } onClose { it?.close() }
         single<SettingLabels> { KeyedSettingLabels { get<HostStringTableHolder>().current } }
         single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<HostStringTableHolder>().current } }
         single<TextDisplayPrefItems> {

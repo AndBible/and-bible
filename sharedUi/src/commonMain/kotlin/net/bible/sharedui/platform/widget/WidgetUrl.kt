@@ -28,6 +28,12 @@ sealed interface WidgetUrlAction {
     /** Resume speaking from the speak bookmark with this id. */
     data class SpeakBookmark(val id: String) : WidgetUrlAction
 
+    /**
+     * Speak this passage from its first verse, as the verse menu's Speak does (`andbible-widget://speak-passage?link=<url>`,
+     * the Verse widget's speak button). [passage] is parsed from the same `read.andbible.org` link as [OpenPassage].
+     */
+    data class SpeakPassage(val passage: OpenPassage) : WidgetUrlAction
+
     /** Malformed or unknown: ignored by the app. */
     data object Invalid : WidgetUrlAction
 }
@@ -36,11 +42,13 @@ sealed interface WidgetUrlAction {
 enum class SpeakCommand(val wire: String) {
     TOGGLE("toggle"), PLAY("play"), PAUSE("pause"), STOP("stop"),
     PREV_VERSE("prev"), NEXT_VERSE("next"), REWIND("rewind"), FORWARD("forward"),
+    /** Toggles the sleep timer (off, or back to the last used length). */
+    SLEEP("sleep"),
 }
 
 /**
  * Parser of the widget URL scheme (`andbible-widget://open?link=<url>`, `.../speak/<command>`,
- * `.../bookmark/<id>`). The inner `link` of an `open` URL must be fully percent-encoded by the sender (`&`, `?`, `=`
+ * `.../bookmark/<id>`, `speak-passage?link=<url>`). The inner `link` of an `open` URL must be fully percent-encoded by the sender (`&`, `?`, `=`
  * and `#` included): Swift's `URLComponents`/`URLQueryItem` leave those unescaped, so the widget extension encodes it
  * itself, and an unencoded `&` ends the link. Pure and platform-independent; the iOS app executes the result
  * (`IosWidgetUrls`).
@@ -59,6 +67,8 @@ object WidgetUrl {
             "open" -> query?.let(::queryParams)?.get("link")?.let(::parseReadLink) ?: WidgetUrlAction.Invalid
             "speak" -> SpeakCommand.entries.firstOrNull { it.wire == segments.getOrNull(1) }
                 ?.let { WidgetUrlAction.Speak(it) } ?: WidgetUrlAction.Invalid
+            "speak-passage" -> (query?.let(::queryParams)?.get("link")?.let(::parseReadLink) as? WidgetUrlAction.OpenPassage)
+                ?.let { WidgetUrlAction.SpeakPassage(it) } ?: WidgetUrlAction.Invalid
             "bookmark" -> segments.getOrNull(1)?.takeIf { it.isNotBlank() }
                 ?.let { WidgetUrlAction.SpeakBookmark(it) } ?: WidgetUrlAction.Invalid
             else -> WidgetUrlAction.Invalid
