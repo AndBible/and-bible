@@ -284,8 +284,8 @@ fun WorkspaceSelectorScreen(
             title = null,
             message = s.workspaceSaveChanges,
             options = listOf(
-                SettingsItem.Choice(value = "yes", label = s.yes),
-                SettingsItem.Choice(value = "no", label = s.no),
+                SettingsItem.Choice(value = "yes", label = s.dialogApply),
+                SettingsItem.Choice(value = "no", label = s.dialogDontApply),
             ).toAnswers(),
             onSelect = { value -> onConfirmPendingSelect(value == "yes") },
             onDismissRequest = onDismissPendingSelect,

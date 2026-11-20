@@ -82,10 +82,12 @@ fun ReadingPlanSelectorScreen(
 
     confirmResetCode?.let { code ->
         AbConfirmDialog(
-            title = strings.resetGeneric,
-            message = strings.resetPlanQuestion,
+            title = null,
+            message = strings.resetPlanLead,
+            detail = strings.resetPlanDetail,
             confirmText = strings.resetGeneric,
             dismissText = strings.cancel,
+            destructive = true,
             onConfirm = { confirmResetCode = null; onReset(code) },
             onDismiss = { confirmResetCode = null },
         )
@@ -93,6 +95,9 @@ fun ReadingPlanSelectorScreen(
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
     } else if (duplicateWarning) {
-        AbErrorDialog(message = strings.planDuplicateUserPlan, confirmText = strings.okay, onDismiss = onDismissDuplicate)
+        AbErrorDialog(
+            message = strings.planDuplicateUserPlanLead, detail = strings.planDuplicateUserPlanDetail,
+            confirmText = strings.okay, onDismiss = onDismissDuplicate,
+        )
     }
 }

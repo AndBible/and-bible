@@ -97,6 +97,7 @@ fun BackgroundImageChooserScreen(
             message = labels.deleteConfirm,
             confirmText = labels.delete,
             dismissText = labels.cancel,
+            destructive = true,
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
         )

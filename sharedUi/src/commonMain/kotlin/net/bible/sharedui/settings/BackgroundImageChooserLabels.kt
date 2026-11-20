@@ -24,8 +24,8 @@ data class BackgroundImageChooserLabels(
     val import: String, // R.string.background_image_import
     val empty: String, // R.string.background_image_empty
     val importing: String, // R.string.background_image_importing (new)
-    val deleteTitle: String, // R.string.background_image_delete_title (new)
-    val deleteConfirm: String, // R.string.background_image_delete_confirm (new)
+    val deleteTitle: String, // R.string.background_image_delete_lead: the dialog lead line
+    val deleteConfirm: String, // R.string.background_image_delete_detail: the dialog detail line
     val delete: String, // R.string.delete
     val cancel: String, // R.string.cancel
 ) {
@@ -36,8 +36,8 @@ data class BackgroundImageChooserLabels(
             import = "Import",
             empty = "No background images",
             importing = "Importing…",
-            deleteTitle = "Delete image?",
-            deleteConfirm = "Delete this background image?",
+            deleteTitle = "Delete this background image?",
+            deleteConfirm = "Workspaces still using it will fall back to no image.",
             delete = "Delete",
             cancel = "Cancel",
         )

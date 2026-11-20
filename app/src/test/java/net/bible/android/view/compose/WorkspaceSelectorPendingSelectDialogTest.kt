@@ -36,7 +36,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Task 22 (platform-dialog removal run 3): [WorkspaceSelectorScreen]'s dirty-select prompt moved
  * from a hand-rolled M3 `AlertDialog` onto `AbOptionsDialog` (spec §6.2). Same 3-branch behaviour
- * as before: "Yes" saves+goes, "No" discards+goes, and dismissing (tap outside/back) leaves the
+ * as before: "Apply" saves+goes, "Don’t apply" discards+goes, and dismissing (tap outside/back) leaves the
  * pending selection untouched -- this proves the wiring survived the swap.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -76,26 +76,26 @@ class WorkspaceSelectorPendingSelectDialogTest {
 
     @Test fun noDialogWhenNoPendingSelection() {
         show(pending = null)
-        compose.onNodeWithText("Yes").assertDoesNotExist()
-        compose.onNodeWithText("No").assertDoesNotExist()
+        compose.onNodeWithText("Apply").assertDoesNotExist()
+        compose.onNodeWithText("Don’t apply").assertDoesNotExist()
     }
 
     @Test fun pendingSelectionShowsBothOptions() {
         show(pending = "ws-2")
-        compose.onNodeWithText("Yes").assertExists()
-        compose.onNodeWithText("No").assertExists()
+        compose.onNodeWithText("Apply").assertExists()
+        compose.onNodeWithText("Don’t apply").assertExists()
     }
 
     @Test fun yesAnswersConfirmWithSaveTrue() {
         show(pending = "ws-2")
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Apply").performClick()
         assertEquals(listOf(true), confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun noAnswersConfirmWithSaveFalse() {
         show(pending = "ws-2")
-        compose.onNodeWithText("No").performClick()
+        compose.onNodeWithText("Don’t apply").performClick()
         assertEquals(listOf(false), confirmCalls)
         assertEquals(0, dismissCalls)
     }

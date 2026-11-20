@@ -12,6 +12,8 @@ data class AppSettingsLabels(
 
     // Task 15 — platform-dialog removal: the "reset to defaults" confirmation
     val resetConfirmMessage: String,
+    /** Optional second line of the reset confirmation; empty for none. */
+    val resetConfirmDetail: String = "",
 
     // Category titles
     val dictionariesCat: String,

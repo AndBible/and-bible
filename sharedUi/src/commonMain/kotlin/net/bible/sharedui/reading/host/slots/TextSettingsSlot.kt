@@ -183,7 +183,7 @@ internal class TextSettingsEditorState(
                     onDismissDeleteConfirm = colorController::onDismissDeleteConfirm,
                     onReset = { colorController.onReset(); onReady() },
                     resetConfirmMessage = screenLabels.resetConfirmMessage,
-                    confirmLabel = screenLabels.okLabel,
+                    confirmLabel = screenLabels.resetLabel,
                     cancelLabel = screenLabels.cancelLabel,
                     onPush = { editor.push(it) },
                     onPop = { editor.pop() },

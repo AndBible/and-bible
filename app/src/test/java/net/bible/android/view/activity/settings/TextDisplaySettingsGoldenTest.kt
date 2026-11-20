@@ -173,7 +173,7 @@ class TextDisplaySettingsGoldenTest {
 
     private fun testDialogLabels() = TextDisplaySettingsScreenLabels(
         resetContentDescription = "Reset",
-        resetConfirmMessage = "Are you sure that you want to reset all of these values?",
+        resetConfirmMessage = "Reset all of these values?",
         revertMessage = "Revert this setting to the inherited value?",
         fontSizeDialogTitle = "Font size",
         topMarginDialogTitle = "Top margin",
@@ -186,6 +186,7 @@ class TextDisplaySettingsGoldenTest {
         badgeWorkspace = "Workspace",
         badgeGlobal = "Global",
         okLabel = "OK",
+        resetLabel = "Reset",
         cancelLabel = "Cancel",
     )
 

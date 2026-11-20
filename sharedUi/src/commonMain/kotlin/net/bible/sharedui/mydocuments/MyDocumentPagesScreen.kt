@@ -264,15 +264,15 @@ fun MyDocumentPagesScreen(
     }
     deleteFor?.let { item ->
         AbConfirmDialog(
-            title = null, message = s.deletePageConfirmation(item.name),
-            confirmText = s.delete, dismissText = s.cancel,
+            title = null, message = s.deletePageLead(item.name),
+            confirmText = s.delete, dismissText = s.cancel, destructive = true,
             onConfirm = { deleteFor = null; onDelete(item.id) }, onDismiss = { deleteFor = null },
         )
     }
     if (confirmBatchDelete) {
         AbConfirmDialog(
             title = null, message = s.deletePagesConfirmation,
-            confirmText = s.delete, dismissText = s.cancel,
+            confirmText = s.delete, dismissText = s.cancel, destructive = true,
             onConfirm = { confirmBatchDelete = false; onDeleteSelected() },
             onDismiss = { confirmBatchDelete = false },
         )

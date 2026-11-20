@@ -237,8 +237,7 @@ class ReadHistoryRequest(val title: String, val rows: List<ReadHistoryRow>)
  * - [onShowHelp] is `CommonUtils.showHelpDialog` (`:255-262`) — a platform dialog, left platform.
  * - [unmarkConfirmMessage] / [removeTargetConfirmMessage] are the two `AbConfirmDialog` bodies,
  *   each a `getString(..., row.rangeName)` format. Lambdas, not strings: the argument is only known
- *   when a row is tapped. [confirmText] / [dismissText] are `android.R.string.ok` / `cancel` —
- *   classic's own choice of the SYSTEM strings, kept rather than swapped for `LocalStrings`.
+ *   when a row is tapped. [confirmText] / [dismissText] are the destructive button's verb ("Remove") and "Cancel".
  */
 class ReadingProgressDeps(
     val controllerFor: (
@@ -622,6 +621,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                 message = d.unmarkConfirmMessage(row.rangeName),
                 confirmText = d.confirmText,
                 dismissText = d.dismissText,
+                destructive = true,
                 onConfirm = { controller.unmarkPassage(row.startOrdinal, row.endOrdinal); unmarkRow = null },
                 onDismiss = { unmarkRow = null },
             )
@@ -632,6 +632,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                 message = d.removeTargetConfirmMessage(row.rangeName),
                 confirmText = d.confirmText,
                 dismissText = d.dismissText,
+                destructive = true,
                 onConfirm = { controller.removeTarget(row.id); removeRow = null },
                 onDismiss = { removeRow = null },
             )

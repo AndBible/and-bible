@@ -145,7 +145,6 @@ interface Strings {
     val prefsVolumeKeysScrollSummary: String
     val prefsVolumeKeysScrollTitle: String
     val readingProgressSettingsSummary: String
-    val resetAppPrefs: String
     val resetSettings: String
     val resetSync: String
     val settings: String
@@ -195,8 +194,6 @@ interface Strings {
     val errorExecutingSearch: String                                  // R.string.error_executing_search
     val backgroundImageChange: String
     val backgroundImageDay: String
-    val backgroundImageDeleteConfirm: String
-    val backgroundImageDeleteTitle: String
     val backgroundImageEmpty: String
     val backgroundImageImport: String
     val backgroundImageImporting: String
@@ -296,7 +293,6 @@ interface Strings {
     val prefsVersePerLineSummary: String
     val prefsVersePerLineTitle: String
     val prefsVersesAndHeadingsTitle: String
-    val resetAreYouSure: String
     val textOptionsInheritedGlobal: String
     val textOptionsInheritedWorkspace: String
     val workspaceTextOptionsLink: String
@@ -435,9 +431,7 @@ interface Strings {
     // Batch 2 — reading plan
     val readingPlanSelectorTitle: String
     val readingPlanTitle: String
-    val planDuplicateUserPlan: String
     val resetGeneric: String
-    val resetPlanQuestion: String
     val yes: String
     val no: String
     val all: String
@@ -445,7 +439,6 @@ interface Strings {
     val setStartDate: String
     val importReadingPlan: String
     /** [day] is the localized name of the day being viewed (e.g. "Day 10"); that day becomes the current one. */
-    fun setCurrentDayQuestion(day: String): String
     val selectPassage: String
     val speak: String
     val stop: String
@@ -645,11 +638,8 @@ interface Strings {
     val contentTypeMarkdown: String         // R.string.my_document_content_type_markdown
     val contentTypeHtml: String             // R.string.my_document_content_type_html
     val myDocumentPagesEmpty: String        // R.string.my_document_pages_empty
-    val cannotDeleteAiDocuments: String     // R.string.my_document_cannot_delete_ai_documents
     fun newDocumentName(n: Int): String     // R.string.my_document_new_name
     fun newPageName(n: Int): String         // R.string.my_document_new_page_name
-    fun deleteDocumentConfirmation(name: String): String  // R.string.my_document_delete_confirmation
-    fun deletePageConfirmation(name: String): String      // R.string.my_document_page_delete_confirmation
     val deleteDocumentsConfirmation: String   // R.string.delete_docs_confirm (batch delete)
     val deletePagesConfirmation: String       // R.string.my_document_pages_delete_confirmation
     val switchDocument: String                // R.string.my_documents_switch_document
@@ -1022,7 +1012,6 @@ interface Strings {
     fun readingProgressOverall(pct: Float): String          // reading_progress_overall (%.1f)
     fun readingProgressCycle(cycle: Int): String            // reading_progress_cycle
     val readingProgressNewCycle: String                     // reading_progress_new_cycle
-    val readingProgressNewCycleConfirm: String              // reading_progress_new_cycle_confirm
     val readingProgressPercentReadScale: String             // reading_progress_percent_read_scale
     val readingProgressReadCountScale: String               // reading_progress_read_count_scale
     fun monochromeActivityCount(count: Int): String
@@ -1050,8 +1039,6 @@ interface Strings {
     val memorizeVersesMemorized: String                     // memorize_verses_memorized
     val memorizeVersesTarget: String                        // memorize_verses_target
     fun memorizeShowMore(count: Int): String                // memorize_show_more
-    fun memorizeConfirmUnmark(name: String): String         // memorize_confirm_unmark
-    fun memorizeConfirmRemoveTarget(name: String): String   // memorize_confirm_remove_target
     val memorizeMemorizedPassages: String                   // memorize_memorized_passages
     val memorizeNoMemorizedPassages: String                 // memorize_no_memorized_passages
     val memorizeTargets: String                             // memorize_targets
@@ -1433,6 +1420,29 @@ interface Strings {
     val epubUpgradeDetail: String get() =
         "$epubUpgradeTitle $epubUpgradeWarning\n\n$epubUpgradeRecommendation"
     // end dialog copy: B3c
+    // dialog copy: B2b
+    fun deleteDocumentLead(name: String): String
+    fun deletePageLead(name: String): String
+    val cannotDeleteAiDocumentsLead: String
+    val cannotDeleteAiDocumentsDetail: String
+    val readingProgressNewCycleLead: String
+    val readingProgressNewCycleDetail: String
+    val readingProgressNewCycleStart: String
+    val resetPlanLead: String
+    val resetPlanDetail: String
+    fun setCurrentDayLead(day: String): String
+    val setCurrentDayDetail: String
+    val planDuplicateUserPlanLead: String
+    val planDuplicateUserPlanDetail: String
+    val backgroundImageDeleteLead: String
+    val backgroundImageDeleteDetail: String
+    val resetValuesLead: String
+    val resetSettingsScreenLead: String
+    val resetSettingsScreenDetail: String
+    fun memorizeUnmarkLead(name: String): String
+    fun memorizeRemoveTargetLead(name: String): String
+    val dialogApply: String
+    val dialogDontApply: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

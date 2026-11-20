@@ -267,6 +267,7 @@ fun ColorSettingsEditorSheet(
             message = chooserLabels.deleteConfirm,
             confirmText = chooserLabels.delete,
             dismissText = chooserLabels.cancel,
+            destructive = true,
             onConfirm = onConfirmDeleteBackgroundImage,
             onDismiss = onDismissDeleteConfirm,
         )
@@ -278,6 +279,7 @@ fun ColorSettingsEditorSheet(
             message = resetConfirmMessage,
             confirmText = confirmLabel,
             dismissText = cancelLabel,
+            destructive = true,
             onConfirm = { onReset(); showResetConfirm = false },
             onDismiss = { showResetConfirm = false },
         )

@@ -190,10 +190,12 @@ fun DailyReadingScreen(
     }
 
     if (confirm != null) {
-        val message = if (confirm == ConfirmKind.RESET) strings.resetPlanQuestion else strings.setCurrentDayQuestion(ui.dayDesc)
+        val isReset = confirm == ConfirmKind.RESET
         AbConfirmDialog(
             title = null,
-            message = message,
+            message = if (isReset) strings.resetPlanLead else strings.setCurrentDayLead(ui.dayDesc),
+            detail = if (isReset) strings.resetPlanDetail else strings.setCurrentDayDetail,
+            destructive = isReset,
             confirmText = if (confirm == ConfirmKind.RESET) strings.resetGeneric else strings.setCurrentDayAction,
             dismissText = strings.cancel,
             onConfirm = onConfirm,

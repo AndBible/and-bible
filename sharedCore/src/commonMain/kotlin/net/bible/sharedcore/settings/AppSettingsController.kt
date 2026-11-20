@@ -33,7 +33,7 @@ object AppSettingsNav {
  *  (an Android-build-flavour fact `:sharedCore` cannot see), so the host still builds the string. */
 sealed interface AppSettingsDialog {
     data object None : AppSettingsDialog
-    data class ConfirmReset(val message: String) : AppSettingsDialog
+    data class ConfirmReset(val message: String, val detail: String = "") : AppSettingsDialog
     data class DiscreteHelp(val title: String, val html: String) : AppSettingsDialog
 }
 
@@ -71,7 +71,7 @@ class AppSettingsController(
         this.labels = labels
         _state.value = build(service.snapshot.value)
         _dialog.value = when (val dialog = _dialog.value) {
-            is AppSettingsDialog.ConfirmReset -> AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage)
+            is AppSettingsDialog.ConfirmReset -> AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage, labels.resetConfirmDetail)
             is AppSettingsDialog.DiscreteHelp -> dialog.copy(
                 title = labels.persecutionCat,
                 html = discreteHelpHtml?.invoke() ?: dialog.html,
@@ -81,7 +81,7 @@ class AppSettingsController(
     }
 
     /** Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`). */
-    fun requestReset() { _dialog.value = AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage) }
+    fun requestReset() { _dialog.value = AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage, labels.resetConfirmDetail) }
 
     /** Classic's persecution-help dialog (`SettingsComposeActivity.kt:189-216`); [html] is built by
      *  the host exactly as before (see [AppSettingsDialog.DiscreteHelp]'s kdoc). */
