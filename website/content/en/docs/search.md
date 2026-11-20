@@ -168,6 +168,8 @@ not match Strong's numbers or notes. Matches are highlighted in the results.
 - The verse text is searched as it is written, so punctuation follows the word without a space: use `said:`, not `said :`.
   The stored text is reconstructed from the module's markup, so in rare cases its spacing can still differ from what
   the reading screen shows; a `\s*` in the expression tolerates that.
+- Spaces at the very start and end of what you type are ignored, as in every other search. To match a space there, use
+  `\s` or `[ ]` inside the expression.
 
 Examples:
 
@@ -181,10 +183,19 @@ translation.
 
 A regular-expression search has a time limit of 3 seconds for the whole search, across all selected translations. When
 it runs out, you get the results found so far and the notice "The search took too long and was stopped. Results are
-incomplete; try a simpler expression." Try a simpler expression to get complete results. A very slow expression cannot
-always be interrupted inside the regular-expression engine: the search then stops waiting for it after about
-3 seconds and shows the notice, while the device may keep computing briefly in the background. Highlighting the
-matches has its own short time limit; results it does not reach are shown without highlights.
+incomplete; try a simpler expression." The same notice appears when a verse could not be matched or one of the
+selected translations could not be read, because the list may then be incomplete; if every selected translation fails,
+the search shows an error instead of an empty list. Highlighting the matches has its own short time limit; results it
+does not reach are shown without highlights.
+
+An expression that repeats a group which itself contains a repetition, such as `(\w+\s?)+:`, `(a*)*b` or `(.*a){20}`,
+can take practically forever to match, so it is refused with a message before it runs; write it without the nesting
+(`[\w\s]+:`). Small bounded repeats such as `(\d{1,3}\.){3}` are fine. This check is not a proof, and a slow expression
+that it lets through is still stopped at the time limit. On Android the regular-expression engine cannot be
+interrupted: such an expression is abandoned after about 3 seconds, but its computation keeps running in the
+background until it finishes, which may be never. While one is running, a new regular-expression search is refused
+with a message that asks you to try again in a moment or restart the app. Desktop and iOS stop the match itself at the
+time limit.
 
 Each platform uses its own regular-expression engine: Android uses Android's own (ICU-based) engine, desktop uses
 Java's, and iOS uses Kotlin/Native's. They agree on common syntax, but small differences in dialect are possible. On

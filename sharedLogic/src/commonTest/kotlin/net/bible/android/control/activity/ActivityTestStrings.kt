@@ -142,6 +142,8 @@ internal class ActivityTestStrings : CoreStrings {
     override val exportDestinationMessage = "exportDestinationMessage"
     override fun searchUnsupportedSyntax(syntax: String): String = "searchUnsupportedSyntax ${syntax}"
     override fun searchInvalidRegex(engineMessage: String): String = "searchInvalidRegex ${engineMessage}"
+    override val searchRegexNestedRepetition = "searchRegexNestedRepetition"
+    override val searchRegexBusy = "searchRegexBusy"
     override val memorizeWordVisibilityEntries = listOf("memorizeWordVisibilityEntries")
     override val memorizeWordVisibilityValues = listOf("memorizeWordVisibilityValues")
     override val cantChangeWholeVerse = "cantChangeWholeVerse"

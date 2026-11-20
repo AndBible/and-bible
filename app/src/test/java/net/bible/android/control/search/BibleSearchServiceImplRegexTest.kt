@@ -39,7 +39,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -61,11 +60,26 @@ import kotlin.time.Duration.Companion.seconds
 class BibleSearchServiceImplRegexTest {
     private val kjv get() = Books.installed().getBook("KJV")!!
 
-    @Before fun index() { FtsTestSupport.ensureIndexed(kjv) }
-    @After fun cleanUp() { FtsTestSupport.dropIndex(kjv) }
+    // The KJV index is built by the first test and reused by the rest of the class (building it takes tens of seconds); the
+    // index file is removed once, after the last test. A test that damages the index must rebuild it itself.
+    @Before fun index() {
+        FtsTestSupport.ensureIndexed(kjv)
+        indexFile = FtsTestSupport.indexFile(kjv)
+    }
+
+    private companion object {
+        var indexFile: java.io.File? = null
+
+        @JvmStatic @org.junit.AfterClass fun dropIndexOnce() {
+            indexFile?.delete()
+            indexFile = null
+        }
+    }
 
     private val strings = object : CoreStrings by mock<CoreStrings>() {
         override fun searchInvalidRegex(engineMessage: String) = "INVALID:$engineMessage"
+        override val searchRegexNestedRepetition get() = "NESTED"
+        override val searchRegexBusy get() = "BUSY"
     }
 
     private fun service(): BibleSearchServiceImpl {
@@ -183,6 +197,35 @@ class BibleSearchServiceImplRegexTest {
         assertTrue("the stand-in Bible must be searchable", regexScanOf(kjvAs(BookCategory.BIBLE)).size > 1)
         assertEquals(0, regexScanOf(kjvAs(BookCategory.COMMENTARY)).size)
         assertEquals(0, regexScanOf(kjvAs(BookCategory.GENERAL_BOOK)).size)
+    }
+
+    @Test fun nestedRepetitionIsRefusedBeforeAnythingRuns() {
+        for (pattern in listOf("(\\w+\\s?)+:", "(.*a){20}", "(a*)*b")) {
+            try {
+                search(request(pattern))
+                fail("expected SearchSyntaxException for $pattern")
+            } catch (e: SearchSyntaxException) {
+                assertEquals("NESTED", e.message)
+            }
+        }
+        // Everyday patterns still run.
+        assertTrue(search(request("(Lord|God) said")).total > 0)
+    }
+
+    @Test fun aFailingIndexIsAnErrorNotAnEmptyResult() {
+        val index = org.crosswire.jsword.index.IndexManagerFactory.getIndexManager().getIndex(kjv) as org.crosswire.jsword.index.fts.FtsIndex
+        // A closed index without a successor fails every scan; the search must say so instead of finding "nothing".
+        index.close()
+        try {
+            search(request("said:"))
+            fail("expected the failure of the only translation to surface")
+        } catch (e: org.crosswire.jsword.book.BookException) {
+            // surfaced
+        } finally {
+            // The cached index is closed: rebuild it for the tests that follow.
+            FtsTestSupport.dropIndex(kjv)
+            FtsTestSupport.ensureIndexed(kjv)
+        }
     }
 
     @Test fun exhaustedBudgetReportsTruncation() {

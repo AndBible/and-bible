@@ -324,7 +324,7 @@ internal class ReadingSearchSession(
         // Task 11 chain so every unindexed choice is built before the search runs.
         firstUnindexedInSelection = {
             val selection = searchTranslations.value
-            (if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(selection))
+            (if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(selection, searchRegex.value))
                 .firstOrNull()?.also { searchSelectorPendingIds = selection }
         },
         // An F100 prompt that was abandoned must not leave its chain armed for an unrelated later build.

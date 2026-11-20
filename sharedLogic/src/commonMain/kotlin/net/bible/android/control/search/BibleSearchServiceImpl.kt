@@ -19,6 +19,7 @@ package net.bible.android.control.search
 import net.bible.sharedcore.log.Log
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookException
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.currentCoroutineContext
@@ -52,7 +53,7 @@ import net.bible.sharedcore.search.SearchBibleSection as SharedSearchBibleSectio
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 
 /** A search the user must change: carries the localized message the shared controller shows. */
-class SearchSyntaxException(message: String, cause: Throwable) : Exception(message, cause)
+class SearchSyntaxException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /**
  * Host (`:app`) implementation of the portable [BibleSearchService] seam. It wraps the existing
@@ -83,7 +84,8 @@ class BibleSearchServiceImpl(
     override suspend fun searchMulti(request: SearchRequest): MultiSearchResults =
         searchMulti(request, SearchControl.REGEX_SEARCH_BUDGET)
 
-    /** [regexBudget] is injectable for tests; production uses [SearchControl.REGEX_SEARCH_BUDGET]. */
+    /** [regexBudget] is injectable for tests only; production uses [SearchControl.REGEX_SEARCH_BUDGET]. */
+    @VisibleForTesting
     suspend fun searchMulti(request: SearchRequest, regexBudget: Duration): MultiSearchResults = withContext(Dispatchers.IO) {
         // Result previews read the hit books: a restored results route must not read an enciphered book locked
         // (an empty/garbage preview, cached by readOsisFragment and by the results controller).
@@ -121,6 +123,10 @@ class BibleSearchServiceImpl(
      */
     private suspend fun searchRegex(request: SearchRequest, budget: Duration): MultiSearchResults {
         if (request.query.isBlank()) return MultiSearchResults.EMPTY
+        // Before anything runs: a pattern that can backtrack catastrophically is refused, because Android's engine
+        // cannot be interrupted once it runs, and so is any search while an abandoned runaway match still burns a thread.
+        if (hasNestedRepetition(request.query)) throw SearchSyntaxException(strings.searchRegexNestedRepetition)
+        if (!awaitNoAbandonedRegexWork()) throw SearchSyntaxException(strings.searchRegexBusy)
         val regex = try {
             Regex(request.query, RegexOption.IGNORE_CASE)
         } catch (e: IllegalArgumentException) {
@@ -176,6 +182,13 @@ class BibleSearchServiceImpl(
         translationIds.filter {
             !isUsable(it)
         }
+
+    override fun unindexedAmong(translationIds: List<String>, regex: Boolean): List<String> =
+        unindexedAmong(if (regex) translationIds.filter { isBibleDocument(it) } else translationIds)
+
+    /** What [SearchControl.getMultiRegexResults] scans: a SWORD book of category Bible. */
+    private fun isBibleDocument(docId: String): Boolean =
+        (SwordDocumentFacade.getDocumentByInitials(docId) as? SwordBook)?.bookCategory == BookCategory.BIBLE
 
     override fun unindexedStrongsAmong(translationIds: List<String>): List<String> = translationIds.filter { id ->
         val book = SwordDocumentFacade.getDocumentByInitials(id)

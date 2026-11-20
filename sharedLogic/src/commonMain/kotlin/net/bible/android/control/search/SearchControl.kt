@@ -200,7 +200,8 @@ class SearchControl constructor(
      *
      * Each translation is scanned on an abandonable worker ([scanWithinBudget]): a pattern the regex engine cannot be
      * interrupted in (Android's ICU engine) ends the search [REGEX_ABANDON_GRACE] after the budget, as truncated, with
-     * the results of the translations scanned before it. [bookLookup] is injectable for tests.
+     * the results of the translations scanned before it. A translation whose index fails makes the result partial, and
+     * when all of them fail the [BookException] is thrown (never an empty list). [bookLookup] is injectable for tests.
      */
     suspend fun getMultiRegexResults(
         documentInitials: List<String>,
@@ -215,10 +216,16 @@ class SearchControl constructor(
             (bookLookup(initials) as? SwordBook)?.takeIf { it.indexStatus == IndexStatus.DONE && it.bookCategory == BookCategory.BIBLE }
         }
         val outcome = scanWithinBudget(books, budgetDuration) { book, budget -> regexScanOf(book, regex, bibleSection, currentBookName, budget) }
-        searchResults.truncatedByTime = outcome.timedOut || outcome.results.any { (_, result) -> result.truncated }
+        val failures = outcome.results.mapNotNull { (_, scan) -> scan.error }
+        // Every translation that took part failed: that is an error, not an empty result.
+        if (failures.isNotEmpty() && outcome.results.all { (_, scan) -> scan.error != null }) throw failures.first()
+        // A translation that failed while others succeeded makes the list partial, which the notice says.
+        searchResults.truncatedByTime = outcome.timedOut || failures.isNotEmpty() ||
+            outcome.results.any { (_, scan) -> scan.result?.truncated == true }
 
         val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
-        for ((book, result) in outcome.results) {
+        for ((book, scan) in outcome.results) {
+            val result = scan.result ?: continue
             val count = minOf(result.keys.getCardinality(), MAX_SEARCH_RESULTS + 1)
             val keyIterator = result.keys.iterator()
             for (i in 0 until count) {
@@ -234,27 +241,37 @@ class SearchControl constructor(
         searchResults
     }
 
-    /** One translation's regex scan, or null (logged) when its index cannot be opened or searched or the section does not exist in it. */
+    /** The outcome of one translation's regex scan: [result] is null when the translation is skipped; [error] when its index failed. */
+    private class BookScan(val result: RegexSearchResult?, val error: Exception? = null)
+
+    /**
+     * One translation's regex scan. A translation that cannot take part (no regex index, the section does not exist in
+     * it) is skipped with a null result. An index that fails is not hidden as "nothing found": the scan carries the
+     * [BookScan.error] for [getMultiRegexResults] to report.
+     */
     private fun regexScanOf(
         book: SwordBook, regex: Regex, bibleSection: SearchBibleSection, currentBookName: String?, budget: RegexSearchBudget,
-    ): RegexSearchResult? = try {
+    ): BookScan = try {
         val index = IndexManagerFactory.getIndexManager().getIndex(book) as? RegexSearchableIndex
-        if (index == null) null else {
+        if (index == null) BookScan(null) else {
             val restriction = when (bibleSection) {
                 SearchBibleSection.ALL -> null
                 SearchBibleSection.OT -> book.getKey(SEARCH_OT_RANGE)
                 SearchBibleSection.NT -> book.getKey(SEARCH_NT_RANGE)
-                SearchBibleSection.CURRENT_BOOK -> currentBookName?.let { book.getKey(it) }
+                SearchBibleSection.CURRENT_BOOK -> {
+                    if (currentBookName.isNullOrBlank()) throw NoSuchKeyException("No current book")
+                    book.getKey(currentBookName)
+                }
             }
-            index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget)
+            BookScan(index.findRegex(regex, restriction, MAX_SEARCH_RESULTS + 1, budget))
         }
-    } catch (e: BookException) {
-        Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}")
-        null
     } catch (e: NoSuchKeyException) {
         // The section does not exist in this book's versification (or the book name is unknown): skip it.
         Log.e(TAG, "No such section in ${book.initials}: ${e.message}")
-        null
+        BookScan(null)
+    } catch (e: BookException) {
+        Log.e(TAG, "Error regex-searching ${book.initials}: ${e.message}", e)
+        BookScan(null, e)
     }
 
     /** Splits the per-verse matches into Scripture and other rows and sorts both in canonical order. */

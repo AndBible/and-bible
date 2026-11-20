@@ -25,6 +25,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -39,13 +40,56 @@ import kotlin.time.TimeSource
  * A regular-expression match cannot be interrupted portably: Android's ICU engine copies its input and matches it
  * natively, so a catastrophically backtracking pattern ignores the RegexSearchBudget for as long as it runs. The regex
  * work of a search therefore runs in workers that the search can stop waiting for. A worker that is abandoned keeps
- * its thread until the engine returns, but it sees an exhausted budget from then on (so every engine that does poll
+ * its thread until the engine returns (it is counted in [abandonedRegexWorkRunning], and a new search is refused while
+ * one runs), but it sees an exhausted budget from then on (so every engine that does poll
  * stops at once), and nothing it produces afterwards reaches the caller: it only returns values, or sends them into a
  * channel the caller has closed.
  */
 
 /** How long a search waits beyond its time limit for a worker before abandoning it. */
 internal val REGEX_ABANDON_GRACE: Duration = 500.milliseconds
+
+/**
+ * How many abandoned workers are still running their engine. Android's ICU engine cannot be interrupted, so a runaway
+ * pattern keeps its thread at full CPU until the process dies: while this is not zero, a new regex search is refused
+ * ([awaitNoAbandonedRegexWork]) instead of adding a second such thread.
+ */
+private val abandonedStillRunning = atomic(0)
+
+/** The number of abandoned regex workers whose engine has not returned yet. */
+internal val abandonedRegexWorkRunning: Int get() = abandonedStillRunning.value
+
+/**
+ * Whether no abandoned regex worker is running, waiting up to [patience] for one that is about to stop (a cancelled
+ * search whose engine polls the budget returns within milliseconds; a runaway ICU match never does).
+ */
+internal suspend fun awaitNoAbandonedRegexWork(patience: Duration = 300.milliseconds): Boolean =
+    withTimeoutOrNull(patience) {
+        while (abandonedStillRunning.value > 0) delay(20.milliseconds)
+        true
+    } ?: false
+
+/** One worker's life, so that a worker abandoned while it runs is counted until, and only until, it returns. */
+private class WorkerTicket {
+    private val state = atomic(RUNNING)
+
+    /** The caller stopped waiting. Counted first: [finished] may run at once and must find the count already raised. */
+    fun abandon() {
+        abandonedStillRunning.incrementAndGet()
+        if (!state.compareAndSet(RUNNING, ABANDONED)) abandonedStillRunning.decrementAndGet()
+    }
+
+    /** The engine returned (or threw). */
+    fun finished() {
+        if (!state.compareAndSet(RUNNING, FINISHED)) abandonedStillRunning.decrementAndGet()
+    }
+
+    private companion object {
+        const val RUNNING = 0
+        const val ABANDONED = 1
+        const val FINISHED = 2
+    }
+}
 
 /** Not a child of the caller: a cancelled search must not wait for an engine that cannot be cancelled. */
 private val abandonableWork = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -77,16 +121,19 @@ internal suspend fun <T, R : Any> scanWithinBudget(
     val results = ArrayList<Pair<T, R>>()
     for (item in items) {
         if (budget.exhausted) return RegexScanOutcome(results, timedOut = true)
-        val worker = abandonableWork.async { Box(scan(item, budget)) }
+        val ticket = WorkerTicket()
+        val worker = abandonableWork.async { try { Box(scan(item, budget)) } finally { ticket.finished() } }
         val wait = (-deadline.elapsedNow()).coerceAtLeast(Duration.ZERO) + grace
         val done = try {
             withTimeoutOrNull(wait) { worker.await() }
         } catch (e: CancellationException) {
             abandoned.value = true
+            ticket.abandon()
             throw e
         }
         if (done == null) {
             abandoned.value = true
+            ticket.abandon()
             Log.w(TAG, "A regex scan did not stop at its time limit; abandoned it")
             return RegexScanOutcome(results, timedOut = true)
         }
@@ -111,6 +158,7 @@ internal suspend fun highlightWithinAllowance(
     val abandoned = atomic(false)
     val budget = RegexSearchBudget(TimeSource.Monotonic.markNow() + allowance) { abandoned.value || !caller.isActive }
     val finished = Channel<Pair<Int, StyledText>>(Channel.UNLIMITED)
+    val ticket = WorkerTicket()
     abandonableWork.launch {
         try {
             for ((i, text) in texts.withIndex()) {
@@ -125,6 +173,7 @@ internal suspend fun highlightWithinAllowance(
             }
         } finally {
             finished.close()
+            ticket.finished()
         }
     }
     val out = texts.toMutableList()
@@ -132,11 +181,13 @@ internal suspend fun highlightWithinAllowance(
         withTimeoutOrNull(allowance + grace) { for ((i, text) in finished) out[i] = text; true }
     } catch (e: CancellationException) {
         abandoned.value = true
+        ticket.abandon()
         finished.cancel()
         throw e
     }
     if (complete == null) {
         abandoned.value = true
+        ticket.abandon()
         while (true) {
             val (i, text) = finished.tryReceive().getOrNull() ?: break
             out[i] = text

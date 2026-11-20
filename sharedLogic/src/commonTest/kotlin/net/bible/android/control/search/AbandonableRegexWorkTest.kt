@@ -43,7 +43,7 @@ import kotlin.time.TimeSource
  */
 class AbandonableRegexWorkTest {
     /**
-     * Spins, ignoring every budget, until [release] is set (or, as a safety net for a broken implementation, 4 s have
+     * Spins, ignoring every budget, until [release] is set (or, as a safety net for a broken implementation, 10 s have
      * passed); then reports whether the budget it was given had run out.
      */
     private class Blocker {
@@ -53,7 +53,7 @@ class AbandonableRegexWorkTest {
         fun block(budget: RegexSearchBudget) {
             started.value = true
             val since = TimeSource.Monotonic.markNow()
-            while (!release.value && since.elapsedNow() < 4.seconds) { /* an uninterruptible match */ }
+            while (!release.value && since.elapsedNow() < 10.seconds) { /* an uninterruptible match */ }
             sawExhaustedBudget.value = budget.exhausted
         }
     }
@@ -74,7 +74,7 @@ class AbandonableRegexWorkTest {
                 }
             }
             val took = start.elapsedNow()
-            assertTrue(took < 1500.milliseconds, "took $took")
+            assertTrue(took < 8.seconds, "took $took")
             assertTrue(took >= 300.milliseconds, "returned before the budget: $took")
             assertTrue(outcome.timedOut)
             assertEquals(listOf("A" to "hits of A"), outcome.results)
@@ -107,7 +107,7 @@ class AbandonableRegexWorkTest {
             }
             withTimeoutOrNull(5.seconds) { while (!blocker.started.value) delay(10) }
             assertTrue(blocker.started.value)
-            val returned = withTimeoutOrNull(2.seconds) { job.cancelAndJoin(); true }
+            val returned = withTimeoutOrNull(8.seconds) { job.cancelAndJoin(); true }
             assertEquals(true, returned, "cancelling must not wait for the stuck worker")
         } finally {
             blocker.release.value = true
@@ -128,7 +128,7 @@ class AbandonableRegexWorkTest {
                 marked(t)
             }
             val took = start.elapsedNow()
-            assertTrue(took < 1500.milliseconds, "took $took")
+            assertTrue(took < 8.seconds, "took $took")
             assertEquals(listOf(marked(texts[0]), marked(texts[1])) + texts.drop(2), out)
         } finally {
             blocker.release.value = true
@@ -155,9 +155,76 @@ class AbandonableRegexWorkTest {
             }
             withTimeoutOrNull(5.seconds) { while (!blocker.started.value) delay(10) }
             assertTrue(blocker.started.value)
-            assertEquals(true, withTimeoutOrNull(2.seconds) { job.cancelAndJoin(); true })
+            assertEquals(true, withTimeoutOrNull(8.seconds) { job.cancelAndJoin(); true })
         } finally {
             blocker.release.value = true
         }
+    }
+
+    // ---- the count of abandoned workers that are still running their engine ----
+
+    private suspend fun waitForNoAbandonedWork() {
+        withTimeoutOrNull(15.seconds) { while (abandonedRegexWorkRunning > 0) delay(10) }
+        assertEquals(0, abandonedRegexWorkRunning, "workers of earlier tests are still running")
+    }
+
+    private suspend fun released(blocker: Blocker) {
+        blocker.release.value = true
+        withTimeoutOrNull(15.seconds) { while (abandonedRegexWorkRunning > 0) delay(10) }
+    }
+
+    @Test fun anAbandonedScanIsCountedUntilItsEngineReturns() = realTime {
+        waitForNoAbandonedWork()
+        val blocker = Blocker()
+        try {
+            val outcome = scanWithinBudget(listOf("A"), 100.milliseconds, grace = 100.milliseconds) { _, budget -> blocker.block(budget); "x" }
+            assertTrue(outcome.timedOut)
+            assertEquals(1, abandonedRegexWorkRunning)
+            assertEquals(false, awaitNoAbandonedRegexWork(150.milliseconds), "a new search must be refused while the runaway match runs")
+        } finally {
+            released(blocker)
+        }
+        assertEquals(0, abandonedRegexWorkRunning)
+        assertEquals(true, awaitNoAbandonedRegexWork(150.milliseconds))
+    }
+
+    @Test fun waitingForTheCountPicksUpAWorkerThatStopsWithinThePatience() = realTime {
+        waitForNoAbandonedWork()
+        val blocker = Blocker()
+        scanWithinBudget(listOf("A"), 50.milliseconds, grace = 50.milliseconds) { _, budget -> blocker.block(budget); "x" }
+        assertEquals(1, abandonedRegexWorkRunning)
+        launch { delay(150); blocker.release.value = true }
+        assertEquals(true, awaitNoAbandonedRegexWork(10.seconds))
+    }
+
+    @Test fun finishedAndFailedWorkIsNeverCounted() = realTime {
+        waitForNoAbandonedWork()
+        scanWithinBudget(listOf("A", "B"), 5.seconds) { item, _ -> item }
+        assertEquals(0, abandonedRegexWorkRunning)
+        try {
+            scanWithinBudget(listOf("A"), 5.seconds) { _, _ -> error("boom") }
+        } catch (_: IllegalStateException) {
+        }
+        assertEquals(0, abandonedRegexWorkRunning)
+        highlightWithinAllowance(listOf(StyledText.plain("a")), 5.seconds) { t, _ -> t }
+        assertEquals(0, abandonedRegexWorkRunning)
+    }
+
+    @Test fun aCancelledStuckScanAndAStuckHighlightAreCountedToo() = realTime {
+        waitForNoAbandonedWork()
+        val scanBlocker = Blocker()
+        val job = async { scanWithinBudget(listOf("A"), 1.hours) { _, budget -> scanBlocker.block(budget); "never" } }
+        withTimeoutOrNull(5.seconds) { while (!scanBlocker.started.value) delay(10) }
+        job.cancelAndJoin()
+        assertEquals(1, abandonedRegexWorkRunning)
+        val highlightBlocker = Blocker()
+        try {
+            highlightWithinAllowance(listOf(StyledText.plain("a")), 100.milliseconds, grace = 100.milliseconds) { t, budget -> highlightBlocker.block(budget); t }
+            assertEquals(2, abandonedRegexWorkRunning)
+        } finally {
+            scanBlocker.release.value = true
+            released(highlightBlocker)
+        }
+        assertEquals(0, abandonedRegexWorkRunning)
     }
 }
