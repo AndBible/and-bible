@@ -368,6 +368,19 @@ class CommonUtilsDialogsTest {
         }
     }
 
+    @Test fun openLinkQuestionEscapesTheUrlButOpensTheOriginal() {
+        val activity = activity()
+        val url = "https://example.org/<b>other.org</b>?x=&amp;"
+        CommonUtils.openLink(url, forceAsk = true)
+        testDispatcher.scheduler.advanceUntilIdle()
+        val request = dialogs.pending.value!!.request
+        val question = (request as AppDialogRequest.Localized).resolve() as AppDialogRequest.Options
+        assertEquals(application.getString(R.string.external_link_question, url),
+            net.bible.sharedcore.ui.dialog.parseHtmlRuns(question.message!!).joinToString("") { it.text })
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        assertEquals(url, shadowOf(activity).nextStartedActivityForResult.intent.data.toString())
+    }
+
     // -- checkPoorTranslations --
 
     @Test

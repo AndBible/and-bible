@@ -233,7 +233,7 @@ class AppSettingsServiceImpl(
             navigateToVerse = readBool("navigate_to_verse_pref", false),
             openLinksInSpecialWindow = readBool("open_links_in_special_window_pref", true),
             trustedLinkDomains = TrustedLinkDomains(settings).domains(),
-            trustedLinkDomainsVisible = !platform.isDiscreteBuild,
+            trustedLinkDomainsVisible = !platform.isDiscreteBuild && !readBool("discrete_mode", false),
             screenKeepOn = readBool("screen_keep_on_pref", false),
             doubleTapToFullscreen = settings.doubleTapToFullscreen(),
             doubleTapFullscreenAvailable = platform.doubleTapFullscreenAvailable,

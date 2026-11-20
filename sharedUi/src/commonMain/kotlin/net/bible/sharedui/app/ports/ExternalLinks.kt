@@ -8,6 +8,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.strings.Strings
 
 /** Opening web links; Compose link routing asks first in discrete builds. */
@@ -51,12 +52,12 @@ const val EXTERNAL_LINK_OPEN = "open"
 fun externalLinkQuestion(s: Strings, url: String, trustableHost: String?): AppDialogRequest =
     if (trustableHost == null) AppDialogRequest.Confirm(
         title = s.externalLink,
-        message = s.externalLinkQuestion(url),
+        message = s.externalLinkQuestion(plainTextToHtml(url)),
         confirmText = s.okay,
         dismissText = s.cancel,
     ) else AppDialogRequest.Options(
         title = s.externalLink,
-        message = s.externalLinkQuestion(url),
+        message = s.externalLinkQuestion(plainTextToHtml(url)),
         options = listOf(SettingsItem.Choice(EXTERNAL_LINK_OPEN, s.okay)),
         dismissText = s.cancel,
         asActionSheet = false,

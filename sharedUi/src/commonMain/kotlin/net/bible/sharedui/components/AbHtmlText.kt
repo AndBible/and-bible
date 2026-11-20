@@ -176,6 +176,7 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
         val strings = LocalStrings.current
         AbConfirmDialog(
             title = strings.externalLink,
+            // AbConfirmDialog renders plain Text, unlike the queued question's HTML body.
             message = strings.externalLinkQuestion(url),
             confirmText = strings.okay,
             dismissText = strings.cancel,

@@ -70,7 +70,8 @@ To see or remove trusted domains, open `Application preferences` > `Application 
 greyed out until you have trusted a domain.
 
 Discrete builds and discrete mode always ask before opening an external link and do
-not offer the checkbox.
+not offer the checkbox. The `Trusted link domains` row is hidden while discrete mode
+is on; your saved domains are kept and become available again when you turn it off.
 
 Other web links, including help and homepage links in the app's interface, keep
 their usual behavior; discrete mode still asks before opening external links.

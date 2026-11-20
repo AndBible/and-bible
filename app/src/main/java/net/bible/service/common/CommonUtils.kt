@@ -103,6 +103,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.sharedcore.docs.DocsLink
 import net.bible.sharedcore.docs.TutorialVideos
 import net.bible.sharedcore.docs.TutorialVideos.Episode
@@ -116,8 +117,6 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
-import org.koin.java.KoinJavaComponent
-import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.isAvailable
 import net.bible.android.view.activity.page.Selection
@@ -186,6 +185,7 @@ import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.java.KoinJavaComponent
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 @Suppress("DEPRECATION")

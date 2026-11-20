@@ -26,14 +26,16 @@ object ExternalLinkPolicy {
      * The lower-cased host of an `http`/`https` [url]; null for any other link. Matching is by exact host.
      *
      * Parsed so it never names a host a browser would not open: a URL with a backslash, whitespace or a control
-     * character answers null (browsers read a backslash as a slash), userinfo ends at the LAST `@` of the authority, and an
-     * IPv6 literal is the whole bracketed address. Null means "ask, without offering to trust".
+     * character answers null (browsers read a backslash as a slash). Multiple `@` separators in the authority also
+     * answer null because native URL parsers disagree with browsers. An IPv6 literal is the whole bracketed
+     * address. Null means "ask, without offering to trust".
      */
     fun hostOf(url: String): String? {
         if (url.any { it == '\\' || it.isWhitespace() || it.code < 0x20 || it.code == 0x7f }) return null
         val prefix = scheme.find(url) ?: return null
         val rest = url.substring(prefix.range.last + 1)
         val authority = rest.substring(0, rest.indexOfFirst { it == '/' || it == '?' || it == '#' }.takeIf { it >= 0 } ?: rest.length)
+        if (authority.count { it == '@' } > 1) return null
         val hostPort = authority.substringAfterLast('@').lowercase()
         val host = if (hostPort.startsWith("[")) {
             hostPort.substring(0, hostPort.indexOf(']').takeIf { it > 0 }?.plus(1) ?: return null)

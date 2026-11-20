@@ -85,6 +85,24 @@ class ExternalLinksTrustTest {
         assertTrue(links.opened.isEmpty())
     }
 
+    @Test fun questionShowsLiteralUrlAndOpensTheOriginalInBothModes() {
+        val url = "https://example.org/<b>other.org</b>?a=&amp;&b=\"quoted\""
+        for (discrete in listOf(false, true)) {
+            val links = Links(discrete, TrustedLinkDomains(MemoryAppSettings()))
+            val dialogs = AppDialogController()
+            links.confirmAndOpen(url, dialogs) { strings }
+            val message = when (val question = dialogs.shownRequest()) {
+                is AppDialogRequest.Confirm -> question.message
+                is AppDialogRequest.Options -> question.message
+                else -> error("unexpected question: $question")
+            }
+            assertEquals(strings.externalLinkQuestion(url),
+                net.bible.sharedcore.ui.dialog.parseHtmlRuns(message!!).joinToString("") { it.text })
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+            assertEquals(listOf(url), links.opened)
+        }
+    }
+
     @Test fun aPortWithoutTrustKeepsThePlainQuestion() {
         val links = Links(askBeforeOpening = false, trustedDomains = null)
         val dialogs = AppDialogController()

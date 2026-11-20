@@ -87,8 +87,8 @@ class ExternalLinkPolicyTest {
     @Test fun hostOfNeverReportsAHostTheBrowserWouldNotOpen() {
         // Browsers treat "\\" as "/": the real host is evil.com. Such links ask without the option.
         assertNull(ExternalLinkPolicy.hostOf("https://evil.com\\@trusted.com/"))
-        // Userinfo ends at the LAST "@" of the authority.
-        assertEquals("evil.com", ExternalLinkPolicy.hostOf("https://x@trusted.com:@evil.com/"))
+        // Multiple userinfo separators are ambiguous across native URL parsers and browsers.
+        assertNull(ExternalLinkPolicy.hostOf("https://x@trusted.com:@evil.com/"))
         assertEquals("trusted.com", ExternalLinkPolicy.hostOf("https://evil%2F@trusted.com/x"))
         // Whitespace or control characters inside the URL: ask without the option.
         assertNull(ExternalLinkPolicy.hostOf("https://trusted.com\tevil.com/"))
@@ -105,6 +105,14 @@ class ExternalLinkPolicyTest {
         val trust = TrustedLinkDomains(MapSettings())
         trust.trust("trusted.com")
         assertEquals(ExternalLinkDecision.Ask(null), trust.decide("https://evil.com\\@trusted.com/", true, false))
-        assertEquals(ExternalLinkDecision.Ask("evil.com"), trust.decide("https://x@trusted.com:@evil.com/", true, false))
+        assertEquals(ExternalLinkDecision.Ask(null), trust.decide("https://x@trusted.com:@evil.com/", true, false))
+    }
+
+    @Test fun multipleUserinfoSeparatorsNeverOfferOrUseTrust() {
+        val trust = TrustedLinkDomains(MapSettings()).apply { trust("c") }
+        val url = "https://a@b@c/path"
+        assertNull(ExternalLinkPolicy.hostOf(url))
+        assertEquals(ExternalLinkDecision.Ask(null), trust.decide(url, true, false))
+        assertEquals("c", ExternalLinkPolicy.hostOf("https://a@c/path@b?mail=a@b"))
     }
 }
