@@ -42,6 +42,12 @@ class VerseGlanceWidgetTest {
     )
     private val config = VerseWidgetConfig(source = VerseSource.Label(IdType()), seed = 1L)
 
+    /** Sends [intent] to [VerseWidgetReceiver] through the framework path, so goAsync() works. */
+    private fun deliver(intent: Intent) {
+        context.sendBroadcast(intent.setClass(context, VerseWidgetReceiver::class.java))
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+    }
+
     private fun body(content: VerseWidgetContent, cfg: VerseWidgetConfig = config, w: Int = 334, h: Int = 182) =
         renderWidget(context, w, h) { VerseWidgetBody(content, cfg, strings, 7, w.dp, h.dp) }
 
@@ -116,7 +122,10 @@ class VerseGlanceWidgetTest {
         VerseWidgetScheduler.schedule(context, 13, System.currentTimeMillis() + 3_600_000L)
         val alarms = shadowOf(context.getSystemService(android.content.Context.ALARM_SERVICE) as android.app.AlarmManager)
         assertEquals(1, alarms.scheduledAlarms.size)
-        VerseWidgetReceiver().onDeleted(context, intArrayOf(13))
+        // Delivered like a real broadcast, which gives goAsync() a PendingResult: a bare onDeleted() call leaves Glance's
+        // async finish() with a null one, an uncaught NPE that fails a later runTest in the same JVM.
+        deliver(Intent(android.appwidget.AppWidgetManager.ACTION_APPWIDGET_DELETED)
+            .putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID, 13))
         assertNull(VerseWidgetConfigStore.load(context, 13))
         assertEquals(0, alarms.scheduledAlarms.size)
     }
@@ -143,7 +152,9 @@ class VerseGlanceWidgetTest {
         VerseWidgetConfigStore.save(context, 21, config)
         VerseWidgetConfigStore.save(context, 22, other)
         // ids swap, and a widget without a config is skipped
-        VerseWidgetReceiver().onRestored(context, intArrayOf(21, 22, 23), intArrayOf(22, 24, 25))
+        // The receiver's onRestored() is this call plus Glance's own redraw, which needs WorkManager and leaks an
+        // uncaught exception into later tests of the JVM when run in a unit test.
+        VerseWidgetConfigStore.moveIds(context, intArrayOf(21, 22, 23), intArrayOf(22, 24, 25))
         assertEquals(config, VerseWidgetConfigStore.load(context, 22))
         assertEquals(other, VerseWidgetConfigStore.load(context, 24))
         assertNull(VerseWidgetConfigStore.load(context, 21))
