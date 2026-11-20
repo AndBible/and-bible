@@ -29,6 +29,17 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.getOrNull
+import net.bible.sharedui.components.dialog.DialogButtonRole
+import net.bible.sharedui.components.dialog.DialogButtonRoleKey
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
@@ -146,6 +157,33 @@ class AppDialogHostTest {
         compose.waitForIdle()
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
         compose.onNodeWithText("Something failed").assertExists()
+    }
+
+    @Test fun untitledHtmlConfirmRendersMarkupAsBody() {
+        show(ShownDialog(20, AppDialogRequest.Confirm(null, "Delete <b>3</b> bookmarks?", "Delete", "Cancel")))
+        compose.onNodeWithText("Delete 3 bookmarks?").assertExists()
+        compose.onNodeWithText("<b>", substring = true).assertDoesNotExist()
+        compose.onNodeWithTag("dialog-lead").assertDoesNotExist()
+    }
+
+    @Test fun nonCancellableIgnoresBackAndScrim() {
+        show(ShownDialog(21, message.copy(title = "Locked", dismissText = null, cancellable = false)))
+        compose.waitForIdle()
+        Espresso.pressBack()
+        compose.waitForIdle()
+        // A click outside the dialog surface (the dialog window's root corner).
+        compose.onAllNodes(isRoot()).onLast().performTouchInput { click(Offset(1f, 1f)) }
+        compose.waitForIdle()
+        assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
+        compose.onNodeWithText("Something failed").assertExists()
+    }
+
+    @Test fun destructiveConfirmRequestHasDestructiveButton() {
+        show(ShownDialog(22, AppDialogRequest.Confirm("Delete", null, "Delete", "Cancel", destructive = true, detail = "Cannot be undone")))
+        compose.onNodeWithTag("dialog-detail").assertTextEquals("Cannot be undone")
+        compose.onNodeWithTag("dialog-confirm").assert(
+            SemanticsMatcher("destructive") { it.config.getOrNull(DialogButtonRoleKey) == DialogButtonRole.Destructive },
+        )
     }
 
     /**

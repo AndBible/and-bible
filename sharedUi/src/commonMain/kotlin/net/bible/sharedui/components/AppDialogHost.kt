@@ -85,11 +85,13 @@ fun AppDialogHost(
                     onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                     dismissText = request.dismissText, neutralText = request.neutralText,
                     onNeutral = { onRespond(id, AppDialogResult.Neutral) }, cancellable = request.cancellable,
+                    detail = request.detail, destructive = request.destructive,
                 )
                 is AppDialogRequest.Confirm -> AbMessageDialog(
                     title = request.title, html = request.message, confirmText = request.confirmText,
                     onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                     dismissText = request.dismissText, cancellable = request.cancellable,
+                    detail = request.detail, destructive = request.destructive,
                 )
                 is AppDialogRequest.SingleChoice -> key(id) {
                     // key(id): two consecutive requests must not share remembered sheet/selection state.
